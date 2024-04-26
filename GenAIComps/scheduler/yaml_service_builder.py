@@ -1,28 +1,45 @@
-import yaml
-from dag import DAG
-from typing import Dict, List, Optional, Tuple
-from collections import OrderedDict, defaultdict
+# Copyright (c) 2024 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import json
+import os
 import re
-import requests
 import subprocess
 import time
-import os
-import json
+from collections import OrderedDict, defaultdict
+from typing import Dict, List, Optional, Tuple
+
+import requests
+import yaml
+from dag import DAG
+
 
 class YAMLServiceBuilder(DAG):
     """Manage 1 or N micro services in a DAG defined by YAML."""
+
     def __init__(self, yaml_file_path: str):
         self.yaml_file_path = yaml_file_path
-        self.result_dict = {} # {node: node's dict output}
+        self.result_dict = {}  # {node: node's dict output}
         super().__init__()
-        self.docs, is_valid  = self._load_from_yaml()
+        self.docs, is_valid = self._load_from_yaml()
         if not is_valid:
             raise Exception("Invalid mega graph!")
 
     def execute(self, cur_node: str, inputs: Dict):
         # send the cur_node request/reply
-        endpoint = self.docs['opea_micro_services'][cur_node]['endpoint']
-        response = requests.post(url=endpoint, data=json.dumps({"number": inputs["number"]}), proxies={"http":None})
+        endpoint = self.docs["opea_micro_services"][cur_node]["endpoint"]
+        response = requests.post(url=endpoint, data=json.dumps({"number": inputs["number"]}), proxies={"http": None})
         print(response)
         return response.json()
 
@@ -51,15 +68,15 @@ class YAMLServiceBuilder(DAG):
             self.dump_outputs(node, response)
 
     def _load_from_yaml(self):
-        """parse the yaml and output docs, whether the mega graph is valid, the mega graph."""
+        """Parse the yaml and output docs, whether the mega graph is valid, the mega graph."""
         with open(self.yaml_file_path) as file:
             docs = yaml.safe_load(file)
 
-        if 'mega_flow' in docs['opea_mega_service']:
-            mega_flow = docs['opea_mega_service']['mega_flow']
+        if "mega_flow" in docs["opea_mega_service"]:
+            mega_flow = docs["opea_mega_service"]["mega_flow"]
             return docs, self._construct_dag_from_rules(mega_flow)
         else:
-            node_ids = docs['opea_micro_services']
+            node_ids = docs["opea_micro_services"]
             return docs, self._construct_dag_from_nodes(node_ids)
 
     def _construct_dag_from_nodes(self, nodes: List[str]) -> Tuple[bool, OrderedDict]:
@@ -69,16 +86,16 @@ class YAMLServiceBuilder(DAG):
 
     def _construct_dag_from_rules(self, rules: List[str]) -> Tuple[bool, OrderedDict]:
         """rules: ['(s1, s2) >> s3', 's3 >> (s4, s5)']
-                        ['(s1, s2) >> s3 >> (s4, s5)']
+        ['(s1, s2) >> s3 >> (s4, s5)']
         """
         is_valid = True
         for rule in rules:
-            node_groups = [i.strip() for i in rule.split(">>")]    # ['(s1, s2)', 's3']
+            node_groups = [i.strip() for i in rule.split(">>")]  # ['(s1, s2)', 's3']
             prev_nodes = None
             for node_group_str in node_groups:
 
-                if node_group_str.startswith('(') and node_group_str.endswith(')'):
-                    cur_nodes = [i.strip() for i in re.findall(r'\((.*)\)', node_group_str)[0].split(',')]
+                if node_group_str.startswith("(") and node_group_str.endswith(")"):
+                    cur_nodes = [i.strip() for i in re.findall(r"\((.*)\)", node_group_str)[0].split(",")]
                     for cur_node in cur_nodes:
                         self.add_node_if_not_exists(cur_node)
                 else:
@@ -100,18 +117,23 @@ class YAMLServiceBuilder(DAG):
                 prev_nodes = cur_nodes
         return is_valid
 
-if __name__ == '__main__':
-    service_builder = YAMLServiceBuilder(yaml_file_path='mega_service.yaml')
+
+if __name__ == "__main__":
+    service_builder = YAMLServiceBuilder(yaml_file_path="mega_service.yaml")
 
     try:
+
         def init_all_services():
             """Just for testing."""
             for node in service_builder.topological_sort():
-                launcher, port = f"{node}.py", service_builder.docs['opea_micro_services'][node]['endpoint'].split(":")[-1].split("/")[0]
-                result = subprocess.Popen(
-                    f"python {launcher} --port {port}", shell=True)
+                launcher, port = (
+                    f"{node}.py",
+                    service_builder.docs["opea_micro_services"][node]["endpoint"].split(":")[-1].split("/")[0],
+                )
+                result = subprocess.Popen(f"python {launcher} --port {port}", shell=True)
                 # result.wait()
             time.sleep(5)
+
         init_all_services()
 
         service_builder.schedule(initial_inputs={"number": 0})
@@ -120,5 +142,5 @@ if __name__ == '__main__':
         print("all outputs: ===>")
         print(service_builder.result_dict)
     except Exception as e:
-        os.system('pkill -9 python')
-    os.system('pkill -9 python')
+        os.system("pkill -9 python")
+    os.system("pkill -9 python")

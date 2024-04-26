@@ -1,3 +1,17 @@
+# Copyright (c) 2024 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from collections import OrderedDict, defaultdict
 from copy import deepcopy
 
@@ -9,7 +23,7 @@ class DAG(object):
     def add_node(self, node_name: str):
         graph = self.graph
         if node_name in graph:
-            raise KeyError('node %s already exists' % node_name)
+            raise KeyError("node %s already exists" % node_name)
         graph[node_name] = set()
 
     def add_node_if_not_exists(self, node_name):
@@ -21,7 +35,7 @@ class DAG(object):
     def delete_node(self, node_name):
         graph = self.graph
         if node_name not in graph:
-            raise KeyError('node %s does not exist' % node_name)
+            raise KeyError("node %s does not exist" % node_name)
         graph.pop(node_name)
 
         for node, edges in graph.items():
@@ -37,19 +51,19 @@ class DAG(object):
     def add_edge(self, ind_node, dep_node):
         graph = self.graph
         if ind_node not in graph or dep_node not in graph:
-            raise KeyError('one or more nodes do not exist in graph')
+            raise KeyError("one or more nodes do not exist in graph")
         test_graph = deepcopy(graph)
         test_graph[ind_node].add(dep_node)
         is_valid = self.validate(test_graph)
         if is_valid:
             graph[ind_node].add(dep_node)
         else:
-            raise Exception('validation error!')
+            raise Exception("validation error!")
 
     def delete_edge(self, ind_node, dep_node):
         graph = self.graph
         if dep_node not in graph.get(ind_node, []):
-            raise KeyError('this edge does not exist in graph')
+            raise KeyError("this edge does not exist in graph")
         graph[ind_node].remove(dep_node)
 
     def predecessors(self, node):
@@ -59,7 +73,7 @@ class DAG(object):
     def downstream(self, node) -> list:
         graph = self.graph
         if node not in graph:
-            raise KeyError('node %s is not in graph' % node)
+            raise KeyError("node %s is not in graph" % node)
         return list(graph[node])
 
     def all_downstreams(self, node):
@@ -74,12 +88,7 @@ class DAG(object):
                     nodes_seen.add(downstream_node)
                     nodes.append(downstream_node)
             i += 1
-        return list(
-            filter(
-                lambda node: node in nodes_seen,
-                self.topological_sort(graph=graph)
-            )
-        )
+        return list(filter(lambda node: node in nodes_seen, self.topological_sort(graph=graph)))
 
     def all_leaves(self):
         graph = self.graph
@@ -91,7 +100,7 @@ class DAG(object):
             self.add_node(new_node)
         for ind_node, dep_nodes in graph_dict.items():
             if not isinstance(dep_nodes, list):
-                raise TypeError('dict values must be lists')
+                raise TypeError("dict values must be lists")
             for dep_node in dep_nodes:
                 self.add_edge(ind_node, dep_node)
 
@@ -101,9 +110,7 @@ class DAG(object):
     def ind_nodes(self, graph=None):
         graph = graph if graph is not None else self.graph
 
-        dependent_nodes = set(
-            node for dependents in graph.values() for node in dependents
-        )
+        dependent_nodes = set(node for dependents in graph.values() for node in dependents)
         return [node for node in graph.keys() if node not in dependent_nodes]
 
     def validate(self, graph=None):
@@ -140,13 +147,13 @@ class DAG(object):
         if len(result) == len(graph):
             return result
         else:
-            raise ValueError('graph is not acyclic')
+            raise ValueError("graph is not acyclic")
 
     def size(self):
         return len(self.graph)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     dag = DAG()
     # a->b->c->d
     # a->d
@@ -158,23 +165,23 @@ if __name__ == '__main__':
     dag.add_edge("a", "d")
     dag.add_edge("b", "c")
     dag.add_edge("c", "d")
-    assert(dag.topological_sort() == ['a', 'b', 'c', 'd'])
-    assert(dag.graph == OrderedDict([('a', {'d', 'b'}), ('b', {'c'}), ('c', {'d'}), ('d', set())]))
-    assert(sorted(dag.all_downstreams("a")) == ['b', 'c', 'd'])
-    assert(dag.size() == 4)
-    assert(sorted(dag.predecessors("d")) == ['a', 'c'])
-    assert(dag.ind_nodes() == ['a'])
-    assert(dag.all_leaves() == ['d'])
-    assert(sorted(dag.all_downstreams("a")) == ['b', 'c', 'd'])
-    assert(sorted(dag.downstream("a")) == ['b', 'd'])
-    assert(dag.predecessors("c") == ['b'])
+    assert dag.topological_sort() == ["a", "b", "c", "d"]
+    assert dag.graph == OrderedDict([("a", {"d", "b"}), ("b", {"c"}), ("c", {"d"}), ("d", set())])
+    assert sorted(dag.all_downstreams("a")) == ["b", "c", "d"]
+    assert dag.size() == 4
+    assert sorted(dag.predecessors("d")) == ["a", "c"]
+    assert dag.ind_nodes() == ["a"]
+    assert dag.all_leaves() == ["d"]
+    assert sorted(dag.all_downstreams("a")) == ["b", "c", "d"]
+    assert sorted(dag.downstream("a")) == ["b", "d"]
+    assert dag.predecessors("c") == ["b"]
 
     dag2 = DAG()
     graph_dict = {"a": ["b", "d"], "b": ["c"], "c": ["d"], "d": []}
     dag2.from_dict(graph_dict)
-    assert(dag.graph == dag2.graph)
+    assert dag.graph == dag2.graph
 
     dag2.delete_edge("a", "b")
-    assert(dag2.graph == OrderedDict([('a', {'d'}), ('b', {'c'}), ('c', {'d'}), ('d', set())]))
+    assert dag2.graph == OrderedDict([("a", {"d"}), ("b", {"c"}), ("c", {"d"}), ("d", set())])
     dag2.delete_node("c")
-    assert(dag2.graph == OrderedDict([('a', {'d'}), ('b', set()), ('d', set())]))
+    assert dag2.graph == OrderedDict([("a", {"d"}), ("b", set()), ("d", set())])

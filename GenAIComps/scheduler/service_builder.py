@@ -1,11 +1,29 @@
+# Copyright (c) 2024 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import json
+import os
+import re
+import subprocess
+import time
+from collections import OrderedDict, defaultdict
+from typing import Dict, List, Optional, Tuple
+
+import requests
 import yaml
 from dag import DAG
-from typing import Dict, List, Optional, Tuple
-from collections import OrderedDict, defaultdict
-import re
-import time, subprocess
-import requests, json
-import os
+
 
 class BaseService:
     def __init__(self, id, endpoint) -> None:
@@ -16,6 +34,7 @@ class BaseService:
 
 class ServiceBuilder(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
+
     def __init__(self, port=1234, hostfile=None) -> None:
         self.services = {}  # all services, id -> service
         self.result_dict = {}
@@ -46,7 +65,6 @@ class ServiceBuilder(DAG):
             response = self.execute(node, inputs)
             self.dump_outputs(node, response)
 
-
     def process_outputs(self, prev_nodes: List) -> Dict:
         all_outputs = {}
 
@@ -58,7 +76,7 @@ class ServiceBuilder(DAG):
     def execute(self, cur_node: str, inputs: Dict):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint
-        response = requests.post(url=endpoint, data=json.dumps({"number": inputs["number"]}), proxies={"http":None})
+        response = requests.post(url=endpoint, data=json.dumps({"number": inputs["number"]}), proxies={"http": None})
         print(response)
         return response.json()
 
@@ -70,13 +88,14 @@ class ServiceBuilder(DAG):
         for leaf in self.all_leaves():
             print(self.result_dict[leaf])
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     service_builder = ServiceBuilder(port=1234, hostfile=None)
-    s1 = BaseService(id='s1', endpoint="http://localhost:8081/v1/add")
-    s2 = BaseService(id='s2', endpoint="http://localhost:8082/v1/add")
-    s3 = BaseService(id='s3', endpoint="http://localhost:8083/v1/add")
-    s4 = BaseService(id='s4', endpoint="http://localhost:8084/v1/add")
-    s5 = BaseService(id='s5', endpoint="http://localhost:8085/v1/add")
+    s1 = BaseService(id="s1", endpoint="http://localhost:8081/v1/add")
+    s2 = BaseService(id="s2", endpoint="http://localhost:8082/v1/add")
+    s3 = BaseService(id="s3", endpoint="http://localhost:8083/v1/add")
+    s4 = BaseService(id="s4", endpoint="http://localhost:8084/v1/add")
+    s5 = BaseService(id="s5", endpoint="http://localhost:8085/v1/add")
     service_builder.add(s1).add(s2).add(s3).add(s4).add(s5)
     # corresponding yaml
     # - (s1, s5) >> s2
@@ -89,14 +108,15 @@ if __name__ == '__main__':
     service_builder.flow_to(s3, s4)
 
     try:
+
         def init_all_services():
             """Just for testing."""
             for node in service_builder.topological_sort():
                 launcher, port = f"{node}.py", service_builder.services[node].endpoint.split(":")[-1].split("/")[0]
                 print(f"python {launcher} --port {port}")
-                result = subprocess.Popen(
-                    f"python {launcher} --port {port}", shell=True)
+                result = subprocess.Popen(f"python {launcher} --port {port}", shell=True)
             time.sleep(5)
+
         init_all_services()
 
         service_builder.schedule(initial_inputs={"number": 0})
@@ -105,7 +125,5 @@ if __name__ == '__main__':
         print("all outputs: ===>")
         print(service_builder.result_dict)
     except Exception as e:
-        os.system('pkill -9 python')
-    os.system('pkill -9 python')
-
-
+        os.system("pkill -9 python")
+    os.system("pkill -9 python")
