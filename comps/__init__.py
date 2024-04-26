@@ -13,8 +13,12 @@
 # limitations under the License.
 
 # Document
+<<<<<<< HEAD
 from comps.proto.docarray import TextDoc, EmbedDoc768, EmbedDoc1024, GenerateDoc
 
 # Microservice
 from comps.mega.service_builder import BaseService, ServiceBuilder
 from comps.mega.micro_service import MicroService
+=======
+from GenAIComps.proto.docarray import TextDoc, EmbedDoc768, EmbedDoc1024, GenerateDoc
+>>>>>>> de2ff23ee987717209f37973bd018a9e3be0014b
