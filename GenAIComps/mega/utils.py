@@ -1,8 +1,21 @@
+# Copyright (c) 2024 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import ipaddress
 import multiprocessing
 import os
 import random
-
 from socket import AF_INET, SOCK_STREAM, socket
 from typing import List, Optional, Union
 
@@ -30,6 +43,7 @@ def check_ports_availability(host: Union[str, List[str]], port: Union[int, List[
 
     return all(is_port_free(h, p) for h in hosts for p in ports)
 
+
 def get_internal_ip():
     """Return the private IP address of the gateway in the same network.
 
@@ -37,14 +51,15 @@ def get_internal_ip():
     """
     import socket
 
-    ip = '127.0.0.1'
+    ip = "127.0.0.1"
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.connect(('10.255.255.255', 1))
+            s.connect(("10.255.255.255", 1))
             ip = s.getsockname()[0]
     except Exception:
         pass
     return ip
+
 
 def get_public_ip(timeout: float = 0.3):
     """Return the public IP address of the gateway in the public network."""
@@ -52,7 +67,7 @@ def get_public_ip(timeout: float = 0.3):
 
     def _get_public_ip(url):
         try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=timeout) as fp:
                 _ip = fp.read().decode().strip()
                 return _ip
@@ -61,9 +76,9 @@ def get_public_ip(timeout: float = 0.3):
             pass
 
     ip_lookup_services = [
-        'https://api.ipify.org',
-        'https://ident.me',
-        'https://checkip.amazonaws.com/',
+        "https://api.ipify.org",
+        "https://ident.me",
+        "https://checkip.amazonaws.com/",
     ]
 
     for _, url in enumerate(ip_lookup_services):
@@ -71,33 +86,34 @@ def get_public_ip(timeout: float = 0.3):
         if ip:
             return ip
 
+
 def typename(obj):
     """Get the typename of object."""
     if not isinstance(obj, type):
         obj = obj.__class__
     try:
-        return f'{obj.__module__}.{obj.__name__}'
+        return f"{obj.__module__}.{obj.__name__}"
     except AttributeError:
         return str(obj)
 
+
 def get_event(obj) -> multiprocessing.Event:
-    if isinstance(obj, multiprocessing.Process) or isinstance(
-        obj, multiprocessing.context.ForkProcess
-    ):
+    if isinstance(obj, multiprocessing.Process) or isinstance(obj, multiprocessing.context.ForkProcess):
         return multiprocessing.Event()
     elif isinstance(obj, multiprocessing.context.SpawnProcess):
-        return multiprocessing.get_context('spawn').Event()
+        return multiprocessing.get_context("spawn").Event()
     else:
         raise TypeError(f'{obj} is not an instance of "multiprocessing.Process"')
 
+
 def in_docker():
     """Checks if the current process is running inside Docker."""
-    path = '/proc/self/cgroup'
-    if os.path.exists('/.dockerenv'):
+    path = "/proc/self/cgroup"
+    if os.path.exists("/.dockerenv"):
         return True
     if os.path.isfile(path):
-        with open(path, encoding='utf-8') as file:
-            return any('docker' in line for line in file)
+        with open(path, encoding="utf-8") as file:
+            return any("docker" in line for line in file)
     return False
 
 
@@ -106,7 +122,7 @@ def host_is_local(hostname):
     import socket
 
     fqn = socket.getfqdn(hostname)
-    if fqn in ('localhost', '0.0.0.0') or hostname == '0.0.0.0':
+    if fqn in ("localhost", "0.0.0.0") or hostname == "0.0.0.0":
         return True
 
     try:
@@ -125,18 +141,17 @@ def reset_ports():
     def _get_unassigned_ports():
         # if we are running out of ports, lower default minimum port
         if MAX_PORT - DEFAULT_MIN_PORT - len(assigned_ports) < 100:
-            min_port = int(os.environ.get('JINA_RANDOM_PORT_MIN', '16384'))
+            min_port = int(os.environ.get("JINA_RANDOM_PORT_MIN", "16384"))
         else:
-            min_port = int(
-                os.environ.get('JINA_RANDOM_PORT_MIN', str(DEFAULT_MIN_PORT))
-            )
-        max_port = int(os.environ.get('JINA_RANDOM_PORT_MAX', str(MAX_PORT)))
+            min_port = int(os.environ.get("JINA_RANDOM_PORT_MIN", str(DEFAULT_MIN_PORT)))
+        max_port = int(os.environ.get("JINA_RANDOM_PORT_MAX", str(MAX_PORT)))
         return set(range(min_port, max_port + 1)) - set(assigned_ports)
 
     unassigned_ports.clear()
     assigned_ports.clear()
     unassigned_ports.extend(_get_unassigned_ports())
     random.shuffle(unassigned_ports)
+
 
 def random_port() -> Optional[int]:
     """Get a random available port number.
@@ -150,7 +165,7 @@ def random_port() -> Optional[int]:
         def _check_bind(port):
             with socket.socket() as s:
                 try:
-                    s.bind(('', port))
+                    s.bind(("", port))
                     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     return port
                 except OSError:
@@ -164,7 +179,7 @@ def random_port() -> Optional[int]:
                 break
         else:
             raise OSError(
-                f'can not find an available port in {len(unassigned_ports)} unassigned ports, assigned already {len(assigned_ports)} ports'
+                f"can not find an available port in {len(unassigned_ports)} unassigned ports, assigned already {len(assigned_ports)} ports"
             )
         int_port = int(_port)
         unassigned_ports.pop(idx)
@@ -177,6 +192,7 @@ def random_port() -> Optional[int]:
         assigned_ports.clear()
         unassigned_ports.clear()
         return _random_port()
+
 
 class SafeContextManager:
     """This context manager ensures that the `__exit__` method of the
