@@ -2,10 +2,28 @@ import ipaddress
 import multiprocessing
 import os
 import random
+<<<<<<< HEAD
+=======
+
+=======
+# Copyright (c) 2024 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+>>>>>>> 710a5fadfe1a9948cf0e7cc014d047c1f2ba5221
+>>>>>>> c8b66677dae1c64f31fdb7afb7f1532823a94cb9
 
 from socket import AF_INET, SOCK_STREAM, socket
-from typing import List, Union, Optional
-
+from typing import List, Optional, Union
 
 def is_port_free(host: str, port: int) -> bool:
     """
