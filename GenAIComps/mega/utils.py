@@ -3,6 +3,7 @@ import ipaddress
 import multiprocessing
 import os
 import random
+
 =======
 # Copyright (c) 2024 Intel Corporation
 #
@@ -20,8 +21,7 @@ import random
 >>>>>>> 710a5fadfe1a9948cf0e7cc014d047c1f2ba5221
 
 from socket import AF_INET, SOCK_STREAM, socket
-from typing import List, Union, Optional
-
+from typing import List, Optional, Union
 
 <<<<<<< HEAD
 def is_port_free(host: str, port: int) -> bool:
