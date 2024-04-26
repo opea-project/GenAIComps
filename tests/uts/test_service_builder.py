@@ -14,7 +14,8 @@
 
 import unittest
 
-from comps import ServiceBuilder, BaseService
+from comps import BaseService, ServiceBuilder
+
 
 class TestServiceBuilder(unittest.TestCase):
     def setUp(self):
@@ -37,5 +38,6 @@ class TestServiceBuilder(unittest.TestCase):
         result_dict = self.service_builder.result_dict
         self.assertEqual(result_dict, "")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

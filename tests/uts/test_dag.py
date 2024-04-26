@@ -14,7 +14,9 @@
 
 import unittest
 from collections import OrderedDict
+
 from comps.mega.dag import DAG
+
 
 class TestDAG(unittest.TestCase):
     def test_dag(self):
@@ -48,5 +50,6 @@ class TestDAG(unittest.TestCase):
         dag2.delete_node("c")
         self.assertEqual(dag2.graph, OrderedDict([("a", {"d"}), ("b", set()), ("d", set())]))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

@@ -14,7 +14,9 @@
 
 import unittest
 from unittest.mock import patch
+
 from comps.mega.yaml_service_builder import YAMLServiceBuilder
+
 
 class TestYAMLServiceBuilder(unittest.TestCase):
     def test_schedule(self):
@@ -24,5 +26,6 @@ class TestYAMLServiceBuilder(unittest.TestCase):
         result_dict = service_builder.result_dict
         self.assertEqual(result_dict, "")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

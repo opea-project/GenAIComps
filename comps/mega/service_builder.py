@@ -31,6 +31,7 @@ class BaseService:
         self.id = id
         self.endpoint = endpoint
 
+
 class ServiceBuilder(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
 
@@ -86,4 +87,3 @@ class ServiceBuilder(DAG):
 
         for leaf in self.all_leaves():
             print(self.result_dict[leaf])
-
