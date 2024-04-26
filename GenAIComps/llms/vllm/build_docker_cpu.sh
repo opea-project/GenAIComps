@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-text:
-  - name: content
-  - name: source
-numeric:
-  - name: start_index
-vector:
-  - name: content_vector
-    algorithm: HNSW
-    datatype: FLOAT32
-    dims: 768
-    distance_metric: COSINE
+git clone https://github.com/vllm-project/vllm.git
+cd ./vllm/
+docker build -f Dockerfile.cpu -t vllm-cpu-env --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy

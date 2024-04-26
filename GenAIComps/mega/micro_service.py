@@ -5,7 +5,7 @@ from constants import ServiceRoleType
 from utils import check_ports_availability
 
 
-class MicroService():
+class MicroService:
     """
     MicroService class to create a microservice.
     """

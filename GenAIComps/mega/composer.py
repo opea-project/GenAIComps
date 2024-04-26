@@ -12,14 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-text:
-  - name: content
-  - name: source
-numeric:
-  - name: start_index
-vector:
-  - name: content_vector
-    algorithm: HNSW
-    datatype: FLOAT32
-    dims: 768
-    distance_metric: COSINE
+# compose microservices to build metaservice
