@@ -18,11 +18,11 @@ from typing import TYPE_CHECKING, Dict, Optional
 
 from logger import CustomLogger
 
-__all__ = ["BaseServer"]
+__all__ = ["BaseService"]
 
 
 class BaseService:
-    """BaseService creates a HTTP/gRPC server as a microservice."""
+    """BaseService creates an HTTP/gRPC server as a microservice."""
 
     def __init__(
         self,
