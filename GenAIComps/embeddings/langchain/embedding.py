@@ -14,7 +14,7 @@
 
 import asyncio
 
-from _docarray import EmbedDoc1024, TextDoc
+from comps import EmbedDoc1024, TextDoc
 from docarray.base_doc import DocArrayResponse
 from http_service import HTTPService
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
