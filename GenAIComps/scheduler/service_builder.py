@@ -109,15 +109,15 @@ if __name__ == "__main__":
 
     try:
 
-        def init_all_services():
-            """Just for testing."""
-            for node in service_builder.topological_sort():
-                launcher, port = f"{node}.py", service_builder.services[node].endpoint.split(":")[-1].split("/")[0]
-                print(f"python {launcher} --port {port}")
-                result = subprocess.Popen(f"python {launcher} --port {port}", shell=True)
-            time.sleep(5)
+        # def init_all_services():
+        #     """Just for testing."""
+        #     for node in service_builder.topological_sort():
+        #         launcher, port = f"{node}.py", service_builder.services[node].endpoint.split(":")[-1].split("/")[0]
+        #         print(f"python {launcher} --port {port}")
+        #         result = subprocess.Popen(f"python {launcher} --port {port}", shell=True)
+        #     time.sleep(5)
 
-        init_all_services()
+        # init_all_services()
 
         service_builder.schedule(initial_inputs={"number": 0})
         print("get final outputs: ===>")
