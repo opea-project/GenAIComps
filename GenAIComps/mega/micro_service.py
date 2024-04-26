@@ -30,8 +30,6 @@ class MicroService:
         else:
             self.name = self.__class__.__name__
         self.service_role = args.get("service_role", ServiceRoleType.MICROSERVICE)
-        self.title = self.name
-        self.description = args.get("description", "OPEA Microservice Infrastructure")
         self.protocol = args.get("protocol", "http")
 
         self.host = args.get("host", "localhost")
@@ -58,8 +56,8 @@ class MicroService:
             "protocol": self.protocol,
             "host": self.host,
             "port": self.port,
-            "title": self.title,
-            "description": self.description,
+            "title": self.name,
+            "description": "OPEA Microservice Infrastructure",
         }
 
         return HTTPService(
