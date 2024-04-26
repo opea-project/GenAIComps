@@ -14,10 +14,11 @@
 
 import asyncio
 
-from comps import EmbedDoc1024, TextDoc
 from docarray.base_doc import DocArrayResponse
 from http_service import HTTPService
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+
+from comps import EmbedDoc1024, TextDoc
 
 
 async def setup():
