@@ -1,0 +1,22 @@
+opea_micro_services:
+  s1:
+    endpoint: http://localhost:8081/v1/add
+
+  s2:
+    endpoint: http://localhost:8082/v1/add
+
+  s3:
+    endpoint: http://localhost:8083/v1/add
+
+  s4:
+    endpoint: http://localhost:8084/v1/add
+
+  s5:
+    endpoint: http://localhost:8085/v1/add
+
+opea_mega_service:
+  port: 8000
+  mega_flow:
+    - (s1, s5) >> s2
+    - s2 >> (s3, s4)
+    - s3 >> s4
