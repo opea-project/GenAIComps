@@ -2,6 +2,7 @@ import ipaddress
 import multiprocessing
 import os
 import random
+
 <<<<<<< HEAD
 =======
 
@@ -25,9 +26,9 @@ import random
 from socket import AF_INET, SOCK_STREAM, socket
 from typing import List, Optional, Union
 
+
 def is_port_free(host: str, port: int) -> bool:
-    """
-    Check if a given port on a host is free.
+    """Check if a given port on a host is free.
 
     :param host: The host to check.
     :param port: The port to check.
@@ -50,8 +51,7 @@ def check_ports_availability(host: Union[str, List[str]], port: Union[int, List[
     return all(is_port_free(h, p) for h in hosts for p in ports)
 
 def get_internal_ip():
-    """
-    Return the private IP address of the gateway in the same network.
+    """Return the private IP address of the gateway in the same network.
 
     :return: Private IP address.
     """
@@ -67,9 +67,7 @@ def get_internal_ip():
     return ip
 
 def get_public_ip(timeout: float = 0.3):
-    """
-    Return the public IP address of the gateway in the public network.
-    """
+    """Return the public IP address of the gateway in the public network."""
     import urllib.request
 
     def _get_public_ip(url):
@@ -94,9 +92,7 @@ def get_public_ip(timeout: float = 0.3):
             return ip
 
 def typename(obj):
-    """
-    Get the typename of object.
-    """
+    """Get the typename of object."""
     if not isinstance(obj, type):
         obj = obj.__class__
     try:
@@ -115,9 +111,7 @@ def get_event(obj) -> multiprocessing.Event:
         raise TypeError(f'{obj} is not an instance of "multiprocessing.Process"')
 
 def in_docker():
-    """
-    Checks if the current process is running inside Docker
-    """
+    """Checks if the current process is running inside Docker."""
     path = '/proc/self/cgroup'
     if os.path.exists('/.dockerenv'):
         return True
@@ -128,9 +122,7 @@ def in_docker():
 
 
 def host_is_local(hostname):
-    """
-    Check if hostname is point to localhost.
-    """
+    """Check if hostname is point to localhost."""
     import socket
 
     fqn = socket.getfqdn(hostname)
@@ -167,8 +159,7 @@ def reset_ports():
     random.shuffle(unassigned_ports)
 
 def random_port() -> Optional[int]:
-    """
-    Get a random available port number.
+    """Get a random available port number.
 
     :return: A random port.
     """
@@ -208,11 +199,9 @@ def random_port() -> Optional[int]:
         return _random_port()
 
 class SafeContextManager:
-    """
-    This context manager ensures that the `__exit__` method of the
+    """This context manager ensures that the `__exit__` method of the
     sub context is called, even when there is an Exception in the
-    `__init__` method.
-    """
+    `__init__` method."""
 
     def __init__(self, context_to_manage):
         self.context_to_manage = context_to_manage
@@ -223,4 +212,3 @@ class SafeContextManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type:
             self.context_to_manage.__exit__(exc_type, exc_val, exc_tb)
-
