@@ -9,14 +9,13 @@ from pathlib import Path
 from typing import Union
 
 import numpy as np
-
 from lm_eval import utils
-from .lm_eval import evaluator
-from .lm_eval.evaluator import request_caching_arg_to_dict
 from lm_eval.logging_utils import WandbLogger
 from lm_eval.tasks import TaskManager
 from lm_eval.utils import make_table, simple_parse_args_string
 
+from .lm_eval import evaluator
+from .lm_eval.evaluator import request_caching_arg_to_dict
 
 DEFAULT_RESULTS_FILE = "results.json"
 
@@ -91,8 +90,8 @@ def cli_evaluate(args) -> None:
                     f"{utils.SPACING}Try `lm-eval --tasks list` for list of available tasks",
                 )
                 raise ValueError(
-                    f"Tasks not found: {missing}. Try `lm-eval --tasks list` for list of available tasks," + \
-                    " or '--verbosity DEBUG' to troubleshoot task registration issues."
+                    f"Tasks not found: {missing}. Try `lm-eval --tasks list` for list of available tasks,"
+                    + " or '--verbosity DEBUG' to troubleshoot task registration issues."
                 )
 
     if args.output_path:
@@ -148,8 +147,12 @@ def cli_evaluate(args) -> None:
         random_seed=args.seed[0],
         numpy_random_seed=args.seed[1],
         torch_random_seed=args.seed[2],
-        user_model=args.user_model if hasattr(args, "user_model") else None, # to validate the model in memory,
-        tokenizer=args.tokenizer if hasattr(args, "tokenizer") else None, # to use tokenizer in mem,
+        user_model=(
+            args.user_model if hasattr(args, "user_model") else None
+        ),  # to validate the model in memory,
+        tokenizer=(
+            args.tokenizer if hasattr(args, "tokenizer") else None
+        ),  # to use tokenizer in mem,
         **request_caching_args,
     )
 
@@ -205,4 +208,3 @@ def cli_evaluate(args) -> None:
             wandb_logger.run.finish()
 
     return results
-
