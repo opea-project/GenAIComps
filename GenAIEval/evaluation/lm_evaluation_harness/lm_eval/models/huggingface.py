@@ -7,21 +7,31 @@ from typing import List, Literal, Optional, Tuple, Union
 import torch
 import torch.nn.functional as F
 import transformers
-from accelerate import (Accelerator, DistributedType, InitProcessGroupKwargs,
-                        find_executable_batch_size)
+from accelerate import (
+    Accelerator,
+    DistributedType,
+    InitProcessGroupKwargs,
+    find_executable_batch_size,
+)
 from lm_eval import utils
 from lm_eval.api.instance import Instance
 from lm_eval.api.model import TemplateLM
 from lm_eval.api.registry import register_model
-from lm_eval.models.utils import (Collator, clear_torch_cache, get_dtype,
-                                  pad_and_concat, stop_sequences_criteria)
+from lm_eval.models.utils import (
+    Collator,
+    clear_torch_cache,
+    get_dtype,
+    pad_and_concat,
+    stop_sequences_criteria,
+)
 from packaging import version
 from peft import PeftModel
 from peft import __version__ as PEFT_VERSION
 from tqdm import tqdm
 from transformers.models.auto.modeling_auto import (
     MODEL_FOR_CAUSAL_LM_MAPPING_NAMES,
-    MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING_NAMES)
+    MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING_NAMES,
+)
 
 eval_logger = utils.eval_logger
 

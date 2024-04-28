@@ -7,11 +7,16 @@ import datasets
 import torch
 import transformers
 from accelerate import Accelerator
+
 # from bigcode_eval.arguments import EvalArguments
 from bigcode_eval.evaluator import Evaluator
 from bigcode_eval.tasks import ALL_TASKS
-from transformers import (AutoModelForCausalLM, AutoModelForSeq2SeqLM,
-                          AutoTokenizer, HfArgumentParser)
+from transformers import (
+    AutoModelForCausalLM,
+    AutoModelForSeq2SeqLM,
+    AutoTokenizer,
+    HfArgumentParser,
+)
 
 
 def pattern_match(patterns, source_list):
@@ -77,7 +82,7 @@ def evaluate(args):
             "use_auth_token": args.use_auth_token,
         }
 
-        if not hasattr(args, "user_model") or args.user_model[0] is None:
+        if not hasattr(args, "user_model") or args.user_model is None:
             if args.load_in_8bit:
                 print("Loading model in 8bit")
                 model_kwargs["load_in_8bit"] = args.load_in_8bit
@@ -119,17 +124,16 @@ def evaluate(args):
                 )
 
             if args.peft_model:
-                from peft import \
-                    PeftModel  # dynamic import to avoid dependency on peft
+                from peft import PeftModel  # dynamic import to avoid dependency on peft
 
                 model = PeftModel.from_pretrained(model, args.peft_model)
                 print("Loaded PEFT model. Merging...")
                 model.merge_and_unload()
                 print("Merge complete.")
         else:
-            model = args.user_model[0]
+            model = args.user_model
 
-        if not hasattr(args, "tokenizer") or args.tokenizer[0] is None:
+        if not hasattr(args, "tokenizer") or args.tokenizer is None:
             if args.left_padding:
                 # left padding is required for some models like chatglm3-6b
                 tokenizer = AutoTokenizer.from_pretrained(
@@ -150,7 +154,7 @@ def evaluate(args):
                     padding_side="right",
                 )
         else:
-            tokenizer = args.tokenizer[0]
+            tokenizer = args.tokenizer
         if not tokenizer.eos_token:
             if tokenizer.bos_token:
                 tokenizer.eos_token = tokenizer.bos_token

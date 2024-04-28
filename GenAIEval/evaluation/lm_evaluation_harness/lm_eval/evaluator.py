@@ -13,13 +13,17 @@ import numpy as np
 import torch
 from lm_eval import utils
 from lm_eval.caching.cache import delete_cache
-from lm_eval.evaluator_utils import (consolidate_results, get_sample_size,
-                                     get_task_list, prepare_print_tasks,
-                                     print_writeout, run_task_tests)
+from lm_eval.evaluator_utils import (
+    consolidate_results,
+    get_sample_size,
+    get_task_list,
+    prepare_print_tasks,
+    print_writeout,
+    run_task_tests,
+)
 from lm_eval.logging_utils import add_env_info, get_git_commit_hash
 from lm_eval.tasks import TaskManager, get_task_dict
-from lm_eval.utils import (eval_logger, positional_deprecated,
-                           simple_parse_args_string)
+from lm_eval.utils import eval_logger, positional_deprecated, simple_parse_args_string
 
 if TYPE_CHECKING:
     from lm_eval.api.model import LM
