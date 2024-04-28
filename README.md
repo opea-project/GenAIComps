@@ -6,7 +6,8 @@ Evaluation, benchmark, and scorecard, targeting for performance on throughput an
 For evaluating the models on text-generation tasks, we follow the [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness/) and provide the command line usage and function call usage. Over 60 standard academic benchmarks for LLMs, with hundreds of [subtasks and variants](https://github.com/EleutherAI/lm-evaluation-harness/tree/v0.4.2/lm_eval/tasks) implemented, such as `ARC`, `HellaSwag`, `MMLU`, `TruthfulQA`, `Winogrande`, `GSM8K` and so on.
 #### command line usage
 ```shell
-python main.py --model hf \
+python main.py \
+    --model hf \
     --model_args pretrained=EleutherAI/gpt-j-6B \
     --tasks hellaswag \
     --device cpu \
