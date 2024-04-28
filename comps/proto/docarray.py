@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from docarray import BaseDoc, DocList
+from docarray import BaseDoc
 from docarray.typing import NdArray
 
 
@@ -21,15 +21,23 @@ class TextDoc(BaseDoc):
 
 
 class EmbedDoc768(BaseDoc):
-    text: str
     embedding: NdArray[768]
 
 
 class EmbedDoc1024(BaseDoc):
-    text: str
     embedding: NdArray[1024]
 
 
-class GenerateDoc(BaseDoc):
+class GeneratedDoc(BaseDoc):
     text: str
     prompt: str
+
+class LLMParamsDoc(BaseDoc):
+    max_new_tokens: int = 1024
+    top_k: int = 10
+    top_p: float = 0.95
+    typical_p: float = 0.95
+    temperature: float = 0.01
+    repetition_penalty: float = 1.03
+    streaming: bool = True
+
