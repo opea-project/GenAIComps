@@ -32,6 +32,7 @@ class GeneratedDoc(BaseDoc):
     text: str
     prompt: str
 
+
 class LLMParamsDoc(BaseDoc):
     max_new_tokens: int = 1024
     top_k: int = 10
@@ -40,4 +41,3 @@ class LLMParamsDoc(BaseDoc):
     temperature: float = 0.01
     repetition_penalty: float = 1.03
     streaming: bool = True
-

@@ -1,4 +1,3 @@
-
 # Copyright (c) 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +17,8 @@ import asyncio
 from docarray.base_doc import DocArrayResponse
 from http_service import HTTPService
 from langchain_community.llms import HuggingFaceEndpoint
-from comps import TextDoc, GeneratedDoc, LLMParamsDoc
+
+from comps import GeneratedDoc, LLMParamsDoc, TextDoc
 
 
 async def setup():
@@ -39,7 +39,7 @@ async def setup():
         summary="Get the generated text of LLM inference.",
         tags=["Debug"],
     )
-    def llm_generate(input: TextDoc, entrypoint: TextDoc=None, params: LLMParamsDoc=None) -> GeneratedDoc:
+    def llm_generate(input: TextDoc, entrypoint: TextDoc = None, params: LLMParamsDoc = None) -> GeneratedDoc:
         entrypoint = entrypoint.text if entrypoint else "http://localhost:8080"
         params = params if params else LLMParamsDoc()
         llm = HuggingFaceEndpoint(
