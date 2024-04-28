@@ -7,33 +7,21 @@ from typing import List, Literal, Optional, Tuple, Union
 import torch
 import torch.nn.functional as F
 import transformers
-from accelerate import (
-    Accelerator,
-    DistributedType,
-    InitProcessGroupKwargs,
-    find_executable_batch_size,
-)
+from accelerate import (Accelerator, DistributedType, InitProcessGroupKwargs,
+                        find_executable_batch_size)
+from lm_eval import utils
+from lm_eval.api.instance import Instance
+from lm_eval.api.model import TemplateLM
+from lm_eval.api.registry import register_model
+from lm_eval.models.utils import (Collator, clear_torch_cache, get_dtype,
+                                  pad_and_concat, stop_sequences_criteria)
 from packaging import version
 from peft import PeftModel
 from peft import __version__ as PEFT_VERSION
 from tqdm import tqdm
 from transformers.models.auto.modeling_auto import (
     MODEL_FOR_CAUSAL_LM_MAPPING_NAMES,
-    MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING_NAMES,
-)
-
-from lm_eval import utils
-from lm_eval.api.instance import Instance
-from lm_eval.api.model import TemplateLM
-from lm_eval.api.registry import register_model
-from lm_eval.models.utils import (
-    Collator,
-    clear_torch_cache,
-    get_dtype,
-    pad_and_concat,
-    stop_sequences_criteria,
-)
-
+    MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING_NAMES)
 
 eval_logger = utils.eval_logger
 
@@ -119,7 +107,9 @@ class HFLM(TemplateLM):
             eval_logger.warning(
                 "`pretrained` model kwarg is not of type `str`. Many other model arguments may be ignored. Please do not launch via accelerate or use `parallelize=True` if passing an existing model this way."
             )
-            assert not parallelize, "`parallelize=True` is not compatible with passing pre-initialized model to `pretrained`"
+            assert (
+                not parallelize
+            ), "`parallelize=True` is not compatible with passing pre-initialized model to `pretrained`"
             self._model = pretrained
             self._device = self._model.device
             self._config = self._model.config
@@ -311,13 +301,10 @@ class HFLM(TemplateLM):
                             "with 'accelerate launch *script*'. "
                             f"Current run will proceed with {accelerator.num_processes} devices."
                         )
-                    assert (
-                        accelerator.distributed_type
-                        in [
-                            DistributedType.FSDP,
-                            DistributedType.MULTI_GPU,
-                        ]
-                    ), "Unsupported distributed type provided. Only DDP and FSDP are supported."
+                    assert accelerator.distributed_type in [
+                        DistributedType.FSDP,
+                        DistributedType.MULTI_GPU,
+                    ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
                     if accelerator.distributed_type == DistributedType.FSDP:
                         self._model = accelerator.prepare(self.model)
                     else:
@@ -559,9 +546,9 @@ class HFLM(TemplateLM):
                 pretrained,
                 trust_remote_code=trust_remote_code,
                 model_basename=None if autogptq is True else Path(autogptq).stem,
-                use_safetensors=True
-                if autogptq is True
-                else autogptq.endswith(".safetensors"),
+                use_safetensors=(
+                    True if autogptq is True else autogptq.endswith(".safetensors")
+                ),
                 **model_kwargs,
             )
 
@@ -682,7 +669,9 @@ class HFLM(TemplateLM):
                     (batch_size, max_length), device=self.device
                 ).long()
             for _ in range(5):
-                out = F.log_softmax(self._model_call(test_batch, **call_kwargs), dim=-1)  # noqa: F841
+                out = F.log_softmax(
+                    self._model_call(test_batch, **call_kwargs), dim=-1
+                )  # noqa: F841
 
             return batch_size
 
@@ -949,10 +938,12 @@ class HFLM(TemplateLM):
         re_ord = Collator(
             requests,
             sort_fn=_collate,
-            group_by="contexts"
-            if self.AUTO_MODEL_CLASS == transformers.AutoModelForCausalLM
-            and self.logits_cache
-            else None,
+            group_by=(
+                "contexts"
+                if self.AUTO_MODEL_CLASS == transformers.AutoModelForCausalLM
+                and self.logits_cache
+                else None
+            ),
             group_fn=_lookup_one_token_cont,
         )
 
@@ -962,9 +953,7 @@ class HFLM(TemplateLM):
         batch_size = (
             self.batch_size
             if self.batch_size != "auto"
-            else override_bs
-            if override_bs is not None
-            else 0
+            else override_bs if override_bs is not None else 0
         )
         batch_fn = (
             self._batch_scheduler
@@ -1112,7 +1101,9 @@ class HFLM(TemplateLM):
                 ):
                     cont_toks = torch.tensor(
                         cont_toks, dtype=torch.long, device=self.device
-                    ).unsqueeze(0)  # [1, seq]
+                    ).unsqueeze(
+                        0
+                    )  # [1, seq]
                     max_equal = (greedy_tokens == cont_toks).all()
 
                     # Obtain log-probs at the corresponding continuation token indices
@@ -1165,9 +1156,7 @@ class HFLM(TemplateLM):
         batch_size = (
             self.batch_size
             if self.batch_size != "auto"
-            else adaptive_batch_size
-            if adaptive_batch_size is not None
-            else 0
+            else adaptive_batch_size if adaptive_batch_size is not None else 0
         )
         batch_fn = (
             self._batch_scheduler

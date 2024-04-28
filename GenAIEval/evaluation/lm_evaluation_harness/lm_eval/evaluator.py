@@ -1,31 +1,25 @@
 import itertools
 import logging
+import os
 import random
 import time
-import os
 from collections import defaultdict
 from typing import TYPE_CHECKING, List, Optional, Union
-
-import numpy as np
-import torch
 
 import lm_eval.api.metrics
 import lm_eval.api.registry
 import lm_eval.models
+import numpy as np
+import torch
+from lm_eval import utils
 from lm_eval.caching.cache import delete_cache
-from lm_eval.evaluator_utils import (
-    consolidate_results,
-    get_sample_size,
-    get_task_list,
-    prepare_print_tasks,
-    print_writeout,
-    run_task_tests,
-)
+from lm_eval.evaluator_utils import (consolidate_results, get_sample_size,
+                                     get_task_list, prepare_print_tasks,
+                                     print_writeout, run_task_tests)
 from lm_eval.logging_utils import add_env_info, get_git_commit_hash
 from lm_eval.tasks import TaskManager, get_task_dict
-from lm_eval.utils import eval_logger, positional_deprecated, simple_parse_args_string
-from lm_eval import utils
-
+from lm_eval.utils import (eval_logger, positional_deprecated,
+                           simple_parse_args_string)
 
 if TYPE_CHECKING:
     from lm_eval.api.model import LM
@@ -35,7 +29,7 @@ if TYPE_CHECKING:
 @positional_deprecated
 def simple_evaluate(
     model,
-    model_args: Optional[Union[str, dict,object]] = None,
+    model_args: Optional[Union[str, dict, object]] = None,
     tasks: Optional[List[Union[str, dict, object]]] = None,
     num_fewshot: Optional[int] = None,
     batch_size: Optional[int] = None,
@@ -158,14 +152,17 @@ def simple_evaluate(
             model_args = ""
         # replace HFLM.
         from .models.huggingface import HFLM
+
         lm_eval.api.registry.MODEL_REGISTRY["hf-auto"] = HFLM
         lm_eval.api.registry.MODEL_REGISTRY["hf"] = HFLM
         lm_eval.api.registry.MODEL_REGISTRY["huggingface"] = HFLM
 
         if user_model is not None:
             # use tiny model to built lm.
-            print("We use 'pretrained=Muennighoff/tiny-random-bert'" +
-                  "to build `LM` instance, the actually run model is user_model you passed.")
+            print(
+                "We use 'pretrained=Muennighoff/tiny-random-bert'"
+                + "to build `LM` instance, the actually run model is user_model you passed."
+            )
             lm = lm_eval.api.registry.get_model(model).create_from_arg_string(
                 "pretrained=Muennighoff/tiny-random-bert",
                 {
@@ -242,8 +239,8 @@ def simple_evaluate(
         if num_fewshot is not None:
             if (default_num_fewshot := task_obj.get_config("num_fewshot")) == 0:
                 eval_logger.info(
-                    f"num_fewshot has been set to 0 for {task_name} in its config." + \
-                    "Manual configuration will be ignored."
+                    f"num_fewshot has been set to 0 for {task_name} in its config."
+                    + "Manual configuration will be ignored."
                 )
             else:
                 eval_logger.warning(
@@ -297,9 +294,7 @@ def simple_evaluate(
         try:
             add_env_info(results)  # additional environment info to results
         except:
-            eval_logger.info(
-                    f"get env info failed."
-                )
+            eval_logger.info(f"get env info failed.")
         return results
     else:
         return None

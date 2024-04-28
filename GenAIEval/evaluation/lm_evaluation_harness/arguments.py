@@ -1,6 +1,7 @@
 import argparse
 from functools import partial
 
+
 def _int_or_none_list_arg_type(max_len: int, value: str, split_char: str = ","):
     def parse_value(item):
         item = item.strip().lower()
@@ -24,6 +25,7 @@ def _int_or_none_list_arg_type(max_len: int, value: str, split_char: str = ","):
 
     return items
 
+
 def check_argument_types(parser: argparse.ArgumentParser):
     """
     Check to make sure all CLI args are typed, raises error if not
@@ -36,6 +38,7 @@ def check_argument_types(parser: argparse.ArgumentParser):
                 )
             else:
                 continue
+
 
 def setup_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
@@ -198,45 +201,47 @@ def setup_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Sets trust_remote_code to True to execute code to create HF Datasets from the Hub",
     )
-
-    return parser
-
-def parse_eval_args(parser: argparse.ArgumentParser) -> argparse.Namespace:
     check_argument_types(parser)
     return parser.parse_args()
 
+
 class LMEvalParser:
-    def __init__(self,
-                 model="hf",
-                 tasks="lambada_openai",
-                 model_args="",
-                 user_model=None,
-                 tokenizer=None,
-                 num_fewshot=None,
-                 batch_size=1,
-                 max_batch_size=None,
-                 device=None,
-                 output_path=None,
-                 limit=None,
-                 use_cache=None,
-                 cache_requests=None,
-                 check_integrity=False,
-                 write_out=False,
-                 log_samples=False,
-                 show_config=False,
-                 include_path=None,
-                 gen_kwargs=None,
-                 verbosity="INFO",
-                 wandb_args="",
-                 predict_only=False,
-                 seed=[0, 1234, 1234],
-                 trust_remote_code=False
-                 ):
+    """
+    The class is the another form of `setup_parser` function and used for function call pass parameters.
+    """
+
+    def __init__(
+        self,
+        model="hf",
+        tasks="lambada_openai",
+        model_args="",
+        user_model=None,
+        tokenizer=None,
+        num_fewshot=None,
+        batch_size=1,
+        max_batch_size=None,
+        device=None,
+        output_path=None,
+        limit=None,
+        use_cache=None,
+        cache_requests=None,
+        check_integrity=False,
+        write_out=False,
+        log_samples=False,
+        show_config=False,
+        include_path=None,
+        gen_kwargs=None,
+        verbosity="INFO",
+        wandb_args="",
+        predict_only=False,
+        seed=[0, 1234, 1234],
+        trust_remote_code=False,
+    ):
         self.model = model
         self.tasks = tasks
         self.model_args = model_args
-        self.user_model=user_model
-        self.tokenizer=tokenizer
+        self.user_model = user_model
+        self.tokenizer = tokenizer
         self.num_fewshot = num_fewshot
         self.batch_size = batch_size
         self.max_batch_size = max_batch_size
