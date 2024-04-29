@@ -19,7 +19,7 @@ from comps import TextDoc, YAMLServiceBuilder, opea_microservices, register_micr
 
 
 @register_microservice(name="s1", port=8081, expose_endpoint="/v1/add")
-async def add(request: TextDoc) -> TextDoc:
+async def s1_add(request: TextDoc) -> TextDoc:
     req = request.json()
     req_dict = json.loads(req)
     text = req_dict["text"]
@@ -28,7 +28,7 @@ async def add(request: TextDoc) -> TextDoc:
 
 
 @register_microservice(name="s2", port=8082, expose_endpoint="/v1/add")
-async def add(request: TextDoc) -> TextDoc:
+async def s2_add(request: TextDoc) -> TextDoc:
     req = request.json()
     req_dict = json.loads(req)
     text = req_dict["text"]
