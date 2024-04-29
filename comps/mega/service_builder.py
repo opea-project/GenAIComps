@@ -13,8 +13,9 @@
 # limitations under the License.
 
 import json
-import requests
 from typing import Dict, List
+
+import requests
 
 from .dag import DAG
 

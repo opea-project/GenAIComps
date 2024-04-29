@@ -15,7 +15,7 @@
 import json
 import unittest
 
-from comps import register_microservice, opea_microservices, ServiceBuilder, TextDoc
+from comps import ServiceBuilder, TextDoc, opea_microservices, register_microservice
 
 
 @register_microservice(name="s1", port=8081, expose_endpoint="/v1/add")
@@ -26,6 +26,7 @@ async def add(request: TextDoc) -> TextDoc:
     text += "opea "
     return {"text": text}
 
+
 @register_microservice(name="s2", port=8082, expose_endpoint="/v1/add")
 async def add(request: TextDoc) -> TextDoc:
     req = request.json()
@@ -33,7 +34,6 @@ async def add(request: TextDoc) -> TextDoc:
     text = req_dict["text"]
     text += "project!"
     return {"text": text}
-
 
 
 class TestServiceBuilder(unittest.TestCase):
@@ -48,7 +48,6 @@ class TestServiceBuilder(unittest.TestCase):
         self.service_builder.add(opea_microservices["s1"]).add(opea_microservices["s2"])
         self.service_builder.flow_to(self.s1, self.s2)
 
-
     def tearDown(self):
         self.s1.stop()
         self.s2.stop()
@@ -57,7 +56,7 @@ class TestServiceBuilder(unittest.TestCase):
         self.service_builder.schedule(initial_inputs={"text": "hello, "})
         self.service_builder.get_all_final_outputs()
         result_dict = self.service_builder.result_dict
-        self.assertEqual(result_dict[self.s2.name]['text'], "hello, opea project!")
+        self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
 
 
 if __name__ == "__main__":

@@ -15,7 +15,8 @@
 import json
 import unittest
 
-from comps import register_microservice, YAMLServiceBuilder, TextDoc, opea_microservices
+from comps import TextDoc, YAMLServiceBuilder, opea_microservices, register_microservice
+
 
 @register_microservice(name="s1", port=8081, expose_endpoint="/v1/add")
 async def add(request: TextDoc) -> TextDoc:
@@ -24,6 +25,7 @@ async def add(request: TextDoc) -> TextDoc:
     text = req_dict["text"]
     text += "opea "
     return {"text": text}
+
 
 @register_microservice(name="s2", port=8082, expose_endpoint="/v1/add")
 async def add(request: TextDoc) -> TextDoc:
@@ -50,7 +52,7 @@ class TestYAMLServiceBuilder(unittest.TestCase):
         service_builder.schedule(initial_inputs={"text": "Hello, "})
         service_builder.get_all_final_outputs()
         result_dict = service_builder.result_dict
-        self.assertEqual(result_dict["s2"]['text'], "Hello, opea project!")
+        self.assertEqual(result_dict["s2"]["text"], "Hello, opea project!")
 
 
 if __name__ == "__main__":
