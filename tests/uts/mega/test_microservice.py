@@ -22,7 +22,7 @@ from comps import TextDoc, opea_microservices, register_microservice
 
 @register_microservice(name="s1", port=8080, expose_endpoint="/v1/add")
 async def add(request: TextDoc) -> TextDoc:
-    req = request.json()
+    req = request.model_dump_json()
     req_dict = json.loads(req)
     text = req_dict["text"]
     text += "OPEA Project!"

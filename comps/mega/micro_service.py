@@ -14,6 +14,8 @@
 
 import asyncio
 import multiprocessing
+import os
+import signal
 from typing import Any, Optional, Type
 
 from ..proto.docarray import TextDoc
@@ -57,6 +59,7 @@ class MicroService:
         self.server = self._get_server()
         self.app = self.server.app
         self.event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.event_loop)
         self.event_loop.run_until_complete(self.async_setup())
 
     def _get_server(self):
@@ -102,11 +105,20 @@ class MicroService:
         self.event_loop.run_until_complete(self.async_run_forever())
 
     def start(self):
-        self.process = multiprocessing.Process(target=self.run)
+        self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
         self.process.start()
 
+    async def async_teardown(self):
+        """Shutdown the server."""
+        await self.server.terminate_server()
+
     def stop(self):
-        self.process.terminate()
+        self.event_loop.run_until_complete(self.async_teardown())
+        self.event_loop.stop()
+        self.event_loop.close()
+        self.server.logger.close()
+        if self.process.is_alive():
+            self.process.terminate()
 
     @property
     def endpoint_path(self):
