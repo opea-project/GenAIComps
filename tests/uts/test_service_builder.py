@@ -12,31 +12,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import unittest
 
-from comps import BaseService, ServiceBuilder
+from comps import register_microservice, opea_microservices, ServiceBuilder, TextDoc
+
+
+@register_microservice(name="s1", port=8081, expose_endpoint="/v1/add")
+async def add(request: TextDoc) -> TextDoc:
+    req = request.json()
+    req_dict = json.loads(req)
+    text = req_dict["text"]
+    text += "opea "
+    return {"text": text}
+
+@register_microservice(name="s2", port=8082, expose_endpoint="/v1/add")
+async def add(request: TextDoc) -> TextDoc:
+    req = request.json()
+    req_dict = json.loads(req)
+    text = req_dict["text"]
+    text += "project!"
+    return {"text": text}
+
 
 
 class TestServiceBuilder(unittest.TestCase):
     def setUp(self):
-        self.service_builder = ServiceBuilder(port=1234, hostfile=None)
-        self.s1 = BaseService(id="s1", endpoint="http://localhost:8081/v1/add")
-        self.s2 = BaseService(id="s2", endpoint="http://localhost:8082/v1/add")
-        self.s3 = BaseService(id="s3", endpoint="http://localhost:8083/v1/add")
-        self.s4 = BaseService(id="s4", endpoint="http://localhost:8084/v1/add")
-        self.s5 = BaseService(id="s5", endpoint="http://localhost:8085/v1/add")
-        self.service_builder.add(self.s1).add(self.s2).add(self.s3).add(self.s4).add(self.s5)
+        self.s1 = opea_microservices["s1"]
+        self.s2 = opea_microservices["s2"]
+        self.s1.start()
+        self.s2.start()
+
+        self.service_builder = ServiceBuilder(port=8000, hostfile=None)
+
+        self.service_builder.add(opea_microservices["s1"]).add(opea_microservices["s2"])
         self.service_builder.flow_to(self.s1, self.s2)
-        self.service_builder.flow_to(self.s5, self.s2)
-        self.service_builder.flow_to(self.s2, self.s3)
-        self.service_builder.flow_to(self.s2, self.s4)
-        self.service_builder.flow_to(self.s3, self.s4)
+
+
+    def tearDown(self):
+        self.s1.stop()
+        self.s2.stop()
 
     def test_schedule(self):
-        self.service_builder.schedule(initial_inputs={"number": 0})
+        self.service_builder.schedule(initial_inputs={"text": "hello, "})
         self.service_builder.get_all_final_outputs()
         result_dict = self.service_builder.result_dict
-        self.assertEqual(result_dict, "")
+        self.assertEqual(result_dict[self.s2.name]['text'], "hello, opea project!")
 
 
 if __name__ == "__main__":

@@ -13,16 +13,10 @@
 # limitations under the License.
 
 import json
-import os
-import re
-import subprocess
-import time
-from collections import OrderedDict, defaultdict
-from typing import Dict, List, Optional, Tuple
-
 import requests
-import yaml
-from dag import DAG
+from typing import Dict, List
+
+from .dag import DAG
 
 
 class BaseService:
@@ -41,16 +35,16 @@ class ServiceBuilder(DAG):
         super().__init__()
 
     def add(self, service):
-        if service.id not in self.services:
-            self.services[service.id] = service
-            self.add_node_if_not_exists(service.id)
+        if service.name not in self.services:
+            self.services[service.name] = service
+            self.add_node_if_not_exists(service.name)
         else:
-            raise Exception(f"Service {service.id} already exists!")
+            raise Exception(f"Service {service.name} already exists!")
         return self
 
     def flow_to(self, from_service, to_service):
         try:
-            self.add_edge(from_service.id, to_service.id)
+            self.add_edge(from_service.name, to_service.name)
             return True
         except Exception as e:
             print(e)
@@ -75,8 +69,8 @@ class ServiceBuilder(DAG):
 
     def execute(self, cur_node: str, inputs: Dict):
         # send the cur_node request/reply
-        endpoint = self.services[cur_node].endpoint
-        response = requests.post(url=endpoint, data=json.dumps({"number": inputs["number"]}), proxies={"http": None})
+        endpoint = self.services[cur_node].endpoint_path
+        response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None})
         print(response)
         return response.json()
 

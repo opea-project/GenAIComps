@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Document
-from comps.proto.docarray import TextDoc, EmbedDoc768, EmbedDoc1024, GenerateDoc
+opea_micro_services:
+  s1:
+    endpoint: http://localhost:8081/v1/add
 
-# Microservice
-from comps.mega.service_builder import BaseService, ServiceBuilder
-from comps.mega.yaml_service_builder import YAMLServiceBuilder
-from comps.mega.micro_service import MicroService, register_microservice, opea_microservices
+  s2:
+    endpoint: http://localhost:8082/v1/add
+
+opea_mega_service:
+  mega_flow:
+    - s1 >> s2

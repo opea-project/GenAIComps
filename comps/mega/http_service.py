@@ -13,11 +13,10 @@
 # limitations under the License.
 
 from typing import Optional
-
-from base_service import BaseService
 from fastapi import FastAPI
 from uvicorn import Config, Server
 
+from .base_service import BaseService
 
 class HTTPService(BaseService):
     """FastAPI HTTP service based on BaseService class.
@@ -127,7 +126,6 @@ class HTTPService(BaseService):
     async def terminate_server(self):
         """Terminate the HTTP server and free resources allocated when setting up the server."""
         self.logger.info("Initiating server termination")
-        await super().shutdown()
         self.server.should_exit = True
         await self.server.shutdown()
         self.logger.info("Server termination completed")

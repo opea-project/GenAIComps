@@ -12,19 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import unittest
-from unittest.mock import patch
 
-from comps.mega.yaml_service_builder import YAMLServiceBuilder
+from comps import register_microservice, YAMLServiceBuilder, TextDoc, opea_microservices
+
+@register_microservice(name="s1", port=8081, expose_endpoint="/v1/add")
+async def add(request: TextDoc) -> TextDoc:
+    req = request.json()
+    req_dict = json.loads(req)
+    text = req_dict["text"]
+    text += "opea "
+    return {"text": text}
+
+@register_microservice(name="s2", port=8082, expose_endpoint="/v1/add")
+async def add(request: TextDoc) -> TextDoc:
+    req = request.json()
+    req_dict = json.loads(req)
+    text = req_dict["text"]
+    text += "project!"
+    return {"text": text}
 
 
 class TestYAMLServiceBuilder(unittest.TestCase):
+    def setUp(self) -> None:
+        self.s1 = opea_microservices["s1"]
+        self.s2 = opea_microservices["s2"]
+        self.s1.start()
+        self.s2.start()
+
+    def tearDown(self):
+        self.s1.stop()
+        self.s2.stop()
+
     def test_schedule(self):
-        service_builder = YAMLServiceBuilder(yaml_file_path="mega_service.yaml")
-        service_builder.schedule(initial_inputs={"number": 0})
+        service_builder = YAMLServiceBuilder(yaml_file_path="./megaservice.yaml")
+        service_builder.schedule(initial_inputs={"text": "Hello, "})
         service_builder.get_all_final_outputs()
         result_dict = service_builder.result_dict
-        self.assertEqual(result_dict, "")
+        self.assertEqual(result_dict["s2"]['text'], "Hello, opea project!")
 
 
 if __name__ == "__main__":

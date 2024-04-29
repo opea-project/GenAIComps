@@ -13,16 +13,12 @@
 # limitations under the License.
 
 import json
-import os
 import re
-import subprocess
-import time
-from collections import OrderedDict, defaultdict
-from typing import Dict, List, Optional, Tuple
-
+from collections import OrderedDict
+from typing import Dict, List, Tuple
 import requests
 import yaml
-from dag import DAG
+from .dag import DAG
 
 
 class YAMLServiceBuilder(DAG):
@@ -39,7 +35,7 @@ class YAMLServiceBuilder(DAG):
     def execute(self, cur_node: str, inputs: Dict):
         # send the cur_node request/reply
         endpoint = self.docs["opea_micro_services"][cur_node]["endpoint"]
-        response = requests.post(url=endpoint, data=json.dumps({"number": inputs["number"]}), proxies={"http": None})
+        response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None})
         print(response)
         return response.json()
 
