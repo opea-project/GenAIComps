@@ -14,13 +14,14 @@
 
 import asyncio
 import multiprocessing
-from typing import Optional, Type, Any
+from typing import Any, Optional, Type
 
+from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType
 from .utils import check_ports_availability
-from ..proto.docarray import TextDoc
 
 opea_microservices = {}
+
 
 class MicroService:
     """MicroService class to create a microservice."""
@@ -40,7 +41,7 @@ class MicroService:
         provider_endpoint: Optional[str] = None,
     ):
         """Init the microservice."""
-        self.name = f'{name}/{self.__class__.__name__}' if name else self.__class__.__name__
+        self.name = f"{name}/{self.__class__.__name__}" if name else self.__class__.__name__
         self.service_role = service_role
         self.protocol = protocol
         self.host = host
@@ -142,4 +143,5 @@ def register_microservice(
         micro_service.app.router.add_api_route(expose_endpoint, func, methods=["POST"])
         opea_microservices[name] = micro_service
         return func
+
     return decorator

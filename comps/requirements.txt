@@ -1,4 +1,4 @@
 docarray
-requests
-pyyaml
 httpx
+pyyaml
+requests

@@ -13,10 +13,12 @@
 # limitations under the License.
 
 from typing import Optional
+
 from fastapi import FastAPI
 from uvicorn import Config, Server
 
 from .base_service import BaseService
+
 
 class HTTPService(BaseService):
     """FastAPI HTTP service based on BaseService class.

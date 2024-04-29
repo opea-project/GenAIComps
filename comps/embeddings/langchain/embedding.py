@@ -14,13 +14,16 @@
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 
-from comps import EmbedDoc1024, TextDoc, register_microservice, opea_microservices
+from comps import EmbedDoc1024, TextDoc, opea_microservices, register_microservice
 
-@register_microservice(name="opea_embedding_service",
-                       expose_endpoint="/v1/embeddings",
-                       port=9000,
-                       input_datatype=TextDoc,
-                       output_datatype=EmbedDoc1024)
+
+@register_microservice(
+    name="opea_embedding_service",
+    expose_endpoint="/v1/embeddings",
+    port=9000,
+    input_datatype=TextDoc,
+    output_datatype=EmbedDoc1024,
+)
 def embedding(input: TextDoc) -> EmbedDoc1024:
     embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-large-en-v1.5")
     embed_vector = embeddings.embed_query(input.text)
