@@ -19,11 +19,7 @@ from langchain_community.llms import HuggingFaceEndpoint
 from comps import GeneratedDoc, LLMParamsDoc, TextDoc, opea_microservices, register_microservice
 
 
-@register_microservice(
-    name="opea_service@llm_tgi_gaudi",
-    expose_endpoint="/v1/chat/completions",
-    port=8030
-)
+@register_microservice(name="opea_service@llm_tgi_gaudi", expose_endpoint="/v1/chat/completions", port=8030)
 def llm_generate(input: TextDoc, params: LLMParamsDoc = None) -> GeneratedDoc:
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     params = params if params else LLMParamsDoc()
@@ -40,6 +36,7 @@ def llm_generate(input: TextDoc, params: LLMParamsDoc = None) -> GeneratedDoc:
     response = llm(input.text)
     res = GeneratedDoc(text=response, prompt=input.text)
     return res
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@llm_tgi_gaudi"].start()
