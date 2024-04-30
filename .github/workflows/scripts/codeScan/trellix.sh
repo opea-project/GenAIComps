@@ -39,7 +39,7 @@ echo "Downloading latest defs from $DEFS_URL/$filename2..." \
  && echo "SUCCESS" || fail
 
 echo "Extracting latest defs..." \
- && unzip $filename2 -d /usr/local/uvscan \
+ && unzip -o $filename2 -d /usr/local/uvscan \
  && echo "SUCCESS" || fail
 
 echo "--- Scanning ---"
