@@ -30,5 +30,6 @@ def embedding(input: TextDoc) -> EmbedDoc1024:
     res = EmbedDoc1024(text=input.text, embedding=embed_vector)
     return res
 
+
 if __name__ == "__main__":
     opea_microservices["opea_embedding_service"].start()
