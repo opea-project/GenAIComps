@@ -23,7 +23,7 @@ import yaml
 from .dag import DAG
 
 
-class YAMLServiceBuilder(DAG):
+class ServiceOrchestratorWithYaml(DAG):
     """Manage 1 or N micro services in a DAG defined by YAML."""
 
     def __init__(self, yaml_file_path: str):

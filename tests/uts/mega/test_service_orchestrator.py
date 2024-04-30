@@ -15,7 +15,7 @@
 import json
 import unittest
 
-from comps import ServiceBuilder, TextDoc, opea_microservices, register_microservice
+from comps import ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
 
 
 @register_microservice(name="s1", port=8081, expose_endpoint="/v1/add")
@@ -36,14 +36,14 @@ async def s2_add(request: TextDoc) -> TextDoc:
     return {"text": text}
 
 
-class TestServiceBuilder(unittest.TestCase):
+class TestServiceOrchestrator(unittest.TestCase):
     def setUp(self):
         self.s1 = opea_microservices["s1"]
         self.s2 = opea_microservices["s2"]
         self.s1.start()
         self.s2.start()
 
-        self.service_builder = ServiceBuilder(port=8000, hostfile=None)
+        self.service_builder = ServiceOrchestrator(port=8000, hostfile=None)
 
         self.service_builder.add(opea_microservices["s1"]).add(opea_microservices["s2"])
         self.service_builder.flow_to(self.s1, self.s2)

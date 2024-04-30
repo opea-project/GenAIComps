@@ -20,14 +20,7 @@ import requests
 from .dag import DAG
 
 
-class BaseService:
-    def __init__(self, id, endpoint) -> None:
-        """The base service object contains an id and an endpoint url."""
-        self.id = id
-        self.endpoint = endpoint
-
-
-class ServiceBuilder(DAG):
+class ServiceOrchestrator(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
 
     def __init__(self, host="localhost", port=8000, hostfile=None) -> None:
