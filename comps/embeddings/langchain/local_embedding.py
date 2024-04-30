@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
+
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 
 from comps import EmbedDoc1024, TextDoc, opea_microservices, register_microservice
@@ -20,7 +22,7 @@ from comps import EmbedDoc1024, TextDoc, opea_microservices, register_microservi
 @register_microservice(
     name="opea_embedding_service",
     expose_endpoint="/v1/embeddings",
-    port=9000,
+    port=8010,
     input_datatype=TextDoc,
     output_datatype=EmbedDoc1024,
 )
@@ -30,5 +32,9 @@ def embedding(input: TextDoc) -> EmbedDoc1024:
     res = EmbedDoc1024(text=input.text, embedding=embed_vector)
     return res
 
+def stop_embedding_service():
+    opea_microservices["opea_embedding_service"].stop()
 
-opea_microservices["opea_embedding_service"].start()
+if __name__ == "__main__":
+    atexit.register(stop_embedding_service)
+    opea_microservices["opea_embedding_service"].start()
