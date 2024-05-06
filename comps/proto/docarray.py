@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from docarray import BaseDoc
-from docarray.typing import NdArray
+from typing import List
+from docarray import BaseDoc, DocList
+import numpy as np
+from pydantic import conlist
 
 
 class TextDoc(BaseDoc):
@@ -21,11 +23,21 @@ class TextDoc(BaseDoc):
 
 
 class EmbedDoc768(BaseDoc):
-    embedding: NdArray[768]
+    embedding: conlist(float, min_items=768, max_items=768)
 
 
 class EmbedDoc1024(BaseDoc):
-    embedding: NdArray[1024]
+    embedding: conlist(float, min_items=1024, max_items=1024)
+
+
+class SearchedDoc(BaseDoc):
+    searched_doc: DocList[TextDoc]
+    original_query: EmbedDoc768
+
+    class Config:
+        json_encoders = {
+            np.ndarray: lambda x: x.tolist()
+        }
 
 
 class GeneratedDoc(BaseDoc):
