@@ -32,6 +32,7 @@ class GeneratedDoc(BaseDoc):
     text: str
     prompt: str
 
+
 class LLMParamsDoc(BaseDoc):
     max_new_tokens: int = 1024
     top_k: int = 10
@@ -41,10 +42,12 @@ class LLMParamsDoc(BaseDoc):
     repetition_penalty: float = 1.03
     streaming: bool = True
 
+
 class RerankingInputDoc(BaseDoc):
     query: str
     passages: DocList[TextDoc]
     top_n: int = 3
+
 
 class RerankingOutputDoc(BaseDoc):
     query: str
