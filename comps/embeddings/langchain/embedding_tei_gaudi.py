@@ -12,23 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+import os
+
+from langchain_community.embeddings import HuggingFaceHubEmbeddings
 
 from comps import EmbedDoc1024, TextDoc, opea_microservices, register_microservice
 
-
 @register_microservice(
-    name="opea_service@local_embedding",
+    name="opea_service@embedding_tgi_gaudi",
     expose_endpoint="/v1/embeddings",
-    port=8010,
+    port=8020,
     input_datatype=TextDoc,
-    output_datatype=EmbedDoc1024,
+    output_datatype=TextDoc,
 )
-def embedding(input: TextDoc) -> EmbedDoc1024:
-    embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-large-en-v1.5")
+def safety_guard(input: TextDoc) -> TextDoc:
     embed_vector = embeddings.embed_query(input.text)
     res = EmbedDoc1024(text=input.text, embedding=embed_vector)
     return res
 
+
 if __name__ == "__main__":
-    opea_microservices["opea_service@local_embedding"].start()
+    tei_embedding_endpoint = os.getenv("TEI_ENDPOINT", "http://localhost:8080")
+    embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+    print("TEI Gaudi Embedding initialized.")
+    opea_microservices["opea_service@embedding_tgi_gaudi"].start()

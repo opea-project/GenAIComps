@@ -104,7 +104,7 @@ Provide your safety assessment for {role} in the above conversation:
 
 
 @register_microservice(
-    name="opea_guardrails_service",
+    name="opea_service@guardrails_tgi_gaudi",
     expose_endpoint="/v1/guardrails",
     port=8020,
     input_datatype=TextDoc,
@@ -136,4 +136,4 @@ if __name__ == "__main__":
         repetition_penalty=1.03,
     )
     print("guardrails - router] LLM initialized.")
-    opea_microservices["opea_guardrails_service"].start()
+    opea_microservices["opea_service@guardrails_tgi_gaudi"].start()
