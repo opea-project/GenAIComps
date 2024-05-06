@@ -15,10 +15,16 @@
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import Redis
+
 from comps import (
-    opea_microservices, register_microservice,
-    INDEX_NAME, REDIS_URL, INDEX_SCHEMA,
-    EmbedDoc768, SearchedDoc, TextDoc
+    INDEX_NAME,
+    INDEX_SCHEMA,
+    REDIS_URL,
+    EmbedDoc768,
+    SearchedDoc,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
 )
 
 
@@ -26,10 +32,10 @@ from comps import (
 def retrieve(input: EmbedDoc768) -> SearchedDoc:
     embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-base-en-v1.5")
     vector_db = Redis.from_existing_index(
-                embedding=embeddings,
-                index_name=INDEX_NAME,
-                redis_url=REDIS_URL,
-                schema=INDEX_SCHEMA,
+        embedding=embeddings,
+        index_name=INDEX_NAME,
+        redis_url=REDIS_URL,
+        schema=INDEX_SCHEMA,
     )
     search_res = vector_db.similarity_search_by_vector(embedding=input.embedding)
     searched_docs = []

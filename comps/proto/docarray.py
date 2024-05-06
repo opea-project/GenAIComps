@@ -13,8 +13,9 @@
 # limitations under the License.
 
 from typing import List
-from docarray import BaseDoc, DocList
+
 import numpy as np
+from docarray import BaseDoc, DocList
 from pydantic import conlist
 
 
@@ -35,9 +36,7 @@ class SearchedDoc(BaseDoc):
     original_query: EmbedDoc768
 
     class Config:
-        json_encoders = {
-            np.ndarray: lambda x: x.tolist()
-        }
+        json_encoders = {np.ndarray: lambda x: x.tolist()}
 
 
 class GeneratedDoc(BaseDoc):
