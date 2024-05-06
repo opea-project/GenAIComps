@@ -18,6 +18,7 @@ from langchain_community.embeddings import HuggingFaceHubEmbeddings
 
 from comps import EmbedDoc1024, TextDoc, opea_microservices, register_microservice
 
+
 @register_microservice(
     name="opea_service@embedding_tgi_gaudi",
     expose_endpoint="/v1/embeddings",
