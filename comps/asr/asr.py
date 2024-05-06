@@ -87,7 +87,7 @@ def audio2text(
 @register_microservice(
     name="opea_service@asr",
     expose_endpoint="/v1/audio/transcriptions",
-    port=8008,
+    port=9099,
     input_datatype=Audio2TextDoc,
     output_datatype=TextDoc,
 )

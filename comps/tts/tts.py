@@ -73,7 +73,7 @@ def text2speech(
 @register_microservice(
     name="opea_service@tts",
     expose_endpoint="/v1/audio/speech",
-    port=8009,
+    port=9999,
     input_datatype=TextDoc,
     output_datatype=TextDoc,
 )
