@@ -21,7 +21,8 @@ import torch
 from datasets import Audio, Dataset
 from pydub import AudioSegment
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
-from comps import TextDoc, Audio2TextDoc, opea_microservices, register_microservice
+
+from comps import Audio2TextDoc, TextDoc, opea_microservices, register_microservice
 
 
 def _audiosegment_to_librosawav(audiosegment):
@@ -34,7 +35,14 @@ def _audiosegment_to_librosawav(audiosegment):
 
     return fp_arr
 
-def audio2text(audio_path, model_name_or_path="openai/whisper-small", language=None, bf16=False, device="cpu",):
+
+def audio2text(
+    audio_path,
+    model_name_or_path="openai/whisper-small",
+    language=None,
+    bf16=False,
+    device="cpu",
+):
     """Convert audio to text."""
     start = time.time()
     model = WhisperForConditionalGeneration.from_pretrained(model_name_or_path).to(device)
@@ -43,6 +51,7 @@ def audio2text(audio_path, model_name_or_path="openai/whisper-small", language=N
     bf16 = bf16
     if bf16:
         import intel_extension_for_pytorch as ipex
+
         model = ipex.optimize(model, dtype=torch.bfloat16)
     language = language
 
@@ -54,9 +63,7 @@ def audio2text(audio_path, model_name_or_path="openai/whisper-small", language=N
         audio_dataset = Dataset.from_dict({"audio": [audio_path]}).cast_column("audio", Audio(sampling_rate=16000))
         waveform = audio_dataset[0]["audio"]["array"]
 
-    inputs = processor.feature_extractor(
-        waveform, return_tensors="pt", sampling_rate=16_000
-    ).input_features.to(device)
+    inputs = processor.feature_extractor(waveform, return_tensors="pt", sampling_rate=16_000).input_features.to(device)
     with torch.cpu.amp.autocast() if bf16 else contextlib.nullcontext():
         if language is None:
             predicted_ids = model.generate(inputs)
@@ -64,9 +71,7 @@ def audio2text(audio_path, model_name_or_path="openai/whisper-small", language=N
             model.config.forced_decoder_ids = None
             predicted_ids = model.generate(inputs)
         else:
-            forced_decoder_ids = processor.get_decoder_prompt_ids(
-                language=language, task="transcribe"
-            )
+            forced_decoder_ids = processor.get_decoder_prompt_ids(language=language, task="transcribe")
             model.config.forced_decoder_ids = forced_decoder_ids
             predicted_ids = model.generate(inputs)
 
@@ -87,7 +92,7 @@ def audio2text(audio_path, model_name_or_path="openai/whisper-small", language=N
     output_datatype=TextDoc,
 )
 async def audio_to_text(audio: Audio2TextDoc):
-    audio.tensor, audio.frame_rate = audio.url.load()   # AudioNdArray, fr
+    audio.tensor, audio.frame_rate = audio.url.load()  # AudioNdArray, fr
     audio_path = f"{audio.id}.wav"
     audio.tensor.save(audio_path, frame_rate=16000)
 
@@ -100,6 +105,7 @@ async def audio_to_text(audio: Audio2TextDoc):
         os.remove(audio_path)
     res = TextDoc(text=asr_result)
     return res
+
 
 if __name__ == "__main__":
     print("[asr - router] ASR initialized.")
