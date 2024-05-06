@@ -18,7 +18,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl
-from pydantic import conlist, Field
+from pydantic import Field, conlist
 
 
 class TextDoc(BaseDoc):
