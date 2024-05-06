@@ -15,8 +15,8 @@
 import os
 
 from langchain_community.llms import HuggingFaceEndpoint
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 
 from comps import GeneratedDoc, LLMParamsDoc, RerankedDoc, opea_microservices, register_microservice
 

@@ -40,9 +40,11 @@ class SearchedDoc(BaseDoc):
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
 
+
 class RerankedDoc(BaseDoc):
     query: str
     doc: TextDoc
+
 
 class GeneratedDoc(BaseDoc):
     text: str
@@ -57,5 +59,3 @@ class LLMParamsDoc(BaseDoc):
     temperature: float = 0.01
     repetition_penalty: float = 1.03
     streaming: bool = True
-
-

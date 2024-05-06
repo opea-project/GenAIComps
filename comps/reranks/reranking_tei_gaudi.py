@@ -17,7 +17,7 @@ import os
 
 import requests
 
-from comps import SearchedDoc, RerankedDoc, opea_microservices, register_microservice
+from comps import RerankedDoc, SearchedDoc, opea_microservices, register_microservice
 
 
 @register_microservice(
@@ -37,6 +37,7 @@ def reranking(input: SearchedDoc) -> RerankedDoc:
     best_response = max(response_data, key=lambda response: response["score"])
     res = RerankedDoc(query=input.initial_query, doc=input.retrieved_docs[best_response["index"]])
     return res
+
 
 if __name__ == "__main__":
     tei_reranking_endpoint = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8080")
