@@ -24,20 +24,25 @@ class TextDoc(BaseDoc):
 
 
 class EmbedDoc768(BaseDoc):
+    text: str
     embedding: conlist(float, min_items=768, max_items=768)
 
 
 class EmbedDoc1024(BaseDoc):
+    text: str
     embedding: conlist(float, min_items=1024, max_items=1024)
 
 
 class SearchedDoc(BaseDoc):
-    searched_doc: DocList[TextDoc]
-    original_query: EmbedDoc768
+    retrieved_docs: DocList[TextDoc]
+    initial_query: str
 
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
 
+class RerankedDoc(BaseDoc):
+    query: str
+    doc: TextDoc
 
 class GeneratedDoc(BaseDoc):
     text: str
@@ -52,3 +57,5 @@ class LLMParamsDoc(BaseDoc):
     temperature: float = 0.01
     repetition_penalty: float = 1.03
     streaming: bool = True
+
+

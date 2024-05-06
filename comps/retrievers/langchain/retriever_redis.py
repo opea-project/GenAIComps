@@ -20,7 +20,7 @@ from comps import (
     INDEX_NAME,
     INDEX_SCHEMA,
     REDIS_URL,
-    EmbedDoc768,
+    EmbedDoc1024,
     SearchedDoc,
     TextDoc,
     opea_microservices,
@@ -28,8 +28,8 @@ from comps import (
 )
 
 
-@register_microservice(name="opea_service@retriever_redis", expose_endpoint="/v1/similarity_search", port=8031)
-def retrieve(input: EmbedDoc768) -> SearchedDoc:
+@register_microservice(name="opea_service@retriever_redis", expose_endpoint="/v1/retrieval", port=7000)
+def retrieve(input: EmbedDoc1024) -> SearchedDoc:
     embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-base-en-v1.5")
     vector_db = Redis.from_existing_index(
         embedding=embeddings,
@@ -41,7 +41,7 @@ def retrieve(input: EmbedDoc768) -> SearchedDoc:
     searched_docs = []
     for r in search_res:
         searched_docs.append(TextDoc(text=r.page_content))
-    result = SearchedDoc(searched_doc=searched_docs, original_query=input)
+    result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
     return result
 
 
