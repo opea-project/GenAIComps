@@ -31,7 +31,7 @@ class Base64ByteStrDoc(BaseDoc):
 
 class EmbedDoc768(BaseDoc):
     text: str
-    embedding: conlist(float, min_items=768, max_items=768)
+    embedding: conlist(float, min_length=768, max_length=768)
 
 
 class Audio2TextDoc(AudioDoc):
@@ -51,7 +51,7 @@ class Audio2TextDoc(AudioDoc):
 
 class EmbedDoc1024(BaseDoc):
     text: str
-    embedding: conlist(float, min_items=1024, max_items=1024)
+    embedding: conlist(float, min_length=1024, max_length=1024)
 
 
 class SearchedDoc(BaseDoc):

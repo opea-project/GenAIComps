@@ -1,3 +1,4 @@
 docarray[full]
 fastapi
 langchain_community
+huggingface_hub

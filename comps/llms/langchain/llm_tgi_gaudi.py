@@ -22,9 +22,9 @@ from comps import GeneratedDoc, LLMParamsDoc, RerankedDoc, opea_microservices, r
 
 
 @register_microservice(name="opea_service@llm_tgi_gaudi", expose_endpoint="/v1/chat/completions", port=9000)
-def llm_generate(input: RerankedDoc, params: LLMParamsDoc = None) -> GeneratedDoc:
+def llm_generate(input: RerankedDoc) -> GeneratedDoc:
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
-    params = params if params else LLMParamsDoc()
+    params = LLMParamsDoc()
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
         max_new_tokens=params.max_new_tokens,
@@ -36,13 +36,13 @@ def llm_generate(input: RerankedDoc, params: LLMParamsDoc = None) -> GeneratedDo
         streaming=params.streaming,
     )
     template = """Answer the question based only on the following context:
-    {input.doc.text}
+    {context}
 
-    Question: {input.query}
+    Question: {question}
     """
     prompt = ChatPromptTemplate.from_template(template)
     chain = prompt | llm | StrOutputParser()
-    response = chain.invoke(input.query)
+    response = chain.invoke({"question": input.query, "context": input.doc.text})
     res = GeneratedDoc(text=response, prompt=input.query)
     return res
 
