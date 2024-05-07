@@ -39,7 +39,6 @@ class EmbedDoc1024(BaseDoc):
     embedding: conlist(float, min_length=1024, max_length=1024)
 
 
-
 class Audio2TextDoc(AudioDoc):
     url: Optional[AudioUrl] = Field(
         description="The path to the audio.",

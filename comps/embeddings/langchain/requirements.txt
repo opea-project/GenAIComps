@@ -1,4 +1,4 @@
-langchain
-sentence_transformers
 docarray[full]
 fastapi
+langchain
+sentence_transformers
