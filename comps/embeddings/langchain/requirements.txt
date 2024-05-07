@@ -1,2 +1,4 @@
 langchain
 sentence_transformers
+docarray[full]
+fastapi
