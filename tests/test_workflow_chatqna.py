@@ -13,6 +13,8 @@
 # limitations under the License.
 import json, os, requests
 
+from typing import Union
+
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.llms import HuggingFaceEndpoint
@@ -93,7 +95,7 @@ opea_microservices["opea_service@reranking_tgi_gaudi"].start()
 
 
 @register_microservice(name="opea_service@llm_tgi_gaudi", expose_endpoint="/v1/chat/completions", port=9000)
-def llm_generate(input: RerankedDoc) -> GeneratedDoc:
+def llm_generate(input: Union[TextDoc, RerankedDoc]) -> GeneratedDoc:
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     params = LLMParamsDoc()
     llm = HuggingFaceEndpoint(
@@ -106,14 +108,19 @@ def llm_generate(input: RerankedDoc) -> GeneratedDoc:
         repetition_penalty=params.repetition_penalty,
         streaming=params.streaming,
     )
-    template = """Answer the question based only on the following context:
-    {context}
+    if isinstance(input, RerankedDoc):
+        template = """Answer the question based only on the following context:
+        {context}
 
-    Question: {question}
-    """
-    prompt = ChatPromptTemplate.from_template(template)
-    chain = prompt | llm | StrOutputParser()
-    response = chain.invoke({"question": input.query, "context": input.doc.text})
+        Question: {question}
+        """
+        prompt = ChatPromptTemplate.from_template(template)
+        chain = prompt | llm | StrOutputParser()
+        response = chain.invoke({"question": input.query, "context": input.doc.text})
+    elif isinstance(input, TextDoc):
+        response = llm.invoke(input.text)
+    else:
+        raise TypeError("Invalid input type. Expected TextDoc or RerankedDoc.")
     res = GeneratedDoc(text=response, prompt=input.query)
     return res
 
