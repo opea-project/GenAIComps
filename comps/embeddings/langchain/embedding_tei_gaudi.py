@@ -29,7 +29,7 @@ from comps import EmbedDoc768, TextDoc, opea_microservices, register_microservic
 )
 def embedding(input: TextDoc) -> EmbedDoc768:
     embed_vector = embeddings.embed_query(input.text)
-    embed_vector = embed_vector[:768] # Keep only the first 768 elements
+    embed_vector = embed_vector[:768]  # Keep only the first 768 elements
     res = EmbedDoc768(text=input.text, embedding=embed_vector)
     return res
 
