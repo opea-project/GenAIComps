@@ -17,7 +17,7 @@ opea_micro_services:
     endpoint: http://localhost:8081/v1/add
 
   s2:
-    endpoint: http://fakehost:8008/v1/add  # Here change the host to where your remote service is located
+    endpoint: http://fakehost:8008/v1/add # Here change the host to where your remote service is located
 
 opea_mega_service:
   mega_flow:

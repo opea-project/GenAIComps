@@ -24,11 +24,13 @@ from .utils import check_ports_availability
 
 opea_microservices = {}
 
+
 class RemoteMicroService:
     """RemoteMicroservice class that stores the metadata of microservice on other hosts.
 
     This class assumes that you already initialize the microservice and the exposed endpoint is accessible.
     """
+
     def __init__(
         self,
         name: Optional[str] = None,
@@ -53,6 +55,7 @@ class RemoteMicroService:
     @property
     def endpoint_path(self):
         return f"{self.protocol}://{self.host}:{self.port}{self.expose_endpoint}"
+
 
 class MicroService:
     """MicroService class to create a microservice."""
