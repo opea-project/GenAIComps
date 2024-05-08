@@ -2,3 +2,6 @@ docarray
 httpx
 pyyaml
 requests
+fastapi
+opentelemetry-api
+opentelemetry-sdk

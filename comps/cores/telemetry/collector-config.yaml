@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Document
-from comps.cores.proto.docarray import (
-    Audio2TextDoc,
-    Base64ByteStrDoc,
-    EmbedDoc768,
-    EmbedDoc1024,
-    GeneratedDoc,
-    LLMParamsDoc,
-    RerankedDoc,
-    SearchedDoc,
-    TextDoc,
-)
-
-# Microservice
-from comps.cores.mega.orchestrator import ServiceOrchestrator
-from comps.cores.mega.orchestrator_with_yaml import ServiceOrchestratorWithYaml
-from comps.cores.mega.micro_service import MicroService, RemoteMicroService, register_microservice, opea_microservices
-
-# Telemetry
-from comps.cores.telemetry.opea_telemetry import opea_telemetry
+# Usage:
+# docker run -p 4317:4317 -p 4318:4318 --rm -v $(pwd)/collector-config.yaml:/etc/otelcol/config.yaml otel/opentelemetry-collector
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+exporters:
+  debug:
+    verbosity: detailed
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      exporters: [debug]
+    logs:
+      receivers: [otlp]
+      exporters: [debug]
