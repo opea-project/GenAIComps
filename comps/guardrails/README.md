@@ -12,13 +12,13 @@ The Guardrails Microservice now offers two primary types of guardrails:
 We offer content moderation support utilizing Meta's [Llama Guard](https://huggingface.co/meta-llama/LlamaGuard-7b) model.
 
 Any content that is detected in the following categories is determined as unsafe:
+
 - Violence and Hate
 - Sexual Content
 - Criminal Planning
 - Guns and Illegal Weapons
 - Regulated or Controlled Substances
 - Suicide & Self Harm
-
 
 # 🚀Start Microservice with Python
 
