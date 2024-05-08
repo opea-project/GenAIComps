@@ -1,4 +1,4 @@
 docarray[full]
 fastapi
+langchain==0.1.16
 huggingface_hub
-langchain_community
