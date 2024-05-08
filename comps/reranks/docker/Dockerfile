@@ -36,5 +36,5 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/reranks
 
-ENTRYPOINT ["python", "reranking_tei_gaudi.py"]
+ENTRYPOINT ["python", "reranking_tei_xeon.py"]
 

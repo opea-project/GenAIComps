@@ -15,7 +15,16 @@
 version: "3.8"
 
 services:
-  reranking:
+  tgi_gaudi_service:
+    image: ghcr.io/huggingface/tgi-gaudi:1.2.1
+    container_name: tgi_service
+    ports:
+      - "8088:80"
+    volumes:
+      - "./data:/data"
+    shm_size: 1g
+    command: --model-id ${LLM_MODEL_ID}
+  guardrails:
     image: intel/gen-ai-comps:guardrails-tgi-gaudi-server
     container_name: guardrails-tgi-gaudi-server
     ports:
