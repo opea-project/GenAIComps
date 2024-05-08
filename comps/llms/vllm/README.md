@@ -1,6 +1,6 @@
 # vLLM Endpoint Serve
 
-[vLLM](https://github.com/vllm-project/vllm) is a fast and easy-to-use library for LLM inference and serving, it delivers state-of-the-art serving throughput with a set of advanced features such as PagedAttention, Continuous batching and etc.. Besides GPUs, vLLM already supported [Intel CPUs](https://www.intel.com/content/www/us/en/products/overview.html), Gaudi accelerators support will be added soon. This guide provides an example on how to launch vLLM serving endpoint on CPU. 
+[vLLM](https://github.com/vllm-project/vllm) is a fast and easy-to-use library for LLM inference and serving, it delivers state-of-the-art serving throughput with a set of advanced features such as PagedAttention, Continuous batching and etc.. Besides GPUs, vLLM already supported [Intel CPUs](https://www.intel.com/content/www/us/en/products/overview.html), Gaudi accelerators support will be added soon. This guide provides an example on how to launch vLLM serving endpoint on CPU.
 
 ## Getting Started
 
