@@ -1,5 +1,5 @@
 docarray
+fastapi
 httpx
 pyyaml
 requests
-fastapi

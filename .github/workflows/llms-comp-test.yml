@@ -15,12 +15,12 @@
 name: LLMsMicroService-test
 
 on:
-#  pull_request:
-#    branches: [main]
-#    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
-#    paths:
-#      - .github/workflows/llms-comp-test.yml
-#      - comps/llms/**
+  #  pull_request:
+  #    branches: [main]
+  #    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+  #    paths:
+  #      - .github/workflows/llms-comp-test.yml
+  #      - comps/llms/**
   workflow_dispatch:
 
 # If there is a new commit, the previous jobs will be canceled
