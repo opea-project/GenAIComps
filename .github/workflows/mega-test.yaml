@@ -69,11 +69,11 @@ jobs:
           docker exec ${{ env.CONTAINER_NAME }} \
           bash -c "bash /GenAIComps/.github/workflows/scripts/test_ut.sh --test_name ${{ env.TEST_MODE }}"
 
-#      - name: Run Workflow
-#        env:
-#          HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
-#        run: |
-#          xxx
+      #      - name: Run Workflow
+      #        env:
+      #          HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+      #        run: |
+      #          xxx
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}
