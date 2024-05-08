@@ -18,7 +18,7 @@ test_name=$1
 
 # run test
 ut_log_name=/GenAIComps/.github/workflows/scripts/${test_name}_ut.log
-cd /GenAICompos/tests
+cd /GenAIComps/tests
 if [ $test_name = 'mega' ]; then
     echo "run mega test"
     cd mega
