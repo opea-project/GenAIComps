@@ -15,12 +15,12 @@
 name: EmbeddingsMicroService-test
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
-    paths:
-      - .github/workflows/mega-test.yml
-      - comps/mega/**
+#  pull_request:
+#    branches: [main]
+#    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+#    paths:
+#      - .github/workflows/mega-test.yml
+#      - comps/mega/**
   workflow_dispatch:
 
 # If there is a new commit, the previous jobs will be canceled

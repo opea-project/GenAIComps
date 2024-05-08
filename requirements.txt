@@ -2,3 +2,4 @@ docarray
 httpx
 pyyaml
 requests
+fastapi
