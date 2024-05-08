@@ -13,8 +13,22 @@
 # limitations under the License.
 
 # Document
-from comps.proto.docarray import TextDoc, EmbedDoc768, EmbedDoc1024, GenerateDoc
+from comps.cores.proto.docarray import (
+    Audio2TextDoc,
+    Base64ByteStrDoc,
+    EmbedDoc768,
+    EmbedDoc1024,
+    GeneratedDoc,
+    LLMParamsDoc,
+    RerankedDoc,
+    SearchedDoc,
+    TextDoc,
+)
 
 # Microservice
-from comps.mega.service_builder import BaseService, ServiceBuilder
-from comps.mega.micro_service import MicroService
+from comps.cores.mega.orchestrator import ServiceOrchestrator
+from comps.cores.mega.orchestrator_with_yaml import ServiceOrchestratorWithYaml
+from comps.cores.mega.micro_service import MicroService, register_microservice, opea_microservices
+
+# Redis config
+from comps.retrievers.langchain.redis_config import INDEX_NAME, REDIS_URL, INDEX_SCHEMA

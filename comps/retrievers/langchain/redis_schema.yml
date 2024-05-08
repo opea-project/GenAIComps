@@ -1,4 +1,3 @@
-#!/bin/bash
 # Copyright (c) 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,4 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo "TODO"
+text:
+  - name: content
+  - name: source
+numeric:
+  - name: start_index
+vector:
+  - name: content_vector
+    algorithm: HNSW
+    datatype: FLOAT32
+    dims: 768
+    distance_metric: COSINE

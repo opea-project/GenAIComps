@@ -12,24 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from docarray import BaseDoc, DocList
-from docarray.typing import NdArray
+opea_micro_services:
+  s1:
+    endpoint: http://localhost:8081/v1/add
 
+  s2:
+    endpoint: http://localhost:8082/v1/add
 
-class TextDoc(BaseDoc):
-    text: str
-
-
-class EmbedDoc768(BaseDoc):
-    text: str
-    embedding: NdArray[768]
-
-
-class EmbedDoc1024(BaseDoc):
-    text: str
-    embedding: NdArray[1024]
-
-
-class GenerateDoc(BaseDoc):
-    text: str
-    prompt: str
+opea_mega_service:
+  mega_flow:
+    - s1 >> s2

@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
-from unittest.mock import patch
+version: "3.8"
 
-from comps.mega.yaml_service_builder import YAMLServiceBuilder
+services:
+  embedding:
+    image: genaicomps/microservice/embedding:0.0.1
+    container_name: embedding_server
+    ports:
+      - "6000:6000"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      TEI_ENDPOINT: ${TEI_ENDPOINT}
+    restart: unless-stopped
 
-
-class TestYAMLServiceBuilder(unittest.TestCase):
-    def test_schedule(self):
-        service_builder = YAMLServiceBuilder(yaml_file_path="mega_service.yaml")
-        service_builder.schedule(initial_inputs={"number": 0})
-        service_builder.get_all_final_outputs()
-        result_dict = service_builder.result_dict
-        self.assertEqual(result_dict, "")
-
-
-if __name__ == "__main__":
-    unittest.main()
+networks:
+  default:
+    driver: bridge
