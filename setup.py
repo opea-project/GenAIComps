@@ -71,10 +71,9 @@ if __name__ == "__main__":
             include=[
                 "comps.cores",
                 "comps.cores.*",
-                "comps.version.py",
             ],
         ),
-        package_data={"comps.cores": ["*.yaml"]},
+        package_data={"": ["*.yaml", "../version.py"]},
         include_package_data=True,
         install_requires=fetch_requirements("requirements.txt"),
         python_requires=">=3.8.0",
