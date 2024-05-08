@@ -33,7 +33,7 @@ concurrency:
 
 env:
   CONTAINER_NAME: "ut-test-container"
-  TEST_MODE: "mega"
+  TEST_NAME: "mega"
 
 jobs:
   MegaService:
@@ -67,7 +67,7 @@ jobs:
       - name: Run UT
         run: |
           docker exec ${{ env.CONTAINER_NAME }} \
-          bash -c "bash /GenAIComps/.github/workflows/scripts/test_ut.sh --test_name ${{ env.TEST_MODE }}"
+          bash -c "bash /GenAIComps/.github/workflows/scripts/test_ut.sh ${{ env.TEST_NAME }}"
 
       #      - name: Run Workflow
       #        env:

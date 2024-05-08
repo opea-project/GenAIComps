@@ -14,16 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PATTERN='[-a-zA-Z0-9_]*='
-for i in "$@"
-do
-    case $i in
-        --test_name=*)
-            test_name=`echo $i | sed "s/${PATTERN}//"`;;
-        *)
-            echo "Parameter $i not recognized."; exit 1;;
-    esac
-done
+test_name=$1
 
 # run test
 ut_log_name=/GenAIComps/.github/workflows/scripts/${test_name}_ut.log
