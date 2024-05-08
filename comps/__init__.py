@@ -32,3 +32,6 @@ from comps.mega.micro_service import MicroService, register_microservice, opea_m
 
 # Redis config
 from comps.retrievers.langchain.redis_config import INDEX_NAME, REDIS_URL, INDEX_SCHEMA
+
+# Telemetry
+from comps.telemetry.opea_telemetry import opea_telemetry
