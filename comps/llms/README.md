@@ -6,7 +6,6 @@ A prerequisite for using this microservice is that users must have a Text Genera
 
 Overall, this microservice offers a streamlined way to integrate large language model inference into applications, requiring minimal setup from the user beyond initiating a TGI service and configuring the necessary environment variables. This allows for the seamless processing of queries and documents to generate intelligent, context-aware responses.
 
-
 # 🚀Start Microservice with Python
 
 To start the LLM microservice, you need to install python packages first.
@@ -18,12 +17,14 @@ pip install -r requirements.txt
 ```
 
 ## Start TGI Service Manually
+
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 docker run -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${your_hf_llm_model}
 ```
 
 ## Verify the TGI Service
+
 ```bash
 curl http://${your_ip}:8008/generate \
   -X POST \
@@ -38,12 +39,12 @@ export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 python langchain/llm_tgi.py
 ```
 
-
 # 🚀Start Microservice with Docker
 
 If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start a TGI service with docker.
 
 ## Setup Environment Variables
+
 In order to start TGI and LLM services, you need to setup the following environment variables first.
 
 ```bash

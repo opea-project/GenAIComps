@@ -20,11 +20,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from comps import GeneratedDoc, LLMParamsDoc, RerankedDoc, opea_microservices, register_microservice
 
 
-@register_microservice(
-        name="opea_service@llm_tgi", 
-        expose_endpoint="/v1/chat/completions", 
-        host="0.0.0.0",
-        port=9000)
+@register_microservice(name="opea_service@llm_tgi", expose_endpoint="/v1/chat/completions", host="0.0.0.0", port=9000)
 def llm_generate(input: RerankedDoc, params: LLMParamsDoc = None) -> GeneratedDoc:
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     params = params if params else LLMParamsDoc()
