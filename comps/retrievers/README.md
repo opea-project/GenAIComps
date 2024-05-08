@@ -17,14 +17,17 @@ pip install -r requirements.txt
 ```
 
 ## Setup Vectordb Service
+
 You need to setup your own vectordb service (Redis in this example), and ingest your knowledge documents into the vector database.
 
 As for Redis, you could start a docker container using the following commands. Remember to ingest data into it manually.
+
 ```bash
 docker run -d --name="redis-vector-db" -p 6379:6379 -p 8001:8001 redis/redis-stack:7.2.0-v9
 ```
 
 ## Setup Environment Variables
+
 ```bash
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
