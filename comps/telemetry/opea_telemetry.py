@@ -13,37 +13,36 @@
 # limitations under the License.
 
 
-from functools import wraps
 import inspect
+from functools import wraps
+
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import (
-    BatchSpanProcessor,
-)
-from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
-    InMemorySpanExporter,
-)
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter as HTTPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
 in_memory_exporter = InMemorySpanExporter()
 trace.set_tracer_provider(TracerProvider())
 trace.get_tracer_provider().add_span_processor(
     BatchSpanProcessor(HTTPSpanExporter(endpoint="http://localhost:4318/v1/traces"))
 )
-trace.get_tracer_provider().add_span_processor(
-    BatchSpanProcessor(in_memory_exporter)
-)
+trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(in_memory_exporter))
 tracer = trace.get_tracer(__name__)
+
 
 def opea_telemetry(func):
     print(f"[*** telemetry ***] {func.__name__} under telemetry.")
     if inspect.iscoroutinefunction(func):
+
         @wraps(func)
         async def wrapper(*args, **kwargs):
             with tracer.start_as_current_span(func.__name__):
                 res = await func(*args, **kwargs)
             return res
+
     else:
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             with tracer.start_as_current_span(func.__name__):

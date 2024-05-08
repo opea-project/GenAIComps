@@ -22,7 +22,8 @@ from datasets import Audio, Dataset
 from pydub import AudioSegment
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
-from comps import Audio2TextDoc, TextDoc, opea_microservices, register_microservice, opea_telemetry
+from comps import Audio2TextDoc, TextDoc, opea_microservices, opea_telemetry, register_microservice
+
 
 @opea_telemetry
 def _audiosegment_to_librosawav(audiosegment):
@@ -34,6 +35,7 @@ def _audiosegment_to_librosawav(audiosegment):
     fp_arr = fp_arr.reshape(-1)
 
     return fp_arr
+
 
 @opea_telemetry
 def audio2text(
