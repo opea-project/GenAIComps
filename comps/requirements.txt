@@ -1,7 +1,7 @@
 docarray
-httpx
-pyyaml
-requests
 fastapi
+httpx
 opentelemetry-api
 opentelemetry-sdk
+pyyaml
+requests
