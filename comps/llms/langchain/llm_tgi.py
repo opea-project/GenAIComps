@@ -14,18 +14,15 @@
 
 import os
 from typing import Union
+
 from langchain_community.llms import HuggingFaceEndpoint
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+
 from comps import GeneratedDoc, LLMParamsDoc, RerankedDoc, TextDoc, opea_microservices, register_microservice
 
 
-@register_microservice(
-        name="opea_service@llm_tgi", 
-        expose_endpoint="/v1/chat/completions", 
-        host="0.0.0.0", 
-        port=9000
-)
+@register_microservice(name="opea_service@llm_tgi", expose_endpoint="/v1/chat/completions", host="0.0.0.0", port=9000)
 def llm_generate(input: Union[TextDoc, RerankedDoc]) -> GeneratedDoc:
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     params = LLMParamsDoc()
