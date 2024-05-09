@@ -23,6 +23,7 @@ from comps.cores.proto.docarray import (
     RerankedDoc,
     SearchedDoc,
     TextDoc,
+    DocPath,
 )
 
 # Microservice
