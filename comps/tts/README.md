@@ -13,7 +13,7 @@ To start the TTS microservice, you need to install python packages first.
 pip install -r requirements.txt
 ```
 
-## ## Start TTS Service with Python Script
+## Start TTS Service with Python Script
 
 ```bash
 python tts.py
