@@ -4,3 +4,5 @@ pydub
 torch
 transformers
 zhconv
+docarray[full]
+fastapi
