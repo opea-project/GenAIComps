@@ -29,6 +29,9 @@ else
     python -m pytest -vs ./test_${test_name}*.py 2>&1 | tee ${ut_log_name}
 fi
 
+# clean the pytest cache
+rm -rf /GenAIComps/.pytest_cache
+
 # check test result
 if [ $(grep -c '== FAILURES ==' ${ut_log_name}) != 0 ] || [ $(grep -c '== ERRORS ==' ${ut_log_name}) != 0 ] || [ $(grep -c ' passed' ${ut_log_name}) == 0 ]; then
     echo "Find errors in pytest case, please check the output..."
