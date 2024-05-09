@@ -14,7 +14,7 @@ This initiative empowers the development of high-quality Generative AI applicati
 
 GenAIComps provides a suite of microservices, leveraging a service composer to assemble a mega-service tailored for real-world Enterprise AI applications. All the microservices are containerized, allowing cloud native deployment. Checkout how the microservices are used in [GenAIExamples](https://github.com/opea-project/GenAIExamples)).
 
-![Architecture](https://i.imgur.com/SuPqzOi.png)
+![Architecture](https://i.imgur.com/NBQKLVr.png)
 
 ## MicroService
 
@@ -36,7 +36,7 @@ The initially supported microservices are described in the below table. More mic
 			<td><a href="https://huggingface.co/BAAI/bge-large-en-v1.5">BAAI/bge-large-en-v1.5</a></td>
 			<td><a href="https://github.com/huggingface/tei-gaudi">TEI-Habana</a></td>
 			<td>Gaudi2</td>
-			<td>Embedding Microservice on Gaudi2</td>
+			<td>Embedding on Gaudi2</td>
 		</tr>
 		<tr>
 			<td><a href="./comps/embeddings/README.md">Embedding</a></td>
@@ -44,7 +44,7 @@ The initially supported microservices are described in the below table. More mic
 			<td><a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BAAI/bge-base-en-v1.5</a></td>
 			<td><a href="https://github.com/huggingface/text-embeddings-inference">TEI</a></td>
 			<td>Xeon</td>
-			<td>Embedding Microservice on Xeon CPU</td>
+			<td>Embedding on Xeon CPU</td>
 		</tr>
 		<tr>
 			<td><a href="./comps/retrievers/README.md">Retriever</a></td>
@@ -52,7 +52,7 @@ The initially supported microservices are described in the below table. More mic
 			<td><a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BAAI/bge-base-en-v1.5</a></td>
 			<td><a href="https://github.com/huggingface/text-embeddings-inference">TEI</a></td>
 			<td>Xeon</td>
-			<td>Retriever Microservice on Xeon CPU</td>
+			<td>Retriever on Xeon CPU</td>
 		</tr>
 		<tr>
 			<td><a href="./comps/reranks/README.md">Reranking</a></td>
@@ -60,7 +60,7 @@ The initially supported microservices are described in the below table. More mic
 			<td><a href="https://huggingface.co/BAAI/bge-reranker-large">BAAI/bge-reranker-large</a></td>
 			<td><a href="https://github.com/huggingface/tei-gaudi">TEI-Habana</a></td>
 			<td>Gaudi2</td>
-			<td>Reranking Microservice on Gaudi2</td>
+			<td>Reranking on Gaudi2</td>
 		</tr>
 		<tr>
 			<td><a href="./comps/reranks/README.md">Reranking</a></td>
@@ -68,7 +68,7 @@ The initially supported microservices are described in the below table. More mic
 			<td><a href="https://huggingface.co/BAAI/bge-reranker-base">BBAAI/bge-reranker-base</a></td>
 			<td><a href="https://github.com/huggingface/text-embeddings-inference">TEI</a></td>
 			<td>Xeon</td>
-			<td>Reranking Microservice on Xeon CPU</td>
+			<td>Reranking on Xeon CPU</td>
 		</tr>
 		<tr>
 			<td><a href="./comps/llms/README.md">LLM</a></td>
@@ -76,7 +76,7 @@ The initially supported microservices are described in the below table. More mic
 			<td><a href="https://huggingface.co/Intel/neural-chat-7b-v3-3">Intel/neural-chat-7b-v3-3</a></td>
 			<td><a href="https://github.com/huggingface/tgi-gaudi">TGI Gaudi</a></td>
 			<td>Gaudi</td>
-			<td>LLM Microservice on Gaudi2</td>
+			<td>LLM on Gaudi2</td>
 		</tr>
 		<tr>
 			<td><a href="./comps/llms/README.md">LLM</a></td>
@@ -84,7 +84,7 @@ The initially supported microservices are described in the below table. More mic
 			<td><a href="https://huggingface.co/Intel/neural-chat-7b-v3-3">Intel/neural-chat-7b-v3-3</a></td>
 			<td><a href="https://github.com/huggingface/text-generation-inference">TGI</a></td>
 			<td>Xeon</td>
-			<td>LLM Microservice on Xeon CPU</td>
+			<td>LLM on Xeon CPU</td>
 		</tr>
 	</tbody>
 </table>
