@@ -1,10 +1,11 @@
+#
 # Copyright (c) 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,21 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "3.8"
+ARG UBUNTU_VER=22.04
+FROM ubuntu:${UBUNTU_VER} as devel
 
-services:
-  embedding:
-    image: intel/gen-ai-comps:embedding-tei-server
-    container_name: embedding-tei-server
-    ports:
-      - "6000:6000"
-    ipc: host
-    environment:
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-    restart: unless-stopped
+ENV LANG C.UTF-8
 
-networks:
-  default:
-    driver: bridge
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    aspell \
+    aspell-en \
+    build-essential \
+    python3 \
+    python3-pip \
+    python3-dev \
+    python3-distutils \
+    git \
+    vim \
+    wget
+
+RUN ln -sf $(which python3) /usr/bin/python
+RUN python -m pip install --no-cache-dir pytest
+
+WORKDIR /

@@ -12,21 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "3.8"
+FROM python:3.11-slim
 
-services:
-  embedding:
-    image: intel/gen-ai-comps:embedding-tei-server
-    container_name: embedding-tei-server
-    ports:
-      - "6000:6000"
-    ipc: host
-    environment:
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-    restart: unless-stopped
+ENV LANG C.UTF-8
 
-networks:
-  default:
-    driver: bridge
+RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+    libgl1-mesa-glx \
+    libjemalloc-dev \
+    vim
+
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+USER user
+
+COPY comps /home/user/comps
+
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /home/user/comps/reranks/requirements.txt
+
+ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+WORKDIR /home/user/comps/reranks
+
+ENTRYPOINT ["python", "reranking_tei_xeon.py"]
+

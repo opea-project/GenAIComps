@@ -15,16 +15,26 @@
 version: "3.8"
 
 services:
-  embedding:
-    image: intel/gen-ai-comps:embedding-tei-server
-    container_name: embedding-tei-server
+  tei_xeon_service:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.2
+    container_name: tei_xeon_server
     ports:
-      - "6000:6000"
+      - "8808:80"
+    volumes:
+      - "./data:/data"
+    shm_size: 1g
+    command: --model-id ${RERANK_MODEL_ID}
+  reranking:
+    image: intel/gen-ai-comps:reranking-tei-xeon-server
+    container_name: reranking-tei-xeon-server
+    ports:
+      - "8000:8000"
     ipc: host
     environment:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      TEI_RERANKING_ENDPOINT: ${TEI_RERANKING_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
     restart: unless-stopped
 
 networks:

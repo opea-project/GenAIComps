@@ -11,22 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-version: "3.8"
-
-services:
-  embedding:
-    image: intel/gen-ai-comps:embedding-tei-server
-    container_name: embedding-tei-server
-    ports:
-      - "6000:6000"
-    ipc: host
-    environment:
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-    restart: unless-stopped
-
-networks:
-  default:
-    driver: bridge

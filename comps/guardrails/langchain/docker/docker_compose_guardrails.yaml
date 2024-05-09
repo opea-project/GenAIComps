@@ -15,16 +15,25 @@
 version: "3.8"
 
 services:
-  embedding:
-    image: intel/gen-ai-comps:embedding-tei-server
-    container_name: embedding-tei-server
+  tgi_gaudi_service:
+    image: ghcr.io/huggingface/tgi-gaudi:1.2.1
+    container_name: tgi_service
     ports:
-      - "6000:6000"
+      - "8088:80"
+    volumes:
+      - "./data:/data"
+    shm_size: 1g
+    command: --model-id ${LLM_MODEL_ID}
+  guardrails:
+    image: intel/gen-ai-comps:guardrails-tgi-gaudi-server
+    container_name: guardrails-tgi-gaudi-server
+    ports:
+      - "9090:9090"
     ipc: host
     environment:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      SAFETY_GUARD_ENDPOINT: ${SAFETY_GUARD_ENDPOINT}
     restart: unless-stopped
 
 networks:

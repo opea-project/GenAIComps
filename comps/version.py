@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,21 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "3.8"
-
-services:
-  embedding:
-    image: intel/gen-ai-comps:embedding-tei-server
-    container_name: embedding-tei-server
-    ports:
-      - "6000:6000"
-    ipc: host
-    environment:
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-    restart: unless-stopped
-
-networks:
-  default:
-    driver: bridge
+__version__ = "0.1"
