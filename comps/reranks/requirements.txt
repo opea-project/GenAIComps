@@ -1,2 +1,6 @@
 docarray[full]
 sentence_transformers
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+fastapi
