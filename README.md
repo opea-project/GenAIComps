@@ -96,4 +96,3 @@ The initially supported microservices are described in the below table. More mic
 - [Contribution](/CONTRIBUTING.md)
 - [Legal Information](/LEGAL_INFORMATION.md)
 - [Security Policy](/SECURITY.md)
-
