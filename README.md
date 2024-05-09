@@ -10,7 +10,6 @@
 
 This project enables the creation of Enterprise AI services through microservices, streamlining the process of scaling and deployment to production. It abstracts away infrastructure complexities, facilitating the seamless development and deployment of Enterprise AI services.
 
-
 ## GenAIComps
 
 GenAIComps provides a suite of microservices, leveraging a service composer to assemble a mega-service tailored for real-world Enterprise AI applications, all rigorously validated on Intel platforms.
@@ -95,6 +94,5 @@ Deploying AI applications using a microservice architecture has several advantag
 		</tr>
 	</tbody>
 </table>
-
 
 ## MegaService
