@@ -2,7 +2,7 @@ docarray
 fastapi
 httpx
 opentelemetry-api
-opentelemetry-sdk
 opentelemetry-exporter-otlp
+opentelemetry-sdk
 pyyaml
 requests
