@@ -1,4 +1,3 @@
-
 # ASR Microservice
 
 ASR (Audio-Speech-Recognition) micro-service helps users convert speech to text. When building a talkingbot with LLM, users may need to convert their audio inputs (What they talk, or Input audio from other sources) to text, so LLM is able to tokenize the text and generate the answer. This microservice is built for that conversion stage.
@@ -23,7 +22,6 @@ python asr.py
 
 The other way is to start the ASR microservice with Docker.
 
-
 ## Build Docker Image
 
 ```bash
@@ -36,7 +34,6 @@ docker build -t intel/gen-ai-comps:asr --build-arg https_proxy=$https_proxy --bu
 ```bash
 docker run -p 9099:9099 --network=host --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy intel/gen-ai-comps:asr
 ```
-
 
 # Test
 

@@ -1,4 +1,3 @@
-
 # TTS Microservice
 
 TTS (Text-To-Speech) micro-service helps users convert text to speech. When building a talkingbot with LLM, users may need to get the LLM dgenerated answer in audio. This microservice is built for that conversion stage.
@@ -35,7 +34,6 @@ docker build -t intel/gen-ai-comps:tts --build-arg https_proxy=$https_proxy --bu
 ```bash
 docker run -p 9999:9999 --network=host --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy intel/gen-ai-comps:tts
 ```
-
 
 # Test
 
