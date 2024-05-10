@@ -44,7 +44,7 @@ def llm_generate(input: Union[TextDoc, RerankedDoc]) -> GeneratedDoc:
         """
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | llm | StrOutputParser()
-        final_prompt=input.query
+        final_prompt = input.query
         response = chain.invoke({"question": input.query, "context": input.doc.text})
     elif isinstance(input, TextDoc):
         final_prompt = input.text
