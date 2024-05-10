@@ -3,3 +3,6 @@ fastapi
 langchain_community
 redis
 sentence_transformers
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk

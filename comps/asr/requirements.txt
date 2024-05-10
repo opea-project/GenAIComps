@@ -6,3 +6,6 @@ pydub
 torch
 transformers
 zhconv
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
