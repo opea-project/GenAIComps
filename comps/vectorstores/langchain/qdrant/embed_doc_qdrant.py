@@ -16,16 +16,16 @@ import os
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
-from langchain_community.vectorstores import Redis
+from langchain_community.vectorstores import Qdrant
 from comps import DocPath, opea_microservices, register_microservice
-from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
+from config import EMBED_MODEL, COLLECTION_NAME, QDRANT_HOST, QDRANT_PORT
 from comps.vectorstores.utils import docment_loader
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
 
 @register_microservice(
-    name="opea_service@embed_doc_redis",
+    name="opea_service@embed_doc_qdrant",
     expose_endpoint="/v1/vectorstores",
     host="0.0.0.0",
     port=6000,
@@ -33,7 +33,7 @@ tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
     output_datatype=None,
 )
 def ingest_documents(doc_path: DocPath):
-    """Ingest document to Redis."""
+    """Ingest document to Qdrant."""
     doc_path = doc_path.path
     print(f"Parsing document {doc_path}.")
 
@@ -57,14 +57,14 @@ def ingest_documents(doc_path: DocPath):
         batch_chunks = chunks[i : i + batch_size]
         batch_texts = batch_chunks
 
-        _ = Redis.from_texts(
+        _ = Qdrant.from_texts(
             texts=batch_texts,
             embedding=embedder,
-            index_name=INDEX_NAME,
-            index_schema=INDEX_SCHEMA,
-            redis_url=REDIS_URL,
+            collection_name=COLLECTION_NAME,
+            host=QDRANT_HOST,
+            port=QDRANT_PORT,
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@embed_doc_redis"].start()
+    opea_microservices["opea_service@embed_doc_qdrant"].start()
