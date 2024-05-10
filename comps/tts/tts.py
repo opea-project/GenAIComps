@@ -23,21 +23,22 @@ from transformers import SpeechT5ForTextToSpeech, SpeechT5HifiGan, SpeechT5Proce
 
 from comps import Base64ByteStrDoc, TextDoc, opea_microservices, opea_telemetry, register_microservice
 
+
 @opea_telemetry
 def split_long_text_into_batch(text, batch_length=64):
     """Batch the long text into sequences of shorter sentences."""
     res = []
-    hitted_ends = [',', '.', '?', '!', '。', ';']
+    hitted_ends = [",", ".", "?", "!", "。", ";"]
     idx = 0
     cur_start = 0
     cur_end = -1
     while idx < len(text):
         if idx - cur_start > batch_length:
             if cur_end != -1 and cur_end > cur_start:
-                res.append(text[cur_start:cur_end+1])
+                res.append(text[cur_start : cur_end + 1])
             else:
-                cur_end = cur_start+batch_length-1
-                res.append(text[cur_start:cur_end+1])
+                cur_end = cur_start + batch_length - 1
+                res.append(text[cur_start : cur_end + 1])
             idx = cur_end
             cur_start = cur_end + 1
         if text[idx] in hitted_ends:
@@ -45,8 +46,9 @@ def split_long_text_into_batch(text, batch_length=64):
         idx += 1
     # deal with the last sequence
     res.append(text[cur_start:idx])
-    res = [i + "." for i in res]    # avoid unexpected end of sequence
+    res = [i + "." for i in res]  # avoid unexpected end of sequence
     return res
+
 
 @opea_telemetry
 def text2speech(
@@ -93,10 +95,11 @@ def text2speech(
             speaker_embeddings=default_speaker_embedding.to(device),
             attention_mask=inputs["attention_mask"].to(device),
             vocoder=vocoder,
-            return_output_lengths=True,)
+            return_output_lengths=True,
+        )
     for i in range(waveforms.size(0)):
         all_speech = np.concatenate([all_speech, waveforms[i][: waveform_lengths[i]].cpu().numpy()])
-        all_speech = np.concatenate([all_speech, np.array([0 for i in range(4000)])]) # pad after each end
+        all_speech = np.concatenate([all_speech, np.array([0 for i in range(4000)])])  # pad after each end
 
     print(f"generated speech in {time.time() - start} seconds")
     return all_speech
