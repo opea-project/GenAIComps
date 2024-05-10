@@ -14,6 +14,9 @@ For evaluating the models on text-generation tasks, we follow the [lm-evaluation
 
 ##### Gaudi2
 ```shell
+
+# pip install --upgrade-strategy eager optimum[habana]
+
 python main.py \
     --model gaudi-hf \
     --model_args pretrained=EleutherAI/gpt-j-6B \
