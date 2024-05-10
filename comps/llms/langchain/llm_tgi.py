@@ -44,11 +44,12 @@ def llm_generate(input: Union[TextDoc, RerankedDoc]) -> GeneratedDoc:
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"question": input.query, "context": input.doc.text})
+        res = GeneratedDoc(text=response, prompt=input.query)
     elif isinstance(input, TextDoc):
         response = llm.invoke(input.text)
+        res = GeneratedDoc(text=response, prompt=input.text)
     else:
         raise TypeError("Invalid input type. Expected TextDoc or RerankedDoc.")
-    res = GeneratedDoc(text=response, prompt=input.query)
     return res
 
 
