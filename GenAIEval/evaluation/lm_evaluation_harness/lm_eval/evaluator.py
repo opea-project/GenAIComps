@@ -156,10 +156,12 @@ def simple_evaluate(
             model_args = ""
         # replace HFLM.
         from .models.huggingface import HFLM
+        from .models.huggingface import HFLM, GaudiHFModelAdapter
 
         lm_eval.api.registry.MODEL_REGISTRY["hf-auto"] = HFLM
         lm_eval.api.registry.MODEL_REGISTRY["hf"] = HFLM
         lm_eval.api.registry.MODEL_REGISTRY["huggingface"] = HFLM
+        lm_eval.api.registry.MODEL_REGISTRY["gaudi-hf"] = GaudiHFModelAdapter
 
         if user_model is not None:
             # use tiny model to built lm.

@@ -1270,3 +1270,60 @@ class HFLM(TemplateLM):
         pbar.close()
 
         return res
+
+class GaudiHFModelAdapter(HFLM):
+
+    def __init__(self, *args, **kwargs):
+        if kwargs["device"] == "hpu":
+            import habana_frameworks.torch.core as htcore
+
+        super().__init__(*args, **kwargs)
+
+        self._batch_size = int(kwargs["batch_size"])
+        self._add_special_tokens = None
+        self.model_format = "torch"
+        self.buckets = [16, 32, 64, 128, 189, 284]
+        self._device = kwargs["device"]
+        if self._device == "hpu":
+            from optimum.habana.checkpoint_utils import model_is_optimized # pylint: disable=E0611, E0401
+            self.static_shapes = model_is_optimized(self.model.config)
+        else:
+            self.static_shapes = False
+
+        if self.static_shapes:
+            print("use hpu graphs.")
+            from habana_frameworks.torch.hpu import wrap_in_hpu_graph
+            self._model = wrap_in_hpu_graph(self._model)
+
+        print("lm-eval warmup starting for Gaudi.")
+        self.warm_up()
+        print("lm-eval warmup done for Gaudi.")
+
+    def warm_up(self):
+        for bucket_size in reversed(self.buckets):
+            inps = torch.ones((self._batch_size, bucket_size), dtype=torch.int64)
+            self._model_call(inps)
+            pass
+
+    @property
+    def device(self):
+        # We need to do padding ourselves, otherwise we'll end up with recompilations
+        # Returning 'cpu' to keep tensors on CPU in lm_eval code
+        return "hpu"
+
+    def find_bucket(self, length):
+        return [b for b in self.buckets if b >= length][0]
+
+    def _model_call(self, inps):
+        bs, seq_length = inps.shape
+        padding_length = 0
+        if self.static_shapes:
+            bucket_length = self.find_bucket(seq_length)
+            padding_length = bucket_length - seq_length
+            inps = F.pad(inps, (0, padding_length), value=self.model.config.pad_token_id)
+        logits = self._model(inps.to(self._device))["logits"].cpu()
+
+        if self.static_shapes and padding_length > 0:
+            logits = logits[:, :-padding_length, :]
+        logits = logits.to(torch.float32)
+        return logits
