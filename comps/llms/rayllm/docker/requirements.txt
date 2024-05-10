@@ -1,0 +1,17 @@
+accelerate
+datasets>=2.14.6
+numpy
+ray>=2.10
+ray[serve,tune]>=2.10
+typing>=3.7.4.3
+tabulate
+gymnasium
+dm-tree
+tensorboard
+scikit-image
+einops
+py-cpuinfo
+pydantic-yaml
+async_timeout
+typer
+easydict
