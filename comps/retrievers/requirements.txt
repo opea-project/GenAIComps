@@ -1,8 +1,8 @@
 docarray[full]
 fastapi
 langchain_community
-redis
-sentence_transformers
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+redis
+sentence_transformers
