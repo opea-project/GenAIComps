@@ -75,7 +75,7 @@ The initially supported microservices are described in the below table. More mic
             <td><a href="https://www.langchain.com">LangChain</a></td>
 			<td><a href="https://huggingface.co/Intel/neural-chat-7b-v3-3">Intel/neural-chat-7b-v3-3</a></td>
 			<td><a href="https://github.com/huggingface/tgi-gaudi">TGI Gaudi</a></td>
-			<td>Gaudi</td>
+			<td>Gaudi2</td>
 			<td>LLM on Gaudi2</td>
 		</tr>
 		<tr>
