@@ -16,7 +16,6 @@
 # limitations under the License.
 import itertools
 import logging
-import os
 import random
 import time
 from collections import defaultdict
@@ -27,7 +26,6 @@ import lm_eval.api.registry
 import lm_eval.models
 import numpy as np
 import torch
-from lm_eval import utils
 from lm_eval.caching.cache import delete_cache
 from lm_eval.evaluator_utils import (
     consolidate_results,
@@ -154,9 +152,7 @@ def simple_evaluate(
     if tasks is None:
         tasks = []
     if len(tasks) == 0:
-        raise ValueError(
-            "No tasks specified, or no tasks found. Please verify the task names."
-        )
+        raise ValueError("No tasks specified, or no tasks found. Please verify the task names.")
 
     if gen_kwargs is not None:
         gen_kwargs = simple_parse_args_string(gen_kwargs)
@@ -171,7 +167,6 @@ def simple_evaluate(
         if model_args is None:
             model_args = ""
         # replace HFLM.
-        from .models.huggingface import HFLM
         from .models.huggingface import HFLM, GaudiHFModelAdapter
 
         lm_eval.api.registry.MODEL_REGISTRY["hf-auto"] = HFLM
@@ -244,15 +239,11 @@ def simple_evaluate(
 
         if task_obj.get_config("output_type") == "generate_until":
             if gen_kwargs is not None:
-                task_obj.set_config(
-                    key="generation_kwargs", value=gen_kwargs, update=True
-                )
+                task_obj.set_config(key="generation_kwargs", value=gen_kwargs, update=True)
 
         if predict_only:
             log_samples = True
-            eval_logger.info(
-                f"Processing {task_name} in output-only mode. Metrics will not be calculated!"
-            )
+            eval_logger.info(f"Processing {task_name} in output-only mode. Metrics will not be calculated!")
             # we have to change the class properties post-hoc. This is pretty hacky.
             task_obj.override_metric(metric_name="bypass")
 
@@ -302,9 +293,7 @@ def simple_evaluate(
             "model": model_name,
             "model_args": model_args,
             "batch_size": batch_size,
-            "batch_sizes": (
-                list(lm.batch_sizes.values()) if hasattr(lm, "batch_sizes") else []
-            ),
+            "batch_sizes": (list(lm.batch_sizes.values()) if hasattr(lm, "batch_sizes") else []),
             "device": device,
             "use_cache": use_cache,
             "limit": limit,
@@ -316,7 +305,7 @@ def simple_evaluate(
         try:
             add_env_info(results)  # additional environment info to results
         except Exception:
-            eval_logger.info(f"get env info failed.")
+            eval_logger.info("get env info failed.")
         return results
     else:
         return None
@@ -364,8 +353,7 @@ def evaluate(
     task_hierarchy, eval_tasks = get_task_list(task_dict)
     if not log_samples:
         if not all(
-            "bypass" not in getattr(task_output.task, "_metric_fn_list", {}).keys()
-            for task_output in eval_tasks
+            "bypass" not in getattr(task_output.task, "_metric_fn_list", {}).keys() for task_output in eval_tasks
         ):
             raise ValueError("log_samples must be True for 'bypass' metric-only tasks")
     for task_output in eval_tasks:
@@ -378,9 +366,7 @@ def evaluate(
             cache_requests=cache_requests,
             rewrite_requests_cache=rewrite_requests_cache,
         )
-        eval_logger.debug(
-            f"Task: {task_output.task_name}; number of requests on this rank: {len(task.instances)}"
-        )
+        eval_logger.debug(f"Task: {task_output.task_name}; number of requests on this rank: {len(task.instances)}")
 
         if write_out:
             print_writeout(task)
@@ -391,15 +377,9 @@ def evaluate(
 
         if lm.world_size > 1:
             instances_rnk = torch.tensor(len(task._instances), device=lm.device)
-            gathered_item = (
-                lm.accelerator.gather(instances_rnk).cpu().detach().numpy().tolist()
-            )
+            gathered_item = lm.accelerator.gather(instances_rnk).cpu().detach().numpy().tolist()
             # "multiple_choice" task types dispatch (several) "loglikelihood" request types
-            reqtype = (
-                "loglikelihood"
-                if task.OUTPUT_TYPE == "multiple_choice"
-                else task.OUTPUT_TYPE
-            )
+            reqtype = "loglikelihood" if task.OUTPUT_TYPE == "multiple_choice" else task.OUTPUT_TYPE
             # compute number of pseudo-batches to pad with (FSDP/DDP require even batches among ranks)
             numpad = max(gathered_item) - gathered_item[lm.rank]
             # todo: may not account for padding in cases like SquadV2 which has multiple req types
@@ -448,14 +428,10 @@ def evaluate(
             instances.sort(key=lambda x: x.idx)
         # iterate over different filters used
         for filter_key in task.instances[0].filtered_resps.keys():
-            doc_iterator = task.doc_iterator(
-                rank=RANK, limit=limit, world_size=WORLD_SIZE
-            )
+            doc_iterator = task.doc_iterator(rank=RANK, limit=limit, world_size=WORLD_SIZE)
             for doc_id, doc in doc_iterator:
                 requests = instances_by_doc_id[doc_id]
-                metrics = task.process_results(
-                    doc, [req.filtered_resps[filter_key] for req in requests]
-                )
+                metrics = task.process_results(doc, [req.filtered_resps[filter_key] for req in requests])
                 if log_samples:
                     target = task.doc_to_target(doc)
                     example = {
@@ -464,9 +440,7 @@ def evaluate(
                         "target": target,
                         "arguments": [req.args for req in requests],
                         "resps": [req.resps for req in requests],
-                        "filtered_resps": [
-                            req.filtered_resps[filter_key] for req in requests
-                        ],
+                        "filtered_resps": [req.filtered_resps[filter_key] for req in requests],
                     }
                     example.update(metrics)
                     task_output.logged_samples.append(example)
@@ -487,9 +461,7 @@ def evaluate(
                 )
 
                 if RANK == 0:
-                    task_output.logged_samples = list(
-                        itertools.chain.from_iterable(full_samples)
-                    )
+                    task_output.logged_samples = list(itertools.chain.from_iterable(full_samples))
 
             # then collect metrics across all ranks
             for metrics in task_output.sample_metrics:
@@ -500,18 +472,14 @@ def evaluate(
                     dst=0,
                 )
                 if RANK == 0:
-                    task_output.sample_metrics[metrics] = list(
-                        itertools.chain.from_iterable(metric_list)
-                    )
+                    task_output.sample_metrics[metrics] = list(itertools.chain.from_iterable(metric_list))
 
     if RANK == 0:
         ### Aggregate results over all datapoints ###
         # aggregate results ; run bootstrap CIs
         for task_output in eval_tasks:
             task_output.calculate_aggregate_metric(bootstrap_iters=bootstrap_iters)
-        results, samples, configs, versions, num_fewshot = consolidate_results(
-            eval_tasks
-        )
+        results, samples, configs, versions, num_fewshot = consolidate_results(eval_tasks)
 
         ### Calculate group metrics ###
         if bool(results):
@@ -534,33 +502,17 @@ def evaluate(
                     stderr = "_stderr,".join(metric.split(","))
 
                     # gather metrics, sizes, and stderrs from subtasks
-                    metrics = [
-                        results[task][metric]
-                        for task in task_list
-                        if metric in results[task]
-                    ]  # TODO: copy?
-                    stderrs = [
-                        results[task][stderr]
-                        for task in task_list
-                        if stderr in results[task]
-                    ]
-                    sizes = [
-                        results[task]["samples"]
-                        for task in task_list
-                        if metric in results[task]
-                    ]
+                    metrics = [results[task][metric] for task in task_list if metric in results[task]]  # TODO: copy?
+                    stderrs = [results[task][stderr] for task in task_list if stderr in results[task]]
+                    sizes = [results[task]["samples"] for task in task_list if metric in results[task]]
 
                     # compute group's pooled metric and stderr
-                    results[group][metric] = (
-                        lm_eval.api.metrics.aggregate_subtask_metrics(metrics, sizes)
-                    )
+                    results[group][metric] = lm_eval.api.metrics.aggregate_subtask_metrics(metrics, sizes)
                     # TODO: calculate grouped metric using aggregation fn
                     if "N/A" in stderrs:
                         results[group][stderr] = "N/A"
                     else:
-                        results[group][stderr] = (
-                            lm_eval.api.metrics.pooled_sample_stderr(stderrs, sizes)
-                        )
+                        results[group][stderr] = lm_eval.api.metrics.pooled_sample_stderr(stderrs, sizes)
                         # TODO: allow GroupConfigs to choose which variance formula is used, for back-compatibility
                         # To use the old (likely incorrect) variance formula,
                         # comment out the above and uncomment this line:
@@ -578,9 +530,7 @@ def evaluate(
             if len(left_tasks_list) == 0:
                 break
 
-            _task_hierarchy = {
-                k: v for k, v in task_hierarchy.items() if k in left_tasks_list
-            }
+            _task_hierarchy = {k: v for k, v in task_hierarchy.items() if k in left_tasks_list}
             _results_agg, _groups_agg = prepare_print_tasks(_task_hierarchy, results)
 
             results_agg = {**results_agg, **_results_agg}
@@ -588,9 +538,7 @@ def evaluate(
 
         for group_name, task_list in task_hierarchy.items():
             if task_list:
-                num_fewshot[group_name] = num_fewshot[
-                    task_list[0]
-                ]  # TODO: validate this
+                num_fewshot[group_name] = num_fewshot[task_list[0]]  # TODO: validate this
 
         results_dict = {
             "results": dict(results_agg.items()),

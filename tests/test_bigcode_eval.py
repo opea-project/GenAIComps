@@ -25,9 +25,7 @@ class TestLMEval(unittest.TestCase):
     def test_lm_eval(self):
         model_name_or_path = "codeparrot/codeparrot-small"
         user_model = AutoModelForCausalLM.from_pretrained(model_name_or_path)
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_name_or_path, truncation_side="left", padding_side="right"
-        )
+        tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, truncation_side="left", padding_side="right")
         args = BigcodeEvalParser(
             user_model=user_model,
             tokenizer=tokenizer,

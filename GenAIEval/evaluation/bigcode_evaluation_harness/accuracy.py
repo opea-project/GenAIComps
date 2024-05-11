@@ -27,17 +27,12 @@ from accelerate import Accelerator
 # from bigcode_eval.arguments import EvalArguments
 from bigcode_eval.evaluator import Evaluator
 from bigcode_eval.tasks import ALL_TASKS
-from transformers import (
-    AutoModelForCausalLM,
-    AutoModelForSeq2SeqLM,
-    AutoTokenizer,
-    HfArgumentParser,
-)
+from transformers import AutoModelForCausalLM, AutoModelForSeq2SeqLM, AutoTokenizer
 
 
 def pattern_match(patterns, source_list):
     """Returns a list containing all values of the source_list that
-    match at least one of the patterns"""
+    match at least one of the patterns."""
     task_names = set()
     for pattern in patterns:
         for matching in fnmatch.filter(source_list, pattern):
@@ -88,9 +83,7 @@ def evaluate(args):
             "bf16": torch.bfloat16,
         }
         if args.precision not in dict_precisions:
-            raise ValueError(
-                f"Non valid precision {args.precision}, choose from: fp16, fp32, bf16"
-            )
+            raise ValueError(f"Non valid precision {args.precision}, choose from: fp16, fp32, bf16")
 
         model_kwargs = {
             "revision": args.revision,
@@ -127,17 +120,13 @@ def evaluate(args):
                     **model_kwargs,
                 )
             elif args.modeltype == "seq2seq":
-                warnings.warn(
-                    "Seq2Seq models have only been tested for HumanEvalPack & CodeT5+ models."
-                )
+                warnings.warn("Seq2Seq models have only been tested for HumanEvalPack & CodeT5+ models.")
                 model = AutoModelForSeq2SeqLM.from_pretrained(
                     args.model,
                     **model_kwargs,
                 )
             else:
-                raise ValueError(
-                    f"Non valid modeltype {args.modeltype}, choose from: causal, seq2seq"
-                )
+                raise ValueError(f"Non valid modeltype {args.modeltype}, choose from: causal, seq2seq")
 
             if args.peft_model:
                 from peft import PeftModel  # dynamic import to avoid dependency on peft
@@ -196,9 +185,9 @@ def evaluate(args):
 
         evaluator = Evaluator(accelerator, model, tokenizer, args)
 
-        if args.load_generations_intermediate_paths and len(
-            args.load_generations_intermediate_paths
-        ) != len(task_names):
+        if args.load_generations_intermediate_paths and len(args.load_generations_intermediate_paths) != len(
+            task_names
+        ):
             raise ValueError(
                 "If passing --load_generations_intermediate_paths, \
                 must pass equal number of files as number of tasks"
@@ -219,9 +208,7 @@ def evaluate(args):
                     task, intermediate_generations=intermediate_generations
                 )
                 if accelerator.is_main_process:
-                    save_generations_path = (
-                        f"{os.path.splitext(args.save_generations_path)[0]}_{task}.json"
-                    )
+                    save_generations_path = f"{os.path.splitext(args.save_generations_path)[0]}_{task}.json"
                     save_references_path = f"references_{task}.json"
                     evaluator.save_json_files(
                         generations,
@@ -230,9 +217,7 @@ def evaluate(args):
                         save_references_path,
                     )
             else:
-                results[task] = evaluator.evaluate(
-                    task, intermediate_generations=intermediate_generations
-                )
+                results[task] = evaluator.evaluate(task, intermediate_generations=intermediate_generations)
 
     # Save all args to config
     clean_args(args)

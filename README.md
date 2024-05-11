@@ -35,13 +35,15 @@ python main.py \
 #### function call usage
 ```python
 from GenAIEval.evaluation.lm_evaluation_harness import evaluate, LMEvalParser
-args = LMevalParser(model = "hf", 
-                    user_model = user_model,
-                    tokenizer = tokenizer,
-                    tasks = "hellaswag",
-                    device = "cpu",
-                    batch_size = 8,
-                    )
+
+args = LMevalParser(
+    model="hf",
+    user_model=user_model,
+    tokenizer=tokenizer,
+    tasks="hellaswag",
+    device="cpu",
+    batch_size=8,
+)
 results = evaluate(args)
 ```
 
@@ -64,13 +66,14 @@ python main.py \
 #### function call usage
 ```python
 from GenAIEval.evaluation.bigcode_evaluation_harness import evaluate, BigcodeEvalParser
+
 args = BigcodeEvalParser(
-                    user_model = user_model,
-                    tokenizer = tokenizer,
-                    tasks = "humaneval",
-                    n_samples = 100,
-                    batch_size = 10,
-                    allow_code_execution=True,
-                    )
+    user_model=user_model,
+    tokenizer=tokenizer,
+    tasks="humaneval",
+    n_samples=100,
+    batch_size=10,
+    allow_code_execution=True,
+)
 results = evaluate(args)
 ```

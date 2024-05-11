@@ -81,7 +81,7 @@ def setup_parser():
     parser.add_argument(
         "--instruction_tokens",
         default=None,
-        help="A series of instruction tokens used for instruction-tuning benchamrks separated by comma e.g. <user_message>,<end_user_message>,<assistant_message>",
+        help="A series of instruction tokens used for instruction-tuning benchmarks separated by comma e.g. <user_message>,<end_user_message>,<assistant_message>",
     )
     parser.add_argument(
         "--batch_size",
@@ -205,7 +205,7 @@ def setup_parser():
         "--max_memory_per_gpu",
         type=str,
         default=None,
-        help="Max memroy to allocate per gpu, you can also use 'auto'",
+        help="Max memory to allocate per gpu, you can also use 'auto'",
     )
     parser.add_argument(
         "--check_references",
@@ -216,9 +216,7 @@ def setup_parser():
 
 
 class BigcodeEvalParser:
-    """
-    the class is the another form of `setup_parser` function and used for function call pass parameters.
-    """
+    """The class is the another form of `setup_parser` function and used for function call pass parameters."""
 
     def __init__(
         self,
