@@ -299,7 +299,7 @@ def simple_evaluate(
         results["date"] = start_date
         try:
             add_env_info(results)  # additional environment info to results
-        except:
+        except Exception:
             eval_logger.info(f"get env info failed.")
         return results
     else:

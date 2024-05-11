@@ -11,3 +11,5 @@ try:
     huggingface_hub.constants.HF_HUB_ENABLE_HF_TRANSFER = True
 except ImportError:
     pass
+
+__all__ = [huggingface]
