@@ -1159,10 +1159,11 @@ class GaudiHFModelAdapter(HFLM):
     def __init__(self, *args, **kwargs):
         if kwargs["device"] == "hpu":
             import habana_frameworks.torch.core as htcore
+
             # Tweak generation so that it runs faster on Gaudi
             from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
-            adapt_transformers_to_gaudi()
 
+            adapt_transformers_to_gaudi()
 
         super().__init__(*args, **kwargs)
 
