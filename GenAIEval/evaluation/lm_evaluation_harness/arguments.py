@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import argparse
 from functools import partial
 
@@ -19,32 +35,24 @@ def _int_or_none_list_arg_type(max_len: int, value: str, split_char: str = ","):
         # Makes downstream handling the same for single and multiple values
         items = items * max_len
     elif num_items != max_len:
-        raise argparse.ArgumentTypeError(
-            f"Argument requires {max_len} integers or None, separated by '{split_char}'"
-        )
+        raise argparse.ArgumentTypeError(f"Argument requires {max_len} integers or None, separated by '{split_char}'")
 
     return items
 
 
 def check_argument_types(parser: argparse.ArgumentParser):
-    """
-    Check to make sure all CLI args are typed, raises error if not
-    """
+    """Check to make sure all CLI args are typed, raises error if not."""
     for action in parser._actions:
         if action.dest != "help" and not action.const:
             if action.type is None:
-                raise ValueError(
-                    f"Argument '{action.dest}' doesn't have a type specified."
-                )
+                raise ValueError(f"Argument '{action.dest}' doesn't have a type specified.")
             else:
                 continue
 
 
 def setup_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument(
-        "--model", "-m", type=str, default="hf", help="Name of model e.g. `hf`"
-    )
+    parser.add_argument("--model", "-m", type=str, default="hf", help="Name of model e.g. `hf`")
     parser.add_argument(
         "--tasks",
         "-t",
@@ -103,8 +111,7 @@ def setup_parser() -> argparse.ArgumentParser:
         type=float,
         default=None,
         metavar="N|0<N<1",
-        help="Limit the number of examples per task. "
-        "If <1, limit is a percentage of the total number of examples.",
+        help="Limit the number of examples per task. " "If <1, limit is a percentage of the total number of examples.",
     )
     parser.add_argument(
         "--use_cache",
@@ -157,10 +164,7 @@ def setup_parser() -> argparse.ArgumentParser:
         "--gen_kwargs",
         type=dict,
         default=None,
-        help=(
-            "String arguments for model generation on greedy_until tasks,"
-            " e.g. `temperature=0,top_k=0,top_p=0`."
-        ),
+        help=("String arguments for model generation on greedy_until tasks," " e.g. `temperature=0,top_k=0,top_p=0`."),
     )
     parser.add_argument(
         "--verbosity",
@@ -206,9 +210,7 @@ def setup_parser() -> argparse.ArgumentParser:
 
 
 class LMEvalParser:
-    """
-    The class is the another form of `setup_parser` function and used for function call pass parameters.
-    """
+    """The class is the another form of `setup_parser` function and used for function call pass parameters."""
 
     def __init__(
         self,

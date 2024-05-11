@@ -1,0 +1,30 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Trellix Command Line Scanner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "35 1 * * 6"
+
+jobs:
+  Trellix:
+    runs-on: trellix
+    steps:
+      - name: Clean Up Working Directory
+        run: sudo rm -rf ${{github.workspace}}/*
+
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+
+      - name: Run Trellix Scanner
+        env:
+          workspace: ${{ github.workspace }}
+        run: bash .github/workflows/scripts/codeScan/trellix.sh
+
+      - name: Publish pipeline artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ github.workspace }}/.github/workflows/scripts/codeScan/report.html

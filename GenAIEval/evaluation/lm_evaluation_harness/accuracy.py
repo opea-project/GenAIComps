@@ -1,12 +1,25 @@
-import argparse
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import json
 import logging
 import os
 import re
 import sys
-from functools import partial
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 from lm_eval import utils
@@ -41,9 +54,7 @@ def cli_evaluate(args) -> None:
     if args.predict_only:
         args.log_samples = True
     if (args.log_samples or args.predict_only) and not args.output_path:
-        raise ValueError(
-            "Specify --output_path if providing --log_samples or --predict_only"
-        )
+        raise ValueError("Specify --output_path if providing --log_samples or --predict_only")
 
     if args.include_path is not None:
         eval_logger.info(f"Including path: {args.include_path}")
@@ -51,17 +62,14 @@ def cli_evaluate(args) -> None:
 
     if args.limit:
         eval_logger.warning(
-            " --limit SHOULD ONLY BE USED FOR TESTING."
-            "REAL METRICS SHOULD NOT BE COMPUTED USING LIMIT."
+            " --limit SHOULD ONLY BE USED FOR TESTING." "REAL METRICS SHOULD NOT BE COMPUTED USING LIMIT."
         )
 
     if args.tasks is None:
         eval_logger.error("Need to specify task to evaluate.")
         sys.exit()
     elif args.tasks == "list":
-        eval_logger.info(
-            "Available Tasks:\n - {}".format("\n - ".join(task_manager.all_tasks))
-        )
+        eval_logger.info("Available Tasks:\n - {}".format("\n - ".join(task_manager.all_tasks)))
         sys.exit()
     else:
         if os.path.isdir(args.tasks):
@@ -101,9 +109,7 @@ def cli_evaluate(args) -> None:
             raise FileExistsError(f"File already exists at {path}")
         output_path_file = path.joinpath(DEFAULT_RESULTS_FILE)
         if output_path_file.is_file():
-            eval_logger.warning(
-                f"File {output_path_file} already exists. Results will be overwritten."
-            )
+            eval_logger.warning(f"File {output_path_file} already exists. Results will be overwritten.")
         # if path json then get parent dir
         elif path.suffix in (".json", ".jsonl"):
             output_path_file = path
@@ -115,17 +121,12 @@ def cli_evaluate(args) -> None:
     # Respect user's value passed in via CLI, otherwise default to True and add to comma-separated model args
     if args.trust_remote_code:
         os.environ["HF_DATASETS_TRUST_REMOTE_CODE"] = str(args.trust_remote_code)
-        args.model_args = (
-            args.model_args
-            + f",trust_remote_code={os.environ['HF_DATASETS_TRUST_REMOTE_CODE']}"
-        )
+        args.model_args = args.model_args + f",trust_remote_code={os.environ['HF_DATASETS_TRUST_REMOTE_CODE']}"
 
     eval_logger.info(f"Selected Tasks: {task_names}")
     eval_logger.info("Loading selected tasks...")
 
-    request_caching_args = request_caching_arg_to_dict(
-        cache_requests=args.cache_requests
-    )
+    request_caching_args = request_caching_arg_to_dict(cache_requests=args.cache_requests)
 
     results = evaluator.simple_evaluate(
         model=args.model,
@@ -147,21 +148,15 @@ def cli_evaluate(args) -> None:
         random_seed=args.seed[0],
         numpy_random_seed=args.seed[1],
         torch_random_seed=args.seed[2],
-        user_model=(
-            args.user_model if hasattr(args, "user_model") else None
-        ),  # to validate the model in memory,
-        tokenizer=(
-            args.tokenizer if hasattr(args, "tokenizer") else None
-        ),  # to use tokenizer in mem,
+        user_model=(args.user_model if hasattr(args, "user_model") else None),  # to validate the model in memory,
+        tokenizer=(args.tokenizer if hasattr(args, "tokenizer") else None),  # to use tokenizer in mem,
         **request_caching_args,
     )
 
     if results is not None:
         if args.log_samples:
             samples = results.pop("samples")
-        dumped = json.dumps(
-            results, indent=2, default=_handle_non_serializable, ensure_ascii=False
-        )
+        dumped = json.dumps(results, indent=2, default=_handle_non_serializable, ensure_ascii=False)
         if args.show_config:
             print(dumped)
 
@@ -182,9 +177,7 @@ def cli_evaluate(args) -> None:
 
             if args.log_samples:
                 for task_name, config in results["configs"].items():
-                    output_name = "{}_{}".format(
-                        re.sub("/|=", "__", args.model_args), task_name
-                    )
+                    output_name = "{}_{}".format(re.sub("/|=", "__", args.model_args), task_name)
                     filename = path.joinpath(f"{output_name}.jsonl")
                     samples_dumped = json.dumps(
                         samples[task_name],

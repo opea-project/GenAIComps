@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import copy
 import os
 from datetime import timedelta
@@ -7,23 +23,11 @@ from typing import List, Literal, Optional, Tuple, Union
 import torch
 import torch.nn.functional as F
 import transformers
-from accelerate import (
-    Accelerator,
-    DistributedType,
-    InitProcessGroupKwargs,
-    find_executable_batch_size,
-)
+from accelerate import Accelerator, DistributedType, InitProcessGroupKwargs, find_executable_batch_size
 from lm_eval import utils
 from lm_eval.api.instance import Instance
 from lm_eval.api.model import TemplateLM
-from lm_eval.api.registry import register_model
-from lm_eval.models.utils import (
-    Collator,
-    clear_torch_cache,
-    get_dtype,
-    pad_and_concat,
-    stop_sequences_criteria,
-)
+from lm_eval.models.utils import Collator, clear_torch_cache, get_dtype, pad_and_concat, stop_sequences_criteria
 from packaging import version
 from peft import PeftModel
 from peft import __version__ as PEFT_VERSION
@@ -45,10 +49,7 @@ def _get_accelerate_args(
     """Returns the kwargs needed to apply `accelerate` in `AutoModel.from_pretrained`."""
     max_memory = {}
     if max_memory_per_gpu is not None:
-        max_memory_per_gpu_map = {
-            device_idx: max_memory_per_gpu
-            for device_idx in range(torch.cuda.device_count())
-        }
+        max_memory_per_gpu_map = {device_idx: max_memory_per_gpu for device_idx in range(torch.cuda.device_count())}
         max_memory.update(max_memory_per_gpu_map)
     if max_cpu_memory is not None:
         max_memory["cpu"] = max_cpu_memory
@@ -62,8 +63,7 @@ def _get_accelerate_args(
 
 
 class HFLM(TemplateLM):
-    """
-    An abstracted Huggingface model class. Enables usage with both models of
+    """An abstracted Huggingface model class. Enables usage with both models of
     `transformers.AutoModelForCausalLM` and `transformers.AutoModelForSeq2SeqLM` classes.
 
     Supports data-parallel multi-GPU with HF Accelerate.
@@ -126,9 +126,9 @@ class HFLM(TemplateLM):
             gpus = 0
 
             if tokenizer:
-                assert isinstance(
-                    tokenizer, transformers.PreTrainedTokenizer
-                ) or isinstance(tokenizer, transformers.PreTrainedTokenizerFast)
+                assert isinstance(tokenizer, transformers.PreTrainedTokenizer) or isinstance(
+                    tokenizer, transformers.PreTrainedTokenizerFast
+                )
                 self.tokenizer = tokenizer
             else:
                 # Get tokenizer
@@ -161,20 +161,12 @@ class HFLM(TemplateLM):
                 if device and device in device_list:
                     self._device = torch.device(device)
                     eval_logger.info(f"Using device '{device}'")
-                    if device in ("mps", "mps:0") and version.parse(
-                        torch.__version__
-                    ) < version.parse("2.1"):
-                        raise RuntimeError(
-                            f"mps requires torch >= 2.1. You have {torch.__version__}"
-                        )
+                    if device in ("mps", "mps:0") and version.parse(torch.__version__) < version.parse("2.1"):
+                        raise RuntimeError(f"mps requires torch >= 2.1. You have {torch.__version__}")
                 else:
                     eval_logger.info("Device not specified")
                     eval_logger.info(f"Cuda Available? {torch.cuda.is_available()}")
-                    self._device = (
-                        torch.device("cuda")
-                        if torch.cuda.is_available()
-                        else torch.device("cpu")
-                    )
+                    self._device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
             else:
                 if device != "cuda":
                     eval_logger.info(
@@ -193,9 +185,7 @@ class HFLM(TemplateLM):
             )
 
         # determine which of 'causal' and 'seq2seq' backends to use
-        self._get_backend(
-            config=self.config, backend=backend, trust_remote_code=trust_remote_code
-        )
+        self._get_backend(config=self.config, backend=backend, trust_remote_code=trust_remote_code)
 
         # if we passed `pretrained` as a string, initialize our model now
         if isinstance(pretrained, str):
@@ -318,12 +308,8 @@ class HFLM(TemplateLM):
                     if accelerator.distributed_type == DistributedType.FSDP:
                         self._model = accelerator.prepare(self.model)
                     else:
-                        self._model = accelerator.prepare_model(
-                            self.model, evaluation_mode=True
-                        )
-                    self._device = torch.device(
-                        f"cuda:{accelerator.local_process_index}"
-                    )
+                        self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
+                    self._device = torch.device(f"cuda:{accelerator.local_process_index}")
                     self.accelerator = accelerator
 
                     if self.accelerator.is_local_main_process:
@@ -341,9 +327,7 @@ class HFLM(TemplateLM):
 
         self.custom_prefix_token_id = prefix_token_id
         if prefix_token_id is not None:
-            eval_logger.info(
-                f"Loglikelihood prefix token id used in evaluation: {self.prefix_token_id}"
-            )
+            eval_logger.info(f"Loglikelihood prefix token id used in evaluation: {self.prefix_token_id}")
 
     @property
     def config(self):
@@ -412,8 +396,8 @@ class HFLM(TemplateLM):
         backend: Optional[Literal["default", "causal", "seq2seq"]] = "default",
         trust_remote_code: Optional[bool] = False,
     ) -> None:
-        """
-        Helper method during initialization.
+        """Helper method during initialization.
+
         Determines the backend ("causal" (decoder-only) or "seq2seq" (encoder-decoder))
         model type to be used.
         """
@@ -425,22 +409,15 @@ class HFLM(TemplateLM):
                 self.AUTO_MODEL_CLASS = transformers.AutoModelForCausalLM
             elif backend == "seq2seq":
                 self.AUTO_MODEL_CLASS = transformers.AutoModelForSeq2SeqLM
-            eval_logger.info(
-                f"Overrode HF model backend type, and using type '{backend}'"
-            )
+            eval_logger.info(f"Overrode HF model backend type, and using type '{backend}'")
         else:
             # determine and use the default HF backend for this model, based on its config + metadata.
-            if (
-                getattr(config, "model_type")
-                in MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING_NAMES
-            ):
+            if getattr(config, "model_type") in MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING_NAMES:
                 # first check if model type is listed under seq2seq models, since some
                 # models like MBart are listed in both seq2seq and causal mistakenly in HF transformers.
                 # these special cases should be treated as seq2seq models.
                 self.AUTO_MODEL_CLASS = transformers.AutoModelForSeq2SeqLM
-            elif (
-                getattr(self.config, "model_type") in MODEL_FOR_CAUSAL_LM_MAPPING_NAMES
-            ):
+            elif getattr(self.config, "model_type") in MODEL_FOR_CAUSAL_LM_MAPPING_NAMES:
                 self.AUTO_MODEL_CLASS = transformers.AutoModelForCausalLM
             else:
                 if not trust_remote_code:
@@ -490,8 +467,7 @@ class HFLM(TemplateLM):
         autogptq: Optional[Union[bool, str]] = False,
         **kwargs,
     ) -> None:
-        """
-        Initializes an HF or HF-compatible PreTrainedModel from scratch
+        """Initializes an HF or HF-compatible PreTrainedModel from scratch
         inside HFLM, using the kwargs passed into self.__init__().
 
         Also handles functionality such as AutoGPTQ usage and PEFT wrapping.
@@ -519,23 +495,17 @@ class HFLM(TemplateLM):
             # for quantized models now seems to be device_map="auto"
             # which breaks data-parallel mode.
             if hasattr(self, "accelerator"):
-                model_kwargs.update(
-                    {"device_map": {"": f"cuda:{self.accelerator.local_process_index}"}}
-                )
+                model_kwargs.update({"device_map": {"": f"cuda:{self.accelerator.local_process_index}"}})
             else:
                 model_kwargs.update({"device_map": {"": str(self.device)}})
 
         if not autogptq:
             if model_kwargs.get("load_in_4bit", None):
-                assert (
-                    transformers.__version__ >= "4.30.0"
-                ), "load_in_4bit requires transformers >= 4.30.0"
+                assert transformers.__version__ >= "4.30.0", "load_in_4bit requires transformers >= 4.30.0"
             if transformers.__version__ >= "4.30.0":
                 if model_kwargs.get("load_in_4bit", None):
                     if model_kwargs.get("bnb_4bit_compute_dtype", None):
-                        model_kwargs["bnb_4bit_compute_dtype"] = get_dtype(
-                            model_kwargs["bnb_4bit_compute_dtype"]
-                        )
+                        model_kwargs["bnb_4bit_compute_dtype"] = get_dtype(model_kwargs["bnb_4bit_compute_dtype"])
             self._model = self.AUTO_MODEL_CLASS.from_pretrained(
                 pretrained,
                 revision=revision,
@@ -556,29 +526,21 @@ class HFLM(TemplateLM):
                 pretrained,
                 trust_remote_code=trust_remote_code,
                 model_basename=None if autogptq is True else Path(autogptq).stem,
-                use_safetensors=(
-                    True if autogptq is True else autogptq.endswith(".safetensors")
-                ),
+                use_safetensors=(True if autogptq is True else autogptq.endswith(".safetensors")),
                 **model_kwargs,
             )
 
         if peft and delta:
-            raise ValueError(
-                "Cannot use both 'peft' and 'delta' options at the same time."
-            )
+            raise ValueError("Cannot use both 'peft' and 'delta' options at the same time.")
 
         if peft:
             if model_kwargs.get("load_in_4bit", None):
                 if version.parse(PEFT_VERSION) < version.parse("0.4.0"):
                     raise AssertionError("load_in_4bit requires peft >= 0.4.0")
-            self._model = PeftModel.from_pretrained(
-                self._model, peft, revision=revision
-            )
+            self._model = PeftModel.from_pretrained(self._model, peft, revision=revision)
         elif delta:
             if autogptq:
-                eval_logger.warning(
-                    "Delta weights might trigger unexpected behavior when used with AutoGPTQ."
-                )
+                eval_logger.warning("Delta weights might trigger unexpected behavior when used with AutoGPTQ.")
             _model_delta = self.AUTO_MODEL_CLASS.from_pretrained(
                 delta,
                 revision=revision,
@@ -592,9 +554,7 @@ class HFLM(TemplateLM):
                 except KeyError:
                     raise KeyError(f"Delta model is missing weights for layer: {name}")
                 except Exception as e:
-                    raise RuntimeError(
-                        f"Failed to add delta weights to layer {name}. Error: {e}"
-                    )
+                    raise RuntimeError(f"Failed to add delta weights to layer {name}. Error: {e}")
 
             del _model_delta
 
@@ -614,8 +574,7 @@ class HFLM(TemplateLM):
         trust_remote_code: Optional[bool] = False,
         use_fast_tokenizer: Optional[bool] = True,
     ) -> None:
-        """
-        Helper method during initialization.
+        """Helper method during initialization.
 
         Create a tokenizer object corresponding to the correct
         tokenizer for value of `pretrained`, or use the pre-initialized tokenizer passed.
@@ -630,9 +589,9 @@ class HFLM(TemplateLM):
                     use_fast=use_fast_tokenizer,
                 )
             else:
-                assert isinstance(
-                    tokenizer, transformers.PreTrainedTokenizer
-                ) or isinstance(tokenizer, transformers.PreTrainedTokenizerFast)
+                assert isinstance(tokenizer, transformers.PreTrainedTokenizer) or isinstance(
+                    tokenizer, transformers.PreTrainedTokenizerFast
+                )
                 self.tokenizer = tokenizer
         else:
             # Get tokenizer based on 'pretrained'
@@ -652,9 +611,7 @@ class HFLM(TemplateLM):
     def _detect_batch_size(self, requests=None, pos: int = 0):
         if requests:
             _, context_enc, continuation_enc = requests[pos]
-            max_length = len(
-                (context_enc + continuation_enc)[-(self.max_length + 1) :][:-1]
-            )
+            max_length = len((context_enc + continuation_enc)[-(self.max_length + 1) :][:-1])
             max_context_enc = len(context_enc[-(self.max_length + 1) :])
             max_cont_enc = len(continuation_enc[-(self.max_length + 1) :])
         else:
@@ -665,9 +622,7 @@ class HFLM(TemplateLM):
         def forward_batch(batch_size):
             if self.AUTO_MODEL_CLASS == transformers.AutoModelForSeq2SeqLM:
                 length = max(max_context_enc, max_cont_enc)
-                batched_conts = torch.ones(
-                    (batch_size, length), device=self.device
-                ).long()
+                batched_conts = torch.ones((batch_size, length), device=self.device).long()
                 test_batch = torch.ones((batch_size, length), device=self.device).long()
                 call_kwargs = {
                     "attn_mask": test_batch,
@@ -675,13 +630,9 @@ class HFLM(TemplateLM):
                 }
             else:
                 call_kwargs = {}
-                test_batch = torch.ones(
-                    (batch_size, max_length), device=self.device
-                ).long()
+                test_batch = torch.ones((batch_size, max_length), device=self.device).long()
             for _ in range(5):
-                out = F.log_softmax(
-                    self._model_call(test_batch, **call_kwargs), dim=-1
-                )  # noqa: F841
+                F.log_softmax(self._model_call(test_batch, **call_kwargs), dim=-1)
 
             return batch_size
 
@@ -696,9 +647,7 @@ class HFLM(TemplateLM):
         if self.world_size > 1:
             # if multi-GPU, always take minimum over all selected batch sizes
             max_rnk_bs = torch.tensor([batch_size], device=self.device)
-            gathered = (
-                self.accelerator.gather(max_rnk_bs).cpu().detach().numpy().tolist()
-            )
+            gathered = self.accelerator.gather(max_rnk_bs).cpu().detach().numpy().tolist()
             batch_size = min(gathered)
             clear_torch_cache()
             return batch_size
@@ -706,10 +655,8 @@ class HFLM(TemplateLM):
         clear_torch_cache()
         return batch_size
 
-    def tok_encode(
-        self, string: str, left_truncate_len=None, add_special_tokens=None
-    ) -> List[int]:
-        """ """
+    def tok_encode(self, string: str, left_truncate_len=None, add_special_tokens=None) -> List[int]:
+        """"""
         # default for None - empty dict, use predefined tokenizer param
         # used for all models except for CausalLM or predefined value
         special_tokens_kwargs = {}
@@ -717,9 +664,7 @@ class HFLM(TemplateLM):
         # by default for CausalLM - false or self.add_bos_token is set
         if add_special_tokens is None:
             if self.AUTO_MODEL_CLASS == transformers.AutoModelForCausalLM:
-                special_tokens_kwargs = {
-                    "add_special_tokens": False or self.add_bos_token
-                }
+                special_tokens_kwargs = {"add_special_tokens": False or self.add_bos_token}
         # otherwise the method explicitly defines the value
         else:
             special_tokens_kwargs = {"add_special_tokens": add_special_tokens}
@@ -756,9 +701,7 @@ class HFLM(TemplateLM):
         )
         if left_truncate_len:
             encoding["input_ids"] = encoding["input_ids"][:, -left_truncate_len:]
-            encoding["attention_mask"] = encoding["attention_mask"][
-                :, -left_truncate_len:
-            ]
+            encoding["attention_mask"] = encoding["attention_mask"][:, -left_truncate_len:]
         self.tokenizer.padding_side = old_padding_side
 
         return encoding["input_ids"], encoding["attention_mask"]
@@ -785,9 +728,7 @@ class HFLM(TemplateLM):
             if attn_mask is not None or labels is not None:
                 assert attn_mask is not None and labels is not None
                 assert self.AUTO_MODEL_CLASS == transformers.AutoModelForSeq2SeqLM
-                return self.model(
-                    input_ids=inps, attention_mask=attn_mask, labels=labels
-                ).logits
+                return self.model(input_ids=inps, attention_mask=attn_mask, labels=labels).logits
             else:
                 assert self.AUTO_MODEL_CLASS == transformers.AutoModelForCausalLM
                 return self.model(inps).logits
@@ -807,9 +748,7 @@ class HFLM(TemplateLM):
         if do_sample is False and generation_kwargs.get("temperature") == 0.0:
             generation_kwargs.pop("temperature")
         # build stopping criteria
-        stopping_criteria = stop_sequences_criteria(
-            self.tokenizer, stop, context.shape[1], context.shape[0]
-        )
+        stopping_criteria = stop_sequences_criteria(self.tokenizer, stop, context.shape[1], context.shape[0])
         return self.model.generate(
             input_ids=context,
             max_length=max_length,
@@ -819,29 +758,21 @@ class HFLM(TemplateLM):
             **generation_kwargs,
         )
 
-    def _select_cont_toks(
-        self, logits: torch.Tensor, contlen: int = None, inplen: int = None
-    ) -> torch.Tensor:
+    def _select_cont_toks(self, logits: torch.Tensor, contlen: int = None, inplen: int = None) -> torch.Tensor:
         if self.AUTO_MODEL_CLASS == transformers.AutoModelForCausalLM:
-            assert (
-                contlen and inplen
-            ), "Must pass input len and cont. len to select scored logits for causal LM"
+            assert contlen and inplen, "Must pass input len and cont. len to select scored logits for causal LM"
             # discard right-padding.
             # also discard the input/context tokens. we'll only score continuations.
             logits = logits[inplen - contlen : inplen]
         elif self.AUTO_MODEL_CLASS == transformers.AutoModelForSeq2SeqLM:
-            assert (
-                contlen and not inplen
-            ), "Selecting scored logits for Seq2SeqLM requires only cont. len"
+            assert contlen and not inplen, "Selecting scored logits for Seq2SeqLM requires only cont. len"
             # only discard right-padding.
             # the logits input to this fn only contain decoder-side tokens.
             logits = logits[:contlen]
 
         return logits
 
-    def loglikelihood_rolling(
-        self, requests: List[Instance], disable_tqdm: bool = False
-    ) -> List[float]:
+    def loglikelihood_rolling(self, requests: List[Instance], disable_tqdm: bool = False) -> List[float]:
         loglikelihoods = []
 
         adaptive_batch_size = None
@@ -852,9 +783,7 @@ class HFLM(TemplateLM):
             print(f"Determined Largest batch size: {batch_size}")
             adaptive_batch_size = batch_size
 
-        for (string,) in tqdm(
-            [req.args for req in requests], disable=(disable_tqdm or (self.rank != 0))
-        ):
+        for (string,) in tqdm([req.args for req in requests], disable=(disable_tqdm or (self.rank != 0))):
             rolling_token_windows = list(
                 map(
                     utils.make_disjoint_window,
@@ -874,9 +803,7 @@ class HFLM(TemplateLM):
             if self.world_size > 1:
                 # We pad out the external document-level iterator so the inner iterator doesn't hang
                 mytensor = torch.tensor(len(rolling_token_windows), device=self.device)
-                gathered = (
-                    self.accelerator.gather(mytensor).cpu().detach().numpy().tolist()
-                )
+                gathered = self.accelerator.gather(mytensor).cpu().detach().numpy().tolist()
 
                 pad_amnt = max(gathered) - gathered[self.rank]
                 if pad_amnt > 0:
@@ -903,15 +830,11 @@ class HFLM(TemplateLM):
         sched = pos // int(len(n_reordered_requests) / self.batch_schedule)
         if sched in self.batch_sizes:
             return self.batch_sizes[sched]
-        if (len(self.batch_sizes) > 1) and (
-            self.batch_sizes[sched - 1] == self.max_batch_size
-        ):
+        if (len(self.batch_sizes) > 1) and (self.batch_sizes[sched - 1] == self.max_batch_size):
             # if previous batch size is already maximal, skip recomputation
             self.batch_sizes[sched] = self.max_batch_size
             return self.batch_sizes[sched]
-        print(
-            f"Passed argument batch_size = auto:{self.batch_schedule}. Detecting largest batch size"
-        )
+        print(f"Passed argument batch_size = auto:{self.batch_schedule}. Detecting largest batch size")
         self.batch_sizes[sched] = self._detect_batch_size(n_reordered_requests, pos)
         print(f"Determined largest batch size: {self.batch_sizes[sched]}")
         return self.batch_sizes[sched]
@@ -926,7 +849,7 @@ class HFLM(TemplateLM):
         res = []
 
         def _collate(req: Tuple[Tuple[str, str], List[int], List[int]]):
-            """Defines the key for the sorted method"""
+            """Defines the key for the sorted method."""
             # the negative sign on len(toks) sorts descending - this has a few advantages:
             # - time estimates will always be over not underestimates, which is more useful for planning
             # - to know the size of a batch when going through the list, you know the first one is always the batch
@@ -938,7 +861,7 @@ class HFLM(TemplateLM):
             return -len(toks), tuple(toks)
 
         def _lookup_one_token_cont(req: Tuple[Tuple[str, str], List[int], List[int]]):
-            """Defines the key to group and lookup one-token continuations"""
+            """Defines the key to group and lookup one-token continuations."""
             # Use with group_by="contexts" (optional)"
             # allows for the creation of a lookup, so we can reuse logits in case of one-token continuations.
             # speeds up some multiple-choice tasks proportionally to the number of choices.
@@ -949,10 +872,7 @@ class HFLM(TemplateLM):
             requests,
             sort_fn=_collate,
             group_by=(
-                "contexts"
-                if self.AUTO_MODEL_CLASS == transformers.AutoModelForCausalLM
-                and self.logits_cache
-                else None
+                "contexts" if self.AUTO_MODEL_CLASS == transformers.AutoModelForCausalLM and self.logits_cache else None
             ),
             group_fn=_lookup_one_token_cont,
         )
@@ -960,16 +880,10 @@ class HFLM(TemplateLM):
         # automatic (variable) batch size detection for vectorization
         # pull longest context sample from request
         n_reordered_requests = len(re_ord)
-        batch_size = (
-            self.batch_size
-            if self.batch_size != "auto"
-            else override_bs if override_bs is not None else 0
-        )
+        batch_size = self.batch_size if self.batch_size != "auto" else override_bs if override_bs is not None else 0
         batch_fn = (
             self._batch_scheduler
-            if self.batch_size == "auto"
-            and n_reordered_requests > 0
-            and not override_bs
+            if self.batch_size == "auto" and n_reordered_requests > 0 and not override_bs
             else None
         )
 
@@ -1036,17 +950,9 @@ class HFLM(TemplateLM):
 
                     conts.append(cont)
 
-                    padding_len_cont = (
-                        max(padding_len_cont, contlen)
-                        if padding_len_cont is not None
-                        else contlen
-                    )
+                    padding_len_cont = max(padding_len_cont, contlen) if padding_len_cont is not None else contlen
 
-                padding_len_inp = (
-                    max(padding_len_inp, inplen)
-                    if padding_len_inp is not None
-                    else inplen
-                )
+                padding_len_inp = max(padding_len_inp, inplen) if padding_len_inp is not None else inplen
 
                 inps.append(inp)  # [1, inp_length]
                 cont_toks_list.append(continuation_enc)
@@ -1055,20 +961,12 @@ class HFLM(TemplateLM):
             # create encoder attn mask and batched conts, if seq2seq
             call_kwargs = {}
             if self.AUTO_MODEL_CLASS == transformers.AutoModelForCausalLM:
-                batched_inps = pad_and_concat(
-                    padding_len_inp, inps, padding_side="right"
-                )  # [batch, padding_len_inp]
+                batched_inps = pad_and_concat(padding_len_inp, inps, padding_side="right")  # [batch, padding_len_inp]
             elif self.AUTO_MODEL_CLASS == transformers.AutoModelForSeq2SeqLM:
                 # TODO: left-pad encoder inps and mask?
-                batched_inps = pad_and_concat(
-                    padding_len_inp, inps
-                )  # [batch, padding_len_inp]
-                batched_conts = pad_and_concat(
-                    padding_len_cont, conts
-                )  # [batch, padding_len_cont]
-                batched_encoder_mask = pad_and_concat(
-                    padding_len_inp, encoder_attns
-                )  # [batch, padding_len_inp]
+                batched_inps = pad_and_concat(padding_len_inp, inps)  # [batch, padding_len_inp]
+                batched_conts = pad_and_concat(padding_len_cont, conts)  # [batch, padding_len_cont]
+                batched_encoder_mask = pad_and_concat(padding_len_inp, encoder_attns)  # [batch, padding_len_inp]
                 call_kwargs = {
                     "attn_mask": batched_encoder_mask,
                     "labels": batched_conts,
@@ -1109,18 +1007,12 @@ class HFLM(TemplateLM):
                     cont_toks=cont_toks,
                     logits=logits,
                 ):
-                    cont_toks = torch.tensor(
-                        cont_toks, dtype=torch.long, device=self.device
-                    ).unsqueeze(
-                        0
-                    )  # [1, seq]
+                    cont_toks = torch.tensor(cont_toks, dtype=torch.long, device=self.device).unsqueeze(0)  # [1, seq]
                     max_equal = (greedy_tokens == cont_toks).all()
 
                     # Obtain log-probs at the corresponding continuation token indices
                     # last_token_slice = logits[:, -1, :].squeeze(0).tolist()
-                    logits = torch.gather(logits, 2, cont_toks.unsqueeze(-1)).squeeze(
-                        -1
-                    )  # [1, seq]
+                    logits = torch.gather(logits, 2, cont_toks.unsqueeze(-1)).squeeze(-1)  # [1, seq]
 
                     # Answer: (log prob, is-exact-match)
                     answer = (float(logits.sum()), bool(max_equal))
@@ -1134,13 +1026,11 @@ class HFLM(TemplateLM):
 
         return re_ord.get_original(res)
 
-    def generate_until(
-        self, requests: List[Instance], disable_tqdm: bool = False
-    ) -> List[str]:
+    def generate_until(self, requests: List[Instance], disable_tqdm: bool = False) -> List[str]:
         res = []
 
         def _collate(req: Tuple[str, dict]):
-            """Defines the key for the sorted method"""
+            """Defines the key for the sorted method."""
             # the negative sign on len(toks) sorts descending - this has a few advantages:
             # - time estimates will always be over not underestimates, which is more useful for planning
             # - to know the size of a batch when going through the list, you know the first one is always the batch
@@ -1168,11 +1058,7 @@ class HFLM(TemplateLM):
             if self.batch_size != "auto"
             else adaptive_batch_size if adaptive_batch_size is not None else 0
         )
-        batch_fn = (
-            self._batch_scheduler
-            if self.batch_size == "auto" and not adaptive_batch_size
-            else None
-        )
+        batch_fn = self._batch_scheduler if self.batch_size == "auto" and not adaptive_batch_size else None
 
         # we group requests by their generation_kwargs,
         # so that we don't try to execute e.g. greedy sampling and temp=0.8 sampling
@@ -1199,13 +1085,9 @@ class HFLM(TemplateLM):
                     if isinstance(until, str):
                         until = [until]
                     elif not isinstance(until, list):
-                        raise ValueError(
-                            f"Expected `kwargs['until']` to be of type Union[str,list] but got {until}"
-                        )
+                        raise ValueError(f"Expected `kwargs['until']` to be of type Union[str,list] but got {until}")
             else:
-                raise ValueError(
-                    f"Expected `kwargs` to be of type `dict` but got {type(gen_kwargs)}"
-                )
+                raise ValueError(f"Expected `kwargs` to be of type `dict` but got {type(gen_kwargs)}")
             # add EOS token to stop sequences
             eos = self.tok_decode(self.eot_token_id, skip_special_tokens=False)
             if not until:
@@ -1271,13 +1153,16 @@ class HFLM(TemplateLM):
 
         return res
 
+
 class GaudiHFModelAdapter(HFLM):
 
     def __init__(self, *args, **kwargs):
         if kwargs["device"] == "hpu":
             import habana_frameworks.torch.core as htcore
+
             # Tweak generation so that it runs faster on Gaudi
             from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+
             adapt_transformers_to_gaudi()
 
         super().__init__(*args, **kwargs)
@@ -1288,7 +1173,8 @@ class GaudiHFModelAdapter(HFLM):
         self.buckets = [16, 32, 64, 128, 189, 284]
         self._device = kwargs["device"]
         if self._device == "hpu":
-            from optimum.habana.checkpoint_utils import model_is_optimized # pylint: disable=E0611, E0401
+            from optimum.habana.checkpoint_utils import model_is_optimized  # pylint: disable=E0611, E0401
+
             self.static_shapes = model_is_optimized(self.model.config)
         else:
             self.static_shapes = False
@@ -1296,6 +1182,7 @@ class GaudiHFModelAdapter(HFLM):
         if self.static_shapes:
             print("use hpu graphs.")
             from habana_frameworks.torch.hpu import wrap_in_hpu_graph
+
             self._model = wrap_in_hpu_graph(self._model)
 
         print("lm-eval warmup starting for Gaudi.")

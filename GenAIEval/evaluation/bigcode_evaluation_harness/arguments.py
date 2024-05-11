@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import fnmatch
 
 from bigcode_eval.arguments import EvalArguments
@@ -65,7 +81,7 @@ def setup_parser():
     parser.add_argument(
         "--instruction_tokens",
         default=None,
-        help="A series of instruction tokens used for instruction-tuning benchamrks separated by comma e.g. <user_message>,<end_user_message>,<assistant_message>",
+        help="A series of instruction tokens used for instruction-tuning benchmarks separated by comma e.g. <user_message>,<end_user_message>,<assistant_message>",
     )
     parser.add_argument(
         "--batch_size",
@@ -189,7 +205,7 @@ def setup_parser():
         "--max_memory_per_gpu",
         type=str,
         default=None,
-        help="Max memroy to allocate per gpu, you can also use 'auto'",
+        help="Max memory to allocate per gpu, you can also use 'auto'",
     )
     parser.add_argument(
         "--check_references",
@@ -200,9 +216,7 @@ def setup_parser():
 
 
 class BigcodeEvalParser:
-    """
-    the class is the another form of `setup_parser` function and used for function call pass parameters.
-    """
+    """The class is the another form of `setup_parser` function and used for function call pass parameters."""
 
     def __init__(
         self,
