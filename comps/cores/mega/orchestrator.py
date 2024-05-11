@@ -12,21 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fastapi import Request
 import json
 from typing import Dict, List
 
 import requests
+from fastapi import Request
 
 from comps import MicroService
 
-from ..proto.api_protocol import (ChatCompletionRequest,
-                                  ChatCompletionResponse,
-                                  ChatCompletionResponseChoice,
-                                  ChatMessage,
-                                  UsageInfo)
-from .dag import DAG
+from ..proto.api_protocol import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionResponseChoice,
+    ChatMessage,
+    UsageInfo,
+)
 from .constants import MegaServiceEndpoint
+from .dag import DAG
+
 
 class ServiceOrchestrator(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
@@ -44,9 +47,13 @@ class ServiceOrchestrator(DAG):
             MegaServiceEndpoint.CODE_TRANS: (self.handle_code_trans, ChatCompletionRequest, ChatCompletionResponse),
         }
         self.endpoint_handler, self.input_datatype, self.output_datatype = self.endpoints[self.endpoint]
-        self.gateway = MicroService(host=host, port=port, expose_endpoint=endpoint,
-                                    input_datatype=self.input_datatype,
-                                    output_datatype=self.output_datatype)
+        self.gateway = MicroService(
+            host=host,
+            port=port,
+            expose_endpoint=endpoint,
+            input_datatype=self.input_datatype,
+            output_datatype=self.output_datatype,
+        )
         self.define_routes()
 
     def define_routes(self):
@@ -61,21 +68,19 @@ class ServiceOrchestrator(DAG):
             prompt = chat_request.messages
         else:
             for message in chat_request.messages:
-                text_list = [
-                        item["text"]
-                        for item in message["content"]
-                        if item["type"] == "text"
-                    ]
+                text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                 prompt = "\n".join(text_list)
         self.schedule(initial_inputs={"text": prompt})
         response = self.get_all_final_outputs()
         choices = []
         usage = UsageInfo()
-        choices.append(ChatCompletionResponseChoice(
-                    index=0,
-                    message=ChatMessage(role="assistant", content=response),
-                    finish_reason=response.get("finish_reason", "stop")
-                ))
+        choices.append(
+            ChatCompletionResponseChoice(
+                index=0,
+                message=ChatMessage(role="assistant", content=response),
+                finish_reason=response.get("finish_reason", "stop"),
+            )
+        )
         return ChatCompletionResponse(model="chatqna", choices=choices, usage=usage)
 
     async def handle_audio_qna(self, request: Request):
@@ -93,21 +98,19 @@ class ServiceOrchestrator(DAG):
             prompt = chat_request.messages
         else:
             for message in chat_request.messages:
-                text_list = [
-                        item["text"]
-                        for item in message["content"]
-                        if item["type"] == "text"
-                    ]
+                text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                 prompt = "\n".join(text_list)
         self.schedule(initial_inputs={"text": prompt})
         response = self.get_all_final_outputs()
         choices = []
         usage = UsageInfo()
-        choices.append(ChatCompletionResponseChoice(
-                    index=0,
-                    message=ChatMessage(role="assistant", content=response),
-                    finish_reason=response.get("finish_reason", "stop")
-                ))
+        choices.append(
+            ChatCompletionResponseChoice(
+                index=0,
+                message=ChatMessage(role="assistant", content=response),
+                finish_reason=response.get("finish_reason", "stop"),
+            )
+        )
         return ChatCompletionResponse(model="chatqna", choices=choices, usage=usage)
 
     async def handle_code_trans(self, request: Request):
@@ -117,21 +120,19 @@ class ServiceOrchestrator(DAG):
             prompt = chat_request.messages
         else:
             for message in chat_request.messages:
-                text_list = [
-                        item["text"]
-                        for item in message["content"]
-                        if item["type"] == "text"
-                    ]
+                text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                 prompt = "\n".join(text_list)
         self.schedule(initial_inputs={"text": prompt})
         response = self.get_all_final_outputs()
         choices = []
         usage = UsageInfo()
-        choices.append(ChatCompletionResponseChoice(
-                    index=0,
-                    message=ChatMessage(role="assistant", content=response),
-                    finish_reason=response.get("finish_reason", "stop")
-                ))
+        choices.append(
+            ChatCompletionResponseChoice(
+                index=0,
+                message=ChatMessage(role="assistant", content=response),
+                finish_reason=response.get("finish_reason", "stop"),
+            )
+        )
         return ChatCompletionResponse(model="chatqna", choices=choices, usage=usage)
 
     async def handle_doc_summary(self, request: Request):

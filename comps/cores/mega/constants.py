@@ -21,6 +21,7 @@ class ServiceRoleType(Enum):
     MICROSERVICE = 0
     MEGASERVICE = 1
 
+
 class MegaServiceEndpoint(Enum):
     """The enum of an MegaService endpoint."""
 
@@ -45,8 +46,10 @@ class MegaServiceEndpoint(Enum):
     LIST_SERVICE = "/v1/list_service"
     LIST_PARAMETERS = "/v1/list_parameters"
 
+
 class MicroServiceType(Enum):
     """The enum of an MicroService endpoint."""
+
     EMBEDDINGS = "/v1/microservice/embeddings"
     TTS = "/v1/microservice/tts"
     ASR = "/v1/microservice/asr"

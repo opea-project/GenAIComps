@@ -13,15 +13,15 @@
 # limitations under the License.
 
 
-import shortuuid
 import time
-
 from enum import IntEnum
-from typing import Literal, Optional, List, Dict, Any, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
+import shortuuid
 from fastapi import File, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+
 
 class ServiceCard(BaseModel):
     object: str = "service"
@@ -30,14 +30,17 @@ class ServiceCard(BaseModel):
     created: int = Field(default_factory=lambda: int(time.time()))
     owner: str = "opea"
 
+
 class ServiceList(BaseModel):
     object: str = "list"
     data: List[ServiceCard] = []
+
 
 class UsageInfo(BaseModel):
     prompt_tokens: int = 0
     total_tokens: int = 0
     completion_tokens: Optional[int] = 0
+
 
 class ChatCompletionRequest(BaseModel):
     model: str
@@ -95,6 +98,7 @@ class ChatCompletionStreamResponse(BaseModel):
     created: int = Field(default_factory=lambda: int(time.time()))
     model: str
     choices: List[ChatCompletionResponseStreamChoice]
+
 
 class TokenCheckRequestItem(BaseModel):
     model: str
@@ -190,6 +194,7 @@ class ErrorResponse(BaseModel):
     message: str
     code: int
 
+
 class ApiErrorCode(IntEnum):
     """
     https://platform.openai.com/docs/guides/error-codes/api-errors
@@ -214,9 +219,10 @@ class ApiErrorCode(IntEnum):
     GRADIO_REQUEST_ERROR = 50003
     GRADIO_STREAM_UNKNOWN_ERROR = 50004
 
+
 def create_error_response(status_code: int, message: str) -> JSONResponse:
-    return JSONResponse(content=ErrorResponse(message=message, code=status_code),
-                        status_code=status_code.value)
+    return JSONResponse(content=ErrorResponse(message=message, code=status_code), status_code=status_code.value)
+
 
 def check_requests(request) -> Optional[JSONResponse]:
     # Check all params
@@ -256,9 +262,7 @@ def check_requests(request) -> Optional[JSONResponse]:
             ApiErrorCode.PARAM_OUT_OF_RANGE,
             f"{request.top_k} is out of Range. Either set top_k to -1 or >=1.",
         )
-    if request.stop is not None and (
-        not isinstance(request.stop, str) and not isinstance(request.stop, list)
-    ):
+    if request.stop is not None and (not isinstance(request.stop, str) and not isinstance(request.stop, list)):
         return create_error_response(
             ApiErrorCode.PARAM_OUT_OF_RANGE,
             f"{request.stop} is not valid under any of the given schemas - 'stop'",
