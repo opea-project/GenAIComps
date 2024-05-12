@@ -25,7 +25,7 @@ from langchain_community.vectorstores import Redis
 from PIL import Image
 from redis_config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 
-tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
+tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 
 def pdf_loader(file_path):
