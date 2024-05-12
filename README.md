@@ -16,7 +16,7 @@ For evaluating the models on text-generation tasks, we follow the [lm-evaluation
 ```shell
 
 # pip install --upgrade-strategy eager optimum[habana]
-
+cd GenAIEval/evaluation/lm_evaluation_harness
 python main.py \
     --model gaudi-hf \
     --model_args pretrained=EleutherAI/gpt-j-6B \
@@ -28,6 +28,8 @@ python main.py \
 
 ##### CPU
 ```shell
+
+cd GenAIEval/evaluation/lm_evaluation_harness
 python main.py \
     --model hf \
     --model_args pretrained=EleutherAI/gpt-j-6B \
@@ -53,12 +55,9 @@ results = evaluate(args)
 ### bigcode-evaluation-harness
 For evaluating the models on coding tasks or specifically coding LLMs, we follow the [bigcode-evaluation-harness](https://github.com/bigcode-project/bigcode-evaluation-harness) and provide the command line usage and function call usage. [HumanEval](https://huggingface.co/datasets/openai_humaneval), [HumanEval+](https://huggingface.co/datasets/evalplus/humanevalplus), [InstructHumanEval](https://huggingface.co/datasets/codeparrot/instructhumaneval), [APPS](https://huggingface.co/datasets/codeparrot/apps), [MBPP](https://huggingface.co/datasets/mbpp), [MBPP+](https://huggingface.co/datasets/evalplus/mbppplus), and [DS-1000](https://github.com/HKUNLP/DS-1000/) for both completion (left-to-right) and insertion (FIM) mode are available.
 #### command line usage
-There is a small code change in `main.py` regarding the import path.
-```diff
-- from GenAIEval.evaluation.lm_evaluation_harness import evaluate, setup_parser
-+ from GenAIEval.evaluation.bigcode_evaluation_harness import evaluate, setup_parser
-```
+
 ```shell
+cd GenAIEval/evaluation/bigcode_evaluation_harness
 python main.py \
     --model "codeparrot/codeparrot-small" \
     --tasks "humaneval" \

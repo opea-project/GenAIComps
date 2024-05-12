@@ -14,9 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from GenAIEval.evaluation.lm_evaluation_harness import evaluate, setup_parser
-
-# from GenAIEval.evaluation.bigcode_evaluation_harness import evaluate, setup_parser
+from GenAIEval.evaluation.bigcode_evaluation_harness import evaluate, setup_parser
 
 
 def main():
