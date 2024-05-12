@@ -6,3 +6,5 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 redis
 sentence_transformers
+pymupdf
+easyocr
