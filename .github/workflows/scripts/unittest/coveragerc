@@ -1,0 +1,9 @@
+[run]
+branch = True
+
+[report]
+omit =
+ */**/fake*yaml
+ */**/fake.py
+exclude_lines =
+ pragma: no cover

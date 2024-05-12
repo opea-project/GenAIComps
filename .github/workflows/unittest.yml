@@ -1,0 +1,118 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: UnitTest
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+    paths:
+      - .github/workflows/unittest.yml
+      - GenAIEval/**
+      - setup.py
+      - tests/**
+  workflow_dispatch:
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CONTAINER_NAME: "unittest-eval"
+  DOCKER_NAME: "unittest-eval"
+  DOCKER_TAG: "latest"
+
+jobs:
+  Unit-Test:
+    strategy:
+        matrix:
+          include:
+            - test_branch: ${{ github.ref }}
+              test_name: "PR-test"
+            #- test_branch: "main"
+            #  test_name: "baseline"
+    runs-on: aise-cluster
+    name: unit-test-${{ matrix.test_name }}
+    steps:
+        - name: Clean Up Working Directory
+          run: sudo rm -rf ${{github.workspace}}/*
+
+        - name: Checkout out Repo
+          uses: actions/checkout@v4
+          with:
+            submodules: "recursive"
+            ref: ${{ matrix.test_branch }}
+            fetch-tags: true
+
+        - name: Docker Build
+          run: |
+            docker build -f ${{ github.workspace }}/.github/workflows/docker/ut.dockerfile -t ${{ env.DOCKER_NAME }}:${{ env.DOCKER_TAG }} .
+
+        - name: Docker Run
+          run: |
+            if [[ $(docker ps -a | grep -i '${{ env.CONTAINER_NAME }}'$) ]]; then
+              docker stop ${{ env.CONTAINER_NAME }}
+              docker rm -vf ${{ env.CONTAINER_NAME }} || true
+            fi
+            docker run -dit --memory="4g" --memory-reservation="1g" --disable-content-trust --privileged --name=${{ env.CONTAINER_NAME }} --shm-size="1g" \
+            -v ${{ github.workspace }}:/GenAIEval ${{ env.DOCKER_NAME }}:${{ env.DOCKER_TAG }}
+
+        - name: Install Dependencies
+          run: |
+            docker exec ${{ env.CONTAINER_NAME }} bash -c "cd /GenAIEval && pip install -r requirements.txt && python setup.py install"
+
+        - name: Run UT
+          run: |
+            docker exec ${{ env.CONTAINER_NAME }} \
+            bash -c "bash /GenAIEval/.github/workflows/scripts/unittest/unittest.sh --test_name=${{ matrix.test_name }}"
+
+        - name: Publish pipeline artifact
+          uses: actions/upload-artifact@v4
+          if: ${{ !cancelled() }}
+          with:
+            name: "UnitTest${{ matrix.test_name }}"
+            path: ${{ github.workspace }}/log_dir
+
+  Genreate-UT-Report:
+        runs-on: ubuntu-latest
+        needs: [Unit-Test]
+        steps:
+          - name: Checkout out Repo
+            uses: actions/checkout@v4
+
+          - name: Download UT PR Log
+            uses: actions/download-artifact@v4
+            with:
+              path: ${{ github.workspace }}/log_dir
+
+          - name: Display structure of downloaded files
+            run: cd ${{ github.workspace }}/log_dir && ls -R
+
+          - name: Calculate coverage
+            run: |
+              cd ${{ github.workspace }}/.github/workflows/scripts/unittest
+              /usr/bin/bash calc_coverage.sh ${{ github.workspace }}/log_dir
+
+          - name: Publish pipeline artifact
+            uses: actions/upload-artifact@v4
+            if: ${{ !cancelled() }}
+            with:
+              name: Unit Test
+              path: ${{ github.workspace }}/log_dir
+              retention-days: 5
