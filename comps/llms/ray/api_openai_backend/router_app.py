@@ -20,12 +20,12 @@ from fastapi import FastAPI, status
 from fastapi import Response as FastAPIResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import Response, StreamingResponse
-from rayllm.api_openai_backend.request_handler import (
+from ray.api_openai_backend.request_handler import (
     OpenAIHTTPException,
     openai_exception_handler,
 )
-from rayllm.api_openai_backend.query_client import RouterQueryClient
-from rayllm.api_openai_backend.openai_protocol import (
+from ray.api_openai_backend.query_client import RouterQueryClient
+from ray.api_openai_backend.openai_protocol import (
     Prompt,
     ModelResponse,
     CompletionRequest,
