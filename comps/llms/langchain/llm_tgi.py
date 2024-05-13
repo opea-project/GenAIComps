@@ -14,6 +14,7 @@
 
 import os
 from typing import Union
+
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_core.output_parsers import StrOutputParser
@@ -66,7 +67,9 @@ def post_process_text(text: str):
     return f"data: {new_text}\n\n"
 
 
-@register_microservice(name="opea_service@llm_tgi_stream", expose_endpoint="/v1/chat/completions_stream", host="0.0.0.0", port=9001)
+@register_microservice(
+    name="opea_service@llm_tgi_stream", expose_endpoint="/v1/chat/completions_stream", host="0.0.0.0", port=9001
+)
 def llm_generate(input: Union[TextDoc, RerankedDoc]):
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     params = LLMParamsDoc()

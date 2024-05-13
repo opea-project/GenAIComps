@@ -96,7 +96,6 @@ curl http://${your_ip}:9000/v1/chat/completions\
   -H 'Content-Type: application/json'
 ```
 
-
 ## Consume LLM Stream Service
 
 ```bash
