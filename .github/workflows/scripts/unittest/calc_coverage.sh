@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-source ../../change_color.sh
+source ../../change_color
 LOG_DIR=$1
 coverage_compare="${LOG_DIR}/coverage_compare.html"
 coverage_log_pr="${LOG_DIR}/UnitTestPR-test/coverage_pr"

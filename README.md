@@ -16,7 +16,7 @@ For evaluating the models on text-generation tasks, we follow the [lm-evaluation
 ```shell
 
 # pip install --upgrade-strategy eager optimum[habana]
-cd GenAIEval/evaluation/lm_evaluation_harness
+cd GenAIEval/evaluation/lm_evaluation_harness/examples
 python main.py \
     --model gaudi-hf \
     --model_args pretrained=EleutherAI/gpt-j-6B \
@@ -29,7 +29,7 @@ python main.py \
 ##### CPU
 ```shell
 
-cd GenAIEval/evaluation/lm_evaluation_harness
+cd GenAIEval/evaluation/lm_evaluation_harness/examples
 python main.py \
     --model hf \
     --model_args pretrained=EleutherAI/gpt-j-6B \
@@ -57,7 +57,7 @@ For evaluating the models on coding tasks or specifically coding LLMs, we follow
 #### command line usage
 
 ```shell
-cd GenAIEval/evaluation/bigcode_evaluation_harness
+cd GenAIEval/evaluation/bigcode_evaluation_harness/examples
 python main.py \
     --model "codeparrot/codeparrot-small" \
     --tasks "humaneval" \

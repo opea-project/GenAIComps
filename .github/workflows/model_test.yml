@@ -25,9 +25,8 @@ permissions: write-all
 env:
   OUT_SCRIPT_PATH: ${{ github.workspace }}/.github/workflows/scripts/models
   SCRIPT_PATH: /GenAIEval/.github/workflows/scripts
-  REPO_NAME: "GenAIEval"
+  DOCKER_NAME: "genaieval"
   DOCKER_TAG: "latest"
-  DOCKER_FILE_NAME: "model.dockerfile"
   CONTAINER_NAME: "modelTest"
 
 
@@ -37,9 +36,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - modelName: "EleutherAI/gpt-j-6B"
-            task: "hellaswag"
+          - modelName: "facebook/opt-125m"
+            datasets: "piqa"
             device: "cpu"
+            tasks: "text-generation"
       fail-fast: true
 
     steps:
@@ -54,7 +54,7 @@ jobs:
     # We need this because GitHub needs to clone the branch to pipeline
       - name: Docker Build
         run: |
-          docker build -f ${{ github.workspace }}/.github/workflows/docker/${{ env.DOCKER_FILE_NAME }} -t ${{ env.REPO_NAME }}:${{ env.DOCKER_TAG }} .
+          docker build -f ${{ github.workspace }}/.github/workflows/docker/common.dockerfile -t ${{ env.DOCKER_NAME }}:${{ env.DOCKER_TAG }} .
 
       - name: Docker Run
         run: |
@@ -64,7 +64,7 @@ jobs:
           fi
           docker run -dit --disable-content-trust --privileged --name=${{ env.CONTAINER_NAME }} -v /dev/shm:/dev/shm \
           -v ${{ github.workspace }}:/GenAIEval \
-          ${{ env.REPO_NAME }}:${{ env.DOCKER_TAG }}
+          ${{ env.DOCKER_NAME }}:${{ env.DOCKER_TAG }}
 
       - name: Binary build
         run: |
@@ -93,7 +93,7 @@ jobs:
         run: |
             docker exec ${{ env.CONTAINER_NAME }} \
             bash -c "cd /GenAIEval/.github/workflows/scripts/models \
-            && bash model_test.sh --model=${{ matrix.modelName }} --device=${{ matrix.device }} --tasks=${{ matrix.task }}"
+            && bash model_test.sh --model=${{ matrix.modelName }} --device=${{ matrix.device }} --datasets=${{ matrix.datasets }} --tasks=${{ matrix.tasks }}"
 
       - name: Collect Log
         run: |
@@ -101,7 +101,8 @@ jobs:
             bash -c "cd /GenAIEval/.github/workflows/scripts/models \
             && bash -x collect_log.sh --model=${{ matrix.modelName }} \
              --device=${{ matrix.device }} \
-             --task=${{ matrix.task }}
+             --datasets=${{ matrix.datasets }} \
+             --tasks=${{ matrix.tasks }}
 
       - name: Publish pipeline artifact
         uses: actions/upload-artifact@v4

@@ -62,7 +62,7 @@ jobs:
 
         - name: Docker Build
           run: |
-            docker build -f ${{ github.workspace }}/.github/workflows/docker/ut.dockerfile -t ${{ env.DOCKER_NAME }}:${{ env.DOCKER_TAG }} .
+            docker build -f ${{ github.workspace }}/.github/workflows/docker/common.dockerfile -t ${{ env.DOCKER_NAME }}:${{ env.DOCKER_TAG }} .
 
         - name: Docker Run
           run: |

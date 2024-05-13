@@ -14,32 +14,34 @@
 # limitations under the License.
 
 set -eo pipefail
-source /GenAIEval/.github/workflows/script/change_color.sh
+source /GenAIEval/.github/workflows/scripts/change_color
 WORKSPACE="/GenAIEval"
 # get parameters
 PATTERN='[-a-zA-Z0-9_]*='
 PERF_STABLE_CHECK=true
 for i in "$@"; do
     case $i in
+        --datasets*)
+            datasets=`echo $i | sed "s/${PATTERN}//"`;;
         --device=*)
             device=`echo $i | sed "s/${PATTERN}//"`;;
         --model=*)
             model=`echo $i | sed "s/${PATTERN}//"`;;
-        --task=*)
-            task=`echo $i | sed "s/${PATTERN}//"`;;
+        --tasks=*)
+            tasks=`echo $i | sed "s/${PATTERN}//"`;;
         *)
             echo "Parameter $i not recognized."; exit 1;;
     esac
 done
 
-output_file="/GenAIEval/${device}/${model}/${device}-${model}-${task}.log"
+log_file="/GenAIEval/${device}/${model}/${device}-${model}-${tasks}-${datasets}.log"
 $BOLD_YELLOW && echo "-------- Collect logs --------" && $RESET
 
 echo "working in"
 pwd
-if [[ ! -f ${output_file} ]]; then
-    echo "${device};${model};${task};;${logfile}" >> ${WORKSPACE}/summary.log
+if [[ ! -f ${log_file} ]]; then
+    echo "${device};${model};${tasks};${datasets};;${logfile}" >> ${WORKSPACE}/summary.log
 else
-    acc=$(grep -Po "Accuracy .* is:\\s+(\\d+(\\.\\d+)?)" ${acc_log_name} | head -n 1 | sed 's/.*://;s/[^0-9.]//g')
-    echo "${device};${model};${task};${acc};${logfile}" >> ${WORKSPACE}/summary.log
+    acc=$(grep -Po "Accuracy .* is:\\s+(\\d+(\\.\\d+)?)" ${log_file} | head -n 1 | sed 's/.*://;s/[^0-9.]//g')
+    echo "${device};${model};${tasks};${datasets};${acc};${logfile}" >> ${WORKSPACE}/summary.log
 fi
