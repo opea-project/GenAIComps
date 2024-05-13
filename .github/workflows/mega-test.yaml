@@ -34,9 +34,8 @@ jobs:
           if [[ $(docker ps -a | grep -i '${{ env.CONTAINER_NAME }}'$) ]]; then
               docker start ${{ env.CONTAINER_NAME }}
               echo "remove left files through container ..."
-              docker exec ${{ env.CONTAINER_NAME }} bash -c "rm -fr /GenAIComps/* && rm -fr /GenAIComps/.* || true"
-              docker stop ${{ env.CONTAINER_NAME }}
-              docker rm -vf ${{ env.CONTAINER_NAME }} || true
+              docker exec ${{ env.CONTAINER_NAME }} bash -c "rm -fr /GenAIComps || true"
+              docker stop ${{ env.CONTAINER_NAME }} && docker rm -vf ${{ env.CONTAINER_NAME }} || true
           fi
 
       - name: Checkout out Repo

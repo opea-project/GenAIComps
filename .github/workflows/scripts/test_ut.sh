@@ -22,6 +22,7 @@ cd /GenAIComps/tests
 if [ $test_name = 'mega' ]; then
     echo "run mega test"
     cd cores
+    find . -name "*.yaml" -exec sh -c 'x="{}"; cp $x ./' \;
     find . -name "test*.py" | sed 's,\.\/,python -m pytest -vs --disable-warnings ,g' > run.sh
     bash run.sh 2>&1 | tee ${ut_log_name}
 else
