@@ -14,7 +14,9 @@
 
 import json
 import unittest
+
 from comps import MicroService, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
+
 
 @register_microservice(name="s1", host="0.0.0.0", port=8086, expose_endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:

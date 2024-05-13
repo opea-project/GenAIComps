@@ -69,8 +69,10 @@ class MicroService:
     def _validate_env(self):
         """Check whether to use the microservice locally."""
         if self.use_remote_service:
-            raise Exception("Method not allowed for a remote service, please "
-                            "set use_remote_service to False if you want to use a local micro service!")
+            raise Exception(
+                "Method not allowed for a remote service, please "
+                "set use_remote_service to False if you want to use a local micro service!"
+            )
 
     def _get_server(self):
         """Get the server instance based on the protocol.

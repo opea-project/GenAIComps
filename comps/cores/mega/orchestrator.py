@@ -57,8 +57,12 @@ class ServiceOrchestrator(DAG):
 
     def define_routes(self):
         self.gateway.app.router.add_api_route(self.endpoint.value, self.endpoint_func, methods=["POST"])
-        self.gateway.app.router.add_api_route(MegaServiceEndpoint.LIST_SERVICE.value, self.endpoint_func, methods=["GET"])
-        self.gateway.app.router.add_api_route(MegaServiceEndpoint.LIST_PARAMETERS.value, self.endpoint_func, methods=["GET"])
+        self.gateway.app.router.add_api_route(
+            MegaServiceEndpoint.LIST_SERVICE.value, self.endpoint_func, methods=["GET"]
+        )
+        self.gateway.app.router.add_api_route(
+            MegaServiceEndpoint.LIST_PARAMETERS.value, self.endpoint_func, methods=["GET"]
+        )
 
     async def handle_chat_qna(self, request: Request):
         data = await request.json()
