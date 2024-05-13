@@ -4,6 +4,6 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 sentencepiece
+shortuuid
 torch
 transformers
-shortuuid
