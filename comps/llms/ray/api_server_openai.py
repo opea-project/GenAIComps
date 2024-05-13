@@ -19,9 +19,9 @@ import ray
 from ray import serve
 from typing import Dict, Any
 from easydict import EasyDict as edict
-from rayllm.api_openai_backend.query_client import RouterQueryClient
-from rayllm.api_openai_backend.router_app import Router, router_app
-from rayllm.ray_serve import LLMServe
+from ray.api_openai_backend.query_client import RouterQueryClient
+from ray.api_openai_backend.router_app import Router, router_app
+from ray.ray_serve import LLMServe
 
 
 def router_application(deployments, max_concurrent_queries):
