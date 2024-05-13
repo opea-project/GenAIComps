@@ -9,3 +9,4 @@ pydub
 torch
 transformers
 zhconv
+shortuuid

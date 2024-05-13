@@ -18,7 +18,7 @@ from typing import Dict, List
 import requests
 from fastapi import Request
 
-from comps import MicroService
+from .micro_service import MicroService
 
 from ..proto.api_protocol import (
     ChatCompletionRequest,

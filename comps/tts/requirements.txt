@@ -6,3 +6,4 @@ opentelemetry-sdk
 sentencepiece
 torch
 transformers
+shortuuid
