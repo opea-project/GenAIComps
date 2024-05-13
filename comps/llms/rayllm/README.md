@@ -1,4 +1,4 @@
-# RayLLM Endpoint Service
+# Ray-Serve Endpoint Service
 
 [Ray](https://docs.ray.io/en/latest/serve/index.html) is an LLM serving solution that makes it easy to deploy and manage a variety of open source LLMs, built on [Ray Serve](https://docs.ray.io/en/latest/serve/index.html), has native support for autoscaling and multi-node deployments, which is easy to use for LLM inference serving on Intel Gaudi2 accelerators. The Intel Gaudi2 accelerator supports both training and inference for deep learning models in particular for LLMs. Please visit [Habana AI products]((https://habana.ai/products)) for more details.
 
@@ -40,7 +40,7 @@ The ./serving/rayllm/launch_ray_service.sh script accepts five parameters:
 - num_cpus_per_worker: The number of CPUs specifies the number of CPUs per worker process.
 - num_hpus_per_worker: The number of HPUs specifies the number of HPUs per worker process.
 
-You have the flexibility to customize twp parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `RAY_LLM_ENDPOINT`:
+You have the flexibility to customize five parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `RAY_LLM_ENDPOINT`:
 
 ```bash
 export RAY_LLM_ENDPOINT="http://xxx.xxx.xxx.xxx:8080"
