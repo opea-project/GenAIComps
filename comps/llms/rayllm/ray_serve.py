@@ -332,8 +332,6 @@ class HPUPredictor(Predictor):
         model_id_or_path = infer_conf["model_id_or_path"]
         use_auth_token = infer_conf["use_auth_token"]
         trust_remote_code = infer_conf["trust_remote_code"]
-
-        self.workers_per_group = infer_conf["workers_per_group"]
         self.cpus_per_worker = infer_conf["num_cpus_per_worker"]
         self.hpus_per_worker = infer_conf["num_hpus_per_worker"]
         # decide correct torch type for loading HF model
