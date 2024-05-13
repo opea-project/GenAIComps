@@ -31,6 +31,12 @@ num_hpus_per_worker=${5:-$default_num_hpus_per_worker}
 # Check if all required arguments are provided
 if [ "$#" -lt 0 ] || [ "$#" -gt 5 ]; then
     echo "Usage: $0 [port_number] [model_name] [chat_processor] [num_cpus_per_worker] [num_hpus_per_worker]"
+    echo "Please customize the arguments you want to use.
+    - port_number: The port number assigned to the Ray Gaudi endpoint, with the default being 8080.
+    - model_name: The model name utilized for LLM, with the default set to meta-llama/Llama-2-7b-chat-hf.
+    - chat_processor: The chat processor for handling the prompts, with the default set to 'ChatModelNoFormat', and the optional selection can be 'ChatModelLlama', 'ChatModelGptJ" and "ChatModelGemma'.
+    - num_cpus_per_worker: The number of CPUs specifies the number of CPUs per worker process.
+    - num_hpus_per_worker: The number of HPUs specifies the number of HPUs per worker process."
     exit 1
 fi
 
