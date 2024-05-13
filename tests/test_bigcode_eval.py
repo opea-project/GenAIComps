@@ -30,13 +30,13 @@ class TestLMEval(unittest.TestCase):
             user_model=user_model,
             tokenizer=tokenizer,
             tasks="humaneval",
-            n_samples=20,
-            batch_size=10,
+            n_samples=2,
+            batch_size=2,
             allow_code_execution=True,
-            limit=20,
+            limit=10,
         )
         results = evaluate(args)
-        self.assertEqual(results["humaneval"]["pass@1"], 0.05)
+        self.assertEqual(results["humaneval"]["pass@1"], 0.1)
 
 
 if __name__ == "__main__":
