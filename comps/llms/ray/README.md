@@ -7,10 +7,10 @@
 ### Launch Ray Gaudi Service
 
 ```bash
-bash ./serving/rayllm/launch_ray_service.sh
+bash ./launch_ray_service.sh
 ```
 
-For gated models such as `LLAMA-2`, you will have to pass -e HUGGING_FACE_HUB_TOKEN=\<token\> to the docker run command above with a valid Hugging Face Hub read token.
+For gated models such as `LLAMA-2`, you need set the environment variable `HUGGING_FACE_HUB_TOKEN=<token>` to access the Hugging Face Hub.
 
 Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
 
@@ -36,18 +36,18 @@ curl http://127.0.0.1::8080/v1/chat/completions \
 
 #### Customize Ray Gaudi Service
 
-The ./serving/rayllm/launch_ray_service.sh script accepts six parameters:
+The ./serving/ray/launch_ray_service.sh script accepts six parameters:
 
-- port_number: The port number assigned to the Ray Gaudi endpoint, with the default being 8080.
+- **port_number**: The port number assigned to the Ray Gaudi endpoint, with the default being 8080.
 - model_name: The model name utilized for LLM, with the default set to "meta-llama/Llama-2-7b-chat-hf".
 - chat_processor: The chat processor for handling the prompts, with the default set to "ChatModelNoFormat", and the optional selection can be "ChatModelLlama", "ChatModelGptJ" and "ChatModelGemma".
 - num_workers_per_group: The number of workers specifies the number of workers in each ray actor group.
 - num_cpus_per_worker: The number of CPUs specifies the number of CPUs per worker process.
 - num_hpus_per_worker: The number of HPUs specifies the number of HPUs per worker process.
 
-You have the flexibility to customize six parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `RAY_LLM_ENDPOINT`:
+You have the flexibility to customize six parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `RAY_Serve_ENDPOINT`:
 
 ```bash
-export RAY_LLM_ENDPOINT="http://xxx.xxx.xxx.xxx:8080"
+export RAY_Serve_ENDPOINT="http://xxx.xxx.xxx.xxx:8080"
 export LLM_MODEL=<model_name> # example: export LLM_MODEL="meta-llama/Llama-2-7b-chat-hf"
 ```
