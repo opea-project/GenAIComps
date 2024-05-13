@@ -49,6 +49,7 @@ class MegaServiceEndpoint(Enum):
     def __str__(self):
         return self.value
 
+
 class MicroServiceType(Enum):
     """The enum of an MicroService endpoint."""
 

@@ -43,7 +43,11 @@ class ServiceOrchestrator(DAG):
         self.endpoints_info = {
             str(MegaServiceEndpoint.CHAT_QNA): (self.handle_chat_qna, ChatCompletionRequest, ChatCompletionResponse),
             str(MegaServiceEndpoint.CODE_GEN): (self.handle_code_gen, ChatCompletionRequest, ChatCompletionResponse),
-            str(MegaServiceEndpoint.CODE_TRANS): (self.handle_code_trans, ChatCompletionRequest, ChatCompletionResponse),
+            str(MegaServiceEndpoint.CODE_TRANS): (
+                self.handle_code_trans,
+                ChatCompletionRequest,
+                ChatCompletionResponse,
+            ),
         }
         self.endpoint_handler, self.input_datatype, self.output_datatype = self.endpoints_info[self.endpoint]
         self.gateway = MicroService(
