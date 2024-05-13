@@ -18,7 +18,7 @@ Please follow this link [huggingface token](https://huggingface.co/docs/hub/secu
 export HUGGINGFACEHUB_API_TOKEN=<token>
 ```
 
-And then you can make requests like below to check the service status:
+And then you can make requests with the OpenAI-compatible APIs like below to check the service status:
 
 ```bash
 curl http://127.0.0.1::8080/v1/chat/completions \
@@ -33,6 +33,8 @@ curl http://127.0.0.1::8080/v1/chat/completions \
   "stream": True
   }'
 ```
+
+For more information about the OpenAI APIs, you can checkeck the [OpenAI official document](https://platform.openai.com/docs/api-reference/).
 
 #### Customize Ray Gaudi Service
 
