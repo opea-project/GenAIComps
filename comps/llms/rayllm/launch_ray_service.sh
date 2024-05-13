@@ -17,7 +17,7 @@
 # Set default values
 default_port=8080
 default_model="meta-llama/Llama-2-7b-chat-hf"
-default_chat_processor="ChatModelLLama"
+default_chat_processor="ChatModelLlama"
 default_num_cpus_per_worker=8
 default_num_hpus_per_worker=1
 
