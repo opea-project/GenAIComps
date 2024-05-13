@@ -18,7 +18,7 @@ import jinja2
 import re
 from enum import Enum
 from typing import List, Union
-from ray.api_openai_backend.openai_protocol import (
+from ray_serve.api_openai_backend.openai_protocol import (
     ToolCall,
     FunctionCall,
     ChatMessage,

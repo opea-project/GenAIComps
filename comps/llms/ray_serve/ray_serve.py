@@ -34,8 +34,8 @@ from starlette.responses import StreamingResponse, JSONResponse
 
 from ray import serve
 
-from ray.api_openai_backend.openai_protocol import ModelResponse, ErrorResponse, ChatMessage
-from ray.api_openai_backend.tools import OpenAIToolsPrompter, ChatPromptCapture
+from ray_serve.api_openai_backend.openai_protocol import ModelResponse, ErrorResponse, ChatMessage
+from ray_serve.api_openai_backend.tools import OpenAIToolsPrompter, ChatPromptCapture
 
 DEVICE_CPU = "cpu"
 DEVICE_HPU = "hpu"
