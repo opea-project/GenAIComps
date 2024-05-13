@@ -82,7 +82,6 @@ def main(argv=None):
     parser.add_argument("--max_num_seqs", default=256, type=int, help="Maximum number of sequences to generate.")
     parser.add_argument("--max_batch_size", default=8, type=int, help="Maximum batch size.")
     parser.add_argument("--num_replicas", default=1, type=int, help="Number of replicas to start.")
-    parser.add_argument("--num_workers_per_group", default=8, type=int, help="Number of workers per group.")
     parser.add_argument("--num_cpus_per_worker", default=8, type=int, help="Number of CPUs per worker.")
     parser.add_argument("--num_hpus_per_worker", default=1, type=int, help="Number of HPUs per worker.")
 
@@ -107,7 +106,6 @@ def main(argv=None):
     infer_conf["chat_processor"] = args.chat_processor
     infer_conf["max_batch_size"] = args.max_batch_size
     infer_conf["max_num_seqs"] = args.max_num_seqs
-    infer_conf["workers_per_group"] = args.num_workers_per_group
     infer_conf["num_replicas"] = args.num_replicas
     infer_conf["num_cpus_per_worker"] = args.num_cpus_per_worker
     infer_conf["num_hpus_per_worker"] = args.num_hpus_per_worker
