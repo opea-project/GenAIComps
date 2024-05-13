@@ -138,6 +138,32 @@ class ChatModel:
         prompt = self.prepare_prompt(messages)
         return prompt
 
+class ChatModelGptJ(ChatModel):
+    def __init__(self, intro, human_id, bot_id, stop_words):
+        super().__init__(intro, human_id, bot_id, stop_words)
+
+    def prepare_prompt(self, messages: list):
+        """Prepare prompt from history messages."""
+        prompt = self.intro
+        for msg in messages:
+            msg = dict(msg)
+            role, content = msg["role"], msg["content"]
+            if role == "user":
+                if self.human_id != "":
+                    prompt += f"{self.human_id}:\n{content}\n"
+                else:
+                    prompt += f"{content}\n"
+            elif role == "assistant":
+                if self.bot_id != "":
+                    prompt += f"{self.bot_id}:\n{content}\n"
+                else:
+                    prompt += f"{content}\n"
+            else:
+                prompt += f"### Unknown:\n{content}\n"
+        if self.bot_id != "":
+            prompt += f"{self.bot_id}:\n"
+        return prompt
+
 class ChatModelLLama(ChatModel):
     def __init__(self, intro="", human_id="<s>[INST] {msg} [/INST]", bot_id="", stop_words=[]):
         super().__init__(intro, human_id, bot_id, stop_words)
@@ -163,6 +189,44 @@ class ChatModelLLama(ChatModel):
                 prompt += f"### Unknown:\n{content}\n"
         if self.bot_id != "":
             prompt += f"{self.bot_id}:\n"
+        return prompt
+
+class ChatModelGemma(ChatModel):
+    def __init__(self, intro, human_id, bot_id, stop_words):
+        super().__init__(intro, human_id, bot_id, stop_words)
+
+    def prepare_prompt(self, messages: list):
+        """Prepare prompt from history messages."""
+        prompt = self.intro
+        for msg in messages:
+            msg = dict(msg)
+            role, content = msg["role"], msg["content"]
+            if role == "user":
+                if self.human_id != "":
+                    prompt += f"{self.human_id} {content}\n"
+                else:
+                    prompt += f"{content}\n"
+            elif role == "assistant":
+                if self.bot_id != "":
+                    prompt += f"{self.bot_id} {content}\n"
+                else:
+                    prompt += f"{content}\n"
+            else:
+                prompt += f"### Unknown:\n{content}\n"
+        if self.bot_id != "":
+            prompt += f"{self.bot_id}:\n"
+        return prompt
+
+class ChatModelNoFormat(ChatModel):
+    def __init__(self, intro, human_id, bot_id, stop_words):
+        super().__init__(intro, human_id, bot_id, stop_words)
+
+    def prepare_prompt(self, messages: list):
+        """Prepare prompt from history messages."""
+        prompt = ""
+        for msg in messages:
+            msg = dict(msg)
+            prompt += msg["content"]
         return prompt
 
 class GenerateResult(BaseModel):
@@ -353,6 +417,9 @@ class HPUPredictor(Predictor):
             **config,
         )
 
+chat_processor = {"ChatModelLlama": ChatModelLLama, "ChatModelGptJ": ChatModelGptJ, "ChatModelGemma": ChatModelGemma, "ChatModelNoFormat": ChatModelNoFormat}
+
+
 # 1: Define a Ray Serve deployment.
 @serve.deployment
 class LLMServe:
@@ -363,7 +430,7 @@ class LLMServe:
         # All the initialization code goes here
         self.predictor = HPUPredictor(infer_conf)
         self.loop = asyncio.get_running_loop()
-        self.process_tool = ChatModelLLama()
+        self.process_tool = chat_processor[infer_conf["chat_processor"]]
         self.use_openai = False
 
     def consume_streamer(self, streamer):
@@ -509,25 +576,6 @@ class LLMServe:
         else:
             raise HTTPException(400, "Invalid prompt format.")
   
-
-    async def __call__(self, http_request: Request) -> Union[StreamingResponse, JSONResponse, str]:
-        self.use_openai = False
-        try:
-            json_request: Dict[str, Any] = await http_request.json()
-        except ValueError:
-            return JSONResponse(status_code=400, content="Invalid JSON format from http request.")
-        streaming_response = json_request.get("stream", False)
-        input = json_request["text"] if "text" in json_request else ""
-        if input == "":
-            return JSONResponse(status_code=400, content="Empty prompt is not supported.")
-        config = json_request.get("config", {})
-        prompts = self.preprocess_prompts(input)
-
-        if streaming_response:
-            async for result in self.handle_streaming(prompts, config):
-                return result
-        return await self.handle_non_streaming(prompts, config)
-
     async def openai_call(self, input: str, config: Dict,
                           streaming_response=True, tools=None, tool_choice=None):
         self.use_openai = True

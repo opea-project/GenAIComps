@@ -39,7 +39,6 @@ def router_application(deployments, max_concurrent_queries):
 
     return RouterDeployment.bind(merged_client)
 
-
 def openai_serve_run(deployments, host, route_prefix, port, max_concurrent_queries):
     router_app = router_application(deployments, max_concurrent_queries)
 
@@ -79,6 +78,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Serve a router for models on Ray.", add_help=True)
     parser.add_argument("--port_number", default=8080, type=int, help="Port number to serve on.")
     parser.add_argument("--model_id_or_path", default="meta-llama/Llama-2-7b-chat-hf", type=str, help="Model id or path.")
+    parser.add_argument("--chat_processor", default="ChatModelNoFormat", type=str, help="Chat processor for aligning the prompts.")
     parser.add_argument("--max_num_seqs", default=256, type=int, help="Maximum number of sequences to generate.")
     parser.add_argument("--max_batch_size", default=8, type=int, help="Maximum batch size.")
     parser.add_argument("--num_replicas", default=1, type=int, help="Number of replicas to start.")
@@ -104,6 +104,7 @@ def main(argv=None):
     infer_conf["use_auth_token"] = os.environ.get("HUGGINGFACEHUB_API_TOKEN", None)
     infer_conf["trust_remote_code"] = os.environ.get("TRUST_REMOTE_CODE", None)
     infer_conf["model_id_or_path"] = args.model_id_or_path
+    infer_conf["chat_processor"] = args.chat_processor
     infer_conf["max_batch_size"] = args.max_batch_size
     infer_conf["max_num_seqs"] = args.max_num_seqs
     infer_conf["workers_per_group"] = args.num_workers_per_group
