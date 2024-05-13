@@ -32,7 +32,7 @@ class TestServiceOrchestrator(unittest.TestCase):
         self.s1 = opea_microservices["s1"]
         self.s1.start()
 
-        self.service_builder = ServiceOrchestrator(port=8000)
+        self.service_builder = ServiceOrchestrator(port=7777)
 
     def tearDown(self):
         self.s1.stop()
