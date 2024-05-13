@@ -75,7 +75,7 @@ def get_deployment_actor_options(hpus_per_worker, ipex_enabled=False):
 
 def main(argv=None):
     import argparse
-    parser = argparse.ArgumentParser(description="Serve a router for models on Ray.", add_help=True)
+    parser = argparse.ArgumentParser(description="Serve LLM models with Ray Serve.", add_help=True)
     parser.add_argument("--port_number", default=8080, type=int, help="Port number to serve on.")
     parser.add_argument("--model_id_or_path", default="meta-llama/Llama-2-7b-chat-hf", type=str, help="Model id or path.")
     parser.add_argument("--chat_processor", default="ChatModelNoFormat", type=str, help="Chat processor for aligning the prompts.")
