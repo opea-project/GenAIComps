@@ -428,7 +428,7 @@ class LLMServe:
         # All the initialization code goes here
         self.predictor = HPUPredictor(infer_conf)
         self.loop = asyncio.get_running_loop()
-        self.process_tool = chat_processor[infer_conf["chat_processor"]]
+        self.process_tool = chat_processor[infer_conf["chat_processor"]]()
         self.use_openai = False
 
     def consume_streamer(self, streamer):
