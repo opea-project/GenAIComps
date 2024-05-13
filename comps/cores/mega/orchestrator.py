@@ -41,9 +41,9 @@ class ServiceOrchestrator(DAG):
         self.endpoint = endpoint
         super().__init__()
         self.endpoints_info = {
-            MegaServiceEndpoint.CHAT_QNA: (self.handle_chat_qna, ChatCompletionRequest, ChatCompletionResponse),
-            MegaServiceEndpoint.CODE_GEN: (self.handle_code_gen, ChatCompletionRequest, ChatCompletionResponse),
-            MegaServiceEndpoint.CODE_TRANS: (self.handle_code_trans, ChatCompletionRequest, ChatCompletionResponse),
+            str(MegaServiceEndpoint.CHAT_QNA): (self.handle_chat_qna, ChatCompletionRequest, ChatCompletionResponse),
+            str(MegaServiceEndpoint.CODE_GEN): (self.handle_code_gen, ChatCompletionRequest, ChatCompletionResponse),
+            str(MegaServiceEndpoint.CODE_TRANS): (self.handle_code_trans, ChatCompletionRequest, ChatCompletionResponse),
         }
         self.endpoint_handler, self.input_datatype, self.output_datatype = self.endpoints_info[self.endpoint]
         self.gateway = MicroService(
@@ -56,12 +56,12 @@ class ServiceOrchestrator(DAG):
         self.define_routes()
 
     def define_routes(self):
-        self.gateway.app.router.add_api_route(self.endpoint.value, self.endpoint_func, methods=["POST"])
+        self.gateway.app.router.add_api_route(self.endpoint, self.endpoint_func, methods=["POST"])
         self.gateway.app.router.add_api_route(
-            MegaServiceEndpoint.LIST_SERVICE.value, self.endpoint_func, methods=["GET"]
+            str(MegaServiceEndpoint.LIST_SERVICE), self.endpoint_func, methods=["GET"]
         )
         self.gateway.app.router.add_api_route(
-            MegaServiceEndpoint.LIST_PARAMETERS.value, self.endpoint_func, methods=["GET"]
+            str(MegaServiceEndpoint.LIST_PARAMETERS), self.endpoint_func, methods=["GET"]
         )
 
     async def handle_chat_qna(self, request: Request):
