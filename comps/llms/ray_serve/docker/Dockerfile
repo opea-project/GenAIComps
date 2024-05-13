@@ -2,7 +2,7 @@ FROM vault.habana.ai/gaudi-docker/1.15.1/ubuntu22.04/habanalabs/pytorch-installe
 
 ENV LANG=en_US.UTF-8
 
-WORKDIR /root/ray
+WORKDIR /root/ray_serve
 
 # copy the source code to the package directory
 COPY ../../ray_serve/ /root/ray_serve
