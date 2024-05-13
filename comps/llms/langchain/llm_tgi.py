@@ -70,7 +70,7 @@ def post_process_text(text: str):
 @register_microservice(
     name="opea_service@llm_tgi_stream", expose_endpoint="/v1/chat/completions_stream", host="0.0.0.0", port=9001
 )
-def llm_generate(input: Union[TextDoc, RerankedDoc]):
+def llm_generate_stream(input: Union[TextDoc, RerankedDoc]):
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     params = LLMParamsDoc()
     llm = HuggingFaceEndpoint(
