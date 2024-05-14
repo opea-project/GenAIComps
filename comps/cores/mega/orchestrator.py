@@ -25,7 +25,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
-from .constants import MegaServiceEndpoint
+from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .dag import DAG
 from .micro_service import MicroService
 
@@ -51,6 +51,8 @@ class ServiceOrchestrator(DAG):
         }
         self.endpoint_handler, self.input_datatype, self.output_datatype = self.endpoints_info[self.endpoint]
         self.gateway = MicroService(
+            service_role=ServiceRoleType.MEGASERVICE,
+            service_type=ServiceType.GATEWAY,
             host=host,
             port=port,
             endpoint=endpoint,

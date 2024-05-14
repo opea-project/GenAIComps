@@ -14,12 +14,10 @@
 
 import asyncio
 import multiprocessing
-import os
-import signal
 from typing import Any, Optional, Type
 
 from ..proto.docarray import TextDoc
-from .constants import ServiceRoleType
+from .constants import ServiceRoleType, ServiceType
 from .utils import check_ports_availability
 
 opea_microservices = {}
@@ -32,6 +30,7 @@ class MicroService:
         self,
         name: Optional[str] = None,
         service_role: ServiceRoleType = ServiceRoleType.MICROSERVICE,
+        service_type: ServiceType = ServiceType.LLM,
         protocol: str = "http",
         host: str = "localhost",
         port: int = 8080,
@@ -46,6 +45,7 @@ class MicroService:
         """Init the microservice."""
         self.name = f"{name}/{self.__class__.__name__}" if name else self.__class__.__name__
         self.service_role = service_role
+        self.service_type = service_type
         self.protocol = protocol
         self.host = host
         self.port = port
@@ -147,6 +147,7 @@ class MicroService:
 def register_microservice(
     name: Optional[str] = None,
     service_role: ServiceRoleType = ServiceRoleType.MICROSERVICE,
+    service_type: ServiceType = ServiceType.LLM,
     protocol: str = "http",
     host: str = "localhost",
     port: int = 8080,
@@ -161,6 +162,7 @@ def register_microservice(
         micro_service = MicroService(
             name=name,
             service_role=service_role,
+            service_type=service_type,
             protocol=protocol,
             host=host,
             port=port,

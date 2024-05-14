@@ -32,3 +32,6 @@ from comps.cores.mega.micro_service import MicroService, register_microservice, 
 
 # Telemetry
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
+
+# Constants
+from comps.cores.mega.constants import MegaServiceEndpoint, ServiceRoleType, ServiceType

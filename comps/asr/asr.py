@@ -22,7 +22,7 @@ from datasets import Audio, Dataset
 from pydub import AudioSegment
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
-from comps import Audio2TextDoc, TextDoc, opea_microservices, opea_telemetry, register_microservice
+from comps import Audio2TextDoc, TextDoc, ServiceType, opea_microservices, opea_telemetry, register_microservice
 
 
 @opea_telemetry
@@ -88,6 +88,7 @@ def audio2text(
 
 @register_microservice(
     name="opea_service@asr",
+    service_type=ServiceType.ASR,
     endpoint="/v1/audio/transcriptions",
     host="0.0.0.0",
     port=9099,
