@@ -19,14 +19,14 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFace
 from langchain_community.vectorstores import Qdrant
 from comps import DocPath, opea_microservices, register_microservice
 from config import EMBED_MODEL, COLLECTION_NAME, QDRANT_HOST, QDRANT_PORT
-from comps.vectorstores.utils import docment_loader
+from comps.dataprep.langchain.utils import docment_loader
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
 
 @register_microservice(
-    name="opea_service@embed_doc_qdrant",
-    expose_endpoint="/v1/vectorstores",
+    name="opea_service@prepare_doc_qdrant",
+    expose_endpoint="/v1/dataprep",
     host="0.0.0.0",
     port=6000,
     input_datatype=DocPath,
@@ -67,4 +67,4 @@ def ingest_documents(doc_path: DocPath):
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@embed_doc_qdrant"].start()
+    opea_microservices["opea_service@prepare_doc_qdrant"].start()
