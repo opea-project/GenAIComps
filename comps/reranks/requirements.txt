@@ -1,8 +1,8 @@
 docarray[full]
 fastapi
+langchain
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 sentence_transformers
 shortuuid
-langchain

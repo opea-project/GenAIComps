@@ -13,9 +13,11 @@
 # limitations under the License.
 
 import os
+
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import HuggingFaceEndpoint
-from comps import GeneratedDoc, LLMParamsDoc, LLMParamsDoc, opea_microservices, register_microservice
+
+from comps import GeneratedDoc, LLMParamsDoc, opea_microservices, register_microservice
 
 
 def post_process_text(text: str):
@@ -42,8 +44,9 @@ def llm_generate(input: LLMParamsDoc):
         repetition_penalty=input.repetition_penalty,
         streaming=input.streaming,
     )
-    
+
     if input.streaming:
+
         def stream_generator():
             chat_response = ""
             for text in llm.stream(input.query):
@@ -58,6 +61,7 @@ def llm_generate(input: LLMParamsDoc):
                     yield processed_text
             print(f"[llm - chat_stream] stream response: {chat_response}")
             yield "data: [DONE]\n\n"
+
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         response = llm.invoke(input.query)

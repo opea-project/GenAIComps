@@ -15,8 +15,10 @@
 
 import json
 import os
+
 import requests
 from langchain_core.prompts import ChatPromptTemplate
+
 from comps import LLMParamsDoc, SearchedDoc, opea_microservices, register_microservice
 
 
@@ -41,7 +43,7 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
     Question: {question}
     """
     prompt = ChatPromptTemplate.from_template(template)
-    doc=input.retrieved_docs[best_response["index"]]
+    doc = input.retrieved_docs[best_response["index"]]
     final_prompt = prompt.format(context=doc.text, question=input.initial_query)
     return LLMParamsDoc(query=final_prompt.strip())
 
