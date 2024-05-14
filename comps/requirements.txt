@@ -1,4 +1,0 @@
-docarray
-httpx
-pyyaml
-requests

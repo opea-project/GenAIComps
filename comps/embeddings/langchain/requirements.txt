@@ -1,4 +1,9 @@
 docarray[full]
 fastapi
+huggingface_hub
 langchain
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
 sentence_transformers
+shortuuid

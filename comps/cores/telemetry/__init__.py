@@ -11,12 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from enum import Enum
-
-
-class ServiceRoleType(Enum):
-    """The enum of a service role."""
-
-    MICROSERVICE = 0
-    MEGASERVICE = 1

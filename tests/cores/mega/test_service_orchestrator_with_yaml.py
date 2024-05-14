@@ -18,7 +18,7 @@ import unittest
 from comps import ServiceOrchestratorWithYaml, TextDoc, opea_microservices, register_microservice
 
 
-@register_microservice(name="s1", port=8081, expose_endpoint="/v1/add")
+@register_microservice(name="s1", host="0.0.0.0", port=8081, expose_endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
@@ -27,7 +27,7 @@ async def s1_add(request: TextDoc) -> TextDoc:
     return {"text": text}
 
 
-@register_microservice(name="s2", port=8082, expose_endpoint="/v1/add")
+@register_microservice(name="s2", host="0.0.0.0", port=8082, expose_endpoint="/v1/add")
 async def s2_add(request: TextDoc) -> TextDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
@@ -48,7 +48,7 @@ class TestYAMLOrchestrator(unittest.TestCase):
         self.s2.stop()
 
     def test_schedule(self):
-        service_builder = ServiceOrchestratorWithYaml(yaml_file_path="./megaservice.yaml")
+        service_builder = ServiceOrchestratorWithYaml(yaml_file_path="megaservice.yaml")
         service_builder.schedule(initial_inputs={"text": "Hello, "})
         service_builder.get_all_final_outputs()
         result_dict = service_builder.result_dict

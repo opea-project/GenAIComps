@@ -1,0 +1,9 @@
+docarray
+fastapi
+httpx
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pyyaml
+requests
+shortuuid
