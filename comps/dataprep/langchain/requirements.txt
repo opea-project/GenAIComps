@@ -1,0 +1,10 @@
+docarray[full]
+fastapi
+huggingface_hub
+langchain
+sentence_transformers
+shortuuid
+easyocr
+fitz
+Pillow
+numpy
