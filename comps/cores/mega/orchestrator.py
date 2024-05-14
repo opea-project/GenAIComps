@@ -16,23 +16,19 @@ import json
 from typing import Dict, List
 
 import requests
-from fastapi import Request, StreamingResponse
+from fastapi.responses import StreamingResponse
 
 
-from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
+from .constants import ServiceType
 from .dag import DAG
-from .micro_service import MicroService
 
 
 class ServiceOrchestrator(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
 
-    def __init__(self, host="0.0.0.0", port=8000, endpoint=str(MegaServiceEndpoint.CHAT_QNA)) -> None:
+    def __init__(self) -> None:
         self.services = {}  # all services, id -> service
         self.result_dict = {}
-        self.host = host
-        self.port = port
-        self.endpoint = endpoint
         super().__init__()
 
     def add(self, service):
@@ -51,13 +47,13 @@ class ServiceOrchestrator(DAG):
             print(e)
             return False
 
-    def schedule(self, initial_inputs: Dict):
+    async def schedule(self, initial_inputs: Dict):
         for node in self.topological_sort():
             if node in self.ind_nodes():
                 inputs = initial_inputs
             else:
                 inputs = self.process_outputs(self.predecessors(node))
-            response = self.execute(node, inputs)
+            response = await self.execute(node, inputs)
             self.dump_outputs(node, response)
 
     def process_outputs(self, prev_nodes: List) -> Dict:
@@ -68,10 +64,10 @@ class ServiceOrchestrator(DAG):
             all_outputs.update(self.result_dict[prev_node])
         return all_outputs
 
-    def execute(self, cur_node: str, inputs: Dict):
+    async def execute(self, cur_node: str, inputs: Dict):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
-        if self.services[cur_node].service_type == ServiceType.LLM and self.services[cur_node].streaming:
+        if self.services[cur_node].service_type == ServiceType.LLM:
             response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000)
             def generate():
                 if response:

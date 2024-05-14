@@ -1,3 +1,4 @@
+from fastapi.responses import StreamingResponse
 
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
@@ -31,11 +32,14 @@ class Gateway:
         self.service.start()
 
     def define_routes(self):
-        self.gateway.app.router.add_api_route(self.endpoint, self.handle_request, methods=["POST"])
-        self.gateway.app.router.add_api_route(str(MegaServiceEndpoint.LIST_SERVICE), self.list_service, methods=["GET"])
-        self.gateway.app.router.add_api_route(
+        self.service.app.router.add_api_route(self.endpoint, self.handle_request, methods=["POST"])
+        self.service.app.router.add_api_route(str(MegaServiceEndpoint.LIST_SERVICE), self.list_service, methods=["GET"])
+        self.service.app.router.add_api_route(
             str(MegaServiceEndpoint.LIST_PARAMETERS), self.list_parameter, methods=["GET"]
         )
+
+    def stop(self):
+        self.service.stop()
 
     def handle_request(self, request):
         raise NotImplementedError("Subclasses must implement this method")
@@ -60,8 +64,13 @@ class ChatQnAGateway(Gateway):
                 text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                 prompt = "\n".join(text_list)
         self.megaservice.schedule(initial_inputs={"text": prompt})
+        for node, response in self.megaservice.result_dict.items():
+            # Here it suppose the last microservice in the megaservice is LLM.
+            if isinstance(response, StreamingResponse) and node == list(self.services.keys())[-1] \
+                          and self.megaservice.services[node].service_type == ServiceType.LLM:
+                return response
         last_node = self.megaservice.all_leaves()[-1]
-        response = self.megaservice.result_dict[last_node]["text"]
+        response = self.result_dict[last_node]["text"]
         choices = []
         usage = UsageInfo()
         choices.append(

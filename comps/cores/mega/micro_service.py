@@ -147,7 +147,7 @@ class MicroService:
 def register_microservice(
     name: Optional[str] = None,
     service_role: ServiceRoleType = ServiceRoleType.MICROSERVICE,
-    service_type: ServiceType = ServiceType.LLM,
+    service_type: ServiceType = ServiceType.UNDEFINED,
     protocol: str = "http",
     host: str = "localhost",
     port: int = 8080,
