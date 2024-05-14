@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from typing import Dict
+
 from fastapi import HTTPException
 from rayllm.api_openai_backend.openai_protocol import ModelCard, Prompt
 from rayllm.api_openai_backend.request_handler import handle_request
@@ -55,14 +56,14 @@ class RouterQueryClient:
             yield x
 
     async def model(self, model_id: str) -> ModelCard:
-        """Get configurations for a supported model"""
+        """Get configurations for a supported model."""
         return ModelCard(
             id=model_id,
             root=model_id,
         )
 
     async def models(self) -> Dict[str, ModelCard]:
-        """Get configurations for supported models"""
+        """Get configurations for supported models."""
         metadatas = {}
         for model_id in self.serve_deployments:
             metadatas[model_id] = await self.model(model_id)

@@ -12,17 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import json
-import jinja2
+import os
 import re
 from enum import Enum
 from typing import List, Union
-from rayllm.api_openai_backend.openai_protocol import (
-    ToolCall,
-    FunctionCall,
-    ChatMessage,
-)
+
+import jinja2
+from rayllm.api_openai_backend.openai_protocol import ChatMessage, FunctionCall, ToolCall
 
 
 class ToolsCallsTemplateContext(Enum):
@@ -41,9 +38,7 @@ class ToolsCallsTemplate:
         self.lstrip_blocks = True
         if template_path is None:
             template_path = os.path.dirname(__file__) + "/templates/tools_functions.jinja"
-        self.environment = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(os.path.dirname(template_path))
-        )
+        self.environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(template_path)))
         self.template = self.environment.get_template(os.path.basename(template_path))
         self.template.globals["FUNCTIONS_LIST"] = ToolsCallsTemplateContext.FUNCTIONS_LIST
         self.template.globals["FORCE_CALL"] = ToolsCallsTemplateContext.FORCE_CALL
@@ -56,14 +51,10 @@ class ToolsCallsTemplate:
         return self.template.render(CONTEXT=ToolsCallsTemplateContext.CALL_TOKEN)
 
     def render_toolcalls(self, tool_calls: List[ToolCall]):
-        return self.template.render(
-            CONTEXT=ToolsCallsTemplateContext.CALLS_NOTIF, tool_calls=tool_calls
-        )
+        return self.template.render(CONTEXT=ToolsCallsTemplateContext.CALLS_NOTIF, tool_calls=tool_calls)
 
     def render_toolmessage(self, message: ChatMessage):
-        return self.template.render(
-            CONTEXT=ToolsCallsTemplateContext.TOOL_RESPONSE, message=message
-        )
+        return self.template.render(CONTEXT=ToolsCallsTemplateContext.TOOL_RESPONSE, message=message)
 
     def render_toolslist(self, tool_choice: Union[str, None], tools_list) -> str:
         if isinstance(tool_choice, str) and tool_choice == "auto":
@@ -72,14 +63,10 @@ class ToolsCallsTemplate:
             for tool in tools_list:
                 # Search if the tool_choice is in the tools_list
                 if tool.type == "function" and tool.function.name == tool_choice:
-                    return self.template.render(
-                        CONTEXT=ToolsCallsTemplateContext.FORCE_CALL, tool=tool
-                    )
+                    return self.template.render(CONTEXT=ToolsCallsTemplateContext.FORCE_CALL, tool=tool)
             return ""
         else:
-            return self.template.render(
-                CONTEXT=ToolsCallsTemplateContext.FUNCTIONS_LIST, tools_list=tools_list
-            )
+            return self.template.render(CONTEXT=ToolsCallsTemplateContext.FUNCTIONS_LIST, tools_list=tools_list)
 
 
 class OpenAIToolsPrompter:
@@ -117,16 +104,10 @@ class OpenAIToolsPrompter:
     def inject_prompt(self, request, tools, tool_choice):
         """Generate and inject the prompt for tools calls."""
         if tools is not None and self.call_token_str is not None and len(tools):
-            select_tool_choice = (
-                tool_choice if (tool_choice is not None and tool_choice != "auto") else None
-            )
-            text_inject = self.template.render_toolslist(
-                tool_choice=select_tool_choice, tools_list=tools
-            )
+            select_tool_choice = tool_choice if (tool_choice is not None and tool_choice != "auto") else None
+            text_inject = self.template.render_toolslist(tool_choice=select_tool_choice, tools_list=tools)
             if request[-1].role == "user":
-                request[-1].content = (
-                    text_inject + "\n The following is User Question: \n" + request[-1].content
-                )
+                request[-1].content = text_inject + "\n The following is User Question: \n" + request[-1].content
         return request
 
 
@@ -152,15 +133,11 @@ class ChatPromptCapture:
         try:
             call_dict = json.loads(func_call_content)
             call_dict["arguments"] = json.dumps(call_dict["arguments"])
-            self.calls_list.append(
-                ToolCall(id=f"call_{call_id}", type="function", function=FunctionCall(**call_dict))
-            )
+            self.calls_list.append(ToolCall(id=f"call_{call_id}", type="function", function=FunctionCall(**call_dict)))
         except Exception:
             pass
 
-    def process_full_output(
-        self, output: str, openai_tools_prompter: OpenAIToolsPrompter, original_prompts
-    ):
+    def process_full_output(self, output: str, openai_tools_prompter: OpenAIToolsPrompter, original_prompts):
         ret_output = ""
         # FIXME: for some model, prompt will be append along with answer, need to remove
         start_pos = sum([len(prompt) for prompt in original_prompts]) - 6

@@ -12,33 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import re
-import ray
 import asyncio
 import functools
-import torch
-
+import os
+import re
 from enum import Enum
 from queue import Empty
-from pydantic import BaseModel
-from typing import Union, List, Tuple, Dict, Any, AsyncGenerator, Optional, Literal
+from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Tuple, Union
+
+import ray
+import torch
 from fastapi import HTTPException
-from transformers import (
-    AutoTokenizer,
-    AutoModelForCausalLM, 
-    TextIteratorStreamer
-)
-from starlette.requests import Request
-from starlette.responses import StreamingResponse, JSONResponse
-
+from pydantic import BaseModel
 from ray import serve
-
-from rayllm.api_openai_backend.openai_protocol import ModelResponse, ErrorResponse, ChatMessage
-from rayllm.api_openai_backend.tools import OpenAIToolsPrompter, ChatPromptCapture
+from rayllm.api_openai_backend.openai_protocol import ChatMessage, ErrorResponse, ModelResponse
+from rayllm.api_openai_backend.tools import ChatPromptCapture, OpenAIToolsPrompter
+from starlette.requests import Request
+from starlette.responses import JSONResponse, StreamingResponse
+from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
 
 DEVICE_CPU = "cpu"
 DEVICE_HPU = "hpu"
+
 
 def load_tokenizer(model, tokenizer_name_or_path):
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name_or_path)
@@ -63,10 +58,12 @@ def load_tokenizer(model, tokenizer_name_or_path):
 
     return tokenizer
 
+
 class PromptFormat(Enum):
     CHAT_FORMAT = 1
     PROMPTS_FORMAT = 2
     INVALID_FORMAT = 3
+
 
 def get_prompt_format(input: Union[List[str], List[dict], List[ChatMessage]]):
     chat_format = True
@@ -85,6 +82,7 @@ def get_prompt_format(input: Union[List[str], List[dict], List[ChatMessage]]):
     if prompts_format:
         return PromptFormat.PROMPTS_FORMAT
     return PromptFormat.INVALID_FORMAT
+
 
 class ChatModel:
     human_id = "<human>"
@@ -127,8 +125,7 @@ class ChatModel:
         text = output
         # remove partial human_id or bot id
         if "\n" in text and (
-            human_id.startswith(text[text.rfind("\n") + 1 :])
-            or bot_id.startswith(text[text.rfind("\n") + 1])
+            human_id.startswith(text[text.rfind("\n") + 1 :]) or bot_id.startswith(text[text.rfind("\n") + 1])
         ):
             text = text[: text.rfind("\n")]
         return text
@@ -137,6 +134,7 @@ class ChatModel:
         """Generate response based on messages."""
         prompt = self.prepare_prompt(messages)
         return prompt
+
 
 class ChatModelGptJ(ChatModel):
     def __init__(self, intro, human_id, bot_id, stop_words):
@@ -163,6 +161,7 @@ class ChatModelGptJ(ChatModel):
         if self.bot_id != "":
             prompt += f"{self.bot_id}:\n"
         return prompt
+
 
 class ChatModelLLama(ChatModel):
     def __init__(self, intro="", human_id="<s>[INST] {msg} [/INST]", bot_id="", stop_words=[]):
@@ -191,6 +190,7 @@ class ChatModelLLama(ChatModel):
             prompt += f"{self.bot_id}:\n"
         return prompt
 
+
 class ChatModelGemma(ChatModel):
     def __init__(self, intro, human_id, bot_id, stop_words):
         super().__init__(intro, human_id, bot_id, stop_words)
@@ -217,6 +217,7 @@ class ChatModelGemma(ChatModel):
             prompt += f"{self.bot_id}:\n"
         return prompt
 
+
 class ChatModelNoFormat(ChatModel):
     def __init__(self, intro, human_id, bot_id, stop_words):
         super().__init__(intro, human_id, bot_id, stop_words)
@@ -229,23 +230,23 @@ class ChatModelNoFormat(ChatModel):
             prompt += msg["content"]
         return prompt
 
+
 class GenerateResult(BaseModel):
     text: str = ""
     input_length: int = None
     generate_length: int = None
+
 
 class Predictor:
     def __init__(self, infer_conf: dict) -> None:
         model_id_or_path = infer_conf["model_id_or_path"]
         use_auth_token = infer_conf["use_auth_token"]
         trust_remote_code = infer_conf["trust_remote_code"]
-        
+
         device = os.environ.get("DEVICE", "hpu")
 
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_id_or_path,
-            use_auth_token = use_auth_token,
-            trust_remote_code = trust_remote_code
+            model_id_or_path, use_auth_token=use_auth_token, trust_remote_code=trust_remote_code
         )
         self.device = torch.device(device)
         # now deepspeed predictor don't have the model
@@ -286,10 +287,7 @@ class Predictor:
             and "chatglm" not in model_name
         ):
             tokenizer.eos_token_id = model.generation_config.eos_token_id
-        if (
-            hasattr(model.generation_config, "bos_token_id")
-            and model.generation_config.bos_token_id is not None
-        ):
+        if hasattr(model.generation_config, "bos_token_id") and model.generation_config.bos_token_id is not None:
             tokenizer.bos_token_id = model.generation_config.bos_token_id
 
         if tokenizer.pad_token_id is None:
@@ -305,14 +303,10 @@ class Predictor:
             tokenizer.pad_token = tokenizer.eos_token
             model.generation_config.pad_token_id = model.generation_config.eos_token_id
 
-    def generate(
-        self, prompts: Union[str, List[str]], **config
-    ) -> Union[GenerateResult, List[GenerateResult], None]:
+    def generate(self, prompts: Union[str, List[str]], **config) -> Union[GenerateResult, List[GenerateResult], None]:
         pass
 
-    async def generate_async(
-        self, prompts: Union[str, List[str]], **config
-    ) -> Union[str, List[str]]:
+    async def generate_async(self, prompts: Union[str, List[str]], **config) -> Union[str, List[str]]:
         pass
 
     # output is streamed into streamer
@@ -324,6 +318,7 @@ class Predictor:
 
     async def stream_results(self, results_generator) -> AsyncGenerator[str, None]:
         pass
+
 
 class HPUPredictor(Predictor):
     def __init__(self, infer_conf: dict):
@@ -340,32 +335,26 @@ class HPUPredictor(Predictor):
         # TODO add torch_compile, i.e. hpu specific configs. including quant
         # if args.torch_compile and model.config.model_type == "llama":
         #     self.use_lazy_mode = False
-        
-        from optimum.habana.transformers.modeling_utils import (
-            adapt_transformers_to_gaudi,
-        )
+
+        from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
 
         # Tweak transformer to optimize performance on Gaudi
         adapt_transformers_to_gaudi()
         # Not using DeepSpeed, load model locally
         self.device = torch.device("hpu")
         model = AutoModelForCausalLM.from_pretrained(
-            model_id_or_path, 
-            use_auth_token = use_auth_token, 
-            trust_remote_code = trust_remote_code
+            model_id_or_path, use_auth_token=use_auth_token, trust_remote_code=trust_remote_code
         )
         self.model = model.eval().to(self.device)
         if self.use_hpu_graphs:
-            from habana_frameworks.torch.hpu import (
-                wrap_in_hpu_graph,
-            )  # pylint: disable=E0401
+            from habana_frameworks.torch.hpu import wrap_in_hpu_graph  # pylint: disable=E0401
 
             self.model = wrap_in_hpu_graph(self.model)
         else:
             print("Warning: use_hpu_graphs is set to False. This will hurt the performance.")
         self.tokenizer = load_tokenizer(model, model_id_or_path)
 
-    # Use dummy streamer to ignore other workers' ouputs
+    # Use dummy streamer to ignore other workers' outputs
     def _create_dummy_streamer(self):
         class DummyStreamer:
             def put(self, value):
@@ -384,17 +373,13 @@ class HPUPredictor(Predictor):
             config["max_new_tokens"] = 128
 
     def get_streamer(self):
-        return TextIteratorStreamer(
-            self.tokenizer, skip_prompt=True, timeout=0, skip_special_tokens=True
-        )
+        return TextIteratorStreamer(self.tokenizer, skip_prompt=True, timeout=0, skip_special_tokens=True)
 
     def generate(self, prompt, **config):
         self._process_config(config)
-        
+
         input_ids, input_length = self.tokenize_inputs(prompt)
-        gen_tokens = self.model.generate(
-            input_ids, **config
-        )
+        gen_tokens = self.model.generate(input_ids, **config)
         decode_result = self.tokenizer.batch_decode(gen_tokens, skip_special_tokens=True)
         if isinstance(decode_result, list) and len(decode_result) > 1:
             return decode_result
@@ -415,7 +400,13 @@ class HPUPredictor(Predictor):
             **config,
         )
 
-chat_processor = {"ChatModelLlama": ChatModelLLama, "ChatModelGptJ": ChatModelGptJ, "ChatModelGemma": ChatModelGemma, "ChatModelNoFormat": ChatModelNoFormat}
+
+chat_processor = {
+    "ChatModelLlama": ChatModelLLama,
+    "ChatModelGptJ": ChatModelGptJ,
+    "ChatModelGemma": ChatModelGemma,
+    "ChatModelNoFormat": ChatModelNoFormat,
+}
 
 
 # 1: Define a Ray Serve deployment.
@@ -424,7 +415,9 @@ class LLMServe:
     _DEFAULT_MAX_BATCH_SIZE = 8
     _DEFAULT_MAX_NUM_SEQS = 256
 
-    def __init__(self, infer_conf: dict, max_batch_size=_DEFAULT_MAX_BATCH_SIZE, max_num_seqs=_DEFAULT_MAX_NUM_SEQS) -> None:
+    def __init__(
+        self, infer_conf: dict, max_batch_size=_DEFAULT_MAX_BATCH_SIZE, max_num_seqs=_DEFAULT_MAX_NUM_SEQS
+    ) -> None:
         # All the initialization code goes here
         self.predictor = HPUPredictor(infer_conf)
         self.loop = asyncio.get_running_loop()
@@ -434,7 +427,7 @@ class LLMServe:
     def consume_streamer(self, streamer):
         for text in streamer:
             yield text
-      
+
     async def consume_streamer_async(self, streamer: TextIteratorStreamer):
         while True:
             try:
@@ -443,12 +436,10 @@ class LLMServe:
                 break
             except Empty:
                 await asyncio.sleep(0.001)
-        
+
     async def handle_streaming(self, prompt: Union[str, List[str]], config: Dict[str, Any]):
         if isinstance(prompt, List):
-            error_message = (
-                "Streaming response is not supported when multiple prompts are provided."
-            )
+            error_message = "Streaming response is not supported when multiple prompts are provided."
             if not self.use_openai:
                 yield JSONResponse(
                     status_code=400,
@@ -464,7 +455,9 @@ class LLMServe:
                     )
                 )
         streamer = self.predictor.get_streamer()
-        self.loop.run_in_executor(None, functools.partial(self.predictor.streaming_generate, prompt, streamer, **config))
+        self.loop.run_in_executor(
+            None, functools.partial(self.predictor.streaming_generate, prompt, streamer, **config)
+        )
 
         if not self.use_openai:
             yield StreamingResponse(self.consume_streamer_async(streamer), status_code=200, media_type="text/plain")
@@ -473,7 +466,9 @@ class LLMServe:
                 processed_output = output
                 tool_call_list = None
                 if self.tools_capture_texts is not None:
-                    (processed_output, tool_call_list) = self.tools_capture_texts(output, self.openai_tools_prompter, prompt)
+                    (processed_output, tool_call_list) = self.tools_capture_texts(
+                        output, self.openai_tools_prompter, prompt
+                    )
                 model_reponse = ModelResponse(
                     generated_text=processed_output,
                     tool_calls=tool_call_list,
@@ -487,7 +482,7 @@ class LLMServe:
         if isinstance(prompts, list):
             return await self.handle_static_batch(prompts, **config)
         return await self.handle_dynamic_batch((prompts, config))
-    
+
     @serve.batch(max_batch_size=_DEFAULT_MAX_BATCH_SIZE)
     async def handle_dynamic_batch(self, requests):
         batched_prompts: Dict[str, Tuple[Union[str, List[str]]]] = {}
@@ -512,7 +507,9 @@ class LLMServe:
             tool_call_list = None
             for result in results:
                 if self.tools_capture_texts is not None:
-                    result.text, tool_call_list = self.tools_capture_texts.process_full_output(result.text, self.openai_tools_prompter, prompt)
+                    result.text, tool_call_list = self.tools_capture_texts.process_full_output(
+                        result.text, self.openai_tools_prompter, prompt
+                    )
                 responses.append(
                     ModelResponse(
                         generated_text=result[-1],
@@ -523,7 +520,7 @@ class LLMServe:
                     )
                 )
             return responses
-        
+
     async def handle_static_batch(self, prompts: List[str], **config: Dict[str, any]):
         results = self.predictor.generate(prompts, **config)
         if not self.use_openai:
@@ -548,9 +545,7 @@ class LLMServe:
             if prompt_format == PromptFormat.CHAT_FORMAT:
                 # Process the input prompts with tools
                 self.tool_call_list = None
-                self.openai_tools_prompter: OpenAIToolsPrompter = (
-                    OpenAIToolsPrompter() if tools is not None else None
-                )
+                self.openai_tools_prompter: OpenAIToolsPrompter = OpenAIToolsPrompter() if tools is not None else None
                 self.tools_capture_texts: ChatPromptCapture = None
                 if self.openai_tools_prompter is not None:
                     input = self.openai_tools_prompter.inject_prompt(input, tools, tool_choice)
@@ -573,9 +568,8 @@ class LLMServe:
             return prompts
         else:
             raise HTTPException(400, "Invalid prompt format.")
-  
-    async def openai_call(self, input: str, config: Dict,
-                          streaming_response=True, tools=None, tool_choice=None):
+
+    async def openai_call(self, input: str, config: Dict, streaming_response=True, tools=None, tool_choice=None):
         self.use_openai = True
         prompts = self.preprocess_prompts(input, tools, tool_choice)
 

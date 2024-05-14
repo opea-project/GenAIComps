@@ -15,10 +15,11 @@
 import os
 import re
 import sys
+from typing import Any, Dict
+
 import ray
-from ray import serve
-from typing import Dict, Any
 from easydict import EasyDict as edict
+from ray import serve
 from rayllm.api_openai_backend.query_client import RouterQueryClient
 from rayllm.api_openai_backend.router_app import Router, router_app
 from rayllm.ray_serve import LLMServe
@@ -39,6 +40,7 @@ def router_application(deployments, max_concurrent_queries):
 
     return RouterDeployment.bind(merged_client)
 
+
 def openai_serve_run(deployments, host, route_prefix, port, max_concurrent_queries):
     router_app = router_application(deployments, max_concurrent_queries)
 
@@ -54,6 +56,7 @@ def openai_serve_run(deployments, host, route_prefix, port, max_concurrent_queri
     deployment_address = f"http://{host}:{port}{route_prefix}"
     print(f"Deployment is ready at `{deployment_address}`.")
     return deployment_address
+
 
 def get_deployment_actor_options(hpus_per_worker, ipex_enabled=False):
     _ray_env_key = "env_vars"
@@ -73,12 +76,18 @@ def get_deployment_actor_options(hpus_per_worker, ipex_enabled=False):
 
     return ray_actor_options
 
+
 def main(argv=None):
     import argparse
+
     parser = argparse.ArgumentParser(description="Serve LLM models with Ray Serve.", add_help=True)
     parser.add_argument("--port_number", default=8080, type=int, help="Port number to serve on.")
-    parser.add_argument("--model_id_or_path", default="meta-llama/Llama-2-7b-chat-hf", type=str, help="Model id or path.")
-    parser.add_argument("--chat_processor", default="ChatModelNoFormat", type=str, help="Chat processor for aligning the prompts.")
+    parser.add_argument(
+        "--model_id_or_path", default="meta-llama/Llama-2-7b-chat-hf", type=str, help="Model id or path."
+    )
+    parser.add_argument(
+        "--chat_processor", default="ChatModelNoFormat", type=str, help="Chat processor for aligning the prompts."
+    )
     parser.add_argument("--max_num_seqs", default=256, type=int, help="Maximum number of sequences to generate.")
     parser.add_argument("--max_batch_size", default=8, type=int, help="Maximum batch size.")
     parser.add_argument("--num_replicas", default=1, type=int, help="Number of replicas to start.")
@@ -92,7 +101,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     ray.init(address="auto")
-    
+
     host_port = os.environ.get("RAY_Serve_ENDPOINT", "http://127.0.0.1:8080")
     host = re.search(r"([\d\.]+)", host_port).group(1)
     port = args.port_number
@@ -124,6 +133,7 @@ def main(argv=None):
     deployment = edict(deployment)
     openai_serve_run(deployment, host, route_prefix, port, infer_conf["max_concurrent_queries"])
     input("Service is deployed successfully.")
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

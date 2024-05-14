@@ -13,37 +13,35 @@
 # limitations under the License.
 
 import os
-from typing import AsyncGenerator, List
 import uuid
+from typing import AsyncGenerator, List
+
 import async_timeout
-from fastapi import FastAPI, status
+from fastapi import FastAPI
 from fastapi import Response as FastAPIResponse
+from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.responses import Response, StreamingResponse
-from rayllm.api_openai_backend.request_handler import (
-    OpenAIHTTPException,
-    openai_exception_handler,
-)
-from rayllm.api_openai_backend.query_client import RouterQueryClient
 from rayllm.api_openai_backend.openai_protocol import (
-    Prompt,
-    ModelResponse,
-    CompletionRequest,
     ChatCompletionRequest,
     ChatCompletionResponse,
+    ChatCompletionResponseChoice,
+    ChatMessage,
+    CompletionRequest,
     CompletionResponse,
+    CompletionResponseChoice,
     DeltaChoices,
     DeltaContent,
     DeltaEOS,
     DeltaRole,
-    ChatMessage,
-    ChatCompletionResponseChoice,
-    ModelList,
     ModelCard,
-    CompletionResponseChoice,
+    ModelList,
+    ModelResponse,
+    Prompt,
     UsageInfo,
 )
-
+from rayllm.api_openai_backend.query_client import RouterQueryClient
+from rayllm.api_openai_backend.request_handler import OpenAIHTTPException, openai_exception_handler
+from starlette.responses import Response, StreamingResponse
 
 # timeout in 10 minutes. Streaming can take longer than 3 min
 TIMEOUT = float(os.environ.get("ROUTER_HTTP_TIMEOUT", 1800))
@@ -108,11 +106,7 @@ async def _completions_wrapper(
                 # Return early in case of an error
                 break
         if not had_error:
-            usage = (
-                UsageInfo.from_response(ModelResponse.merge_stream(*all_results))
-                if all_results
-                else None
-            )
+            usage = UsageInfo.from_response(ModelResponse.merge_stream(*all_results)) if all_results else None
             yield "data: " + CompletionResponse(
                 id=completion_id,
                 object="text_completion",
@@ -197,11 +191,7 @@ async def _chat_completions_wrapper(
                     finish_reason=finish_reason,
                 )
             ]
-            usage = (
-                UsageInfo.from_response(ModelResponse.merge_stream(*all_results))
-                if all_results
-                else None
-            )
+            usage = UsageInfo.from_response(ModelResponse.merge_stream(*all_results)) if all_results else None
             chunk = ChatCompletionResponse(
                 id=completion_id,
                 object="chat.completion.result",
@@ -275,9 +265,7 @@ class Router:
             )
         else:
             async with async_timeout.timeout(TIMEOUT):
-                results_reponse = self.query_client.query(
-                    body.model, prompt, request_id, body.stream
-                )
+                results_reponse = self.query_client.query(body.model, prompt, request_id, body.stream)
                 async for results in results_reponse:
                     if results.error:
                         raise OpenAIHTTPException(
@@ -335,9 +323,7 @@ class Router:
             )
         else:
             async with async_timeout.timeout(TIMEOUT):
-                results_reponse = self.query_client.query(
-                    body.model, prompt, request_id, body.stream
-                )
+                results_reponse = self.query_client.query(body.model, prompt, request_id, body.stream)
                 async for results in results_reponse:
                     if results.error:
                         raise OpenAIHTTPException(

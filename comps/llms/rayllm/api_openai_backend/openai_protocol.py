@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Literal, List, TypeVar, Optional, Tuple, Type, Union
-
-from pydantic import BaseModel, Field, root_validator
-from enum import Enum
-import uuid
 import time
+import uuid
+from enum import Enum
+from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypeVar, Union
+
 import yaml
+from pydantic import BaseModel, Field, root_validator
 
 TModel = TypeVar("TModel", bound="ModelList")
 TCompletion = TypeVar("TCompletion", bound="CompletionResponse")
@@ -63,8 +63,7 @@ class UsageInfo(BaseModel):
         return cls(
             prompt_tokens=response_dict["num_input_tokens"] or 0,
             completion_tokens=response_dict["num_generated_tokens"] or 0,
-            total_tokens=(response_dict["num_input_tokens"] or 0)
-            + (response_dict["num_generated_tokens"] or 0),
+            total_tokens=(response_dict["num_input_tokens"] or 0) + (response_dict["num_generated_tokens"] or 0),
         )
 
 
@@ -201,10 +200,8 @@ class BaseModelExtended(BaseModel):
         exclude_none: bool = False,
         **kwargs,
     ):
-        """
-        Generate a YAML representation of the model, `include` and `exclude`
-        arguments as per `dict()`.
-        """
+        """Generate a YAML representation of the model, `include` and `exclude`
+        arguments as per `dict()`."""
         return yaml.dump(
             self.dict(
                 include=include,
@@ -221,9 +218,7 @@ class BaseModelExtended(BaseModel):
 
 
 class ComputedPropertyMixin:
-    """
-    Include properties in the dict and json representations of the model.
-    """
+    """Include properties in the dict and json representations of the model."""
 
     # Replace with pydantic.computed_field once it's available
     @classmethod
@@ -259,18 +254,13 @@ class ModelResponse(ComputedPropertyMixin, BaseModelExtended):
 
     @root_validator(skip_on_failure=True)
     def text_or_error_or_finish_reason(cls, values):
-        if (
-            values.get("generated_text") is None
-            and values.get("error") is None
-            and values.get("finish_reason") is None
-        ):
+        if values.get("generated_text") is None and values.get("error") is None and values.get("finish_reason") is None:
             raise ValueError("Either 'generated_text' or 'error' or 'finish_reason' must be set")
         return values
 
     @classmethod
     def merge_stream(cls, *responses: "ModelResponse") -> "ModelResponse":
-        """
-        Merge a stream of responses into a single response.
+        """Merge a stream of responses into a single response.
 
         The generated text is concatenated. Fields are maxed, except for
         num_generated_tokens and generation_time, which are summed.
@@ -280,21 +270,15 @@ class ModelResponse(ComputedPropertyMixin, BaseModelExtended):
 
         generated_text = "".join([response.generated_text or "" for response in responses])
         num_input_tokens = [
-            response.num_input_tokens
-            for response in responses
-            if response.num_input_tokens is not None
+            response.num_input_tokens for response in responses if response.num_input_tokens is not None
         ]
         max_num_input_tokens = max(num_input_tokens) if num_input_tokens else None
         num_input_tokens_batch = [
-            response.num_input_tokens_batch
-            for response in responses
-            if response.num_input_tokens_batch is not None
+            response.num_input_tokens_batch for response in responses if response.num_input_tokens_batch is not None
         ]
         max_num_input_tokens_batch = max(num_input_tokens_batch) if num_input_tokens_batch else None
         num_generated_tokens = [
-            response.num_generated_tokens
-            for response in responses
-            if response.num_generated_tokens is not None
+            response.num_generated_tokens for response in responses if response.num_generated_tokens is not None
         ]
         total_generated_tokens = sum(num_generated_tokens) if num_generated_tokens else None
         num_generated_tokens_batch = [
@@ -302,20 +286,12 @@ class ModelResponse(ComputedPropertyMixin, BaseModelExtended):
             for response in responses
             if response.num_generated_tokens_batch is not None
         ]
-        total_generated_tokens_batch = (
-            sum(num_generated_tokens_batch) if num_generated_tokens_batch else None
-        )
+        total_generated_tokens_batch = sum(num_generated_tokens_batch) if num_generated_tokens_batch else None
         preprocessing_time = [
-            response.preprocessing_time
-            for response in responses
-            if response.preprocessing_time is not None
+            response.preprocessing_time for response in responses if response.preprocessing_time is not None
         ]
         max_preprocessing_time = max(preprocessing_time) if preprocessing_time else None
-        generation_time = [
-            response.generation_time
-            for response in responses
-            if response.generation_time is not None
-        ]
+        generation_time = [response.generation_time for response in responses if response.generation_time is not None]
         total_generation_time = sum(generation_time) if generation_time else None
         error = next((response.error for response in reversed(responses) if response.error), None)
 

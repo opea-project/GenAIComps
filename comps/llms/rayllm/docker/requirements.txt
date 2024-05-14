@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+async_timeout
+easydict
 numpy
-ray>=2.10
-ray[serve,tune]>=2.10
-typing>=3.7.4.3
 py-cpuinfo
 pydantic-yaml
-async_timeout
+ray>=2.10
+ray[serve,tune]>=2.10
 typer
-easydict
+typing>=3.7.4.3

@@ -15,15 +15,11 @@
 import asyncio
 import traceback
 from typing import AsyncIterator, List
-from fastapi import status, HTTPException, Request
-from starlette.responses import JSONResponse
+
+from fastapi import HTTPException, Request, status
 from pydantic import ValidationError as PydanticValidationError
-from rayllm.api_openai_backend.openai_protocol import (
-    Prompt,
-    ModelResponse,
-    ErrorResponse,
-    FinishReason,
-)
+from rayllm.api_openai_backend.openai_protocol import ErrorResponse, FinishReason, ModelResponse, Prompt
+from starlette.responses import JSONResponse
 
 
 class OpenAIHTTPException(Exception):
@@ -107,7 +103,7 @@ async def handle_request(
 
 
 def _get_response_for_error(e, request_id: str):
-    """Convert an exception to an ModelResponse object"""
+    """Convert an exception to an ModelResponse object."""
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     if isinstance(e, HTTPException):
         status_code = e.status_code
