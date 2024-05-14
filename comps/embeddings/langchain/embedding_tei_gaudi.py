@@ -21,7 +21,7 @@ from comps import EmbedDoc768, TextDoc, opea_microservices, register_microservic
 
 @register_microservice(
     name="opea_service@embedding_tgi_gaudi",
-    expose_endpoint="/v1/embeddings",
+    endpoint="/v1/embeddings",
     host="0.0.0.0",
     port=6000,
     input_datatype=TextDoc,

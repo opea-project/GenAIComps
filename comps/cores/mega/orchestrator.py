@@ -53,7 +53,7 @@ class ServiceOrchestrator(DAG):
         self.gateway = MicroService(
             host=host,
             port=port,
-            expose_endpoint=endpoint,
+            endpoint=endpoint,
             input_datatype=self.input_datatype,
             output_datatype=self.output_datatype,
         )
