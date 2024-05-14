@@ -150,4 +150,3 @@ if __name__ == "__main__":
         opea_microservices["opea_service@reranking_tgi_gaudi"], opea_microservices["opea_service@llm_tgi_gaudi"]
     )
     service_builder.schedule(initial_inputs={"text": "What's the total revenue of Nike in 2023?"})
-    service_builder.get_all_final_outputs()

@@ -54,7 +54,6 @@ class TestServiceOrchestrator(unittest.TestCase):
 
     def test_schedule(self):
         self.service_builder.schedule(initial_inputs={"text": "hello, "})
-        self.service_builder.get_all_final_outputs()
         result_dict = self.service_builder.result_dict
         self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
 
