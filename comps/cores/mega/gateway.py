@@ -27,12 +27,15 @@ from .micro_service import MicroService
 
 
 class Gateway:
-    def __init__(self, megaservice,
-                 host = "0.0.0.0",
-                 port = 8888, 
-                 endpoint=str(MegaServiceEndpoint.CHAT_QNA),
-                 input_datatype=ChatCompletionRequest,
-                 output_datatype=ChatCompletionResponse):
+    def __init__(
+        self,
+        megaservice,
+        host="0.0.0.0",
+        port=8888,
+        endpoint=str(MegaServiceEndpoint.CHAT_QNA),
+        input_datatype=ChatCompletionRequest,
+        output_datatype=ChatCompletionResponse,
+    ):
         self.megaservice = megaservice
         self.host = host
         self.port = port
