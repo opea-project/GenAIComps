@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import io
-import os
 
 import numpy as np
 from PIL import Image
