@@ -19,18 +19,22 @@ import unittest
 from comps import opea_telemetry
 from comps.cores.telemetry.opea_telemetry import in_memory_exporter
 
+
 @opea_telemetry
 def dummy_func_child():
     return
+
 
 @opea_telemetry
 def dummy_func():
     time.sleep(1)
     dummy_func_child()
 
+
 @opea_telemetry
 async def dummy_async_func_child():
     return
+
 
 @opea_telemetry
 async def dummy_async_func():
@@ -72,6 +76,7 @@ class TestTelemetry(unittest.TestCase):
         self.assertEqual(dummy_func_trace_id, dummy_func_child_parent_id)
         self.assertEqual(dummy_async_func_id, dummy_async_func_child_parent_id)
         in_memory_exporter.clear()
+
 
 if __name__ == "__main__":
     unittest.main()
