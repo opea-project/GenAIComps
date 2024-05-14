@@ -36,7 +36,7 @@ class TestYAMLOrchestrator(unittest.TestCase):
         self.s1.stop()
 
     def test_add_remote_service(self):
-        service_builder = ServiceOrchestratorWithYaml(yaml_file_path="./megaservice_hybrid.yaml")
+        service_builder = ServiceOrchestratorWithYaml(yaml_file_path="megaservice_hybrid.yaml")
         self.assertEqual(service_builder.all_leaves()[0], "s2")
         self.assertEqual(service_builder.docs["opea_micro_services"]["s2"]["endpoint"], "http://fakehost:8008/v1/add")
 
