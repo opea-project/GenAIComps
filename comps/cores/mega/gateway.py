@@ -15,9 +15,6 @@
 from fastapi import Request
 from fastapi.responses import StreamingResponse
 
-from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
-from .micro_service import MicroService
-
 from ..proto.api_protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -25,6 +22,9 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
+from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
+from .micro_service import MicroService
+
 
 class Gateway:
     def __init__(self, megaservice, host, port, endpoint, input_datatype, output_datatype):
@@ -65,9 +65,12 @@ class Gateway:
     def list_parameter(self):
         raise NotImplementedError("Subclasses must implement this method")
 
+
 class ChatQnAGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
-        super().__init__(megaservice, host, port, str(MegaServiceEndpoint.CHAT_QNA), ChatCompletionRequest, ChatCompletionResponse)
+        super().__init__(
+            megaservice, host, port, str(MegaServiceEndpoint.CHAT_QNA), ChatCompletionRequest, ChatCompletionResponse
+        )
 
     async def handle_request(self, request: Request):
         data = await request.json()
@@ -81,8 +84,11 @@ class ChatQnAGateway(Gateway):
         await self.megaservice.schedule(initial_inputs={"text": prompt})
         for node, response in self.megaservice.result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
-            if isinstance(response, StreamingResponse) and node == list(self.megaservice.services.keys())[-1] \
-                          and self.megaservice.services[node].service_type == ServiceType.LLM:
+            if (
+                isinstance(response, StreamingResponse)
+                and node == list(self.megaservice.services.keys())[-1]
+                and self.megaservice.services[node].service_type == ServiceType.LLM
+            ):
                 return response
         last_node = self.megaservice.all_leaves()[-1]
         response = self.megaservice.result_dict[last_node]["text"]

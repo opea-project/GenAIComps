@@ -18,7 +18,6 @@ from typing import Dict, List
 import requests
 from fastapi.responses import StreamingResponse
 
-
 from .constants import ServiceType
 from .dag import DAG
 
@@ -68,7 +67,10 @@ class ServiceOrchestrator(DAG):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
         if self.services[cur_node].service_type == ServiceType.LLM:
-            response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000)
+            response = requests.post(
+                url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
+            )
+
             def generate():
                 if response:
                     for chunk in response.iter_lines(decode_unicode=False, delimiter=b"\0"):
