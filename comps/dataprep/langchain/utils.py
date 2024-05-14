@@ -24,8 +24,7 @@ def pdf_loader(file_path):
         import fitz
     except ImportError:
         raise ImportError(
-            "`PyMuPDF` or 'easyocr' package is not found, please install it with "
-            "`pip install pymupdf easyocr.`"
+            "`PyMuPDF` or 'easyocr' package is not found, please install it with " "`pip install pymupdf easyocr.`"
         )
 
     doc = fitz.open(file_path)
@@ -54,8 +53,9 @@ def pdf_loader(file_path):
                 result = result + pageimg
     return result
 
+
 def docment_loader(doc_path):
-    if doc_path.endswith('.pdf'):
+    if doc_path.endswith(".pdf"):
         return pdf_loader(doc_path)
     else:
         raise NotImplementedError("Current only support pdf format.")
