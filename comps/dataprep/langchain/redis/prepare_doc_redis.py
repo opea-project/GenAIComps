@@ -14,11 +14,12 @@
 
 import os
 
+from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
+
 from comps import DocPath, opea_microservices, register_microservice
-from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 from comps.dataprep.langchain.utils import docment_loader
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
@@ -65,6 +66,7 @@ def ingest_documents(doc_path: DocPath):
             redis_url=REDIS_URL,
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@prepare_doc_redis"].start()
