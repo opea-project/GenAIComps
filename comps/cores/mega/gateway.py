@@ -1,3 +1,18 @@
+# Copyright (c) 2024 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from fastapi import Request
 from fastapi.responses import StreamingResponse
 
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
@@ -41,7 +56,7 @@ class Gateway:
     def stop(self):
         self.service.stop()
 
-    def handle_request(self, request):
+    async def handle_request(self, request: Request):
         raise NotImplementedError("Subclasses must implement this method")
 
     def list_service(self):
@@ -54,7 +69,7 @@ class ChatQnAGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(megaservice, host, port, str(MegaServiceEndpoint.CHAT_QNA), ChatCompletionRequest, ChatCompletionResponse)
 
-    async def handle_request(self, request):
+    async def handle_request(self, request: Request):
         data = await request.json()
         chat_request = ChatCompletionRequest.parse_obj(data)
         if isinstance(chat_request.messages, str):
@@ -63,14 +78,14 @@ class ChatQnAGateway(Gateway):
             for message in chat_request.messages:
                 text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                 prompt = "\n".join(text_list)
-        self.megaservice.schedule(initial_inputs={"text": prompt})
+        await self.megaservice.schedule(initial_inputs={"text": prompt})
         for node, response in self.megaservice.result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
-            if isinstance(response, StreamingResponse) and node == list(self.services.keys())[-1] \
+            if isinstance(response, StreamingResponse) and node == list(self.megaservice.services.keys())[-1] \
                           and self.megaservice.services[node].service_type == ServiceType.LLM:
                 return response
         last_node = self.megaservice.all_leaves()[-1]
-        response = self.result_dict[last_node]["text"]
+        response = self.megaservice.result_dict[last_node]["text"]
         choices = []
         usage = UsageInfo()
         choices.append(

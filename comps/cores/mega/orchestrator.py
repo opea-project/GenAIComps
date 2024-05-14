@@ -73,8 +73,7 @@ class ServiceOrchestrator(DAG):
                 if response:
                     for chunk in response.iter_lines(decode_unicode=False, delimiter=b"\0"):
                         if chunk:
-                            yield f"data: {chunk}\n\n"
-                    yield f"data: [DONE]\n\n"
+                            yield chunk
 
             return StreamingResponse(generate(), media_type="text/event-stream")
         else:
