@@ -47,9 +47,9 @@ class TestYAMLOrchestrator(unittest.TestCase):
         self.s1.stop()
         self.s2.stop()
 
-    def test_schedule(self):
+    async def test_schedule(self):
         service_builder = ServiceOrchestratorWithYaml(yaml_file_path="megaservice.yaml")
-        service_builder.schedule(initial_inputs={"text": "Hello, "})
+        await service_builder.schedule(initial_inputs={"text": "Hello, "})
         result_dict = service_builder.result_dict
         self.assertEqual(result_dict["s2"]["text"], "Hello, opea project!")
 
