@@ -21,6 +21,7 @@ class ServiceRoleType(Enum):
     MICROSERVICE = 0
     MEGASERVICE = 1
 
+
 class ServiceType(Enum):
     """The enum of a service type."""
 

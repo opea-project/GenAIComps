@@ -21,7 +21,7 @@ import numpy as np
 import torch
 from transformers import SpeechT5ForTextToSpeech, SpeechT5HifiGan, SpeechT5Processor
 
-from comps import ServiceType, Base64ByteStrDoc, TextDoc, opea_microservices, opea_telemetry, register_microservice
+from comps import Base64ByteStrDoc, ServiceType, TextDoc, opea_microservices, opea_telemetry, register_microservice
 
 
 @opea_telemetry

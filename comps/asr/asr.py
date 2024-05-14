@@ -22,7 +22,7 @@ from datasets import Audio, Dataset
 from pydub import AudioSegment
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
-from comps import Audio2TextDoc, TextDoc, ServiceType, opea_microservices, opea_telemetry, register_microservice
+from comps import Audio2TextDoc, ServiceType, TextDoc, opea_microservices, opea_telemetry, register_microservice
 
 
 @opea_telemetry

@@ -15,7 +15,7 @@
 import json
 import unittest
 
-from comps import ServiceOrchestrator, TextDoc, Gateway, opea_microservices, register_microservice
+from comps import Gateway, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
 
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")

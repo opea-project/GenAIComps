@@ -14,7 +14,7 @@
 
 from sentence_transformers import CrossEncoder
 
-from comps import ServiceType, RerankedDoc, SearchedDoc, opea_microservices, register_microservice
+from comps import RerankedDoc, SearchedDoc, ServiceType, opea_microservices, register_microservice
 
 
 @register_microservice(
