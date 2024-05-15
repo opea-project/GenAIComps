@@ -1,15 +1,43 @@
-# Start Microservices
+# 🚀Start Microservice with Python
 
-## 1. Start Qdrant server
+## Install Requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+## Start Qdrant server
 
 Please refer to this [readme](../../../vectorstores/langchain/qdrant/README.md).
 
-## 2. Start document preparation microservice for Qdrant
+## Start document preparation microservice for Qdrant with Python Script
 
 Start document preparation microservice for Qdrant with below command.
 
 ```bash
 python prepare_doc_qdrant.py
+```
+
+# 🚀Start Microservice with Docker
+
+## Build Docker Image
+
+```bash
+cd ../../
+docker build -t opea/gen-ai-comps:dataprep-qdrant-xeon-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/langchain/qdrant/docker/Dockerfile .
+```
+
+## Run Docker with CLI
+
+```bash
+docker run -d --name="dataprep-qdrant-server" -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/gen-ai-comps:dataprep-qdrant-xeon-server
+```
+
+## Run Docker with Docker Compose
+
+```bash
+cd docker
+docker compose -f docker-compose-dataprep-qdrant.yaml up -d
 ```
 
 # Invoke Microservices

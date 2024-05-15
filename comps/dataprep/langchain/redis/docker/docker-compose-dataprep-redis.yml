@@ -20,3 +20,13 @@ services:
     ports:
       - "6379:6379"
       - "8001:8001"
+  dataprep-redis:
+    image: opea/gen-ai-comps:dataprep-redis-xeon-server
+    container_name: dataprep-redis-server
+    ports:
+      - "8000:8000"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
