@@ -19,7 +19,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Qdrant
 
-from comps import DocPath, opea_microservices, register_microservice, opea_telemetry
+from comps import DocPath, opea_microservices, opea_telemetry, register_microservice
 from comps.dataprep.langchain.utils import docment_loader
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")

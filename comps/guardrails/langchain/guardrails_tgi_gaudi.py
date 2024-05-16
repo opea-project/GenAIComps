@@ -16,7 +16,7 @@ import os
 
 from langchain_community.llms import HuggingFaceEndpoint
 
-from comps import ServiceType, TextDoc, opea_microservices, register_microservice, opea_telemetry
+from comps import ServiceType, TextDoc, opea_microservices, opea_telemetry, register_microservice
 
 unsafe_categories = """O1: Violence and Hate.
 Should not
@@ -73,6 +73,7 @@ unsafe_dict = {
     "O5": "Regulated or Controlled Substances",
     "O6": "Self-Harm",
 }
+
 
 @opea_telemetry
 def moderation_prompt_for_chat(chat):

@@ -16,7 +16,7 @@ import os
 
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
 
-from comps import EmbedDoc768, ServiceType, TextDoc, opea_microservices, register_microservice, opea_telemetry
+from comps import EmbedDoc768, ServiceType, TextDoc, opea_microservices, opea_telemetry, register_microservice
 
 
 @register_microservice(

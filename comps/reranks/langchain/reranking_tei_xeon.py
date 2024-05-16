@@ -19,7 +19,7 @@ import os
 import requests
 from langchain_core.prompts import ChatPromptTemplate
 
-from comps import LLMParamsDoc, SearchedDoc, ServiceType, opea_microservices, register_microservice, opea_telemetry
+from comps import LLMParamsDoc, SearchedDoc, ServiceType, opea_microservices, opea_telemetry, register_microservice
 
 
 @register_microservice(

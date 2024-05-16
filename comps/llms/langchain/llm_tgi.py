@@ -17,7 +17,8 @@ import os
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import HuggingFaceEndpoint
 
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice, opea_telemetry
+from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, opea_telemetry, register_microservice
+
 
 @opea_telemetry
 def post_process_text(text: str):

@@ -17,7 +17,15 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import Redis
 from redis_config import INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 
-from comps import EmbedDoc768, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice, opea_telemetry
+from comps import (
+    EmbedDoc768,
+    SearchedDoc,
+    ServiceType,
+    TextDoc,
+    opea_microservices,
+    opea_telemetry,
+    register_microservice,
+)
 
 
 @register_microservice(
