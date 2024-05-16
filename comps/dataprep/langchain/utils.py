@@ -13,14 +13,15 @@
 # limitations under the License.
 
 import io
-import re
-import requests
-import unicodedata
-import numpy as np
 import multiprocessing
-from PIL import Image
-from bs4 import BeautifulSoup
+import re
+import unicodedata
 from urllib.parse import urlparse, urlunparse
+
+import numpy as np
+import requests
+from bs4 import BeautifulSoup
+from PIL import Image
 
 
 def pdf_loader(file_path):

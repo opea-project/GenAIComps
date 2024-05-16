@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import json
+import os
 import uuid
 from pathlib import Path
-from typing import Union, List, Optional
-from fastapi import File, UploadFile, HTTPException, Form
+from typing import List, Optional, Union
+
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
+from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
 
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.langchain.utils import docment_loader, parse_html
-
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
@@ -38,10 +38,7 @@ async def save_file_to_local_disk(save_path: str, file):
             fout.write(content)
         except Exception as e:
             print(f"Write file failed. Exception: {e}")
-            raise HTTPException(
-                status_code=500,
-                detail=f'Write file {save_path} failed. Exception: {e}'
-            )
+            raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
 def ingest_data_to_redis(doc_path: DocPath):
@@ -109,14 +106,10 @@ def ingest_link_to_redis(link_list: List[str]):
     )
 
 
-@register_microservice(
-    name="opea_service@prepare_doc_redis",
-    endpoint="/v1/dataprep",
-    host="0.0.0.0",
-    port=6007
-)
-async def ingest_documents(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-                           link_list: Optional[str] = Form(None)):
+@register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
+async def ingest_documents(
+    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), link_list: Optional[str] = Form(None)
+):
     print(f"files:{files}")
     print(f"link_list:{link_list}")
     if files and link_list:
@@ -126,12 +119,12 @@ async def ingest_documents(files: Optional[Union[UploadFile, List[UploadFile]]] 
         if not isinstance(files, list):
             files = [files]
         for file in files:
-            save_path = "./uploaded_files/"+file.filename
+            save_path = "./uploaded_files/" + file.filename
             await save_file_to_local_disk(save_path, file)
             ingest_data_to_redis(DocPath(path=save_path))
             print(f"Successfully saved file {save_path}")
         return True
-    
+
     if link_list:
         try:
             link_list = json.loads(link_list)  # Parse JSON string to list
@@ -142,7 +135,7 @@ async def ingest_documents(files: Optional[Union[UploadFile, List[UploadFile]]] 
             return True
         except json.JSONDecodeError:
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
-    
+
     raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
 
