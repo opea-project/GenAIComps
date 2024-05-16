@@ -3,6 +3,7 @@
 The summary of the proposed changes as long as the relevant motivation and context.
 
 ## Issues
+
 List the issue or RFC link this PR is working on. If there is no such link, please mark it as `n/a`.
 
 ## Type of change
@@ -19,5 +20,4 @@ List the newly introduced 3rd party dependency if exists.
 
 ## Tests
 
-Describe the tests that you ran to verify your changes. 
-
+Describe the tests that you ran to verify your changes.
