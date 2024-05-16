@@ -8,3 +8,9 @@ numpy
 Pillow
 sentence_transformers
 shortuuid
+pymupdf
+beautifulsoup4
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+redis
