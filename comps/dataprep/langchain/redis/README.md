@@ -32,7 +32,7 @@ python prepare_doc_redis.py
 ## Build Docker Image
 
 ```bash
-cd ../../
+cd ../../../../
 docker build -t opea/gen-ai-comps:dataprep-redis-xeon-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/langchain/redis/docker/Dockerfile .
 ```
 
@@ -48,7 +48,7 @@ docker run -d --name="dataprep-redis-server" -p 6007:6007 --ipc=host -e http_pro
 ## Run Docker with Docker Compose
 
 ```bash
-cd docker
+cd comps/dataprep/langchain/redis/docker
 docker compose -f docker-compose-dataprep-redis.yaml up -d
 ```
 
