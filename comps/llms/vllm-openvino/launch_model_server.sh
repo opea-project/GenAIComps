@@ -35,4 +35,3 @@ HF_CACHE_DIR=$HOME/.cache/huggingface
 
 # Start the model server with openvino as the backened inference server
 docker run --rm --name="vllm-openvino-server" -p $port_number:$port_number -v $HF_CACHE_DIR:/root/.cache/huggingface vllm:openvino --model $model_name --port $port_number --disable-log-requests --swap-space $swap_space
-
