@@ -29,9 +29,7 @@ telemetry_endpoint = os.environ.get("TELEMETRY_ENDPOINT", "http://localhost:4318
 resource = Resource.create({SERVICE_NAME: "opea"})
 traceProvider = TracerProvider(resource=resource)
 
-traceProvider.add_span_processor(
-    BatchSpanProcessor(HTTPSpanExporter(endpoint=telemetry_endpoint))
-)
+traceProvider.add_span_processor(BatchSpanProcessor(HTTPSpanExporter(endpoint=telemetry_endpoint)))
 in_memory_exporter = InMemorySpanExporter()
 traceProvider.add_span_processor(BatchSpanProcessor(in_memory_exporter))
 trace.set_tracer_provider(traceProvider)
