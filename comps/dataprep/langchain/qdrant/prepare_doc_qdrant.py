@@ -19,7 +19,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Qdrant
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import DocPath, opea_microservices, opea_telemetry, register_microservice
 from comps.dataprep.langchain.utils import docment_loader
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
@@ -27,12 +27,13 @@ tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
 @register_microservice(
     name="opea_service@prepare_doc_qdrant",
-    expose_endpoint="/v1/dataprep",
+    endpoint="/v1/dataprep",
     host="0.0.0.0",
     port=6000,
     input_datatype=DocPath,
     output_datatype=None,
 )
+@opea_telemetry
 def ingest_documents(doc_path: DocPath):
     """Ingest document to Qdrant."""
     doc_path = doc_path.path
