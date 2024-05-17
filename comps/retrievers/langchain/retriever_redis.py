@@ -43,6 +43,7 @@ def retrieve(input: EmbedDoc768) -> SearchedDoc:
         embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
     else:
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+
     vector_db = Redis.from_existing_index(
         embedding=embeddings,
         index_name=INDEX_NAME,
