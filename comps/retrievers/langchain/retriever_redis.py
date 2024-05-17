@@ -39,9 +39,12 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 )
 @opea_telemetry
 def retrieve(input: EmbedDoc768) -> SearchedDoc:
+    # Create vectorstore
     if tei_embedding_endpoint:
+        # create embeddings using TEI endpoint service
         embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
     else:
+        # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
     vector_db = Redis.from_existing_index(
