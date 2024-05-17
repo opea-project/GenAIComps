@@ -32,6 +32,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/llms/langchain
+WORKDIR /home/user/comps/llms/docsum/langchain
 
 ENTRYPOINT ["python", "llm_docsum.py"]

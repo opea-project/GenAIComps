@@ -58,7 +58,7 @@ def llm_generate(input: LLMParamsDoc):
     if input.streaming:
         # Split text
         text_splitter = CharacterTextSplitter()
-        texts = text_splitter.split_text(input.text)
+        texts = text_splitter.split_text(input.query)
         # Create multiple documents
         docs = [Document(page_content=t) for t in texts]
 
