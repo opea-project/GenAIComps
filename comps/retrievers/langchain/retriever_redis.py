@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
-from redis_config import INDEX_NAME, INDEX_SCHEMA, REDIS_URL
+from redis_config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 
 from comps import (
     EmbedDoc768,
@@ -27,6 +28,7 @@ from comps import (
     register_microservice,
 )
 
+tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 @register_microservice(
     name="opea_service@retriever_redis",
@@ -37,7 +39,10 @@ from comps import (
 )
 @opea_telemetry
 def retrieve(input: EmbedDoc768) -> SearchedDoc:
-    embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-base-en-v1.5")
+    if tei_embedding_endpoint:
+        embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+    else:
+        embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
     vector_db = Redis.from_existing_index(
         embedding=embeddings,
         index_name=INDEX_NAME,
