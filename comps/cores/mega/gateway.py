@@ -117,6 +117,7 @@ class ChatQnAGateway(Gateway):
         )
         return ChatCompletionResponse(model="chatqna", choices=choices, usage=usage)
 
+
 class CodeGenGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(
@@ -153,6 +154,7 @@ class CodeGenGateway(Gateway):
             )
         )
         return ChatCompletionResponse(model="codegen", choices=choices, usage=usage)
+
 
 class CodeTransGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
