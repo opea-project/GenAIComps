@@ -30,7 +30,6 @@ from comps import (
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
-
 @register_microservice(
     name="opea_service@retriever_redis",
     service_type=ServiceType.RETRIEVER,
