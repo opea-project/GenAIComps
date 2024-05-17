@@ -3,27 +3,29 @@
 
 ## Build Docker Image
 
+To build the docker image, run the command
+
 ```bash
-git clone --branch openvino-model-executor https://github.com/ilya-lavrenov/vllm.git
-cd vllm
-docker build -t vllm:openvino -f Dockerfile.openvino .
+bash ./build_vllm_openvino.sh
 ```
 
 Once it successfully finishes you will have a `vllm:openvino` image. It can directly spawn a serving container with OpenAI API endpoint or you can work with it interactively via bash shell.
 
 ## Use vLLM serving with OpenAI API
 
-_All below steps assume you are in `vllm` root directory._
 
 ### Start The Server:
 
 ```bash
-# It's advised to mount host HuggingFace cache to reuse downloaded models between the runs.
-docker run --rm -p 8000:8000 -v $HOME/.cache/huggingface:/root/.cache/huggingface vllm:openvino --model meta-llama/Llama-2-7b-hf --port 8000 --disable-log-requests --swap-space 50
+bash launch_model_server.sh
+```
 
-### Additional server start up parameters that could be useful:
-# --max-num-seqs <max number of sequences per iteration> (default: 256)
-# --swap-space <GiB for KV cache> (default: 4)
+For gated models such as `LLAMA-2`, you will have to pass -e HUGGING_FACE_HUB_TOKEN=\<token\> to the docker run command above with a valid Hugging Face Hub read token.
+
+Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
+
+```bash
+export HUGGINGFACEHUB_API_TOKEN=<token>
 ```
 
 ### Request Completion With Curl:
@@ -37,6 +39,20 @@ curl http://localhost:8000/v1/completions \
   "max_tokens": 300,
   "temperature": 0.7
   }'
+```
+
+#### Customize vLLM-OpenVINO Service
+
+The `launch_model_server.sh` script accepts two parameters:
+
+- port_number: The port number assigned to the vLLM CPU endpoint, with the default being 8080.
+- model_name: The model name utilized for LLM, with the default set to "meta-llama/Llama-2-7b-hf".
+
+You have the flexibility to customize two parameters according to your specific needs. Additionally, you can set the vLLM CPU endpoint by exporting the environment variable `vLLM_LLM_ENDPOINT`:
+
+```bash
+export vLLM_LLM_ENDPOINT="http://xxx.xxx.xxx.xxx:8000"
+export LLM_MODEL=<model_name> # example: export LLM_MODEL="meta-llama/Llama-2-7b-hf"
 ```
 
 ## Use Int-8 Weights Compression
