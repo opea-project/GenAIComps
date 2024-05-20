@@ -31,11 +31,11 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/langchain/redis/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/dataprep/redis/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/dataprep/langchain/redis
+WORKDIR /home/user/comps/dataprep/redis
 
 ENTRYPOINT ["python", "prepare_doc_redis.py"]
 

@@ -31,11 +31,11 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/langchain/qdrant/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/dataprep/qdrant/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/dataprep/langchain/qdrant
+WORKDIR /home/user/comps/dataprep/qdrant
 
 ENTRYPOINT ["python", "prepare_doc_qdrant.py"]
 
