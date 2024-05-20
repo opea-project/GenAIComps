@@ -34,7 +34,7 @@ python prepare_doc_qdrant.py
 
 ```bash
 cd ../../../../
-docker build -t opea/gen-ai-comps:dataprep-qdrant-xeon-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/langchain/qdrant/docker/Dockerfile .
+docker build -t opea/gen-ai-comps:dataprep-qdrant-xeon-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/qdrant/docker/Dockerfile .
 ```
 
 ## Run Docker with CLI
@@ -56,7 +56,7 @@ export COLLECTION_NAME=${your_collection_name}
 ## Run Docker with Docker Compose
 
 ```bash
-cd comps/dataprep/langchain/qdrant/docker
+cd comps/dataprep/qdrant/docker
 docker compose -f docker-compose-dataprep-qdrant.yaml up -d
 ```
 
