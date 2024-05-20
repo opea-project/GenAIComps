@@ -15,6 +15,7 @@
 from fastapi import Request
 from fastapi.responses import StreamingResponse
 from langchain.prompts import PromptTemplate
+
 from ..proto.api_protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -180,10 +181,7 @@ class CodeTransGateway(Gateway):
             ### Translated codes:
         """
         prompt_template = PromptTemplate.from_template(template)
-        prompt = prompt_template.format(
-            language_from=language_from, 
-            language_to=language_to, 
-            source_code=source_code)
+        prompt = prompt_template.format(language_from=language_from, language_to=language_to, source_code=source_code)
         await self.megaservice.schedule(initial_inputs={"query": prompt})
         for node, response in self.megaservice.result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
