@@ -122,7 +122,7 @@ async def ingest_documents(
         if not os.path.exists(upload_folder):
             Path(upload_folder).mkdir(parents=True, exist_ok=True)
         for file in files:
-            save_path = upload_folder+file.filename
+            save_path = upload_folder + file.filename
             await save_file_to_local_disk(save_path, file)
             ingest_data_to_redis(DocPath(path=save_path))
             print(f"Successfully saved file {save_path}")
