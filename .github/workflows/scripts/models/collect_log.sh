@@ -14,6 +14,7 @@
 # limitations under the License.
 
 set -eo pipefail
+set -x
 source /GenAIEval/.github/workflows/scripts/change_color
 WORKSPACE="/GenAIEval"
 # get parameters
@@ -34,14 +35,14 @@ for i in "$@"; do
     esac
 done
 
-log_file="/GenAIEval/${device}/${model}/${device}-${model}-${tasks}-${datasets}.log"
+log_file="/log/${device}/${model}/${device}-${tasks}-${model}-${datasets}.log"
 $BOLD_YELLOW && echo "-------- Collect logs --------" && $RESET
 
 echo "working in"
 pwd
 if [[ ! -f ${log_file} ]]; then
-    echo "${device};${model};${tasks};${datasets};;${logfile}" >> ${WORKSPACE}/summary.log
+    echo "${device};${model};${tasks};${datasets};;" >> ${WORKSPACE}/summary.log
 else
-    acc=$(grep -Po "Accuracy .* is:\\s+(\\d+(\\.\\d+)?)" ${log_file} | head -n 1 | sed 's/.*://;s/[^0-9.]//g')
-    echo "${device};${model};${tasks};${datasets};${acc};${logfile}" >> ${WORKSPACE}/summary.log
+    acc=$(grep -Po "acc .*(\d+(\.\d+)?)" ${log_file} | awk -F "|" '{print $2}' | head -n 1 | sed 's/.*://;s/[^0-9.]//g')
+    echo "${device};${model};${tasks};${datasets};${acc};" >> ${WORKSPACE}/summary.log
 fi

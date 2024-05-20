@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -eo pipefail
+set -o pipefail
+set -x
 source /GenAIEval/.github/workflows/scripts/change_color
-
+git config --global --add safe.directory /GenAIEval
 # get parameters
 PATTERN='[-a-zA-Z0-9_]*='
 PERF_STABLE_CHECK=true
@@ -34,11 +35,7 @@ for i in "$@"; do
     esac
 done
 
-log_dir="/GenAIEval/${device}/${model}"
-mkdir -p ${log_dir}
 working_dir=""
-$BOLD_YELLOW && echo "-------- evaluation start --------" && $RESET
-
 main() {
     case ${tasks} in
         "text-generation")
@@ -48,7 +45,21 @@ main() {
         *)
             echo "Not suppotted task"; exit 1;;
     esac
+    if [[ ${model} == *"opt"* ]]; then
+        pretrained="facebook/${model}"
+    else
+        pretrained="${model}"
+    fi
+    if [[ ${device} == "cpu" ]]; then
+        model_sourze="hf"
+    elif [[ ${device} == "hpu" ]]; then
+        model_sourze="gaudi-hf"
+    fi
+    log_dir="/log/${device}/${model}"
+    mkdir -p ${log_dir}
+    $BOLD_YELLOW && echo "-------- evaluation start --------" && $RESET
     run_benchmark
+    cp ${log_dir}/${device}-${tasks}-${model}-${datasets}.log /GenAIEval/
 }
 
 function prepare() {
@@ -62,22 +73,20 @@ function prepare() {
     else
         echo "Not found requirements.txt file."
     fi
-    if [[ ${device} == "hpu" ]]; then
-        pip install --upgrade-strategy eager optimum[habana]
-    fi
 }
 
 function run_benchmark() {
     cd ${working_dir}
-    overall_log="${log_dir}/${device}-${model}-${tasks}-${datasets}.log"
+    overall_log="${log_dir}/${device}-${tasks}-${model}-${datasets}.log"
     python main.py \
-        --model hf \
-        --model_args pretrained=${model} \
+        --model ${model_sourze} \
+        --model_args pretrained=${pretrained} \
         --tasks ${datasets} \
         --device ${device} \
-        --batch_size 112
-        2>&1 | tee ${overall_log}
+        --batch_size 112  2>&1 | tee ${overall_log}
 
+    echo "print log content:"
+    cat ${overall_log}
     status=$?
     if [ ${status} != 0 ]; then
         echo "Evaluation process returned non-zero exit code."
