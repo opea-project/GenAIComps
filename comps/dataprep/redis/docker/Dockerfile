@@ -35,7 +35,11 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
+USER root
+
 RUN mkdir -p /home/user/comps/dataprep/redis/uploaded_files && chown -R user /home/user/comps/dataprep/redis/uploaded_files
+
+USER user
 
 WORKDIR /home/user/comps/dataprep/redis
 
