@@ -14,6 +14,7 @@
 
 from fastapi import Request
 from fastapi.responses import StreamingResponse
+
 from ..proto.api_protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
