@@ -164,13 +164,22 @@ class CodeTransGateway(Gateway):
 
     async def handle_request(self, request: Request):
         data = await request.json()
-        chat_request = ChatCompletionRequest.parse_obj(data)
-        if isinstance(chat_request.messages, str):
-            prompt = chat_request.messages
-        else:
-            for message in chat_request.messages:
-                text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
-                prompt = "\n".join(text_list)
+        language_from = data["language_from"]
+        language_to = data["language_to"]
+        source_code = data["source_code"]
+        prompt_template = """
+            ### System: Please translate the following {language_from} codes into {language_to} codes.
+
+            ### Original codes:
+            '''{language_from}
+
+            {source_code}
+
+            '''
+
+            ### Translated codes:
+        """
+        prompt = prompt_template.format(language_from=language_from, language_to=language_to, source_code=source_code)
         await self.megaservice.schedule(initial_inputs={"query": prompt})
         for node, response in self.megaservice.result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
