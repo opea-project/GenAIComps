@@ -46,9 +46,9 @@ The ./serving/ray/launch_ray_service.sh script accepts five parameters:
 - num_cpus_per_worker: The number of CPUs specifies the number of CPUs per worker process.
 - num_hpus_per_worker: The number of HPUs specifies the number of HPUs per worker process.
 
-You have the flexibility to customize five parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `RAY_Serve_ENDPOINT`:
+You have the flexibility to customize five parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `RAY_SERVE_ENDPOINT`:
 
 ```bash
-export RAY_Serve_ENDPOINT="http://xxx.xxx.xxx.xxx:8080"
+export RAY_SERVE_ENDPOINT="http://xxx.xxx.xxx.xxx:8080"
 export LLM_MODEL=<model_name> # example: export LLM_MODEL="meta-llama/Llama-2-7b-chat-hf"
 ```

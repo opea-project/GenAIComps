@@ -102,7 +102,7 @@ def main(argv=None):
 
     ray.init(address="auto")
 
-    host_port = os.environ.get("RAY_Serve_ENDPOINT", "http://127.0.0.1:8080")
+    host_port = os.environ.get("RAY_SERVE_ENDPOINT", "http://127.0.0.1:8080")
     host = re.search(r"([\d\.]+)", host_port).group(1)
     port = args.port_number
     model_name = args.model_id_or_path.split("/")[-1] if args.model_id_or_path else ""
