@@ -83,7 +83,7 @@ docker run -d --name="embedding-tei-server" -p 6000:6000 --ipc=host -e http_prox
 
 ```bash
 cd docker
-docker compose -f docker_compose.yaml up -d
+docker compose -f docker_compose_embedding.yaml up -d
 ```
 
 # 🚀Consume Embedding Service
