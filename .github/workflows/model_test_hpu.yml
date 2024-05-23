@@ -119,7 +119,7 @@ jobs:
         id: download-artifact
         uses: dawidd6/action-download-artifact@v3.1.2
         with:
-          workflow: model-test.yml
+          workflow: model_test_hpu.yml
           name: FinalReport
           run_id: ${{ vars.ModelTest_HPU_REF_ID }}
           path: ${{ env.OUT_SCRIPT_PATH }}
