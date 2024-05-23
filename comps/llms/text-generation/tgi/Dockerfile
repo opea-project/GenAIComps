@@ -28,10 +28,10 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/llms/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/llms/text-generation/tgi/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/llms/langchain
+WORKDIR /home/user/comps/llms/text-generation/tgi
 
 ENTRYPOINT ["python", "llm_tgi.py"]
