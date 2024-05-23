@@ -1,4 +1,4 @@
-# Start Redis server
+# Start PGVector server
 
 ## 1. Download Pgvector image
 
