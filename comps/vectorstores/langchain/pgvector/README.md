@@ -3,10 +3,11 @@
 ## 1. Download Pgvector image
 
 ```bash
-docker pull pgvector/pgvector:0.7.0-pg16 
+docker pull pgvector/pgvector:0.7.0-pg16
 ```
 
 ## 2. Configure the username, password and dbname
+
 ```bash
 export POSTGRES_USER=testuser
 export POSTGRES_PASSWORD=testpwd
