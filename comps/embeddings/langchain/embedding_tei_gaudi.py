@@ -15,8 +15,8 @@
 import os
 
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
-
 from langsmith import traceable
+
 from comps import EmbedDoc768, ServiceType, TextDoc, opea_microservices, register_microservice
 
 

@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from langsmith import traceable
 from sentence_transformers import CrossEncoder
 
-from langsmith import traceable
 from comps import RerankedDoc, SearchedDoc, ServiceType, opea_microservices, register_microservice
 
 

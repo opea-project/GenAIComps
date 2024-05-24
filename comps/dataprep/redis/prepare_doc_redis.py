@@ -17,12 +17,13 @@ import os
 import uuid
 from pathlib import Path
 from typing import List, Optional, Union
-from langsmith import traceable
+
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
+from langsmith import traceable
 
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import docment_loader, parse_html

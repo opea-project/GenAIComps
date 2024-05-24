@@ -16,9 +16,9 @@
 import json
 import os
 
-from langsmith import traceable
 import requests
 from langchain_core.prompts import ChatPromptTemplate
+from langsmith import traceable
 
 from comps import LLMParamsDoc, SearchedDoc, ServiceType, opea_microservices, register_microservice
 
