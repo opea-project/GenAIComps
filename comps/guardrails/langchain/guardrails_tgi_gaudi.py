@@ -16,8 +16,9 @@ import os
 
 from langchain_huggingface.llms import HuggingFaceEndpoint
 from langchain_huggingface import ChatHuggingFace
+from langsmith import traceable
 
-from comps import ServiceType, TextDoc, opea_microservices, opea_telemetry, register_microservice
+from comps import ServiceType, TextDoc, opea_microservices, register_microservice
 
 
 def get_unsafe_dict(model_id='meta-llama/LlamaGuard-7b'):
@@ -57,7 +58,7 @@ def get_unsafe_dict(model_id='meta-llama/LlamaGuard-7b'):
     input_datatype=TextDoc,
     output_datatype=TextDoc,
 )
-@opea_telemetry
+@traceable(run_type="llm")
 def safety_guard(input: TextDoc) -> TextDoc:
     # chat engine for server-side prompt templating
     llm_engine_hf = ChatHuggingFace(llm=llm_guard)
