@@ -43,7 +43,6 @@ export TRUST_REMOTE_CODE=True
 docker run -it --runtime=habana --name rayllm_service -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -p 8008:80 -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TRUST_REMOTE_CODE=$TRUST_REMOTE_CODE rayllm:habana /bin/bash -c "ray start --head && python api_server_openai.py --port_number 80 --model_id_or_path ${your_hf_llm_model} --chat_processor ${your_hf_chatprocessor}"
 ```
 
-
 ## 1.3 Verify the LLM Service
 
 ### 1.3.1 Verify the TGI Service

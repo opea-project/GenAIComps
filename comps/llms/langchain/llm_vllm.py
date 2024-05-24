@@ -19,6 +19,7 @@ from langchain_community.llms import VLLMOpenAI
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, opea_telemetry, register_microservice
 
+
 @opea_telemetry
 def post_process_text(text: str):
     if text == " ":
@@ -29,6 +30,7 @@ def post_process_text(text: str):
         return None
     new_text = text.replace(" ", "@#$")
     return f"data: {new_text}\n\n"
+
 
 @register_microservice(
     name="opea_service@llm_vllm",
