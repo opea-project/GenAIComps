@@ -21,8 +21,8 @@ from langsmith import traceable
 from comps import ServiceType, TextDoc, opea_microservices, register_microservice
 
 
-def get_unsafe_dict(model_id='meta-llama/LlamaGuard-7b'):
-    if model_id == 'meta-llama/LlamaGuard-7b':
+def get_unsafe_dict(model_id="meta-llama/LlamaGuard-7b"):
+    if model_id == "meta-llama/LlamaGuard-7b":
         return {
             "O1": "Violence and Hate",
             "O2": "Sexual Content",
@@ -32,22 +32,22 @@ def get_unsafe_dict(model_id='meta-llama/LlamaGuard-7b'):
             "O6": "Self-Harm",
         }
     else:
-        # Standard MLCommons taxonomy of hazard 
+        # Standard MLCommons taxonomy of hazard
         # https://mlcommons.org/2024/04/mlc-aisafety-v0-5-poc/
-        return  {
-            "S1": "Violent Crimes", 
-            "S2": "Non-Violent Crimes", 
-            "S3": "Sex Crimes", 
-            "S4": "Child Exploitation", 
-            "S5": "Specialized Advice", 
-            "S6": "Privacy", 
-            "S7": "Intellectual Property", 
-            "S8": "Indiscriminate Weapons", 
-            "S9": "Hate", 
-            "S10": "Self-Harm", 
+        return {
+            "S1": "Violent Crimes",
+            "S2": "Non-Violent Crimes",
+            "S3": "Sex Crimes",
+            "S4": "Child Exploitation",
+            "S5": "Specialized Advice",
+            "S6": "Privacy",
+            "S7": "Intellectual Property",
+            "S8": "Indiscriminate Weapons",
+            "S9": "Hate",
+            "S10": "Self-Harm",
             "S11": "Sexual Content",
         }
-    
+
 
 @register_microservice(
     name="opea_service@guardrails_tgi_gaudi",
@@ -62,7 +62,7 @@ def get_unsafe_dict(model_id='meta-llama/LlamaGuard-7b'):
 def safety_guard(input: TextDoc) -> TextDoc:
     # chat engine for server-side prompt templating
     llm_engine_hf = ChatHuggingFace(llm=llm_guard)
-    response_input_guard= llm_engine_hf.invoke([{"role": "user", "content": input.text}]).content
+    response_input_guard = llm_engine_hf.invoke([{"role": "user", "content": input.text}]).content
     if "unsafe" in response_input_guard:
         unsafe_dict = get_unsafe_dict(llm_engine_hf.model_id)
         policy_violation_level = response_input_guard.split("\n")[1].strip()
