@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import easyocr
-import fitz
 import io
 import json
 import multiprocessing
 import os
 import re
-import requests
 import unicodedata
-import yaml
+from urllib.parse import urlparse, urlunparse
 
+import easyocr
+import fitz
 import numpy as np
 import pandas as pd
+import requests
+import yaml
 from bs4 import BeautifulSoup
 from docx import Document as DDocument
 from langchain_community.document_loaders import (
@@ -34,53 +35,52 @@ from langchain_community.document_loaders import (
     UnstructuredXMLLoader,
 )
 from PIL import Image
-from urllib.parse import urlparse, urlunparse
 
 
 def load_pdf(pdf_path):
     """Load the pdf file."""
     doc = fitz.open(pdf_path)
-    reader = easyocr.Reader(['en'], gpu=False)
-    result =''
+    reader = easyocr.Reader(["en"], gpu=False)
+    result = ""
     for i in range(doc.page_count):
         page = doc.load_page(i)
         pagetext = page.get_text().strip()
         if pagetext:
-            if pagetext.endswith('!') or pagetext.endswith('?') or pagetext.endswith('.'):
-                result=result+pagetext
+            if pagetext.endswith("!") or pagetext.endswith("?") or pagetext.endswith("."):
+                result = result + pagetext
             else:
-                result=result+pagetext+'.'
-        if len(doc.get_page_images(i)) > 0 :
+                result = result + pagetext + "."
+        if len(doc.get_page_images(i)) > 0:
             for img in doc.get_page_images(i):
                 if img:
-                    pageimg=''
+                    pageimg = ""
                     xref = img[0]
                     img_data = doc.extract_image(xref)
-                    img_bytes = img_data['image']
+                    img_bytes = img_data["image"]
                     pil_image = Image.open(io.BytesIO(img_bytes))
                     img = np.array(pil_image)
                     img_result = reader.readtext(img, paragraph=True, detail=0)
-                    pageimg=pageimg + ', '.join(img_result).strip()
-                    if pageimg.endswith('!') or pageimg.endswith('?') or pageimg.endswith('.'):
+                    pageimg = pageimg + ", ".join(img_result).strip()
+                    if pageimg.endswith("!") or pageimg.endswith("?") or pageimg.endswith("."):
                         pass
                     else:
-                        pageimg=pageimg+'.'
-                result=result+pageimg
+                        pageimg = pageimg + "."
+                result = result + pageimg
     return result
 
 
 def load_html(html_path):
     """Load the html file."""
-    with open(html_path, 'r', encoding="utf-8") as file:
+    with open(html_path, "r", encoding="utf-8") as file:
         html = file.read()
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = BeautifulSoup(html, "html.parser")
     text = soup.get_text(strip=True)
     return text
 
 
 def load_txt(txt_path):
     """Load txt file."""
-    with open(txt_path, 'r') as file:
+    with open(txt_path, "r") as file:
         text = file.read()
     return text
 
@@ -89,10 +89,12 @@ def load_doc(doc_path):
     """Load doc file."""
     txt_path = doc_path.replace(".doc", ".txt")
     try:
-        os.system(f"antiword \"{doc_path}\" > \"{txt_path}\"")
+        os.system(f'antiword "{doc_path}" > "{txt_path}"')
     except:
-        raise AssertionError("antiword failed or not installed, if not installed," + \
-                             "use \"apt-get update && apt-get install -y antiword\" to install it.")
+        raise AssertionError(
+            "antiword failed or not installed, if not installed,"
+            + 'use "apt-get update && apt-get install -y antiword" to install it.'
+        )
     text = load_txt(txt_path)
     os.remove(txt_path)
     return text
@@ -101,7 +103,7 @@ def load_doc(doc_path):
 def load_docx(docx_path):
     """Load docx file."""
     doc = DDocument(docx_path)
-    text = ''
+    text = ""
     for paragraph in doc.paragraphs:
         text += paragraph.text
     return text
@@ -130,14 +132,14 @@ def load_xml(xml_path):
 
 def load_json(json_path):
     """Load and process json file."""
-    with open(json_path, 'r') as file:
+    with open(json_path, "r") as file:
         data = json.load(file)
     return json.dumps(data)
 
 
 def load_yaml(yaml_path):
     """Load and process yaml file."""
-    with open(yaml_path, 'r') as file:
+    with open(yaml_path, "r") as file:
         data = yaml.safe_load(file)
     return yaml.dump(data)
 
@@ -164,6 +166,7 @@ def load_image(image_path):
 def load_svg(svg_path):
     """Load the svg file."""
     import cairosvg
+
     png_path = svg_path.replace(".svg", ".png")
     cairosvg.svg2png(url=svg_path, write_to=png_path)
     text = load_image(png_path)
@@ -202,8 +205,8 @@ def document_loader(doc_path):
         return load_image(doc_path)
     else:
         raise NotImplementedError(
-            "Current only support pdf, html, txt, doc, docx, pptx, ppt, md, xml" + \
-            ", json, jsonl, yaml, xlsx, xls, csv, tiff and svg format."
+            "Current only support pdf, html, txt, doc, docx, pptx, ppt, md, xml"
+            + ", json, jsonl, yaml, xlsx, xls, csv, tiff and svg format."
         )
 
 
