@@ -1,6 +1,7 @@
 docarray[full]
 easyocr
 fastapi
+langsmith
 langchain_community
 opentelemetry-api
 opentelemetry-exporter-otlp

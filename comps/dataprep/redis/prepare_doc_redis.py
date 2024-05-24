@@ -17,7 +17,7 @@ import os
 import uuid
 from pathlib import Path
 from typing import List, Optional, Union
-
+from langsmith import traceable
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -107,6 +107,7 @@ def ingest_link_to_redis(link_list: List[str]):
 
 
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
+@traceable(run_type="tool")
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), link_list: Optional[str] = Form(None)
 ):

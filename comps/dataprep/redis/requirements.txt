@@ -4,6 +4,7 @@ easyocr
 fastapi
 huggingface_hub
 langchain
+langsmith
 langchain-community
 numpy
 opentelemetry-api
