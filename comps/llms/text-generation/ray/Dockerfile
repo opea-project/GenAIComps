@@ -5,9 +5,9 @@ ENV LANG=en_US.UTF-8
 WORKDIR /root/rayllm
 
 # copy the source code to the package directory
-COPY ../ray/ /root/rayllm
+COPY . /root/rayllm
 
-RUN pip install -r /root/rayllm/docker/requirements.txt && \
+RUN pip install -r /root/rayllm/requirements.txt && \
     pip install --upgrade-strategy eager optimum[habana]
 
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \

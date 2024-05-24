@@ -14,10 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cd docker
-
 docker build \
-    -f Dockerfile ../../ \
+    -f Dockerfile . \
     -t rayllm:habana \
     --network=host \
     --build-arg http_proxy=${http_proxy} \
