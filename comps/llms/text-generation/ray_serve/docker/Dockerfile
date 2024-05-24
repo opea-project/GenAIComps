@@ -5,7 +5,7 @@ ENV LANG=en_US.UTF-8
 WORKDIR /root/ray_serve
 
 # copy the source code to the package directory
-COPY ../ray/ /root/ray_serve
+COPY ../ray_serve/ /root/ray_serve
 
 RUN pip install -r /root/ray_serve/docker/requirements.txt && \
     pip install --upgrade-strategy eager optimum[habana]
