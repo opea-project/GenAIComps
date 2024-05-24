@@ -88,7 +88,11 @@ def load_txt(txt_path):
 def load_doc(doc_path):
     """Load doc file."""
     txt_path = doc_path.replace(".doc", ".txt")
-    os.system(f"antiword \"{doc_path}\" > \"{txt_path}\"")
+    try:
+        os.system(f"antiword \"{doc_path}\" > \"{txt_path}\"")
+    except:
+        raise AssertionError("antiword failed or not installed, if not installed," + \
+                             "use \"apt-get update && apt-get install -y antiword\" to install it.")
     text = load_txt(txt_path)
     os.remove(txt_path)
     return text
