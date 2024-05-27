@@ -22,6 +22,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
+from ..proto.docarray import LLMParamsDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -95,7 +96,16 @@ class ChatQnAGateway(Gateway):
             for message in chat_request.messages:
                 text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                 prompt = "\n".join(text_list)
-        await self.megaservice.schedule(initial_inputs={"text": prompt})
+        parameters = LLMParamsDoc(
+            query=prompt,
+            max_new_tokens=chat_request.max_tokens,
+            top_k=chat_request.top_k,
+            top_p=chat_request.top_p,
+            temperature=chat_request.temperature,
+            repetition_penalty=chat_request.repetition_penalty,
+            streaming=chat_request.stream,
+        )
+        await self.megaservice.schedule(initial_inputs={"text": prompt}, llm_parameters=parameters)
         for node, response in self.megaservice.result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
@@ -133,7 +143,16 @@ class CodeGenGateway(Gateway):
             for message in chat_request.messages:
                 text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                 prompt = "\n".join(text_list)
-        await self.megaservice.schedule(initial_inputs={"query": prompt})
+        parameters = LLMParamsDoc(
+            query=prompt,
+            max_new_tokens=chat_request.max_tokens,
+            top_k=chat_request.top_k,
+            top_p=chat_request.top_p,
+            temperature=chat_request.temperature,
+            repetition_penalty=chat_request.repetition_penalty,
+            streaming=chat_request.stream,
+        )
+        await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
         for node, response in self.megaservice.result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
@@ -218,7 +237,16 @@ class DocSumGateway(Gateway):
             for message in chat_request.messages:
                 text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                 prompt = "\n".join(text_list)
-        await self.megaservice.schedule(initial_inputs={"query": prompt})
+        parameters = LLMParamsDoc(
+            query=prompt,
+            max_new_tokens=chat_request.max_tokens,
+            top_k=chat_request.top_k,
+            top_p=chat_request.top_p,
+            temperature=chat_request.temperature,
+            repetition_penalty=chat_request.repetition_penalty,
+            streaming=chat_request.stream,
+        )
+        await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
         for node, response in self.megaservice.result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
