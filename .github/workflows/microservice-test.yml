@@ -45,42 +45,42 @@ jobs:
           echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
 
   Microservice-test:
-      needs: job1
-      strategy:
-        matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
-      runs-on: ${{ matrix.hardware }}
-      continue-on-error: true
-      steps:
-        - name: Clean Up Working Directory
-          run: sudo rm -rf ${{github.workspace}}/*
+    needs: job1
+    strategy:
+      matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
+    runs-on: ${{ matrix.hardware }}
+    continue-on-error: true
+    steps:
+      - name: Clean Up Working Directory
+        run: sudo rm -rf ${{github.workspace}}/*
 
-        - name: Checkout out Repo
-          uses: actions/checkout@v4
-          with:
-            ref: "refs/pull/${{ github.event.number }}/merge"
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+        with:
+          ref: "refs/pull/${{ github.event.number }}/merge"
 
-        - name: Run microservice test
-          env:
-            HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
-            service: ${{ matrix.service }}
-            hardware: ${{ matrix.hardware }}
-          run: |
-            cd tests/workflows
-            if [ -f test_${service}.sh ]; then timeout 10m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
+      - name: Run microservice test
+        env:
+          HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+          service: ${{ matrix.service }}
+          hardware: ${{ matrix.hardware }}
+        run: |
+          cd tests/workflows
+          if [ -f test_${service}.sh ]; then timeout 10m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
 
-        - name: Clean up container
-          env:
-            service: ${{ matrix.service }}
-            hardware: ${{ matrix.hardware }}
-          if: cancelled() || failure()
-          run: |
-            cid=$(docker ps -aq --filter "name=test-comps-*")
-            if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-            echo y | docker system prune
+      - name: Clean up container
+        env:
+          service: ${{ matrix.service }}
+          hardware: ${{ matrix.hardware }}
+        if: cancelled() || failure()
+        run: |
+          cid=$(docker ps -aq --filter "name=test-comps-*")
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          echo y | docker system prune
 
-        - name: Publish pipeline artifact
-          if: ${{ !cancelled() }}
-          uses: actions/upload-artifact@v4
-          with:
-            name: ${{ matrix.service }}-${{ matrix.hardware }}
-            path: ${{ github.workspace }}/tests/*.log
+      - name: Publish pipeline artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.service }}-${{ matrix.hardware }}
+          path: ${{ github.workspace }}/tests/*.log
