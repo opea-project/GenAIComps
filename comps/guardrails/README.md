@@ -45,12 +45,15 @@ curl 127.0.0.1:8088/generate \
 ```
 
 ## 1.3 Start Guardrails Service with Python Script
+
 Install Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
+
 Start the Guardrails microservice
+
 ```bash
 export SAFETY_GUARD_ENDPOINT="http://${your_ip}:8088"
 python langchain/guardrails_tgi_gaudi.py
