@@ -65,7 +65,7 @@ jobs:
           service: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
         run: |
-          cd tests/workflows
+          cd tests
           if [ -f test_${service}.sh ]; then timeout 10m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
 
       - name: Clean up container
