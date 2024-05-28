@@ -30,7 +30,12 @@ RUN chmod +x /home/user/comps/retrievers/langchain/run.sh
 USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/requirements.txt && \
+    pip uninstall -y nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 \
+    nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 \
+    nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-curand-cu12 \
+    nvidia-cusolver-cu12 nvidia-cusparse-cu12 \
+    nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
