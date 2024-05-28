@@ -27,7 +27,7 @@ curl http://127.0.0.1:8080/v1/chat/completions \
   "model": <model_name>,
   "messages": [
         {"role": "assistant", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "What is Deep Learning?"},
+        {"role": "user", "content": "What is deep learning?"},
     ],
   "max_tokens": 32,
   "stream": True
