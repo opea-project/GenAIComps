@@ -20,17 +20,9 @@ Any content that is detected in the following categories is determined as unsafe
 - Regulated or Controlled Substances
 - Suicide & Self Harm
 
-# 🚀Start Microservice with Python
+# 🚀 1. Start Microservice with Python (Option 1)
 
-To start the Guardrails microservice, you need to install python packages first.
-
-## Install Requirements
-
-```bash
-pip install -r requirements.txt
-```
-
-## Start TGI Gaudi Service Manually
+## 1.1 Start TGI Gaudi Service Manually
 
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
@@ -43,7 +35,7 @@ docker pull ghcr.io/huggingface/tgi-gaudi:1.2.1
 docker run -p 8088:80 -v $volume:/data --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy ghcr.io/huggingface/tgi-gaudi:1.2.1 --model-id $model_id
 ```
 
-## Verify the TGI Gaudi Service
+## 1.2 Verify the TGI Gaudi Service
 
 ```bash
 curl 127.0.0.1:8088/generate \
@@ -52,18 +44,23 @@ curl 127.0.0.1:8088/generate \
   -H 'Content-Type: application/json'
 ```
 
-## Start Guardrails Service with Python Script
+## 1.3 Start Guardrails Service with Python Script
+Install Requirements
 
+```bash
+pip install -r requirements.txt
+```
+Start the Guardrails microservice
 ```bash
 export SAFETY_GUARD_ENDPOINT="http://${your_ip}:8088"
 python langchain/guardrails_tgi_gaudi.py
 ```
 
-# 🚀Start Microservice with Docker
+# 🚀 2. Start Microservice with Docker (Option 2)
 
 If you start an Guardrails microservice with docker, the `docker_compose_guardrails.yaml` file will automatically start a TGI gaudi service with docker.
 
-## Setup Environment Variables
+## 2.1 Setup Environment Variables
 
 In order to start TGI and LLM services, you need to setup the following environment variables first.
 
@@ -76,27 +73,27 @@ export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:gaurdrails"
 ```
 
-## Build Docker Image
+## 2.2 Build Docker Image
 
 ```bash
 cd ../../
 docker build -t opea/gen-ai-comps:guardrails-tgi-gaudi-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/langchain/docker/Dockerfile .
 ```
 
-## Run Docker with CLI
+## 2.3 Run Docker with CLI
 
 ```bash
 docker run -d --name="guardrails-tgi-server" -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/gen-ai-comps:guardrails-tgi-gauid-server
 ```
 
-## Run Docker with Docker Compose
+## 2.4 Run Docker with Docker Compose
 
 ```bash
 cd langchain/docker
 docker compose -f docker_compose_guardrails.yaml up -d
 ```
 
-# 🚀Consume Guardrails Service
+# 🚀 3. Consume Guardrails Service
 
 ## Check Service Status
 
