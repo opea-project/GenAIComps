@@ -109,11 +109,10 @@ curl http://${your_ip}:9000/v1/chat/completions\
   -H 'Content-Type: application/json'
 ```
 
-
 ## Validated Model
 
 | Model                     | TGI-Gaudi | vLLM-CPU | Ray |
-|---------------------------| --------- |----------| --- |
+| ------------------------- | --------- | -------- | --- |
 | Intel/neural-chat-7b-v3-3 | ✓         | ✓        | ✓   |
 | Llama-2-7b-chat-hf        | ✓         | ✓        | ✓   |
 | Llama-2-70b-chat-hf       | ✓         | -        | x   |
