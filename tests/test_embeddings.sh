@@ -21,7 +21,7 @@ function start_service() {
 
 function validate_microservice() {
     local_port=5001
-    curl localhost:$local_port/embed \
+    curl http://${ip_address}:$local_port/embed \
         -X POST \
         -d '{"inputs":"What is Deep Learning?"}' \
         -H 'Content-Type: application/json'
