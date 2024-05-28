@@ -15,7 +15,8 @@ function start_service() {
     local_port=5002
     export REDIS_URL="redis://${ip_address}:6379"
     export INDEX_NAME="rag-redis"
-    docker run -d --name="test-comps-retriever-redis-server" -p ${local_port}:7000 --ipc=host -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/retriever-redis:comps
+    docker run -d --name="test-comps-retriever-redis-server" -p ${local_port}:${local_port} --ipc=host -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/retriever-redis:comps
+    sleep 1m
 }
 
 function validate_microservice() {

@@ -16,6 +16,7 @@ function start_service() {
     export TEI_RERANKING_ENDPOINT="http://${ip_address}:${local_port}"
     export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
     docker run -d --name="test-comps-reranking-tei-server" -p ${local_port}:${local_port} --ipc=host -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/reranking-tei:comps
+    sleep 1m
 }
 
 function validate_microservice() {

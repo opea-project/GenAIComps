@@ -15,8 +15,8 @@ function build_docker_images() {
 function start_service() {
     local_port=5001
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:$local_port"
-    docker run -d --name="test-comps-embedding-tei-server" -p ${local_port}:6000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT  opea/embedding-tei:comps
-
+    docker run -d --name="test-comps-embedding-tei-server" -p ${local_port}:${local_port} --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT  opea/embedding-tei:comps
+    sleep 1m
 }
 
 function validate_microservice() {

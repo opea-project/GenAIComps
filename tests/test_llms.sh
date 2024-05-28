@@ -17,7 +17,7 @@ function start_service() {
     export TGI_LLM_ENDPOINT="http://${ip_address}:${local_port}"
     export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
     docker run -d --name="test-comps-llm-tgi-server" -p ${local_port}:${local_port} --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:comps
-
+    sleep 1m
 }
 
 function validate_microservice() {
