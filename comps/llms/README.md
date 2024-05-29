@@ -167,8 +167,17 @@ docker run -d --name="llm-vllm-server" -p 9000:9000 --ipc=host -e http_proxy=$ht
 
 ## 2.4 Run Docker with Docker Compose (Option B)
 
+### 2.4.1 TGI
+
 ```bash
 cd text-generation/tgi
+docker compose -f docker_compose_llm.yaml up -d
+```
+
+### 2.4.2 vLLM
+
+```bash
+cd text-generation/vllm
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
