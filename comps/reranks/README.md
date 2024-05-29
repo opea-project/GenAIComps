@@ -46,6 +46,7 @@ python reranking_tei_xeon.py
 If you start an Reranking microservice with docker, the `docker_compose_reranking.yaml` file will automatically start a TEI service with docker.
 
 ## 2.1 Setup Environment Variables
+
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export LANGCHAIN_TRACING_V2=true
@@ -60,7 +61,9 @@ export TEI_RERANKING_ENDPOINT="http://${your_ip}:8808"
 cd ../../
 docker build -t opea/reranking-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/langchain/docker/Dockerfile .
 ```
+
 To start a docker container, you have two options:
+
 - A. Run Docker with CLI
 - B. Run Docker with Docker Compose
 

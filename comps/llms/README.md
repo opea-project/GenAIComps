@@ -67,6 +67,7 @@ docker build -t opea/llm-tgi:latest --build-arg https_proxy=$https_proxy --build
 ```
 
 To start a docker container, you have two options:
+
 - A. Run Docker with CLI
 - B. Run Docker with Docker Compose
 

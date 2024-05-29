@@ -69,14 +69,15 @@ export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/retrievers"
 ```
 
-
 ## 2.2 Build Docker Image
 
 ```bash
 cd ../../
 docker build -t opea/retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/docker/Dockerfile .
 ```
+
 To start a docker container, you have two options:
+
 - A. Run Docker with CLI
 - B. Run Docker with Docker Compose
 
