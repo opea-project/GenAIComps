@@ -35,7 +35,6 @@ function validate_microservice() {
     source activate
     sleep 1s
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
-    echo ${test_embedding}
     sleep 1s
     http_proxy='' curl http://${ip_address}:$retriever_port/v1/retrieval \
         -X POST \
