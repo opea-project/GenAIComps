@@ -102,7 +102,7 @@ class Gateway:
                 else:
                     raise ValueError(f"Unknown role: {msg_role}")
             prompt = system_prompt + "\n"
-            for role, message in messages_dict:
+            for role, message in messages_dict.items():
                 if message:
                     prompt += role + ": " + message + "\n"
                 else:
