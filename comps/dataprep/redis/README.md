@@ -17,6 +17,9 @@ Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
 ```bash
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=${your_langchain_api_key}
+export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
 ```
 
 ## Start Document Preparation Microservice for Redis with Python Script
@@ -33,7 +36,7 @@ python prepare_doc_redis.py
 
 ```bash
 cd ../../../../
-docker build -t opea/gen-ai-comps:dataprep-redis-xeon-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/docker/Dockerfile .
+docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/docker/Dockerfile .
 ```
 
 ## Run Docker with CLI
@@ -41,8 +44,11 @@ docker build -t opea/gen-ai-comps:dataprep-redis-xeon-server --build-arg https_p
 ```bash
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=${your_langchain_api_key}
+export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
 
-docker run -d --name="dataprep-redis-server" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/gen-ai-comps:dataprep-redis-xeon-server
+docker run -d --name="dataprep-redis-server" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/dataprep-redis:latest
 ```
 
 ## Run Docker with Docker Compose
@@ -52,7 +58,7 @@ cd comps/dataprep/redis/docker
 docker compose -f docker-compose-dataprep-redis.yaml up -d
 ```
 
-# Invoke Microservices
+# Invoke Microservice
 
 Once document preparation microservice for Redis is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 

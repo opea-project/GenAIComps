@@ -1,10 +1,10 @@
 # Reranking Microservice
 
-The Reranking Microservice, fueled by Rerank models, stands as a straightforward yet immensely potent tool for semantic search. When provided with a query and a collection of documents, Rerank swiftly indexes the documents based on their semantic relevance to the query, arranging them from most to least pertinent. This microservice significantly enhances overall accuracy. In a text retrieval system, either a dense embedding model or a sparse lexical search index is often employed to retrieve relevant text documents based on the input. However, a reranking model can further refine this process by rearranging potential candidates into a final, optimized order.
+The Reranking Microservice, fueled by reranking models, stands as a straightforward yet immensely potent tool for semantic search. When provided with a query and a collection of documents, reranking swiftly indexes the documents based on their semantic relevance to the query, arranging them from most to least pertinent. This microservice significantly enhances overall accuracy. In a text retrieval system, either a dense embedding model or a sparse lexical search index is often employed to retrieve relevant text documents based on the input. However, a reranking model can further refine this process by rearranging potential candidates into a final, optimized order.
 
 # 🚀Start Microservice with Python
 
-To start the Reranking microservice, you need to install python packages first.
+To start the Reranking microservice, you must first install the required python packages.
 
 ## Install Requirements
 
@@ -16,6 +16,9 @@ pip install -r requirements.txt
 
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=${your_langchain_api_key}
+export LANGCHAIN_PROJECT="opea/gen-ai-comps:reranks"
 model=BAAI/bge-reranker-large
 revision=refs/pr/4
 volume=$PWD/data
@@ -48,13 +51,13 @@ If you start an Reranking microservice with docker, the `docker_compose_rerankin
 
 ```bash
 cd ../../
-docker build -t opea/gen-ai-comps:reranking-tei-xeon-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/langchain/docker/Dockerfile .
+docker build -t opea/reranking-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/langchain/docker/Dockerfile .
 ```
 
 ## Run Docker with CLI
 
 ```bash
-docker run -d --name="reranking-tei-server" -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/gen-ai-comps:reranking-tei-xeon-server
+docker run -d --name="reranking-tei-server" -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/reranking-tei:latest
 ```
 
 ## Run Docker with Docker Compose
@@ -69,7 +72,7 @@ docker compose -f docker_compose_reranking.yaml up -d
 ## Check Service Status
 
 ```bash
-curl http://localhost:8000/v1/health_check\
+curl http://localhost:8000/v1/health_check \
   -X GET \
   -H 'Content-Type: application/json'
 ```
@@ -77,7 +80,7 @@ curl http://localhost:8000/v1/health_check\
 ## Consume Reranking Service
 
 ```bash
-curl http://localhost:8000/v1/reranking\
+curl http://localhost:8000/v1/reranking \
   -X POST \
   -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
   -H 'Content-Type: application/json'

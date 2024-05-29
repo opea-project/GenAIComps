@@ -20,6 +20,9 @@ pip install -r requirements.txt
 
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=${your_langchain_api_key}
+export LANGCHAIN_PROJECT="opea/gen-ai-comps:llms"
 docker run -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${your_hf_llm_model}
 ```
 
@@ -36,7 +39,7 @@ curl http://${your_ip}:8008/generate \
 
 ```bash
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
-python langchain/llm.py
+python text-generation/tgi/llm.py
 ```
 
 # 🚀Start Microservice with Docker
@@ -51,25 +54,28 @@ In order to start TGI and LLM services, you need to setup the following environm
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL_ID=${your_hf_llm_model}
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=${your_langchain_api_key}
+export LANGCHAIN_PROJECT="opea/gen-ai-comps:llms"
 ```
 
 ## Build Docker Image
 
 ```bash
 cd ../../
-docker build -t opea/gen-ai-comps:llm-tgi-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/langchain/docker/Dockerfile .
+docker build -t opea/llm-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/tgi/Dockerfile .
 ```
 
 ## Run Docker with CLI
 
 ```bash
-docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/gen-ai-comps:llm-tgi-server
+docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:latest
 ```
 
 ## Run Docker with Docker Compose
 
 ```bash
-cd langchain/docker
+cd text-generation/tgi
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
@@ -91,13 +97,13 @@ The `streaming` parameter determines the format of the data returned by the API.
 
 ```bash
 # non-streaming mode
-curl http://${your_ip}:9000/v1/chat/completions\
+curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
   -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
   -H 'Content-Type: application/json'
 
 # streaming mode
-curl http://${your_ip}:9000/v1/chat/completions\
+curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
   -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":true}' \
   -H 'Content-Type: application/json'
