@@ -125,7 +125,7 @@ class ChatQnAGateway(Gateway):
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
-            repetition_penalty=chat_request.presence_penalty if chat_request.temperature else 1.03,
+            repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=chat_request.stream if chat_request.stream else True,
         )
         await self.megaservice.schedule(initial_inputs={"text": prompt}, llm_parameters=parameters)
@@ -166,7 +166,7 @@ class CodeGenGateway(Gateway):
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
-            repetition_penalty=chat_request.presence_penalty if chat_request.temperature else 1.03,
+            repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=chat_request.stream if chat_request.stream else True,
         )
         await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
@@ -254,7 +254,7 @@ class DocSumGateway(Gateway):
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
-            repetition_penalty=chat_request.presence_penalty if chat_request.temperature else 1.03,
+            repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=chat_request.stream if chat_request.stream else True,
         )
         await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
