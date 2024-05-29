@@ -69,7 +69,6 @@ python embedding_tei_gaudi.py
 
 # 🚀Start Microservice with Docker
 
-
 ## Start Embedding Service with TEI
 
 First, you need to start a TEI service.
@@ -95,7 +94,6 @@ Export the `TEI_EMBEDDING_ENDPOINT` for later usage:
 ```bash
 export TEI_EMBEDDING_ENDPOINT="http://localhost:$yourport"
 ```
-
 
 ## Build Docker Image
 
