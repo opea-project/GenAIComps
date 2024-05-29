@@ -43,7 +43,7 @@ def post_process_text(text: str):
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("RAY_Serve_ENDPOINT", "http://localhost:8080")
-    llm_model = os.getenv("LLM_MODEL", "meta-llama/Llama-2-7b-chat-hf")
+    llm_model = os.getenv("LLM_MODEL", "Llama-2-7b-chat-hf")
     llm = ChatOpenAI(
         openai_api_base=llm_endpoint+"/v1",
         model_name=llm_model,
@@ -59,6 +59,7 @@ def llm_generate(input: LLMParamsDoc):
         async def stream_generator():
             chat_response = ""
             async for text in llm.astream(input.query):
+                text = text.content
                 chat_response += text
                 processed_text = post_process_text(text)
                 if text and processed_text:
@@ -74,6 +75,7 @@ def llm_generate(input: LLMParamsDoc):
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         response = llm.invoke(input.query)
+        response = response.content
         return GeneratedDoc(text=response, prompt=input.query)
 
 
