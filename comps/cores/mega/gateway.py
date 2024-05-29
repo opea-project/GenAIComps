@@ -80,6 +80,38 @@ class Gateway:
     def list_parameter(self):
         pass
 
+    def _handle_message(self, messages):
+        if isinstance(messages, str):
+            prompt = messages
+        else:
+            messages = {}
+            for message in messages:
+                msg_role = message["role"]
+                if msg_role == "system":
+                    system_prompt = message["content"]
+                elif msg_role == "user":
+                    if type(message["content"]) == list:
+                        text_list = [
+                            item["text"]
+                            for item in message["content"]
+                            if item["type"] == "text"
+                        ]
+                        text += "\n".join(text_list)
+                        messages[msg_role] = text
+                    else:
+                        messages[msg_role] = message["content"]
+                elif msg_role == "assistant":
+                    messages[msg_role] = message["content"]
+                else:
+                    raise ValueError(f"Unknown role: {msg_role}")
+            prompt = system_prompt + "\n"
+            for role, message in messages:
+                if message:
+                    prompt += role + ": " + message + "\n"
+                else:
+                    prompt += role + ":"
+        return prompt
+
 
 class ChatQnAGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
@@ -90,12 +122,7 @@ class ChatQnAGateway(Gateway):
     async def handle_request(self, request: Request):
         data = await request.json()
         chat_request = ChatCompletionRequest.parse_obj(data)
-        if isinstance(chat_request.messages, str):
-            prompt = chat_request.messages
-        else:
-            for message in chat_request.messages:
-                text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
-                prompt = "\n".join(text_list)
+        prompt = self._handle_message(chat_request.messages)
         parameters = LLMParamsDoc(
             query=prompt,
             max_new_tokens=chat_request.max_tokens,
@@ -137,12 +164,7 @@ class CodeGenGateway(Gateway):
     async def handle_request(self, request: Request):
         data = await request.json()
         chat_request = ChatCompletionRequest.parse_obj(data)
-        if isinstance(chat_request.messages, str):
-            prompt = chat_request.messages
-        else:
-            for message in chat_request.messages:
-                text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
-                prompt = "\n".join(text_list)
+        prompt = self._handle_message(chat_request.messages)
         parameters = LLMParamsDoc(
             query=prompt,
             max_new_tokens=chat_request.max_tokens,
@@ -231,12 +253,7 @@ class DocSumGateway(Gateway):
     async def handle_request(self, request: Request):
         data = await request.json()
         chat_request = ChatCompletionRequest.parse_obj(data)
-        if isinstance(chat_request.messages, str):
-            prompt = chat_request.messages
-        else:
-            for message in chat_request.messages:
-                text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
-                prompt = "\n".join(text_list)
+        prompt = self._handle_message(chat_request.messages)
         parameters = LLMParamsDoc(
             query=prompt,
             max_new_tokens=chat_request.max_tokens,
