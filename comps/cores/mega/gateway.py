@@ -22,7 +22,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
-from ..proto.docarray import LLMParamsDoc
+from ..proto.docarray import LLMParams
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -120,8 +120,7 @@ class ChatQnAGateway(Gateway):
         data = await request.json()
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
-        parameters = LLMParamsDoc(
-            query=prompt,
+        parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens,
             top_k=chat_request.top_k,
             top_p=chat_request.top_p,
@@ -162,8 +161,7 @@ class CodeGenGateway(Gateway):
         data = await request.json()
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
-        parameters = LLMParamsDoc(
-            query=prompt,
+        parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens,
             top_k=chat_request.top_k,
             top_p=chat_request.top_p,
@@ -251,8 +249,7 @@ class DocSumGateway(Gateway):
         data = await request.json()
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
-        parameters = LLMParamsDoc(
-            query=prompt,
+        parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens,
             top_k=chat_request.top_k,
             top_p=chat_request.top_p,

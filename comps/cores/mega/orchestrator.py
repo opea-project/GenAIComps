@@ -18,7 +18,7 @@ from typing import Dict, List
 import requests
 from fastapi.responses import StreamingResponse
 
-from ..proto.docarray import LLMParamsDoc
+from ..proto.docarray import LLMParams
 from .constants import ServiceType
 from .dag import DAG
 
@@ -47,7 +47,7 @@ class ServiceOrchestrator(DAG):
             print(e)
             return False
 
-    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParamsDoc):
+    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams()):
         for node in self.topological_sort():
             if node in self.ind_nodes():
                 inputs = initial_inputs
@@ -64,7 +64,7 @@ class ServiceOrchestrator(DAG):
             all_outputs.update(self.result_dict[prev_node])
         return all_outputs
 
-    async def execute(self, cur_node: str, inputs: Dict, llm_parameters: LLMParamsDoc):
+    async def execute(self, cur_node: str, inputs: Dict, llm_parameters: LLMParams = LLMParams()):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
         llm_parameters_dict = llm_parameters.dict()
