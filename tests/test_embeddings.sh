@@ -22,7 +22,7 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
     tei_service_port=5002
     docker run -d --name="test-comps-embedding-tei-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${tei_service_port}:6000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT  opea/embedding-tei:comps
-    sleep 1m
+    sleep 3m
 }
 
 function validate_microservice() {
