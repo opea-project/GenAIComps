@@ -81,6 +81,7 @@ class LLMParamsDoc(BaseDoc):
     repetition_penalty: float = 1.03
     streaming: bool = True
 
+
 class LLMParams(BaseDoc):
     max_new_tokens: int = 1024
     top_k: int = 10
