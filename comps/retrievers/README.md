@@ -16,6 +16,27 @@ To start the retriever microservice, you must first install the required python 
 pip install -r requirements.txt
 ```
 
+## Start TEI Service Manually
+
+```bash
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=${your_langchain_api_key}
+export LANGCHAIN_PROJECT="opea/gen-ai-comps:reranks"
+model=BAAI/bge-reranker-large
+revision=refs/pr/4
+volume=$PWD/data
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+```
+
+## Verify the TEI Service
+
+```bash
+curl 127.0.0.1:6060/rerank \
+    -X POST \
+    -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
+    -H 'Content-Type: application/json'
+```
+
 ## Setup VectorDB Service
 
 You need to setup your own VectorDB service (Redis in this example), and ingest your knowledge documents into the vector database.
@@ -56,7 +77,7 @@ docker build -t opea/retriever-redis:latest --build-arg https_proxy=$https_proxy
 ## Run Docker with CLI
 
 ```bash
-docker run -d --name="retriever-redis-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/retriever-redis:latest
+docker run -d --name="retriever-redis-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT opea/retriever-redis:latest
 ```
 
 ## Run Docker with Docker Compose

@@ -69,6 +69,34 @@ python embedding_tei_gaudi.py
 
 # 🚀Start Microservice with Docker
 
+
+## Start Embedding Service with TEI
+
+First, you need to start a TEI service.
+
+```bash
+your_port=8090
+model="BAAI/bge-large-en-v1.5"
+revision="refs/pr/5"
+docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+```
+
+Then you need to test your TEI service using the following commands:
+
+```bash
+curl localhost:$your_port/embed \
+    -X POST \
+    -d '{"inputs":"What is Deep Learning?"}' \
+    -H 'Content-Type: application/json'
+```
+
+Export the `TEI_EMBEDDING_ENDPOINT` for later usage:
+
+```bash
+export TEI_EMBEDDING_ENDPOINT="http://localhost:$yourport"
+```
+
+
 ## Build Docker Image
 
 ```bash
