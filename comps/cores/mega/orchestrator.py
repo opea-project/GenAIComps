@@ -18,9 +18,9 @@ from typing import Dict, List
 import requests
 from fastapi.responses import StreamingResponse
 
+from ..proto.docarray import LLMParamsDoc
 from .constants import ServiceType
 from .dag import DAG
-from ..proto.docarray import LLMParamsDoc
 
 
 class ServiceOrchestrator(DAG):

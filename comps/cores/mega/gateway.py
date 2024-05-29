@@ -91,11 +91,7 @@ class Gateway:
                     system_prompt = message["content"]
                 elif msg_role == "user":
                     if type(message["content"]) == list:
-                        text_list = [
-                            item["text"]
-                            for item in message["content"]
-                            if item["type"] == "text"
-                        ]
+                        text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                         text += "\n".join(text_list)
                         messages[msg_role] = text
                     else:
