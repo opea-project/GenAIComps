@@ -84,7 +84,7 @@ class Gateway:
         if isinstance(messages, str):
             prompt = messages
         else:
-            messages = {}
+            messages_dict = {}
             for message in messages:
                 msg_role = message["role"]
                 if msg_role == "system":
@@ -92,21 +92,17 @@ class Gateway:
                 elif msg_role == "user":
                     if type(message["content"]) == list:
                         text = ""
-                        text_list = [
-                            item["text"]
-                            for item in message["content"]
-                            if item["type"] == "text"
-                        ]
+                        text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                         text += "\n".join(text_list)
-                        messages[msg_role] = text
+                        messages_dict[msg_role] = text
                     else:
-                        messages[msg_role] = message["content"]
+                        messages_dict[msg_role] = message["content"]
                 elif msg_role == "assistant":
-                    messages[msg_role] = message["content"]
+                    messages_dict[msg_role] = message["content"]
                 else:
                     raise ValueError(f"Unknown role: {msg_role}")
             prompt = system_prompt + "\n"
-            for role, message in messages:
+            for role, message in messages_dict:
                 if message:
                     prompt += role + ": " + message + "\n"
                 else:
