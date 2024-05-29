@@ -49,7 +49,7 @@ function validate_embedding_service() {
         exit 1
     fi
     sleep 1s
-    
+
     # Check if the embedding service is running correctly.
     curl http://${ip_address}:6000/v1/embeddings \
         -X POST \
