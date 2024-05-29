@@ -79,7 +79,7 @@ docker build -t opea/embedding-tei:latest --build-arg https_proxy=$https_proxy -
 ## Run Docker with CLI
 
 ```bash
-docker run -d --name="embedding-tei-server" -p 6000:6000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT  opea/embedding-tei:latest
+docker run -d --name="embedding-tei-server" -p 6000:6000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT opea/embedding-tei:latest
 ```
 
 ## Run Docker with Docker Compose
