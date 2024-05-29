@@ -37,7 +37,7 @@ docker run -p 9099:9099 --network=host --ipc=host -e http_proxy=$http_proxy -e h
 
 # Test
 
-You can use the following `curl` command to test whether the service is up. Notice that the first request can be slow because it needs to pre-download the models.
+You can use the following `curl` command to test whether the service is up. Notice that the first request can be slow because it needs to download the models.
 
 ```bash
 curl http://localhost:9099/v1/audio/transcriptions -H "Content-Type: application/json" -d '{"url": "https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample_2.wav"}'
