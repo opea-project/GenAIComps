@@ -33,7 +33,7 @@ pip install -r requirements.txt
 ## 1.2 Start TGI Gaudi Service
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gaurdrails"
@@ -68,7 +68,7 @@ If you start an Guardrails microservice with docker, the `docker_compose_guardra
 In order to start TGI and LLM services, you need to setup the following environment variables first.
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 export SAFETY_GUARD_ENDPOINT="http://${your_ip}:8088"
 export LLM_MODEL_ID=${your_hf_llm_model}
 export LANGCHAIN_TRACING_V2=true
@@ -86,7 +86,7 @@ docker build -t opea/guardrails-tgi:latest --build-arg https_proxy=$https_proxy 
 ## 2.3 Run Docker with CLI
 
 ```bash
-docker run -d --name="guardrails-tgi-server" -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/guardrails-tgi:latest
+docker run -d --name="guardrails-tgi-server" -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/guardrails-tgi:latest
 ```
 
 ## 2.4 Run Docker with Docker Compose

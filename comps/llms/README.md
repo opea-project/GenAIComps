@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ## 1.2 Start TGI Service
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:llms"
@@ -51,7 +51,7 @@ If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file
 In order to start TGI and LLM services, you need to setup the following environment variables first.
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL_ID=${your_hf_llm_model}
 export LANGCHAIN_TRACING_V2=true
@@ -76,7 +76,7 @@ You can choose one as needed.
 ## 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:latest
+docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/llm-tgi:latest
 ```
 
 ## 2.4 Run Docker with Docker Compose (Option B)
