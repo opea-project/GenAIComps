@@ -103,7 +103,6 @@ from langsmith import traceable
 
 from comps import register_microservice, EmbedDoc768, ServiceType, TextDoc
 
-
 @register_microservice(
     name="opea_service@embedding_tgi_gaudi",
     service_type=ServiceType.EMBEDDING,
@@ -160,7 +159,7 @@ class ExampleService:
             use_remote_service=True,
             service_type=ServiceType.LLM,
         )
-		self.megaservice.add(embedding).add(llm)
+	self.megaservice.add(embedding).add(llm)
         self.megaservice.flow_to(embedding, llm)
 
 ```
