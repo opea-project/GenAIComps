@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/bin/bash
 source /GenAIEval/.github/workflows/scripts/change_color
 export COVERAGE_RCFILE="/GenAIEval/.github/workflows/scripts/unittest/coveragerc"
 LOG_DIR=/GenAIEval/log_dir
