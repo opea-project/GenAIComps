@@ -17,9 +17,10 @@ GenAIComps provides a suite of microservices, leveraging a service composer to a
 ![Architecture](https://i.imgur.com/r5J0i8j.png)
 
 ## MicroService
-`Microservices` are akin to building blocks, offering the fundamental services for constructing `RAG (Retrieval-Augmented Generation)` applications. 
 
-Each `Microservice` is designed to perform a specific function or task within the application architecture. By breaking down the system into smaller, self-contained services, `Microservices` promote modularity, flexibility, and scalability. 
+`Microservices` are akin to building blocks, offering the fundamental services for constructing `RAG (Retrieval-Augmented Generation)` applications.
+
+Each `Microservice` is designed to perform a specific function or task within the application architecture. By breaking down the system into smaller, self-contained services, `Microservices` promote modularity, flexibility, and scalability.
 
 This modular approach allows developers to independently develop, deploy, and scale individual components of the application, making it easier to maintain and evolve over time. Additionally, `Microservices` facilitate fault isolation, as issues in one service are less likely to impact the entire system.
 
@@ -95,6 +96,7 @@ The initially supported `Microservices` are described in the below table. More `
 </table>
 
 A `Microservices` can be created by using the decorator `register_microservice`. Taking the `embedding` as an example:
+
 ```python
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
 from langsmith import traceable
@@ -120,11 +122,13 @@ def embedding(input: TextDoc) -> EmbedDoc768:
 ```
 
 ## MegaService
-A `Megaservice` is a higher-level architectural construct composed of one or more `Microservices`, providing the capability to assemble end-to-end applications. Unlike individual `Microservices`, which focus on specific tasks or functions, a `Megaservice` orchestrates multiple `Microservices` to deliver a comprehensive solution. 
+
+A `Megaservice` is a higher-level architectural construct composed of one or more `Microservices`, providing the capability to assemble end-to-end applications. Unlike individual `Microservices`, which focus on specific tasks or functions, a `Megaservice` orchestrates multiple `Microservices` to deliver a comprehensive solution.
 
 `Megaservices` encapsulate complex business logic and workflow orchestration, coordinating the interactions between various `Microservices` to fulfill specific application requirements. This approach enables the creation of modular yet integrated applications, where each `Microservice` contributes to the overall functionality of the `Megaservice`.
 
 Here is a simple example of building `Megaservice`:
+
 ```python
 from comps import MicroService, ServiceOrchestrator
 
@@ -162,11 +166,13 @@ class ExampleService:
 ```
 
 ## Gateway
-The `Gateway` serves as the interface for users to access the `Megaservice`, providing customized access based on user requirements. It acts as the entry point for incoming requests, routing them to the appropriate `Microservices` within the `Megaservice` architecture. 
+
+The `Gateway` serves as the interface for users to access the `Megaservice`, providing customized access based on user requirements. It acts as the entry point for incoming requests, routing them to the appropriate `Microservices` within the `Megaservice` architecture.
 
 `Gateways` support API definition, API versioning, rate limiting, and request transformation, allowing for fine-grained control over how users interact with the underlying `Microservices`. By abstracting the complexity of the underlying infrastructure, `Gateways` provide a seamless and user-friendly experience for interacting with the `Megaservice`.
 
 For example, the `Gateway` for `ChatQnA` can be built like this:
+
 ```python
 from comps import ChatQnAGateway
 
