@@ -16,7 +16,7 @@ docker build -f Dockerfile.cpu -t comps:lm-eval .
 - set the environments `MODEL`, `MODEL_ARGS`, `DEVICE` and start the server
 
 ```
-docker run -d  -p 9006:9006 --ipc=host  -e MODEL="hf" -e MODEL_ARGS="pretrained=Intel/neural-chat-7b-v3-3" -e DEVICE="cpu" comps:lm-eval
+docker run -p 9006:9006 --ipc=host  -e MODEL="hf" -e MODEL_ARGS="pretrained=Intel/neural-chat-7b-v3-3" -e DEVICE="cpu" comps:lm-eval
 ```
 
 ### evaluate the model
