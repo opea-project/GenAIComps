@@ -210,7 +210,7 @@ curl http://${your_ip}:9000/v1/chat/completions \
   -H 'Content-Type: application/json'
 ```
 
-## Validated Model
+## 4. Validated Model
 
 | Model                     | TGI-Gaudi | vLLM-CPU | Ray |
 | ------------------------- | --------- | -------- | --- |
