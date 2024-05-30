@@ -1,0 +1,16 @@
+FROM vault.habana.ai/gaudi-docker/1.15.1/ubuntu22.04/habanalabs/pytorch-installer-2.2.0:latest
+
+ENV LANG=en_US.UTF-8
+
+COPY ../vllm-fork/ /root/vllm-fork
+
+WORKDIR /root/vllm-fork
+
+RUN pip install -e .
+
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    service ssh restart
+
+ENV no_proxy=localhost,127.0.0.1
+
+CMD ["/bin/bash"]
