@@ -61,7 +61,7 @@ def llm_generate(input: LLMCompletionDoc):
     batched_inputs = torch.tensor(input.batched_inputs, dtype=torch.long, device=llm.device)
     with torch.no_grad():
         # TODO, use model.generate.
-        logits = llm.model(batched_inputs).logits
+        logits = llm._model_call(batched_inputs)
 
     logits = torch.nn.functional.log_softmax(logits, dim=-1)
     # Check if per-token argmax is exactly equal to continuation
