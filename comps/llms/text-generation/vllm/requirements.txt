@@ -1,6 +1,5 @@
 docarray[full]
 fastapi
-vllm
 huggingface_hub
 langchain==0.1.16
 langserve
@@ -9,3 +8,4 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 shortuuid
 transformers
+vllm
