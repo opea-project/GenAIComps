@@ -103,6 +103,7 @@ from langsmith import traceable
 
 from comps import register_microservice, EmbedDoc768, ServiceType, TextDoc
 
+
 @register_microservice(
     name="opea_service@embedding_tgi_gaudi",
     service_type=ServiceType.EMBEDDING,
@@ -118,7 +119,6 @@ def embedding(input: TextDoc) -> EmbedDoc768:
     embed_vector = embed_vector[:768]  # Keep only the first 768 elements
     res = EmbedDoc768(text=input.text, embedding=embed_vector)
     return res
-
 ```
 
 ## MegaService
