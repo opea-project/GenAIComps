@@ -14,14 +14,15 @@
 
 import os
 
+from langchain_community.utilities.requests import JsonRequestsWrapper
 from langchain_huggingface import ChatHuggingFace
 from langchain_huggingface.llms import HuggingFaceEndpoint
-from langchain_community.utilities.requests import JsonRequestsWrapper
 from langsmith import traceable
 
 from comps import ServiceType, TextDoc, opea_microservices, register_microservice
 
-DEFAULT_MODEL="meta-llama/LlamaGuard-7b"
+DEFAULT_MODEL = "meta-llama/LlamaGuard-7b"
+
 
 def get_unsafe_dict(model_id=DEFAULT_MODEL):
     if model_id == "meta-llama/LlamaGuard-7b":
@@ -50,11 +51,10 @@ def get_unsafe_dict(model_id=DEFAULT_MODEL):
             "S11": "Sexual Content",
         }
 
+
 def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
-    """
-    Returns Hugging Face repoo id for deployed service's info endpoint
-    otherwise return default model
-    """
+    """Returns Hugging Face repoo id for deployed service's info endpoint
+    otherwise return default model."""
     try:
         requests = JsonRequestsWrapper()
         info_endpoint = os.path.join(endpoint_url, "info")
@@ -62,6 +62,7 @@ def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
         return model_info["model_id"]
     except Exception as e:
         return default
+
 
 @register_microservice(
     name="opea_service@guardrails_tgi_gaudi",
