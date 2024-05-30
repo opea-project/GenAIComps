@@ -5,10 +5,10 @@ langchain==0.1.16
 langchain_openai
 langserve
 langsmith
+openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+ray[serve]>=2.10
 shortuuid
 transformers
-ray[serve]>=2.10
-openai

@@ -45,7 +45,7 @@ def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("RAY_Serve_ENDPOINT", "http://localhost:8080")
     llm_model = os.getenv("LLM_MODEL", "Llama-2-7b-chat-hf")
     llm = ChatOpenAI(
-        openai_api_base=llm_endpoint+"/v1",
+        openai_api_base=llm_endpoint + "/v1",
         model_name=llm_model,
         openai_api_key=os.getenv("OPENAI_API_KEY", "not_needed"),
         max_tokens=input.max_new_tokens,
