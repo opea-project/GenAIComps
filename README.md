@@ -103,6 +103,7 @@ from langsmith import traceable
 
 from comps import register_microservice, EmbedDoc768, ServiceType, TextDoc
 
+
 @register_microservice(
     name="opea_service@embedding_tgi_gaudi",
     service_type=ServiceType.EMBEDDING,
@@ -136,6 +137,7 @@ EMBEDDING_SERVICE_PORT = os.getenv("EMBEDDING_SERVICE_PORT", 6000)
 LLM_SERVICE_HOST_IP = os.getenv("LLM_SERVICE_HOST_IP", "0.0.0.0")
 LLM_SERVICE_PORT = os.getenv("LLM_SERVICE_PORT", 9000)
 
+
 class ExampleService:
     def __init__(self, host="0.0.0.0", port=8000):
         self.host = host
@@ -159,9 +161,8 @@ class ExampleService:
             use_remote_service=True,
             service_type=ServiceType.LLM,
         )
-	self.megaservice.add(embedding).add(llm)
+        self.megaservice.add(embedding).add(llm)
         self.megaservice.flow_to(embedding, llm)
-
 ```
 
 ## Gateway
