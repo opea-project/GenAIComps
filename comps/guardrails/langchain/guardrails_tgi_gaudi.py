@@ -16,12 +16,14 @@ import os
 
 from langchain_huggingface import ChatHuggingFace
 from langchain_huggingface.llms import HuggingFaceEndpoint
+from langchain_community.utilities.requests import JsonRequestsWrapper
 from langsmith import traceable
 
 from comps import ServiceType, TextDoc, opea_microservices, register_microservice
 
+DEFAULT_MODEL="meta-llama/LlamaGuard-7b"
 
-def get_unsafe_dict(model_id="meta-llama/LlamaGuard-7b"):
+def get_unsafe_dict(model_id=DEFAULT_MODEL):
     if model_id == "meta-llama/LlamaGuard-7b":
         return {
             "O1": "Violence and Hate",
@@ -48,6 +50,18 @@ def get_unsafe_dict(model_id="meta-llama/LlamaGuard-7b"):
             "S11": "Sexual Content",
         }
 
+def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
+    """
+    Returns Hugging Face repoo id for deployed service's info endpoint
+    otherwise return default model
+    """
+    try:
+        requests = JsonRequestsWrapper()
+        info_endpoint = os.path.join(endpoint_url, "info")
+        model_info = requests.get(info_endpoint)
+        return model_info["model_id"]
+    except Exception as e:
+        return default
 
 @register_microservice(
     name="opea_service@guardrails_tgi_gaudi",
@@ -60,11 +74,9 @@ def get_unsafe_dict(model_id="meta-llama/LlamaGuard-7b"):
 )
 @traceable(run_type="llm")
 def safety_guard(input: TextDoc) -> TextDoc:
-    # chat engine for server-side prompt templating
-    llm_engine_hf = ChatHuggingFace(llm=llm_guard)
-    response_input_guard = llm_engine_hf.invoke([{"role": "user", "content": input.text}]).content
+    response_input_guard = llm_guard_chat.invoke([{"role": "user", "content": input.text}]).content
     if "unsafe" in response_input_guard:
-        unsafe_dict = get_unsafe_dict(llm_engine_hf.model_id)
+        unsafe_dict = get_unsafe_dict(llm_guard_chat.model_id)
         policy_violation_level = response_input_guard.split("\n")[1].strip()
         policy_violations = unsafe_dict[policy_violation_level]
         print(f"Violated policies: {policy_violations}")
@@ -77,6 +89,7 @@ def safety_guard(input: TextDoc) -> TextDoc:
 
 if __name__ == "__main__":
     safety_guard_endpoint = os.getenv("SAFETY_GUARD_ENDPOINT", "http://localhost:8080")
+    safety_guard_model = os.getenv("SAFETY_GUARD_MODEL_ID", get_tgi_service_model_id(safety_guard_endpoint))
     llm_guard = HuggingFaceEndpoint(
         endpoint_url=safety_guard_endpoint,
         max_new_tokens=100,
@@ -86,5 +99,7 @@ if __name__ == "__main__":
         temperature=0.01,
         repetition_penalty=1.03,
     )
+    # chat engine for server-side prompt templating
+    llm_guard_chat = ChatHuggingFace(llm=llm_guard, model_id=safety_guard_model)
     print("guardrails - router] LLM initialized.")
     opea_microservices["opea_service@guardrails_tgi_gaudi"].start()
