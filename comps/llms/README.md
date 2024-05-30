@@ -192,7 +192,7 @@ docker run -d --name="llm-vllm-server" -p 9000:9000 --ipc=host -e http_proxy=$ht
 ### 2.3.3 Ray Serve
 
 ```bash
-docker run -d --name="llm-ray-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e RAY_Serve_ENDPOINT=$RAY_Serve_ENDPOINT -e UGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e LLM_MODEL=$LLM_MODEL opea/llm-ray:latest
+docker run -d --name="llm-ray-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e RAY_Serve_ENDPOINT=$RAY_Serve_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e LLM_MODEL=$LLM_MODEL opea/llm-ray:latest
 ```
 
 ## 2.4 Run Docker with Docker Compose (Option B)
