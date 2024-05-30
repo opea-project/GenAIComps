@@ -17,7 +17,9 @@ COPY ${REPO_PATH} /genaieval
 RUN if [ "$REPO_PATH" == "" ]; then rm -rf /genaieval/* && rm -rf /genaieval/.* ; git clone --single-branch --branch=${BRANCH} ${REPO} /genaieval ; fi
 
 # Build From Source
+RUN pip install --upgrade pip setuptools==69.5.1
 RUN cd /genaieval && \
+    pip install -r requirements.txt && \
     python setup.py install && \
     pip install --upgrade-strategy eager optimum[habana] && \
     pip list

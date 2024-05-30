@@ -30,6 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 RUN ln -sf $(which python3) /usr/bin/python
 
+RUN pip install --upgrade pip setuptools==69.5.1
 RUN python -m pip install --no-cache-dir bandit==1.7.8
 RUN wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
 RUN chmod +x /bin/hadolint
