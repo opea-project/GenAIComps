@@ -37,7 +37,6 @@ docker run -it --name vllm_service -p 8008:80 -e HF_TOKEN=${HUGGINGFACEHUB_API_T
 
 ## 1.2.3 Start Ray Service
 
-
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export TRUST_REMOTE_CODE=True
