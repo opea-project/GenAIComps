@@ -57,7 +57,7 @@ The initially supported microservices are described in the below table. More mic
 		<tr>
 			<td><a href="./comps/reranks/README.md">Reranking</a></td>
             <td><a href="https://www.langchain.com">LangChain</a></td>
-			<td><a href="https://huggingface.co/BAAI/bge-reranker-large">BAAI/bge-reranker-large</a></td>
+			<td><a href="https://huggingface.co/BAAI/bge-reranker-base">BAAI/bge-reranker-base</a></td>
 			<td><a href="https://github.com/huggingface/tei-gaudi">TEI-Gaudi</a></td>
 			<td>Gaudi2</td>
 			<td>Reranking on Gaudi2</td>
