@@ -1,0 +1,24 @@
+FROM vault.habana.ai/gaudi-docker/1.13.0/ubuntu22.04/habanalabs/pytorch-installer-2.1.0:latest as hpu
+
+ENV LANG=en_US.UTF-8
+ENV PYTHONPATH=/root:/usr/lib/habanalabs/
+
+ARG REPO_COMPS=https://github.com/opea-project/GenAIComps.git
+ARG BRANCH=main
+
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    aspell \
+    aspell-en \
+    build-essential \
+    git \
+    vim \
+    wget
+
+RUN git clone --single-branch --branch=${BRANCH} ${REPO_COMPS} /home/user/GenAIComps/ && \
+    cd /home/user/GenAIComps/ && python setup.py install && \
+    pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
+    pip install --no-cache-dir -r /home/user/GenAIComps/comps/llms/lm-eval/requirements.txt
+
+WORKDIR /home/user/GenAIComps/comps/llms/lm-eval/
+
+ENTRYPOINT ["python", "self_hosted_hf.py"]
