@@ -7,7 +7,7 @@ This microservice, designed for [lm-eval](https://github.com/EleutherAI/lm-evalu
 ### build cpu docker
 
 ```
-docker build -f Dockerfile.cpu -t comps:lm-eval .
+docker build -f Dockerfile.cpu -t opea/lm-eval:latest .
 
 ```
 
@@ -16,7 +16,7 @@ docker build -f Dockerfile.cpu -t comps:lm-eval .
 - set the environments `MODEL`, `MODEL_ARGS`, `DEVICE` and start the server
 
 ```
-docker run -p 9006:9006 --ipc=host  -e MODEL="hf" -e MODEL_ARGS="pretrained=Intel/neural-chat-7b-v3-3" -e DEVICE="cpu" comps:lm-eval
+docker run -p 9006:9006 --ipc=host  -e MODEL="hf" -e MODEL_ARGS="pretrained=Intel/neural-chat-7b-v3-3" -e DEVICE="cpu" opea/lm-eval:latest
 ```
 
 ### evaluate the model
