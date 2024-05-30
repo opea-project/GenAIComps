@@ -2,23 +2,23 @@ FROM vault.habana.ai/gaudi-docker/1.13.0/ubuntu22.04/habanalabs/pytorch-installe
 
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/root:/usr/lib/habanalabs/
+ARG REPO_COMPS=https://github.com/lkk12014402/GenAIComps.git
+ARG BRANCH=enable_lm_eval_with_microservice
 
-ARG REPO_COMPS=https://github.com/opea-project/GenAIComps.git
-ARG BRANCH=main
+RUN apt-get update && \
+    apt-get install git git-lfs && \
+    git-lfs install
 
-RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
-    aspell \
-    aspell-en \
-    build-essential \
-    git \
-    vim \
-    wget
+# SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/bash", "--login", "-c"]
 
-RUN git clone --single-branch --branch=${BRANCH} ${REPO_COMPS} /home/user/GenAIComps/ && \
-    cd /home/user/GenAIComps/ && python setup.py install && \
-    pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
-    pip install --no-cache-dir -r /home/user/GenAIComps/comps/llms/lm-eval/requirements.txt
+RUN git clone --single-branch --branch=${BRANCH} ${REPO_COMPS} /GenAIComps/ && \
+    cd /GenAIComps/ && \
+    pip install --upgrade-strategy eager optimum[habana] && \
+    pip install -U urllib3 && \
+    pip install -r comps/llms/lm-eval/requirements.txt && \
+    python setup.py install
 
-WORKDIR /home/user/GenAIComps/comps/llms/lm-eval/
+WORKDIR /GenAIComps/comps/llms/lm-eval/
 
 ENTRYPOINT ["python", "self_hosted_hf.py"]
