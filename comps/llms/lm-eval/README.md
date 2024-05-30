@@ -1,11 +1,11 @@
 # LM-Eval Microservice
 
-This microservice, designed for [lm-eval](https://github.com/EleutherAI/lm-evaluation-harness), which can host a seperate llm server to evaluate `lm-eval` tasks.
-
+This microservice, designed for [lm-eval](https://github.com/EleutherAI/lm-evaluation-harness), which can host a separate llm server to evaluate `lm-eval` tasks.
 
 ## CPU service
 
 ### build cpu docker
+
 ```
 docker build -f Dockerfile.cpu -t comps:lm-eval .
 
@@ -37,7 +37,6 @@ python main.py \
     --batch_size 2
 
 ```
-
 
 ## Gaudi service
 
