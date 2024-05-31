@@ -2,17 +2,11 @@
 
 # 🚀1. Start Microservice with Python（Option 1）
 
-## 1.1 Install Requirements
+## 1.1 Start Redis Stack Server
 
-```bash
-pip install -r requirements.txt
-```
+Please refer to this [readme](../../vectorstores/langchain/redis/README.md).
 
-## 1.2 Start Redis Stack Server
-
-Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
-
-## 1.3 Setup Environment Variables
+## 1.2 Setup Environment Variables
 
 ```bash
 export REDIS_URL="redis://${your_ip}:6379"
@@ -20,9 +14,10 @@ export INDEX_NAME=${your_index_name}
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
+export PYTHONPATH=${path_to_comps}
 ```
 
-## 1.4 Start Document Preparation Microservice for Redis with Python Script
+## 1.3 Start Document Preparation Microservice for Redis with Python Script
 
 Start document preparation microservice for Redis with below command.
 

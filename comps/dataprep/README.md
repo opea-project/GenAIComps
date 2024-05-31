@@ -2,6 +2,17 @@
 
 The Dataprep Microservice aims to preprocess the data from various sources (either structured or unstructured data) to text data, and convert the text data to embedding vectors then store them in the database.
 
+## Install Requirements
+
+```bash
+apt-get update
+apt-get install libreoffice
+```
+
+```bash
+pip install -r requirements.txt
+```
+
 # Dataprep Microservice with Redis
 
 For details, please refer to this [readme](redis/README.md)
