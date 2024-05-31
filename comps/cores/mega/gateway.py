@@ -128,8 +128,8 @@ class ChatQnAGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=chat_request.stream if chat_request.stream else True,
         )
-        await self.megaservice.schedule(initial_inputs={"text": prompt}, llm_parameters=parameters)
-        for node, response in self.megaservice.result_dict.items():
+        result_dict = await self.megaservice.schedule(initial_inputs={"text": prompt}, llm_parameters=parameters)
+        for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
                 isinstance(response, StreamingResponse)
@@ -137,8 +137,8 @@ class ChatQnAGateway(Gateway):
                 and self.megaservice.services[node].service_type == ServiceType.LLM
             ):
                 return response
-        last_node = self.megaservice.all_leaves()[-1]
-        response = self.megaservice.result_dict[last_node]["text"]
+        last_node = self.megaservice.get_all_final_outputs()[-1]
+        response = result_dict[last_node]["text"]
         choices = []
         usage = UsageInfo()
         choices.append(
@@ -169,8 +169,8 @@ class CodeGenGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=chat_request.stream if chat_request.stream else True,
         )
-        await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
-        for node, response in self.megaservice.result_dict.items():
+        result_dict = await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
+        for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
                 isinstance(response, StreamingResponse)
@@ -178,8 +178,8 @@ class CodeGenGateway(Gateway):
                 and self.megaservice.services[node].service_type == ServiceType.LLM
             ):
                 return response
-        last_node = self.megaservice.all_leaves()[-1]
-        response = self.megaservice.result_dict[last_node]["text"]
+        last_node = self.megaservice.get_all_final_outputs()[-1]
+        response = result_dict[last_node]["text"]
         choices = []
         usage = UsageInfo()
         choices.append(
@@ -216,8 +216,8 @@ class CodeTransGateway(Gateway):
             ### Translated codes:
         """
         prompt = prompt_template.format(language_from=language_from, language_to=language_to, source_code=source_code)
-        await self.megaservice.schedule(initial_inputs={"query": prompt})
-        for node, response in self.megaservice.result_dict.items():
+        result_dict = await self.megaservice.schedule(initial_inputs={"query": prompt})
+        for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
                 isinstance(response, StreamingResponse)
@@ -225,8 +225,8 @@ class CodeTransGateway(Gateway):
                 and self.megaservice.services[node].service_type == ServiceType.LLM
             ):
                 return response
-        last_node = self.megaservice.all_leaves()[-1]
-        response = self.megaservice.result_dict[last_node]["text"]
+        last_node = self.megaservice.get_all_final_outputs()[-1]
+        response = result_dict[last_node]["text"]
         choices = []
         usage = UsageInfo()
         choices.append(
@@ -257,8 +257,8 @@ class DocSumGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=chat_request.stream if chat_request.stream else True,
         )
-        await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
-        for node, response in self.megaservice.result_dict.items():
+        result_dict = await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
+        for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
                 isinstance(response, StreamingResponse)
@@ -266,8 +266,8 @@ class DocSumGateway(Gateway):
                 and self.megaservice.services[node].service_type == ServiceType.LLM
             ):
                 return response
-        last_node = self.megaservice.all_leaves()[-1]
-        response = self.megaservice.result_dict[last_node]["text"]
+        last_node = self.megaservice.get_all_final_outputs()[-1]
+        response = result_dict[last_node]["text"]
         choices = []
         usage = UsageInfo()
         choices.append(
