@@ -1,18 +1,8 @@
 #!/bin/bash
 
-# Copyright (c) 2024 Intel Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 # Set default values
 default_port=8080
@@ -41,4 +31,4 @@ if [ "$#" -lt 0 ] || [ "$#" -gt 5 ]; then
 fi
 
 # Build the Docker run command based on the number of cards
-docker run -it --runtime=habana --name="rayllm-habana" -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host --network=host -e HF_TOKEN=$HF_TOKEN -e TRUST_REMOTE_CODE=$TRUST_REMOTE_CODE rayllm:habana /bin/bash -c "ray start --head && python api_server_openai.py --port_number $port_number --model_id_or_path $model_name --chat_processor $chat_processor --num_cpus_per_worker $num_cpus_per_worker --num_hpus_per_worker $num_hpus_per_worker"
+docker run -it --runtime=habana --name="ChatQnA_server" -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -p $port_number:$port_number -e HF_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TRUST_REMOTE_CODE=$TRUST_REMOTE_CODE ray_serve:habana /bin/bash -c "ray start --head && python api_server_openai.py --port_number $port_number --model_id_or_path $model_name --chat_processor $chat_processor --num_cpus_per_worker $num_cpus_per_worker --num_hpus_per_worker $num_hpus_per_worker"

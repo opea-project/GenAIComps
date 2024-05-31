@@ -1,0 +1,36 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3.8"
+
+services:
+  vllm_service:
+    image: vllm:cpu
+    container_name: vllm-service
+    ports:
+      - "8008:80"
+    volumes:
+      - "./data:/data"
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+    command: cd / && export VLLM_CPU_KVCACHE_SPACE=40 && python3 -m vllm.entrypoints.openai.api_server --model $LLM_MODEL_ID --port 80
+  llm:
+    image: opea/gen-ai-comps:llm-vllm-server
+    container_name: llm-vllm-server
+    ports:
+      - "9000:9000"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      vLLM_LLM_ENDPOINT: ${vLLM_LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

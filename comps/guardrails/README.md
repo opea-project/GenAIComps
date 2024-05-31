@@ -68,7 +68,7 @@ If you start an Guardrails microservice with docker, the `docker_compose_guardra
 In order to start TGI and LLM services, you need to setup the following environment variables first.
 
 ```bash
-export HF_TOKEN=${your_hf_api_token}
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export SAFETY_GUARD_ENDPOINT="http://${your_ip}:8088"
 export LLM_MODEL_ID=${your_hf_llm_model}
 export LANGCHAIN_TRACING_V2=true
@@ -86,7 +86,7 @@ docker build -t opea/guardrails-tgi:latest --build-arg https_proxy=$https_proxy 
 ## 2.3 Run Docker with CLI
 
 ```bash
-docker run -d --name="guardrails-tgi-server" -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/guardrails-tgi:latest
+docker run -d --name="guardrails-tgi-server" -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/guardrails-tgi:latest
 ```
 
 ## 2.4 Run Docker with Docker Compose
@@ -111,6 +111,6 @@ curl http://localhost:9090/v1/health_check\
 ```bash
 curl http://localhost:9090/v1/guardrails\
   -X POST \
-  -d '{"inputs":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}' \
+  -d '{"text":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}' \
   -H 'Content-Type: application/json'
 ```

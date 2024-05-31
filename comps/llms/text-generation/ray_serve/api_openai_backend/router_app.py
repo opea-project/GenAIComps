@@ -1,16 +1,5 @@
-# Copyright (c) 2024 Intel Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 import uuid
@@ -21,7 +10,7 @@ from fastapi import FastAPI
 from fastapi import Response as FastAPIResponse
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
-from rayllm.api_openai_backend.openai_protocol import (
+from ray_serve.api_openai_backend.openai_protocol import (
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatCompletionResponseChoice,
@@ -39,8 +28,8 @@ from rayllm.api_openai_backend.openai_protocol import (
     Prompt,
     UsageInfo,
 )
-from rayllm.api_openai_backend.query_client import RouterQueryClient
-from rayllm.api_openai_backend.request_handler import OpenAIHTTPException, openai_exception_handler
+from ray_serve.api_openai_backend.query_client import RouterQueryClient
+from ray_serve.api_openai_backend.request_handler import OpenAIHTTPException, openai_exception_handler
 from starlette.responses import Response, StreamingResponse
 
 # timeout in 10 minutes. Streaming can take longer than 3 min
