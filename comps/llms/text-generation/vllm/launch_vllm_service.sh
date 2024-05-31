@@ -19,7 +19,7 @@ if [ "$#" -lt 0 ] || [ "$#" -gt 3 ]; then
     echo "Usage: $0 [port_number] [model_name] [hw_mode]"
     echo "port_number: The port number assigned to the vLLM CPU endpoint, with the default being 8080."
     echo "model_name: The model name utilized for LLM, with the default set to 'mistralai/Mistral-7B-v0.1'."
-    echo "hw_mode: The hardware mode utilized for LLM, with the default set to 'cpu', and the optional selection is 'hpu'"
+    echo "hw_mode: The hardware mode utilized for LLM, with the default set to 'cpu', and the optional selection can be 'hpu'"
     exit 1
 fi
 
