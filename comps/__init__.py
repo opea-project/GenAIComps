@@ -3,8 +3,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-#
-
 # Document
 from comps.cores.proto.docarray import (
     Audio2TextDoc,
