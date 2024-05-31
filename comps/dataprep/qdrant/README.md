@@ -1,3 +1,5 @@
+# Dataprep Microservice with Qdrant
+
 # 🚀Start Microservice with Python
 
 ## Install Requirements
@@ -6,7 +8,7 @@
 pip install -r requirements.txt
 ```
 
-## Start Qdrant server
+## Start Qdrant Server
 
 Please refer to this [readme](../../../vectorstores/langchain/qdrant/README.md).
 
@@ -20,7 +22,7 @@ export QDRANT_PORT=6333
 export COLLECTION_NAME=${your_collection_name}
 ```
 
-## Start document preparation microservice for Qdrant with Python Script
+## Start Document Preparation Microservice for Qdrant with Python Script
 
 Start document preparation microservice for Qdrant with below command.
 
@@ -34,13 +36,13 @@ python prepare_doc_qdrant.py
 
 ```bash
 cd ../../../../
-docker build -t opea/gen-ai-comps:dataprep-qdrant-xeon-server --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/qdrant/docker/Dockerfile .
+docker build -t opea/dataprep-qdrant:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/qdrant/docker/Dockerfile .
 ```
 
 ## Run Docker with CLI
 
 ```bash
-docker run -d --name="dataprep-qdrant-server" -p 6000:6000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/gen-ai-comps:dataprep-qdrant-xeon-server
+docker run -d --name="dataprep-qdrant-server" -p 6000:6000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/dataprep-qdrant:latest
 ```
 
 ## Setup Environment Variables
@@ -60,7 +62,7 @@ cd comps/dataprep/qdrant/docker
 docker compose -f docker-compose-dataprep-qdrant.yaml up -d
 ```
 
-# Invoke Microservices
+# Invoke Microservice
 
 Once document preparation microservice for Qdrant is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 

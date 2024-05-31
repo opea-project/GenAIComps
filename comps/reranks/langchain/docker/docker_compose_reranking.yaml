@@ -25,7 +25,7 @@ services:
     shm_size: 1g
     command: --model-id ${RERANK_MODEL_ID}
   reranking:
-    image: opea/gen-ai-comps:reranking-tei-xeon-server
+    image: opea/reranking-tei:latest
     container_name: reranking-tei-xeon-server
     ports:
       - "8000:8000"
@@ -35,6 +35,7 @@ services:
       https_proxy: ${https_proxy}
       TEI_RERANKING_ENDPOINT: ${TEI_RERANKING_ENDPOINT}
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
     restart: unless-stopped
 
 networks:
