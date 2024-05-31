@@ -2,11 +2,21 @@
 Evaluation, benchmark, and scorecard, targeting for performance on throughput and latency, accuracy on popular evaluation harness, safety, and hallucination
 
 ## Installation
-```shell
+
+- Install from Pypi
+
+```bash
+pip install opea-eval
+```
+
+- Build from Source
+
+```bash
 git clone https://github.com/opea-project/GenAIEval
 cd GenAIEval
 pip install -e .
 ```
+
 ## Evaluation
 ### lm-evaluation-harness
 For evaluating the models on text-generation tasks, we follow the [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness/) and provide the command line usage and function call usage. Over 60 standard academic benchmarks for LLMs, with hundreds of [subtasks and variants](https://github.com/EleutherAI/lm-evaluation-harness/tree/v0.4.2/lm_eval/tasks) implemented, such as `ARC`, `HellaSwag`, `MMLU`, `TruthfulQA`, `Winogrande`, `GSM8K` and so on.
