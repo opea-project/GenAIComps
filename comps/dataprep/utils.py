@@ -12,23 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import cairosvg
-import docx
-import docx2txt
 import io
 import json
 import multiprocessing
 import os
-import pptx
 import re
 import shutil
 import unicodedata
 from urllib.parse import urlparse, urlunparse
 
+import cairosvg
+import docx
+import docx2txt
 import easyocr
 import fitz
 import numpy as np
 import pandas as pd
+import pptx
 import requests
 import yaml
 from bs4 import BeautifulSoup
@@ -109,13 +109,13 @@ def load_docx(docx_path):
         if isinstance(r._target, docx.parts.image.ImagePart):
             rid2img[r.rId] = os.path.basename(r._target.partname)
     if rid2img:
-        save_path = './imgs/'
+        save_path = "./imgs/"
         os.makedirs(save_path, exist_ok=True)
         docx2txt.process(docx_path, save_path)
     for paragraph in doc.paragraphs:
         if hasattr(paragraph, "text"):
             text += paragraph.text + "\n"
-        if 'graphicData' in paragraph._p.xml:
+        if "graphicData" in paragraph._p.xml:
             for rid in rid2img:
                 if rid in paragraph._p.xml:
                     img_path = os.path.join(save_path, rid2img[rid])
@@ -146,11 +146,14 @@ def load_pptx(pptx_path):
         for shape in sorted(slide.shapes, key=lambda shape: (shape.top, shape.left)):
             if shape.has_text_frame:
                 if shape.text:
-                        text += shape.text + "\n"
+                    text += shape.text + "\n"
             if shape.has_table:
                 table_contents = "\n".join(
-                    ["\t".join([(cell.text if hasattr(cell, "text") else "") for cell in row.cells])
-                        for row in shape.table.rows if hasattr(row, "cells")]
+                    [
+                        "\t".join([(cell.text if hasattr(cell, "text") else "") for cell in row.cells])
+                        for row in shape.table.rows
+                        if hasattr(row, "cells")
+                    ]
                 )
                 if table_contents:
                     text += table_contents + "\n"
