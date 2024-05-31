@@ -1,3 +1,5 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 
