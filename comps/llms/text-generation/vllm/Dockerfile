@@ -1,4 +1,7 @@
 
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 FROM langchain/langchain:latest
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
