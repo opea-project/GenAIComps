@@ -50,7 +50,7 @@ The `launch_model_server.sh` script accepts two parameters:
 
 You have the flexibility to customize the two parameters according to your specific needs. Below is a sample reference, if you wish to specify a different model and port number
 
-``` bash launch_model_server.sh -m meta-llama/Llama-2-7b-chat-hf -p 8123```
+` bash launch_model_server.sh -m meta-llama/Llama-2-7b-chat-hf -p 8123`
 
 Additionally, you can set the vLLM CPU endpoint by exporting the environment variable `vLLM_LLM_ENDPOINT`:
 
