@@ -19,7 +19,7 @@ import unittest
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from GenAIEval.evaluation.lm_evaluation_harness import LMEvalParser, evaluate
+from evals.evaluation.lm_evaluation_harness import LMEvalParser, evaluate
 
 
 class TestLMEval(unittest.TestCase):

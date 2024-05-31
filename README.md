@@ -16,7 +16,7 @@ For evaluating the models on text-generation tasks, we follow the [lm-evaluation
 ```shell
 
 # pip install --upgrade-strategy eager optimum[habana]
-cd GenAIEval/evaluation/lm_evaluation_harness/examples
+cd evals/evaluation/lm_evaluation_harness/examples
 python main.py \
     --model gaudi-hf \
     --model_args pretrained=EleutherAI/gpt-j-6B \
@@ -29,7 +29,7 @@ python main.py \
 ##### CPU
 ```shell
 
-cd GenAIEval/evaluation/lm_evaluation_harness/examples
+cd evals/evaluation/lm_evaluation_harness/examples
 python main.py \
     --model hf \
     --model_args pretrained=EleutherAI/gpt-j-6B \
@@ -39,7 +39,7 @@ python main.py \
 ```
 #### function call usage
 ```python
-from GenAIEval.evaluation.lm_evaluation_harness import LMEvalParser, evaluate
+from evals.evaluation.lm_evaluation_harness import LMEvalParser, evaluate
 
 args = LMevalParser(
     model="hf",
@@ -69,7 +69,7 @@ docker run -p 9006:9006 --ipc=host  -e MODEL="hf" -e MODEL_ARGS="pretrained=Inte
 - set `base_url`, `tokenizer` and `--model genai-hf`
 
 ```
-cd GenAIEval/evaluation/lm_evaluation_harness/examples
+cd evals/evaluation/lm_evaluation_harness/examples
 
 python main.py \
     --model genai-hf \
@@ -83,7 +83,7 @@ For evaluating the models on coding tasks or specifically coding LLMs, we follow
 #### command line usage
 
 ```shell
-cd GenAIEval/evaluation/bigcode_evaluation_harness/examples
+cd evals/evaluation/bigcode_evaluation_harness/examples
 python main.py \
     --model "codeparrot/codeparrot-small" \
     --tasks "humaneval" \
@@ -93,7 +93,7 @@ python main.py \
 ```
 #### function call usage
 ```python
-from GenAIEval.evaluation.bigcode_evaluation_harness import BigcodeEvalParser, evaluate
+from evals.evaluation.bigcode_evaluation_harness import BigcodeEvalParser, evaluate
 
 args = BigcodeEvalParser(
     user_model=user_model,

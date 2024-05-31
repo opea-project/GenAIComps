@@ -48,7 +48,7 @@ function generate_html_overview {
 
 <body>
     <div id="main">
-        <h1 align="center">ITREX Tests
+        <h1 align="center">GenAIEval Tests
         [ <a href="${RUN_DISPLAY_URL}">Job-${BUILD_NUMBER}</a> ]</h1>
       <h1 align="center">Test Status: ${JOB_STATUS}</h1>
         <h2>Summary</h2>
@@ -58,7 +58,7 @@ function generate_html_overview {
               ${Test_Info_Title}
               </tr>
               <tr>
-                    <td><a href="https://github.com/intel/intel-extension-for-transformers">ITREX</a></td>
+                    <td><a href="https://github.com/opea-project/GenAIEval">GenAIEval</a></td>
               ${Test_Info}
                 </tr>
         </table>

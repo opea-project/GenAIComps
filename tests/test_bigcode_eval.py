@@ -19,7 +19,7 @@ import unittest
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from GenAIEval.evaluation.bigcode_evaluation_harness import BigcodeEvalParser, evaluate
+from evals.evaluation.bigcode_evaluation_harness import BigcodeEvalParser, evaluate
 
 
 class TestLMEval(unittest.TestCase):

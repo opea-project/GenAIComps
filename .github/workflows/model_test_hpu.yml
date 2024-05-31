@@ -61,7 +61,7 @@ jobs:
     # We need this because GitHub needs to clone the branch to pipeline
       - name: Docker Build
         run: |
-          docker build --target hpu --build-arg REPO_PATH="." -f ${{ github.workspace }}/Docker/hpu.dockerfile -t ${{ env.DOCKER_NAME }}:${{ env.DOCKER_TAG }} .
+          docker build --target hpu --build-arg REPO_PATH="." -f ${{ github.workspace }}/docker/hpu.dockerfile -t ${{ env.DOCKER_NAME }}:${{ env.DOCKER_TAG }} .
 
       - name: Docker Run
         run: |

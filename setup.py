@@ -26,8 +26,8 @@ def parse_requirements(filename):
 
 
 setup(
-    name="GenAIEval",
-    version="0.0.0",
+    name="opea_eval",
+    version="0.6",
     author="Intel AISE AIPC Team",
     author_email="haihao.shen@intel.com, feng.tian@intel.com, chang1.wang@intel.com, kaokao.lv@intel.com",
     description="Evaluation and benchmark for Generative AI",

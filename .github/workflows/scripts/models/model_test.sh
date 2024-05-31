@@ -39,9 +39,9 @@ working_dir=""
 main() {
     case ${tasks} in
         "text-generation")
-            working_dir="/GenAIEval/GenAIEval/evaluation/lm_evaluation_harness/examples";;
+            working_dir="/GenAIEval/evals/evaluation/lm_evaluation_harness/examples";;
         "code-generation")
-            working_dir="/GenAIEval/GenAIEval/evaluation/bigcode_evaluation_harness/examples";;
+            working_dir="/GenAIEval/evals/evaluation/bigcode_evaluation_harness/examples";;
         *)
             echo "Not suppotted task"; exit 1;;
     esac
