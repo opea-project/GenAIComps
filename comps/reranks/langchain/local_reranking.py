@@ -1,3 +1,5 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 from langsmith import traceable
 from sentence_transformers import CrossEncoder
