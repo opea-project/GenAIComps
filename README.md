@@ -6,14 +6,17 @@ Evaluation, benchmark, and scorecard, targeting for performance on throughput an
 - Install from Pypi
 
 ```bash
+pip install -r requirements.txt
 pip install opea-eval
 ```
+> notes: We have to install requirements.txt at first, cause Pypi can't have direct dependency with specific commit. 
 
 - Build from Source
 
 ```bash
 git clone https://github.com/opea-project/GenAIEval
 cd GenAIEval
+pip install -r requirements.txt
 pip install -e .
 ```
 
