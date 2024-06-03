@@ -78,6 +78,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result_dict1[self.s3.name]["text"], "hello, opea project2!")
         self.assertEqual(result_dict2[self.s2.name]["text"], "hi, opea project1!")
         self.assertEqual(result_dict2[self.s3.name]["text"], "hi, opea project2!")
+        self.assertEqual(len(self.service_builder.get_all_final_outputs(result_dict1).keys()), 2)
         self.assertEqual(int(time.time() - t), 15)
 
 
