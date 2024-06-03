@@ -95,7 +95,7 @@ class ServiceOrchestrator(DAG):
                         if chunk:
                             yield chunk
 
-            return StreamingResponse(generate(), media_type="text/event-stream")
+            return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
         else:
             async with session.post(endpoint, json=inputs) as response:
                 print(response.status)
