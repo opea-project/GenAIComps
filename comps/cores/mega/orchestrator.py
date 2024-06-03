@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import json
 from typing import Dict, List
 
+import aiohttp
 import requests
-import aiohttp, asyncio
 from fastapi.responses import StreamingResponse
 
 from ..proto.docarray import LLMParams
@@ -76,7 +77,13 @@ class ServiceOrchestrator(DAG):
             all_outputs.update(result_dict[prev_node])
         return all_outputs
 
-    async def execute(self, session: aiohttp.client.ClientSession, cur_node: str, inputs: Dict, llm_parameters: LLMParams = LLMParams()):
+    async def execute(
+        self,
+        session: aiohttp.client.ClientSession,
+        cur_node: str,
+        inputs: Dict,
+        llm_parameters: LLMParams = LLMParams(),
+    ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
         llm_parameters_dict = llm_parameters.dict()

@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import unittest
 import asyncio
-from comps import ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
+import json
 import time
+import unittest
+
+from comps import ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
+
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:
@@ -37,6 +39,7 @@ async def s2_add(request: TextDoc) -> TextDoc:
     text += " project1!"
     return {"text": text}
 
+
 @register_microservice(name="s3", host="0.0.0.0", port=8085, endpoint="/v1/add")
 async def s3_add(request: TextDoc) -> TextDoc:
     time.sleep(5)
@@ -45,6 +48,7 @@ async def s3_add(request: TextDoc) -> TextDoc:
     text = req_dict["text"]
     text += " project2!"
     return {"text": text}
+
 
 class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
