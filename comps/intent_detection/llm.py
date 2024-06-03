@@ -14,10 +14,9 @@
 
 import os
 
+from langchain import LLMChain, PromptTemplate
 from langchain_community.llms import HuggingFaceEndpoint
 from langsmith import traceable
-from langchain import LLMChain
-from langchain import PromptTemplate
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
@@ -61,14 +60,11 @@ def llm_generate(input: LLMParamsDoc):
 
     prompt = PromptTemplate(template=intent_template, input_variables=["query"])
 
-    llm_chain = LLMChain(
-    prompt=prompt,
-    llm=llm
-    )
+    llm_chain = LLMChain(prompt=prompt, llm=llm)
 
     response = llm_chain.invoke(input.query)
-    response = response['text']
-    print("response",response)
+    response = response["text"]
+    print("response", response)
     return GeneratedDoc(text=response, prompt=input.query)
 
 
