@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -38,6 +38,8 @@ function validate_microservice() {
         -X POST \
         -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" \
         -H 'Content-Type: application/json'
+    docker logs test-comps-retriever-redis-server
+    docker logs test-comps-retriever-tei-endpoint
 }
 
 function stop_docker() {
