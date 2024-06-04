@@ -10,27 +10,23 @@
 bash ./launch_ray_service.sh
 ```
 
-For gated models such as `LLAMA-2`, you need set the environment variable `HUGGING_FACE_HUB_TOKEN=<token>` to access the Hugging Face Hub.
+For gated models such as `LLAMA-2`, you need set the environment variable `HF_TOKEN=<token>` to access the Hugging Face Hub.
 
-Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
+Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HF_TOKEN` environment with the token.
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=<token>
+export HF_TOKEN=<token>
 ```
 
 And then you can make requests with the OpenAI-compatible APIs like below to check the service status:
 
 ```bash
-curl http://127.0.0.1::8080/v1/chat/completions \
+curl http://127.0.0.1:8080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
   "model": <model_name>,
-  "messages": [
-        {"role": "assistant", "content": "You are a helpful assistant."},
-        {"role": "user", "content": args.input_text},
-    ],
+  "messages": [{"role": "user", "content": "What is deep learning?"}],
   "max_tokens": 32,
-  "stream": True
   }'
 ```
 
