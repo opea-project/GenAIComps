@@ -13,13 +13,12 @@
 # limitations under the License.
 
 
-import os
 import copy
-import time
-import torch
+import os
 import shutil
-from transformers.utils import check_min_version
-from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+import time
+
+import torch
 from optimum.habana.checkpoint_utils import (
     get_ds_injection_policy,
     get_repo_root,
@@ -27,11 +26,9 @@ from optimum.habana.checkpoint_utils import (
     model_on_meta,
     write_checkpoints_json,
 )
-from optimum.habana.utils import (
-    check_habana_frameworks_version, 
-    check_optimum_habana_min_version, 
-    set_seed
-)
+from optimum.habana.utils import check_habana_frameworks_version, check_optimum_habana_min_version, set_seed
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+from transformers.utils import check_min_version
 
 
 def setup_env():
@@ -138,12 +135,7 @@ def initialize_model(model_name_or_path, max_new_tokens=128):
     get_repo_root(model_name_or_path, local_rank=0, token=None)
     model_dtype = torch.bfloat16
 
-    model_kwargs = {
-        "revision": "main",
-        "token": None,
-        "device_map": "auto",
-        "offload_folder": "/tmp/offload_folder/"
-    }
+    model_kwargs = {"revision": "main", "token": None, "device_map": "auto", "offload_folder": "/tmp/offload_folder/"}
 
     model = setup_model(model_name_or_path, model_dtype, model_kwargs)
     tokenizer, model = setup_tokenizer(model_name_or_path, model)
