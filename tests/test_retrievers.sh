@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -14,12 +14,14 @@ function build_docker_images() {
 function start_service() {
     # redis
     docker run -d --name test-redis-vector-db -p 5010:6379 -p 5011:8001 redis/redis-stack:7.2.0-v9
+    sleep 10s
 
     # tei endpoint
     tei_endpoint=5008
     model="BAAI/bge-base-en-v1.5"
     revision="refs/pr/5"
     docker run -d --name="test-comps-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+    sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # redis retriever
