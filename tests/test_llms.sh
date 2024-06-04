@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -27,9 +27,9 @@ function start_service() {
     # check whether tgi is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-llm-tgi-endpoint > test-comps-llm-tgi-endpoint.log
+        docker logs test-comps-llm-tgi-endpoint > ${WORKPATH}/tests/test-comps-llm-tgi-endpoint.log
         n=$((n+1))
-        if grep -q Connected test-comps-llm-tgi-endpoint.log; then
+        if grep -q Connected ${WORKPATH}/tests/test-comps-llm-tgi-endpoint.log; then
             break
         fi
         sleep 5s
@@ -44,6 +44,8 @@ function validate_microservice() {
         -X POST \
         -d '{"query":"What is Deep Learning?"}' \
         -H 'Content-Type: application/json'
+    docker logs test-comps-llm-tgi-endpoint
+    docker logs test-comps-llm-tgi-server
 }
 
 function stop_docker() {
