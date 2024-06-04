@@ -13,21 +13,18 @@
 # limitations under the License.
 
 import os
-import torch
 from datetime import datetime
+
+import torch
 from fastapi.responses import StreamingResponse
 from langsmith import traceable
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 from utils import initialize_model
+
+from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
 
 def warmup():
-    input_sentences = [
-        "DeepSpeed is a machine learning framework",
-        "He is working on",
-        "He has a",
-        "He got all"
-    ]
+    input_sentences = ["DeepSpeed is a machine learning framework", "He is working on", "He has a", "He got all"]
     input_tokens = tokenizer.batch_encode_plus(input_sentences, return_tensors="pt", padding=True)
     for t in input_tokens:
         if torch.is_tensor(input_tokens[t]):
@@ -78,19 +75,20 @@ def llm_generate(input: LLMParamsDoc):
 
 if __name__ == "__main__":
     model, tokenizer, generation_config = initialize_model(
-        model_name_or_path="Qwen/Qwen1.5-7B-Chat", 
-        max_new_tokens=128
+        model_name_or_path="Qwen/Qwen1.5-7B-Chat", max_new_tokens=128
     )
     import habana_frameworks.torch.hpu as torch_hpu
-    print(f"[llm - qwen] model and tokenizer initialized.")
+
+    print("[llm - qwen] model and tokenizer initialized.")
 
     from optimum.habana.utils import HabanaProfile
+
     # compilation stage disable profiling
     HabanaProfile.disable()
     # Compilation
     print("Graph compilation...")
     warmup()
-    print(f"[llm - qwen] model warm up finished.")
+    print("[llm - qwen] model warm up finished.")
 
     torch_hpu.synchronize()
     HabanaProfile.enable()
