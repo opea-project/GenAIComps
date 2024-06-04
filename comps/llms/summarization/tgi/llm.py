@@ -34,7 +34,22 @@ def post_process_text(text: str):
 )
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
+    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+    llm = HuggingFaceEndpoint(
+        endpoint_url=llm_endpoint,
+        max_new_tokens=input.max_new_tokens,
+        top_k=input.top_k,
+        top_p=input.top_p,
+        typical_p=input.typical_p,
+        temperature=input.temperature,
+        repetition_penalty=input.repetition_penalty,
+        streaming=input.streaming,
+    )
+    llm_chain = load_summarize_chain(llm=llm, chain_type="map_reduce")
+
     if input.streaming:
+        # Split text
+        text_splitter = CharacterTextSplitter()
         texts = text_splitter.split_text(input.query)
         # Create multiple documents
         docs = [Document(page_content=t) for t in texts]
@@ -57,18 +72,4 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
-    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
-    llm = HuggingFaceEndpoint(
-        endpoint_url=llm_endpoint,
-        max_new_tokens=input.max_new_tokens,
-        top_k=input.top_k,
-        top_p=input.top_p,
-        typical_p=input.typical_p,
-        temperature=input.temperature,
-        repetition_penalty=input.repetition_penalty,
-        streaming=input.streaming,
-    )
-    llm_chain = load_summarize_chain(llm=llm, chain_type="map_reduce")
-    # Split text
-    text_splitter = CharacterTextSplitter()
     opea_microservices["opea_service@llm_docsum"].start()

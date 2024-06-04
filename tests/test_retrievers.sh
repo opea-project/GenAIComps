@@ -12,15 +12,18 @@ function build_docker_images() {
 }
 
 function start_service() {
+    # redis
+    docker run -d --name test-redis-vector-db -p 5010:6379 -p 5011:8001 redis/redis-stack:7.2.0-v9
+
     # tei endpoint
     tei_endpoint=5008
-    model="BAAI/bge-large-en-v1.5"
+    model="BAAI/bge-base-en-v1.5"
     revision="refs/pr/5"
     docker run -d --name="test-comps-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # redis retriever
-    export REDIS_URL="redis://${ip_address}:6379"
+    export REDIS_URL="redis://${ip_address}:5010"
     export INDEX_NAME="rag-redis"
     retriever_port=5009
     unset http_proxy
