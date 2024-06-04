@@ -19,6 +19,19 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 )
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
+    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+    llm = HuggingFaceEndpoint(
+        endpoint_url=llm_endpoint,
+        max_new_tokens=input.max_new_tokens,
+        top_k=input.top_k,
+        top_p=input.top_p,
+        typical_p=input.typical_p,
+        temperature=input.temperature,
+        repetition_penalty=input.repetition_penalty,
+        streaming=input.streaming,
+        timeout=600,
+    )
+
     if input.streaming:
 
         async def stream_generator():
@@ -38,17 +51,4 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
-    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
-    llm = HuggingFaceEndpoint(
-        endpoint_url=llm_endpoint,
-        max_new_tokens=input.max_new_tokens,
-        top_k=input.top_k,
-        top_p=input.top_p,
-        typical_p=input.typical_p,
-        temperature=input.temperature,
-        repetition_penalty=input.repetition_penalty,
-        streaming=input.streaming,
-        timeout=600,
-    )
-
     opea_microservices["opea_service@llm_tgi"].start()
