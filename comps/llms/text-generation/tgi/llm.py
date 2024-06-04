@@ -20,6 +20,7 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     if input.streaming:
+
         async def stream_generator():
             chat_response = ""
             async for text in llm.astream(input.query):
