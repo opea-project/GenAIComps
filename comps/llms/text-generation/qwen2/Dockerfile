@@ -38,6 +38,4 @@ RUN cd /optimum-habana && git apply /qwen2.patch && \
 
 WORKDIR /home/user/comps/llms/text-generation/qwen2
 
-# ENTRYPOINT ["python", "llm.py"]
-
-ENTRYPOINT ["/usr/bin/sleep", "infinity"]
+ENTRYPOINT ["python", "llm.py"]
