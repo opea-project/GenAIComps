@@ -6,13 +6,15 @@ import numpy as np
 # name => statistic dict
 statistics_dict = {}
 
+
 class BaseStatistics:
     """Base class to store in-memory statistics of an entity for measurement in one service."""
+
     def __init__(
         self,
     ):
-        self.response_times = []        # store responses time for all requests
-        self.first_token_latencies = [] # store first token latencies for all requests
+        self.response_times = []  # store responses time for all requests
+        self.first_token_latencies = []  # store first token latencies for all requests
 
     def append_latency(self, latency, first_token_latency=None):
         self.response_times.append(latency)
@@ -22,10 +24,10 @@ class BaseStatistics:
     def calcuate_statistics(self):
         if not self.response_times:
             return {
-            "p50_latency": None,
-            "p99_latency": None,
-            "average_latency": None,
-        }
+                "p50_latency": None,
+                "p99_latency": None,
+                "average_latency": None,
+            }
         # Calculate the P50 (median)
         p50 = np.percentile(self.response_times, 50)
 
@@ -43,10 +45,10 @@ class BaseStatistics:
     def calcuate_first_token_statistics(self):
         if not self.first_token_latencies:
             return {
-            "p50_latency_first_token": None,
-            "p99_latency_first_token": None,
-            "average_latency_first_token": None,
-        }
+                "p50_latency_first_token": None,
+                "p99_latency_first_token": None,
+                "average_latency_first_token": None,
+            }
         # Calculate the P50 (median)
         p50 = np.percentile(self.first_token_latencies, 50)
 
@@ -81,4 +83,3 @@ def collect_all_statistics():
             tmp_dict.update(statistic.calcuate_first_token_statistics())
             results.update({name: tmp_dict})
     return results
-

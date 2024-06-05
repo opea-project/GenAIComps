@@ -1,13 +1,21 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os, time
+import os
+import time
 
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
 from langsmith import traceable
 
-from comps import EmbedDoc768, ServiceType, TextDoc, opea_microservices, register_microservice
-from comps import statistics_dict, register_statistics
+from comps import (
+    EmbedDoc768,
+    ServiceType,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
 
 
 @register_microservice(

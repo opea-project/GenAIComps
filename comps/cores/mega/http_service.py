@@ -9,6 +9,7 @@ from uvicorn import Config, Server
 from .base_service import BaseService
 from .base_statistics import collect_all_statistics
 
+
 class HTTPService(BaseService):
     """FastAPI HTTP service based on BaseService class.
 

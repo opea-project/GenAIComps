@@ -9,8 +9,15 @@ import requests
 from langchain_core.prompts import ChatPromptTemplate
 from langsmith import traceable
 
-from comps import LLMParamsDoc, SearchedDoc, ServiceType, opea_microservices, register_microservice
-from comps import statistics_dict, register_statistics
+from comps import (
+    LLMParamsDoc,
+    SearchedDoc,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
 
 
 @register_microservice(

@@ -8,8 +8,16 @@ from fastapi.responses import StreamingResponse
 from langchain_community.llms import HuggingFaceEndpoint
 from langsmith import traceable
 
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-from comps import statistics_dict, register_statistics
+from comps import (
+    GeneratedDoc,
+    LLMParamsDoc,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
+
 
 @register_microservice(
     name="opea_service@llm_tgi",

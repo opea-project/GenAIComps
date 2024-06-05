@@ -9,9 +9,16 @@ from langchain_community.vectorstores import Redis
 from langsmith import traceable
 from redis_config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 
-from comps import EmbedDoc768, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
-from comps import statistics_dict, register_statistics
-
+from comps import (
+    EmbedDoc768,
+    SearchedDoc,
+    ServiceType,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
