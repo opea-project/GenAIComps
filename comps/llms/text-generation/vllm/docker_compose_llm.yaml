@@ -34,7 +34,3 @@ services:
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
     restart: unless-stopped
-
-networks:
-  default:
-    driver: bridge
