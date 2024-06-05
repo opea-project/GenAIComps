@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import time
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
@@ -9,6 +10,8 @@ from langsmith import traceable
 from redis_config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 
 from comps import EmbedDoc768, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+from comps import statistics_dict, register_statistics
+
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
@@ -21,7 +24,10 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
     port=7000,
 )
 @traceable(run_type="retriever")
+@register_statistics(names=["opea_service@retriever_redis"])
 def retrieve(input: EmbedDoc768) -> SearchedDoc:
+    start = time.time()
+
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
@@ -41,6 +47,8 @@ def retrieve(input: EmbedDoc768) -> SearchedDoc:
     for r in search_res:
         searched_docs.append(TextDoc(text=r.page_content))
     result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
+    statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
+
     return result
 
 
