@@ -1,20 +1,23 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 FROM vault.habana.ai/gaudi-docker/1.15.1/ubuntu22.04/habanalabs/pytorch-installer-2.2.0:latest
 
 ENV LANG=en_US.UTF-8
 
-WORKDIR /root/rayllm
+WORKDIR /root/ray_serve
 
 # copy the source code to the package directory
-COPY ../ray/ /root/rayllm
+COPY ../ray_serve/ /root/ray_serve
 
-RUN pip install -r /root/rayllm/docker/requirements.txt && \
+RUN pip install -r /root/ray_serve/docker/requirements.txt && \
     pip install --upgrade-strategy eager optimum[habana]
 
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     service ssh restart
 
 ENV no_proxy=localhost,127.0.0.1
-ENV PYTHONPATH=$PYTHONPATH:/root:/root/rayllm
+ENV PYTHONPATH=$PYTHONPATH:/root:/root/ray_serve
 
 # Required by DeepSpeed
 ENV RAY_EXPERIMENTAL_NOSET_HABANA_VISIBLE_MODULES=1
