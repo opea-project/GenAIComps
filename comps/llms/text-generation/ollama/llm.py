@@ -17,6 +17,14 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 )
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
+    ollama = Ollama(model="llama3",
+                    num_predict=input.max_new_tokens,
+                    top_k=input.top_k,
+                    top_p=input.top_p,
+                    temperature=input.temperature,
+                    repeat_penalty=input.repetition_penalty,
+                    )
+    # assuming you have Ollama installed and have llama3 model pulled with `ollama pull llama3`
     if input.streaming:
         async def stream_generator():
             chat_response = ""
@@ -35,5 +43,4 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
-    ollama = Ollama(model="llama3")
-    opea_microservices["opea_service@llm_tgi"].start()
+    opea_microservices["opea_service@llm_ollma"].start()
