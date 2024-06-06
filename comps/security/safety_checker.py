@@ -15,22 +15,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from comps import SecurityDoc, opea_microservices, register_microservice
 from langsmith import traceable
+
+from comps import SecurityDoc, opea_microservices, register_microservice
 
 """Function to check the intent of the input user query with LLM."""
 
+import logging
+import os
+
 from comps.security.dict import defaultSensitiveWordSet
 from comps.security.stopword import defaultStopwords
-import os
-import logging
+
 logging.basicConfig(
-    format="%(asctime)s %(name)s:%(levelname)s:%(message)s",
-    datefmt="%d-%M-%Y %H:%M:%S",
-    level=logging.INFO
+    format="%(asctime)s %(name)s:%(levelname)s:%(message)s", datefmt="%d-%M-%Y %H:%M:%S", level=logging.INFO
 )
 
 doc_path = "/opea_intent/GenAIComps/comps/security/"
+
+
 def convert_fullwidth_to_halfwidth(query):
     """Converting Full-width Characters to Half-width Characters."""
     content = ""
@@ -38,10 +41,11 @@ def convert_fullwidth_to_halfwidth(query):
         mid_char = ord(uchar)
         if mid_char == 12288:
             mid_char = 32
-        elif (mid_char > 65280 and mid_char < 65375):
+        elif mid_char > 65280 and mid_char < 65375:
             mid_char -= 65248
         content += chr(mid_char)
     return content
+
 
 class SafetyChecker:
     def __init__(self, dict_path=None, matchType=2):
@@ -56,7 +60,7 @@ class SafetyChecker:
             else:
                 logging.info("Can't find stopword.txt")
                 raise Exception("[SafetyChecker ERROR] Sensitive check file not found!")
-            self.Stopwords = [i.split('\n')[0] for i in f.readlines()]
+            self.Stopwords = [i.split("\n")[0] for i in f.readlines()]
             if os.path.exists(os.path.join(dict_path, "dict.txt")):
                 f1 = open(os.path.join(dict_path, "dict.txt"), encoding="utf8")
             elif os.path.exists(os.path.join(doc_path, "dict.txt")):
@@ -72,7 +76,7 @@ class SafetyChecker:
         """Initialize the sensitive word dictory."""
         sensitiveWordTree = dict()
         for category, key in self.sensitiveWordSet:
-            if type(key) == 'unicode' and type(category) == 'unicode':
+            if type(key) == "unicode" and type(category) == "unicode":
                 pass
             else:
                 key = str(key)
@@ -103,7 +107,6 @@ class SafetyChecker:
             if matchFlag > 0:
                 flag = True
         return flag
-
 
     def _checkSensitiveWord(self, txt, beginIndex):
         """Check if the input token contains sensitive word."""
@@ -139,7 +142,7 @@ class SafetyChecker:
             length = self._checkSensitiveWord(context, i)[0]
             category = self._checkSensitiveWord(context, i)[1]
             if length > 0:
-                word = context[i:i + length]
+                word = context[i : i + length]
                 sensitiveWordList.append(category + ":" + word)
                 i = i + length - 1
         return sensitiveWordList
@@ -163,13 +166,15 @@ class SafetyChecker:
             resultTxt = context
         return resultTxt
 
+
 @register_microservice(name="opea_service@safety_check", endpoint="/v1/safety/check", host="0.0.0.0", port=6008)
 @traceable(run_type="tool")
-def safety_check(input:SecurityDoc):
+def safety_check(input: SecurityDoc):
     safety_checker = SafetyChecker(input.path)
     query = input.text
     contain = safety_checker.sensitive_check(query)
     return contain
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@safety_check"].start()

@@ -80,6 +80,7 @@ class LLMParams(BaseDoc):
     repetition_penalty: float = 1.03
     streaming: bool = True
 
+
 class SecurityDoc(BaseDoc):
     text: str
     path: str
