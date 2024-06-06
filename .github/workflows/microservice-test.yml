@@ -11,7 +11,7 @@ on:
       - comps/**
       - "!**.md"
       - "!**.txt"
-      - .github/workflows/microservice.yml
+      - .github/workflows/microservice-test.yml
 
 # If there is a new commit, the previous jobs will be canceled
 concurrency:
