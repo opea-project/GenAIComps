@@ -1,4 +1,3 @@
-
 # LanceDB
 
 LanceDB is an embedded vector database for AI applications. It is open source and distributed with an Apache-2.0 license.
@@ -26,15 +25,13 @@ import os from "node:os";
 export const run = async () => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lancedb-"));
   const db = await connect(dir);
-  const table = await db.createTable("vectors", [
-    { vector: Array(1536), text: "sample", id: 1 },
-  ]);
+  const table = await db.createTable("vectors", [{ vector: Array(1536), text: "sample", id: 1 }]);
 
   const vectorStore = await LanceDB.fromTexts(
     ["Hello world", "Bye bye", "hello nice world"],
     [{ id: 2 }, { id: 1 }, { id: 3 }],
     new OpenAIEmbeddings(),
-    { table }
+    { table },
   );
 
   const resultOne = await vectorStore.similaritySearch("hello world", 1);
@@ -44,6 +41,7 @@ export const run = async () => {
 ```
 
 API Reference:
+
 - `LanceDB` from `@langchain/community/vectorstores/lancedb`
 - `OpenAIEmbeddings` from `@langchain/openai`
 
@@ -65,15 +63,9 @@ const docs = await loader.load();
 export const run = async () => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lancedb-"));
   const db = await connect(dir);
-  const table = await db.createTable("vectors", [
-    { vector: Array(1536), text: "sample", source: "a" },
-  ]);
+  const table = await db.createTable("vectors", [{ vector: Array(1536), text: "sample", source: "a" }]);
 
-  const vectorStore = await LanceDB.fromDocuments(
-    docs,
-    new OpenAIEmbeddings(),
-    { table }
-  );
+  const vectorStore = await LanceDB.fromDocuments(docs, new OpenAIEmbeddings(), { table });
 
   const resultOne = await vectorStore.similaritySearch("hello world", 1);
   console.log(resultOne);
@@ -88,6 +80,7 @@ export const run = async () => {
 ```
 
 API Reference:
+
 - `LanceDB` from `@langchain/community/vectorstores/lancedb`
 - `OpenAIEmbeddings` from `@langchain/openai`
 - `TextLoader` from `langchain/document_loaders/fs/text`
@@ -129,5 +122,6 @@ async function createdTestDb(): Promise<string> {
 ```
 
 API Reference:
+
 - `LanceDB` from `@langchain/community/vectorstores/lancedb`
 - `OpenAIEmbeddings` from `@langchain/openai`
