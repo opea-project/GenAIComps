@@ -20,6 +20,7 @@ sudo vim /etc/systemd/system/ollama.service
 ```
 
 Add your proxy to the above configure file.
+
 ```markdown
 [Service]
 Environment="http_proxy=${your_proxy}"
@@ -31,9 +32,11 @@ Environment="https_proxy=${your_proxy}"
 Here are a few ways to interact with pulled local models:
 
 ### In the terminal
+
 All of your local models are automatically served on localhost:11434. Run ollama run <name-of-model> to start interacting via the command line directly.
 
 ### API access
+
 Send an application/json request to the API endpoint of Ollama to interact.
 
 ```bash
