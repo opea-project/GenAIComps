@@ -7,7 +7,6 @@ services:
   vllm_service:
     image: vllm:cpu
     container_name: vllm-service
-    network_mode: host
     ports:
       - "8008:80"
     volumes:
@@ -25,7 +24,6 @@ services:
     ports:
       - "9000:9000"
     ipc: host
-    network_mode: host
     environment:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
@@ -34,3 +32,7 @@ services:
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
     restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
