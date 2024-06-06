@@ -40,7 +40,7 @@ curl http://127.0.0.1:8080/v1/completions \
 The `./serving/vllm/launch_vllm_service.sh` script accepts three parameters:
 
 - port_number: The port number assigned to the vLLM CPU endpoint, with the default being 8080.
-- model_name: The model name utilized for LLM, with the default set to "mistralai/Mistral-7B-v0.1".
+- model_name: The model name utilized for LLM, with the default set to "Intel/neural-chat-7b-v3-3".
 - hw_mode: The hardware mode utilized for LLM, with the default set to "cpu", and the optional selection can be "hpu"
 
 You have the flexibility to customize two parameters according to your specific needs. Additionally, you can set the vLLM endpoint by exporting the environment variable `vLLM_LLM_ENDPOINT`:
