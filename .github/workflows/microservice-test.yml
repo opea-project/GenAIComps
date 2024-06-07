@@ -77,16 +77,6 @@ jobs:
         with:
           ref: "refs/pull/${{ github.event.number }}/merge"
 
-      - name: Check E2E test scripts
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          service: ${{ matrix.service }}
-          hardware: ${{ matrix.hardware }}
-        continue-on-error: true
-        run: |
-          cd tests
-          if [ ! -f test_${service}.sh ]; then echo "Warning: Test script \"test_${service}.sh\" not found, please add it!!!"; exit 1; fi
-
       - name: Run microservice test
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
