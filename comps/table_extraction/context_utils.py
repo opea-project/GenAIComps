@@ -101,9 +101,6 @@ def get_tables_result(pdf_path, table_strategy):
     from unstructured.documents.elements import FigureCaption
     from unstructured.partition.pdf import partition_pdf
 
-    # from intel_extension_for_transformers.neural_chat.models.model_utils import predict
-    # from intel_extension_for_transformers.neural_chat.prompts.prompt import TABLESUMMARY_PROMPT
-
     tables_result = []
     raw_pdf_elements = partition_pdf(
         filename=pdf_path,
@@ -135,22 +132,10 @@ def get_tables_result(pdf_path, table_strategy):
                         table_summary = element.text
                         break
         elif table_strategy == "llm":
-            # prompt = TABLESUMMARY_PROMPT.format(table_content=content)
-            # params = {}
-            # params["model_name"] = table_summary_model_name_or_path
-            # params["prompt"] = prompt
-            # params["temperature"] = 0.8
-            # params["top_p"] = 0.9
-            # params["top_k"] = 40
-            # params["max_new_tokens"] = 1000
-            # params["num_beams"] = 2
-            # params["num_return_sequences"] = 2
-            # params["use_cache"] = True
-            # table_summary = predict(**params)
             table_summary = llm_generate(content)
             table_summary = table_summary[table_summary.find("### Generated Summary:\n") :]
             table_summary = re.sub("### Generated Summary:\n", "", table_summary)
-        elif table_strategy == None:
+        elif table_strategy is None:
             table_summary = None
         if table_summary is None:
             text = f"[Table: {content}]"
