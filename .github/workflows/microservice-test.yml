@@ -49,7 +49,7 @@ jobs:
                   vendors=$(printf '%s\n' "${changed_files[@]}" | grep ${service} | cut -d'/' -f3 | grep -vE '*.py' | sort -u)
                   for vendor in ${vendors}; do 
                       if [[ "${path_level_3[@]}" =~ "${service}" ]]; then
-                          sub_vendors=$(printf '%s\n' "${changed_files[@]}" | grep ${vendor} | cut -d'/' -f4 | grep -vE '*.py' | sort -u)
+                          sub_vendors=$(printf '%s\n' "${changed_files[@]}" | grep ${service} | grep ${vendor} | cut -d'/' -f4 | grep -vE '*.py' | sort -u)
                           for sub_vendor in ${sub_vendors}; do
                               run_matrix="${run_matrix}{\"service\":\"${service}_${vendor}_${sub_vendor}\",\"hardware\":\"${hardware}\"},"
                           done
