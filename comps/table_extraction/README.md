@@ -95,9 +95,9 @@ docker compose -f docker_compose_table.yaml up -d
 
 Once table extraction microservice is started, user can use below command to invoke the microservice.
 
-```"table_strategy"``` refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast"
+`"table_strategy"` refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast"
 
-Note: When start microservice with python, ```"path"``` should like ```"/your_project_path/GenAIComps/comps/table_extraction/LLAMA2_page6.pdf" ```. When start microservice with docker, ```"path"``` should like ```"/home/user/comps/table_extraction/LLAMA2_page6.pdf" ```.
+Note: When start microservice with python, `"path"` should like `"/your_project_path/GenAIComps/comps/table_extraction/LLAMA2_page6.pdf" `. When start microservice with docker, `"path"` should like `"/home/user/comps/table_extraction/LLAMA2_page6.pdf" `.
 
 ```bash
 curl http://${your_ip}:6008/v1/table/extract \

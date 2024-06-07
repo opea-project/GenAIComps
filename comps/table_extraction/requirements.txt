@@ -1,11 +1,11 @@
 docarray[full]
+easyocr
 fastapi
 huggingface_hub
 langchain==0.1.16
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+PyMuPDF
 shortuuid
 unstructured[all-docs]
-easyocr
-PyMuPDF

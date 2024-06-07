@@ -14,31 +14,28 @@
 
 """Wrapper for parsing the uploaded user file and then make document indexing."""
 
+import logging
 import os
 from typing import List
-from comps.table_extraction.context_utils import load_unstructured_data, get_chuck_data
-import logging
+
+from comps.table_extraction.context_utils import get_chuck_data, load_unstructured_data
 
 logging.basicConfig(
-    format="%(asctime)s %(name)s:%(levelname)s:%(message)s",
-    datefmt="%d-%M-%Y %H:%M:%S",
-    level=logging.INFO
+    format="%(asctime)s %(name)s:%(levelname)s:%(message)s", datefmt="%d-%M-%Y %H:%M:%S", level=logging.INFO
 )
 
 
 class DocumentParser:
     def __init__(self, max_chuck_size=512, min_chuck_size=5, process=True):
-        """
-        Wrapper for document parsing.
-        """
+        """Wrapper for document parsing."""
         self.max_chuck_size = max_chuck_size
         self.min_chuck_size = min_chuck_size
         self.process = process
 
+    def load(self, input, table_strategy="fast"):
+        """The API for loading the file.
 
-    def load(self, input, table_strategy='fast'):
-        """
-        The API for loading the file. Support single file, batch files, and urls parsing.
+        Support single file, batch files, and urls parsing.
         """
         self.table_strategy = table_strategy
 
@@ -59,17 +56,14 @@ class DocumentParser:
 
         return data_collection
 
-
     def parse_document(self, input):
-        """
-        Parse the uploaded file.
-        """
+        """Parse the uploaded file."""
         if input.endswith("pdf"):
             content, tables = load_unstructured_data(input, self.table_strategy)
             if self.process:
                 chuck = get_chuck_data(content, self.max_chuck_size, self.min_chuck_size, input)
             else:
-                chuck = [[content.strip(),input]]
+                chuck = [[content.strip(), input]]
             if tables is not None:
                 chuck = chuck + tables
         else:
@@ -77,21 +71,17 @@ class DocumentParser:
             raise Exception("[Rereieval ERROR] Document format not supported!")
         return chuck
 
-
     def batch_parse_document(self, input):
-        """
-        Parse the uploaded batch files in the input folder.
-        """
+        """Parse the uploaded batch files in the input folder."""
         paragraphs = []
         for dirpath, dirnames, filenames in os.walk(input):
             for filename in filenames:
                 if filename.endswith("pdf"):
-                    content, tables = load_unstructured_data(os.path.join(dirpath, filename), \
-                                                             self.table_strategy)
+                    content, tables = load_unstructured_data(os.path.join(dirpath, filename), self.table_strategy)
                     if self.process:
                         chuck = get_chuck_data(content, self.max_chuck_size, self.min_chuck_size, input)
                     else:
-                        chuck = [[content.strip(),input]]
+                        chuck = [[content.strip(), input]]
                     if tables is not None:
                         chuck = chuck + tables
                     paragraphs += chuck
