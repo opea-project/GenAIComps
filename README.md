@@ -149,7 +149,7 @@ The initially supported `Microservices` are described in the below table. More `
 			<td>Dataprep on Gaudi2</td>
 		</tr>
 		</tr>
-			<td>Xeon</td>
+			<td>Xeon</td
 			<td>Dataprep on Xeon CPU</td>
 		</tr>
 			<td rowspan="2"><a href="https://redis.io/">Redis</td>
