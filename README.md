@@ -118,7 +118,7 @@ The initially supported `Microservices` are described in the below table. More `
 		</tr>
 		<tr>
 			<td rowspan="2"><a href="./comps/asr/README.md">ASR</a></td>
-            <td rowspan="2"><a href="https://www.langchain.com">LangChain</a></td>
+            <td rowspan="2">NA</td>
 			<td rowspan="2"><a href="https://huggingface.co/openai/whisper-small">openai/whisper-small</a></td>
 			<td rowspan="2">NA</td>
 			<td>Xeon</td>
@@ -130,8 +130,8 @@ The initially supported `Microservices` are described in the below table. More `
 		</tr>
 		<tr>
 			<td rowspan="2"><a href="./comps/tts/README.md">TTS</a></td>
-            <td rowspan="2"><a href="https://www.langchain.com">LangChain</a></td>
-			<td rowspan="2"><a href="https://huggingface.co/microsoft/speecht5_hifigan">microsoft/speecht5_hifigan</a></td>
+            <td rowspan="2">NA</td>
+			<td rowspan="2"><a href="https://huggingface.co/microsoft/speecht5_tts">microsoft/speecht5_tts</a></td>
 			<td rowspan="2">NA</td>
 			<td>Xeon</td>
 			<td>Text-To-Speech on Xeon CPU</td>
