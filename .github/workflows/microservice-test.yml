@@ -53,7 +53,7 @@ jobs:
                           for sub_vendor in ${sub_vendors}; do
                               run_matrix="${run_matrix}{\"service\":\"${service}_${vendor}_${sub_vendor}\",\"hardware\":\"${hardware}\"},"
                           done
-                      else 
+                      else
                           run_matrix="${run_matrix}{\"service\":\"${service}_${vendor}\",\"hardware\":\"${hardware}\"},"
                       fi
                   done
