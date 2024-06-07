@@ -34,7 +34,6 @@ function start_service() {
         fi
         sleep 5s
     done
-    # rm -f test-comps-llm-tgi-endpoint.log
     sleep 5s
 }
 
