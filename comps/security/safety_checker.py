@@ -49,7 +49,7 @@ def convert_fullwidth_to_halfwidth(query):
 
 class SafetyChecker:
     def __init__(self, dict_path=None, matchType=2):
-        if dict_path == None or (not os.path.exists(dict_path)):
+        if dict_path is None or (not os.path.exists(dict_path)):
             self.Stopwords = defaultStopwords
             self.sensitiveWordSet = defaultSensitiveWordSet
         else:
@@ -87,7 +87,7 @@ class SafetyChecker:
             for i in range(word_count):
                 subChar = key[i]
                 wordNode = nowNode.get(subChar)
-                if wordNode != None:
+                if wordNode is not None:
                     nowNode = wordNode
                 else:
                     newNode = dict()
@@ -124,7 +124,7 @@ class SafetyChecker:
             if nowMap:
                 matchFlag += 1
                 tmpFlag += 1
-                if nowMap.get("isEnd") == True:
+                if nowMap.get("isEnd"):
                     flag = True
                     category = nowMap.get("category")
                     if self.matchType == 1:
