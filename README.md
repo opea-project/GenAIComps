@@ -126,7 +126,19 @@ The initially supported `Microservices` are described in the below table. More `
 		</tr>
 		</tr>
 			<td>Gaudi2</td>
-			<td>Audio-Speech-Recognition on Gaudi2</td>
+			<td>Audio-Speech-RecognitionS on Gaudi2</td>
+		</tr>
+		<tr>
+			<td rowspan="2"><a href="./comps/tts/README.md">TTS</a></td>
+            <td rowspan="2"><a href="https://www.langchain.com">LangChain</a></td>
+			<td rowspan="2"><a href="https://huggingface.co/microsoft/speecht5_hifigan">microsoft/speecht5_hifigan</a></td>
+			<td rowspan="2">NA</td>
+			<td>Xeon</td>
+			<td>Text-To-Speech on Xeon CPU</td>
+		</tr>
+		</tr>
+			<td>Gaudi2</td>
+			<td>Text-To-Speech on Gaudi2</td>
 		</tr>
 		<tr>
 			<td rowspan="2"><a href="./comps/dataprep/qdrant/README.md">Dataprep Qdrant</a></td>
@@ -151,18 +163,6 @@ The initially supported `Microservices` are described in the below table. More `
 		</tr>
 			<td>Gaudi2</td>
 			<td>Dataprep Redis on Gaudi2</td>
-		</tr>
-		<tr>
-			<td rowspan="2"><a href="./comps/tts/README.md">TTS</a></td>
-            <td rowspan="2"><a href="https://www.langchain.com">LangChain</a></td>
-			<td rowspan="2"><a href="https://huggingface.co/microsoft/speecht5_hifigan">microsoft/speecht5_hifigan</a></td>
-			<td rowspan="2">NA</td>
-			<td>Xeon</td>
-			<td>Text-To-Speech on Xeon CPU</td>
-		</tr>
-		</tr>
-			<td>Gaudi2</td>
-			<td>Text-To-Speech on Gaudi2</td>
 		</tr>
 	</tbody>
 </table>
