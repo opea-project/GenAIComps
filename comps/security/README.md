@@ -37,6 +37,10 @@ docker run -it --name="/security-server" -p 6008:6008 --ipc=host -e http_proxy=$
 
 Once safety check microservice is started, user can use below command to invoke the microservice.
 
+You can prepare your default sensitive wordset in ```dict.py```, which defines a a two-dimensional array with n rows and two columns, and each one-dimensional array is a list. See [dict.py](https://github.com/opea-project/GenAIComps/tree/main/comps/security/dict.py) for an example.
+
+You can also prepare your sensitive word dictionary in ```dict.txt```, where each line is a string. See [dict.txt](https://github.com/opea-project/GenAIComps/tree/main/comps/security/dict.txt) for an example.
+
 ```bash
 curl http://${your_ip}:6008/v1/safety/check \
     -H "Content-Type: application/json"   \
