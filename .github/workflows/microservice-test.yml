@@ -47,13 +47,13 @@ jobs:
                   run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},"
               else
                   vendors=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f3 | grep -vE '*.*' | sort -u)
-                  for vendor in ${vendors}; do 
+                  for vendor in ${vendors}; do
                       if [[ "${path_level_3[@]}" =~ "${service}" ]]; then
                           sub_vendors=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f4 | grep -vE '*.*' | sort -u)
                           for sub_vendor in ${sub_vendors}; do
                               run_matrix="${run_matrix}{\"service\":\"${service}_${vendor}_${sub_vendor}\",\"hardware\":\"${hardware}\"},"
                           done
-                      else 
+                      else
                           run_matrix="${run_matrix}{\"service\":\"${service}_${vendor}\",\"hardware\":\"${hardware}\"},"
                       fi
                   done
