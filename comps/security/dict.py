@@ -15,6 +15,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defaultSensitiveWordSet = [
-    ['政治', '北京大桥']
-]
+defaultSensitiveWordSet = [["政治", "北京大桥"]]
