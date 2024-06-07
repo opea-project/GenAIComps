@@ -36,7 +36,7 @@ url = 'http://localhost:6007/v1/dataprep'
 urls = ["https://towardsdatascience.com/no-gpu-no-party-fine-tune-bert-for-sentiment-analysis-with-vertex-ai-custom-jobs-d8fc410e908b?source=rss----7f60cf5620c9---4"] * 20
 payload = {"link_list": json.dumps(urls)}
 
-resp = requests.post(url=url, data=payload, proxies=proxies) 
+resp = requests.post(url=url, data=payload, proxies=proxies)
 resp.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
 print("Request successful!")
 EOF

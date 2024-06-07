@@ -12,11 +12,11 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
 Pillow
+pyarrow
 pymupdf
 python-docx
+ray
 redis
 sentence_transformers
 shortuuid
-pyarrow
-ray
 virtualenv

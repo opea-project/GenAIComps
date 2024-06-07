@@ -1,11 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import errno
+import functools
 import io
 import json
 import multiprocessing
 import os
 import re
+import signal
+import timeit
 import unicodedata
 from urllib.parse import urlparse, urlunparse
 
@@ -25,14 +29,10 @@ from langchain_community.document_loaders import (
 )
 from PIL import Image
 
-import errno
-import os
-import signal
-import functools
-import timeit
 
 class TimeoutError(Exception):
     pass
+
 
 def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
     def decorator(func):
@@ -53,9 +53,11 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
 
     return decorator
 
+
 class Timer:
     level = 0
     viewer = None
+
     def __init__(self, name):
         self.name = name
         if Timer.viewer:
@@ -70,11 +72,10 @@ class Timer:
     def __exit__(self, *a, **kw):
         Timer.level -= 1
         if Timer.viewer:
-            Timer.viewer.display(
-                f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
+            Timer.viewer.display(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
         else:
-            print(
-                f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
+            print(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
+
 
 def load_pdf(pdf_path):
     """Load the pdf file."""
@@ -211,6 +212,7 @@ def load_svg(svg_path):
     text = load_image(png_path)
     os.remove(png_path)
     return text
+
 
 @timeout(600)
 def document_loader(doc_path):
@@ -416,7 +418,7 @@ def load_html_data(url):
                 if text not in main_content:
                     main_content += f"\n{text}"
             main_content = crawler.clean_text(main_content)
-    main_content = all_text if main_content == '' else main_content
+    main_content = all_text if main_content == "" else main_content
     main_content = main_content.replace("\n", "")
     main_content = main_content.replace("\n\n", "")
     main_content = uni_pro(main_content)

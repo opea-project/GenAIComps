@@ -8,7 +8,8 @@ We organized these two folders in the same way, so you can use either framework 
 
 ## 1.1 Install Requirements
 
-* option 1: Install Single-process version (for 1-10 files processing)
+- option 1: Install Single-process version (for 1-10 files processing)
+
 ```bash
 # for langchain
 cd langchain
@@ -17,7 +18,8 @@ cd llama_index
 pip install -r requirements.txt
 ```
 
-* option 2: Install multi-process version (for >10 files processing)
+- option 2: Install multi-process version (for >10 files processing)
+
 ```bash
 pip install -r requirements_ray.txt
 ```
@@ -40,12 +42,14 @@ export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
 
 Start document preparation microservice for Redis with below command.
 
-* option 1: Start single-process version (for 1-10 files processing)
+- option 1: Start single-process version (for 1-10 files processing)
+
 ```bash
 python prepare_doc_redis.py
 ```
 
-* option 2: Start multi-process version (for >10 files processing)
+- option 2: Start multi-process version (for >10 files processing)
+
 ```bash
 python prepare_doc_redis_on_ray.py
 ```
@@ -82,7 +86,9 @@ docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy 
 cd ../../../../
 docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/llama_index/docker/Dockerfile .
 ```
-* option 2: Start multi-process version (for >10 files processing)
+
+- option 2: Start multi-process version (for >10 files processing)
+
 ```bash
 cd ../../../../
 docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/docker/Dockerfile_ray .
@@ -90,12 +96,14 @@ docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https
 
 ## 2.4 Run Docker with CLI (Option A)
 
-* option 1: Start single-process version (for 1-10 files processing)
+- option 1: Start single-process version (for 1-10 files processing)
+
 ```bash
 docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-redis:latest
 ```
 
-* option 2: Start multi-process version (for >10 files processing)
+- option 2: Start multi-process version (for >10 files processing)
+
 ```bash
 docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-on-ray-redis:latest
 ```
@@ -111,6 +119,7 @@ docker compose -f docker-compose-dataprep-redis.yaml up -d
 ```
 
 # 🚀3. Status Microservice
+
 ```bash
 docker container logs -f dataprep-redis-server
 ```
@@ -128,17 +137,19 @@ curl -X POST \
 
 or
 
-``` python
+```python
 import requests
 import json
 
-proxies = {'http':""}
-url = 'http://localhost:6007/v1/dataprep'
-urls = ["https://towardsdatascience.com/no-gpu-no-party-fine-tune-bert-for-sentiment-analysis-with-vertex-ai-custom-jobs-d8fc410e908b?source=rss----7f60cf5620c9---4"]
+proxies = {"http": ""}
+url = "http://localhost:6007/v1/dataprep"
+urls = [
+    "https://towardsdatascience.com/no-gpu-no-party-fine-tune-bert-for-sentiment-analysis-with-vertex-ai-custom-jobs-d8fc410e908b?source=rss----7f60cf5620c9---4"
+]
 payload = {"link_list": json.dumps(urls)}
 
 try:
-    resp = requests.post(url=url, data=payload, proxies=proxies) 
+    resp = requests.post(url=url, data=payload, proxies=proxies)
     print(resp.text)
     resp.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
     print("Request successful!")
