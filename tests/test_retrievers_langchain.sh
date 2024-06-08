@@ -2,25 +2,24 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/retriever-redis:comps -f comps/retrievers/langchain/docker/Dockerfile .
+    docker build --no-cache -t opea/retriever-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/docker/Dockerfile .
 }
 
 function start_service() {
     # redis
-    docker run -d --name test-redis-vector-db -p 5010:6379 -p 5011:8001 redis/redis-stack:7.2.0-v9
+    docker run -d --name test-redis-vector-db -p 5010:6379 -p 5011:8001 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy redis/redis-stack:7.2.0-v9
     sleep 10s
 
     # tei endpoint
     tei_endpoint=5008
     model="BAAI/bge-base-en-v1.5"
-    revision="refs/pr/5"
-    docker run -d --name="test-comps-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+    docker run -d --name="test-comps-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
@@ -31,7 +30,7 @@ function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/retriever-redis:comps
 
-    sleep 4m
+    sleep 3m
 }
 
 function validate_microservice() {
@@ -48,8 +47,15 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-retrievers*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retrievers*")
+    if [[ ! -z "$cid_retrievers" ]]; then
+        docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
+    fi
+
+    cid_redis=$(docker ps -aq --filter "name=test-redis-vector-db")
+    if [[ ! -z "$cid_redis" ]]; then
+        docker stop $cid_redis && docker rm $cid_redis && sleep 1s
+    fi
 }
 
 function main() {
