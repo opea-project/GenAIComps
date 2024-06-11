@@ -36,9 +36,7 @@ class RayDataLoader(FileBasedDatasource):
 
 def rayds_initialization(file_paths, dataloader_callable, lazy_mode=True, num_cpus=20):
     if dataloader_callable is None:
-        text_list = [
-            {"data": data, "filename": data[:50], "error": None, "read_time": "0 secs"} for data in file_paths
-        ]
+        text_list = [{"data": data, "filename": data[:50], "error": None, "read_time": "0 secs"} for data in file_paths]
         return ray.data.from_items(text_list)
 
     decorated_dataloader_callable = get_failable_with_time(dataloader_callable)
