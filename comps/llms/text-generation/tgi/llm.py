@@ -4,7 +4,7 @@
 import os
 
 from fastapi.responses import StreamingResponse
-from langchain_community.llms import HuggingFaceEndpoint
+from huggingface_hub import AsyncInferenceClient
 from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
@@ -18,25 +18,18 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
     port=9000,
 )
 @traceable(run_type="llm")
-def llm_generate(input: LLMParamsDoc):
-    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
-    llm = HuggingFaceEndpoint(
-        endpoint_url=llm_endpoint,
-        max_new_tokens=input.max_new_tokens,
-        top_k=input.top_k,
-        top_p=input.top_p,
-        typical_p=input.typical_p,
-        temperature=input.temperature,
-        repetition_penalty=input.repetition_penalty,
-        streaming=input.streaming,
-        timeout=600,
-    )
-
+async def llm_generate(input: LLMParamsDoc):
     if input.streaming:
-
         async def stream_generator():
             chat_response = ""
-            async for text in llm.astream(input.query):
+            text_generation = await llm.text_generation(prompt=input.query,
+                                                  stream=input.streaming,
+                                                  max_new_tokens=input.max_new_tokens,
+                                                  repetition_penalty=input.repetition_penalty,
+                                                  temperature=input.temperature,
+                                                  top_k=input.top_k,
+                                                  top_p=input.top_p)
+            async for text in text_generation:
                 chat_response += text
                 chunk_repr = repr(text.encode("utf-8"))
                 print(f"[llm - chat_stream] chunk:{chunk_repr}")
@@ -46,9 +39,20 @@ def llm_generate(input: LLMParamsDoc):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = llm.invoke(input.query)
+        response = await llm.text_generation(prompt=input.query,
+                                             stream=input.streaming,
+                                             max_new_tokens=input.max_new_tokens,
+                                             repetition_penalty=input.repetition_penalty,
+                                             temperature=input.temperature,
+                                             top_k=input.top_k,
+                                             top_p=input.top_p)
         return GeneratedDoc(text=response, prompt=input.query)
 
 
 if __name__ == "__main__":
+    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+    llm = AsyncInferenceClient(
+        model=llm_endpoint,
+        timeout=600,
+    )
     opea_microservices["opea_service@llm_tgi"].start()

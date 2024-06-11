@@ -1,6 +1,5 @@
 docarray[full]
 fastapi
-langchain
 langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp

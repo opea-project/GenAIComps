@@ -5,7 +5,6 @@ import json
 import os
 
 import requests
-from langchain_core.prompts import ChatPromptTemplate
 from langsmith import traceable
 
 from comps import LLMParamsDoc, SearchedDoc, ServiceType, opea_microservices, register_microservice
@@ -29,14 +28,14 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
     response = requests.post(url, data=json.dumps(data), headers=headers)
     response_data = response.json()
     best_response = max(response_data, key=lambda response: response["score"])
-    template = """Answer the question based only on the following context:
+    template = """
+    Answer the question based only on the following context:
     {context}
     Question: {question}
     """
-    prompt = ChatPromptTemplate.from_template(template)
     doc = input.retrieved_docs[best_response["index"]]
-    final_prompt = prompt.format(context=doc.text, question=input.initial_query)
-    return LLMParamsDoc(query=final_prompt.strip())
+    prompt = template.format(context=doc.text, question=input.initial_query)
+    return LLMParamsDoc(query=prompt.strip())
 
 
 if __name__ == "__main__":
