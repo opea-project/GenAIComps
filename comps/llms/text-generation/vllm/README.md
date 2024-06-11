@@ -47,5 +47,5 @@ You have the flexibility to customize two parameters according to your specific 
 
 ```bash
 export vLLM_LLM_ENDPOINT="http://xxx.xxx.xxx.xxx:8080"
-export LLM_MODEL=<model_name> # example: export LLM_MODEL="mistralai/Mistral-7B-v0.1"
+export LLM_MODEL=<model_name> # example: export LLM_MODEL="Intel/neural-chat-7b-v3-3"
 ```
