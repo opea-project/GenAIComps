@@ -18,7 +18,7 @@ if [ $test_name = 'mega' ]; then
     bash run.sh 2>&1 | tee ${ut_log_name}
 else
     echo "run other test"
-    coverage run -m pytest -vs --disable-warnings ./test_${test_name}*.py 2>&1 | tee ${ut_log_name}
+    python -m pytest -vs --disable-warnings ./test_${test_name}*.py 2>&1 | tee ${ut_log_name}
 fi
 
 # clean the pytest cache
