@@ -1,0 +1,13 @@
+docarray[full]
+easyocr
+fastapi
+langsmith
+llama_index
+llama-index-vector-stores-redis
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pymupdf
+redis
+sentence_transformers
+shortuuid
