@@ -124,7 +124,7 @@ The initially supported `Microservices` are described in the below table. More `
 			<td>Gaudi2</td>
 			<td>Audio-Speech-Recognition on Gaudi2</td>
 		</tr>
-		</tr>
+		<tr>
 			<td>Xeon</td>
 			<td>Audio-Speech-RecognitionS on Xeon CPU</td>
 		</tr>
@@ -136,7 +136,7 @@ The initially supported `Microservices` are described in the below table. More `
 			<td>Gaudi2</td>
 			<td>Text-To-Speech on Gaudi2</td>
 		</tr>
-		</tr>
+		<tr>
 			<td>Xeon</td>
 			<td>Text-To-Speech on Xeon CPU</td>
 		</tr>
@@ -148,16 +148,17 @@ The initially supported `Microservices` are described in the below table. More `
 			<td>Gaudi2</td>
 			<td>Dataprep on Gaudi2</td>
 		</tr>
-		</tr>
-			<td>Xeon</td
+		<tr>
+			<td>Xeon</td>
 			<td>Dataprep on Xeon CPU</td>
 		</tr>
+		<tr>
 			<td rowspan="2"><a href="https://redis.io/">Redis</td>
 			<td rowspan="2"><a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BAAI/bge-base-en-v1.5</a></td>
 			<td>Gaudi2</td>
 			<td>Dataprep on Gaudi2</td>
 		</tr>
-		</tr>
+		<tr>
 			<td>Xeon</td>
 			<td>Dataprep on Xeon CPU</td>
 		</tr>
