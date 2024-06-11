@@ -1,8 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from langsmith import traceable
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+
 from comps import EmbedDoc1024, ServiceType, TextDoc, opea_microservices, register_microservice
 
 
