@@ -16,10 +16,9 @@ if [ $test_name = 'mega' ]; then
     comps_path=/GenAIComps/comps/cores
     find . -name "test*.py" | sed 's,\.\/,python -m pytest --cov="${comps_path}" --cov-append -vs --disable-warnings ,g' > run.sh
     bash run.sh 2>&1 | tee ${ut_log_name}
-
 else
     echo "run other test"
-    python -m pytest -vs --disable-warnings ./test_${test_name}*.py 2>&1 | tee ${ut_log_name}
+    coverage run -m pytest -vs --disable-warnings ./test_${test_name}*.py 2>&1 | tee ${ut_log_name}
 fi
 
 # clean the pytest cache
