@@ -143,7 +143,7 @@ The initially supported `Microservices` are described in the below table. More `
 		<tr>
 			<td rowspan="4"><a href="./comps/dataprep/README.md">Dataprep</a></td>
             <td rowspan="2"><a href="https://qdrant.tech/">Qdrant</td>
-			<td rowspan="2"><a href="https://huggingface.co/openai/whisper-small">openai/whisper-small</a></td>
+			<td rowspan="2"><a href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2">sentence-transformers/all-MiniLM-L6-v2</a></td>
 			<td rowspan="4">NA</td>
 			<td>Gaudi2</td>
 			<td>Dataprep on Gaudi2</td>
@@ -153,7 +153,7 @@ The initially supported `Microservices` are described in the below table. More `
 			<td>Dataprep on Xeon CPU</td>
 		</tr>
 			<td rowspan="2"><a href="https://redis.io/">Redis</td>
-			<td rowspan="2"><a href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2">sentence-transformers/all-MiniLM-L6-v2</a></td>
+			<td rowspan="2"><a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BAAI/bge-base-en-v1.5</a></td>
 			<td>Gaudi2</td>
 			<td>Dataprep on Gaudi2</td>
 		</tr>
