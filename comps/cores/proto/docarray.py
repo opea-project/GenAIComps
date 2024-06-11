@@ -80,15 +80,18 @@ class LLMParams(BaseDoc):
     repetition_penalty: float = 1.03
     streaming: bool = True
 
+
 class SecurityDoc(BaseDoc):
     text: str
     path: str
-      
+
+
 class RAGASParams(BaseDoc):
     questions: DocList[TextDoc]
     answers: DocList[TextDoc]
     docs: DocList[TextDoc]
     ground_truths: DocList[TextDoc]
+
 
 class RAGASScores(BaseDoc):
     answer_relevancy: float
