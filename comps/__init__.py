@@ -15,6 +15,8 @@ from comps.cores.proto.docarray import (
     SearchedDoc,
     TableExtractDoc,
     TextDoc,
+    RAGASParams,
+    RAGASScores,
 )
 
 # Constants
