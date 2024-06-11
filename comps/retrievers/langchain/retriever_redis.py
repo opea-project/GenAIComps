@@ -34,7 +34,16 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 @register_statistics(names=["opea_service@retriever_redis"])
 def retrieve(input: EmbedDoc768) -> SearchedDoc:
     start = time.time()
+    search_res = vector_db.similarity_search_by_vector(embedding=input.embedding)
+    searched_docs = []
+    for r in search_res:
+        searched_docs.append(TextDoc(text=r.page_content))
+    result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
+    statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
+    return result
 
+
+if __name__ == "__main__":
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
@@ -49,15 +58,4 @@ def retrieve(input: EmbedDoc768) -> SearchedDoc:
         redis_url=REDIS_URL,
         schema=INDEX_SCHEMA,
     )
-    search_res = vector_db.similarity_search_by_vector(embedding=input.embedding)
-    searched_docs = []
-    for r in search_res:
-        searched_docs.append(TextDoc(text=r.page_content))
-    result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
-    statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
-
-    return result
-
-
-if __name__ == "__main__":
     opea_microservices["opea_service@retriever_redis"].start()
