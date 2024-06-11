@@ -1,7 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import io
+import json
+import multiprocessing
 import os
+import re
+import unicodedata
+from urllib.parse import urlparse, urlunparse
+
 import easyocr
 import fitz
 import numpy as np
@@ -9,13 +16,6 @@ import pandas as pd
 import requests
 import yaml
 from bs4 import BeautifulSoup
-
-import io
-import json
-import multiprocessing
-import re
-import unicodedata
-from urllib.parse import urlparse, urlunparse
 from docx import Document as DDocument
 from langchain_community.document_loaders import (
     UnstructuredImageLoader,
@@ -25,6 +25,7 @@ from langchain_community.document_loaders import (
 )
 from PIL import Image
 from utils import timeout
+
 
 def load_pdf(pdf_path):
     """Load the pdf file."""

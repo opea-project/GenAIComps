@@ -1,4 +1,6 @@
-""" This code is adapted from BigScience PII detection 
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+""" This code is adapted from BigScience PII detection
 https://github.com/bigscience-workshop/data-preparation/blob/main/preprocessing/training/02_pii/bigscience_pii_detect_redact.py
 
 MST BigScience PII Code
@@ -18,11 +20,13 @@ limitations under the License.
 """
 
 import sys
+
 import regex
 
 # Note: to reduce false positives, a number of technically-valid-but-rarely-used
 # email address patterns (e.g. with parenthesis or slashes) will not match
-email_pattern = regex.compile(r'''
+email_pattern = regex.compile(
+    r"""
     (?<= ^ | [[({<\b\s@,?!;'"\p{Han}¿¡:.] | \\['"] )  # left delimiter
     (
       (?:                                             # local part
@@ -44,7 +48,9 @@ email_pattern = regex.compile(r'''
       (?: [\p{L}\p{M}]{2,63} | xn-- \w+ )             # TLD, including IDN
     )
     (?= $ | [])}>\b\s@,?!;'"\p{Han}] | \\['"] | : (?! \d) | \. (?! \S))   # right delim
-''', flags=regex.MULTILINE | regex.VERBOSE)
+""",
+    flags=regex.MULTILINE | regex.VERBOSE,
+)
 
 
 def detect_email(content):
@@ -63,9 +69,7 @@ def detect_email(content):
     for match in matches_tmp:
         if match.groups():
             if len(match.groups()) > 1 and match.groups()[1]:
-                sys.stderr.write(
-                    "Warning: Found substring matches in the main match."
-                )
+                sys.stderr.write("Warning: Found substring matches in the main match.")
             # setup outputs
             value = match.group(1)
             start, end = match.span(1)

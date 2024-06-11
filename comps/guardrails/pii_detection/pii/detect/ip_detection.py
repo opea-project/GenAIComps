@@ -1,4 +1,6 @@
-""" This code is adapted from BigScience PII detection 
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+""" This code is adapted from BigScience PII detection
 https://github.com/bigscience-workshop/data-preparation/blob/main/preprocessing/training/02_pii/bigscience_pii_detect_redact.py
 
 MST BigScience PII Code
@@ -17,8 +19,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import sys
 import ipaddress
+import sys
+
 import regex
 
 year_patterns = [
@@ -43,10 +46,8 @@ year_patterns = [
 ipv4_pattern = r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}"
 ipv6_pattern = r"(?:[0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,7}:|(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,5}(?::[0-9a-fA-F]{1,4}){1,2}|(?:[0-9a-fA-F]{1,4}:){1,4}(?::[0-9a-fA-F]{1,4}){1,3}|(?:[0-9a-fA-F]{1,4}:){1,3}(?::[0-9a-fA-F]{1,4}){1,4}|(?:[0-9a-fA-F]{1,4}:){1,2}(?::[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:(?:(?::[0-9a-fA-F]{1,4}){1,6})|:(?:(?::[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(?::[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(?:ffff(?::0{1,4}){0,1}:){0,1}(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])|(?:[0-9a-fA-F]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
 ip_pattern = regex.compile(
-    r"(?:^|[\b\s@?,!;:\'\")(.\p{Han}])("
-    + r"|".join([ipv4_pattern, ipv6_pattern])
-    + ")(?:$|[\s@,?!;:'\"(.\p{Han}])",
-    flags=regex.MULTILINE
+    r"(?:^|[\b\s@?,!;:\'\")(.\p{Han}])(" + r"|".join([ipv4_pattern, ipv6_pattern]) + ")(?:$|[\s@,?!;:'\"(.\p{Han}])",
+    flags=regex.MULTILINE,
 )
 
 
@@ -66,10 +67,10 @@ def ip_has_digit(matched_str):
 
 def filter_versions(matched_str, context):
     """Filter addresses in this format x.x.x.x  and the words dns/server
-    don't appear in the neighboring context, usually they are just versions"""
-    # count occurrence of dots 
-    dot_count = matched_str.count('.')
-    exclude = (dot_count == 3 and len(matched_str) == 7)
+    don't appear in the neighboring context, usually they are just versions."""
+    # count occurrence of dots
+    dot_count = matched_str.count(".")
+    exclude = dot_count == 3 and len(matched_str) == 7
     if exclude:
         if "dns" in context.lower() or "server" in context.lower():
             return False
@@ -77,7 +78,7 @@ def filter_versions(matched_str, context):
 
 
 def not_ip_address(matched_str):
-    """ make sure the string has a valid IP address format
+    """make sure the string has a valid IP address format
     e.g: 33.01.33.33 is not a valid IP address because of the 0 in front of 1
     TODO: fix this directly in the regex"""
     try:
@@ -103,9 +104,7 @@ def detect_ip(content):
     for match in matches_tmp:
         if match.groups():
             if len(match.groups()) > 1 and match.groups()[1]:
-                sys.stderr.write(
-                    "Warning: Found substring matches in the main match."
-                )
+                sys.stderr.write("Warning: Found substring matches in the main match.")
             # setup outputs
             value = match.group(1)
             start, end = match.span(1)
@@ -115,7 +114,7 @@ def detect_ip(content):
                     continue
                 if matches_date_pattern(value):
                     continue
-                if filter_versions(value, content[start - 100:end + 100]) or not_ip_address(value):
+                if filter_versions(value, content[start - 100 : end + 100]) or not_ip_address(value):
                     continue
                 # combine if conditions in one
 

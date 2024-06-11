@@ -1,7 +1,9 @@
 beautifulsoup4
+detect_secrets
 docarray[full]
 easyocr
 fastapi
+gibberish-detector
 huggingface_hub
 langchain
 langchain-community
@@ -11,6 +13,7 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
+phonenumbers
 Pillow
 pyarrow
 pymupdf
@@ -20,6 +23,3 @@ redis
 sentence_transformers
 shortuuid
 virtualenv
-phonenumbers
-detect_secrets
-gibberish-detector

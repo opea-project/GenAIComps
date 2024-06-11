@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from .utils import PIIEntityType
 
 
@@ -17,8 +20,9 @@ def detect_name_password(content, pipeline, entity_types=None):
     try:
         for entity in pipeline(content):
             entity_group = entity["entity_group"]
-            if ("NAME" == entity_group and PIIEntityType.NAME in entity_types) or \
-                    ("PASSWORD" == entity_group and PIIEntityType.PASSWORD in entity_types):
+            if ("NAME" == entity_group and PIIEntityType.NAME in entity_types) or (
+                "PASSWORD" == entity_group and PIIEntityType.PASSWORD in entity_types
+            ):
                 matches.append(
                     {
                         "tag": entity_group,

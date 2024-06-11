@@ -3,13 +3,15 @@
 
 import errno
 import functools
+import hashlib
 import os
 import signal
 import timeit
-import hashlib
 from pathlib import Path
+
 import pandas as pd
 from fastapi import HTTPException
+
 
 class Timer:
     level = 0
@@ -33,8 +35,10 @@ class Timer:
         else:
             print(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
 
+
 class TimeoutError(Exception):
     pass
+
 
 def save_logs(log_name, data):
     df = pd.DataFrame.from_records(data)
@@ -46,6 +50,7 @@ def save_logs(log_name, data):
     except:
         pass
     return df
+
 
 def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
     def decorator(func):
@@ -63,13 +68,16 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
             return result
 
         return wrapper
+
     return decorator
+
 
 def generate_log_name(file_list):
     file_set = f"{sorted(file_list)}"
     # print(f"file_set: {file_set}")
     md5_str = hashlib.md5(file_set.encode()).hexdigest()
     return f"status/status_{md5_str}.log"
+
 
 def get_failable_with_time(callable):
     def failable_callable(*args, **kwargs):
@@ -85,6 +93,7 @@ def get_failable_with_time(callable):
 
     return failable_callable
 
+
 def prepare_env(enable_ray=False, pip_requirements=None, comps_path=None):
     if enable_ray:
         import ray
@@ -95,8 +104,8 @@ def prepare_env(enable_ray=False, pip_requirements=None, comps_path=None):
             ray.init(runtime_env={"pip": pip_requirements, "env_vars": {"PYTHONPATH": comps_path}})
         else:
             ray.init(runtime_env={"env_vars": {"PYTHONPATH": comps_path}})
-            
-            
+
+
 def get_max_cpus(total_num_tasks):
     num_cpus_available = os.cpu_count()
     num_cpus_per_task = num_cpus_available // total_num_tasks

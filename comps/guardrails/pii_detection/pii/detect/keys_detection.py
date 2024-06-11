@@ -1,8 +1,9 @@
-""" This code is adapted from BigCode PII 
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+""" This code is adapted from BigCode PII
 https://github.com/bigcode-project/bigcode-dataset/blob/main/pii/utils/keys_detection.py
 """
 import os
-
 
 # Secrets detection with detect-secrets tool
 
@@ -44,7 +45,7 @@ plugins = [
 
 
 def is_gibberish(matched_str):
-    """Checks to make sure the PII span is gibberish and not word like"""
+    """Checks to make sure the PII span is gibberish and not word like."""
     # pip install gibberish-detector
     # download the training corpora from https://raw.githubusercontent.com/domanchi/gibberish-detector/master/examples/big.txt
     # run gibberish-detector train big.txt > big.model to generate the model (it takes 3 seconds)
@@ -62,7 +63,7 @@ def is_hash(content, value):
         # TODO: fix this issue happened one for JS in the stack-smol, file did contain value
         print("Value not found in content, why this happened?")
         return False
-    lines = content[:content.index(value)].splitlines()
+    lines = content[: content.index(value)].splitlines()
     target_line = lines[-1]
     if len(value) in [32, 40, 64]:
         # if "sha" or "md5" are in content:
@@ -73,7 +74,7 @@ def is_hash(content, value):
 
 
 def file_has_hashes(content, coeff=0.02):
-    """Checks if the file contains literals 'hash' or 'sha' for more than 2% nb_of_lines"""
+    """Checks if the file contains literals 'hash' or 'sha' for more than 2% nb_of_lines."""
     lines = content.splitlines()
     count_sha = 0
     count_hash = 0
@@ -108,11 +109,10 @@ def scan_secrets(line: str):
 
     lines = line.splitlines(keepends=True)
     for secret in _process_line_based_plugins(
-            lines=list(enumerate(lines, start=1)),
-            filename="Adhoc String",
+        lines=list(enumerate(lines, start=1)),
+        filename="Adhoc String",
     ):
         yield secret
-
 
 
 def detect_keys(content):
@@ -135,9 +135,7 @@ def detect_keys(content):
 
     from detect_secrets.settings import transient_settings
 
-    with transient_settings(
-            {"plugins_used": plugins, "filters_used": filters}
-    ) as settings:
+    with transient_settings({"plugins_used": plugins, "filters_used": filters}) as settings:
         matches = []
         for secret in scan_secrets(content):
             if is_hash(content, secret.secret_value) or file_has_hashes(content):

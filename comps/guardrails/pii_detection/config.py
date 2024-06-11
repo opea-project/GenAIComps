@@ -39,7 +39,6 @@ def get_boolean_env_var(var_name, default_value=False):
         return default_value
 
 
-
 LLM_URL = os.getenv("LLM_ENDPOINT_URL", None)
 
 current_file_path = pathlib.Path(__file__).parent.resolve()

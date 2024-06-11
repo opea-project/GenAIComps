@@ -14,14 +14,27 @@ cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 
-from tqdm import tqdm
 from typing import List
 
+from tqdm import tqdm
+
 from comps import DocPath, opea_microservices, register_microservice
-from comps.guardrails.pii_detection.utils import Timer, generate_log_name, prepare_env, save_file_to_local_disk, get_max_cpus
 from comps.guardrails.pii_detection.data_utils import document_loader, parse_html
-from comps.guardrails.pii_detection.ray_utils import rayds_initialization, ray_runner_initialization, ray_execute
-from comps.guardrails.pii_detection.pii.pii_utils import PIIDetector, PIIDetectorWithLLM, PIIDetectorWithNER, PIIDetectorWithML
+from comps.guardrails.pii_detection.pii.pii_utils import (
+    PIIDetector,
+    PIIDetectorWithLLM,
+    PIIDetectorWithML,
+    PIIDetectorWithNER,
+)
+from comps.guardrails.pii_detection.ray_utils import ray_execute, ray_runner_initialization, rayds_initialization
+from comps.guardrails.pii_detection.utils import (
+    Timer,
+    generate_log_name,
+    get_max_cpus,
+    prepare_env,
+    save_file_to_local_disk,
+)
+
 
 def get_pii_detection_inst(strategy="dummy", settings=None):
     if strategy == "ner":
@@ -33,6 +46,7 @@ def get_pii_detection_inst(strategy="dummy", settings=None):
     else:
         # Default strategy - dummy
         return PIIDetector()
+
 
 def file_based_pii_detect(file_list: List[DocPath], strategy, enable_ray=False, debug=False):
     """Ingest document to Redis."""
@@ -57,6 +71,7 @@ def file_based_pii_detect(file_list: List[DocPath], strategy, enable_ray=False, 
                 ret.append(pii_detector.detect_pii(data))
     return ret
 
+
 def link_based_pii_detect(link_list: List[str], strategy, enable_ray=False, debug=False):
     link_list = [str(f) for f in link_list]
     pii_detector = get_pii_detection_inst(strategy=strategy)
@@ -64,11 +79,11 @@ def link_based_pii_detect(link_list: List[str], strategy, enable_ray=False, debu
     def _parse_html(link):
         data = parse_html([link])
         return data[0][0]
-    
+
     if enable_ray:
         num_cpus = get_max_cpus(len(link_list))
         print(f"per task num_cpus: {num_cpus}")
-                
+
         log_name = generate_log_name(link_list)
         ds = rayds_initialization(link_list, _parse_html, lazy_mode=True, num_cpus=num_cpus)
         ds = ds.map(ray_runner_initialization(pii_detector.detect_pii, debug=debug), num_cpus=num_cpus)
@@ -83,6 +98,7 @@ def link_based_pii_detect(link_list: List[str], strategy, enable_ray=False, debu
             with Timer(f"detect pii on document {link} to Redis."):
                 ret.append(pii_detector.detect_pii(data))
     return ret
+
 
 def text_based_pii_detect(text_list: List[str], strategy, enable_ray=False, debug=False):
     text_list = [str(f) for f in text_list]
@@ -105,11 +121,14 @@ def text_based_pii_detect(text_list: List[str], strategy, enable_ray=False, debu
                 ret.append(pii_detector.detect_pii(data))
     return ret
 
-@register_microservice(name="opea_service@guardrails-pii-detection", endpoint="/v1/piidetect", host="0.0.0.0", port=6357)
+
+@register_microservice(
+    name="opea_service@guardrails-pii-detection", endpoint="/v1/piidetect", host="0.0.0.0", port=6357
+)
 async def pii_detection(files: List[UploadFile] = File(None), link_list: str = Form(None), text_list: str = Form(None)):
     if not files and not link_list and not text_list:
         raise HTTPException(status_code=400, detail="Either files, link_list, or text_list must be provided.")
-    
+
     strategy = "ner"  # Default strategy
     pip_requirement = ["detect-secrets", "phonenumbers", "gibberish-detector"]
 
@@ -135,7 +154,7 @@ async def pii_detection(files: List[UploadFile] = File(None), link_list: str = F
             return {"status": 200, "message": json.dumps(ret)}
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"An error occurred: {e}")
-        
+
     if text_list:
         try:
             text_list = json.loads(text_list)  # Parse JSON string to list

@@ -1,15 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterator, List, Optional, Union
+
 import pyarrow
 import ray
 from ray.data.block import Block
 from ray.data.datasource import FileBasedDatasource
 from tqdm import tqdm
-from utils import Timer, get_failable_with_time, timeout, save_logs
+from utils import Timer, get_failable_with_time, save_logs, timeout
 
-from typing import TYPE_CHECKING, Any, Dict, Iterator
-from typing import Callable, List, Optional, Union
 
 class RayDataLoader(FileBasedDatasource):
     def __init__(
@@ -32,12 +32,15 @@ class RayDataLoader(FileBasedDatasource):
         item = {"data": data, "filename": path, "error": error, "read_time": f"{read_time} secs"}
         builder.add(item)
         yield builder.build()
-        
+
+
 def rayds_initialization(file_paths, dataloader_callable, lazy_mode=True, num_cpus=20):
     if dataloader_callable is None:
-        text_list = [{"data": data, "filename": data[:50], "error": None, "read_time": f"0 secs"} for data in file_paths]
+        text_list = [
+            {"data": data, "filename": data[:50], "error": None, "read_time": "0 secs"} for data in file_paths
+        ]
         return ray.data.from_items(text_list)
-    
+
     decorated_dataloader_callable = get_failable_with_time(dataloader_callable)
     if lazy_mode:
         if num_cpus is None:
@@ -53,7 +56,8 @@ def rayds_initialization(file_paths, dataloader_callable, lazy_mode=True, num_cp
             item = {"data": content, "filename": file, "error": error, "read_time": f"{elapse_time} secs"}
             data.append(item)
         return ray.data.from_items(data)
-    
+
+
 def ray_runner_initialization(func, debug=False):
     @timeout(600)
     def ray_runner(data):
@@ -83,7 +87,9 @@ def ray_runner_initialization(func, debug=False):
             "read_time": data["read_time"],
             "elaspe_time": f"{elapse_time} secs",
         }
+
     return ray_runner
+
 
 def ray_execute(ds, log_name):
     with Timer(f"execute with Ray, status log: {log_name}"):

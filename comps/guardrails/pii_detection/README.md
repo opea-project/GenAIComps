@@ -40,7 +40,7 @@ TBD
 
 ## 2.1.2 use NER model (default mode)
 
-``` bash
+```bash
 mkdir -p pii/bigcode
 apt install git-lfs
 cd pii/bigcode; git clone https://{hf_username}:{hf_token}@huggingface.co/bigcode/starpii/; cd ../..
@@ -64,13 +64,14 @@ docker run -d --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 
 ```
 
 > debug mode
+
 ```bash
 docker run --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 6357:6357 -v ./comps/guardrails/pii_detection/:/home/user/comps/guardrails/pii_detection/ --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-pii-detection:latest
 ```
 
 # 🚀3. Status Microservice
 
-``` bash
+```bash
 docker container logs -f guardrails-pii-detection-endpoint
 ```
 
@@ -78,7 +79,7 @@ docker container logs -f guardrails-pii-detection-endpoint
 
 Once microservice starts, user can use below script to invoke the microservice for pii detection.
 
-``` python
+```python
 import requests
 import json
 
