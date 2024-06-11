@@ -80,12 +80,12 @@ class LLMParams(BaseDoc):
     repetition_penalty: float = 1.03
     streaming: bool = True
 
-      
+
 class TableExtractDoc(BaseDoc):
     path: str
     table_strategy: str
 
-      
+
 class RAGASParams(BaseDoc):
     questions: DocList[TextDoc]
     answers: DocList[TextDoc]
