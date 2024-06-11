@@ -219,7 +219,7 @@ class ExampleService:
             host=EMBEDDING_SERVICE_HOST_IP,
             port=EMBEDDING_SERVICE_PORT,
             endpoint="/v1/embeddings",
-            use_remote_service=True,S
+            use_remote_service=True,
             service_type=ServiceType.EMBEDDING,
         )
         llm = MicroService(
