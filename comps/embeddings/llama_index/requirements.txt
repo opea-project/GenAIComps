@@ -1,9 +1,9 @@
 docarray[full]
 fastapi
 huggingface_hub
-llama-index-embeddings-text-embeddings-inference
-llama-index-embeddings-huggingface==0.2.0
 langsmith
+llama-index-embeddings-huggingface==0.2.0
+llama-index-embeddings-text-embeddings-inference
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

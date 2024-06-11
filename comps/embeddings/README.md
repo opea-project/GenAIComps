@@ -112,12 +112,14 @@ export TEI_EMBEDDING_MODEL_NAME="BAAI/bge-large-en-v1.5"
 ```
 
 ## 2.2 Build Docker Image
+
 ### Build Langchain Docker (Option a)
 
 ```bash
 cd ../../
 docker build -t opea/embedding-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/langchain/docker/Dockerfile .
 ```
+
 ### Build LlamaIndex Docker (Option b)
 
 ```bash
