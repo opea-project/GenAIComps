@@ -31,15 +31,18 @@ async def llm_generate(input: LLMParamsDoc):
     stream_gen_time = []
     start = time.time()
     if input.streaming:
+
         async def stream_generator():
             chat_response = ""
-            text_generation = await llm.text_generation(prompt=input.query,
-                                                  stream=input.streaming,
-                                                  max_new_tokens=input.max_new_tokens,
-                                                  repetition_penalty=input.repetition_penalty,
-                                                  temperature=input.temperature,
-                                                  top_k=input.top_k,
-                                                  top_p=input.top_p)
+            text_generation = await llm.text_generation(
+                prompt=input.query,
+                stream=input.streaming,
+                max_new_tokens=input.max_new_tokens,
+                repetition_penalty=input.repetition_penalty,
+                temperature=input.temperature,
+                top_k=input.top_k,
+                top_p=input.top_p,
+            )
             async for text in text_generation:
                 stream_gen_time.append(time.time() - start)
                 chat_response += text
@@ -52,13 +55,15 @@ async def llm_generate(input: LLMParamsDoc):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = await llm.text_generation(prompt=input.query,
-                                             stream=input.streaming,
-                                             max_new_tokens=input.max_new_tokens,
-                                             repetition_penalty=input.repetition_penalty,
-                                             temperature=input.temperature,
-                                             top_k=input.top_k,
-                                             top_p=input.top_p)
+        response = await llm.text_generation(
+            prompt=input.query,
+            stream=input.streaming,
+            max_new_tokens=input.max_new_tokens,
+            repetition_penalty=input.repetition_penalty,
+            temperature=input.temperature,
+            top_k=input.top_k,
+            top_p=input.top_p,
+        )
         statistics_dict["opea_service@llm_tgi"].append_latency(time.time() - start, None)
         return GeneratedDoc(text=response, prompt=input.query)
 

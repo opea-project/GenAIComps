@@ -3,9 +3,9 @@
 
 import os
 
+from langsmith import traceable
 from llama_index.core.vector_stores.types import VectorStoreQuery
 from llama_index.vector_stores.redis import RedisVectorStore
-from langsmith import traceable
 from redis_config import INDEX_NAME, REDIS_URL
 from redisvl.schema import IndexSchema
 
@@ -31,19 +31,26 @@ def retrieve(input: EmbedDoc768) -> SearchedDoc:
     result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
     return result
 
+
 if __name__ == "__main__":
-    custom_schema = IndexSchema.from_dict({
-        "index": {"name": INDEX_NAME, "prefix": "doc"},
-        "fields": [
-            {"name": "id", "type": "tag"},
-            {"name": "doc_id", "type": "tag"},
-            {"name": "text", "type": "text"},
-            {"name": "content", "type": "text"},
-            {"name": "source", "type": "text"},
-            {"name":"start_index", "type":"numeric"},
-            {"name": "vector", "type": "vector", "attrs": {"dims": 768, "algorithm": "HNSW", "date_type": "FLOAT32"}}
-        ]
-    })
+    custom_schema = IndexSchema.from_dict(
+        {
+            "index": {"name": INDEX_NAME, "prefix": "doc"},
+            "fields": [
+                {"name": "id", "type": "tag"},
+                {"name": "doc_id", "type": "tag"},
+                {"name": "text", "type": "text"},
+                {"name": "content", "type": "text"},
+                {"name": "source", "type": "text"},
+                {"name": "start_index", "type": "numeric"},
+                {
+                    "name": "vector",
+                    "type": "vector",
+                    "attrs": {"dims": 768, "algorithm": "HNSW", "date_type": "FLOAT32"},
+                },
+            ],
+        }
+    )
 
     vector_store = RedisVectorStore(
         schema=custom_schema,
