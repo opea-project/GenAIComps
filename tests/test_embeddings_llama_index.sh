@@ -29,10 +29,9 @@ function start_service() {
 function validate_microservice() {
     tei_service_port=5010
     URL="http://${ip_address}:$tei_service_port/v1/embeddings"
-    INPUT_DATA='{"text":"What is Deep Learning?"}'
-    RES=$(netstat -tulnP | grep 5010)
+    RES=$(netstat -tulnp | grep 5010)
     docker logs test-comps-embedding-tei-server >> ${LOG_PATH}/embedding.log
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL")
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"text":"What is Deep Learning?"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ embedding - llama_index ] HTTP status is 200. Checking content..."
         local CONTENT=$(curl -s -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/embedding.log)
