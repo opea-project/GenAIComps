@@ -10,7 +10,6 @@ import timeit
 from pathlib import Path
 
 import pandas as pd
-from fastapi import HTTPException
 
 
 class Timer:
@@ -122,4 +121,4 @@ async def save_file_to_local_disk(save_path: str, file):
             fout.write(content)
         except Exception as e:
             print(f"Write file failed. Exception: {e}")
-            raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
+            raise SystemError(f"Write file {save_path} failed. Exception: {e}")

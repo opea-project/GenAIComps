@@ -29,10 +29,24 @@ def test_html(ip_addr="localhost", batch_size=20):
 
 
 def test_text(ip_addr="localhost", batch_size=20):
-    proxies = {"http": ""}
+    proxies = {"http":""}
     url = f"http://{ip_addr}:6357/v1/piidetect"
-    content = pd.read_csv("data/ai_rss.csv")["Description"]
-    content = content[:batch_size].to_list()
+    if os.path.exists("data/ai_rss.csv"):
+        content = pd.read_csv("data/ai_rss.csv")["Description"]
+        content = content[:batch_size].to_list()
+    else:
+        content = ["""With new architectures, there comes a bit of a dilemma. After having spent billions of dollars training models with older architectures, companies rightfully wonder if it is worth spending billions more on a newer architecture that may itself be outmoded&nbsp;soon.
+One possible solution to this dilemma is transfer learning. The idea here is to put noise into the trained model and then use the output given to then backpropagate on the new model. The idea here is that you don’t need to worry about generating huge amounts of novel data and potentially the number of epochs you have to train for is also significantly reduced. This idea has not been perfected yet, so it remains to be seen the role it will play in the&nbsp;future.
+Nevertheless, as businesses become more invested in these architectures the potential for newer architectures that improve cost will only increase. Time will tell how quickly the industry moves to adopt&nbsp;them.
+For those who are building apps that allow for a seamless transition between models, you can look at the major strives made in throughput and latency by YOCO and have hope that the major bottlenecks your app is having may soon be resolved.
+It’s an exciting time to be building.
+With special thanks to Christopher Taylor for his feedback on this blog&nbsp;post.
+[1] Sun, Y., et al. “You Only Cache Once: Decoder-Decoder Architectures for Language Models” (2024),&nbsp;arXiv
+[2] Sun, Y., et al. “Retentive Network: A Successor to Transformer for Large Language Models” (2023),&nbsp;arXiv
+[3] Wikimedia Foundation, et al. “Hadamard product (matrices)” (2024), Wikipedia
+[4] Sanderson, G. et al., “Attention in transformers, visually explained | Chapter 6, Deep Learning” (2024),&nbsp;YouTube
+[5] A. Vaswani, et al., “Attention Is All You Need” (2017),&nbsp;arXiv
+Understanding You Only Cache Once was originally published in Towards Data Science on Medium, where people are continuing the conversation by highlighting and responding to this story."""] * batch_size
     payload = {"text_list": json.dumps(content)}
 
     with Timer(f"send {len(content)} text to pii detection endpoint"):
