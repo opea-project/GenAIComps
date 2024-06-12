@@ -12,3 +12,5 @@ pymupdf
 redis
 sentence_transformers
 shortuuid
+pinecone-client
+langchain-pinecone
