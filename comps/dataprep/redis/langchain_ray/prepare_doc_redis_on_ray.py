@@ -28,7 +28,7 @@ from langchain_community.vectorstores import Redis
 from langsmith import traceable
 
 cur_path = pathlib.Path(__file__).parent.resolve()
-comps_path = os.path.join(cur_path, "../../../")
+comps_path = os.path.join(cur_path, "../../../../")
 sys.path.append(comps_path)
 import hashlib
 import timeit
