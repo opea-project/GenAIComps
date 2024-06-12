@@ -1,6 +1,6 @@
 # Dataprep Microservice with Redis
 
-For dataprep microservice, we provide two frameworks: `Langchain` and `LlamaIndex`. We also provide `Langchain_ray` which uses ray to parallel the data prep for multi-file performance improvement(observed 5x - 15x speedup by processing 1000 files/links.). 
+For dataprep microservice, we provide two frameworks: `Langchain` and `LlamaIndex`. We also provide `Langchain_ray` which uses ray to parallel the data prep for multi-file performance improvement(observed 5x - 15x speedup by processing 1000 files/links.).
 
 We organized these two folders in the same way, so you can use either framework for dataprep microservice with the following constructions.
 
@@ -75,6 +75,7 @@ export LANGCHAIN_PROJECT="opea/dataprep"
 - Build docker image with langchain
 
 * option 1: Start single-process version (for 1-10 files processing)
+
 ```bash
 cd ../../../../
 docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain/docker/Dockerfile .

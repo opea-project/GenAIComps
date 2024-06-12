@@ -16,10 +16,10 @@ import json
 import os
 import pathlib
 import sys
-import pandas as pd
 from pathlib import Path
 from typing import Callable, List, Optional, Union
 
+import pandas as pd
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, TIMEOUT_SECONDS
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -88,6 +88,7 @@ def get_max_cpus(total_num_tasks):
         return 8
     return num_cpus_per_task
 
+
 def save_logs(log_name, data):
     df = pd.DataFrame.from_records(data)
     try:
@@ -98,6 +99,7 @@ def save_logs(log_name, data):
     except:
         pass
     return df
+
 
 def generate_ray_dataset(file_paths, dataloader_callable, lazy_mode=True, num_cpus=20):
     decorated_dataloader_callable = get_failable_with_time(dataloader_callable)
@@ -115,13 +117,15 @@ def generate_ray_dataset(file_paths, dataloader_callable, lazy_mode=True, num_cp
             item = {"data": content, "filename": file, "error": error, "read_time": f"{elapse_time} secs"}
             data.append(item)
         return ray.data.from_items(data)
-    
+
+
 def ray_execute(ds, log_name):
     with Timer(f"execute with Ray, status log: {log_name}"):
         ret_with_status = ds.take_all()
         df = save_logs(log_name, ret_with_status)
         ret = df.to_dict(orient="records")
     return ret
+
 
 async def save_file_to_local_disk(save_path: str, file):
     save_path = Path(save_path)
@@ -134,7 +138,7 @@ async def save_file_to_local_disk(save_path: str, file):
             raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
-@timeout(seconds = TIMEOUT_SECONDS)
+@timeout(seconds=TIMEOUT_SECONDS)
 def data_to_redis_ray(data):
     content = data["data"]
     if content is None:
