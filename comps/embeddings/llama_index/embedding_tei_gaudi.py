@@ -2,20 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import time
 
-from langchain_community.embeddings import HuggingFaceHubEmbeddings
 from langsmith import traceable
+from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 
-from comps import (
-    EmbedDoc768,
-    ServiceType,
-    TextDoc,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
-)
+from comps import EmbedDoc768, ServiceType, TextDoc, opea_microservices, register_microservice
 
 
 @register_microservice(
@@ -28,18 +19,16 @@ from comps import (
     output_datatype=EmbedDoc768,
 )
 @traceable(run_type="embedding")
-@register_statistics(names=["opea_service@embedding_tgi_gaudi"])
 def embedding(input: TextDoc) -> EmbedDoc768:
-    start = time.time()
-    embed_vector = embeddings.embed_query(input.text)
+    embed_vector = embeddings._get_query_embedding(input.text)
     embed_vector = embed_vector[:768]  # Keep only the first 768 elements
     res = EmbedDoc768(text=input.text, embedding=embed_vector)
-    statistics_dict["opea_service@embedding_tgi_gaudi"].append_latency(time.time() - start, None)
     return res
 
 
 if __name__ == "__main__":
-    tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080")
-    embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+    tei_embedding_model_name = os.getenv("TEI_EMBEDDING_MODEL_NAME", "BAAI/bge-large-en-v1.5")
+    tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8090")
+    embeddings = TextEmbeddingsInference(model_name=tei_embedding_model_name, base_url=tei_embedding_endpoint)
     print("TEI Gaudi Embedding initialized.")
     opea_microservices["opea_service@embedding_tgi_gaudi"].start()
