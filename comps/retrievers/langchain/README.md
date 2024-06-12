@@ -117,4 +117,3 @@ curl http://${your_ip}:7000/v1/retrieval \
   -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding}}" \
   -H 'Content-Type: application/json'
 ```
-
