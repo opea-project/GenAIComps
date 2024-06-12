@@ -105,7 +105,7 @@ docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=h
 - option 2: Start multi-process version (for >10 files processing)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-on-ray-redis:latest
+docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
 ```
 
 ## 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)

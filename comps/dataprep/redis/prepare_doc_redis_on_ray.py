@@ -16,11 +16,11 @@ import json
 import os
 import pathlib
 import sys
-import uuid
+import pandas as pd
 from pathlib import Path
 from typing import Callable, List, Optional, Union
 
-from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
+from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, TIMEOUT_SECONDS
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
@@ -88,6 +88,16 @@ def get_max_cpus(total_num_tasks):
         return 8
     return num_cpus_per_task
 
+def save_logs(log_name, data):
+    df = pd.DataFrame.from_records(data)
+    try:
+        dir_path = os.path.dirname(log_name)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+        df.to_csv(log_name)
+    except:
+        pass
+    return df
 
 def generate_ray_dataset(file_paths, dataloader_callable, lazy_mode=True, num_cpus=20):
     decorated_dataloader_callable = get_failable_with_time(dataloader_callable)
@@ -105,7 +115,13 @@ def generate_ray_dataset(file_paths, dataloader_callable, lazy_mode=True, num_cp
             item = {"data": content, "filename": file, "error": error, "read_time": f"{elapse_time} secs"}
             data.append(item)
         return ray.data.from_items(data)
-
+    
+def ray_execute(ds, log_name):
+    with Timer(f"execute with Ray, status log: {log_name}"):
+        ret_with_status = ds.take_all()
+        df = save_logs(log_name, ret_with_status)
+        ret = df.to_dict(orient="records")
+    return ret
 
 async def save_file_to_local_disk(save_path: str, file):
     save_path = Path(save_path)
@@ -118,7 +134,7 @@ async def save_file_to_local_disk(save_path: str, file):
             raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
-@timeout(600)
+@timeout(seconds = TIMEOUT_SECONDS)
 def data_to_redis_ray(data):
     content = data["data"]
     if content is None:
@@ -209,15 +225,14 @@ def ingest_data_to_redis(file_list: List[DocPath], enable_ray=False, num_cpus=20
         log_name = generate_log_name(file_list)
         ds = generate_ray_dataset(file_list, document_loader, lazy_mode=True, num_cpus=num_cpus)
         ds = ds.map(data_to_redis_ray, num_cpus=num_cpus)
-        with Timer(f"Ingesting documents to Redis, status log: {log_name}"):
-            ds.write_parquet(log_name) if debug else ds.write_csv(log_name)
+        return ray_execute(ds, log_name)
     else:
         for file in tqdm(file_list, total=len(file_list)):
             with Timer(f"read document {file}."):
                 data = document_loader(file)
             with Timer(f"ingest document {file} to Redis."):
                 data_to_redis(data)
-    return True
+        return True
 
 
 def ingest_link_to_redis(link_list: List[str], enable_ray=False, num_cpus=20):
@@ -231,8 +246,7 @@ def ingest_link_to_redis(link_list: List[str], enable_ray=False, num_cpus=20):
         log_name = generate_log_name(link_list)
         ds = generate_ray_dataset(link_list, _parse_html, lazy_mode=True, num_cpus=num_cpus)
         ds = ds.map(data_to_redis_ray, num_cpus=num_cpus)
-        with Timer(f"Ingesting documents to Redis, status log: {log_name}"):
-            ds.write_parquet(log_name) if debug else ds.write_csv(log_name)
+        return ray_execute(ds, log_name)
     else:
         for link in tqdm(link_list, total=len(link_list)):
             with Timer(f"read document {link}."):
@@ -241,7 +255,7 @@ def ingest_link_to_redis(link_list: List[str], enable_ray=False, num_cpus=20):
                 print("content is: ", data)
             with Timer(f"ingest document {link} to Redis."):
                 data_to_redis(data)
-    return True
+        return True
 
 
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
@@ -274,8 +288,8 @@ async def ingest_documents(files: List[UploadFile] = File(None), link_list: str 
             prepare_env(enable_ray=enable_ray)
             num_cpus = get_max_cpus(len(saved_path_list))
             print(f"per task num_cpus: {num_cpus}")
-            ingest_data_to_redis(saved_path_list, enable_ray=enable_ray, num_cpus=num_cpus)
-            return {"status": 200, "message": "Data preparation succeeded"}
+            ret = ingest_data_to_redis(saved_path_list, enable_ray=enable_ray, num_cpus=num_cpus)
+            return {"status": 200, "message": f"Data preparation succeeded. ret msg is {ret}"}
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"An error occurred: {e}")
 
@@ -291,8 +305,8 @@ async def ingest_documents(files: List[UploadFile] = File(None), link_list: str 
             prepare_env(enable_ray=enable_ray)
             num_cpus = get_max_cpus(len(link_list))
             print(f"per task num_cpus: {num_cpus}")
-            ingest_link_to_redis(link_list, enable_ray=enable_ray, num_cpus=num_cpus)
-            return {"status": 200, "message": "Data preparation succeeded"}
+            ret = ingest_link_to_redis(link_list, enable_ray=enable_ray, num_cpus=num_cpus)
+            return {"status": 200, "message": f"Data preparation succeeded, ret msg is {ret}"}
         except json.JSONDecodeError:
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
         except Exception as e:
