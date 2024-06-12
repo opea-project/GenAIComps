@@ -5,6 +5,7 @@
 set -xe
 
 WORKPATH=$(dirname "$PWD")
+LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
@@ -27,6 +28,25 @@ function start_service() {
 
 function validate_microservice() {
     tei_service_port=5010
+    URL="http://${ip_address}:$tei_service_port/v1/embeddings"
+    INPUT_DATA='{"text":"What is Deep Learning?"}'
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL")
+    if [ "$HTTP_STATUS" -eq 200 ]; then
+        echo "[ embedding - llama_index ] HTTP status is 200. Checking content..."
+        local CONTENT=$(curl -s -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/embedding.log)
+
+        if echo " " | grep -q "$EXPECTED_RESULT"; then
+            echo "[ embedding - llama_index ] Content is as expected."
+        else
+            echo "[ embedding - llama_index ] Content does not match the expected result: $CONTENT"
+            docker logs test-comps-embedding-tei-server >> ${LOG_PATH}/embedding.log
+            exit 1
+        fi
+    else
+        echo "[ embedding - llama_index ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-embedding-tei-server >> ${LOG_PATH}/embedding.log
+        exit 1
+    fi
     http_proxy="" curl http://${ip_address}:$tei_service_port/v1/embeddings \
         -X POST \
         -d '{"text":"What is Deep Learning?"}' \
