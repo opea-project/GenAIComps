@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-FROM langchain/langchain:latest
+FROM ubuntu:22.04
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libgl1-mesa-glx \
@@ -14,8 +14,6 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user /home/user/
 
 COPY comps /home/user/comps
-
-RUN chmod +x /home/user/comps/retrievers/langchain/run.sh
 
 USER user
 

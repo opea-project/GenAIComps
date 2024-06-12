@@ -15,8 +15,6 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-RUN chmod +x /home/user/comps/retrievers/langchain/run.sh
-
 USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
