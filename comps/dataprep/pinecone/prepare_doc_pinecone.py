@@ -3,7 +3,7 @@
 
 import os
 
-from config import  EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
+from config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Pinecone

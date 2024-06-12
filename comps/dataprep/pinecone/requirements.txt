@@ -5,6 +5,7 @@ fastapi
 huggingface_hub
 langchain
 langchain-community
+langchain-pinecone
 langsmith
 numpy
 opentelemetry-api
@@ -12,9 +13,8 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
 Pillow
+pinecone-client
 pymupdf
 python-docx
 sentence_transformers
 shortuuid
-langchain-pinecone
-pinecone-client

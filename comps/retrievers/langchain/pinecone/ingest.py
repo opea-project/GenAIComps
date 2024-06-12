@@ -9,16 +9,17 @@ import io
 import os
 
 import numpy as np
+from config import EMBED_MODEL, INDEX_NAME, PINECONE_API_KEY
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Pinecone
 from PIL import Image
-from config import EMBED_MODEL, INDEX_NAME, PINECONE_API_KEY
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 if os.getenv("PINECONE_API_KEY", None) is None:
     raise Exception("Missing `PINECONE_API_KEY` environment variable.")
+
 
 def pdf_loader(file_path):
     try:
