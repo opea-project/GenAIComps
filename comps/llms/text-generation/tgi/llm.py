@@ -27,11 +27,11 @@ from comps import (
     port=9000,
 )
 @traceable(run_type="llm")
+@register_statistics(names=["opea_service@llm_tgi"])
 async def llm_generate(input: LLMParamsDoc):
     stream_gen_time = []
     start = time.time()
     if input.streaming:
-
         async def stream_generator():
             chat_response = ""
             text_generation = await llm.text_generation(
