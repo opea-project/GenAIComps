@@ -55,12 +55,16 @@ export LANGCHAIN_PROJECT="opea/dataprep"
 ```
 
 ## 2.3 Build Docker Image
+
 - Build docker image with langchain
+
 ```bash
 cd ../../../../
 docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain/docker/Dockerfile .
 ```
+
 - Build docker image with llama_index
+
 ```bash
 cd ../../../../
 docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/llama_index/docker/Dockerfile .

@@ -1,18 +1,21 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
-import os
 import json
+import os
 from pathlib import Path
-from langsmith import traceable
 from typing import List, Optional, Union
+
+from config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 from fastapi import File, Form, HTTPException, UploadFile
+from langsmith import traceable
+from llama_index.core import SimpleDirectoryReader, StorageContext, VectorStoreIndex
+from llama_index.core.settings import Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.vector_stores.redis import RedisVectorStore
 from redis import Redis
 from redisvl.schema import IndexSchema
-from llama_index.core import StorageContext, VectorStoreIndex, SimpleDirectoryReader
-from llama_index.core.settings import Settings
-from llama_index.vector_stores.redis import RedisVectorStore
 
-from config import EMBED_MODEL, REDIS_URL, INDEX_NAME
 from comps import DocPath, opea_microservices, register_microservice
 
 
@@ -34,37 +37,32 @@ async def ingest_data_to_redis(doc_path: DocPath):
     doc_path = doc_path.path
     content = SimpleDirectoryReader(input_files=[doc_path]).load_data()
     redis_client = Redis.from_url(REDIS_URL)
-    schema = IndexSchema.from_dict({
-        "index": {"name": INDEX_NAME, "prefix": f"doc:{INDEX_NAME}"},
-        "fields": [
-            {"name": "id", "type": "tag"},
-            {"name": "doc_id", "type": "tag"},
-            {"name": "text", "type": "text"},
-            {"name": "content", "type": "text"},
-            {"name": "source", "type": "text"},
-            {"name":"start_index", "type":"numeric"},
-            {"name": "vector", "type": "vector", "attrs": {"dims": 768, "algorithm": "HNSW", "date_type": "FLOAT32"}}
-        ]
-    })
-    vector_store = RedisVectorStore(
-        redis_client=redis_client,
-        schema=schema
+    schema = IndexSchema.from_dict(
+        {
+            "index": {"name": INDEX_NAME, "prefix": f"doc:{INDEX_NAME}"},
+            "fields": [
+                {"name": "id", "type": "tag"},
+                {"name": "doc_id", "type": "tag"},
+                {"name": "text", "type": "text"},
+                {"name": "content", "type": "text"},
+                {"name": "source", "type": "text"},
+                {"name": "start_index", "type": "numeric"},
+                {
+                    "name": "vector",
+                    "type": "vector",
+                    "attrs": {"dims": 768, "algorithm": "HNSW", "date_type": "FLOAT32"},
+                },
+            ],
+        }
     )
+    vector_store = RedisVectorStore(redis_client=redis_client, schema=schema)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-    _ = VectorStoreIndex.from_documents(
-        content, 
-        storage_context=storage_context
-    )
+    _ = VectorStoreIndex.from_documents(content, storage_context=storage_context)
     print("[ ingest data ] data ingested into Redis DB.")
     return True
 
 
-@register_microservice(
-    name="opea_service@prepare_doc_redis", 
-    endpoint="/v1/dataprep", 
-    host="0.0.0.0", 
-    port=6007
-)
+@register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 @traceable(run_type="tool")
 # llama index only support upload files now
 async def ingest_documents(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
