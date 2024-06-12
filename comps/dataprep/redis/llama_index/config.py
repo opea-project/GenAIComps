@@ -52,6 +52,6 @@ def format_redis_conn_from_env():
 
         return start + f"{REDIS_HOST}:{REDIS_PORT}"
 
+
 INDEX_NAME = os.getenv("INDEX_NAME", "rag-redis")
 REDIS_URL = format_redis_conn_from_env()
-
