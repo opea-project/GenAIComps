@@ -27,6 +27,7 @@ from comps import (
     port=9000,
 )
 @traceable(run_type="llm")
+@register_statistics(names=["opea_service@llm_tgi"])
 async def llm_generate(input: LLMParamsDoc):
     stream_gen_time = []
     start = time.time()
