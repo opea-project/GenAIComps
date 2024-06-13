@@ -12,6 +12,10 @@ pip install -r requirements.txt
 
 ## 1.2 Start Image To Text Service
 
+```
+nohup python llava_server.py &
+```
+
 ```py
 python img2txt.py
 ```
