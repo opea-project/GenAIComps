@@ -8,7 +8,7 @@ on:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
     paths:
-      - '.github/workflows/**'
+      - ".github/workflows/**"
       # - './comps/asr/Dockerfile'
       # - './comps/retrievers/langchain/docker/Dockerfile'
       # - './comps/llms/text-generation/tgi/Dockerfile'
