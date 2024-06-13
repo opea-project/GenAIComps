@@ -48,6 +48,7 @@ async def health() -> Response:
 
 @app.post("/generate")
 async def generate(request: Request) -> Response:  # FIXME batch_size=1 for now, only accept single image
+    print("LLaVA generation begin.")
     request_dict = await request.json()
     prompt = request_dict.pop("prompt")
     img_b64_str = request_dict.pop("img_b64_str")
@@ -68,11 +69,11 @@ async def generate(request: Request) -> Response:  # FIXME batch_size=1 for now,
     }
 
     start = time.time()
-    print(image, prompt, generate_kwargs)
     result = generator(image, prompt=prompt, batch_size=1, generate_kwargs=generate_kwargs)
     end = time.time()
     result = result[0]["generated_text"].split("ASSISTANT: ")[-1]
-    print(f"result = {result}, time = {(end-start) * 1000 }ms")
+    print(f"LLaVA result = {result}, time = {(end-start) * 1000 }ms")
+    image.close()
     ret = {"text": result}
     return JSONResponse(ret)
 
