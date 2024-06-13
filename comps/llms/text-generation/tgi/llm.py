@@ -32,6 +32,7 @@ async def llm_generate(input: LLMParamsDoc):
     stream_gen_time = []
     start = time.time()
     if input.streaming:
+
         async def stream_generator():
             chat_response = ""
             text_generation = await llm.text_generation(
