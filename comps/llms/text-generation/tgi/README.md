@@ -14,7 +14,6 @@ pip install -r requirements.txt
 
 ## 1.2 Start LLM Service
 
-
 ```bash
 export HF_TOKEN=${your_hf_api_token}
 export LANGCHAIN_TRACING_V2=true
@@ -25,7 +24,6 @@ docker run -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/h
 
 ## 1.3 Verify the TGI Service
 
-
 ```bash
 curl http://${your_ip}:8008/generate \
   -X POST \
@@ -33,9 +31,7 @@ curl http://${your_ip}:8008/generate \
   -H 'Content-Type: application/json'
 ```
 
-
 ## 1.4 Start LLM Service with Python Script
-
 
 ```bash
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
@@ -75,13 +71,11 @@ You can choose one as needed.
 
 ## 2.3 Run Docker with CLI (Option A)
 
-
 ```bash
 docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/llm-tgi:latest
 ```
 
 ## 2.4 Run Docker with Docker Compose (Option B)
-
 
 ```bash
 cd text-generation/tgi
