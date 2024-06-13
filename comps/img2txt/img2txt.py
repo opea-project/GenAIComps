@@ -67,6 +67,9 @@ async def img2txt(request: Img2TxtDoc):
         torch_dtype=torch.bfloat16,
         device="hpu",   # Currently only support HPU
     )
+    # if use_hpu_graphs:
+    from habana_frameworks.torch.hpu import wrap_in_hpu_graph
+    generator.model = wrap_in_hpu_graph(generator.model)
     print("xxxxxxxxxx")
     result = generator([image], prompt=prompt, batch_size=1, generate_kwargs=generate_kwargs)
     print("yyyyyyy")
