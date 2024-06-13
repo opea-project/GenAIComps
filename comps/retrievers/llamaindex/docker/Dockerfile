@@ -24,4 +24,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/retrievers/llamaindex
 
-ENTRYPOINT ["python /home/user/comps/retrievers/llamaindex/retriever_redis.py"]
+ENTRYPOINT ["python", "retriever_redis.py"]

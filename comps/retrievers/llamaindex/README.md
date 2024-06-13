@@ -29,7 +29,6 @@ docker run -d --name="redis-vector-db" -p 6379:6379 -p 8001:8001 redis/redis-sta
 
 And then ingest data into the Redis VectorDB using the methods described in the dataprep microservice.
 
-
 ## 1.3 Start Retriever Service
 
 ```bash
