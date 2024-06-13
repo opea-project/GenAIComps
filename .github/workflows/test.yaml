@@ -1,0 +1,63 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: File Change Warning
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review, synchronize]
+    paths:
+      - "!**/Dockerfile"
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # file-change-detection:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Create or Comment on Warning Issue
+  #       uses: actions/github-script@v5
+  #       with:
+  #         github-token: ${{secrets.GITHUB_TOKEN}}
+  #         script: |
+  #           const issueTitle = 'Warning: Specific files have been modified';
+  #           const issueBody = 'Changes have been detected in specific files. Please ensure corresponding updates are made in the other repository.';
+  #           const issues = await github.rest.issues.listForRepo({
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             state: 'open',
+  #           });
+  #           const existingIssue = issues.data.find(issue => issue.title === issueTitle);
+  #           if (existingIssue) {
+  #             await github.rest.issues.createComment({
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               issue_number: existingIssue.number,
+  #               body: 'Changes detected again. Please ensure the corresponding updates are made in the other repository.',
+  #             });
+  #           } else {
+  #             await github.rest.issues.create({
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               title: issueTitle,
+  #               body: issueBody,
+  #               labels: ['warning', 'file-change']
+  #             });
+  #           }
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check for file changes
+        run: |
+          echo "Warning: Specific files have been modified!"
