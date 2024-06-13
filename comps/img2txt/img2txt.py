@@ -57,65 +57,73 @@ async def img2txt(request: Img2TxtDoc):
     image = process_image(image)
     generate_kwargs = {
         "lazy_mode": True,
-        "hpu_graphs": use_hpu_graphs,
+        "hpu_graphs": True,
         "max_new_tokens": max_new_tokens,
         "ignore_eos": False,
     }
+    generator = pipeline(
+        "image-to-text",
+        model="llava-hf/llava-1.5-7b-hf",
+        torch_dtype=torch.bfloat16,
+        device="hpu",   # Currently only support HPU
+    )
+    print("xxxxxxxxxx")
     result = generator([image], prompt=prompt, batch_size=1, generate_kwargs=generate_kwargs)
+    print("yyyyyyy")
     result = result[0]["generated_text"].split("ASSISTANT: ")[-1]
     statistics_dict["opea_service@img2txt"].append_latency(time.time() - start, None)
     return TextDoc(text=result)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    # parser = argparse.ArgumentParser()
 
-    parser.add_argument("--model_name_or_path", type=str, default="llava-hf/llava-1.5-7b-hf")
-    parser.add_argument("--use_hpu_graphs", default=True, action="store_true")
-    parser.add_argument("--warmup", type=int, default=1, help="Number of warmup iterations for benchmarking.")
-    parser.add_argument("--bf16", default=True, action="store_true")
+    # parser.add_argument("--model_name_or_path", type=str, default="llava-hf/llava-1.5-7b-hf")
+    # parser.add_argument("--use_hpu_graphs", default=True, action="store_true")
+    # parser.add_argument("--warmup", type=int, default=1, help="Number of warmup iterations for benchmarking.")
+    # parser.add_argument("--bf16", default=True, action="store_true")
 
-    args = parser.parse_args()
-    adapt_transformers_to_gaudi()
+    # args = parser.parse_args()
+    # adapt_transformers_to_gaudi()
 
-    if args.bf16:
-        model_dtype = torch.bfloat16
-    else:
-        model_dtype = torch.float32
+    # if args.bf16:
+    #     model_dtype = torch.bfloat16
+    # else:
+    #     model_dtype = torch.float32
 
-    model_name_or_path = args.model_name_or_path
-    use_hpu_graphs = args.use_hpu_graphs
+    # model_name_or_path = args.model_name_or_path
+    # use_hpu_graphs = args.use_hpu_graphs
 
-    generator = pipeline(
-        "image-to-text",
-        model=args.model_name_or_path,
-        torch_dtype=model_dtype,
-        device="hpu",   # Currently only support HPU
-    )
+    # generator = pipeline(
+    #     "image-to-text",
+    #     model=args.model_name_or_path,
+    #     torch_dtype=model_dtype,
+    #     device="hpu",   # Currently only support HPU
+    # )
 
     # warmup
-    generate_kwargs = {
-        "lazy_mode": True,
-        "hpu_graphs": use_hpu_graphs,
-        "max_new_tokens": 100,
-        "ignore_eos": False,
-    }
-    if use_hpu_graphs:
-        from habana_frameworks.torch.hpu import wrap_in_hpu_graph
+    # generate_kwargs = {
+    #     "lazy_mode": True,
+    #     "hpu_graphs": use_hpu_graphs,
+    #     "max_new_tokens": 100,
+    #     "ignore_eos": False,
+    # }
+    # if use_hpu_graphs:
+    #     from habana_frameworks.torch.hpu import wrap_in_hpu_graph
 
-        generator.model = wrap_in_hpu_graph(generator.model)
-    image_paths = ["https://llava-vl.github.io/static/images/view.jpg"]
-    images = []
-    for image_path in image_paths:
-        images.append(PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw))
+        # generator.model = wrap_in_hpu_graph(generator.model)
+    # image_paths = ["https://llava-vl.github.io/static/images/view.jpg"]
+    # images = []
+    # for image_path in image_paths:
+    #     images.append(PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw))
 
-    print("[img2txt] img2txt warmup...")
-    for i in range(args.warmup):
-        generator(
-            images,
-            prompt="<image>\nUSER: What's the content of the image?\nASSISTANT:",
-            batch_size=1,
-            generate_kwargs=generate_kwargs,
-        )
+    # print("[img2txt] img2txt warmup...")
+    # for i in range(args.warmup):
+    #     generator(
+    #         images,
+    #         prompt="<image>\nUSER: What's the content of the image?\nASSISTANT:",
+    #         batch_size=1,
+    #         generate_kwargs=generate_kwargs,
+    #     )
 
     print("[img2txt] img2txt initialized.")
     opea_microservices["opea_service@img2txt"].start()
