@@ -93,3 +93,20 @@ class RAGASScores(BaseDoc):
     faithfulness: float
     context_recallL: float
     context_precision: float
+
+class GraphRAGParam(BaseDoc):
+    index_name: Optional[str] = Field(default="graph_rag")
+    node_label: Optional[str] = Field(default=None)
+    text_node_properties: Optional[list] = Field(default=None)
+    embedding_node_property: Optional[str] = Field(default=None)
+
+class GraphDoc(BaseDoc):
+    text: str
+    strtype: Optional[str] = Field(
+        description="type of input query, can be 'query', 'cypher', 'rag'",
+        default="query",
+    )
+    ragparam: Optional[GraphRAGParam] = Field(
+        description="parameters of graph rag",
+        default=None
+    )
