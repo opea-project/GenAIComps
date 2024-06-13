@@ -20,5 +20,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 RUN ln -sf $(which python3) /usr/bin/python
 RUN python -m pip install --no-cache-dir pytest
-
+RUN echo "This is test"
 WORKDIR /
