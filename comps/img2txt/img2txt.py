@@ -114,3 +114,6 @@ if __name__ == "__main__":
             batch_size=1,
             generate_kwargs=generate_kwargs,
         )
+
+    print("[img2txt - router] img2txt initialized.")
+    opea_microservices["opea_service@img2txt"].start()

@@ -9,3 +9,4 @@ shortuuid
 torch
 transformers
 optimum[habana]
+pydantic==2.7.2
