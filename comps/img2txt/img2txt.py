@@ -30,7 +30,7 @@ async def img2txt(request: Img2TxtDoc):
     inputs = {"img_b64_str": img_b64_str, "prompt": prompt, "max_new_tokens": max_new_tokens}
 
     # forward to the LLaVA server
-    response = requests.post(url=img2txt_endpoint, data=json.dumps(inputs), proxies={"http": None})
+    response = requests.post(url=f"{img2txt_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None})
 
     statistics_dict["opea_service@img2txt"].append_latency(time.time() - start, None)
     return TextDoc(text=response.json()["text"])
