@@ -1,0 +1,11 @@
+datasets
+docarray[full]
+fastapi
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pydub
+shortuuid
+torch
+transformers
+optimum[habana]
