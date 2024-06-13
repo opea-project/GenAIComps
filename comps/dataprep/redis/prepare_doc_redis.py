@@ -119,17 +119,21 @@ async def ingest_documents(
             ingest_data_to_redis(DocPath(path=save_path))
             print(f"Successfully saved file {save_path}")
 
-        # Create a SparkContext
-        conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
-        sc = SparkContext(conf=conf)
-        # Create an RDD with parallel processing
-        parallel_num = 10
-        rdd = sc.parallelize(files, parallel_num)
-        # Perform a parallel operation
-        rdd_trans = rdd.map(dataprepfunc)
-        rdd_trans.collect()
-        # Stop the SparkContext
-        sc.stop()
+        try:
+            # Create a SparkContext
+            conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
+            sc = SparkContext(conf=conf)
+            # Create an RDD with parallel processing
+            parallel_num = 10
+            rdd = sc.parallelize(files, parallel_num)
+            # Perform a parallel operation
+            rdd_trans = rdd.map(dataprepfunc)
+            rdd_trans.collect()
+            # Stop the SparkContext
+            sc.stop()
+        except:
+            # Stop the SparkContext
+            sc.stop()
         return {"status": 200, "message": "Data preparation succeeded"}
 
     if link_list:
