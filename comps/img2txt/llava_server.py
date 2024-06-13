@@ -77,6 +77,7 @@ async def generate(request: Request) -> Response:  # FIXME batch_size=1 for now,
     }
 
     start = time.time()
+    print(image, prompt, generate_kwargs)
     result = generator(image, prompt=prompt, batch_size=1, generate_kwargs=generate_kwargs)
     end = time.time()
     result = result[0]["generated_text"].split("ASSISTANT: ")[-1]
