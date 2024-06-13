@@ -94,12 +94,6 @@ class RAGASScores(BaseDoc):
     context_recallL: float
     context_precision: float
 
-class GraphRAGParam(BaseDoc):
-    index_name: Optional[str] = Field(default="rag")
-    node_label: Optional[str] = Field(default="Task")
-    text_node_properties: Optional[list] = Field(default=['name', 'description', 'status'])
-    embedding_node_property: Optional[str] = Field(default='embedding')
-
 class GraphDoc(BaseDoc):
     text: str
     strtype: Optional[str] = Field(

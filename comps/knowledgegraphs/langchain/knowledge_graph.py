@@ -4,6 +4,7 @@
 import os
 import pathlib
 import sys
+
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
@@ -158,6 +159,7 @@ def graph_query(input: GraphDoc) -> GeneratedDoc:
     else:
         result = "Please specify strtype as one of cypher, rag, query."
     return GeneratedDoc(text=result,prompt=input.text)
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@knowledge_graph"].start()

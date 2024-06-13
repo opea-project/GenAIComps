@@ -9,12 +9,13 @@ import timeit
 import pandas as pd
 import requests
 
+
 def test_text(ip_addr="localhost", batch_size=1):
     proxies = {"http": ""}
-    url = f"http://10.0.0.19:8060/v1/graphs"
+    url = "http://10.0.0.19:8060/v1/graphs"
 
     # payload = {"text":"MATCH (t:Task {status:'open'}) RETURN count(*)","strtype":"cypher"}
-    content = {"text":"MATCH (t:Task {status:'open'}) RETURN count(*)"}
+    content = {"text": "MATCH (t:Task {status:'open'}) RETURN count(*)"}
     payload = {"input": json.dumps(content)}
 
     try:
@@ -25,6 +26,7 @@ def test_text(ip_addr="localhost", batch_size=1):
     except requests.exceptions.RequestException as e:
         print("An error occurred:", e)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size for testing")
@@ -32,4 +34,3 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     test_text(ip_addr=args.ip_addr, batch_size=args.batch_size)
-
