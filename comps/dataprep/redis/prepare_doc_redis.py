@@ -5,6 +5,7 @@ import json
 import os
 import uuid
 from pathlib import Path
+from pyspark import SparkConf, SparkContext
 from typing import List, Optional, Union
 
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
@@ -112,11 +113,23 @@ async def ingest_documents(
         upload_folder = "./uploaded_files/"
         if not os.path.exists(upload_folder):
             Path(upload_folder).mkdir(parents=True, exist_ok=True)
-        for file in files:
+        async def dataprepfunc(file):
             save_path = upload_folder + file.filename
             await save_file_to_local_disk(save_path, file)
             ingest_data_to_redis(DocPath(path=save_path))
             print(f"Successfully saved file {save_path}")
+
+        # Create a SparkContext
+        conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
+        sc = SparkContext(conf=conf)
+        # Create an RDD with parallel processing
+        parallel_num = 10
+        rdd = sc.parallelize(files, parallel_num)
+        # Perform a parallel operation
+        rdd_trans = rdd.map(dataprepfunc)
+        rdd_trans.collect()
+        # Stop the SparkContext
+        sc.stop()
         return {"status": 200, "message": "Data preparation succeeded"}
 
     if link_list:

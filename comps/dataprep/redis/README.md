@@ -5,6 +5,8 @@
 ## 1.1 Install Requirements
 
 ```bash
+apt update
+apt install default-jre
 pip install -r requirements.txt
 ```
 

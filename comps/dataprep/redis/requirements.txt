@@ -13,6 +13,7 @@ opentelemetry-sdk
 pandas
 Pillow
 pymupdf
+pyspark
 python-docx
 redis
 sentence_transformers
