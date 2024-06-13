@@ -1,4 +1,7 @@
-version: '3.5'
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3.5"
 
 services:
   etcd:
@@ -54,7 +57,7 @@ services:
           memory: 32G
     command: ["milvus", "run", "standalone"]
     security_opt:
-    - seccomp:unconfined
+      - seccomp:unconfined
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000

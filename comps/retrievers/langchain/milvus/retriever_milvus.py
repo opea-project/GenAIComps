@@ -1,14 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import argparse
 import os
 import time
 
-import argparse
+from config import COLLECTION_NAME, EMBED_ENDPOINT, EMBED_MODEL, MILVUS_HOST, MILVUS_PORT
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_milvus.vectorstores import Milvus
 from langsmith import traceable
-from config import COLLECTION_NAME, EMBED_MODEL, EMBED_ENDPOINT, MILVUS_HOST, MILVUS_PORT
 
 from comps import (
     EmbedDoc768,
@@ -20,6 +20,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+
 
 @register_microservice(
     name="opea_service@retriever_milvus",
@@ -33,11 +34,8 @@ from comps import (
 def retrieve(input: EmbedDoc768) -> SearchedDoc:
     vector_db = Milvus(
         embeddings,
-        connection_args={
-            "host": MILVUS_HOST,
-            "port": MILVUS_PORT
-        },
-        collection_name=COLLECTION_NAME,    
+        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+        collection_name=COLLECTION_NAME,
     )
     start = time.time()
     search_res = vector_db.similarity_search_by_vector(embedding=input.embedding)

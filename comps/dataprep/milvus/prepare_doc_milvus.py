@@ -2,20 +2,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import sys
 
 from config import COLLECTION_NAME, EMBED_MODEL, EMBEDDING_ENDPOINT, MILVUS_HOST, MILVUS_PORT
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_milvus.vectorstores import Milvus
+
+from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.docarray import DocPath
-from comps.cores.mega.micro_service import register_microservice, opea_microservices
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
 
-import sys
 current_script_path = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_script_path)
 sys.path.append(parent_dir)
 from utils import document_loader
+
 
 @register_microservice(
     name="opea_service@prepare_doc_milvus",
@@ -25,7 +27,7 @@ from utils import document_loader
     input_datatype=DocPath,
     output_datatype=None,
 )
-#@opea_telemetry
+# @opea_telemetry
 def ingest_documents(doc_path: DocPath):
     """Ingest document to Milvus."""
     doc_path = doc_path.path
@@ -55,10 +57,7 @@ def ingest_documents(doc_path: DocPath):
             texts=batch_texts,
             embedding=embedder,
             collection_name=COLLECTION_NAME,
-            connection_args={
-                "host": MILVUS_HOST,
-                "port": MILVUS_PORT
-            }
+            connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 

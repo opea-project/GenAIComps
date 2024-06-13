@@ -5,15 +5,16 @@
 
 #
 
+import argparse
 import io
 import os
-import argparse
+
 import numpy as np
+from config import COLLECTION_NAME, EMBED_ENDPOINT, EMBED_MODEL, MILVUS_HOST, MILVUS_PORT
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_milvus.vectorstores import Milvus
 from PIL import Image
-from config import COLLECTION_NAME, EMBED_MODEL, EMBED_ENDPOINT, MILVUS_HOST, MILVUS_PORT
 
 
 def pdf_loader(file_path):
@@ -84,10 +85,8 @@ def ingest_documents(folder_path, tag):
             texts=batch_texts,
             embedding=embedder,
             collection_name=COLLECTION_NAME,
-            connection_args={
-                "host": MILVUS_HOST,
-                "port": MILVUS_PORT
-            })
+            connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+        )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
 
