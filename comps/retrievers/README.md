@@ -7,7 +7,9 @@ The service primarily utilizes similarity measures in vector space to rapidly re
 Overall, this microservice provides robust backend support for applications requiring efficient similarity searches, playing a vital role in scenarios such as recommendation systems, information retrieval, or any other context where precise measurement of document similarity is crucial.
 
 # Retriever Microservice with Redis
+
 For details, please refer to this [readme](langchain/redis/README.md)
 
 # Retriever Microservice with Milvus
+
 For details, please refer to this [readme](langchain/milvus/README.md)
