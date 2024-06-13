@@ -43,7 +43,7 @@ def process_image(image, max_len=1344, min_len=672):
 @register_statistics(names=["opea_service@img2txt"])
 async def img2txt(request: Img2TxtDoc):
     start = time.time()
-    img_b64_str = request.img
+    img_b64_str = request.image
     prompt = request.prompt
     max_new_tokens = request.max_new_tokens
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--model_name_or_path", type=str, default="llava-hf/llava-1.5-7b-hf")
     parser.add_argument("--use_hpu_graphs", default=True, action="store_true")
-    parser.add_argument("--warmup", type=int, default=3, help="Number of warmup iterations for benchmarking.")
+    parser.add_argument("--warmup", type=int, default=1, help="Number of warmup iterations for benchmarking.")
     parser.add_argument("--bf16", default=True, action="store_true")
 
     args = parser.parse_args()
@@ -107,6 +107,8 @@ if __name__ == "__main__":
     images = []
     for image_path in image_paths:
         images.append(PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw))
+
+    print("[img2txt] img2txt warmup.")
     for i in range(args.warmup):
         generator(
             images,
@@ -115,5 +117,5 @@ if __name__ == "__main__":
             generate_kwargs=generate_kwargs,
         )
 
-    print("[img2txt - router] img2txt initialized.")
+    print("[img2txt] img2txt initialized.")
     opea_microservices["opea_service@img2txt"].start()
