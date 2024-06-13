@@ -60,7 +60,7 @@ def ingest_documents():
     contains Edgar 10k filings data for Nike."""
     # Load list of pdfs
     company_name = "Nike"
-    data_path = "data/"
+    data_path = "../data/"
     doc_path = [os.path.join(data_path, file) for file in os.listdir(data_path)][0]
 
     print("Parsing 10k filing doc for NIKE", doc_path)
