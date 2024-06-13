@@ -66,15 +66,6 @@ async def generate(request: Request) -> Response:  # FIXME batch_size=1 for now,
         "max_new_tokens": max_new_tokens,
         "ignore_eos": False,
     }
-    # image = PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw)
-    image = PIL.Image.open(BytesIO(base64.b64decode(img_b64_str)))
-
-    generate_kwargs = {
-        "lazy_mode": True,
-        "hpu_graphs": use_hpu_graphs,
-        "max_new_tokens": max_new_tokens,
-        "ignore_eos": False,
-    }
 
     start = time.time()
     print(image, prompt, generate_kwargs)
