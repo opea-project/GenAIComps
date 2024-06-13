@@ -8,22 +8,7 @@ on:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
     paths:
-      - ".github/workflows/**"
-      # - './comps/asr/Dockerfile'
-      # - './comps/retrievers/langchain/docker/Dockerfile'
-      # - './comps/llms/text-generation/tgi/Dockerfile'
-      # - './comps/llms/text-generation/ray_serve/Dockerfile'
-      # - './comps/llms/text-generation/ray_serve/docker/Dockerfile'
-      # - './comps/llms/text-generation/qwen2/Dockerfile'
-      # - './comps/llms/text-generation/vllm/Dockerfile'
-      # - './comps/llms/summarization/tgi/Dockerfile'
-      # - './comps/embeddings/langchain/docker/Dockerfile'
-      # - './comps/dataprep/redis/docker/Dockerfile'
-      # - './comps/dataprep/qdrant/docker/Dockerfile'
-      # - './comps/ragas/tgi/Dockerfile'
-      # - './comps/guardrails/langchain/docker/Dockerfile'
-      # - './comps/tts/Dockerfile'
-      # - './comps/reranks/langchain/docker/Dockerfile'
+      - '**/Dockerfile'
 
 # If there is a new commit, the previous jobs will be canceled
 concurrency:
