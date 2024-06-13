@@ -67,4 +67,5 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
+    #for test
     opea_microservices["opea_service@llm_vllm"].start()
