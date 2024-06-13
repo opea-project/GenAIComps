@@ -8,7 +8,7 @@ on:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
-      - .github/workflows/megaservice-test.yaml
+      - .github/workflows/megaservice-test.yml
       - comps/cores/**
       - requirements.txt
       - setup.py
@@ -66,9 +66,6 @@ jobs:
       #          HF_TOKEN: ${{ secrets.HF_TOKEN }}
       #        run: |
       #          xxx
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}
