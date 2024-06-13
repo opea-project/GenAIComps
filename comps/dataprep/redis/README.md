@@ -96,24 +96,26 @@ Make sure the file path after `files=@` is correct.
 
 ```bash
 curl -X POST \
-    -H "Content-Type: multipart/form-data" \      
+    -H "Content-Type: multipart/form-data" \
     -F "files=@./file1.txt" \
     http://localhost:6007/v1/dataprep
 ```
+
 - Multiple file upload
 
 ```bash
 curl -X POST \
-    -H "Content-Type: multipart/form-data" \      
+    -H "Content-Type: multipart/form-data" \
     -F "files=@./file1.txt" \
     -F "files=@./file2.txt" \
     -F "files=@./file3.txt" \
     http://localhost:6007/v1/dataprep
 ```
+
 - Links upload (not supported for llama_index now)
 
 ```bash
-curl -X POST \    
+curl -X POST \
     -F 'link_list=["https://www.ces.tech/"]' \
     http://localhost:6007/v1/dataprep
 ```
