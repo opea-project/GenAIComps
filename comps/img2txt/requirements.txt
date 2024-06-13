@@ -6,7 +6,5 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 pydub
 shortuuid
-torch
-transformers
 optimum[habana]
 pydantic==2.7.2
