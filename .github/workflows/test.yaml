@@ -1,9 +1,12 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 name: File Change Warning
 
 on:
   pull_request:
     branches: [zepan]
-    types: [opened, reopened, ready_for_review, synchronize] 
+    types: [opened, reopened, ready_for_review, synchronize]
     paths:
       -'.github/workflows/**'
       # - './comps/asr/Dockerfile'
