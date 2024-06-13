@@ -61,7 +61,7 @@ async def img2txt(request: Img2TxtDoc):
         "max_new_tokens": max_new_tokens,
         "ignore_eos": False,
     }
-    result = generator(image, prompt=prompt, batch_size=1, generate_kwargs=generate_kwargs)
+    result = generator([image], prompt=prompt, batch_size=1, generate_kwargs=generate_kwargs)
     result = result[0]["generated_text"].split("ASSISTANT: ")[-1]
     statistics_dict["opea_service@img2txt"].append_latency(time.time() - start, None)
     return TextDoc(text=result)
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     for image_path in image_paths:
         images.append(PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw))
 
-    print("[img2txt] img2txt warmup.")
+    print("[img2txt] img2txt warmup...")
     for i in range(args.warmup):
         generator(
             images,
