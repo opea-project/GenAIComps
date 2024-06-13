@@ -24,16 +24,19 @@ def llm_generate(input: LLMParamsDoc):
         base_url=openai_api_base,
     )
     if input.streaming:
+
         def stream_generator():
             chat_response = ""
-            response = client.completions.create(model="xft",
-                                                        prompt=input.query,
-                                                        max_tokens =input.max_new_tokens,
-                                                        temperature=input.temperature,
-                                                        top_p=input.top_p,
-                                                        n=input.top_k,
-                                                        frequency_penalty=input.repetition_penalty,
-                                                        stream=input.streaming)
+            response = client.completions.create(
+                model="xft",
+                prompt=input.query,
+                max_tokens=input.max_new_tokens,
+                temperature=input.temperature,
+                top_p=input.top_p,
+                n=input.top_k,
+                frequency_penalty=input.repetition_penalty,
+                stream=input.streaming,
+            )
             for chunk in response:
                 chat_response += chunk.choices[0].delta.content
                 chunk_repr = repr(chunk.choices[0].delta.content.encode("utf-8"))
@@ -44,13 +47,15 @@ def llm_generate(input: LLMParamsDoc):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = client.completions.create(model="xft",
-                                                  prompt=input.query,
-                                                  max_tokens =input.max_new_tokens,
-                                                  temperature=input.temperature,
-                                                  top_p=input.top_p,
-                                                  n=input.top_k,
-                                                  frequency_penalty=input.repetition_penalty)
+        response = client.completions.create(
+            model="xft",
+            prompt=input.query,
+            max_tokens=input.max_new_tokens,
+            temperature=input.temperature,
+            top_p=input.top_p,
+            n=input.top_k,
+            frequency_penalty=input.repetition_penalty,
+        )
         return GeneratedDoc(text=response, prompt=input.query)
 
 
