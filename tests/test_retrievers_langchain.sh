@@ -28,7 +28,9 @@ function start_service() {
     # ingest data
     dataprep_service_port=5012
     unset http_proxy
-    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 --ipc=host opea/dataprep-redis-langchain:comps
+    export REDIS_URL="redis://${ip_address}:5010"
+    export INDEX_NAME="rag-redis"
+    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -p ${dataprep_service_port}:6007 --ipc=host opea/dataprep-redis-langchain:comps
     sleep 30s
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > ./dataprep_file_langchain.txt
@@ -51,10 +53,7 @@ function start_service() {
     fi
 
     # redis retriever
-    export REDIS_URL="redis://${ip_address}:5010"
-    export INDEX_NAME="rag-redis"
     retriever_port=5009
-    unset http_proxy
     docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/retriever-redis:comps
 
     sleep 30s
