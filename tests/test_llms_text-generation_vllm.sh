@@ -15,14 +15,14 @@ function build_docker_images() {
 }
 
 function start_service() {
-    vllm_endpoint_port=5010
+    vllm_endpoint_port=5014
     export your_hf_llm_model="Intel/neural-chat-7b-v3-3"
     # Remember to set HF_TOKEN before invoking this test!
     export HF_TOKEN=${HF_TOKEN}
     docker run -d --name="test-comps-llm-vllm-endpoint" -p $vllm_endpoint_port:80 -v ./data:/data -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$http_proxy -e HF_TOKEN=$HF_TOKEN vllm:cpu /bin/bash -c "cd / && export VLLM_CPU_KVCACHE_SPACE=40 && python3 -m vllm.entrypoints.openai.api_server --model $your_hf_llm_model --host 0.0.0.0 --port 80"
     export vLLM_LLM_ENDPOINT="http://${ip_address}:${vllm_endpoint_port}"
 
-    llm_service_port=5011
+    llm_service_port=5015
     unset http_proxy
     docker run -d --name="test-comps-llm-vllm-server" -p ${llm_service_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e vLLM_LLM_ENDPOINT=$vLLM_LLM_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e LLM_MODEL_ID=$your_hf_llm_model opea/llm-vllm:comps
 
