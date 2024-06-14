@@ -20,18 +20,12 @@ USER user
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/redis/llama_index/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /home/user/comps/retrievers/langchain/milvus/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-USER root
+WORKDIR /home/user/comps/retrievers/langchain/milvus
 
-RUN mkdir -p /home/user/comps/dataprep/redis/llama_index/uploaded_files && chown -R user /home/user/comps/dataprep/redis/llama_index/uploaded_files
-
-USER user
-
-WORKDIR /home/user/comps/dataprep/redis/llama_index
-
-ENTRYPOINT ["python", "prepare_doc_redis.py"]
+ENTRYPOINT ["python", "retriever_milvus.py"]
 

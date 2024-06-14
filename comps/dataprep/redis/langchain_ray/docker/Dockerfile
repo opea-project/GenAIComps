@@ -21,17 +21,18 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/redis/llama_index/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/dataprep/redis/langchain_ray/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER root
 
-RUN mkdir -p /home/user/comps/dataprep/redis/llama_index/uploaded_files && chown -R user /home/user/comps/dataprep/redis/llama_index/uploaded_files
+RUN mkdir -p /home/user/comps/dataprep/redis/langchain_ray/uploaded_files && chown -R user /home/user/comps/dataprep/redis/langchain_ray/uploaded_files
+RUN mkdir -p /home/user/comps/dataprep/redis/langchain_ray/status && chown -R user /home/user/comps/dataprep/redis/langchain_ray/status
 
 USER user
 
-WORKDIR /home/user/comps/dataprep/redis/llama_index
+WORKDIR /home/user/comps/dataprep/redis/langchain_ray
 
-ENTRYPOINT ["python", "prepare_doc_redis.py"]
+ENTRYPOINT ["python", "prepare_doc_redis_on_ray.py"]
 
