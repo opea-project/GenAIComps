@@ -10,7 +10,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     build-essential \
     libgl1-mesa-glx \
     libjemalloc-dev \
-    default-jre \
     vim
 
 RUN useradd -m -s /bin/bash user && \
@@ -22,17 +21,17 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/redis/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/dataprep/redis/llama_index/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER root
 
-RUN mkdir -p /home/user/comps/dataprep/redis/uploaded_files && chown -R user /home/user/comps/dataprep/redis/uploaded_files
+RUN mkdir -p /home/user/comps/dataprep/redis/llama_index/uploaded_files && chown -R user /home/user/comps/dataprep/redis/llama_index/uploaded_files
 
 USER user
 
-WORKDIR /home/user/comps/dataprep/redis
+WORKDIR /home/user/comps/dataprep/redis/llama_index
 
 ENTRYPOINT ["python", "prepare_doc_redis.py"]
 
