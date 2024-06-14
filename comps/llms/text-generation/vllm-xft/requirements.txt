@@ -1,2 +1,2 @@
-openai
+langchain==0.1.16
 vllm-xft

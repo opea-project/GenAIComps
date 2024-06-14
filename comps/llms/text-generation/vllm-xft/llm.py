@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from fastapi.responses import StreamingResponse
+from langchain_community.llms import VLLMOpenAI
 from langsmith import traceable
-from openai import OpenAI
+import os
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
@@ -17,26 +18,24 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 )
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
-    openai_api_key = "EMPTY"
-    openai_api_base = "http://localhost:18688/v1"
-    client = OpenAI(
-        api_key=openai_api_key,
-        base_url=openai_api_base,
+    llm_endpoint = os.getenv("vLLM_LLM_ENDPOINT", "http://localhost:18688")
+    llm = VLLMOpenAI(
+        openai_api_key="EMPTY",
+        openai_api_base=llm_endpoint + "/v1",
+        max_tokens=input.max_new_tokens,
+        model_name="xft",
+        top_p=input.top_p,
+        temperature=input.temperature,
+        presence_penalty=input.repetition_penalty,
+        streaming=input.streaming,
     )
+
     if input.streaming:
         def stream_generator():
             chat_response = ""
-            response = client.completions.create(model="xft",
-                                                        prompt=input.query,
-                                                        max_tokens =input.max_new_tokens,
-                                                        temperature=input.temperature,
-                                                        top_p=input.top_p,
-                                                        n=input.top_k,
-                                                        frequency_penalty=input.repetition_penalty,
-                                                        stream=input.streaming)
-            for chunk in response:
-                chat_response += chunk.choices[0].delta.content
-                chunk_repr = repr(chunk.choices[0].delta.content.encode("utf-8"))
+            for text in llm.stream(input.query):
+                chat_response += text
+                chunk_repr = repr(text.encode("utf-8"))
                 print(f"[llm - chat_stream] chunk:{chunk_repr}")
                 yield f"data: {chunk_repr}\n\n"
             print(f"[llm - chat_stream] stream response: {chat_response}")
@@ -44,13 +43,7 @@ def llm_generate(input: LLMParamsDoc):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = client.completions.create(model="xft",
-                                                  prompt=input.query,
-                                                  max_tokens =input.max_new_tokens,
-                                                  temperature=input.temperature,
-                                                  top_p=input.top_p,
-                                                  n=input.top_k,
-                                                  frequency_penalty=input.repetition_penalty)
+        response = llm.invoke(input.query)
         return GeneratedDoc(text=response, prompt=input.query)
 
 
