@@ -1,7 +1,6 @@
 vLLM-xFT is a fork of vLLM to integrate the xfastertransformer backend, maintaining compatibility with most of the official vLLM's features.
 For usage of vllm-xFT, please refer to [xFasterTransformer/vllm-xft](https://github.com/intel/xFasterTransformer/blob/main/serving/vllm-xft.md)
 
-
 # 🚀 Start Microservice with Docker
 
 ## 1 Build Docker Image
