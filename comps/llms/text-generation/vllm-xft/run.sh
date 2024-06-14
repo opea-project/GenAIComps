@@ -6,6 +6,8 @@
 # convert the model to fastertransformer format
 python -c 'import os; import xfastertransformer as xft; xft.Qwen2Convert().convert(os.environ["HF_DATASET_DIR"], os.environ["OUTPUT_DIR"])'
 
+unset http_proxy
+
 # serving with vllm
 python -m vllm.entrypoints.openai.api_server \
         --model ${OUTPUT_DIR} \
@@ -13,6 +15,7 @@ python -m vllm.entrypoints.openai.api_server \
         --dtype bf16 \
         --kv-cache-dtype fp16 \
         --served-model-name xft \
+        --host localhost \
         --port 18688 \
         --trust-remote-code &
 
