@@ -90,6 +90,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/root
 
+RUN chmod +x /root/comps/llms/text-generation/vllm-xft/run.sh
+
 WORKDIR /root/comps/llms/text-generation/vllm-xft/
 
 ENTRYPOINT ["/root/comps/llms/text-generation/vllm-xft/run.sh"]
