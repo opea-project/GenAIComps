@@ -97,35 +97,9 @@ def ingest_link_to_redis(link_list: List[str]):
     )
 
 
-async def process_files(files):
-    if not isinstance(files, list):
-        files = [files]
-    upload_folder = "./uploaded_files/"
-    if not os.path.exists(upload_folder):
-        Path(upload_folder).mkdir(parents=True, exist_ok=True)
-    for file in files:
-        save_path = upload_folder + file.filename
-        await save_file_to_local_disk(save_path, file)
-        ingest_data_to_redis(DocPath(path=save_path))
-        print(f"Successfully saved file {save_path}")
-    return {"status": 200, "message": "Data preparation succeeded"}
-
-
-def process_links(link_list):
-    try:
-        link_list = json.loads(link_list)  # Parse JSON string to list
-        if not isinstance(link_list, list):
-            raise HTTPException(status_code=400, detail="link_list should be a list.")
-        ingest_link_to_redis(link_list)
-        print(f"Successfully saved link list {link_list}")
-        return {"status": 200, "message": "Data preparation succeeded"}
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
-
-
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 @traceable(run_type="tool")
-def ingest_documents(
+async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), link_list: Optional[str] = Form(None)
 ):
     print(f"files:{files}")
@@ -136,17 +110,29 @@ def ingest_documents(
     if files:
         if not isinstance(files, list):
             files = [files]
+        upload_folder = "./uploaded_files/"
+        if not os.path.exists(upload_folder):
+            Path(upload_folder).mkdir(parents=True, exist_ok=True)
+        uploaded_files = []
+        for file in files:
+            save_path = upload_folder + file.filename
+            await save_file_to_local_disk(save_path, file)
+            uploaded_files.append(save_path)
+            print(f"Successfully saved file {save_path}")
 
         def process_files_wrapper(files):
-            process_files(files)
+            if not isinstance(files, list):
+                files = [files]
+            for file in files:
+                ingest_data_to_redis(DocPath(path=file))
 
         try:
             # Create a SparkContext
             conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
             sc = SparkContext(conf=conf)
             # Create an RDD with parallel processing
-            parallel_num = min(len(files), 2)
-            rdd = sc.parallelize(files, parallel_num)
+            parallel_num = min(len(uploaded_files), os.cpu_count())
+            rdd = sc.parallelize(uploaded_files, parallel_num)
             # Perform a parallel operation
             rdd_trans = rdd.map(process_files_wrapper)
             rdd_trans.collect()
@@ -158,7 +144,17 @@ def ingest_documents(
         return {"status": 200, "message": "Data preparation succeeded"}
 
     if link_list:
-        process_links(link_list)
+        try:
+            link_list = json.loads(link_list)  # Parse JSON string to list
+            if not isinstance(link_list, list):
+                raise HTTPException(status_code=400, detail="link_list should be a list.")
+            ingest_link_to_redis(link_list)
+            print(f"Successfully saved link list {link_list}")
+            return {"status": 200, "message": "Data preparation succeeded"}
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
+
+
 
     raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
