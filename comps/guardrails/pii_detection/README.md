@@ -1,6 +1,6 @@
 # PII Detection Microservice
 
-PII Detection a method to detect Personal Identifiable Information in text. This microservice provides users a unified API to either uploade your files or send a list of text, and return with a list following original sequence of labels marking if it contains PII or not.
+PII Detection a method to detect Personal Identifiable Information in text. This microservice provides users a unified API to either upload your files or send a list of text, and return with a list following original sequence of labels marking if it contains PII or not.
 
 # 🚀1. Start Microservice with Python（Option 1）
 
