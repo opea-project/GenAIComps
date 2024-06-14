@@ -1,10 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import VLLMOpenAI
 from langsmith import traceable
-import os
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
