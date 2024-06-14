@@ -5,6 +5,7 @@ FROM python:3.11-slim
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
+ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
 
 COPY comps /home/comps
 
@@ -13,6 +14,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/comps/img2txt
+WORKDIR /home/comps/img2txt/llava
 
-ENTRYPOINT ["python", "img2txt.py"]
+ENTRYPOINT ["python", "llava_server.py", "--device", "cpu"]
