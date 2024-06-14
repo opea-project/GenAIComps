@@ -101,7 +101,8 @@ curl http://localhost:8000/v1/reranking \
   -H 'Content-Type: application/json'
 ```
 
-You can add the parameter ```top_n``` to specify the return number of the reranker model, default value is 1.
+You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
+
 ```bash
 curl http://localhost:8000/v1/reranking \
   -X POST \

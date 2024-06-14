@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import heapq
 import json
 import os
 import time
@@ -8,7 +9,7 @@ import time
 import requests
 from langchain_core.prompts import ChatPromptTemplate
 from langsmith import traceable
-import heapq
+
 from comps import (
     LLMParamsDoc,
     SearchedDoc,
@@ -39,15 +40,15 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
     headers = {"Content-Type": "application/json"}
     response = requests.post(url, data=json.dumps(data), headers=headers)
     response_data = response.json()
-    best_response_list=heapq.nlargest(input.top_n, response_data, key=lambda x: x['score'])
+    best_response_list = heapq.nlargest(input.top_n, response_data, key=lambda x: x["score"])
     template = """Answer the question based only on the following context:
     {context}
     Question: {question}
     """
     prompt = ChatPromptTemplate.from_template(template)
-    context_str=''
+    context_str = ""
     for best_response in best_response_list:
-        context_str=context_str+' '+input.retrieved_docs[best_response["index"]].text
+        context_str = context_str + " " + input.retrieved_docs[best_response["index"]].text
     final_prompt = prompt.format(context=context_str, question=input.initial_query)
     statistics_dict["opea_service@reranking_tgi_gaudi"].append_latency(time.time() - start, None)
     return LLMParamsDoc(query=final_prompt.strip())
