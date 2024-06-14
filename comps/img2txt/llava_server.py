@@ -14,7 +14,6 @@ import torch
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
-from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
 from transformers import pipeline
 
 model_name_or_path = None
@@ -61,12 +60,17 @@ async def generate(request: Request) -> Response:  # FIXME batch_size=1 for now,
     image = PIL.Image.open(BytesIO(base64.b64decode(img_b64_str)))
     image = process_image(image)
 
-    generate_kwargs = {
-        "lazy_mode": True,
-        "hpu_graphs": True,
-        "max_new_tokens": max_new_tokens,
-        "ignore_eos": False,
-    }
+    if args.device == "hpu":
+        generate_kwargs = {
+            "lazy_mode": True,
+            "hpu_graphs": True,
+            "max_new_tokens": max_new_tokens,
+            "ignore_eos": False,
+        }
+    else:
+        generate_kwargs = {
+            "max_new_tokens": max_new_tokens,
+        }
 
     start = time.time()
     result = generator(image, prompt=prompt, batch_size=1, generate_kwargs=generate_kwargs)
@@ -83,12 +87,16 @@ if __name__ == "__main__":
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int, default=8399)
     parser.add_argument("--model_name_or_path", type=str, default="llava-hf/llava-1.5-7b-hf")
-    parser.add_argument("--use_hpu_graphs", default=True, action="store_true")
+    parser.add_argument("--use_hpu_graphs", default=False, action="store_true")
     parser.add_argument("--warmup", type=int, default=1, help="Number of warmup iterations for benchmarking.")
+    parser.add_argument("--device", type=str, default="hpu")
     parser.add_argument("--bf16", default=True, action="store_true")
 
     args = parser.parse_args()
-    adapt_transformers_to_gaudi()
+    print(f"device: {args.device}")
+    if args.device == "hpu":
+        from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+        adapt_transformers_to_gaudi()
 
     if args.bf16:
         model_dtype = torch.bfloat16
@@ -101,20 +109,27 @@ if __name__ == "__main__":
         "image-to-text",
         model=args.model_name_or_path,
         torch_dtype=model_dtype,
-        device="hpu",
+        device=args.device,
     )
 
     # warmup
-    generate_kwargs = {
-        "lazy_mode": True,
-        "hpu_graphs": args.use_hpu_graphs,
-        "max_new_tokens": 100,
-        "ignore_eos": False,
-    }
-    if args.use_hpu_graphs:
-        from habana_frameworks.torch.hpu import wrap_in_hpu_graph
+    print(f"LLaVA warmup...")
+    if args.device == "hpu":
+        generate_kwargs = {
+            "lazy_mode": True,
+            "hpu_graphs": True,
+            "max_new_tokens": 128,
+            "ignore_eos": False,
+        }
+    else:
+        generate_kwargs = {
+            "max_new_tokens": 128,
+        }
 
+    if args.device == "hpu" and args.use_hpu_graphs:
+        from habana_frameworks.torch.hpu import wrap_in_hpu_graph
         generator.model = wrap_in_hpu_graph(generator.model)
+
     image_paths = ["https://llava-vl.github.io/static/images/view.jpg"]
     images = []
     for image_path in image_paths:

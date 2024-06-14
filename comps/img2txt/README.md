@@ -10,18 +10,36 @@ This microservice use LLaVA as the base model. It basically accepts two inputs: 
 pip install -r requirements.txt
 ```
 
-## 1.2 Start Image To Text Service
+## 1.2 Start Image To Text Service/Test
 
-```
-nohup python llava_server.py &
+* Xeon CPU
+
+```bash
+# Start LLaVA service
+nohup python llava_server.py --device=cpu &
+# Test
+python check_llava_server.py
 ```
 
-```py
+```bash
+# Start the OPEA Microservice
 python img2txt.py
+# Test
+python check_img2txt.py
 ```
 
-Test：
+* Gaudi2 HPU
 
-```py
+```bash
+# Start LLaVA service
+nohup python llava_server.py &
+# Test
+python check_llava_server.py
+```
+
+```bash
+# Start the OPEA Microservice
+python img2txt.py
+# Test
 python check_img2txt.py
 ```

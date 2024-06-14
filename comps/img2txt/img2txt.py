@@ -25,8 +25,6 @@ async def img2txt(request: Img2TxtDoc):
     prompt = request.prompt
     max_new_tokens = request.max_new_tokens
 
-    print(f"image: {img_b64_str}, prompt: {prompt}, max_new_tokens: {max_new_tokens}")
-
     inputs = {"img_b64_str": img_b64_str, "prompt": prompt, "max_new_tokens": max_new_tokens}
 
     # forward to the LLaVA server
