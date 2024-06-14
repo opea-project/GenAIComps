@@ -5,7 +5,6 @@ import json
 import os
 import uuid
 from pathlib import Path
-from pyspark import SparkConf, SparkContext
 from typing import List, Optional, Union
 
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
@@ -14,6 +13,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
 from langsmith import traceable
+from pyspark import SparkConf, SparkContext
 
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import document_loader, parse_html
@@ -153,8 +153,6 @@ async def ingest_documents(
             return {"status": 200, "message": "Data preparation succeeded"}
         except json.JSONDecodeError:
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
-
-
 
     raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
