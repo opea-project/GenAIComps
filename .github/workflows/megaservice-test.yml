@@ -61,11 +61,9 @@ jobs:
           docker exec ${{ env.CONTAINER_NAME }} \
           bash -c "bash /GenAIComps/.github/workflows/scripts/test_ut.sh ${{ env.TEST_NAME }}"
 
-      #      - name: Run Workflow
-      #        env:
-      #          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      #        run: |
-      #          xxx
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}
