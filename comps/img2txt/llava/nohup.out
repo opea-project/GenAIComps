@@ -1,19 +1,0 @@
-2024-06-13 22:43:00.431495: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-2024-06-13 22:43:00.438878: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
-2024-06-13 22:43:00.438905: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
-/root/miniconda3/envs/spycsh_neuralchat/lib/python3.9/site-packages/transformers/models/llava/configuration_llava.py:100: FutureWarning: The `vocab_size` argument is deprecated and will be removed in v4.42, since it can be inferred from the `text_config`. Passing this argument has no effect
-  warnings.warn(
-device: cpu
-Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:00<00:01,  1.04it/s]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:01<00:00,  1.25it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:02<00:00,  1.44it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:02<00:00,  1.35it/s]
-Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
-INFO:     Started server process [3264320]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8399 (Press CTRL+C to quit)
-LLaVA warmup...
-LLaVA generation begin.
-LLaVA result = This is a comic book character, specifically a robot or a cyborg, with a blue helmet and a white face. The character is wearing a, time = 19814.777612686157ms
-INFO:     127.0.0.1:46776 - "POST /generate HTTP/1.1" 200 OK
-LLaVA generation begin.
-LLaVA result = This is a comic book character, specifically a robot or a cyborg, with a blue helmet and a white face. The character is wearing a, time = 19228.21044921875ms
-INFO:     127.0.0.1:43192 - "POST /generate HTTP/1.1" 200 OK
