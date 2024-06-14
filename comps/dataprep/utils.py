@@ -1,23 +1,16 @@
-# Copyright (c) 2024 Intel Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
+import errno
+import functools
 import io
 import json
 import multiprocessing
 import os
 import re
 import shutil
+import signal
+import timeit
 import unicodedata
 from urllib.parse import urlparse, urlunparse
 
@@ -38,6 +31,53 @@ from langchain_community.document_loaders import (
     UnstructuredXMLLoader,
 )
 from PIL import Image
+
+
+class TimeoutError(Exception):
+    pass
+
+
+def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
+    def decorator(func):
+        def _handle_timeout(signum, frame):
+            raise TimeoutError(error_message)
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return wrapper
+
+    return decorator
+
+
+class Timer:
+    level = 0
+    viewer = None
+
+    def __init__(self, name):
+        self.name = name
+        if Timer.viewer:
+            Timer.viewer.display(f"{name} started ...")
+        else:
+            print(f"{name} started ...")
+
+    def __enter__(self):
+        self.start = timeit.default_timer()
+        Timer.level += 1
+
+    def __exit__(self, *a, **kw):
+        Timer.level -= 1
+        if Timer.viewer:
+            Timer.viewer.display(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
+        else:
+            print(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
 
 
 def load_pdf(pdf_path):
@@ -224,6 +264,7 @@ def load_svg(svg_path):
     return text
 
 
+@timeout(600)
 def document_loader(doc_path):
     if doc_path.endswith(".pdf"):
         return load_pdf(doc_path)
@@ -429,7 +470,7 @@ def load_html_data(url):
                 if text not in main_content:
                     main_content += f"\n{text}"
             main_content = crawler.clean_text(main_content)
-
+    main_content = all_text if main_content == "" else main_content
     main_content = main_content.replace("\n", "")
     main_content = main_content.replace("\n\n", "")
     main_content = uni_pro(main_content)

@@ -9,10 +9,6 @@ apt-get update
 apt-get install libreoffice
 ```
 
-```bash
-pip install -r requirements.txt
-```
-
 # Dataprep Microservice with Redis
 
 For details, please refer to this [readme](redis/README.md)

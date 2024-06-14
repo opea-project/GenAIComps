@@ -2,6 +2,12 @@
 
 # 🚀Start Microservice with Python
 
+## Install Requirements
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Start Qdrant Server
 
 Please refer to this [readme](../../vectorstores/langchain/qdrant/README.md).
