@@ -31,6 +31,7 @@ def llm_generate(input: LLMParamsDoc):
     )
 
     if input.streaming:
+
         def stream_generator():
             chat_response = ""
             for text in llm.stream(input.query):
