@@ -1,5 +1,7 @@
 # PII Detection Microservice
 
+PII Detection a method to detect Personal Identifiable Information in text. This microservice provides users a unified API to either uploade your files or send a list of text, and return with a list following original sequence of labels marking if it contains PII or not.
+
 # 🚀1. Start Microservice with Python（Option 1）
 
 ## 1.1 Install Requirements
@@ -8,21 +10,7 @@
 pip install -r requirements.txt
 ```
 
-## 1.2 Start LLM endpoint
-
-TBD: Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
-
-## 1.3 Setup Environment Variables
-
-<!-- ```bash
-export REDIS_URL="redis://${your_ip}:6379"
-export INDEX_NAME=${your_index_name}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
-``` -->
-
-## 1.4 Start PII Detection Microservice with Python Script
+## 1.2 Start PII Detection Microservice with Python Script
 
 Start pii detection microservice with below command.
 
@@ -34,9 +22,9 @@ python pii_detection.py
 
 ## 2.1 Prepare PII detection model
 
-## 2.1.1 use LLM endpoint
+## 2.1.1 use LLM endpoint (will add later)
 
-TBD
+intro placeholder
 
 ## 2.1.2 use NER model (default mode)
 
@@ -46,18 +34,14 @@ apt install git-lfs
 cd pii/bigcode; git clone https://{hf_username}:{hf_token}@huggingface.co/bigcode/starpii/; cd ../..
 ```
 
-## 2.2 Setup Environment Variables
-
-TBD
-
-## 2.3 Build Docker Image
+## 2.2 Build Docker Image
 
 ```bash
 cd ../../../ # back to GenAIComps/ folder
 docker build -t opea/guardrails-pii-detection:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/pii_detection/docker/Dockerfile .
 ```
 
-## 2.4 Run Docker with CLI
+## 2.3 Run Docker with CLI
 
 ```bash
 docker run -d --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 6357:6357 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-pii-detection:latest
@@ -69,7 +53,7 @@ docker run -d --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 
 docker run --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 6357:6357 -v ./comps/guardrails/pii_detection/:/home/user/comps/guardrails/pii_detection/ --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-pii-detection:latest
 ```
 
-# 🚀3. Status Microservice
+# 🚀3. Get Status of Microservice
 
 ```bash
 docker container logs -f guardrails-pii-detection-endpoint
