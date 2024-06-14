@@ -7,7 +7,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl
-from pydantic import Field, conlist, conint
+from pydantic import Field, conint, conlist
 
 
 class TextDoc(BaseDoc):
@@ -93,6 +93,7 @@ class RAGASScores(BaseDoc):
     faithfulness: float
     context_recallL: float
     context_precision: float
+
 
 class Img2TxtDoc(BaseDoc):
     image: str

@@ -4,7 +4,7 @@ fastapi
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-pydub
-shortuuid
 optimum[habana]
 pydantic==2.7.2
+pydub
+shortuuid

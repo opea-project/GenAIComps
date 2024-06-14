@@ -1,6 +1,5 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 """Stand-alone LLaVA FastAPI Server."""
 
 import argparse
@@ -25,6 +24,7 @@ generator = None
 
 app = FastAPI()
 
+
 def process_image(image, max_len=1344, min_len=672):
     if max(image.size) > max_len:
         max_hw, min_hw = max(image.size), min(image.size)
@@ -38,6 +38,7 @@ def process_image(image, max_len=1344, min_len=672):
             H, W = shortest_edge, longest_edge
         image = image.resize((W, H))
     return image
+
 
 @app.get("/health")
 async def health() -> Response:
@@ -96,6 +97,7 @@ if __name__ == "__main__":
     print(f"device: {args.device}")
     if args.device == "hpu":
         from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+
         adapt_transformers_to_gaudi()
 
     if args.bf16:
@@ -113,7 +115,7 @@ if __name__ == "__main__":
     )
 
     # warmup
-    print(f"LLaVA warmup...")
+    print("LLaVA warmup...")
     if args.device == "hpu":
         generate_kwargs = {
             "lazy_mode": True,
@@ -128,6 +130,7 @@ if __name__ == "__main__":
 
     if args.device == "hpu" and args.use_hpu_graphs:
         from habana_frameworks.torch.hpu import wrap_in_hpu_graph
+
         generator.model = wrap_in_hpu_graph(generator.model)
 
     image_paths = ["https://llava-vl.github.io/static/images/view.jpg"]

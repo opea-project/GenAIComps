@@ -3,17 +3,17 @@
 
 
 import base64
+import json
 from io import BytesIO
 
 import PIL.Image
 import requests
-import json
 
 image_path = "https://avatars.githubusercontent.com/u/39623753?v=4"
 
 image = PIL.Image.open(requests.get(image_path, stream=True, timeout=3000).raw)
 buffered = BytesIO()
-image.save(buffered, format='PNG')
+image.save(buffered, format="PNG")
 img_b64_str = base64.b64encode(buffered.getvalue()).decode()
 
 endpoint = "http://localhost:9399/v1/img2txt"

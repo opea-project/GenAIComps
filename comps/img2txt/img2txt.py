@@ -2,11 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import json
+import os
 import time
-import requests
-import json, os
 
-from comps import Img2TxtDoc, TextDoc, ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
+import requests
+
+from comps import (
+    Img2TxtDoc,
+    ServiceType,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
 
 
 @register_microservice(
@@ -32,6 +42,7 @@ async def img2txt(request: Img2TxtDoc):
 
     statistics_dict["opea_service@img2txt"].append_latency(time.time() - start, None)
     return TextDoc(text=response.json()["text"])
+
 
 if __name__ == "__main__":
     img2txt_endpoint = os.getenv("IMG2TXT_ENDPOINT", "http://localhost:8399")
