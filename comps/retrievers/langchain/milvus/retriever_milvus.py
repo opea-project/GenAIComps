@@ -27,7 +27,7 @@ from comps import (
     service_type=ServiceType.RETRIEVER,
     endpoint="/v1/retrieval",
     host="0.0.0.0",
-    port=7000,
+    port=7070,
 )
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_milvus"])
