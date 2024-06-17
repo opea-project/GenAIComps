@@ -112,7 +112,7 @@ def load_pdf(pdf_path):
 
 def load_html(html_path):
     """Load the html file."""
-    data_html = UnstructuredHTMLLoader(dir_html_file).load()
+    data_html = UnstructuredHTMLLoader(html_path).load()
     content = ""
     for ins in data_html:
         content += ins.page_content
