@@ -17,3 +17,4 @@ python-docx
 redis
 sentence_transformers
 shortuuid
+langchain-text-splitters

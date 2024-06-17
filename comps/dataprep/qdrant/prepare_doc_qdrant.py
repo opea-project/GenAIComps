@@ -5,6 +5,7 @@ import os
 
 from config import COLLECTION_NAME, EMBED_MODEL, QDRANT_HOST, QDRANT_PORT
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import HTMLHeaderTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Qdrant
 
@@ -28,8 +29,16 @@ def ingest_documents(doc_path: DocPath):
     doc_path = doc_path.path
     print(f"Parsing document {doc_path}.")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
     content = document_loader(doc_path)
+    if doc_path.endswith(".html"):
+        headers_to_split_on = [
+            ("h1", "Header 1"),
+            ("h2", "Header 2"),
+            ("h3", "Header 3"),
+        ]
+        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    else:
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
     chunks = text_splitter.split_text(content)
 
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")

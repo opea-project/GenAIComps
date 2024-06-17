@@ -16,3 +16,4 @@ python-docx
 qdrant-client
 sentence_transformers
 shortuuid
+langchain-text-splitters

@@ -12,6 +12,7 @@ from langchain_milvus.vectorstores import Milvus
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.docarray import DocPath
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
+from langchain_text_splitters import HTMLHeaderTextSplitter
 
 current_script_path = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_script_path)
@@ -33,7 +34,16 @@ def ingest_documents(doc_path: DocPath):
     doc_path = doc_path.path
     print(f"Parsing document {doc_path}.")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
+    if doc_path.endswith(".html"):
+        headers_to_split_on = [
+            ("h1", "Header 1"),
+            ("h2", "Header 2"),
+            ("h3", "Header 3"),
+        ]
+        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    else:
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
+        
     content = document_loader(doc_path)
     chunks = text_splitter.split_text(content)
 
