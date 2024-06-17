@@ -5,9 +5,9 @@ import os
 
 from config import COLLECTION_NAME, EMBED_MODEL, QDRANT_HOST, QDRANT_PORT
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_text_splitters import HTMLHeaderTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Qdrant
+from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import DocPath, opea_microservices, opea_telemetry, register_microservice
 from comps.dataprep.utils import document_loader

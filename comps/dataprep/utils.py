@@ -22,11 +22,11 @@ import yaml
 from bs4 import BeautifulSoup
 from docx import Document as DDocument
 from langchain_community.document_loaders import (
+    UnstructuredHTMLLoader,
     UnstructuredImageLoader,
     UnstructuredMarkdownLoader,
     UnstructuredPowerPointLoader,
     UnstructuredXMLLoader,
-    UnstructuredHTMLLoader,
 )
 from PIL import Image
 

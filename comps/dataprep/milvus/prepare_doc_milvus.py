@@ -8,11 +8,11 @@ from config import COLLECTION_NAME, EMBED_MODEL, EMBEDDING_ENDPOINT, MILVUS_HOST
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_milvus.vectorstores import Milvus
+from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.docarray import DocPath
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
-from langchain_text_splitters import HTMLHeaderTextSplitter
 
 current_script_path = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_script_path)
@@ -43,7 +43,7 @@ def ingest_documents(doc_path: DocPath):
         text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     else:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
-        
+
     content = document_loader(doc_path)
     chunks = text_splitter.split_text(content)
 

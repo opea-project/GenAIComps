@@ -12,11 +12,11 @@ from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
+from langchain_text_splitters import HTMLHeaderTextSplitter
 from langsmith import traceable
 
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import document_loader, parse_html
-from langchain_text_splitters import HTMLHeaderTextSplitter
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
