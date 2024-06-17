@@ -1,10 +1,3 @@
-neo4j
-langchain
-tiktoken
-langchain_openai
-langchainhub
-langchain_community==0.2.5
-sentence-transformers
 docarray
 docarray
 fastapi
@@ -23,11 +16,16 @@ fastapi
 huggingface_hub
 langchain
 langchain
+langchain
 langchain-community
+langchain_community==0.2.5
 langchain_community
 langchain_openai
+langchain_openai
+langchainhub
 langchainhub
 langsmith
+neo4j
 neo4j
 numpy
 opentelemetry-api
@@ -43,7 +41,9 @@ pymupdf
 python-docx
 redis
 sentence-transformers
+sentence-transformers
 sentence_transformers
 shortuuid
 shortuuid
+tiktoken
 tiktoken

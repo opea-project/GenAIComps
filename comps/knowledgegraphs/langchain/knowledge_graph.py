@@ -10,19 +10,20 @@ comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 import requests
 from langchain import hub
-from langchain.agents import AgentExecutor, load_tools, Tool
+from langchain.agents import AgentExecutor, Tool, load_tools
 from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.agents.output_parsers import ReActJsonSingleInputOutputParser
+from langchain.chains import GraphCypherQAChain, RetrievalQA
 from langchain.tools.render import render_text_description
-from langchain_community.llms import HuggingFaceEndpoint
 from langchain_community.chat_models.huggingface import ChatHuggingFace
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.graphs import Neo4jGraph
+from langchain_community.llms import HuggingFaceEndpoint
 from langchain_community.vectorstores.neo4j_vector import Neo4jVector
-from langchain.chains import GraphCypherQAChain
-from langchain.chains import RetrievalQA
 from langsmith import traceable
-from comps import GraphDoc, GeneratedDoc,opea_microservices, register_microservice, ServiceType
+
+from comps import GeneratedDoc, GraphDoc, ServiceType, opea_microservices, register_microservice
+
 
 def get_retriever(input, neo4j_endpoint, neo4j_username, neo4j_password, llm):
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
@@ -36,14 +37,15 @@ def get_retriever(input, neo4j_endpoint, neo4j_username, neo4j_password, llm):
         text_node_properties=input.rag_text_node_properties,
         embedding_node_property=input.rag_embedding_node_property,
     )
-    vector_qa = RetrievalQA.from_chain_type(
-        llm=llm, chain_type="stuff", retriever=vector_index.as_retriever())
+    vector_qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=vector_index.as_retriever())
     return vector_qa
+
 
 def get_cypherchain(graph, cypher_llm, qa_llm):
     graph.refresh_schema()
-    cypher_chain = GraphCypherQAChain.from_llm(cypher_llm = cypher_llm, qa_llm = qa_llm, graph=graph, verbose=True)
+    cypher_chain = GraphCypherQAChain.from_llm(cypher_llm=cypher_llm, qa_llm=qa_llm, graph=graph, verbose=True)
     return cypher_chain
+
 
 def get_agent(vector_qa, cypher_chain, llm_repo_id):
     # define two tools
@@ -75,10 +77,7 @@ def get_agent(vector_qa, cypher_chain, llm_repo_id):
     )
 
     # define chat model
-    llm = HuggingFaceEndpoint(
-        repo_id=llm_repo_id,
-        max_new_tokens=512
-    )   
+    llm = HuggingFaceEndpoint(repo_id=llm_repo_id, max_new_tokens=512)
     chat_model = ChatHuggingFace(llm=llm)
     chat_model_with_stop = chat_model.bind(stop=["\nObservation"])
 
@@ -97,6 +96,7 @@ def get_agent(vector_qa, cypher_chain, llm_repo_id):
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
     return agent_executor
 
+
 @register_microservice(
     name="opea_service@knowledge_graph",
     endpoint="/v1/graphs",
@@ -110,16 +110,12 @@ def graph_query(input: GraphDoc) -> GeneratedDoc:
     neo4j_endpoint = os.getenv("NEO4J_ENDPOINT", "neo4j://localhost:7687")
     neo4j_username = os.getenv("NEO4J_USERNAME", "neo4j")
     neo4j_password = os.getenv("NEO4J_PASSWORD", "neo4j")
-    graph = Neo4jGraph(
-        url=neo4j_endpoint,
-        username=neo4j_username,
-        password=neo4j_password
-    )
+    graph = Neo4jGraph(url=neo4j_endpoint, username=neo4j_username, password=neo4j_password)
 
     ## keep for multiple tests, will remove later
     graph.query("MATCH (n) DETACH DELETE n")
     import_url = "https://gist.githubusercontent.com/tomasonjo/08dc8ba0e19d592c4c3cde40dd6abcc3/raw/e90b0c9386bf8be15b199e8ac8f83fc265a2ac57/microservices.json"
-    import_query = requests.get(import_url).json()['query']
+    import_query = requests.get(import_url).json()["query"]
     graph.query(import_query)
 
     ## get tool flag
@@ -142,8 +138,8 @@ def graph_query(input: GraphDoc) -> GeneratedDoc:
     ## define an agent
     if flag_agent:
         llm_repo_id = os.getenv("AGENT_LLM", "HuggingFaceH4/zephyr-7b-beta")
-        cypher_chain = get_cypherchain(graph, llm, llm) # define a cypher generator
-        agent_executor = get_agent(vector_qa, cypher_chain, llm_repo_id) 
+        cypher_chain = get_cypherchain(graph, llm, llm)  # define a cypher generator
+        agent_executor = get_agent(vector_qa, cypher_chain, llm_repo_id)
 
     ## process input query
     if input.strtype == "cypher":
@@ -158,7 +154,7 @@ def graph_query(input: GraphDoc) -> GeneratedDoc:
         result = agent_executor.invoke({"input": input.text})["output"]
     else:
         result = "Please specify strtype as one of cypher, rag, query."
-    return GeneratedDoc(text=result,prompt=input.text)
+    return GeneratedDoc(text=result, prompt=input.text)
 
 
 if __name__ == "__main__":

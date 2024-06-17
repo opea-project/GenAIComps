@@ -103,5 +103,5 @@ class GraphDoc(BaseDoc):
     max_new_tokens: Optional[int] = Field(default=1024)
     rag_index_name: Optional[str] = Field(default="rag")
     rag_node_label: Optional[str] = Field(default="Task")
-    rag_text_node_properties: Optional[list] = Field(default=['name', 'description', 'status'])
-    rag_embedding_node_property: Optional[str] = Field(default='embedding')
+    rag_text_node_properties: Optional[list] = Field(default=["name", "description", "status"])
+    rag_embedding_node_property: Optional[str] = Field(default="embedding")

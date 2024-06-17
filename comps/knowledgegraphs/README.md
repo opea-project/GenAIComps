@@ -3,6 +3,7 @@
 This knowledge graph microservice integrates text retriever, knowledge graph quick search and LLM agent, which can be combined to enhance question answering.
 
 The service contains three mode:
+
 - "cypher": query knowledge graph directly with cypher
 - "rag": apply similarity search on embeddings of knowledge graph
 - "query": An LLM agent will automatically choose tools (RAG or CypherChain) to enhance the question answering
@@ -22,6 +23,7 @@ export AGENT_LLM="HuggingFaceH4/zephyr-7b-beta"
 ```
 
 ## 1.2 Start Neo4j Service
+
 ```bash
 docker pull neo4j
 
@@ -34,7 +36,9 @@ docker run --rm \
 ```
 
 ## 1.3 Start LLM Service for "rag"/"query" mode
+
 You can start any LLM microserve, here we take TGI as an example.
+
 ```bash
 docker run -p 8080:80 \
     -v $PWD/llm_data:/data --runtime=habana \
@@ -48,7 +52,9 @@ docker run -p 8080:80 \
     --max-input-tokens 1024 \
     --max-total-tokens 2048
 ```
+
 Verify LLM service.
+
 ```bash
 curl $LLM_ENDPOINT/generate \
   -X POST \
@@ -56,7 +62,8 @@ curl $LLM_ENDPOINT/generate \
   -H 'Content-Type: application/json'
 ```
 
-## 1.4 Start Microservice 
+## 1.4 Start Microservice
+
 ```bash
 cd ../..
 docker build -t opea/knowledge_graphs:latest \
@@ -81,13 +88,16 @@ docker run --rm \
 # 🚀2. Consume Knowledge Graph Service
 
 ## 2.1 Cypher mode
+
 ```bash
 curl http://${your_ip}:8060/v1/graphs \
   -X POST \
   -d "{\"text\":\"MATCH (t:Task {status:'open'}) RETURN count(*)\",\"strtype\":\"cypher\"}" \
   -H 'Content-Type: application/json'
 ```
+
 ## 2.2 Rag mode
+
 ```bash
 curl http://${your_ip}:8060/v1/graphs \
   -X POST \
@@ -96,6 +106,7 @@ curl http://${your_ip}:8060/v1/graphs \
 ```
 
 ## 2.3 Query mode
+
 ```bash
 curl http://${your_ip}:8060/v1/graphs \
   -X POST \
