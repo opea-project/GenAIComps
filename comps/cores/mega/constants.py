@@ -26,7 +26,7 @@ class ServiceType(Enum):
     DATAPREP = 9
     UNDEFINED = 10
     RAGAS = 11
-    Img2txt = 12
+    IMG2TXT = 12
 
 
 class MegaServiceEndpoint(Enum):
