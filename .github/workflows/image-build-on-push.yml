@@ -5,7 +5,7 @@ name: Build latest images on push event
 
 on:
   push:
-    branches: [ 'suyue/image_build' ]
+    branches: ["suyue/image_build"]
     paths:
       - comps/**
       - "!**.md"
