@@ -3,7 +3,7 @@ langchain
 tiktoken
 langchain_openai
 langchainhub
-langchain_community
+langchain_community==0.2.5
 sentence-transformers
 docarray
 docarray

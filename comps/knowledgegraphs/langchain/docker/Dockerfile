@@ -4,7 +4,6 @@
 
 FROM langchain/langchain:latest
 
-RUN echo "Acquire::Check-Valid-Until \"false\";\nAcquire::Check-Date \"false\";" | cat > /etc/apt/apt.conf.d/10no--check-valid-until
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libgl1-mesa-glx \
     libjemalloc-dev \
@@ -15,8 +14,6 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user /home/user/
 
 COPY comps /home/user/comps
-
-RUN chmod +x /home/user/comps/knowledgegraphs/langchain/run.sh
 
 USER user
 

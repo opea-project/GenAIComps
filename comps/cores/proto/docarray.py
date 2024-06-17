@@ -95,10 +95,10 @@ class RAGASScores(BaseDoc):
     context_precision: float
 
 class GraphRAGParam(BaseDoc):
-    index_name: Optional[str] = Field(default="graph_rag")
-    node_label: Optional[str] = Field(default=None)
-    text_node_properties: Optional[list] = Field(default=None)
-    embedding_node_property: Optional[str] = Field(default=None)
+    index_name: Optional[str] = Field(default="rag")
+    node_label: Optional[str] = Field(default="Task")
+    text_node_properties: Optional[list] = Field(default=['name', 'description', 'status'])
+    embedding_node_property: Optional[str] = Field(default='embedding')
 
 class GraphDoc(BaseDoc):
     text: str
@@ -106,7 +106,8 @@ class GraphDoc(BaseDoc):
         description="type of input query, can be 'query', 'cypher', 'rag'",
         default="query",
     )
-    ragparam: Optional[GraphRAGParam] = Field(
-        description="parameters of graph rag",
-        default=None
-    )
+    max_new_tokens: Optional[int] = Field(default=1024)
+    rag_index_name: Optional[str] = Field(default="rag")
+    rag_node_label: Optional[str] = Field(default="Task")
+    rag_text_node_properties: Optional[list] = Field(default=['name', 'description', 'status'])
+    rag_embedding_node_property: Optional[str] = Field(default='embedding')
