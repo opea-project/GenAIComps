@@ -32,6 +32,7 @@ from comps.cores.mega.gateway import (
     CodeTransGateway,
     DocSumGateway,
     TranslationGateway,
+    SearchQnAGateway,
 )
 
 # Telemetry
