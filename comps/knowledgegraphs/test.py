@@ -12,7 +12,7 @@ import requests
 
 def test_text(ip_addr="localhost", batch_size=1):
     proxies = {"http": ""}
-    url = "http://10.0.0.19:8060/v1/graphs"
+    url = "http://localhost:8060/v1/graphs"
 
     # payload = {"text":"MATCH (t:Task {status:'open'}) RETURN count(*)","strtype":"cypher"}
     content = {"text": "MATCH (t:Task {status:'open'}) RETURN count(*)"}
