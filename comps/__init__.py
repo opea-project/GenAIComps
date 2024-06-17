@@ -16,7 +16,7 @@ from comps.cores.proto.docarray import (
     TextDoc,
     RAGASParams,
     RAGASScores,
-    Img2TxtDoc,
+    LVMDoc,
 )
 
 # Constants

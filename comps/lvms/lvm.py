@@ -9,7 +9,7 @@ import time
 import requests
 
 from comps import (
-    Img2TxtDoc,
+    LVMDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -20,16 +20,16 @@ from comps import (
 
 
 @register_microservice(
-    name="opea_service@img2txt",
-    service_type=ServiceType.Img2txt,
-    endpoint="/v1/img2txt",
+    name="opea_service@lvm",
+    service_type=ServiceType.LVM,
+    endpoint="/v1/lvm",
     host="0.0.0.0",
     port=9399,
-    input_datatype=Img2TxtDoc,
+    input_datatype=LVMDoc,
     output_datatype=TextDoc,
 )
-@register_statistics(names=["opea_service@img2txt"])
-async def img2txt(request: Img2TxtDoc):
+@register_statistics(names=["opea_service@lvm"])
+async def lvm(request: LVMDoc):
     start = time.time()
     img_b64_str = request.image
     prompt = request.prompt
@@ -38,14 +38,14 @@ async def img2txt(request: Img2TxtDoc):
     inputs = {"img_b64_str": img_b64_str, "prompt": prompt, "max_new_tokens": max_new_tokens}
 
     # forward to the LLaVA server
-    response = requests.post(url=f"{img2txt_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None})
+    response = requests.post(url=f"{lvm_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None})
 
-    statistics_dict["opea_service@img2txt"].append_latency(time.time() - start, None)
+    statistics_dict["opea_service@lvm"].append_latency(time.time() - start, None)
     return TextDoc(text=response.json()["text"])
 
 
 if __name__ == "__main__":
-    img2txt_endpoint = os.getenv("IMG2TXT_ENDPOINT", "http://localhost:8399")
+    lvm_endpoint = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
 
-    print("[img2txt] img2txt initialized.")
-    opea_microservices["opea_service@img2txt"].start()
+    print("[LVM] LVM initialized.")
+    opea_microservices["opea_service@lvm"].start()

@@ -95,7 +95,7 @@ class RAGASScores(BaseDoc):
     context_precision: float
 
 
-class Img2TxtDoc(BaseDoc):
+class LVMDoc(BaseDoc):
     image: str
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512

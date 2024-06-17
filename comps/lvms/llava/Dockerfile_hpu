@@ -13,11 +13,11 @@ COPY comps /home/comps
 
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/img2txt/requirements.txt && \
+    pip install --no-cache-dir -r /home/comps/lvms/requirements.txt && \
     pip install optimum[habana]
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/comps/img2txt/llava
+WORKDIR /home/comps/lvms/llava
 
 ENTRYPOINT ["python", "llava_server.py"]

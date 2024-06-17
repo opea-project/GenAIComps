@@ -1,6 +1,6 @@
-# Image To Text Microservice
+# LVM Microservice
 
-Image-To-Text is one of the multimodal tasks that empowered by LLMs. This microservice uses LLaVA as the base model. It accepts two inputs: a prompt and an image. It outputs the answer to the prompt about the image. It is widely used for Visual Question and Answering tasks.
+Visual Question and Answering is one of the multimodal tasks empowered by LVMs (Large Visual Models). This microservice supports visual Q&A by using LLaVA as the base large visual model. It accepts two inputs: a prompt and an image. It outputs the answer to the prompt about the image.
 
 # 🚀1. Start Microservice with Python (Option 1)
 
@@ -42,9 +42,9 @@ python check_llava_server.py
 ```bash
 cd ..
 # Start the OPEA Microservice
-python img2txt.py
+python lvm.py
 # Test
-python check_img2txt.py
+python check_lvm.py
 ```
 
 # 🚀1. Start Microservice with Docker (Option 2)
@@ -57,24 +57,24 @@ python check_img2txt.py
 
 ```bash
 cd ../..
-docker build -t opea/llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/img2txt/llava/Dockerfile .
+docker build -t opea/llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
 cd ../..
-docker build -t opea/llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/img2txt/llava/Dockerfile_hpu .
+docker build -t opea/llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/Dockerfile_hpu .
 ```
 
-### 1.2.2 Img2txt Service Image
+### 1.2.2 LVM Service Image
 
 ```bash
 cd ../..
-docker build -t opea/img2txt:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/img2txt/Dockerfile .
+docker build -t opea/lvm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/Dockerfile .
 ```
 
-## 1.3 Start LLaVA and Img2txt Service
+## 1.3 Start LLaVA and LVM Service
 
 ### 1.3.1 Start LLaVA server
 
@@ -90,12 +90,12 @@ docker run -p 8399:8399 -e http_proxy=$http_proxy --ipc=host -e https_proxy=$htt
 docker run -p 8399:8399 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/llava:latest
 ```
 
-### 1.3.2 Start Img2txt service
+### 1.3.2 Start LVM service
 
 ```bash
 ip_address=$(hostname -I | awk '{print $1}')
 
-docker run -p 9399:9399 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e IMG2TXT_ENDPOINT=http://$ip_address:8399 opea/img2txt:latest
+docker run -p 9399:9399 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LVM_ENDPOINT=http://$ip_address:8399 opea/lvm:latest
 ```
 
 ### 1.3.3 Test
@@ -104,8 +104,8 @@ docker run -p 9399:9399 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$htt
 # Use curl/python
 
 # curl
-http_proxy="" curl http://localhost:9399/v1/img2txt -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?"}' -H 'Content-Type: application/json'
+http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?"}' -H 'Content-Type: application/json'
 
 # python
-python check_img2txt.py
+python check_lvm.py
 ```
