@@ -119,6 +119,7 @@ curl http://${your_ip}:7000/v1/retrieval \
 ```
 
 You can set the parameters for the retriever.
+
 ```bash
 your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 curl http://localhost:7000/v1/retrieval \
