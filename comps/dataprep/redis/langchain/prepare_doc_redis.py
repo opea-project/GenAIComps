@@ -36,7 +36,9 @@ def ingest_data_to_redis(doc_path: DocPath):
     doc_path = doc_path.path
     print(f"Parsing document {doc_path}.")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=doc_path.chunk_size, chunk_overlap=doc_path.chunk_overlap, add_start_index=True)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=doc_path.chunk_size, chunk_overlap=doc_path.chunk_overlap, add_start_index=True
+    )
     content = document_loader(doc_path)
     chunks = text_splitter.split_text(content)
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
