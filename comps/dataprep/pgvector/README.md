@@ -1,4 +1,4 @@
-# Dataprep Microservice with PGVector 
+# Dataprep Microservice with PGVector
 
 # 🚀1. Start Microservice with Python（Option 1）
 

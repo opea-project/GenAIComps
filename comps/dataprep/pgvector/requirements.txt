@@ -11,11 +11,11 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
+pgvector==0.2.5
 Pillow
+psycopg2-binary
 pymupdf
 python-docx
 redis
 sentence_transformers
 shortuuid
-psycopg2-binary
-pgvector==0.2.5
