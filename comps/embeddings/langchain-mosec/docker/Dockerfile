@@ -13,17 +13,16 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-COPY comps /home/user/comps
-
-RUN chmod +x /home/user/comps/retrievers/langchain/run.sh
-
 USER user
 
+COPY comps /home/user/comps
+
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/embeddings/langchain-mosec/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/langchain
+WORKDIR /home/user/comps/embeddings/langchain-mosec
 
-ENTRYPOINT ["/home/user/comps/retrievers/langchain/run.sh"]
+ENTRYPOINT ["python", "embedding_mosec.py"]
+
