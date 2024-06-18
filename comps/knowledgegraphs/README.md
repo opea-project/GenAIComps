@@ -1,12 +1,19 @@
 # Knowledge Graph Microservice
 
-This knowledge graph microservice integrates text retriever, knowledge graph quick search and LLM agent, which can be combined to enhance question answering.
+This microservice, designed for efficiently handling and retrieving informantion from knowledge graph. The microservice integrates text retriever, knowledge graph quick search and LLM agent, which can be combined to enhance question answering.
 
-The service contains three mode:
-
-- "cypher": query knowledge graph directly with cypher
-- "rag": apply similarity search on embeddings of knowledge graph
+The service contains three modes:
+- "cypher": Query knowledge graph directly with cypher
+- "rag": Apply similarity search on embeddings of knowledge graph
 - "query": An LLM agent will automatically choose tools (RAG or CypherChain) to enhance the question answering
+
+Here is the overall workflow:
+
+![Workflow](doc/workflow.png)
+
+A prerequisite for using this microservice is that users must have a knowledge gragh database already running, and currently we have support [Neo4J](https://neo4j.com/) for quick deployment. Users need to set the graph service's endpoint into an environment variable and microservie utilizes it for data injestion and retrieve. If user want to use "rag" and "query" mode, still need a LLM text generation service (etc., TGI, vLLM and Ray) already running. 
+
+Overall, this microservice provides efficient support for applications realted with graph dataset, especially for answering multi-part questions, or any other conditions including comples relationship between entities.
 
 # 🚀1. Start Microservice with Docker
 
@@ -95,6 +102,8 @@ curl http://${your_ip}:8060/v1/graphs \
   -d "{\"text\":\"MATCH (t:Task {status:'open'}) RETURN count(*)\",\"strtype\":\"cypher\"}" \
   -H 'Content-Type: application/json'
 ```
+Example output:
+![Cypher Output](doc/output_cypher.png)
 
 ## 2.2 Rag mode
 
@@ -104,17 +113,26 @@ curl http://${your_ip}:8060/v1/graphs \
   -d "{\"text\":\"How many open tickets there are?\",\"strtype\":\"rag\", \"max_new_tokens\":128}" \
   -H 'Content-Type: application/json'
 ```
+Example output:
+![Cypher Output](doc/output_rag.png)
 
 ## 2.3 Query mode
-
+First example:
 ```bash
 curl http://${your_ip}:8060/v1/graphs \
   -X POST \
   -d "{\"text\":\"Which tasks have optimization in their description?\",\"strtype\":\"query\"}" \
   -H 'Content-Type: application/json'
+```
+Example output:
+![Cypher Output](doc/output_query1.png)
 
+Second example:
+```bash
 curl http://${your_ip}:8060/v1/graphs \
   -X POST \
   -d "{\"text\":\"Which team is assigned to maintain PaymentService?\",\"strtype\":\"query\"}" \
   -H 'Content-Type: application/json'
 ```
+Example output:
+![Cypher Output](doc/output_query2.png)
