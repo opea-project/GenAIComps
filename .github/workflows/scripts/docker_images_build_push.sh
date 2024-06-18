@@ -41,6 +41,7 @@ case ${micro_service} in
         ;;
     *)
         echo "Not supported yet"
+        exit 0
         ;;
 esac
 docker_build "${IMAGE_NAME}" "${micro_service}"
