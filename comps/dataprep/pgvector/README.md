@@ -15,7 +15,7 @@ Please refer to this [readme](../../../vectorstores/langchain/pgvcetor/README.md
 ## 1.3 Setup Environment Variables
 
 ```bash
-export PG_CONNECTION_STRING=postgresql+psycopg2://testuser:testpwd@localhost:5432/vectordb
+export PG_CONNECTION_STRING=postgresql+psycopg2://testuser:testpwd@${your_ip}:5432/vectordb
 export INDEX_NAME=${your_index_name}
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
