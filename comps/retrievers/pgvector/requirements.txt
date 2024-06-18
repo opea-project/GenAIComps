@@ -1,0 +1,13 @@
+docarray[full]
+easyocr
+fastapi
+langchain_community
+langsmith
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pymupdf
+sentence_transformers
+shortuuid
+pgvector==0.2.5
+psycopg2-binary
