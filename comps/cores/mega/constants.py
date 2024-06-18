@@ -51,6 +51,7 @@ class MegaServiceEndpoint(Enum):
     GUARDRAILS = "/v1/guardrails"
     RAGAS = "/v1/ragas"
     GRAPHS = "/v1/graphs"
+
     # COMMON
     LIST_SERVICE = "/v1/list_service"
     LIST_PARAMETERS = "/v1/list_parameters"
