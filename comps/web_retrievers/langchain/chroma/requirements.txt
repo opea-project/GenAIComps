@@ -1,0 +1,13 @@
+docarray[full]
+fastapi
+langchain_community
+langchain-huggingface
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+sentence_transformers
+shortuuid
+chromadb
+google-api-python-client>=2.100.0
+bs4
+html2text
