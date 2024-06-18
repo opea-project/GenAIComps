@@ -18,7 +18,7 @@ function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 8399:8399 --ipc=host opea/llava:latest
     docker run -d --name="test-comps-lvm" -e LVM_ENDPOINT=http://$ip_address:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm:latest
-    sleep 10m
+    sleep 8m
 }
 
 function validate_microservice() {
