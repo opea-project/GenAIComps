@@ -11,5 +11,5 @@ graph.query("MATCH (n) DETACH DELETE n")
 #ingest
 import_query = json.load(open("data/microservices.json","r"))["query"]
 graph.query(import_query)
-print("Total nodes: ", graph.query("MATCH (n) RETURN count(n)")
-print("Total edges: ", graph.query("MATCH ()-->() RETURN count(*)")
+print("Total nodes: ", graph.query("MATCH (n) RETURN count(n)"))
+print("Total edges: ", graph.query("MATCH ()-->() RETURN count(*)"))
