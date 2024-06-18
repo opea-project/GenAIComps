@@ -39,6 +39,18 @@ case ${micro_service} in
     "retrievers/langchain")
         IMAGE_NAME="opea/retriever-redis"
         ;;
+    "reranks/langchain")
+        IMAGE_NAME="opea/reranking-tei"
+        ;;
+    "llms/text-generation/tgi")
+        IMAGE_NAME="opea/llm-tgi"
+        ;;
+    "dataprep/redis/langchain")
+        IMAGE_NAME="opea/dataprep-redis"
+        ;;
+    "llms/summarization/tgi")
+        IMAGE_NAME="opea/llm-docsum-tgi"
+        ;;
     *)
         echo "Not supported yet"
         exit 0
