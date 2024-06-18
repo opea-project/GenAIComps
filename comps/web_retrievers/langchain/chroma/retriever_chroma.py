@@ -1,14 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+import time
+
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import Html2TextTransformer
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.vectorstores import Chroma
-
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
-import os, time
 
 from comps import (
     EmbedDoc768,
@@ -23,14 +24,17 @@ from comps import (
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
+
 def get_urls(query, num_search_result=1):
     result = search.results(query, num_search_result)
     return result
+
 
 def retrieve_htmls(all_urls):
     loader = AsyncHtmlLoader(all_urls, ignore_load_errors=True, trust_env=True)
     docs = loader.load()
     return docs
+
 
 def parse_htmls(docs):
     print("Indexing new urls...")
@@ -41,8 +45,10 @@ def parse_htmls(docs):
 
     return docs
 
+
 def dump_docs(docs):
     vector_db.add_documents(docs)
+
 
 @register_microservice(
     name="opea_service@web_retriever_chroma",
@@ -57,7 +63,7 @@ def web_retrieve(input: EmbedDoc768) -> SearchedDoc:
     query = input.text
     embedding = input.embedding
 
-    # Google Search the results, parse the htmls 
+    # Google Search the results, parse the htmls
     search_results = get_urls(query)
     urls_to_look = []
     for res in search_results:
@@ -69,9 +75,7 @@ def web_retrieve(input: EmbedDoc768) -> SearchedDoc:
     docs = parse_htmls(docs)
     print(docs)
     # Remove duplicated docs
-    unique_documents_dict = {
-        (doc.page_content, tuple(sorted(doc.metadata.items()))): doc for doc in docs
-    }
+    unique_documents_dict = {(doc.page_content, tuple(sorted(doc.metadata.items()))): doc for doc in docs}
     unique_documents = list(unique_documents_dict.values())
     statistics_dict["opea_service@search"].append_latency(time.time() - start, None)
 
@@ -85,9 +89,9 @@ def web_retrieve(input: EmbedDoc768) -> SearchedDoc:
 
     for r in search_res:
         # include the metadata into the retrieved docs content
-        description_str = f"\n description: {r.metadata['description']} \n" if 'description' in r.metadata else ""
-        title_str = f"\n title: {r.metadata['title']} \n" if 'title' in r.metadata else ""
-        source_str = f"\n source: {r.metadata['source']} \n" if 'source' in r.metadata else ""
+        description_str = f"\n description: {r.metadata['description']} \n" if "description" in r.metadata else ""
+        title_str = f"\n title: {r.metadata['title']} \n" if "title" in r.metadata else ""
+        source_str = f"\n source: {r.metadata['source']} \n" if "source" in r.metadata else ""
         text_with_meta = f"{r.page_content} {description_str} {title_str} {source_str}"
         searched_docs.append(TextDoc(text=text_with_meta))
 
@@ -98,12 +102,13 @@ def web_retrieve(input: EmbedDoc768) -> SearchedDoc:
     vector_db.delete_collection()
     return result
 
+
 if __name__ == "__main__":
     # Create vectorstore
     tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
     vector_db = Chroma(
-                embedding_function=HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint),
-            )
+        embedding_function=HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint),
+    )
 
     google_api_key = os.environ.get("GOOGLE_API_KEY")
     google_cse_id = os.environ.get("GOOGLE_CSE_ID")
@@ -111,4 +116,3 @@ if __name__ == "__main__":
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=50)
 
     opea_microservices["opea_service@web_retriever_chroma"].start()
-
