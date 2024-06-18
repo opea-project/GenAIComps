@@ -23,7 +23,7 @@ function start_service() {
     mosec_endpoint=5001
     model="BAAI/bge-large-en-v1.5"
     unset http_proxy
-    docker run -d --name="test-comps-embedding-langchain-mosec-endpoint" -p $mosec_endpoint:8000  langchain-mosec:comps 
+    docker run -d --name="test-comps-embedding-langchain-mosec-endpoint" -p $mosec_endpoint:8000  langchain-mosec:comps
     export MOSEC_EMBEDDING_ENDPOINT="http://${ip_address}:${mosec_endpoint}"
     mosec_service_port=5002
     docker run -d --name="test-comps-embedding-langchain-mosec-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${mosec_service_port}:6000 --ipc=host -e MOSEC_EMBEDDING_ENDPOINT=$MOSEC_EMBEDDING_ENDPOINT  opea/embedding-langchain-mosec:comps
