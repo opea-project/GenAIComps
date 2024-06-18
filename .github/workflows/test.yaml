@@ -32,6 +32,7 @@ jobs:
 
       - name: Check for changed Dockerfile paths
         run: |
+          shopt -s globstar 
           cd ${{github.workspace}}
           is_use="FALSE"
           used_files=""
@@ -46,7 +47,7 @@ jobs:
             done
           fi
 
-          if [[ "$miss" == "TRUE" ]]; then
+          if [[ "$is_use" == "TRUE" ]]; then
             echo "Warning: Changed Dockerfile paths:"
             echo "$used_files"
             echo "Please modify the corresponding README in GenAIExamples repo and ask suyue.chen@intel.com for final confirmation."
