@@ -6,8 +6,8 @@ langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pgvector==0.2.5
+psycopg2-binary
 pymupdf
 sentence_transformers
 shortuuid
-pgvector==0.2.5
-psycopg2-binary
