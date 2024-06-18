@@ -22,7 +22,7 @@ export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
 ```
 
-## 1.4 Start Document Preparation Microservice for Redis with Python Script
+## 1.4 Start Document Preparation Microservice for PGVector with Python Script
 
 Start document preparation microservice for PGVector with below command.
 
