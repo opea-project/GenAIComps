@@ -94,6 +94,7 @@ class RAGASScores(BaseDoc):
     context_recallL: float
     context_precision: float
 
+
 class GraphDoc(BaseDoc):
     text: str
     strtype: Optional[str] = Field(
