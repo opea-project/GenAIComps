@@ -16,6 +16,5 @@ Pillow
 psycopg2-binary
 pymupdf
 python-docx
-redis
 sentence_transformers
 shortuuid
