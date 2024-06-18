@@ -10,9 +10,6 @@ on:
         required: true
         type: string
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-image-build
-
 jobs:
   micro-image-build:
     continue-on-error: true
