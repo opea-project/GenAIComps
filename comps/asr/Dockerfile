@@ -8,7 +8,7 @@ ENV LANG C.UTF-8
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y ffmpeg
-
+RUN pwd 
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
