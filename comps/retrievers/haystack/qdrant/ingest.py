@@ -5,6 +5,7 @@
 
 #
 
+import argparse
 import io
 import os
 import uuid
@@ -15,9 +16,7 @@ from haystack.components.embedders import HuggingFaceTEIDocumentEmbedder, Senten
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 from haystack.dataclasses.document import Document
 from PIL import Image
-from qdrant_config import EMBED_MODEL, INDEX_NAME, QDRANT_URL, EMBED_DIMENSION
-
-tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
+from qdrant_config import EMBED_MODEL, INDEX_NAME, EMBED_ENDPOINT, EMBED_DIMENSION, QDRANT_HOST, QDRANT_PORT
 
 
 def pdf_loader(file_path):
@@ -57,15 +56,12 @@ def pdf_loader(file_path):
     return result
 
 
-def ingest_documents():
-    """Ingest PDF to Qdrant from the data/ directory that
-    contains Edgar 10k filings data for Nike."""
+def ingest_documents(folder_path, tag):
+    """Ingest PDF to Qdrant from the a given path."""
     # Load list of pdfs
-    company_name = "Nike"
-    data_path = "data/"
-    # doc_path = [os.path.join(data_path, file) for file in os.listdir(data_path)][0]
-    doc_path = data_path + 'nke-10k-2023.pdf'
-    print("Parsing 10k filing doc for NIKE", doc_path)
+    doc_path = [os.path.join(folder_path, file) for file in os.listdir(folder_path)][0]
+
+    print("Parsing...", doc_path)
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
     content = pdf_loader(doc_path)
@@ -73,9 +69,9 @@ def ingest_documents():
 
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
     # Create vectorstore
-    if tei_embedding_endpoint:
+    if EMBED_ENDPOINT:
         # create embeddings using TEI endpoint service
-        embedder = HuggingFaceTEIDocumentEmbedder(url=tei_embedding_endpoint)
+        embedder = HuggingFaceTEIDocumentEmbedder(url=EMBED_ENDPOINT)
     else:
         # create embeddings using local embedding model
         embedder = SentenceTransformersDocumentEmbedder(model=EMBED_MODEL)
@@ -83,7 +79,8 @@ def ingest_documents():
 
     # Initialize Qdrant store
     qdrant_store = QdrantDocumentStore(
-        url=QDRANT_URL,
+        host=QDRANT_HOST,
+        port=QDRANT_PORT,
         embedding_dim=EMBED_DIMENSION,
         index=INDEX_NAME,
         embedding_field="embedding",
@@ -96,7 +93,7 @@ def ingest_documents():
     num_chunks = len(chunks)
     for i in range(0, num_chunks, batch_size):
         batch_chunks = chunks[i : i + batch_size]
-        batch_texts = [f"Company: {company_name}. " + chunk for chunk in batch_chunks]
+        batch_texts = [f"Tag: {tag}. " + chunk for chunk in batch_chunks]
         documents = [Document(id=str(uuid.uuid4()), content=content) for content in batch_texts]
         documents_with_embeddings = embedder.run(documents)['documents']
         qdrant_store.write_documents(documents_with_embeddings)
@@ -105,4 +102,9 @@ def ingest_documents():
 
 
 if __name__ == "__main__":
-    ingest_documents()
+    parser = argparse.ArgumentParser(description="Ingest documents from a specified folder with a tag")
+    parser.add_argument("folder_path", type=str, help="Path to the folder containing documents")
+    parser.add_argument("--tag", type=str, default="", help="Tag to be used as an identifier")
+
+    args = parser.parse_args()
+    ingest_documents(args.folder_path, args.tag)
