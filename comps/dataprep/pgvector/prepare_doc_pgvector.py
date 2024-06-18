@@ -34,7 +34,7 @@ async def save_file_to_local_disk(save_path: str, file):
 def ingest_data_to_pgvector(doc_path: DocPath):
     """Ingest document to PGVector."""
     doc_path = doc_path.path
-    print(f"Parsing document1 {doc_path}.")
+    print(f"Parsing document {doc_path}.")
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
     content = document_loader(doc_path)
@@ -58,7 +58,10 @@ def ingest_data_to_pgvector(doc_path: DocPath):
         batch_texts = batch_chunks
 
         _ = PGVector.from_texts(
-            texts=batch_texts, embedding=embedder, collection_name=INDEX_NAME, connection_string=PG_CONNECTION_STRING
+            texts=batch_texts,
+            embedding=embedder,
+            collection_name=INDEX_NAME,
+            connection_string = PG_CONNECTION_STRING           
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
     return True
@@ -88,7 +91,7 @@ def ingest_link_to_pgvector(link_list: List[str]):
         embedding=embedder,
         metadatas=metadatas,
         collection_name=INDEX_NAME,
-        connection_string=PG_CONNECTION_STRING,
+        connection_string = PG_CONNECTION_STRING,
     )
 
 

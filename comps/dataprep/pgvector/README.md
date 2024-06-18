@@ -32,9 +32,9 @@ python prepare_doc_pgvector.py
 
 # 🚀2. Start Microservice with Docker (Option 2)
 
-## 2.1 Start PGVector Stack Server
+## 2.1 Start PGVector 
 
-Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
+Please refer to this [readme](../../../vectorstores/langchain/pgvector/README.md).
 
 ## 2.2 Setup Environment Variables
 
