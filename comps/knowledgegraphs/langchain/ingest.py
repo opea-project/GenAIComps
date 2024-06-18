@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from langchain_community.graphs import Neo4jGraph
 
 neo4j_endpoint = os.getenv("NEO4J_ENDPOINT", "neo4j://localhost:7687")
@@ -5,7 +8,7 @@ neo4j_username = os.getenv("NEO4J_USERNAME", "neo4j")
 neo4j_password = os.getenv("NEO4J_PASSWORD", "neo4j")
 graph = Neo4jGraph(url=neo4j_endpoint, username=neo4j_username, password=neo4j_password)
 
-#remove all nodes 
+#remove all nodes
 graph.query("MATCH (n) DETACH DELETE n")
 
 #ingest

@@ -8,6 +8,8 @@ import sys
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
+import json
+
 import requests
 from langchain import hub
 from langchain.agents import AgentExecutor, Tool, load_tools
@@ -21,7 +23,7 @@ from langchain_community.graphs import Neo4jGraph
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_community.vectorstores.neo4j_vector import Neo4jVector
 from langsmith import traceable
-import json
+
 from comps import GeneratedDoc, GraphDoc, ServiceType, opea_microservices, register_microservice
 
 
@@ -114,7 +116,7 @@ def graph_query(input: GraphDoc) -> GeneratedDoc:
 
     ## keep for multiple tests, will remove later
     graph.query("MATCH (n) DETACH DELETE n")
-    import_query = json.load(open("data/microservices.json","r"))["query"]
+    import_query = json.load(open("data/microservices.json", "r"))["query"]
     graph.query(import_query)
 
     ## get tool flag
