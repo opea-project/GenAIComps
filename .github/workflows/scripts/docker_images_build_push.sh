@@ -7,11 +7,11 @@ set -xe
 WORKSPACE=$(dirname "$PWD")
 IMAGE_REPO=${IMAGE_REPO:-$OPEA_IMAGE_REPO}
 IMAGE_TAG=${IMAGE_TAG:-latest}
-micro_service=$1
 
 function docker_build() {
     # docker_build <IMAGE_NAME>
     IMAGE_NAME=$1
+    micro_service=$2
     dockerfile_path=${WORKSPACE}/comps/${micro_service}
     if [ -f "$dockerfile_path/Dockerfile" ]; then
         DOCKERFILE_PATH="$dockerfile_path/Dockerfile"
@@ -24,11 +24,16 @@ function docker_build() {
     echo "Building ${IMAGE_REPO}/${IMAGE_NAME}:$IMAGE_TAG using Dockerfile $DOCKERFILE_PATH"
 
     docker build --no-cache -t ${IMAGE_REPO}/${IMAGE_NAME}:$IMAGE_TAG -f $DOCKERFILE_PATH .
-    docker push ${IMAGE_REPO}opea/$1:$IMAGE_TAG
-    docker rmi ${IMAGE_REPO}opea/$1:$IMAGE_TAG
+    docker push ${IMAGE_REPO}/${IMAGE_NAME}:$IMAGE_TAG
+    docker rmi ${IMAGE_REPO}/${IMAGE_NAME}:$IMAGE_TAG
 }
 
-# $1 is like "llms_text-generation_tgi"
+# $1 is like micro_service_list
+micro_service_list=$1
+echo "micro_service_list: ${micro_service_list}"
+
+for micro_service in ${micro_service_list}; do
+
 case ${micro_service} in
     "asr"|"tts")
         IMAGE_NAME="opea/${micro_service}"
@@ -44,4 +49,8 @@ case ${micro_service} in
         ;;
 esac
 
-docker_build "${IMAGE_NAME}"
+docker_build "${IMAGE_NAME}" "${micro_service}"
+
+done
+
+

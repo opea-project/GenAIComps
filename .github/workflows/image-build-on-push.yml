@@ -21,13 +21,17 @@ jobs:
   job1:
     uses: ./.github/workflows/reuse-get-test-matrix.yml
 
-  mega-image-build:
+  image-build:
     needs: job1
-    runs-on: xxx
     continue-on-error: true
     strategy:
-      matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
+      matrix:
+        node: [ docker-build-spr, docker-build-gaudi ]
+    runs-on: ${{ node }}
     steps:
+      - name: Clean Up Working Directory
+        run: sudo rm -rf ${{github.workspace}}/*
+
       - name: Checkout out Repo
         uses: actions/checkout@v4
         with:
@@ -36,6 +40,6 @@ jobs:
       - name: Building MicroService Docker Image
         id: build-microservice-image
         env:
-          micro_service: ${{ matrix.service }}
+          micro_service_list: ${{ fromJSON(needs.job1.outputs.run_matrix.service) }}
         run: |
-          .github/workflows/scripts/docker_images_build_push.sh ${micro_service}
+          .github/workflows/scripts/docker_images_build_push.sh ${micro_service_list}
