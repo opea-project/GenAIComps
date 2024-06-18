@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ## 1.2 Start PGVector
 
-Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
+Please refer to this [readme](../../../vectorstores/langchain/pgvcetor/README.md).
 
 ## 1.3 Setup Environment Variables
 
