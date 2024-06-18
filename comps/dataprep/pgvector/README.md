@@ -56,7 +56,7 @@ docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_pro
 ## 2.4 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy dataprep:latest -e PG_CONNECTION_STRING=$PG_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-pgvector:latest
+docker run -d --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=$PG_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-pgvector:latest
 ```
 
 ## 2.5 Run with Docker Compose (Option B)
