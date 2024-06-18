@@ -139,7 +139,9 @@ curl -X POST \
     -F "files=@./file1.txt" \
     http://localhost:6007/v1/dataprep
 ```
+
 You can specify chunk_size and chunk_size by the following commands.
+
 ```bash
 curl -X POST \
     -H "Content-Type: multipart/form-data" \

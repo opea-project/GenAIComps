@@ -28,7 +28,9 @@ def ingest_documents(doc_path: DocPath):
     path = doc_path.path
     print(f"Parsing document {path}.")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=doc_path.chunk_size, chunk_overlap=doc_path.chunk_size, add_start_index=True)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=doc_path.chunk_size, chunk_overlap=doc_path.chunk_size, add_start_index=True
+    )
     content = document_loader(path)
     chunks = text_splitter.split_text(content)
 

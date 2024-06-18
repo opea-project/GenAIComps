@@ -36,7 +36,9 @@ def ingest_data_to_redis(doc_path: DocPath):
     path = doc_path.path
     print(f"Parsing document {path}.")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=doc_path.chunk_size, chunk_overlap=doc_path.chunk_size, add_start_index=True)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=doc_path.chunk_size, chunk_overlap=doc_path.chunk_size, add_start_index=True
+    )
     content = document_loader(path)
     chunks = text_splitter.split_text(content)
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
@@ -99,10 +101,10 @@ def ingest_link_to_redis(link_list: List[str]):
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 @traceable(run_type="tool")
 async def ingest_documents(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), 
-    link_list: Optional[str] = Form(None), 
-    chunk_size: int =Form(1500), 
-    chunk_overlap: int =Form(100)
+    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+    link_list: Optional[str] = Form(None),
+    chunk_size: int = Form(1500),
+    chunk_overlap: int = Form(100),
 ):
     print(f"files:{files}")
     print(f"link_list:{link_list}")
