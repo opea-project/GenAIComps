@@ -32,7 +32,7 @@ jobs:
 
       - name: Check for changed Dockerfile paths
         run: |
-          shopt -s globstar 
+          shopt -s globstar
           cd ${{github.workspace}}
           is_use="FALSE"
           used_files=""
