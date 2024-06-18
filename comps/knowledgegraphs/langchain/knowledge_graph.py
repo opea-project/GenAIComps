@@ -21,7 +21,7 @@ from langchain_community.graphs import Neo4jGraph
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_community.vectorstores.neo4j_vector import Neo4jVector
 from langsmith import traceable
-
+import json
 from comps import GeneratedDoc, GraphDoc, ServiceType, opea_microservices, register_microservice
 
 
@@ -114,8 +114,7 @@ def graph_query(input: GraphDoc) -> GeneratedDoc:
 
     ## keep for multiple tests, will remove later
     graph.query("MATCH (n) DETACH DELETE n")
-    import_url = "https://gist.githubusercontent.com/tomasonjo/08dc8ba0e19d592c4c3cde40dd6abcc3/raw/e90b0c9386bf8be15b199e8ac8f83fc265a2ac57/microservices.json"
-    import_query = requests.get(import_url).json()["query"]
+    import_query = json.load(open("data/microservices.json","r"))["query"]
     graph.query(import_query)
 
     ## get tool flag
