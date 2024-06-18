@@ -26,7 +26,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        node: [ docker-build-spr, docker-build-gaudi ]
+        node: [docker-build-spr, docker-build-gaudi]
     runs-on: ${{ node }}
     steps:
       - name: Clean Up Working Directory

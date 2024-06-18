@@ -52,5 +52,3 @@ esac
 docker_build "${IMAGE_NAME}" "${micro_service}"
 
 done
-
-
