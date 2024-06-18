@@ -32,6 +32,3 @@ jobs:
             echo "Please modify the corresponding README in GenAIExamples repo and ask suyue.chen@intel.com for final confirmation."
             exit 1
           fi
-
-
-
