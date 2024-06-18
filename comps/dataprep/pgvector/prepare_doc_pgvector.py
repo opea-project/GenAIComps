@@ -58,10 +58,7 @@ def ingest_data_to_pgvector(doc_path: DocPath):
         batch_texts = batch_chunks
 
         _ = PGVector.from_texts(
-            texts=batch_texts,
-            embedding=embedder,
-            collection_name=INDEX_NAME,
-            connection_string = PG_CONNECTION_STRING           
+            texts=batch_texts, embedding=embedder, collection_name=INDEX_NAME, connection_string=PG_CONNECTION_STRING
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
     return True
@@ -91,7 +88,7 @@ def ingest_link_to_pgvector(link_list: List[str]):
         embedding=embedder,
         metadatas=metadatas,
         collection_name=INDEX_NAME,
-        connection_string = PG_CONNECTION_STRING,
+        connection_string=PG_CONNECTION_STRING,
     )
 
 
