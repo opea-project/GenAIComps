@@ -4,10 +4,10 @@
 import os
 import time
 
+from config import EMBED_MODEL, INDEX_NAME, PG_CONNECTION_STRING
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import PGVector
 from langsmith import traceable
-from config import EMBED_MODEL, INDEX_NAME, PG_CONNECTION_STRING
 
 from comps import (
     EmbedDoc768,
@@ -56,5 +56,5 @@ if __name__ == "__main__":
         embedding_function=embeddings,
         collection_name=INDEX_NAME,
         connection_string=PG_CONNECTION_STRING,
-    ) 
+    )
     opea_microservices["opea_service@retriever_pgvector"].start()
