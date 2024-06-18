@@ -11,7 +11,6 @@ on:
       - "!**.md"
       - "!**.txt"
       - .github/workflows/image-build-on-push.yml
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-on-push
