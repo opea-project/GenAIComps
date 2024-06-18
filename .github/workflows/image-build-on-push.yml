@@ -23,23 +23,8 @@ jobs:
 
   image-build:
     needs: job1
-    continue-on-error: true
     strategy:
-      matrix:
-        node: [docker-build-spr, docker-build-gaudi]
-    runs-on: ${{ node }}
-    steps:
-      - name: Clean Up Working Directory
-        run: sudo rm -rf ${{github.workspace}}/*
-
-      - name: Checkout out Repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Building MicroService Docker Image
-        id: build-microservice-image
-        env:
-          micro_service_list: ${{ fromJSON(needs.job1.outputs.run_matrix.service) }}
-        run: |
-          .github/workflows/scripts/docker_images_build_push.sh ${micro_service_list}
+      matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
+    uses: ./.github/workflows/reuse-image-build.yml
+    with:
+      micro_service: "${{ matrix.service }}"

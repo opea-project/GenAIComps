@@ -4,7 +4,7 @@
 
 set -xe
 
-WORKSPACE=$(dirname "$PWD")
+WORKSPACE=$PWD
 IMAGE_REPO=${IMAGE_REPO:-$OPEA_IMAGE_REPO}
 IMAGE_TAG=${IMAGE_TAG:-latest}
 
@@ -21,19 +21,14 @@ function docker_build() {
         echo "Dockerfile not found"
         exit 1
     fi
-    echo "Building ${IMAGE_REPO}/${IMAGE_NAME}:$IMAGE_TAG using Dockerfile $DOCKERFILE_PATH"
+    echo "Building ${IMAGE_REPO}${IMAGE_NAME}:$IMAGE_TAG using Dockerfile $DOCKERFILE_PATH"
 
-    docker build --no-cache -t ${IMAGE_REPO}/${IMAGE_NAME}:$IMAGE_TAG -f $DOCKERFILE_PATH .
-    docker push ${IMAGE_REPO}/${IMAGE_NAME}:$IMAGE_TAG
-    docker rmi ${IMAGE_REPO}/${IMAGE_NAME}:$IMAGE_TAG
+    docker build --no-cache -t ${IMAGE_REPO}${IMAGE_NAME}:$IMAGE_TAG -f $DOCKERFILE_PATH .
+    docker push ${IMAGE_REPO}${IMAGE_NAME}:$IMAGE_TAG
+    docker rmi ${IMAGE_REPO}${IMAGE_NAME}:$IMAGE_TAG
 }
 
-# $1 is like micro_service_list
-micro_service_list=$1
-echo "micro_service_list: ${micro_service_list}"
-
-for micro_service in ${micro_service_list}; do
-
+micro_service=$1
 case ${micro_service} in
     "asr"|"tts")
         IMAGE_NAME="opea/${micro_service}"
@@ -48,7 +43,4 @@ case ${micro_service} in
         echo "Not supported yet"
         ;;
 esac
-
 docker_build "${IMAGE_NAME}" "${micro_service}"
-
-done
