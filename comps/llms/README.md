@@ -154,23 +154,30 @@ docker build -t opea/llm-tgi:latest --build-arg https_proxy=$https_proxy --build
 ```
 
 ### 2.2.2 vLLM
+
 Build vllm docker.
+
 ```bash
 bash build_docker_vllm.sh
 ```
+
 Build microservice docker.
+
 ```bash
 cd ../../../../
 docker build -t opea/llm-vllm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/vllm/docker/Dockerfile.microservice .
 ```
 
 ### 2.2.3 Ray Serve
+
 Build Ray Serve docker.
+
 ```bash
 bash build_docker_rayserve.sh
 ```
 
 Build microservice docker.
+
 ```bash
 cd ../../../../
 docker build -t opea/llm-ray:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/ray_serve/docker/Dockerfile.microservice .
@@ -192,23 +199,29 @@ docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$htt
 ```
 
 ### 2.3.2 vLLM
+
 Start vllm endpoint.
-````bash
+
+```bash
 bash launch_vllm_service.sh
-````
+```
 
 Start vllm microservice.
+
 ```bash
 docker run --name="llm-vllm-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=${no_proxy} -e vLLM_LLM_ENDPOINT=$vLLM_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e LLM_MODEL_ID=$LLM_MODEL_ID opea/llm-vllm:latest
 ```
 
 ### 2.3.3 Ray Serve
+
 Start Ray Serve endpoint.
-````bash
+
+```bash
 bash launch_ray_service.sh
-````
+```
 
 Start Ray Serve microservice.
+
 ```bash
 docker run -d --name="llm-ray-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e RAY_Serve_ENDPOINT=$RAY_Serve_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e LLM_MODEL=$LLM_MODEL opea/llm-ray:latest
 ```
