@@ -106,8 +106,10 @@ def web_retrieve(input: EmbedDoc768) -> SearchedDoc:
 if __name__ == "__main__":
     # Create vectorstore
     tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
+    vectordb_persistent_directory = os.getenv("VECTORDB_PERSISTENT_DIR", "/home/user/chroma_db_oai")
     vector_db = Chroma(
         embedding_function=HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint),
+        persist_directory=vectordb_persistent_directory
     )
 
     google_api_key = os.environ.get("GOOGLE_API_KEY")
