@@ -64,9 +64,9 @@ def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
 )
 @traceable(run_type="llm")
 def safety_guard(input: TextDoc) -> TextDoc:
-    response_input_guard = llm_guard_chat.invoke([{"role": "user", "content": input.text}]).content
+    response_input_guard = llm_engine_hf.invoke([{"role": "user", "content": input.text}]).content
     if "unsafe" in response_input_guard:
-        unsafe_dict = get_unsafe_dict(llm_guard_chat.model_id)
+        unsafe_dict = get_unsafe_dict(llm_engine_hf.model_id)
         policy_violation_level = response_input_guard.split("\n")[1].strip()
         policy_violations = unsafe_dict[policy_violation_level]
         print(f"Violated policies: {policy_violations}")
@@ -90,6 +90,6 @@ if __name__ == "__main__":
         repetition_penalty=1.03,
     )
     # chat engine for server-side prompt templating
-    llm_guard_chat = ChatHuggingFace(llm=llm_guard, model_id=safety_guard_model)
+    llm_engine_hf = ChatHuggingFace(llm=llm_guard)
     print("guardrails - router] LLM initialized.")
     opea_microservices["opea_service@guardrails_tgi_gaudi"].start()
