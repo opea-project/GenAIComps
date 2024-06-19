@@ -9,3 +9,4 @@ opentelemetry-sdk
 shortuuid
 transformers
 vllm
+setuptools==69.5.1
