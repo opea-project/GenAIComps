@@ -99,8 +99,8 @@ def web_retrieve(input: EmbedDoc768) -> SearchedDoc:
     statistics_dict["opea_service@web_retriever_chroma"].append_latency(time.time() - start, None)
 
     # For Now history is banned
-    if vector_db.get()['ids']:
-        vector_db.delete(vector_db.get()['ids'])
+    if vector_db.get()["ids"]:
+        vector_db.delete(vector_db.get()["ids"])
     return result
 
 
