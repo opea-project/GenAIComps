@@ -7,7 +7,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl
-from pydantic import Field, conlist
+from pydantic import Field, conint, conlist
 
 
 class TextDoc(BaseDoc):
@@ -20,11 +20,19 @@ class Base64ByteStrDoc(BaseDoc):
 
 class DocPath(BaseDoc):
     path: str
+    chunk_size: int = 1500
+    chunk_overlap: int = 100
 
 
 class EmbedDoc768(BaseDoc):
     text: str
     embedding: conlist(float, min_length=768, max_length=768)
+    search_type: str = "similarity"
+    k: int = 4
+    distance_threshold: Optional[float] = None
+    fetch_k: int = 20
+    lambda_mult: float = 0.5
+    score_threshold: float = 0.2
 
 
 class Audio2TextDoc(AudioDoc):
@@ -50,6 +58,7 @@ class EmbedDoc1024(BaseDoc):
 class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
     initial_query: str
+    top_n: int = 1
 
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
@@ -98,3 +107,9 @@ class RAGASScores(BaseDoc):
     faithfulness: float
     context_recallL: float
     context_precision: float
+
+
+class LVMDoc(BaseDoc):
+    image: str
+    prompt: str
+    max_new_tokens: conint(ge=0, le=1024) = 512
