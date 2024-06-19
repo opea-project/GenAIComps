@@ -11,12 +11,12 @@ import os
 import uuid
 
 import numpy as np
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from haystack.components.embedders import HuggingFaceTEIDocumentEmbedder, SentenceTransformersDocumentEmbedder
-from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 from haystack.dataclasses.document import Document
+from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from PIL import Image
-from qdrant_config import EMBED_MODEL, INDEX_NAME, EMBED_ENDPOINT, EMBED_DIMENSION, QDRANT_HOST, QDRANT_PORT
+from qdrant_config import EMBED_DIMENSION, EMBED_ENDPOINT, EMBED_MODEL, INDEX_NAME, QDRANT_HOST, QDRANT_PORT
 
 
 def pdf_loader(file_path):
@@ -84,8 +84,8 @@ def ingest_documents(folder_path, tag):
         embedding_dim=EMBED_DIMENSION,
         index=INDEX_NAME,
         embedding_field="embedding",
-        similarity='cosine',
-        recreate_index=True
+        similarity="cosine",
+        recreate_index=True,
     )
 
     # Batch size
@@ -95,9 +95,9 @@ def ingest_documents(folder_path, tag):
         batch_chunks = chunks[i : i + batch_size]
         batch_texts = [f"Tag: {tag}. " + chunk for chunk in batch_chunks]
         documents = [Document(id=str(uuid.uuid4()), content=content) for content in batch_texts]
-        documents_with_embeddings = embedder.run(documents)['documents']
+        documents_with_embeddings = embedder.run(documents)["documents"]
         qdrant_store.write_documents(documents_with_embeddings)
-        
+
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
 
