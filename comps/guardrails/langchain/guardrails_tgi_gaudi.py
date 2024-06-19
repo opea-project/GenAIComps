@@ -42,7 +42,7 @@ def get_unsafe_dict(model_id=DEFAULT_MODEL):
 
 
 def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
-    """Returns Hugging Face repoo id for deployed service's info endpoint
+    """Returns Hugging Face repo id for deployed service's info endpoint
     otherwise return default model."""
     try:
         requests = JsonRequestsWrapper()
