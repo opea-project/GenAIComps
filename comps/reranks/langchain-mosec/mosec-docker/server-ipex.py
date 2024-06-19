@@ -1,24 +1,23 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import os
 from os import environ
-from typing import List, Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
+import intel_extension_for_pytorch as ipex
+import numpy as np
+import torch
 from mosec import Server, Worker
 from mosec.mixin import TypedMsgPackMixin
 from msgspec import Struct
 from sentence_transformers import CrossEncoder
-
-from tqdm.autonotebook import tqdm, trange
 from torch.utils.data import DataLoader
-
-import json
-import numpy as np
-import torch
-import intel_extension_for_pytorch as ipex
+from tqdm.autonotebook import tqdm, trange
 
 DEFAULT_MODEL = "/root/bge-reranker-large"
+
 
 class MyCrossEncoder(CrossEncoder):
     def __init__(
@@ -35,17 +34,26 @@ class MyCrossEncoder(CrossEncoder):
         default_activation_function=None,
         classifier_dropout: float = None,
     ) -> None:
-        super().__init__(model_name, num_labels, max_length, device,
-                         tokenizer_args, automodel_args, trust_remote_code,
-                         revision, local_files_only, default_activation_function,
-                         classifier_dropout)
+        super().__init__(
+            model_name,
+            num_labels,
+            max_length,
+            device,
+            tokenizer_args,
+            automodel_args,
+            trust_remote_code,
+            revision,
+            local_files_only,
+            default_activation_function,
+            classifier_dropout,
+        )
         # jit trace model
         self.model = ipex.optimize(self.model, dtype=torch.float32)
         vocab_size = self.model.config.vocab_size
         batch_size = 16
         seq_length = 512
         d = torch.randint(vocab_size, size=[batch_size, seq_length])
-        #t = torch.randint(0, 1, size=[batch_size, seq_length])
+        # t = torch.randint(0, 1, size=[batch_size, seq_length])
         m = torch.randint(1, 2, size=[batch_size, seq_length])
         self.model = torch.jit.trace(self.model, [d, m], check_trace=False, strict=False)
         self.model = torch.jit.freeze(self.model)
@@ -87,7 +95,7 @@ class MyCrossEncoder(CrossEncoder):
         with torch.no_grad():
             for features in iterator:
                 model_predictions = self.model(**features)
-                logits = activation_fct(model_predictions['logits'])
+                logits = activation_fct(model_predictions["logits"])
 
                 if apply_softmax and len(logits[0]) > 1:
                     logits = torch.nn.functional.softmax(logits, dim=1)
@@ -106,6 +114,7 @@ class MyCrossEncoder(CrossEncoder):
 
         return pred_scores
 
+
 class Request(Struct, kw_only=True):
     query: str
     docs: List[str]
@@ -114,10 +123,12 @@ class Request(Struct, kw_only=True):
 class Response(Struct, kw_only=True):
     scores: List[float]
 
+
 def float_handler(o):
     if isinstance(o, float):
-        return format(o, '.10f')
+        return format(o, ".10f")
     raise TypeError("Not serializable")
+
 
 class MosecReranker(Worker):
     def __init__(self):
@@ -128,19 +139,18 @@ class MosecReranker(Worker):
         sorted_list = sorted(data.scores, reverse=True)
         index_sorted = [data.scores.index(i) for i in sorted_list]
         res = []
-        for i,s in zip(index_sorted, sorted_list):
-            tmp = {"index":i, "score":'{:.10f}'.format(s)}
+        for i, s in zip(index_sorted, sorted_list):
+            tmp = {"index": i, "score": "{:.10f}".format(s)}
             res.append(tmp)
-        return json.dumps(res, default=float_handler).encode('utf-8')
+        return json.dumps(res, default=float_handler).encode("utf-8")
 
     def forward(self, data: List[Request]) -> List[Response]:
         sentence_pairs = []
         inputs_lens = []
         for d in data:
-            inputs_lens.append(len(d['texts']))
-            tmp = [[d['query'], doc] for doc in d['texts']]
+            inputs_lens.append(len(d["texts"]))
+            tmp = [[d["query"], doc] for doc in d["texts"]]
             sentence_pairs.extend(tmp)
-
 
         scores = self.model.predict(sentence_pairs)
         scores = scores.tolist()
@@ -148,9 +158,7 @@ class MosecReranker(Worker):
         resp = []
         cur_idx = 0
         for lens in inputs_lens:
-            resp.append(
-                    Response(scores=scores[cur_idx:cur_idx+lens])
-            )
+            resp.append(Response(scores=scores[cur_idx : cur_idx + lens]))
             cur_idx += lens
 
         return resp
@@ -162,4 +170,3 @@ if __name__ == "__main__":
     server = Server()
     server.append_worker(MosecReranker, max_batch_size=MAX_BATCH_SIZE, max_wait_time=MAX_WAIT_TIME)
     server.run()
-
