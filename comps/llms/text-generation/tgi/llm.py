@@ -44,6 +44,7 @@ def llm_generate(input: LLMParamsDoc):
     )
     if input.streaming:
         stream_gen_time = []
+
         async def stream_generator():
             chat_response = ""
             async for text in llm.astream(input.query):
