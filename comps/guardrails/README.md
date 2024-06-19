@@ -65,7 +65,6 @@ export SAFETY_GUARD_ENDPOINT="http://${your_ip}:8088"
 python langchain/guardrails_tgi_gaudi.py
 ```
 
-
 # 🚀2. Start Microservice with Docker (Option 2)
 
 If you start an Guardrails microservice with docker, the `docker_compose_guardrails.yaml` file will automatically start a TGI gaudi service with docker.
