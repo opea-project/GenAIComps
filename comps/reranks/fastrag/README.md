@@ -13,6 +13,7 @@ pip install -r requirements.txt
 ```
 
 ## 1.2 Install fastRAG
+
 ```bash
 git clone https://github.com/IntelLabs/fastRAG.git
 cd fastRag

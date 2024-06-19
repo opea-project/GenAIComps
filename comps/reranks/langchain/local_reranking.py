@@ -4,7 +4,7 @@
 from langsmith import traceable
 from sentence_transformers import CrossEncoder
 
-from comps import RerankedDoc, TextDoc, SearchedDoc, ServiceType, opea_microservices, register_microservice
+from comps import RerankedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
 
 @register_microservice(
