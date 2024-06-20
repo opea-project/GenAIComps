@@ -35,7 +35,7 @@ function validate_microservice() {
         -X POST \
         -d "{\"text\":\"What is OPEA?\",\"embedding\":${test_embedding}}" \
         -H 'Content-Type: application/json'
-    docker logs test-comps-retriever-tei-endpoint
+    docker logs test-comps-web-retriever-tei-endpoint
 }
 
 function stop_docker() {
