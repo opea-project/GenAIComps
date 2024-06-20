@@ -1,11 +1,11 @@
 docarray[full]
 fastapi
+numpy
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pillow
 sentencepiece
 shortuuid
 torch
 tritonclient[http]
-numpy
-pillow

@@ -3,6 +3,9 @@
 
 #!/bin/bash -ex
 
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 DEFAULT_EFA_INSTALLER_VER=1.29.0
 efa_installer_version=${1:-$DEFAULT_EFA_INSTALLER_VER}
 

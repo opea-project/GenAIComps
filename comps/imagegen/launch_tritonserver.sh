@@ -10,7 +10,7 @@ default_card_num=0
 default_model_cache_directory="${HOME}/.cache/huggingface/hub"
 HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
 
-docker_cmd=<<EOF 
+docker_cmd=<<EOF
 docker run -d \
     --name=TritonStabilityServer -p ${port_number}:8000 \
     -e HABANA_VISIBLE_DEVICES=${default_card_num} \
