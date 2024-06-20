@@ -20,7 +20,7 @@ RUN chmod +x /home/user/comps/retrievers/langchain/redis/run.sh
 USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install torch --index-url https://download.pytorch.org/whl/cpu && \
+    pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r /home/user/comps/retrievers/langchain/redis/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
