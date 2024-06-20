@@ -69,6 +69,7 @@ def test_agent_http(args):
 
     # df = pd.read_csv(os.path.join(args.filedir, args.filename))
     df = pd.DataFrame({"query": ["What is the weather today in Austin?"]})
+    #df = pd.DataFrame({"query": ["what is the stock price for Microsoft today?"]})
     traces = []
     for _, row in df.iterrows():
         ret = process_request(row["query"])
