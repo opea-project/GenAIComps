@@ -38,7 +38,7 @@ from comps.guardrails.pii_detection.utils import (
 
 def get_pii_detection_inst(strategy="dummy", settings=None):
     if strategy == "ner":
-        return PIIDetectorWithNER(model_path="pii")
+        return PIIDetectorWithNER()
     elif strategy == "ml":
         return PIIDetectorWithML()
     elif strategy == "llm":

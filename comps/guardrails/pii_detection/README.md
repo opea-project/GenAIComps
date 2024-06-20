@@ -22,17 +22,11 @@ python pii_detection.py
 
 ## 2.1 Prepare PII detection model
 
+export HUGGINGFACEHUB_API_TOKEN=${HP_TOKEN}
+
 ## 2.1.1 use LLM endpoint (will add later)
 
 intro placeholder
-
-## 2.1.2 use NER model (default mode)
-
-```bash
-mkdir -p pii/bigcode
-apt install git-lfs
-cd pii/bigcode; git clone https://{hf_username}:{hf_token}@huggingface.co/bigcode/starpii/; cd ../..
-```
 
 ## 2.2 Build Docker Image
 
@@ -44,13 +38,13 @@ docker build -t opea/guardrails-pii-detection:latest --build-arg https_proxy=$ht
 ## 2.3 Run Docker with CLI
 
 ```bash
-docker run -d --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 6357:6357 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-pii-detection:latest
+docker run -d --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 6357:6357 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/guardrails-pii-detection:latest
 ```
 
 > debug mode
 
 ```bash
-docker run --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 6357:6357 -v ./comps/guardrails/pii_detection/:/home/user/comps/guardrails/pii_detection/ --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-pii-detection:latest
+docker run --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 6357:6357 -v ./comps/guardrails/pii_detection/:/home/user/comps/guardrails/pii_detection/ --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/guardrails-pii-detection:latest
 ```
 
 # 🚀3. Get Status of Microservice
