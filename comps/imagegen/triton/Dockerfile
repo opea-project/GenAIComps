@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 ARG TRITON_VERSION=24.04
 
 FROM nvcr.io/nvidia/tritonserver:${TRITON_VERSION}-py3 AS triton
