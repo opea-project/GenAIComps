@@ -27,17 +27,15 @@ export WORKDIR=<YOUR WORK DIRECTORY>
 export POLYGON_API_KEY=<YOUR POLYGON API KEY>
 export TAVILY_API_KEY=<YOUR TAVILY API KEY>
 export HF_TOKEN=<YOUR HUGGINGFACE HUB TOKEN>
+export HUGGINGFACEHUB_API_TOKEN=${HP_TOKEN}
 # optional, if you want to test OpenAI models
 export OPENAI_API_KEY=<YOUR OPENAI_API_KEY>
 export local_model_dir=<YOUR LOCAL DISK TO STORE MODEL>
-
-export HF_TOKEN=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
-export HUGGINGFACEHUB_API_TOKEN=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
 ```
 
 ## Use mistral as llm endpoint
 ``` bash
-model=meta-llama/Llama-2-7b-hf
+model=mistralai/Mistral-7B-Instruct-v0.3
 
 #single node
 docker run --rm -p 8080:80 -v ${local_model_dir}:/data --runtime=habana --name "tgi-gaudi-mistral" -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:2.0.0 --model-id $model --max-input-tokens 1024 --max-total-tokens 2048
@@ -53,12 +51,12 @@ docker build -t opea/comps-agent-langchain:latest --build-arg https_proxy=$https
 ## 2.3 Run Docker with CLI
 
 ```bash
-docker run -d --rm --runtime=runc --name="comps-langchain-agent-endpoint" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/comps-agent-langchain:latest
+docker run -d --rm --runtime=runc --name="comps-langchain-agent-endpoint" -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/comps-agent-langchain:latest
 ```
 
 > debug mode
 > ```bash
-> docker run --rm --runtime=runc --name="" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/comps-agent-langchain:latest
+> docker run --rm --runtime=runc --name="" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/comps-agent-langchain:latest
 > ```
 
 # 🚀3. Get Status of Microservice
@@ -72,5 +70,12 @@ docker container logs -f comps-langchain-agent-endpoint
 Once microservice starts, user can use below script to invoke.
 
 ```bash
-cd comps/agent/langchain/; python test.py
+cd comps/agent/langchain/; python test.py --endpoint_test --ip_addr=${endpoint_ip_addr}
+
+{"query": "What is the weather today in Austin?"}
+data: 'The temperature in Austin today is 78°F.</s>'
+
+data: [DONE]
+
+
 ```

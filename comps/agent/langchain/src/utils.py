@@ -76,7 +76,7 @@ def get_args():
     parser.add_argument("--tools", type=str, default="tools/custom_tools.py")
     parser.add_argument("--llm_engine", type=str, default="tgi")
     parser.add_argument("--max_new_tokens", type=int, default=1024)
-    parser.add_argument("--recursion_limit", type=int, default=20)
+    parser.add_argument("--recursion_limit", type=int, default=5)
     parser.add_argument("--debug", action="store_true", help="Test with endpoint mode")
     parser.add_argument("--llm_endpoint_url", type=str, default="http://100.83.111.250:8080")
 

@@ -1,3 +1,0 @@
-query,trace
-what was the total trading volume of metlife?,"{'query': 'what was the total trading volume of metlife?', 'trace': 'Recursion limit of 20 reachedwithout hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.'}"
-What is the weather today in Austin?,"{'query': 'What is the weather today in Austin?', 'trace': 'Recursion limit of 20 reachedwithout hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.'}"

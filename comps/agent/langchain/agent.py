@@ -22,7 +22,7 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 from comps.agent.langchain.src.agent import instantiate_agent
 
 @register_microservice(
-    name="opea_service@comps-react-agent", service_type=ServiceType.LLM, endpoint="/v1/chat/completions", host="0.0.0.0", port=9000
+    name="opea_service@comps-react-agent", service_type=ServiceType.LLM, endpoint="/v1/chat/completions", host="0.0.0.0", port=9090
 )
 def llm_generate(input: LLMParamsDoc):
     # 1. initialize the agent
@@ -42,6 +42,32 @@ def llm_generate(input: LLMParamsDoc):
                 "plan_errors":[],
                 "past_steps":[]
             }
+            async for chunk in app.astream(initial_state, config=config):
+                # Agent Action
+                if "actions" in chunk:
+                    for action in chunk["actions"]:
+                        print(f"Calling Tool: `{action.tool}` with input `{action.tool_input}`")
+                # Observation
+                elif "steps" in chunk:
+                    for step in chunk["steps"]:
+                        print(f"Tool Result: `{step.observation}`")
+                # Final result
+                elif "output" in chunk:
+                    yield f"data: {repr(chunk['output'])}\n\n"
+                else:
+                    raise ValueError()
+                print("---")
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(stream_generator(), media_type="text/event-stream")
+    else:
+        async def stream_generator():
+            initial_state = {
+                "input": input.query,
+                "date":datetime.today().strftime('%Y-%m-%d'),
+                "plan_errors":[],
+                "past_steps":[]
+            }
             for event in app.stream(initial_state, config=config):
                 for k, v in event.items():
                     print("{}: {}".format(k,v))
@@ -49,9 +75,6 @@ def llm_generate(input: LLMParamsDoc):
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
-    else:
-        response = agent_inst.invoke(input.query)
-        return GeneratedDoc(text=response, prompt=input.query)
 
 
 if __name__ == "__main__":
