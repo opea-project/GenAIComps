@@ -280,11 +280,12 @@ curl http://${your_ip}:9000/v1/chat/completions \
 ```
 
 ## 4. Validated Model
-| Model                      | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi    | Ray |
-|----------------------------| --------- |----------|---------------| --- |
-| Intel/neural-chat-7b-v3-3  | ✓         | ✓        | ✓             | ✓   |
-| Llama-2-7b-chat-hf         | ✓         | ✓        | ✓             | ✓   |
-| Llama-2-70b-chat-hf        | ✓         | -        | ✓             | x   |
-| Meta-Llama-3-8B-Instruct   | ✓         | ✓        | ✓             | ✓   |
-| Meta-Llama-3-70B-Instruct  | ✓         | -        | ✓             | x   |
-| Phi-3                      | x         | Limit 4K | Limit 4K      | ✓   |
+
+| Model                     | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | Ray |
+| ------------------------- | --------- | -------- | ---------- | --- |
+| Intel/neural-chat-7b-v3-3 | ✓         | ✓        | ✓          | ✓   |
+| Llama-2-7b-chat-hf        | ✓         | ✓        | ✓          | ✓   |
+| Llama-2-70b-chat-hf       | ✓         | -        | ✓          | x   |
+| Meta-Llama-3-8B-Instruct  | ✓         | ✓        | ✓          | ✓   |
+| Meta-Llama-3-70B-Instruct | ✓         | -        | ✓          | x   |
+| Phi-3                     | x         | Limit 4K | Limit 4K   | ✓   |
