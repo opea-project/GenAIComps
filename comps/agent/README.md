@@ -36,7 +36,8 @@ export HUGGINGFACEHUB_API_TOKEN=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
 ```
 
 ## Use mistral as llm endpoint
-``` bash
+
+```bash
 model=meta-llama/Llama-2-7b-hf
 
 #single node
@@ -57,6 +58,7 @@ docker run -d --rm --runtime=runc --name="comps-langchain-agent-endpoint" -p 900
 ```
 
 > debug mode
+>
 > ```bash
 > docker run --rm --runtime=runc --name="" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/comps-agent-langchain:latest
 > ```

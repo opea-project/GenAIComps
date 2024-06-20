@@ -1,15 +1,20 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import glob
+import importlib
 import os
 import pathlib
-import yaml
-import glob
 import sys
-import importlib
+
+import yaml
+
 
 def get_tools_descriptions(file_dir_path: str):
     tools = []
     if os.path.isdir(file_dir_path):
         for file in glob.glob(file_dir_path):
-            with open(file, 'r') as stream:
+            with open(file, "r") as stream:
                 tools.append(yaml.safe_load(stream))
         return tools
     else:
@@ -19,11 +24,12 @@ def get_tools_descriptions(file_dir_path: str):
         spec.loader.exec_module(module)
         return module.tools_descriptions()
 
+
 # class ToolDescription:
 #     name: str
 #     description: str
 #     func: callable
-#     error_msg: str  
+#     error_msg: str
 
 # def load_tool(config):
 #     tool = ToolDescription()
@@ -42,14 +48,14 @@ def get_tools_descriptions(file_dir_path: str):
 #             tools_config = yaml.safe_load(stream)
 #     except Exception as e:
 #         tools_config = str(e)
-    
+
 #         if not isinstance(tools_config, list):
 #             tools_config = [tools_config]
 #         for cfg in tools_config:
 #             tool = load_tool(cfg)
 #             tool_list.append(tool)
-        
-    
+
+
 # current_apth = pathlib.Path(__file__).parent.resolve()
 # tools_path = os.path.join(current_apth, "../tools")
 # tool_dir_list = os.listdir(tools_path)

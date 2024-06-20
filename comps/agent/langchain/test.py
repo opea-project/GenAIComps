@@ -1,19 +1,21 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import argparse
-import os
-from src.utils import format_date, get_args
-import pandas as pd
 import json
-import requests
+import os
 import traceback
+
+import pandas as pd
+import requests
+from src.utils import format_date, get_args
 
 
 def test_agent_local(args):
     from src.agent import instantiate_agent
 
     if args.quick_test:
-        df = pd.DataFrame({
-        "query": ["What is the weather today in Austin?"]
-        })
+        df = pd.DataFrame({"query": ["What is the weather today in Austin?"]})
     else:
         df = pd.read_csv(os.path.join(args.filedir, args.filename))
         df = df.sample(n=2, random_state=42)
@@ -26,36 +28,33 @@ def test_agent_local(args):
     traces = []
     success = 0
     for _, row in df.iterrows():
-        print('Query: ', row['query'])
-        initial_state = {
-            "input": row['query'],
-            "plan_errors":[],
-            "past_steps":[]
-        }
+        print("Query: ", row["query"])
+        initial_state = {"input": row["query"], "plan_errors": [], "past_steps": []}
         try:
-            trace = {"query": row['query'], "trace":[]}
+            trace = {"query": row["query"], "trace": []}
             for event in app.stream(initial_state, config=config):
                 trace["trace"].append(event)
                 for k, v in event.items():
-                    print("{}: {}".format(k,v))
-                
+                    print("{}: {}".format(k, v))
+
             traces.append(trace)
             success += 1
         except Exception as e:
             print(str(e), str(traceback.format_exc()))
-            traces.append({"query": row['query'], "trace":str(e)})
+            traces.append({"query": row["query"], "trace": str(e)})
 
-        print('-'*50)
-    
-    df['trace'] = traces
+        print("-" * 50)
+
+    df["trace"] = traces
     df.to_csv(os.path.join(args.filedir, args.output), index=False)
     print(f"succeed: {success}/{len(df)}")
+
 
 def test_agent_http(args):
     proxies = {"http": ""}
     ip_addr = args.ip_addr
     url = f"http://{ip_addr}:9090/v1/chat/completions"
-    
+
     def process_request(query):
         content = json.dumps({"query": query})
         print(content)
@@ -67,19 +66,18 @@ def test_agent_http(args):
             ret = f"An error occurred:{e}"
         print(ret)
         return ret
-        
-    #df = pd.read_csv(os.path.join(args.filedir, args.filename))
-    df = pd.DataFrame({
-    "query": ["What is the weather today in Austin?"]
-    })
+
+    # df = pd.read_csv(os.path.join(args.filedir, args.filename))
+    df = pd.DataFrame({"query": ["What is the weather today in Austin?"]})
     traces = []
-    for _, row in df.iterrows():        
-        ret = process_request(row['query'])
-        trace = {"query": row['query'], "trace":ret}
+    for _, row in df.iterrows():
+        ret = process_request(row["query"])
+        trace = {"query": row["query"], "trace": ret}
         traces.append(trace)
 
-    df['trace'] = traces
+    df["trace"] = traces
     df.to_csv(os.path.join(args.filedir, args.output), index=False)
+
 
 if __name__ == "__main__":
     args1, _ = get_args()
@@ -94,10 +92,10 @@ if __name__ == "__main__":
     parser.add_argument("--strategy", type=str, default="react", choices=["react", "planexec"])
 
     args, _ = parser.parse_known_args()
-    
+
     for key, value in vars(args1).items():
         setattr(args, key, value)
-    
+
     if args.local_test:
         test_agent_local(args)
     elif args.endpoint_test:

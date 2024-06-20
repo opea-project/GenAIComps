@@ -36,7 +36,8 @@ export local_model_dir=<YOUR LOCAL DISK TO STORE MODEL>
 ```
 
 ## Use mistral as llm endpoint
-``` bash
+
+```bash
 model=mistralai/Mistral-7B-Instruct-v0.3
 
 #single node
@@ -57,6 +58,7 @@ docker run -d --rm --runtime=runc --name="comps-langchain-agent-endpoint" -p 909
 ```
 
 > debug mode
+>
 > ```bash
 > docker run --rm --runtime=runc --name="" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/comps-agent-langchain:latest
 > ```

@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 from typing import List
 
@@ -14,46 +17,45 @@ def search(query: str) -> str:
     """
 '''
 
-def search(query:str)->str:
+
+def search(query: str) -> str:
     # from langchain_community.tools.tavily_search import TavilySearchResults
     # tool = TavilySearchResults(max_results=3)
     # res = tool.invoke({"query": query})
-    from tavily import TavilyClient
     import os
-    TAVILYKEY=os.getenv("TAVILY_API_KEY")
+
+    from tavily import TavilyClient
+
+    TAVILYKEY = os.getenv("TAVILY_API_KEY")
     tavily = TavilyClient(api_key=TAVILYKEY)
-    search_params = {
-        "search_depth":"advanced",
-        "max_results":3,
-        "include_answer":True
-    }
+    search_params = {"search_depth": "advanced", "max_results": 3, "include_answer": True}
 
     ret_text = ""
-    
+
     try:
-        print('Query:\n', query)
+        print("Query:\n", query)
         res = tavily.search(query=query, **search_params)
-        answer = res['answer']
-        print('Answer:\n', answer)
-        
-        # for i, r in enumerate(res['results']):            
+        answer = res["answer"]
+        print("Answer:\n", answer)
+
+        # for i, r in enumerate(res['results']):
         #     print('Content #{}:\n{}'.format(i,r['content']))
 
         query = answer
         ret_text = ret_text + answer + "\n"
         # print('-'*50)
-    except Exception as e:    
+    except Exception as e:
         ret_text = "Exception occurred during search: {}".format(str(e))
         print(str(e))
 
     return ret_text
 
 
-def search_google(query:str)->str:
+def search_google(query: str) -> str:
     from langchain_community.utilities import GoogleSearchAPIWrapper
     from langchain_core.tools import Tool
 
-    search = GoogleSearchAPIWrapper(k = 10)
+    search = GoogleSearchAPIWrapper(k=10)
 
     tool = Tool(
         name="google_search",
@@ -64,13 +66,13 @@ def search_google(query:str)->str:
     return res
 
 
-
-def search_ddg(query:str)->str:
+def search_ddg(query: str) -> str:
     from langchain_community.tools import DuckDuckGoSearchResults
     from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
+
     wrapper = DuckDuckGoSearchAPIWrapper(region="us-en", time="d", max_results=3)
     # time can be d, y
-    search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news") # source can be text or news
+    search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news")  # source can be text or news
     results = search.run(query)
 
     ret_text = ""
@@ -80,12 +82,11 @@ def search_ddg(query:str)->str:
     return ret_text
 
 
-
 PROFIT_CALCULATOR_DESCRIPTION = '''\
 def profit_calculator(principle: float, sold: float)->float:
     """
     Calculates profit percentage from principle and sold values.
-    
+
     Args:
     principle (float): the money invested in the beginning.
     sold (float): the money earned after selling the investment.
@@ -95,9 +96,10 @@ def profit_calculator(principle: float, sold: float)->float:
     """
 '''
 
-def profit_calculator(principle: float, sold: float)->float:    
-    return "{:.2f}".format((sold-principle)/principle*100)
-    
+
+def profit_calculator(principle: float, sold: float) -> float:
+    return "{:.2f}".format((sold - principle) / principle * 100)
+
 
 INTEREST_CALCULATOR_DESCRIPTION = '''\
 def interest_calculator(annual_rate:float, principle:float):
@@ -113,8 +115,9 @@ def interest_calculator(annual_rate:float, principle:float):
     """
 '''
 
-def interest_calculator(annual_rate:float, principle:float):
-    return "{:.2f}".format(principle*annual_rate/12)
+
+def interest_calculator(annual_rate: float, principle: float):
+    return "{:.2f}".format(principle * annual_rate / 12)
 
 
 TICKER_AGGREGATES_DESCRIPTION = '''\
@@ -126,7 +129,7 @@ def get_aggregates_for_ticker(ticker: str, from_date:str, span:str):
     from_date (str): the start date for the aggregates, must be in the YYYY-MM-DD format.
     to_date (str): the end date for the aggregates, must be in the YYYY-MM-DD format.
     span (str): the time span for the aggregates, can be "day", "week", "month", "quarter" or "year.
-    
+
     Returns:
     str: a json string contains open, close, highest, lowest prices during the span, and the number of.
 
@@ -148,11 +151,12 @@ def get_aggregates_for_ticker(ticker: str, from_date:str, span:str):
     """
 '''
 
-def get_aggregates_for_ticker(ticker: str, from_date: str, span:str):
-    from langchain_community.tools.polygon.aggregates import PolygonAggregatesSchema
-    from langchain_community.utilities.polygon import PolygonAPIWrapper
-    from langchain_community.tools.polygon.aggregates import PolygonAggregates
+
+def get_aggregates_for_ticker(ticker: str, from_date: str, span: str):
     import time
+
+    from langchain_community.tools.polygon.aggregates import PolygonAggregates, PolygonAggregatesSchema
+    from langchain_community.utilities.polygon import PolygonAPIWrapper
 
     api_wrapper = PolygonAPIWrapper()
 
@@ -177,33 +181,29 @@ def get_aggregates_for_ticker(ticker: str, from_date: str, span:str):
     # market_cap = volume * avg_price
 
     ret_dict = {
-        'open_price': open_price,
-        'close_price': aggregates_json[0]["c"],
-        'low_price': low,
-        'high_price': aggregates_json[0]["h"],
-        'num_transaction': n_trade,
-        'trading_volume': volume,
-        'average_price': avg_price,
+        "open_price": open_price,
+        "close_price": aggregates_json[0]["c"],
+        "low_price": low,
+        "high_price": aggregates_json[0]["h"],
+        "num_transaction": n_trade,
+        "trading_volume": volume,
+        "average_price": avg_price,
         # 'market_cap': market_cap
     }
 
     ret_json = json.dumps(ret_dict)
 
-    time.sleep(30) # wait for 20 secs due to limitation of free Polygon API
+    time.sleep(30)  # wait for 20 secs due to limitation of free Polygon API
 
     return ret_json
 
 
-def extract_info_from_aggregates(aggregates:str, info_to_seek:str) -> str:
+def extract_info_from_aggregates(aggregates: str, info_to_seek: str) -> str:
     try:
         aggregates_json = json.loads(aggregates)
         return aggregates_json[info_to_seek]
     except Exception as e:
         return str(e)
-
-    
-    
-
 
 
 GET_TRADE_INFO_TOOL = '''\
@@ -224,7 +224,9 @@ def get_trade_info_for_single_ticker(ticker: str, from_date: str, span:str, info
     str: the single piece of trade info for the ticker
     """
 '''
-def get_trade_info_for_single_ticker(ticker: str, from_date: str, span:str, info_to_seek:str)->str:
+
+
+def get_trade_info_for_single_ticker(ticker: str, from_date: str, span: str, info_to_seek: str) -> str:
     # first check input
     if "Ticker lookup tool cannot find ticker for" in ticker:
         return "Upstream ticker lookup failed, so cannot get aggregates."
@@ -248,7 +250,7 @@ def extract_info_from_aggregates(aggregates:str, info_to_seek:str) -> str:
     Returns:
     str: the extracted information.
     """
- '''   
+ '''
 
 
 TICKER_DICT = {
@@ -268,6 +270,7 @@ def ticker_lookup(entity: str) -> str:
     """
 '''
 
+
 def ticker_lookup(entity: str) -> str:
     import requests
 
@@ -281,25 +284,23 @@ def ticker_lookup(entity: str) -> str:
         try:
             print("try ticker lookup api")
             # api-endpoint
-            URL = "https://ticker-2e1ica8b9.now.sh/keyword/"+entity
+            URL = "https://ticker-2e1ica8b9.now.sh/keyword/" + entity
             # sending get request and saving the response as response object
-            r = requests.get(url = URL)
-            
+            r = requests.get(url=URL)
+
             # print(r)
             # extracting data in json format
-            data = r.json()[0]['symbol']
+            data = r.json()[0]["symbol"]
 
-            print('ticker symbol for {} is: {}'.format(entity, data))
+            print("ticker symbol for {} is: {}".format(entity, data))
             return data
 
         except:
-            if len(entity)<=4:
+            if len(entity) <= 4:
                 print("entity seems to be ticker symbol")
                 return entity.upper()
             else:
-                return 'Ticker lookup tool cannot find ticker for {}'.format(entity)
-        
-        
+                return "Ticker lookup tool cannot find ticker for {}".format(entity)
 
 
 def ticker_list_lookup(entity_list) -> dict:
@@ -310,19 +311,18 @@ def ticker_list_lookup(entity_list) -> dict:
 
     if type(entity_list) == str:
         if "," in entity_list:
-            entity_list = entity_list.split(',')
+            entity_list = entity_list.split(",")
         else:
-            entity_list = entity_list.split(' ')
-    
+            entity_list = entity_list.split(" ")
+
     tickers_dict = {}
     for entity in entity_list:
-        print('Looking up ticker symbol for: ', entity)
-        entity = entity.replace(" ", "") #remove spaces
+        print("Looking up ticker symbol for: ", entity)
+        entity = entity.replace(" ", "")  # remove spaces
         tickers[entity] = ticker_lookup(entity)
 
     return tickers_dict
 
- 
 
 TIME_LOOKUP_TOOL_DESCRIPTION = '''\
 def now(query:str) -> str:
@@ -333,21 +333,23 @@ def now(query:str) -> str:
     str: The date and time when the query was issued.
     """
 '''
-def now(query:str) -> str:
-    return query.split('@')[-1]
+
+
+def now(query: str) -> str:
+    return query.split("@")[-1]
 
 
 def tools_descriptions():
     tools = [
         # TIME_LOOKUP_TOOL_DESCRIPTION,
-        SEARCH_TOOL_DESCRIPTION, 
-        PROFIT_CALCULATOR_DESCRIPTION, 
+        SEARCH_TOOL_DESCRIPTION,
+        PROFIT_CALCULATOR_DESCRIPTION,
         INTEREST_CALCULATOR_DESCRIPTION,
         TICKER_LOOKUP_TOOL_DESCRIPTION,
         # TICKER_AGGREGATES_DESCRIPTION,
         # INFO_EXTRACTION_TOOL,
-        GET_TRADE_INFO_TOOL
-        ]
+        GET_TRADE_INFO_TOOL,
+    ]
     return tools
 
 
@@ -356,17 +358,17 @@ def get_valid_tools_and_args():
     valid_tools = []
     valid_args = {}
     for i, tool in enumerate(tools):
-        valid_tools.append(tool.split('(')[0].split(' ')[1])
-        args_list = tool.split('(')[1].split(')')[0].split(',')
+        valid_tools.append(tool.split("(")[0].split(" ")[1])
+        args_list = tool.split("(")[1].split(")")[0].split(",")
         args_names = []
         for arg in args_list:
-            args_names.append(arg.split(':')[0].strip())
+            args_names.append(arg.split(":")[0].strip())
 
-        valid_args[valid_tools[i]]=args_names
-    
+        valid_args[valid_tools[i]] = args_names
+
     print("VALID_TOOLS: ", valid_tools)
     print("VALID_ARGS: ", valid_args)
     return valid_tools, valid_args
 
-VALID_TOOLS, VALID_ARGS = get_valid_tools_and_args()
 
+VALID_TOOLS, VALID_ARGS = get_valid_tools_and_args()
