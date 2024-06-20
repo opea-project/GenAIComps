@@ -1,20 +1,23 @@
-from transformers import SpeechT5ForTextToSpeech, SpeechT5HifiGan, SpeechT5Processor
-import torch
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
+import subprocess
 
 import numpy as np
 import torch
-import subprocess
+from transformers import SpeechT5ForTextToSpeech, SpeechT5HifiGan, SpeechT5Processor
 
-class SpeechT5Model():
+
+class SpeechT5Model:
     def __init__(self, device="cpu"):
         self.device = device
         if self.device == "hpu":
             from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+
             adapt_transformers_to_gaudi()
             # do hpu graph warmup with variable inputs
             self._warmup_speecht5_hpu_graph()
-
 
         model_name_or_path = "microsoft/speecht5_tts"
         vocoder_model_name_or_path = "microsoft/speecht5_hifigan"
@@ -23,7 +26,7 @@ class SpeechT5Model():
         self.processor = SpeechT5Processor.from_pretrained(model_name_or_path, normalize=True)
         self.vocoder = SpeechT5HifiGan.from_pretrained(vocoder_model_name_or_path).to(device)
         self.vocoder.eval()
-        
+
         # fetch default speaker embedding
         if os.path.exists("spk_embed_default.pt"):
             self.default_speaker_embedding = torch.load("spk_embed_default.pt")
@@ -71,12 +74,15 @@ class SpeechT5Model():
     def _warmup_speecht5_hpu_graph(self):
         self.t2s("Hello, how can I help you today?")
         self.t2s("OPEA is an ecosystem orchestration framework to integrate performant GenAI technologies.")
-        self.t2s("OPEA is an ecosystem orchestration framework to integrate performant GenAI technologies & workflows leading to quicker GenAI adoption and business value.")
+        self.t2s(
+            "OPEA is an ecosystem orchestration framework to integrate performant GenAI technologies & workflows leading to quicker GenAI adoption and business value."
+        )
 
     def t2s(self, text):
         if self.device == "hpu":
             # See https://github.com/huggingface/optimum-habana/pull/824
             from optimum.habana.utils import set_seed
+
             set_seed(555)
         all_speech = np.array([])
         text = self.split_long_text_into_batch(text, batch_length=100)

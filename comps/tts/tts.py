@@ -1,15 +1,27 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os, json, time
+import json
+import os
+import time
+
 import requests
 
-from comps import Base64ByteStrDoc, ServiceType, TextDoc, opea_microservices, register_microservice, register_statistics, statistics_dict
+from comps import (
+    Base64ByteStrDoc,
+    ServiceType,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
 
 """Test:
 
 curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
 """
+
 
 @register_microservice(
     name="opea_service@tts",

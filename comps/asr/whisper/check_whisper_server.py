@@ -3,12 +3,12 @@
 
 import base64
 import json
+import os
+import urllib.request
+import uuid
 from io import BytesIO
 
 import requests
-import uuid
-import urllib.request
-import os
 
 # https://gist.github.com/novwhisky/8a1a0168b94f3b6abfaa
 # test_audio_base64_str = "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"
@@ -22,7 +22,7 @@ urllib.request.urlretrieve(
 )
 
 with open(file_name, "rb") as f:
-    test_audio_base64_str = base64.b64encode(f.read()).decode('utf-8')
+    test_audio_base64_str = base64.b64encode(f.read()).decode("utf-8")
 os.remove(file_name)
 
 endpoint = "http://localhost:7066/v1/asr"
