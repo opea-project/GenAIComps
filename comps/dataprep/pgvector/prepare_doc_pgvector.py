@@ -30,7 +30,7 @@ async def save_file_to_local_disk(save_path: str, file):
             raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
-def ingest_data_to_pgvector(doc_path: DocPath):
+def ingest_doc_to_pgvector(doc_path: DocPath):
     """Ingest document to PGVector."""
     doc_path = doc_path.path
     print(f"Parsing document {doc_path}.")
@@ -113,7 +113,7 @@ async def ingest_documents(
         for file in files:
             save_path = upload_folder + file.filename
             await save_file_to_local_disk(save_path, file)
-            ingest_data_to_pgvector(DocPath(path=save_path))
+            ingest_doc_to_pgvector(DocPath(path=save_path))
             print(f"Successfully saved file {save_path}")
         return {"status": 200, "message": "Data preparation succeeded"}
 
