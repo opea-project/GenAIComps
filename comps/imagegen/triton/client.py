@@ -4,8 +4,8 @@
 import sys
 
 import numpy as np
-from PIL import Image
 import tritonclient.http as httpclient
+from PIL import Image
 from tritonclient.utils import *
 
 model_name = "stability"
@@ -13,11 +13,11 @@ shape = [4]
 
 with httpclient.InferenceServerClient("localhost:18000", network_timeout=1000 * 300) as client:
     queries = [
-                "A Buffalo Bill celebrating Superbowl LVIII win",
-              ]
-    input_arr = [np.frombuffer(bytes(q, 'utf8'), dtype = np.uint8) for q in queries]
+        "A Buffalo Bill celebrating Superbowl LVIII win",
+    ]
+    input_arr = [np.frombuffer(bytes(q, "utf8"), dtype=np.uint8) for q in queries]
     max_size = max([a.size for a in input_arr])
-    input_arr = [np.pad(a, (0, max_size-a.size)) for a in input_arr]
+    input_arr = [np.pad(a, (0, max_size - a.size)) for a in input_arr]
     input_arr = np.stack(input_arr)
 
     inputs = [httpclient.InferInput("INPUT0", input_arr.shape, "UINT8")]
@@ -27,8 +27,12 @@ with httpclient.InferenceServerClient("localhost:18000", network_timeout=1000 * 
         httpclient.InferRequestedOutput("OUTPUT0"),
     ]
 
-    response = client.infer(model_name, inputs, request_id=str(1), outputs=outputs, 
-                            timeout=1000 * 300,
+    response = client.infer(
+        model_name,
+        inputs,
+        request_id=str(1),
+        outputs=outputs,
+        timeout=1000 * 300,
     )
 
     result = response.get_response()

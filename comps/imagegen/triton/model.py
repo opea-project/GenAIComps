@@ -3,10 +3,10 @@
 
 import json
 
+import numpy as np
+import triton_python_backend_utils as pb_utils
 from optimum.habana import GaudiConfig
 from optimum.habana.diffusers import GaudiDDIMScheduler, GaudiStableDiffusionPipeline
-import triton_python_backend_utils as pb_utils
-import numpy as np
 
 
 class TritonPythonModel:
@@ -33,9 +33,7 @@ class TritonPythonModel:
         self.model_config = model_config = json.loads(args["model_config"])
 
         self.model_name = "stabilityai/stable-diffusion-2-base"
-        self.scheduler = GaudiDDIMScheduler.from_pretrained(
-            self.model_name, subfolder="scheduler"
-        )
+        self.scheduler = GaudiDDIMScheduler.from_pretrained(self.model_name, subfolder="scheduler")
         self.pipeline = GaudiStableDiffusionPipeline.from_pretrained(
             self.model_name,
             scheduler=self.scheduler,
@@ -45,9 +43,7 @@ class TritonPythonModel:
         )
 
         output0_config = pb_utils.get_output_config_by_name(self.model_config, "OUTPUT0")
-        self.output0_dtype = pb_utils.triton_string_to_numpy(
-            output0_config["data_type"]
-        )
+        self.output0_dtype = pb_utils.triton_string_to_numpy(output0_config["data_type"])
         print("Initialized...")
 
     def execute(self, requests):
@@ -72,11 +68,13 @@ class TritonPythonModel:
 
             out_arr = np.stack(arrs)
             ot = pb_utils.Tensor("OUTPUT0", out_arr.astype(self.output0_dtype))
-            responses.append(pb_utils.InferenceResponse(
-                output_tensors = [
-                    ot,
-                ],
-            ))
+            responses.append(
+                pb_utils.InferenceResponse(
+                    output_tensors=[
+                        ot,
+                    ],
+                )
+            )
 
         # You must return a list of pb_utils.InferenceResponse. Length
         # of this list must match the length of `requests` list.
@@ -84,6 +82,7 @@ class TritonPythonModel:
 
     def finalize(self):
         print("Cleaning up...")
+
 
 if __name__ == "__main__":
     m = TritonPythonModel()
