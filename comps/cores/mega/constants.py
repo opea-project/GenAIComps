@@ -30,6 +30,7 @@ class ServiceType(Enum):
     KNOWLEDGE_GRAPH = 13
     WEB_RETRIEVER = 14
 
+
 class MegaServiceEndpoint(Enum):
     """The enum of an MegaService endpoint."""
 
