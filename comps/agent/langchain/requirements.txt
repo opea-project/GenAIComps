@@ -1,0 +1,43 @@
+# used by microservice
+docarray[full]
+fastapi
+numpy
+pandas
+pyarrow
+shortuuid
+
+# used by agents
+transformers
+langchain #==0.1.12
+langchainhub
+langgraph
+langchain_community
+langchain-openai
+langchain-huggingface
+langsmith
+pydantic #==1.10.13
+tavily-python
+huggingface_hub
+transformers[sentencepiece]
+
+#used by tools
+duckduckgo-search
+
+# used by cloud native
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+
+# used by document loader
+# beautifulsoup4
+# easyocr
+# Pillow
+# pymupdf
+# python-docx
+
+# used by embedding
+# sentence_transformers
+
+# used by Ray
+# ray
+# virtualenv
