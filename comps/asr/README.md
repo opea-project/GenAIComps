@@ -29,14 +29,14 @@ pip install optimum[habana]
 
 cd whisper/
 nohup python whisper_server.py --device=hpu &
-python check_whisper.py
+python check_whisper_server.py
 ```
 
 ## 1.3 Start ASR Service/Test
 
 ```bash
 python asr.py
-python check_asr.py
+python check_asr_server.py
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)

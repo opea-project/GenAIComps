@@ -16,8 +16,6 @@ class SpeechT5Model:
             from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
 
             adapt_transformers_to_gaudi()
-            # do hpu graph warmup with variable inputs
-            self._warmup_speecht5_hpu_graph()
 
         model_name_or_path = "microsoft/speecht5_tts"
         vocoder_model_name_or_path = "microsoft/speecht5_hifigan"
@@ -46,6 +44,10 @@ class SpeechT5Model:
             except Exception as e:
                 print("Warning! Need to prepare speaker_embeddings, will use the backup embedding.")
                 self.default_speaker_embedding = torch.zeros((1, 512))
+
+        if self.device == "hpu":
+            # do hpu graph warmup with variable inputs
+            self._warmup_speecht5_hpu_graph()
 
     def split_long_text_into_batch(self, text, batch_length=128):
         """Batch the long text into sequences of shorter sentences."""
