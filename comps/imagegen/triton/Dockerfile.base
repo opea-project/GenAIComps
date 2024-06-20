@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 FROM ubuntu:jammy
 ARG ARTIFACTORY_URL=vault.habana.ai
 ARG VERSION=1.15.1

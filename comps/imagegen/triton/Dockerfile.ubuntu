@@ -1,8 +1,7 @@
 # Copyright (c) 2023 HabanaLabs, Ltd0
 #
 # SPDX-License-Identifier: Apache-2.0
-#
-# HabanaLabs Dockerfile PyTorch installer layer for Ubuntu22.04
+
 ARG BASE_NAME=base-installer-ubuntu22.04
 ARG VERSION=1.15.1
 ARG REVISION=15

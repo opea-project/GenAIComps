@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 build:
 	docker build -t base-installer-ubuntu22.04:1.15.1-15 -f Dockerfile.base .
 	docker build -t base -f Dockerfile.ubuntu .
