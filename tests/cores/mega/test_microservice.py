@@ -31,8 +31,9 @@ class TestMicroService(unittest.TestCase):
         response = self.client.post("/v1/add", json={"text": "Hello, "})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["text"], "Hello, OPEA Project!")
-        response = self.client.get('/metrics')
+        response = self.client.get("/metrics")
         self.assertEqual(response.status_code, 200)
+
 
 if __name__ == "__main__":
     unittest.main()
