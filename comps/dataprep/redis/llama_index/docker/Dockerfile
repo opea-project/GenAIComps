@@ -21,6 +21,7 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install torch --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r /home/user/comps/dataprep/redis/llama_index/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
