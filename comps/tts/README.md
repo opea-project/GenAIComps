@@ -30,7 +30,6 @@ python tts.py
 curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
 ```
 
-
 # 🚀2. Start Microservice with Docker (Option 2)
 
 Alternatively, you can start the TTS microservice with Docker.
@@ -60,7 +59,6 @@ docker build -t opea/tts:latest --build-arg https_proxy=$https_proxy --build-arg
 ```
 
 ## 2.2 Start SpeechT5 and TTS Service
-
 
 ### 2.2.1 Start SpeechT5 Server
 

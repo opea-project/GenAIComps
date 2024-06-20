@@ -2,19 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import base64
 import os
+import uuid
+from io import BytesIO
 
 import uvicorn
-from whisper_model import WhisperModel
 from fastapi import FastAPI, Request
-
 from fastapi.responses import Response
 from pydub import AudioSegment
 from starlette.middleware.cors import CORSMiddleware
-
-from io import BytesIO
-import base64
-import uuid
+from whisper_model import WhisperModel
 
 app = FastAPI()
 asr = None
@@ -61,8 +59,6 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="cpu")
 
     args = parser.parse_args()
-    asr = WhisperModel(
-        model_name_or_path=args.model_name_or_path, language=args.language, device=args.device
-    )
+    asr = WhisperModel(model_name_or_path=args.model_name_or_path, language=args.language, device=args.device)
 
     uvicorn.run(app, host=args.host, port=args.port)

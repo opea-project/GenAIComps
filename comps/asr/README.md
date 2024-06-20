@@ -69,7 +69,6 @@ docker build -t opea/asr:latest --build-arg https_proxy=$https_proxy --build-arg
 
 ## 2.2 Start Whisper and ASR Service
 
-
 ### 2.2.1 Start Whisper Server
 
 - Xeon

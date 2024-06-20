@@ -1,12 +1,22 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import os
 import time
-import numpy as np
-import requests, json
 
-from comps import Base64ByteStrDoc, ServiceType, TextDoc, opea_microservices, register_microservice, register_statistics, statistics_dict
+import numpy as np
+import requests
+
+from comps import (
+    Base64ByteStrDoc,
+    ServiceType,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
 
 
 @register_microservice(
