@@ -1,7 +1,6 @@
 datasets
 docarray[full]
 fastapi
-intel_extension_for_pytorch
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -10,3 +9,5 @@ shortuuid
 torch
 transformers
 zhconv
+optimum[habana]
+pydantic==2.7.2

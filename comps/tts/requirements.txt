@@ -7,3 +7,5 @@ sentencepiece
 shortuuid
 torch
 transformers
+optimum[habana]
+aiohttp
