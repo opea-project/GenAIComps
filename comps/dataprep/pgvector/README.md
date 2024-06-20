@@ -49,7 +49,6 @@ export LANGCHAIN_PROJECT="opea/dataprep"
 ## 2.3 Build Docker Image
 
 ```bash
-cd ../../../../
 docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/pgvector/docker/Dockerfile .
 ```
 

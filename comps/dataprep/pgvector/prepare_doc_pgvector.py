@@ -7,7 +7,7 @@ import uuid
 from pathlib import Path
 from typing import List, Optional, Union
 
-from config import EMBED_MODEL, INDEX_NAME, PG_CONNECTION_STRING
+from config import EMBED_MODEL, INDEX_NAME, PG_CONNECTION_STRING, CHUNK_SIZE, CHUNK_OVERLAP 
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
@@ -18,7 +18,6 @@ from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import document_loader, parse_html
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
-
 
 async def save_file_to_local_disk(save_path: str, file):
     save_path = Path(save_path)
@@ -58,7 +57,10 @@ def ingest_data_to_pgvector(doc_path: DocPath):
         batch_texts = batch_chunks
 
         _ = PGVector.from_texts(
-            texts=batch_texts, embedding=embedder, collection_name=INDEX_NAME, connection_string=PG_CONNECTION_STRING
+            texts=batch_texts, 
+            embedding=embedder, 
+            collection_name=INDEX_NAME, 
+            connection_string=PG_CONNECTION_STRING
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
     return True
@@ -84,11 +86,11 @@ def ingest_link_to_pgvector(link_list: List[str]):
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
     _ = PGVector.from_texts(
-        texts=texts,
-        embedding=embedder,
-        metadatas=metadatas,
-        collection_name=INDEX_NAME,
-        connection_string=PG_CONNECTION_STRING,
+          texts=texts,
+          embedding=embedder,
+          metadatas=metadatas,
+          collection_name=INDEX_NAME,
+          connection_string=PG_CONNECTION_STRING,
     )
 
 
