@@ -12,7 +12,7 @@ HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
 
 docker_cmd=<<EOF
 docker run -d \
-    --name=TritonStabilityServer -p ${port_number}:8000 \
+    --name=TritonStabilityServer -p ${default_port}:8000 \
     -e HABANA_VISIBLE_DEVICES=${default_card_num} \
     -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
     --cap-add=sys_nic \
