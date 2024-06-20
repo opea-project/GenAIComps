@@ -116,6 +116,7 @@ class GraphDoc(BaseDoc):
     rag_text_node_properties: Optional[list] = Field(default=["name", "description", "status"])
     rag_embedding_node_property: Optional[str] = Field(default="embedding")
 
+
 class LVMDoc(BaseDoc):
     image: str
     prompt: str
