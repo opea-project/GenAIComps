@@ -27,8 +27,8 @@ class ServiceType(Enum):
     UNDEFINED = 10
     RAGAS = 11
     LVM = 12
-    WEB_RETRIEVER = 13
-
+    KNOWLEDGE_GRAPH = 13
+    WEB_RETRIEVER = 14
 
 class MegaServiceEndpoint(Enum):
     """The enum of an MegaService endpoint."""
@@ -51,6 +51,8 @@ class MegaServiceEndpoint(Enum):
     RERANKING = "/v1/reranking"
     GUARDRAILS = "/v1/guardrails"
     RAGAS = "/v1/ragas"
+    GRAPHS = "/v1/graphs"
+
     # COMMON
     LIST_SERVICE = "/v1/list_service"
     LIST_PARAMETERS = "/v1/list_parameters"
