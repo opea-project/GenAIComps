@@ -1,0 +1,54 @@
+# Copyright (c) 2023 HabanaLabs, Ltd0
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# HabanaLabs Dockerfile PyTorch installer layer for Ubuntu22.04
+ARG BASE_NAME=base-installer-ubuntu22.04
+ARG VERSION=1.15.1
+ARG REVISION=15
+
+FROM ${BASE_NAME}:${VERSION}-${REVISION}
+
+ARG BASE_NAME=base-installer-ubuntu22.04
+ARG VERSION=1.15.1
+ARG REVISION=15
+ARG ARTIFACTORY_URL=vault.habana.ai
+ARG PT_VERSION=2.2.0
+
+ENV LANG=en_US.UTF-8
+ENV PYTHONPATH=/root:/usr/lib/habanalabs/
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    libcurl4 \
+    moreutils \
+    iproute2 \
+    libcairo2-dev \
+    libglib2.0-dev \
+    libhdf5-dev \
+    libselinux1-dev \
+    libnuma-dev \
+    libpcre2-dev \
+    libjpeg-dev \
+    liblapack-dev \
+    libopenblas-dev \
+    numactl \
+    pdsh \
+    libmkl-dev \
+    libgoogle-perftools-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
+
+RUN echo $BASE_NAME
+COPY install_packages.sh .
+
+RUN ./install_packages.sh && rm -f install_packages.sh && \
+    /sbin/ldconfig && echo "source /etc/profile.d/habanalabs.sh" >> ~/.bashrc
+
+ENV LD_PRELOAD=/lib/x86_64-linux-gnu/libtcmalloc.so.4
+ENV TCMALLOC_LARGE_ALLOC_REPORT_THRESHOLD=7516192768
+
+RUN rm -rf /tmp/*
+
+RUN apt-get update &&  pip3 install optimum[habana] opencv-python
