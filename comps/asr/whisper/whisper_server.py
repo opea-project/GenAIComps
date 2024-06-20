@@ -5,7 +5,6 @@ import argparse
 import base64
 import os
 import uuid
-from io import BytesIO
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -32,13 +31,14 @@ async def health() -> Response:
 async def audio_to_text(request: Request):
     print("Whisper generation begin.")
     uid = str(uuid.uuid4())
+    file_name = uid + ".wav"
     request_dict = await request.json()
     audio_b64_str = request_dict.pop("audio")
-    audio = AudioSegment.from_file(BytesIO(base64.b64decode(audio_b64_str)))
+    with open(file_name, "wb") as f:
+        f.write(base64.b64decode(audio_b64_str))
 
+    audio = AudioSegment.from_file(file_name)
     audio = audio.set_frame_rate(16000)
-    # bytes to wav
-    file_name = uid + ".wav"
     audio.export(f"{file_name}", format="wav")
     try:
         asr_result = asr.audio2text(file_name)
