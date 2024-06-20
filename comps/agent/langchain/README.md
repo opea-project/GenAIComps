@@ -2,6 +2,8 @@
 
 The langchain agent model refers to a framework that integrates the reasoning capabilities of large language models (LLMs) with the ability to take actionable steps, creating a more sophisticated system that can understand and process information, evaluate situations, take appropriate actions, communicate responses, and track ongoing situations.
 
+![Architecture Overview](agent_arch.jpg)
+
 # 🚀1. Start Microservice with Python（Option 1）
 
 ## 1.1 Install Requirements
