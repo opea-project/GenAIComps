@@ -37,7 +37,6 @@ def llm_generate(input: LLMParamsDoc):
     app = agent_inst.app
 
     # 2. prepare the input for the agent
-    # assuming you have Ollama installed and have llama3 model pulled with `ollama pull llama3`
     if input.streaming:
 
         async def stream_generator():
