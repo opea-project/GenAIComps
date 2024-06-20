@@ -8,6 +8,7 @@ from langchain.pydantic_v1 import BaseModel, Field
 from langchain.tools import BaseTool, StructuredTool, tool
 from langchain_community.agent_toolkits.load_tools import load_tools
 
+
 def get_duckduckgo_search(k: int = 10):
     from langchain_community.tools import DuckDuckGoSearchRun
 
@@ -179,10 +180,14 @@ def get_trade_info():
 
 
 def tools_descriptions():
-    
+
     tools = []
     try:
-        tools += load_tools(["google-finance", ])
+        tools += load_tools(
+            [
+                "google-finance",
+            ]
+        )
     except:
         pass
     tools += [

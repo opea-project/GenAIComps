@@ -61,9 +61,9 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
     def __init__(self, args):
         super().__init__(args)
         from .planexec.planner import create_planner
-        
+
         self.valid_tools, self.valid_args = self.get_valid_tools_and_args()
-        
+
         self.planner = create_planner(args, self.llm_endpoint, self.tools_descriptions, planner_type="initial_plan")
         self.plan_rewriter = create_planner(
             args, self.llm_endpoint, self.tools_descriptions, planner_type="plan_rewriter"
@@ -77,20 +77,20 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
 
         if self.app is None:
             raise ValueError("Failed to compile the app")
-        
+
     def get_valid_tools_and_args(self):
         tools = self.tools_descriptions
         valid_tools = []
         valid_args = {}
         for i, tool in enumerate(tools):
-            valid_tools.append(tool.split('(')[0].split(' ')[1])
-            args_list = tool.split('(')[1].split(')')[0].split(',')
+            valid_tools.append(tool.split("(")[0].split(" ")[1])
+            args_list = tool.split("(")[1].split(")")[0].split(",")
             args_names = []
             for arg in args_list:
-                args_names.append(arg.split(':')[0].strip())
+                args_names.append(arg.split(":")[0].strip())
 
-            valid_args[valid_tools[i]]=args_names
-        
+            valid_args[valid_tools[i]] = args_names
+
         print("VALID_TOOLS: ", valid_tools)
         print("VALID_ARGS: ", valid_args)
         return valid_tools, valid_args
@@ -159,12 +159,12 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
         def execute_with_toolname(tool_list, tool_name, input):
             func = None
             for tool in tool_list:
-                if tool['name'] == tool_name:
+                if tool["name"] == tool_name:
                     func = tool.func
             if func is None:
                 raise ValueError(f"Tool {tool_name} not found in the tool list")
             return func(**input)
-        
+
         def execute_one_step(tool, input, past_steps):
             # tool: str
             # input: dict
@@ -194,14 +194,15 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
             print("Tool {} output: {}".format(tool, output))
 
             past_steps.append((task, output))
-        print('Execution trace: ', past_steps)        
-        return {'past_steps': past_steps}
+        print("Execution trace: ", past_steps)
+        return {"past_steps": past_steps}
 
     def plan_step(self, state: BaseAgentState):
         from .planexec.planner import parse_output
+
         if not self.debug:
-            output = self.planner.invoke({"objective": state["input"], "date":state["date"]})
-            if self.args.llm_engine == 'openai':
+            output = self.planner.invoke({"objective": state["input"], "date": state["date"]})
+            if self.args.llm_engine == "openai":
                 output = output.content
             print(output)
             plan = parse_output(output)  # plan is a list if parsed success, or a str
@@ -213,13 +214,17 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
 
     def rewrite_plan(self, state: BaseAgentState):
         from .planexec.planner import parse_output
+
         if not self.debug:
-            output = self.plan_rewriter.invoke({
-                "objective": state["input"], 
-                "initial_plan": state["plan"], 
-                "errors": state["plan_errors"], 
-                "date":state["date"]})
-            if self.args.llm_engine == 'openai':
+            output = self.plan_rewriter.invoke(
+                {
+                    "objective": state["input"],
+                    "initial_plan": state["plan"],
+                    "errors": state["plan_errors"],
+                    "date": state["date"],
+                }
+            )
+            if self.args.llm_engine == "openai":
                 output = output.content
             print("New plan:\n", output)
             plan = parse_output(output)  # either a list of dict, or a str
@@ -292,13 +297,17 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
 
     def replan_step(self, state: BaseAgentState):
         from .planexec.planner import parse_output_replanner
+
         if not self.debug:
-            output = self.replanner.invoke({
-                'objective': state["input"], 
-                'plan': state["plan"], 
-                'past_steps': state["past_steps"], 
-                "date":state["date"]})
-            if self.args.llm_engine == 'openai':
+            output = self.replanner.invoke(
+                {
+                    "objective": state["input"],
+                    "plan": state["plan"],
+                    "past_steps": state["past_steps"],
+                    "date": state["date"],
+                }
+            )
+            if self.args.llm_engine == "openai":
                 output = output.content
             print(output)
             parsed_output = parse_output_replanner(output)  # dict, or str
