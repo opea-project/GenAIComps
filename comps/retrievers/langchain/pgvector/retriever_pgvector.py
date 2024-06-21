@@ -4,7 +4,7 @@
 import os
 import time
 
-from config import EMBED_MODEL, INDEX_NAME, PG_CONNECTION_STRING
+from config import EMBED_MODEL, INDEX_NAME, PG_CONNECTION_STRING, PORT
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import PGVector
 from langsmith import traceable
@@ -28,7 +28,7 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
     service_type=ServiceType.RETRIEVER,
     endpoint="/v1/retrieval",
     host="0.0.0.0",
-    port=7000,
+    port=PORT,
 )
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_pgvector"])
