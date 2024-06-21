@@ -192,9 +192,9 @@ def tools_descriptions():
         pass
     tools += [
         get_duckduckgo_search(),
-        get_interest_calculator(),
-        get_profit_calculator(),
+        # get_interest_calculator(),
+        # get_profit_calculator(),
         get_ticker_lookup(),
-        get_trade_info(),
+        # get_trade_info(),
     ]
     return tools

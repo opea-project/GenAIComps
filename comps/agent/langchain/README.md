@@ -36,8 +36,20 @@ export custom_tool_dir=<YOUR CUSTOM TOOL> #./comps/agent/langchain/tools/
 ```bash
 model=mistralai/Mistral-7B-Instruct-v0.3
 
-#single node
+#single card
 docker run --rm -p 8080:80 -v ${local_model_dir}:/data --runtime=habana --name "tgi-gaudi-mistral" -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:2.0.0 --model-id $model --max-input-tokens 1024 --max-total-tokens 2048
+```
+
+## Use LLAMA-3-70B as llm endpoint
+
+
+```bash
+export model=meta-llama/Meta-Llama-3-70B-Instruct
+export port_number=8008
+export parallel_number=8
+
+#multi cards
+docker run -it --runtime=habana --rm --name="vllm-service" -v ${local_model_dir}:/root/.cache/huggingface/hub -p $port_number:80 -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} vllm:hpu /bin/bash -c "export VLLM_CPU_KVCACHE_SPACE=40 && python3 -m vllm.entrypoints.openai.api_server --enforce-eager --model $model  --tensor-parallel-size $parallel_number --host 0.0.0.0 --port 80"
 ```
 
 ## 2.2 Build Docker Image

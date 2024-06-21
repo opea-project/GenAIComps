@@ -45,8 +45,14 @@ def setup_hf_tgi_client(args):
 
 
 def setup_vllm_client(args):
-    # TODO
-    return None
+    from langchain_community.llms.vllm import VLLMOpenAI
+    openai_endpoint = f"{args.llm_endpoint_url}/v1"
+    llm = VLLMOpenAI(
+        openai_api_key="EMPTY",
+        openai_api_base=openai_endpoint,
+        model_name=args.model,
+    )
+    return llm   
 
 
 def setup_openai_client(args):
@@ -83,10 +89,11 @@ def get_args():
     # llm args
     parser.add_argument("--model", type=str, default="mistralai/Mistral-7B-Instruct-v0.3")
     parser.add_argument("--tools", type=str, default="tools/custom_tools.py")
+    parser.add_argument("--strategy", type=str, default="react")
     parser.add_argument("--llm_engine", type=str, default="tgi")
     parser.add_argument("--max_new_tokens", type=int, default=1024)
     parser.add_argument("--recursion_limit", type=int, default=5)
     parser.add_argument("--debug", action="store_true", help="Test with endpoint mode")
-    parser.add_argument("--llm_endpoint_url", type=str, default="http://100.83.111.250:8080")
+    parser.add_argument("--llm_endpoint_url", type=str, default="http://localhost:8080")
 
     return parser.parse_known_args()

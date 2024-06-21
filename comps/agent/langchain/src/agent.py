@@ -83,14 +83,11 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
         valid_tools = []
         valid_args = {}
         for i, tool in enumerate(tools):
-            valid_tools.append(tool.split("(")[0].split(" ")[1])
-            args_list = tool.split("(")[1].split(")")[0].split(",")
-            args_names = []
-            for arg in args_list:
-                args_names.append(arg.split(":")[0].strip())
-
-            valid_args[valid_tools[i]] = args_names
-
+            tool_name = tool.name
+            args_names = list(tool.args.keys())
+            valid_tools.append(tool_name)
+            valid_args[valid_tools[i]]=args_names
+        
         print("VALID_TOOLS: ", valid_tools)
         print("VALID_ARGS: ", valid_args)
         return valid_tools, valid_args
@@ -157,14 +154,15 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
         # task: a json dict in the form of
         # {'tool': 'get_info', 'input_schema': {'ticker': '<result_1>'}, 'output_key': 'result_2'}
         def execute_with_toolname(tool_list, tool_name, input):
-            func = None
+            tool_inst = None
             for tool in tool_list:
-                if tool["name"] == tool_name:
-                    func = tool.func
-            if func is None:
+                if tool.name == tool_name:
+                    tool_inst = tool
+                    break
+            if tool_inst is None:
                 raise ValueError(f"Tool {tool_name} not found in the tool list")
-            return func(**input)
-
+            return tool_inst.run(input)
+        
         def execute_one_step(tool, input, past_steps):
             # tool: str
             # input: dict
@@ -178,7 +176,7 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
                         for task, output in past_steps:
                             if ref_v == "<" + task["output_key"] + ">":
                                 input[k] = input[k].replace(ref_v, output)
-                execute_with_toolname(self.tools_descriptions, tool, input)
+                output = execute_with_toolname(self.tools_descriptions, tool, input)
             except Exception as e:
                 output = "Error during {} execution: {}".format(tool, str(e))
 
@@ -198,14 +196,12 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
         return {"past_steps": past_steps}
 
     def plan_step(self, state: BaseAgentState):
-        from .planexec.planner import parse_output
-
         if not self.debug:
             output = self.planner.invoke({"objective": state["input"], "date": state["date"]})
             if self.args.llm_engine == "openai":
                 output = output.content
-            print(output)
-            plan = parse_output(output)  # plan is a list if parsed success, or a str
+            if 'steps' in output:
+                plan = output['steps']
             return {"plan": plan}
 
         else:  # debug mode
@@ -213,8 +209,6 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
             return {"plan": plan}  # planner output parser returns a dict {'steps':[]}
 
     def rewrite_plan(self, state: BaseAgentState):
-        from .planexec.planner import parse_output
-
         if not self.debug:
             output = self.plan_rewriter.invoke(
                 {
@@ -227,77 +221,43 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
             if self.args.llm_engine == "openai":
                 output = output.content
             print("New plan:\n", output)
-            plan = parse_output(output)  # either a list of dict, or a str
-            return {"plan": plan}
+            return {"plan": output}
         else:
             plan = state["new_plan"]  # output from rewriter
             # num_rewrite = state['num_rewrite'] + 1
             return {"plan": plan}
 
     def check_plan(self, state: BaseAgentState):
-        def check_get_trade_info_call(input_schema):
-            if input_schema["info_to_seek"] not in [
-                "open_price",
-                "close_price",
-                "low_price",
-                "high_price",
-                "average_price",
-                "trading_volume",
-                "num_transaction",
-            ]:
-                return "Invalid argument {} when calling get_trade_info_for_single_ticker".format(
-                    input_schema["info_to_seek"]
-                )
-            else:
-                return None
-
         # plan: [{}, {}]
         errors = []
         if type(state["plan"]) == str:  # exception has happened in planner
             errors.append(state["plan"])
             return {"plan_errors": errors}
         else:
-            try:
-                steps = state["plan"]
-                # print(steps)
-                for i, step in enumerate(steps):
-                    tool = step["tool"]
-                    # first check if using a valid tool
-                    if tool not in self.valid_tools:
-                        errors.append("Called {} tool, which is not available.".format(tool))
-                    else:  # if using a valid tool, then check the args
-                        # check if the args are all correct
-                        input_schema = step["input_schema"]
-                        for k, v in input_schema.items():
-                            v = str(v)
-                            if k not in self.valid_args[tool]:
-                                errors.append("Invalid argument {} when calling {}".format(k, tool))
-                            if ("<" in v) and (">" in v):  # needs an output from a previous step
-                                # check if referring to a valid output
-                                # print('check if referring to a valid  for {}......'.format(v))
-                                # get the <> enclosed variable
-                                ref_v = v.split("<")[1].split(">")[0]
-                                # print(ref_v)
-                                past_steps = steps[:i]
-                                past_outputs = []
-                                for past_s in past_steps:
-                                    past_outputs.append(past_s["output_key"])
-
-                                # print('past_outputs: ', past_outputs)
-
-                                if ref_v not in past_outputs:
-                                    errors.append("Invalid reference {} when calling {}".format(ref_v, tool))
-                    if tool == "get_trade_info_for_single_ticker":
-                        error = check_get_trade_info_call(input_schema)
-                        if error:
-                            errors.append(error)
-            except Exception as e:
-                errors.append("plan format errors")
+            steps = state["plan"]
+            for i, step in enumerate(steps):
+                tool = step["tool"]
+                # first check if using a valid tool
+                if tool not in self.valid_tools:
+                    errors.append("Called {} tool, which is not available.".format(tool))
+                else:  # if using a valid tool, then check the args
+                    # check if the args are all correct
+                    input_schema = step["input_schema"]
+                    for k, v in input_schema.items():
+                        v = str(v)
+                        if k not in self.valid_args[tool]:
+                            errors.append("Invalid argument {} when calling {}".format(k, tool))
+                        if ("<" in v) and (">" in v):  # needs an output from a previous step
+                            ref_v = v.split("<")[1].split(">")[0]
+                            past_steps = steps[:i]
+                            past_outputs = []
+                            for past_s in past_steps:
+                                past_outputs.append(past_s["output_key"])
+                            if ref_v not in past_outputs:
+                                errors.append("Invalid reference {} when calling {}".format(ref_v, tool))
         return {"plan_errors": errors}
 
     def replan_step(self, state: BaseAgentState):
-        from .planexec.planner import parse_output_replanner
-
         if not self.debug:
             output = self.replanner.invoke(
                 {
@@ -310,7 +270,7 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
             if self.args.llm_engine == "openai":
                 output = output.content
             print(output)
-            parsed_output = parse_output_replanner(output)  # dict, or str
+            parsed_output = output
             if (type(parsed_output) == dict) and ("response" in parsed_output):
                 return {"response": parsed_output["response"]}
             else:  # no response, then try to return a plan
