@@ -21,6 +21,7 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 timeout = 180  # Timeout in seconds
 check_interval = 5  # Check every 5 seconds
 
+
 def check_embedding_endpoint(embedder):
     try:
         test_sentence = "embedder available test."
