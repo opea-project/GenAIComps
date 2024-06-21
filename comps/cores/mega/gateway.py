@@ -5,10 +5,10 @@ from fastapi import Request
 from fastapi.responses import StreamingResponse
 
 from ..proto.api_protocol import (
+    AudioChatCompletionRequest,
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatCompletionResponseChoice,
-    AudioChatCompletionRequest,
     ChatMessage,
     UsageInfo,
 )
@@ -321,7 +321,12 @@ class DocSumGateway(Gateway):
 class AudioQnAGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(
-            megaservice, host, port, str(MegaServiceEndpoint.AUDIO_QNA), AudioChatCompletionRequest, ChatCompletionResponse
+            megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.AUDIO_QNA),
+            AudioChatCompletionRequest,
+            ChatCompletionResponse,
         )
 
     async def handle_request(self, request: Request):
@@ -335,9 +340,11 @@ class AudioQnAGateway(Gateway):
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
-            streaming=False, # TODO add streaming LLM output as input to TTS
+            streaming=False,  # TODO add streaming LLM output as input to TTS
         )
-        result_dict = await self.megaservice.schedule(initial_inputs={"byte_str": chat_request.audio}, llm_parameters=parameters)
+        result_dict = await self.megaservice.schedule(
+            initial_inputs={"byte_str": chat_request.audio}, llm_parameters=parameters
+        )
 
         last_node = self.megaservice.all_leaves()[-1]
         response = result_dict[last_node]["byte_str"]
