@@ -19,7 +19,7 @@ filters = [
     {"path": "detect_secrets.filters.heuristic.is_likely_id_string"},
     {"path": "detect_secrets.filters.heuristic.is_templated_secret"},
     {"path": "detect_secrets.filters.heuristic.is_sequential_string"},
-    {"path": "detect_secrets.filters.gibberish.should_exclude_secret", "model": get_detector_model(), "limit": 4.0},
+    #{"path": "detect_secrets.filters.gibberish.should_exclude_secret", "model": get_detector_model(), "limit": 4.0},
 ]
 plugins = [
     {"name": "ArtifactoryDetector"},
