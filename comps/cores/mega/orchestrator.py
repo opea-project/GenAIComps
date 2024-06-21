@@ -79,12 +79,8 @@ class ServiceOrchestrator(DAG):
         for field, value in llm_parameters_dict.items():
             if inputs.get(field) != value:
                 inputs[field] = value
-        if self.services[cur_node].service_type == ServiceType.LLM and \
-            self.predecessors(cur_node) and \
-            "asr" in self.predecessors(cur_node)[0]:
-                inputs["query"] = inputs["text"]
-                del inputs["text"]
-        elif self.services[cur_node].service_type == ServiceType.LLM and llm_parameters.streaming:
+
+        if self.services[cur_node].service_type == ServiceType.LLM and llm_parameters.streaming:
             # Still leave to sync requests.post for StreamingResponse
             response = requests.post(
                 url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
@@ -98,6 +94,11 @@ class ServiceOrchestrator(DAG):
 
             return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
         else:
+            if self.services[cur_node].service_type == ServiceType.LLM and \
+                self.predecessors(cur_node) and \
+                "asr" in self.predecessors(cur_node)[0]:
+                    inputs["query"] = inputs["text"]
+                    del inputs["text"]
             async with session.post(endpoint, json=inputs) as response:
                 print(response.status)
                 return await response.json(), cur_node
