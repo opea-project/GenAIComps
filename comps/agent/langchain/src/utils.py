@@ -46,13 +46,14 @@ def setup_hf_tgi_client(args):
 
 def setup_vllm_client(args):
     from langchain_community.llms.vllm import VLLMOpenAI
+
     openai_endpoint = f"{args.llm_endpoint_url}/v1"
     llm = VLLMOpenAI(
         openai_api_key="EMPTY",
         openai_api_base=openai_endpoint,
         model_name=args.model,
     )
-    return llm   
+    return llm
 
 
 def setup_openai_client(args):

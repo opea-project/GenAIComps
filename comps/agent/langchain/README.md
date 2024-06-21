@@ -42,7 +42,6 @@ docker run --rm -p 8080:80 -v ${local_model_dir}:/data --runtime=habana --name "
 
 ## Use LLAMA-3-70B as llm endpoint
 
-
 ```bash
 export model=meta-llama/Meta-Llama-3-70B-Instruct
 export port_number=8008

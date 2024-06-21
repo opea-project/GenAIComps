@@ -86,8 +86,8 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
             tool_name = tool.name
             args_names = list(tool.args.keys())
             valid_tools.append(tool_name)
-            valid_args[valid_tools[i]]=args_names
-        
+            valid_args[valid_tools[i]] = args_names
+
         print("VALID_TOOLS: ", valid_tools)
         print("VALID_ARGS: ", valid_args)
         return valid_tools, valid_args
@@ -162,7 +162,7 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
             if tool_inst is None:
                 raise ValueError(f"Tool {tool_name} not found in the tool list")
             return tool_inst.run(input)
-        
+
         def execute_one_step(tool, input, past_steps):
             # tool: str
             # input: dict
@@ -200,8 +200,8 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
             output = self.planner.invoke({"objective": state["input"], "date": state["date"]})
             if self.args.llm_engine == "openai":
                 output = output.content
-            if 'steps' in output:
-                plan = output['steps']
+            if "steps" in output:
+                plan = output["steps"]
             return {"plan": plan}
 
         else:  # debug mode
