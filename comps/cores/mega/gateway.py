@@ -329,7 +329,8 @@ class AudioQnAGateway(Gateway):
 
         chat_request = AudioChatCompletionRequest.parse_obj(data)
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
+            # relatively lower max_tokens for audio conversation
+            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 128,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
