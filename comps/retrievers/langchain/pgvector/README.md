@@ -76,7 +76,7 @@ export LANGCHAIN_PROJECT="opea/retrievers"
 ## 2.2 Build Docker Image
 
 ```bash
-cd comps/retrievers/langchain/pgvector/docker 
+cd comps/retrievers/langchain/pgvector/docker
 docker build -t opea/retriever-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/pgvector/docker/Dockerfile .
 ```
 
@@ -96,7 +96,7 @@ docker run -d --name="retriever-pgvector" -p 7000:7000 --ipc=host -e http_proxy=
 ## 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd comps/retrievers/langchain/pgvector/docker 
+cd comps/retrievers/langchain/pgvector/docker
 docker compose -f docker_compose_retriever.yaml up -d
 ```
 

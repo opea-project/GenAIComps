@@ -14,4 +14,4 @@ INDEX_NAME = os.getenv("INDEX_NAME", "rag-pgvector")
 
 current_file_path = os.path.abspath(__file__)
 parent_dir = os.path.dirname(current_file_path)
-PORT = os.getenv("RETRIEVER_PORT", 7000) 
+PORT = os.getenv("RETRIEVER_PORT", 7000)
