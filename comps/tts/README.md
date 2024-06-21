@@ -86,5 +86,7 @@ docker run -p 9088:9088 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$htt
 
 ```bash
 # curl
-http_proxy="" curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
+curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
+
+curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
 ```

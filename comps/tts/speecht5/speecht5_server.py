@@ -11,11 +11,6 @@ from fastapi.responses import Response
 from speecht5_model import SpeechT5Model
 from starlette.middleware.cors import CORSMiddleware
 
-"""Test:
-
-curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
-"""
-
 app = FastAPI()
 tts = None
 

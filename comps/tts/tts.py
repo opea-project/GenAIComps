@@ -17,11 +17,6 @@ from comps import (
     statistics_dict,
 )
 
-"""Test:
-
-curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
-"""
-
 
 @register_microservice(
     name="opea_service@tts",
