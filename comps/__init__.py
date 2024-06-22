@@ -16,6 +16,8 @@ from comps.cores.proto.docarray import (
     TextDoc,
     RAGASParams,
     RAGASScores,
+    GraphDoc,
+    LVMDoc,
 )
 
 # Constants
@@ -32,6 +34,7 @@ from comps.cores.mega.gateway import (
     CodeTransGateway,
     DocSumGateway,
     TranslationGateway,
+    AudioQnAGateway,
 )
 
 # Telemetry

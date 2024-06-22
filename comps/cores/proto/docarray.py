@@ -7,7 +7,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl
-from pydantic import Field, conlist
+from pydantic import Field, conint, conlist
 
 
 class TextDoc(BaseDoc):
@@ -102,3 +102,22 @@ class RAGASScores(BaseDoc):
     faithfulness: float
     context_recallL: float
     context_precision: float
+
+
+class GraphDoc(BaseDoc):
+    text: str
+    strtype: Optional[str] = Field(
+        description="type of input query, can be 'query', 'cypher', 'rag'",
+        default="query",
+    )
+    max_new_tokens: Optional[int] = Field(default=1024)
+    rag_index_name: Optional[str] = Field(default="rag")
+    rag_node_label: Optional[str] = Field(default="Task")
+    rag_text_node_properties: Optional[list] = Field(default=["name", "description", "status"])
+    rag_embedding_node_property: Optional[str] = Field(default="embedding")
+
+
+class LVMDoc(BaseDoc):
+    image: str
+    prompt: str
+    max_new_tokens: conint(ge=0, le=1024) = 512
