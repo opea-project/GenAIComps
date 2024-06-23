@@ -25,6 +25,7 @@ python check_whisper_server.py
 Note: please make sure that port 7066 is not occupied by other services. Otherwise, use the command `npx kill-port 7066` to free the port.
 
 If the Whisper server is running properly, you should see the following output:
+
 ```bash
 {'asr_result': 'Who is pat gelsinger'}
 ```
@@ -48,6 +49,7 @@ python check_asr_server.py
 ```
 
 While the Whisper service is running, you can start the ASR service. If the ASR service is running properly, you should see the output similar to the following:
+
 ```bash
 {'id': '0e686efd33175ce0ebcf7e0ed7431673', 'text': 'who is pat gelsinger'}
 ```
