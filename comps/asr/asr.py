@@ -8,6 +8,8 @@ import time
 import numpy as np
 import requests
 
+import sys
+sys.path.append("../../")
 from comps import (
     Base64ByteStrDoc,
     ServiceType,
