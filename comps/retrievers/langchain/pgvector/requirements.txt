@@ -7,8 +7,8 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pgvector==0.2.5
+prometheus-fastapi-instrumentator==7.0.0
 psycopg2-binary
 pymupdf
 sentence_transformers
 shortuuid
-prometheus-fastapi-instrumentator==7.0.0
