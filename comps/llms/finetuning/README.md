@@ -7,6 +7,7 @@ $ ./start-ray-for-funetuning.sh
 ```
 
 ## Start Finetuning Service
+
 ```bash
 $ ./run.sh
 ```
@@ -19,14 +20,15 @@ http://localhost:8000/docs
 
 ```json
 {
-    "training_file": "file-vGxE9KywnSUkEL6dv9qZxKAF.jsonl",
-    "model": "meta-llama/Llama-2-7b-chat-hf"
+  "training_file": "file-vGxE9KywnSUkEL6dv9qZxKAF.jsonl",
+  "model": "meta-llama/Llama-2-7b-chat-hf"
 }
 ```
 
 # Dev Notes
 
 ### Test if Ray cluster is working
+
 ```bash
 $ python -c "import ray; ray.init(); print(ray.cluster_resources())"
 ```

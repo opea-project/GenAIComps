@@ -1,25 +1,26 @@
-import time
-from typing import List
-import uuid
-from llm_on_ray.finetune.finetune_config import FinetuneConfig
-from ray.tune.logger import LoggerCallback
-
-from ray.tune.callback import Callback
-from ray.tune.experiment import Trial
-from transformers import TrainingArguments, TrainerState, TrainerControl
-from transformers import TrainerCallback
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import time
+import uuid
+from typing import List
 
+from llm_on_ray.finetune.finetune_config import FinetuneConfig
 from pydantic_yaml import parse_yaml_raw_as
 from ray.train.base_trainer import TrainingFailedError
+from ray.tune.callback import Callback
+from ray.tune.experiment import Trial
+from ray.tune.logger import LoggerCallback
+from transformers import TrainerCallback, TrainerControl, TrainerState, TrainingArguments
+
 
 class FineTuneCallback(TrainerCallback):
     def __init__(self) -> None:
         super().__init__()
 
     def on_log(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
-        print(f"FineTuneCallback:", args, state)
+        print("FineTuneCallback:", args, state)
 
 
 def main():

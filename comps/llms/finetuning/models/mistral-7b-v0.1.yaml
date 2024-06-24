@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 General:
   base_model: mistralai/Mistral-7B-v0.1
   gpt_base_model: false
@@ -12,14 +15,14 @@ General:
     lora_alpha: 32
     lora_dropout: 0.1
     target_modules:
-    - q_proj
-    - k_proj
-    - v_proj
-    - o_proj
-    - gate_proj
-    - up_proj
-    - down_proj
-    - lm_head
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+      - lm_head
   enable_gradient_checkpointing: false
 Dataset:
   train_file: examples/data/sample_finetune_data_small.jsonl

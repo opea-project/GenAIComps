@@ -1,14 +1,16 @@
-import uvicorn
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
-from fastapi import BackgroundTasks, FastAPI, Form, Cookie, Header, Response
-from pydantic import BaseModel
-from models import FineTuningJobsRequest, FineTuningJob, FineTuningJobList
+import uvicorn
+from fastapi import BackgroundTasks, Cookie, FastAPI, Form, Header, Response
 from handlers import (
+    handle_cancel_finetuning_job,
     handle_create_finetuning_jobs,
     handle_list_finetuning_jobs,
     handle_retrieve_finetuning_job,
-    handle_cancel_finetuning_job,
 )
+from models import FineTuningJob, FineTuningJobList, FineTuningJobsRequest
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -78,9 +80,7 @@ def retrieve_finetuning_job(fine_tuning_job_id):
     return job
 
 
-@app.post(
-    "/v1/fine_tuning/jobs/{fine_tuning_job_id}/cancel", response_model=FineTuningJob
-)
+@app.post("/v1/fine_tuning/jobs/{fine_tuning_job_id}/cancel", response_model=FineTuningJob)
 def cancel_finetuning_job(fine_tuning_job_id):
     job = handle_cancel_finetuning_job(fine_tuning_job_id)
     return job
