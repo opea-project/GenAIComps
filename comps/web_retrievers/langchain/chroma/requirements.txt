@@ -11,3 +11,4 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 sentence_transformers
 shortuuid
+prometheus-fastapi-instrumentator
