@@ -24,7 +24,7 @@ function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-web-retriever-chroma-server" -p ${retriever_port}:7077 --ipc=host -e GOOGLE_API_KEY=$GOOGLE_API_KEY -e GOOGLE_CSE_ID=$GOOGLE_CSE_ID -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/web-retriever-chroma:comps
 
-    sleep 6m
+    sleep 10m
 }
 
 function validate_microservice() {
