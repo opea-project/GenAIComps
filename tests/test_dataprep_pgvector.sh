@@ -30,7 +30,7 @@ function start_service() {
 
 function validate_microservice() {
     URL="http://$ip_address:6007/v1/dataprep"
-    echo 'The OPEA platform includes: Detailed framework of composable building blocks for state-of-the-art generative AI systems including LLMs, data stores, and prompt engines' > ./dataprep_file.txt 
+    echo 'The OPEA platform includes: Detailed framework of composable building blocks for state-of-the-art generative AI systems including LLMs, data stores, and prompt engines' > ./dataprep_file.txt
 
     #curl --location --request POST "${url}" \
     #  --form 'files=@"'${WORKPATH}'/tests/test.txt"'
@@ -53,7 +53,7 @@ function validate_microservice() {
         docker logs dataprep-pgvector >> ${LOG_PATH}/dataprep.log
         exit 1
     fi
- 
+
 }
 
 function stop_docker() {
