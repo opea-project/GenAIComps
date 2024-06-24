@@ -12,7 +12,7 @@ from langchain_milvus.vectorstores import Milvus
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.docarray import DocPath
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
-from comps.dataprep.utils import document_loader
+from comps.dataprep.utils import document_loader, get_tables_result
 
 # current_script_path = os.path.dirname(os.path.abspath(__file__))
 # parent_dir = os.path.dirname(current_script_path)
@@ -39,7 +39,9 @@ def ingest_documents(doc_path: DocPath):
     )
     content = document_loader(path)
     chunks = text_splitter.split_text(content)
-
+    if doc_path.process_table:
+        table_chunks=get_tables_result(path, doc_path.table_strategy)
+        chunks=chunks+table_chunks
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
     # Create vectorstore
     if EMBEDDING_ENDPOINT:

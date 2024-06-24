@@ -22,6 +22,8 @@ class DocPath(BaseDoc):
     path: str
     chunk_size: int = 1500
     chunk_overlap: int = 100
+    process_table: bool=False
+    table_strategy: str="fast"
 
 
 class EmbedDoc768(BaseDoc):
@@ -88,11 +90,6 @@ class LLMParams(BaseDoc):
     temperature: float = 0.01
     repetition_penalty: float = 1.03
     streaming: bool = True
-
-
-class TableExtractDoc(BaseDoc):
-    path: str
-    table_strategy: str
 
 
 class RAGASParams(BaseDoc):
