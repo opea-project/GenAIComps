@@ -26,15 +26,15 @@ function start_service() {
     sleep 10s
 
     docker run -d --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} opea/dataprep-pgvector:latest
-    
+
     sleep 3m
 }
 
 function validate_microservice() {
     URL="http://$ip_address:6007/v1/dataprep"
-    echo 'The OPEA platform includes: Detailed framework of composable building blocks for state-of-the-art generative AI systems including LLMs, data stores, and prompt engines' > ./dataprep_file.txt 
+    echo 'The OPEA platform includes: Detailed framework of composable building blocks for state-of-the-art generative AI systems including LLMs, data stores, and prompt engines' > ./dataprep_file.txt
     curl --noproxy $ip_address --location --request POST \
-      --form 'files=@./dataprep_file.txt' $URL 
+      --form 'files=@./dataprep_file.txt' $URL
 }
 
 function stop_docker() {
