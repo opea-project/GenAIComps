@@ -14,10 +14,10 @@
 # limitations under the License.
 #
 
+import functools
 import logging
 import logging.config
 import traceback
-import functools
 
 __all__ = ["logger", "get_logger"]
 

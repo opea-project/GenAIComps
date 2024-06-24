@@ -16,25 +16,21 @@
 
 #!/usr/bin/env python
 
-import os
 import argparse
+import os
 import sys
-from typing import Any, Dict, Union, Optional
-
-import torch
-
-import transformers
+from importlib import util
+from typing import Any, Dict, Optional, Union
 
 import ray
-from ray.train.torch import TorchTrainer
-from ray.air.config import ScalingConfig
-from ray.air import RunConfig, FailureConfig
-
-from pydantic_yaml import parse_yaml_raw_as
-
+import torch
+import transformers
 from llm_on_ray import common
 from llm_on_ray.finetune.finetune_config import FinetuneConfig
-from importlib import util
+from pydantic_yaml import parse_yaml_raw_as
+from ray.air import FailureConfig, RunConfig
+from ray.air.config import ScalingConfig
+from ray.train.torch import TorchTrainer
 
 use_habana = False
 if util.find_spec("habana_frameworks") is not None:
@@ -42,7 +38,7 @@ if util.find_spec("habana_frameworks") is not None:
 
     use_habana = True
 else:
-    from accelerate.utils import set_seed, is_xpu_available
+    from accelerate.utils import is_xpu_available, set_seed
 
     use_habana = False
 
@@ -240,9 +236,7 @@ def train_func(config: Dict[str, Any]):
             "dtype": convert_dtype(config["Training"].get("mixed_precision", "no")),
             "device": torch.device(device),
             "config": config["General"]["config"],
-            "enable_gradient_checkpointing": config["General"].get(
-                "enable_gradient_checkpointing", False
-            ),
+            "enable_gradient_checkpointing": config["General"].get("enable_gradient_checkpointing", False),
             "lora_config": config["General"].get("lora_config", None),
         }
     )
@@ -250,7 +244,6 @@ def train_func(config: Dict[str, Any]):
     data_collator = common.dataprocesser.general_processer.DataCollatorForCompletionOnlyLM(
         tokenizer=tokenizer, mlm=False, return_tensors="pt", pad_to_multiple_of=8
     )
-
 
     if device in ["cpu", "gpu"]:
         from transformers import Trainer, TrainingArguments
@@ -260,9 +253,7 @@ def train_func(config: Dict[str, Any]):
             model=model,
             args=training_args,
             train_dataset=tokenized_datasets["train"],
-            eval_dataset=tokenized_datasets["validation"]
-            if tokenized_datasets.get("validation") is not None
-            else None,
+            eval_dataset=tokenized_datasets["validation"] if tokenized_datasets.get("validation") is not None else None,
             tokenizer=tokenizer,
             data_collator=data_collator,
         )
@@ -272,9 +263,8 @@ def train_func(config: Dict[str, Any]):
         trainer.save_model()
         common.logger.info("train finish")
     elif device in ["hpu"]:
-        from optimum.habana.transformers import GaudiTrainer
-        from optimum.habana.transformers import GaudiTrainingArguments
         from optimum.habana import GaudiConfig
+        from optimum.habana.transformers import GaudiTrainer, GaudiTrainingArguments
 
         # If gaudi_config_name is provided, load gaudi_config from huggingface model hub(https://huggingface.co/Habana), otherwise use default gaudi_config
         if config["general"].get("gaudi_config_name") is not None:
@@ -291,9 +281,7 @@ def train_func(config: Dict[str, Any]):
             args=training_args,
             gaudi_config=gaudi_config,
             train_dataset=tokenized_datasets["train"],
-            eval_dataset=tokenized_datasets["validation"]
-            if tokenized_datasets.get("validation") is not None
-            else None,
+            eval_dataset=tokenized_datasets["validation"] if tokenized_datasets.get("validation") is not None else None,
             tokenizer=tokenizer,
             data_collator=data_collator,
         )
@@ -305,9 +293,7 @@ def train_func(config: Dict[str, Any]):
 
 
 def get_finetune_config():
-    parser = argparse.ArgumentParser(
-        description="Finetune a transformers model on a causal language modeling task"
-    )
+    parser = argparse.ArgumentParser(description="Finetune a transformers model on a causal language modeling task")
     parser.add_argument(
         "--config_file",
         type=str,
@@ -341,9 +327,7 @@ def main(external_config=None):
     resources_per_worker = config["Training"].get("resources_per_worker")
 
     if config["Training"].get("accelerate_mode", None) is None:
-        config["Training"][
-            "accelerate_mode"
-        ] = "DDP"  # will use DDP to accelerate if no method specified
+        config["Training"]["accelerate_mode"] = "DDP"  # will use DDP to accelerate if no method specified
 
     ccl_worker_count = 1
     device = config["Training"]["device"]
@@ -366,9 +350,7 @@ def main(external_config=None):
             runtime_env["pip"] = ["transformers==4.26.0"]
 
         if device == "gpu":
-            num_cpus = (
-                resources_per_worker["CPU"] * num_training_workers + 1
-            )  # additional 1 for head worker
+            num_cpus = resources_per_worker["CPU"] * num_training_workers + 1  # additional 1 for head worker
             ray.init(num_cpus=num_cpus, runtime_env=runtime_env)
         else:
             ray.init(runtime_env=runtime_env)
