@@ -13,7 +13,7 @@ from comps.cores.proto.docarray import (
     GeneratedDoc,
     LLMParamsDoc,
     SearchedDoc,
-    TableExtractDoc,
+    RerankedDoc,
     TextDoc,
     RAGASParams,
     RAGASScores,
