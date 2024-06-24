@@ -14,8 +14,10 @@ def get_duckduckgo_search(k: int = 10):
 
     return DuckDuckGoSearchRun(k=k)
 
+
 def interest_calculator(annual_rate: float, principle: float):
     return "{:.2f}".format(principle * annual_rate / 12)
+
 
 def get_interest_calculator():
     class CalculatorInput(BaseModel):
@@ -28,6 +30,7 @@ def get_interest_calculator():
         func=interest_calculator,
         args_schema=CalculatorInput,
     )
+
 
 def ticker_lookup(entity: str) -> str:
     import requests
@@ -64,6 +67,7 @@ def ticker_lookup(entity: str) -> str:
             else:
                 return "Ticker lookup tool cannot find ticker for {}".format(entity)
 
+
 def get_ticker_lookup():
     class TickerLookupInput(BaseModel):
         entity: str = Field(description="The name of the stock, ETF, or index.")
@@ -74,6 +78,7 @@ def get_ticker_lookup():
         func=ticker_lookup,
         args_schema=TickerLookupInput,
     )
+
 
 def get_aggregates_for_ticker(ticker: str, from_date: str, span: str):
     import time
@@ -120,12 +125,14 @@ def get_aggregates_for_ticker(ticker: str, from_date: str, span: str):
 
     return ret_json
 
+
 def extract_info_from_aggregates(aggregates: str, info_to_seek: str) -> str:
     try:
         aggregates_json = json.loads(aggregates)
         return aggregates_json[info_to_seek]
     except Exception as e:
         return str(e)
+
 
 def get_trade_info(ticker: str, info_to_seek: str, from_date: str = None, span: str = "day") -> str:
     import datetime
@@ -140,7 +147,8 @@ def get_trade_info(ticker: str, info_to_seek: str, from_date: str = None, span: 
             return extract_info_from_aggregates(aggregates, info_to_seek)
         else:
             return "Cannot find trade info for ticker {}".format(ticker)
-            
+
+
 def get_trade_info():
     class TradeInfoInput(BaseModel):
         ticker: str = Field(description="the stock or index ticker symbol. ONLY one ticker is allowed.")
@@ -159,8 +167,10 @@ def get_trade_info():
         args_schema=TradeInfoInput,
     )
 
+
 def profit_calculator(principle: float, sold: float) -> float:
     return "{:.2f}".format((sold - principle) / principle * 100)
+
 
 def get_profit_calculator():
     class CalculatorInput(BaseModel):
@@ -173,6 +183,7 @@ def get_profit_calculator():
         func=profit_calculator,
         args_schema=CalculatorInput,
     )
+
 
 def tools_descriptions():
     tools = []

@@ -5,17 +5,21 @@ import glob
 import importlib
 import os
 import sys
+
 import yaml
 
+# from pydantic import create_model, Field
+from langchain.pydantic_v1 import BaseModel, Field, create_model
 from langchain.tools import StructuredTool
 from langchain_community.agent_toolkits.load_tools import load_tools
-#from pydantic import create_model, Field
-from langchain.pydantic_v1 import BaseModel, create_model, Field
 
 
 def generate_request_function(url):
     def process_request(query):
-        import requests, json
+        import json
+
+        import requests
+
         content = json.dumps({"query": query})
         print(content)
         try:
@@ -26,14 +30,15 @@ def generate_request_function(url):
             ret = f"An error occurred:{e}"
         print(ret)
         return ret
+
     return process_request
 
 
 def load_func_str(func_str):
     # case 1: func is an endpoint api
-    if func_str.startswith('http://') or func_str.startswith('https://'):
+    if func_str.startswith("http://") or func_str.startswith("https://"):
         return generate_request_function(func_str)
-    
+
     # case 2: func is a python file + function
     if ".py:" in func_str:
         file_path, func_name = func_str.rsplit(":", 1)
@@ -42,10 +47,10 @@ def load_func_str(func_str):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         func_str = getattr(module, func_name)
-    
+
     # case 3: func is a python loadable module
     else:
-        module_path, func_name = func_str.rsplit('.', 1)
+        module_path, func_name = func_str.rsplit(".", 1)
         module = importlib.import_module(module_path)
         func_str = getattr(module, func_name)
     return func_str
@@ -54,24 +59,24 @@ def load_func_str(func_str):
 def load_func_args(tool_name, args_dict):
     fields = {}
     for arg_name, arg_item in args_dict.items():
-        fields[arg_name] = (arg_item['type'], Field(description=arg_item['description']))
+        fields[arg_name] = (arg_item["type"], Field(description=arg_item["description"]))
     return create_model(f"{tool_name}Input", **fields, __base__=BaseModel)
 
 
 def load_langchain_tool(tool_setting_tuple):
     tool_name = tool_setting_tuple[0]
     tool_setting = tool_setting_tuple[1]
-    func_definition = load_func_str(tool_setting['callable_api'])
-    func_inputs = load_func_args(tool_name, tool_setting['args_schema'])
-    #print(func_inputs, "type is ", type(func_inputs))
+    func_definition = load_func_str(tool_setting["callable_api"])
+    func_inputs = load_func_args(tool_name, tool_setting["args_schema"])
+    # print(func_inputs, "type is ", type(func_inputs))
     return StructuredTool(
         name=tool_name,
-        description=tool_setting['description'],
+        description=tool_setting["description"],
         func=func_definition,
         args_schema=func_inputs,
     )
 
-    
+
 def load_yaml_tools(file_dir_path: str):
     tools_setting = yaml.safe_load(open(file_dir_path))
     tools = []
@@ -83,7 +88,7 @@ def load_yaml_tools(file_dir_path: str):
 def load_python_tools(file_dir_path: str):
     spec = importlib.util.spec_from_file_location("custom_tools", file_dir_path)
     module = importlib.util.module_from_spec(spec)
-    #sys.modules["custom_tools"] = module
+    # sys.modules["custom_tools"] = module
     spec.loader.exec_module(module)
     return module.tools_descriptions()
 

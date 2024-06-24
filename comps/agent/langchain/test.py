@@ -79,11 +79,14 @@ def test_agent_http(args):
     df["trace"] = traces
     df.to_csv(os.path.join(args.filedir, args.output), index=False)
 
+
 def test_ut(args):
     from src.tools import get_tools_descriptions
+
     tools = get_tools_descriptions("tools/custom_tools.py")
     for tool in tools:
         print(tool)
+
 
 if __name__ == "__main__":
     args1, _ = get_args()
