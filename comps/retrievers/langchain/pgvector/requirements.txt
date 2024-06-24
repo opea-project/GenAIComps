@@ -11,3 +11,4 @@ psycopg2-binary
 pymupdf
 sentence_transformers
 shortuuid
+prometheus-fastapi-instrumentator==7.0.0
