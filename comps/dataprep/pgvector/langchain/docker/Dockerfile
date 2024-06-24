@@ -21,17 +21,17 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/pgvector/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/dataprep/pgvector/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER root
 
-RUN mkdir -p /home/user/comps/dataprep/pgvector/uploaded_files && chown -R user /home/user/comps/dataprep/pgvector/uploaded_files
+RUN mkdir -p /home/user/comps/dataprep/pgvector/langchain/uploaded_files && chown -R user /home/user/comps/dataprep/pgvector/langchain/uploaded_files
 
 USER user
 
-WORKDIR /home/user/comps/dataprep/pgvector
+WORKDIR /home/user/comps/dataprep/pgvector/langchain
 
 ENTRYPOINT ["python", "prepare_doc_pgvector.py"]
 

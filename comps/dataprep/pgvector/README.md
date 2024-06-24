@@ -49,8 +49,8 @@ export LANGCHAIN_PROJECT="opea/dataprep"
 ## 2.3 Build Docker Image
 
 ```bash
-cd comps/dataprep/pgvector/docker
-docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/pgvector/docker/Dockerfile .
+cd comps/dataprep/langchain/pgvector/docker
+docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/langchain/pgvector/docker/Dockerfile .
 ```
 
 ## 2.4 Run Docker with CLI (Option A)
@@ -62,7 +62,7 @@ docker run -d --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$
 ## 2.5 Run with Docker Compose (Option B)
 
 ```bash
-cd comps/dataprep/pgvector/docker
+cd comps/dataprep/langchain/pgvector/docker
 docker compose -f docker-compose-dataprep-pgvector.yaml up -d
 ```
 

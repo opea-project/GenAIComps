@@ -18,3 +18,4 @@ pymupdf
 python-docx
 sentence_transformers
 shortuuid
+prometheus-fastapi-instrumentator==7.0.0
