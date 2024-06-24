@@ -6,7 +6,7 @@ FROM python:3.11-slim
 
 ENV LANG C.UTF-8
 
-ARG ARCH="cpu"  # other supported options are "gpu", "hpu"
+ARG ARCH="cpu"
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
@@ -23,7 +23,7 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ ${ARCH} = "cpu" ] ; then pip install torch --index-url https://download.pytorch.org/whl/cpu; fi && \
+    if [ ${ARCH} = "cpu" ]; then pip install torch --index-url https://download.pytorch.org/whl/cpu; fi && \
     pip install --no-cache-dir -r /home/user/comps/dataprep/milvus/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
