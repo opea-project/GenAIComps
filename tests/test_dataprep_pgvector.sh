@@ -34,7 +34,7 @@ function validate_microservice() {
     echo 'The OPEA platform includes: Detailed framework of composable building blocks for state-of-the-art generative AI systems including LLMs, data stores, and prompt engines' > $WORKPATH/tests/test.txt
 
     #curl --location --request POST "${url}" \
-    #  --form 'files=@"'${WORKPATH}'/tests/test.txt"' 
+    #  --form 'files=@"'${WORKPATH}'/tests/test.txt"'
 
     curl ${url} \
 	-X POST \
