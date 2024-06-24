@@ -4,9 +4,11 @@
 from typing import Optional
 
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 from uvicorn import Config, Server
 
 from .base_service import BaseService
+from .base_statistics import collect_all_statistics
 
 
 class HTTPService(BaseService):
@@ -31,6 +33,7 @@ class HTTPService(BaseService):
         self.uvicorn_kwargs = uvicorn_kwargs or {}
         self.cors = cors
         self._app = self._create_app()
+        Instrumentator().instrument(self._app).expose(self._app)
 
     @property
     def app(self):
@@ -65,6 +68,16 @@ class HTTPService(BaseService):
         async def _health_check():
             """Get the health status of this GenAI microservice."""
             return {"Service Title": self.title, "Service Description": self.description}
+
+        @app.get(
+            path="/v1/statistics",
+            summary="Get the statistics of GenAI services",
+            tags=["Debug"],
+        )
+        async def _get_statistics():
+            """Get the statistics of GenAI services."""
+            result = collect_all_statistics()
+            return result
 
         return app
 
