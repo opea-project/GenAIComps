@@ -161,7 +161,7 @@ Note: If you specify "table_strategy=llm", You should first start TGI Service, p
 ```bash
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
-    -F "files=@./LLAMA2_page6.pdf" \
+    -F "files=@./your_file.pdf" \
     -F "process_table=true" \
     -F "table_strategy=hq" \
     http://localhost:6007/v1/dataprep
