@@ -13,6 +13,7 @@ on:
       - GenAIEval/**
       - setup.py
       - tests/**
+      - .github/workflows/scripts/unittest/**
   workflow_dispatch:
 
 # If there is a new commit, the previous jobs will be canceled
@@ -61,7 +62,7 @@ jobs:
 
         - name: Install Dependencies
           run: |
-            docker exec ${{ env.CONTAINER_NAME }} bash -c "cd /GenAIEval && pip install -r requirements.txt && python setup.py install"
+            docker exec ${{ env.CONTAINER_NAME }} bash -c "bash /GenAIEval/.github/workflows/scripts/install_evals.sh"
 
         - name: Run UT
           run: |

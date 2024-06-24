@@ -34,7 +34,7 @@ jobs:
       matrix:
         include:
           - modelName: "opt-125m"
-            datasets: "piqa"
+            datasets: "lambada_openai"
             device: "cpu"
             tasks: "text-generation"
       fail-fast: true
