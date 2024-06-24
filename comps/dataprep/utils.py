@@ -21,15 +21,15 @@ import requests
 import yaml
 from bs4 import BeautifulSoup
 from docx import Document as DDocument
+from langchain import LLMChain, PromptTemplate
 from langchain_community.document_loaders import (
     UnstructuredImageLoader,
     UnstructuredMarkdownLoader,
     UnstructuredPowerPointLoader,
     UnstructuredXMLLoader,
 )
-from PIL import Image
-from langchain import LLMChain, PromptTemplate
 from langchain_community.llms import HuggingFaceEndpoint
+from PIL import Image
 
 
 class TimeoutError(Exception):
@@ -484,7 +484,7 @@ def get_tables_result(pdf_path, table_strategy):
                         break
         elif table_strategy == "llm":
             table_summary = llm_generate(content)
-            table_summary=table_summary.lstrip("\n ")
+            table_summary = table_summary.lstrip("\n ")
         elif table_strategy is None:
             table_summary = None
         if table_summary is None:

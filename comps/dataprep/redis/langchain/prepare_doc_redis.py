@@ -15,7 +15,7 @@ from langchain_community.vectorstores import Redis
 from langsmith import traceable
 
 from comps import DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import document_loader, parse_html, get_tables_result
+from comps.dataprep.utils import document_loader, get_tables_result, parse_html
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
@@ -42,8 +42,8 @@ def ingest_data_to_redis(doc_path: DocPath):
     content = document_loader(path)
     chunks = text_splitter.split_text(content)
     if doc_path.process_table:
-        table_chunks=get_tables_result(path, doc_path.table_strategy)
-        chunks=chunks+table_chunks
+        table_chunks = get_tables_result(path, doc_path.table_strategy)
+        chunks = chunks + table_chunks
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
 
     # Create vectorstore
@@ -108,8 +108,8 @@ async def ingest_documents(
     link_list: Optional[str] = Form(None),
     chunk_size: int = Form(1500),
     chunk_overlap: int = Form(100),
-    process_table: bool = Form(False), 
-    table_strategy: str = Form("fast")
+    process_table: bool = Form(False),
+    table_strategy: str = Form("fast"),
 ):
     print(f"files:{files}")
     print(f"link_list:{link_list}")
@@ -125,7 +125,15 @@ async def ingest_documents(
         for file in files:
             save_path = upload_folder + file.filename
             await save_file_to_local_disk(save_path, file)
-            ingest_data_to_redis(DocPath(path=save_path, chunk_size=chunk_size, chunk_overlap=chunk_overlap, process_table=process_table, table_strategy=table_strategy))
+            ingest_data_to_redis(
+                DocPath(
+                    path=save_path,
+                    chunk_size=chunk_size,
+                    chunk_overlap=chunk_overlap,
+                    process_table=process_table,
+                    table_strategy=table_strategy,
+                )
+            )
             print(f"Successfully saved file {save_path}")
         return {"status": 200, "message": "Data preparation succeeded"}
 
