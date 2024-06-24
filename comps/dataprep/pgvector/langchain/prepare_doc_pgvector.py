@@ -14,7 +14,13 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFace
 from langchain_community.vectorstores import PGVector
 from langsmith import traceable
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import (
+    DocPath,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics
+)
 from comps.dataprep.utils import document_loader, parse_html
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
@@ -91,9 +97,15 @@ def ingest_link_to_pgvector(link_list: List[str]):
         connection_string=PG_CONNECTION_STRING,
     )
 
-
-@register_microservice(name="opea_service@prepare_doc_pgvector", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
+@register_microservice(
+    name="opea_service@prepare_doc_pgvector",
+    service_type=ServiceType.DATAPREP,
+    endpoint="/v1/dataprep",
+    host="0.0.0.0",
+    port=6007
+)
 @traceable(run_type="tool")
+@register_statistics(names=["opea_service@dataprep_pgvector"])
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), link_list: Optional[str] = Form(None)
 ):
