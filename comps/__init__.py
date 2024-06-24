@@ -13,9 +13,12 @@ from comps.cores.proto.docarray import (
     GeneratedDoc,
     LLMParamsDoc,
     SearchedDoc,
+    RerankedDoc,
     TextDoc,
     RAGASParams,
     RAGASScores,
+    GraphDoc,
+    LVMDoc,
 )
 
 # Constants
@@ -32,6 +35,8 @@ from comps.cores.mega.gateway import (
     CodeTransGateway,
     DocSumGateway,
     TranslationGateway,
+    SearchQnAGateway,
+    AudioQnAGateway,
 )
 
 # Telemetry
