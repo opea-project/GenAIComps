@@ -13,9 +13,9 @@ opentelemetry-sdk
 pandas
 pgvector==0.2.5
 Pillow
+prometheus-fastapi-instrumentator==7.0.0
 psycopg2-binary
 pymupdf
 python-docx
 sentence_transformers
 shortuuid
-prometheus-fastapi-instrumentator==7.0.0
