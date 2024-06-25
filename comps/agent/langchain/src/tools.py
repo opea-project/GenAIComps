@@ -10,7 +10,7 @@ import yaml
 
 # from pydantic import create_model, Field
 from langchain.pydantic_v1 import BaseModel, Field, create_model
-from langchain.tools import StructuredTool, BaseTool
+from langchain.tools import BaseTool, StructuredTool
 from langchain_community.agent_toolkits.load_tools import load_tools
 
 
@@ -49,7 +49,7 @@ def load_func_str(func_str):
         func_str = getattr(module, func_name)
 
     # case 3: func is a langchain tool
-    elif not '.' in func_str:
+    elif "." not in func_str:
         try:
             return load_tools([func_str])[0]
         except:
