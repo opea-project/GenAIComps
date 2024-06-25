@@ -149,7 +149,7 @@ def get_trade_info(ticker: str, info_to_seek: str, from_date: str = None, span: 
             return "Cannot find trade info for ticker {}".format(ticker)
 
 
-def get_trade_info():
+def get_trade_info_tool():
     class TradeInfoInput(BaseModel):
         ticker: str = Field(description="the stock or index ticker symbol. ONLY one ticker is allowed.")
         info_to_seek: str = Field(
@@ -200,6 +200,6 @@ def tools_descriptions():
         get_interest_calculator(),
         get_profit_calculator(),
         get_ticker_lookup(),
-        get_trade_info(),
+        get_trade_info_tool(),
     ]
     return tools
