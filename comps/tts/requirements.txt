@@ -10,3 +10,4 @@ sentencepiece
 shortuuid
 torch
 transformers
+soundfile
