@@ -99,6 +99,13 @@ def tool_renderer(tools):
         tool_strings.append(f"{description}, args: {arg_schema}")
     return "\n".join(tool_strings)
 
+def has_multi_tool_inputs(tools):
+    ret = False
+    for tool in tools:
+        if len(tool.args) > 1:
+            ret = True
+            break
+    return ret
 
 def get_args():
     parser = argparse.ArgumentParser()

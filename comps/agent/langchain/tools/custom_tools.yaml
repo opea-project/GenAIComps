@@ -1,14 +1,10 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+google-finance:
+  callable_api: google-finance
 duckduckgo_search:
-  description: Searches DuckDuckGo for the given query
   callable_api: ddg-search
-  args_schema:
-    query:
-      type: str
-      description: The query to search for
-  return_output: searched_result
 propriety_info_retrieval:
   description: Retrieves the propriety information for the given entity
   callable_api: http://localhost:9090/v1/rag_retrieval
@@ -17,20 +13,20 @@ propriety_info_retrieval:
       type: str
       description: Question query to get related propriety information
   return_output: propriety_info
-interest_calculator:
-  description: Calculates the interest for the given principal amount, rate of interest and time period
-  callable_api: tools/custom_tools.py:interest_calculator
-  args_schema:
-    principal:
-      type: float
-      description: The principal amount
-    rate_of_interest:
-      type: float
-      description: The rate of interest
-    time_period:
-      type: float
-      description: The time period
-  return_output: interest
+# interest_calculator:
+#   description: Calculates the interest for the given principal amount, rate of interest and time period
+#   callable_api: tools/custom_tools.py:interest_calculator
+#   args_schema:
+#     principal:
+#       type: float
+#       description: The principal amount
+#     rate_of_interest:
+#       type: float
+#       description: The rate of interest
+#     time_period:
+#       type: float
+#       description: The time period
+#   return_output: interest
 ticker_lookup:
   description: This function returns the ticker symbol for a stock, ETF, or an index.
   callable_api: tools/custom_tools.py:ticker_lookup
@@ -39,20 +35,20 @@ ticker_lookup:
       type: str
       description: The name of the stock, ETF, or index.
   return_output: ticker_symbol
-get_trade_info:
-  description: This function returns a single piece of information from the trading aggregates for a SINGLE stock or index ticker. The information can be open_price, close_price, low_price, high_price, average_price, trading_volume, num_transaction. No other info can be obtained with this tool.
-  callable_api: tools/custom_tools.py:get_trade_info
-  args_schema:
-    ticker_symbol:
-      type: str
-      description: the stock or index ticker symbol. ONLY one ticker is allowed.
-    info_type:
-      type: str
-      description: the type of information to be obtained. It can be open_price, close_price, low_price, high_price, average_price, trading_volume, num_transaction.
-    from_date:
-      type: str
-      description: "the start date for the trading data. Format: YYYY-MM-DD"
-    span:
-      type: str
-      description: "the span of the trading data. It can be 1an be 'day', 'week', 'month', 'quarter' or 'year."
-  return_output: trade_info
+# get_trade_info:
+#   description: This function returns a single piece of information from the trading aggregates for a SINGLE stock or index ticker. The information can be open_price, close_price, low_price, high_price, average_price, trading_volume, num_transaction. No other info can be obtained with this tool.
+#   callable_api: tools/custom_tools.py:get_trade_info
+#   args_schema:
+#     ticker_symbol:
+#       type: str
+#       description: the stock or index ticker symbol. ONLY one ticker is allowed.
+#     info_type:
+#       type: str
+#       description: the type of information to be obtained. It can be open_price, close_price, low_price, high_price, average_price, trading_volume, num_transaction.
+#     from_date:
+#       type: str
+#       description: "the start date for the trading data. Format: YYYY-MM-DD"
+#     span:
+#       type: str
+#       description: "the span of the trading data. It can be 1an be 'day', 'week', 'month', 'quarter' or 'year."
+#   return_output: trade_info

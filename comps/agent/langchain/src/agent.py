@@ -6,7 +6,7 @@ from typing import List, Tuple, TypedDict, Union
 from langgraph.graph import END, StateGraph
 
 from .tools import get_tools_descriptions
-from .utils import setup_llm, tool_renderer
+from .utils import setup_llm, tool_renderer, has_multi_tool_inputs
 
 
 def instantiate_agent(args, strategy="react"):
@@ -51,9 +51,12 @@ class ReActAgentwithLangchain(BaseAgent):
         from langchain.agents import AgentExecutor, create_react_agent
 
         prompt = hub.pull("hwchase17/react")
-        agent_chain = create_react_agent(
-            self.llm_endpoint, self.tools_descriptions, prompt, tools_renderer=tool_renderer
-        )
+        if has_multi_tool_inputs(self.tools_descriptions):
+            raise ValueError("Only supports single input tools when using strategy == react")
+        else:
+            agent_chain = create_react_agent(
+                self.llm_endpoint, self.tools_descriptions, prompt, tools_renderer=tool_renderer
+            )
         self.app = AgentExecutor(
             agent=agent_chain, tools=self.tools_descriptions, verbose=True, handle_parsing_errors=True
         )

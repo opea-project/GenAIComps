@@ -134,7 +134,7 @@ def extract_info_from_aggregates(aggregates: str, info_to_seek: str) -> str:
         return str(e)
 
 
-def get_trade_info(ticker: str, info_to_seek: str, from_date: str = None, span: str = "day") -> str:
+def get_trade_info(ticker: str, info_type: str, from_date: str = None, span: str = "day") -> str:
     import datetime
 
     if "Ticker lookup tool cannot find ticker for" in ticker:
@@ -144,7 +144,7 @@ def get_trade_info(ticker: str, info_to_seek: str, from_date: str = None, span: 
             from_date = datetime.datetime.now().strftime("%Y-%m-%d")
         aggregates = get_aggregates_for_ticker(ticker, from_date, span)
         if aggregates:
-            return extract_info_from_aggregates(aggregates, info_to_seek)
+            return extract_info_from_aggregates(aggregates, info_type)
         else:
             return "Cannot find trade info for ticker {}".format(ticker)
 
@@ -152,7 +152,7 @@ def get_trade_info(ticker: str, info_to_seek: str, from_date: str = None, span: 
 def get_trade_info_tool():
     class TradeInfoInput(BaseModel):
         ticker: str = Field(description="the stock or index ticker symbol. ONLY one ticker is allowed.")
-        info_to_seek: str = Field(
+        info_type: str = Field(
             description="can only be one of the following: open_price, close_price, low_price, high_price, average_price, trading_volume, num_transaction."
         )
         from_date: str = Field(description="the start date for the aggregates, must be in the YYYY-MM-DD format.")
