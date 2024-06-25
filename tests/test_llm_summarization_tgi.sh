@@ -6,6 +6,7 @@ set -xe
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+LOG_PATH="$WORKPATH/tests"
 
 function build_docker_images() {
     cd $WORKPATH
