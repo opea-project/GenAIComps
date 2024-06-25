@@ -10,7 +10,7 @@ import yaml
 
 # from pydantic import create_model, Field
 from langchain.pydantic_v1 import BaseModel, Field, create_model
-from langchain.tools import StructuredTool
+from langchain.tools import StructuredTool, BaseTool
 from langchain_community.agent_toolkits.load_tools import load_tools
 
 
@@ -40,7 +40,7 @@ def load_func_str(func_str):
         return generate_request_function(func_str)
 
     # case 2: func is a python file + function
-    if ".py:" in func_str:
+    elif ".py:" in func_str:
         file_path, func_name = func_str.rsplit(":", 1)
         file_name = os.path.basename(file_path).split(".")[0]
         spec = importlib.util.spec_from_file_location(file_name, file_path)
@@ -48,11 +48,24 @@ def load_func_str(func_str):
         spec.loader.exec_module(module)
         func_str = getattr(module, func_name)
 
-    # case 3: func is a python loadable module
+    # case 3: func is a langchain tool
+    elif not '.' in func_str:
+        try:
+            return load_tools([func_str])[0]
+        except:
+            pass
+
+    # case 4: func is a python loadable module
     else:
         module_path, func_name = func_str.rsplit(".", 1)
         module = importlib.import_module(module_path)
         func_str = getattr(module, func_name)
+        try:
+            tool_inst = func_str()
+            if isinstance(tool_inst, BaseTool):
+                return tool_inst
+        except:
+            pass
     return func_str
 
 
@@ -67,14 +80,16 @@ def load_langchain_tool(tool_setting_tuple):
     tool_name = tool_setting_tuple[0]
     tool_setting = tool_setting_tuple[1]
     func_definition = load_func_str(tool_setting["callable_api"])
-    func_inputs = load_func_args(tool_name, tool_setting["args_schema"])
-    # print(func_inputs, "type is ", type(func_inputs))
-    return StructuredTool(
-        name=tool_name,
-        description=tool_setting["description"],
-        func=func_definition,
-        args_schema=func_inputs,
-    )
+    if isinstance(func_definition, BaseTool):
+        return func_definition
+    else:
+        func_inputs = load_func_args(tool_name, tool_setting["args_schema"])
+        return StructuredTool(
+            name=tool_name,
+            description=tool_setting["description"],
+            func=func_definition,
+            args_schema=func_inputs,
+        )
 
 
 def load_yaml_tools(file_dir_path: str):

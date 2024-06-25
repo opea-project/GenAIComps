@@ -3,7 +3,7 @@
 
 duckduckgo_search:
   description: Searches DuckDuckGo for the given query
-  callable_api: langchain_community.tools.DuckDuckGoSearchRun
+  callable_api: ddg-search
   args_schema:
     query:
       type: str
