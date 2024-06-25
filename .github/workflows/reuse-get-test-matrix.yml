@@ -68,5 +68,14 @@ jobs:
                   done
               fi
           done
+          test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "tests/test_*.sh | sort -u)
+          for test_file in ${test_files}; do
+              service_script=$(echo $test_file | cut -d'/' -f2 | cut -d'.' -f1 | cut -c6-)
+              service=$(echo $service_script | tr '_' '/')
+              hardware="gaudi" # default hardware, set based on the changed files
+              if [ $(grep -c ${service} ${run_matrix}) == 0 ]; then
+                  run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},"
+              fi
+          done
           run_matrix=$run_matrix"]}"
           echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
