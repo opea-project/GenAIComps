@@ -92,7 +92,6 @@ if __name__ == "__main__":
     parser.add_argument("--ip_addr", type=str, default="localhost", help="IP address of the server")
 
     args = parser.parse_args()
-    args.ip_addr = "100.83.111.250"
     if args.test_html:
         test_html(ip_addr=args.ip_addr, batch_size=args.batch_size)
     elif args.test_pdf:
