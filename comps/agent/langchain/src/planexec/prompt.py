@@ -1,22 +1,31 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # from langchain import hub
 # https://smith.langchain.com/hub/homanp/superagent
 # hub.pull("homanp/superagent")
 
-#https://github.com/lm-sys/FastChat/blob/main/fastchat/conversation.py
+
+# https://github.com/lm-sys/FastChat/blob/main/fastchat/conversation.py
 def format_template(args, template):
     model_type = args.model.split("/")[0]
     if model_type == "mistralai":
-        template = '<s>[INST] '+template+' [/INST]'
+        template = "<s>[INST] " + template + " [/INST]"
     elif args.model == "alpindale/WizardLM-2-8x22B":
-        template = "USER: "+template+"ASSISTANT: "
+        template = "USER: " + template + "ASSISTANT: "
     elif "phi-3" in model_type.lower():
-        template = "<|user|>\n"+template+"\n<|assistant|>"
+        template = "<|user|>\n" + template + "\n<|assistant|>"
     elif args.model == "cognitivecomputations/dolphin-2.9-llama3-70b":
-        template = "<|im_start|>user\n"+template+"\n<|im_end|>"+"\n<|im_start|>assistant"
+        template = "<|im_start|>user\n" + template + "\n<|im_end|>" + "\n<|im_start|>assistant"
     elif model_type == "meta-llama":
         # ref: https://llama.meta.com/docs/model-cards-and-prompt-formats/meta-llama-3/
-        template = "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n"+template+"<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+        template = (
+            "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n"
+            + template
+            + "<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+        )
     return template
+
 
 ##############################
 PLANNER_BODY = """\
@@ -24,13 +33,13 @@ Each step must contain 3 elements: tool, input_schema and output_key. \
 Each step can use ONLY ONE tool. Do NOT combine tool calls in one step. \
 A step in the plan can receive the output from a previous step as input. \
 Use <> to enclose an input when using an output from a previous step. \
-Read tool descriptions carefully and only come up with steps that the tools can do. 
+Read tool descriptions carefully and only come up with steps that the tools can do.
 
-Tools: 
+Tools:
 {tools}
 
 You MUST strictly follow the output format below. You MUST NOT include any other text!
-{{  
+{{
   "steps": [
     {{"tool": str, "input_schema": {{input_schema}}, "output_key": str}}
   ]
@@ -61,13 +70,13 @@ Each step must contain 3 elements: tool, input_schema and output_key. \
 Each step can use ONLY ONE tool. Do NOT combine tool calls in one step. \
 A step in the plan can receive the output from a previous step as input. \
 Use <> to enclose an input when using an output from a previous step. \
-Read tool descriptions carefully and only come up with steps that the tools can do. 
+Read tool descriptions carefully and only come up with steps that the tools can do.
 
-Tools: 
+Tools:
 {tools}
 
 You MUST strictly follow the output format below. You MUST NOT include any other text!
-{{  
+{{
   "steps": [
     {{"tool": str, "input_schema": {{input_schema}}, "output_key": str}}
   ]
@@ -86,24 +95,24 @@ OBJECTIVE: {objective}\n
 # Plan rewriter prompt
 REWRITER_v3 = REWRITER_HEADER + PLANNER_BODY
 
-REWRITER_v2 ="""\
+REWRITER_v2 = """\
 My objective was: {objective}\n
 Original plan to achieve this objective was: {initial_plan}\n
 But there are errors in the original plan: {errors}\n
-Create a new step-by-step plan to achieve my objective. Remember that you can only use the followings tools in the plan:
-{tools} 
+Create a new step-by-step plan to achieve my objective. Remember that you can only use the following tools in the plan:
+{tools}
 
 Each step in the plan is one dictionary with 3 keys: tool, input_schema and output_key. \
 A step in the plan can receive the output from a previous step as input. Use <> to enclose an input when using an output from a previous step.\
 Separate two function calls to two steps. Do NOT combine them into one step. \
-You must conform to the input specs defined in the tool descriptions. 
+You must conform to the input specs defined in the tool descriptions.
 
 Objective can be time sensitive. Pay attention to today's date when composing the plan. \
 Today's date is: {date} \n
 OBJECTIVE: {objective}\n
 
 You must use the following format for the new plan.You MUST NOT include any other text.
-{{  
+{{
   "steps": [
     {{"tool": str, "input_schema": {{input_schema}}, "output_key": str}}
   ]
@@ -118,7 +127,7 @@ New Plan:
 # if answer can be generated, then output answer
 # if cannot generate answer based on execution trace, then output new plan
 
-REPLANNER ="""\
+REPLANNER = """\
 Your objective was this:
 {objective}
 
@@ -133,11 +142,11 @@ If you can come up with an answer with info contained the past steps, then gener
   "response": Your final answer here.
 }}
 
-Otherwise, think out-of-box and create a new plan to achieve the objective. Remember that you can only use the followings tools in the plan:
+Otherwise, think out-of-box and create a new plan to achieve the objective. Remember that you can only use the following tools in the plan:
 {tools}
 
 You must use the following format for the new plan.
-{{  
+{{
   "steps": [
     {{"tool": str, "input_schema": {{input_schema}}, "output_key": str}}
   ]
@@ -170,17 +179,17 @@ Each plan should comprise an action from the following {num_tools} types:
 \n{format_instructions}\n
 Objective: {objective}"""
 
-REWRITER ="""\
+REWRITER = """\
 My objective was: {objective}\n
 Original plan to achieve this objective was: {initial_plan}\n
 But there are errors in the original plan: {errors}\n
-Create a new step-by-step plan to achieve my objective. Remember that you can only use the followings tools in the plan:
-{tools} 
+Create a new step-by-step plan to achieve my objective. Remember that you can only use the following tools in the plan:
+{tools}
 
 Each step in the plan is one dictionary with 3 keys: tool, input_schema and output_key. \
 A step in the plan can receive the output from a previous step as input. Use <> to enclose an input when using an output from a previous step.\
 Separate two function calls to two steps. Do NOT combine them into one step. \
-You must conform to the input specs defined in the tool descriptions. 
+You must conform to the input specs defined in the tool descriptions.
 
 You MUST use the following format for the new plan to achieve my objective. You MUST NOT include any other text. \
 The output format is {{"steps": [{{[{{tool: str, input_schema: {{input_schema}}, output_key: str}}]}}]}}
@@ -195,7 +204,7 @@ Given the OBJECTIVE, create a step-by-step plan by only using the tools listed b
 The steps in the plan is a list of dictionaries. Each step is one dictionary with 3 keys: tool, input_schema and output_key. \
 A step in the plan can receive the output from a previous step as input. Use <> to enclose an input when using an output from a previous step.\
 Separate two function calls to two steps. Do NOT combine them into one step. \
-You must conform to the input specs defined in the tool descriptions. 
+You must conform to the input specs defined in the tool descriptions.
 
 Output format example:
 {{"steps":
@@ -217,11 +226,11 @@ Output format example:
     ]
 }}
 
-Tools: 
+Tools:
 {tools}
 
 You MUST strictly follow the output format below. You MUST NOT include any other text.
-{{  
+{{
   "steps": [
     {{"tool": str, "input_schema": {{input_schema}}, "output_key": str}}
   ]
