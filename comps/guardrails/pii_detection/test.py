@@ -4,14 +4,12 @@
 import argparse
 import json
 import os
-import timeit
 
-import pandas as pd
 import requests
 from utils import Timer
 
-
 def test_html(ip_addr="localhost", batch_size=20):
+    import pandas as pd
     proxies = {"http": ""}
     url = f"http://{ip_addr}:6357/v1/piidetect"
     urls = pd.read_csv("data/ai_rss.csv")["Permalink"]
@@ -32,6 +30,7 @@ def test_text(ip_addr="localhost", batch_size=20):
     proxies = {"http": ""}
     url = f"http://{ip_addr}:6357/v1/piidetect"
     if os.path.exists("data/ai_rss.csv"):
+        import pandas as pd
         content = pd.read_csv("data/ai_rss.csv")["Description"]
         content = content[:batch_size].to_list()
     else:
