@@ -63,8 +63,8 @@ def tool_renderer(tools):
         description = f"{tool.name} - {tool.description}"
         arg_schema = []
         for k, tool_dict in tool.args.items():
-            k_type = tool_dict['type'] if 'type' in tool_dict else ""
-            k_desc = tool_dict['description'] if 'description' in tool_dict else ""
+            k_type = tool_dict["type"] if "type" in tool_dict else ""
+            k_desc = tool_dict["description"] if "description" in tool_dict else ""
             arg_schema.append(f"{k} ({k_type}): {k_desc}")
         tool_strings.append(f"{description}, args: {arg_schema}")
     return "\n".join(tool_strings)

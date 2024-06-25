@@ -51,7 +51,9 @@ class ReActAgentwithLangchain(BaseAgent):
         from langchain.agents import AgentExecutor, create_react_agent
 
         prompt = hub.pull("hwchase17/react")
-        agent_chain = create_react_agent(self.llm_endpoint, self.tools_descriptions, prompt, tools_renderer=tool_renderer)
+        agent_chain = create_react_agent(
+            self.llm_endpoint, self.tools_descriptions, prompt, tools_renderer=tool_renderer
+        )
         self.app = AgentExecutor(
             agent=agent_chain, tools=self.tools_descriptions, verbose=True, handle_parsing_errors=True
         )
