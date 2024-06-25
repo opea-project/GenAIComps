@@ -1,4 +1,3 @@
-prometheus-fastapi-instrumentator
 beautifulsoup4
 detect_secrets
 docarray[full]
@@ -16,6 +15,7 @@ opentelemetry-sdk
 pandas
 phonenumbers
 Pillow
+prometheus-fastapi-instrumentator
 pyarrow
 pymupdf
 python-docx
