@@ -6,7 +6,7 @@ from typing import List, Tuple, TypedDict, Union
 from langgraph.graph import END, StateGraph
 
 from .tools import get_tools_descriptions
-from .utils import setup_llm, tool_renderer, has_multi_tool_inputs
+from .utils import has_multi_tool_inputs, setup_llm, tool_renderer
 
 
 def instantiate_agent(args, strategy="react"):
