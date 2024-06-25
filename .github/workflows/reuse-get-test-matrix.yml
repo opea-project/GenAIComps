@@ -45,7 +45,7 @@ jobs:
           merged_commit=$(git log -1 --format='%H')
 
           changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | \
-          grep 'comps/' | grep -vE '*.md|*.txt|comps/cores')" || true
+          grep -vE '*.md|*.txt|comps/cores|tests/cores')" || true
           services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '*.py' | sort -u)
           path_level_1=("asr" "tts")
           path_level_3=("llms/summarization" "llms/text-generation" "dataprep/redis" "retrievers/langchain/redis")
@@ -68,7 +68,7 @@ jobs:
                   done
               fi
           done
-          test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "tests/test_*.sh | sort -u)
+          test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "tests/test_*.sh" | sort -u)
           for test_file in ${test_files}; do
               service_script=$(echo $test_file | cut -d'/' -f2 | cut -d'.' -f1 | cut -c6-)
               service=$(echo $service_script | tr '_' '/')
