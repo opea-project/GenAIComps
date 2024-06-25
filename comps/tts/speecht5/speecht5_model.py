@@ -108,8 +108,11 @@ if __name__ == "__main__":
     st5 = SpeechT5Model()
     all_speech = st5.t2s("""Who are you?""")
     import soundfile as sf
+
     sf.write("tmp.wav", all_speech, samplerate=16000)
-    with open("tmp.wav","rb") as f: bytes=f.read()
+    with open("tmp.wav", "rb") as f:
+        bytes = f.read()
     import base64
+
     b64_str = base64.b64encode(bytes).decode()
-    assert b64_str[:3] == 'Ukl'
+    assert b64_str[:3] == "Ukl"

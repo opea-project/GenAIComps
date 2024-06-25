@@ -5,13 +5,12 @@ import argparse
 import base64
 from io import BytesIO
 
+import soundfile as sf
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import Response
 from speecht5_model import SpeechT5Model
 from starlette.middleware.cors import CORSMiddleware
-import soundfile as sf
-import base64
 
 app = FastAPI()
 tts = None
@@ -35,7 +34,8 @@ async def text_to_speech(request: Request):
 
     speech = tts.t2s(text)
     sf.write("tmp.wav", speech, samplerate=16000)
-    with open("tmp.wav","rb") as f: bytes=f.read()
+    with open("tmp.wav", "rb") as f:
+        bytes = f.read()
     b64_str = base64.b64encode(bytes).decode()
 
     return {"tts_result": b64_str}
