@@ -69,9 +69,13 @@ def test_agent_http(args):
         print(ret)
         return ret
 
-    # df = pd.read_csv(os.path.join(args.filedir, args.filename))
-    df = pd.DataFrame({"query": ["What is the weather today in Austin?"]})
-    # df = pd.DataFrame({"query": ["what is the stock price for Microsoft today?"]})
+    if args.quick_test:
+        df = pd.DataFrame({"query": ["What is the weather today in Austin?"]})
+    elif args.quick_test_multi_args:
+        df = pd.DataFrame({"query": ["what is the trade volume for Microsoft today?"]})
+    else:
+        df = pd.read_csv(os.path.join(args.filedir, args.filename))
+        df = df.sample(n=2, random_state=42)
     traces = []
     for _, row in df.iterrows():
         ret = process_request(row["query"])

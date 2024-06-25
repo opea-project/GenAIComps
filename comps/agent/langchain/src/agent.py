@@ -53,6 +53,8 @@ class ReActAgentwithLangchain(BaseAgent):
         prompt = hub.pull("hwchase17/react")
         if has_multi_tool_inputs(self.tools_descriptions):
             raise ValueError("Only supports single input tools when using strategy == react")
+        elif len(self.tools_descriptions) == 0:
+            raise ValueError("No tools found in the tools list")
         else:
             agent_chain = create_react_agent(
                 self.llm_endpoint, self.tools_descriptions, prompt, tools_renderer=tool_renderer

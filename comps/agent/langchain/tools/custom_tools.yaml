@@ -3,6 +3,8 @@
 
 google-finance:
   callable_api: google-finance
+  env: SERPAPI_API_KEY=b947460aa11905c9c71ff90bc70677919c0a564225ec1d39e51a605d96b63f1f
+  pip_dependencies: google-search-results>=2.4.2
 duckduckgo_search:
   callable_api: ddg-search
 propriety_info_retrieval:

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+from .config import env_config
 
 
 def format_date(date):
@@ -112,6 +113,8 @@ def has_multi_tool_inputs(tools):
 def get_args():
     parser = argparse.ArgumentParser()
     # llm args
+    parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
+    parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
     parser.add_argument("--model", type=str, default="mistralai/Mistral-7B-Instruct-v0.3")
     parser.add_argument("--tools", type=str, default="tools/custom_tools.py")
     parser.add_argument("--strategy", type=str, default="react")
@@ -119,6 +122,16 @@ def get_args():
     parser.add_argument("--max_new_tokens", type=int, default=1024)
     parser.add_argument("--recursion_limit", type=int, default=5)
     parser.add_argument("--debug", action="store_true", help="Test with endpoint mode")
+    parser.add_argument("--is_coordinator", action="store_true", help="if this agent is a coordinator")
+    parser.add_argument("--require_human_feedback", action="store_true", help="If this agent requires human feedback")
     parser.add_argument("--llm_endpoint_url", type=str, default="http://localhost:8080")
 
-    return parser.parse_known_args()
+    sys_args, unknown_args = parser.parse_known_args()
+    #print("env_config: ", env_config)
+    if env_config is not "":
+        env_args, env_unknown_args = parser.parse_known_args(env_config)
+        unknown_args += env_unknown_args
+        for key, value in vars(env_args).items():
+            setattr(sys_args, key, value)
+    print(sys_args)
+    return sys_args, unknown_args

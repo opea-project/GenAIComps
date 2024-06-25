@@ -25,10 +25,17 @@ python agent.py
 ## 2.1 Prepare env
 
 ```bash
+# used by llm
 export HF_TOKEN=<YOUR HUGGINGFACE HUB TOKEN>
 export HUGGINGFACEHUB_API_TOKEN=${HP_TOKEN}
 export local_model_dir=<YOUR LOCAL DISK TO STORE MODEL>
+# used by agent
+export HUGGINGFACEHUB_API_TOKEN=${HP_TOKEN}
 export custom_tool_dir=<YOUR CUSTOM TOOL> #./comps/agent/langchain/tools/
+export agent_env=<YOUR CUSTOM AGENT SETTINGS> #./comps/agent/langchain/AGENT_ENV
+
+# if you are testing local, use below cmd to add AGENT env
+# set -o allexport; source ${agent_env}; set +o allexport
 ```
 
 ## Use mistral as llm endpoint
@@ -61,13 +68,13 @@ docker build -t opea/comps-agent-langchain:latest --build-arg https_proxy=$https
 ## 2.3 Run Docker with CLI
 
 ```bash
-docker run -d --rm --runtime=runc --name="comps-langchain-agent-endpoint" -v ${custom_tool_dir}:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/comps-agent-langchain:latest
+docker run -d --rm --runtime=runc --name="comps-langchain-agent-endpoint" -v ${custom_tool_dir}:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} --env-file ${agent_env} opea/comps-agent-langchain:latest
 ```
 
 > debug mode
 >
 > ```bash
-> docker run --rm --runtime=runc --name="comps-langchain-agent-endpoint" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/comps-agent-langchain:latest
+> docker run --rm --runtime=runc --name="comps-langchain-agent-endpoint" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} --env-file ${agent_env} opea/comps-agent-langchain:latest
 > ```
 
 # 🚀3. Get Status of Microservice

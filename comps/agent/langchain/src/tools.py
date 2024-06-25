@@ -34,7 +34,18 @@ def generate_request_function(url):
     return process_request
 
 
-def load_func_str(func_str):
+def load_func_str(func_str, env = None, pip_dependencies = None):
+    if env is not None:
+        env_list = [i.split('=') for i in env.split(",")]
+        for k, v in env_list:
+            print(f"set env for {func_str}: {k} = {v}")
+            os.environ[k] = v
+            
+    if pip_dependencies is not None:
+        import pip
+        pip_list = pip_dependencies.split(",")
+        for package in pip_list:
+            pip.main(['install', '-q', package])
     # case 1: func is an endpoint api
     if func_str.startswith("http://") or func_str.startswith("https://"):
         return generate_request_function(func_str)
@@ -50,22 +61,16 @@ def load_func_str(func_str):
 
     # case 3: func is a langchain tool
     elif "." not in func_str:
-        try:
-            return load_tools([func_str])[0]
-        except:
-            pass
+        return load_tools([func_str])[0]
 
     # case 4: func is a python loadable module
     else:
         module_path, func_name = func_str.rsplit(".", 1)
         module = importlib.import_module(module_path)
         func_str = getattr(module, func_name)
-        try:
-            tool_inst = func_str()
-            if isinstance(tool_inst, BaseTool):
-                return tool_inst
-        except:
-            pass
+        tool_inst = func_str()
+        if isinstance(tool_inst, BaseTool):
+            return tool_inst
     return func_str
 
 
@@ -79,9 +84,14 @@ def load_func_args(tool_name, args_dict):
 def load_langchain_tool(tool_setting_tuple):
     tool_name = tool_setting_tuple[0]
     tool_setting = tool_setting_tuple[1]
-    func_definition = load_func_str(tool_setting["callable_api"])
-    if isinstance(func_definition, BaseTool):
-        return func_definition
+    env = tool_setting['env'] if 'env' in tool_setting else None
+    pip_dependencies = tool_setting['pip_dependencies'] if 'pip_dependencies' in tool_setting else None
+    func_definition = load_func_str(tool_setting["callable_api"], env, pip_dependencies)
+    if 'args_schema' not in tool_setting or 'description' not in tool_setting:
+        if isinstance(func_definition, BaseTool):
+            return func_definition
+        else:
+            raise ValueError(f"Tool {tool_name} is missing 'args_schema' or 'description' in the tool setting. Tool is {func_definition}")
     else:
         func_inputs = load_func_args(tool_name, tool_setting["args_schema"])
         return StructuredTool(
