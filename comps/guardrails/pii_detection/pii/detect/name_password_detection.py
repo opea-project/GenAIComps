@@ -17,6 +17,8 @@ def detect_name_password(content, pipeline, entity_types=None):
     if entity_types is None:
         entity_types = [PIIEntityType.NAME, PIIEntityType.PASSWORD]
     matches = []
+    if pipeline is None:
+        return matches
     try:
         for entity in pipeline(content):
             entity_group = entity["entity_group"]

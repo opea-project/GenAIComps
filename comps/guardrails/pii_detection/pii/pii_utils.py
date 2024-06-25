@@ -37,10 +37,14 @@ class PIIDetectorWithNER(PIIDetector):
 
         _model_key = "bigcode/starpii"
         _model_key = _model_key if model_path is None else os.path.join(model_path, _model_key)
-        tokenizer = AutoTokenizer.from_pretrained(_model_key, model_max_length=512)
-        self.pipeline = pipeline(
-            model=_model_key, task="token-classification", tokenizer=tokenizer, grouped_entities=True
-        )
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(_model_key, model_max_length=512)
+            self.pipeline = pipeline(
+                model=_model_key, task="token-classification", tokenizer=tokenizer, grouped_entities=True
+            )
+        except Exception as e:
+            print("Failed to load model, skip NER classification", e)
+            self.pipeline = None
 
     def detect_pii(self, text):
         result = []

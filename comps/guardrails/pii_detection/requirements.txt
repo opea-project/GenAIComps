@@ -1,3 +1,4 @@
+prometheus-fastapi-instrumentator
 beautifulsoup4
 detect_secrets
 docarray[full]
