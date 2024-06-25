@@ -45,7 +45,7 @@ jobs:
           merged_commit=$(git log -1 --format='%H')
 
           changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | \
-          grep -vE '*.md|*.txt|comps/cores|tests/cores')" || true
+          grep 'comps/' | grep -vE '*.md|*.txt|comps/cores')" || true
           services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '*.py' | sort -u)
           path_level_1=("asr" "tts")
           path_level_3=("llms/summarization" "llms/text-generation" "dataprep/redis" "retrievers/langchain/redis")
@@ -68,7 +68,22 @@ jobs:
                   done
               fi
           done
-          test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "tests/test_*.sh" | sort -u)
+          
+          # add test for comps/dataprep/utils.py
+          if [[ "${changed_files[@]}" =~ "comps/dataprep/utils.py" ]]; then
+              service_list=("dataprep/qdrant" "dataprep/redis/langchain")
+              hardware="gaudi" # default hardware, set based on the changed files
+              for service in ${service_list}; do
+                  if [ $(grep -c ${service} ${run_matrix}) == 0 ]; then
+                      run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},"
+                  fi
+              done
+          fi
+          
+          # add test for test scripts update
+          changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | \
+          grep 'tests/' | grep -vE '*.md|*.txt|tests/cores')" || true
+          test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "tests/test_*" | grep -E "*.sh")
           for test_file in ${test_files}; do
               service_script=$(echo $test_file | cut -d'/' -f2 | cut -d'.' -f1 | cut -c6-)
               service=$(echo $service_script | tr '_' '/')
@@ -77,5 +92,6 @@ jobs:
                   run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},"
               fi
           done
+          
           run_matrix=$run_matrix"]}"
           echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
