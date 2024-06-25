@@ -9,7 +9,6 @@ import signal
 import timeit
 from pathlib import Path
 
-import pandas as pd
 
 
 class Timer:
@@ -40,6 +39,7 @@ class TimeoutError(Exception):
 
 
 def save_logs(log_name, data):
+    import pandas as pd
     df = pd.DataFrame.from_records(data)
     try:
         dir_path = os.path.dirname(log_name)
