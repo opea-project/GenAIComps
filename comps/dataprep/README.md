@@ -21,3 +21,7 @@ For details, please refer to this [readme](milvus/README.md)
 # Dataprep Microservice with Qdrant
 
 For details, please refer to this [readme](qdrant/README.md)
+
+# Dataprep Microservice with PGVector
+
+For details, please refer to this [readme](pgvector/README.md)
