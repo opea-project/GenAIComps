@@ -12,7 +12,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
-from ..proto.docarray import LLMParams, EmbedDoc768
+from ..proto.docarray import LLMParams, EmbedDoc768, SearchedDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -133,7 +133,7 @@ class ChatQnAGateway(Gateway):
         
         result_dict = await self.megaservice.schedule(
             initial_inputs={"text": prompt},
-            llm_parameters=parameters,
+            llm_parameters=llm_parameters,
             retriever_parameters = retriever_parameters,
             reranker_parameters = reranker_parameters,
         )
