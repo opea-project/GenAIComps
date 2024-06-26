@@ -34,7 +34,7 @@ def post_process_text(text: str):
 
 
 @register_microservice(
-    name="opea_service@llm_ray_serve",
+    name="opea_service@llm_ray",
     service_type=ServiceType.LLM,
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
@@ -42,7 +42,7 @@ def post_process_text(text: str):
 )
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
-    llm_endpoint = os.getenv("vLLM_RAY_Serve_ENDPOINT", "http://localhost:8080")
+    llm_endpoint = os.getenv("vLLM_RAY_ENDPOINT", "http://localhost:8080")
     llm_model = os.getenv("LLM_MODEL", "Llama-2-7b-chat-hf")
     llm = ChatOpenAI(
         openai_api_base=llm_endpoint + "/v1",
@@ -80,4 +80,4 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@llm_ray_serve"].start()
+    opea_microservices["opea_service@llm_ray"].start()
