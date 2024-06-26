@@ -13,14 +13,14 @@ We organized these two folders in the same way, so you can use either framework 
 ```bash
 apt update
 apt install default-jre
+apt-get install tesseract-ocr -y
+apt-get install libtesseract-dev -y
+apt-get install poppler-utils -y
 # for langchain
 cd langchain
 # for llama_index
 cd llama_index
 pip install -r requirements.txt
-apt-get install tesseract-ocr -y
-apt-get install libtesseract-dev -y
-apt-get install poppler-utils -y
 ```
 
 - option 2: Install multi-process version (for >10 files processing)
@@ -156,7 +156,7 @@ curl -X POST \
     http://localhost:6007/v1/dataprep
 ```
 
-You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
+We support table extraction from pdf documents. You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
 
 Note: If you specify "table_strategy=llm", You should first start TGI Service, please refer to 1.2.1, 1.3.1 in https://github.com/opea-project/GenAIComps/tree/main/comps/llms/README.md, and then `export TGI_LLM_ENDPOINT="http://${your_ip}:8008"`.
 
