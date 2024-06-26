@@ -1,12 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import Ollama
 from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-import os
+
 
 @register_microservice(
     name="opea_service@llm_ollama",
