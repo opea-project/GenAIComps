@@ -9,9 +9,21 @@ apt-get update
 apt-get install libreoffice
 ```
 
+## Use LVM (Large Vision Model) for Summarizing Image Data
+
+Occasionally unstructured data will contain image data, to convert the image data to the text data, LVM can be used to summarize the image. To leverage LVM, please refer to this [readme](../lvms/README.md) to start the LVM microservice first and then set the below environment variable, before starting any dataprep microservice.
+
+```bash
+export SUMMARIZE_IMAGE_VIA_LVM=1
+```
+
 # Dataprep Microservice with Redis
 
 For details, please refer to this [readme](redis/README.md)
+
+# Dataprep Microservice with Milvus
+
+For details, please refer to this [readme](milvus/README.md)
 
 # Dataprep Microservice with Qdrant
 
