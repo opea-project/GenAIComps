@@ -13,8 +13,8 @@ from langchain_community.embeddings import (
 from langchain_community.llms import HuggingFaceEndpoint
 from langsmith import traceable
 from ragas import evaluate
-from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
 from ragas.embeddings import LangchainEmbeddingsWrapper
+from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
 
 from comps import GeneratedDoc, RAGASParams, RAGASScores, ServiceType, opea_microservices, register_microservice
 
