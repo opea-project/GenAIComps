@@ -7,8 +7,8 @@ fastapi
 huggingface_hub
 langchain
 langchain-community
-markdown
 langchain-text-splitters
+markdown
 numpy
 opentelemetry-api
 opentelemetry-exporter-otlp
