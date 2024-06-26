@@ -25,4 +25,4 @@ python-docx==0.8.11
 python-pptx
 sentence_transformers
 shortuuid
-unstructured
+unstructured[all-docs]==0.11.5

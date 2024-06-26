@@ -22,4 +22,4 @@ python-pptx
 qdrant-client
 sentence_transformers
 shortuuid
-unstructured
+unstructured[all-docs]==0.11.5
