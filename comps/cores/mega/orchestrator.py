@@ -54,17 +54,19 @@ class ServiceOrchestrator(DAG):
                     for d_node in downstreams:
                         if all(i in result_dict for i in self.predecessors(d_node)):
                             inputs = self.process_outputs(self.predecessors(d_node), result_dict)
-                            if 'retriever_parameters' in kwargs and 'reranker_parameters' in kwargs:
-                                retriever_parameters = kwargs['retriever_parameters']
-                                reranker_parameters = kwargs['reranker_parameters']
-                                pending.add(asyncio.create_task(
-                                    self.execute(
-                                        session,
-                                        d_node,
-                                        inputs,
-                                        llm_parameters,
-                                        retriever_parameters,
-                                        reranker_parameters,)
+                            if "retriever_parameters" in kwargs and "reranker_parameters" in kwargs:
+                                retriever_parameters = kwargs["retriever_parameters"]
+                                reranker_parameters = kwargs["reranker_parameters"]
+                                pending.add(
+                                    asyncio.create_task(
+                                        self.execute(
+                                            session,
+                                            d_node,
+                                            inputs,
+                                            llm_parameters,
+                                            retriever_parameters,
+                                            reranker_parameters,
+                                        )
                                     )
                                 )
                             else:
@@ -101,20 +103,20 @@ class ServiceOrchestrator(DAG):
                 response = requests.post(
                     url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
                 )
-    
+
                 def generate():
                     if response:
                         for chunk in response.iter_content(chunk_size=None):
                             if chunk:
                                 yield chunk
-    
+
                 return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
-            elif (self.predecessors(cur_node) and "asr" in self.predecessors(cur_node)[0]):
+            elif self.predecessors(cur_node) and "asr" in self.predecessors(cur_node)[0]:
                 inputs["query"] = inputs["text"]
                 del inputs["text"]
         elif self.services[cur_node].service_type == ServiceType.RETRIEVER:
-            if 'retriever_parameters' in kwargs:
-                retriever_parameters_dict = kwargs['retriever_parameters'].dict()
+            if "retriever_parameters" in kwargs:
+                retriever_parameters_dict = kwargs["retriever_parameters"].dict()
                 for field, value in retriever_parameters_dict.items():
                     if inputs.get(field) != value:
                         inputs[field] = value
@@ -122,8 +124,8 @@ class ServiceOrchestrator(DAG):
                 print(response.status)
                 return await response.json(), cur_node
         elif self.services[cur_node].service_type == ServiceType.RERANK:
-            if 'reranker_parameters' in kwargs:
-                reranker_parameters_dict = kwargs['reranker_parameters'].dict()
+            if "reranker_parameters" in kwargs:
+                reranker_parameters_dict = kwargs["reranker_parameters"].dict()
                 for field, value in reranker_parameters_dict.items():
                     if inputs.get(field) != value:
                         inputs[field] = value
