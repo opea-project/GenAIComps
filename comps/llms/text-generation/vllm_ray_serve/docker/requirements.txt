@@ -6,6 +6,6 @@ py-cpuinfo
 pydantic-yaml
 ray>=2.10
 ray[serve,tune]>=2.10
+requests
 typer
 typing>=3.7.4.3
-requests
