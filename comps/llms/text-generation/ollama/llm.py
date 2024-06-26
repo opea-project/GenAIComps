@@ -45,4 +45,4 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@llm_ollma"].start()
+    opea_microservices["opea_service@llm_ollama"].start()
