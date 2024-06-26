@@ -33,3 +33,6 @@ if not os.environ.get("role_description") is None:
 
 if not os.environ.get("tools") is None:
     env_config += ["--tools", os.environ["tools"]]
+
+if not os.environ.get("level") is None:
+    env_config += ["--level", os.environ["level"]]

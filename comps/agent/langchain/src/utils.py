@@ -121,6 +121,7 @@ def get_args():
     parser.add_argument("--llm_engine", type=str, default="tgi")
     parser.add_argument("--max_new_tokens", type=int, default=1024)
     parser.add_argument("--recursion_limit", type=int, default=5)
+    parser.add_argument("--level", type=int, default=1)
     parser.add_argument("--debug", action="store_true", help="Test with endpoint mode")
     parser.add_argument("--is_coordinator", action="store_true", help="if this agent is a coordinator")
     parser.add_argument("--require_human_feedback", action="store_true", help="If this agent requires human feedback")
