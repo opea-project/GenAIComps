@@ -3,7 +3,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-#
+
 import unittest
 
 from evals.metrics.ragas import RagasMetric
@@ -11,7 +11,7 @@ from evals.metrics.ragas import RagasMetric
 
 class TestRagasMetric(unittest.TestCase):
 
-    @unittest.skip("need assign localhost id")
+    @unittest.skip("need pass localhost id")
     def test_ragas(self):
         # Replace this with the actual output from your LLM application
         actual_output = "We offer a 30-day full refund at no extra cost."
