@@ -105,8 +105,6 @@ class RAGASParams(BaseDoc):
 class RAGASScores(BaseDoc):
     answer_relevancy: float
     faithfulness: float
-    context_recallL: float
-    context_precision: float
 
 
 class GraphDoc(BaseDoc):

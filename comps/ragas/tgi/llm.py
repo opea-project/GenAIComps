@@ -14,6 +14,7 @@ from langchain_community.llms import HuggingFaceEndpoint
 from langsmith import traceable
 from ragas import evaluate
 from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
+from ragas.embeddings import LangchainEmbeddingsWrapper
 
 from comps import GeneratedDoc, RAGASParams, RAGASScores, ServiceType, opea_microservices, register_microservice
 
@@ -53,6 +54,7 @@ def llm_generate(input: RAGASParams):
         streaming=input.streaming,
         timeout=600,
     )
+    langchain_llm = LangchainLLMWrapper(llm)
 
     data_collections = {
         "question": input.questions,
@@ -64,21 +66,17 @@ def llm_generate(input: RAGASParams):
 
     score = evaluate(
         dataset,
-        metrics=[answer_relevancy, faithfulness, context_recall, context_precision],
-        llm=llm,
+        metrics=[answer_relevancy, faithfulness],
+        llm=langchain_llm,
         embeddings=embedder,
     )
     df = score.to_pandas()
     answer_relevancy_average = df["answer_relevancy"][:].mean()
     faithfulness_average = df["faithfulness"][:].mean()
-    context_recall_average = df["context_recall"][:].mean()
-    context_precision_average = df["context_precision"][:].mean()
 
     return RAGASScores(
         answer_relevancy=answer_relevancy_average,
         faithfulness=faithfulness_average,
-        context_recallL=context_recall_average,
-        context_precision=context_precision_average,
     )
 
 
