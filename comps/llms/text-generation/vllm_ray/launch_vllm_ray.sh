@@ -29,4 +29,4 @@ if [ "$#" -lt 0 ] || [ "$#" -gt 5 ]; then
 fi
 
 # Build the Docker run command based on the number of cards
-docker run -it  --rm --runtime=habana --name="vllm-ray-service" -v $PWD/data:/data -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -p $port_number:80 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy -e HF_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TRUST_REMOTE_CODE=True vllm_ray_serve:habana /bin/bash -c "ray start --head && python vllm_openai.py --port_number 80 --model_id_or_path $model_name --chat_processor $chat_processor --tensor_parallel_size $parallel_number"
+docker run -it  --rm --runtime=habana --name="vllm-ray-service" -v $PWD/data:/data -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -p $port_number:80 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy -e HF_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TRUST_REMOTE_CODE=True vllm_ray:habana /bin/bash -c "ray start --head && python vllm_openai.py --port_number 80 --model_id_or_path $model_name --chat_processor $chat_processor --tensor_parallel_size $parallel_number"

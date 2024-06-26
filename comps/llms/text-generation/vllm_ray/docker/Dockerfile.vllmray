@@ -5,12 +5,12 @@ FROM vault.habana.ai/gaudi-docker/1.16.0/ubuntu22.04/habanalabs/pytorch-installe
 
 ENV LANG=en_US.UTF-8
 
-WORKDIR /root/vllm_ray_serve
+WORKDIR /root/vllm_ray
 
 # copy the source code to the package directory
-COPY ../vllm_ray_serve/ /root/vllm_ray_serve
+COPY ../vllm_ray/ /root/vllm_ray
 
-RUN pip install -r /root/vllm_ray_serve/docker/requirements.txt && \
+RUN pip install -r /root/vllm_ray/docker/requirements.txt && \
     pip install --upgrade-strategy eager optimum[habana] \
     pip install -v git+https://github.com/HabanaAI/vllm-fork.git@habana_main
 
@@ -18,7 +18,7 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
     service ssh restart
 
 ENV no_proxy=localhost,127.0.0.1
-ENV PYTHONPATH=$PYTHONPATH:/root:/root/vllm_ray_serve
+ENV PYTHONPATH=$PYTHONPATH:/root:/root/vllm_ray
 
 # Required by DeepSpeed
 ENV RAY_EXPERIMENTAL_NOSET_HABANA_VISIBLE_MODULES=1
