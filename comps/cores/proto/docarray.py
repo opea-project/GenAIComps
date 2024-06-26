@@ -7,7 +7,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl
-from pydantic import Field, conlist
+from pydantic import Field, conint, conlist
 
 
 class TextDoc(BaseDoc):
@@ -20,11 +20,19 @@ class Base64ByteStrDoc(BaseDoc):
 
 class DocPath(BaseDoc):
     path: str
+    chunk_size: int = 1500
+    chunk_overlap: int = 100
 
 
 class EmbedDoc768(BaseDoc):
     text: str
     embedding: conlist(float, min_length=768, max_length=768)
+    search_type: str = "similarity"
+    k: int = 4
+    distance_threshold: Optional[float] = None
+    fetch_k: int = 20
+    lambda_mult: float = 0.5
+    score_threshold: float = 0.2
 
 
 class Audio2TextDoc(AudioDoc):
@@ -50,6 +58,7 @@ class EmbedDoc1024(BaseDoc):
 class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
     initial_query: str
+    top_n: int = 1
 
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
@@ -58,6 +67,11 @@ class SearchedDoc(BaseDoc):
 class GeneratedDoc(BaseDoc):
     text: str
     prompt: str
+
+
+class RerankedDoc(BaseDoc):
+    reranked_docs: DocList[TextDoc]
+    initial_query: str
 
 
 class LLMParamsDoc(BaseDoc):
@@ -93,3 +107,22 @@ class RAGASScores(BaseDoc):
     faithfulness: float
     context_recallL: float
     context_precision: float
+
+
+class GraphDoc(BaseDoc):
+    text: str
+    strtype: Optional[str] = Field(
+        description="type of input query, can be 'query', 'cypher', 'rag'",
+        default="query",
+    )
+    max_new_tokens: Optional[int] = Field(default=1024)
+    rag_index_name: Optional[str] = Field(default="rag")
+    rag_node_label: Optional[str] = Field(default="Task")
+    rag_text_node_properties: Optional[list] = Field(default=["name", "description", "status"])
+    rag_embedding_node_property: Optional[str] = Field(default="embedding")
+
+
+class LVMDoc(BaseDoc):
+    image: str
+    prompt: str
+    max_new_tokens: conint(ge=0, le=1024) = 512

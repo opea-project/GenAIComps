@@ -34,11 +34,10 @@ async def save_file_to_local_disk(save_path: str, file):
 
 def ingest_data_to_redis(doc_path: DocPath):
     """Ingest document to Redis."""
-    doc_path = doc_path.path
-    print(f"Parsing document {doc_path}.")
+    path = doc_path.path
+    print(f"Parsing document {path}.")
 
-    content = document_loader(doc_path)
-    if doc_path.endswith(".html"):
+    if path.endswith(".html"):
         headers_to_split_on = [
             ("h1", "Header 1"),
             ("h2", "Header 2"),
@@ -46,7 +45,12 @@ def ingest_data_to_redis(doc_path: DocPath):
         ]
         text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     else:
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
+        text_splitter = RecursiveCharacterTextSplitter(
+          chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True
+        )
+
+    content = document_loader(path)
+    
     chunks = text_splitter.split_text(content)
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
 
@@ -108,7 +112,10 @@ def ingest_link_to_redis(link_list: List[str]):
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 @traceable(run_type="tool")
 async def ingest_documents(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), link_list: Optional[str] = Form(None)
+    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+    link_list: Optional[str] = Form(None),
+    chunk_size: int = Form(1500),
+    chunk_overlap: int = Form(100),
 ):
     print(f"files:{files}")
     print(f"link_list:{link_list}")
@@ -124,7 +131,7 @@ async def ingest_documents(
         for file in files:
             save_path = upload_folder + file.filename
             await save_file_to_local_disk(save_path, file)
-            ingest_data_to_redis(DocPath(path=save_path))
+            ingest_data_to_redis(DocPath(path=save_path, chunk_size=chunk_size, chunk_overlap=chunk_overlap))
             print(f"Successfully saved file {save_path}")
         return {"status": 200, "message": "Data preparation succeeded"}
 
