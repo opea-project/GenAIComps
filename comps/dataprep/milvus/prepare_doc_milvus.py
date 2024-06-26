@@ -44,7 +44,7 @@ def ingest_documents(doc_path: DocPath):
         text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     else:
         text_splitter = RecursiveCharacterTextSplitter(
-          chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True
+            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True
         )
 
     content = document_loader(path)
