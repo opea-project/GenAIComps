@@ -7,16 +7,14 @@ import uuid
 from pathlib import Path
 from typing import List, Optional, Union
 
-from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
+from config import CHUNK_OVERLAP, CHUNK_SIZE, EMBED_MODEL, INDEX_NAME, PG_CONNECTION_STRING
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
-from langchain_community.vectorstores import Redis
-from langchain_text_splitters import HTMLHeaderTextSplitter
+from langchain_community.vectorstores import PGVector
 from langsmith import traceable
-from pyspark import SparkConf, SparkContext
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import DocPath, ServiceType, opea_microservices, register_microservice, register_statistics
 from comps.dataprep.utils import document_loader, parse_html
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
@@ -33,27 +31,16 @@ async def save_file_to_local_disk(save_path: str, file):
             raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
-def ingest_data_to_redis(doc_path: DocPath):
-    """Ingest document to Redis."""
-    path = doc_path.path
-    print(f"Parsing document {path}.")
+def ingest_doc_to_pgvector(doc_path: DocPath):
+    """Ingest document to PGVector."""
+    doc_path = doc_path.path
+    print(f"Parsing document {doc_path}.")
 
-    if path.endswith(".html"):
-        headers_to_split_on = [
-            ("h1", "Header 1"),
-            ("h2", "Header 2"),
-            ("h3", "Header 3"),
-        ]
-        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
-    else:
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True
-        )
-
-    content = document_loader(path)
-
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
+    content = document_loader(doc_path)
     chunks = text_splitter.split_text(content)
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
+    print("PG Connection", PG_CONNECTION_STRING)
 
     # Create vectorstore
     if tei_embedding_endpoint:
@@ -70,18 +57,14 @@ def ingest_data_to_redis(doc_path: DocPath):
         batch_chunks = chunks[i : i + batch_size]
         batch_texts = batch_chunks
 
-        _ = Redis.from_texts(
-            texts=batch_texts,
-            embedding=embedder,
-            index_name=INDEX_NAME,
-            index_schema=INDEX_SCHEMA,
-            redis_url=REDIS_URL,
+        _ = PGVector.from_texts(
+            texts=batch_texts, embedding=embedder, collection_name=INDEX_NAME, connection_string=PG_CONNECTION_STRING
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
     return True
 
 
-def ingest_link_to_redis(link_list: List[str]):
+def ingest_link_to_pgvector(link_list: List[str]):
     data_collection = parse_html(link_list)
 
     texts = []
@@ -100,23 +83,26 @@ def ingest_link_to_redis(link_list: List[str]):
         # create embeddings using local embedding model
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
-    _ = Redis.from_texts(
+    _ = PGVector.from_texts(
         texts=texts,
-        metadatas=metadatas,
         embedding=embedder,
-        index_name=INDEX_NAME,
-        redis_url=REDIS_URL,
-        index_schema=INDEX_SCHEMA,
+        metadatas=metadatas,
+        collection_name=INDEX_NAME,
+        connection_string=PG_CONNECTION_STRING,
     )
 
 
-@register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
+@register_microservice(
+    name="opea_service@prepare_doc_pgvector",
+    service_type=ServiceType.DATAPREP,
+    endpoint="/v1/dataprep",
+    host="0.0.0.0",
+    port=6007,
+)
 @traceable(run_type="tool")
+@register_statistics(names=["opea_service@dataprep_pgvector"])
 async def ingest_documents(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-    link_list: Optional[str] = Form(None),
-    chunk_size: int = Form(1500),
-    chunk_overlap: int = Form(100),
+    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), link_list: Optional[str] = Form(None)
 ):
     print(f"files:{files}")
     print(f"link_list:{link_list}")
@@ -129,34 +115,11 @@ async def ingest_documents(
         upload_folder = "./uploaded_files/"
         if not os.path.exists(upload_folder):
             Path(upload_folder).mkdir(parents=True, exist_ok=True)
-        uploaded_files = []
         for file in files:
             save_path = upload_folder + file.filename
             await save_file_to_local_disk(save_path, file)
-            uploaded_files.append(save_path)
+            ingest_doc_to_pgvector(DocPath(path=save_path))
             print(f"Successfully saved file {save_path}")
-
-        def process_files_wrapper(files):
-            if not isinstance(files, list):
-                files = [files]
-            for file in files:
-                ingest_data_to_redis(DocPath(path=file, chunk_size=chunk_size, chunk_overlap=chunk_overlap))
-
-        try:
-            # Create a SparkContext
-            conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
-            sc = SparkContext(conf=conf)
-            # Create an RDD with parallel processing
-            parallel_num = min(len(uploaded_files), os.cpu_count())
-            rdd = sc.parallelize(uploaded_files, parallel_num)
-            # Perform a parallel operation
-            rdd_trans = rdd.map(process_files_wrapper)
-            rdd_trans.collect()
-            # Stop the SparkContext
-            sc.stop()
-        except:
-            # Stop the SparkContext
-            sc.stop()
         return {"status": 200, "message": "Data preparation succeeded"}
 
     if link_list:
@@ -164,7 +127,7 @@ async def ingest_documents(
             link_list = json.loads(link_list)  # Parse JSON string to list
             if not isinstance(link_list, list):
                 raise HTTPException(status_code=400, detail="link_list should be a list.")
-            ingest_link_to_redis(link_list)
+            ingest_link_to_pgvector(link_list)
             print(f"Successfully saved link list {link_list}")
             return {"status": 200, "message": "Data preparation succeeded"}
         except json.JSONDecodeError:
@@ -174,4 +137,4 @@ async def ingest_documents(
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@prepare_doc_redis"].start()
+    opea_microservices["opea_service@prepare_doc_pgvector"].start()

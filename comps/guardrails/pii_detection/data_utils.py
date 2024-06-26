@@ -1,16 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import base64
-import errno
-import functools
 import io
 import json
 import multiprocessing
 import os
 import re
-import signal
-import timeit
 import unicodedata
 from urllib.parse import urlparse, urlunparse
 
@@ -23,60 +18,13 @@ import yaml
 from bs4 import BeautifulSoup
 from docx import Document as DDocument
 from langchain_community.document_loaders import (
-    UnstructuredHTMLLoader,
     UnstructuredImageLoader,
     UnstructuredMarkdownLoader,
     UnstructuredPowerPointLoader,
     UnstructuredXMLLoader,
 )
 from PIL import Image
-
-
-class TimeoutError(Exception):
-    pass
-
-
-def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
-    def decorator(func):
-        def _handle_timeout(signum, frame):
-            raise TimeoutError(error_message)
-
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            signal.signal(signal.SIGALRM, _handle_timeout)
-            signal.alarm(seconds)
-            try:
-                result = func(*args, **kwargs)
-            finally:
-                signal.alarm(0)
-            return result
-
-        return wrapper
-
-    return decorator
-
-
-class Timer:
-    level = 0
-    viewer = None
-
-    def __init__(self, name):
-        self.name = name
-        if Timer.viewer:
-            Timer.viewer.display(f"{name} started ...")
-        else:
-            print(f"{name} started ...")
-
-    def __enter__(self):
-        self.start = timeit.default_timer()
-        Timer.level += 1
-
-    def __exit__(self, *a, **kw):
-        Timer.level -= 1
-        if Timer.viewer:
-            Timer.viewer.display(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
-        else:
-            print(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
+from utils import timeout
 
 
 def load_pdf(pdf_path):
@@ -113,11 +61,11 @@ def load_pdf(pdf_path):
 
 def load_html(html_path):
     """Load the html file."""
-    data_html = UnstructuredHTMLLoader(html_path).load()
-    content = ""
-    for ins in data_html:
-        content += ins.page_content
-    return content
+    with open(html_path, "r", encoding="utf-8") as file:
+        html = file.read()
+    soup = BeautifulSoup(html, "html.parser")
+    text = soup.get_text(strip=True)
+    return text
 
 
 def load_txt(txt_path):
@@ -200,16 +148,6 @@ def load_csv(input_path):
 
 def load_image(image_path):
     """Load the image file."""
-    if os.getenv("SUMMARIZE_IMAGE_VIA_LVM", None) == "1":
-        query = "Please summarize this image."
-        image_b64_str = base64.b64encode(open(image_path, "rb").read()).decode()
-        response = requests.post(
-            "http://localhost:9399/v1/lvm",
-            data=json.dumps({"image": image_b64_str, "prompt": query}),
-            headers={"Content-Type": "application/json"},
-            proxies={"http": None},
-        )
-        return response.json()["text"].strip()
     loader = UnstructuredImageLoader(image_path)
     text = loader.load()[0].page_content
     return text
@@ -251,12 +189,7 @@ def document_loader(doc_path):
         return load_xlsx(doc_path)
     elif doc_path.endswith(".csv"):
         return load_csv(doc_path)
-    elif (
-        doc_path.endswith(".tiff")
-        or doc_path.endswith(".jpg")
-        or doc_path.endswith(".jpeg")
-        or doc_path.endswith(".png")
-    ):
+    elif doc_path.endswith(".tiff"):
         return load_image(doc_path)
     elif doc_path.endswith(".svg"):
         return load_image(doc_path)
