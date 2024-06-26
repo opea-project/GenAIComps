@@ -1,24 +1,22 @@
-# __serve_example_begin__
-from typing import Dict, Optional, List
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
 
+# __serve_example_begin__
+from typing import Dict, List, Optional
+
+import torch
 from fastapi import FastAPI
-from starlette.requests import Request
-from starlette.responses import StreamingResponse, JSONResponse
-
 from ray import serve
-
+from starlette.requests import Request
+from starlette.responses import JSONResponse, StreamingResponse
 from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.entrypoints.openai.cli_args import make_arg_parser
-from vllm.entrypoints.openai.protocol import (
-    ChatCompletionRequest,
-    ChatCompletionResponse,
-    ErrorResponse,
-)
+from vllm.entrypoints.openai.protocol import ChatCompletionRequest, ChatCompletionResponse, ErrorResponse
 from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
 from vllm.entrypoints.openai.serving_engine import LoRAModulePath
-import torch
 
 logger = logging.getLogger("ray.serve")
 
@@ -55,22 +53,16 @@ class VLLMDeployment:
         )
 
     @app.post("/v1/chat/completions")
-    async def create_chat_completion(
-        self, request: ChatCompletionRequest, raw_request: Request
-    ):
+    async def create_chat_completion(self, request: ChatCompletionRequest, raw_request: Request):
         """OpenAI-compatible HTTP endpoint.
 
         API reference:
             - https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html
         """
         logger.info(f"Request: {request}")
-        generator = await self.openai_serving_chat.create_chat_completion(
-            request, raw_request
-        )
+        generator = await self.openai_serving_chat.create_chat_completion(request, raw_request)
         if isinstance(generator, ErrorResponse):
-            return JSONResponse(
-                content=generator.model_dump(), status_code=generator.code
-            )
+            return JSONResponse(content=generator.model_dump(), status_code=generator.code)
         if request.stream:
             return StreamingResponse(content=generator, media_type="text/event-stream")
         else:
@@ -105,9 +97,7 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
         device = cli_args.pop("device")
     else:
         try:
-            from habana_frameworks.torch.distributed.hccl import (
-                initialize_distributed_hpu,
-            )
+            from habana_frameworks.torch.distributed.hccl import initialize_distributed_hpu
 
             initialize_distributed_hpu()
             torch.zeros(1).to("hpu")
@@ -127,9 +117,7 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
 
     # We use the "STRICT_PACK" strategy below to ensure all vLLM actors are placed on
     # the same Ray node.
-    return VLLMDeployment.options(
-        placement_group_bundles=pg_resources, placement_group_strategy="STRICT_PACK"
-    ).bind(
+    return VLLMDeployment.options(placement_group_bundles=pg_resources, placement_group_strategy="STRICT_PACK").bind(
         engine_args,
         parsed_args.response_role,
         parsed_args.lora_modules,
@@ -138,6 +126,7 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
 
 
 # __serve_example_end__
+
 
 def main(argv=None):
     import argparse
@@ -159,13 +148,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     serve.run(
-        build_app(
-            {
-                "model": args.model_id_or_path,
-                "tensor-parallel-size": args.tensor_parallel_size,
-                "device": "HPU"
-            }
-        )
+        build_app({"model": args.model_id_or_path, "tensor-parallel-size": args.tensor_parallel_size, "device": "HPU"})
     )
     # __query_example_begin__
     # from openai import OpenAI
@@ -194,6 +177,7 @@ def main(argv=None):
     #     if chat.choices[0].delta.content is not None:
     #         print(chat.choices[0].delta.content, end="")
     # __query_example_end__
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
