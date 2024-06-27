@@ -11,18 +11,20 @@ ARG MODEL_NAME=stability
 
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb && \
     dpkg -i cuda-keyring_1.1-1_all.deb && \
-    apt update && \
-    apt install -y datacenter-gpu-manager
+    apt-get update && \
+    apt-get install -y --fix-missing --no-install-recommends \
+        datacenter-gpu-manager
 
-RUN apt update && \
-    apt install -y libb64-0d \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommeds --fix-missing \
               build-essential \
               libaio-dev \
               libaio1 \
-              libsndfile-dev \
+              libb64-0d \
               libcupti-dev \
               libjpeg-dev \
               libpng-dev \
+              libsndfile-dev \
               libwebp-dev 
 
 ARG TRITON_VERSION=24.04
@@ -34,7 +36,7 @@ ENV PATH=$PATH:/opt/tritonserver/bin
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/tritonserver/lib
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/targets/x86_64-linux/lib
 
-RUN git clone https://github.com/triton-inference-server/python_backend -b r${TRITON_VERSION} /opt/tritonserver/backends/opea_backends && \
+RUN git clone --single-branch -b r${TRITON_VERSION} https://github.com/triton-inference-server/python_backend /opt/tritonserver/backends/opea_backends && \
     mkdir -p /opt/tritonserver/backends/opea_backends/models/${MODEL_NAME}/1
 
 COPY ./model.py /opt/tritonserver/backends/opea_backends/models/${MODEL_NAME}/1/model.py
