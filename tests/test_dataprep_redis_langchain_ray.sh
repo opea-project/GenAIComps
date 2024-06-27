@@ -68,7 +68,7 @@ EOF
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-dataprep-redis*")
+    cid=$(docker ps -aq --filter "name=test-comps-dataprep-redis*")
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
     echo "Docker containers stopped successfully"
