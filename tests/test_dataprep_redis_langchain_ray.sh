@@ -55,6 +55,13 @@ resp = requests.request('POST', url=url, headers={}, files=files, proxies=proxie
 print(resp.text)
 resp.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
 print("Request successful!")
+
+print("test get file structure")
+url = 'http://localhost:6008/v1/dataprep/get_file'
+resp = requests.request('POST', url=url, headers={}, proxies=proxies)
+print(resp.text)
+assert "name" in resp.text, "Response does not meet expectation."
+print("Request successful!")
 EOF
 )"
     echo "Validation successful"

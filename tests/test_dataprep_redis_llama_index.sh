@@ -17,13 +17,16 @@ function build_docker_images() {
 function start_service() {
     docker run -d --name="test-comps-dataprep-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6379:6379 -p 8001:8001 --ipc=host redis/redis-stack:7.2.0-v9
     dataprep_service_port=5012
+    dataprep_file_service_port=5017
     REDIS_URL="redis://${ip_address}:6379"
-    docker run -d --name="test-comps-dataprep-redis-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 --ipc=host opea/dataprep-redis:comps
+    docker run -d --name="test-comps-dataprep-redis-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
     sleep 1m
 }
 
 function validate_microservice() {
     dataprep_service_port=5012
+
+    # test /v1/dataprep
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > ./dataprep_file.txt
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
@@ -41,6 +44,28 @@ function validate_microservice() {
     else
         echo "[ dataprep ] HTTP status is not 200. Received status was $HTTP_STATUS"
         docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep.log
+        exit 1
+    fi
+    rm -rf $LOG_PATH/dataprep_file.txt
+
+    # test /v1/dataprep/get_file
+    dataprep_file_service_port=5017
+    URL="http://${ip_address}:$dataprep_file_service_port/v1/dataprep/get_file"
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' "$URL")
+    if [ "$HTTP_STATUS" -eq 200 ]; then
+        echo "[ dataprep - file ] HTTP status is 200. Checking content..."
+        local CONTENT=$(curl -s -X POST -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/dataprep_file.log)
+
+        if echo '{"name":' | grep -q "$EXPECTED_RESULT"; then
+            echo "[ dataprep - file ] Content is as expected."
+        else
+            echo "[ dataprep - file ] Content does not match the expected result: $CONTENT"
+            docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep_file.log
+            exit 1
+        fi
+    else
+        echo "[ dataprep ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
     fi
 }
