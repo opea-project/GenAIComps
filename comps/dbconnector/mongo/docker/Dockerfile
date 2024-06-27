@@ -18,9 +18,11 @@ RUN useradd -m -s /bin/bash user && \
 USER user
 
 COPY comps /home/user/comps
+COPY requirements.txt /home/user/
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/dbconnector/mongo/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/dbconnector/mongo/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

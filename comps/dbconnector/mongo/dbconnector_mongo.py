@@ -5,6 +5,7 @@ from comps.cores.mega.micro_service import opea_microservices, register_microser
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from mongo_store import DocumentStore
 from pydantic import BaseModel
+from uuid import uuid4
 
 
 class ChatMessage(BaseModel):
@@ -16,6 +17,8 @@ class ChatMessage(BaseModel):
 class ChatId(BaseModel):
     user: str
     id: Optional[str] = None
+    
+    
     
 def get_first_string(value):
     if isinstance(value, str):
@@ -43,6 +46,7 @@ async def create_documents(document: ChatMessage):
     if document.first_query is None:
         document.first_query = get_first_string(document.data.messages)
     if document.id is None:
+        document.id = uuid4()
         res = await store.save_document(document)
     else:
         res = await store.update_document(document.id, document.data, document.first_query)
@@ -61,6 +65,7 @@ async def get_documents(document: ChatId):
     store.initialize_storage()
     if document.id is None:
         res = await store.get_all_documents_of_user()
+        
     else:
         res = await store.get_user_documents_by_id(document.id)
     return res
