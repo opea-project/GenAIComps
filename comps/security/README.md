@@ -27,10 +27,21 @@ cd /your_project_path/GenAIComps
 docker build --no-cache -t opea/security:latest -f comps/security/Dockerfile .
 ```
 
-## 2.2 Run Docker with CLI
+## 2.2 Run Docker with CLI (Option A)
 
 ```bash
-docker run -it --name="/security-server" -p 6008:6008 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/security:latest
+docker run -it --name="security-server" -p 6008:6008 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/security:latest
+```
+## 2.3 Run with Docker Compose (Option B)
+
+```bash
+cd /your_project_path/GenAIComps/comps/security
+export http_proxy=${your_http_proxy}
+export https_proxy=${your_http_proxy}
+export LANGCHAIN_API_KEY=${your_langchain_api_key}
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_PROJECT="opea/gen-ai-comps:security"
+docker compose -f docker_compose_intent.yaml up -d
 ```
 
 # 🚀3. Consume Microservice
@@ -44,5 +55,5 @@ You can also prepare your sensitive word dictionary in `dict.txt`, where each li
 ```bash
 curl http://${your_ip}:6008/v1/safety/check \
     -H "Content-Type: application/json"   \
-    -d '{"text":"bomb the interchange","path":"/your_project_path/GenAIComps/comps/security"}'
+    -d '{"text":"bomb the interchange","path":"/path/to/comps/security"}'
 ```
