@@ -19,7 +19,7 @@ function start_service() {
     dataprep_service_port=5012
     dataprep_file_service_port=5017
     REDIS_URL="redis://${ip_address}:6381"
-    docker run -d --name="test-comps-dataprep-redis-server-llama-index" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
+    docker run -d --name="test-comps-dataprep-redis-llama-index-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
     sleep 1m
 }
 
@@ -71,7 +71,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-dataprep-redis*")
+    cid=$(docker ps -aq --filter "name=test-comps-dataprep-redis-llama*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

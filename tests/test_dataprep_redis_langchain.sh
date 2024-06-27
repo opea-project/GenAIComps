@@ -15,11 +15,11 @@ function build_docker_images() {
 }
 
 function start_service() {
-    docker run -d --name="test-comps-dataprep-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6380:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
+    docker run -d --name="test-comps-dataprep-redis-langchain" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6380:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
     dataprep_service_port=5013
     dataprep_file_service_port=5016
     REDIS_URL="redis://${ip_address}:6380"
-    docker run -d --name="test-comps-dataprep-redis-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
+    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
     sleep 1m
 }
 
@@ -72,7 +72,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-dataprep-redis*")
+    cid=$(docker ps -aq --filter "name=test-comps-dataprep-redis-langchain*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

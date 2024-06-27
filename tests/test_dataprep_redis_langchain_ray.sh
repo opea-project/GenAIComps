@@ -23,7 +23,7 @@ function start_service() {
     export REDIS_URL="redis://${ip_address}:6379"
     export INDEX_NAME="rag-redis"
     echo "Starting dataprep-redis-server"
-    docker run -d --name="test-comps-dataprep-redis-server-ray" --runtime=runc -p 6009:6007 -p 6010:6008 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
+    docker run -d --name="test-comps-dataprep-redis-ray-server" --runtime=runc -p 6009:6007 -p 6010:6008 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
 
     sleep 5
     echo "Service started successfully"
@@ -68,7 +68,7 @@ EOF
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-dataprep-redis*")
+    cid=$(docker ps -aq --filter "name=test-comps-dataprep-redis-ray*")
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
     echo "Docker containers stopped successfully"
