@@ -19,7 +19,7 @@ from comps import Base64ByteStrDoc, ServiceType, TextDoc, opea_microservices, op
 def generate_image(*, text, triton_endpoint):
     start = time.time()
 
-    network_timeout=1000 * 300
+    network_timeout = 1000 * 300
     with httpclient.InferenceServerClient(triton_endpoint, network_timeout=network_timeout) as client:
         queries = [text]
         input_arr = [np.frombuffer(bytes(q, "utf8"), dtype=np.uint8) for q in queries]
