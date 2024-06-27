@@ -14,6 +14,7 @@ services:
     container_name: dataprep-redis-server
     ports:
       - "6007:6007"
+      - "6008:6008"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
