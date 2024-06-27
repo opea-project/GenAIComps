@@ -97,6 +97,11 @@ class LLMParams(BaseDoc):
     streaming: bool = True
 
 
+class SecurityDoc(BaseDoc):
+    text: str
+    path: str
+
+
 class RAGASParams(BaseDoc):
     questions: DocList[TextDoc]
     answers: DocList[TextDoc]

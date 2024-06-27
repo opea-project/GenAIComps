@@ -1,0 +1,22 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3.8"
+
+services:
+  embedding:
+    image: opea/security:latest
+    container_name: security-server
+    ports:
+      - "6008:6008"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
