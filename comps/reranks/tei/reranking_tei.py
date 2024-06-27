@@ -69,6 +69,7 @@ If you don't know the answer to a question, please don't share false information
     else:
         return LLMParamsDoc(query=input.initial_query)
 
+
 if __name__ == "__main__":
     tei_reranking_endpoint = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8080")
     opea_microservices["opea_service@reranking_tgi_gaudi"].start()
