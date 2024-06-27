@@ -15,11 +15,11 @@ function build_docker_images() {
 }
 
 function start_service() {
-    docker run -d --name="test-comps-dataprep-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6379:6379 -p 8001:8001 --ipc=host redis/redis-stack:7.2.0-v9
+    docker run -d --name="test-comps-dataprep-redis-llama-index" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6381:6379 -p 8003:8001 --ipc=host redis/redis-stack:7.2.0-v9
     dataprep_service_port=5012
     dataprep_file_service_port=5017
-    REDIS_URL="redis://${ip_address}:6379"
-    docker run -d --name="test-comps-dataprep-redis-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
+    REDIS_URL="redis://${ip_address}:6381"
+    docker run -d --name="test-comps-dataprep-redis-server-llama-index" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
     sleep 1m
 }
 
