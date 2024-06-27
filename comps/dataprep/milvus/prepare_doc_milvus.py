@@ -7,31 +7,24 @@ import uuid
 from pathlib import Path
 from typing import List, Optional, Union
 
-from config import (
-    COLLECTION_NAME,
-    MILVUS_HOST,
-    MILVUS_PORT,
-    MOSEC_EMBEDDING_ENDPOINT,
-    MOSEC_EMBEDDING_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-    TEI_EMBEDDING_MODEL,
-)
+from config import COLLECTION_NAME, MILVUS_HOST, MILVUS_PORT,TEI_EMBEDDING_MODEL,TEI_EMBEDDING_ENDPOINT, MOSEC_EMBEDDING_MODEL, MOSEC_EMBEDDING_ENDPOINT
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
-from langchain_milvus.vectorstores import Milvus
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from langsmith import traceable
 from pyspark import SparkConf, SparkContext
-
+from langchain_milvus.vectorstores import Milvus
+from langchain_community.embeddings import OpenAIEmbeddings
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import document_loader, get_tables_result, parse_html
-
 # workaround notes: cp comps/dataprep/utils.py ./milvus/utils.py
-# from utils import document_loader, get_tables_result, parse_html
-index_params = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
-
-
+#from utils import document_loader, get_tables_result, parse_html
+index_params = {
+    "index_type": "FLAT",
+    "metric_type": "IP",
+    "params": {}
+}
 class MosecEmbeddings(OpenAIEmbeddings):
     def _get_len_safe_embeddings(
         self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
@@ -56,7 +49,6 @@ class MosecEmbeddings(OpenAIEmbeddings):
 
         return [e if e is not None else empty_embedding() for e in batched_embeddings]
 
-
 async def save_file_to_local_disk(save_path: str, file):
     save_path = Path(save_path)
     with save_path.open("wb") as fout:
@@ -66,7 +58,6 @@ async def save_file_to_local_disk(save_path: str, file):
         except Exception as e:
             print(f"Write file failed. Exception: {e}")
             raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
-
 
 def ingest_data_to_milvus(doc_path: DocPath):
     """Ingest document to Milvus."""
@@ -118,12 +109,11 @@ def ingest_data_to_milvus(doc_path: DocPath):
             embedding=embedder,
             collection_name=COLLECTION_NAME,
             connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
-            index_params=index_params,
+            index_params=index_params
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
     return True
-
 
 def ingest_link_to_milvus(link_list: List[str]):
     data_collection = parse_html(link_list)
@@ -156,9 +146,8 @@ def ingest_link_to_milvus(link_list: List[str]):
         embedding=embedder,
         collection_name=COLLECTION_NAME,
         connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
-        index_params=index_params,
+        index_params=index_params
     )
-
 
 @register_microservice(name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6010)
 @traceable(run_type="tool")
@@ -232,7 +221,6 @@ async def ingest_documents(
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
 
     raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
-
 
 if __name__ == "__main__":
     opea_microservices["opea_service@prepare_doc_milvus"].start()
