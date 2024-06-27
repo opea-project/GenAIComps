@@ -5,7 +5,7 @@ import json
 import os
 import uuid
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict
 
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 from fastapi import File, Form, HTTPException, UploadFile
@@ -20,6 +20,7 @@ from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import document_loader, get_tables_result, parse_html
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
+upload_folder = "./uploaded_files/"
 
 
 async def save_file_to_local_disk(save_path: str, file):
@@ -113,6 +114,35 @@ def ingest_link_to_redis(link_list: List[str]):
     )
 
 
+def get_file_structure(root_path: str, parent_path: str="") -> List[Dict[str, Union[str, List]]]:
+    result = []
+    for path in os.listdir(root_path):
+        complete_path = parent_path + '/' + path if parent_path else path
+        file_path = root_path+'/'+path
+        p = Path(file_path)
+        # append file into result
+        if p.is_file():
+            file_dict = {
+                "name": path,
+                "id": complete_path,
+                "type": "File",
+                "parent": ""
+            }
+            result.append(file_dict)
+        else:
+            # append folder and inner files/folders into result using recursive function
+            folder_dict = {
+                "name": path,
+                "id": complete_path,
+                "type": "Directory",
+                "children": get_file_structure(file_path, complete_path),
+                "parent": ""
+            }
+            result.append(folder_dict)
+
+    return result
+
+
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 @traceable(run_type="tool")
 async def ingest_documents(
@@ -131,7 +161,6 @@ async def ingest_documents(
     if files:
         if not isinstance(files, list):
             files = [files]
-        upload_folder = "./uploaded_files/"
         if not os.path.exists(upload_folder):
             Path(upload_folder).mkdir(parents=True, exist_ok=True)
         uploaded_files = []
@@ -185,6 +214,19 @@ async def ingest_documents(
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
 
     raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
+
+
+@register_microservice(name="opea_service@prepare_doc_redis_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008)
+@traceable(run_type="tool")
+async def rag_get_file_structure():
+    print(f'[ get_file_structure] ')
+
+    if not Path(upload_folder).exists():
+        print(f"No file uploaded, return empty list.")
+        return []
+
+    file_content = get_file_structure(upload_folder)
+    return file_content
 
 
 if __name__ == "__main__":
