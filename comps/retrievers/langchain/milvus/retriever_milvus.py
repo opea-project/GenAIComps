@@ -5,11 +5,19 @@ import argparse
 import os
 import time
 from typing import List, Optional
-from config import COLLECTION_NAME, EMBED_ENDPOINT, EMBED_MODEL, MILVUS_HOST, MILVUS_PORT,MODEL_ID,MOSEC_EMBEDDING_ENDPOINT
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+
+from config import (
+    COLLECTION_NAME,
+    EMBED_ENDPOINT,
+    EMBED_MODEL,
+    MILVUS_HOST,
+    MILVUS_PORT,
+    MODEL_ID,
+    MOSEC_EMBEDDING_ENDPOINT,
+)
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_milvus.vectorstores import Milvus
 from langsmith import traceable
-from langchain_community.embeddings import OpenAIEmbeddings
 
 from comps import (
     EmbedDoc768,
@@ -21,6 +29,8 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+
+
 class MosecEmbeddings(OpenAIEmbeddings):
     def _get_len_safe_embeddings(
         self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
@@ -44,6 +54,7 @@ class MosecEmbeddings(OpenAIEmbeddings):
             return _cached_empty_embedding
 
         return [e if e is not None else empty_embedding() for e in batched_embeddings]
+
 
 @register_microservice(
     name="opea_service@retriever_milvus",
@@ -90,7 +101,7 @@ if __name__ == "__main__":
     # Create vectorstore
     if MOSEC_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service
-        #embeddings = HuggingFaceHubEmbeddings(model=EMBED_ENDPOINT)
+        # embeddings = HuggingFaceHubEmbeddings(model=EMBED_ENDPOINT)
         embeddings = MosecEmbeddings(model=MODEL_ID)
     else:
         # create embeddings using local embedding model
