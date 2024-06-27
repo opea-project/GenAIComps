@@ -231,3 +231,4 @@ async def rag_get_file_structure():
 
 if __name__ == "__main__":
     opea_microservices["opea_service@prepare_doc_redis"].start()
+    opea_microservices["opea_service@prepare_doc_redis_file"].start()
