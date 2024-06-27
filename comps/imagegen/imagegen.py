@@ -19,7 +19,8 @@ from comps import Base64ByteStrDoc, ServiceType, TextDoc, opea_microservices, op
 def generate_image(*, text, triton_endpoint):
     start = time.time()
 
-    with httpclient.InferenceServerClient(triton_endpoint, network_timeout=1000 * 300) as client:
+    network_timeout=1000 * 300
+    with httpclient.InferenceServerClient(triton_endpoint, network_timeout=network_timeout) as client:
         queries = [text]
         input_arr = [np.frombuffer(bytes(q, "utf8"), dtype=np.uint8) for q in queries]
         max_size = max([a.size for a in input_arr])
@@ -41,7 +42,7 @@ def generate_image(*, text, triton_endpoint):
             inputs,
             request_id=str(1),
             outputs=outputs,
-            timeout=1000 * 300,
+            timeout=network_timeout,
         )
 
         result = response.get_response()
