@@ -214,26 +214,30 @@ except requests.exceptions.RequestException as e:
 ```
 
 ## 4.2 Consume get_file API
+
 To get uploaded file structures, use the following command:
+
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
     http://localhost:6008/v1/dataprep/get_file
 ```
+
 Then you will get the response JSON like this:
+
 ```json
 [
-    {
-        "name":"uploaded_file_1.txt",
-        "id":"uploaded_file_1.txt",
-        "type":"File",
-        "parent":""
-    },
-    {
-        "name":"uploaded_file_2.txt",
-        "id":"uploaded_file_2.txt",
-        "type":"File",
-        "parent":""
-    }
+  {
+    "name": "uploaded_file_1.txt",
+    "id": "uploaded_file_1.txt",
+    "type": "File",
+    "parent": ""
+  },
+  {
+    "name": "uploaded_file_2.txt",
+    "id": "uploaded_file_2.txt",
+    "type": "File",
+    "parent": ""
+  }
 ]
 ```

@@ -263,20 +263,15 @@ def ingest_link_to_redis(link_list: List[str], enable_ray=False, num_cpus=20):
         return True
 
 
-def get_file_structure(root_path: str, parent_path: str="") -> List[Dict[str, Union[str, List]]]:
+def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, Union[str, List]]]:
     result = []
     for path in os.listdir(root_path):
-        complete_path = parent_path + '/' + path if parent_path else path
-        file_path = root_path+'/'+path
+        complete_path = parent_path + "/" + path if parent_path else path
+        file_path = root_path + "/" + path
         p = Path(file_path)
         # append file into result
         if p.is_file():
-            file_dict = {
-                "name": path,
-                "id": complete_path,
-                "type": "File",
-                "parent": ""
-            }
+            file_dict = {"name": path, "id": complete_path, "type": "File", "parent": ""}
             result.append(file_dict)
         else:
             # append folder and inner files/folders into result using recursive function
@@ -285,7 +280,7 @@ def get_file_structure(root_path: str, parent_path: str="") -> List[Dict[str, Un
                 "id": complete_path,
                 "type": "Directory",
                 "children": get_file_structure(file_path, complete_path),
-                "parent": ""
+                "parent": "",
             }
             result.append(folder_dict)
 
@@ -346,13 +341,15 @@ async def ingest_documents(files: List[UploadFile] = File(None), link_list: str 
             raise HTTPException(status_code=400, detail=f"An error occurred: {e}")
 
 
-@register_microservice(name="opea_service@prepare_doc_redis_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008)
+@register_microservice(
+    name="opea_service@prepare_doc_redis_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
+)
 @traceable(run_type="tool")
 async def rag_get_file_structure():
-    print(f'[ get_file_structure] ')
+    print("[ get_file_structure] ")
 
     if not Path(upload_folder).exists():
-        print(f"No file uploaded, return empty list.")
+        print("No file uploaded, return empty list.")
         return []
 
     file_content = get_file_structure(upload_folder)
