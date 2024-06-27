@@ -10,7 +10,7 @@ on:
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
       - .github/workflows/unittest.yml
-      - GenAIEval/**
+      - evals/**
       - setup.py
       - tests/**
       - .github/workflows/scripts/unittest/**
