@@ -16,4 +16,3 @@ MOSEC_EMBEDDING_MODEL = "/root/bce-embedding-base_v1"
 MOSEC_EMBEDDING_ENDPOINT = os.environ.get("MOSEC_EMBEDDING_ENDPOINT", "")
 os.environ["OPENAI_API_BASE"] = MOSEC_EMBEDDING_ENDPOINT
 os.environ["OPENAI_API_KEY"] = "Dummy key"
-

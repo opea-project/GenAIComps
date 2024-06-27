@@ -8,9 +8,11 @@ huggingface_hub
 langchain
 langchain-community
 langchain-text-splitters
+langchain_milvus
 langsmith
 markdown
 numpy
+openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -21,9 +23,7 @@ pymupdf
 pyspark
 python-docx
 python-pptx
-langchain_milvus
 sentence_transformers
 shortuuid
-unstructured[all-docs]==0.11.5
-openai
 tiktoken
+unstructured[all-docs]==0.11.5
