@@ -32,6 +32,7 @@ docker build --no-cache -t opea/security:latest -f comps/security/Dockerfile .
 ```bash
 docker run -it --name="security-server" -p 6008:6008 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/security:latest
 ```
+
 ## 2.3 Run with Docker Compose (Option B)
 
 ```bash
