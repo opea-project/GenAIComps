@@ -1,0 +1,9 @@
+AGENT_NAME=finance_researcher
+strategy=react
+llm_endpoint_url=http://100.83.111.250:8080
+llm_engine=tgi
+recursive_limit=20
+require_human_feedback=true
+is_coordinator=false
+role_description="The finance_researcher is responsible for handling finance related question investigation and information collection."
+tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml
