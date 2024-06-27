@@ -3,20 +3,19 @@
 
 import os
 
-from config import COLLECTION_NAME, EMBED_MODEL, QDRANT_HOST, QDRANT_PORT
+from config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
-from langchain_community.vectorstores import Qdrant
-from langchain_text_splitters import HTMLHeaderTextSplitter
+from langchain_community.vectorstores import Pinecone
 
 from comps import DocPath, opea_microservices, opea_telemetry, register_microservice
-from comps.dataprep.utils import document_loader, get_tables_result
+from comps.dataprep.utils import document_loader
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_qdrant",
+    name="opea_service@prepare_doc_pinecone",
     endpoint="/v1/dataprep",
     host="0.0.0.0",
     port=6000,
@@ -25,27 +24,14 @@ tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 )
 @opea_telemetry
 def ingest_documents(doc_path: DocPath):
-    """Ingest document to Qdrant."""
-    path = doc_path.path
-    print(f"Parsing document {path}.")
+    """Ingest document to Pinecone."""
+    doc_path = doc_path.path
+    print(f"Parsing document {doc_path}.")
 
-    if path.endswith(".html"):
-        headers_to_split_on = [
-            ("h1", "Header 1"),
-            ("h2", "Header 2"),
-            ("h3", "Header 3"),
-        ]
-        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
-    else:
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True
-        )
-
-    content = document_loader(path)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
+    content = document_loader(doc_path)
     chunks = text_splitter.split_text(content)
-    if doc_path.process_table and path.endswith(".pdf"):
-        table_chunks = get_tables_result(path, doc_path.table_strategy)
-        chunks = chunks + table_chunks
+
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
     # Create vectorstore
     if tei_embedding_endpoint:
@@ -62,15 +48,13 @@ def ingest_documents(doc_path: DocPath):
         batch_chunks = chunks[i : i + batch_size]
         batch_texts = batch_chunks
 
-        _ = Qdrant.from_texts(
+        _ = Pinecone.from_texts(
             texts=batch_texts,
             embedding=embedder,
-            collection_name=COLLECTION_NAME,
-            host=QDRANT_HOST,
-            port=QDRANT_PORT,
+            index_name=PINECONE_INDEX_NAME,
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@prepare_doc_qdrant"].start()
+    opea_microservices["opea_service@prepare_doc_pinecone"].start()
