@@ -6,20 +6,25 @@
 
 ```bash
 pip install -r requirements.txt
+apt-get install tesseract-ocr -y
+apt-get install libtesseract-dev -y
+apt-get install poppler-utils -y
 ```
 
 ## Start Qdrant Server
 
-Please refer to this [readme](../../../vectorstores/langchain/qdrant/README.md).
+Please refer to this [readme](../../vectorstores/langchain/qdrant/README.md).
 
 ## Setup Environment Variables
 
 ```bash
+export no_proxy=${your_no_proxy}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
 export QDRANT=${host_ip}
 export QDRANT_PORT=6333
 export COLLECTION_NAME=${your_collection_name}
+export PYTHONPATH=${path_to_comps}
 ```
 
 ## Start Document Preparation Microservice for Qdrant with Python Script
@@ -68,4 +73,18 @@ Once document preparation microservice for Qdrant is started, user can use below
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{"path":"/path/to/document"}' http://localhost:6000/v1/dataprep
+```
+
+You can specify chunk_size and chunk_size by the following commands.
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"path":"/path/to/document","chunk_size":1500,"chunk_overlap":100}' http://localhost:6000/v1/dataprep
+```
+
+We support table extraction from pdf documents. You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
+
+Note: If you specify "table_strategy=llm", You should first start TGI Service, please refer to 1.2.1, 1.3.1 in https://github.com/opea-project/GenAIComps/tree/main/comps/llms/README.md, and then `export TGI_LLM_ENDPOINT="http://${your_ip}:8008"`.
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"path":"/path/to/document","process_table":true,"table_strategy":"hq"}' http://localhost:6000/v1/dataprep
 ```

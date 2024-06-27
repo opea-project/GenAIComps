@@ -12,10 +12,12 @@ from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
+from langchain_text_splitters import HTMLHeaderTextSplitter
 from langsmith import traceable
+from pyspark import SparkConf, SparkContext
 
 from comps import DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import document_loader, parse_html
+from comps.dataprep.utils import document_loader, get_tables_result, parse_html
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
@@ -33,12 +35,27 @@ async def save_file_to_local_disk(save_path: str, file):
 
 def ingest_data_to_redis(doc_path: DocPath):
     """Ingest document to Redis."""
-    doc_path = doc_path.path
-    print(f"Parsing document {doc_path}.")
+    path = doc_path.path
+    print(f"Parsing document {path}.")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
-    content = document_loader(doc_path)
+    if path.endswith(".html"):
+        headers_to_split_on = [
+            ("h1", "Header 1"),
+            ("h2", "Header 2"),
+            ("h3", "Header 3"),
+        ]
+        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    else:
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True
+        )
+
+    content = document_loader(path)
+
     chunks = text_splitter.split_text(content)
+    if doc_path.process_table and path.endswith(".pdf"):
+        table_chunks = get_tables_result(path, doc_path.table_strategy)
+        chunks = chunks + table_chunks
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
 
     # Create vectorstore
@@ -99,7 +116,12 @@ def ingest_link_to_redis(link_list: List[str]):
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 @traceable(run_type="tool")
 async def ingest_documents(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), link_list: Optional[str] = Form(None)
+    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+    link_list: Optional[str] = Form(None),
+    chunk_size: int = Form(1500),
+    chunk_overlap: int = Form(100),
+    process_table: bool = Form(False),
+    table_strategy: str = Form("fast"),
 ):
     print(f"files:{files}")
     print(f"link_list:{link_list}")
@@ -112,11 +134,43 @@ async def ingest_documents(
         upload_folder = "./uploaded_files/"
         if not os.path.exists(upload_folder):
             Path(upload_folder).mkdir(parents=True, exist_ok=True)
+        uploaded_files = []
         for file in files:
             save_path = upload_folder + file.filename
             await save_file_to_local_disk(save_path, file)
-            ingest_data_to_redis(DocPath(path=save_path))
+            ingest_data_to_redis(
+                DocPath(
+                    path=save_path,
+                    chunk_size=chunk_size,
+                    chunk_overlap=chunk_overlap,
+                    process_table=process_table,
+                    table_strategy=table_strategy,
+                )
+            )
+            uploaded_files.append(save_path)
             print(f"Successfully saved file {save_path}")
+
+        def process_files_wrapper(files):
+            if not isinstance(files, list):
+                files = [files]
+            for file in files:
+                ingest_data_to_redis(DocPath(path=file, chunk_size=chunk_size, chunk_overlap=chunk_overlap))
+
+        try:
+            # Create a SparkContext
+            conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
+            sc = SparkContext(conf=conf)
+            # Create an RDD with parallel processing
+            parallel_num = min(len(uploaded_files), os.cpu_count())
+            rdd = sc.parallelize(uploaded_files, parallel_num)
+            # Perform a parallel operation
+            rdd_trans = rdd.map(process_files_wrapper)
+            rdd_trans.collect()
+            # Stop the SparkContext
+            sc.stop()
+        except:
+            # Stop the SparkContext
+            sc.stop()
         return {"status": 200, "message": "Data preparation succeeded"}
 
     if link_list:
