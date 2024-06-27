@@ -1,15 +1,22 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
-
 import asyncio
 import json
 import time
 import unittest
+
 import requests
 
-from comps import ServiceOrchestrator, TextDoc, opea_microservices, register_microservice, register_statistics, statistics_dict
+from comps import (
+    ServiceOrchestrator,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
+
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
 @register_statistics(names=["opea_service@s1_add"])
@@ -22,6 +29,7 @@ async def s1_add(request: TextDoc) -> TextDoc:
     text += "opea"
     statistics_dict["opea_service@s1_add"].append_latency(time.time() - start, None)
     return {"text": text}
+
 
 class TestBaseStatistics(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
@@ -42,9 +50,10 @@ class TestBaseStatistics(unittest.IsolatedAsyncioTestCase):
 
         response = requests.get("http://localhost:8083/v1/statistics")
         res = response.json()
-        p50 = res['opea_service@s1_add']['p50_latency']
-        p99 = res['opea_service@s1_add']['p99_latency']
+        p50 = res["opea_service@s1_add"]["p50_latency"]
+        p99 = res["opea_service@s1_add"]["p99_latency"]
         self.assertEqual(int(p50), int(p99))
+
 
 if __name__ == "__main__":
     unittest.main()
