@@ -1,11 +1,1 @@
 ﻿motor==3.4.0
-aiohttp
-docarray
-fastapi
-httpx
-opentelemetry-api
-opentelemetry-exporter-otlp
-opentelemetry-sdk
-pyyaml
-requests
-shortuuid
