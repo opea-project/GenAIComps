@@ -7,7 +7,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="opea-eval",
-    version="0.6",
+    version="0.7",
     author="Intel AISE AIPC Team",
     author_email="haihao.shen@intel.com, feng.tian@intel.com, chang1.wang@intel.com, kaokao.lv@intel.com",
     description="Evaluation and benchmark for Generative AI",
