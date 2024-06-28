@@ -1,0 +1,14 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+ground_truth_file: ./ground_truth.jsonl
+use_openai_key: False
+search_type: [similarity, mmr]
+k: [1]
+fetch_k: [5]
+score_threshold: [0.3]
+top_n: [1]
+temperature: [0.01]
+top_k: [1, 3, 5]
+top_p: [0.1]
+repetition_penalty: [1.0]
