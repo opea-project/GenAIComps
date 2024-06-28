@@ -3,11 +3,7 @@ from config import MONGO_HOST, MONGO_PORT, DB_NAME
 from typing import Any
 
 class MongoClient:
-    mongo_host = MONGO_HOST
-    mongo_port = MONGO_PORT
-    conn_url = f"mongodb://{mongo_host}:{mongo_port}/"
-    db_name = DB_NAME
-
+    conn_url = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
     @staticmethod
     def get_db_client() -> Any:
         try:
