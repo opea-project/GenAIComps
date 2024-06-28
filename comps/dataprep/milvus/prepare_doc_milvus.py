@@ -23,6 +23,7 @@ from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from langsmith import traceable
 from pyspark import SparkConf, SparkContext
+
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import document_loader, get_tables_result, parse_html
 
