@@ -22,6 +22,8 @@ class DocPath(BaseDoc):
     path: str
     chunk_size: int = 1500
     chunk_overlap: int = 100
+    process_table: bool = False
+    table_strategy: str = "fast"
 
 
 class EmbedDoc768(BaseDoc):
@@ -67,6 +69,11 @@ class SearchedDoc(BaseDoc):
 class GeneratedDoc(BaseDoc):
     text: str
     prompt: str
+
+
+class RerankedDoc(BaseDoc):
+    reranked_docs: DocList[TextDoc]
+    initial_query: str
 
 
 class LLMParamsDoc(BaseDoc):

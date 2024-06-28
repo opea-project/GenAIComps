@@ -1,10 +1,14 @@
 beautifulsoup4
+cairosvg
 docarray[full]
+docx2txt
 easyocr
 fastapi
 huggingface_hub
 langchain
 langchain-community
+langchain-text-splitters
+markdown
 numpy
 opentelemetry-api
 opentelemetry-exporter-otlp
@@ -14,6 +18,8 @@ Pillow
 prometheus-fastapi-instrumentator
 pymupdf
 python-docx
+python-pptx
 qdrant-client
 sentence_transformers
 shortuuid
+unstructured[all-docs]==0.11.5
