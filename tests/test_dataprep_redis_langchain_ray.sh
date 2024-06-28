@@ -17,7 +17,7 @@ function build_docker_images() {
 function start_service() {
     echo "Starting redis microservice"
     # redis endpoint
-    docker run -d --name="test-comps-dataprep-redis-ray" --runtime=runc -p 6379:6379 -p 8001:8001 redis/redis-stack:7.2.0-v9
+    docker run -d --name="test-comps-dataprep-redis-ray" --runtime=runc -p 6379:6379 -p 8004:8001 redis/redis-stack:7.2.0-v9
 
     # dataprep-redis-server endpoint
     export REDIS_URL="redis://${ip_address}:6379"
