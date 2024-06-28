@@ -17,10 +17,10 @@ function build_docker_images() {
 function start_service() {
     echo "Starting redis microservice"
     # redis endpoint
-    docker run -d --name="test-comps-dataprep-redis-ray" --runtime=runc -p 6379:6379 -p 8004:8001 redis/redis-stack:7.2.0-v9
+    docker run -d --name="test-comps-dataprep-redis-ray" --runtime=runc -p 6382:6379 -p 8004:8001 redis/redis-stack:7.2.0-v9
 
     # dataprep-redis-server endpoint
-    export REDIS_URL="redis://${ip_address}:6379"
+    export REDIS_URL="redis://${ip_address}:6382"
     export INDEX_NAME="rag-redis"
     echo "Starting dataprep-redis-server"
     docker run -d --name="test-comps-dataprep-redis-ray-server" --runtime=runc -p 6009:6007 -p 6010:6008 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
