@@ -11,9 +11,9 @@ services:
         no_proxy: ${no_proxy}
     command: mongod --quiet --logpath /dev/null 
 
-  dbconnector-mongo:
-    image: opea/dbconnector-mongo:latest
-    container_name: dbconnector-mongo-server
+  chathistory-mongo:
+    image: opea/chathistory-mongo:latest
+    container_name: chathistory-mongo-server
     ports:
       - "6012:6012"
     ipc: host

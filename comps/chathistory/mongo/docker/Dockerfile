@@ -21,11 +21,11 @@ COPY comps /home/user/comps
 COPY requirements.txt /home/user/
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/dbconnector/mongo/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/comps/chathistory/mongo/requirements.txt && \
     pip install --no-cache-dir -r /home/user/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/dbconnector/mongo
+WORKDIR /home/user/comps/chathistory/mongo
 
-ENTRYPOINT ["python", "dbconnector_mongo.py"]
+ENTRYPOINT ["python", "chathistory_mongo.py"]
