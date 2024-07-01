@@ -9,11 +9,13 @@ This solution requires 1 backing container to operate - a triton-based inference
 ## 2.1 Build Model Server Docker Image
 
 ```cd triton && make build
+
 ```
 
 ## 2.2 Build Solution Server Docker Image
 
 ```docker build -t opea/image-gen:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f Dockerfile .
+
 ```
 
 ## 2.3 Run Docker with CLI
@@ -32,4 +34,3 @@ curl http://localhost:9765/v1/images/generation \
     -H "Content-Type: application/json"   \
     -d '{"text":"A cat holding a fish skeleton"}'
 ```
-
