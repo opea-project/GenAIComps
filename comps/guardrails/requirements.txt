@@ -1,9 +1,11 @@
 docarray[full]
 fastapi
 huggingface_hub
+langchain-community
 langchain-huggingface
 langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+prometheus-fastapi-instrumentator
 shortuuid

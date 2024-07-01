@@ -69,7 +69,7 @@ export TEI_EMBEDDING_MODEL_NAME="BAAI/bge-large-en-v1.5"
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:embeddings"
-python embedding_tei_gaudi.py
+python embedding_tei.py
 ```
 
 ### Start Embedding Service with Local Model
@@ -155,6 +155,6 @@ curl http://localhost:6000/v1/health_check\
 ```bash
 curl http://localhost:6000/v1/embeddings\
   -X POST \
-  -d '{"text":"Hello, world!"}' \
+  -d '{"input":"Hello, world!"}' \
   -H 'Content-Type: application/json'
 ```

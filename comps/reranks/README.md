@@ -19,10 +19,10 @@ export HF_TOKEN=${your_hf_api_token}
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/reranks"
-model=BAAI/bge-reranker-large
+export RERANK_MODEL_ID="BAAI/bge-reranker-large"
 revision=refs/pr/4
 volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $RERANK_MODEL_ID --revision $revision --hf-api-token $HF_TOKEN
 ```
 
 ## 1.3 Verify the TEI Service
@@ -98,5 +98,14 @@ curl http://localhost:8000/v1/health_check \
 curl http://localhost:8000/v1/reranking \
   -X POST \
   -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
+  -H 'Content-Type: application/json'
+```
+
+You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
+
+```bash
+curl http://localhost:8000/v1/reranking \
+  -X POST \
+  -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}], "top_n":2}' \
   -H 'Content-Type: application/json'
 ```
