@@ -19,3 +19,7 @@ pymupdf
 python-docx
 sentence_transformers
 shortuuid
+cairosvg
+docx2txt
+markdown
+python-pptx
