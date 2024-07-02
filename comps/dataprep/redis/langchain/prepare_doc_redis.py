@@ -4,11 +4,12 @@
 import json
 import os
 import uuid
+import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
-from fastapi import File, Form, HTTPException, UploadFile
+from fastapi import File, Form, HTTPException, UploadFile, Body
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
@@ -17,21 +18,15 @@ from langsmith import traceable
 from pyspark import SparkConf, SparkContext
 
 from comps import DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import document_loader, get_tables_result, parse_html
+from comps.dataprep.utils import (
+    document_loader, get_tables_result, parse_html,
+    create_upload_folder, encode_filename,
+    save_content_to_local_disk, 
+    get_file_structure, remove_folder_with_ignore
+)
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 upload_folder = "./uploaded_files/"
-
-
-async def save_file_to_local_disk(save_path: str, file):
-    save_path = Path(save_path)
-    with save_path.open("wb") as fout:
-        try:
-            content = await file.read()
-            fout.write(content)
-        except Exception as e:
-            print(f"Write file failed. Exception: {e}")
-            raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
 def ingest_data_to_redis(doc_path: DocPath):
@@ -85,8 +80,15 @@ def ingest_data_to_redis(doc_path: DocPath):
     return True
 
 
-def ingest_link_to_redis(link_list: List[str]):
+async def ingest_link_to_redis(link_list: List[str]):
     data_collection = parse_html(link_list)
+
+    for content, link in data_collection:
+        print(f"[ ingest link ] link: {link} content: {content}")
+        encoded_link = encode_filename(link)
+        save_path = upload_folder + encoded_link + '.txt'
+        print(f"[ ingest link ] save_path: {save_path}")
+        await save_content_to_local_disk(save_path, content)
 
     texts = []
     metadatas = []
@@ -114,31 +116,11 @@ def ingest_link_to_redis(link_list: List[str]):
     )
 
 
-def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, Union[str, List]]]:
-    result = []
-    for path in os.listdir(root_path):
-        complete_path = parent_path + "/" + path if parent_path else path
-        file_path = root_path + "/" + path
-        p = Path(file_path)
-        # append file into result
-        if p.is_file():
-            file_dict = {"name": path, "id": complete_path, "type": "File", "parent": ""}
-            result.append(file_dict)
-        else:
-            # append folder and inner files/folders into result using recursive function
-            folder_dict = {
-                "name": path,
-                "id": complete_path,
-                "type": "Directory",
-                "children": get_file_structure(file_path, complete_path),
-                "parent": "",
-            }
-            result.append(folder_dict)
-
-    return result
-
-
-@register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
+@register_microservice(
+    name="opea_service@prepare_doc_redis", 
+    endpoint="/v1/dataprep", 
+    host="0.0.0.0", 
+    port=6007)
 @traceable(run_type="tool")
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
@@ -150,18 +132,15 @@ async def ingest_documents(
 ):
     print(f"files:{files}")
     print(f"link_list:{link_list}")
-    if files and link_list:
-        raise HTTPException(status_code=400, detail="Provide either a file or a string list, not both.")
 
     if files:
         if not isinstance(files, list):
             files = [files]
-        if not os.path.exists(upload_folder):
-            Path(upload_folder).mkdir(parents=True, exist_ok=True)
         uploaded_files = []
         for file in files:
-            save_path = upload_folder + file.filename
-            await save_file_to_local_disk(save_path, file)
+            encode_file = encode_filename(file.filename)
+            save_path = upload_folder + encode_file
+            await save_content_to_local_disk(save_path, file)
             ingest_data_to_redis(
                 DocPath(
                     path=save_path,
@@ -202,7 +181,7 @@ async def ingest_documents(
             link_list = json.loads(link_list)  # Parse JSON string to list
             if not isinstance(link_list, list):
                 raise HTTPException(status_code=400, detail="link_list should be a list.")
-            ingest_link_to_redis(link_list)
+            await ingest_link_to_redis(link_list)
             print(f"Successfully saved link list {link_list}")
             return {"status": 200, "message": "Data preparation succeeded"}
         except json.JSONDecodeError:
@@ -212,8 +191,10 @@ async def ingest_documents(
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_redis_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
-)
+    name="opea_service@prepare_doc_redis_file", 
+    endpoint="/v1/dataprep/get_file", 
+    host="0.0.0.0", 
+    port=6008)
 @traceable(run_type="tool")
 async def rag_get_file_structure():
     print("[ get_file_structure] ")
@@ -226,6 +207,54 @@ async def rag_get_file_structure():
     return file_content
 
 
+@register_microservice(
+    name="opea_service@prepare_doc_redis_del", 
+    endpoint="/v1/dataprep/delete_file", 
+    host="0.0.0.0", 
+    port=6009)
+@traceable(run_type="tool")
+async def delete_single_file(file_path: str = Body(..., embed=True)):
+    """Delete file according to `file_path`.
+
+    `file_path`:
+        - specific file path (e.g. /path/to/file.txt)
+        - folder path (e.g. /path/to/folder)
+        - "all": delete all files uploaded
+    """
+    # delete all uploaded files
+    if file_path == 'all':
+        print(f"[dataprep - del] delete all files")
+        remove_folder_with_ignore(upload_folder)
+        print(f"[dataprep - del] successfully delete all files.")
+        create_upload_folder(upload_folder)
+        return {"status": True}
+
+    delete_path = Path(upload_folder+"/"+encode_filename(file_path))
+    print(f'[dataprep - del] delete_path: {delete_path}')
+
+    # partially delete files/folders
+    if delete_path.exists():
+        # delete file
+        if delete_path.is_file():
+            try:
+                delete_path.unlink()
+            except Exception as e:
+                print(f"[dataprep - del] fail to delete file {delete_path}: {e}")
+                return {"status": False}
+        # delete folder
+        else:
+            try:
+                shutil.rmtree(delete_path)
+            except Exception as e:
+                print(f"[dataprep - del] fail to delete folder {delete_path}: {e}")
+                return {"status": False}
+        return {"status": True}
+    else:
+        raise HTTPException(status_code=404, detail="File/folder not found. Please check del_path.")
+
+
 if __name__ == "__main__":
+    create_upload_folder(upload_folder)
     opea_microservices["opea_service@prepare_doc_redis"].start()
     opea_microservices["opea_service@prepare_doc_redis_file"].start()
+    opea_microservices["opea_service@prepare_doc_redis_del"].start()
