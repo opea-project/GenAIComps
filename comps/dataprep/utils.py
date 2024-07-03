@@ -13,6 +13,9 @@ import shutil
 import signal
 import timeit
 import unicodedata
+import urllib.parse
+from pathlib import Path
+from typing import Dict, List, Union
 from urllib.parse import urlparse, urlunparse
 
 import cairosvg
@@ -36,9 +39,6 @@ from langchain_community.document_loaders import (
 )
 from langchain_community.llms import HuggingFaceEndpoint
 from PIL import Image
-import urllib.parse
-from pathlib import Path
-from typing import Dict, List, Union
 
 
 class TimeoutError(Exception):
@@ -624,7 +624,7 @@ def create_upload_folder(upload_path):
 
 
 def encode_filename(filename):
-    return urllib.parse.quote(filename, safe='')
+    return urllib.parse.quote(filename, safe="")
 
 
 def decode_filename(encoded_filename):
@@ -635,7 +635,7 @@ async def save_content_to_local_disk(save_path: str, content):
     save_path = Path(save_path)
     try:
         if isinstance(content, str):
-            with open(save_path, 'w', encoding='utf-8') as file:
+            with open(save_path, "w", encoding="utf-8") as file:
                 file.write(content)
         else:
             with save_path.open("wb") as fout:
@@ -654,7 +654,12 @@ def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, 
         p = Path(file_path)
         # append file into result
         if p.is_file():
-            file_dict = {"name": decode_filename(path), "id": decode_filename(complete_path), "type": "File", "parent": ""}
+            file_dict = {
+                "name": decode_filename(path),
+                "id": decode_filename(complete_path),
+                "type": "File",
+                "parent": "",
+            }
             result.append(file_dict)
         else:
             # append folder and inner files/folders into result using recursive function
@@ -670,7 +675,7 @@ def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, 
     return result
 
 
-def remove_folder_with_ignore(folder_path: str, except_patterns: List=[]):
+def remove_folder_with_ignore(folder_path: str, except_patterns: List = []):
     """Remove the specific folder, and ignore some files/folders.
 
     :param folder_path: file path to delete
@@ -693,5 +698,3 @@ def remove_folder_with_ignore(folder_path: str, except_patterns: List=[]):
                 continue
             if not os.listdir(dir_path):
                 os.rmdir(dir_path)
-
-

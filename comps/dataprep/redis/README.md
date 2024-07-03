@@ -247,6 +247,7 @@ Then you will get the response JSON like this:
 To delete uploaded file/link, use the following command.
 
 The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
+
 ```bash
 # delete link
 curl -X POST \
