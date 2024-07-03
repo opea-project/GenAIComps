@@ -1,30 +1,31 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-# __serve_example_begin__
-from typing import Dict, Optional, List
 import logging
+import os
+import sys
+
+# __serve_example_begin__
+from typing import Dict, List, Optional
+
+import torch
 from fastapi import FastAPI
-from starlette.requests import Request
-from starlette.responses import StreamingResponse, JSONResponse
 from ray import serve
+from starlette.requests import Request
+from starlette.responses import JSONResponse, StreamingResponse
 from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.entrypoints.openai.cli_args import make_arg_parser
-from vllm.entrypoints.openai.protocol import (
-    ChatCompletionRequest,
-    ChatCompletionResponse,
-    ErrorResponse,
-)
+from vllm.entrypoints.openai.protocol import ChatCompletionRequest, ChatCompletionResponse, ErrorResponse
 from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
 from vllm.entrypoints.openai.serving_engine import LoRAModulePath
-import torch
-import sys, os
+
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 logger = logging.getLogger("ray.serve")
 
 app = FastAPI()
+
 
 @serve.deployment(
     autoscaling_config={
@@ -56,22 +57,16 @@ class VLLMDeployment:
         )
 
     @app.post("/v1/chat/completions")
-    async def create_chat_completion(
-        self, request: ChatCompletionRequest, raw_request: Request
-    ):
+    async def create_chat_completion(self, request: ChatCompletionRequest, raw_request: Request):
         """OpenAI-compatible HTTP endpoint.
 
         API reference:
             - https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html
         """
         logger.info(f"Request: {request}")
-        generator = await self.openai_serving_chat.create_chat_completion(
-            request, raw_request
-        )
+        generator = await self.openai_serving_chat.create_chat_completion(request, raw_request)
         if isinstance(generator, ErrorResponse):
-            return JSONResponse(
-                content=generator.model_dump(), status_code=generator.code
-            )
+            return JSONResponse(content=generator.model_dump(), status_code=generator.code)
         if request.stream:
             return StreamingResponse(content=generator, media_type="text/event-stream")
         else:
@@ -116,22 +111,28 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
 
     # We use the "STRICT_PACK" strategy below to ensure all vLLM actors are placed on
     # the same Ray node.
-    return VLLMDeployment.options(
-        placement_group_bundles=pg_resources, placement_group_strategy="STRICT_PACK"
-    ).bind(
+    return VLLMDeployment.options(placement_group_bundles=pg_resources, placement_group_strategy="STRICT_PACK").bind(
         engine_args,
         parsed_args.response_role,
         parsed_args.lora_modules,
         parsed_args.chat_template,
     )
+
+
 # __serve_example_end__
+
 
 def main(argv=None):
     import argparse
+
     parser = argparse.ArgumentParser(description="Serve vLLM models with Ray.", add_help=True)
     parser.add_argument("--port_number", default="8000", type=str, help="Port number to serve on.", required=False)
-    parser.add_argument("--model_id_or_path", default="facebook/opt-125m", type=str, help="Model id or path.", required=False)
-    parser.add_argument("--tensor_parallel_size", default=2, type=int, help="parallel nodes number for 'hpu' mode.", required=False)
+    parser.add_argument(
+        "--model_id_or_path", default="facebook/opt-125m", type=str, help="Model id or path.", required=False
+    )
+    parser.add_argument(
+        "--tensor_parallel_size", default=2, type=int, help="parallel nodes number for 'hpu' mode.", required=False
+    )
     args = parser.parse_args(argv)
 
     serve.start(http_options={"host": "0.0.0.0", "port": args.port_number})
@@ -140,11 +141,12 @@ def main(argv=None):
             {
                 "model": args.model_id_or_path,
                 "tensor-parallel-size": args.tensor_parallel_size,
-                "device":"HPU",
+                "device": "HPU",
             }
         )
     )
     input("Service is deployed successfully.")
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
