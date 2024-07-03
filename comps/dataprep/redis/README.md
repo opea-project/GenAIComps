@@ -106,13 +106,13 @@ docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https
 - option 1: Start single-process version (for 1-10 files processing)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 -p 6008:6008 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-redis:latest
+docker run -d --name="dataprep-redis-server" -p 6007:6007 -p 6008:6008 -p 6009:6009 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-redis:latest
 ```
 
 - option 2: Start multi-process version (for >10 files processing)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 -p 6008:6008 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
+docker run -d --name="dataprep-redis-server" -p 6007:6007 -p 6008:6008 -p 6009:6009 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
 ```
 
 ## 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
@@ -240,4 +240,23 @@ Then you will get the response JSON like this:
     "parent": ""
   }
 ]
+```
+
+## 4.3 Consume delete_file API
+
+To delete uploaded file/link, use the following command.
+
+The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
+```bash
+# delete link
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"file_path": "https://www.ces.tech/.txt"}' \
+    http://10.165.57.68:6009/v1/dataprep/delete_file
+
+# delete file
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"file_path": "all"}' \
+    http://10.165.57.68:6009/v1/dataprep/delete_file
 ```

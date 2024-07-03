@@ -16,12 +16,13 @@ import json
 import os
 import pathlib
 import sys
+import shutil
 from pathlib import Path
 from typing import Callable, List, Optional, Union
 
 import pandas as pd
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, TIMEOUT_SECONDS
-from fastapi import File, Form, HTTPException, UploadFile
+from fastapi import File, Form, HTTPException, UploadFile, Body
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
@@ -32,7 +33,7 @@ comps_path = os.path.join(cur_path, "../../../../")
 sys.path.append(comps_path)
 import hashlib
 import timeit
-from typing import TYPE_CHECKING, Any, Dict, Iterator
+from typing import Any, Dict, Iterator
 
 import pyarrow
 import ray
@@ -41,7 +42,13 @@ from ray.data.datasource import FileBasedDatasource
 from tqdm import tqdm
 
 from comps import DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import Timer, document_loader, parse_html, timeout
+from comps.dataprep.utils import (
+    Timer, document_loader, parse_html, timeout,
+    document_loader, parse_html,
+    create_upload_folder, encode_filename,
+    save_content_to_local_disk, 
+    get_file_structure, remove_folder_with_ignore
+)
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 debug = False
@@ -126,17 +133,6 @@ def ray_execute(ds, log_name):
         df = save_logs(log_name, ret_with_status)
         ret = df.to_dict(orient="records")
     return ret
-
-
-async def save_file_to_local_disk(save_path: str, file):
-    save_path = Path(save_path)
-    with save_path.open("wb") as fout:
-        try:
-            content = await file.read()
-            fout.write(content)
-        except Exception as e:
-            print(f"Write file failed. Exception: {e}")
-            raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
 @timeout(seconds=TIMEOUT_SECONDS)
@@ -263,30 +259,6 @@ def ingest_link_to_redis(link_list: List[str], enable_ray=False, num_cpus=20):
         return True
 
 
-def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, Union[str, List]]]:
-    result = []
-    for path in os.listdir(root_path):
-        complete_path = parent_path + "/" + path if parent_path else path
-        file_path = root_path + "/" + path
-        p = Path(file_path)
-        # append file into result
-        if p.is_file():
-            file_dict = {"name": path, "id": complete_path, "type": "File", "parent": ""}
-            result.append(file_dict)
-        else:
-            # append folder and inner files/folders into result using recursive function
-            folder_dict = {
-                "name": path,
-                "id": complete_path,
-                "type": "Directory",
-                "children": get_file_structure(file_path, complete_path),
-                "parent": "",
-            }
-            result.append(folder_dict)
-
-    return result
-
-
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 async def ingest_documents(files: List[UploadFile] = File(None), link_list: str = Form(None)):
     if files and link_list:
@@ -306,7 +278,7 @@ async def ingest_documents(files: List[UploadFile] = File(None), link_list: str 
             # TODO: use ray to parallelize the file saving
             for file in files:
                 save_path = upload_folder + file.filename
-                await save_file_to_local_disk(save_path, file)
+                await save_content_to_local_disk(save_path, file)
                 saved_path_list.append(DocPath(path=save_path))
 
             if len(saved_path_list) <= 10:
@@ -354,6 +326,52 @@ async def rag_get_file_structure():
 
     file_content = get_file_structure(upload_folder)
     return file_content
+
+
+@register_microservice(
+    name="opea_service@prepare_doc_redis_del", 
+    endpoint="/v1/dataprep/delete_file", 
+    host="0.0.0.0", 
+    port=6009)
+@traceable(run_type="tool")
+async def delete_single_file(file_path: str = Body(..., embed=True)):
+    """Delete file according to `file_path`.
+
+    `file_path`:
+        - specific file path (e.g. /path/to/file.txt)
+        - folder path (e.g. /path/to/folder)
+        - "all": delete all files uploaded
+    """
+    # delete all uploaded files
+    if file_path == 'all':
+        print(f"[dataprep - del] delete all files")
+        remove_folder_with_ignore(upload_folder)
+        print(f"[dataprep - del] successfully delete all files.")
+        create_upload_folder(upload_folder)
+        return {"status": True}
+
+    delete_path = Path(upload_folder+"/"+encode_filename(file_path))
+    print(f'[dataprep - del] delete_path: {delete_path}')
+
+    # partially delete files/folders
+    if delete_path.exists():
+        # delete file
+        if delete_path.is_file():
+            try:
+                delete_path.unlink()
+            except Exception as e:
+                print(f"[dataprep - del] fail to delete file {delete_path}: {e}")
+                return {"status": False}
+        # delete folder
+        else:
+            try:
+                shutil.rmtree(delete_path)
+            except Exception as e:
+                print(f"[dataprep - del] fail to delete folder {delete_path}: {e}")
+                return {"status": False}
+        return {"status": True}
+    else:
+        raise HTTPException(status_code=404, detail="File/folder not found. Please check del_path.")
 
 
 if __name__ == "__main__":
