@@ -15,14 +15,14 @@
 import json
 import os
 import pathlib
-import sys
 import shutil
+import sys
 from pathlib import Path
 from typing import Callable, List, Optional, Union
 
 import pandas as pd
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, TIMEOUT_SECONDS
-from fastapi import File, Form, HTTPException, UploadFile, Body
+from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
@@ -43,11 +43,15 @@ from tqdm import tqdm
 
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
-    Timer, document_loader, parse_html, timeout,
-    document_loader, parse_html,
-    create_upload_folder, encode_filename,
-    save_content_to_local_disk, 
-    get_file_structure, remove_folder_with_ignore
+    Timer,
+    create_upload_folder,
+    document_loader,
+    encode_filename,
+    get_file_structure,
+    parse_html,
+    remove_folder_with_ignore,
+    save_content_to_local_disk,
+    timeout,
 )
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
@@ -329,10 +333,8 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_redis_del", 
-    endpoint="/v1/dataprep/delete_file", 
-    host="0.0.0.0", 
-    port=6009)
+    name="opea_service@prepare_doc_redis_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
+)
 @traceable(run_type="tool")
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
@@ -343,15 +345,15 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
         - "all": delete all files uploaded
     """
     # delete all uploaded files
-    if file_path == 'all':
-        print(f"[dataprep - del] delete all files")
+    if file_path == "all":
+        print("[dataprep - del] delete all files")
         remove_folder_with_ignore(upload_folder)
-        print(f"[dataprep - del] successfully delete all files.")
+        print("[dataprep - del] successfully delete all files.")
         create_upload_folder(upload_folder)
         return {"status": True}
 
-    delete_path = Path(upload_folder+"/"+encode_filename(file_path))
-    print(f'[dataprep - del] delete_path: {delete_path}')
+    delete_path = Path(upload_folder + "/" + encode_filename(file_path))
+    print(f"[dataprep - del] delete_path: {delete_path}")
 
     # partially delete files/folders
     if delete_path.exists():
