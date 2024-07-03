@@ -39,7 +39,7 @@ def retrieve(input: EmbedDoc768) -> SearchedDoc:
         result = SearchedDoc(retrieved_docs=[], initial_query=input.text)
         statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
         return result
-    
+
     # if the Redis index has data, perform the search
     if input.search_type == "similarity":
         search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, k=input.k)
@@ -75,10 +75,5 @@ if __name__ == "__main__":
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
-    vector_db = Redis(
-        embedding=embeddings,
-        index_name=INDEX_NAME,
-        redis_url=REDIS_URL
-    )
+    vector_db = Redis(embedding=embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
     opea_microservices["opea_service@retriever_redis"].start()
-
