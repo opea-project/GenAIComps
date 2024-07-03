@@ -42,10 +42,10 @@ function validate_microservice() {
     URL="http://${ip_address}:$retriever_port/v1/retrieval"
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{\"text\":\"test\",\"embedding\":${test_embedding}}' -H 'Content-Type: application/json' "$URL")
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ retriever ] HTTP status is 200. Checking content..."
-        local CONTENT=$(curl -s -X POST -d '{\"text\":\"test\",\"embedding\":${test_embedding}}' -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
+        local CONTENT=$(curl -s -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
 
         if echo "$CONTENT" | grep -q "retrieved_docs"; then
             echo "[ retriever ] Content is as expected."
@@ -60,7 +60,7 @@ function validate_microservice() {
         exit 1
     fi
 
-    docker logs test-comps-retriever-tei-endpoint
+    docker logs test-comps-retriever-tei-endpoint >> ${LOG_PATH}/tei.log
 }
 
 function stop_docker() {
