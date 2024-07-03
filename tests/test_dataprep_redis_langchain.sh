@@ -39,12 +39,12 @@ function validate_microservice() {
             echo "[ dataprep ] Content is as expected."
         else
             echo "[ dataprep ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep.log
+            docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep.log
             exit 1
         fi
     else
         echo "[ dataprep ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep.log
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep.log
         exit 1
     fi
 
@@ -56,16 +56,16 @@ function validate_microservice() {
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."
         local CONTENT=$(curl -s -X POST -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/dataprep_file.log)
 
-        if echo "$CONTENT" | grep -q "{"name":"; then
+        if echo "$CONTENT" | grep -q '{"name":'; then
             echo "[ dataprep - file ] Content is as expected."
         else
             echo "[ dataprep - file ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep_file.log
+            docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_file.log
             exit 1
         fi
     else
-        echo "[ dataprep ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep_file.log
+        echo "[ dataprep - file ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
     fi
 
@@ -77,16 +77,16 @@ function validate_microservice() {
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."
         local CONTENT=$(curl -s -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/dataprep_del.log)
 
-        if echo "$CONTENT" | grep -q "{"status": True}"; then
+        if echo "$CONTENT" | grep -q '{"status": True}'; then
             echo "[ dataprep - del ] Content is as expected."
         else
             echo "[ dataprep - del ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep_del.log
+            docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
             exit 1
         fi
     else
         echo "[ dataprep - del ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-redis-server >> ${LOG_PATH}/dataprep_del.log
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
         exit 1
     fi
 }
