@@ -12,31 +12,28 @@ This guide provides an example on how to launch vLLM with Ray serve endpoint on 
 
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
-export vLLM_RAY_Serve_ENDPOINT="http://${your_ip}:8008"
+export vLLM_RAY_ENDPOINT="http://${your_ip}:8006"
 export LLM_MODEL=${your_hf_llm_model}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_PROJECT="opea/llms"
-export CHAT_PROCESSOR="ChatModelLlama"
 ```
 
 ### Launch VLLM Ray Gaudi Service
 
 ```bash
-bash ./launch_vllm_ray_service.sh
+bash ./launch_vllm_ray.sh
 ```
 
-For gated models such as `LLAMA-2`, you need set the environment variable `HF_TOKEN=<token>` to access the Hugging Face Hub.
+For gated models such as `LLAMA-2`, you need set the environment variable `HUGGINGFACEHUB_API_TOKEN=<token>` to access the Hugging Face Hub.
 
-Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HF_TOKEN` environment with the token.
+Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
 
 ```bash
-export HF_TOKEN=<token>
+export HUGGINGFACEHUB_API_TOKEN=<token>
 ```
 
 And then you can make requests with the OpenAI-compatible APIs like below to check the service status:
 
 ```bash
-curl http://127.0.0.1:8008/v1/chat/completions \
+curl http://127.0.0.1:8006/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
   "model": <model_name>,
@@ -49,17 +46,15 @@ For more information about the OpenAI APIs, you can checkeck the [OpenAI officia
 
 #### Customize Ray Gaudi Service
 
-The ./serving/ray/launch_ray_service.sh script accepts five parameters:
+The launch_vllm_ray.sh script accepts three parameters:
 
-- **port_number**: The port number assigned to the Ray Gaudi endpoint, with the default being 8080.
-- model_name: The model name utilized for LLM, with the default set to "meta-llama/Llama-2-7b-chat-hf".
-- chat_processor: The chat processor for handling the prompts, with the default set to "ChatModelNoFormat", and the optional selection can be "ChatModelLlama", "ChatModelGptJ" and "ChatModelGemma".
-- num_cpus_per_worker: The number of CPUs specifies the number of CPUs per worker process.
+- **port_number**: The port number assigned to the vLLm Ray Gaudi endpoint, with the default being 8006.
+- model_name: The model name utilized for LLM, with the default set to "facebook/opt-125m".
 - num_hpus_per_worker: The number of HPUs specifies the number of HPUs per worker process.
 
-You have the flexibility to customize five parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `VLLM_RAY_Serve_ENDPOINT`:
+You have the flexibility to customize three parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `vLLM_RAY_ENDPOINT`:
 
 ```bash
-export VLLM_RAY_Serve_ENDPOINT="http://xxx.xxx.xxx.xxx:8008"
-export LLM_MODEL=<model_name> # example: export LLM_MODEL="meta-llama/Llama-2-7b-chat-hf"
+export vLLM_RAY_ENDPOINT="http://xxx.xxx.xxx.xxx:8006"
+export LLM_MODEL=<model_name> # example: export LLM_MODEL="facebook/opt-125m"
 ```

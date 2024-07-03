@@ -17,9 +17,7 @@ import os
 from fastapi.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
 from langsmith import traceable
-
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-
 
 @traceable(run_type="tool")
 def post_process_text(text: str):
@@ -34,7 +32,7 @@ def post_process_text(text: str):
 
 
 @register_microservice(
-    name="opea_service@llm_ray",
+    name="opea_service@llm_vllm_ray",
     service_type=ServiceType.LLM,
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
@@ -42,8 +40,8 @@ def post_process_text(text: str):
 )
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
-    llm_endpoint = os.getenv("vLLM_RAY_ENDPOINT", "http://localhost:8080")
-    llm_model = os.getenv("LLM_MODEL", "Llama-2-7b-chat-hf")
+    llm_endpoint = os.getenv("vLLM_RAY_ENDPOINT", "http://localhost:8006")
+    llm_model = os.getenv("LLM_MODEL", "facebook/opt-125m")
     llm = ChatOpenAI(
         openai_api_base=llm_endpoint + "/v1",
         model_name=llm_model,
@@ -80,4 +78,4 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@llm_ray"].start()
+    opea_microservices["opea_service@llm_vllm_ray"].start()
