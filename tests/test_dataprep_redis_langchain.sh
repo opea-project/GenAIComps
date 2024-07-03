@@ -18,8 +18,9 @@ function start_service() {
     docker run -d --name="test-comps-dataprep-redis-langchain" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6380:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
     dataprep_service_port=5013
     dataprep_file_service_port=5016
+    dataprep_del_service_port=5020
     REDIS_URL="redis://${ip_address}:6380"
-    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
+    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 -p ${dataprep_del_service_port}:6009 --ipc=host opea/dataprep-redis:comps
     sleep 1m
 }
 
@@ -71,7 +72,7 @@ function validate_microservice() {
 
     # test /v1/dataprep/delete_file
     dataprep_file_service_port=5016
-    URL="http://${ip_address}:$dataprep_file_service_port/v1/dataprep/delete_file"
+    URL="http://${ip_address}:$dataprep_del_service_port/v1/dataprep/delete_file"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."

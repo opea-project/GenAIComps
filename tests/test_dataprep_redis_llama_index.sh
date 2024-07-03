@@ -24,11 +24,12 @@ function start_service() {
 }
 
 function validate_microservice() {
-    dataprep_service_port=5012
+    cd $LOG_PATH
 
     # test /v1/dataprep
+    dataprep_service_port=5012
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
-    echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > ./dataprep_file.txt
+    echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep ] HTTP status is 200. Checking content..."

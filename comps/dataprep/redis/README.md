@@ -258,6 +258,12 @@ curl -X POST \
 # delete file
 curl -X POST \
     -H "Content-Type: application/json" \
+    -d '{"file_path": "uploaded_file_1.txt"}' \
+    http://10.165.57.68:6009/v1/dataprep/delete_file
+
+# delete all files and links
+curl -X POST \
+    -H "Content-Type: application/json" \
     -d '{"file_path": "all"}' \
     http://10.165.57.68:6009/v1/dataprep/delete_file
 ```
