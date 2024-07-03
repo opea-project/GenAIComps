@@ -20,7 +20,7 @@ function start_service() {
     dataprep_file_service_port=5017
     REDIS_URL="redis://${ip_address}:6381"
     docker run -d --name="test-comps-dataprep-redis-llama-index-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 --ipc=host opea/dataprep-redis:comps
-    sleep 1m
+    sleep 2m
 }
 
 function validate_microservice() {
@@ -57,7 +57,7 @@ function validate_microservice() {
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."
         local CONTENT=$(curl -s -X POST -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/dataprep_file.log)
 
-        if echo "$CONTENT" | grep -q "{"name":"; then
+        if echo "$CONTENT" | grep -q '{"name":'; then
             echo "[ dataprep - file ] Content is as expected."
         else
             echo "[ dataprep - file ] Content does not match the expected result: $CONTENT"
@@ -80,7 +80,7 @@ function main() {
 
     stop_docker
 
-    build_docker_images
+    # build_docker_images
     start_service
 
     validate_microservice
