@@ -1,13 +1,10 @@
-#!/bin/bash
-
-
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 cd docker
 
 docker build \
-    -f Dockerfile.vllmrayserve ../../ \
+    -f Dockerfile.vllmray ../../ \
     -t vllm_ray:habana \
     --network=host \
     --build-arg http_proxy=${http_proxy} \
