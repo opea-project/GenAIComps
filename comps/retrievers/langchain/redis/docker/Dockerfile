@@ -27,4 +27,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/retrievers/langchain/redis
 
-ENTRYPOINT ["python" "retriever_redis.py"]
+ENTRYPOINT ["python", "retriever_redis.py"]
