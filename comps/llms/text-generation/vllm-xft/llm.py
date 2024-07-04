@@ -2,19 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import time
 
 from fastapi.responses import StreamingResponse
-from openai import OpenAI
 from langsmith import traceable
+from openai import OpenAI
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-import time
 
 llm_endpoint = os.getenv("vLLM_LLM_ENDPOINT", "http://localhost:18688")
 model = os.getenv("vLLM_LLM_NAME", "xft")
 client = OpenAI(
-        api_key="EMPTY",
-        base_url=llm_endpoint + "/v1",)
+    api_key="EMPTY",
+    base_url=llm_endpoint + "/v1",
+)
+
 
 @register_microservice(
     name="opea_service@llm_vllm_xft",
@@ -30,24 +32,25 @@ def llm_generate(input: LLMParamsDoc):
     global client
 
     completion = client.completions.create(
-            model=model,
-            prompt=input.query,
-            best_of=input.best_of,
-            echo=input.echo,
-            frequency_penalty=input.frequency_penalty,
-            logit_bias=input.logit_bias,
-            logprobs=input.logprobs,
-            max_tokens=input.max_new_tokens,
-            n=input.n,
-            presence_penalty=input.presence_penalty,
-            seed=input.seed,
-            stop=input.stop,
-            stream=input.streaming,
-            stream_options=input.stream_options,
-            suffix=input.suffix,
-            temperature=input.temperature,
-            top_p=input.top_p,
-            user=input.user)
+        model=model,
+        prompt=input.query,
+        best_of=input.best_of,
+        echo=input.echo,
+        frequency_penalty=input.frequency_penalty,
+        logit_bias=input.logit_bias,
+        logprobs=input.logprobs,
+        max_tokens=input.max_new_tokens,
+        n=input.n,
+        presence_penalty=input.presence_penalty,
+        seed=input.seed,
+        stop=input.stop,
+        stream=input.streaming,
+        stream_options=input.stream_options,
+        suffix=input.suffix,
+        temperature=input.temperature,
+        top_p=input.top_p,
+        user=input.user,
+    )
 
     if input.streaming:
 

@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional, Dict, Union, List
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList
@@ -85,19 +85,19 @@ class LLMParamsDoc(BaseDoc):
     # Ordered by official OpenAI API documentation
     # default values are same with
     # https://platform.openai.com/docs/api-reference/completions/create
-    model: Optional[str] = None # for openai, not used by tgi
-    query: str # alias 'prompt'
+    model: Optional[str] = None  # for openai, not used by tgi
+    query: str  # alias 'prompt'
     best_of: Optional[int] = None
     echo: Optional[bool] = False
     frequency_penalty: Optional[float] = 0.0
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[int] = None
-    max_new_tokens: Optional[int] = 16 # alias 'max_tokens'
+    max_new_tokens: Optional[int] = 16  # alias 'max_tokens'
     n: Optional[int] = 1
     presence_penalty: Optional[float] = 0.0
     seed: Optional[int] = None
     stop: Union[Optional[str], List[str], None] = None
-    streaming: Optional[bool] = False # alias 'stream'
+    streaming: Optional[bool] = False  # alias 'stream'
     stream_options: Optional[StreamOptions] = None
     suffix: Optional[str] = None
     temperature: Optional[float] = 1.0
