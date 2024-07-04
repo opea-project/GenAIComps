@@ -49,7 +49,7 @@ Once chathistory service is up and running, users can update the database by usi
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:6012/v1/chathistory/create' \
+  http://${host_ip}:6012/v1/chathistory/create \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -63,7 +63,7 @@ Get all the Conversations for a user
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:6013/v1/chathistory/get' \
+  http://${host_ip}:6013/v1/chathistory/get \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -74,25 +74,25 @@ Get specific conversation by specifying the id.
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:6013/v1/chathistory/get' \
+  http://${host_ip}:6013/v1/chathistory/get \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "user": "test", "id":"667ea0604ed80fd8f7da7079"}'
+  "user": "test", "id":"668620173180b591e1e0cd74"}'
 ```
 
 Update the conversation by specifying the id.
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:6012/v1/chathistory/create' \
+  http://${host_ip}:6012/v1/chathistory/create \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "data": {
     "messages": "test Messages Update", "user": "test"
   },
-  "id":"667ea0604ed80fd8f7da7079"
+  "id":"668620173180b591e1e0cd74"
 }'
 ```
 
@@ -100,9 +100,9 @@ Delete a stored conversation by specifying the id.
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:6014/v1/chathistory/delete' \
+  http://${host_ip}:6014/v1/chathistory/delete \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "user": "test", "id":"667ea0604ed80fd8f7da7079"}'
+  "user": "test", "id":"668620173180b591e1e0cd74"}'
 ```
