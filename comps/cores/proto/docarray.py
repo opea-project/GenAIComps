@@ -87,7 +87,7 @@ class LLMParamsDoc(BaseDoc):
     # https://platform.openai.com/docs/api-reference/completions/create
     model: Optional[str] = None  # for openai, not used by tgi
     query: str  # alias 'prompt'
-    best_of: Optional[int] = None
+    best_of: Optional[int] = 1
     echo: Optional[bool] = False
     frequency_penalty: Optional[float] = 0.0
     logit_bias: Optional[Dict[str, float]] = None
@@ -96,7 +96,7 @@ class LLMParamsDoc(BaseDoc):
     n: Optional[int] = 1
     presence_penalty: Optional[float] = 0.0
     seed: Optional[int] = None
-    stop: Union[Optional[str], List[str], None] = None
+    stop: Union[Optional[str], List[str], None] = []
     streaming: Optional[bool] = False  # alias 'stream'
     stream_options: Optional[StreamOptions] = None
     suffix: Optional[str] = None

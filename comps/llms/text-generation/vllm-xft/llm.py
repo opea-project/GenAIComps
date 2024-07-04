@@ -58,8 +58,8 @@ def llm_generate(input: LLMParamsDoc):
             chat_response = ""
             for c in completion:
                 text = c.choices[0].text
+                print(f"[llm - chat_stream] chunk: {text}")
                 yield f"data: {json.dumps(text)}\n\n"
-            print(f"[llm - chat_stream] stream response: {text}")
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
