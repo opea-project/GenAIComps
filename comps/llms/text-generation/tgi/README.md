@@ -114,11 +114,11 @@ curl http://${your_ip}:9000/v1/chat/completions \
 
 ## 4. Validated Model
 
-| Model                     | TGI  |
-| ------------------------- |------|
-| Intel/neural-chat-7b-v3-3 | ✓    |
-| Llama-2-7b-chat-hf        | ✓    |
-| Llama-2-70b-chat-hf       | ✓    |
-| Meta-Llama-3-8B-Instruct  | ✓    |
-| Meta-Llama-3-70B-Instruct | ✓    |
-| Phi-3                     | x    |
+| Model                     | TGI |
+| ------------------------- | --- |
+| Intel/neural-chat-7b-v3-3 | ✓   |
+| Llama-2-7b-chat-hf        | ✓   |
+| Llama-2-70b-chat-hf       | ✓   |
+| Meta-Llama-3-8B-Instruct  | ✓   |
+| Meta-Llama-3-70B-Instruct | ✓   |
+| Phi-3                     | x   |
