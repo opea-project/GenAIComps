@@ -1,4 +1,4 @@
-# VLLM-Ray-Serve Endpoint Service
+# VLLM-Ray Endpoint Service
 
 [Ray](https://docs.ray.io/en/latest/serve/index.html) is an LLM serving solution that makes it easy to deploy and manage a variety of open source LLMs, built on [Ray Serve](https://docs.ray.io/en/latest/serve/index.html), has native support for autoscaling and multi-node deployments, which is easy to use for LLM inference serving on Intel Gaudi2 accelerators. The Intel Gaudi2 accelerator supports both training and inference for deep learning models in particular for LLMs. Please visit [Habana AI products](<(https://habana.ai/products)>) for more details.
 
@@ -15,46 +15,58 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export vLLM_RAY_ENDPOINT="http://${your_ip}:8006"
 export LLM_MODEL=${your_hf_llm_model}
 ```
+For gated models such as `LLAMA-2`, you will have to pass the environment HUGGINGFACEHUB_API_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
 
-### Launch VLLM Ray Gaudi Service
+### Set up VLLM Ray Gaudi Service
 
+#### Build docker
 ```bash
-bash ./launch_vllm_ray.sh
+bash ./build_docker_vllmray.sh
 ```
 
-For gated models such as `LLAMA-2`, you need set the environment variable `HUGGINGFACEHUB_API_TOKEN=<token>` to access the Hugging Face Hub.
-
-Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
-
+#### Launch the service
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=<token>
+bash ./launch_vllmray.sh 
 ```
+The `launch_vllmray.sh` script accepts three parameters:
+- port_number: The port number assigned to the Ray Gaudi endpoint, with the default being 8006.
+- model_name: The model name utilized for LLM, with the default set to facebook/opt-125m.
+- parallel_number: The number of HPUs specifies the number of HPUs per worker process, the default is set to 2."
+
+If you want to customize the setting, can run:
+```bash
+bash ./launch_vllmray.sh ${port_number} ${model_name} ${parallel_number}
+```
+
+#### Query the service
 
 And then you can make requests with the OpenAI-compatible APIs like below to check the service status:
 
 ```bash
-curl http://127.0.0.1:8006/v1/chat/completions \
+curl http://${your_ip}:8006/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -d '{
-  "model": <model_name>,
-  "messages": [{"role": "user", "content": "What is deep learning?"}],
-  "max_tokens": 32,
-  }'
+  -d '{"model": $LLM_MODEL, "messages": [{"role": "user", "content": "How are you?"}]}'
 ```
 
 For more information about the OpenAI APIs, you can checkeck the [OpenAI official document](https://platform.openai.com/docs/api-reference/).
 
-#### Customize Ray Gaudi Service
+### Set up OPEA microservice
+Then we warp the VLLM Ray service into OPEA microcervice.
 
-The launch_vllm_ray.sh script accepts three parameters:
+#### Build docker
+```bash
+bash ./build_docker_microservice.sh
+```
 
-- **port_number**: The port number assigned to the vLLm Ray Gaudi endpoint, with the default being 8006.
-- model_name: The model name utilized for LLM, with the default set to "facebook/opt-125m".
-- num_hpus_per_worker: The number of HPUs specifies the number of HPUs per worker process.
-
-You have the flexibility to customize three parameters according to your specific needs. Additionally, you can set the Ray Gaudi endpoint by exporting the environment variable `vLLM_RAY_ENDPOINT`:
+#### Launch the microservice
+```bash
+bash ./launch_microservice.sh 
+```
+#### Query the microservice
 
 ```bash
-export vLLM_RAY_ENDPOINT="http://xxx.xxx.xxx.xxx:8006"
-export LLM_MODEL=<model_name> # example: export LLM_MODEL="facebook/opt-125m"
+curl http://${your_ip}:9000/v1/chat/completions \
+  -X POST \
+  -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
+  -H 'Content-Type: application/json'
 ```
