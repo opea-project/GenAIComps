@@ -7,9 +7,10 @@ from config import COLLECTION_NAME, EMBED_MODEL, QDRANT_HOST, QDRANT_PORT
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Qdrant
+from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import DocPath, opea_microservices, opea_telemetry, register_microservice
-from comps.dataprep.utils import document_loader
+from comps.dataprep.utils import document_loader, get_tables_result
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
@@ -28,12 +29,23 @@ def ingest_documents(doc_path: DocPath):
     path = doc_path.path
     print(f"Parsing document {path}.")
 
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=doc_path.chunk_size, chunk_overlap=doc_path.chunk_size, add_start_index=True
-    )
+    if path.endswith(".html"):
+        headers_to_split_on = [
+            ("h1", "Header 1"),
+            ("h2", "Header 2"),
+            ("h3", "Header 3"),
+        ]
+        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    else:
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True
+        )
+
     content = document_loader(path)
     chunks = text_splitter.split_text(content)
-
+    if doc_path.process_table and path.endswith(".pdf"):
+        table_chunks = get_tables_result(path, doc_path.table_strategy)
+        chunks = chunks + table_chunks
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
     # Create vectorstore
     if tei_embedding_endpoint:
