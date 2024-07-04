@@ -1,9 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import os
 import time
-import json
 
 from fastapi.responses import StreamingResponse
 from langsmith import traceable
