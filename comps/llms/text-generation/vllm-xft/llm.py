@@ -45,7 +45,6 @@ def llm_generate(input: LLMParamsDoc):
         seed=input.seed,
         stop=input.stop,
         stream=input.streaming,
-        stream_options=input.stream_options,
         suffix=input.suffix,
         temperature=input.temperature,
         top_p=input.top_p,
