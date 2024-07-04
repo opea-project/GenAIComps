@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional
+from typing import Optional, Dict, Union, List
 
 import numpy as np
 from docarray import BaseDoc, DocList
@@ -76,15 +76,45 @@ class RerankedDoc(BaseDoc):
     initial_query: str
 
 
+class StreamOptions(BaseDoc):
+    # refer https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L105
+    include_usage: Optional[bool]
+
+
 class LLMParamsDoc(BaseDoc):
-    query: str
-    max_new_tokens: int = 1024
-    top_k: int = 10
-    top_p: float = 0.95
-    typical_p: float = 0.95
-    temperature: float = 0.01
-    repetition_penalty: float = 1.03
-    streaming: bool = True
+    # Ordered by official OpenAI API documentation
+    # default values are same with
+    # https://platform.openai.com/docs/api-reference/completions/create
+    model: Optional[str] = None # for openai, not used by tgi
+    query: str # alias 'prompt'
+    best_of: Optional[int] = None
+    echo: Optional[bool] = False
+    frequency_penalty: Optional[float] = 0.0
+    logit_bias: Optional[Dict[str, float]] = None
+    logprobs: Optional[int] = None
+    max_new_tokens: Optional[int] = 16 # alias 'max_tokens'
+    n: Optional[int] = 1
+    presence_penalty: Optional[float] = 0.0
+    seed: Optional[int] = None
+    stop: Union[Optional[str], List[str], None] = None
+    streaming: Optional[bool] = False # alias 'stream'
+    stream_options: Optional[StreamOptions] = None
+    suffix: Optional[str] = None
+    temperature: Optional[float] = 1.0
+    top_p: Optional[float] = 1.0
+    user: Optional[str] = None
+
+    # tgi reference: https://huggingface.github.io/text-generation-inference/#/Text%20Generation%20Inference/generate
+    # some tgi parameters in use
+    # default values are same with
+    # https://github.com/huggingface/text-generation-inference/blob/main/router/src/lib.rs#L190
+    # max_new_tokens: Optional[int] = 100 # Priority use openai
+    top_k: Optional[int] = None
+    # top_p: Optional[float] = None # Priority use openai
+    typical_p: Optional[float] = None
+    repetition_penalty: Optional[float] = None
+
+    # vllm reference: https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L359
 
 
 class LLMParams(BaseDoc):
