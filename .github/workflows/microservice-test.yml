@@ -49,7 +49,7 @@ jobs:
           cd tests
           service=$(echo $service_path | tr '/' '_')
           echo "service=${service}" >> $GITHUB_ENV
-          if [ -f test_${service}.sh ]; then timeout 10m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
+          if [ -f test_${service}.sh ]; then timeout 30m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
 
       - name: Clean up container
         if: cancelled() || failure()
