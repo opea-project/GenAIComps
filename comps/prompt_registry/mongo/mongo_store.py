@@ -16,7 +16,7 @@ class PromptStore:
         self.db_client = MongoClient.get_db_client()
         self.collection = self.db_client[COLLECTION_NAME]
 
-    async def save_prompt(self, prompt):
+    async def save_prompt(self, prompt) -> str:
         """
         Stores a new prompt into the storage.
 
@@ -88,6 +88,46 @@ class PromptStore:
         except BsonError.InvalidId as e:
             print(e)
             raise KeyError(e)
+
+        except Exception as e:
+            print(e)
+            raise Exception(e)
+
+    async def prompt_search(self, keyword) -> list | None:
+        """
+        Retrieves prompt from the collection based on keyword provided.
+
+        Args:
+            keyword (str): The keyword of prompt to search for.
+
+        Returns:
+            list | None: The list of relevant prompt if found, None otherwise.
+
+        Raises:
+            Exception: If there is an error while searching data.
+        """
+        try:
+            # Create a text index if not already created
+            self.collection.create_index([('$**', 'text')])
+            # Perform text search
+            results = self.collection.find({"$text": {"$search": keyword}}, {"score": {"$meta": "textScore"}})
+            sorted_results = results.sort([("score", {"$meta": "textScore"})])
+
+            # Return a list of top 5 most relevant data
+            relevant_data = await sorted_results.to_list(length=5)
+
+            # Serialize data and return
+            serialized_data = [
+                {
+                    'id': str(doc['_id']),
+                    'prompt_text': doc['prompt_text'],
+                    'user': doc['user'],
+                    'score': doc['score']
+                }
+                for doc in relevant_data
+            ]
+
+            return serialized_data
 
         except Exception as e:
             print(e)

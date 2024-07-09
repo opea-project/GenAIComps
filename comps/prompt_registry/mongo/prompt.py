@@ -29,6 +29,7 @@ class PromptId(BaseModel):
 
     user: str
     prompt_id: Optional[str] = None
+    prompt_text: Optional[str] = None
 
 
 @register_microservice(
@@ -67,7 +68,7 @@ async def create_prompt(prompt: PromptCreate):
     input_datatype=PromptId,
     port=6013,
 )
-async def get_prompt_by_id(prompt: PromptId):
+async def get_prompt(prompt: PromptId):
     """
     Retrieves prompt from prompt store based on provided PromptId or user.
 
@@ -80,10 +81,12 @@ async def get_prompt_by_id(prompt: PromptId):
     try:
         prompt_store = PromptStore(prompt.user)
         prompt_store.initialize_storage()
-        if prompt.prompt_id is None:
-            response = await prompt_store.get_all_prompt_of_user()
-        else:
+        if prompt.prompt_id is not None:
             response = await prompt_store.get_user_prompt_by_id(prompt.prompt_id)
+        elif prompt.prompt_text:
+            response = await prompt_store.prompt_search(prompt.prompt_text)
+        else:
+            response = await prompt_store.get_all_prompt_of_user()
 
         return response
 

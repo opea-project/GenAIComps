@@ -79,6 +79,17 @@ curl -X 'POST' \
   "user": "test", "prompt_id":"{prompt_id returned from save prompt route above}"}'
 ```
 
+- Retrieve relevant prompt based on provided keyword
+
+```bash
+curl -X 'POST' \
+  http://{host_ip}:6013/v1/prompt/get \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user": "test", "prompt_text": "{keyword to search}"}'
+```
+
 - Delete prompt from database based on prompt_id provided
 
 ```bash
