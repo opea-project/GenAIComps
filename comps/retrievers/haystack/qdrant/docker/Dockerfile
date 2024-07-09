@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-FROM langchain/langchain:latest
+FROM python:3.11-slim
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libgl1-mesa-glx \
@@ -17,11 +17,11 @@ USER user
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/llms/text-generation/tgi/requirements.txt
+RUN python -m pip install --no-cache-dir --upgrade pip && \
+    python -m pip install --no-cache-dir -r /home/user/comps/retrievers/haystack/qdrant/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/llms/text-generation/tgi
+WORKDIR /home/user/comps/retrievers/haystack/qdrant
 
-ENTRYPOINT ["bash", "entrypoint.sh"]
+ENTRYPOINT ["python", "retriever_qdrant.py"]
