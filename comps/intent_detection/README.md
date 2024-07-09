@@ -42,7 +42,7 @@ Start intent detection microservice with below command.
 
 ```bash
 cd /your_project_path/GenAIComps/
-cp comps/intent_detection/intent_detection.py .
+cp comps/intent_detection/langchain/intent_detection.py .
 python intent_detection.py
 ```
 
@@ -65,7 +65,7 @@ export LANGCHAIN_PROJECT="opea/intent"
 
 ```bash
 cd /your_project_path/GenAIComps
-docker build --no-cache -t opea/llm-tgi:latest -f comps/intent_detection/Dockerfile .
+docker build --no-cache -t opea/llm-tgi:latest -f comps/intent_detection/langchain/Dockerfile .
 ```
 
 ## 2.4 Run Docker with CLI (Option A)
@@ -77,7 +77,7 @@ docker run -it --name="intent-tgi-server" --net=host --ipc=host -e http_proxy=$h
 ## 2.5 Run with Docker Compose (Option B)
 
 ```bash
-cd /your_project_path/GenAIComps/comps/intent_detection
+cd /your_project_path/GenAIComps/comps/intent_detection/langchain
 export LLM_MODEL_ID=${your_hf_llm_model}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
