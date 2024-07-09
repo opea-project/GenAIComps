@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
 import errno
 import functools
 import io
@@ -8,25 +9,35 @@ import json
 import multiprocessing
 import os
 import re
+import shutil
 import signal
 import timeit
 import unicodedata
+import urllib.parse
+from pathlib import Path
+from typing import Dict, List, Union
 from urllib.parse import urlparse, urlunparse
 
+import cairosvg
+import docx
+import docx2txt
 import easyocr
 import fitz
 import numpy as np
 import pandas as pd
+import pptx
 import requests
 import yaml
 from bs4 import BeautifulSoup
 from docx import Document as DDocument
+from langchain import LLMChain, PromptTemplate
 from langchain_community.document_loaders import (
+    UnstructuredHTMLLoader,
     UnstructuredImageLoader,
     UnstructuredMarkdownLoader,
-    UnstructuredPowerPointLoader,
     UnstructuredXMLLoader,
 )
+from langchain_community.llms import HuggingFaceEndpoint
 from PIL import Image
 
 
@@ -111,11 +122,11 @@ def load_pdf(pdf_path):
 
 def load_html(html_path):
     """Load the html file."""
-    with open(html_path, "r", encoding="utf-8") as file:
-        html = file.read()
-    soup = BeautifulSoup(html, "html.parser")
-    text = soup.get_text(strip=True)
-    return text
+    data_html = UnstructuredHTMLLoader(html_path).load()
+    content = ""
+    for ins in data_html:
+        content += ins.page_content
+    return content
 
 
 def load_txt(txt_path):
@@ -127,32 +138,81 @@ def load_txt(txt_path):
 
 def load_doc(doc_path):
     """Load doc file."""
-    txt_path = doc_path.replace(".doc", ".txt")
-    try:
-        os.system(f'antiword "{doc_path}" > "{txt_path}"')
-    except:
-        raise AssertionError(
-            "antiword failed or not installed, if not installed,"
-            + 'use "apt-get update && apt-get install -y antiword" to install it.'
-        )
-    text = load_txt(txt_path)
-    os.remove(txt_path)
+    print("Converting doc file to docx file...")
+    docx_path = doc_path + "x"
+    os.system(f"libreoffice --headless --invisible --convert-to docx --outdir {os.path.dirname(docx_path)} {doc_path}")
+    print("Converted doc file to docx file.")
+    text = load_docx(docx_path)
+    os.remove(docx_path)
     return text
 
 
 def load_docx(docx_path):
     """Load docx file."""
-    doc = DDocument(docx_path)
+    doc = docx.Document(docx_path)
     text = ""
+    # Save all 'rId:filenames' relationships in an dictionary and save the images if any.
+    rid2img = {}
+    for r in doc.part.rels.values():
+        if isinstance(r._target, docx.parts.image.ImagePart):
+            rid2img[r.rId] = os.path.basename(r._target.partname)
+    if rid2img:
+        save_path = "./imgs/"
+        os.makedirs(save_path, exist_ok=True)
+        docx2txt.process(docx_path, save_path)
     for paragraph in doc.paragraphs:
-        text += paragraph.text
+        if hasattr(paragraph, "text"):
+            text += paragraph.text + "\n"
+        if "graphicData" in paragraph._p.xml:
+            for rid in rid2img:
+                if rid in paragraph._p.xml:
+                    img_path = os.path.join(save_path, rid2img[rid])
+                    img_text = load_image(img_path)
+                    if img_text:
+                        text += img_text + "\n"
+    if rid2img:
+        shutil.rmtree(save_path)
+    return text
+
+
+def load_ppt(ppt_path):
+    """Load ppt file."""
+    print("Converting ppt file to pptx file...")
+    pptx_path = ppt_path + "x"
+    os.system(f"libreoffice --headless --invisible --convert-to pptx --outdir {os.path.dirname(pptx_path)} {ppt_path}")
+    print("Converted ppt file to pptx file.")
+    text = load_pptx(pptx_path)
+    os.remove(pptx_path)
     return text
 
 
 def load_pptx(pptx_path):
     """Load pptx file."""
-    loader = UnstructuredPowerPointLoader(pptx_path)
-    text = loader.load()[0].page_content
+    text = ""
+    prs = pptx.Presentation(pptx_path)
+    for slide in prs.slides:
+        for shape in sorted(slide.shapes, key=lambda shape: (shape.top, shape.left)):
+            if shape.has_text_frame:
+                if shape.text:
+                    text += shape.text + "\n"
+            if shape.has_table:
+                table_contents = "\n".join(
+                    [
+                        "\t".join([(cell.text if hasattr(cell, "text") else "") for cell in row.cells])
+                        for row in shape.table.rows
+                        if hasattr(row, "cells")
+                    ]
+                )
+                if table_contents:
+                    text += table_contents + "\n"
+            if hasattr(shape, "image") and hasattr(shape.image, "blob"):
+                img_path = f"./{shape.image.filename}"
+                with open(img_path, "wb") as f:
+                    f.write(shape.image.blob)
+                img_text = load_image(img_path)
+                if img_text:
+                    text += img_text + "\n"
+                os.remove(img_path)
     return text
 
 
@@ -198,15 +258,23 @@ def load_csv(input_path):
 
 def load_image(image_path):
     """Load the image file."""
+    if os.getenv("SUMMARIZE_IMAGE_VIA_LVM", None) == "1":
+        query = "Please summarize this image."
+        image_b64_str = base64.b64encode(open(image_path, "rb").read()).decode()
+        response = requests.post(
+            "http://localhost:9399/v1/lvm",
+            data=json.dumps({"image": image_b64_str, "prompt": query}),
+            headers={"Content-Type": "application/json"},
+            proxies={"http": None},
+        )
+        return response.json()["text"].strip()
     loader = UnstructuredImageLoader(image_path)
     text = loader.load()[0].page_content
-    return text
+    return text.strip()
 
 
 def load_svg(svg_path):
     """Load the svg file."""
-    import cairosvg
-
     png_path = svg_path.replace(".svg", ".png")
     cairosvg.svg2png(url=svg_path, write_to=png_path)
     text = load_image(png_path)
@@ -225,7 +293,9 @@ def document_loader(doc_path):
         return load_doc(doc_path)
     elif doc_path.endswith(".docx"):
         return load_docx(doc_path)
-    elif doc_path.endswith(".pptx") or doc_path.endswith(".ppt"):
+    elif doc_path.endswith(".ppt"):
+        return load_ppt(doc_path)
+    elif doc_path.endswith(".pptx"):
         return load_pptx(doc_path)
     elif doc_path.endswith(".md"):
         return load_md(doc_path)
@@ -239,10 +309,15 @@ def document_loader(doc_path):
         return load_xlsx(doc_path)
     elif doc_path.endswith(".csv"):
         return load_csv(doc_path)
-    elif doc_path.endswith(".tiff"):
+    elif (
+        doc_path.endswith(".tiff")
+        or doc_path.endswith(".jpg")
+        or doc_path.endswith(".jpeg")
+        or doc_path.endswith(".png")
+    ):
         return load_image(doc_path)
     elif doc_path.endswith(".svg"):
-        return load_image(doc_path)
+        return load_svg(doc_path)
     else:
         raise NotImplementedError(
             "Current only support pdf, html, txt, doc, docx, pptx, ppt, md, xml"
@@ -440,3 +515,186 @@ def parse_html(input):
             print("The given link/str {} cannot be parsed.".format(link))
 
     return chucks
+
+
+def get_tables_result(pdf_path, table_strategy):
+    """Extract tables information from pdf file."""
+    if table_strategy == "fast":
+        return None
+
+    from unstructured.documents.elements import FigureCaption
+    from unstructured.partition.pdf import partition_pdf
+
+    tables_result = []
+    raw_pdf_elements = partition_pdf(
+        filename=pdf_path,
+        infer_table_structure=True,
+    )
+    tables = [el for el in raw_pdf_elements if el.category == "Table"]
+    for table in tables:
+        table_coords = table.metadata.coordinates.points
+        content = table.metadata.text_as_html
+        table_page_number = table.metadata.page_number
+        min_distance = float("inf")
+        table_summary = None
+        if table_strategy == "hq":
+            for element in raw_pdf_elements:
+                if isinstance(element, FigureCaption) or element.text.startswith("Tab"):
+                    caption_page_number = element.metadata.page_number
+                    caption_coords = element.metadata.coordinates.points
+                    related, y_distance = get_relation(
+                        table_coords, caption_coords, table_page_number, caption_page_number
+                    )
+                    if related:
+                        if y_distance < min_distance:
+                            min_distance = y_distance
+                            table_summary = element.text
+            if table_summary is None:
+                parent_id = table.metadata.parent_id
+                for element in raw_pdf_elements:
+                    if element.id == parent_id:
+                        table_summary = element.text
+                        break
+        elif table_strategy == "llm":
+            table_summary = llm_generate(content)
+            table_summary = table_summary.lstrip("\n ")
+        elif table_strategy is None:
+            table_summary = None
+        if table_summary is None:
+            text = f"[Table: {content}]"
+        else:
+            text = f"|Table: [Summary: {table_summary}], [Content: {content}]|"
+        tables_result.append(text)
+    return tables_result
+
+
+def llm_generate(content):
+    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+    llm = HuggingFaceEndpoint(
+        endpoint_url=llm_endpoint,
+        max_new_tokens=1000,
+        top_k=40,
+        top_p=0.9,
+        temperature=0.8,
+        streaming=False,
+        num_beams=2,
+        num_return_sequences=2,
+        use_cache=True,
+        timeout=600,
+    )
+
+    table_summary_template = """
+    Task: Your task is to give a concise summary of the table. \
+    The summary should cover the overall table structure and all detailed information of the table. \
+    The table will be given in html format. Summarize the table below.
+    ---
+    ### Table:
+    {table_content}
+    ---
+    ### Generated Summary:
+    """
+
+    prompt = PromptTemplate(template=table_summary_template, input_variables=["table_content"])
+
+    llm_chain = LLMChain(prompt=prompt, llm=llm)
+
+    response = llm_chain.invoke(content)
+    response = response["text"]
+    print("response", response)
+    return response
+
+
+def get_relation(table_coords, caption_coords, table_page_number, caption_page_number, threshold=100):
+    """Get the relation of a pair of table and caption."""
+    same_page = table_page_number == caption_page_number
+    x_overlap = (min(table_coords[2][0], caption_coords[2][0]) - max(table_coords[0][0], caption_coords[0][0])) > 0
+    if table_coords[0][1] - caption_coords[1][1] >= 0:
+        y_distance = table_coords[0][1] - caption_coords[1][1]
+    elif caption_coords[0][1] - table_coords[1][1] >= 0:
+        y_distance = caption_coords[0][1] - table_coords[1][1]
+    else:
+        y_distance = 0
+    y_close = y_distance < threshold
+    return same_page and x_overlap and y_close, y_distance
+
+
+def create_upload_folder(upload_path):
+    if not os.path.exists(upload_path):
+        Path(upload_path).mkdir(parents=True, exist_ok=True)
+
+
+def encode_filename(filename):
+    return urllib.parse.quote(filename, safe="")
+
+
+def decode_filename(encoded_filename):
+    return urllib.parse.unquote(encoded_filename)
+
+
+async def save_content_to_local_disk(save_path: str, content):
+    save_path = Path(save_path)
+    try:
+        if isinstance(content, str):
+            with open(save_path, "w", encoding="utf-8") as file:
+                file.write(content)
+        else:
+            with save_path.open("wb") as fout:
+                content = await content.read()
+                fout.write(content)
+    except Exception as e:
+        print(f"Write file failed. Exception: {e}")
+        raise Exception(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
+
+
+def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, Union[str, List]]]:
+    result = []
+    for path in os.listdir(root_path):
+        complete_path = parent_path + "/" + path if parent_path else path
+        file_path = root_path + "/" + path
+        p = Path(file_path)
+        # append file into result
+        if p.is_file():
+            file_dict = {
+                "name": decode_filename(path),
+                "id": decode_filename(complete_path),
+                "type": "File",
+                "parent": "",
+            }
+            result.append(file_dict)
+        else:
+            # append folder and inner files/folders into result using recursive function
+            folder_dict = {
+                "name": decode_filename(path),
+                "id": decode_filename(complete_path),
+                "type": "Directory",
+                "children": get_file_structure(file_path, complete_path),
+                "parent": "",
+            }
+            result.append(folder_dict)
+
+    return result
+
+
+def remove_folder_with_ignore(folder_path: str, except_patterns: List = []):
+    """Remove the specific folder, and ignore some files/folders.
+
+    :param folder_path: file path to delete
+    :param except_patterns: files/folder name to ignore
+    """
+    print(f"except patterns: {except_patterns}")
+    for root, dirs, files in os.walk(folder_path, topdown=False):
+        for name in files:
+            # delete files except ones that match patterns
+            file_path = os.path.join(root, name)
+            if except_patterns != [] and any(pattern in file_path for pattern in except_patterns):
+                continue
+            os.remove(file_path)
+
+        # delete empty folder
+        for name in dirs:
+            dir_path = os.path.join(root, name)
+            # delete folders except ones that match patterns
+            if except_patterns != [] and any(pattern in dir_path for pattern in except_patterns):
+                continue
+            if not os.listdir(dir_path):
+                os.rmdir(dir_path)
