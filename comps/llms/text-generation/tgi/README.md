@@ -121,4 +121,4 @@ curl http://${your_ip}:9000/v1/chat/completions \
 | Llama-2-70b-chat-hf       | ✓   |
 | Meta-Llama-3-8B-Instruct  | ✓   |
 | Meta-Llama-3-70B-Instruct | ✓   |
-| Phi-3                     | x   |
+| Phi-3                     | ✓   |
