@@ -11,3 +11,6 @@ pymupdf
 redis
 sentence_transformers
 shortuuid
+aiohttp
+httpx
+
