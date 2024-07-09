@@ -29,12 +29,19 @@ function start_service() {
 
 function validate_microservice() {
     tei_service_port=5007
-    http_proxy="" curl http://${ip_address}:${tei_service_port}/v1/reranking\
+    local CONTENT=$(curl http://${ip_address}:${tei_service_port}/v1/reranking \
         -X POST \
         -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
-        -H 'Content-Type: application/json'
-    docker logs test-comps-reranking-tei-server
-    docker logs test-comps-reranking-tei-endpoint
+        -H 'Content-Type: application/json')
+
+    if echo "$CONTENT" | grep -q "{"index":1,"score":"; then
+        echo "Content is as expected."
+    else
+        echo "Content does not match the expected result: $CONTENT"
+        docker logs test-comps-reranking-tei-server
+        docker logs test-comps-reranking-tei-endpoint
+        exit 1
+    fi
 }
 
 function stop_docker() {
