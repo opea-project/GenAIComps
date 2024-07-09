@@ -22,4 +22,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/intent_detection
-ENTRYPOINT ["python", "llm.py"]
+ENTRYPOINT ["python", "intent_detection.py"]

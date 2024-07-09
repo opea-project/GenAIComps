@@ -33,7 +33,7 @@ curl http://${your_ip}:8008/generate \
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/gen-ai-comps:llms"
+export LANGCHAIN_PROJECT="opea/intent"
 ```
 
 ## 1.5 Start Intent Detection Microservice with Python Script
@@ -42,8 +42,8 @@ Start intent detection microservice with below command.
 
 ```bash
 cd /your_project_path/GenAIComps/
-cp comps/intent_detection/llm.py .
-python llm.py
+cp comps/intent_detection/intent_detection.py .
+python intent_detection.py
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)
@@ -58,7 +58,7 @@ Please refer to 1.2.
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/llms"
+export LANGCHAIN_PROJECT="opea/intent"
 ```
 
 ## 2.3 Build Docker Image
@@ -71,7 +71,7 @@ docker build --no-cache -t opea/llm-tgi:latest -f comps/intent_detection/Dockerf
 ## 2.4 Run Docker with CLI (Option A)
 
 ```bash
-docker run -it --name="llm-tgi-server" --net=host --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:latest
+docker run -it --name="intent-tgi-server" --net=host --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:latest
 ```
 
 ## 2.5 Run with Docker Compose (Option B)

@@ -15,7 +15,7 @@ services:
     command: --model-id ${LLM_MODEL_ID}
   llm:
     image: opea/llm-tgi:latest
-    container_name: llm-tgi-server
+    container_name: intent-tgi-server
     ports:
       - "9000:9000"
     ipc: host

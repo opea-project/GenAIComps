@@ -9,17 +9,7 @@ from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
-
-@traceable(run_type="tool")
-def post_process_text(text: str):
-    if text == " ":
-        return "data: @#$\n\n"
-    if text == "\n":
-        return "data: <br/>\n\n"
-    if text.isspace():
-        return None
-    new_text = text.replace(" ", "@#$")
-    return f"data: {new_text}\n\n"
+from comps.intent_detection.template import IntentTemplate
 
 
 @register_microservice(
@@ -44,10 +34,7 @@ def llm_generate(input: LLMParamsDoc):
         timeout=600,
     )
 
-    intent_template = """Please identify the intent of the user query. You may only respond with "chitchat" or "QA" without explanations or engaging in conversation.
-    ### User Query: {query}, ### Response: """
-
-    prompt = PromptTemplate(template=intent_template, input_variables=["query"])
+    prompt = PromptTemplate(template=IntentTemplate.generate_intent_template, input_variables=["query"])
 
     llm_chain = LLMChain(prompt=prompt, llm=llm)
 
