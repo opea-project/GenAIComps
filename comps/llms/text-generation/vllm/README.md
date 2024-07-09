@@ -26,6 +26,9 @@ The `launch_vllm_service.sh` script accepts four parameters:
 - model_name: The model name utilized for LLM, with the default set to 'meta-llama/Meta-Llama-3-8B-Instruct'.
 - hw_mode: The hardware mode utilized for LLM, with the default set to "cpu", and the optional selection can be "hpu".
 - parallel_number: parallel nodes number for 'hpu' mode
+- block_size: default set to 128 for better performance on HPU
+- max_num_seqs: default set to 256 for better performance on HPU
+- max_seq_len_to_capture: default set to 2048 for better performance on HPU
 
 If you want to customize the port or model_name, can run:
 
