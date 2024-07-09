@@ -1,5 +1,7 @@
+aiohttp
 docarray[full]
 fastapi
+httpx
 huggingface_hub
 langsmith
 opentelemetry-api
@@ -8,5 +10,3 @@ opentelemetry-sdk
 prometheus-fastapi-instrumentator
 shortuuid
 transformers
-aiohttp
-httpx
