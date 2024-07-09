@@ -58,10 +58,10 @@ function main() {
     build_docker_images
 
     llm_models=(
-    # Intel/neural-chat-7b-v3-3
+    Intel/neural-chat-7b-v3-3
     meta-llama/Llama-2-7b-chat-hf
     meta-llama/Meta-Llama-3-8B-Instruct
-    # microsoft/Phi-3-mini-4k-instruct
+    microsoft/Phi-3-mini-4k-instruct
     )
     for model in "${llm_models[@]}"; do
       start_service "${model}"
