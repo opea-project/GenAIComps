@@ -14,30 +14,32 @@ npm install -S vectordb
 
 ### Create a new index from texts
 
-```javascript
-import { LanceDB } from "@langchain/community/vectorstores/lancedb";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { connect } from "vectordb";
-import * as fs from "node:fs/promises";
-import * as path from "node:path";
-import os from "node:os";
+```python
+import os
+import tempfile
+from langchain.vectorstores import LanceDB
+from langchain.embeddings.openai import OpenAIEmbeddings
+from vectordb import connect
 
-export const run = async () => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lancedb-"));
-  const db = await connect(dir);
-  const table = await db.createTable("vectors", [{ vector: Array(1536), text: "sample", id: 1 }]);
+async def run():
+    dir = tempfile.mkdtemp(prefix="lancedb-")
+    db = await connect(dir)
+    table = await db.create_table("vectors", [{"vector": [0] * 1536, "text": "sample", "id": 1}])
 
-  const vectorStore = await LanceDB.fromTexts(
-    ["Hello world", "Bye bye", "hello nice world"],
-    [{ id: 2 }, { id: 1 }, { id: 3 }],
-    new OpenAIEmbeddings(),
-    { table },
-  );
+    vector_store = await LanceDB.from_texts(
+        ["Hello world", "Bye bye", "hello nice world"],
+        [{"id": 2}, {"id": 1}, {"id": 3}],
+        OpenAIEmbeddings(),
+        table=table,
+    )
 
-  const resultOne = await vectorStore.similaritySearch("hello world", 1);
-  console.log(resultOne);
-  // [ Document { pageContent: 'hello nice world', metadata: { id: 3 } } ]
-};
+    result_one = await vector_store.similarity_search("hello world", 1)
+    print(result_one)
+    # [ Document(page_content='hello nice world', metadata={'id': 3}) ]
+
+# Run the function
+import asyncio
+asyncio.run(run())
 ```
 
 API Reference:
@@ -47,36 +49,34 @@ API Reference:
 
 ### Create a new index from a loader
 
-```javascript
-import { LanceDB } from "@langchain/community/vectorstores/lancedb";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { TextLoader } from "langchain/document_loaders/fs/text";
-import fs from "node:fs/promises";
-import path from "node:path";
-import os from "node:os";
-import { connect } from "vectordb";
+```python
+import os
+import tempfile
+from langchain.vectorstores import LanceDB
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.document_loaders.fs import TextLoader
+from vectordb import connect
 
-// Create docs with a loader
-const loader = new TextLoader("src/document_loaders/example_data/example.txt");
-const docs = await loader.load();
+# Create docs with a loader
+loader = TextLoader("src/document_loaders/example_data/example.txt")
+docs = loader.load()
 
-export const run = async () => {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lancedb-"));
-  const db = await connect(dir);
-  const table = await db.createTable("vectors", [{ vector: Array(1536), text: "sample", source: "a" }]);
+async def run():
+    dir = tempfile.mkdtemp(prefix="lancedb-")
+    db = await connect(dir)
+    table = await db.create_table("vectors", [{"vector": [0] * 1536, "text": "sample", "source": "a"}])
 
-  const vectorStore = await LanceDB.fromDocuments(docs, new OpenAIEmbeddings(), { table });
+    vector_store = await LanceDB.from_documents(docs, OpenAIEmbeddings(), table=table)
 
-  const resultOne = await vectorStore.similaritySearch("hello world", 1);
-  console.log(resultOne);
+    result_one = await vector_store.similarity_search("hello world", 1)
+    print(result_one)
+    # [
+    #   Document(page_content='Foo\nBar\nBaz\n\n', metadata={'source': 'src/document_loaders/example_data/example.txt'})
+    # ]
 
-  // [
-  //   Document {
-  //     pageContent: 'Foo\nBar\nBaz\n\n',
-  //     metadata: { source: 'src/document_loaders/example_data/example.txt' }
-  //   }
-  // ]
-};
+# Run the function
+import asyncio
+asyncio.run(run())
 ```
 
 API Reference:
@@ -87,38 +87,37 @@ API Reference:
 
 ### Open an existing dataset
 
-```javascript
-import { LanceDB } from "@langchain/community/vectorstores/lancedb";
-import { OpenAIEmbeddings } from "@langchain/openai";
-import { connect } from "vectordb";
-import * as fs from "node:fs/promises";
-import * as path from "node:path";
-import os from "node:os";
+```python
+import os
+import tempfile
+from langchain.vectorstores import LanceDB
+from langchain.embeddings.openai import OpenAIEmbeddings
+from vectordb import connect
 
-// You can open a LanceDB dataset created elsewhere, such as LangChain Python, by opening
-// an existing table
-export const run = async () => {
-  const uri = await createdTestDb();
-  const db = await connect(uri);
-  const table = await db.openTable("vectors");
+async def run():
+    uri = await create_test_db()
+    db = await connect(uri)
+    table = await db.open_table("vectors")
 
-  const vectorStore = new LanceDB(new OpenAIEmbeddings(), { table });
+    vector_store = LanceDB(OpenAIEmbeddings(), table=table)
 
-  const resultOne = await vectorStore.similaritySearch("hello world", 1);
-  console.log(resultOne);
-  // [ Document { pageContent: 'Hello world', metadata: { id: 1 } } ]
-};
+    result_one = await vector_store.similarity_search("hello world", 1)
+    print(result_one)
+    # [ Document(page_content='Hello world', metadata={'id': 1}) ]
 
-async function createdTestDb(): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "lancedb-"));
-  const db = await connect(dir);
-  await db.createTable("vectors", [
-    { vector: Array(1536), text: "Hello world", id: 1 },
-    { vector: Array(1536), text: "Bye bye", id: 2 },
-    { vector: Array(1536), text: "hello nice world", id: 3 },
-  ]);
-  return dir;
-}
+async def create_test_db():
+    dir = tempfile.mkdtemp(prefix="lancedb-")
+    db = await connect(dir)
+    await db.create_table("vectors", [
+        {"vector": [0] * 1536, "text": "Hello world", "id": 1},
+        {"vector": [0] * 1536, "text": "Bye bye", "id": 2},
+        {"vector": [0] * 1536, "text": "hello nice world", "id": 3},
+    ])
+    return dir
+
+# Run the function
+import asyncio
+asyncio.run(run())
 ```
 
 API Reference:
