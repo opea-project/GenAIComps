@@ -48,7 +48,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=mongo*")
+    cid=$(docker ps -aq --filter "name=test-comps*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
