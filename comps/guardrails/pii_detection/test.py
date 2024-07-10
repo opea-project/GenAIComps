@@ -28,7 +28,7 @@ def test_html(ip_addr="localhost", batch_size=20):
             print("An error occurred:", e)
 
 
-def test_text(ip_addr="localhost", batch_size=20):
+def test_text(ip_addr="localhost", batch_size=20, strategy="ml"):
     proxies = {"http": ""}
     url = f"http://{ip_addr}:6357/v1/piidetect"
     if os.path.exists("data/ai_rss.csv"):
@@ -54,7 +54,7 @@ Understanding You Only Cache Once was originally published in Towards Data Scien
             ]
             * batch_size
         )
-    payload = {"text_list": json.dumps(content)}
+    payload = {"text_list": json.dumps(content), "strategy": strategy}
 
     with Timer(f"send {len(content)} text to pii detection endpoint"):
         try:
@@ -90,6 +90,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_text", action="store_true", help="Test Text pii detection")
     parser.add_argument("--batch_size", type=int, default=20, help="Batch size for testing")
     parser.add_argument("--ip_addr", type=str, default="localhost", help="IP address of the server")
+    parser.add_argument("--strategy", type=str, default="ml", help="Strategy for pii detection")
 
     args = parser.parse_args()
     if args.test_html:
@@ -97,6 +98,6 @@ if __name__ == "__main__":
     elif args.test_pdf:
         test_pdf(ip_addr=args.ip_addr, batch_size=args.batch_size)
     elif args.test_text:
-        test_text(ip_addr=args.ip_addr, batch_size=args.batch_size)
+        test_text(ip_addr=args.ip_addr, batch_size=args.batch_size, strategy=args.strategy)
     else:
         print("Please specify the test type")

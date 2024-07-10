@@ -24,3 +24,5 @@ redis
 sentence_transformers
 shortuuid
 virtualenv
+scikit-learn
+einops

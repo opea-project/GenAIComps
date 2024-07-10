@@ -71,7 +71,33 @@ class PIIDetectorWithNER(PIIDetector):
 
 class PIIDetectorWithML(PIIDetector):
     def __init__(self):
+        import joblib
+        from sentence_transformers import SentenceTransformer
+        from huggingface_hub import hf_hub_download
+
         super().__init__()
+        embed_model_id = "nomic-ai/nomic-embed-text-v1"
+        self.model = SentenceTransformer(model_name_or_path=embed_model_id, trust_remote_code=True)
+
+
+        REPO_ID = "Intel/business_safety_logistic_regression_classifier"
+        FILENAME = "lr_clf.joblib"
+
+        self.clf = joblib.load(
+            hf_hub_download(repo_id=REPO_ID, filename=FILENAME)
+        )
+
+        # assert os.path.exists(clf_path), "Cannot find classifier at specified path. Please double check."
+        # self.clf = joblib.load(clf_path)
+
 
     def detect_pii(self, text):
-        return True
+        # text is a string
+        embeddings = self.model.encode(text, convert_to_tensor=True).reshape(1, -1).cpu()
+        # print('shape of embedding: ', embeddings.shape)
+        predictions = self.clf.predict(embeddings)
+        # print('shape of prediction: ', predictions.shape)
+
+        return True if predictions[0] == 1 else False
+
+
