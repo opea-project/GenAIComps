@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-﻿import os
+import os
 
 # MONGO configuration
 MONGO_HOST = os.getenv("MONGO_HOST", "localhost")

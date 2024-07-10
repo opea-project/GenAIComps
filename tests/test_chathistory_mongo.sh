@@ -29,7 +29,7 @@ function start_service() {
 
 function validate_microservice() {
     result=$(curl -X 'POST' \
-  'http://10.223.24.231:6012/v1/chathistory/create' \
+  http://${ip_address}:6012/v1/chathistory/create \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{

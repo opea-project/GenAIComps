@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-﻿import motor.motor_asyncio as motor
+import motor.motor_asyncio as motor
 from typing import Any
 
 from config import DB_NAME, MONGO_HOST, MONGO_PORT
