@@ -37,14 +37,14 @@ def test_text(ip_addr="localhost", batch_size=20, strategy=None):
         content = pd.read_csv("data/ai_rss.csv")["Description"]
         content = content[:batch_size].to_list()
     else:
-        content = ([
-                "Q1 revenue was $1.23 billion, up 12% year over year. ",
-                "We are excited to announce the opening of our new office in Miami! ",
-                "Mary Smith, 123-456-7890,",
-                "John is a good team leader",
-                "meeting minutes: sync up with sales team on the new product launch",
-            ]*batch_size)
-        
+        content = [
+            "Q1 revenue was $1.23 billion, up 12% year over year. ",
+            "We are excited to announce the opening of our new office in Miami! ",
+            "Mary Smith, 123-456-7890,",
+            "John is a good team leader",
+            "meeting minutes: sync up with sales team on the new product launch",
+        ]
+
     payload = {"text_list": json.dumps(content), "strategy": strategy}
 
     with Timer(f"send {len(content)} text to pii detection endpoint"):
