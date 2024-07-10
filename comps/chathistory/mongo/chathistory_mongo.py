@@ -49,8 +49,7 @@ async def create_documents(document: ChatMessage):
 
     try:
         if document.data.user is None:
-            #TODO fix this to return a proper error message
-            raise HTTPException(status_code=400, detail=f"Please provide the user information")
+            raise HTTPException(status_code=500, detail=f"Please provide the user information")
         store = DocumentStore(document.data.user)
         store.initialize_storage()
         if document.first_query is None:
@@ -63,7 +62,7 @@ async def create_documents(document: ChatMessage):
     except Exception as e:
         # Handle the exception here
         print(f"An error occurred: {str(e)}")
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))
 
     
 @register_microservice(
@@ -94,7 +93,7 @@ async def get_documents(document: ChatId):
     except Exception as e:
         # Handle the exception here
         print(f"An error occurred: {str(e)}")
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @register_microservice(
     name="opea_service@chathistory_mongo_delete",
@@ -124,7 +123,7 @@ async def delete_documents(document: ChatId):
     except Exception as e:
         # Handle the exception here
         print(f"An error occurred: {str(e)}")
-        raise HTTPException(status_code=500, detail=e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     opea_microservices["opea_service@chathistory_mongo_get"].start()

@@ -13,4 +13,4 @@ class MongoClient:
 
         except Exception as e:
             print(e)
-            raise Exception()
+            raise Exception(e)

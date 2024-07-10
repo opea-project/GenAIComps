@@ -12,15 +12,18 @@ services:
     command: mongod --quiet --logpath /dev/null 
 
   chathistory-mongo:
-    image: opea/chathistory-mongo:latest
+    image: opea/chathistory-mongo-server:latest
     container_name: chathistory-mongo-server
     ports:
       - "6012:6012"
+      - "6013:6013"
+      - "6014:6014"
     ipc: host
     environment:
       http_proxy: ${http_proxy}
+      no_proxy: ${no_proxy}
       https_proxy: ${https_proxy}
-      MONGO_URL: ${MONGO_URL}
+      MONGO_HOST: ${MONGO_HOST}
       MONGO_PORT: ${MONGO_PORT}
       COLLECTION_NAME: ${COLLECTION_NAME}
     restart: unless-stopped
