@@ -1,6 +1,6 @@
 # Chat History Microservice
 
-Chat History microservice helps us to connect with Database and save the user chat conversation. 
+Chat History microservice helps us to connect with MongoDB Database and save the user chat conversations. 
 
 ## Setup Environment Variables
 
@@ -11,14 +11,6 @@ export MONGO_HOST=${MONGO_HOST}
 export MONGO_HOST=27017
 export DB_NAME=${DB_NAME}
 export COLLECTION_NAME=${COLLECTION_NAME}
-```
-
-## Start chat history microservice for MongoDB with Python Script
-
-Start document preparation microservice for Milvus with below command.
-
-```bash
-python chathistory_mongo.py
 ```
 
 # 🚀Start Microservice with Docker
@@ -32,12 +24,12 @@ docker build -t opea/chathistory-mongo-server:latest --build-arg https_proxy=$ht
 
 ## Run Docker with CLI
 
-Run mongoDB image
+- Run mongoDB image
 
 ```bash
 docker run -d -p 27017:27017 --name=mongo mongo:latest
 ```
-Run the chathistory Service
+- Run the chathistory Service
 
 ```bash
 docker run -d --name="chathistory-mongo-server" -p 6013:6013 -p 6012:6012 -p 6014:6014 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/chathistory-mongo-server:latest
@@ -59,7 +51,7 @@ curl -X 'POST' \
 }'
 ```
 
-Get all the Conversations for a user
+- Get all the Conversations for a user
 
 ```bash
 curl -X 'POST' \
@@ -70,7 +62,7 @@ curl -X 'POST' \
   "user": "test"}'
 ```
 
-Get specific conversation by specifying the id.
+- Get specific conversation by specifying the id.
 
 ```bash
 curl -X 'POST' \
@@ -81,7 +73,7 @@ curl -X 'POST' \
   "user": "test", "id":"668620173180b591e1e0cd74"}'
 ```
 
-Update the conversation by specifying the id.
+- Update the conversation by specifying the id.
 
 ```bash
 curl -X 'POST' \
@@ -96,7 +88,7 @@ curl -X 'POST' \
 }'
 ```
 
-Delete a stored conversation by specifying the id.
+- Delete a stored conversation by specifying the id.
 
 ```bash
 curl -X 'POST' \
