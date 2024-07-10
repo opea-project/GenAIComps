@@ -1,6 +1,6 @@
 # Chat History Microservice
 
-Chat History microservice helps us to connect with MongoDB Database and save the user chat conversations. 
+Chat History microservice helps us to connect with MongoDB Database and save the user chat conversations.
 
 ## Setup Environment Variables
 
@@ -29,6 +29,7 @@ docker build -t opea/chathistory-mongo-server:latest --build-arg https_proxy=$ht
 ```bash
 docker run -d -p 27017:27017 --name=mongo mongo:latest
 ```
+
 - Run the chathistory Service
 
 ```bash
@@ -37,7 +38,7 @@ docker run -d --name="chathistory-mongo-server" -p 6013:6013 -p 6012:6012 -p 601
 
 # Invoke Microservice
 
-Once chathistory service is up and running, users can update the database by using the below API endpoint. The API returns a unique UUID for the saved conversation. 
+Once chathistory service is up and running, users can update the database by using the below API endpoint. The API returns a unique UUID for the saved conversation.
 
 ```bash
 curl -X 'POST' \
