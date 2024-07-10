@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 
 import torch
 from fastapi import FastAPI
+from huggingface_hub import login
 from ray import serve
 from starlette.requests import Request
 from starlette.responses import JSONResponse, StreamingResponse
@@ -19,10 +20,10 @@ from vllm.entrypoints.openai.cli_args import make_arg_parser
 from vllm.entrypoints.openai.protocol import ChatCompletionRequest, ChatCompletionResponse, ErrorResponse
 from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
 from vllm.entrypoints.openai.serving_engine import LoRAModulePath
-from huggingface_hub import login
+
 hg_token = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 if hg_token != "":
-    login(token = hg_token)
+    login(token=hg_token)
 
 logger = logging.getLogger("ray.serve")
 
@@ -149,7 +150,7 @@ def main(argv=None):
                 "model": args.model_id_or_path,
                 "tensor-parallel-size": args.tensor_parallel_size,
                 "device": "HPU",
-                "enforce_eager":args.enforce_eager
+                "enforce_eager": args.enforce_eager,
             }
         )
     )
