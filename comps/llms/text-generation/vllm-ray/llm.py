@@ -17,7 +17,9 @@ import os
 from fastapi.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
 from langsmith import traceable
+
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+
 
 @traceable(run_type="tool")
 def post_process_text(text: str):
