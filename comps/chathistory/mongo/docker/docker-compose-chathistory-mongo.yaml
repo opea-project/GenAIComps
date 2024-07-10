@@ -1,15 +1,18 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 ﻿version: "3"
 services:
   mongo:
     image: mongo:7.0.11
     container_name: mongodb
     ports:
-        - 27017:27017
+      - 27017:27017
     environment:
-        http_proxy: ${http_proxy}
-        https_proxy: ${https_proxy}
-        no_proxy: ${no_proxy}
-    command: mongod --quiet --logpath /dev/null 
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+    command: mongod --quiet --logpath /dev/null
 
   chathistory-mongo:
     image: opea/chathistory-mongo-server:latest
