@@ -1,11 +1,11 @@
 ﻿# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from bson.objectid import ObjectId
 import json
 
 import bson.errors as BsonError
 from bson import json_util
+from bson.objectid import ObjectId
 from config import COLLECTION_NAME
 from mongo_conn import MongoClient
 
@@ -64,7 +64,7 @@ class DocumentStore:
             _id = ObjectId(document_id)
             update_result = await self.collection.update_one(
                 {"_id": _id, "data.user": self.user},
-                {"$set": {"data": updated_data.model_dump(by_alias=True, mode="json"), "first_query": first_query}}
+                {"$set": {"data": updated_data.model_dump(by_alias=True, mode="json"), "first_query": first_query}},
             )
             if update_result.modified_count == 1:
                 return True
