@@ -35,7 +35,7 @@ function start_service() {
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
         -p $port_number:8000 \
         vllm_ray:habana \
-        /bin/bash -c "ray start --head && python vllm_ray_openai.py --port_number 8000 --model_id_or_path $LLM_MODEL --tensor_parallel_size 2"
+        /bin/bash -c "ray start --head && python vllm_ray_openai.py --port_number 8000 --model_id_or_path $LLM_MODEL --tensor_parallel_size 2 --enforce_eager True"
 
     export vLLM_RAY_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm\

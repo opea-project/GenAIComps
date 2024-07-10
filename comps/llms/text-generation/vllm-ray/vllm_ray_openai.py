@@ -19,8 +19,10 @@ from vllm.entrypoints.openai.cli_args import make_arg_parser
 from vllm.entrypoints.openai.protocol import ChatCompletionRequest, ChatCompletionResponse, ErrorResponse
 from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
 from vllm.entrypoints.openai.serving_engine import LoRAModulePath
-
-os.environ["HUGGINGFACEHUB_API_TOKEN"] = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+from huggingface_hub import login
+hg_token = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+if hg_token != "":
+    login(token = hg_token)
 
 logger = logging.getLogger("ray.serve")
 
@@ -98,9 +100,11 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     Supported engine arguments: https://docs.vllm.ai/en/latest/models/engine_args.html.
     """  # noqa: E501
     device = cli_args.pop("device")
+    enforce_eager = cli_args.pop("enforce_eager")
     parsed_args = parse_vllm_args(cli_args)
     engine_args = AsyncEngineArgs.from_cli_args(parsed_args)
     engine_args.worker_use_ray = True
+    engine_args.enforce_eager = enforce_eager
 
     tp = engine_args.tensor_parallel_size
     logger.info(f"Tensor parallelism = {tp}")
@@ -133,6 +137,9 @@ def main(argv=None):
     parser.add_argument(
         "--tensor_parallel_size", default=2, type=int, help="parallel nodes number for 'hpu' mode.", required=False
     )
+    parser.add_argument(
+        "--enforce_eager", default=True, type=bool, help="Whether to enforce eager execution", required=False
+    )
     args = parser.parse_args(argv)
 
     serve.start(http_options={"host": "0.0.0.0", "port": args.port_number})
@@ -142,6 +149,7 @@ def main(argv=None):
                 "model": args.model_id_or_path,
                 "tensor-parallel-size": args.tensor_parallel_size,
                 "device": "HPU",
+                "enforce_eager":args.enforce_eager
             }
         )
     )
