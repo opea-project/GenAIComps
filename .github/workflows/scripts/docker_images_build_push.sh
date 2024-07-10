@@ -51,6 +51,9 @@ case ${micro_service} in
     "llms/summarization/tgi")
         IMAGE_NAME="opea/llm-docsum-tgi"
         ;;
+    "web_retrievers/langchain/chroma")
+        IMAGE_NAME="opea/web-retriever-chroma"
+        ;;
     *)
         echo "Not supported yet"
         exit 0
