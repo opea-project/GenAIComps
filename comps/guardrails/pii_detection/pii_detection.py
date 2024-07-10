@@ -38,8 +38,10 @@ from comps.guardrails.pii_detection.utils import (
 
 def get_pii_detection_inst(strategy="dummy", settings=None):
     if strategy == "ner":
+        print("invoking NER detector.......")
         return PIIDetectorWithNER()
     elif strategy == "ml":
+        print("invoking ML detector.......")
         return PIIDetectorWithML()
     elif strategy == "llm":
         return PIIDetectorWithLLM()
@@ -67,7 +69,7 @@ def file_based_pii_detect(file_list: List[DocPath], strategy, enable_ray=False, 
         for file in tqdm(file_list, total=len(file_list)):
             with Timer(f"read document {file}."):
                 data = document_loader(file)
-            with Timer(f"detect pii on document {file} to Redis."):
+            with Timer(f"detect pii on document {file}"):
                 ret.append(pii_detector.detect_pii(data))
     return ret
 
@@ -95,7 +97,7 @@ def link_based_pii_detect(link_list: List[str], strategy, enable_ray=False, debu
                 data = _parse_html(link)
             if debug:
                 print("content is: ", data)
-            with Timer(f"detect pii on document {link} to Redis."):
+            with Timer(f"detect pii on document {link}"):
                 ret.append(pii_detector.detect_pii(data))
     return ret
 
@@ -117,7 +119,7 @@ def text_based_pii_detect(text_list: List[str], strategy, enable_ray=False, debu
         for data in tqdm(text_list, total=len(text_list)):
             if debug:
                 print("content is: ", data)
-            with Timer(f"detect pii on document {data[:50]} to Redis."):
+            with Timer(f"detect pii on document {data[:50]}"):
                 ret.append(pii_detector.detect_pii(data))
     return ret
 
@@ -125,11 +127,15 @@ def text_based_pii_detect(text_list: List[str], strategy, enable_ray=False, debu
 @register_microservice(
     name="opea_service@guardrails-pii-detection", endpoint="/v1/piidetect", host="0.0.0.0", port=6357
 )
-async def pii_detection(files: List[UploadFile] = File(None), link_list: str = Form(None), text_list: str = Form(None), strategy: str = Form("ml")):
+async def pii_detection(files: List[UploadFile] = File(None), link_list: str = Form(None), text_list: str = Form(None), strategy: str = Form(None)):
     if not files and not link_list and not text_list:
         raise HTTPException(status_code=400, detail="Either files, link_list, or text_list must be provided.")
 
-    # strategy = "ml"  # Default strategy
+    if strategy is None:
+        strategy = "ner"
+
+    print('PII detection using strategy: ', strategy)
+
     pip_requirement = ["detect-secrets", "phonenumbers", "gibberish-detector"]
 
     if files:

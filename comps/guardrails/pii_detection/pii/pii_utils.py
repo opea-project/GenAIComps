@@ -42,11 +42,14 @@ class PIIDetectorWithNER(PIIDetector):
             self.pipeline = pipeline(
                 model=_model_key, task="token-classification", tokenizer=tokenizer, grouped_entities=True
             )
+            print('NER detector instantiated successfully!')
         except Exception as e:
             print("Failed to load model, skip NER classification", e)
             self.pipeline = None
 
+
     def detect_pii(self, text):
+        print('Scanning text with NER detector...')
         result = []
         # use a regex to detect ip addresses
 
@@ -76,10 +79,11 @@ class PIIDetectorWithML(PIIDetector):
         from huggingface_hub import hf_hub_download
 
         super().__init__()
+        print("Loading embedding model...")
         embed_model_id = "nomic-ai/nomic-embed-text-v1"
         self.model = SentenceTransformer(model_name_or_path=embed_model_id, trust_remote_code=True)
 
-
+        print("Loading classifier model...")
         REPO_ID = "Intel/business_safety_logistic_regression_classifier"
         FILENAME = "lr_clf.joblib"
 
@@ -87,17 +91,14 @@ class PIIDetectorWithML(PIIDetector):
             hf_hub_download(repo_id=REPO_ID, filename=FILENAME)
         )
 
-        # assert os.path.exists(clf_path), "Cannot find classifier at specified path. Please double check."
-        # self.clf = joblib.load(clf_path)
+        print('ML detector instantiated successfully!')
 
 
     def detect_pii(self, text):
         # text is a string
+        print('Scanning text with ML detector...')
         embeddings = self.model.encode(text, convert_to_tensor=True).reshape(1, -1).cpu()
-        # print('shape of embedding: ', embeddings.shape)
         predictions = self.clf.predict(embeddings)
-        # print('shape of prediction: ', predictions.shape)
-
         return True if predictions[0] == 1 else False
 
 
