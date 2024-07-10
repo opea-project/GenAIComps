@@ -153,7 +153,7 @@ async def pii_detection(files: List[UploadFile] = File(None), link_list: str = F
                 await save_file_to_local_disk(save_path, file)
                 saved_path_list.append(DocPath(path=save_path))
 
-            enable_ray = False if len(saved_path_list) <= 10 else True
+            enable_ray = False if (len(text_list) <= 10 or strategy == "ml") else True
             if enable_ray:
                 prepare_env(enable_ray=enable_ray, pip_requirements=pip_requirement, comps_path=comps_path)
             ret = file_based_pii_detect(saved_path_list, strategy, enable_ray=enable_ray)
@@ -166,7 +166,7 @@ async def pii_detection(files: List[UploadFile] = File(None), link_list: str = F
             text_list = json.loads(text_list)  # Parse JSON string to list
             if not isinstance(text_list, list):
                 text_list = [text_list]
-            enable_ray = False if len(text_list) <= 10 else True
+            enable_ray = False if (len(text_list) <= 10 or strategy == "ml") else True
             if enable_ray:
                 prepare_env(enable_ray=enable_ray, pip_requirements=pip_requirement, comps_path=comps_path)
             ret = text_based_pii_detect(text_list, strategy, enable_ray=enable_ray)
@@ -181,7 +181,7 @@ async def pii_detection(files: List[UploadFile] = File(None), link_list: str = F
             link_list = json.loads(link_list)  # Parse JSON string to list
             if not isinstance(link_list, list):
                 link_list = [link_list]
-            enable_ray = False if len(link_list) <= 10 else True
+            enable_ray = False if (len(text_list) <= 10 or strategy == "ml") else True
             if enable_ray:
                 prepare_env(enable_ray=enable_ray, pip_requirements=pip_requirement, comps_path=comps_path)
             ret = link_based_pii_detect(link_list, strategy, enable_ray=enable_ray)
