@@ -15,25 +15,31 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export vLLM_RAY_ENDPOINT="http://${your_ip}:8006"
 export LLM_MODEL=${your_hf_llm_model}
 ```
+
 For gated models such as `LLAMA-2`, you will have to pass the environment HUGGINGFACEHUB_API_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
 
 ### Set up VLLM Ray Gaudi Service
 
 #### Build docker
+
 ```bash
 bash ./build_docker_vllmray.sh
 ```
 
 #### Launch the service
+
 ```bash
-bash ./launch_vllmray.sh 
+bash ./launch_vllmray.sh
 ```
+
 The `launch_vllmray.sh` script accepts three parameters:
+
 - port_number: The port number assigned to the Ray Gaudi endpoint, with the default being 8006.
 - model_name: The model name utilized for LLM, with the default set to facebook/opt-125m.
 - parallel_number: The number of HPUs specifies the number of HPUs per worker process, the default is set to 2."
 
 If you want to customize the setting, can run:
+
 ```bash
 bash ./launch_vllmray.sh ${port_number} ${model_name} ${parallel_number}
 ```
@@ -51,17 +57,21 @@ curl http://${your_ip}:8006/v1/chat/completions \
 For more information about the OpenAI APIs, you can checkeck the [OpenAI official document](https://platform.openai.com/docs/api-reference/).
 
 ### Set up OPEA microservice
+
 Then we warp the VLLM Ray service into OPEA microcervice.
 
 #### Build docker
+
 ```bash
 bash ./build_docker_microservice.sh
 ```
 
 #### Launch the microservice
+
 ```bash
-bash ./launch_microservice.sh 
+bash ./launch_microservice.sh
 ```
+
 #### Query the microservice
 
 ```bash
