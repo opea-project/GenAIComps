@@ -21,6 +21,7 @@ from langchain.vectorstores import LanceDB
 from langchain.embeddings.openai import OpenAIEmbeddings
 from vectordb import connect
 
+
 async def run():
     dir = tempfile.mkdtemp(prefix="lancedb-")
     db = await connect(dir)
@@ -37,8 +38,10 @@ async def run():
     print(result_one)
     # [ Document(page_content='hello nice world', metadata={'id': 3}) ]
 
+
 # Run the function
 import asyncio
+
 asyncio.run(run())
 ```
 
@@ -61,6 +64,7 @@ from vectordb import connect
 loader = TextLoader("src/document_loaders/example_data/example.txt")
 docs = loader.load()
 
+
 async def run():
     dir = tempfile.mkdtemp(prefix="lancedb-")
     db = await connect(dir)
@@ -74,8 +78,10 @@ async def run():
     #   Document(page_content='Foo\nBar\nBaz\n\n', metadata={'source': 'src/document_loaders/example_data/example.txt'})
     # ]
 
+
 # Run the function
 import asyncio
+
 asyncio.run(run())
 ```
 
@@ -94,6 +100,7 @@ from langchain.vectorstores import LanceDB
 from langchain.embeddings.openai import OpenAIEmbeddings
 from vectordb import connect
 
+
 async def run():
     uri = await create_test_db()
     db = await connect(uri)
@@ -105,18 +112,24 @@ async def run():
     print(result_one)
     # [ Document(page_content='Hello world', metadata={'id': 1}) ]
 
+
 async def create_test_db():
     dir = tempfile.mkdtemp(prefix="lancedb-")
     db = await connect(dir)
-    await db.create_table("vectors", [
-        {"vector": [0] * 1536, "text": "Hello world", "id": 1},
-        {"vector": [0] * 1536, "text": "Bye bye", "id": 2},
-        {"vector": [0] * 1536, "text": "hello nice world", "id": 3},
-    ])
+    await db.create_table(
+        "vectors",
+        [
+            {"vector": [0] * 1536, "text": "Hello world", "id": 1},
+            {"vector": [0] * 1536, "text": "Bye bye", "id": 2},
+            {"vector": [0] * 1536, "text": "hello nice world", "id": 3},
+        ],
+    )
     return dir
+
 
 # Run the function
 import asyncio
+
 asyncio.run(run())
 ```
 
@@ -124,4 +137,3 @@ API Reference:
 
 - `LanceDB` from `@langchain/community/vectorstores/lancedb`
 - `OpenAIEmbeddings` from `@langchain/openai`
-
