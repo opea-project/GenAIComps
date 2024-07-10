@@ -144,7 +144,9 @@ def main(argv=None):
             }
         )
     )
-    input("Service is deployed successfully.")
+    # input("Service is deployed successfully.")
+    while 1:
+        pass
 
 if __name__ == "__main__":
     main(sys.argv[1:])

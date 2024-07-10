@@ -24,7 +24,7 @@ if [ "$#" -lt 0 ] || [ "$#" -gt 3 ]; then
 fi
 
 # Build the Docker run command based on the number of cards
-docker run -it --rm \
+docker run -d --rm \
     --name="vllm-ray-service" \
     --runtime=habana \
     -v $PWD/data:/data \

@@ -1,4 +1,4 @@
-docker run \
+docker run -d --rm \
     --name="llm-vllm-ray-server" \
     -p 9000:9000 \
     --ipc=host \
