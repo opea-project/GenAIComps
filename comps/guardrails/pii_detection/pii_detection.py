@@ -127,14 +127,19 @@ def text_based_pii_detect(text_list: List[str], strategy, enable_ray=False, debu
 @register_microservice(
     name="opea_service@guardrails-pii-detection", endpoint="/v1/piidetect", host="0.0.0.0", port=6357
 )
-async def pii_detection(files: List[UploadFile] = File(None), link_list: str = Form(None), text_list: str = Form(None), strategy: str = Form(None)):
+async def pii_detection(
+    files: List[UploadFile] = File(None),
+    link_list: str = Form(None),
+    text_list: str = Form(None),
+    strategy: str = Form(None),
+):
     if not files and not link_list and not text_list:
         raise HTTPException(status_code=400, detail="Either files, link_list, or text_list must be provided.")
 
     if strategy is None:
         strategy = "ner"
 
-    print('PII detection using strategy: ', strategy)
+    print("PII detection using strategy: ", strategy)
 
     pip_requirement = ["detect-secrets", "phonenumbers", "gibberish-detector"]
 
