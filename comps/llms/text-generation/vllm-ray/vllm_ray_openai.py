@@ -129,15 +129,17 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
 
 # __serve_example_end__
 
+
 def str2bool(v):
     if isinstance(v, bool):
         return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+    if v.lower() in ("yes", "true", "t", "y", "1"):
         return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+    elif v.lower() in ("no", "false", "f", "n", "0"):
         return False
     else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
 
 def main(argv=None):
     import argparse
@@ -145,7 +147,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Serve vLLM models with Ray.", add_help=True)
     parser.add_argument("--port_number", default="8000", type=str, help="Port number to serve on.", required=False)
     parser.add_argument(
-        "--model_id_or_path", default="meta-llama/Llama-2-7b-chat-hf", type=str, help="Model id or path.", required=False
+        "--model_id_or_path",
+        default="meta-llama/Llama-2-7b-chat-hf",
+        type=str,
+        help="Model id or path.",
+        required=False,
     )
     parser.add_argument(
         "--tensor_parallel_size", default=2, type=int, help="parallel nodes number for 'hpu' mode.", required=False
