@@ -17,7 +17,7 @@ function build_docker_images() {
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build \
-        -t opea/llm-vllm-ray:latest \
+        -t opea/llm-vllm-ray:comps \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice .
 }
 
@@ -25,7 +25,7 @@ function start_service() {
     export LLM_MODEL="facebook/opt-125m"
     port_number=8006
     docker run -d --rm \
-        --name="vllm-ray-service" \
+        --name="test-comps-vllm-ray-service" \
         --runtime=habana \
         -v $PWD/data:/data \
         -e HABANA_VISIBLE_DEVICES=all \
@@ -39,20 +39,20 @@ function start_service() {
 
     export vLLM_RAY_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm\
-        --name="vllm-ray-microservice" \
+        --name="test-comps-vllm-ray-microservice" \
         -p 9000:9000 \
         --ipc=host \
         -e vLLM_RAY_ENDPOINT=$vLLM_RAY_ENDPOINT \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
         -e LLM_MODEL=$LLM_MODEL \
-        opea/llm-vllm-ray:latest
+        opea/llm-vllm-ray:comps
 
     # check whether vllm ray is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs vllm-ray-service > ${WORKPATH}/tests/vllm-ray-service.log
+        docker logs test-comps-vllm-ray-service > ${WORKPATH}/tests/test-comps-vllm-ray-service.log
         n=$((n+1))
-        if grep -q Connected ${WORKPATH}/tests/vllm-ray-service.log; then
+        if grep -q Connected ${WORKPATH}/tests/test-comps-vllm-ray-service.log; then
             break
         fi
         sleep 5s
@@ -68,12 +68,12 @@ function validate_microservice() {
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
         -H 'Content-Type: application/json'
-    docker logs vllm-ray-service
-    docker logs vllm-ray-microservice
+    docker logs test-comps-vllm-ray-service
+    docker logs test-comps-vllm-ray-microservice
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=vllm-ray*")
+    cid=$(docker ps -aq --filter "name=test-comps-vllm-ray*")
     if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
 }
 
