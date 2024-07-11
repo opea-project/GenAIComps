@@ -4,6 +4,7 @@
 import logging
 import os
 import sys
+import argparse
 
 # __serve_example_begin__
 from typing import Dict, List, Optional
@@ -142,8 +143,6 @@ def str2bool(v):
 
 
 def main(argv=None):
-    import argparse
-
     parser = argparse.ArgumentParser(description="Serve vLLM models with Ray.", add_help=True)
     parser.add_argument("--port_number", default="8000", type=str, help="Port number to serve on.", required=False)
     parser.add_argument(
