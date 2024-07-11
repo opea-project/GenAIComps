@@ -47,10 +47,10 @@ class MicroService:
         self.uvicorn_kwargs = {}
 
         if ssl_keyfile:
-            self.uvicorn_kwargs['ssl_keyfile'] = ssl_keyfile
+            self.uvicorn_kwargs["ssl_keyfile"] = ssl_keyfile
 
         if ssl_certfile:
-            self.uvicorn_kwargs['ssl_certfile'] = ssl_certfile
+            self.uvicorn_kwargs["ssl_certfile"] = ssl_certfile
 
         if not use_remote_service:
             self.replicas = replicas
