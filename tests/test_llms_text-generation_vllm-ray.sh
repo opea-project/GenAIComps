@@ -22,7 +22,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export LLM_MODEL="meta-llama/Llama-2-7b-chat-hf"
+    export LLM_MODEL="facebook/opt-125m"
     port_number=8006
     docker run -d --rm \
         --name="vllm-ray-service" \
@@ -63,7 +63,7 @@ function start_service() {
 function validate_microservice() {
     http_proxy="" curl http://${ip_address}:8006/v1/chat/completions \
         -H "Content-Type: application/json" \
-        -d '{"model": "meta-llama/Llama-2-7b-chat-hf", "messages": [{"role": "user", "content": "How are you?"}]}'
+        -d '{"model": "facebook/opt-125m", "messages": [{"role": "user", "content": "How are you?"}]}'
     http_proxy="" curl http://${ip_address}:9000/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
