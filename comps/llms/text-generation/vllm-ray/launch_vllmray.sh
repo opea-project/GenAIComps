@@ -7,7 +7,7 @@
 default_port=8006
 default_model=$LLM_MODEL
 default_parallel_number=2
-default_enforce_eager=True
+default_enforce_eager=False
 
 # Assign arguments to variables
 port_number=${1:-$default_port}
@@ -20,7 +20,7 @@ if [ "$#" -lt 0 ] || [ "$#" -gt 3 ]; then
     echo "Usage: $0 [port_number] [model_name] [parallel_number] [enforce_eager]"
     echo "Please customize the arguments you want to use.
     - port_number: The port number assigned to the Ray Gaudi endpoint, with the default being 8080.
-    - model_name: The model name utilized for LLM, with the default set to facebook/opt-125m.
+    - model_name: The model name utilized for LLM, with the default set to meta-llama/Llama-2-7b-chat-hf.
     - parallel_number: The number of HPUs specifies the number of HPUs per worker process.
     - enforce_eager: Whether to enforce eager execution, default to be True."
     exit 1

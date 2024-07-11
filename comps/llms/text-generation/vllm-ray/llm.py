@@ -43,7 +43,7 @@ def post_process_text(text: str):
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("vLLM_RAY_ENDPOINT", "http://localhost:8006")
-    llm_model = os.getenv("LLM_MODEL", "facebook/opt-125m")
+    llm_model = os.getenv("LLM_MODEL", "meta-llama/Llama-2-7b-chat-hf")
     llm = ChatOpenAI(
         openai_api_base=llm_endpoint + "/v1",
         model_name=llm_model,

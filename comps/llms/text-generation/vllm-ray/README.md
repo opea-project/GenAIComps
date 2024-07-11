@@ -35,7 +35,7 @@ bash ./launch_vllmray.sh
 The `launch_vllmray.sh` script accepts three parameters:
 
 - port_number: The port number assigned to the Ray Gaudi endpoint, with the default being 8006.
-- model_name: The model name utilized for LLM, with the default set to facebook/opt-125m.
+- model_name: The model name utilized for LLM, with the default set to meta-llama/Llama-2-7b-chat-hf.
 - parallel_number: The number of HPUs specifies the number of HPUs per worker process, the default is set to 2.
 - enforce_eager: Whether to enforce eager execution, default to be True.
 

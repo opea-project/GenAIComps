@@ -6,7 +6,7 @@ your_ip="0.0.0.0"
 ##query vllm ray service
 curl http://${your_ip}:8006/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -d '{"model": "facebook/opt-125m", "messages": [{"role": "user", "content": "How are you?"}]}'
+  -d '{"model": "meta-llama/Llama-2-7b-chat-hf", "messages": [{"role": "user", "content": "How are you?"}]}'
 
 ##query microservice
 curl http://${your_ip}:9000/v1/chat/completions \

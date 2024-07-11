@@ -22,7 +22,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export LLM_MODEL="facebook/opt-125m"
+    export LLM_MODEL="meta-llama/Llama-2-7b-chat-hf"
     port_number=8006
     docker run -d --rm \
         --name="vllm-ray-service" \
@@ -35,7 +35,7 @@ function start_service() {
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
         -p $port_number:8000 \
         vllm_ray:habana \
-        /bin/bash -c "ray start --head && python vllm_ray_openai.py --port_number 8000 --model_id_or_path $LLM_MODEL --tensor_parallel_size 2 --enforce_eager True"
+        /bin/bash -c "ray start --head && python vllm_ray_openai.py --port_number 8000 --model_id_or_path $LLM_MODEL --tensor_parallel_size 2 --enforce_eager False"
 
     export vLLM_RAY_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm\
@@ -63,7 +63,7 @@ function start_service() {
 function validate_microservice() {
     http_proxy="" curl http://${ip_address}:8006/v1/chat/completions \
         -H "Content-Type: application/json" \
-        -d '{"model": "facebook/opt-125m", "messages": [{"role": "user", "content": "How are you?"}]}'
+        -d '{"model": "meta-llama/Llama-2-7b-chat-hf", "messages": [{"role": "user", "content": "How are you?"}]}'
     http_proxy="" curl http://${ip_address}:9000/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \

@@ -106,6 +106,9 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     engine_args = AsyncEngineArgs.from_cli_args(parsed_args)
     engine_args.worker_use_ray = True
     engine_args.enforce_eager = enforce_eager
+    engine_args.block_size = 128
+    engine_args.max_num_seqs = 256
+    engine_args.max_seq_len_to_capture = 2048
 
     tp = engine_args.tensor_parallel_size
     logger.info(f"Tensor parallelism = {tp}")
@@ -126,6 +129,15 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
 
 # __serve_example_end__
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def main(argv=None):
     import argparse
@@ -133,13 +145,13 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Serve vLLM models with Ray.", add_help=True)
     parser.add_argument("--port_number", default="8000", type=str, help="Port number to serve on.", required=False)
     parser.add_argument(
-        "--model_id_or_path", default="facebook/opt-125m", type=str, help="Model id or path.", required=False
+        "--model_id_or_path", default="meta-llama/Llama-2-7b-chat-hf", type=str, help="Model id or path.", required=False
     )
     parser.add_argument(
         "--tensor_parallel_size", default=2, type=int, help="parallel nodes number for 'hpu' mode.", required=False
     )
     parser.add_argument(
-        "--enforce_eager", default=True, type=bool, help="Whether to enforce eager execution", required=False
+        "--enforce_eager", default=False, type=str2bool, help="Whether to enforce eager execution", required=False
     )
     args = parser.parse_args(argv)
 
