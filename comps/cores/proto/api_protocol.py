@@ -67,7 +67,7 @@ class ChatCompletionRequest(BaseModel):
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[bool] = False
     top_logprobs: Optional[int] = 0
-    max_tokens: Optional[int] = 16 # use https://platform.openai.com/docs/api-reference/completions/create
+    max_tokens: Optional[int] = 16  # use https://platform.openai.com/docs/api-reference/completions/create
     n: Optional[int] = 1
     presence_penalty: Optional[float] = 0.0
     response_format: Optional[ResponseFormat] = None
@@ -76,11 +76,10 @@ class ChatCompletionRequest(BaseModel):
     stop: Optional[Union[str, List[str]], None] = Field(default_factory=list)
     stream: Optional[bool] = False
     stream_options: Optional[StreamOptions] = None
-    temperature: Optional[float] = 1.0 # vllm default 0.7
+    temperature: Optional[float] = 1.0  # vllm default 0.7
     top_p: Optional[float] = 1.0
     tools: Optional[List[ChatCompletionToolsParam]] = None
-    tool_choice: Optional[Union[Literal["none"],
-                                ChatCompletionNamedToolChoiceParam]] = "none"
+    tool_choice: Optional[Union[Literal["none"], ChatCompletionNamedToolChoiceParam]] = "none"
     parallel_tool_calls: Optional[bool] = True
     user: Optional[str] = None
 
@@ -212,7 +211,7 @@ class EmbeddingRequest(BaseModel):
     model: Optional[str] = None
     input: Union[List[int], List[List[int]], str, List[str]]
     encoding_format: Optional[str] = Field("float", pattern="^(float|base64)$")
-    dimensions: Optional[int] = 768 # Keep only the first 768 elements
+    dimensions: Optional[int] = 768  # Keep only the first 768 elements
     user: Optional[str] = None
 
 
