@@ -30,23 +30,99 @@ class UsageInfo(BaseModel):
     completion_tokens: Optional[int] = 0
 
 
+class ResponseFormat(BaseModel):
+    # type must be "json_object" or "text"
+    type: Literal["text", "json_object"]
+
+
+class StreamOptions(BaseModel):
+    # refer https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L105
+    include_usage: Optional[bool]
+
+
+class ChatCompletionToolsParam(BaseModel):
+    type: Literal["function"] = "function"
+    function: FunctionDefinition
+
+
+class ChatCompletionNamedFunction(BaseModel):
+    name: str
+
+
+class ChatCompletionNamedToolChoiceParam(BaseModel):
+    function: ChatCompletionNamedFunction
+    type: Literal["function"] = "function"
+
+
 class ChatCompletionRequest(BaseModel):
+    # Ordered by official OpenAI API documentation
+    # https://platform.openai.com/docs/api-reference/chat/create
     messages: Union[
         str,
         List[Dict[str, str]],
         List[Dict[str, Union[str, List[Dict[str, Union[str, Dict[str, str]]]]]]],
     ]
     model: Optional[str] = "Intel/neural-chat-7b-v3-3"
-    temperature: Optional[float] = 0.01
-    top_p: Optional[float] = 0.95
-    top_k: Optional[int] = 10
-    n: Optional[int] = 1
-    max_tokens: Optional[int] = 1024
-    stop: Optional[Union[str, List[str]]] = None
-    stream: Optional[bool] = False
-    presence_penalty: Optional[float] = 1.03
     frequency_penalty: Optional[float] = 0.0
+    logit_bias: Optional[Dict[str, float]] = None
+    logprobs: Optional[bool] = False
+    top_logprobs: Optional[int] = 0
+    max_tokens: Optional[int] = 16 # use https://platform.openai.com/docs/api-reference/completions/create
+    n: Optional[int] = 1
+    presence_penalty: Optional[float] = 0.0
+    response_format: Optional[ResponseFormat] = None
+    seed: Optional[int] = None
+    service_tier: Optional[str] = None
+    stop: Optional[Union[str, List[str]], None] = Field(default_factory=list)
+    stream: Optional[bool] = False
+    stream_options: Optional[StreamOptions] = None
+    temperature: Optional[float] = 1.0 # vllm default 0.7
+    top_p: Optional[float] = 1.0
+    tools: Optional[List[ChatCompletionToolsParam]] = None
+    tool_choice: Optional[Union[Literal["none"],
+                                ChatCompletionNamedToolChoiceParam]] = "none"
+    parallel_tool_calls: Optional[bool] = True
     user: Optional[str] = None
+
+    # doc: begin-chat-completion-extra-params
+    chat_template: Optional[str] = Field(
+        default=None,
+        description=(
+            "A Jinja template to use for this conversion. "
+            "If this is not passed, the model's default chat template will be "
+            "used instead."
+        ),
+    )
+    chat_template_kwargs: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description=("Additional kwargs to pass to the template renderer. " "Will be accessible by the chat template."),
+    )
+    # doc: end-chat-completion-extra-params
+
+    # tgi reference: https://huggingface.github.io/text-generation-inference/#/Text%20Generation%20Inference/generate
+    # some tgi parameters in use
+    # default values are same with
+    # https://github.com/huggingface/text-generation-inference/blob/main/router/src/lib.rs#L190
+    # max_new_tokens: Optional[int] = 100 # Priority use openai
+    top_k: Optional[int] = None
+    # top_p: Optional[float] = None # Priority use openai
+    typical_p: Optional[float] = None
+    repetition_penalty: Optional[float] = None
+
+    # vllm reference: https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L359
+
+    # Ordered by official OpenAI API documentation
+    # https://platform.openai.com/docs/api-reference/embeddings
+    encoding_format: Optional[str] = Field("float", pattern="^(float|base64)$")
+    dimensions: Optional[int] = None
+
+    # Retrieval params
+    search_type: str = "similarity"
+    k: int = 4
+    distance_threshold: Optional[float] = None
+    fetch_k: int = 20
+    lambda_mult: float = 0.5
+    score_threshold: float = 0.2
 
 
 class AudioChatCompletionRequest(BaseModel):
@@ -130,19 +206,27 @@ class TokenCheckResponse(BaseModel):
     prompts: List[TokenCheckResponseItem]
 
 
-class EmbeddingsRequest(BaseModel):
+class EmbeddingRequest(BaseModel):
+    # Ordered by official OpenAI API documentation
+    # https://platform.openai.com/docs/api-reference/embeddings
     model: Optional[str] = None
-    engine: Optional[str] = None
-    input: Union[str, List[Any]]
+    input: Union[List[int], List[List[int]], str, List[str]]
+    encoding_format: Optional[str] = Field("float", pattern="^(float|base64)$")
+    dimensions: Optional[int] = 768 # Keep only the first 768 elements
     user: Optional[str] = None
-    encoding_format: Optional[str] = None
 
 
-class EmbeddingsResponse(BaseModel):
+class EmbeddingResponseData(BaseModel):
+    index: int
+    object: str = "embedding"
+    embedding: Union[List[float], str]
+
+
+class EmbeddingResponse(BaseModel):
     object: str = "list"
-    data: List[Dict[str, Any]]
-    model: str
-    usage: UsageInfo
+    model: Optional[str] = None
+    data: List[EmbeddingResponseData]
+    usage: Optional[UsageInfo] = None
 
 
 class CompletionRequest(BaseModel):
