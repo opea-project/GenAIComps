@@ -1,26 +1,27 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 from typing import Optional
-from pydantic import BaseModel
-from comps.cores.mega.micro_service import opea_microservices, register_microservice
+
 from mongo_store import PromptStore
+from pydantic import BaseModel
+
+from comps.cores.mega.micro_service import opea_microservices, register_microservice
+
 
 class PromptCreate(BaseModel):
-   """
-   This class represents the data model for creating and storing a new prompt in the database.
+    """This class represents the data model for creating and storing a new prompt in the database.
 
-   Attributes:
-       prompt_text (str): The text content of the prompt.
-       user (str): The user or creator of the prompt.
-   """
+    Attributes:
+        prompt_text (str): The text content of the prompt.
+        user (str): The user or creator of the prompt.
+    """
 
-   prompt_text: str
-   user: str
+    prompt_text: str
+    user: str
 
 
 class PromptId(BaseModel):
-    """
-    This class represent the data model for retrieve prompt stored in database.
+    """This class represent the data model for retrieve prompt stored in database.
 
     Attributes:
         user (str): The user of the requested prompt.
@@ -37,11 +38,10 @@ class PromptId(BaseModel):
     endpoint="/v1/prompt/create",
     host="0.0.0.0",
     input_datatype=PromptCreate,
-    port=6012
+    port=6012,
 )
 async def create_prompt(prompt: PromptCreate):
-    """
-    Creates and stores a prompt in prompt store.
+    """Creates and stores a prompt in prompt store.
 
     Args:
         prompt (PromptCreate): The PromptCreate class object containing the data to be stored.
@@ -69,8 +69,7 @@ async def create_prompt(prompt: PromptCreate):
     port=6013,
 )
 async def get_prompt(prompt: PromptId):
-    """
-    Retrieves prompt from prompt store based on provided PromptId or user.
+    """Retrieves prompt from prompt store based on provided PromptId or user.
 
     Args:
         prompt (PromptId): The PromptId object containing user and prompt_id.
@@ -103,8 +102,7 @@ async def get_prompt(prompt: PromptId):
     port=6014,
 )
 async def delete_prompt(prompt: PromptId):
-    """
-    Delete a prompt from prompt store by given PromptId.
+    """Delete a prompt from prompt store by given PromptId.
 
     Args:
         prompt (PromptId): The PromptId object containing user and prompt_id.
@@ -124,6 +122,7 @@ async def delete_prompt(prompt: PromptId):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return None
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@prompt_mongo_get"].start()

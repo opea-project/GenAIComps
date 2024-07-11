@@ -39,6 +39,7 @@ docker run -d -p 27017:27017 --name=mongo mongo:latest
 ```
 
 2. Run prompt_registry service
+
 ```bash
 docker run -d --name="promptregistry-mongo-server" -p 6012:6012 -p 6013:6013 -p 6014:6014 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/promptregistry-mongo-server:latest
 ```

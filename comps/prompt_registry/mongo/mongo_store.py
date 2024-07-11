@@ -1,8 +1,13 @@
-from bson.objectid import ObjectId
-import bson.errors as BsonError
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
+
+import bson.errors as BsonError
+from bson.objectid import ObjectId
 from config import COLLECTION_NAME
 from mongo_conn import MongoClient
+
 
 class PromptStore:
 
@@ -17,8 +22,7 @@ class PromptStore:
         self.collection = self.db_client[COLLECTION_NAME]
 
     async def save_prompt(self, prompt) -> str:
-        """
-        Stores a new prompt into the storage.
+        """Stores a new prompt into the storage.
 
         Args:
             prompt: The document to be stored.
@@ -41,8 +45,7 @@ class PromptStore:
             raise Exception(e)
 
     async def get_all_prompt_of_user(self) -> list[dict]:
-        """
-        Retrieves all prompts of a user from the collection.
+        """Retrieves all prompts of a user from the collection.
 
         Returns:
             list[dict] | None: List of dict of prompts of the user, None otherwise.
@@ -65,8 +68,7 @@ class PromptStore:
             raise Exception(e)
 
     async def get_user_prompt_by_id(self, prompt_id) -> dict | None:
-        """
-        Retrieves a user prompt from the collection based on the given prompt ID.
+        """Retrieves a user prompt from the collection based on the given prompt ID.
 
         Args:
             prompt_id (str): The ID of the prompt to retrieve.
@@ -94,8 +96,7 @@ class PromptStore:
             raise Exception(e)
 
     async def prompt_search(self, keyword) -> list | None:
-        """
-        Retrieves prompt from the collection based on keyword provided.
+        """Retrieves prompt from the collection based on keyword provided.
 
         Args:
             keyword (str): The keyword of prompt to search for.
@@ -108,7 +109,7 @@ class PromptStore:
         """
         try:
             # Create a text index if not already created
-            self.collection.create_index([('$**', 'text')])
+            self.collection.create_index([("$**", "text")])
             # Perform text search
             results = self.collection.find({"$text": {"$search": keyword}}, {"score": {"$meta": "textScore"}})
             sorted_results = results.sort([("score", {"$meta": "textScore"})])
@@ -118,12 +119,7 @@ class PromptStore:
 
             # Serialize data and return
             serialized_data = [
-                {
-                    'id': str(doc['_id']),
-                    'prompt_text': doc['prompt_text'],
-                    'user': doc['user'],
-                    'score': doc['score']
-                }
+                {"id": str(doc["_id"]), "prompt_text": doc["prompt_text"], "user": doc["user"], "score": doc["score"]}
                 for doc in relevant_data
             ]
 
@@ -134,8 +130,7 @@ class PromptStore:
             raise Exception(e)
 
     async def delete_prompt(self, prompt_id) -> bool:
-        """
-        Delete a prompt from collection by given prompt_id.
+        """Delete a prompt from collection by given prompt_id.
 
         Args:
             prompt_id(str): The ID of the prompt to be deleted.
