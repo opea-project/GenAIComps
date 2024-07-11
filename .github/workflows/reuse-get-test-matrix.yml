@@ -50,17 +50,17 @@ jobs:
           run_matrix="{\"include\":["
           for service in ${services}; do
               hardware="gaudi" # default hardware, set based on the changed files
-              if [[ ls comps/${service} | grep -E "Dockerfile*|docker*" ]]; then
+              if [[ $(ls comps/${service} | grep -E "Dockerfile*|docker*") ]]; then
                   run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},"
               fi
               vendors=$(printf '%s\n' "${changed_files[@]}" | grep ${service} | cut -d'/' -f3 | grep -vE '*.py|Dockerfile|*.sh|docker|*.yaml|*.yml' | sort -u)
               for vendor in ${vendors}; do
-                  if [[ ls comps/${service}/${vendor} | grep -E "Dockerfile*|docker*" ]]; then
+                  if [[ $(ls comps/${service}/${vendor} | grep -E "Dockerfile*|docker*") ]]; then
                       run_matrix="${run_matrix}{\"service\":\"${service}/${vendor}\",\"hardware\":\"${hardware}\"},"
                   fi
                   sub_vendors=$(printf '%s\n' "${changed_files[@]}" | grep ${service} | grep ${vendor} | cut -d'/' -f4 | grep -vE '*.py|Dockerfile|*.sh|docker|*.yaml|*.yml' | sort -u)
                   for sub_vendor in ${sub_vendors}; do
-                      if [[ ls comps/${service}/${vendor}/${sub_vendor} | grep -E "Dockerfile*|docker*" ]]; then
+                      if [[ $(ls comps/${service}/${vendor}/${sub_vendor} | grep -E "Dockerfile*|docker*") ]]; then
                           run_matrix="${run_matrix}{\"service\":\"${service}/${vendor}/${sub_vendor}\",\"hardware\":\"${hardware}\"},"
                       fi
                   done
