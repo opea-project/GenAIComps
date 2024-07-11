@@ -6,9 +6,7 @@
 
 This guide provides an example on how to launch vLLM with Ray serve endpoint on Gaudi accelerators.
 
-## Getting Started
-
-### Set up environment
+## Set up environment
 
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
@@ -18,15 +16,15 @@ export LLM_MODEL=${your_hf_llm_model}
 
 For gated models such as `LLAMA-2`, you will have to pass the environment HUGGINGFACEHUB_API_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
 
-### Set up VLLM Ray Gaudi Service
+## Set up VLLM Ray Gaudi Service
 
-#### Build docker
+### Build docker
 
 ```bash
 bash ./build_docker_vllmray.sh
 ```
 
-#### Launch the service
+### Launch the service
 
 ```bash
 bash ./launch_vllmray.sh
@@ -37,15 +35,15 @@ The `launch_vllmray.sh` script accepts three parameters:
 - port_number: The port number assigned to the Ray Gaudi endpoint, with the default being 8006.
 - model_name: The model name utilized for LLM, with the default set to meta-llama/Llama-2-7b-chat-hf.
 - parallel_number: The number of HPUs specifies the number of HPUs per worker process, the default is set to 2.
-- enforce_eager: Whether to enforce eager execution, default to be True.
+- enforce_eager: Whether to enforce eager execution, default to be False.
 
 If you want to customize the setting, can run:
 
 ```bash
-bash ./launch_vllmray.sh ${port_number} ${model_name} ${parallel_number}
+bash ./launch_vllmray.sh ${port_number} ${model_name} ${parallel_number} False/True
 ```
 
-#### Query the service
+### Query the service
 
 And then you can make requests with the OpenAI-compatible APIs like below to check the service status:
 
@@ -57,23 +55,23 @@ curl http://${your_ip}:8006/v1/chat/completions \
 
 For more information about the OpenAI APIs, you can checkeck the [OpenAI official document](https://platform.openai.com/docs/api-reference/).
 
-### Set up OPEA microservice
+## Set up OPEA microservice
 
 Then we warp the VLLM Ray service into OPEA microcervice.
 
-#### Build docker
+### Build docker
 
 ```bash
 bash ./build_docker_microservice.sh
 ```
 
-#### Launch the microservice
+### Launch the microservice
 
 ```bash
 bash ./launch_microservice.sh
 ```
 
-#### Query the microservice
+### Query the microservice
 
 ```bash
 curl http://${your_ip}:9000/v1/chat/completions \
