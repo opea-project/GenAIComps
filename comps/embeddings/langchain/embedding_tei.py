@@ -7,14 +7,7 @@ import time
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
 from langsmith import traceable
 
-from comps import (
-    ServiceType,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
-)
-
+from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, EmbeddingResponseData
 
 
@@ -32,7 +25,7 @@ from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, 
 def embedding(request: EmbeddingRequest) -> EmbeddingResponse:
     start = time.time()
     embed_vector = embeddings.embed_query(request.input)
-    embed_vector = embed_vector[:request.dimensions]
+    embed_vector = embed_vector[: request.dimensions]
     response = EmbeddingResponse(data=[EmbeddingResponseData(index=0, embedding=embed_vector)])
     statistics_dict["opea_service@embedding_tei_langchain"].append_latency(time.time() - start, None)
     return response
