@@ -1,10 +1,10 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import argparse
 import logging
 import os
 import sys
-import argparse
 
 # __serve_example_begin__
 from typing import Dict, List, Optional
