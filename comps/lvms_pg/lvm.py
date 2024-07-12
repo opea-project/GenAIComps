@@ -20,6 +20,9 @@ from comps import (
 )
 
 
+client = PredictionGuard()
+
+
 @register_microservice(
     name="opea_service@lvm_pg",
     service_type=ServiceType.LVM,
@@ -31,9 +34,6 @@ from comps import (
 )
 @register_statistics(names=["opea_service@lvm_pg"])
 async def lvm(request: LVMDoc):
-    api_key = os.getenv("PREDICTIONGUARD_API_KEY")
-    pg = PredictionGuard(api_key=api_key)
-
     start = time.time()
     img_b64_str = request.image
     prompt = request.prompt
@@ -57,7 +57,7 @@ async def lvm(request: LVMDoc):
             ]
         },
     ]
-    result = pg.chat.completions.create(
+    result = client.chat.completions.create(
         model="llava-1.5-7b-hf",
         messages=messages,
         max_tokens=max_new_tokens
