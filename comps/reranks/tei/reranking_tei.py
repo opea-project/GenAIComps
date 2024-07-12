@@ -10,15 +10,9 @@ import time
 import requests
 from langsmith import traceable
 
-from comps import (
-    ServiceType,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
-)
-
+from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
 from comps.cores.proto.api_protocol import RerankingRequest, RerankingResponse, RerankingResponseData
+
 
 @register_microservice(
     name="opea_service@reranking_tgi_gaudi",
@@ -44,9 +38,11 @@ def reranking(request: RerankingRequest) -> RerankingResponse:
 
         ranking_results = []
         for best_response in best_response_list:
-            ranking_results.append(RerankingResponseData(
-                text=request.retrieved_docs[best_response["index"]].text,
-                score=best_response["score"]))
+            ranking_results.append(
+                RerankingResponseData(
+                    text=request.retrieved_docs[best_response["index"]].text, score=best_response["score"]
+                )
+            )
         statistics_dict["opea_service@reranking_tgi_gaudi"].append_latency(time.time() - start, None)
         return RerankingResponse(reranked_docs=ranking_results)
     else:
