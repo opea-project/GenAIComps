@@ -38,7 +38,7 @@ function start_service() {
         -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
         -e TRUST_REMOTE_CODE=True \
         ray_serve:habana \
-        /bin/bash -c "ray start --head && python api_server_openai.py --port_number 80 --model_id_or_path $LLM_MODEL --chat_processor ChatModelNoFormat --num_cpus_per_worker 8 --num_hpus_per_worker 1"
+        /bin/bash -c "ray start --head && python api_server_openai.py --port_number 80 --model_id_or_path $LLM_MODEL --chat_processor ChatModelLlama --num_cpus_per_worker 8 --num_hpus_per_worker 1"
 
     export RAY_Serve_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm \
