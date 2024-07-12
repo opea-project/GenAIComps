@@ -1,0 +1,10 @@
+docarray
+fastapi
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+shortuuid
+transformers
+predictionguard
+aiohttp
