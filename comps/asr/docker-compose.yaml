@@ -1,0 +1,23 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  whisper-xeon:
+    build:
+      args:
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
+        no_proxy: ${no_proxy}
+      context: ../../
+      dockerfile: comps/asr/whisper/Dockerfile
+    image: ${REGISTRY:-opea}/whisper:${GITHUB_RUN_NUMBER:-latest}
+  whipser-gaudi:
+    build:
+      dockerfile: comps/asr/whisper/Dockerfile_hpu
+    extends: whisper-xeon
+    image: ${REGISTRY-opea}/whisper-hpu:${GITHUB_RUN_NUMBER:-latest}
+  asr:
+    build:
+      dockerfile: comps/asr/Dockerfile
+    extends: whisper-xeon
+    image: ${REGISTRY:-opea}/asr:${GITHUB_RUN_NUMBER:-latest}

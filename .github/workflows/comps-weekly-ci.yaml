@@ -1,0 +1,47 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Weekly Container Tests
+on:
+  schedule:
+  - cron: "0 0 * * 0"
+  workflow_dispatch: null
+  push:
+    tags: ['**'] # whenever a tag is created/modified
+permissions: read-all
+jobs:
+  get-comps:
+    runs-on: ubuntu-latest
+    outputs:
+      comps: ${{ steps.comp-list.outputs.FOLDERS }}
+    steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
+      with:
+        egress-policy: audit
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - name: Output Comp Directories
+      id: comp-list
+      run: |
+        DOCKER_COMPOSE_PATHS=()
+        for path in $(find comps -name 'docker-compose.yaml'); do
+          DIR_PATH=$(dirname "$path")
+          DOCKER_COMPOSE_PATHS+=("${DIR_PATH}")
+        done
+        # Convert the array to a JSON array
+        DOCKER_COMPOSE_PATHS_JSON=$(printf '%s\n' "${DOCKER_COMPOSE_PATHS[@]}" | uniq | jq -R '.' | jq -sc '.')
+        echo "FOLDERS=$DOCKER_COMPOSE_PATHS_JSON" >> $GITHUB_OUTPUT
+  pipeline-ci:
+    needs: [get-comps]
+    strategy:
+      matrix:
+        comp: ${{ fromJson(needs.get-comps.outputs.comps) }}
+        experimental: [true]
+      fail-fast: false
+    uses: opea/genaiexamples/.github/workflows/container-ci.yaml@main
+    with:
+      example_dir: ${{ matrix.comp }}
+      scan: false
+      test: true
+      publish: false
+    secrets: inherit

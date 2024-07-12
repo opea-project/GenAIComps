@@ -60,26 +60,8 @@ Alternatively, you can also start the ASR microservice with Docker.
 
 ## 2.1 Build Images
 
-### 2.1.1 Whisper Server Image
-
-- Xeon CPU
-
 ```bash
-cd ../..
-docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/Dockerfile .
-```
-
-- Gaudi2 HPU
-
-```bash
-cd ../..
-docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/Dockerfile_hpu .
-```
-
-### 2.1.2 ASR Service Image
-
-```bash
-docker build -t opea/asr:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/Dockerfile .
+docker compose build
 ```
 
 ## 2.2 Start Whisper and ASR Service
@@ -95,7 +77,7 @@ docker run -p 7066:7066 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$htt
 - Gaudi2 HPU
 
 ```bash
-docker run -p 7066:7066 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/whisper:latest
+docker run -p 7066:7066 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/whisper-hpu:latest
 ```
 
 ### 2.2.2 Start ASR service
