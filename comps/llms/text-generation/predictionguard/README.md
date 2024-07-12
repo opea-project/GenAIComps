@@ -12,16 +12,17 @@ cd GenAIComps/
 docker build -t predictionguard-llm -f comps/llms/text-generation/predictionguard/Dockerfile .                          
 ```
 
-# Run the Ollama Microservice
+# Run the Predictionguard Microservice
 
 ```bash
 docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY="<API_KEY>" --name predictionguard-llm-container predictionguard-llm
 ```
 
-# Consume the Ollama Microservice
+# Consume the Predictionguard Microservice
 
+## Without streaming
 ```bash
-curl -X POST http://localhost:9000/v1/completions \
+curl -X POST http://localhost:9000/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
         "model": "Neural-Chat-7B",
@@ -29,6 +30,23 @@ curl -X POST http://localhost:9000/v1/completions \
         "max_new_tokens": 100,
         "temperature": 0.7,
         "top_p": 0.9,
-        "top_k": 50
+        "top_k": 50,
+        "stream": false
     }'
+
+```
+## With streaming
+```
+curl -N -X POST http://localhost:9000/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+        "model": "Neural-Chat-7B",
+        "query": "Tell me a joke.",
+        "max_new_tokens": 100,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 50,
+        "stream": true
+    }'
+
 ```
