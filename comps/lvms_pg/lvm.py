@@ -35,9 +35,6 @@ client = PredictionGuard()
 @register_statistics(names=["opea_service@lvm_pg"])
 async def lvm(request: LVMDoc):
     start = time.time()
-    img_b64_str = request.image
-    prompt = request.prompt
-    max_new_tokens = request.max_new_tokens
 
     # make a request to the Prediction Guard API using the LlaVa model
     messages = [
@@ -46,12 +43,12 @@ async def lvm(request: LVMDoc):
             "content": [
                 {
                     "type": "text",
-                    "text": prompt
+                    "text": request.prompt
                 },
                 {
                     "type": "image_url",
                     "image_url": {
-                        "url": img_b64_str
+                        "url": request.image
                     }
                 }
             ]
@@ -60,7 +57,10 @@ async def lvm(request: LVMDoc):
     result = client.chat.completions.create(
         model="llava-1.5-7b-hf",
         messages=messages,
-        max_tokens=max_new_tokens
+        max_tokens=request.max_new_tokens,
+        top_k=request.top_k
+        top_p=request.top_p,
+        temperature=request.temperature,
     )
 
     statistics_dict["opea_service@lvm_pg"].append_latency(time.time() - start, None)

@@ -128,3 +128,7 @@ class LVMDoc(BaseDoc):
     image: str
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512
+    top_k: int = 10
+    top_p: float = 0.95
+    temperature: float = 0.01
+    streaming: bool = True
