@@ -10,7 +10,6 @@ from langsmith import traceable
 from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 
 from comps import (
-    SearchedDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
