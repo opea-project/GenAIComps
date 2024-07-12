@@ -38,7 +38,7 @@ jobs:
         comp: ${{ fromJson(needs.get-comps.outputs.comps) }}
         experimental: [true]
       fail-fast: false
-    uses: opea/genaiexamples/.github/workflows/container-ci.yaml@main
+    uses: opea-project/genaiexamples/.github/workflows/container-ci.yaml@main
     with:
       example_dir: ${{ matrix.comp }}
       scan: false
