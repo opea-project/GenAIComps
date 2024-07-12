@@ -11,7 +11,7 @@ from comps import GeneratedDoc, ServiceType, opea_microservices, register_micros
 
 # Set up Prediction Guard API key
 PG_API_KEY = os.getenv("PREDICTIONGUARD_API_KEY")
-
+client = PredictionGuard()
 # Define the input data model
 class LLMParamsDoc(BaseModel):
     model: str = "Neural-Chat-7B"
@@ -32,10 +32,7 @@ app = FastAPI()
     port=9000,
 )
 def llm_generate(input: LLMParamsDoc):
-    if not PG_API_KEY:
-        raise HTTPException(status_code=500, detail="PREDICTIONGUARD_API_KEY environment variable is not set")
-
-    client = PredictionGuard()
+    
 
     try:
         response = client.completions.create(
