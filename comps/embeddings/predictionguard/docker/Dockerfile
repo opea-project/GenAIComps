@@ -1,28 +1,31 @@
-# Use a base image with Python installed
-FROM python:3.9
 
-# Create a user and set up the environment
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+FROM langchain/langchain:latest
+
+ARG ARCH="cpu"
+
+RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+    libgl1-mesa-glx \
+    libjemalloc-dev \
+    vim
+
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
 USER user
 
-# Set the working directory
-WORKDIR /home/user
+COPY comps /home/user/comps
 
-# Copy the relevant directories and files into the container
-COPY ../../ /home/user/
-
-# Install dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/embeddings/predictionguard/requirements.txt
+    # if [ ${ARCH} = "cpu" ]; then pip install torch --index-url https://download.pytorch.org/whl/cpu; fi && \
+    pip install --no-cache-dir -r /home/user/comps/embeddings/predictionguard/requirements.txt
 
-# Set environment variable for the API key
-ENV PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY}
+ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-# Expose the port the app runs on
-EXPOSE 6000
+WORKDIR /home/user/comps/embeddings/predictionguard
 
-# Run the service
-CMD ["python", "/home/user/embeddings/predictionguard/pg_embedding.py"]
+ENTRYPOINT ["python", "embedding_pg.py"]
+
