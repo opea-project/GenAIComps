@@ -14,6 +14,7 @@ PG_API_KEY = os.getenv("PREDICTIONGUARD_API_KEY")
 
 # Define the input data model
 class LLMParamsDoc(BaseModel):
+    model: str = "Neural-Chat-7B"
     query: str
     max_new_tokens: int
     temperature: float
@@ -26,25 +27,24 @@ app = FastAPI()
 @register_microservice(
     name="opea_service@llm_predictionguard",
     service_type=ServiceType.LLM,
-    endpoint="/v1/chat/completions",
+    endpoint="/v1/completions",
     host="0.0.0.0",
     port=9000,
 )
 def llm_generate(input: LLMParamsDoc):
     if not PG_API_KEY:
-        raise HTTPException(status_code=500, detail="PREDICTION_GUARD_API_KEY environment variable is not set")
+        raise HTTPException(status_code=500, detail="PREDICTIONGUARD_API_KEY environment variable is not set")
 
     client = PredictionGuard()
 
     try:
         response = client.completions.create(
-            model="Neural-Chat-7B",
+            model=input.model,
             prompt=input.query,
             max_tokens=input.max_new_tokens,
             temperature=input.temperature,
             top_p=input.top_p,
             top_k=input.top_k
-            #stream=input.stream
         )
         response_text = response['choices'][0]['text']
     except Exception as e:
