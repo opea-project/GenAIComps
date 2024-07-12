@@ -1,5 +1,4 @@
 import os
-import json
 import time
 
 from predictionguard import PredictionGuard
@@ -30,7 +29,6 @@ def embedding(input: TextDoc) -> EmbedDoc512:
     res = EmbedDoc512(text=input.text, embedding=embed_vector)
     statistics_dict["opea_service@embedding_predictionguard"].append_latency(time.time() - start, None)
     return res
-
 
 if __name__ == "__main__":
     pg_embedding_model_name = os.getenv("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
