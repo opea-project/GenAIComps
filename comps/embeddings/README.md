@@ -46,17 +46,6 @@ cd comps/embeddings/predictionguard
 python embedding_pg.py
 ```
 
-
-
-Then you need to test your PredictionGuard service using the following commands:
-
-```bash
-curl localhost:6000/v1/embeddings \
-     -X POST \
-     -d '{"text":"Hello, world!"}' \
-     -H 'Content-Type: application/json'
-```
-
 ### Start Embedding Service with TEI
 
 First, you need to start a TEI service.
