@@ -230,7 +230,7 @@ class EmbeddingResponse(BaseModel):
 
 class RetrievalRequest(BaseModel):
     embedding: Union[EmbeddingResponse, List[float]]
-    text: Optional[str] = None # search_type maybe need, like "mmr"
+    text: Optional[str] = None  # search_type maybe need, like "mmr"
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
