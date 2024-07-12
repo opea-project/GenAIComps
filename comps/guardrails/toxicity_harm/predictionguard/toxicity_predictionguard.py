@@ -16,9 +16,9 @@ from comps import (
 @register_microservice(
     name="opea_service@toxicity_predictionguard",
     service_type=ServiceType.GUARDRAIL,
-    endpoint="/v1/guardrails",
+    endpoint="/v1/toxicity",
     host="0.0.0.0",
-    post="9090",
+    port="9090",
     input_datatype=TextDoc,
     output_datatype=TextDoc
 )
