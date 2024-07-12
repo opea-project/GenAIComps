@@ -29,13 +29,6 @@ The `build_docker_vllm` accepts one parameter `hw_mode` to specify the hardware 
 bash ./launch_vllm_service.sh
 ```
 
-The `launch_vllm_service.sh` script accepts four parameters:
-
-- port_number: The port number assigned to the vLLM CPU endpoint, with the default being 8008.
-- model_name: The model name utilized for LLM, with the default set to 'meta-llama/Meta-Llama-3-8B-Instruct'.
-- hw_mode: The hardware mode utilized for LLM, with the default set to "cpu", and the optional selection can be "hpu".
-- parallel_number: parallel nodes number for 'hpu' mode
-
 If you want to customize the port or model_name, can run:
 
 ```bash
@@ -63,6 +56,18 @@ bash ./launch_vllm_service.sh ${port_number} ${model_name} hpu 1
 ```
 
 Set `hw_mode` to `hpu` and `parallel_number` to 1.
+
+The `launch_vllm_service.sh` script accepts 7 parameters:
+
+- port_number: The port number assigned to the vLLM CPU endpoint, with the default being 8008.
+- model_name: The model name utilized for LLM, with the default set to 'meta-llama/Meta-Llama-3-8B-Instruct'.
+- hw_mode: The hardware mode utilized for LLM, with the default set to "cpu", and the optional selection can be "hpu".
+- parallel_number: parallel nodes number for 'hpu' mode
+- block_size: default set to 128 for better performance on HPU
+- max_num_seqs: default set to 256 for better performance on HPU
+- max_seq_len_to_capture: default set to 2048 for better performance on HPU
+
+If you want to get more performance tuning tips, can refer to [Performance tuning](https://github.com/HabanaAI/vllm-fork/blob/habana_main/README_GAUDI.md#performance-tips).
 
 #### Launch vLLM service on multiple nodes
 
