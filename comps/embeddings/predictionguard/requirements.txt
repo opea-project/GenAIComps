@@ -1,7 +1,6 @@
-docarray[full]
+docarray
 fastapi
 predictionguard
-langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

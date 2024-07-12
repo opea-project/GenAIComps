@@ -3,10 +3,7 @@ import json
 import time
 
 from predictionguard import PredictionGuard
-from comps import EmbedDoc512, ServiceType, TextDoc, opea_microservices, register_microservice, traceable, statistics_dict, register_statistics
-
-# Set your Prediction Guard API key as an environmental variable.
-os.environ["PREDICTIONGUARD_API_KEY"] = "<api key>"
+from comps import EmbedDoc512, ServiceType, TextDoc, opea_microservices, register_microservice, statistics_dict, register_statistics
 
 # Initialize Prediction Guard client
 client = PredictionGuard()
@@ -21,7 +18,6 @@ client = PredictionGuard()
     output_datatype=EmbedDoc512,
 )
 
-@traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_predictionguard"])
 def embedding(input: TextDoc) -> EmbedDoc512:
     start = time.time()
