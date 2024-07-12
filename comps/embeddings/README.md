@@ -143,7 +143,7 @@ export TEI_EMBEDDING_ENDPOINT="http://localhost:$yourport"
 export TEI_EMBEDDING_MODEL_NAME="BAAI/bge-large-en-v1.5"
 ```
 
-## 2.2 Start Embedding Service with PredictionGuard Docker Image
+## 2.2 Start Embedding Service with PredictionGuard
 
 First, build the Docker image for the PredictionGuard embedding microservice:
 
@@ -151,7 +151,7 @@ First, build the Docker image for the PredictionGuard embedding microservice:
 docker build -t opea/embedding-pg:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/predictionguard/docker/Dockerfile .
 ```
 
-Start the Docker container for the PredictionGuard embedding microservice.Replace <your_api_key> with your PredictionGuard API key.
+Start the Docker container for the PredictionGuard embedding microservice. Replace <your_api_key> with your PredictionGuard API key.
 
 ```bash
 docker run -d --name="embedding-pg-server" \
@@ -186,7 +186,7 @@ cd ../../
 docker build -t opea/embedding-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/llama_index/docker/Dockerfile .
 ```
 
-### Build PredictionGuard Docker (Option b)
+### Build PredictionGuard Docker (Option c)
 
 ```bash
 docker build -t opea/embedding-pg:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/predictionguard/docker/Dockerfile .
