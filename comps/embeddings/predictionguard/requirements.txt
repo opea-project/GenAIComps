@@ -1,2 +1,9 @@
-flask
+docarray[full]
+fastapi
 predictionguard
+langsmith
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+shortuuid
