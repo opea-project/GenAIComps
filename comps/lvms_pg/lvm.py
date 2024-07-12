@@ -2,15 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import json
-import os
 import time
-
-import requests
+from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
 from comps import (
-    LVMDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -18,6 +14,16 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+
+
+class LVMDoc(BaseDoc):
+    image: str
+    prompt: str
+    max_new_tokens: int = 100
+    top_k: int = 50
+    top_p: float = 0.99
+    temperature: float = 1.0
+    stream: bool = True
 
 
 client = PredictionGuard()
@@ -41,26 +47,19 @@ async def lvm(request: LVMDoc):
         {
             "role": "user",
             "content": [
-                {
-                    "type": "text",
-                    "text": request.prompt
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": request.image
-                    }
-                }
-            ]
+                {"type": "text", "text": request.prompt},
+                {"type": "image_url", "image_url": {"url": request.image}},
+            ],
         },
     ]
     result = client.chat.completions.create(
         model="llava-1.5-7b-hf",
         messages=messages,
         max_tokens=request.max_new_tokens,
-        top_k=request.top_k
+        top_k=request.top_k,
         top_p=request.top_p,
         temperature=request.temperature,
+        stream=request.stream,
     )
 
     statistics_dict["opea_service@lvm_pg"].append_latency(time.time() - start, None)
