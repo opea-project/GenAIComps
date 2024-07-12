@@ -10,7 +10,6 @@ from langsmith import traceable
 from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 
 from comps import (
-    EmbedDoc768,
     SearchedDoc,
     ServiceType,
     TextDoc,
@@ -19,6 +18,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.proto.api_protocol import RetrievalRequest, RetrievalResponse
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
@@ -32,38 +32,45 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 )
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_redis"])
-def retrieve(input: EmbedDoc768) -> SearchedDoc:
+def retrieve(request: RetrievalRequest) -> RetrievalResponse:
     start = time.time()
+
     # check if the Redis index has data
     if vector_db.client.keys() == []:
-        result = SearchedDoc(retrieved_docs=[], initial_query=input.text)
+        response = RetrievalResponse(retrieved_docs=[])
         statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
-        return result
+        return response
+
+    if isinstance(request.embedding, list):
+        embed = request.embedding
+    else:
+        # parse from EmbeddingResponse
+        embed = request.embedding.data[0].embedding
 
     # if the Redis index has data, perform the search
-    if input.search_type == "similarity":
-        search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, k=input.k)
-    elif input.search_type == "similarity_distance_threshold":
-        if input.distance_threshold is None:
+    if request.search_type == "similarity":
+        search_res = vector_db.similarity_search_by_vector(embedding=embed, k=request.k)
+    elif request.search_type == "similarity_distance_threshold":
+        if request.distance_threshold is None:
             raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
         search_res = vector_db.similarity_search_by_vector(
-            embedding=input.embedding, k=input.k, distance_threshold=input.distance_threshold
+            embedding=embed, k=request.k, distance_threshold=request.distance_threshold
         )
-    elif input.search_type == "similarity_score_threshold":
+    elif request.search_type == "similarity_score_threshold":
         docs_and_similarities = vector_db.similarity_search_with_relevance_scores(
-            query=input.text, k=input.k, score_threshold=input.score_threshold
+            query=request.text, k=request.k, score_threshold=request.score_threshold
         )
         search_res = [doc for doc, _ in docs_and_similarities]
-    elif input.search_type == "mmr":
+    elif request.search_type == "mmr":
         search_res = vector_db.max_marginal_relevance_search(
-            query=input.text, k=input.k, fetch_k=input.fetch_k, lambda_mult=input.lambda_mult
+            query=request.text, k=request.k, fetch_k=request.fetch_k, lambda_mult=request.lambda_mult
         )
     searched_docs = []
     for r in search_res:
-        searched_docs.append(TextDoc(text=r.page_content))
-    result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
+        searched_docs.append({"text": r.page_content, "metadata": r.metadata})
+    response = RetrievalResponse(retrieved_docs=searched_docs)
     statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
-    return result
+    return response
 
 
 if __name__ == "__main__":

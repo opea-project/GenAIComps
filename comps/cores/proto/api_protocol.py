@@ -228,6 +228,21 @@ class EmbeddingResponse(BaseModel):
     usage: Optional[UsageInfo] = None
 
 
+class RetrievalRequest(BaseModel):
+    embedding: Union[EmbeddingResponse, List[float]]
+    text: Optional[str] = None # search_type maybe need, like "mmr"
+    search_type: str = "similarity"
+    k: int = 4
+    distance_threshold: Optional[float] = None
+    fetch_k: int = 20
+    lambda_mult: float = 0.5
+    score_threshold: float = 0.2
+
+
+class RetrievalResponse(BaseModel):
+    retrieved_docs: Union[List[Dict]]
+
+
 class CompletionRequest(BaseModel):
     model: str
     prompt: Union[str, List[Any]]
