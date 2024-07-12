@@ -13,7 +13,7 @@ function build_docker_images() {
     docker build \
         -f Dockerfile.rayserve ../../ \
         --network=host \
-        -t ray_serve:habana 
+        -t ray_serve:habana
 
     ## Build OPEA microservice docker
     cd $WORKPATH
@@ -74,7 +74,7 @@ function validate_microservice() {
     docker logs test-comps-ray-service
     docker logs test-comps-ray-microserve
         }
-    
+
 
 function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-ray*")

@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 docker run -d --rm \
     --name="llm-ray-server" \
     -p 9000:9000 \

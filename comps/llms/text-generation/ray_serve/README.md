@@ -3,16 +3,19 @@
 [Ray](https://docs.ray.io/en/latest/serve/index.html) is an LLM serving solution that makes it easy to deploy and manage a variety of open source LLMs, built on [Ray Serve](https://docs.ray.io/en/latest/serve/index.html), has native support for autoscaling and multi-node deployments, which is easy to use for LLM inference serving on Intel Gaudi2 accelerators. The Intel Gaudi2 accelerator supports both training and inference for deep learning models in particular for LLMs. Please visit [Habana AI products](<(https://habana.ai/products)>) for more details.
 
 ## set up environment variables
+
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=<token>
 export RAY_Serve_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL="meta-llama/Llama-2-7b-chat-hf"
 ```
+
 For gated models such as `LLAMA-2`, you will have to pass the environment HUGGINGFACEHUB_API_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
 
 ## Set up Ray Serve Service
 
 ### Build docker
+
 ```bash
 bash build_docker_rayserve.sh
 ```
@@ -24,6 +27,7 @@ bash launch_ray_service.sh
 ```
 
 The `launch_vllm_service.sh` script accepts five parameters:
+
 - port_number: The port number assigned to the Ray Gaudi endpoint, with the default being 8008.
 - model_name: The model name utilized for LLM, with the default set to meta-llama/Llama-2-7b-chat-hf.
 - chat_processor: The chat processor for handling the prompts, with the default set to 'ChatModelNoFormat', and the optional selection can be 'ChatModelLlama', 'ChatModelGptJ" and "ChatModelGemma'.
@@ -55,16 +59,17 @@ Then we warp the Ray Serve service into OPEA microcervice.
 ### Build docker
 
 ```bash
-bash build_docker_microservice.sh 
+bash build_docker_microservice.sh
 ```
 
 ### Launch the microservice
 
 ```bash
-bash launch_microservice.sh  
+bash launch_microservice.sh
 ```
 
 ### Query the microservice
+
 ```bash
 curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \

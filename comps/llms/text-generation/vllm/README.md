@@ -3,14 +3,17 @@
 [vLLM](https://github.com/vllm-project/vllm) is a fast and easy-to-use library for LLM inference and serving, it delivers state-of-the-art serving throughput with a set of advanced features such as PagedAttention, Continuous batching and etc.. Besides GPUs, vLLM already supported [Intel CPUs](https://www.intel.com/content/www/us/en/products/overview.html) and [Gaudi accelerators](https://habana.ai/products). This guide provides an example on how to launch vLLM serving endpoint on CPU and Gaudi accelerators.
 
 ## set up environment variables
+
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=<token>
 export vLLM_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL="meta-llama/Meta-Llama-3-8B-Instruct"
 ```
+
 For gated models such as `LLAMA-2`, you will have to pass the environment HUGGINGFACEHUB_API_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
 
 ## Set up VLLM Ray Service
+
 ### vLLM on CPU
 
 First let's enable VLLM on CPU.
@@ -97,6 +100,7 @@ curl http://${your_ip}:8008/v1/completions \
   "temperature": 0
   }'
 ```
+
 ## Set up OPEA microservice
 
 Then we warp the VLLM service into OPEA microcervice.
@@ -104,13 +108,13 @@ Then we warp the VLLM service into OPEA microcervice.
 ### Build docker
 
 ```bash
-bash build_docker_microservice.sh 
+bash build_docker_microservice.sh
 ```
 
 ### Launch the microservice
 
 ```bash
-bash launch_microservice.sh 
+bash launch_microservice.sh
 ```
 
 ### Query the microservice

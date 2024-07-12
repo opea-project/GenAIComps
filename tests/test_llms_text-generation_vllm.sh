@@ -13,7 +13,7 @@ function build_docker_images() {
     docker build \
         -f docker/Dockerfile.hpu \
         -t vllm:hpu \
-        --shm-size=128g . 
+        --shm-size=128g .
 
     ## Build OPEA microservice docker
     cd $WORKPATH

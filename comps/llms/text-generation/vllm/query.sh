@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 your_ip="0.0.0.0"
 
 curl http://${your_ip}:8008/v1/completions \
