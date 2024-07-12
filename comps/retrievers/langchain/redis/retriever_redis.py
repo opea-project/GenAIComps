@@ -9,8 +9,14 @@ from langchain_community.vectorstores import Redis
 from langsmith import traceable
 from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 
-from comps import ServiceType, TextDoc, opea_microservices, register_microservice, register_statistics, statistics_dict
-from comps.cores.proto.api_protocol import RetrievalRequest, RetrievalResponse
+from comps import (
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
+from comps.cores.proto.api_protocol import RetrievalRequest, RetrievalResponse, RetrievalResponseData
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
@@ -21,6 +27,8 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
     endpoint="/v1/retrieval",
     host="0.0.0.0",
     port=7000,
+    input_datatype=RetrievalRequest,
+    output_datatype=RetrievalResponse,
 )
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_redis"])
@@ -59,7 +67,7 @@ def retrieve(request: RetrievalRequest) -> RetrievalResponse:
         )
     searched_docs = []
     for r in search_res:
-        searched_docs.append({"text": r.page_content, "metadata": r.metadata})
+        searched_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
     response = RetrievalResponse(retrieved_docs=searched_docs)
     statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
     return response
