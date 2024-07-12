@@ -230,7 +230,7 @@ class EmbeddingResponse(BaseModel):
 
 class RetrievalRequest(BaseModel):
     embedding: Union[EmbeddingResponse, List[float]] = None
-    text: Optional[str] = None # search_type maybe need, like "mmr"
+    text: Optional[str] = None  # search_type maybe need, like "mmr"
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
@@ -238,21 +238,26 @@ class RetrievalRequest(BaseModel):
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
 
+
 class RetrievalResponseData(BaseModel):
     text: str
     metadata: Optional[Dict[str, Any]] = None
 
+
 class RetrievalResponse(BaseModel):
     retrieved_docs: List[RetrievalResponseData]
+
 
 class RerankingRequest(BaseModel):
     text: str
     retrieved_docs: Union[List[RetrievalResponseData], List[Dict[str, Any]]]
     top_n: int = 1
 
+
 class RerankingResponseData(BaseModel):
     text: str
     score: Optional[float] = 0.0
+
 
 class RerankingResponse(BaseModel):
     reranked_docs: List[RerankingResponseData]
