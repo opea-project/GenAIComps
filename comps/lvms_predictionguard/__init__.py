@@ -1,2 +1,2 @@
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2024 Prediction Guard, Inc.
+# SPDX-License-Identified: Apache-2.0
