@@ -32,13 +32,13 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../..
-docker build -t opea/lvm-pg:latest -f comps/lvms_pg/Dockerfile .
+docker build -t opea/lvm-predictionguard:latest -f comps/lvms_predictionguard/Dockerfile .
 ```
 
 ## 2.2 Start Service
 
 ```bash
-docker run -d --name="lvm-pg" -p 8091:8091 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/lvm-pg:latest
+docker run -d --name="lvm-predictionguard" -p 8091:8091 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/lvm-predictionguard:latest
 ```
 
 # 🚀3. Consume LVM Service

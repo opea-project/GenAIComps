@@ -30,7 +30,7 @@ client = PredictionGuard()
 
 
 @register_microservice(
-    name="opea_service@lvm_pg",
+    name="opea_service@lvm_predictionguard",
     service_type=ServiceType.LVM,
     endpoint="/v1/lvm",
     host="0.0.0.0",
@@ -38,7 +38,7 @@ client = PredictionGuard()
     input_datatype=LVMDoc,
     output_datatype=TextDoc,
 )
-@register_statistics(names=["opea_service@lvm_pg"])
+@register_statistics(names=["opea_service@lvm_predictionguard"])
 async def lvm(request: LVMDoc):
     start = time.time()
 
@@ -62,10 +62,10 @@ async def lvm(request: LVMDoc):
         stream=request.stream,
     )
 
-    statistics_dict["opea_service@lvm_pg"].append_latency(time.time() - start, None)
+    statistics_dict["opea_service@lvm_predictionguard"].append_latency(time.time() - start, None)
     return TextDoc(text=result["choices"][0]["message"]["content"])
 
 
 if __name__ == "__main__":
     print("Prediction Guard LVM initialized.")
-    opea_microservices["opea_service@lvm_pg"].start()
+    opea_microservices["opea_service@lvm_predictionguard"].start()
