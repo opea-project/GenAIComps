@@ -5,6 +5,9 @@ import os
 
 env_config = []
 
+if not os.environ.get("port") is None:
+    env_config +=["--port", os.environ["port"]]
+    
 if not os.environ.get("AGENT_NAME") is None:
     env_config +=["--agent_name", os.environ["AGENT_NAME"]]
 
@@ -24,15 +27,8 @@ if not os.environ.get("require_human_feedback") is None:
     if os.environ["require_human_feedback"].lower() == "true":
         env_config += ["--require_human_feedback"]
 
-if not os.environ.get("is_coordinator") is None:
-    if os.environ["is_coordinator"].lower() == "true":
-        env_config += ["--is_coordinator"]
-
 if not os.environ.get("role_description") is None:
     env_config += ["--role_description", "'"+os.environ["role_description"]+"'"]
 
 if not os.environ.get("tools") is None:
     env_config += ["--tools", os.environ["tools"]]
-
-if not os.environ.get("level") is None:
-    env_config += ["--level", os.environ["level"]]

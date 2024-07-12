@@ -113,6 +113,7 @@ def has_multi_tool_inputs(tools):
 def get_args():
     parser = argparse.ArgumentParser()
     # llm args
+    parser.add_argument("--port", type=int, default=9090)
     parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
     parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
     parser.add_argument("--model", type=str, default="mistralai/Mistral-7B-Instruct-v0.3")

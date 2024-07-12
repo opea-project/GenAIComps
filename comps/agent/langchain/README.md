@@ -27,10 +27,10 @@ python agent.py
 ```bash
 # used by llm
 export HF_TOKEN=<YOUR HUGGINGFACE HUB TOKEN>
-export HUGGINGFACEHUB_API_TOKEN=${HP_TOKEN}
+export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export local_model_dir=<YOUR LOCAL DISK TO STORE MODEL>
 # used by agent
-export HUGGINGFACEHUB_API_TOKEN=${HP_TOKEN}
+export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export custom_tool_dir=<YOUR CUSTOM TOOL> #./comps/agent/langchain/tools/
 export agent_env=<YOUR CUSTOM AGENT SETTINGS> #./comps/agent/langchain/AGENT_ENV
 

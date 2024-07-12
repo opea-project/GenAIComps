@@ -105,6 +105,8 @@ def load_langchain_tool(tool_setting_tuple):
 def load_yaml_tools(file_dir_path: str):
     tools_setting = yaml.safe_load(open(file_dir_path))
     tools = []
+    if tools_setting is None or len(tools_setting) == 0:
+        return tools
     for t in tools_setting.items():
         tools.append(load_langchain_tool(t))
     return tools

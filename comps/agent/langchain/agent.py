@@ -21,17 +21,17 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 from comps.agent.langchain.src.agent import instantiate_agent
 from comps.agent.langchain.src.utils import format_date, get_args
 
+args, _ = get_args()
 
 @register_microservice(
     name="opea_service@comps-react-agent",
     service_type=ServiceType.LLM,
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
-    port=9090,
+    port=args.port,
 )
 def llm_generate(input: LLMParamsDoc):
     # 1. initialize the agent
-    args, _ = get_args()
     config = {"recursion_limit": args.recursion_limit}
     agent_inst = instantiate_agent(args)
     app = agent_inst.app
