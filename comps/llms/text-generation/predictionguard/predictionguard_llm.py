@@ -86,6 +86,3 @@ def llm_generate(input: LLMParamsDoc):
 
 if __name__ == "__main__":
     opea_microservices["opea_service@llm_predictionguard"].start()
-#docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY="dzyWIYuiKy4pWjJIX1oab9eZk5zd7T7o212GtM0f" --name predictionguard-llm-container predictionguard-llm
-#docker stop $(docker ps -q) && docker rm $(docker ps -a -q)
-# docker build -t predictionguard-llm -f comps/llms/text-generation/predictionguard/Dockerfile .
