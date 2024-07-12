@@ -31,11 +31,31 @@ For both of the implementations, you need to install requirements first.
 pip install -r langchain/requirements.txt
 # run with llama_index
 pip install -r llama_index/requirements.txt
+# run with predictionguard
+pip install -r predictionguard/requirements.txt
 ```
 
 ## 1.2 Start Embedding Service
 
 You can select one of following ways to start the embedding service:
+
+### Start Embedding Service with PredictionGuard
+
+```bash
+cd comps/embeddings/predictionguard
+python embedding_pg.py
+```
+
+
+
+Then you need to test your PredictionGuard service using the following commands:
+
+```bash
+curl localhost:6000/v1/embeddings \
+     -X POST \
+     -d '{"text":"Hello, world!"}' \
+     -H 'Content-Type: application/json'
+```
 
 ### Start Embedding Service with TEI
 
@@ -70,6 +90,24 @@ export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:embeddings"
 python embedding_tei.py
+```
+
+### Start Embedding Service with PredictionGuard Docker Image
+
+First, build the Docker image for the PredictionGuard embedding microservice:
+
+```bash
+docker build -t opea/embedding-pg:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/predictionguard/docker/Dockerfile .
+```
+
+Start the Docker container for the PredictionGuard embedding microservice.Replace <your_api_key> with your PredictionGuard API key.
+
+```bash
+docker run -d --name="embedding-pg-server" \
+    -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
+    -p 6000:6000 --ipc=host \
+    -e PREDICTIONGUARD_API_KEY=<your_api_key> \
+    opea/embedding-pg:latest
 ```
 
 ### Start Embedding Service with Local Model
