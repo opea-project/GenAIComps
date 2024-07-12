@@ -7,7 +7,7 @@ docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_p
 # launch predictionguard embedding endpoint docker container
 
 ```
-docker run -d --name="embedding-pg-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6000:6000 --ipc=host -e PREDICTIONGUARD_API_KEY=3xbU4Q04lkydH7FIFQ9vWQEg0goIvi opea/embedding-pg:latest
+docker run -d --name="embedding-pg-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6000:6000 --ipc=host -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/embedding-pg:latest
 ```
 
 # run client test
