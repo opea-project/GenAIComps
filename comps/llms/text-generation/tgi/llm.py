@@ -1,12 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import os
 import time
 
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
 from langsmith import traceable
+from openai import OpenAI
 
 from comps import (
     GeneratedDoc,
@@ -16,14 +18,11 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.proto.api_protocol import (
-        LLMChatCompletionRequest,
-        ChatCompletionStreamResponse,
-        ChatCompletionResponse,
+    ChatCompletionResponse,
+    ChatCompletionStreamResponse,
+    LLMChatCompletionRequest,
 )
-from openai import OpenAI
-import json
 
 llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 
@@ -47,30 +46,31 @@ async def llm_generate(request: LLMChatCompletionRequest):
     start = time.time()
 
     chat_completion = client.chat.completions.create(
-            model="tgi",
-            messages=request.messages,
-            frequency_penalty=request.frequency_penalty,
-            logit_bias=request.logit_bias,
-            logprobs=request.logprobs,
-            top_logprobs=request.top_logprobs,
-            max_tokens=request.max_tokens,
-            n=request.n,
-            presence_penalty=request.presence_penalty,
-            response_format=request.response_format,
-            seed=request.seed,
-            service_tier=request.service_tier,
-            stop=request.stop,
-            stream=request.stream,
-            stream_options=request.stream_options,
-            temperature=request.temperature,
-            top_p=request.top_p,
-            tools=request.tools,
-            tool_choice=request.tool_choice,
-            parallel_tool_calls=request.parallel_tool_calls,
-            user=request.user,
+        model="tgi",
+        messages=request.messages,
+        frequency_penalty=request.frequency_penalty,
+        logit_bias=request.logit_bias,
+        logprobs=request.logprobs,
+        top_logprobs=request.top_logprobs,
+        max_tokens=request.max_tokens,
+        n=request.n,
+        presence_penalty=request.presence_penalty,
+        response_format=request.response_format,
+        seed=request.seed,
+        service_tier=request.service_tier,
+        stop=request.stop,
+        stream=request.stream,
+        stream_options=request.stream_options,
+        temperature=request.temperature,
+        top_p=request.top_p,
+        tools=request.tools,
+        tool_choice=request.tool_choice,
+        parallel_tool_calls=request.parallel_tool_calls,
+        user=request.user,
     )
 
     if request.stream:
+
         def stream_generator():
             for c in chat_completion:
                 text = c.choices[0].delta.content
@@ -82,6 +82,7 @@ async def llm_generate(request: LLMChatCompletionRequest):
     else:
         response = chat_completion.choices[0].message.content
         return GeneratedDoc(text=response, prompt="")
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@llm_tgi"].start()

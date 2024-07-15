@@ -292,7 +292,7 @@ class LLMChatCompletionRequest(BaseModel):
     stream: Optional[bool] = False
     stream_options: Optional[StreamOptions] = None
     temperature: Optional[float] = 1.0  # vllm default 0.7
-    top_p: Optional[float] = None # because tgi requires `top_p` must be > 0.0 and < 1.0
+    top_p: Optional[float] = None  # because tgi requires `top_p` must be > 0.0 and < 1.0
     tools: Optional[List[ChatCompletionToolsParam]] = None
     tool_choice: Optional[Union[Literal["none"], ChatCompletionNamedToolChoiceParam]] = "none"
     parallel_tool_calls: Optional[bool] = True
@@ -324,6 +324,7 @@ class LLMChatCompletionRequest(BaseModel):
     repetition_penalty: Optional[float] = None
 
     # vllm reference: https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L359
+
 
 class ChatCompletionLogProb(BaseModel):
     token: str
