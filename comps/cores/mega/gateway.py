@@ -18,7 +18,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
-from ..proto.docarray import LLMParams
+from ..proto.docarray import LLMParams, TextDoc, SearchedDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -529,3 +529,134 @@ class VisualQnAGateway(Gateway):
             )
         )
         return ChatCompletionResponse(model="visualqna", choices=choices, usage=usage)
+
+
+class FaqGenGateway(Gateway):
+    def __init__(self, megaservice, host="0.0.0.0", port=8888):
+        super().__init__(
+            megaservice, host, port, str(MegaServiceEndpoint.FAQ_GEN), ChatCompletionRequest, ChatCompletionResponse
+        )
+
+    async def handle_request(self, request: Request):
+        data = await request.json()
+        stream_opt = data.get("stream", True)
+        chat_request = ChatCompletionRequest.parse_obj(data)
+        prompt = self._handle_message(chat_request.messages)
+        parameters = LLMParams(
+            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
+            top_k=chat_request.top_k if chat_request.top_k else 10,
+            top_p=chat_request.top_p if chat_request.top_p else 0.95,
+            temperature=chat_request.temperature if chat_request.temperature else 0.01,
+            repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
+            streaming=stream_opt,
+        )
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"query": prompt}, llm_parameters=parameters
+        )
+        for node, response in result_dict.items():
+            # Here it suppose the last microservice in the megaservice is LLM.
+            if (
+                isinstance(response, StreamingResponse)
+                and node == list(self.megaservice.services.keys())[-1]
+                and self.megaservice.services[node].service_type == ServiceType.LLM
+            ):
+                return response
+        last_node = runtime_graph.all_leaves()[-1]
+        response = result_dict[last_node]["text"]
+        choices = []
+        usage = UsageInfo()
+        choices.append(
+            ChatCompletionResponseChoice(
+                index=0,
+                message=ChatMessage(role="assistant", content=response),
+                finish_reason="stop",
+            )
+        )
+        return ChatCompletionResponse(model="faqgen", choices=choices, usage=usage)
+
+
+class VisualQnAGateway(Gateway):
+    def __init__(self, megaservice, host="0.0.0.0", port=8888):
+        super().__init__(
+            megaservice, host, port, str(MegaServiceEndpoint.VISUAL_QNA), ChatCompletionRequest, ChatCompletionResponse
+        )
+
+    async def handle_request(self, request: Request):
+        data = await request.json()
+        stream_opt = data.get("stream", False)
+        chat_request = ChatCompletionRequest.parse_obj(data)
+        prompt, images = self._handle_message(chat_request.messages)
+        parameters = LLMParams(
+            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
+            top_k=chat_request.top_k if chat_request.top_k else 10,
+            top_p=chat_request.top_p if chat_request.top_p else 0.95,
+            temperature=chat_request.temperature if chat_request.temperature else 0.01,
+            repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
+            streaming=stream_opt,
+        )
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"prompt": prompt, "image": images[0]}, llm_parameters=parameters
+        )
+        for node, response in result_dict.items():
+            # Here it suppose the last microservice in the megaservice is LVM.
+            if (
+                isinstance(response, StreamingResponse)
+                and node == list(self.megaservice.services.keys())[-1]
+                and self.megaservice.services[node].service_type == ServiceType.LVM
+            ):
+                return response
+        last_node = runtime_graph.all_leaves()[-1]
+        response = result_dict[last_node]["text"]
+        choices = []
+        usage = UsageInfo()
+        choices.append(
+            ChatCompletionResponseChoice(
+                index=0,
+                message=ChatMessage(role="assistant", content=response),
+                finish_reason="stop",
+            )
+        )
+        return ChatCompletionResponse(model="visualqna", choices=choices, usage=usage)
+
+
+class RetrievalToolGateway(Gateway):
+    """
+    embed+retriev+rerank
+    """
+    def __init__(self, megaservice, host="0.0.0.0", port=8889):
+        super().__init__(
+            megaservice, 
+            host, 
+            port, 
+            str(MegaServiceEndpoint.RETRIEVALTOOL), 
+            TextDoc, #ChatCompletionRequest, 
+            SearchedDoc #ChatCompletionResponse
+        )
+
+    async def handle_request(self, request: Request):
+        data = await request.json()
+        chat_request = TextDoc.parse_obj(data)
+        # prompt = self._handle_message(chat_request.messages)
+        query = chat_request.text
+
+        # dummy llm params - because orchestrator execute has to have LLMParams
+        parameters = LLMParams(
+            max_new_tokens=1024,
+            top_k=10,
+            top_p=0.95,
+            temperature=0.01,
+            repetition_penalty=1.03,
+            streaming=False,
+        )
+
+        result_dict = await self.megaservice.schedule(initial_inputs={"text": query}, llm_parameters=parameters)
+        for node, response in result_dict.items():
+            # Here it suppose the last microservice in the megaservice is LLM.
+            # if (
+            #     isinstance(response, SearchedDoc)
+            #     and node == list(self.megaservice.services.keys())[-1]
+            #     and self.megaservice.services[node].service_type == ServiceType.RERANK
+            # ):
+            print('Node: {}\nResponse: {}'.format(node, response))
+            if self.megaservice.services[node].service_type == ServiceType.RERANK:
+                return response
