@@ -10,12 +10,26 @@ from langsmith import traceable
 
 from comps import (
     GeneratedDoc,
-    LLMParamsDoc,
     ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
+)
+
+from comps.cores.proto.api_protocol import (
+        LLMChatCompletionRequest,
+        ChatCompletionStreamResponse,
+        ChatCompletionResponse,
+)
+from openai import OpenAI
+import json
+
+llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+
+client = OpenAI(
+    api_key="EMPTY",
+    base_url=llm_endpoint + "/v1",
 )
 
 
@@ -28,51 +42,46 @@ from comps import (
 )
 @traceable(run_type="llm")
 @register_statistics(names=["opea_service@llm_tgi"])
-async def llm_generate(input: LLMParamsDoc):
+async def llm_generate(request: LLMChatCompletionRequest):
     stream_gen_time = []
     start = time.time()
-    if input.streaming:
 
-        async def stream_generator():
-            chat_response = ""
-            text_generation = await llm.text_generation(
-                prompt=input.query,
-                stream=input.streaming,
-                max_new_tokens=input.max_new_tokens,
-                repetition_penalty=input.repetition_penalty,
-                temperature=input.temperature,
-                top_k=input.top_k,
-                top_p=input.top_p,
-            )
-            async for text in text_generation:
-                stream_gen_time.append(time.time() - start)
-                chat_response += text
-                chunk_repr = repr(text.encode("utf-8"))
-                print(f"[llm - chat_stream] chunk:{chunk_repr}")
-                yield f"data: {chunk_repr}\n\n"
-            print(f"[llm - chat_stream] stream response: {chat_response}")
-            statistics_dict["opea_service@llm_tgi"].append_latency(stream_gen_time[-1], stream_gen_time[0])
+    chat_completion = client.chat.completions.create(
+            model="tgi",
+            messages=request.messages,
+            frequency_penalty=request.frequency_penalty,
+            logit_bias=request.logit_bias,
+            logprobs=request.logprobs,
+            top_logprobs=request.top_logprobs,
+            max_tokens=request.max_tokens,
+            n=request.n,
+            presence_penalty=request.presence_penalty,
+            response_format=request.response_format,
+            seed=request.seed,
+            service_tier=request.service_tier,
+            stop=request.stop,
+            stream=request.stream,
+            stream_options=request.stream_options,
+            temperature=request.temperature,
+            top_p=request.top_p,
+            tools=request.tools,
+            tool_choice=request.tool_choice,
+            parallel_tool_calls=request.parallel_tool_calls,
+            user=request.user,
+    )
+
+    if request.stream:
+        def stream_generator():
+            for c in chat_completion:
+                text = c.choices[0].delta.content
+                print(f"[llm - chat_stream] chunk: {text}")
+                yield f"data: {json.dumps(text)}\n\n"
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = await llm.text_generation(
-            prompt=input.query,
-            stream=input.streaming,
-            max_new_tokens=input.max_new_tokens,
-            repetition_penalty=input.repetition_penalty,
-            temperature=input.temperature,
-            top_k=input.top_k,
-            top_p=input.top_p,
-        )
-        statistics_dict["opea_service@llm_tgi"].append_latency(time.time() - start, None)
-        return GeneratedDoc(text=response, prompt=input.query)
-
+        response = chat_completion.choices[0].message.content
+        return GeneratedDoc(text=response, prompt="")
 
 if __name__ == "__main__":
-    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
-    llm = AsyncInferenceClient(
-        model=llm_endpoint,
-        timeout=600,
-    )
     opea_microservices["opea_service@llm_tgi"].start()
