@@ -79,7 +79,7 @@ class ChatCompletionRequest(BaseModel):
     response_format: Optional[ResponseFormat] = None
     seed: Optional[int] = None
     service_tier: Optional[str] = None
-    stop: Optional[Union[str, List[str]], None] = Field(default_factory=list)
+    stop: Union[str, List[str], None] = Field(default_factory=list)
     stream: Optional[bool] = False
     stream_options: Optional[StreamOptions] = None
     temperature: Optional[float] = 1.0  # vllm default 0.7
