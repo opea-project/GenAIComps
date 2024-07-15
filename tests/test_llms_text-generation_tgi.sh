@@ -9,15 +9,15 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/llm-tgi:comps -f comps/llms/text-generation/tgi/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/llm-tgi:comps -f comps/llms/text-generation/tgi/Dockerfile .
 }
 
 function start_service() {
     tgi_endpoint_port=5004
-    export your_hf_llm_model="Intel/neural-chat-7b-v3-3"
+    export your_hf_llm_model=$1
     # Remember to set HF_TOKEN before invoking this test!
     export HF_TOKEN=${HF_TOKEN}
-    docker run -d --name="test-comps-llm-tgi-endpoint" -p $tgi_endpoint_port:80 -v ./data:/data --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${your_hf_llm_model}
+    docker run -d --name="test-comps-llm-tgi-endpoint" -p $tgi_endpoint_port:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${your_hf_llm_model} --max-input-tokens 1024 --max-total-tokens 2048
     export TGI_LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
 
     tei_service_port=5005
@@ -41,7 +41,7 @@ function validate_microservice() {
     tei_service_port=5005
     http_proxy="" curl http://${ip_address}:${tei_service_port}/v1/chat/completions \
         -X POST \
-        -d '{"query":"What is Deep Learning?"}' \
+        -d '{"query":"What is Deep Learning?", "max_new_tokens": 128}' \
         -H 'Content-Type: application/json'
     docker logs test-comps-llm-tgi-endpoint
     docker logs test-comps-llm-tgi-server
@@ -55,13 +55,20 @@ function stop_docker() {
 function main() {
 
     stop_docker
-
     build_docker_images
-    start_service
 
-    validate_microservice
+    llm_models=(
+    Intel/neural-chat-7b-v3-3
+    meta-llama/Llama-2-7b-chat-hf
+    meta-llama/Meta-Llama-3-8B-Instruct
+    microsoft/Phi-3-mini-4k-instruct
+    )
+    for model in "${llm_models[@]}"; do
+      start_service "${model}"
+      validate_microservice
+      stop_docker
+    done
 
-    stop_docker
     echo y | docker system prune
 
 }

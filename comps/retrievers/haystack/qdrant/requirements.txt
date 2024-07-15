@@ -1,11 +1,13 @@
-aiohttp
 docarray[full]
+easyocr
 fastapi
-httpx
+haystack-ai
+langchain_community
 langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-prometheus-fastapi-instrumentator
+pymupdf
+qdrant-haystack
 sentence_transformers
 shortuuid
