@@ -4,10 +4,10 @@ fastapi
 httpx
 huggingface_hub
 langsmith
+openai==1.35.13
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
 shortuuid
 transformers
-openai==1.35.13
