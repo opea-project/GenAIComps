@@ -16,7 +16,7 @@ from pathlib import Path
 
 import numpy as np
 from lm_eval import utils
-from lm_eval.logging_utils import WandbLogger
+from lm_eval.loggers import WandbLogger
 from lm_eval.tasks import TaskManager
 from lm_eval.utils import make_table, simple_parse_args_string
 
