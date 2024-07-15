@@ -21,7 +21,7 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 def llm_generate(input: LLMParamsDoc):
     ollama = Ollama(
         base_url=ollama_endpoint,
-        model=ollama_model,
+        model="llama3",
         num_predict=input.max_new_tokens,
         top_k=input.top_k,
         top_p=input.top_p,
@@ -49,5 +49,4 @@ def llm_generate(input: LLMParamsDoc):
 
 if __name__ == "__main__":
     ollama_endpoint = os.getenv("OLLAMA_ENDPOINT", "http://localhost:11434")
-    ollama_model = os.getenv("OLLAMA_MODEL", "llama3")
     opea_microservices["opea_service@llm_ollama"].start()
