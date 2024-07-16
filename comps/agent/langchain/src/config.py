@@ -20,12 +20,19 @@ if not os.environ.get("llm_endpoint_url") is None:
 if not os.environ.get("llm_engine") is None:
     env_config += ["--llm_engine", os.environ["llm_engine"]]
 
-if not os.environ.get("recursive_limit") is None:
-    env_config += ["--recursive_limit", os.environ["recursive_limit"]]
+if not os.environ.get("model") is None:
+    env_config += ["--model", os.environ["model"]]
+
+if not os.environ.get("recursion_limit") is None:
+    env_config += ["--recursion_limit", os.environ["recursion_limit"]]
 
 if not os.environ.get("require_human_feedback") is None:
     if os.environ["require_human_feedback"].lower() == "true":
         env_config += ["--require_human_feedback"]
+        
+if not os.environ.get("debug") is None:
+    if os.environ["debug"].lower() == "true":
+        env_config += ["--debug"]
 
 if not os.environ.get("role_description") is None:
     env_config += ["--role_description", "'"+os.environ["role_description"]+"'"]

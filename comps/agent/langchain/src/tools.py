@@ -113,6 +113,7 @@ def load_yaml_tools(file_dir_path: str):
 
 
 def load_python_tools(file_dir_path: str):
+    print(file_dir_path)
     spec = importlib.util.spec_from_file_location("custom_tools", file_dir_path)
     module = importlib.util.module_from_spec(spec)
     # sys.modules["custom_tools"] = module

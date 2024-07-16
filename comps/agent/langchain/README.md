@@ -22,53 +22,29 @@ python agent.py
 
 # 🚀2. Start Microservice with Docker (Option 2)
 
-## 2.1 Prepare env
-
+## Build Microservices
 ```bash
-# used by llm
-export HF_TOKEN=<YOUR HUGGINGFACE HUB TOKEN>
-export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
-export local_model_dir=<YOUR LOCAL DISK TO STORE MODEL>
-# used by agent
-export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
-export custom_tool_dir=<YOUR CUSTOM TOOL> #./comps/agent/langchain/tools/
-export agent_env=<YOUR CUSTOM AGENT SETTINGS> #./comps/agent/langchain/AGENT_ENV
-
-# if you are testing local, use below cmd to add AGENT env
-# set -o allexport; source ${agent_env}; set +o allexport
+cd GenAIComps/ # back to GenAIComps/ folder
+docker build -t opea/comps-agent-langchain:latest -f comps/agent/langchain/docker/Dockerfile .
 ```
 
-## Use mistral as llm endpoint
-
+## start microservices
 ```bash
-model=mistralai/Mistral-7B-Instruct-v0.3
+export model=meta-llama/Meta-Llama-3-8B-Instruct
+export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
 
-#single card
-docker run --rm -p 8080:80 -v ${local_model_dir}:/data --runtime=habana --name "tgi-gaudi-mistral" -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:2.0.0 --model-id $model --max-input-tokens 1024 --max-total-tokens 2048
-```
+# TGI serving
+docker run -d --runtime=habana --name "comps-tgi-gaudi-service" -p 8080:80 -v ./data:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:latest --model-id $model
 
-## Use LLAMA-3-70B as llm endpoint
+# check status
+docker logs comps-tgi-gaudi-service
 
-```bash
-export model=meta-llama/Meta-Llama-3-70B-Instruct
-export port_number=8008
-export parallel_number=8
+# Agent
+docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=react -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursive_limit=5 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:latest
 
-#multi cards
-docker run -it --runtime=habana --rm --name="vllm-service" -v ${local_model_dir}:/root/.cache/huggingface/hub -p $port_number:80 -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} vllm:hpu /bin/bash -c "export VLLM_CPU_KVCACHE_SPACE=40 && python3 -m vllm.entrypoints.openai.api_server --enforce-eager --model $model  --tensor-parallel-size $parallel_number --host 0.0.0.0 --port 80"
-```
-
-## 2.2 Build Docker Image
-
-```bash
-cd ../../../ # back to GenAIComps/ folder
-docker build -t opea/comps-agent-langchain:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/agent/langchain/docker/Dockerfile .
-```
-
-## 2.3 Run Docker with CLI
-
-```bash
-docker run -d --rm --runtime=runc --name="comps-langchain-agent-endpoint" -v ${custom_tool_dir}:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} --env-file ${agent_env} opea/comps-agent-langchain:latest
+# check status
+docker logs comps-langchain-agent-endpoint
 ```
 
 > debug mode
