@@ -10,7 +10,7 @@ from langchain_community.vectorstores import Qdrant
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import DocPath, opea_microservices, opea_telemetry, register_microservice
-from comps.dataprep.utils import document_loader, get_tables_result, get_separators
+from comps.dataprep.utils import document_loader, get_separators, get_tables_result
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 

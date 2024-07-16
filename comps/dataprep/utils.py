@@ -87,8 +87,9 @@ class Timer:
         else:
             print(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
 
+
 def get_separators():
-    separators=[
+    separators = [
         "\n\n",
         "\n",
         " ",

@@ -48,11 +48,11 @@ from comps.dataprep.utils import (
     document_loader,
     encode_filename,
     get_file_structure,
+    get_separators,
     parse_html,
     remove_folder_with_ignore,
     save_content_to_local_disk,
     timeout,
-    get_separators,
 )
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")

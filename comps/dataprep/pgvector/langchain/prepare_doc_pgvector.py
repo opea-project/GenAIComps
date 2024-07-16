@@ -15,7 +15,7 @@ from langchain_community.vectorstores import PGVector
 from langsmith import traceable
 
 from comps import DocPath, ServiceType, opea_microservices, register_microservice, register_statistics
-from comps.dataprep.utils import document_loader, parse_html, get_separators
+from comps.dataprep.utils import document_loader, get_separators, parse_html
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 
