@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+
 from .config import env_config
 
 
@@ -122,15 +123,13 @@ def get_args():
     parser.add_argument("--llm_engine", type=str, default="tgi")
     parser.add_argument("--max_new_tokens", type=int, default=1024)
     parser.add_argument("--recursion_limit", type=int, default=5)
-    parser.add_argument("--level", type=int, default=1)
     parser.add_argument("--debug", action="store_true", help="Test with endpoint mode")
-    parser.add_argument("--is_coordinator", action="store_true", help="if this agent is a coordinator")
     parser.add_argument("--require_human_feedback", action="store_true", help="If this agent requires human feedback")
     parser.add_argument("--llm_endpoint_url", type=str, default="http://localhost:8080")
 
     sys_args, unknown_args = parser.parse_known_args()
-    #print("env_config: ", env_config)
-    if env_config is not "":
+    # print("env_config: ", env_config)
+    if env_config != "":
         env_args, env_unknown_args = parser.parse_known_args(env_config)
         unknown_args += env_unknown_args
         for key, value in vars(env_args).items():

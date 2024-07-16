@@ -1,6 +1,5 @@
 # used by microservice
 docarray[full]
-prometheus_fastapi_instrumentator
 
 #used by tools
 duckduckgo-search
@@ -20,6 +19,7 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
+prometheus_fastapi_instrumentator
 pyarrow
 pydantic #==1.10.13
 shortuuid
