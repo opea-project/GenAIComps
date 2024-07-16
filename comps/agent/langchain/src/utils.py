@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+
 from .config import env_config
 
 
@@ -127,8 +128,8 @@ def get_args():
     parser.add_argument("--llm_endpoint_url", type=str, default="http://localhost:8080")
 
     sys_args, unknown_args = parser.parse_known_args()
-    #print("env_config: ", env_config)
-    if env_config is not "":
+    # print("env_config: ", env_config)
+    if env_config != "":
         env_args, env_unknown_args = parser.parse_known_args(env_config)
         unknown_args += env_unknown_args
         for key, value in vars(env_args).items():

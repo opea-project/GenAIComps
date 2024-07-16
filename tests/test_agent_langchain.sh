@@ -12,7 +12,7 @@ function build_docker_images() {
     cd $WORKPATH
     echo $WORKPATH
     docker build -t opea/comps-agent-langchain:latest -f comps/agent/langchain/docker/Dockerfile .
-    
+
 }
 
 function start_service() {

@@ -34,18 +34,19 @@ def generate_request_function(url):
     return process_request
 
 
-def load_func_str(func_str, env = None, pip_dependencies = None):
+def load_func_str(func_str, env=None, pip_dependencies=None):
     if env is not None:
-        env_list = [i.split('=') for i in env.split(",")]
+        env_list = [i.split("=") for i in env.split(",")]
         for k, v in env_list:
             print(f"set env for {func_str}: {k} = {v}")
             os.environ[k] = v
-            
+
     if pip_dependencies is not None:
         import pip
+
         pip_list = pip_dependencies.split(",")
         for package in pip_list:
-            pip.main(['install', '-q', package])
+            pip.main(["install", "-q", package])
     # case 1: func is an endpoint api
     if func_str.startswith("http://") or func_str.startswith("https://"):
         return generate_request_function(func_str)
@@ -84,14 +85,16 @@ def load_func_args(tool_name, args_dict):
 def load_langchain_tool(tool_setting_tuple):
     tool_name = tool_setting_tuple[0]
     tool_setting = tool_setting_tuple[1]
-    env = tool_setting['env'] if 'env' in tool_setting else None
-    pip_dependencies = tool_setting['pip_dependencies'] if 'pip_dependencies' in tool_setting else None
+    env = tool_setting["env"] if "env" in tool_setting else None
+    pip_dependencies = tool_setting["pip_dependencies"] if "pip_dependencies" in tool_setting else None
     func_definition = load_func_str(tool_setting["callable_api"], env, pip_dependencies)
-    if 'args_schema' not in tool_setting or 'description' not in tool_setting:
+    if "args_schema" not in tool_setting or "description" not in tool_setting:
         if isinstance(func_definition, BaseTool):
             return func_definition
         else:
-            raise ValueError(f"Tool {tool_name} is missing 'args_schema' or 'description' in the tool setting. Tool is {func_definition}")
+            raise ValueError(
+                f"Tool {tool_name} is missing 'args_schema' or 'description' in the tool setting. Tool is {func_definition}"
+            )
     else:
         func_inputs = load_func_args(tool_name, tool_setting["args_schema"])
         return StructuredTool(

@@ -23,12 +23,14 @@ python agent.py
 # 🚀2. Start Microservice with Docker (Option 2)
 
 ## Build Microservices
+
 ```bash
 cd GenAIComps/ # back to GenAIComps/ folder
 docker build -t opea/comps-agent-langchain:latest -f comps/agent/langchain/docker/Dockerfile .
 ```
 
 ## start microservices
+
 ```bash
 export model=meta-llama/Meta-Llama-3-8B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
