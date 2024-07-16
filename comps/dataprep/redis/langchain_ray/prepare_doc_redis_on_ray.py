@@ -52,6 +52,7 @@ from comps.dataprep.utils import (
     remove_folder_with_ignore,
     save_content_to_local_disk,
     timeout,
+    get_separators,
 )
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
@@ -170,7 +171,9 @@ def data_to_redis_ray(data):
 
 
 def data_to_redis(data):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1500, chunk_overlap=100, add_start_index=True, separators=get_separators(), is_separator_regex=False
+    )
     chunks = text_splitter.split_text(data)
 
     # Create vectorstore

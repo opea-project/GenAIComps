@@ -87,6 +87,22 @@ class Timer:
         else:
             print(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
 
+def get_separators():
+    separators=[
+        "\n\n",
+        "\n",
+        " ",
+        ".",
+        ",",
+        "\u200b",  # Zero-width space
+        "\uff0c",  # Fullwidth comma
+        "\u3001",  # Ideographic comma
+        "\uff0e",  # Fullwidth full stop
+        "\u3002",  # Ideographic full stop
+        "",
+    ]
+    return separators
+
 
 def load_pdf(pdf_path):
     """Load the pdf file."""

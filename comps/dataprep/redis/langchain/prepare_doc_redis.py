@@ -27,6 +27,7 @@ from comps.dataprep.utils import (
     parse_html,
     remove_folder_with_ignore,
     save_content_to_local_disk,
+    get_separators,
 )
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
@@ -47,7 +48,7 @@ def ingest_data_to_redis(doc_path: DocPath):
         text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     else:
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True
+            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True, separators=get_separators()
         )
 
     content = document_loader(path)
