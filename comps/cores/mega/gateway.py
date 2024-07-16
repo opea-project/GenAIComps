@@ -12,7 +12,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
-from ..proto.docarray import LLMParams, TextDoc, SearchedDoc
+from ..proto.docarray import LLMParams, SearchedDoc, TextDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -395,17 +395,16 @@ class SearchQnAGateway(Gateway):
 
 
 class RetrievalToolGateway(Gateway):
-    """
-    embed+retriev+rerank
-    """
+    """embed+retrieve+rerank."""
+
     def __init__(self, megaservice, host="0.0.0.0", port=8889):
         super().__init__(
-            megaservice, 
-            host, 
-            port, 
-            str(MegaServiceEndpoint.RETRIEVALTOOL), 
-            TextDoc, #ChatCompletionRequest, 
-            SearchedDoc #ChatCompletionResponse
+            megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.RETRIEVALTOOL),
+            TextDoc,  # ChatCompletionRequest,
+            SearchedDoc,  # ChatCompletionResponse
         )
 
     async def handle_request(self, request: Request):
@@ -432,6 +431,6 @@ class RetrievalToolGateway(Gateway):
             #     and node == list(self.megaservice.services.keys())[-1]
             #     and self.megaservice.services[node].service_type == ServiceType.RERANK
             # ):
-            print('Node: {}\nResponse: {}'.format(node, response))
+            print("Node: {}\nResponse: {}".format(node, response))
             if self.megaservice.services[node].service_type == ServiceType.RERANK:
                 return response
