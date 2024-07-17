@@ -23,7 +23,7 @@ class BaseAgent:
         self.llm_endpoint = setup_llm(args)
         self.tools_descriptions = get_tools_descriptions(args.tools)
         self.app = None
-        # print(self.tools_descriptions)
+        print(self.tools_descriptions)
 
     def compile(self):
         pass

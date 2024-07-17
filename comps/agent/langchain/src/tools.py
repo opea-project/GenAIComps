@@ -34,7 +34,7 @@ def generate_request_function(url):
     return process_request
 
 
-def load_func_str(func_str, env=None, pip_dependencies=None):
+def load_func_str(tools_dir, func_str, env=None, pip_dependencies=None):
     if env is not None:
         env_list = [i.split("=") for i in env.split(",")]
         for k, v in env_list:
@@ -54,6 +54,7 @@ def load_func_str(func_str, env=None, pip_dependencies=None):
     # case 2: func is a python file + function
     elif ".py:" in func_str:
         file_path, func_name = func_str.rsplit(":", 1)
+        file_path = os.path.join(tools_dir, file_path)
         file_name = os.path.basename(file_path).split(".")[0]
         spec = importlib.util.spec_from_file_location(file_name, file_path)
         module = importlib.util.module_from_spec(spec)
@@ -82,12 +83,12 @@ def load_func_args(tool_name, args_dict):
     return create_model(f"{tool_name}Input", **fields, __base__=BaseModel)
 
 
-def load_langchain_tool(tool_setting_tuple):
+def load_langchain_tool(tools_dir, tool_setting_tuple):
     tool_name = tool_setting_tuple[0]
     tool_setting = tool_setting_tuple[1]
     env = tool_setting["env"] if "env" in tool_setting else None
     pip_dependencies = tool_setting["pip_dependencies"] if "pip_dependencies" in tool_setting else None
-    func_definition = load_func_str(tool_setting["callable_api"], env, pip_dependencies)
+    func_definition = load_func_str(tools_dir, tool_setting["callable_api"], env, pip_dependencies)
     if "args_schema" not in tool_setting or "description" not in tool_setting:
         if isinstance(func_definition, BaseTool):
             return func_definition
@@ -107,11 +108,12 @@ def load_langchain_tool(tool_setting_tuple):
 
 def load_yaml_tools(file_dir_path: str):
     tools_setting = yaml.safe_load(open(file_dir_path))
+    tools_dir = os.path.dirname(file_dir_path)
     tools = []
     if tools_setting is None or len(tools_setting) == 0:
         return tools
     for t in tools_setting.items():
-        tools.append(load_langchain_tool(t))
+        tools.append(load_langchain_tool(tools_dir, t))
     return tools
 
 
