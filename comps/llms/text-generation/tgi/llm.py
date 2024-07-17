@@ -21,7 +21,7 @@ from comps import (
 from comps.cores.proto.api_protocol import (
     ChatCompletionResponse,
     ChatCompletionStreamResponse,
-    LLMChatCompletionRequest,
+    ChatCompletionRequest,
 )
 
 llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
@@ -41,7 +41,7 @@ client = OpenAI(
 )
 @traceable(run_type="llm")
 @register_statistics(names=["opea_service@llm_tgi"])
-async def llm_generate(request: LLMChatCompletionRequest):
+async def llm_generate(request: ChatCompletionRequest):
     stream_gen_time = []
     start = time.time()
 
