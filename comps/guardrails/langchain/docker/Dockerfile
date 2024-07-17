@@ -28,4 +28,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/guardrails/langchain
 
-ENTRYPOINT ["bash", "entrypoint.sh"]
+ENTRYPOINT ["python", "guardrails_tgi_gaudi.py"]
