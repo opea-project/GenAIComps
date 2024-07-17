@@ -62,7 +62,7 @@ async def llm_generate(request: ChatCompletionRequest):
 
         def stream_generator():
             for c in chat_completion:
-                yield f"data: {c.json()}\n\n"
+                yield f"data: {c.model_dump_json()}\n\n"
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
