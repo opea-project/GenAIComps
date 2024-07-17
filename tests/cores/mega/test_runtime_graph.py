@@ -39,6 +39,7 @@ async def add_s3(request: TextDoc) -> TextDoc:
     text += "add s3!"
     return TextDoc(text=text)
 
+
 @register_microservice(name="s4", host="0.0.0.0", port=8083, endpoint="/v1/add")
 async def add_s4(request: TextDoc) -> TextDoc:
     text = request.text
