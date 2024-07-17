@@ -69,7 +69,6 @@ class ServiceOrchestrator(DAG):
                                     if re.findall(black_node, downstream):
                                         print(f"skip forwardding to {downstream}...")
                                         runtime_graph.delete_edge(node, downstream)
-                                        runtime_graph.delete_node_if_exists(downstream)
                                         downstreams.remove(downstream)
                                 except re.error as e:
                                     print("Pattern invalid! Operation cancelled.")
