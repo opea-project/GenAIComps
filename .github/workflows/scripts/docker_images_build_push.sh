@@ -34,7 +34,7 @@ function docker_build() {
 }
 
 micro_service=$1
-hardware=$(cat $2 | cut -d- -f3)
+hardware=$(echo $2 | cut -d- -f3)
 case ${micro_service} in
     "asr"|"tts")
         IMAGE_NAME="opea/${micro_service}"
