@@ -50,6 +50,7 @@ class ServiceOrchestrator(DAG):
                 asyncio.create_task(self.execute(session, node, initial_inputs, runtime_graph))
                 for node in self.ind_nodes()
             }
+            ind_nodes = self.ind_nodes()
 
             while pending:
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
@@ -81,6 +82,17 @@ class ServiceOrchestrator(DAG):
                                     self.execute(session, d_node, inputs, runtime_graph, llm_parameters)
                                 )
                             )
+        nodes_to_keep = []
+        for i in ind_nodes:
+            nodes_to_keep.append(i)
+            nodes_to_keep.extend(runtime_graph.all_downstreams(i))
+
+        all_nodes = list(runtime_graph.graph.keys())
+
+        for node in all_nodes:
+            if node not in nodes_to_keep:
+                runtime_graph.delete_node_if_exists(node)
+
         return result_dict, runtime_graph
 
     def process_outputs(self, prev_nodes: List, result_dict: Dict) -> Dict:
