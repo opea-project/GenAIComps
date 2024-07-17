@@ -18,8 +18,8 @@ function build_docker_images() {
 function start_service() {
     # redis endpoint
     export model=meta-llama/Meta-Llama-3-8B-Instruct
-    export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
-    export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+    echo "token is ${HF_TOKEN}"
 
     #single card
     echo "start tgi gaudi service"
