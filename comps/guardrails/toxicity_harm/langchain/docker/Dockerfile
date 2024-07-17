@@ -20,11 +20,11 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/guardrails/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/guardrails/toxicity_harm/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/guardrails/langchain
+WORKDIR /home/user/comps/guardrails/toxicity_harm/langchain
 
 ENTRYPOINT ["python", "guardrails_tgi_gaudi.py"]
 
