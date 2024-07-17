@@ -18,7 +18,7 @@ from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, 
     host="0.0.0.0",
     port=6000,
     input_datatype=EmbeddingRequest,
-    output_datatype=EmbedDoc768,
+    output_datatype=EmbeddingResponse,
 )
 @traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_tei_langchain"])
