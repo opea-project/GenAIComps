@@ -97,15 +97,16 @@ class ChatCompletionRequest(BaseModel):
     echo: Optional[bool] = Field(
         default=False,
         description=(
-            "If true, the new message will be prepended with the last message "
-            "if they belong to the same role."),
+            "If true, the new message will be prepended with the last message " "if they belong to the same role."
+        ),
     )
     add_generation_prompt: Optional[bool] = Field(
         default=True,
-        description=
-        ("If true, the generation prompt will be added to the chat template. "
-         "This is a parameter used by chat template in tokenizer config of the "
-         "model."),
+        description=(
+            "If true, the generation prompt will be added to the chat template. "
+            "This is a parameter used by chat template in tokenizer config of the "
+            "model."
+        ),
     )
     add_special_tokens: Optional[bool] = Field(
         default=False,
@@ -114,28 +115,30 @@ class ChatCompletionRequest(BaseModel):
             "on top of what is added by the chat template. "
             "For most models, the chat template takes care of adding the "
             "special tokens so this should be set to False (as is the "
-            "default)."),
+            "default)."
+        ),
     )
     documents: Optional[List[Dict[str, str]]] = Field(
         default=None,
-        description=
-        ("A list of dicts representing documents that will be accessible to "
-         "the model if it is performing RAG (retrieval-augmented generation)."
-         " If the template does not support RAG, this argument will have no "
-         "effect. We recommend that each document should be a dict containing "
-         "\"title\" and \"text\" keys."),
+        description=(
+            "A list of dicts representing documents that will be accessible to "
+            "the model if it is performing RAG (retrieval-augmented generation)."
+            " If the template does not support RAG, this argument will have no "
+            "effect. We recommend that each document should be a dict containing "
+            '"title" and "text" keys.'
+        ),
     )
     chat_template: Optional[str] = Field(
         default=None,
         description=(
             "A Jinja template to use for this conversion. "
             "If this is not passed, the model's default chat template will be "
-            "used instead."),
+            "used instead."
+        ),
     )
     chat_template_kwargs: Optional[Dict[str, Any]] = Field(
         default=None,
-        description=("Additional kwargs to pass to the template renderer. "
-                     "Will be accessible by the chat template."),
+        description=("Additional kwargs to pass to the template renderer. " "Will be accessible by the chat template."),
     )
     # doc: end-chat-completion-extra-params
 
