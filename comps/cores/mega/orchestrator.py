@@ -73,7 +73,11 @@ class ServiceOrchestrator(DAG):
                     for d_node in downstreams:
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
-                            pending.add(asyncio.create_task(self.execute(session, d_node, inputs, runtime_graph, llm_parameters)))
+                            pending.add(
+                                asyncio.create_task(
+                                    self.execute(session, d_node, inputs, runtime_graph, llm_parameters)
+                                )
+                            )
         return result_dict, runtime_graph
 
     def process_outputs(self, prev_nodes: List, result_dict: Dict) -> Dict:
