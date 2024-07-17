@@ -23,21 +23,21 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
 if [ ${ARCH} = "cpu" ]; then \
-      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/guardrails/pii_detection/requirements.txt; \
+      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/guardrails/pii_detection/custom/requirements.txt; \
     else \
-      pip install --no-cache-dir -r /home/user/comps/guardrails/pii_detection/requirements.txt; \
+      pip install --no-cache-dir -r /home/user/comps/guardrails/pii_detection/custom/requirements.txt; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER root
 
-RUN mkdir -p /home/user/comps/guardrails/pii_detection/uploaded_files && chown -R user /home/user/comps/guardrails/pii_detection/uploaded_files
-RUN mkdir -p /home/user/comps/guardrails/pii_detection/status && chown -R user /home/user/comps/guardrails/pii_detection/status
+RUN mkdir -p /home/user/comps/guardrails/pii_detection/custom/uploaded_files && chown -R user /home/user/comps/guardrails/pii_detection/custom/uploaded_files
+RUN mkdir -p /home/user/comps/guardrails/pii_detection/custom/status && chown -R user /home/user/comps/guardrails/pii_detection/custom/status
 
 USER user
 
-WORKDIR /home/user/comps/guardrails/pii_detection
+WORKDIR /home/user/comps/guardrails/pii_detection/custom
 
 ENTRYPOINT ["python", "pii_detection.py"]
 
