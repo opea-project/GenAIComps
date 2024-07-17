@@ -18,11 +18,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.proto.api_protocol import (
-    ChatCompletionResponse,
-    ChatCompletionStreamResponse,
-    ChatCompletionRequest,
-)
+from comps.cores.proto.api_protocol import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionStreamResponse
 
 llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 
