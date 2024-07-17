@@ -2,15 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+
 from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
-from langchain.prompts import PromptTemplate
 from langchain.docstore.document import Document
+from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.llms import HuggingFaceEndpoint
 from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+
 
 @traceable(run_type="tool")
 def post_process_text(text: str):

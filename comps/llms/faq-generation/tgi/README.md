@@ -1,8 +1,8 @@
 # TGI FAQGen LLM Microservice
 
-This microservice interacts with the TGI LLM server to generate FAQs from Input Text.[Text Generation Inference](https://github.com/huggingface/text-generation-inference) (TGI) is a toolkit for deploying and serving Large Language Models (LLMs). TGI enables high-performance text generation for the most popular open-source LLMs, including Llama, Falcon, StarCoder, BLOOM, GPT-NeoX, and more. 
+This microservice interacts with the TGI LLM server to generate FAQs from Input Text.[Text Generation Inference](https://github.com/huggingface/text-generation-inference) (TGI) is a toolkit for deploying and serving Large Language Models (LLMs). TGI enables high-performance text generation for the most popular open-source LLMs, including Llama, Falcon, StarCoder, BLOOM, GPT-NeoX, and more.
 
-# 🚀1. Start Microservice with Docker 
+# 🚀1. Start Microservice with Docker
 
 If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start a TGI service with docker.
 
@@ -33,7 +33,6 @@ To start a docker container, you have two options:
 You can choose one as needed.
 
 ## 1.3 Run Docker with CLI (Option A)
-
 
 ```bash
 docker run -d -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${LLM_MODEL_ID}

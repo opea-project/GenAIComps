@@ -393,6 +393,7 @@ class SearchQnAGateway(Gateway):
         )
         return ChatCompletionResponse(model="searchqna", choices=choices, usage=usage)
 
+
 class FaqGenGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(
