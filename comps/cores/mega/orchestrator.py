@@ -44,8 +44,9 @@ class ServiceOrchestrator(DAG):
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)
 
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            pending = {asyncio.create_task(self.execute(session, node, initial_inputs, runtime_graph)) for node in runtime_graph.ind_nodes()}
+        timeout = aiohttp.ClientTimeout(total=1000)
+        async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
+            pending = {asyncio.create_task(self.execute(session, node, initial_inputs)) for node in self.ind_nodes()}
 
             while pending:
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
