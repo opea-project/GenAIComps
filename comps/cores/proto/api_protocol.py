@@ -175,45 +175,6 @@ class AudioChatCompletionRequest(BaseModel):
     user: Optional[str] = None
 
 
-class ChatMessage(BaseModel):
-    role: str
-    content: str
-
-
-class ChatCompletionResponseChoice(BaseModel):
-    index: int
-    message: ChatMessage
-    finish_reason: Optional[Literal["stop", "length"]] = None
-
-
-class ChatCompletionResponse(BaseModel):
-    id: str = Field(default_factory=lambda: f"chatcmpl-{shortuuid.random()}")
-    object: str = "chat.completion"
-    created: int = Field(default_factory=lambda: int(time.time()))
-    model: str
-    choices: List[ChatCompletionResponseChoice]
-    usage: UsageInfo
-
-
-class DeltaMessage(BaseModel):
-    role: Optional[str] = None
-    content: Optional[str] = None
-
-
-class ChatCompletionResponseStreamChoice(BaseModel):
-    index: int
-    delta: DeltaMessage
-    finish_reason: Optional[Literal["stop", "length"]] = None
-
-
-class ChatCompletionStreamResponse(BaseModel):
-    id: str = Field(default_factory=lambda: f"chatcmpl-{shortuuid.random()}")
-    object: str = "chat.completion.chunk"
-    created: int = Field(default_factory=lambda: int(time.time()))
-    model: str
-    choices: List[ChatCompletionResponseStreamChoice]
-
-
 class TokenCheckRequestItem(BaseModel):
     model: str
     prompt: str
@@ -290,6 +251,11 @@ class RerankingResponseData(BaseModel):
 
 class RerankingResponse(BaseModel):
     reranked_docs: List[RerankingResponseData]
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
 
 
 class ChatCompletionLogProb(BaseModel):
