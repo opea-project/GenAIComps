@@ -10,13 +10,7 @@ from huggingface_hub import AsyncInferenceClient
 from langsmith import traceable
 from openai import OpenAI
 
-from comps import (
-    ServiceType,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
-)
+from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
 from comps.cores.proto.api_protocol import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionStreamResponse
 
 llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
@@ -74,6 +68,7 @@ async def llm_generate(request: ChatCompletionRequest):
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         return chat_completion
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@llm_tgi"].start()
