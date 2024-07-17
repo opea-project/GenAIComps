@@ -1,5 +1,6 @@
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2024 Prediction Guard, Inc.
+# SPDX-License-Identified: Apache-2.0
+
 
 from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, HTTPException
@@ -35,7 +36,7 @@ def llm_generate(input: LLMParamsDoc):
     messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant that provides clever and sometimes funny responses."
+            "content": "You are a helpful assistant. Your goal is to provide accurate, detailed, and safe responses to the user's queries."
         },
         {
             "role": "user",
