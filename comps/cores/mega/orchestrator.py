@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import copy
 import json
+import re
 from typing import Dict, List
 
 import aiohttp
 import requests
-import copy
-import re
 from fastapi.responses import StreamingResponse
 
 from ..proto.docarray import LLMParams
@@ -53,7 +53,6 @@ class ServiceOrchestrator(DAG):
                 for done_task in done:
                     response, node = await done_task
                     self.dump_outputs(node, response, result_dict)
-
 
                     # traverse the current node's downstream nodes and execute if all one's predecessors are finished
                     downstreams = runtime_graph.downstream(node)
