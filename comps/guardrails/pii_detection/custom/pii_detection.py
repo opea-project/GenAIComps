@@ -11,7 +11,7 @@ from fastapi import File, Form, HTTPException, UploadFile
 from langsmith import traceable
 
 cur_path = pathlib.Path(__file__).parent.resolve()
-comps_path = os.path.join(cur_path, "../../../")
+comps_path = os.path.join(cur_path, "../../../../")
 sys.path.append(comps_path)
 
 from typing import List
