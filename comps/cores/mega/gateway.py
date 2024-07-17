@@ -119,7 +119,9 @@ class ChatQnAGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=stream_opt,
         )
-        result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"text": prompt}, llm_parameters=parameters)
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"text": prompt}, llm_parameters=parameters
+        )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
@@ -161,7 +163,9 @@ class CodeGenGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=stream_opt,
         )
-        result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"query": prompt}, llm_parameters=parameters
+        )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
@@ -295,7 +299,9 @@ class DocSumGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=stream_opt,
         )
-        result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"query": prompt}, llm_parameters=parameters)
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"query": prompt}, llm_parameters=parameters
+        )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
@@ -371,7 +377,9 @@ class SearchQnAGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=stream_opt,
         )
-        result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"text": prompt}, llm_parameters=parameters)
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"text": prompt}, llm_parameters=parameters
+        )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (

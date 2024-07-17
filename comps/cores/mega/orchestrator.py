@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import copy
 import json
+import re
 from typing import Dict, List
 
 import aiohttp
 import requests
-import copy
-import re
 from fastapi.responses import StreamingResponse
 
 from ..proto.docarray import LLMParams
@@ -44,15 +44,15 @@ class ServiceOrchestrator(DAG):
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)
 
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            pending = {asyncio.create_task(self.execute(session, node, initial_inputs, runtime_graph)) for node in runtime_graph.ind_nodes()}
+        timeout = aiohttp.ClientTimeout(total=1000)
+        async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
+            pending = {asyncio.create_task(self.execute(session, node, initial_inputs)) for node in self.ind_nodes()}
 
             while pending:
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
                 for done_task in done:
                     response, node = await done_task
                     self.dump_outputs(node, response, result_dict)
-
 
                     # traverse the current node's downstream nodes and execute if all one's predecessors are finished
                     downstreams = runtime_graph.downstream(node)

@@ -1,4 +1,3 @@
-
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -18,10 +17,11 @@ async def add_s1(request: TextDoc) -> TextDoc:
         return TextDoc(text=text, downstream_black_list=[])
     elif "Bye" in text:
         text += "OPEA Project!"
-        return TextDoc(text=text, downstream_black_list=['.*'])
+        return TextDoc(text=text, downstream_black_list=[".*"])
     else:
         text += "OPEA Project!"
-        return TextDoc(text=text, downstream_black_list=['s2'])
+        return TextDoc(text=text, downstream_black_list=["s2"])
+
 
 @register_microservice(name="s2", host="0.0.0.0", port=8081, endpoint="/v1/add")
 async def add_s2(request: TextDoc) -> TextDoc:
@@ -29,11 +29,13 @@ async def add_s2(request: TextDoc) -> TextDoc:
     text += "add s2!"
     return TextDoc(text=text)
 
+
 @register_microservice(name="s3", host="0.0.0.0", port=8082, endpoint="/v1/add")
 async def add_s3(request: TextDoc) -> TextDoc:
     text = request.text
     text += "add s3!"
     return TextDoc(text=text)
+
 
 class TestMicroService(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
