@@ -56,7 +56,6 @@ docker logs comps-langchain-agent-endpoint
 > docker run --rm --runtime=runc --name="comps-langchain-agent-endpoint" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} --env-file ${agent_env} opea/comps-agent-langchain:latest
 > ```
 
-
 # 🚀3. Validate Microservice
 
 Once microservice starts, user can use below script to invoke.
@@ -76,7 +75,8 @@ data: [DONE]
 
 # 🚀4. Provide your own tools
 
-* Define tools
+- Define tools
+
 ```bash
 mkdir -p my_tools
 vim my_tools/custom_tools.yaml
@@ -84,7 +84,7 @@ vim my_tools/custom_tools.yaml
 # [tool_name]
 #   description: [description of this tool]
 #   env: [env variables such as API_TOKEN]
-#   pip_dependencies: [pip dependencies, seperate by ,]
+#   pip_dependencies: [pip dependencies, separate by ,]
 #   callable_api: [2 options provided - function_call, pre-defined-tools]
 #   args_schema:
 #     [arg_name]:
@@ -95,7 +95,7 @@ vim my_tools/custom_tools.yaml
 
 example - my_tools/custom_tools.yaml
 
-``` yaml
+```yaml
 # Follow example below to add your tool
 opea_index_retriever:
   description: Retrieve related information of Intel OPEA project based on input query.
@@ -111,7 +111,7 @@ example - my_tools/tools.py
 
 ```python
 def opea_rag_query(query):
-    ip_address=os.environ.get("ip_address")
+    ip_address = os.environ.get("ip_address")
     url = f"http://{ip_address}:8889/v1/retrievaltool"
     content = json.dumps({"text": query})
     print(url, content)
@@ -124,13 +124,15 @@ def opea_rag_query(query):
     return ret
 ```
 
-* Launch Agent Microservice with your tools path
+- Launch Agent Microservice with your tools path
+
 ```bash
 # Agent
 docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v my_tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursive_limit=5 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:latest
 ```
 
-* validate with my_tools
+- validate with my_tools
+
 ```bash
 $ curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
      "query": "What is Intel OPEA project in a short answer?"
