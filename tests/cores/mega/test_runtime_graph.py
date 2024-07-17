@@ -57,12 +57,15 @@ class TestMicroService(unittest.IsolatedAsyncioTestCase):
         self.s3.stop()
 
     async def test_add_route(self):
-        result_dict = await self.service_builder.schedule(initial_inputs={"text": "Hi!"})
+        result_dict, runtime_graph = await self.service_builder.schedule(initial_inputs={"text": "Hi!"})
         assert len(result_dict) == 3
-        result_dict = await self.service_builder.schedule(initial_inputs={"text": "Bye!"})
+        assert len(runtime_graph.all_leaves()) == 2
+        result_dict, runtime_graph = await self.service_builder.schedule(initial_inputs={"text": "Bye!"})
         assert len(result_dict) == 1
-        result_dict = await self.service_builder.schedule(initial_inputs={"text": "Other!"})
+        assert len(runtime_graph.all_leaves()) == 1
+        result_dict, runtime_graph = await self.service_builder.schedule(initial_inputs={"text": "Other!"})
         assert len(result_dict) == 2
+        assert len(runtime_graph.all_leaves()) == 1
 
 
 if __name__ == "__main__":

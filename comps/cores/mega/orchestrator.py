@@ -65,6 +65,7 @@ class ServiceOrchestrator(DAG):
                                     if re.findall(black_node, downstream):
                                         print(f"skip forwardding to {downstream}...")
                                         runtime_graph.delete_edge(node, downstream)
+                                        runtime_graph.delete_node_if_exists(downstream)
                                         downstreams.remove(downstream)
                                 except re.error as e:
                                     print("Pattern invalid! Operation cancelled.")
@@ -73,8 +74,7 @@ class ServiceOrchestrator(DAG):
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
                             pending.add(asyncio.create_task(self.execute(session, d_node, inputs, llm_parameters)))
-
-        return result_dict
+        return result_dict, runtime_graph
 
     def process_outputs(self, prev_nodes: List, result_dict: Dict) -> Dict:
         all_outputs = {}
