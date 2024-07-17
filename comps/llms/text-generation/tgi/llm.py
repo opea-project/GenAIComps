@@ -11,7 +11,6 @@ from langsmith import traceable
 from openai import OpenAI
 
 from comps import (
-    GeneratedDoc,
     ServiceType,
     opea_microservices,
     register_microservice,
@@ -69,16 +68,13 @@ async def llm_generate(request: ChatCompletionRequest):
 
         def stream_generator():
             for c in chat_completion:
-                text = c.choices[0].delta.content
-                print(f"[llm - chat_stream] chunk: {text}")
-                yield f"data: {json.dumps(text)}\n\n"
+                print(c.json())
+                yield f"data: {c.json()}\n\n"
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = chat_completion.choices[0].message.content
-        return GeneratedDoc(text=response, prompt="")
-
+        return chat_completion
 
 if __name__ == "__main__":
     opea_microservices["opea_service@llm_tgi"].start()
