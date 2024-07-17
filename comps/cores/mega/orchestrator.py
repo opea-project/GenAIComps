@@ -58,7 +58,7 @@ class ServiceOrchestrator(DAG):
                     downstreams = runtime_graph.downstream(node)
 
                     # remove all the black nodes that are skipped to be forwarded to
-                    if "downstream_black_list" in response:
+                    if not isinstance(response, StreamingResponse) and "downstream_black_list" in response:
                         for black_node in response["downstream_black_list"]:
                             for downstream in reversed(downstreams):
                                 try:
