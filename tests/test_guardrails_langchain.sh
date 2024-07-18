@@ -11,7 +11,7 @@ function build_docker_images() {
     echo "Start building docker images for microservice"
     cd $WORKPATH
     docker pull ghcr.io/huggingface/tgi-gaudi:2.0.1
-    docker build -t opea/guardrails-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/langchain/docker/Dockerfile .
+    docker build --no-cache -t opea/guardrails-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/langchain/docker/Dockerfile .
     echo "Docker images built"
 }
 
