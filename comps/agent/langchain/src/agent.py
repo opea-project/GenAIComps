@@ -47,10 +47,10 @@ class BaseAgentState(TypedDict):
 class ReActAgentwithLangchain(BaseAgent):
     def __init__(self, args):
         super().__init__(args)
-        from langchain import hub
         from langchain.agents import AgentExecutor, create_react_agent
+        from .react.prompt import hwchase17_react_prompt
 
-        prompt = hub.pull("hwchase17/react")
+        prompt = hwchase17_react_prompt
         if has_multi_tool_inputs(self.tools_descriptions):
             raise ValueError("Only supports single input tools when using strategy == react")
         else:
