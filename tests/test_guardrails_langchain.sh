@@ -21,9 +21,9 @@ function start_service() {
     export volume=$(pwd)
 
     docker run -d --name="test-guardrails-langchain-tgi-server" -p 8088:80 -v $volume:/data --runtime=habana -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy ghcr.io/huggingface/tgi-gaudi:2.0.1 --model-id $model_id --max-input-length 1024 --max-total-tokens 2048
-    sleep 3m
+    sleep 6m
     docker run -d --name="test-guardrails-langchain-service" -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/guardrails-tgi:latest
-    sleep 5s
+    sleep 10s
 
     echo "Microservice started"
 }
