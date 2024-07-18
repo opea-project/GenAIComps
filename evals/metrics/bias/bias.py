@@ -6,10 +6,12 @@
 
 import os
 from typing import Dict, Optional, Union
+
 from langchain_community.llms import HuggingFaceEndpoint
 
-from .template import BiasTemplate
 from .schema import *
+from .template import BiasTemplate
+
 
 class BiasMetric:
     def __init__(
@@ -29,20 +31,18 @@ class BiasMetric:
         self.verbose_mode = verbose_mode
 
     def measure(self, test_case: Dict):
-        self.opinions: List[str] = self._generate_opinions(
-                    test_case.actual_output
-                )
+        self.opinions: List[str] = self._generate_opinions(test_case.actual_output)
         self.verdicts: List[BiasVerdict] = self._generate_verdicts()
         self.score = self._calculate_score()
         self.reason = self._generate_reason()
         self.success = self.score <= self.threshold
         self.verbose_logs = construct_verbose_logs(
-                self,
-                steps=[
-                    f"Opinions:\n{prettify_list(self.opinions)}",
-                    f"Verdicts:\n{prettify_list(self.verdicts)}",
-                    f"Score: {self.score}\nReason: {self.reason}",
-                ],
+            self,
+            steps=[
+                f"Opinions:\n{prettify_list(self.opinions)}",
+                f"Verdicts:\n{prettify_list(self.verdicts)}",
+                f"Score: {self.score}\nReason: {self.reason}",
+            ],
         )
 
         return self.score

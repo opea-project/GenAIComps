@@ -9,8 +9,8 @@ from typing import Dict, Optional, Union
 
 from langchain_community.llms import HuggingFaceEndpoint
 
-from .template import HallucinationTemplate
 from .schema import *
+from .template import HallucinationTemplate
 
 
 class HallucinationMetric:
@@ -31,21 +31,17 @@ class HallucinationMetric:
         self.verbose_mode = verbose_mode
 
     def measure(self, test_case: Dict):
-        self.verdicts: List[HallucinationVerdict] = (
-                    self._generate_verdicts(
-                        test_case.actual_output, test_case.context
-                    )
-                )
+        self.verdicts: List[HallucinationVerdict] = self._generate_verdicts(test_case.actual_output, test_case.context)
 
         self.score = self._calculate_score()
         self.reason = self._generate_reason()
         self.success = self.score <= self.threshold
         self.verbose_logs = construct_verbose_logs(
-                self,
-                steps=[
-                    f"Verdicts:\n{prettify_list(self.verdicts)}",
-                    f"Score: {self.score}\nReason: {self.reason}",
-                ],
+            self,
+            steps=[
+                f"Verdicts:\n{prettify_list(self.verdicts)}",
+                f"Score: {self.score}\nReason: {self.reason}",
+            ],
         )
 
         return self.score
@@ -82,20 +78,14 @@ class HallucinationMetric:
                 data = trimAndLoadJson(res, self)
                 return data["reason"]
 
-    def _generate_verdicts(
-        self, actual_output: str, contexts: List[str]
-    ) -> List[HallucinationVerdict]:
+    def _generate_verdicts(self, actual_output: str, contexts: List[str]) -> List[HallucinationVerdict]:
         verdicts: List[HallucinationVerdict] = []
-        prompt = HallucinationTemplate.generate_verdicts(
-            actual_output=actual_output, contexts=contexts
-        )
+        prompt = HallucinationTemplate.generate_verdicts(actual_output=actual_output, contexts=contexts)
         if self.using_native_model:
             res, cost = self.model.generate(prompt)
             self.evaluation_cost += cost
             data = trimAndLoadJson(res, self)
-            verdicts = [
-                HallucinationVerdict(**item) for item in data["verdicts"]
-            ]
+            verdicts = [HallucinationVerdict(**item) for item in data["verdicts"]]
             return verdicts
         else:
             try:
@@ -105,9 +95,7 @@ class HallucinationMetric:
             except TypeError:
                 res = self.model.generate(prompt)
                 data = trimAndLoadJson(res, self)
-                verdicts = [
-                    HallucinationVerdict(**item) for item in data["verdicts"]
-                ]
+                verdicts = [HallucinationVerdict(**item) for item in data["verdicts"]]
                 return verdicts
 
     def _calculate_score(self) -> float:

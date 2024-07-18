@@ -5,10 +5,13 @@
 
 import os
 from typing import Dict, Optional, Union
+
 from langchain_community.llms import HuggingFaceEndpoint
+
 from ..bias.template import BiasTemplate
-from .template import ToxicityTemplate
 from .schema import *
+from .template import ToxicityTemplate
+
 
 class ToxicityMetric:
     def __init__(
@@ -29,9 +32,7 @@ class ToxicityMetric:
 
     def measure(self, test_case: Dict):
 
-        self.opinions: List[str] = self._generate_opinions(
-                    test_case.actual_output
-                )
+        self.opinions: List[str] = self._generate_opinions(test_case.actual_output)
         self.verdicts: List[ToxicityVerdict] = self._generate_verdicts()
 
         self.score = self._calculate_score()
@@ -39,12 +40,12 @@ class ToxicityMetric:
         self.success = self.score <= self.threshold
         self.score = self.score
         self.verbose_logs = construct_verbose_logs(
-                self,
-                steps=[
-                    f"Opinions:\n{prettify_list(self.opinions)}",
-                    f"Verdicts:\n{prettify_list(self.verdicts)}",
-                    f"Score: {self.score}\nReason: {self.reason}",
-                ],
+            self,
+            steps=[
+                f"Opinions:\n{prettify_list(self.opinions)}",
+                f"Verdicts:\n{prettify_list(self.verdicts)}",
+                f"Score: {self.score}\nReason: {self.reason}",
+            ],
         )
 
         return self.score
@@ -97,9 +98,7 @@ class ToxicityMetric:
             except TypeError:
                 res = self.model.generate(prompt)
                 data = trimAndLoadJson(res, self)
-                verdicts = [
-                    ToxicityVerdict(**item) for item in data["verdicts"]
-                ]
+                verdicts = [ToxicityVerdict(**item) for item in data["verdicts"]]
                 return verdicts
 
     def _generate_opinions(self, actual_output: str) -> List[str]:

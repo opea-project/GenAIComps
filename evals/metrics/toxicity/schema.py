@@ -1,5 +1,9 @@
-from pydantic import BaseModel, Field
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import List
+
+from pydantic import BaseModel, Field
 
 
 class Opinions(BaseModel):
