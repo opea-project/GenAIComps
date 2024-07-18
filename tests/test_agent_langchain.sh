@@ -64,15 +64,15 @@ function validate() {
 function validate_microservice() {
     echo "Testing agent service"
     local CONTENT=$(curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
-     "query": "What is Intel OPEA project in a short answer?"
+     "query": "What is Intel OPEA project?"
     }' | tee ${LOG_PATH}/test-agent-langchain.log)
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent-langchain")
     echo "$EXIT_CODE"
     local EXIT_CODE="${EXIT_CODE:0-1}"
     echo "return value is $EXIT_CODE"
     if [ "$EXIT_CODE" == "1" ]; then
-        docker logs comps-tgi-gaudi-service | tee -a ${LOG_PATH}/test-agent-langchain.log
-        docker logs comps-langchain-agent-endpoint | tee -a ${LOG_PATH}/test-agent-langchain.log
+        docker logs comps-tgi-gaudi-service &> ${LOG_PATH}/test-comps-tgi-gaudi-service.log
+        docker logs comps-langchain-agent-endpoint &> ${LOG_PATH}/test-comps-langchain-agent-endpoint.log
         exit 1
     fi
 }
