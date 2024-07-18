@@ -5,7 +5,7 @@ import os
 
 from langchain_community.utilities.requests import JsonRequestsWrapper
 from langchain_huggingface import ChatHuggingFace
-from langchain_community.llms import HuggingFaceEndpoint
+from langchain_huggingface.llms import HuggingFaceEndpoint
 from langsmith import traceable
 
 from comps import ServiceType, TextDoc, opea_microservices, register_microservice
