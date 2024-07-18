@@ -39,7 +39,7 @@ class ServiceOrchestrator(DAG):
             print(e)
             return False
 
-    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams()), **kwargs:
+    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams(), **kwargs):
         result_dict = {}
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)

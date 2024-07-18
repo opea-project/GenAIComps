@@ -2,82 +2,82 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-import unittest
-
-from comps import Gateway, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
+import asyncio
+import os
 from comps.cores.proto.docarray import LLMParams, RerankerParms, RetrieverParms
+from comps import ChatQnAGateway, MicroService, ServiceOrchestrator, ServiceType
+
+MEGA_SERVICE_HOST_IP = os.getenv("MEGA_SERVICE_HOST_IP", "0.0.0.0")
+MEGA_SERVICE_PORT = os.getenv("MEGA_SERVICE_PORT", 8888)
+EMBEDDING_SERVICE_HOST_IP = os.getenv("EMBEDDING_SERVICE_HOST_IP", "0.0.0.0")
+EMBEDDING_SERVICE_PORT = os.getenv("EMBEDDING_SERVICE_PORT", 6000)
+RETRIEVER_SERVICE_HOST_IP = os.getenv("RETRIEVER_SERVICE_HOST_IP", "0.0.0.0")
+RETRIEVER_SERVICE_PORT = os.getenv("RETRIEVER_SERVICE_PORT", 7000)
+RERANK_SERVICE_HOST_IP = os.getenv("RERANK_SERVICE_HOST_IP", "0.0.0.0")
+RERANK_SERVICE_PORT = os.getenv("RERANK_SERVICE_PORT", 8000)
+LLM_SERVICE_HOST_IP = os.getenv("LLM_SERVICE_HOST_IP", "0.0.0.0")
+LLM_SERVICE_PORT = os.getenv("LLM_SERVICE_PORT", 9000)
 
 
-@register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
-async def s1_add(request: TextDoc) -> TextDoc:
-    req = request.model_dump_json()
-    req_dict = json.loads(req)
-    text = req_dict["text"]
-    text += "opea "
-    return {"text": text}
+class ChatQnAService:
+    def __init__(self, host="0.0.0.0", port=8000):
+        self.host = host
+        self.port = port
+        self.megaservice = ServiceOrchestrator()
 
+    def add_remote_service(self):
+        embedding = MicroService(
+            name="embedding",
+            host=EMBEDDING_SERVICE_HOST_IP,
+            port=EMBEDDING_SERVICE_PORT,
+            endpoint="/v1/embeddings",
+            use_remote_service=True,
+            service_type=ServiceType.EMBEDDING,
+        )
+        retriever = MicroService(
+            name="retriever",
+            host=RETRIEVER_SERVICE_HOST_IP,
+            port=RETRIEVER_SERVICE_PORT,
+            endpoint="/v1/retrieval",
+            use_remote_service=True,
+            service_type=ServiceType.RETRIEVER,
+        )
+        rerank = MicroService(
+            name="rerank",
+            host=RERANK_SERVICE_HOST_IP,
+            port=RERANK_SERVICE_PORT,
+            endpoint="/v1/reranking",
+            use_remote_service=True,
+            service_type=ServiceType.RERANK,
+        )
+        llm = MicroService(
+            name="llm",
+            host=LLM_SERVICE_HOST_IP,
+            port=LLM_SERVICE_PORT,
+            endpoint="/v1/chat/completions",
+            use_remote_service=True,
+            service_type=ServiceType.LLM,
+        )
+        self.megaservice.add(embedding).add(retriever).add(rerank).add(llm)
+        self.megaservice.flow_to(embedding, retriever)
+        self.megaservice.flow_to(retriever, rerank)
+        self.megaservice.flow_to(rerank, llm)
+        self.gateway = ChatQnAGateway(megaservice=self.megaservice, host="0.0.0.0", port=self.port)
 
-@register_microservice(name="s2", host="0.0.0.0", port=8084, endpoint="/v1/add")
-async def s2_add(request: TextDoc) -> TextDoc:
-    req = request.model_dump_json()
-    req_dict = json.loads(req)
-    text = req_dict["text"]
-    text += "project!"
-    return {"text": text}
-
-
-class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        self.s1 = opea_microservices["s1"]
-        self.s2 = opea_microservices["s2"]
-        self.s1.start()
-        self.s2.start()
-
-        self.service_builder = ServiceOrchestrator()
-
-        self.service_builder.add(opea_microservices["s1"]).add(opea_microservices["s2"])
-        self.service_builder.flow_to(self.s1, self.s2)
-        self.gateway = Gateway(self.service_builder, port=9898)
-
-    def tearDown(self):
-        self.s1.stop()
-        self.s2.stop()
-        self.gateway.stop()
-
-    async def test_schedule(self):
-        result_dict, _ = await self.service_builder.schedule(
-            initial_inputs={"text": "hello, "},
+    async def schedule(self):
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"text": "What is the revenue of Nike in 2023?"},
             llm_parameters: LLMParams = LLMParams(),
         )
-        self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
+        print(result_dict)
 
-
-class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        self.s1 = opea_microservices["s1"]
-        self.s2 = opea_microservices["s2"]
-        self.s1.start()
-        self.s2.start()
-
-        self.service_builder = ServiceOrchestrator()
-
-        self.service_builder.add(opea_microservices["s1"]).add(opea_microservices["s2"])
-        self.service_builder.flow_to(self.s1, self.s2)
-        self.gateway = Gateway(self.service_builder, port=9899)
-
-    def tearDown(self):
-        self.s1.stop()
-        self.s2.stop()
-        self.gateway.stop()
-
-    async def test_schedule(self):
-        result_dict, _ = await self.service_builder.schedule(
+        result_dict, runtime_graph = await self.service_builder.schedule(
             initial_inputs={"text": "hello, "},
             retriever_parameters: RetrieverParms = RetrieverParms(),
-            reranker_parameters: RerankerParms = RerankerParms(),
+        reranker_parameters: RerankerParms = RerankerParms(),
         )
-        self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
-
 
 if __name__ == "__main__":
-    unittest.main()
+    chatqna = ChatQnAService(host=MEGA_SERVICE_HOST_IP, port=MEGA_SERVICE_PORT)
+    chatqna.add_remote_service()
+    asyncio.run(chatqna.schedule())
