@@ -12,7 +12,7 @@ from .utils import has_multi_tool_inputs, setup_llm, tool_renderer
 def instantiate_agent(args, strategy="react"):
     if strategy == "react":
         return ReActAgentwithLangchain(args)
-    elif strategy == "planexec":
+    elif strategy == "plan_execute":
         return PlanExecuteAgentWithLangGraph(args)
     else:
         return BaseAgent(args)
