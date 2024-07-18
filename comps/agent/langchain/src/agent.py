@@ -48,6 +48,7 @@ class ReActAgentwithLangchain(BaseAgent):
     def __init__(self, args):
         super().__init__(args)
         from langchain.agents import AgentExecutor, create_react_agent
+
         from .react.prompt import hwchase17_react_prompt
 
         prompt = hwchase17_react_prompt
