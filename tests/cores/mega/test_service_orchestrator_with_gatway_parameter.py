@@ -68,14 +68,14 @@ class ChatQnAService:
     async def schedule(self):
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"text": "What is the revenue of Nike in 2023?"},
-            llm_parameters: LLMParams = LLMParams(),
+            llm_parameters = LLMParams(),
         )
         print(result_dict)
 
         result_dict, runtime_graph = await self.service_builder.schedule(
             initial_inputs={"text": "hello, "},
-            retriever_parameters: RetrieverParms = RetrieverParms(),
-        reranker_parameters: RerankerParms = RerankerParms(),
+            retriever_parameters = RetrieverParms(),
+        reranker_parameters = RerankerParms(),
         )
 
 if __name__ == "__main__":

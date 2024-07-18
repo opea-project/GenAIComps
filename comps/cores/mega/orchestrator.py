@@ -136,7 +136,7 @@ class ServiceOrchestrator(DAG):
             for field, value in llm_parameters_dict.items():
                 if inputs.get(field) != value:
                     inputs[field] = value
-            if lm_parameters.streaming:
+            if llm_parameters.streaming:
                 # Still leave to sync requests.post for StreamingResponse
                 response = requests.post(
                     url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
