@@ -117,7 +117,7 @@ def has_multi_tool_inputs(tools):
 def get_args():
     parser = argparse.ArgumentParser()
     # llm args
-    parser.add_argument("--streaming", type=str, default='true')
+    parser.add_argument("--streaming", type=str, default="true")
     parser.add_argument("--port", type=int, default=9090)
     parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
     parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
@@ -139,7 +139,7 @@ def get_args():
         for key, value in vars(env_args).items():
             setattr(sys_args, key, value)
 
-    if sys_args.streaming == 'true':
+    if sys_args.streaming == "true":
         sys_args.streaming = True
     else:
         sys_args.streaming = False
