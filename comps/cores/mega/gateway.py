@@ -12,7 +12,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
-from ..proto.docarray import LLMParams
+from ..proto.docarray import RetrieverParms, LLMParams, RerankerParms
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -111,7 +111,7 @@ class ChatQnAGateway(Gateway):
         stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
-        parameters = LLMParams(
+        llm_parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
@@ -119,8 +119,23 @@ class ChatQnAGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=stream_opt,
         )
+        retriever_parameters = RetrieverParms(
+            search_type=chat_request.search_type if chat_request.search_type else "similarity",
+            k=chat_request.k if chat_request.k else 4,
+            distance_threshold=chat_request.distance_threshold if chat_request.distance_threshold else None,
+            fetch_k=chat_request.fetch_k if chat_request.fetch_k else 20,
+            lambda_mult=chat_request.lambda_mult if chat_request.lambda_mult else 0.5,
+            score_threshold=chat_request.score_threshold if chat_request.score_threshold else 0.2,
+        )
+        reranker_parameters = RerankerParms(
+            top_n=chat_request.top_n if chat_request.top_n else 1,
+        )
+        
         result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={"text": prompt}, llm_parameters=parameters
+            initial_inputs={"text": prompt},
+            llm_parameters=llm_parameters,
+            retriever_parameters=retriever_parameters,
+            reranker_parameters=reranker_parameters,
         )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.

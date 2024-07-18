@@ -39,7 +39,7 @@ class ServiceOrchestrator(DAG):
             print(e)
             return False
 
-    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams()):
+    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams()), **kwargs:
         result_dict = {}
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)
@@ -76,11 +76,26 @@ class ServiceOrchestrator(DAG):
                     for d_node in downstreams:
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
-                            pending.add(
-                                asyncio.create_task(
-                                    self.execute(session, d_node, inputs, runtime_graph, llm_parameters)
+                            if "retriever_parameters" in kwargs and "reranker_parameters" in kwargs:
+                                retriever_parameters = kwargs["retriever_parameters"]
+                                reranker_parameters = kwargs["reranker_parameters"]
+                                pending.add(
+                                    asyncio.create_task(
+                                        self.execute(session,
+                                                     d_node,
+                                                     inputs,
+                                                     runtime_graph,
+                                                     llm_parameters,
+                                                     retriever_parameters,
+                                                     reranker_parameters,)
+                                    )
                                 )
-                            )
+                            else:
+                                pending.add(
+                                    asyncio.create_task(
+                                        self.execute(session, d_node, inputs, runtime_graph, llm_parameters)
+                                    )
+                                )
         nodes_to_keep = []
         for i in ind_nodes:
             nodes_to_keep.append(i)
@@ -109,35 +124,59 @@ class ServiceOrchestrator(DAG):
         inputs: Dict,
         runtime_graph: DAG,
         llm_parameters: LLMParams = LLMParams(),
+        **kwargs,
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
-        llm_parameters_dict = llm_parameters.dict()
-        for field, value in llm_parameters_dict.items():
-            if inputs.get(field) != value:
-                inputs[field] = value
-
-        if self.services[cur_node].service_type == ServiceType.LLM and llm_parameters.streaming:
-            # Still leave to sync requests.post for StreamingResponse
-            response = requests.post(
-                url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
-            )
-
-            def generate():
-                if response:
-                    for chunk in response.iter_content(chunk_size=None):
-                        if chunk:
-                            yield chunk
-
-            return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
+        
+        if self.services[cur_node].service_type == ServiceType.LLM:
+            llm_parameters_dict = llm_parameters.dict()
+            for field, value in llm_parameters_dict.items():
+                if inputs.get(field) != value:
+                    inputs[field] = value
+            if lm_parameters.streaming:
+                # Still leave to sync requests.post for StreamingResponse
+                response = requests.post(
+                    url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
+                )
+    
+                def generate():
+                    if response:
+                        for chunk in response.iter_content(chunk_size=None):
+                            if chunk:
+                                yield chunk
+    
+                return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
+            else:
+                if (
+                    self.services[cur_node].service_type == ServiceType.LLM
+                    and runtime_graph.predecessors(cur_node)
+                    and "asr" in runtime_graph.predecessors(cur_node)[0]
+                ):
+                    inputs["query"] = inputs["text"]
+                    del inputs["text"]
+                async with session.post(endpoint, json=inputs) as response:
+                    print(response.status)
+                    return await response.json(), cur_node
+        elif self.services[cur_node].service_type == ServiceType.RETRIEVER:
+            if "retriever_parameters" in kwargs:
+                retriever_parameters_dict = kwargs["retriever_parameters"].dict()
+                for field, value in retriever_parameters_dict.items():
+                    if inputs.get(field) != value:
+                        inputs[field] = value
+                async with session.post(endpoint, json=inputs) as response:
+                    print(response.status)
+                    return await response.json(), cur_node
+        elif self.services[cur_node].service_type == ServiceType.RERANK:
+            if "reranker_parameters" in kwargs:
+                reranker_parameters_dict = kwargs["reranker_parameters"].dict()
+                for field, value in reranker_parameters_dict.items():
+                    if inputs.get(field) != value:
+                        inputs[field] = value
+            async with session.post(endpoint, json=inputs) as response:
+                print(response.status)
+                return await response.json(), cur_node
         else:
-            if (
-                self.services[cur_node].service_type == ServiceType.LLM
-                and runtime_graph.predecessors(cur_node)
-                and "asr" in runtime_graph.predecessors(cur_node)[0]
-            ):
-                inputs["query"] = inputs["text"]
-                del inputs["text"]
             async with session.post(endpoint, json=inputs) as response:
                 print(response.status)
                 return await response.json(), cur_node
