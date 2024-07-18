@@ -30,6 +30,7 @@ args, _ = get_args()
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=args.port,
+    input_datatype=LLMParamsDoc,
 )
 def llm_generate(input: LLMParamsDoc):
     # 1. initialize the agent
@@ -51,11 +52,11 @@ def llm_generate(input: LLMParamsDoc):
                 # Agent Action
                 if "actions" in chunk:
                     for action in chunk["actions"]:
-                        print(f"Calling Tool: `{action.tool}` with input `{action.tool_input}`")
+                        yield f"Calling Tool: `{action.tool}` with input `{action.tool_input}`\n\n"
                 # Observation
                 elif "steps" in chunk:
                     for step in chunk["steps"]:
-                        print(f"Tool Result: `{step.observation}`")
+                        yield f"Tool Result: `{step.observation}`\n\n"
                 # Final result
                 elif "output" in chunk:
                     yield f"data: {repr(chunk['output'])}\n\n"

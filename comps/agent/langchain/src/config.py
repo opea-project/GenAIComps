@@ -39,3 +39,6 @@ if os.environ.get("role_description") is not None:
 
 if os.environ.get("tools") is not None:
     env_config += ["--tools", os.environ["tools"]]
+
+if os.environ.get("streaming") is not None:
+    env_config += ["--streaming", os.environ["streaming"]]

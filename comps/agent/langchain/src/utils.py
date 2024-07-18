@@ -35,6 +35,7 @@ def setup_hf_tgi_client(args):
         "temperature": 1.0,
         "repetition_penalty": 1.03,
         "return_full_text": False,
+        "streaming": args.streaming,
         # "eos_token_id":model.config.eos_token_id,
     }
 
@@ -54,6 +55,7 @@ def setup_vllm_client(args):
         openai_api_key="EMPTY",
         openai_api_base=openai_endpoint,
         model_name=args.model,
+        streaming=args.streaming,
     )
     return llm
 
@@ -70,6 +72,7 @@ def setup_openai_client(args):
     params = {
         "temperature": 0.5,
         "max_tokens": args.max_new_tokens,
+        "streaming": args.streaming,
     }
     llm = ChatOpenAI(model_name=args.model, **params)
     return llm
@@ -114,6 +117,7 @@ def has_multi_tool_inputs(tools):
 def get_args():
     parser = argparse.ArgumentParser()
     # llm args
+    parser.add_argument("--streaming", type=str, default='true')
     parser.add_argument("--port", type=int, default=9090)
     parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
     parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
@@ -129,10 +133,15 @@ def get_args():
 
     sys_args, unknown_args = parser.parse_known_args()
     # print("env_config: ", env_config)
-    if env_config != "":
+    if env_config != []:
         env_args, env_unknown_args = parser.parse_known_args(env_config)
         unknown_args += env_unknown_args
         for key, value in vars(env_args).items():
             setattr(sys_args, key, value)
+
+    if sys_args.streaming == 'true':
+        sys_args.streaming = True
+    else:
+        sys_args.streaming = False
     print(sys_args)
     return sys_args, unknown_args
