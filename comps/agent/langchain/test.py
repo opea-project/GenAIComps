@@ -105,7 +105,7 @@ if __name__ == "__main__":
     parser.add_argument("--filedir", type=str, default="./", help="test file directory")
     parser.add_argument("--filename", type=str, default="query.csv", help="query_list_file")
     parser.add_argument("--output", type=str, default="output.csv", help="query_list_file")
-    parser.add_argument("--strategy", type=str, default="react", choices=["react", "planexec"])
+    parser.add_argument("--strategy", type=str, default="react", choices=["react", "plan_execute"])
     parser.add_argument("--ut", action="store_true", help="ut")
 
     args, _ = parser.parse_known_args()
