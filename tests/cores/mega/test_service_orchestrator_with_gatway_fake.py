@@ -63,7 +63,7 @@ class TestServiceOrchestratorParmRetriever(unittest.IsolatedAsyncioTestCase):
 
         self.service_builder.add(opea_microservices["s1"]).add(opea_microservices["s2"])
         self.service_builder.flow_to(self.s1, self.s2)
-        self.gateway = Gateway(self.service_builder, port=9898)
+        self.gateway = Gateway(self.service_builder, port=9899)
 
     def tearDown(self):
         self.s1.stop()
