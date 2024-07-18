@@ -10,7 +10,13 @@ from docarray.typing import AudioUrl
 from pydantic import Field, conint, conlist
 
 
-class TextDoc(BaseDoc):
+class TopologyInfo:
+    # will not keep forwarding to the downstream nodes in the black list
+    # should be a pattern string
+    downstream_black_list: Optional[list] = []
+
+
+class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
 
@@ -77,6 +83,7 @@ class RerankedDoc(BaseDoc):
 
 
 class LLMParamsDoc(BaseDoc):
+    model: Optional[str] = None  # for openai and ollama
     query: str
     max_new_tokens: int = 1024
     top_k: int = 10
