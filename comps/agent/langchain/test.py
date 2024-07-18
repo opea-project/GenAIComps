@@ -14,13 +14,10 @@ from src.utils import format_date, get_args
 def test_agent_local(args):
     from src.agent import instantiate_agent
 
-    if args.quick_test:
+    if args.q == 0:
         df = pd.DataFrame({"query": ["What is the weather today in Austin?"]})
-    elif args.quick_test_multi_args:
+    elif args.q == 1:
         df = pd.DataFrame({"query": ["what is the trade volume for Microsoft today?"]})
-    else:
-        df = pd.read_csv(os.path.join(args.filedir, args.filename))
-        df = df.sample(n=2, random_state=42)
 
     agent = instantiate_agent(args, strategy=args.strategy)
     app = agent.app
@@ -97,15 +94,14 @@ def test_ut(args):
 if __name__ == "__main__":
     args1, _ = get_args()
     parser = argparse.ArgumentParser()
+    parser.add_argument("--strategy", type=str, default="react")
     parser.add_argument("--local_test", action="store_true", help="Test with local mode")
     parser.add_argument("--endpoint_test", action="store_true", help="Test with endpoint mode")
-    parser.add_argument("--quick_test", action="store_true", help="only try one query")
-    parser.add_argument("--quick_test_multi_args", action="store_true", help="only try one query")
+    parser.add_argument("--q", type=int, default=0)
     parser.add_argument("--ip_addr", type=str, default="127.0.0.1", help="endpoint ip address")
     parser.add_argument("--filedir", type=str, default="./", help="test file directory")
     parser.add_argument("--filename", type=str, default="query.csv", help="query_list_file")
     parser.add_argument("--output", type=str, default="output.csv", help="query_list_file")
-    parser.add_argument("--strategy", type=str, default="react", choices=["react", "plan_execute"])
     parser.add_argument("--ut", action="store_true", help="ut")
 
     args, _ = parser.parse_known_args()

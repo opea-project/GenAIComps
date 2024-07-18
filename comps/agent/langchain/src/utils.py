@@ -122,7 +122,7 @@ def get_args():
     parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
     parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
     parser.add_argument("--model", type=str, default="mistralai/Mistral-7B-Instruct-v0.3")
-    parser.add_argument("--tools", type=str, default="tools/custom_tools.py")
+    parser.add_argument("--tools", type=str, default="tools/custom_tools.yaml")
     parser.add_argument("--strategy", type=str, default="react")
     parser.add_argument("--llm_engine", type=str, default="tgi")
     parser.add_argument("--max_new_tokens", type=int, default=1024)
