@@ -81,13 +81,15 @@ class ServiceOrchestrator(DAG):
                                 reranker_parameters = kwargs["reranker_parameters"]
                                 pending.add(
                                     asyncio.create_task(
-                                        self.execute(session,
-                                                     d_node,
-                                                     inputs,
-                                                     runtime_graph,
-                                                     llm_parameters,
-                                                     retriever_parameters,
-                                                     reranker_parameters,)
+                                        self.execute(
+                                            session,
+                                            d_node,
+                                            inputs,
+                                            runtime_graph,
+                                            llm_parameters,
+                                            retriever_parameters,
+                                            reranker_parameters,
+                                        )
                                     )
                                 )
                             else:

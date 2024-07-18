@@ -1,11 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import asyncio
+import json
 import os
-from comps.cores.proto.docarray import LLMParams, RerankerParms, RetrieverParms
+
 from comps import ChatQnAGateway, MicroService, ServiceOrchestrator, ServiceType
+from comps.cores.proto.docarray import LLMParams, RerankerParms, RetrieverParms
 
 MEGA_SERVICE_HOST_IP = os.getenv("MEGA_SERVICE_HOST_IP", "0.0.0.0")
 MEGA_SERVICE_PORT = os.getenv("MEGA_SERVICE_PORT", 8888)
