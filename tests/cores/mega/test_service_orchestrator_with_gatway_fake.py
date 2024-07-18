@@ -45,10 +45,13 @@ class TestServiceOrchestratorParmLLM(unittest.IsolatedAsyncioTestCase):
         self.gateway.stop()
 
     async def test_schedule(self):
-        result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "},
-                                                             llm_parameters=LLMParams(),)
+        result_dict, _ = await self.service_builder.schedule(
+            initial_inputs={"text": "hello, "},
+            llm_parameters=LLMParams(),
+        )
         self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
-        
+
+
 class TestServiceOrchestratorParmRetriever(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.s1 = opea_microservices["s1"]
@@ -68,9 +71,11 @@ class TestServiceOrchestratorParmRetriever(unittest.IsolatedAsyncioTestCase):
         self.gateway.stop()
 
     async def test_schedule(self):
-        result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "},
-                                                             retriever_parameters=RetrieverParms(),
-                                                             reranker_parameters=RerankerParms(),)
+        result_dict, _ = await self.service_builder.schedule(
+            initial_inputs={"text": "hello, "},
+            retriever_parameters=RetrieverParms(),
+            reranker_parameters=RerankerParms(),
+        )
         self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
 
 
