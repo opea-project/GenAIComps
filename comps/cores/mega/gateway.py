@@ -12,7 +12,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
-from ..proto.docarray import RetrieverParms, LLMParams, RerankerParms
+from ..proto.docarray import LLMParams, RerankerParms, RetrieverParms
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -130,7 +130,7 @@ class ChatQnAGateway(Gateway):
         reranker_parameters = RerankerParms(
             top_n=chat_request.top_n if chat_request.top_n else 1,
         )
-        
+
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"text": prompt},
             llm_parameters=llm_parameters,

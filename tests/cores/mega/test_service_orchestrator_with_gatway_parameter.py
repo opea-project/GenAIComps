@@ -5,7 +5,7 @@ import json
 import unittest
 
 from comps import Gateway, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
-from comps.cores.proto.docarray import LLMParams, RetrieverParms, RerankerParms
+from comps.cores.proto.docarray import LLMParams, RerankerParms, RetrieverParms
 
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
@@ -50,8 +50,8 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
             llm_parameters: LLMParams = LLMParams(),
         )
         self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
-        
-        
+
+
 class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.s1 = opea_microservices["s1"]

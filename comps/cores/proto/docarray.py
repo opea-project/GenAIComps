@@ -102,7 +102,8 @@ class LLMParams(BaseDoc):
     temperature: float = 0.01
     repetition_penalty: float = 1.03
     streaming: bool = True
-    
+
+
 class RetrieverParms(BaseDoc):
     search_type: str = "similarity"
     k: int = 4
@@ -110,6 +111,7 @@ class RetrieverParms(BaseDoc):
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
+
 
 class RerankerParms(BaseDoc):
     top_n: int = 1

@@ -128,7 +128,7 @@ class ServiceOrchestrator(DAG):
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
-        
+
         if self.services[cur_node].service_type == ServiceType.LLM:
             llm_parameters_dict = llm_parameters.dict()
             for field, value in llm_parameters_dict.items():
@@ -139,13 +139,13 @@ class ServiceOrchestrator(DAG):
                 response = requests.post(
                     url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
                 )
-    
+
                 def generate():
                     if response:
                         for chunk in response.iter_content(chunk_size=None):
                             if chunk:
                                 yield chunk
-    
+
                 return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
             else:
                 if (
