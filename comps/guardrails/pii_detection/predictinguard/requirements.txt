@@ -5,7 +5,7 @@ huggingface_hub
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-predictionguard==2.2.0
+predictionguard==2.2.1
 prometheus-fastapi-instrumentator
 shortuuid
 transformers

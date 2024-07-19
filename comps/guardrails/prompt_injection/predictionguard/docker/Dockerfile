@@ -11,6 +11,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/user/comps/guardrails/prompt_injection/predictionguard
+WORKDIR /home/comps/guardrails/prompt_injection/predictionguard
 
 ENTRYPOINT ["python", "injection_predictionguard.py" ]

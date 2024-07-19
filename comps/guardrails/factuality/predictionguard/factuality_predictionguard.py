@@ -5,7 +5,8 @@ from predictionguard import PredictionGuard
 
 from comps import (
     ServiceType, 
-    TextDoc, 
+    MultiTextDoc,
+    ScoreDoc,
     opea_microservices, 
     register_microservice, 
     register_statistics,
@@ -18,13 +19,13 @@ from comps import (
     service_type=ServiceType.GUARDRAIL,
     endpoint="/v1/factuality",
     host="0.0.0.0",
-    port="9075",
-    input_datatype=TextDoc,
-    output_datatype=TextDoc
+    port=9075,
+    input_datatype=MultiTextDoc,
+    output_datatype=ScoreDoc
 )
 
 @register_statistics(names="opea_service@factuality_predictionguard")
-def factuality_guard(input: TextDoc) -> TextDoc:
+def factuality_guard(input: MultiTextDoc) -> ScoreDoc:
     client = PredictionGuard()
 
     reference = input.reference
@@ -35,7 +36,7 @@ def factuality_guard(input: TextDoc) -> TextDoc:
         text=text
     )
 
-    return TextDoc(text=result["checks"][0]["score"])
+    return ScoreDoc(score=result["checks"][0]["score"])
 
 
 if __name__ == "__main__":
