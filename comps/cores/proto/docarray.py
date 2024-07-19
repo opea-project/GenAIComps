@@ -19,6 +19,12 @@ class MultiTextDoc(BaseDoc):
     text: str
 
 
+class PIIDoc(BaseDoc):
+    prompt: str
+    replace: bool
+    replace_method: str
+
+
 class ScoreDoc(BaseDoc):
     score: float
 
