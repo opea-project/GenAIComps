@@ -5,19 +5,24 @@ FROM python:3.11-slim
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
-ENV PYTHONPATH=/home/user
 
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y ffmpeg
 
-COPY comps /home/comps
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+USER user
+
+ENV PYTHONPATH=/home/user
+
+COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/asr/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/asr/requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/home
-
-WORKDIR /home/comps/asr/whisper
+WORKDIR /home/user/comps/asr/whisper
 
 ENTRYPOINT ["python", "whisper_server.py", "--device", "cpu"]
