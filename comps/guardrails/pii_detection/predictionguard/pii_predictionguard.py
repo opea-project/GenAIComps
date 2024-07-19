@@ -5,7 +5,8 @@ from predictionguard import PredictionGuard
 
 from comps import (
     ServiceType, 
-    TextDoc, 
+    TextDoc,
+    PIIDoc,
     opea_microservices, 
     register_microservice, 
     register_statistics,
@@ -18,26 +19,29 @@ from comps import (
     service_type=ServiceType.GUARDRAIL,
     endpoint="/v1/pii",
     host="0.0.0.0",
-    port="9080",
-    input_datatype=TextDoc,
+    port=9080,
+    input_datatype=PIIDoc,
     output_datatype=TextDoc
 )
 
 @register_statistics(names="opea_service@pii_predictionguard")
-def pii_guard(input: TextDoc) -> TextDoc:
+def pii_guard(input: PIIDoc) -> TextDoc:
     client = PredictionGuard()
 
     prompt = input.prompt
     replace = input.replace
     replace_method = input.replace_method
 
-    result = client.injection.check(
+    result = client.pii.check(
         prompt=prompt,
         replace=replace,
         replace_method = replace_method
     )
 
-    return TextDoc(text=result["checks"][0]["new_prompt"])
+    if "new_prompt" in result["checks"][0].keys():
+        return TextDoc(text=result["checks"][0]["new_prompt"])
+    elif "pii_types_and_positions" in result["checks"][0].keys():
+        return TextDoc(text=result["checks"][0]["pii_types_and_positions"])
 
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@ from comps.cores.proto.docarray import (
     RerankedDoc,
     TextDoc,
     MultiTextDoc,
+    PIIDoc,
     ScoreDoc,
     RAGASParams,
     RAGASScores,
