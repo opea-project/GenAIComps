@@ -70,7 +70,7 @@ class DocumentStore:
                 return "Updated document : {}".format(document_id)
             else:
                 raise Exception("Not able to Update the Document")
-            
+
         except BsonError.InvalidId as e:
             print(e)
             raise KeyError(e)
