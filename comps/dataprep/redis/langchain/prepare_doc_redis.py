@@ -142,15 +142,6 @@ async def ingest_documents(
             encode_file = encode_filename(file.filename)
             save_path = upload_folder + encode_file
             await save_content_to_local_disk(save_path, file)
-            ingest_data_to_redis(
-                DocPath(
-                    path=save_path,
-                    chunk_size=chunk_size,
-                    chunk_overlap=chunk_overlap,
-                    process_table=process_table,
-                    table_strategy=table_strategy,
-                )
-            )
             uploaded_files.append(save_path)
             print(f"Successfully saved file {save_path}")
 
@@ -158,7 +149,15 @@ async def ingest_documents(
             if not isinstance(files, list):
                 files = [files]
             for file in files:
-                ingest_data_to_redis(DocPath(path=file, chunk_size=chunk_size, chunk_overlap=chunk_overlap))
+                ingest_data_to_redis(
+                    DocPath(
+                        path=file,
+                        chunk_size=chunk_size,
+                        chunk_overlap=chunk_overlap,
+                        process_table=process_table,
+                        table_strategy=table_strategy
+                    )
+                )
 
         try:
             # Create a SparkContext
