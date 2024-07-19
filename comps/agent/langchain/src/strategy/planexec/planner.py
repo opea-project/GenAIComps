@@ -1,8 +1,18 @@
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+from typing import Annotated, TypedDict, Literal, List, Tuple, Union, Any, Sequence
+import operator
 
-from json import JSONDecodeError
-from typing import Any, List, Tuple, TypedDict, Union
+from langchain.output_parsers import PydanticOutputParser
+from langchain_core.output_parsers.openai_tools import PydanticToolsParser
+from langchain_core.messages import BaseMessage
+from langgraph.graph.message import add_messages
+from langchain_core.pydantic_v1 import BaseModel, Field
+from langgraph.graph import END, StateGraph, START
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain_huggingface import ChatHuggingFace
+
+from .prompt import planner_prompt, replanner_prompt, hwchase17_react_prompt, plan_check_prompt, answer_check_prompt, answer_make_prompt
+from ..base_agent import BaseAgent
+from ...utils import has_multi_tool_inputs, tool_renderer
 
 from langchain_core.exceptions import OutputParserException
 from langchain_core.output_parsers import JsonOutputParser
@@ -10,315 +20,220 @@ from langchain_core.outputs import Generation
 from langchain_core.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.utils.json import parse_partial_json
+from json import JSONDecodeError
+      
+# Define protocol
 
-from .prompt import REPLANNER, PLANNER_PROMPT_v3, REWRITER_v2, format_template
-from ..base_agent import BaseAgent
-from ...utils import tool_renderer
-
-class AgentState(TypedDict):
+class PlanExecute(TypedDict):
+    messages: Annotated[Sequence[BaseMessage], add_messages]
     input: str
-    date: str
-    plan: Union[List[dict], str]
-    plan_errors: List[str]
-    past_steps: List[Tuple]  # Annotated[List[Tuple], operator.add]
-    # num_replan: int
-    # num_rewrite: int
-    # new_plan: List[dict]
+    plan: List[str]
+    past_steps: Annotated[List[Tuple], operator.add]
     response: str
-
+    output: str
+    
 class Plan(BaseModel):
-    """Plan to follow in future."""
-
-    steps: List[str] = Field(description="different steps to follow, should be in sorted order")
-
+    """Plan to follow in future"""
+    steps: List[str] = Field(
+        description="different steps to follow, should be in sorted order"
+    )
+    
 class Response(BaseModel):
     """Response to user."""
-
     response: str
 
-TEXT_BREAKER_DICT = {
-    "mistralai/Mixtral-8x7B-Instruct-v0.1": "[/INST]",
-    "alpindale/WizardLM-2-8x22B": "ASSISTANT: ",
-    "microsoft/Phi-3-mini-4k-instruct": "\n<|assistant|>",
-    "microsoft/Phi-3-mini-128k-instruct": "\n<|assistant|>",
-}
+class PlanStepChecker:
+    """
+    Determines whether this plan making sense or not.
 
-class JsonStrOutputParser(JsonOutputParser):
-    def parse_result(self, result: List[Generation], *, partial: bool = False) -> Any:
-        text = result[0].text
-        text = text.strip()
-        if partial:
-            try:
-                return parse_partial_json(text)
-            except JSONDecodeError:
-                try:
-                    return eval(text)
-                except:
-                    return None
+    Returns:
+        str: A decision for whether we should use this plan or not
+    """
+    def __init__(self, llm_endpoint, model_id=None):
+        class grade(BaseModel):
+            binary_score: str = Field(description="executable score 'yes' or 'no'")        
+        
+        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools([grade])
+        output_parser = PydanticToolsParser(tools=[grade], first_tool_only=True)
+        self.chain = plan_check_prompt | llm | output_parser
+
+    def __call__(self, state):
+        # print("---CALL PlanStepChecker---")
+        scored_result = self.chain.invoke(state)
+        score = scored_result.binary_score
+        # print(f"Task is {state['context']}, Greade of relevance to question is {score}")
+        if score.startswith("yes"):
+            return True
         else:
-            try:
-                return parse_partial_json(text)
-            except JSONDecodeError as e:
+            return False
+    
+# Define workflow Node
+class Planner:
+    def __init__(self, llm_endpoint, model_id = None, plan_checker=None):
+        # self.llm = planner_prompt | llm_endpoint | PydanticOutputParser(pydantic_object=Plan)
+        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools([Plan])
+        output_parser = PydanticToolsParser(tools=[Plan], first_tool_only=True)
+        self.llm = planner_prompt | llm | output_parser
+        self.plan_checker = plan_checker
+            
+    def __call__(self, state):
+        print("---CALL Planner---")
+        input = state["messages"][-1].content
+        success = False
+        # sometime, LLM will not provide accurate steps per ask, try more than one time until success
+        while not success:
+            while not success:
                 try:
-                    return eval(text)
-                except:
-                    msg = f"Invalid json output: {text}"
-                    raise OutputParserException(msg, llm_output=text) from e
+                    plan = self.llm.invoke({"messages": [("user", state["messages"][-1].content)]})
+                    success = True
+                except OutputParserException as e:
+                    pass
+                except Exception as e:
+                    raise e
+                
+            steps = []
+            for step in plan.steps:
+                if self.plan_checker({"context": step, "question": input}):
+                    steps.append(step)
+            
+            if len(steps) == 0:
+                success = False
 
-def create_planner(args, llm, tools, planner_type):
-    tool_descriptions = tool_renderer(tools)
+        return {"input": input, "plan": steps}
+       
+class Executor:
+    def __init__(self, llm_endpoint, model_id=None, tools=[]):
+        prompt = hwchase17_react_prompt
+        if has_multi_tool_inputs(tools):
+            raise ValueError("Only supports single input tools when using strategy == react")
+        else:
+            agent_chain = create_react_agent(
+                llm_endpoint, tools, prompt, tools_renderer=tool_renderer
+            )
+        self.agent_executor = AgentExecutor(agent=agent_chain, tools=tools, handle_parsing_errors=True, max_iterations=50)
+        
+    def __call__(self, state):
+        print("---CALL Executor---")
+        plan = state["plan"]
+        out_state = []
+        for i, step in enumerate(plan):
+            task_formatted = f"""
+You are tasked with executing {step}.
 
-    if planner_type == "initial_plan":
-        prompt = PromptTemplate(
-            template=format_template(args, PLANNER_PROMPT_v3),
-            input_variables=["objective", "date"],  # latest langchain removed input_variables arg
-            partial_variables={"tools": tool_descriptions},
-        )
-    elif planner_type == "plan_rewriter":
-        prompt = PromptTemplate.from_template(
-            template=format_template(args, REWRITER_v2), partial_variables={"tools": tool_descriptions}
-        )
-    elif planner_type == "replanner":
-        prompt = PromptTemplate.from_template(
-            template=format_template(args, REPLANNER), partial_variables={"tools": tool_descriptions}
-        )
+You can leverage output from previous steps to help you.
+previous steps and output: {out_state}
+"""
+            success = False
+            print(task_formatted)
+            while not success:
+                agent_response = self.agent_executor.invoke({"input": task_formatted})
+                output = agent_response["output"]
+                success = True
+            out_state.append(f"Task is {step}, Response is {output}")
+        return {
+            "past_steps": out_state,
+        }
 
-    parser = JsonStrOutputParser()
-    chain = prompt | llm | parser
+class AnswerMaker:
+    def __init__(self, llm_endpoint, model_id=None):
+        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools([Response])
+        output_parser = PydanticToolsParser(tools=[Response], first_tool_only=True)
+        self.llm = answer_make_prompt | llm | output_parser
+        
+    def __call__(self, state):
+        print("---CALL AnswerMaker---")
+        success = False
+        # sometime, LLM will not provide accurate steps per ask, try more than one time until success
+        while not success:
+            try:
+                output = self.llm.invoke(state)
+                success = True
+            except OutputParserException as e:
+                pass
+            except Exception as e:
+                raise e
+                
+        return {"output": output.response}
 
-    return chain
+class FinalAnswerChecker:
+    """
+    Determines whether this final answer making sense or not.
 
+    Returns:
+        str: A decision for whether we should use this plan or not
+    """
+    def __init__(self, llm_endpoint, model_id=None):
+        class grade(BaseModel):
+            binary_score: str = Field(description="executable score 'yes' or 'no'")        
+        
+        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools([grade])
+        output_parser = PydanticToolsParser(tools=[grade], first_tool_only=True)
+        self.chain = answer_check_prompt | llm | output_parser
+
+    def __call__(self, state):
+        print("---CALL FinalAnswerChecker---")
+        scored_result = self.chain.invoke(state)
+        score = scored_result.binary_score
+        print(f"Answer is {state['response']}, Grade of good response is {score}")
+        if score.startswith("yes"):
+            return END
+        else:
+            return "replan"
+         
+class Replanner:
+    def __init__(self, llm_endpoint, model_id=None, answer_checker=None):
+        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools([Plan])
+        output_parser = PydanticToolsParser(tools=[Plan], first_tool_only=True)
+        self.llm = replanner_prompt | llm | output_parser
+        self.answer_checker = answer_checker
+        
+    def __call__(self, state):
+        print("---CALL Replanner---")
+        success = False
+        # sometime, LLM will not provide accurate steps per ask, try more than one time until success
+        while not success:
+            try:
+                output = self.llm.invoke(state)
+                success = True
+            except OutputParserException as e:
+                pass
+            except Exception as e:
+                raise e
+            
+        return {"plan": output.steps}
+        
 class PlanExecuteAgentWithLangGraph(BaseAgent):
     def __init__(self, args):
         super().__init__(args)
-        self.valid_tools, self.valid_args = self.get_valid_tools_and_args()
+        
+        # Define Node
+        plan_checker = PlanStepChecker(self.llm_endpoint, args.model)
+        
+        plan_step = Planner(self.llm_endpoint, args.model, plan_checker)
+        execute_step = Executor(self.llm_endpoint, args.model, self.tools_descriptions)
+        make_answer = AnswerMaker(self.llm_endpoint, args.model)
 
-        self.planner = create_planner(args, self.llm_endpoint, self.tools_descriptions, planner_type="initial_plan")
-        self.plan_rewriter = create_planner(
-            args, self.llm_endpoint, self.tools_descriptions, planner_type="plan_rewriter"
-        )
-        self.replanner = create_planner(args, self.llm_endpoint, self.tools_descriptions, planner_type="replanner")
+        # answer_checker = FinalAnswerChecker(self.llm_endpoint, args.model)
+        # replan_step = Replanner(self.llm_endpoint, args.model, answer_checker)
 
-        self.args = args
-        self.debug = args.debug
+        # Define Graph
+        workflow = StateGraph(PlanExecute)
+        workflow.add_node("planner", plan_step)
+        workflow.add_node("plan_executor", execute_step)
+        workflow.add_node("answer_maker", make_answer)
+        # workflow.add_node("replan", replan_step)
 
-        self.app = self.compile_workflow()
-
-        if self.app is None:
-            raise ValueError("Failed to compile the app")
-
-    def get_valid_tools_and_args(self):
-        tools = self.tools_descriptions
-        valid_tools = []
-        valid_args = {}
-        for i, tool in enumerate(tools):
-            tool_name = tool.name
-            args_names = list(tool.args.keys())
-            valid_tools.append(tool_name)
-            valid_args[valid_tools[i]] = args_names
-
-        print("VALID_TOOLS: ", valid_tools)
-        print("VALID_ARGS: ", valid_args)
-        return valid_tools, valid_args
-
-    def compile_workflow(self):
-        from langgraph.graph import END, StateGraph, START
-        workflow = StateGraph(AgentState)
-
-        # Add the plan node
-        workflow.add_node("planner", self.plan_step)
-
-        # add plan checker node
-        workflow.add_node("plan_checker", self.check_plan)
-
-        # add plan rewrite node
-        workflow.add_node("rewriter", self.rewrite_plan)
-
-        # Add the execution step
-        workflow.add_node("executor", self.execute_step)
-
-        # Add a replan node
-        workflow.add_node("replan", self.replan_step)
-
-        workflow.set_entry_point("planner")
-
-        # From plan we go to plan check
-        workflow.add_edge("planner", "plan_checker")
-
-        # add conditional edge between plan checker and rewrite,
-        # as well as plan checker and executor
-        workflow.add_conditional_edges(
-            "plan_checker",
-            self.should_rewrite_plan,
-            {
-                True: "rewriter",
-                False: "executor",
-            },
-        )
-
-        # From rewriter, we go to plan checker
-        workflow.add_edge("rewriter", "plan_checker")
-
-        # From executor, we replan
-        workflow.add_edge("executor", "replan")
-
-        workflow.add_conditional_edges(
-            "replan",
-            # Next, we pass in the function that will determine which node is called next.
-            self.should_end,
-            {
-                # If `tools`, then we call the tool node.
-                True: END,
-                False: "plan_checker",
-            },
-        )
+        # Define edges
+        workflow.add_edge(START, "planner")
+        workflow.add_edge("planner", "plan_executor")
+        workflow.add_edge("plan_executor", "answer_maker")
+        workflow.add_edge("answer_maker", END)
+        # workflow.add_conditional_edges(
+        #     "answer_maker",
+        #     answer_checker,
+        #     {END: END, "replan": "replan"},
+        # )
+        # workflow.add_edge("replan", "plan_executor")
 
         # Finally, we compile it!
-        # This compiles it into a LangChain Runnable,
-        # meaning you can use it as you would any other runnable
-        return workflow.compile()
-
-    ### Below are the functions that will be called by the workflow
-    def execute_step(self, state: AgentState):
-        # task: a json dict in the form of
-        # {'tool': 'get_info', 'input_schema': {'ticker': '<result_1>'}, 'output_key': 'result_2'}
-        def execute_with_toolname(tool_list, tool_name, input):
-            tool_inst = None
-            for tool in tool_list:
-                if tool.name == tool_name:
-                    tool_inst = tool
-                    break
-            if tool_inst is None:
-                raise ValueError(f"Tool {tool_name} not found in the tool list")
-            return tool_inst.run(input)
-
-        def execute_one_step(tool, input, past_steps):
-            # tool: str
-            # input: dict
-            # past_steps: list of tuples [(task, output), ()]
-            try:
-                for k, v in input.items():
-                    v = str(v)
-                    if ("<" in v) and (">" in v):  # needs an output from a previous step
-                        ref_v = v.split("<")[1].split(">")[0]
-                        ref_v = "<" + ref_v + ">"
-                        for task, output in past_steps:
-                            if ref_v == "<" + task["output_key"] + ">":
-                                input[k] = input[k].replace(ref_v, output)
-                output = execute_with_toolname(self.tools_descriptions, tool, input)
-            except Exception as e:
-                output = "Error during {} execution: {}".format(tool, str(e))
-
-            return output
-
-        past_steps = []
-        for task in state["plan"]:
-            tool = task["tool"]
-            input = task["input_schema"]
-
-            print("Executing task: {}".format(task))
-            output = execute_one_step(tool, input, past_steps)
-            print("Tool {} output: {}".format(tool, output))
-
-            past_steps.append((task, output))
-        print("Execution trace: ", past_steps)
-        return {"past_steps": past_steps}
-
-    def plan_step(self, state: AgentState):
-        if not self.debug:
-            output = self.planner.invoke({"objective": state["input"], "date": state["date"]})
-            if self.args.llm_engine == "openai":
-                output = output.content
-            if "steps" in output:
-                plan = output["steps"]
-            return {"plan": plan}
-
-        else:  # debug mode
-            plan = state["plan"]["steps"]
-            return {"plan": plan}  # planner output parser returns a dict {'steps':[]}
-
-    def rewrite_plan(self, state: AgentState):
-        if not self.debug:
-            output = self.plan_rewriter.invoke(
-                {
-                    "objective": state["input"],
-                    "initial_plan": state["plan"],
-                    "errors": state["plan_errors"],
-                    "date": state["date"],
-                }
-            )
-            if self.args.llm_engine == "openai":
-                output = output.content
-            print("New plan:\n", output)
-            return {"plan": output}
-        else:
-            plan = state["new_plan"]  # output from rewriter
-            # num_rewrite = state['num_rewrite'] + 1
-            return {"plan": plan}
-
-    def check_plan(self, state: AgentState):
-        # plan: [{}, {}]
-        errors = []
-        if type(state["plan"]) == str:  # exception has happened in planner
-            errors.append(state["plan"])
-            return {"plan_errors": errors}
-        else:
-            steps = state["plan"]
-            for i, step in enumerate(steps):
-                tool = step["tool"]
-                # first check if using a valid tool
-                if tool not in self.valid_tools:
-                    errors.append("Called {} tool, which is not available.".format(tool))
-                else:  # if using a valid tool, then check the args
-                    # check if the args are all correct
-                    input_schema = step["input_schema"]
-                    for k, v in input_schema.items():
-                        v = str(v)
-                        if k not in self.valid_args[tool]:
-                            errors.append("Invalid argument {} when calling {}".format(k, tool))
-                        if ("<" in v) and (">" in v):  # needs an output from a previous step
-                            ref_v = v.split("<")[1].split(">")[0]
-                            past_steps = steps[:i]
-                            past_outputs = []
-                            for past_s in past_steps:
-                                past_outputs.append(past_s["output_key"])
-                            if ref_v not in past_outputs:
-                                errors.append("Invalid reference {} when calling {}".format(ref_v, tool))
-        return {"plan_errors": errors}
-
-    def replan_step(self, state: AgentState):
-        if not self.debug:
-            output = self.replanner.invoke(
-                {
-                    "objective": state["input"],
-                    "plan": state["plan"],
-                    "past_steps": state["past_steps"],
-                    "date": state["date"],
-                }
-            )
-            if self.args.llm_engine == "openai":
-                output = output.content
-            print(output)
-            parsed_output = output
-            if (type(parsed_output) == dict) and ("response" in parsed_output):
-                return {"response": parsed_output["response"]}
-            else:  # no response, then try to return a plan
-                try:
-                    return {"plan": parsed_output["steps"]}
-                except Exception as e:  # parsing error
-                    return {"plan": "Replanner parsing error: {}".format(str(e))}
-
-        else:  # debug mode
-            return {"response": "This is a response from the replanner."}
-
-    def should_end(self, state: AgentState):
-        if "response" in state and state["response"]:
-            return True
-        else:
-            return False
-
-    def should_rewrite_plan(self, state: AgentState):
-        if "plan_errors" in state and len(state["plan_errors"]) > 0:
-            return True
-        else:
-            return False
+        self.app = workflow.compile()

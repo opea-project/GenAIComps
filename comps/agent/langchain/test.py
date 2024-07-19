@@ -15,9 +15,11 @@ def test_agent_local(args):
     from src.agent import instantiate_agent
 
     if args.q == 0:
-        df = pd.DataFrame({"query": ["How is the weather of Austin?"]})
+        df = pd.DataFrame({"query": ["What is the Intel OPEA Project?"]})
     elif args.q == 1:
         df = pd.DataFrame({"query": ["what is the trade volume for Microsoft today?"]})
+    elif args.q == 2:
+        df = pd.DataFrame({"query": ["what is the hometown of Year 2023 Australia open winner?"]})
 
     agent = instantiate_agent(args, strategy=args.strategy)
     app = agent.app
