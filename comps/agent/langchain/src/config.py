@@ -42,3 +42,21 @@ if os.environ.get("tools") is not None:
 
 if os.environ.get("streaming") is not None:
     env_config += ["--streaming", os.environ["streaming"]]
+
+if os.environ.get("max_new_tokens") is not None:
+    env_config += ["--max_new_tokens", os.environ["max_new_tokens"]]
+    
+if os.environ.get("top_k") is not None:
+    env_config += ["--top_k", os.environ["top_k"]]
+
+if os.environ.get("top_p") is not None:
+    env_config += ["--top_p", os.environ["top_p"]]
+
+if os.environ.get("temperature") is not None:
+    env_config += ["--temperature", os.environ["temperature"]]
+    
+if os.environ.get("repetition_penalty") is not None:
+    env_config += ["--repetition_penalty", os.environ["repetition_penalty"]]
+    
+if os.environ.get("return_full_text") is not None:
+    env_config += ["--return_full_text", os.environ["return_full_text"]]

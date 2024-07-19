@@ -15,7 +15,7 @@ def test_agent_local(args):
     from src.agent import instantiate_agent
 
     if args.q == 0:
-        df = pd.DataFrame({"query": ["What is the weather today in Austin?"]})
+        df = pd.DataFrame({"query": ["How is the weather of Austin?"]})
     elif args.q == 1:
         df = pd.DataFrame({"query": ["what is the trade volume for Microsoft today?"]})
 
@@ -28,7 +28,7 @@ def test_agent_local(args):
     success = 0
     for _, row in df.iterrows():
         print("Query: ", row["query"])
-        initial_state = {"input": row["query"], "plan_errors": [], "past_steps": []}
+        initial_state = {"messages": [{"role": "user", "content": row["query"]}]}
         try:
             trace = {"query": row["query"], "trace": []}
             for event in app.stream(initial_state, config=config):

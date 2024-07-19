@@ -3,15 +3,18 @@ from typing import Annotated, Any, Sequence, TypedDict, Literal
 from langchain_core.messages import BaseMessage, HumanMessage
 from langgraph.graph.message import add_messages
 from langchain_core.output_parsers import StrOutputParser
+from langchain.output_parsers import PydanticOutputParser
 
 from langchain_core.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langgraph.prebuilt import ToolNode
 from langgraph.graph import END, StateGraph, START
 from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_huggingface import ChatHuggingFace
 
-from .prompt import rlm_rag_prompt
+from .prompt import rlm_rag_prompt, hwchase17_react_prompt
 from ..base_agent import BaseAgent
+from ...utils import tool_renderer
 
 class AgentState(TypedDict):
     # The add_messages function defines how an update should be processed
@@ -28,12 +31,10 @@ class DocumentGrader:
     Returns:
         str: A decision for whether the documents are relevant or not
     """
-    def __init__(self, llm_endpoint):
+    def __init__(self, llm_endpoint, model_id):
         class grade(BaseModel):
             """Binary score for relevance check."""
-
-            binary_score: str = Field(description="Relevance score 'yes' or 'no'")
-        llm_with_tool = llm_endpoint.with_structured_output(grade)
+            binary_score: str = Field(description="Relevance score 'yes' or 'no'")        
         
         # Prompt
         prompt = PromptTemplate(
@@ -44,7 +45,7 @@ class DocumentGrader:
             Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question.""",
             input_variables=["context", "question"],
         )
-        self.chain = prompt | llm_with_tool
+        self.chain = prompt | llm_endpoint | PydanticOutputParser(pydantic_object=grade)
 
     def __call__(self, state) -> Literal["generate", "rewrite"]:
         print("---CALL DocumentGrader---")
@@ -77,8 +78,8 @@ class RagAgent:
     Returns:
         dict: The updated state with the agent response appended to messages
     """
-    def __init__(self, llm_endpoint, tools):
-        self.llm = llm_endpoint.bind_tools(tools)
+    def __init__(self, llm_endpoint, model_id, tools):
+        self.llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools(tools)
         
     def __call__(self, state):
         print("---CALL RagAgent---")
@@ -89,11 +90,9 @@ class RagAgent:
         return {"messages": [response]}
 
 class Retriever:
-    def __init__(self, tools_descriptions):
-        self.tools = tools_descriptions
-        
-    def __call__(self, state):
-        return ToolNode(self.tools)
+    @classmethod
+    def create(cls, tools_descriptions):
+        return ToolNode(tools_descriptions)
 
 class Rewriter:
     """
@@ -140,7 +139,7 @@ class TextGenerator:
     """
     def __init__(self, llm_endpoint):
         # Chain
-        promt = rlm_rag_prompt
+        prompt = rlm_rag_prompt
         self.rag_chain = prompt | llm_endpoint | StrOutputParser()
         
     def __call__(self, state):
@@ -161,9 +160,9 @@ class RAGAgentwithLanggraph(BaseAgent):
         super().__init__(args)
         
         # Define Nodes
-        document_grader = DocumentGrader(self.llm_endpoint)
-        rag_agent = RagAgent(self.llm_endpoint, self.tools_descriptions)
-        retriever = Retriever(self.llm_endpoint)
+        document_grader = DocumentGrader(self.llm_endpoint, args.model)
+        rag_agent = RagAgent(self.llm_endpoint, args.model, self.tools_descriptions)
+        retriever = Retriever.create(self.tools_descriptions)
         rewriter = Rewriter(self.llm_endpoint)
         text_generator = TextGenerator(self.llm_endpoint)
         
