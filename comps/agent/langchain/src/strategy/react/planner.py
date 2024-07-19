@@ -16,3 +16,24 @@ class ReActAgentwithLangchain(BaseAgent):
         self.app = AgentExecutor(
             agent=agent_chain, tools=self.tools_descriptions, verbose=True, handle_parsing_errors=True
         )
+        
+    def prepare_initial_state(self, query):
+        return {"input": query}
+    
+    async def stream_generator(self, query, config):
+        initial_state = self.prepare_initial_state(query)
+        async for chunk in self.app.astream(initial_state, config=config):
+            if "actions" in chunk:
+                for action in chunk["actions"]:
+                    yield f"Calling Tool: `{action.tool}` with input `{action.tool_input}`\n\n"
+            # Observation
+            elif "steps" in chunk:
+                for step in chunk["steps"]:
+                    yield f"Tool Result: `{step.observation}`\n\n"
+            # Final result
+            elif "output" in chunk:
+                yield f"data: {repr(chunk['output'])}\n\n"
+            else:
+                raise ValueError()
+            print("---")
+        yield "data: [DONE]\n\n"

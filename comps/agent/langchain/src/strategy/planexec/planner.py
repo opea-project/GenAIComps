@@ -237,3 +237,19 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
 
         # Finally, we compile it!
         self.app = workflow.compile()
+        
+    def prepare_initial_state(self, query):
+        return {"messages": [("user", query)]}
+    
+    async def stream_generator(self, query, config):
+        initial_state = self.prepare_initial_state(query)
+        async for event in self.app.astream(initial_state, config=config):
+            for node_name, node_state in event.items():
+                yield f"--- CALL {node_name} ---\n"
+                for k, v in node_state.items():
+                    if v is not None:
+                        yield f"{k}: {v}\n"
+                
+            yield f"data: {repr(event)}\n\n"
+        yield "data: [DONE]\n\n"
+        
