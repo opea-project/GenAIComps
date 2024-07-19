@@ -30,7 +30,7 @@ def setup_hf_tgi_client(args):
     generation_params = {
         "max_new_tokens": args.max_new_tokens,
         "top_k": args.top_k,
-        "top_p":args.top_p,
+        "top_p": args.top_p,
         "temperature": args.temperature,
         "repetition_penalty": args.repetition_penalty,
         "return_full_text": args.return_full_text,

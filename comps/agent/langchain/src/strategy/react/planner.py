@@ -1,7 +1,12 @@
-from ..base_agent import BaseAgent
-from ...utils import has_multi_tool_inputs, tool_renderer
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from langchain.agents import AgentExecutor, create_react_agent
+
+from ...utils import has_multi_tool_inputs, tool_renderer
+from ..base_agent import BaseAgent
 from .prompt import hwchase17_react_prompt
+
 
 class ReActAgentwithLangchain(BaseAgent):
     def __init__(self, args):
@@ -16,10 +21,10 @@ class ReActAgentwithLangchain(BaseAgent):
         self.app = AgentExecutor(
             agent=agent_chain, tools=self.tools_descriptions, verbose=True, handle_parsing_errors=True
         )
-        
+
     def prepare_initial_state(self, query):
         return {"input": query}
-    
+
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
         async for chunk in self.app.astream(initial_state, config=config):

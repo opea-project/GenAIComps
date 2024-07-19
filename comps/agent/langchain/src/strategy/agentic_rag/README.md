@@ -4,15 +4,18 @@ This strategy is a practise provided with [LangGraph](https://langchain-ai.githu
 This agent strategy includes steps listed below:
 
 1. RagAgent
-   decide if this query need to get extra help 
+   decide if this query need to get extra help
+
    - Yes: Goto 'Retriever'
    - No: Complete the query with Final answer
 
 2. Retriever:
+
    - Get relative Info from tools, Goto 'DocumentGrader'
 
 3. DocumentGrader
    Judge retrieved info relevance based query
+
    - Yes: Complete the query with Final answer
    - No: Goto 'Rewriter'
 

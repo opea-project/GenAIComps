@@ -1,5 +1,9 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from ..tools import get_tools_descriptions
 from ..utils import setup_llm
+
 
 class BaseAgent:
     def __init__(self, args) -> None:
@@ -12,4 +16,4 @@ class BaseAgent:
         pass
 
     def execute(self, state: dict):
-        pass 
+        pass

@@ -18,6 +18,7 @@ from comps.agent.langchain.src.utils import get_args
 
 args, _ = get_args()
 
+
 @register_microservice(
     name="opea_service@comps-react-agent",
     service_type=ServiceType.LLM,
