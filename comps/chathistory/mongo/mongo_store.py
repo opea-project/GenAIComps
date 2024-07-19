@@ -45,7 +45,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
 
-    async def update_document(self, document_id, updated_data, first_query) -> bool:
+    async def update_document(self, document_id, updated_data, first_query) -> str:
         """Updates a document in the collection with the given document_id.
 
         Args:
@@ -67,9 +67,10 @@ class DocumentStore:
                 {"$set": {"data": updated_data.model_dump(by_alias=True, mode="json"), "first_query": first_query}},
             )
             if update_result.modified_count == 1:
-                return True
+                return "Updated document : {}".format(document_id)
             else:
-                return False
+                raise Exception("Not able to Update the Document")
+            
         except BsonError.InvalidId as e:
             print(e)
             raise KeyError(e)
@@ -124,7 +125,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
 
-    async def delete_document(self, document_id) -> bool:
+    async def delete_document(self, document_id) -> str:
         """Deletes a document from the collection based on the provided document ID.
 
         Args:
@@ -145,7 +146,10 @@ class DocumentStore:
             delete_count = delete_result.deleted_count
             print(f"Deleted {delete_count} documents!")
 
-            return True if delete_count == 1 else False
+            if delete_count == 1:
+                return "Deleted document : {}".format(document_id)
+            else:
+                raise Exception("Not able to delete the Document")
 
         except BsonError.InvalidId as e:
             print(e)

@@ -8,7 +8,7 @@ Chat History microservice helps us to connect with MongoDB Database and save the
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
 export MONGO_HOST=${MONGO_HOST}
-export MONGO_HOST=27017
+export MONGO_PORT=27017
 export DB_NAME=${DB_NAME}
 export COLLECTION_NAME=${COLLECTION_NAME}
 ```
