@@ -65,6 +65,10 @@ class EmbedDoc1024(BaseDoc):
     text: str
     embedding: conlist(float, min_length=1024, max_length=1024)
 
+class EmbedDoc512(BaseDoc):
+    text: str
+    embedding: conlist(float, min_length=512, max_length=512)
+
 
 class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
