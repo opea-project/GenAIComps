@@ -16,6 +16,8 @@ from comps.cores.proto.docarray import (
     SearchedDoc,
     RerankedDoc,
     TextDoc,
+    MultiTextDoc,
+    ScoreDoc,
     RAGASParams,
     RAGASScores,
     GraphDoc,

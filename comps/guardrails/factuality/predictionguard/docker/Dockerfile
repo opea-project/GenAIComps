@@ -11,6 +11,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/user/comps/guardrails/factuality/predictionguard
+WORKDIR /home/comps/guardrails/factuality/predictionguard
 
 ENTRYPOINT ["python", "factuality_predictionguard.py" ]

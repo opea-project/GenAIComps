@@ -14,6 +14,15 @@ class TextDoc(BaseDoc):
     text: str
 
 
+class MultiTextDoc(BaseDoc):
+    reference: str
+    text: str
+
+
+class ScoreDoc(BaseDoc):
+    score: float
+
+
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 

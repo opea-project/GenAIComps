@@ -5,7 +5,8 @@ from predictionguard import PredictionGuard
 
 from comps import (
     ServiceType, 
-    TextDoc, 
+    TextDoc,
+    ScoreDoc, 
     opea_microservices, 
     register_microservice, 
     register_statistics,
@@ -18,24 +19,22 @@ from comps import (
     service_type=ServiceType.GUARDRAIL,
     endpoint="/v1/injection",
     host="0.0.0.0",
-    port="9085",
+    port=9085,
     input_datatype=TextDoc,
-    output_datatype=TextDoc
+    output_datatype=ScoreDoc
 )
 
 @register_statistics(names="opea_service@injection_predictionguard")
-def injection_guard(input: TextDoc) -> TextDoc:
+def injection_guard(input: TextDoc) -> ScoreDoc:
     client = PredictionGuard()
 
-    prompt = input.prompt
-    detect = input.detect
+    text = input.text
 
     result = client.injection.check(
-        prompt=prompt,
-        detect=detect
+        prompt=text
     )
 
-    return TextDoc(text=result["checks"][0]["probability"])
+    return ScoreDoc(score=result["checks"][0]["probability"])
 
 
 if __name__ == "__main__":

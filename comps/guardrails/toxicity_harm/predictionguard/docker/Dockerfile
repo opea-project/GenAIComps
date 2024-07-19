@@ -11,6 +11,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/user/comps/guardrails/toxicity_harm/predictionguard
+WORKDIR /home/comps/guardrails/toxicity_harm/predictionguard
 
 ENTRYPOINT ["python", "toxicity_predictionguard.py" ]
