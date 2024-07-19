@@ -155,7 +155,7 @@ async def ingest_documents(
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
-                        table_strategy=table_strategy
+                        table_strategy=table_strategy,
                     )
                 )
 
