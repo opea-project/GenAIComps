@@ -1,6 +1,9 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
+
+import time
+
 from predictionguard import PredictionGuard
 
 from comps import (
@@ -26,6 +29,8 @@ from comps import (
 
 @register_statistics(names="opea_service@injection_predictionguard")
 def injection_guard(input: TextDoc) -> ScoreDoc:
+    start = time.time()
+
     client = PredictionGuard()
 
     text = input.text
@@ -34,6 +39,7 @@ def injection_guard(input: TextDoc) -> ScoreDoc:
         prompt=text
     )
 
+    statistics_dict["opea_service@injection_predictionguard"].append_latency(time.time() - start, None)
     return ScoreDoc(score=result["checks"][0]["probability"])
 
 

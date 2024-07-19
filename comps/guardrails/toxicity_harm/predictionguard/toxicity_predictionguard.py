@@ -1,6 +1,9 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
+
+import time
+
 from predictionguard import PredictionGuard
 
 from comps import (
@@ -26,6 +29,8 @@ from comps import (
 
 @register_statistics(names="opea_service@toxicity_predictionguard")
 def toxicity_guard(input: TextDoc) -> ScoreDoc:
+    start = time.time()
+
     client = PredictionGuard()
 
     text = input.text
@@ -33,7 +38,8 @@ def toxicity_guard(input: TextDoc) -> ScoreDoc:
     result = client.toxicity.check(
         text=text
     )
-
+    
+    statistics_dict["opea_service@toxicity_predictionguard"].append_latency(time.time() - start, None)
     return ScoreDoc(score=result["checks"][0]["score"])
 
 
