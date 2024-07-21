@@ -4,15 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import json
 import os
 from typing import Dict, Optional, Union
 
-from .schema import *
-from .template import HallucinationTemplate
 import requests
 from requests.exceptions import RequestException
-import json
+
 from ..utils import construct_verbose_logs, prettify_list, trimAndLoadJson
+from .schema import *
+from .template import HallucinationTemplate
 
 
 class HallucinationMetric:
@@ -33,8 +34,9 @@ class HallucinationMetric:
         self.verbose_mode = verbose_mode
 
     def measure(self, test_case: Dict):
-        self.verdicts: List[HallucinationVerdict] = self._generate_verdicts(test_case["actual_output"],
-                test_case["context"])
+        self.verdicts: List[HallucinationVerdict] = self._generate_verdicts(
+            test_case["actual_output"], test_case["context"]
+        )
 
         self.score = self._calculate_score()
         self.reason = self._generate_reason()
@@ -81,7 +83,6 @@ class HallucinationMetric:
         data = trimAndLoadJson(res["generated_text"], self)
 
         return data["reason"]
-
 
     def _generate_verdicts(self, actual_output: str, contexts: List[str]) -> List[HallucinationVerdict]:
         verdicts: List[HallucinationVerdict] = []

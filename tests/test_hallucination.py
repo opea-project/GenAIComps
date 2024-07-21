@@ -16,14 +16,10 @@ class TestHallucinationMetric(unittest.TestCase):
         actual_output = "A blond drinking water in public."
 
         # Replace this with the actual documents that you are passing as input to your LLM.
-        context=["A man with blond-hair, and a brown shirt drinking out of a public water fountain."]
+        context = ["A man with blond-hair, and a brown shirt drinking out of a public water fountain."]
 
         metric = HallucinationMetric(threshold=0.5, model="http://localhost:8008/generate")
-        test_case = {
-            "input": "What was the blond doing?",
-            "actual_output": actual_output,
-            "context": context
-        }
+        test_case = {"input": "What was the blond doing?", "actual_output": actual_output, "context": context}
 
         metric.measure(test_case)
         print(metric.score)
