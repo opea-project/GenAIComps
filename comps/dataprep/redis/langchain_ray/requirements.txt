@@ -24,3 +24,4 @@ redis
 sentence_transformers
 shortuuid
 virtualenv
+python-bidi==0.4.2

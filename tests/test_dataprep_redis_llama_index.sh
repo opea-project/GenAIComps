@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -80,7 +80,7 @@ function main() {
 
     stop_docker
 
-    # build_docker_images
+    build_docker_images
     start_service
 
     validate_microservice
