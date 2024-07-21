@@ -3,16 +3,17 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import json
+import os
 from typing import Dict, Optional, Union
+
 import requests
 from requests.exceptions import RequestException
 
 from ..bias.template import BiasTemplate
+from ..utils import construct_verbose_logs, prettify_list, trimAndLoadJson
 from .schema import *
 from .template import ToxicityTemplate
-from ..utils import trimAndLoadJson, construct_verbose_logs, prettify_list
 
 
 class ToxicityMetric:
@@ -102,7 +103,6 @@ class ToxicityMetric:
         data = trimAndLoadJson(res["generated_text"], self)
         verdicts = [ToxicityVerdict(**item) for item in data["verdicts"]]
         return verdicts
-
 
     def _generate_opinions(self, actual_output: str) -> List[str]:
         prompt = BiasTemplate.generate_opinions(actual_output=actual_output)

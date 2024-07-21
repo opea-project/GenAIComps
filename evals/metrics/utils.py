@@ -1,11 +1,13 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
-from typing import Any, Optional, List, Union, Tuple
+from typing import Any, List, Optional, Tuple, Union
+
 from pydantic import BaseModel
 
 
-def trimAndLoadJson(
-    input_string: str, metric= None
-) -> Any:
+def trimAndLoadJson(input_string: str, metric=None) -> Any:
     start = input_string.find("{")
     end = input_string.rfind("}") + 1
 
@@ -25,6 +27,7 @@ def trimAndLoadJson(
     except Exception as e:
         raise Exception(f"An unexpected error occurred: {str(e)}")
 
+
 def construct_verbose_logs(metric, steps: List[str]) -> str:
     verbose_logs = ""
     for i in range(len(steps) - 1):
@@ -40,6 +43,7 @@ def construct_verbose_logs(metric, steps: List[str]) -> str:
 
     return verbose_logs
 
+
 def prettify_list(lst: List[Any]):
     if len(lst) == 0:
         return "[]"
@@ -49,9 +53,7 @@ def prettify_list(lst: List[Any]):
         if isinstance(item, str):
             formatted_elements.append(f'"{item}"')
         elif isinstance(item, BaseModel):
-            formatted_elements.append(
-                json.dumps(item.dict(), indent=4).replace("\n", "\n    ")
-            )
+            formatted_elements.append(json.dumps(item.dict(), indent=4).replace("\n", "\n    "))
         else:
             formatted_elements.append(repr(item))  # Fallback for other types
 
