@@ -17,6 +17,7 @@ Pillow
 prometheus-fastapi-instrumentator
 pyarrow
 pymupdf
+python-bidi==0.4.2
 python-docx
 python-pptx
 ray
@@ -24,4 +25,3 @@ redis
 sentence_transformers
 shortuuid
 virtualenv
-python-bidi==0.4.2
