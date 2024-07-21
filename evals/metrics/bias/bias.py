@@ -7,10 +7,12 @@
 import os
 from typing import Dict, Optional, Union
 
-from langchain_community.llms import HuggingFaceEndpoint
-
 from .schema import *
 from .template import BiasTemplate
+from ..utils import construct_verbose_logs, prettify_list, trimAndLoadJson
+import requests
+from requests.exceptions import RequestException
+import json
 
 
 class BiasMetric:
@@ -31,7 +33,8 @@ class BiasMetric:
         self.verbose_mode = verbose_mode
 
     def measure(self, test_case: Dict):
-        self.opinions: List[str] = self._generate_opinions(test_case.actual_output)
+
+        self.opinions: List[str] = self._generate_opinions(test_case["actual_output"])
         self.verdicts: List[BiasVerdict] = self._generate_verdicts()
         self.score = self._calculate_score()
         self.reason = self._generate_reason()
@@ -60,20 +63,20 @@ class BiasMetric:
             biases=biases,
             score=format(self.score, ".2f"),
         )
+        req = {"inputs": prompt, "parameters": {"do_sample": False}}
+        try:
+            res = requests.post(
+                f"{self.model}",
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(req),
+            )
+            res.raise_for_status()
+            res = res.json()
+        except RequestException as e:
+            raise Exception(f"An unexpected error occurred: {str(e)}")
 
-        if self.using_native_model:
-            res, cost = self.model.generate(prompt)
-            self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["reason"]
-        else:
-            try:
-                res: Reason = self.model.generate(prompt, schema=Reason)
-                return res.reason
-            except TypeError:
-                res, cost = self.model.generate(prompt)
-                data = trimAndLoadJson(res, self)
-                return data["reason"]
+        data = trimAndLoadJson(res["generated_text"], self)
+        return data["reason"]
 
     def _generate_verdicts(self) -> List[BiasVerdict]:
         if len(self.opinions) == 0:
@@ -81,37 +84,39 @@ class BiasMetric:
 
         verdicts: List[BiasVerdict] = []
         prompt = BiasTemplate.generate_verdicts(opinions=self.opinions)
-        if self.using_native_model:
-            res, cost = self.model.generate(prompt)
-            self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            verdicts = [BiasVerdict(**item) for item in data["verdicts"]]
-            return verdicts
-        else:
-            try:
-                res: Verdicts = self.model.generate(prompt, schema=Verdicts)
-                verdicts = [item for item in res.verdicts]
-                return verdicts
-            except TypeError:
-                res = self.model.generate(prompt)
-                data = trimAndLoadJson(res, self)
-                verdicts = [BiasVerdict(**item) for item in data["verdicts"]]
+        req = {"inputs": prompt, "parameters": {"do_sample": False}}
+        try:
+            res = requests.post(
+                f"{self.model}",
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(req),
+            )
+            res.raise_for_status()
+            res = res.json()
+        except RequestException as e:
+            raise Exception(f"An unexpected error occurred: {str(e)}")
+
+        data = trimAndLoadJson(res["generated_text"], self)
+        verdicts = [BiasVerdict(**item) for item in data["verdicts"]]
+        return verdicts
 
     def _generate_opinions(self, actual_output: str) -> List[str]:
+
         prompt = BiasTemplate.generate_opinions(actual_output=actual_output)
-        if self.using_native_model:
-            res, cost = self.model.generate(prompt)
-            self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["opinions"]
-        else:
-            try:
-                res: Opinions = self.model.generate(prompt, schema=Opinions)
-                return res.opinions
-            except TypeError:
-                res, cost = self.model.generate(prompt)
-                data = trimAndLoadJson(res, self)
-                return data["opinions"]
+        req = {"inputs": prompt, "parameters": {"do_sample": False}}
+        try:
+            res = requests.post(
+                f"{self.model}",
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(req),
+            )
+            res.raise_for_status()
+            res = res.json()
+        except RequestException as e:
+            raise Exception(f"An unexpected error occurred: {str(e)}")
+
+        data = trimAndLoadJson(res["generated_text"], self)
+        return data["opinions"]
 
     def _calculate_score(self) -> float:
         number_of_verdicts = len(self.verdicts)
