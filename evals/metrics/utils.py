@@ -59,3 +59,12 @@ def prettify_list(lst: List[Any]):
 
     formatted_list = ",\n    ".join(formatted_elements)
     return f"[\n    {formatted_list}\n]"
+
+def print_verbose_logs(metric: str, logs: str):
+    print("*" * 50)
+    print(f"{metric} Verbose Logs")
+    print("*" * 50)
+    print("")
+    print(logs)
+    print("")
+    print("=" * 70)
