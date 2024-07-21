@@ -4,15 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import json
 import os
 from typing import Dict, Optional, Union
 
-from .schema import *
-from .template import BiasTemplate
-from ..utils import construct_verbose_logs, prettify_list, trimAndLoadJson
 import requests
 from requests.exceptions import RequestException
-import json
+
+from ..utils import construct_verbose_logs, prettify_list, trimAndLoadJson
+from .schema import *
+from .template import BiasTemplate
 
 
 class BiasMetric:
