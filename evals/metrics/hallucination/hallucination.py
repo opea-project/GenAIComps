@@ -7,10 +7,12 @@
 import os
 from typing import Dict, Optional, Union
 
-from langchain_community.llms import HuggingFaceEndpoint
-
 from .schema import *
 from .template import HallucinationTemplate
+import requests
+from requests.exceptions import RequestException
+import json
+from ..utils import construct_verbose_logs, prettify_list, trimAndLoadJson
 
 
 class HallucinationMetric:
@@ -31,7 +33,8 @@ class HallucinationMetric:
         self.verbose_mode = verbose_mode
 
     def measure(self, test_case: Dict):
-        self.verdicts: List[HallucinationVerdict] = self._generate_verdicts(test_case.actual_output, test_case.context)
+        self.verdicts: List[HallucinationVerdict] = self._generate_verdicts(test_case["actual_output"],
+                test_case["context"])
 
         self.score = self._calculate_score()
         self.reason = self._generate_reason()
@@ -63,40 +66,41 @@ class HallucinationMetric:
             contradictions=contradictions,
             score=format(self.score, ".2f"),
         )
+        req = {"inputs": prompt, "parameters": {"do_sample": False}}
+        try:
+            res = requests.post(
+                f"{self.model}",
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(req),
+            )
+            res.raise_for_status()
+            res = res.json()
+        except RequestException as e:
+            raise Exception(f"An unexpected error occurred: {str(e)}")
 
-        if self.using_native_model:
-            res, cost = self.model.generate(prompt)
-            self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            return data["reason"]
-        else:
-            try:
-                res: Reason = self.model.generate(prompt, schema=Reason)
-                return res.reason
-            except TypeError:
-                res = self.model.generate(prompt)
-                data = trimAndLoadJson(res, self)
-                return data["reason"]
+        data = trimAndLoadJson(res["generated_text"], self)
+
+        return data["reason"]
+
 
     def _generate_verdicts(self, actual_output: str, contexts: List[str]) -> List[HallucinationVerdict]:
         verdicts: List[HallucinationVerdict] = []
         prompt = HallucinationTemplate.generate_verdicts(actual_output=actual_output, contexts=contexts)
-        if self.using_native_model:
-            res, cost = self.model.generate(prompt)
-            self.evaluation_cost += cost
-            data = trimAndLoadJson(res, self)
-            verdicts = [HallucinationVerdict(**item) for item in data["verdicts"]]
-            return verdicts
-        else:
-            try:
-                res: Verdicts = self.model.generate(prompt, schema=Verdicts)
-                verdicts = [item for item in res.verdicts]
-                return verdicts
-            except TypeError:
-                res = self.model.generate(prompt)
-                data = trimAndLoadJson(res, self)
-                verdicts = [HallucinationVerdict(**item) for item in data["verdicts"]]
-                return verdicts
+        req = {"inputs": prompt, "parameters": {"do_sample": False}}
+        try:
+            res = requests.post(
+                f"{self.model}",
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(req),
+            )
+            res.raise_for_status()
+            res = res.json()
+        except RequestException as e:
+            raise Exception(f"An unexpected error occurred: {str(e)}")
+
+        data = trimAndLoadJson(res["generated_text"], self)
+        verdicts = [HallucinationVerdict(**item) for item in data["verdicts"]]
+        return verdicts
 
     def _calculate_score(self) -> float:
         number_of_verdicts = len(self.verdicts)
