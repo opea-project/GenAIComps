@@ -19,10 +19,10 @@ Pillow
 prometheus-fastapi-instrumentator
 pymupdf
 pyspark
+python-bidi==0.4.2
 python-docx
 python-pptx
 redis
 sentence_transformers
 shortuuid
 unstructured[all-docs]==0.11.5
-python-bidi==0.4.2
