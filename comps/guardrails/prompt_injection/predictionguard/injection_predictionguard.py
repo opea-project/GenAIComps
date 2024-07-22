@@ -6,10 +6,10 @@ import time
 
 from predictionguard import PredictionGuard
 
+from typedocs import ScoreDoc
 from comps import (
     ServiceType, 
-    TextDoc,
-    ScoreDoc, 
+    TextDoc, 
     opea_microservices, 
     register_microservice, 
     register_statistics,
