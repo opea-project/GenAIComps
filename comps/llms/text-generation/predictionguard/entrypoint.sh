@@ -5,5 +5,5 @@
 
 #pip --no-cache-dir install -r requirements-runtime.txt
 
-python predictionguard_llm.py
+python llm_predictionguard.py
 
