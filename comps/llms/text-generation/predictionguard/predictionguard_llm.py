@@ -35,10 +35,6 @@ app = FastAPI()
 def llm_generate(input: LLMParamsDoc):
     messages = [
         {
-            "role": "system",
-            "content": "You are a helpful assistant. Your goal is to provide accurate, detailed, and safe responses to the user's queries."
-        },
-        {
             "role": "user",
             "content": input.query
         }
@@ -80,10 +76,7 @@ def llm_generate(input: LLMParamsDoc):
             response_text = response['choices'][0]['message']['content']
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-
         return GeneratedDoc(text=response_text, prompt=input.query)
-
-
 
 if __name__ == "__main__":
     opea_microservices["opea_service@llm_predictionguard"].start()
