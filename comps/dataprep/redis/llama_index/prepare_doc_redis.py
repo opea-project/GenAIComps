@@ -17,13 +17,7 @@ from redis import Redis
 from redisvl.schema import IndexSchema
 
 from comps import DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import (
-    create_upload_folder,
-    encode_filename,
-    get_file_structure,
-    remove_folder_with_ignore,
-    save_content_to_local_disk,
-)
+from utils import *
 
 upload_folder = "./uploaded_files/"
 

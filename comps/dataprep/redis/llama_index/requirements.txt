@@ -1,9 +1,5 @@
-cairosvg
 docarray[full]
-docx2txt
-easyocr
 fastapi
-fitz-utils
 huggingface_hub
 langsmith
 llama-index 
@@ -16,8 +12,6 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
 python-bidi==0.4.2
-python-docx
-python-pptx
 redis
 sentence_transformers
 shortuuid
