@@ -9,13 +9,13 @@
 
 ```bash
 cd GenAIComps/
-docker build -t predictionguard-llm -f comps/llms/text-generation/predictionguard/Dockerfile .                          
+docker build -t llm-predictionguard -f comps/llms/text-generation/predictionguard/Dockerfile .                          
 ```
 
 # Run the Predictionguard Microservice
 
 ```bash
-docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY="<API_KEY>" --name predictionguard-llm-container predictionguard-llm
+docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY="<API_KEY>" --name llm-predictionguard llm-predictionguard
 ```
 
 # Consume the Predictionguard Microservice
