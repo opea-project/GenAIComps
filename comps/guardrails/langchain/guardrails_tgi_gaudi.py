@@ -70,9 +70,11 @@ def safety_guard(input: TextDoc) -> TextDoc:
         policy_violation_level = response_input_guard.split("\n")[1].strip()
         policy_violations = unsafe_dict[policy_violation_level]
         print(f"Violated policies: {policy_violations}")
-        res = TextDoc(text=f"Violated policies: {policy_violations}, please check your input.")
+        res = TextDoc(
+            text=f"Violated policies: {policy_violations}, please check your input.", downstream_black_list=[".*"]
+        )
     else:
-        res = TextDoc(text="safe")
+        res = TextDoc(text=input.text)
 
     return res
 
@@ -90,6 +92,6 @@ if __name__ == "__main__":
         repetition_penalty=1.03,
     )
     # chat engine for server-side prompt templating
-    llm_engine_hf = ChatHuggingFace(llm=llm_guard)
+    llm_engine_hf = ChatHuggingFace(llm=llm_guard, model_id=safety_guard_model)
     print("guardrails - router] LLM initialized.")
     opea_microservices["opea_service@guardrails_tgi_gaudi"].start()
