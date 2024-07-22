@@ -26,7 +26,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../..
-docker build -t opea/toxicity_predictionguard:latest -f comps/guardrails/toxicity_harm/predictionguard/docker/Dockerfile .
+docker build -t opea/toxicity-predictionguard:latest -f comps/guardrails/toxicity_harm/predictionguard/docker/Dockerfile .
 ```
 
 ## 2.2 Start Service

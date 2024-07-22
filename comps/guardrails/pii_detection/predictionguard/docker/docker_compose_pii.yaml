@@ -4,8 +4,8 @@
 version: "3.8"
 
 services:
-  embedding:
-    image: opea/pii_predictionguard:latest
+  pii:
+    image: opea/pii-predictionguard:latest
     container_name: pii-predictionguard
     ports:
       - "9080:9080"

@@ -4,8 +4,8 @@
 version: "3.8"
 
 services:
-  embedding:
-    image: opea/toxicity_predictionguard:latest
+  toxicity:
+    image: opea/toxicity-predictionguard:latest
     container_name: toxicity-predictionguard
     ports:
       - "9090:9090"
