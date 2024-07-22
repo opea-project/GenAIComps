@@ -42,7 +42,7 @@ app = FastAPI()
     port=9000,
 )
 
-@register_statistics(names="opea_service@llm_predictionguard")
+@register_statistics(names=["opea_service@llm_predictionguard"])
 def llm_generate(input: LLMParamsDoc):
     start = time.time()
     
@@ -75,6 +75,7 @@ def llm_generate(input: LLMParamsDoc):
             # finally:
             #     yield "[DONE]\n\n"
 
+        statistics_dict["opea_service@llm_predictionguard"].append_latency(time.time() - start, None)
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         try:
