@@ -11,7 +11,7 @@ from typing import Dict, List, Union
 def create_upload_folder(upload_path):
     if not os.path.exists(upload_path):
         Path(upload_path).mkdir(parents=True, exist_ok=True)
-        
+
 
 def encode_filename(filename):
     return urllib.parse.quote(filename, safe="")
@@ -73,8 +73,8 @@ def remove_folder_with_ignore(folder_path: str, except_patterns: List = []):
                 continue
             if not os.listdir(dir_path):
                 os.rmdir(dir_path)
-                
-                
+
+
 async def save_content_to_local_disk(save_path: str, content):
     save_path = Path(save_path)
     try:
