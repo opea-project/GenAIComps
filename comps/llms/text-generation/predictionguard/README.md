@@ -9,7 +9,7 @@
 
 ```bash
 cd GenAIComps/
-docker build -t llm-predictionguard -f comps/llms/text-generation/predictionguard/Dockerfile .                          
+docker build -t llm-predictionguard -f comps/llms/text-generation/predictionguard/docker/Dockerfile .                          
 ```
 
 # Run the Predictionguard Microservice

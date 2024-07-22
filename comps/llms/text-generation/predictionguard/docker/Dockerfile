@@ -13,5 +13,3 @@ ENV PYTHONPATH=$PYTHONPATH:/home
 WORKDIR /home/comps/llms/text-generation/predictionguard
 
 ENTRYPOINT ["bash", "entrypoint.sh"]
-
-

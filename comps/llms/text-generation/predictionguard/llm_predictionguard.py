@@ -48,10 +48,6 @@ def llm_generate(input: LLMParamsDoc):
     
     messages = [
         {
-            "role": "system",
-            "content": "You are a helpful assistant. Your goal is to provide accurate, detailed, and safe responses to the user's queries."
-        },
-        {
             "role": "user",
             "content": input.query
         }
