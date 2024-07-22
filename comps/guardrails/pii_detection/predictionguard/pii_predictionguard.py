@@ -6,10 +6,10 @@ import time
 
 from predictionguard import PredictionGuard
 
+from typedocs import PIIDoc
 from comps import (
     ServiceType, 
     TextDoc,
-    PIIDoc,
     opea_microservices, 
     register_microservice, 
     register_statistics,

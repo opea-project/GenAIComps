@@ -1,5 +1,5 @@
 aiohttp
-docarray[full]
+docarray
 fastapi
 huggingface_hub
 opentelemetry-api
