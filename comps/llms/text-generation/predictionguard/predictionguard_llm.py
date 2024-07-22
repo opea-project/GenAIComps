@@ -2,11 +2,21 @@
 # SPDX-License-Identified: Apache-2.0
 
 
+import time
+
 from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from predictionguard import PredictionGuard
-from comps import GeneratedDoc, ServiceType, opea_microservices, register_microservice
+
+from comps import (
+    GeneratedDoc, 
+    ServiceType, 
+    opea_microservices, 
+    register_microservice,
+    register_statistics,
+    statistics_dict
+)
 
 client = PredictionGuard()
 
@@ -32,7 +42,10 @@ app = FastAPI()
     port=9000,
 )
 
+@register_statistics(names="opea_service@llm_predictionguard")
 def llm_generate(input: LLMParamsDoc):
+    start = time.time()
+    
     messages = [
         {
             "role": "user",
@@ -76,6 +89,8 @@ def llm_generate(input: LLMParamsDoc):
             response_text = response['choices'][0]['message']['content']
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+        statistics_dict["opea_service@llm_predictionguard"].append_latency(time.time() - start, None)
         return GeneratedDoc(text=response_text, prompt=input.query)
 
 if __name__ == "__main__":
