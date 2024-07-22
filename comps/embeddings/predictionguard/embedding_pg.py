@@ -1,8 +1,21 @@
+# Copyright (C) 2024 Prediction Guard, Inc.
+# SPDX-License-Identified: Apache-2.0
+
+
 import os
 import time
 
 from predictionguard import PredictionGuard
-from comps import EmbedDoc512, ServiceType, TextDoc, opea_microservices, register_microservice, statistics_dict, register_statistics
+
+from comps import (
+    EmbedDoc512, 
+    ServiceType, 
+    TextDoc, 
+    opea_microservices, 
+    register_microservice,
+    register_statistics, 
+    statistics_dict
+)
 
 # Initialize Prediction Guard client
 client = PredictionGuard()
