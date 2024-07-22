@@ -43,6 +43,7 @@ class MegaServiceEndpoint(Enum):
     DOC_SUMMARY = "/v1/docsum"
     SEARCH_QNA = "/v1/searchqna"
     TRANSLATION = "/v1/translation"
+    RETRIEVALTOOL = "/v1/retrievaltool"
     # Follow OPENAI
     EMBEDDINGS = "/v1/embeddings"
     TTS = "/v1/audio/speech"

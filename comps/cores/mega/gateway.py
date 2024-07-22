@@ -12,7 +12,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     UsageInfo,
 )
-from ..proto.docarray import LLMParams
+from ..proto.docarray import LLMParams, SearchedDoc, TextDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -400,3 +400,45 @@ class SearchQnAGateway(Gateway):
             )
         )
         return ChatCompletionResponse(model="searchqna", choices=choices, usage=usage)
+
+
+class RetrievalToolGateway(Gateway):
+    """embed+retrieve+rerank."""
+
+    def __init__(self, megaservice, host="0.0.0.0", port=8889):
+        super().__init__(
+            megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.RETRIEVALTOOL),
+            TextDoc,  # ChatCompletionRequest,
+            SearchedDoc,  # ChatCompletionResponse
+        )
+
+    async def handle_request(self, request: Request):
+        data = await request.json()
+        chat_request = TextDoc.parse_obj(data)
+        # prompt = self._handle_message(chat_request.messages)
+        query = chat_request.text
+
+        # dummy llm params - because orchestrator execute has to have LLMParams
+        parameters = LLMParams(
+            max_new_tokens=1024,
+            top_k=10,
+            top_p=0.95,
+            temperature=0.01,
+            repetition_penalty=1.03,
+            streaming=False,
+        )
+
+        result_dict = await self.megaservice.schedule(initial_inputs={"text": query}, llm_parameters=parameters)
+        for node, response in result_dict.items():
+            # Here it suppose the last microservice in the megaservice is LLM.
+            # if (
+            #     isinstance(response, SearchedDoc)
+            #     and node == list(self.megaservice.services.keys())[-1]
+            #     and self.megaservice.services[node].service_type == ServiceType.RERANK
+            # ):
+            print("Node: {}\nResponse: {}".format(node, response))
+            if self.megaservice.services[node].service_type == ServiceType.RERANK:
+                return response
