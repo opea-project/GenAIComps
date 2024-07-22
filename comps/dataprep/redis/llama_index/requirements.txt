@@ -1,5 +1,7 @@
 cairosvg
 docarray[full]
+docx2txt
+easyocr
 fastapi
 huggingface_hub
 langsmith
@@ -18,3 +20,4 @@ python-pptx
 redis
 sentence_transformers
 shortuuid
+fitz-utils
