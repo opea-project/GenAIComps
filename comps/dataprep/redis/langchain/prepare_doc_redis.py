@@ -8,17 +8,15 @@ import uuid
 from pathlib import Path
 from typing import List, Optional, Union
 
-from config import (
-    EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, INDEX_SCHEMA, 
-    REDIS_URL, REDIS_HOST, REDIS_PORT )
+# from pyspark import SparkConf, SparkContext
+import redis
+from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, KEY_INDEX_NAME, REDIS_HOST, REDIS_PORT, REDIS_URL
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from langsmith import traceable
-# from pyspark import SparkConf, SparkContext
-import redis
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
@@ -41,38 +39,38 @@ redis_pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT)
 
 
 def check_index_existance(client):
-    print(f"[ check index existance ] checking {client}")
+    print(f"[ check index existence ] checking {client}")
     try:
-        results = client.search(f"*")
-        print(f"[ check index existance ] index of client exists: {client}")
+        results = client.search("*")
+        print(f"[ check index existence ] index of client exists: {client}")
         return results
     except Exception as e:
-        print(f"[ check index existance ] index does not exist: {e}")
+        print(f"[ check index existence ] index does not exist: {e}")
         return None
 
 
-def create_index(client, index_name: str=KEY_INDEX_NAME):
+def create_index(client, index_name: str = KEY_INDEX_NAME):
     print(f"[ create index ] creating index {index_name}")
     try:
-        definition = IndexDefinition(index_type=IndexType.HASH, prefix=['file:'])
+        definition = IndexDefinition(index_type=IndexType.HASH, prefix=["file:"])
         client.create_index((TextField("file_name"), TextField("key_ids")), definition=definition)
         print(f"[ create index ] index {index_name} successfully created")
     except Exception as e:
         print(f"[ create index ] fail to create index {index_name}: {e}")
         return False
     return True
-    
-    
+
+
 def store_by_id(client, key, value):
     print(f"[ store by id ] storing ids of {key}")
     try:
-        client.add_document(doc_id="file:"+key, file_name=key, key_ids=value)
+        client.add_document(doc_id="file:" + key, file_name=key, key_ids=value)
         print(f"[ store by id ] store document success. id: file:{key}")
     except Exception as e:
         print(f"[ store by id ] fail to store document file:{key}: {e}")
         return False
     return True
- 
+
 
 def search_by_id(client, doc_id):
     print(f"[ search by id ] searching docs of {doc_id}")
@@ -88,11 +86,7 @@ def search_by_id(client, doc_id):
 def drop_index(index_name, redis_url=REDIS_URL):
     print(f"[ drop index ] dropping index {index_name}")
     try:
-        assert Redis.drop_index(
-            index_name=index_name,
-            delete_documents=True,
-            redis_url=redis_url
-        )
+        assert Redis.drop_index(index_name=index_name, delete_documents=True, redis_url=redis_url)
         print(f"[ drop index ] index {index_name} deleted")
     except Exception as e:
         print(f"[ drop index ] index {index_name} delete failed: {e}")
@@ -146,7 +140,7 @@ def ingest_data_to_redis(doc_path: DocPath):
     # Batch size
     batch_size = 32
     num_chunks = len(chunks)
-    
+
     file_ids = []
     for i in range(0, num_chunks, batch_size):
         print(f"Current batch: {i}")
@@ -163,15 +157,15 @@ def ingest_data_to_redis(doc_path: DocPath):
         print(f"keys: {keys}")
         file_ids.extend(keys)
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
-    
+
     # store file_ids into index file-keys
     r = redis.Redis(connection_pool=redis_pool)
     client = r.ft(KEY_INDEX_NAME)
     if not check_index_existance(client):
         assert create_index(client)
-    file_name = doc_path.path.split('/')[-1]
+    file_name = doc_path.path.split("/")[-1]
     assert store_by_id(client, key=file_name, value="#".join(file_ids))
-    
+
     return True
 
 
@@ -187,7 +181,7 @@ async def ingest_link_to_redis(link_list: List[str]):
     # Create redis connection obj
     r = redis.Redis(connection_pool=redis_pool)
     client = r.ft(KEY_INDEX_NAME)
-    
+
     # save link contents and doc_ids one by one
     for link in link_list:
         content = parse_html([link])[0][0]
@@ -196,7 +190,7 @@ async def ingest_link_to_redis(link_list: List[str]):
         save_path = upload_folder + encoded_link + ".txt"
         print(f"[ ingest link ] save_path: {save_path}")
         await save_content_to_local_disk(save_path, content)
-        
+
         _, keys = Redis.from_texts_return_keys(
             texts=content,
             embedding=embedder,
@@ -209,7 +203,7 @@ async def ingest_link_to_redis(link_list: List[str]):
             assert create_index(client)
         file_name = encoded_link + ".txt"
         assert store_by_id(client, key=file_name, value="#".join(keys))
-        
+
     return True
 
 
@@ -267,7 +261,7 @@ async def ingest_documents(
         # except:
         #     # Stop the SparkContext
         #     sc.stop()
-        
+
         return {"status": 200, "message": "Data preparation succeeded"}
 
     if link_list:
@@ -328,11 +322,11 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     if delete_path.exists():
         r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
         client = r.ft(KEY_INDEX_NAME)
-        client2= r.ft(INDEX_NAME)
+        client2 = r.ft(INDEX_NAME)
         doc_id = "file:" + encode_filename(file_path)
         objs = search_by_id(client, doc_id).key_ids
         file_ids = objs.split("#")
-        
+
         # delete file
         if delete_path.is_file():
             try:
