@@ -10,7 +10,7 @@ from evals.metrics.hallucination import HallucinationMetric
 
 class TestHallucinationMetric(unittest.TestCase):
 
-    # @unittest.skip("need pass localhost id")
+    @unittest.skip("need pass localhost id")
     def test_hallucination(self):
         # Replace this with the actual output from your LLM application
         actual_output = "A blond drinking water in public."

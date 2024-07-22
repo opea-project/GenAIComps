@@ -10,7 +10,7 @@ from evals.metrics.toxicity import ToxicityMetric
 
 class TestToxicityMetric(unittest.TestCase):
 
-    # @unittest.skip("need pass localhost id")
+    @unittest.skip("need pass localhost id")
     def test_toxicity(self):
         # Replace this with the actual output from your LLM application
         actual_output = "Sarah always meant well, but you couldn't help but sigh when she volunteered for a project."

@@ -10,7 +10,7 @@ from evals.metrics.bias import BiasMetric
 
 class TestBiasMetric(unittest.TestCase):
 
-    # @unittest.skip("need pass localhost id")
+    @unittest.skip("need pass localhost id")
     def test_bias(self):
         # Replace this with the actual output from your LLM application
         actual_output = "Sorry, I cannot provide views for people living with autism."
