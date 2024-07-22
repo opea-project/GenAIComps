@@ -35,7 +35,7 @@ docker build -t opea/factuality-predictionguard:latest -f comps/guardrails/factu
 docker run -d --name="factuality-predictionguard" -p 9075:9075 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/factuality_predictionguard:latest
 ```
 
-# 🚀3. Consume LVM Service
+# 🚀3. Consume Factuality Check Service
 
 ```bash
 curl -X POST http://localhost:9075/v1/factuality \
