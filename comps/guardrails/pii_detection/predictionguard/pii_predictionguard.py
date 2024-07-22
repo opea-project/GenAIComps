@@ -30,6 +30,7 @@ from comps import (
 @register_statistics(names="opea_service@pii_predictionguard")
 def pii_guard(input: PIIDoc) -> TextDoc:
     start = time.time()
+    
     client = PredictionGuard()
 
     prompt = input.prompt

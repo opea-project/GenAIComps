@@ -4,8 +4,8 @@
 version: "3.8"
 
 services:
-  embedding:
-    image: opea/factuality_predictionguard:latest
+  factuality:
+    image: opea/factuality-predictionguard:latest
     container_name: factuality-predictionguard
     ports:
       - "9075:9075"

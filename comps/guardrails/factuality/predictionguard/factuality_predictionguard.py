@@ -8,7 +8,7 @@ from predictionguard import PredictionGuard
 
 from comps import (
     ServiceType, 
-    MultiTextDoc,
+    FactualityDoc,
     ScoreDoc,
     opea_microservices, 
     register_microservice, 
@@ -23,12 +23,12 @@ from comps import (
     endpoint="/v1/factuality",
     host="0.0.0.0",
     port=9075,
-    input_datatype=MultiTextDoc,
+    input_datatype=FactualityDoc,
     output_datatype=ScoreDoc
 )
 
 @register_statistics(names="opea_service@factuality_predictionguard")
-def factuality_guard(input: MultiTextDoc) -> ScoreDoc:
+def factuality_guard(input: FactualityDoc) -> ScoreDoc:
     start = time.time()
 
     client = PredictionGuard()

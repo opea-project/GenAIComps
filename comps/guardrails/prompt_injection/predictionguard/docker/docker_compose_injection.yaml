@@ -4,8 +4,8 @@
 version: "3.8"
 
 services:
-  embedding:
-    image: opea/injection_predictionguard:latest
+  injection:
+    image: opea/injection-predictionguard:latest
     container_name: injection-predictionguard
     ports:
       - "9085:9085"

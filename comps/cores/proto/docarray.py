@@ -14,7 +14,7 @@ class TextDoc(BaseDoc):
     text: str
 
 
-class MultiTextDoc(BaseDoc):
+class FactualityDoc(BaseDoc):
     reference: str
     text: str
 
