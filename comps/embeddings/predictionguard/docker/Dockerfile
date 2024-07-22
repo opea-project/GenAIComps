@@ -12,5 +12,5 @@ ENV PYTHONPATH=$PYTHONPATH:/home
 
 WORKDIR /home/comps/embeddings/predictionguard
 
-ENTRYPOINT ["python", "embedding_pg.py"]
+ENTRYPOINT ["python", "embedding_predictionguard.py"]
 

@@ -45,6 +45,6 @@ def embedding(input: TextDoc) -> EmbedDoc512:
 
 if __name__ == "__main__":
     pg_embedding_model_name = os.getenv("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
-    print("PG Embedding initialized.")
+    print("Prediction Guard Embedding initialized.")
     opea_microservices["opea_service@embedding_predictionguard"].start()
 

@@ -6,8 +6,8 @@ version: "3.8"
 
 services:
   embedding:
-    image: opea/embedding-pg:latest
-    container_name: embedding-pg-server
+    image: opea/embedding-predictionguard:latest
+    container_name: embedding-predictionguard
     ports:
       - "6000:6000"
     ipc: host
