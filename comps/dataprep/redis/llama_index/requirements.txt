@@ -3,6 +3,7 @@ docarray[full]
 docx2txt
 easyocr
 fastapi
+fitz-utils
 huggingface_hub
 langsmith
 llama-index 
@@ -20,4 +21,3 @@ python-pptx
 redis
 sentence_transformers
 shortuuid
-fitz-utils
