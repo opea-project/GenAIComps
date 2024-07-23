@@ -4,9 +4,9 @@
 
 import time
 
-from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
+from typedocs import FactualityDoc, ScoreDoc
 from comps import (
     ServiceType,
     opea_microservices, 
@@ -14,14 +14,6 @@ from comps import (
     register_statistics,
     statistics_dict
 )
-
-
-class FactualityDoc(BaseDoc):
-    reference: str
-    text: str
-
-class ScoreDoc(BaseDoc):
-    score: float
 
 
 @register_microservice(
@@ -34,7 +26,7 @@ class ScoreDoc(BaseDoc):
     output_datatype=ScoreDoc
 )
 
-@register_statistics(names=["opea_service@factuality_predictionguard"])
+@register_statistics(names="opea_service@factuality_predictionguard")
 def factuality_guard(input: FactualityDoc) -> ScoreDoc:
     start = time.time()
 

@@ -35,7 +35,7 @@ docker build -t opea/injection-predictionguard:latest -f comps/guardrails/factua
 docker run -d --name="injection-predictionguard" -p 9085:9085 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/injection_predictionguard:latest
 ```
 
-# 🚀3. Consume Prompt Injection Detection Service
+# 🚀3. Consume LVM Service
 
 ```bash
 curl -X POST http://localhost:9085/v1/injection \
