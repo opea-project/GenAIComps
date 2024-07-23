@@ -138,12 +138,12 @@ class ServiceOrchestrator(DAG):
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:                                    
-                                    response = requests.post(
+                                    res = requests.post(
                                         url=endpoint, data={"text": buffered_chunk_str}, proxies={"http": None}
                                     )
-                                    res = response.json()
-                                    if "text" in res:
-                                        res_txt = res["text"]
+                                    res_json = res.json()
+                                    if "text" in res_json:
+                                        res_txt = res_json["text"]
                                     else:
                                         raise Exception("Other response types not supported yet!")
                                     buffered_chunk_str = "" # clear
