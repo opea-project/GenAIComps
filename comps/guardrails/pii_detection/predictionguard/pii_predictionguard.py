@@ -3,13 +3,14 @@
 
 
 import time
+import json
+from typing import Optional, List
 
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
 from comps import (
     ServiceType, 
-    TextDoc,
     opea_microservices, 
     register_microservice, 
     register_statistics,
@@ -17,10 +18,15 @@ from comps import (
 )
 
 
-class PIIDoc(BaseDoc):
+class PIIRequestDoc(BaseDoc):
     prompt: str
-    replace: bool
-    replace_method: str
+    replace: Optional[bool] = False
+    replace_method: Optional[str] = "random"
+
+
+class PIIResponseDoc(BaseDoc):
+    detected_pii: Optional[List[dict]] = None
+    new_prompt: Optional[str] = None
 
 
 @register_microservice(
@@ -29,12 +35,12 @@ class PIIDoc(BaseDoc):
     endpoint="/v1/pii",
     host="0.0.0.0",
     port=9080,
-    input_datatype=PIIDoc,
-    output_datatype=TextDoc
+    input_datatype=PIIRequestDoc,
+    output_datatype=PIIResponseDoc
 )
 
 @register_statistics(names=["opea_service@pii_predictionguard"])
-def pii_guard(input: PIIDoc) -> TextDoc:
+def pii_guard(input: PIIRequestDoc) -> PIIResponseDoc:
     start = time.time()
     
     client = PredictionGuard()
@@ -51,9 +57,10 @@ def pii_guard(input: PIIDoc) -> TextDoc:
 
     statistics_dict["opea_service@pii_predictionguard"].append_latency(time.time() - start, None)
     if "new_prompt" in result["checks"][0].keys():
-        return TextDoc(text=result["checks"][0]["new_prompt"])
+        return PIIResponseDoc(new_prompt=result["checks"][0]["new_prompt"])
     elif "pii_types_and_positions" in result["checks"][0].keys():
-        return TextDoc(text=result["checks"][0]["pii_types_and_positions"])
+        detected_pii = json.loads(result["checks"][0]["pii_types_and_positions"])
+        return PIIResponseDoc(detected_pii=detected_pii)
 
 
 if __name__ == "__main__":

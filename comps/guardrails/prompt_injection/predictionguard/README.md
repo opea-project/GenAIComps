@@ -1,20 +1,12 @@
 # Prompt Injection Detection Prediction Guard Microservice
 
-[Prediction Guard](https://docs.predictionguard.com) Prediction Guard allows you to seamlessly integrate private, controlled, and compliant Large Language Models (LLM) functionality. In addition to providing a scalable LLM API, we enable you to prevent hallucinations, institute governance, and ensure compliance. Using Prediction Guard gives you quick and easy access to state-of-the-art LLMs. Acquire an API key by going [here](https://mailchi.mp/predictionguard/getting-started).
+[Prediction Guard](https://docs.predictionguard.com) allows you to utilize hosted open access LLMs, LVMs, and embedding functionality with seamlessly integrated safeguards. In addition to providing a scalable access to open models, Prediction Guard allows you to configure factual consistency checks, toxicity filters, PII filters, and prompt injection blocking. Join the [Prediction Guard Discord channel](https://discord.gg/TFHgnhAFKd) and request an API key to get started.
 
-Detecting prompt injections can be very useful in protecting proprietary training data, along with ensuring that your LLMs are responding properly.
+Prompt Injection  occurs when an attacker manipulates an LLM through malicious prompts, causing the system running an LLM to execute the attacker’s intentions. This microservice allows you to check a prompt and get a score from 0.0 to 1.0 indicating the likelihood of a prompt injection (higher numbers indicate danger).
 
-# 🚀1. Start Microservice with Python
+# 🚀 Start Microservice with Docker
 
-## 1.1 Install Requirements
-
-```bash
-pip install -r requirements.txt
-```
-
-# 🚀2. Start Microservice with Docker
-
-## 2.1 Setup Environment Variables
+## Setup Environment Variables
 
 Setup the following environment variables first
 
@@ -22,20 +14,20 @@ Setup the following environment variables first
 export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ```
 
-## 2.1 Build Docker Images
+## Build Docker Images
 
 ```bash
-cd ../..
-docker build -t opea/injection-predictionguard:latest -f comps/guardrails/factuality/predictionguard/docker/Dockerfile .
+cd ../../..
+docker build -t opea/injection-predictionguard:latest -f comps/guardrails/prompt_injection/predictionguard/docker/Dockerfile .
 ```
 
-## 2.2 Start Service
+## Start Service
 
 ```bash
-docker run -d --name="injection-predictionguard" -p 9085:9085 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/injection_predictionguard:latest
+docker run -d --name="injection-predictionguard" -p 9085:9085 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/injection-predictionguard:latest
 ```
 
-# 🚀3. Consume Prompt Injection Detection Service
+# 🚀 Consume Prompt Injection Detection Service
 
 ```bash
 curl -X POST http://localhost:9085/v1/injection \

@@ -81,6 +81,7 @@ class RerankedDoc(BaseDoc):
 
 
 class LLMParamsDoc(BaseDoc):
+    model: Optional[str] = None  # for predictionguard, openai and ollama
     query: str
     max_new_tokens: int = 1024
     top_k: int = 10
