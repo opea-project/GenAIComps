@@ -16,21 +16,25 @@ Users are albe to configure and build embedding-related services according to th
 
 # 🚀1. Start Microservice with Python (Option 1)
 
-Currently, we provide two ways to implement the embedding service:
+Currently, we provide three ways to implement the embedding service:
 
 1. Build the embedding model **_locally_** from the server, which is faster, but takes up memory on the local server.
 
 2. Build it based on the **_TEI endpoint_**, which provides more flexibility, but may bring some network latency.
 
-For both of the implementations, you need to install requirements first.
+3. Build it based on the **_Prediction Guard endpoint_**, which provides performant, hosted embedding models on top of Gaudi, but needs an API key.
+
+Regardless of the implementation, you need to install requirements first.
 
 ## 1.1 Install Requirements
 
 ```bash
 # run with langchain
 pip install -r langchain/requirements.txt
+
 # run with llama_index
 pip install -r llama_index/requirements.txt
+
 # run with predictionguard
 pip install -r predictionguard/requirements.txt
 ```

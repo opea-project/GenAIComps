@@ -1,31 +1,33 @@
 # Introduction
 
-[Prediction Guard](https://docs.predictionguard.com) Prediction Guard allows you to seamlessly integrate private, controlled, and compliant Large Language Models (LLM) functionality. In addition to providing a scalable LLM API, we enable you to prevent hallucinations, institute governance, and ensure compliance. Using Prediction Guard gives you quick and easy access to state-of-the-art LLMs
+[Prediction Guard](https://docs.predictionguard.com) allows you to utilize hosted open access LLMs, LVMs, and embedding functionality with seamlessly integrated safeguards. In addition to providing a scalable access to open models, Prediction Guard allows you to configure factual consistency checks, toxicity filters, PII filters, and prompt injection blocking. Join the [Prediction Guard Discord channel](https://discord.gg/TFHgnhAFKd) and request an API key to get started.
+
 # Get Started
 
-## Usage
-
-# Build Docker Image
+## Build Docker Image
 
 ```bash
-cd GenAIComps/
-docker build -t llm-predictionguard -f comps/llms/text-generation/predictionguard/docker/Dockerfile .                          
+cd ../../..
+docker build -t opea/llm-predictionguard:latest -f comps/llms/text-generation/predictionguard/docker/Dockerfile .
 ```
 
-# Run the Predictionguard Microservice
+## Run the Predictionguard Microservice
 
 ```bash
-docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY="<API_KEY>" --name llm-predictionguard llm-predictionguard
+docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name llm-predictionguard opea/llm-predictionguard:latest
 ```
 
-# Consume the Predictionguard Microservice
+# Consume the Prediction Guard Microservice
+
+See the [Prediction Guard docs](https://docs.predictionguard.com/) for available model options. 
 
 ## Without streaming
+
 ```bash
 curl -X POST http://localhost:9000/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
-        "model": "Neural-Chat-7B",
+        "model": "Hermes-2-Pro-Llama-3-8B",
         "query": "Tell me a joke.",
         "max_new_tokens": 100,
         "temperature": 0.7,
@@ -33,14 +35,15 @@ curl -X POST http://localhost:9000/v1/chat/completions \
         "top_k": 50,
         "stream": false
     }'
+```
 
-```
 ## With streaming
-```
+
+```bash
 curl -N -X POST http://localhost:9000/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
-        "model": "Neural-Chat-7B",
+        "model": "Hermes-2-Pro-Llama-3-8B",
         "query": "Tell me a joke.",
         "max_new_tokens": 100,
         "temperature": 0.7,
@@ -48,5 +51,4 @@ curl -N -X POST http://localhost:9000/v1/chat/completions \
         "top_k": 50,
         "stream": true
     }'
-
 ```

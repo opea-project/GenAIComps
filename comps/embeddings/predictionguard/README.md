@@ -1,20 +1,14 @@
 # Embedding Generation Prediction Guard Microservice
 
-[Prediction Guard](https://docs.predictionguard.com) Prediction Guard allows you to seamlessly integrate private, controlled, and compliant Large Language Models (LLM) functionality. In addition to providing a scalable LLM API, we enable you to prevent hallucinations, institute governance, and ensure compliance. Using Prediction Guard gives you quick and easy access to state-of-the-art LLMs. Acquire an API key by going [here](https://mailchi.mp/predictionguard/getting-started).
+[Prediction Guard](https://docs.predictionguard.com) allows you to utilize hosted open access LLMs, LVMs, and embedding functionality with seamlessly integrated safeguards. In addition to providing a scalable access to open models, Prediction Guard allows you to configure factual consistency checks, toxicity filters, PII filters, and prompt injection blocking. Join the [Prediction Guard Discord channel](https://discord.gg/TFHgnhAFKd) and request an API key to get started.
 
-The Embedding Microservice is designed to efficiently convert textual strings into vectorized embeddings, facilitating seamless integration into various machine learning and data processing workflows. This service utilizes advanced algorithms to generate high-quality embeddings that capture the semantic essence of the input text, making it ideal for applications in natural language processing, information retrieval, and similar fields.
+This embedding microservice is designed to efficiently convert text into vectorized embeddings using the [BridgeTower model](https://huggingface.co/BridgeTower/bridgetower-large-itm-mlm-itc). Thus, it is ideal for both RAG or semantic search applications.
 
-# 🚀1. Start Microservice with Python
+**Note** - The BridgeTower model implemented in Prediction Guard can actually embed text, images, or text + images (jointly). For now this service only embeds text, but a follow on contribution will enable the multimodal functionality.
 
-## 1.1 Install Requirements
+# 🚀 Start Microservice with Docker
 
-```bash
-pip install -r requirements.txt
-```
-
-# 🚀2. Start Microservice with Docker
-
-## 2.1 Setup Environment Variables
+## Setup Environment Variables
 
 Setup the following environment variables first
 
@@ -22,22 +16,22 @@ Setup the following environment variables first
 export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ```
 
-## 2.1 Build Docker Images
+## Build Docker Images
 
 ```bash
-cd ../..
-docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-predictionguard:latest -f comps/guardrails/embeddings/predictionguard/docker/Dockerfile .
+cd ../../..
+docker build -t opea/embedding-predictionguard:latest -f comps/embeddings/predictionguard/docker/Dockerfile .
 ```
 
-## 2.2 Start Service
+## Start Service
 
 ```bash
-docker run -d --name="embedding-predictionguard" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6000:6000 --ipc=host -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/embedding_predictionguard:latest
+docker run -d --name="embedding-predictionguard" -p 6000:6000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/embedding-predictionguard:latest
 ```
 
-# 🚀3. Consume Embeddings Service
+# 🚀 Consume Embeddings Service
 
-```
+```bash
 curl localhost:6000/v1/embeddings \
      -X POST \
      -d '{"text":"Hello, world!"}' \
