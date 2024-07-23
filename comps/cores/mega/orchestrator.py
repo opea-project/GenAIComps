@@ -138,6 +138,7 @@ class ServiceOrchestrator(DAG):
                                 chunk = chunk.decode('utf-8')
                                 print(f"==={chunk}===")
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
+                                print(f"***{buffered_chunk_str}***")
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:                                    
                                     res = requests.post(
@@ -177,14 +178,14 @@ class ServiceOrchestrator(DAG):
         return final_output_dict
 
     def extract_chunk_str(self, chunk_str):
-        prefix = "data: "
-        suffix ="\n\n"
+        if chunk_str == "data: [DONE]\n\n":
+            return ""
+        prefix = "data: b'"
+        suffix ="'\n\n"
         if chunk_str.startswith(prefix):
-            chunk_str = chunk_str[len("data: "):]
+            chunk_str = chunk_str[len(prefix):]
         if chunk_str.endswith(suffix):
             chunk_str = chunk_str[:-len(suffix)]
-        if chunk_str == "[DONE]":
-            return ""
         return chunk_str
 
     def token_generator(self, sentence, is_last=False):
