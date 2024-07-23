@@ -29,7 +29,7 @@ function validate_microservice() {
 
     # test /v1/dataprep
     dataprep_service_port=5013
-    URL="http://localhost:$dataprep_service_port/v1/dataprep"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
@@ -51,7 +51,7 @@ function validate_microservice() {
 
     # test /v1/dataprep/get_file
     dataprep_file_service_port=5016
-    URL="http://localhost:$dataprep_file_service_port/v1/dataprep/get_file"
+    URL="http://${ip_address}:$dataprep_file_service_port/v1/dataprep/get_file"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."
@@ -72,7 +72,7 @@ function validate_microservice() {
 
     # test /v1/dataprep/delete_file
     dataprep_file_service_port=5016
-    URL="http://localhost:$dataprep_del_service_port/v1/dataprep/delete_file"
+    URL="http://${ip_address}:$dataprep_del_service_port/v1/dataprep/delete_file"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - del ] HTTP status is 200."
