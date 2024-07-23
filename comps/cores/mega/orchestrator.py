@@ -134,7 +134,7 @@ class ServiceOrchestrator(DAG):
                     buffered_chunk_str = ""
                     for chunk in response.iter_content(chunk_size=None):
                         if chunk:
-                            if downstream:
+                            if downstream: 
                                 chunk = chunk.decode('utf-8')
                                 print(f"==={chunk}===")
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
@@ -177,7 +177,6 @@ class ServiceOrchestrator(DAG):
         return final_output_dict
 
     def extract_chunk_str(self, chunk):
-        chunk_str = chunk.decode('utf-8')
         prefix = "data: "
         suffix ="\n\n"
         if chunk_str.startswith(prefix):
