@@ -35,7 +35,8 @@ function validate_microservice() {
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep ] HTTP status is 200. Checking content..."
-        local CONTENT=$(curl -s -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL" | tee ${LOG_PATH}/dataprep.log)
+        cp ./dataprep_file.txt ./dataprep_file2.txt
+        local CONTENT=$(curl -s -X POST -F 'files=@./dataprep_file2.txt' -H 'Content-Type: multipart/form-data' "$URL" | tee ${LOG_PATH}/dataprep.log)
 
         if echo "$CONTENT" | grep -q "Data preparation succeeded"; then
             echo "[ dataprep ] Content is as expected."
