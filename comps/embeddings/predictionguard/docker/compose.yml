@@ -1,17 +1,20 @@
 # Copyright (C) 2024 Prediction Guard, Inc
 # SPDX-License-Identifier: Apache-2.0
 
+version: "3.8"
+
 services:
-  lvm:
-    image: opea/lvm-predictionguard:latest
-    container_name: lvm-predictionguard
+  embedding:
+    image: opea/embedding-pg:latest
+    container_name: embedding-pg-server
     ports:
-      - "8091:8091"
+      - "6000:6000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      PG_EMBEDDING_MODEL_NAME: ${PG_EMBEDDING_MODEL_NAME}
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
     restart: unless-stopped
 

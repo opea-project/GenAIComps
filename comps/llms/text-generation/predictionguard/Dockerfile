@@ -1,4 +1,5 @@
-# Copyright (C) 2024 Prediction Guard, Inc.
+
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 FROM python:3.11-slim
@@ -13,3 +14,5 @@ ENV PYTHONPATH=$PYTHONPATH:/home
 WORKDIR /home/comps/llms/text-generation/predictionguard
 
 ENTRYPOINT ["bash", "entrypoint.sh"]
+
+
