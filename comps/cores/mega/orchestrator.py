@@ -122,12 +122,34 @@ class ServiceOrchestrator(DAG):
             response = requests.post(
                 url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
             )
+            downstream = runtime_graph.downstream(cur_node)
+            if downstream:
+                assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
+                cur_node = downstream[0]
+            hitted_ends = ['.', '?', '!', '。', '，', '！']
+            endpoint = self.services[downstream[0]].endpoint_path
 
             def generate():
                 if response:
+                    buffered_chunk_str = ""
                     for chunk in response.iter_content(chunk_size=None):
-                        if chunk:
-                            yield chunk
+                        if chunk:                            
+                            if downstream:                                
+                                buffered_chunk_str += self.extract_chunk_str(chunk)
+                                is_last = chunk.endswith("[DONE]\n\n")
+                                if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:                                    
+                                    response = requests.post(
+                                        url=endpoint, data={"text": buffered_chunk_str}, proxies={"http": None}
+                                    )
+                                    res = response.json()
+                                    if "text" in res:
+                                        res_txt = res["text"]
+                                    else:
+                                        raise Exception("Other response types not supported yet!")
+                                    buffered_chunk_str = "" # clear
+                                    yield from self.token_generator(res_txt, is_last=is_last)
+                            else:
+                                yield chunk
 
             return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
         else:
@@ -139,7 +161,7 @@ class ServiceOrchestrator(DAG):
                 inputs["query"] = inputs["text"]
                 del inputs["text"]
             async with session.post(endpoint, json=inputs) as response:
-                print(response.status)
+                print(f"{cur_node}: {response.status}")
                 return await response.json(), cur_node
 
     def dump_outputs(self, node, response, result_dict):
@@ -150,3 +172,24 @@ class ServiceOrchestrator(DAG):
         for leaf in runtime_graph.all_leaves():
             final_output_dict[leaf] = result_dict[leaf]
         return final_output_dict
+
+    def extract_chunk_str(self, chunk):
+        chunk_str = chunk.decode('utf-8')
+        prefix = "data: "
+        suffix ="\n\n"
+        if chunk_str.startswith(prefix):
+            chunk_str = chunk_str[len("data: "):]
+        if chunk_str.endswith(suffix):
+            chunk_str = chunk_str[:-len(suffix)]
+        if chunk_str == "[DONE]":
+            return ""
+        return chunk_str
+
+    def token_generator(self, sentence, is_last=False):
+        prefix = "data: "
+        suffix ="\n\n"
+        tokens = re.findall(r'\w+|[^\w\s]', sentence, re.UNICODE)
+        for token in tokens:
+            yield prefix + token + suffix
+        if is_last:
+            yield "data: [DONE]\n\n"
