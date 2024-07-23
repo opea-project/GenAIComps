@@ -44,11 +44,11 @@ You can select one of following ways to start the embedding service:
 First, you need to start a PredictionGuard service.
 
 ```bash
-docker run -d --name="embedding-predictionguard" \
+docker run -d --name="embedding-pg-server" \
     -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
     -p 6000:6000 --ipc=host \
     -e PREDICTIONGUARD_API_KEY=<your_api_key> \
-    opea/embedding-predictionguard:latest
+    opea/embedding-pg:latest
 ```
 
 Then you need to test your PredictionGuard service using the following commands:
@@ -148,17 +148,17 @@ export TEI_EMBEDDING_MODEL_NAME="BAAI/bge-large-en-v1.5"
 First, build the Docker image for the PredictionGuard embedding microservice:
 
 ```bash
-docker build -t opea/embedding-predictionguard:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/predictionguard/docker/Dockerfile .
+docker build -t opea/embedding-pg:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/predictionguard/docker/Dockerfile .
 ```
 
 Start the Docker container for the PredictionGuard embedding microservice. Replace <your_api_key> with your PredictionGuard API key.
 
 ```bash
-docker run -d --name="embedding-predictionguard" \
+docker run -d --name="embedding-pg-server" \
     -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
     -p 6000:6000 --ipc=host \
     -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY \
-    opea/embedding-predictionguard:latest
+    opea/embedding-pg:latest
 ```
 
 Then you need to test your PredictionGuard service using the following commands:
@@ -189,7 +189,7 @@ docker build -t opea/embedding-tei:latest --build-arg https_proxy=$https_proxy -
 ### Build PredictionGuard Docker (Option c)
 
 ```bash
-docker build -t opea/embedding-predictionguard:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/predictionguard/docker/Dockerfile .
+docker build -t opea/embedding-pg:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/predictionguard/docker/Dockerfile .
 ```
 
 ## 2.4 Run Docker with CLI
@@ -199,7 +199,7 @@ docker run -d --name="embedding-tei-server" -p 6000:6000 --ipc=host -e http_prox
 ```
 
 ```bash
-docker run -d --name="embedding-predictionguard" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6000:6000 --ipc=host -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/embedding-predictionguard:latest
+docker run -d --name="embedding-pg-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6000:6000 --ipc=host -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/embedding-pg:latest
 ```
 
 ## 2.5 Run Docker with Docker Compose

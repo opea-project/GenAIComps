@@ -1,21 +1,8 @@
-# Copyright (C) 2024 Prediction Guard, Inc.
-# SPDX-License-Identified: Apache-2.0
-
-
 import os
 import time
 
 from predictionguard import PredictionGuard
-
-from comps import (
-    EmbedDoc512, 
-    ServiceType, 
-    TextDoc, 
-    opea_microservices, 
-    register_microservice,
-    register_statistics, 
-    statistics_dict
-)
+from comps import EmbedDoc512, ServiceType, TextDoc, opea_microservices, register_microservice, statistics_dict, register_statistics
 
 # Initialize Prediction Guard client
 client = PredictionGuard()
@@ -45,6 +32,6 @@ def embedding(input: TextDoc) -> EmbedDoc512:
 
 if __name__ == "__main__":
     pg_embedding_model_name = os.getenv("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
-    print("Prediction Guard Embedding initialized.")
+    print("PG Embedding initialized.")
     opea_microservices["opea_service@embedding_predictionguard"].start()
 
