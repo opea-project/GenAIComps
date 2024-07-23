@@ -142,7 +142,7 @@ class ServiceOrchestrator(DAG):
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:                                    
                                     res = requests.post(
-                                        url=endpoint, data={"text": buffered_chunk_str}, proxies={"http": None}
+                                        url=endpoint, data=json.dumps({"text": buffered_chunk_str}), proxies={"http": None}
                                     )
                                     res_json = res.json()
                                     print(res_json)
