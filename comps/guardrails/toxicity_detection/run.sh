@@ -7,5 +7,5 @@
 # libiomp5.so is the Intel OpenMP runtime library, providing parallel computation support,
 # thread management, task scheduling, and performance optimization on Intel X86 platforms.
 
-# run toxicity detection microservice 
+# run toxicity detection microservice
 python toxicity_detection.py
