@@ -191,8 +191,8 @@ class ServiceOrchestrator(DAG):
     def token_generator(self, sentence, is_last=False):
         prefix = "data: "
         suffix ="\n\n"
-        tokens = re.findall(r'\w+|[^\w\s]', sentence, re.UNICODE)
+        tokens = re.findall(r'\S+\s?', sentence, re.UNICODE)
         for token in tokens:
-            yield prefix + token + suffix
+            yield prefix + repr(token.encode("utf-8")) + suffix
         if is_last:
             yield "data: [DONE]\n\n"
