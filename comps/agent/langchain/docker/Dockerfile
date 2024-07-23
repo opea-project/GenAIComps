@@ -1,16 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-FROM langchain/langchain:latest
+FROM python:3.11-slim
 
-ENV LANG=C.UTF-8
-
-ARG ARCH="cpu"
+ENV LANG C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+    build-essential \
     libgl1-mesa-glx \
-    libjemalloc-dev \
-    vim
+    libjemalloc-dev
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
@@ -20,12 +18,18 @@ USER user
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install torch --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/guardrails/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/agent/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/guardrails/langchain
+USER root
 
-ENTRYPOINT ["python", "guardrails_tgi_gaudi.py"]
+RUN mkdir -p /home/user/comps/agent/langchain/status && chown -R user /home/user/comps/agent/langchain/status
+
+USER user
+
+WORKDIR /home/user/comps/agent/langchain/
+
+ENTRYPOINT ["python", "agent.py"]
