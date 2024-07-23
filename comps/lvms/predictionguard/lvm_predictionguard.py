@@ -23,7 +23,7 @@ class LVMDoc(BaseDoc):
     top_k: int = 50
     top_p: float = 0.99
     temperature: float = 1.0
-    stream: bool = True
+    stream: bool = False
 
 
 client = PredictionGuard()
@@ -59,7 +59,7 @@ async def lvm(request: LVMDoc):
         top_k=request.top_k,
         top_p=request.top_p,
         temperature=request.temperature,
-        stream=request.stream,
+        stream=False,
     )
 
     statistics_dict["opea_service@lvm_predictionguard"].append_latency(time.time() - start, None)

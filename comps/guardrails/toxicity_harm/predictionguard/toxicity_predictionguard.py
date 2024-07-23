@@ -4,9 +4,9 @@
 
 import time
 
+from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
-from typedocs import ScoreDoc
 from comps import (
     ServiceType, 
     TextDoc,
@@ -15,6 +15,10 @@ from comps import (
     register_statistics,
     statistics_dict
 )
+
+
+class ScoreDoc(BaseDoc):
+    score: float
 
 
 @register_microservice(
@@ -27,7 +31,7 @@ from comps import (
     output_datatype=ScoreDoc
 )
 
-@register_statistics(names="opea_service@toxicity_predictionguard")
+@register_statistics(names=["opea_service@toxicity_predictionguard"])
 def toxicity_guard(input: TextDoc) -> ScoreDoc:
     start = time.time()
 

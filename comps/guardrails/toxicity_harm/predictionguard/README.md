@@ -35,7 +35,7 @@ docker build -t opea/toxicity-predictionguard:latest -f comps/guardrails/toxicit
 docker run -d --name="toxicity-predictionguard" -p 9090:9090 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/toxicity_predictionguard:latest
 ```
 
-# 🚀3. Consume LVM Service
+# 🚀3. Consume Toxicity Check Service
 
 ```bash
 curl -X POST http://localhost:9090/v1/toxicity \
