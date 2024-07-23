@@ -136,16 +136,13 @@ class ServiceOrchestrator(DAG):
                         if chunk:
                             if downstream: 
                                 chunk = chunk.decode('utf-8')
-                                print(f"==={chunk}===")
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
-                                print(f"***{buffered_chunk_str}***")
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:                                    
                                     res = requests.post(
                                         url=endpoint, data=json.dumps({"text": buffered_chunk_str}), proxies={"http": None}
                                     )
                                     res_json = res.json()
-                                    print(res_json)
                                     if "text" in res_json:
                                         res_txt = res_json["text"]
                                     else:
