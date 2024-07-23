@@ -176,7 +176,7 @@ class ServiceOrchestrator(DAG):
             final_output_dict[leaf] = result_dict[leaf]
         return final_output_dict
 
-    def extract_chunk_str(self, chunk):
+    def extract_chunk_str(self, chunk_str):
         prefix = "data: "
         suffix ="\n\n"
         if chunk_str.startswith(prefix):
