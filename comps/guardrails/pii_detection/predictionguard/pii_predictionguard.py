@@ -4,9 +4,9 @@
 
 import time
 
+from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
-from typedocs import PIIDoc
 from comps import (
     ServiceType, 
     TextDoc,
@@ -15,6 +15,12 @@ from comps import (
     register_statistics,
     statistics_dict
 )
+
+
+class PIIDoc(BaseDoc):
+    prompt: str
+    replace: bool
+    replace_method: str
 
 
 @register_microservice(
@@ -27,7 +33,7 @@ from comps import (
     output_datatype=TextDoc
 )
 
-@register_statistics(names="opea_service@pii_predictionguard")
+@register_statistics(names=["opea_service@pii_predictionguard"])
 def pii_guard(input: PIIDoc) -> TextDoc:
     start = time.time()
     
@@ -40,7 +46,7 @@ def pii_guard(input: PIIDoc) -> TextDoc:
     result = client.pii.check(
         prompt=prompt,
         replace=replace,
-        replace_method = replace_method
+        replace_method=replace_method
     )
 
     statistics_dict["opea_service@pii_predictionguard"].append_latency(time.time() - start, None)

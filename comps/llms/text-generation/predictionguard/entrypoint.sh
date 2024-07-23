@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 #pip --no-cache-dir install -r requirements-runtime.txt
 
-python predictionguard_llm.py
+python llm_predictionguard.py
 

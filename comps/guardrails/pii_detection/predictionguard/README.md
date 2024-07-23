@@ -35,7 +35,7 @@ docker build -t opea/pii-predictionguard:latest -f comps/guardrails/pii_detectio
 docker run -d --name="pii-predictionguard" -p 9080:9080 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/pii_predictionguard:latest
 ```
 
-# 🚀3. Consume LVM Service
+# 🚀3. Consume PII Detection Service
 
 ```bash
 curl -X POST http://localhost:9080/v1/pii \
