@@ -42,7 +42,7 @@ def retrieve(input: EmbedDoc768) -> SearchedDoc:
     docs = [TextDoc(text=r.page_content) for r in documents]
 
     time_spent = time.time() - start
-    statistics_dict["opea_service@retriever_redis"].append_latency(time_spent, None)  # noqa: E501
+    statistics_dict["opea_service@retriever_pathway"].append_latency(time_spent, None)  # noqa: E501
     return SearchedDoc(retrieved_docs=docs, initial_query=input.text)
 
 
