@@ -77,8 +77,6 @@ class ServiceOrchestrator(DAG):
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
                             if "retriever_parameters" in kwargs and "reranker_parameters" in kwargs:
-                                retriever_parameters = kwargs["retriever_parameters"]
-                                reranker_parameters = kwargs["reranker_parameters"]
                                 pending.add(
                                     asyncio.create_task(
                                         self.execute(
@@ -87,8 +85,7 @@ class ServiceOrchestrator(DAG):
                                             inputs,
                                             runtime_graph,
                                             llm_parameters,
-                                            retriever_parameters,
-                                            reranker_parameters,
+                                            kwargs,
                                         )
                                     )
                                 )
