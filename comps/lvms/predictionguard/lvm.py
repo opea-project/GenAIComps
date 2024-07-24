@@ -1,19 +1,19 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
-
 import time
-from docarray import BaseDoc
-from predictionguard import PredictionGuard
 
+from docarray import BaseDoc
 from comps import (
-    ServiceType,
     TextDoc,
+    ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
+
+from predictionguard import PredictionGuard
 
 
 class LVMDoc(BaseDoc):
@@ -23,10 +23,6 @@ class LVMDoc(BaseDoc):
     top_k: int = 50
     top_p: float = 0.99
     temperature: float = 1.0
-    stream: bool = False
-
-
-client = PredictionGuard()
 
 
 @register_microservice(
@@ -34,12 +30,12 @@ client = PredictionGuard()
     service_type=ServiceType.LVM,
     endpoint="/v1/lvm",
     host="0.0.0.0",
-    port=8091,
+    port=9399,
     input_datatype=LVMDoc,
     output_datatype=TextDoc,
 )
 @register_statistics(names=["opea_service@lvm_predictionguard"])
-async def lvm(request: LVMDoc):
+async def lvm(request: LVMDoc) -> TextDoc:
     start = time.time()
 
     # make a request to the Prediction Guard API using the LlaVa model
@@ -59,13 +55,13 @@ async def lvm(request: LVMDoc):
         top_k=request.top_k,
         top_p=request.top_p,
         temperature=request.temperature,
-        stream=False,
     )
 
     statistics_dict["opea_service@lvm_predictionguard"].append_latency(time.time() - start, None)
+
     return TextDoc(text=result["choices"][0]["message"]["content"])
 
 
 if __name__ == "__main__":
-    print("Prediction Guard LVM initialized.")
+    client = PredictionGuard()
     opea_microservices["opea_service@lvm_predictionguard"].start()
