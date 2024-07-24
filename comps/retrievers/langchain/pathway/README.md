@@ -7,6 +7,7 @@
 ```bash
 pip install -r requirements.txt
 ```
+### With the Docker compose
 
 (Optionally) Start the embedder service separately.
 
