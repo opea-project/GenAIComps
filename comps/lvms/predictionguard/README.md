@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ## 1.2 Start LVM Service
 
 ```bash
-python lvm_predictionguard.py
+python lvm.py
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)
