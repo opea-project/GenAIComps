@@ -14,7 +14,7 @@ services:
     shm_size: 1g
     command: --model-id ${RETRIEVE_MODEL_ID}
   retriever:
-    image: opea/retriever-redis:latest
+    image: opea/retriever-pathway:latest
     container_name: retriever-pathway-server
     ports:
       - "7000:7000"
@@ -23,11 +23,10 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      PATHWAY_URL: ${PATHWAY_URL}
       PATHWAY_HOST: ${PATHWAY_HOST}
       PATHWAY_PORT: ${PATHWAY_PORT}
-      INDEX_NAME: ${INDEX_NAME}
-      # LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
     restart: unless-stopped
 
 networks:
