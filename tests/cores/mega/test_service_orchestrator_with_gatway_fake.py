@@ -44,40 +44,20 @@ class TestServiceOrchestratorParmLLM(unittest.IsolatedAsyncioTestCase):
         self.s2.stop()
         self.gateway.stop()
 
-    async def test_schedule(self):
+    async def test_llm_schedule(self):
         result_dict, _ = await self.service_builder.schedule(
             initial_inputs={"text": "hello, "},
             llm_parameters=LLMParams(),
         )
         self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
 
-
-class TestServiceOrchestratorParmRetriever(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        self.s1 = opea_microservices["s1"]
-        self.s2 = opea_microservices["s2"]
-        self.s1.start()
-        self.s2.start()
-
-        self.service_builder = ServiceOrchestrator()
-
-        self.service_builder.add(opea_microservices["s1"]).add(opea_microservices["s2"])
-        self.service_builder.flow_to(self.s1, self.s2)
-        self.gateway = Gateway(self.service_builder, port=9899)
-
-    def tearDown(self):
-        self.s1.stop()
-        self.s2.stop()
-        self.gateway.stop()
-
-    async def test_schedule(self):
+    async def test_retriever_schedule(self):
         result_dict, _ = await self.service_builder.schedule(
             initial_inputs={"text": "hello, "},
             retriever_parameters=RetrieverParms(),
             reranker_parameters=RerankerParms(),
         )
         self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
-
 
 if __name__ == "__main__":
     unittest.main()
