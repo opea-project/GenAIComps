@@ -1,0 +1,9 @@
+docarray
+fastapi
+predictionguard==2.2.1
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+shortuuid
+aiohttp

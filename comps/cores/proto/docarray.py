@@ -18,7 +18,7 @@ class TopologyInfo:
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
-
+    
 
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
@@ -62,6 +62,10 @@ class EmbedDoc1024(BaseDoc):
     text: str
     embedding: conlist(float, min_length=1024, max_length=1024)
 
+class EmbedDoc512(BaseDoc):
+    text: str
+    embedding: conlist(float, min_length=512, max_length=512)
+
 
 class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
@@ -83,7 +87,7 @@ class RerankedDoc(BaseDoc):
 
 
 class LLMParamsDoc(BaseDoc):
-    model: Optional[str] = None  # for openai and ollama
+    model: Optional[str] = None  # for predictionguard, openai and ollama
     query: str
     max_new_tokens: int = 1024
     top_k: int = 10
