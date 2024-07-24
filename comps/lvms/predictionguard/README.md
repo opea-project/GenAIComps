@@ -31,7 +31,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ## 2.1 Build Docker Images
 
 ```bash
-cd ../..
+cd ../../..
 docker build -t opea/lvm-predictionguard:latest -f comps/lvms/predictionguard/Dockerfile .
 ```
 
