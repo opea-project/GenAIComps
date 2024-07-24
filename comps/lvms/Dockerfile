@@ -11,6 +11,7 @@ COPY comps /home/comps
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/comps/lvms/requirements.txt
 
+RUN echo hello $PYTHONPATH
 ENV PYTHONPATH=$PYTHONPATH:/home
 
 WORKDIR /home/comps/lvms
