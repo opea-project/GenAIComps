@@ -1,14 +1,13 @@
-pathway
 docarray[full]
+fastapi
+frontend==0.0.3
+huggingface_hub
 langchain_community == 0.2.0
 langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pathway
 prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
-fastapi
-frontend==0.0.3
-huggingface_hub
-prometheus-fastapi-instrumentator

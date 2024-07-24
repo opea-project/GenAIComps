@@ -1,12 +1,12 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
 import os
 
 import pathway as pw
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import (
-    HuggingFaceBgeEmbeddings,
-    HuggingFaceHubEmbeddings,
-)
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from pathway.xpacks.llm.parsers import ParseUnstructured
 from pathway.xpacks.llm.vector_store import VectorStoreServer
 
@@ -38,9 +38,7 @@ if __name__ == "__main__":
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
-        logging.info(
-            f"Initializing the embedder from tei_embedding_endpoint: {tei_embedding_endpoint}"
-        )
+        logging.info(f"Initializing the embedder from tei_embedding_endpoint: {tei_embedding_endpoint}")
         embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
     else:
         # create embeddings using local embedding model
