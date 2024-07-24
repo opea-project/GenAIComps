@@ -11,6 +11,7 @@ from predictionguard import PredictionGuard
 
 from comps import (
     GeneratedDoc, 
+    LLMParamsDoc,
     ServiceType, 
     opea_microservices, 
     register_microservice,
@@ -19,18 +20,6 @@ from comps import (
 )
 
 client = PredictionGuard()
-
-
-class LLMParamsDoc(BaseModel):
-    model: str = "Neural-Chat-7B"
-    query: str
-    max_new_tokens: int
-    temperature: float
-    top_p: float
-    top_k: int
-    stream: bool = False
-
-
 app = FastAPI()
 
 
@@ -53,27 +42,24 @@ def llm_generate(input: LLMParamsDoc):
         }
     ]
 
-    if input.stream:
+    if input.streaming:
         async def stream_generator():
-            try:
-                for res in client.chat.completions.create(
-                    model=input.model,
-                    messages=messages,
-                    max_tokens=input.max_new_tokens,
-                    temperature=input.temperature,
-                    top_p=input.top_p,
-                    top_k=input.top_k,
-                    stream=True
-                ):
-                    if 'choices' in res['data'] and 'delta' in res['data']['choices'][0]:
-                        delta_content = res['data']['choices'][0]['delta']['content']
-                        yield f"{delta_content}"
-                    else:
-                        yield f"Unexpected response format: {res}\n\n"
-            except Exception as e:
-                yield f"{str(e)}"
-            # finally:
-            #     yield "[DONE]\n\n"
+            chat_response = ""
+            for res in client.chat.completions.create(
+                model=input.model,
+                messages=messages,
+                max_tokens=input.max_new_tokens,
+                temperature=input.temperature,
+                top_p=input.top_p,
+                top_k=input.top_k,
+                stream=True
+            ):
+                if 'choices' in res['data'] and 'delta' in res['data']['choices'][0]:
+                    delta_content = res['data']['choices'][0]['delta']['content']
+                    chat_response += delta_content
+                    yield f"data: {delta_content}\n\n"
+                else:
+                    yield "data: [DONE]\n\n"
 
         statistics_dict["opea_service@llm_predictionguard"].append_latency(time.time() - start, None)
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
@@ -93,7 +79,6 @@ def llm_generate(input: LLMParamsDoc):
 
         statistics_dict["opea_service@llm_predictionguard"].append_latency(time.time() - start, None)
         return GeneratedDoc(text=response_text, prompt=input.query)
-
 
 
 if __name__ == "__main__":
