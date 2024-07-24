@@ -11,7 +11,7 @@ import aiohttp
 import requests
 from fastapi.responses import StreamingResponse
 
-from ..proto.docarray import LLMParams
+from ..proto.docarray import LLMParams, RerankerParms, RetrieverParms
 from .constants import ServiceType
 from .dag import DAG
 
@@ -77,6 +77,8 @@ class ServiceOrchestrator(DAG):
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
                             if "retriever_parameters" in kwargs and "reranker_parameters" in kwargs:
+                                retriever_parameters = kwargs['retriever_parameters']
+                                reranker_parameters = kwargs['reranker_parameters']
                                 pending.add(
                                     asyncio.create_task(
                                         self.execute(
@@ -85,7 +87,8 @@ class ServiceOrchestrator(DAG):
                                             inputs,
                                             runtime_graph,
                                             llm_parameters,
-                                            kwargs,
+                                            retriever_parameters,
+                                            reranker_parameters,
                                         )
                                     )
                                 )
@@ -123,7 +126,8 @@ class ServiceOrchestrator(DAG):
         inputs: Dict,
         runtime_graph: DAG,
         llm_parameters: LLMParams = LLMParams(),
-        **kwargs,
+        retriever_parameters: RetrieverParms = RetrieverParms(),
+        reranker_parameters: RerankerParms=RerankerParms(),
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
@@ -158,20 +162,18 @@ class ServiceOrchestrator(DAG):
                     print(response.status)
                     return await response.json(), cur_node
         elif self.services[cur_node].service_type == ServiceType.RETRIEVER:
-            if "retriever_parameters" in kwargs:
-                retriever_parameters_dict = kwargs["retriever_parameters"].dict()
-                for field, value in retriever_parameters_dict.items():
-                    if inputs.get(field) != value:
-                        inputs[field] = value
-                async with session.post(endpoint, json=inputs) as response:
-                    print(response.status)
-                    return await response.json(), cur_node
+            retriever_parameters_dict = retriever_parameters.dict()
+            for field, value in retriever_parameters_dict.items():
+                if inputs.get(field) != value:
+                    inputs[field] = value
+            async with session.post(endpoint, json=inputs) as response:
+                print(response.status)
+                return await response.json(), cur_node
         elif self.services[cur_node].service_type == ServiceType.RERANK:
-            if "reranker_parameters" in kwargs:
-                reranker_parameters_dict = kwargs["reranker_parameters"].dict()
-                for field, value in reranker_parameters_dict.items():
-                    if inputs.get(field) != value:
-                        inputs[field] = value
+            reranker_parameters_dict = reranker_parameters.dict()
+            for field, value in reranker_parameters_dict.items():
+                if inputs.get(field) != value:
+                    inputs[field] = value
             async with session.post(endpoint, json=inputs) as response:
                 print(response.status)
                 return await response.json(), cur_node
