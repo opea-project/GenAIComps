@@ -44,7 +44,7 @@ docker run -d --name="lvm-predictionguard" -p 9399:9399 -e PREDICTIONGUARD_API_K
 # 🚀3. Consume LVM Service
 
 ```bash
-curl -X POST http://localhost:8091/v1/lvm \
+curl -X POST http://localhost:9399/v1/lvm \
     -H 'Content-Type: application/json' \
     -d '{
       "image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC",
