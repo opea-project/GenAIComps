@@ -3,8 +3,8 @@
 
 import time
 
+from docarray import BaseDoc
 from comps import (
-    LVMDoc,
     TextDoc,
     ServiceType,
     opea_microservices,
@@ -14,6 +14,15 @@ from comps import (
 )
 
 from predictionguard import PredictionGuard
+
+
+class LVMDoc(BaseDoc):
+    image: str
+    prompt: str
+    max_new_tokens: int = 100
+    top_k: int = 50
+    top_p: float = 0.99
+    temperature: float = 1.0
 
 
 @register_microservice(
@@ -26,7 +35,7 @@ from predictionguard import PredictionGuard
     output_datatype=TextDoc,
 )
 @register_statistics(names=["opea_service@lvm_predictionguard"])
-async def generate(request: LVMDoc) -> TextDoc:
+async def lvm(request: LVMDoc) -> TextDoc:
     start = time.time()
 
     # make a request to the Prediction Guard API using the LlaVa model
@@ -43,6 +52,9 @@ async def generate(request: LVMDoc) -> TextDoc:
         model="llava-1.5-7b-hf",
         messages=messages,
         max_tokens=request.max_new_tokens,
+        top_k=request.top_k,
+        top_p=request.top_p,
+        temperature=request.temperature,
     )
 
     statistics_dict["opea_service@lvm_predictionguard"].append_latency(time.time() - start, None)
