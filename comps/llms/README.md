@@ -3,7 +3,9 @@
 This microservice, designed for Language Model Inference (LLM), processes input consisting of a query string and associated reranked documents. It constructs a prompt based on the query and documents, which is then used to perform inference with a large language model. The service delivers the inference results as output.
 
 A prerequisite for using this microservice is that users must have a LLM text generation service (etc., TGI, vLLM, Prediction Guard and Ray) already running. Users need to set the LLM service's endpoint into an environment variable. The microservice utilizes this endpoint to create an LLM object, enabling it to communicate with the LLM service for executing language model operations.
+A prerequisite for using this microservice is that users must have a LLM text generation service (etc., TGI, vLLM, Prediction Guard and Ray) already running. Users need to set the LLM service's endpoint into an environment variable. The microservice utilizes this endpoint to create an LLM object, enabling it to communicate with the LLM service for executing language model operations.
 
+Overall, this microservice offers a streamlined way to integrate large language model inference into applications, requiring minimal setup from the user beyond initiating a TGI/vLLM/Ray/PredictionGuard service and configuring the necessary environment variables. This allows for the seamless processing of queries and documents to generate intelligent, context-aware responses.
 Overall, this microservice offers a streamlined way to integrate large language model inference into applications, requiring minimal setup from the user beyond initiating a TGI/vLLM/Ray/PredictionGuard service and configuring the necessary environment variables. This allows for the seamless processing of queries and documents to generate intelligent, context-aware responses.
 
 # 🚀1. Start Microservice with Python (Option 1)
@@ -42,6 +44,10 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export TRUST_REMOTE_CODE=True
 docker run -it --runtime=habana --name ray_serve_service -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -p 8008:80 -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TRUST_REMOTE_CODE=$TRUST_REMOTE_CODE ray_serve:habana /bin/bash -c "ray start --head && python api_server_openai.py --port_number 80 --model_id_or_path ${your_hf_llm_model} --chat_processor ${your_hf_chatprocessor}"
 ```
+
+## 1.2.3 Start Prediction Guard Service
+
+Not Applicable if using open access LLMs already hosted in Intel Tiber Developer Cloud on Gaudi (or your self-hosted version of Prediction Guard). You will only need your Prediction Guard API key, which will be referenced below.
 
 ## 1.2.3 Start Prediction Guard Service
 
