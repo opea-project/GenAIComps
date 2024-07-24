@@ -2,70 +2,59 @@
 # SPDX-License-Identified: Apache-2.0
 
 
-import time
-from docarray import BaseDoc
+import argparse
+
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, Response
+import uvicorn
+
 from predictionguard import PredictionGuard
-
-from comps import (
-    ServiceType,
-    TextDoc,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
-)
-
-
-class LVMDoc(BaseDoc):
-    image: str
-    prompt: str
-    max_new_tokens: int = 100
-    top_k: int = 50
-    top_p: float = 0.99
-    temperature: float = 1.0
-    stream: bool = False
 
 
 client = PredictionGuard()
 
+app = FastAPI()
 
-@register_microservice(
-    name="opea_service@lvm_predictionguard",
-    service_type=ServiceType.LVM,
-    endpoint="/v1/lvm",
-    host="0.0.0.0",
-    port=8091,
-    input_datatype=LVMDoc,
-    output_datatype=TextDoc,
-)
-@register_statistics(names=["opea_service@lvm_predictionguard"])
-async def lvm(request: LVMDoc):
-    start = time.time()
+
+@app.post("/generate")
+async def generate(request: Request) -> Response:
+    request_dict = await request.json()
+
+    prompt = request_dict.pop("prompt")
+    img_b64_str = request_dict.pop("img_b64_str")
+    max_new_tokens = request_dict.pop("max_new_tokens", 100)
 
     # make a request to the Prediction Guard API using the LlaVa model
     messages = [
         {
             "role": "user",
             "content": [
-                {"type": "text", "text": request.prompt},
-                {"type": "image_url", "image_url": {"url": request.image}},
+                {"type": "text", "text": prompt},
+                {"type": "image_url", "image_url": {"url": img_b64_str}},
             ],
         },
     ]
     result = client.chat.completions.create(
         model="llava-1.5-7b-hf",
         messages=messages,
-        max_tokens=request.max_new_tokens,
-        top_k=request.top_k,
-        top_p=request.top_p,
-        temperature=request.temperature,
-        stream=False,
+        max_tokens=max_new_tokens,
     )
 
-    statistics_dict["opea_service@lvm_predictionguard"].append_latency(time.time() - start, None)
-    return TextDoc(text=result["choices"][0]["message"]["content"])
+    response = {"text": result["choices"][0]["message"]["content"]}
+
+    return JSONResponse(response)
 
 
 if __name__ == "__main__":
-    print("Prediction Guard LVM initialized.")
-    opea_microservices["opea_service@lvm_predictionguard"].start()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", type=str, default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=8399)
+
+    args = parser.parse_args()
+
+    uvicorn.run(
+        app,
+        host=args.host,
+        port=args.port,
+        log_level="debug",
+    )

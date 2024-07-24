@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ## 1.2 Start LVM Service
 
 ```bash
-python lvm.py
+python lvm_predictionguard.py
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)
@@ -32,7 +32,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../../..
-docker build -t opea/lvm-predictionguard:latest -f comps/lvms/predictionguard/docker/Dockerfile .
+docker build -t opea/lvm-predictionguard:latest -f comps/lvms/predictionguard/Dockerfile .
 ```
 
 ## 2.2 Start Service
