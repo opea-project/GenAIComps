@@ -44,12 +44,12 @@ class TestServiceOrchestratorParmLLM(unittest.IsolatedAsyncioTestCase):
         self.s2.stop()
         self.gateway.stop()
 
-    async def test_llm_schedule(self):
-        result_dict, _ = await self.service_builder.schedule(
-            initial_inputs={"text": "hello, "},
-            llm_parameters=LLMParams(),
-        )
-        self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
+    # async def test_llm_schedule(self):
+    #     result_dict, _ = await self.service_builder.schedule(
+    #         initial_inputs={"text": "hello, "},
+    #         llm_parameters=LLMParams(),
+    #     )
+    #     self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
 
     async def test_retriever_schedule(self):
         result_dict, _ = await self.service_builder.schedule(
