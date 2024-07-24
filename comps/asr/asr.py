@@ -10,8 +10,8 @@ import requests
 
 from comps import (
     Base64ByteStrDoc,
-    ServiceType,
     LLMParamsDoc,
+    ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
