@@ -15,4 +15,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home
 
 WORKDIR /home/comps/lvms/predictionguard
 
-ENTRYPOINT ["python", "lvm_predictionguard.py"]
+ENTRYPOINT ["python", "lvm.py"]
