@@ -1,6 +1,10 @@
 # Chat History Microservice
 
-Chat History microservice helps us to connect with MongoDB Database and save the user chat conversations.
+The Chat History Microservice allows you to store, retrieve and manage chat conversations with a MongoDB database. This microservice can be used for data persistence in OPEA chat applications, enabling you to save and access chat histories. 
+
+It can be integrated into any application by making HTTP requests to the provided API endpoints as shown in the flow diagram below.
+
+![Flow Chart](./assets/img/chathistory_flow.png)
 
 ## Setup Environment Variables
 
