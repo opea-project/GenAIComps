@@ -38,7 +38,7 @@ docker build -t opea/lvm-predictionguard:latest -f comps/lvms/predictionguard/Do
 ## 2.2 Start Service
 
 ```bash
-docker run -d --name="lvm-predictionguard" -p 8091:8091 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/lvm-predictionguard:latest
+docker run -d --name="lvm-predictionguard" -p 9399:9399 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/lvm-predictionguard:latest
 ```
 
 # 🚀3. Consume LVM Service
