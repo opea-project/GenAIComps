@@ -6,10 +6,7 @@ import os
 
 import pathway as pw
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.embeddings import (
-    HuggingFaceBgeEmbeddings,
-    HuggingFaceHubEmbeddings,
-)
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from pathway.xpacks.llm.parsers import ParseUnstructured
 from pathway.xpacks.llm.vector_store import VectorStoreServer
 
