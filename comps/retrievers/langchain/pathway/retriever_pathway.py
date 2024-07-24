@@ -23,7 +23,7 @@ port = int(os.getenv("PATHWAY_PORT", 8666))
 
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 
-tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT") == 10
+tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 
 @register_microservice(
