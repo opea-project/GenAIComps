@@ -126,7 +126,7 @@ class ServiceOrchestrator(DAG):
         inputs: Dict,
         runtime_graph: DAG,
         llm_parameters: LLMParams = LLMParams(),
-        **kwargs,
+        **kwargs
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
