@@ -59,5 +59,6 @@ class TestServiceOrchestratorParmLLM(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
 
+
 if __name__ == "__main__":
     unittest.main()
