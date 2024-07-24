@@ -2,9 +2,9 @@
 
 This microservice, designed for Language Model Inference (LLM), processes input consisting of a query string and associated reranked documents. It constructs a prompt based on the query and documents, which is then used to perform inference with a large language model. The service delivers the inference results as output.
 
-A prerequisite for using this microservice is that users must have a LLM text generation service (etc., TGI, vLLM and Ray) already running. Users need to set the LLM service's endpoint into an environment variable. The microservice utilizes this endpoint to create an LLM object, enabling it to communicate with the LLM service for executing language model operations.
+A prerequisite for using this microservice is that users must have a LLM text generation service (etc., TGI, vLLM, Prediction Guard and Ray) already running. Users need to set the LLM service's endpoint into an environment variable. The microservice utilizes this endpoint to create an LLM object, enabling it to communicate with the LLM service for executing language model operations.
 
-Overall, this microservice offers a streamlined way to integrate large language model inference into applications, requiring minimal setup from the user beyond initiating a TGI/vLLM/Ray service and configuring the necessary environment variables. This allows for the seamless processing of queries and documents to generate intelligent, context-aware responses.
+Overall, this microservice offers a streamlined way to integrate large language model inference into applications, requiring minimal setup from the user beyond initiating a TGI/vLLM/Ray/PredictionGuard service and configuring the necessary environment variables. This allows for the seamless processing of queries and documents to generate intelligent, context-aware responses.
 
 # 🚀1. Start Microservice with Python (Option 1)
 
@@ -42,6 +42,10 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export TRUST_REMOTE_CODE=True
 docker run -it --runtime=habana --name ray_serve_service -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -p 8008:80 -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TRUST_REMOTE_CODE=$TRUST_REMOTE_CODE ray_serve:habana /bin/bash -c "ray start --head && python api_server_openai.py --port_number 80 --model_id_or_path ${your_hf_llm_model} --chat_processor ${your_hf_chatprocessor}"
 ```
+
+## 1.2.3 Start Prediction Guard Service
+
+Not Applicable if using open access LLMs already hosted in Intel Tiber Developer Cloud on Gaudi (or your self-hosted version of Prediction Guard). You will only need your Prediction Guard API key, which will be referenced below.
 
 ## 1.3 Verify the LLM Service
 
@@ -83,6 +87,28 @@ curl http://${your_ip}:8008/v1/chat/completions \
   }'
 ```
 
+### 1.3.3 Verify the Prediction Guard Service
+
+```bash
+curl -X POST https://api.predictionguard.com/chat/completions - Streaming Version \
+     -H "x-api-key: <apiKey>" \
+     -H "Content-Type: application/json" \
+     -d '{
+  "model": "Hermes-2-Pro-Llama-3-8B",
+  "messages": [
+    {
+      "role": "user",
+      "content": "How do you feel about the world in general?"
+    }
+  ],
+  "max_tokens": 1000,
+  "temperature": 1,
+  "top_p": 1,
+  "top_k": 50,
+  "stream": true
+}'
+```
+
 ## 1.4 Start LLM Service with Python Script
 
 ### 1.4.1 Start the TGI Service
@@ -104,6 +130,13 @@ python text-generation/vllm/llm.py
 ```bash
 export RAY_Serve_ENDPOINT="http://${your_ip}:8008"
 python text-generation/ray_serve/llm.py
+```
+
+### 1.4.3 Start the Prediction Guard OPEA compliant LLM Service
+
+```bash
+export PREDICTIONGUARD_API_KEY={your_pg_api_key}
+python text-generation/predictionguard/llm_predictionguard.py
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)
@@ -142,6 +175,12 @@ export LLM_MODEL=${your_hf_llm_model}
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_PROJECT="opea/llms"
 export CHAT_PROCESSOR="ChatModelLlama"
+```
+
+In order to start Prediction Guard and LLM services, you need to setup the following environment variables first.
+
+```bash
+export PREDICTIONGUARD_API_KEY={your_pg_api_key}
 ```
 
 ## 2.2 Build Docker Image
@@ -183,6 +222,15 @@ cd ../../../../
 docker build -t opea/llm-ray:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/ray_serve/docker/Dockerfile.microservice .
 ```
 
+### 2.2.4 Prediction Guard
+
+```bash
+cd ../../
+docker build -t opea/llm-predictionguard:latest -f comps/llms/text-generation/predictionguard/Dockerfile .
+```
+
+## 2.3 Run the Docker image
+
 To start a docker container, you have two options:
 
 - A. Run Docker with CLI
@@ -190,15 +238,15 @@ To start a docker container, you have two options:
 
 You can choose one as needed.
 
-## 2.3 Run Docker with CLI (Option A)
+### 2.3.1 Run Docker with CLI (Option A)
 
-### 2.3.1 TGI
+#### 2.3.1.1 TGI
 
 ```bash
 docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/llm-tgi:latest
 ```
 
-### 2.3.2 vLLM
+#### 2.3.1.2 vLLM
 
 Start vllm endpoint.
 
@@ -212,7 +260,7 @@ Start vllm microservice.
 docker run --name="llm-vllm-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=${no_proxy} -e vLLM_LLM_ENDPOINT=$vLLM_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e LLM_MODEL_ID=$LLM_MODEL_ID opea/llm-vllm:latest
 ```
 
-### 2.3.3 Ray Serve
+#### 2.3.1.3 Ray Serve
 
 Start Ray Serve endpoint.
 
@@ -226,23 +274,29 @@ Start Ray Serve microservice.
 docker run -d --name="llm-ray-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e RAY_Serve_ENDPOINT=$RAY_Serve_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e LLM_MODEL=$LLM_MODEL opea/llm-ray:latest
 ```
 
-## 2.4 Run Docker with Docker Compose (Option B)
+#### 2.3.1.4 Prediction Guard
 
-### 2.4.1 TGI
+```bash
+docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name llm-predictionguard opea/llm-predictionguard:latest
+```
+
+### 2.3.2 Run Docker with Docker Compose (Option B)
+
+#### 2.3.2.1 TGI
 
 ```bash
 cd text-generation/tgi
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
-### 2.4.2 vLLM
+#### 2.3.2.2 vLLM
 
 ```bash
 cd text-generation/vllm
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
-### 2.4.3 Ray Serve
+#### 2.3.2.3 Ray Serve
 
 ```bash
 cd text-genetation/ray_serve
@@ -281,11 +335,17 @@ curl http://${your_ip}:9000/v1/chat/completions \
 
 ## 4. Validated Model
 
-| Model                     | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | Ray |
-| ------------------------- | --------- | -------- | ---------- | --- |
-| Intel/neural-chat-7b-v3-3 | ✓         | ✓        | ✓          | ✓   |
-| Llama-2-7b-chat-hf        | ✓         | ✓        | ✓          | ✓   |
-| Llama-2-70b-chat-hf       | ✓         | -        | ✓          | x   |
-| Meta-Llama-3-8B-Instruct  | ✓         | ✓        | ✓          | ✓   |
-| Meta-Llama-3-70B-Instruct | ✓         | -        | ✓          | x   |
-| Phi-3                     | x         | Limit 4K | Limit 4K   | ✓   |
+| Model                     | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | Ray | Prediction Guard |
+| ------------------------- | --------- | -------- | ---------- | --- | ---------------- |
+| Intel/neural-chat-7b-v3-3 | ✓         | ✓        | ✓          | ✓   | ✓                |
+| Llama-2-7b-chat-hf        | ✓         | ✓        | ✓          | ✓   | x                |
+| Llama-2-70b-chat-hf       | ✓         | -        | ✓          | x   | x                |
+| Meta-Llama-3-8B-Instruct  | ✓         | ✓        | ✓          | ✓   | x                |
+| Meta-Llama-3-70B-Instruct | ✓         | -        | ✓          | x   | x                |
+| Phi-3                     | x         | Limit 4K | Limit 4K   | ✓   | x                |
+| Hermes-2-Pro-Llama-3-8B   | -         | -        | -          | -   | ✓                |
+| Nous-Hermes-Llama2-13B    | -         | -        | -          | -   | ✓                |
+| Hermes-2-Pro-Mistral-7B   | -         | -        | -          | -   | ✓                |
+| llama-3-sqlcoder-8b       | -         | -        | -          | -   | ✓                |
+| deepseek-coder-6.7b-instruct | -      | -        | -          | -   | ✓                |
+
