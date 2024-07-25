@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from haystack.components.embedders import HuggingFaceAPITextEmbedder, SentenceTransformersTextEmbedder
+from haystack.components.embedders import HuggingFaceTEITextEmbedder, SentenceTransformersTextEmbedder
 from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 from langsmith import traceable
@@ -39,7 +39,7 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
 if __name__ == "__main__":
     if EMBED_ENDPOINT:
         # create embeddings using TEI endpoint service
-        embedder = HuggingFaceAPITextEmbedder(url=EMBED_ENDPOINT)
+        embedder = HuggingFaceTEITextEmbedder(url=EMBED_ENDPOINT)
     else:
         # create embeddings using local embedding model
         embedder = SentenceTransformersTextEmbedder(model=EMBED_MODEL)
