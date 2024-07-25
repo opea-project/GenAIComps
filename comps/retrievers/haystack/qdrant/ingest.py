@@ -11,7 +11,7 @@ import os
 import uuid
 
 import numpy as np
-from haystack.components.embedders import HuggingFaceTEIDocumentEmbedder, SentenceTransformersDocumentEmbedder
+from haystack.components.embedders import HuggingFaceAPIDocumentEmbedder, SentenceTransformersDocumentEmbedder
 from haystack.dataclasses.document import Document
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -71,7 +71,7 @@ def ingest_documents(folder_path, tag):
     # Create vectorstore
     if EMBED_ENDPOINT:
         # create embeddings using TEI endpoint service
-        embedder = HuggingFaceTEIDocumentEmbedder(url=EMBED_ENDPOINT)
+        embedder = HuggingFaceAPIDocumentEmbedder(url=EMBED_ENDPOINT)
     else:
         # create embeddings using local embedding model
         embedder = SentenceTransformersDocumentEmbedder(model=EMBED_MODEL)
