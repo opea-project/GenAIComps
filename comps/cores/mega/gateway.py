@@ -123,9 +123,7 @@ class ChatQnAGateway(Gateway):
             initial_inputs={"text": prompt}, llm_parameters=parameters
         )
         for node, response in result_dict.items():
-            if (
-                isinstance(response, StreamingResponse)
-            ):
+            if isinstance(response, StreamingResponse):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
         response = result_dict[last_node]["text"]
