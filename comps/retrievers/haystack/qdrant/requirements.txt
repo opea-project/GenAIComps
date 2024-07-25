@@ -7,6 +7,7 @@ langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+prometheus_fastapi_instrumentator
 pymupdf
 qdrant-haystack
 sentence_transformers
