@@ -62,6 +62,5 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(i.startswith("data: "))
 
 
-
 if __name__ == "__main__":
     unittest.main()
