@@ -61,4 +61,3 @@ REDIS_URL = format_redis_conn_from_env()
 INDEX_NAME = os.getenv("INDEX_NAME", "rag-redis")
 
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
-
