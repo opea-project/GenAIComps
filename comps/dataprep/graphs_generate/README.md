@@ -1,6 +1,6 @@
 # Knowledge Graph Generation Microservice
 
-This microservice, designed for generating knowledge graph with LLM, which take a document as input, then generate the corresponding graph with the help of LLM agents. 
+This microservice, designed for generating knowledge graph with LLM, which take a document as input, then generate the corresponding graph with the help of LLM agents.
 
 A prerequisite for using this microservice is that users must have a LLM text generation service and a knowledge gragh database already running. For LLM, you can refer to [llm microservices](https://github.com/opea-project/GenAIComps/tree/main/comps/llms/text-generation), such as TGI, vLLM, Ray Serve or vLLM on Ray. For knowledge graph database, currently we have support [Neo4J](https://neo4j.com/) for quick deployment. Users need to set the graph service's endpoint into an environment variable and microservie utilizes it for data injestion and retrieve.
 
@@ -83,6 +83,6 @@ docker run -it --rm \
 # 🚀2. Consume Knowledge Graph Service
 
 curl http://172.17.0.1:8070/v1/graphs \
-  -X POST \
-  -d "{\"text\":\"data/wiki_documents.txt\",\"strtype\":\"doc\"}" \
-  -H 'Content-Type: application/json'
+ -X POST \
+ -d "{\"text\":\"data/wiki_documents.txt\",\"strtype\":\"doc\"}" \
+ -H 'Content-Type: application/json'

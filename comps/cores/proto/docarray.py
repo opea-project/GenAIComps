@@ -130,6 +130,7 @@ class GraphDoc(BaseDoc):
     rag_text_node_properties: Optional[list] = Field(default=["name", "description", "status"])
     rag_embedding_node_property: Optional[str] = Field(default="embedding")
 
+
 class GenerateGraphDoc(BaseDoc):
     text: str
     strtype: Optional[str] = Field(
@@ -137,6 +138,7 @@ class GenerateGraphDoc(BaseDoc):
         default="doc",
     )
     max_new_tokens: Optional[int] = Field(default=1024)
+
 
 class LVMDoc(BaseDoc):
     image: str

@@ -9,52 +9,50 @@ cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 import json
+import os
+from typing import Any, Dict, List, Optional
 
 import requests
-from langchain_community.graphs.graph_document import (
-    Node as BaseNode,
-    Relationship as BaseRelationship,
-    GraphDocument,
-)
+from langchain.document_loaders import WikipediaLoader
+from langchain.pydantic_v1 import BaseModel, Field
 from langchain.schema import Document
-from typing import List, Dict, Any, Optional
-from langchain.pydantic_v1 import Field, BaseModel
-from langchain_community.graphs import Neo4jGraph
-from langchain_community.llms import HuggingFaceEndpoint
+from langchain.text_splitter import TokenTextSplitter
 from langchain_community.chat_models.huggingface import ChatHuggingFace
-from typing import List
+from langchain_community.graphs import Neo4jGraph
+from langchain_community.graphs.graph_document import GraphDocument
+from langchain_community.graphs.graph_document import Node as BaseNode
+from langchain_community.graphs.graph_document import Relationship as BaseRelationship
+from langchain_community.llms import HuggingFaceEndpoint
+from langchain_core.documents import Document
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain.document_loaders import WikipediaLoader
-from langchain.text_splitter import TokenTextSplitter
 from tqdm import tqdm
-from langchain_core.documents import Document
-import os
 
 from comps import GeneratedDoc, GenerateGraphDoc, ServiceType, opea_microservices, register_microservice
 
+
 class Property(BaseModel):
-  """A single property consisting of key and value"""
-  key: str = Field(..., description="key")
-  value: str = Field(..., description="value")
+    """A single property consisting of key and value."""
+
+    key: str = Field(..., description="key")
+    value: str = Field(..., description="value")
+
 
 class Node(BaseNode):
-    properties: Optional[List[Property]] = Field(
-        None, description="List of node properties")
+    properties: Optional[List[Property]] = Field(None, description="List of node properties")
+
 
 class Relationship(BaseRelationship):
-    properties: Optional[List[Property]] = Field(
-        None, description="List of relationship properties"
-    )
+    properties: Optional[List[Property]] = Field(None, description="List of relationship properties")
+
 
 class KnowledgeGraph(BaseModel):
     """Generate a knowledge graph with entities and relationships."""
-    nodes: List[Node] = Field(
-        ..., description="List of nodes in the knowledge graph")
-    rels: List[Relationship] = Field(
-        ..., description="List of relationships in the knowledge graph"
-    )
+
+    nodes: List[Node] = Field(..., description="List of nodes in the knowledge graph")
+    rels: List[Relationship] = Field(..., description="List of relationships in the knowledge graph")
+
 
 def format_property_key(s: str) -> str:
     words = s.split()
@@ -64,32 +62,32 @@ def format_property_key(s: str) -> str:
     capitalized_words = [word.capitalize() for word in words[1:]]
     return "".join([first_word] + capitalized_words)
 
+
 def props_to_dict(props) -> dict:
     """Convert properties to a dictionary."""
     properties = {}
     if not props:
-      return properties
+        return properties
     for p in props:
         properties[format_property_key(p.key)] = p.value
     return properties
+
 
 def map_to_base_node(node: Node) -> BaseNode:
     """Map the KnowledgeGraph Node to the base Node."""
     properties = props_to_dict(node.properties) if node.properties else {}
     # Add name property for better Cypher statement generation
     properties["name"] = node.id.title()
-    return BaseNode(
-        id=node.id.title(), type=node.type.capitalize(), properties=properties
-    )
+    return BaseNode(id=node.id.title(), type=node.type.capitalize(), properties=properties)
+
 
 def map_to_base_relationship(rel: Relationship) -> BaseRelationship:
     """Map the KnowledgeGraph Relationship to the base Relationship."""
     source = map_to_base_node(rel.source)
     target = map_to_base_node(rel.target)
     properties = props_to_dict(rel.properties) if rel.properties else {}
-    return BaseRelationship(
-        source=source, target=target, type=rel.type, properties=properties
-    )
+    return BaseRelationship(source=source, target=target, type=rel.type, properties=properties)
+
 
 # Set up a parser
 parser = PydanticOutputParser(pydantic_object=KnowledgeGraph)
@@ -99,9 +97,10 @@ print(parser.get_format_instructions())
 allowed_nodes = ["Person", "Company", "Location", "Event", "Movie", "Service", "Award"]
 allowed_rels = None
 prompt = ChatPromptTemplate.from_messages(
-        [(
-          "system",
-          f"""# Knowledge Graph Instructions
+    [
+        (
+            "system",
+            f"""# Knowledge Graph Instructions
 ## 1. Overview
 You are a top-tier algorithm designed for extracting information in structured formats to build a knowledge graph.
 - **Nodes** represent entities and concepts. They're akin to Wikipedia nodes.
@@ -125,28 +124,30 @@ always use the most complete identifier for that entity throughout the knowledge
 Remember, the knowledge graph should be coherent and easily understandable, so maintaining consistency in entity references is crucial.
 ## 5. Strict Compliance
 Adhere to the rules strictly. Non-compliance will result in termination.
-          """),
-            ("human", "Use the given format to extract information from the following input: {input}"),
-            ("human", "Tip: Make sure to answer in the correct format"),
-        ]).partial(format_instructions=parser.get_format_instructions())
+          """,
+        ),
+        ("human", "Use the given format to extract information from the following input: {input}"),
+        ("human", "Tip: Make sure to answer in the correct format"),
+    ]
+).partial(format_instructions=parser.get_format_instructions())
+
 
 def extract_and_store_graph(
-    extract_chain,
-    document: Document,
-    nodes:Optional[List[str]] = None,
-    rels:Optional[List[str]]=None) -> None:
+    extract_chain, document: Document, nodes: Optional[List[str]] = None, rels: Optional[List[str]] = None
+) -> None:
     # Extract graph data using OpenAI functions
     # extract_chain = get_extraction_chain(nodes, rels)
-    data = extract_chain.invoke(document.page_content)['function']
+    data = extract_chain.invoke(document.page_content)["function"]
     # Construct a graph document
     graph_document = GraphDocument(
-      nodes = [map_to_base_node(node) for node in data.nodes],
-      relationships = [map_to_base_relationship(rel) for rel in data.rels],
-      source = document
+        nodes=[map_to_base_node(node) for node in data.nodes],
+        relationships=[map_to_base_relationship(rel) for rel in data.rels],
+        source=document,
     )
     # Store information into a graph
     graph.add_graph_documents([graph_document])
     return graph_document
+
 
 @register_microservice(
     name="opea_service@graphs_generate",
@@ -171,7 +172,7 @@ def generate_graph(input: GenerateGraphDoc) -> GeneratedDoc:
     )
 
     extract_chain = prompt | llm | parser
-    
+
     if input.strtype == "wiki":
         print("start to process wiki documents")
         # Read the wikipedia article
@@ -183,11 +184,11 @@ def generate_graph(input: GenerateGraphDoc) -> GeneratedDoc:
         print("finish process wiki documents")
     elif input.strtype == "doc":
         if os.path.exists(input.text):
-            content = open(input.text,"r").read()
+            content = open(input.text, "r").read()
             documents = Document(page_content=content)
         else:
-            raise RuntimeError(f"{input.text} doesn't exist!") 
-    graph_document = extract_and_store_graph(extract_chain,documents)
+            raise RuntimeError(f"{input.text} doesn't exist!")
+    graph_document = extract_and_store_graph(extract_chain, documents)
 
     return GeneratedDoc(text=graph_document, prompt=input.text)
 
