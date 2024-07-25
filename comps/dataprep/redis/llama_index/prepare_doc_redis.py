@@ -14,6 +14,7 @@ from llama_index.core.settings import Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.redis import RedisVectorStore
 from redis import Redis
+from redisvl.schema import IndexSchema
 from utils import *
 
 from comps import DocPath, opea_microservices, register_microservice
@@ -28,8 +29,25 @@ async def ingest_data_to_redis(doc_path: DocPath):
     doc_path = doc_path.path
     content = SimpleDirectoryReader(input_files=[doc_path]).load_data()
     redis_client = Redis.from_url(REDIS_URL)
-
-    vector_store = RedisVectorStore(redis_client=redis_client)
+    schema = IndexSchema.from_dict(
+        {
+            "index": {"name": INDEX_NAME, "prefix": f"doc:{INDEX_NAME}"},
+            "fields": [
+                {"name": "id", "type": "tag"},
+                {"name": "doc_id", "type": "tag"},
+                {"name": "text", "type": "text"},
+                {"name": "content", "type": "text"},
+                {"name": "source", "type": "text"},
+                {"name": "start_index", "type": "numeric"},
+                {
+                    "name": "vector",
+                    "type": "vector",
+                    "attrs": {"dims": 768, "algorithm": "HNSW", "date_type": "FLOAT32"},
+                },
+            ],
+        }
+    )
+    vector_store = RedisVectorStore(redis_client=redis_client, schema=schema)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
     _ = VectorStoreIndex.from_documents(content, storage_context=storage_context)
     print("[ ingest data ] data ingested into Redis DB.")
