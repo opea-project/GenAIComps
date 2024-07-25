@@ -156,13 +156,6 @@ class ServiceOrchestrator(DAG):
 
             return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
         else:
-            if (
-                self.services[cur_node].service_type == ServiceType.LLM
-                and runtime_graph.predecessors(cur_node)
-                and "asr" in runtime_graph.predecessors(cur_node)[0]
-            ):
-                inputs["query"] = inputs["text"]
-                del inputs["text"]
             async with session.post(endpoint, json=inputs) as response:
                 print(f"{cur_node}: {response.status}")
                 return await response.json(), cur_node
