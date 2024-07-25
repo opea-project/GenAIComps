@@ -9,7 +9,7 @@ from llama_index.vector_stores.redis import RedisVectorStore
 from redis_config import INDEX_NAME, REDIS_URL
 from redisvl.schema import IndexSchema
 
-from comps import EmbedDoc768, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+from comps import EmbedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
@@ -22,7 +22,7 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
     port=7000,
 )
 @traceable(run_type="retriever")
-def retrieve(input: EmbedDoc768) -> SearchedDoc:
+def retrieve(input: EmbedDoc) -> SearchedDoc:
     vector_store_query = VectorStoreQuery(query_embedding=input.embedding)
     search_res = vector_store.query(query=vector_store_query)
     searched_docs = []
