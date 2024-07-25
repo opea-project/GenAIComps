@@ -7,7 +7,6 @@ from langsmith import traceable
 from llama_index.core.vector_stores.types import VectorStoreQuery
 from llama_index.vector_stores.redis import RedisVectorStore
 from redis_config import INDEX_NAME, REDIS_URL
-from redisvl.schema import IndexSchema
 
 from comps import EmbedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
@@ -33,27 +32,8 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
 
 
 if __name__ == "__main__":
-    custom_schema = IndexSchema.from_dict(
-        {
-            "index": {"name": INDEX_NAME, "prefix": "doc"},
-            "fields": [
-                {"name": "id", "type": "tag"},
-                {"name": "doc_id", "type": "tag"},
-                {"name": "text", "type": "text"},
-                {"name": "content", "type": "text"},
-                {"name": "source", "type": "text"},
-                {"name": "start_index", "type": "numeric"},
-                {
-                    "name": "vector",
-                    "type": "vector",
-                    "attrs": {"dims": 768, "algorithm": "HNSW", "date_type": "FLOAT32"},
-                },
-            ],
-        }
-    )
 
     vector_store = RedisVectorStore(
-        schema=custom_schema,
         redis_url=REDIS_URL,
     )
     opea_microservices["opea_service@retriever_redis"].start()
