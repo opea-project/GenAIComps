@@ -18,6 +18,7 @@ from comps.cores.proto.docarray import (
     RAGASParams,
     RAGASScores,
     GraphDoc,
+    GenerateGraphDoc,
     LVMDoc,
 )
 
