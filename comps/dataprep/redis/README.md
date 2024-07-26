@@ -11,6 +11,11 @@ We organized these two folders in the same way, so you can use either framework 
 - option 1: Install Single-process version (for 1-10 files processing)
 
 ```bash
+apt update
+apt install default-jre
+apt-get install tesseract-ocr -y
+apt-get install libtesseract-dev -y
+apt-get install poppler-utils -y
 # for langchain
 cd langchain
 # for llama_index
@@ -26,7 +31,7 @@ cd langchain_ray; pip install -r requirements_ray.txt
 
 ## 1.2 Start Redis Stack Server
 
-Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
+Please refer to this [readme](../../vectorstores/langchain/redis/README.md).
 
 ## 1.3 Setup Environment Variables
 
@@ -36,6 +41,7 @@ export INDEX_NAME=${your_index_name}
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
+export PYTHONPATH=${path_to_comps}
 ```
 
 ## 1.4 Start Document Preparation Microservice for Redis with Python Script
@@ -100,13 +106,13 @@ docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https
 - option 1: Start single-process version (for 1-10 files processing)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-redis:latest
+docker run -d --name="dataprep-redis-server" -p 6007:6007 -p 6008:6008 -p 6009:6009 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-redis:latest
 ```
 
 - option 2: Start multi-process version (for >10 files processing)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
+docker run -d --name="dataprep-redis-server" -p 6007:6007 -p 6008:6008 -p 6009:6009 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
 ```
 
 ## 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
@@ -127,6 +133,8 @@ docker container logs -f dataprep-redis-server
 
 # 🚀4. Consume Microservice
 
+## 4.1 Consume Upload API
+
 Once document preparation microservice for Redis is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
 Make sure the file path after `files=@` is correct.
@@ -145,9 +153,22 @@ You can specify chunk_size and chunk_size by the following commands.
 ```bash
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
-    -F "files=@/home/sdp/yuxiang/opea_intent/GenAIComps4/comps/table_extraction/LLAMA2_page6.pdf" \
+    -F "files=@./file1.txt" \
     -F "chunk_size=1500" \
     -F "chunk_overlap=100" \
+    http://localhost:6007/v1/dataprep
+```
+
+We support table extraction from pdf documents. You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
+
+Note: If you specify "table_strategy=llm", You should first start TGI Service, please refer to 1.2.1, 1.3.1 in https://github.com/opea-project/GenAIComps/tree/main/comps/llms/README.md, and then `export TGI_LLM_ENDPOINT="http://${your_ip}:8008"`.
+
+```bash
+curl -X POST \
+    -H "Content-Type: multipart/form-data" \
+    -F "files=@./your_file.pdf" \
+    -F "process_table=true" \
+    -F "table_strategy=hq" \
     http://localhost:6007/v1/dataprep
 ```
 
@@ -190,4 +211,59 @@ try:
     print("Request successful!")
 except requests.exceptions.RequestException as e:
     print("An error occurred:", e)
+```
+
+## 4.2 Consume get_file API
+
+To get uploaded file structures, use the following command:
+
+```bash
+curl -X POST \
+    -H "Content-Type: application/json" \
+    http://localhost:6008/v1/dataprep/get_file
+```
+
+Then you will get the response JSON like this:
+
+```json
+[
+  {
+    "name": "uploaded_file_1.txt",
+    "id": "uploaded_file_1.txt",
+    "type": "File",
+    "parent": ""
+  },
+  {
+    "name": "uploaded_file_2.txt",
+    "id": "uploaded_file_2.txt",
+    "type": "File",
+    "parent": ""
+  }
+]
+```
+
+## 4.3 Consume delete_file API
+
+To delete uploaded file/link, use the following command.
+
+The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
+
+```bash
+# delete link
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"file_path": "https://www.ces.tech/.txt"}' \
+    http://10.165.57.68:6009/v1/dataprep/delete_file
+
+# delete file
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"file_path": "uploaded_file_1.txt"}' \
+    http://10.165.57.68:6009/v1/dataprep/delete_file
+
+# delete all files and links
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"file_path": "all"}' \
+    http://10.165.57.68:6009/v1/dataprep/delete_file
 ```

@@ -1,8 +1,8 @@
+aiohttp
 docarray[full]
 fastapi
+httpx
 huggingface_hub
-langchain==0.1.16
-langserve
 langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp

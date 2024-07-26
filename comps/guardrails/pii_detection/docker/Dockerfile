@@ -1,10 +1,11 @@
-
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 FROM python:3.11-slim
 
-ENV LANG C.UTF-8
+ARG ARCH="cpu"  # Set this to "cpu" or "gpu"
+
+ENV LANG=C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
@@ -21,7 +22,11 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/guardrails/pii_detection/requirements.txt
+if [ ${ARCH} = "cpu" ]; then \
+      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/guardrails/pii_detection/requirements.txt; \
+    else \
+      pip install --no-cache-dir -r /home/user/comps/guardrails/pii_detection/requirements.txt; \
+    fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

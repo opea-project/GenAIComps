@@ -1,3 +1,4 @@
+# FROM vault.habana.ai/gaudi-docker/1.15.1/ubuntu22.04/habanalabs/pytorch-installer-2.2.0:latest
 FROM vault.habana.ai/gaudi-docker/1.16.0/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest
 
 ENV LANG=en_US.UTF-8
@@ -6,7 +7,9 @@ WORKDIR /root
 
 RUN pip install --upgrade-strategy eager optimum[habana]
 
-RUN pip install -v git+https://github.com/HabanaAI/vllm-fork.git@ae3d6121
+RUN pip install -v git+https://github.com/HabanaAI/vllm-fork.git@cf6952d
+
+RUN pip install setuptools==69.5.1
 
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     service ssh restart

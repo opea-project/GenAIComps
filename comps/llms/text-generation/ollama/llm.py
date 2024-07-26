@@ -1,6 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import Ollama
 from langsmith import traceable
@@ -18,7 +20,8 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     ollama = Ollama(
-        model="llama3",
+        base_url=ollama_endpoint,
+        model=input.model,
         num_predict=input.max_new_tokens,
         top_k=input.top_k,
         top_p=input.top_p,
@@ -45,4 +48,5 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@llm_ollma"].start()
+    ollama_endpoint = os.getenv("OLLAMA_ENDPOINT", "http://localhost:11434")
+    opea_microservices["opea_service@llm_ollama"].start()
