@@ -34,7 +34,7 @@ function validate_microservice() {
     echo "test 4 - 20 tasks in parallel - ml"
     python comps/guardrails/pii_detection/test.py --test_text --batch_size 20 --ip_addr $ip_address --strategy ml
     echo "Validate microservice completed"
-    docker logs test-guardrails-pii-detection-endpoint &> ${LOG_PATH}/test-guardrails-pii-detection-endpoint.log
+    docker logs test-guardrails-pii-detection-endpoint
 }
 
 function stop_docker() {
