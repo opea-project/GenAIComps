@@ -1,0 +1,24 @@
+# Use a base image
+# FROM python:3.11-slim
+FROM vault.habana.ai/gaudi-docker/1.16.2/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest as hpu
+
+# Set environment variables
+ENV LANG=en_US.UTF-8
+ENV PYTHONPATH=/home:/home/user:/usr/lib/habanalabs/:/optimum-habana
+ENV PYTHON=/usr/bin/python3.10
+
+# TO-DO: Add a user for security
+
+RUN mkdir -p /home/user/comps
+
+COPY comps /home/user/comps
+
+# Git clone
+RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/animation/Wav2Lip-GFPGAN
+
+# Set the working directory
+WORKDIR /home/user/comps/animation
+
+# Define the command to run when the container starts
+ENTRYPOINT [ "bash" ]
+# ENTRYPOINT ["python", "animation.py", "--device", "hpu"]
