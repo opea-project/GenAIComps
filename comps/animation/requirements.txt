@@ -4,6 +4,7 @@ gradio==4.38.1
 gradio_client==1.1.0
 grpcio==1.64.1
 huggingface-hub==0.24.0
+librosa==0.10.2
 lmdb==1.5.1
 numba==0.60.0
 numpy==1.23.5
