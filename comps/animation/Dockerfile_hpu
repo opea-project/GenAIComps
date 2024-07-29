@@ -39,6 +39,7 @@ RUN wget https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth -O
 RUN mkdir -p Wav2Lip-master/checkpoints
 RUN gdown https://drive.google.com/uc?id=1mIKfu_onFKbkbrq6cKVRBblXe5bNMhd9 -O Wav2Lip-master/checkpoints/wav2lip.pth
 RUN gdown https://drive.google.com/uc?id=1DD7dtUfNWqNoW-2Gnp78B4PyaiJ5ybhP -O Wav2Lip-master/checkpoints/wav2lip_gan.pth
+RUN wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth -P GFPGAN-master/experiments/pretrained_models
 
 # Install pip dependencies
 RUN python3 -m pip install --upgrade pip
