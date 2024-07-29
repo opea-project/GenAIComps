@@ -30,6 +30,9 @@ RUN chmod +x $(which ffmpeg)
 # Install Wav2Lip-GFPGAN
 RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/animation/Wav2Lip-GFPGAN
 
+# Install gdown
+RUN pip install gdown
+
 # Download pre-trained models
 WORKDIR /home/user/comps/animation/Wav2Lip-GFPGAN
 RUN wget https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth -O Wav2Lip-master/face_detection/detection/sfd/s3fd.pth
