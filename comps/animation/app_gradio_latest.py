@@ -151,6 +151,8 @@ if __name__ == "__main__":
     # Directories
     if not os.path.exists("inputs"):
         os.makedirs("inputs") 
+    if not os.path.exists("temp"):
+        os.makedirs("temp") 
     if not os.path.exists("outputs"):
         os.makedirs("outputs")
         
