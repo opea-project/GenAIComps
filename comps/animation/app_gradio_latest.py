@@ -49,7 +49,6 @@ async def transcribe(audio):
     async with aiohttp.ClientSession() as session:
         async with session.post(ai_chatbot_url, json=initial_inputs) as response:
     # response = requests.post(ai_chatbot_url, json=initial_inputs)
-
             # Check the response status code
             if response.status == 200:
                 response_text = await response.json()
@@ -149,6 +148,12 @@ if __name__ == "__main__":
     xeon_base64 = image_to_base64('./assets/xeon.jpg')
     gaudi_base64 = image_to_base64('./assets/gaudi.png')
 
+    # Directories
+    if not os.path.exists("inputs"):
+        os.makedirs("inputs") 
+    if not os.path.exists("outputs"):
+        os.makedirs("outputs")
+        
     # Demo frontend
     demo = gr.Blocks()
     with demo:
@@ -214,7 +219,7 @@ if __name__ == "__main__":
                 audio_input = gr.Audio(sources=None, format="wav", label="🎤 or 📤 for your Intput audio!")
                 image_input = gr.File(file_count="single", file_types=["image", "video"], label="Choose an avatar or 📤 an image or video!")
             with gr.Column(scale=2):
-                with gr.Row():                
+                with gr.Row():               
                     for i, image_path in enumerate(image_paths):
                         save_path = f"inputs/face_{i}.png"
                         image_path.save(save_path, "PNG")

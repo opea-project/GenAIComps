@@ -30,6 +30,12 @@ RUN chmod +x $(which ffmpeg)
 # Install Wav2Lip-GFPGAN
 RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/animation/Wav2Lip-GFPGAN
 
+# Set the PYTHONPATH environment variable
+RUN mv /home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip-master /home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip && \
+    mv /home/user/comps/animation/Wav2Lip-GFPGAN/GFPGAN-master /home/user/comps/animation/Wav2Lip-GFPGAN/GFPGAN
+ENV PYTHONPATH="/home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip:${PYTHONPATH}"
+ENV PYTHONPATH="/home/user/comps/animation/Wav2Lip-GFPGAN/GFPGAN:${PYTHONPATH}"
+
 # Install gdown
 RUN pip install gdown
 
