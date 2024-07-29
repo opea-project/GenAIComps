@@ -57,7 +57,7 @@ def pdf_loader(file_path):
 
 
 def ingest_documents():
-    """Ingest PDF to Pinecone from the data/directory"""
+    """Ingest PDF to Pinecone from the data/directory."""
     # Load list of pdfs
     data_path = "data/"
     doc_path = [os.path.join(data_path, file) for file in os.listdir(data_path)][0]
