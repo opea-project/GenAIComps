@@ -55,7 +55,7 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
         response = result_dict["s1/MicroService"]
         idx = 0
         res_expected = ["OPEA", "is", "great.", "~~~", "I", "think", "so.", "~~~"]
-        async for k in response.__reduce__()[2]['body_iterator']:
+        async for k in response.__reduce__()[2]["body_iterator"]:
             self.assertEqual(self.service_builder.extract_chunk_str(k).strip(), res_expected[idx])
             idx += 1
 
