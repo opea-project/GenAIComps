@@ -3,7 +3,7 @@ export PT_HPU_LAZY_MODE=0
 export PT_HPU_ENABLE_REFINE_DYNAMIC_SHAPES=1
 
 # Wav2Lip, GFPGAN
-python3 inference_wav2lip+gfpgan.py \
+python3 Wav2Lip-GFPGAN/inference_wav2lip+gfpgan.py \
 --inference_mode $INFERENCE_MODE \
 --checkpoint_path $CHECKPOINT_PATH \
 --face $FACE \
