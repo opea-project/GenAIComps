@@ -135,19 +135,19 @@ if __name__ == "__main__":
     # HOME = os.getenv("HOME")
     # HOME="/mnt/localdisk4"
     HOME="/home/demo/"
-    image_paths = [Image.open(os.path.join("../assets/avatar1.jpg")),
-                   Image.open(os.path.join("../assets/avatar5.png")),
-                   Image.open(os.path.join("../assets/pallavi.png"))]
+    image_paths = [Image.open(os.path.join("./assets/avatar1.jpg")),
+                   Image.open(os.path.join("./assets/avatar5.png")),
+                   Image.open(os.path.join("./assets/pallavi.png"))]
 
     def image_to_base64(image_path):
         with open(image_path, "rb") as image_file:
             return base64.b64encode(image_file.read()).decode('utf-8')
 
     # Convert your images to Base64
-    opea_qr_base64 = image_to_base64('../assets/opea_qr.png')
-    opea_gh_qr_base64 = image_to_base64('../assets/opea_gh_qr.png')
-    xeon_base64 = image_to_base64('../assets/xeon.jpg')
-    gaudi_base64 = image_to_base64('../assets/gaudi.png')
+    opea_qr_base64 = image_to_base64('./assets/opea_qr.png')
+    opea_gh_qr_base64 = image_to_base64('./assets/opea_gh_qr.png')
+    xeon_base64 = image_to_base64('./assets/xeon.jpg')
+    gaudi_base64 = image_to_base64('./assets/gaudi.png')
 
     # Demo frontend
     demo = gr.Blocks()
@@ -187,7 +187,7 @@ if __name__ == "__main__":
                 gr.Markdown("""
                 <p style='font-size: 20px;'>Welcome to our AI Avatar Audio Chatbot! This application leverages OPEA (Open Platform for Enterprise AI) to provide you with a human-like conversational experience. It employs the AudioQnA megaservice to generate an expert answer based on your query, and then animates the avatar figure with output audio. Feel free to interact with the AI avatar by choosing your own avatar and talking into the mic. </p>
                             """)
-                gr.Image("../assets/flowchart.png", label="Megaservice Flowchart")
+                gr.Image("./assets/flowchart.png", label="Megaservice Flowchart")
         
             with gr.Column(scale=1):
                 with gr.Row():
