@@ -32,7 +32,6 @@ RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/
 
 # Custom patches
 RUN mv /home/user/comps/animation/inference_wav2lip+gfpgan.py /home/user/comps/animation/Wav2Lip-GFPGAN
-RUN sed -i 's/from torchvision.transforms.functional_tensor import rgb_to_grayscale/from torchvision.transforms.functional import rgb_to_grayscale/' /usr/local/lib/python3.10/site-packages/basicsr/data/degradations.py
 
 # Set the PYTHONPATH environment variable
 RUN mv /home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip-master /home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip && \
@@ -54,6 +53,9 @@ RUN wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.
 # Install pip dependencies
 RUN python3 -m pip install --upgrade pip
 RUN pip install -r /home/user/comps/animation/requirements.txt
+
+# Custom patches
+RUN sed -i 's/from torchvision.transforms.functional_tensor import rgb_to_grayscale/from torchvision.transforms.functional import rgb_to_grayscale/' /usr/local/lib/python3.10/site-packages/basicsr/data/degradations.py
 
 # Set the working directory
 WORKDIR /home/user/comps/animation
