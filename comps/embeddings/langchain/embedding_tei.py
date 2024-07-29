@@ -7,15 +7,8 @@ import time
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
 from langsmith import traceable
 
-from comps import (
-    EmbedDoc768,
-    ServiceType,
-    TextDoc,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
-)
+from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
+from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, EmbeddingResponseData
 
 
 @register_microservice(
@@ -24,18 +17,18 @@ from comps import (
     endpoint="/v1/embeddings",
     host="0.0.0.0",
     port=6000,
-    input_datatype=TextDoc,
-    output_datatype=EmbedDoc768,
+    input_datatype=EmbeddingRequest,
+    output_datatype=EmbeddingResponse,
 )
 @traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_tei_langchain"])
-def embedding(input: TextDoc) -> EmbedDoc768:
+def embedding(request: EmbeddingRequest) -> EmbeddingResponse:
     start = time.time()
-    embed_vector = embeddings.embed_query(input.text)
-    embed_vector = embed_vector[:768]  # Keep only the first 768 elements
-    res = EmbedDoc768(text=input.text, embedding=embed_vector)
+    embed_vector = embeddings.embed_query(request.input)
+    embed_vector = embed_vector[: request.dimensions]
+    response = EmbeddingResponse(data=[EmbeddingResponseData(index=0, embedding=embed_vector)])
     statistics_dict["opea_service@embedding_tei_langchain"].append_latency(time.time() - start, None)
-    return res
+    return response
 
 
 if __name__ == "__main__":
