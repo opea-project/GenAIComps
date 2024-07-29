@@ -144,11 +144,10 @@ class ServiceOrchestrator(DAG):
                 )
                 downstream = runtime_graph.downstream(cur_node)
                 if downstream:
-                  assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
-                  cur_node = downstream[0]
+                    assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
+                    cur_node = downstream[0]
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
                 endpoint = self.services[downstream[0]].endpoint_path
-                
 
                 def generate():
                     if response:
@@ -178,8 +177,8 @@ class ServiceOrchestrator(DAG):
                 return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
             else:
                 async with session.post(endpoint, json=inputs) as response:
-                  print(f"{cur_node}: {response.status}")
-                  return await response.json(), cur_node
+                    print(f"{cur_node}: {response.status}")
+                    return await response.json(), cur_node
         elif self.services[cur_node].service_type == ServiceType.RETRIEVER:
             retriever_parameters_dict = retriever_parameters.dict()
             for field, value in retriever_parameters_dict.items():
