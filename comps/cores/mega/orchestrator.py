@@ -11,7 +11,7 @@ import aiohttp
 import requests
 from fastapi.responses import StreamingResponse
 
-from ..proto.docarray import LLMParams
+from ..proto.docarray import LLMParams, RerankerParms, RetrieverParms
 from .constants import ServiceType
 from .dag import DAG
 
@@ -39,7 +39,7 @@ class ServiceOrchestrator(DAG):
             print(e)
             return False
 
-    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams()):
+    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams(), **kwargs):
         result_dict = {}
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)
@@ -76,11 +76,28 @@ class ServiceOrchestrator(DAG):
                     for d_node in downstreams:
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
-                            pending.add(
-                                asyncio.create_task(
-                                    self.execute(session, d_node, inputs, runtime_graph, llm_parameters)
+                            if "retriever_parameters" in kwargs and "reranker_parameters" in kwargs:
+                                retriever_parameters = kwargs["retriever_parameters"]
+                                reranker_parameters = kwargs["reranker_parameters"]
+                                pending.add(
+                                    asyncio.create_task(
+                                        self.execute(
+                                            session,
+                                            d_node,
+                                            inputs,
+                                            runtime_graph,
+                                            llm_parameters,
+                                            retriever_parameters,
+                                            reranker_parameters,
+                                        )
+                                    )
                                 )
-                            )
+                            else:
+                                pending.add(
+                                    asyncio.create_task(
+                                        self.execute(session, d_node, inputs, runtime_graph, llm_parameters)
+                                    )
+                                )
         nodes_to_keep = []
         for i in ind_nodes:
             nodes_to_keep.append(i)
@@ -109,52 +126,75 @@ class ServiceOrchestrator(DAG):
         inputs: Dict,
         runtime_graph: DAG,
         llm_parameters: LLMParams = LLMParams(),
+        retriever_parameters: RetrieverParms = RetrieverParms(),
+        reranker_parameters: RerankerParms = RerankerParms(),
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
-        llm_parameters_dict = llm_parameters.dict()
-        for field, value in llm_parameters_dict.items():
-            if inputs.get(field) != value:
-                inputs[field] = value
 
-        if self.services[cur_node].service_type == ServiceType.LLM and llm_parameters.streaming:
-            # Still leave to sync requests.post for StreamingResponse
-            response = requests.post(
-                url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
-            )
-            downstream = runtime_graph.downstream(cur_node)
-            if downstream:
-                assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
-                cur_node = downstream[0]
-            hitted_ends = [".", "?", "!", "。", "，", "！"]
-            endpoint = self.services[downstream[0]].endpoint_path
+        if self.services[cur_node].service_type == ServiceType.LLM:
+            llm_parameters_dict = llm_parameters.dict()
+            for field, value in llm_parameters_dict.items():
+                if inputs.get(field) != value:
+                    inputs[field] = value
+            if llm_parameters.streaming:
+                # Still leave to sync requests.post for StreamingResponse
+                response = requests.post(
+                    url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
+                )
+                downstream = runtime_graph.downstream(cur_node)
+                if downstream:
+                    assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
+                    cur_node = downstream[0]
+                hitted_ends = [".", "?", "!", "。", "，", "！"]
+                endpoint = self.services[downstream[0]].endpoint_path
 
-            def generate():
-                if response:
-                    buffered_chunk_str = ""
-                    for chunk in response.iter_content(chunk_size=None):
-                        if chunk:
-                            if downstream:
-                                chunk = chunk.decode("utf-8")
-                                buffered_chunk_str += self.extract_chunk_str(chunk)
-                                is_last = chunk.endswith("[DONE]\n\n")
-                                if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
-                                    res = requests.post(
-                                        url=endpoint,
-                                        data=json.dumps({"text": buffered_chunk_str}),
-                                        proxies={"http": None},
-                                    )
-                                    res_json = res.json()
-                                    if "text" in res_json:
-                                        res_txt = res_json["text"]
-                                    else:
-                                        raise Exception("Other response types not supported yet!")
-                                    buffered_chunk_str = ""  # clear
-                                    yield from self.token_generator(res_txt, is_last=is_last)
-                            else:
-                                yield chunk
+                def generate():
+                    if response:
+                        buffered_chunk_str = ""
+                        for chunk in response.iter_content(chunk_size=None):
+                            if chunk:
+                                if downstream:
+                                    chunk = chunk.decode("utf-8")
+                                    buffered_chunk_str += self.extract_chunk_str(chunk)
+                                    is_last = chunk.endswith("[DONE]\n\n")
+                                    if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
+                                        res = requests.post(
+                                            url=endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            proxies={"http": None},
+                                        )
+                                        res_json = res.json()
+                                        if "text" in res_json:
+                                            res_txt = res_json["text"]
+                                        else:
+                                            raise Exception("Other response types not supported yet!")
+                                        buffered_chunk_str = ""  # clear
+                                        yield from self.token_generator(res_txt, is_last=is_last)
+                                else:
+                                    yield chunk
 
-            return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
+                return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
+            else:
+                async with session.post(endpoint, json=inputs) as response:
+                    print(f"{cur_node}: {response.status}")
+                    return await response.json(), cur_node
+        elif self.services[cur_node].service_type == ServiceType.RETRIEVER:
+            retriever_parameters_dict = retriever_parameters.dict()
+            for field, value in retriever_parameters_dict.items():
+                if inputs.get(field) != value:
+                    inputs[field] = value
+            async with session.post(endpoint, json=inputs) as response:
+                print(response.status)
+                return await response.json(), cur_node
+        elif self.services[cur_node].service_type == ServiceType.RERANK:
+            reranker_parameters_dict = reranker_parameters.dict()
+            for field, value in reranker_parameters_dict.items():
+                if inputs.get(field) != value:
+                    inputs[field] = value
+            async with session.post(endpoint, json=inputs) as response:
+                print(response.status)
+                return await response.json(), cur_node
         else:
             async with session.post(endpoint, json=inputs) as response:
                 print(f"{cur_node}: {response.status}")
