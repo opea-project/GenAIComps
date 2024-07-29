@@ -46,6 +46,7 @@ revision=refs/pr/4
 ```
 
 ## Setting up the Pathway data sources
+
 Pathway can listen to many sources simultaneously, such as local files, S3 folders, cloud storage, and any data stream. Whenever a new file is added or an existing file is modified, Pathway parses, chunks and indexes the documents in real-time.
 
 See [pathway-io](https://pathway.com/developers/api-docs/pathway-io) for more information.
