@@ -44,10 +44,35 @@ revision=refs/pr/4
 # TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"  # uncomment if you want to use the hosted embedding service, example: "http://127.0.0.1:6060"
 ```
 
+## Setting up the Pathway data sources
+Pathway can listen to many sources simultaneously, such as local files, S3 folders, cloud storage, and any data stream. Whenever a new file is added or an existing file is modified, Pathway parses, chunks and indexes the documents in real-time.
+
+See [pathway-io](https://pathway.com/developers/api-docs/pathway-io) for more information.
+
+You can easily connect to the data inside the folder with the Pathway file system connector. The data will automatically be updated by Pathway whenever the content of the folder changes. In this example, we create a single data source that reads the files under the `./data` folder.
+
+You can manage your data sources by configuring the `data_sources` in `pathway_vs.py`.
+
+```python
+import pathway as pw
+
+data = pw.io.fs.read(
+    "./data",
+    format="binary",
+    mode="streaming",
+    with_metadata=True,
+)  # This creates a Pathway connector that tracks
+# all the files in the ./data directory
+
+data_sources = [data]
+```
+
 Build the Docker and run the Pathway Vector Store:
 
 ```bash
-docker build -f Dockerfile.pathway -t vectorstore-pathway .
+cd comps/retrievers/langchain/pathway
+
+docker build -t vectorstore-pathway .
 
 # with locally loaded model, you may add `EMBED_MODEL` env variable to configure the model.
 docker run -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -v ./data:/app/data -p ${PATHWAY_PORT}:${PATHWAY_PORT} vectorstore-pathway
