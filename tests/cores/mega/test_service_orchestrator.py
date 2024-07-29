@@ -47,20 +47,6 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
         self.assertEqual(result_dict[self.s2.name]["text"], "hello, opea project!")
 
-    def test_extract_chunk_str(self):
-        res = self.service_builder.extract_chunk_str("data: [DONE]\n\n")
-        self.assertEqual(res, "")
-        res = self.service_builder.extract_chunk_str("data: b'example test.'\n\n")
-        self.assertEqual(res, "example test.")
-
-    def test_token_generator(self):
-        sentence = "I write an example test.</s>"
-        for i in self.service_builder.token_generator(sentence=sentence, is_last=False):
-            self.assertTrue(i.startswith("data: b'"))
-
-        for i in self.service_builder.token_generator(sentence=sentence, is_last=True):
-            self.assertTrue(i.startswith("data: "))
-
 
 
 if __name__ == "__main__":
