@@ -73,7 +73,7 @@ async def gen_video(image, audio):
 
     # 1. Set environment variables
     os.environ['INFERENCE_MODE'] = 'wav2clip_only'
-    os.environ['CHECKPOINT_PATH'] = 'Wav2Lip/checkpoints/wav2lip_gan.pth'
+    os.environ['CHECKPOINT_PATH'] = 'Wav2Lip-GFPGAN/Wav2Lip/checkpoints/wav2lip_gan.pth'
     os.environ['FACE'] = image # path to either an image or a video
     os.environ['AUDIO'] = output_audio_save_path # path to .wav audio
     # os.environ['AUDIO'] = audio
