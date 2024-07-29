@@ -1,7 +1,7 @@
 docarray[full]
 easyocr
 fastapi
-haystack-ai==2.0.0
+haystack-ai==2.2.4
 langchain_community
 langsmith
 opentelemetry-api
