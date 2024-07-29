@@ -1,6 +1,6 @@
 # Use a base image
 # FROM python:3.11-slim
-FROM vault.habana.ai/gaudi-docker/1.16.2/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest as hpu
+FROM vault.habana.ai/gaudi-docker/1.16.2/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest AS hpu
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
@@ -14,8 +14,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
 
 # TO-DO: Add a user for security
 
+# Install GenAIComps
 RUN mkdir -p /home/user/comps
-
 COPY comps /home/user/comps
 
 # Install ppmpeg with x264 software codec
@@ -29,6 +29,10 @@ RUN chmod +x $(which ffmpeg)
 
 # Install Wav2Lip-GFPGAN
 RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/animation/Wav2Lip-GFPGAN
+
+# Install pip dependencies
+RUN python3 -m pip install --upgrade pip
+RUN pip install -r /home/user/comps/animation/requirements.txt
 
 # Set the working directory
 WORKDIR /home/user/comps/animation
