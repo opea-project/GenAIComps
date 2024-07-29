@@ -1,5 +1,6 @@
 basicsr==1.4.2
 facexlib==0.3.0
+gdown==5.2.0
 gradio==4.38.1
 gradio_client==1.1.0
 grpcio==1.64.1

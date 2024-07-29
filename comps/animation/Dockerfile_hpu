@@ -30,6 +30,13 @@ RUN chmod +x $(which ffmpeg)
 # Install Wav2Lip-GFPGAN
 RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/animation/Wav2Lip-GFPGAN
 
+# Download pre-trained models
+WORKDIR /home/user/comps/animation/Wav2Lip-GFPGAN
+RUN wget https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth -O Wav2Lip-master/face_detection/detection/sfd/s3fd.pth
+RUN mkdir -p Wav2Lip-master/checkpoints
+RUN gdown https://drive.google.com/uc?id=1mIKfu_onFKbkbrq6cKVRBblXe5bNMhd9 -O Wav2Lip-master/checkpoints/wav2lip.pth
+RUN gdown https://drive.google.com/uc?id=1DD7dtUfNWqNoW-2Gnp78B4PyaiJ5ybhP -O Wav2Lip-master/checkpoints/wav2lip_gan.pth
+
 # Install pip dependencies
 RUN python3 -m pip install --upgrade pip
 RUN pip install -r /home/user/comps/animation/requirements.txt
