@@ -3,10 +3,11 @@
 
 import json
 import unittest
-from comps import ServiceType
 
-from comps import ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
 from fastapi.responses import StreamingResponse
+
+from comps import ServiceOrchestrator, ServiceType, TextDoc, opea_microservices, register_microservice
+
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:
@@ -31,7 +32,6 @@ async def s0_add(request: TextDoc) -> TextDoc:
     return StreamingResponse(token_generator(), media_type="text/event-stream")
 
 
-
 class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
@@ -52,7 +52,7 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
 
     async def test_schedule(self):
         result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
-        response = result_dict['s1/MicroService']
+        response = result_dict["s1/MicroService"]
         idx = 0
         res_expected = ["OPEA", "is", "great.", "~~~", "I", "think", "so.", "~~~"]
         async for k in response.__reduce__()[2]['body_iterator']:
@@ -72,7 +72,6 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
 
         for i in self.service_builder.token_generator(sentence=sentence, is_last=True):
             self.assertTrue(i.startswith("data: "))
-
 
 
 if __name__ == "__main__":
