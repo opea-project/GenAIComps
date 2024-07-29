@@ -13,7 +13,7 @@ async def s1_add(request: TextDoc) -> TextDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
     text = req_dict["text"]
-    text += "~~~ "
+    text += " ~~~"
     return {"text": text}
 
 
@@ -24,7 +24,7 @@ async def s0_add(request: TextDoc) -> TextDoc:
     text = req_dict["text"]
 
     async def token_generator():
-        for i in ["OPEA ", "is ", "great. ", "I ", "think ", "so. "]:
+        for i in [" OPEA", " is", " great.", " I", " think ", " so."]:
             yield i
 
     text += "project!"
@@ -54,9 +54,9 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
         result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
         response = result_dict['s1/MicroService']
         idx = 0
-        res_expected = ['OPEA ', 'is ', 'great. ', '~~~ ', 'I ', 'think ', 'so. ', '~~~ ']
+        res_expected = ["OPEA", "is", "great.", "~~~", "I", "think", "so.", "~~~"]
         async for k in response.__reduce__()[2]['body_iterator']:
-            self.assertEqual(self.service_builder.extract_chunk_str(k), res_expected[idx])
+            self.assertEqual(self.service_builder.extract_chunk_str(k).strip(), res_expected[idx])
             idx += 1
 
     def test_extract_chunk_str(self):
