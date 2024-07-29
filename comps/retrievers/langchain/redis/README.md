@@ -6,6 +6,8 @@ The service primarily utilizes similarity measures in vector space to rapidly re
 
 Overall, this microservice provides robust backend support for applications requiring efficient similarity searches, playing a vital role in scenarios such as recommendation systems, information retrieval, or any other context where precise measurement of document similarity is crucial.
 
+The following example showcases how to start the microservice and invoke it with a mock embedding vector. If you'd like to fill the database with your documents, run `ingest.py`.
+
 # 🚀1. Start Microservice with Python (Option 1)
 
 To start the retriever microservice, you must first install the required python packages.
@@ -24,8 +26,8 @@ export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/retriever"
 model=BAAI/bge-base-en-v1.5
 revision=refs/pr/4
-volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+volume=$PWD/tei_data
+docker run -d -p 6060:80 -v $volume:/tei_data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
 ```
 
 ## 1.3 Verify the TEI Service
@@ -52,7 +54,7 @@ docker run -d --name="redis-vector-db" -p 6379:6379 -p 8001:8001 redis/redis-sta
 
 ```bash
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
-python langchain/retriever_redis.py
+python retriever_redis.py
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)

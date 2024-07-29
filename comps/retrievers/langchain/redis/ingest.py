@@ -3,15 +3,13 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-#
-
 import io
 import os
 import time
 
 import numpy as np
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
 from PIL import Image
 from redis_config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
@@ -70,14 +68,12 @@ def pdf_loader(file_path):
 
 
 def ingest_documents():
-    """Ingest PDF to Redis from the data/ directory that
-    contains Edgar 10k filings data for Nike."""
+    """Ingest PDF to Redis from the data/directory."""
     # Load list of pdfs
-    company_name = "Nike"
     data_path = "data/"
     doc_path = [os.path.join(data_path, file) for file in os.listdir(data_path)][0]
 
-    print("Parsing 10k filing doc for NIKE", doc_path)
+    print("Parsing document", doc_path)
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
     content = pdf_loader(doc_path)
@@ -106,7 +102,7 @@ def ingest_documents():
     num_chunks = len(chunks)
     for i in range(0, num_chunks, batch_size):
         batch_chunks = chunks[i : i + batch_size]
-        batch_texts = [f"Company: {company_name}. " + chunk for chunk in batch_chunks]
+        batch_texts = [chunk for chunk in batch_chunks]
 
         _ = Redis.from_texts(
             texts=batch_texts,
