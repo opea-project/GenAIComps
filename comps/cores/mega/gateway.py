@@ -138,12 +138,7 @@ class ChatQnAGateway(Gateway):
             reranker_parameters=reranker_parameters,
         )
         for node, response in result_dict.items():
-            # Here it suppose the last microservice in the megaservice is LLM.
-            if (
-                isinstance(response, StreamingResponse)
-                and node == list(self.megaservice.services.keys())[-1]
-                and self.megaservice.services[node].service_type == ServiceType.LLM
-            ):
+            if isinstance(response, StreamingResponse):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
         response = result_dict[last_node]["text"]
