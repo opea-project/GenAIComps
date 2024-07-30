@@ -80,7 +80,6 @@ def load_doc(doc_path):
     """Load doc file."""
     txt_path = doc_path.replace(".doc", ".txt")
     try:
-        os.system(f'antiword "{doc_path}" > "{txt_path}"')
         with open(txt_path, "w") as outfile:
             subprocess.run(["antiword", doc_path], stdout=outfile, check=True)
     except:
