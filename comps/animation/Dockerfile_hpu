@@ -38,8 +38,7 @@ RUN mv /home/user/comps/animation/src/Wav2Lip-master /home/user/comps/animation/
     mv /home/user/comps/animation/src/GFPGAN-master /home/user/comps/animation/src/GFPGAN
 RUN touch /home/user/comps/animation/src/Wav2Lip/__init__.py
 RUN touch /home/user/comps/animation/src/GFPGAN/__init__.py
-ENV PYTHONPATH="/home/user/comps/animation/src/Wav2Lip:${PYTHONPATH}"
-ENV PYTHONPATH="/home/user/comps/animation/src/GFPGAN:${PYTHONPATH}"
+ENV PYTHONPATH="/home/user/comps/animation/src:${PYTHONPATH}"
 
 # Install gdown
 RUN pip install gdown
