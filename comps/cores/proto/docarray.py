@@ -138,6 +138,6 @@ class LVMDoc(BaseDoc):
 
 
 class Wav2LipDoc(BaseDoc):
-    audio_base64_byte_str: str
-    image_base64_byte_str: str
+    image:str
+    audio:str
     
