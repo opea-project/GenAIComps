@@ -27,7 +27,9 @@ class ToolsCallsTemplate:
         self.lstrip_blocks = True
         if template_path is None:
             template_path = os.path.dirname(__file__) + "/templates/tools_functions.jinja"
-        self.environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(template_path)), autoescape=True)
+        self.environment = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(os.path.dirname(template_path)), autoescape=True
+        )
         self.template = self.environment.get_template(os.path.basename(template_path))
         self.template.globals["FUNCTIONS_LIST"] = ToolsCallsTemplateContext.FUNCTIONS_LIST
         self.template.globals["FORCE_CALL"] = ToolsCallsTemplateContext.FORCE_CALL
