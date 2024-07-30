@@ -23,7 +23,6 @@ print("args: ", args)
 )
 def animate(input: Base64ByteStrDoc):
     print("args: ", args)
-    
     return
 
 
