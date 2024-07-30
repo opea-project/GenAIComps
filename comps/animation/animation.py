@@ -132,6 +132,9 @@ def animate(input: Wav2LipDoc):
             if args.inference_mode == 'wav2clip+gfpgan':
                 model_restorer = load_gfpgan(args, model_bg_upsampler)
                 print("Model GFPGAN and face helper loaded")
+            else:
+                model_restorer = None
+                print("Model GFPGAN not loaded")
 
             frame_h, frame_w = full_frames[0].shape[:-1]
             if args.inference_mode == 'wav2clip_only':
@@ -171,5 +174,4 @@ def animate(input: Wav2LipDoc):
 
 if __name__ == "__main__":
     opea_microservices["opea_service@animation"].start()
-
 
