@@ -28,22 +28,22 @@ RUN ./configure --enable-gpl --enable-libx264 && \
 RUN chmod +x $(which ffmpeg)
 
 # Install Wav2Lip-GFPGAN
-RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/animation/Wav2Lip-GFPGAN
-
-# Custom patches
-RUN mv /home/user/comps/animation/inference_wav2lip+gfpgan.py /home/user/comps/animation/Wav2Lip-GFPGAN
+RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/animation/src
+# Rename subfolders "Wav2Lip" and "GFPGAN"
+# RUN mv /home/user/comps/animation/inference_wav2lip+gfpgan.py /home/user/comps/animation/src
+RUN mv /home/user/comps/animation/utils.py /home/user/comps/animation/src
 
 # Set the PYTHONPATH environment variable
-RUN mv /home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip-master /home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip && \
-    mv /home/user/comps/animation/Wav2Lip-GFPGAN/GFPGAN-master /home/user/comps/animation/Wav2Lip-GFPGAN/GFPGAN
-ENV PYTHONPATH="/home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip:${PYTHONPATH}"
-ENV PYTHONPATH="/home/user/comps/animation/Wav2Lip-GFPGAN/GFPGAN:${PYTHONPATH}"
+RUN mv /home/user/comps/animation/src/Wav2Lip-master /home/user/comps/animation/src/Wav2Lip && \
+    mv /home/user/comps/animation/src/GFPGAN-master /home/user/comps/animation/src/GFPGAN
+ENV PYTHONPATH="/home/user/comps/animation/src/Wav2Lip:${PYTHONPATH}"
+ENV PYTHONPATH="/home/user/comps/animation/src/GFPGAN:${PYTHONPATH}"
 
 # Install gdown
 RUN pip install gdown
 
 # Download pre-trained models
-WORKDIR /home/user/comps/animation/Wav2Lip-GFPGAN
+WORKDIR /home/user/comps/animation/src
 RUN wget https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth -O Wav2Lip/face_detection/detection/sfd/s3fd.pth
 RUN mkdir -p Wav2Lip/checkpoints
 RUN gdown https://drive.google.com/uc?id=1mIKfu_onFKbkbrq6cKVRBblXe5bNMhd9 -O Wav2Lip/checkpoints/wav2lip.pth
@@ -58,11 +58,11 @@ RUN pip install -r /home/user/comps/animation/requirements.txt
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional
 RUN sed -i 's/from torchvision.transforms.functional_tensor import rgb_to_grayscale/from torchvision.transforms.functional import rgb_to_grayscale/' /usr/local/lib/python3.10/dist-packages/basicsr/data/degradations.py
 # Modify the core.py file to include 'hpu' in the device check
-RUN sed -i "s/if 'cpu' not in device and 'cuda' not in device:/if 'cpu' not in device and 'cuda' not in device and 'hpu' not in device:/" /home/user/comps/animation/Wav2Lip-GFPGAN/Wav2Lip/face_detection/detection/core.py
+RUN sed -i "s/if 'cpu' not in device and 'cuda' not in device:/if 'cpu' not in device and 'cuda' not in device and 'hpu' not in device:/" /home/user/comps/animation/src/Wav2Lip/face_detection/detection/core.py
 
 # Set the working directory
 WORKDIR /home/user/comps/animation
 
 # Define the command to run when the container starts
 ENTRYPOINT [ "bash" ]
-# ENTRYPOINT ["python", "animation.py", "--device", "hpu"]
+# ENTRYPsOINT ["python", "animation.py", "--device", "hpu", "--inference_mode", "${INFERENCE_MODE}", "--checkpoint_path", "${CHECKPOINT_PATH}", "--face", "${FACE}", "--audio", "${AUDIO}", "--outfile", "${OUTFILE}", "--img_size", "${FACESIZE}", "-v", "${GFPGAN_MODEL_VERSION}", "-s", "${UPSCALE_FACTOR}", "--fps", "${FPS}", "--only_center_face", "--bg_upsampler", "None"]

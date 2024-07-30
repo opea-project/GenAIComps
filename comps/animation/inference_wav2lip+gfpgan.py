@@ -265,10 +265,6 @@ def load_gfpgan(args, bg_upsampler):
 	return restorer
 
 
-def restore_images(args):
-	return
-
-
 #%% Main function
 def main():
 	print(args.face, args.audio)
