@@ -19,6 +19,7 @@ from langchain_openai import ChatOpenAI
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
+
 def post_process_text(text: str):
     if text == " ":
         return "data: @#$\n\n"
