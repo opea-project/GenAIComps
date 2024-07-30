@@ -6,7 +6,6 @@ import time
 
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
-from langsmith import traceable
 
 from comps import (
     GeneratedDoc,
@@ -26,7 +25,6 @@ from comps import (
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 @register_statistics(names=["opea_service@llm_tgi"])
 async def llm_generate(input: LLMParamsDoc):
     stream_gen_time = []

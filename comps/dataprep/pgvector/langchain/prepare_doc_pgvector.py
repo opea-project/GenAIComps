@@ -12,7 +12,6 @@ from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import PGVector
-from langsmith import traceable
 
 from comps import DocPath, ServiceType, opea_microservices, register_microservice, register_statistics
 from comps.dataprep.utils import document_loader, get_separators, parse_html
@@ -101,7 +100,6 @@ def ingest_link_to_pgvector(link_list: List[str]):
     host="0.0.0.0",
     port=6007,
 )
-@traceable(run_type="tool")
 @register_statistics(names=["opea_service@dataprep_pgvector"])
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None), link_list: Optional[str] = Form(None)
