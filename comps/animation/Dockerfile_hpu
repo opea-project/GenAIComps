@@ -45,7 +45,8 @@ RUN pip install gdown
 
 # Download pre-trained models
 WORKDIR /home/user/comps/animation/src
-RUN wget https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth -O Wav2Lip/face_detection/detection/sfd/s3fd.pth
+# RUN wget https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth -O Wav2Lip/face_detection/detection/sfd/s3fd.pth
+RUN gdown https://drive.google.com/uc?id=1wwts8U4Wx2lpLOI9uGcUB-TLmKRIFnP8 -O Wav2Lip/face_detection/detection/sfd/s3fd.pth
 RUN mkdir -p Wav2Lip/checkpoints
 RUN gdown https://drive.google.com/uc?id=1mIKfu_onFKbkbrq6cKVRBblXe5bNMhd9 -O Wav2Lip/checkpoints/wav2lip.pth
 RUN gdown https://drive.google.com/uc?id=1DD7dtUfNWqNoW-2Gnp78B4PyaiJ5ybhP -O Wav2Lip/checkpoints/wav2lip_gan.pth
