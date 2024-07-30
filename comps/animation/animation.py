@@ -7,7 +7,7 @@ comps_path = os.path.join(cur_path, "../")
 
 from comps import ServiceType, opea_microservices, register_microservice
 from comps import Base64ByteStrDoc
-from comps.animation.src.utils import *
+from src.utils import *
 
 args = get_args()
 print("args: ", args)
