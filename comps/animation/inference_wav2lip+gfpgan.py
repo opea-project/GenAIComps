@@ -274,7 +274,7 @@ def main():
         #    print('Face saved')
         #    args.face = 'temp/face.png')
         # except:
-	    raise ValueError('--face argument must be a valid path to video/image file')
+		raise ValueError("--face argument must be a valid path to video/image file")
 
 	elif args.face.split('.')[1] in ['jpg', 'png', 'jpeg']:
 		full_frames = [cv2.imread(args.face)]
@@ -296,7 +296,7 @@ def main():
 				frame = cv2.resize(frame, (frame.shape[1]//args.resize_factor, frame.shape[0]//args.resize_factor))
 
 			if args.rotate:
-				frame = cv2.rotate(frame, cv2.cv2.ROTATE_90_CLOCKWISE)
+				frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
 			y1, y2, x1, x2 = args.crop
 			if x2 == -1: x2 = frame.shape[1]
