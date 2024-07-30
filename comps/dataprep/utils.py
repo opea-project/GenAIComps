@@ -28,6 +28,7 @@ import pandas as pd
 import pptx
 import requests
 import yaml
+import subprocess
 from bs4 import BeautifulSoup
 from docx import Document as DDocument
 from langchain import LLMChain, PromptTemplate
@@ -157,7 +158,7 @@ def load_doc(doc_path):
     """Load doc file."""
     print("Converting doc file to docx file...")
     docx_path = doc_path + "x"
-    os.system(f"libreoffice --headless --invisible --convert-to docx --outdir {os.path.dirname(docx_path)} {doc_path}")
+    subprocess.run(["libreoffice", "--headless", "--invisible", "--convert-to", "docx","--outdir", os.path.dirname(docx_path), doc_path], check=True)
     print("Converted doc file to docx file.")
     text = load_docx(docx_path)
     os.remove(docx_path)
@@ -196,7 +197,7 @@ def load_ppt(ppt_path):
     """Load ppt file."""
     print("Converting ppt file to pptx file...")
     pptx_path = ppt_path + "x"
-    os.system(f"libreoffice --headless --invisible --convert-to pptx --outdir {os.path.dirname(pptx_path)} {ppt_path}")
+    subprocess.run(["libreoffice", "--headless", "--invisible", "--convert-to", "docx","--outdir", os.path.dirname(pptx_path), ppt_path], check=True)
     print("Converted ppt file to pptx file.")
     text = load_pptx(pptx_path)
     os.remove(pptx_path)

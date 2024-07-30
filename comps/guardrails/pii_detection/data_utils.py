@@ -8,7 +8,7 @@ import os
 import re
 import unicodedata
 from urllib.parse import urlparse, urlunparse
-
+import subprocess
 import easyocr
 import fitz
 import numpy as np
@@ -80,6 +80,8 @@ def load_doc(doc_path):
     txt_path = doc_path.replace(".doc", ".txt")
     try:
         os.system(f'antiword "{doc_path}" > "{txt_path}"')
+        with open(txt_path, 'w') as outfile:
+            subprocess.run(['antiword', doc_path], stdout=outfile, check=True)
     except:
         raise AssertionError(
             "antiword failed or not installed, if not installed,"
