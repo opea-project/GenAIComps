@@ -36,6 +36,8 @@ RUN mv /home/user/comps/animation/utils.py /home/user/comps/animation/src
 # Set the PYTHONPATH environment variable
 RUN mv /home/user/comps/animation/src/Wav2Lip-master /home/user/comps/animation/src/Wav2Lip && \
     mv /home/user/comps/animation/src/GFPGAN-master /home/user/comps/animation/src/GFPGAN
+RUN touch /home/user/comps/animation/src/Wav2Lip/__init__.py
+RUN touch /home/user/comps/animation/src/GFPGAN/__init__.py
 ENV PYTHONPATH="/home/user/comps/animation/src/Wav2Lip:${PYTHONPATH}"
 ENV PYTHONPATH="/home/user/comps/animation/src/GFPGAN:${PYTHONPATH}"
 
@@ -64,5 +66,7 @@ RUN sed -i "s/if 'cpu' not in device and 'cuda' not in device:/if 'cpu' not in d
 WORKDIR /home/user/comps/animation
 
 # Define the command to run when the container starts
-ENTRYPOINT [ "bash" ]
-# ENTRYPsOINT ["python", "animation.py", "--device", "hpu", "--inference_mode", "${INFERENCE_MODE}", "--checkpoint_path", "${CHECKPOINT_PATH}", "--face", "${FACE}", "--audio", "${AUDIO}", "--outfile", "${OUTFILE}", "--img_size", "${FACESIZE}", "-v", "${GFPGAN_MODEL_VERSION}", "-s", "${UPSCALE_FACTOR}", "--fps", "${FPS}", "--only_center_face", "--bg_upsampler", "None"]
+# ENTRYPOINT [ "bash" ]
+ENV PT_HPU_LAZY_MODE=0
+ENV PT_HPU_ENABLE_REFINE_DYNAMIC_SHAPES=1
+ENTRYPOINT ["python", "animation.py", "--inference_mode", "${INFERENCE_MODE}", "--checkpoint_path", "${CHECKPOINT_PATH}", "--face", "${FACE}", "--audio", "${AUDIO}", "--outfile", "${OUTFILE}", "--img_size", "${FACESIZE}", "-v", "${GFPGAN_MODEL_VERSION}", "-s", "${UPSCALE_FACTOR}", "--fps", "${FPS}", "--only_center_face", "--bg_upsampler", "None"]

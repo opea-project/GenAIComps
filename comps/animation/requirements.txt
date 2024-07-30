@@ -16,3 +16,14 @@ scipy==1.14.0
 tb-nightly==2.18.0a20240721
 tqdm==4.66.4
 yapf==0.40.2
+
+# used by cloud native
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pandas
+prometheus_fastapi_instrumentator
+pyarrow
+pydantic #==1.10.13
+shortuuid
+tavily-python
