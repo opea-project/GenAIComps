@@ -5,7 +5,6 @@ import os
 import time
 
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
-from langsmith import traceable
 
 from comps import (
     EmbedDoc,
@@ -27,7 +26,6 @@ from comps import (
     input_datatype=TextDoc,
     output_datatype=EmbedDoc,
 )
-@traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_tei_langchain"])
 def embedding(input: TextDoc) -> EmbedDoc:
     start = time.time()
@@ -40,5 +38,5 @@ def embedding(input: TextDoc) -> EmbedDoc:
 if __name__ == "__main__":
     tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080")
     embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
-    print("TEI Gaudi Embedding initialized.")
+    print("TEI Embedding initialized.")
     opea_microservices["opea_service@embedding_tei_langchain"].start()

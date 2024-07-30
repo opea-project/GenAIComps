@@ -6,7 +6,6 @@ import os
 from langchain_community.utilities.requests import JsonRequestsWrapper
 from langchain_huggingface import ChatHuggingFace
 from langchain_huggingface.llms import HuggingFaceEndpoint
-from langsmith import traceable
 
 from comps import ServiceType, TextDoc, opea_microservices, register_microservice
 
@@ -62,7 +61,6 @@ def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
     input_datatype=TextDoc,
     output_datatype=TextDoc,
 )
-@traceable(run_type="llm")
 def safety_guard(input: TextDoc) -> TextDoc:
     response_input_guard = llm_engine_hf.invoke([{"role": "user", "content": input.text}]).content
     if "unsafe" in response_input_guard:

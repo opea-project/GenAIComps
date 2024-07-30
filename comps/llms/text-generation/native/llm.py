@@ -17,7 +17,6 @@ from datetime import datetime
 
 import torch
 from fastapi.responses import StreamingResponse
-from langsmith import traceable
 from utils import initialize_model
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
@@ -51,7 +50,6 @@ def warmup():
     host="0.0.0.0",
     port=8000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     input_query = input.query
     input_tokens = tokenizer.batch_encode_plus([input_query], return_tensors="pt", padding=True)

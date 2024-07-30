@@ -8,7 +8,6 @@ import re
 import time
 
 import requests
-from langsmith import traceable
 
 from comps import (
     LLMParamsDoc,
@@ -30,7 +29,6 @@ from comps import (
     input_datatype=SearchedDoc,
     output_datatype=LLMParamsDoc,
 )
-@traceable(run_type="llm")
 @register_statistics(names=["opea_service@reranking_tgi_gaudi"])
 def reranking(input: SearchedDoc) -> LLMParamsDoc:
     start = time.time()

@@ -7,7 +7,6 @@ fastapi
 huggingface_hub
 langchain
 langchain-community
-langsmith
 markdown
 numpy
 opentelemetry-api
