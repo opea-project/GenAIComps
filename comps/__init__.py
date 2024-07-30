@@ -19,6 +19,7 @@ from comps.cores.proto.docarray import (
     RAGASScores,
     GraphDoc,
     LVMDoc,
+    Wav2LipDoc,
 )
 
 # Constants

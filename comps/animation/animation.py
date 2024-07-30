@@ -6,7 +6,7 @@ cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../")
 
 from comps import ServiceType, opea_microservices, register_microservice
-from comps import Base64ByteStrDoc
+from comps import Base64ByteStrDoc, Wav2LipDoc
 from src.utils import *
 
 args = get_args()
@@ -19,9 +19,9 @@ print("args: ", args)
     endpoint="/v1/animation",
     host="0.0.0.0",
     port=7860,
-    input_datatype=Base64ByteStrDoc,
+    input_datatype=Wav2LipDoc,
 )
-def animate(input: Base64ByteStrDoc):
+def animate(input: Wav2LipDoc):
     print("args: ", args)
     return
 

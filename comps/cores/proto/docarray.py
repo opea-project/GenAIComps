@@ -135,3 +135,8 @@ class LVMDoc(BaseDoc):
     image: str
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512
+
+
+class Wav2LipDoc(BaseDoc):
+    image: str
+    audio: str
