@@ -19,17 +19,23 @@ from config import (
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
+from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
-from langchain_core.documents import Document
 from langsmith import traceable
 from pyspark import SparkConf, SparkContext
 
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
-    document_loader, get_separators, get_tables_result, 
-    encode_filename, parse_html, save_content_to_local_disk,
-    get_file_structure, remove_folder_with_ignore, create_upload_folder
+    create_upload_folder,
+    document_loader,
+    encode_filename,
+    get_file_structure,
+    get_separators,
+    get_tables_result,
+    parse_html,
+    remove_folder_with_ignore,
+    save_content_to_local_disk,
 )
 
 # workaround notes: cp comps/dataprep/utils.py ./milvus/utils.py
@@ -92,7 +98,9 @@ def ingest_data_to_milvus(doc_path: DocPath):
     # Create vectorstore
     if MOSEC_EMBEDDING_ENDPOINT:
         # create embeddings using MOSEC endpoint service
-        print(f"[ ingest data ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}")
+        print(
+            f"[ ingest data ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
+        )
         embedder = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
     elif TEI_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service
@@ -148,10 +156,7 @@ async def ingest_link_to_milvus(link_list: List[str]):
         print(f"[ ingest link ] save_path: {save_path}")
         await save_content_to_local_disk(save_path, content)
 
-        document = Document(
-            page_content=content,
-            metadata={partition_field_name: encoded_link+".txt"}
-        )
+        document = Document(page_content=content, metadata={partition_field_name: encoded_link + ".txt"})
         _ = Milvus.from_documents(
             document,
             embedder,
@@ -192,8 +197,8 @@ async def ingest_documents(
             for file in files:
                 assert ingest_data_to_milvus(
                     DocPath(
-                        path=file, 
-                        chunk_size=chunk_size, 
+                        path=file,
+                        chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
@@ -247,10 +252,10 @@ async def rag_get_file_structure():
 
 
 def delete_all_data(my_milvus):
-    print(f"[ delete ] deleting all data in milvus")
+    print("[ delete ] deleting all data in milvus")
     my_milvus.delete(expr="pk >= 0")
     my_milvus.col.flush()
-    print(f"[ delete ] delete success: all data")
+    print("[ delete ] delete success: all data")
 
 
 def delete_by_partition_field(my_milvus, partition_field):
@@ -276,7 +281,9 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     # create embedder obj
     if MOSEC_EMBEDDING_ENDPOINT:
         # create embeddings using MOSEC endpoint service
-        print(f"[ dataprep - del ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT},MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}")
+        print(
+            f"[ dataprep - del ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT},MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
+        )
         embedder = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
     elif TEI_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service
@@ -293,7 +300,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
         collection_name=COLLECTION_NAME,
         connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
         index_params=index_params,
-        auto_id=True
+        auto_id=True,
     )
 
     # delete all uploaded files
@@ -324,7 +331,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
                 return {"status": False}
         # folder
         else:
-            print(f"[dataprep - del] delete folder is not supported for now.")
+            print("[dataprep - del] delete folder is not supported for now.")
             return {"status": False}
     else:
         raise HTTPException(status_code=404, detail="File/folder not found. Please check del_path.")
