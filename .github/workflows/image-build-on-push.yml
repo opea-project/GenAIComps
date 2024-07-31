@@ -49,8 +49,6 @@ jobs:
       - name: Clean up Working Directory
         run: |
           sudo rm -rf ${{github.workspace}}/*
-          echo "check env OPEA_IMAGE_REPO"
-          echo ${OPEA_IMAGE_REPO}
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
