@@ -64,8 +64,5 @@ RUN sed -i "s/if 'cpu' not in device and 'cuda' not in device:/if 'cpu' not in d
 WORKDIR /home/user/comps/animation
 
 # Define the command to run when the container starts
-# ENTRYPOINT [ "bash" ]
-ENV PT_HPU_LAZY_MODE=0
-ENV PT_HPU_ENABLE_REFINE_DYNAMIC_SHAPES=1
-
-ENTRYPOINT ["python3", "animation.py", "--port", "$ANIMATION_PORT", "--inference_mode", "$INFERENCE_MODE", "--checkpoint_path", "$CHECKPOINT_PATH", "--face", "$FACE", "--audio", "$AUDIO", "--outfile", "$OUTFILE", "--img_size", "$FACESIZE", "-v", "$GFPGAN_MODEL_VERSION", "-s", "$UPSCALE_FACTOR", "--fps", "$FPS", "--only_center_face", "--bg_upsampler", "None"]
+RUN chmod +x entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
