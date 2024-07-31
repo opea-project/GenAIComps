@@ -18,7 +18,7 @@ class TopologyInfo:
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
-    
+
 
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
@@ -78,7 +78,7 @@ class RerankedDoc(BaseDoc):
 
 
 class LLMParamsDoc(BaseDoc):
-    model: Optional[str] = None  # for predictionguard, openai and ollama
+    model: Optional[str] = None  # for openai and ollama
     query: str
     max_new_tokens: int = 1024
     top_k: int = 10
