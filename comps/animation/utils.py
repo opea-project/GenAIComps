@@ -28,6 +28,7 @@ import time
 def get_args():
     parser = argparse.ArgumentParser(description='Inference code to lip-sync videos in the wild using Wav2Lip models')
     # General config
+    parser.add_argument('--port', type=int, default=7860)
     parser.add_argument('--inference_mode', type=str, choices=['wav2clip_only', 'wav2clip+gfpgan'],
                         default='wav2clip+gfpgan', help='whether to use just wav2clip or include gfpgan')
     # Wav2Lip config
