@@ -30,19 +30,14 @@ def test_html(ip_addr="localhost", batch_size=20, strategy=None):
 def test_text(ip_addr="localhost", batch_size=20, strategy=None):
     proxies = {"http": ""}
     url = f"http://{ip_addr}:6357/v1/piidetect"
-    if os.path.exists("data/ai_rss.csv"):
-        import pandas as pd
-
-        content = pd.read_csv("data/ai_rss.csv")["Description"]
-        content = content[:batch_size].to_list()
-    else:
-        content = [
-            "Q1 revenue was $1.23 billion, up 12% year over year. ",
-            "We are excited to announce the opening of our new office in Miami! ",
-            "Mary Smith, 123-456-7890,",
-            "John is a good team leader",
-            "meeting minutes: sync up with sales team on the new product launch",
-        ]
+    
+    content = [
+        "Q1 revenue was $1.23 billion, up 12% year over year. ",
+        "We are excited to announce the opening of our new office in Miami! ",
+        "Mary Smith, 123-456-7890,",
+        "John is a good team leader",
+        "meeting minutes: sync up with sales team on the new product launch",
+    ]
 
     payload = {"text_list": json.dumps(content), "strategy": strategy}
 
