@@ -48,5 +48,6 @@ python3 test_animation_server.py
 ```
 The expected output is a message prompting
 ```bash
-"Video generated successfully, check $(pwd)/outputs/result.mp4 for the result."
+"Video generated successfully, check $OUTFILE for the result."
 ```
+Please find "outputs/result.mp4" in the current directory as a reference generated video.
