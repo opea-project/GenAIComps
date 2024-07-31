@@ -56,7 +56,7 @@ jobs:
 
       - name: Build image
         env:
-            service: ${{ matrix.service }}
+          service: ${{ matrix.service }}
         uses: ./.github/actions/image-build/action.yml
         with:
           work_dir: ${{ github.workspace }}
