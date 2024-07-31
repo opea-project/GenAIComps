@@ -22,7 +22,6 @@ class PIIDetector:
         return random.choice([True, False])
 
 
-
 class PIIDetectorWithNER(PIIDetector):
     def __init__(self, model_path=None):
         super().__init__()

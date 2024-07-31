@@ -14,7 +14,7 @@ def test_html(ip_addr="localhost", batch_size=20, strategy=None):
 
     proxies = {"http": ""}
     url = f"http://{ip_addr}:6357/v1/piidetect"
-    urls = ["https://opea.dev/"]*batch_size
+    urls = ["https://opea.dev/"] * batch_size
     payload = {"link_list": json.dumps(urls), "strategy": strategy}
 
     with Timer(f"send {len(urls)} link to pii detection endpoint"):
