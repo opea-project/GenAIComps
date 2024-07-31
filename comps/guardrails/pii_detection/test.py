@@ -30,7 +30,7 @@ def test_html(ip_addr="localhost", batch_size=20, strategy=None):
 def test_text(ip_addr="localhost", batch_size=20, strategy=None):
     proxies = {"http": ""}
     url = f"http://{ip_addr}:6357/v1/piidetect"
-    
+
     content = [
         "Q1 revenue was $1.23 billion, up 12% year over year. ",
         "We are excited to announce the opening of our new office in Miami! ",

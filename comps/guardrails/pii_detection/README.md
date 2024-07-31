@@ -1,11 +1,11 @@
 # PII Detection Microservice
 
-This microservice provides a unified API to detect if there is Personal Identifiable Information or Business Sensitive Information in text. 
+This microservice provides a unified API to detect if there is Personal Identifiable Information or Business Sensitive Information in text.
 
 We provide 2 detection strategies:
 
 1. Regular expression matching + named entity recognition (NER) - pass "ner" as strategy in your request to the microservice.
-2. Logistic regression classifier - pass "ml" as strategy in your request to the microservice. **Note**: Currently this strategy is for demo only, and only supports using `nomic-ai/nomic-embed-text-v1` as the embedding model and the `Intel/business_safety_logistic_regression_classifier` model as the classifier. Please read the [full disclaimers in the model card](https://huggingface.co/Intel/business_safety_logistic_regression_classifier) before using this strategy. 
+2. Logistic regression classifier - pass "ml" as strategy in your request to the microservice. **Note**: Currently this strategy is for demo only, and only supports using `nomic-ai/nomic-embed-text-v1` as the embedding model and the `Intel/business_safety_logistic_regression_classifier` model as the classifier. Please read the [full disclaimers in the model card](https://huggingface.co/Intel/business_safety_logistic_regression_classifier) before using this strategy.
 
 ## NER strategy
 
@@ -19,8 +19,8 @@ The classifiler model is used together with an embedding model to make predictio
 
 Currently this strategy can detect both personal sensitive and business sensitive information such as financial figures and performance reviews. Please refer to the [model card](<(https://huggingface.co/Intel/business_safety_logistic_regression_classifier)>) to see the performance of our demo model on the Patronus EnterprisePII dataset.
 
-
 # Input and output
+
 Users can send a list of files, a list of text strings, or a list of urls to the microservice, and the microservice will return a list of True or False for each piece of text following the original sequence.
 
 For a concrete example of what input should look like, please refer to [Consume Microservice](#4-consume-microservice) section below.
