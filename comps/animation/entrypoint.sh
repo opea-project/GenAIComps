@@ -1,3 +1,4 @@
+#!/bin/sh
 # Environment variables
 export PT_HPU_LAZY_MODE=0
 export PT_HPU_ENABLE_REFINE_DYNAMIC_SHAPES=1
