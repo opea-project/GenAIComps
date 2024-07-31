@@ -17,6 +17,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
 # Install GenAIComps
 RUN mkdir -p /home/user/comps
 COPY comps /home/user/comps
+COPY comps/animation/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Install ppmpeg with x264 software codec
 RUN git clone https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/FFmpeg
@@ -64,6 +65,5 @@ RUN sed -i "s/if 'cpu' not in device and 'cuda' not in device:/if 'cpu' not in d
 WORKDIR /home/user/comps/animation
 
 # Define the command to run when the container starts
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
