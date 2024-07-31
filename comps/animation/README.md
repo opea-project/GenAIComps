@@ -16,28 +16,28 @@ export INFERENCE_MODE='wav2clip+gfpgan'
 export CHECKPOINT_PATH='src/Wav2Lip/checkpoints/wav2lip_gan.pth'
 export FACE='assets/avatar1.jpg'
 export AUDIO='assets/eg3_ref.wav'
-export FACESIZE='96'
+export FACESIZE=96
 export OUTFILE='/home/demo/ctao/forks/GenAIComps/comps/animation/outputs/result.mp4'
-export GFPGAN_MODEL_VERSION='1.3'
-export UPSCALE_FACTOR='1'
-export FPS='10.'
+export GFPGAN_MODEL_VERSION=1.3
+export UPSCALE_FACTOR=1
+export FPS=10
 ```
 
 ## 1.3. Run the Docker container
 <!-- docker run --privileged --rm -itd -->
 ```bash
-docker run --privileged --rm -itd --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "animation-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES="3" -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e ANIMATION_PORT=$ANIMATION_PORT opea/animation:latest
+docker run --privileged -d --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "animation-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES="3" -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e ANIMATION_PORT=$ANIMATION_PORT opea/animation:latest
 ```
 
 
 # 🚀2. Start Microservice with Docker (option 2)
 ```bash
-python /home/user/comps/animation/animation.py --inference_mode $INFERENCE_MODE --checkpoint_path $CHECKPOINT_PATH --face $FACE --audio $AUDIO --outfile $OUTFILE --img_size $FACESIZE -v $GFPGAN_MODEL_VERSION -s $UPSCALE_FACTOR --fps $FPS --only_center_face --bg_upsampler None
+python3 /home/user/comps/animation/animation.py --inference_mode $INFERENCE_MODE --checkpoint_path $CHECKPOINT_PATH --face $FACE --audio $AUDIO --outfile $OUTFILE --img_size $FACESIZE -v $GFPGAN_MODEL_VERSION -s $UPSCALE_FACTOR --fps $FPS --only_center_face --bg_upsampler None
 ```
 
 
 # 🚀3. Validate Microservice
 ```bash
-python test_animation_server.py
+python3 test_animation_server.py
 ```
 
