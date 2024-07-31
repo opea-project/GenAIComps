@@ -40,7 +40,7 @@ print("args: ", args)
     service_type=ServiceType.ANIMATION,
     endpoint="/v1/animation",
     host="0.0.0.0",
-    port=7860,
+    port=args.port,
     input_datatype=Wav2LipDoc,
 )
 def animate(input: Wav2LipDoc):
