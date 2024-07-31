@@ -68,4 +68,4 @@ WORKDIR /home/user/comps/animation
 ENV PT_HPU_LAZY_MODE=0
 ENV PT_HPU_ENABLE_REFINE_DYNAMIC_SHAPES=1
 
-ENTRYPOINT ["python", "animation.py", "--inference_mode", "$INFERENCE_MODE", "--checkpoint_path", "$CHECKPOINT_PATH", "--face", "$FACE", "--audio", "$AUDIO", "--outfile", "$OUTFILE", "--img_size", "$FACESIZE", "-v", "$GFPGAN_MODEL_VERSION", "-s", "$UPSCALE_FACTOR", "--fps", "$FPS", "--only_center_face", "--bg_upsampler", "None"]
+ENTRYPOINT ["python", "animation.py", "--port" "$ANIMATION_PORT" "--inference_mode", "$INFERENCE_MODE", "--checkpoint_path", "$CHECKPOINT_PATH", "--face", "$FACE", "--audio", "$AUDIO", "--outfile", "$OUTFILE", "--img_size", "$FACESIZE", "-v", "$GFPGAN_MODEL_VERSION", "-s", "$UPSCALE_FACTOR", "--fps", "$FPS", "--only_center_face", "--bg_upsampler", "None"]
