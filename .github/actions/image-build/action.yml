@@ -42,6 +42,7 @@ runs:
       run: |
         REGISTRY=${{ inputs.registry }} \
         docker compose -p ${GITHUB_RUN_NUMBER} push
+        docker images
       working-directory: ${{ inputs.work_dir }}
     - name: Clean up Containers
       if: ${{ always() }}

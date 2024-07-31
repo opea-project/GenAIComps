@@ -62,5 +62,5 @@ jobs:
         uses: ./.github/actions/image-build
         with:
           work_dir: ${{ github.workspace }}
-          docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/${service}-compose.yaml
+          docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/${service}-compose.yaml
           registry: ${OPEA_IMAGE_REPO}
