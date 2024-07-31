@@ -8,7 +8,7 @@ import time
 from predictionguard import PredictionGuard
 
 from comps import (
-    EmbedDoc512, 
+    EmbedDoc, 
     ServiceType, 
     TextDoc, 
     opea_microservices, 
@@ -27,11 +27,11 @@ client = PredictionGuard()
     host="0.0.0.0",
     port=6000,
     input_datatype=TextDoc,
-    output_datatype=EmbedDoc512,
+    output_datatype=EmbedDoc,
 )
 
 @register_statistics(names=["opea_service@embedding_predictionguard"])
-def embedding(input: TextDoc) -> EmbedDoc512:
+def embedding(input: TextDoc) -> EmbedDoc:
     start = time.time()
     response = client.embeddings.create(
         model=pg_embedding_model_name,
@@ -39,7 +39,7 @@ def embedding(input: TextDoc) -> EmbedDoc512:
     )
     embed_vector = response["data"][0]["embedding"]
     embed_vector = embed_vector[:512]  # Keep only the first 512 elements
-    res = EmbedDoc512(text=input.text, embedding=embed_vector)
+    res = EmbedDoc(text=input.text, embedding=embed_vector)
     statistics_dict["opea_service@embedding_predictionguard"].append_latency(time.time() - start, None)
     return res
 

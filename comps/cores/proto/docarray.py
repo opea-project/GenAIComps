@@ -18,7 +18,7 @@ class TopologyInfo:
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
-    
+
 
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
@@ -32,9 +32,9 @@ class DocPath(BaseDoc):
     table_strategy: str = "fast"
 
 
-class EmbedDoc768(BaseDoc):
+class EmbedDoc(BaseDoc):
     text: str
-    embedding: conlist(float, min_length=768, max_length=768)
+    embedding: conlist(float, min_length=0)
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
@@ -58,18 +58,6 @@ class Audio2TextDoc(AudioDoc):
     )
 
 
-class EmbedDoc1024(BaseDoc):
-    text: str
-    embedding: conlist(float, min_length=1024, max_length=1024)
-
-
-# TODO: This should be changed to EmbedDoc when the related change is
-# made to remove all hard embedding size constraints.
-class EmbedDoc512(BaseDoc):
-    text: str
-    embedding: conlist(float, min_length=0)
-
-
 class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
     initial_query: str
@@ -90,7 +78,7 @@ class RerankedDoc(BaseDoc):
 
 
 class LLMParamsDoc(BaseDoc):
-    model: Optional[str] = None  # for predictionguard, openai and ollama
+    model: Optional[str] = None  # for openai and ollama
     query: str
     max_new_tokens: int = 1024
     top_k: int = 10
