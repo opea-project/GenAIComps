@@ -175,3 +175,4 @@ def animate(input: Wav2LipDoc):
 if __name__ == "__main__":
     opea_microservices["opea_service@animation"].start()
 
+
