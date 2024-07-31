@@ -37,7 +37,16 @@ python3 /home/user/comps/animation/animation.py --inference_mode $INFERENCE_MODE
 
 
 # 🚀3. Validate Microservice
+Once microservice starts, user can use below script to validate the running microservice.
+```bash
+export ip_address=$(hostname -I | awk '{print $1}')
+ curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d '{"image":"", "audio":""}'
+```
+or
 ```bash
 python3 test_animation_server.py
 ```
-
+The expected output is a message prompting
+```bash
+"Video generated successfully, check $(pwd)/outputs/result.mp4 for the result."
+```
