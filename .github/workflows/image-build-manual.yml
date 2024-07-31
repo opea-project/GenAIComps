@@ -1,20 +1,31 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-# Test
-name: Build latest images on push event
+
+name: Build latest images on manual event
 
 on:
-  push:
-    branches: ["suyue/build_action"]
-    paths:
-      - comps/**
-      - "!**.md"
-      - "!**.txt"
-      - .github/workflows/image-build-on-push.yml
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-on-push
-  cancel-in-progress: true
+  workflow_dispatch:
+    inputs:
+      services:
+        default: 'asr,dataprep,retrievers'
+        description: 'List of services to build'
+        required: true
+        type: string
+      registry:
+        default: 'opea'
+        description: 'Docker registry to push images to'
+        required: true
+        type: string
+      tag:
+        default: 'latest'
+        description: 'Tag to apply to images'
+        required: true
+        type: string
+      node:
+        default: 'ubuntu-latest'
+        description: 'Node to run the build on [docker-build-xeon, docker-build-gaudi]'
+        required: true
+        type: string
 
 jobs:
   get-build-matrix:
@@ -22,16 +33,10 @@ jobs:
     outputs:
       services: ${{ steps.get-services.outputs.services }}
     steps:
-      - name: Checkout out Repo
-        uses: actions/checkout@v4
-
       - name: Get test Services
         id: get-services
         run: |
-          base_commit=$(git rev-parse HEAD~1)
-          merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'comps/' | grep -vE '*.md|*.txt|comps/cores')" || true
-          services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '*.py' | sort -u | jq -R '.' | jq -sc '.') || true
+          services=$(echo ${{ github.event.inputs.services }} | jq -R 'split(",") | map(gsub(" "; ""))')
           echo "services=$services" >> $GITHUB_OUTPUT
 
   image-build:
@@ -39,8 +44,7 @@ jobs:
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
-        node: [docker-build-xeon, docker-build-gaudi]
-    runs-on: ${{ matrix.hardware }}
+    runs-on: ${{ github.event.inputs.node }}
     continue-on-error: true
     steps:
       - name: Clean Up Working Directory

@@ -1,0 +1,16 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  asr:
+    build:
+      dockerfile: comps/asr/Dockerfile
+    image: ${REGISTRY:-opea}/asr:${TAG:-latest}
+  whisper:
+    build:
+      dockerfile: comps/asr/whisper/Dockerfile
+    image: ${REGISTRY:-opea}/whisper:${TAG:-latest}
+  whisper-gaudi:
+    build:
+      dockerfile: comps/asr/whisper/Dockerfile_hpu
+    image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}
