@@ -22,13 +22,6 @@ class PIIDetector:
         return random.choice([True, False])
 
 
-class PIIDetectorWithLLM(PIIDetector):
-    def __init__(self):
-        super().__init__()
-
-    def detect_pii(self, text):
-        return True
-
 
 class PIIDetectorWithNER(PIIDetector):
     def __init__(self, model_path=None):

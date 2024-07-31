@@ -22,7 +22,6 @@ from comps import DocPath, opea_microservices, register_microservice
 from comps.guardrails.pii_detection.data_utils import document_loader, parse_html
 from comps.guardrails.pii_detection.pii.pii_utils import (
     PIIDetector,
-    PIIDetectorWithLLM,
     PIIDetectorWithML,
     PIIDetectorWithNER,
 )
@@ -43,11 +42,8 @@ def get_pii_detection_inst(strategy="dummy", settings=None):
     elif strategy == "ml":
         print("invoking ML detector.......")
         return PIIDetectorWithML()
-    elif strategy == "llm":
-        return PIIDetectorWithLLM()
     else:
-        # Default strategy - dummy
-        return PIIDetector()
+        raise ValueError(f"Invalid strategy: {strategy}")
 
 
 def file_based_pii_detect(file_list: List[DocPath], strategy, enable_ray=False, debug=False):
