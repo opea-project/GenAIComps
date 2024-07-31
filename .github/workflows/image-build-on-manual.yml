@@ -12,9 +12,9 @@ on:
         required: true
         type: string
       registry:
-        default: "opea"
-        description: "Docker registry to push images to"
-        required: true
+        default: ""
+        description: "Docker registry to push images to, default to be the official one"
+        required: false
         type: string
       tag:
         default: "latest"
@@ -59,7 +59,7 @@ jobs:
       - name: Build image
         env:
           service: ${{ matrix.service }}
-        uses: ./.github/actions/image-build/action.yml
+        uses: ./.github/actions/image-build
         with:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/${service}-compose.yaml

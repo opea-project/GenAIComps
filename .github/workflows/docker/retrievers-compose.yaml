@@ -5,4 +5,4 @@ services:
   retriever-redis:
     build:
       dockerfile: comps/retrievers/langchain/redis/docker/Dockerfile
-    image: ${REGISTRY:-opea}/retriever-redis:${TAG:-latest}
+    image: ${REGISTRY}opea/retriever-redis:${TAG:-latest}

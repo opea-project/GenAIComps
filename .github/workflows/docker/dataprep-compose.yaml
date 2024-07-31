@@ -5,8 +5,8 @@ services:
   dataprep-redis:
     build:
       dockerfile: comps/dataprep/redis/langchain/docker/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-redis:${TAG:-latest}
+    image: ${REGISTRY}opea/dataprep-redis:${TAG:-latest}
   dataprep-redis-llama-index:
     build:
       dockerfile: comps/dataprep/redis/llama_index/docker/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-redis-llama-index:${TAG:-latest}
+    image: ${REGISTRY}opea/dataprep-redis-llama-index:${TAG:-latest}

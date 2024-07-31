@@ -43,7 +43,7 @@ jobs:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
         node: [docker-build-xeon, docker-build-gaudi]
-    runs-on: ${{ matrix.hardware }}
+    runs-on: ${{ matrix.node }}
     continue-on-error: true
     steps:
       - name: Clean Up Working Directory
@@ -58,7 +58,7 @@ jobs:
       - name: Build image
         env:
           service: ${{ matrix.service }}
-        uses: ./.github/actions/image-build/action.yml
+        uses: ./.github/actions/image-build
         with:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/${service}-compose.yaml
