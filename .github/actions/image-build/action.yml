@@ -16,19 +16,19 @@ inputs:
   registry:
     description: Container Registry URL
     required: false
-    default: 'opea'
+    default: "opea"
     type: string
   tag:
     description: Container Tag
     required: false
-    default: 'latest'
+    default: "latest"
     type: string
 outputs:
   docker-images:
     description: "Images build in this workflow"
     value: ${{ steps.container-output.outputs.images }}
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Build Containers
       shell: bash
