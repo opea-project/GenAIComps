@@ -62,9 +62,12 @@ class EmbedDoc1024(BaseDoc):
     text: str
     embedding: conlist(float, min_length=1024, max_length=1024)
 
+
+# TODO: This should be changed to EmbedDoc when the related change is
+# made to remove all hard embedding size constraints.
 class EmbedDoc512(BaseDoc):
     text: str
-    embedding: conlist(float, min_length=512, max_length=512)
+    embedding: conlist(float, min_length=0)
 
 
 class SearchedDoc(BaseDoc):
