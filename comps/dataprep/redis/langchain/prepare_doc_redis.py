@@ -10,7 +10,7 @@ from typing import List, Optional, Union
 
 # from pyspark import SparkConf, SparkContext
 import redis
-from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, KEY_INDEX_NAME, REDIS_HOST, REDIS_PORT, REDIS_URL
+from config import EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, REDIS_URL
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
@@ -35,7 +35,7 @@ from comps.dataprep.utils import (
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 upload_folder = "./uploaded_files/"
-redis_pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT)
+redis_pool = redis.ConnectionPool.from_url(REDIS_URL)
 
 
 def check_index_existance(client):
@@ -118,7 +118,10 @@ def ingest_data_to_redis(doc_path: DocPath):
         text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     else:
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True, separators=get_separators()
+            chunk_size=doc_path.chunk_size,
+            chunk_overlap=doc_path.chunk_overlap,
+            add_start_index=True,
+            separators=get_separators(),
         )
 
     content = document_loader(path)
@@ -151,7 +154,6 @@ def ingest_data_to_redis(doc_path: DocPath):
             texts=batch_texts,
             embedding=embedder,
             index_name=INDEX_NAME,
-            index_schema=INDEX_SCHEMA,
             redis_url=REDIS_URL,
         )
         print(f"keys: {keys}")
@@ -195,7 +197,6 @@ async def ingest_link_to_redis(link_list: List[str]):
             texts=content,
             embedding=embedder,
             index_name=INDEX_NAME,
-            index_schema=INDEX_SCHEMA,
             redis_url=REDIS_URL,
         )
         print(f"keys: {keys}")
@@ -320,7 +321,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
 
     # partially delete files/folders
     if delete_path.exists():
-        r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
+        r = redis.Redis(connection_pool=redis_pool)
         client = r.ft(KEY_INDEX_NAME)
         client2 = r.ft(INDEX_NAME)
         doc_id = "file:" + encode_filename(file_path)
