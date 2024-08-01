@@ -8,7 +8,7 @@ RUN useradd -m -s /bin/bash user && \
 
 USER user
 ENV LANG=C.UTF-8
-
+USER root
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
