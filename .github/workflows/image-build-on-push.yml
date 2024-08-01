@@ -68,8 +68,9 @@ jobs:
 
       - name: Build Image
         if: env.file_exists == 'true'
-        uses: ./.github/actions/image-build
+        uses: opea-project/validation/actions/image-build/action.yml@main
         with:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ env.docker_compose_path }}
           registry: ${OPEA_IMAGE_REPO}
+        secrets: inherit
