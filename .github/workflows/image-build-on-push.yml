@@ -5,7 +5,7 @@ name: Build latest images on push event
 
 on:
   push:
-    branches: ["main"]
+    branches: ["suyue/build_action"]
     paths:
       - comps/**
       - "!**.md"
@@ -68,9 +68,8 @@ jobs:
 
       - name: Build Image
         if: env.file_exists == 'true'
-        uses: opea-project/validation/actions/image-build/action.yml@main
+        uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ env.docker_compose_path }}
           registry: ${OPEA_IMAGE_REPO}
-        secrets: inherit
