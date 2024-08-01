@@ -10,6 +10,11 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libjemalloc-dev \
     vim
 
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \

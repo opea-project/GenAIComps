@@ -11,6 +11,12 @@ ENV PYTHONPATH=/home/user
 RUN apt-get update \
     && apt-get install -y ffmpeg
 
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+USER user
+
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \

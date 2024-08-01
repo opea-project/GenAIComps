@@ -5,9 +5,15 @@
 FROM vault.habana.ai/gaudi-docker/1.16.0/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest
 
 ENV LANG=en_US.UTF-8
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+USER user
 
 WORKDIR /root/vllm-ray
 
+USER root
 # copy the source code to the package directory
 COPY comps/llms/text-generation/vllm-ray /root/vllm-ray
 
