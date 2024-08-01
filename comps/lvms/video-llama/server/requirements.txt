@@ -1,0 +1,30 @@
+# OPEA
+beautifulsoup4
+docarray[full]
+fastapi
+numpy
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pandas
+Pillow
+prometheus_fastapi_instrumentator
+shortuuid
+
+# microservice
+ftfy
+decord
+einops
+iopath
+omegaconf
+opencv-python-headless
+langchain==0.2.9
+langchain-core==0.2.21
+langchain-community==0.2.1
+timm
+torch==1.13.1 --index-url https://download.pytorch.org/whl/cpu
+torchaudio==0.13.1 --index-url https://download.pytorch.org/whl/cpu
+torchvision==0.14.1 --index-url https://download.pytorch.org/whl/cpu
+transformers
+webdataset
+pytorchvideo
