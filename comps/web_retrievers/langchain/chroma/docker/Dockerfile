@@ -3,6 +3,12 @@
 
 FROM langchain/langchain:latest
 
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+USER user
+
 ARG ARCH="cpu"  # Set this to "cpu" or "gpu"
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \

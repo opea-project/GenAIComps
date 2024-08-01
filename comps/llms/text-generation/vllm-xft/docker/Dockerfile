@@ -3,6 +3,12 @@
 
 FROM ubuntu:22.04
 
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+USER user
+
 ARG TAG=main
 
 RUN apt-get update \ 
