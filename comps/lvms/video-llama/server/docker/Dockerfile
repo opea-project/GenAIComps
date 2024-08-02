@@ -26,6 +26,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # FIXME: remove this and add to requirement when done
 RUN pip install sentence-transformers==3.0.1
 RUN pip install faiss-cpu
+RUN pip install sentencepiece
 
 # FIXME: remove this when done
 COPY --chown=user:user comps /home/user/comps
