@@ -3,8 +3,8 @@
 
 import os
 import pathlib
+import platform
 import subprocess
-
 import cv2
 import numpy as np
 
@@ -45,9 +45,9 @@ print("args: ", args)
     endpoint="/v1/animation",
     host="0.0.0.0",
     port=args.port,
-    input_datatype=Wav2LipDoc,
+    input_datatype=Base64ByteStrDoc,
 )
-def animate(input: Wav2LipDoc):
+def animate(input: Base64ByteStrDoc):
     if not os.path.exists("inputs"):
         os.makedirs("inputs")
     if not os.path.exists("temp"):
@@ -86,11 +86,15 @@ def animate(input: Wav2LipDoc):
 
     print("Number of frames available for inference: " + str(len(full_frames)))
 
-    if not args.audio.endswith(".wav"):
-        os.makedirs("temp", exist_ok=True)
-        print("Extracting raw audio...")
-        command = f"ffmpeg -y -i {args.audio} -strict -2 temp/temp.wav"
-        subprocess.call(command, shell=True)
+    if args.audio:
+        if not args.audio.endswith(".wav"):
+            os.makedirs("temp", exist_ok=True)
+            print("Extracting raw audio...")
+            command = f"ffmpeg -y -i {args.audio} -strict -2 temp/temp.wav"
+            subprocess.call(command, shell=True)
+            args.audio = "temp/temp.wav"
+    else:
+        sr, y = base64_to_int16_to_wav(input.byte_str, "temp/temp.wav")
         args.audio = "temp/temp.wav"
 
     wav = audio.load_wav(args.audio, 16000)

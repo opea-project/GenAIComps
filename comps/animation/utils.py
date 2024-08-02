@@ -1,40 +1,34 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
-import argparse
-import json
-import os
-import platform
-import random
-import string
-import subprocess
-import sys
-from glob import glob
+# Author: Chun Tao
+# Date: 2024-08-02
 
 # %% Imports
+import argparse 
+from glob import glob
+import os
+# audio
+import base64
+import io
+import soundfile as sf
 # wav2lip
 from os import listdir, path
-
 import cv2
-import habana_frameworks.torch.core as htcore
-
-# ctao 7/11
-import habana_frameworks.torch.hpu as hthpu
 import numpy as np
 import scipy
 import torch
+from tqdm import tqdm
 import Wav2Lip.audio as audio
 import Wav2Lip.face_detection as face_detection
-
+from Wav2Lip.models import Wav2Lip
 # gfpgan
 from basicsr.utils import imwrite
 from GFPGAN.gfpgan import GFPGANer
-from tqdm import tqdm
-from Wav2Lip.models import Wav2Lip
-
+# habana
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch.hpu as hthpu
 device = "hpu" if hthpu.is_available() else "cpu"
 print("Using {} for inference.".format(device))
-import time
 
 
 def get_args():
@@ -54,7 +48,7 @@ def get_args():
     )
     parser.add_argument("--face", type=str, help="Filepath of video/image that contains faces to use", required=True)
     parser.add_argument(
-        "--audio", type=str, help="Filepath of video/audio file to use as raw audio source", required=True
+        "--audio", type=str, default='', help="Filepath of video/audio file to use as raw audio source", required=False
     )
     parser.add_argument(
         "--outfile",
@@ -345,3 +339,17 @@ def load_gfpgan(args, bg_upsampler):
     # print("Model GFPGAN and face helper compiled")
 
     return restorer
+
+
+def base64_to_int16_to_wav(base64_string, output_wav_file):
+    """Convert base64 string to int16 numpy array and save as .wav file"""
+    # Decode the base64 string to binary data
+    wav_bytes = base64.b64decode(base64_string)
+
+    # Read the binary data using soundfile
+    buf = io.BytesIO(wav_bytes)
+    y, sr = sf.read(buf, dtype="int16")
+
+    # Write the binary data to a .wav file
+    sf.write(output_wav_file, y, sr, format="WAV")
+    return sr, y
