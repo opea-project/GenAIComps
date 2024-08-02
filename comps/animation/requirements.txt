@@ -11,11 +11,6 @@ lmdb==1.5.1
 numba==0.60.0
 numpy==1.23.5
 opencv-python==4.10.0.84
-pyyaml==6.0
-scipy==1.14.0
-tb-nightly==2.18.0a20240721
-tqdm==4.66.4
-yapf==0.40.2
 
 # used by cloud native
 opentelemetry-api
@@ -25,5 +20,10 @@ pandas
 prometheus_fastapi_instrumentator
 pyarrow
 pydantic #==1.10.13
+pyyaml==6.0
+scipy==1.14.0
 shortuuid
 tavily-python
+tb-nightly==2.18.0a20240721
+tqdm==4.66.4
+yapf==0.40.2

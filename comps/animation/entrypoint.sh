@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # Environment variables
 export PT_HPU_LAZY_MODE=0
 export PT_HPU_ENABLE_REFINE_DYNAMIC_SHAPES=1
