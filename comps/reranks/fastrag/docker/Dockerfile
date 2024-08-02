@@ -4,7 +4,7 @@
 
 FROM python:3.10-slim
 
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libgl1-mesa-glx \
@@ -23,6 +23,7 @@ COPY comps /home/user/comps
 RUN git clone https://github.com/IntelLabs/fastRAG.git /home/user/fastRAG && \
     cd /home/user/fastRAG && \
     pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /home/user/comps/reranks/requirements.txt && \
     pip install --no-cache-dir -r /home/user/comps/reranks/fastrag/requirements.txt && \
     pip install . && \
     pip install .[intel]

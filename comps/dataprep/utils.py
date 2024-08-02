@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import signal
+import subprocess
 import timeit
 import unicodedata
 import urllib.parse
@@ -88,6 +89,23 @@ class Timer:
             print(f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
 
 
+def get_separators():
+    separators = [
+        "\n\n",
+        "\n",
+        " ",
+        ".",
+        ",",
+        "\u200b",  # Zero-width space
+        "\uff0c",  # Fullwidth comma
+        "\u3001",  # Ideographic comma
+        "\uff0e",  # Fullwidth full stop
+        "\u3002",  # Ideographic full stop
+        "",
+    ]
+    return separators
+
+
 def load_pdf(pdf_path):
     """Load the pdf file."""
     doc = fitz.open(pdf_path)
@@ -140,7 +158,19 @@ def load_doc(doc_path):
     """Load doc file."""
     print("Converting doc file to docx file...")
     docx_path = doc_path + "x"
-    os.system(f"libreoffice --headless --invisible --convert-to docx --outdir {os.path.dirname(docx_path)} {doc_path}")
+    subprocess.run(
+        [
+            "libreoffice",
+            "--headless",
+            "--invisible",
+            "--convert-to",
+            "docx",
+            "--outdir",
+            os.path.dirname(docx_path),
+            doc_path,
+        ],
+        check=True,
+    )
     print("Converted doc file to docx file.")
     text = load_docx(docx_path)
     os.remove(docx_path)
@@ -179,7 +209,19 @@ def load_ppt(ppt_path):
     """Load ppt file."""
     print("Converting ppt file to pptx file...")
     pptx_path = ppt_path + "x"
-    os.system(f"libreoffice --headless --invisible --convert-to pptx --outdir {os.path.dirname(pptx_path)} {ppt_path}")
+    subprocess.run(
+        [
+            "libreoffice",
+            "--headless",
+            "--invisible",
+            "--convert-to",
+            "docx",
+            "--outdir",
+            os.path.dirname(pptx_path),
+            ppt_path,
+        ],
+        check=True,
+    )
     print("Converted ppt file to pptx file.")
     text = load_pptx(pptx_path)
     os.remove(pptx_path)

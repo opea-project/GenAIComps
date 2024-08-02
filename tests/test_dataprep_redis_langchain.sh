@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -15,12 +15,13 @@ function build_docker_images() {
 }
 
 function start_service() {
-    docker run -d --name="test-comps-dataprep-redis-langchain" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6380:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
+    REDIS_PORT=6380
+    docker run -d --name="test-comps-dataprep-redis-langchain" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $REDIS_PORT:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
     dataprep_service_port=5013
     dataprep_file_service_port=5016
     dataprep_del_service_port=5020
-    REDIS_URL="redis://${ip_address}:6380"
-    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 -p ${dataprep_del_service_port}:6009 --ipc=host opea/dataprep-redis:comps
+    REDIS_URL="redis://${ip_address}:${REDIS_PORT}"
+    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e REDIS_HOST=$ip_address -e REDIS_PORT=$REDIS_PORT -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 -p ${dataprep_del_service_port}:6009 --ipc=host opea/dataprep-redis:comps
     sleep 1m
 }
 
@@ -34,7 +35,8 @@ function validate_microservice() {
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep ] HTTP status is 200. Checking content..."
-        local CONTENT=$(curl -s -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL" | tee ${LOG_PATH}/dataprep.log)
+        cp ./dataprep_file.txt ./dataprep_file2.txt
+        local CONTENT=$(curl -s -X POST -F 'files=@./dataprep_file2.txt' -H 'Content-Type: multipart/form-data' "$URL" | tee ${LOG_PATH}/dataprep.log)
 
         if echo "$CONTENT" | grep -q "Data preparation succeeded"; then
             echo "[ dataprep ] Content is as expected."
@@ -71,7 +73,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/delete_file
-    dataprep_file_service_port=5016
+    dataprep_del_service_port=5020
     URL="http://${ip_address}:$dataprep_del_service_port/v1/dataprep/delete_file"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
