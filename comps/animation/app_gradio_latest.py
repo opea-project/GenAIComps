@@ -5,7 +5,6 @@ import asyncio
 import base64
 import io
 import os
-import pdb
 import subprocess
 import time
 
@@ -56,7 +55,6 @@ async def transcribe(audio):
                 response_text = await response.json()
                 # with open("response.txt", "w") as file:
                 #     file.write(response)
-                # pdb.set_trace()
                 # Decode the base64 string
                 sampling_rate, audio_int16 = base64_to_int16(response_text)
                 return (sampling_rate, audio_int16)  # handle the response
