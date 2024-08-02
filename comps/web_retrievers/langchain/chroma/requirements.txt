@@ -1,7 +1,7 @@
 bs4
 chromadb
 docarray[full]
-fastapi
+fastapi[standard]
 google-api-python-client>=2.100.0
 html2text
 langchain-huggingface

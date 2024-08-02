@@ -1,5 +1,5 @@
 docarray[full]
-fastapi
+fastapi[standard]
 langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp

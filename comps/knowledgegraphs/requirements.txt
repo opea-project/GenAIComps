@@ -2,7 +2,7 @@ beautifulsoup4
 docarray
 docarray[full]
 easyocr
-fastapi
+fastapi[standard]
 huggingface_hub
 langchain
 langchain_community==0.2.5

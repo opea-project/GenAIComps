@@ -3,7 +3,7 @@ cairosvg
 docarray[full]
 docx2txt
 easyocr
-fastapi
+fastapi[standard]
 huggingface_hub
 langchain
 langchain-community

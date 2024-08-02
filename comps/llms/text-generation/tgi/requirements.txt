@@ -1,6 +1,6 @@
 aiohttp
 docarray[full]
-fastapi
+fastapi[standard]
 httpx
 huggingface_hub
 langsmith

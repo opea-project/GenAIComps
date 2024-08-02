@@ -1,7 +1,7 @@
 beautifulsoup4
 docarray[full]
 easyocr
-fastapi
+fastapi[standard]
 frontend==0.0.3
 huggingface_hub
 langchain

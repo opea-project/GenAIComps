@@ -1,6 +1,6 @@
 docarray[full]
 easyocr
-fastapi
+fastapi[standard]
 langchain_community
 langsmith
 opentelemetry-api
