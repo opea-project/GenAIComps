@@ -21,7 +21,6 @@ import habana_frameworks.torch.hpu as hthpu
 import habana_frameworks.torch.core as htcore
 device = "hpu" if hthpu.is_available() else "cpu"
 print('Using {} for inference.'.format(device))
-import pdb
 import time
 
 
