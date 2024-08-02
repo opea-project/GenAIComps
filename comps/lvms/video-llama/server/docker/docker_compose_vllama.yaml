@@ -13,9 +13,11 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       no_proxy: ${no_proxy}
+      llm_download: "False" $ FIXME: prod True
     volumes:
       - "/home/$USER/.cache:/home/user/.cache" # RECOMMENDED: use cache to avoid download
-      - my_models:/home/user/model
+      - "/home/raspadmin/tahani/GenAIExamples/VideoRAGQnA/meta-llama/Llama-2-7b-chat-hf:/home/user/model/Video-LLaMA-2-7B-Finetuned/llama-2-7b-chat-hf" # FIXME: dev use
+      - "/home/raspadmin/tahani/GenAIExamples/VideoRAGQnA/embedding/video_llama_weights/VL_LLaMA_2_7B_Finetuned.pth:/home/user/model/Video-LLaMA-2-7B-Finetuned/VL_LLaMA_2_7B_Finetuned.pth" # FIXME: dev use
     restart: unless-stopped
 networks:
   default:

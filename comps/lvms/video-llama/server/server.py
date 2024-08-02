@@ -3,13 +3,16 @@
 """Stand-alone video llama FastAPI Server."""
 
 import argparse
+import logging
+import os
 from threading import Thread
 import yaml
 
 import decord
 import uvicorn
-from fastapi import FastAPI
-from fastapi.responses import Response, StreamingResponse
+from fastapi import FastAPI, File, UploadFile, Query
+from fastapi.responses import JSONResponse, Response, StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from transformers import set_seed, TextIteratorStreamer
 from langchain_community.vectorstores import FAISS
@@ -19,25 +22,48 @@ from extract_vl_embedding import VLEmbeddingExtractor as VL
 from video_llama.common.registry import registry
 from video_llama.conversation.conversation_video import Chat
 
+# Initialize decord bridge and seed
 decord.bridge.set_bridge('torch')
 set_seed(22)
 
+# Setup logging
+logging.basicConfig(level=logging.DEBUG) # FIXME: dev use
+
+# Define global variables
 context_db = None
 streamer = None
 chat = None
+VIDEO_DIR = "/home/user/videos"
+CFG_PATH = "video_llama_config/video_llama_eval_only_vl.yaml"
+MODEL_TYPE = "llama_v2"
 
+os.makedirs(VIDEO_DIR, exist_ok=True)
+
+# Initialize FastAPI app
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Pydantic models for request validation
 class videoInfo(BaseModel):
-  video_path: str = Field(..., description="Supported: chroma, vdms, hsm" )
+  video_path: str = Field(..., description="URL of the video to be processed, support remote" )
   start_time: float = Field(..., descrciption="video clip start time in seconds", example=0.0 )
   duration: float = Field(..., description="video clip duration in seconds", example=10.0)
 
 class GenerateRequest(BaseModel):
-  video: videoInfo
+  start_time: float = Field(..., descrciption="video clip start time in seconds", example=0.0 )
+  duration: float = Field(..., description="video clip duration in seconds", example=10.0)
   prompt: str = Field(..., description="Query for Video-LLama", example="What is the man doing?")
   max_new_tokens: int = Field(default=512, description="Maximum number of tokens to generate", example=512) # 
 
+
+# Function to construct instructions context
 def construct_instructions():
     instructions = [
         """ Identify the person [with specific features / seen at a specific location / performing a specific action] in the provided data based on the video content. 
@@ -81,19 +107,14 @@ def construct_instructions():
     context = FAISS.from_texts(instructions, HFembeddings)
     return context
 
-def read_config(path):
-    with open(path, 'r') as f:
-        data = yaml.safe_load(f)
-
-    return data
-
+# Helper functions for chat and inference
 def get_context(query, context):
     context = context.similarity_search(query)
     return [i.page_content for i in context]
 
 def chat_reset(chat_state, img_list):
-    print("-"*30)
-    print("resetting chatState")
+    logging.info("-"*30)
+    logging.info("resetting chatState")
     if chat_state is not None:
         chat_state.messages = []
     if img_list is not None:
@@ -102,20 +123,27 @@ def chat_reset(chat_state, img_list):
 
 
 def inference(chat, streamer, video: videoInfo, instruction: str):
+    logging.info("Video-Llama generation begin.")
     video_path = video.video_path
     start_time = video.start_time
     duration = video.duration
     
     chat.upload_video_without_audio(video_path, start_time, duration)
     chat.ask("<rag_prompt>"+instruction)#, chat_state) # the state is reserved.
-    chat.answer(max_new_tokens=150, num_beams=1, min_length=1, top_p=0.9, repetition_penalty=1.0, length_penalty=1, temperature=0.02, max_length=2000, keep_conv_hist=True, streamer=streamer)
+    chat.answer(
+        max_new_tokens=150, num_beams=1, min_length=1, top_p=0.9,
+        repetition_penalty=1.0, length_penalty=1, temperature=0.02,
+        max_length=2000, keep_conv_hist=True, streamer=streamer
+    )
+    logging.info("Video-Llama generation done, remove video.")
+    os.remove(video_path)
 
 def stream_res(video, instruction):
+    logging.debug("Start to stream...")
     thread = Thread(target=inference, args=(chat, streamer, video, instruction))  # Pass streamer to inference
     thread.start()
     for text in streamer:
         yield text
-
 
 
 @app.get("/health")
@@ -125,46 +153,52 @@ async def health() -> Response:
 
 
 @app.post("/generate", response_class=StreamingResponse)
-async def generate(request: GenerateRequest) -> StreamingResponse:
-    print("Video-Llama generation begin.")
+async def generate(\
+    video: UploadFile = File(...),
+    start: float = Query(0.0),
+    duration: float = Query(10.0),
+    prompt: str = Query("What is the man doing?"),
+    max_new_tokens: int = Query(512)
+) -> StreamingResponse:
+
+    if video.content_type != "video/mp4":
+        return JSONResponse(status_code=400, content={"message": "Invalid file type. Only mp4 videos are allowed."})
+   
+    # Save Video file
+    try:
+        contents = await video.read()
+        video_name = video.filename
+        video_path = os.path.join(VIDEO_DIR, video_name)
+        with open(video_path, "wb") as f:
+            f.write(contents)
+        logging.info(f"Video saved to {video_path}")
+    except Exception as e:
+        logging.info(f"Error saving video: {e}")
+        return JSONResponse(status_code=500, content={"message": "Error saving video."})
     
+    video_info = videoInfo(start_time=start, duration=duration, video_path=video_path)
+
     # format context and instruction
-    instruction = f"{get_context(request.prompt,context_db)[0]}: {request.prompt}"
-    print("instruction:",instruction)
+    instruction = f"{get_context(prompt,context_db)[0]}: {prompt}"
+    # logging.info("instruction:",instruction)
     
-    return StreamingResponse(stream_res(request.video, instruction))
+    return StreamingResponse(stream_res(video_info, instruction))
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=7777)
-    parser.add_argument("--cfg_path", type=str, default="video_llama_config/video_llama_eval_only_vl.yaml")
-    parser.add_argument("--model_type", type=str, default="llama_v2")
-    # parser.add_argument("--model_name_or_path", type=str, default="llava-hf/llava-1.5-7b-hf")
+# Main entry point
+parser = argparse.ArgumentParser()
+parser.add_argument("--host", type=str, default="0.0.0.0")
+parser.add_argument("--port", type=int, default=8008)
+args = parser.parse_args()
 
+context_db = construct_instructions()
+video_llama = VL(cfg_path=CFG_PATH, model_type=MODEL_TYPE)
+tokenizer = video_llama.model.llama_tokenizer
+streamer = TextIteratorStreamer(tokenizer, skip_prompt=True)
 
-    args = parser.parse_args()
-        
-    # format context and instruction
-    context_db = construct_instructions()
-    
-    # create chat
-    video_llama = VL(cfg_path=args.cfg_path, model_type=args.model_type)
-    tokenizer = video_llama.model.llama_tokenizer
-    
-    # global streamer
-    streamer = TextIteratorStreamer(tokenizer, skip_prompt=True)
-    
-    vis_processor_cfg = video_llama.cfg.datasets_cfg.webvid.vis_processor.train
-    vis_processor = registry.get_processor_class(vis_processor_cfg.name).from_config(vis_processor_cfg)
-    
-    # global chat
-    chat = Chat(video_llama.model, vis_processor, device="cpu")
+vis_processor_cfg = video_llama.cfg.datasets_cfg.webvid.vis_processor.train
+vis_processor = registry.get_processor_class(vis_processor_cfg.name).from_config(vis_processor_cfg)
 
-    uvicorn.run(
-        app,
-        host=args.host,
-        port=args.port,
-        log_level="debug"
-        )
+chat = Chat(video_llama.model, vis_processor, device="cpu")
+
+uvicorn.run(app, host=args.host, port=args.port)
