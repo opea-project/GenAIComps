@@ -192,7 +192,8 @@ def animate(input: Base64ByteStrDoc):
     subprocess.call(command, shell=platform.system() != "Windows")
 
     statistics_dict["opea_service@animation"].append_latency(time.time() - start, None)
-    return AnimationDoc(video_save_path=f"Video generated successfully, check {args.outfile} for the result.")
+    # return_str = f"Video generated successfully, check {args.outfile} for the result."
+    return AnimationDoc(video_save_path=args.outfile)
 
 
 if __name__ == "__main__":

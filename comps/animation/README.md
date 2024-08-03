@@ -73,7 +73,11 @@ python3 test_animation_server.py
 The expected output is a message
 
 ```bash
-"Video generated successfully, check $OUTFILE for the result."
+Status code: 200
+check $OUTFILE for the result.
+{
+    "video_save_path": $OUTFILE
+}
 ```
 
 Please find "outputs/result.mp4" in the current directory as a reference generated video.
