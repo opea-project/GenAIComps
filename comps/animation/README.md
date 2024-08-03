@@ -58,15 +58,15 @@ python3 animation.py --inference_mode $INFERENCE_MODE --checkpoint_path $CHECKPO
 Once microservice starts, user can use below script to validate the running microservice.
 
 ```bash
-export ip_address=$(hostname -I | awk '{print $1}')
-export byte_str=$(<assets/audio/sample_question.txt)
-curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d "{"byte_str": \"${byte_str}\"}"
+cd GenAIComps  
+export ip_address=$(hostname -I | awk '{print $1}')  
+curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/assets/audio/sample_question.json
 ```
 
 or
 
 ```bash
-cd comps/animation
+cd GenAIComps/comps/animation
 python3 test_animation_server.py
 ```
 
