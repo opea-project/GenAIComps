@@ -59,7 +59,8 @@ Once microservice starts, user can use below script to validate the running micr
 
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
-curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d '{"byte_str": "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"}'
+export byte_str=$(<assets/audio/sample_question.txt)
+curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d "{"byte_str": \"${byte_str}\"}"
 ```
 
 or
