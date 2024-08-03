@@ -1,21 +1,22 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import cv2
-import numpy as np
 import os
 import pathlib
 import platform
 import subprocess
 import time
 
+import cv2
+import numpy as np
+
 # Wav2Lip-GFPGAN
 import requests
 import Wav2Lip.audio as audio
 import Wav2Lip.face_detection as face_detection
-from Wav2Lip.models import Wav2Lip
 from basicsr.utils import imwrite
 from GFPGAN.gfpgan import GFPGANer
+from Wav2Lip.models import Wav2Lip
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../")
@@ -26,17 +27,18 @@ import habana_frameworks.torch.hpu as hthpu
 from utils import *
 
 # GenAIComps
-from comps import (Base64ByteStrDoc, 
-                   AnimationDoc, 
-                   ServiceType, 
-                   opea_microservices, 
-                   register_microservice,
-                   register_statistics,
-                   statistics_dict)
+from comps import (
+    AnimationDoc,
+    Base64ByteStrDoc,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
 
 device = "hpu" if hthpu.is_available() else "cpu"
 print("Using {} for inference.".format(device))
-import time
 
 args = get_args()
 print("args: ", args)
@@ -55,9 +57,12 @@ print("args: ", args)
 def animate(input: Base64ByteStrDoc):
     start = time.time()
 
-    if not os.path.exists("inputs"): os.makedirs("inputs")
-    if not os.path.exists("temp"): os.makedirs("temp")
-    if not os.path.exists("outputs"): os.makedirs("outputs")
+    if not os.path.exists("inputs"):
+        os.makedirs("inputs")
+    if not os.path.exists("temp"):
+        os.makedirs("temp")
+    if not os.path.exists("outputs"):
+        os.makedirs("outputs")
 
     print(args.face, args.audio)
     if not os.path.isfile(args.face):
