@@ -132,6 +132,5 @@ class LVMDoc(BaseDoc):
     max_new_tokens: conint(ge=0, le=1024) = 512
 
 
-class Wav2LipDoc(BaseDoc):
-    image: str
-    audio: str
+class AnimationDoc(BaseDoc):
+    video_save_path: str

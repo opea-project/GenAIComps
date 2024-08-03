@@ -1,35 +1,38 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import cv2
+import numpy as np
 import os
 import pathlib
 import platform
 import subprocess
+import time
 
-import cv2
-import numpy as np
-
-# Web server
+# Wav2Lip-GFPGAN
 import requests
 import Wav2Lip.audio as audio
 import Wav2Lip.face_detection as face_detection
-
-# Wav2Lip-GFPGAN
+from Wav2Lip.models import Wav2Lip
 from basicsr.utils import imwrite
 from GFPGAN.gfpgan import GFPGANer
-from Wav2Lip.models import Wav2Lip
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../")
 
-import habana_frameworks.torch.core as htcore
-
 # Habana
+import habana_frameworks.torch.core as htcore
 import habana_frameworks.torch.hpu as hthpu
 from utils import *
 
 # GenAIComps
-from comps import Base64ByteStrDoc, ServiceType, Wav2LipDoc, opea_microservices, register_microservice
+from comps import (Base64ByteStrDoc, 
+                   AnimationDoc, 
+                   ServiceType, 
+                   opea_microservices, 
+                   register_microservice,
+                   register_statistics,
+                   statistics_dict)
 
 device = "hpu" if hthpu.is_available() else "cpu"
 print("Using {} for inference.".format(device))
@@ -48,13 +51,13 @@ print("args: ", args)
     port=args.port,
     input_datatype=Base64ByteStrDoc,
 )
+@register_statistics(names=["opea_service@animation"])
 def animate(input: Base64ByteStrDoc):
-    if not os.path.exists("inputs"):
-        os.makedirs("inputs")
-    if not os.path.exists("temp"):
-        os.makedirs("temp")
-    if not os.path.exists("outputs"):
-        os.makedirs("outputs")
+    start = time.time()
+
+    if not os.path.exists("inputs"): os.makedirs("inputs")
+    if not os.path.exists("temp"): os.makedirs("temp")
+    if not os.path.exists("outputs"): os.makedirs("outputs")
 
     print(args.face, args.audio)
     if not os.path.isfile(args.face):
@@ -187,8 +190,11 @@ def animate(input: Base64ByteStrDoc):
         args.audio, "temp/result.avi", args.outfile
     )
     subprocess.call(command, shell=platform.system() != "Windows")
-    return f"Video generated successfully, check {args.outfile} for the result."
+
+    statistics_dict["opea_service@animation"].append_latency(time.time() - start, None)
+    return AnimationDoc(video_save_path=f"Video generated successfully, check {args.outfile} for the result.")
 
 
 if __name__ == "__main__":
+    print("Animation initialized.")
     opea_microservices["opea_service@animation"].start()

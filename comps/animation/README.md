@@ -70,7 +70,7 @@ cd GenAIComps/comps/animation
 python3 test_animation_server.py
 ```
 
-The expected output is a message prompting
+The expected output is a message
 
 ```bash
 "Video generated successfully, check $OUTFILE for the result."
