@@ -70,14 +70,12 @@ cd GenAIComps/comps/animation
 python3 test_animation_server.py
 ```
 
-The expected output is a message
+The expected output is a message similar to the following:
 
 ```bash
-Status code: 200
-check $OUTFILE for the result.
-{
-    "video_save_path": $OUTFILE
-}
+"Status code: 200"
+"Check $OUTFILE for the result."
+"{'id': '33dd8249228b0e011a33b449af9aa776', 'video_save_path': '/home/demo/ctao/forks/GenAIComps/comps/animation/outputs/result.mp4'}"
 ```
 
-Please find "outputs/result.mp4" in the current directory as a reference generated video.
+Please find "./outputs/result.mp4" as a reference generated video.

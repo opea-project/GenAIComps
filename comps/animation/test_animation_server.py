@@ -17,5 +17,5 @@ with open('assets/audio/sample_question.json', 'r') as file:
 response = requests.post(url=endpoint, json=data, headers={"Content-Type": "application/json"}, proxies={"http": None})
 print(f"Status code: {response.status_code}")
 if response.status_code == 200:
-    print(f"check {outfile} for the result.")
+    print(f"Check {outfile} for the result.")
 print(response.json())
