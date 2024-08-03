@@ -87,7 +87,7 @@ def animate(input: Base64ByteStrDoc):
 
     print("Number of frames available for inference: " + str(len(full_frames)))
 
-    if args.audio is not 'None':
+    if args.audio != 'None':
         if not args.audio.endswith(".wav"):
             os.makedirs("temp", exist_ok=True)
             print("Extracting raw audio...")
