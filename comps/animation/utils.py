@@ -4,29 +4,35 @@
 # Date: 2024-08-02
 
 # %% Imports
-import argparse 
-from glob import glob
-import os
+import argparse
+
 # audio
 import base64
 import io
-import soundfile as sf
+import os
+from glob import glob
+
 # wav2lip
 from os import listdir, path
+
 import cv2
-import numpy as np
-import scipy
-import torch
-from tqdm import tqdm
-import Wav2Lip.audio as audio
-import Wav2Lip.face_detection as face_detection
-from Wav2Lip.models import Wav2Lip
-# gfpgan
-from basicsr.utils import imwrite
-from GFPGAN.gfpgan import GFPGANer
+
 # habana
 import habana_frameworks.torch.core as htcore
 import habana_frameworks.torch.hpu as hthpu
+import numpy as np
+import scipy
+import soundfile as sf
+import torch
+import Wav2Lip.audio as audio
+import Wav2Lip.face_detection as face_detection
+
+# gfpgan
+from basicsr.utils import imwrite
+from GFPGAN.gfpgan import GFPGANer
+from tqdm import tqdm
+from Wav2Lip.models import Wav2Lip
+
 device = "hpu" if hthpu.is_available() else "cpu"
 print("Using {} for inference.".format(device))
 
@@ -48,7 +54,7 @@ def get_args():
     )
     parser.add_argument("--face", type=str, help="Filepath of video/image that contains faces to use", required=True)
     parser.add_argument(
-        "--audio", type=str, default='', help="Filepath of video/audio file to use as raw audio source", required=False
+        "--audio", type=str, default="", help="Filepath of video/audio file to use as raw audio source", required=False
     )
     parser.add_argument(
         "--outfile",
@@ -342,7 +348,7 @@ def load_gfpgan(args, bg_upsampler):
 
 
 def base64_to_int16_to_wav(base64_string, output_wav_file):
-    """Convert base64 string to int16 numpy array and save as .wav file"""
+    """Convert base64 string to int16 numpy array and save as .wav file."""
     # Decode the base64 string to binary data
     wav_bytes = base64.b64decode(base64_string)
 
