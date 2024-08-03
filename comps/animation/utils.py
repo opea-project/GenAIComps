@@ -54,7 +54,11 @@ def get_args():
     )
     parser.add_argument("--face", type=str, help="Filepath of video/image that contains faces to use", required=True)
     parser.add_argument(
-        "--audio", type=str, default='None', help="Filepath of video/audio file to use as raw audio source", required=False
+        "--audio",
+        type=str,
+        default="None",
+        help="Filepath of video/audio file to use as raw audio source",
+        required=False,
     )
     parser.add_argument(
         "--outfile",
