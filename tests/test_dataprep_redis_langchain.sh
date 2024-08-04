@@ -28,29 +28,6 @@ function start_service() {
 function validate_microservice() {
     cd $LOG_PATH
 
-    # test /v1/dataprep
-    dataprep_service_port=5013
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
-    echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
-    if [ "$HTTP_STATUS" -eq 200 ]; then
-        echo "[ dataprep ] HTTP status is 200. Checking content..."
-        cp ./dataprep_file.txt ./dataprep_file2.txt
-        local CONTENT=$(curl -s -X POST -F 'files=@./dataprep_file2.txt' -H 'Content-Type: multipart/form-data' "$URL" | tee ${LOG_PATH}/dataprep.log)
-
-        if echo "$CONTENT" | grep -q "Data preparation succeeded"; then
-            echo "[ dataprep ] Content is as expected."
-        else
-            echo "[ dataprep ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep.log
-            exit 1
-        fi
-    else
-        echo "[ dataprep ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep.log
-        exit 1
-    fi
-
     # test /v1/dataprep upload file
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
@@ -58,7 +35,7 @@ function validate_microservice() {
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
-    docker logs dataprep-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+    docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_upload_file.log
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
@@ -79,7 +56,7 @@ function validate_microservice() {
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - link"
-    docker logs dataprep-redis-server >> ${LOG_PATH}/dataprep_upload_link.log
+    docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_upload_link.log
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
@@ -101,7 +78,7 @@ function validate_microservice() {
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - get"
-    docker logs dataprep-redis-server >> ${LOG_PATH}/dataprep_file.log
+    docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_file.log
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
@@ -123,7 +100,7 @@ function validate_microservice() {
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - del"
-    docker logs dataprep-redis-server >> ${LOG_PATH}/dataprep_del.log
+    docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
 
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
