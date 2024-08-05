@@ -1,14 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import cv2
-import numpy as np
-import ffmpeg
 import os
 import pathlib
 import platform
 import subprocess
 import time
+
+import cv2
+import ffmpeg
+import numpy as np
 
 # Wav2Lip-GFPGAN
 import requests
@@ -102,7 +103,7 @@ def animate(input: Base64ByteStrDoc):
             # command = f"ffmpeg -y -i {args.audio} -strict -2 temp/temp.wav"
             # subprocess.call(command, shell=True)
 
-            ffmpeg.input(args.audio).output("temp/temp.wav", strict='-2').run(overwrite_output=True)
+            ffmpeg.input(args.audio).output("temp/temp.wav", strict="-2").run(overwrite_output=True)
             args.audio = "temp/temp.wav"
     else:
         sr, y = base64_to_int16_to_wav(input.byte_str, "temp/temp.wav")
