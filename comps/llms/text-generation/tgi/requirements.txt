@@ -10,3 +10,5 @@ opentelemetry-sdk
 prometheus-fastapi-instrumentator
 shortuuid
 transformers
+uvicorn
+openai==1.35.13
