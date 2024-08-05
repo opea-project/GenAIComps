@@ -3,6 +3,10 @@
 
 FROM python:3.11-slim
 
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/home/user
@@ -11,6 +15,7 @@ ENV PYTHONPATH=/home/user
 RUN apt-get update \
     && apt-get install -y ffmpeg
 
+    USER user
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
