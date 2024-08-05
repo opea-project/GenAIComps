@@ -29,10 +29,10 @@ jobs:
           set -x
           changed_files=$(git log --since="24 hours ago" --name-only --pretty=format: | grep comps/cores | grep -vE '*.md') || true
           if [ -z "$changed_files" ]; then
-            echo "No changes in the last 48 hours for the 'comps/cores' directory"
+            echo "No changes in the last 24 hours for the 'comps/cores' directory"
             echo "run_build=false" >> $GITHUB_OUTPUT
           else
-            echo "Changes detected in the last 48 hours for the 'comps/cores' directory"
+            echo "Changes detected in the last 24 hours for the 'comps/cores' directory"
             echo "run_build=true" >> $GITHUB_OUTPUT
           fi
 
