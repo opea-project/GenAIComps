@@ -27,13 +27,13 @@ jobs:
         id: get-changes
         run: |
           set -x
-          changed_files=$(git diff --name-only "@{48 hours ago}" | grep comps/cores | grep -vE '*.md') || true
+          changed_files=$(git log --since="24 hours ago" --name-only --pretty=format: | grep comps/cores | grep -vE '*.md') || true
           if [ -z "$changed_files" ]; then
             echo "No changes in the last 48 hours for the 'comps/cores' directory"
-            echo "::set-output name=run_build::false"
+            echo "run_build=false" >> $GITHUB_OUTPUT
           else
             echo "Changes detected in the last 48 hours for the 'comps/cores' directory"
-            echo "::set-output name=run_build::true"
+            echo "run_build=true" >> $GITHUB_OUTPUT
           fi
 
   image-build:
