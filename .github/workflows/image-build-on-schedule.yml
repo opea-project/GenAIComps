@@ -10,9 +10,7 @@ on:
     branches: ["suyue/add_image"]
 
 env:
-  services: '["asr","dataprep","embeddings","llms","reranks","retrievers","tts","web_retrievers"]'
   tag: "latest"
-  nodes: '["docker-build-xeon","docker-build-gaudi"]'
 
 jobs:
   check-build:
@@ -38,8 +36,8 @@ jobs:
     if: ${{ needs.check-build.outputs.run_build == 'true' }}
     strategy:
       matrix:
-        service: ${{ fromJSON(${{ env.services }}) }}
-        node: ${{ fromJSON(${{ env.nodes }}) }}
+        service: ["asr","dataprep","embeddings","llms","reranks","retrievers","tts","web_retrievers"]
+        node: ["docker-build-xeon","docker-build-gaudi"]
     runs-on: ${{ matrix.node }}
     continue-on-error: true
     steps:
