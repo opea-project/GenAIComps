@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 FROM ubuntu:22.04
-
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
 ARG TAG=main
 
 RUN apt-get update \ 
@@ -95,4 +97,4 @@ RUN chmod +x /root/comps/llms/text-generation/vllm-xft/run.sh
 WORKDIR /root/comps/llms/text-generation/vllm-xft/
 
 ENTRYPOINT ["/root/comps/llms/text-generation/vllm-xft/run.sh"]
-
+USER user

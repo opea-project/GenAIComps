@@ -12,3 +12,4 @@ shortuuid
 torch
 transformers
 zhconv
+uvicorn
