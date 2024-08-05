@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 from docarray import BaseDoc, DocList
-from docarray.documents import AudioDoc
+from docarray.documents import AudioDoc, VideoDoc
 from docarray.typing import AudioUrl
 from pydantic import Field, conint, conlist
 
@@ -128,5 +128,12 @@ class GraphDoc(BaseDoc):
 
 class LVMDoc(BaseDoc):
     image: str
+    prompt: str
+    max_new_tokens: conint(ge=0, le=1024) = 512
+
+class LVMVideoDoc(BaseDoc):
+    video_url: str
+    chunck_start: float
+    chunck_duration: float
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512
