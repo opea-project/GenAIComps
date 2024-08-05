@@ -17,7 +17,7 @@ function build_docker_images() {
 
 function start_service() {
     echo "Starting microservice"
-    export model_id="meta-llama/Meta-Llama-Guard-2-8B"
+    export model_id="meta-llama/Llama-Guard-3-8B"
     export SAFETY_GUARD_ENDPOINT=http://${ip_address}:8088
 
     docker run -d --name="test-guardrails-langchain-tgi-server" -p 8088:80 --runtime=habana -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy ghcr.io/huggingface/tgi-gaudi:2.0.1 --model-id $model_id --max-input-length 1024 --max-total-tokens 2048
