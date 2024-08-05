@@ -32,7 +32,7 @@ jobs:
       - name: Get test Services
         id: get-services
         run: |
-          set -x 
+          set -x
           service_list=($(echo ${{ github.event.inputs.services }} | tr ',' ' '))
           services=$(printf '%s\n' "${service_list[@]}" | sort -u | jq -R '.' | jq -sc '.')
           echo "services=$services" >> $GITHUB_OUTPUT
