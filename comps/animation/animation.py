@@ -102,7 +102,7 @@ def animate(input: Base64ByteStrDoc):
             # command = f"ffmpeg -y -i {args.audio} -strict -2 temp/temp.wav"
             # subprocess.call(command, shell=True)
 
-            ffmpeg.input(args.audio).output("temp/temp.wav", strict='-2').run(overwrite_output=True)
+            ffmpeg.input(args.audio).output("temp/temp.wav", strict='-2').overwrite_output().run()
             args.audio = "temp/temp.wav"
     else:
         sr, y = base64_to_int16_to_wav(input.byte_str, "temp/temp.wav")
@@ -193,10 +193,17 @@ def animate(input: Base64ByteStrDoc):
             out.write(f)
     out.release()
 
-    command = "ffmpeg -y -i {} -i {} -strict -2 -c:v libx264 -crf 23 -preset medium -c:a aac {}".format(
-        args.audio, "temp/result.avi", args.outfile
-    )
-    subprocess.call(command, shell=platform.system() != "Windows")
+    # command = "ffmpeg -y -i {} -i {} -strict -2 -c:v libx264 -crf 23 -preset medium -c:a aac {}".format(
+    #     args.audio, "temp/result.avi", args.outfile
+    # )
+    # subprocess.call(command, shell=platform.system() != "Windows")
+
+    ffmpeg.input(args.audio).input("temp/result.avi").output(args.outfile, 
+                                                             strict='-2', 
+                                                             crf=23, 
+                                                             vcodec='libx264',
+                                                             preset='medium',
+                                                             acodec='aac').run()
 
     statistics_dict["opea_service@animation"].append_latency(time.time() - start, None)
     # return_str = f"Video generated successfully, check {args.outfile} for the result."
