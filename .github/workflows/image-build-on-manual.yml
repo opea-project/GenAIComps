@@ -33,11 +33,12 @@ jobs:
         id: get-services
         run: |
           set -x 
-          service_list=$(echo ${{ github.event.inputs.services }} | tr ',' ' ')
-          services=$(printf '%s\n' "${service_list[@]}" | jq -R '.' | jq -sc '.')
+          service_list=($(echo ${{ github.event.inputs.services }} | tr ',' ' '))
+          services=$(printf '%s\n' "${service_list[@]}" | sort -u | jq -R '.' | jq -sc '.')
           echo "services=$services" >> $GITHUB_OUTPUT
-          nodes=$(echo ${{ github.event.inputs.node }}  | tr ',' ' ')
-          echo "nodes=[\"${nodes[@]}\"]" >> $GITHUB_OUTPUT
+          node_list=($(echo ${{ github.event.inputs.node }} | tr ',' ' '))
+          nodes=$(printf '%s\n' "${node_list[@]}" | sort -u | jq -R '.' | jq -sc '.')
+          echo "nodes=$nodes" >> $GITHUB_OUTPUT
 
   image-build:
     needs: get-build-matrix
@@ -58,7 +59,7 @@ jobs:
       - name: Build image
         env:
           service: ${{ matrix.service }}
-        uses: opea-project/validation/actions/image-build/action.yml@main
+        uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/${service}-compose.yaml
