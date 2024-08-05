@@ -11,5 +11,4 @@ pydub
 shortuuid
 torch
 transformers
-uvicorn
 zhconv

@@ -8,13 +8,13 @@ RUN useradd -m -s /bin/bash user && \
 USER user
 ENV LANG=C.UTF-8
 
-COPY comps /home/comps
+COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/tts/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/tts/requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/home
+ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/comps/tts
+WORKDIR /home/user/comps/tts
 
 ENTRYPOINT ["python", "tts.py"]

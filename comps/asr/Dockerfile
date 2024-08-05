@@ -10,13 +10,13 @@ USER user
 
 ENV LANG=C.UTF-8
 
-COPY comps /home/comps
+COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/asr/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/asr/requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/home
+ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/comps/asr
+WORKDIR /home/user/comps/asr
 
 ENTRYPOINT ["python", "asr.py"]

@@ -16,14 +16,14 @@ RUN apt-get update \
     && apt-get install -y ffmpeg
 
 USER user
-COPY comps /home/comps
+COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/asr/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/comps/asr/requirements.txt && \
     pip list
 
-ENV PYTHONPATH=$PYTHONPATH:/home
+ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/comps/asr/whisper
+WORKDIR /home/user/comps/asr/whisper
 
 ENTRYPOINT ["python", "whisper_server.py", "--device", "cpu"]

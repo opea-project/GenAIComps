@@ -15,13 +15,13 @@ RUN apt-get update \
     && apt-get install -y ffmpeg \
     && apt-get install -y curl
 USER user
-COPY comps /home/comps
+COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/tts/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/tts/requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/home
+ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/comps/tts/speecht5
+WORKDIR /home/user/comps/tts/speecht5
 
 ENTRYPOINT ["python", "speecht5_server.py", "--device", "cpu"]

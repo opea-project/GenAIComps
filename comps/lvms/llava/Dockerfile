@@ -10,13 +10,13 @@ USER user
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
 
-COPY comps /home/comps
+COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/lvms/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/lvms/requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/home
+ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/comps/lvms/llava
+WORKDIR /home/user/comps/lvms/llava
 
 ENTRYPOINT ["python", "llava_server.py", "--device", "cpu"]
