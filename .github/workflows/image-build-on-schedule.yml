@@ -38,8 +38,8 @@ jobs:
     if: ${{ needs.check-build.outputs.run_build == 'true' }}
     strategy:
       matrix:
-        service: ${{ fromJSON(env.services) }}
-        node: ${{ fromJSON(env.nodes) }}
+        service: ${{ fromJSON(${{ env.services }}) }}
+        node: ${{ fromJSON(${{ env.nodes }}) }}
     runs-on: ${{ matrix.node }}
     continue-on-error: true
     steps:
