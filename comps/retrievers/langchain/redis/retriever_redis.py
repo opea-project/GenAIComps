@@ -3,6 +3,7 @@
 
 import os
 import time
+from typing import Union
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
@@ -20,12 +21,11 @@ from comps import (
     statistics_dict,
 )
 from comps.cores.proto.api_protocol import (
+    ChatCompletionRequest,
     RetrievalRequest,
     RetrievalResponse,
     RetrievalResponseData,
-    ChatCompletionRequest,
 )
-from typing import Union
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
@@ -39,8 +39,9 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 )
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_redis"])
-def retrieve(input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
-        ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
+def retrieve(
+    input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
+) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
 
     start = time.time()
     # check if the Redis index has data

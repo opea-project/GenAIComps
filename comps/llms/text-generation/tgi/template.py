@@ -3,6 +3,7 @@
 
 import re
 
+
 class ChatRagTemplate:
     @staticmethod
     def generate_prompt(question, documents):

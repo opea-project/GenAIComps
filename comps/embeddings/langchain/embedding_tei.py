@@ -3,6 +3,7 @@
 
 import os
 import time
+from typing import Union
 
 from langchain_community.embeddings import HuggingFaceHubEmbeddings
 from langsmith import traceable
@@ -17,13 +18,11 @@ from comps import (
     statistics_dict,
 )
 from comps.cores.proto.api_protocol import (
+    ChatCompletionRequest,
     EmbeddingRequest,
     EmbeddingResponse,
     EmbeddingResponseData,
-    ChatCompletionRequest,
 )
-
-from typing import Union
 
 
 @register_microservice(
@@ -35,8 +34,9 @@ from typing import Union
 )
 @traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_tei_langchain"])
-def embedding(input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
-        ) -> Union[EmbedDoc, EmbeddingResponse, ChatCompletionRequest]:
+def embedding(
+    input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
+) -> Union[EmbedDoc, EmbeddingResponse, ChatCompletionRequest]:
     start = time.time()
 
     if isinstance(input, TextDoc):
@@ -45,7 +45,7 @@ def embedding(input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
     else:
         embed_vector = embeddings.embed_query(input.input)
         if input.dimensions is not None:
-            embed_vector = embed_vector[:input.dimensions]
+            embed_vector = embed_vector[: input.dimensions]
 
         if isinstance(input, ChatCompletionRequest):
             input.embedding = embed_vector
@@ -57,6 +57,7 @@ def embedding(input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
 
     statistics_dict["opea_service@embedding_tei_langchain"].append_latency(time.time() - start, None)
     return res
+
 
 if __name__ == "__main__":
     tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080")

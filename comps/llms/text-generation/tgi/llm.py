@@ -3,10 +3,13 @@
 
 import os
 import time
+from typing import Union
 
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
 from langsmith import traceable
+from openai import OpenAI
+from template import ChatRagTemplate
 
 from comps import (
     GeneratedDoc,
@@ -17,21 +20,13 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
-from comps.cores.proto.api_protocol import (
-    ChatCompletionRequest,
-    ChatCompletionResponse,
-    ChatCompletionStreamResponse,
-)
-from template import ChatRagTemplate
-from typing import Union
-from openai import OpenAI
+from comps.cores.proto.api_protocol import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionStreamResponse
 
 llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 llm = AsyncInferenceClient(
-        model=llm_endpoint,
-        timeout=600,
-    )
+    model=llm_endpoint,
+    timeout=600,
+)
 
 
 @register_microservice(
@@ -53,8 +48,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
         if input.documents:
             if input.chat_template:
                 if "{context}" in input.chat_template:
-                    prompt = input.chat_template.format(question=input.query,
-                                context="\n".join(input.documents))
+                    prompt = input.chat_template.format(question=input.query, context="\n".join(input.documents))
                 else:
                     prompt = input.chat_template.format(question=input.query)
             else:
@@ -73,6 +67,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             top_p=input.top_p,
         )
         if input.streaming:
+
             async def stream_generator():
                 chat_response = ""
                 async for text in text_generation:
@@ -103,8 +98,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                     if input.documents is None or input.documents == []:
                         prompt = input.chat_template.format(question=input.messages, context="")
                     else:
-                        prompt = input.chat_template.format(question=input.messages,
-                                context="\n".join(input.documents))
+                        prompt = input.chat_template.format(question=input.messages, context="\n".join(input.documents))
                 else:
                     prompt = input.chat_template.format(question=input.messages)
 
@@ -126,7 +120,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                 temperature=input.temperature,
                 top_p=input.top_p,
                 user=input.user,
-                )
+            )
         else:
             if input.messages[0]["role"] == "system":
                 if "{context}" in input.messages[0]["content"]:
@@ -143,10 +137,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                         else:
                             system_prompt = system_prompt.format(context="\n".join(input.documents))
 
-                    input.messages.insert(0,
-                        {"role": "system",
-                        "content": system_prompt}
-                    )
+                    input.messages.insert(0, {"role": "system", "content": system_prompt})
 
             chat_completion = client.chat.completions.create(
                 model="tgi",
@@ -173,6 +164,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             )
 
         if input.stream:
+
             def stream_generator():
                 for c in chat_completion:
                     print(c)
@@ -182,6 +174,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
             return chat_completion
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@llm_tgi"].start()

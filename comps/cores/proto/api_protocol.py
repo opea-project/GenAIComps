@@ -90,7 +90,7 @@ class EmbeddingRequest(BaseModel):
     user: Optional[str] = None
 
     # define
-    request_type: Literal['embedding']
+    request_type: Literal["embedding"]
 
 
 class EmbeddingResponseData(BaseModel):
@@ -117,7 +117,7 @@ class RetrievalRequest(BaseModel):
     score_threshold: float = 0.2
 
     # define
-    request_type: Literal['retrieval']
+    request_type: Literal["retrieval"]
 
 
 class RetrievalResponseData(BaseModel):
@@ -135,7 +135,7 @@ class RerankingRequest(BaseModel):
     top_n: int = 1
 
     # define
-    request_type: Literal['reranking']
+    request_type: Literal["reranking"]
 
 
 class RerankingResponseData(BaseModel):
@@ -181,7 +181,6 @@ class ChatCompletionRequest(BaseModel):
     # https://platform.openai.com/docs/api-reference/completions/create
     best_of: Optional[int] = 1
     suffix: Optional[str] = None
-
 
     # vllm reference: https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L130
     top_k: Optional[int] = -1
@@ -248,7 +247,7 @@ class ChatCompletionRequest(BaseModel):
     # repetition_penalty: Optional[float] = None
 
     # embedding
-    input: Union[List[int], List[List[int]], str, List[str]] = None # user query/question from messages[-]
+    input: Union[List[int], List[List[int]], str, List[str]] = None  # user query/question from messages[-]
     encoding_format: Optional[str] = Field("float", pattern="^(float|base64)$")
     dimensions: Optional[int] = None
     embedding: Union[EmbeddingResponse, List[float]] = Field(default_factory=list)
@@ -267,7 +266,7 @@ class ChatCompletionRequest(BaseModel):
     reranked_docs: Union[List[RerankingResponseData], List[Dict[str, Any]]] = Field(default_factory=list)
 
     # define
-    request_type: Literal['chat']
+    request_type: Literal["chat"]
 
 
 class AudioChatCompletionRequest(BaseModel):

@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional, Union, List, Dict
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList

@@ -6,6 +6,7 @@ import json
 import os
 import re
 import time
+from typing import Union
 
 import requests
 from langsmith import traceable
@@ -19,14 +20,12 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.proto.api_protocol import (
+    ChatCompletionRequest,
     RerankingRequest,
     RerankingResponse,
     RerankingResponseData,
-    ChatCompletionRequest,
 )
-from typing import Union
 
 
 @register_microservice(
@@ -40,8 +39,9 @@ from typing import Union
 )
 @traceable(run_type="llm")
 @register_statistics(names=["opea_service@reranking_tgi_gaudi"])
-def reranking(input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
-        ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
+def reranking(
+    input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
+) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
 
     start = time.time()
     reranking_results = []
@@ -58,7 +58,7 @@ def reranking(input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
         response = requests.post(url, data=json.dumps(data), headers=headers)
         response_data = response.json()
 
-        for best_response in response_data[:input.top_n]:
+        for best_response in response_data[: input.top_n]:
             reranking_results.append(
                 {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]}
             )
@@ -69,11 +69,7 @@ def reranking(input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
     else:
         reranking_docs = []
         for doc in reranking_results:
-            reranking_docs.append(
-                RerankingResponseData(
-                    text=doc["text"], score=doc["score"]
-                )
-            )
+            reranking_docs.append(RerankingResponseData(text=doc["text"], score=doc["score"]))
         if isinstance(input, RerankingRequest):
             return RerankingResponse(reranked_docs=reranking_docs)
 
@@ -81,6 +77,7 @@ def reranking(input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
             input.reranked_docs = reranking_docs
             input.documents = [doc["text"] for doc in reranking_results]
             return input
+
 
 if __name__ == "__main__":
     tei_reranking_endpoint = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8080")
