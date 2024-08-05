@@ -16,9 +16,9 @@ on:
         description: "Tag to apply to images"
         required: true
         type: string
-      node:
+      nodes:
         default: "docker-build-xeon,docker-build-gaudi"
-        description: "Node to run the build on [docker-build-xeon,docker-build-gaudi]"
+        description: "List of nodes to run the build including [docker-build-xeon,docker-build-gaudi]"
         required: true
         type: string
 
@@ -36,7 +36,7 @@ jobs:
           service_list=($(echo ${{ github.event.inputs.services }} | tr ',' ' '))
           services=$(printf '%s\n' "${service_list[@]}" | sort -u | jq -R '.' | jq -sc '.')
           echo "services=$services" >> $GITHUB_OUTPUT
-          node_list=($(echo ${{ github.event.inputs.node }} | tr ',' ' '))
+          node_list=($(echo ${{ github.event.inputs.nodes }} | tr ',' ' '))
           nodes=$(printf '%s\n' "${node_list[@]}" | sort -u | jq -R '.' | jq -sc '.')
           echo "nodes=$nodes" >> $GITHUB_OUTPUT
 
