@@ -9,24 +9,30 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    echo $(pwd)
-    docker build -t opea/lvm-video-llama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/video-llama/server/docker/Dockerfile .
-    # docker build --no-cache -t opea/lvm:latest -f comps/lvms/Dockerfile .
+    echo $(pwd) 
+    docker build  -t opea/video-llama-lvm-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/video-llama/server/docker/Dockerfile .
+    docker build  -t opea/lvm-video-llama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/video-llama/Dockerfile .
+    # --no-cache
     
 }
 
 function start_service() {
     cd $WORKPATH
-    no_proxy=$no_proxy,$ip_address
-    docker compose -f comps/lvms/video-llama/server/docker/docker_compose_vllama.yaml up -d
-    # docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 8399:8399 --ipc=host opea/llava:latest
-    # docker run -d --name="test-comps-lvm" -e LVM_ENDPOINT=http://$ip_address:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm:latest
-    sleep 8m # FIXME: change to detect if log has "Uvicorn running on"
+    export no_proxy=$no_proxy,$ip_address
+    export LVM_ENDPOINT=http://$ip_address:9009
+
+    docker compose -f comps/lvms/video-llama/docker_compose.yaml up -d
+
+    echo "Waiting for the service to start, downloading model..."
+    until docker logs video-llama-lvm-server 2>&1 | grep -q "Uvicorn running on"; do
+        sleep 1
+    done
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?"}' -H 'Content-Type: application/json')
-    if [[ $result == *"yellow"* ]]; then
+    result=$(http_proxy="" curl http://$ip_address:9000/v1/lvm -X POST -d '{"video_url":"https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4","chunck_start": 0,"chunck_duration": 9,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
+    echo $result
+    if [[ $result == *"silence"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
@@ -36,8 +42,10 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=lvm*")
+    cid=$(docker ps -aq --filter "name=video-llama")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    if docker volume ls | grep -q video-llama-model; then docker volume rm video-llama-model; fi
+
 }
 
 function main() {
@@ -47,10 +55,10 @@ function main() {
     build_docker_images
     start_service
 
-    # validate_microservice
+    validate_microservice
 
-    # stop_docker
-    # echo y | docker system prune
+    stop_docker
+    echo y | docker system prune
 
 }
 

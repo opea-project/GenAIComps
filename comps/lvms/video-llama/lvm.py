@@ -47,7 +47,7 @@ async def lvm(request: LVMVideoDoc):
     chunck_start = request.chunck_start
     chunck_duration = request.chunck_duration
     prompt = request.prompt
-    max_new_tokens = request.max_new_tokens # TODO: implement this in the video-llama server
+    max_new_tokens = request.max_new_tokens
 
     params = {'video_url': video_url,'start': chunck_start,'duration': chunck_duration,'prompt': prompt,'max_new_tokens': max_new_tokens}
     logging.info(f"[lvm] Params: {params}")

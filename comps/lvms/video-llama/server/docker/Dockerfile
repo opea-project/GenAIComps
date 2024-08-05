@@ -16,17 +16,11 @@ RUN mkdir /home/user/model && chown user:user -R /home/user/model
 
 USER user
 
-#comment out this, only copy requirements.txt to avoid replicate pip install when files under comps change
-# COPY --chown=user:user comps /home/user/comps
-# WORKDIR /home/user/comps/lvms/video-llama/server
-COPY --chown=user:user comps/lvms/video-llama/server/requirements.txt /home/user/comps/lvms/video-llama/server/requirements.txt
+COPY --chown=user:user comps /home/user/comps
+WORKDIR /home/user/comps/lvms/video-llama/server
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/lvms/video-llama/server/requirements.txt
-
-# FIXME: remove this when done
-COPY --chown=user:user comps /home/user/comps
-WORKDIR /home/user/comps/lvms/video-llama/server
 
 ARG VIDEO_LLAMA_REPO=https://github.com/DAMO-NLP-SG/Video-LLaMA.git
 ARG VIDEO_LLAMA_COMMIT=0adb19e

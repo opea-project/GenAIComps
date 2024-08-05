@@ -29,7 +29,7 @@ decord.bridge.set_bridge('torch')
 set_seed(22)
 
 # Setup logging
-logging.basicConfig(level=logging.DEBUG) # FIXME: dev use
+logging.basicConfig(level=logging.INFO)
 
 # Define global variables
 context_db = None
@@ -124,7 +124,7 @@ def chat_reset(chat_state, img_list):
     return chat_state, img_list
 
 
-def inference(chat: Chat, streamer, video: videoInfo, instruction: str):
+def inference(chat: Chat, streamer, video: videoInfo, instruction: str, max_new_tokens: int):
     logging.info("Video-Llama generation begin.")
     video_path = video.video_path
     start_time = video.start_time
@@ -133,7 +133,7 @@ def inference(chat: Chat, streamer, video: videoInfo, instruction: str):
     chat.upload_video_without_audio(video_path, start_time, duration)
     chat.ask("<rag_prompt>"+instruction)
     chat.answer(
-        max_new_tokens=150, num_beams=1, min_length=1, top_p=0.9,
+        max_new_tokens=max_new_tokens, num_beams=1, min_length=1, top_p=0.9,
         repetition_penalty=1.0, length_penalty=1, temperature=0.02,
         max_length=2000, keep_conv_hist=True, streamer=streamer
     )
@@ -143,9 +143,9 @@ def inference(chat: Chat, streamer, video: videoInfo, instruction: str):
     logging.info("Video-Llama generation done, remove video.")
     os.remove(video_path)
 
-def stream_res(video, instruction):
+def stream_res(video, instruction, max_new_tokens):
     logging.debug("Start to stream...")
-    thread = Thread(target=inference, args=(chat, streamer, video, instruction))  # Pass streamer to inference
+    thread = Thread(target=inference, args=(chat, streamer, video, instruction, max_new_tokens))
     thread.start()
     for text in streamer:
         yield text
@@ -160,10 +160,10 @@ async def health() -> Response:
 @app.post("/generate", response_class=StreamingResponse)
 async def generate(\
     video_url: str = Query(..., description="remote URL of the video to be processed"),
-    start: float = Query(..., description="video clip start time in seconds", example=0.0),
-    duration: float = Query(..., description="video clip duration in seconds", example=10.0),
-    prompt: str = Query(..., description="Query for Video-LLama", example="What is the man doing?"),
-    max_new_tokens: int = Query(512, description="Maximum number of tokens to generate", example=512),
+    start: float = Query(..., description="video clip start time in seconds", examples=0.0),
+    duration: float = Query(..., description="video clip duration in seconds", examples=10.0),
+    prompt: str = Query(..., description="Query for Video-LLama", examples="What is the man doing?"),
+    max_new_tokens: int = Query(150, description="Maximum number of tokens to generate", examples=150),
 ) -> StreamingResponse:
 
     parsed_url = urlparse(video_url)
@@ -197,7 +197,7 @@ async def generate(\
     instruction = f"{get_context(prompt,context_db)[0]}: {prompt}"
     # logging.info("instruction:",instruction)
     
-    return StreamingResponse(stream_res(video_info, instruction))
+    return StreamingResponse(stream_res(video_info, instruction, max_new_tokens))
 
 
 # Main entry point
