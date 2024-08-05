@@ -15,10 +15,9 @@ import numpy as np
 import requests
 import Wav2Lip.audio as audio
 import Wav2Lip.face_detection as face_detection
-from Wav2Lip.models import Wav2Lip
 from basicsr.utils import imwrite
 from gfpgan import GFPGANer
-
+from Wav2Lip.models import Wav2Lip
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../")
