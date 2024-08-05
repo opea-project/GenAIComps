@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 FROM python:3.11-slim
-
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+USER user
 ENV LANG=C.UTF-8
 
 COPY comps /home/comps
