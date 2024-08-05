@@ -27,19 +27,23 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       services: ${{ steps.get-services.outputs.services }}
+      nodes: ${{ steps.get-services.outputs.nodes }}
     steps:
       - name: Get test Services
         id: get-services
         run: |
           services=$(echo ${{ github.event.inputs.services }} | jq -R 'split(",") | map(gsub(" "; ""))')
           echo "services=$services" >> $GITHUB_OUTPUT
+          nodes=$(echo ${{ github.event.inputs.node }} | jq -R 'split(",") | map(gsub(" "; ""))')
+          echo "nodes=$nodes" >> $GITHUB_OUTPUT
 
   image-build:
     needs: get-build-matrix
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
-    runs-on: ${{ github.event.inputs.node }}
+        node: ${{ fromJSON(needs.get-build-matrix.outputs.nodes) }}
+    runs-on: ${{ matrix.node }}
     continue-on-error: true
     steps:
       - name: Clean Up Working Directory
@@ -57,4 +61,4 @@ jobs:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/${service}-compose.yaml
           registry: ${OPEA_IMAGE_REPO}
-        secrets: inherit
+          tag: ${{ github.event.inputs.tag }}
