@@ -5,14 +5,14 @@ name: Build latest images on schedule event
 
 on:
   schedule:
-    - cron: '0 17 * * *' # 5:00 PM UTC every day, 1:00 AM CST every day
+    - cron: "0 17 * * *" # 5:00 PM UTC every day, 1:00 AM CST every day
   push:
     branches: ["suyue/add_image"]
 
 env:
-    services: '["asr","dataprep","embeddings","llms","reranks","retrievers","tts","web_retrievers"]'
-    tag: "latest"
-    nodes: '["docker-build-xeon","docker-build-gaudi"]'
+  services: '["asr","dataprep","embeddings","llms","reranks","retrievers","tts","web_retrievers"]'
+  tag: "latest"
+  nodes: '["docker-build-xeon","docker-build-gaudi"]'
 
 jobs:
   check-build:
@@ -23,7 +23,7 @@ jobs:
       - name: Check if build is needed
         id: get-changes
         run: |
-          set -x 
+          set -x
           changes_files=$(git diff --name-only "@{24 hours ago}" | grep comps/cores | grep -vE '*.md')
           if [ -z "$changes_files" ]; then
             echo "No changes in the last 24 hours for the 'comps/cores' directory"
@@ -31,7 +31,7 @@ jobs:
           else
             echo "Changes detected in the last 24 hours for the 'comps/cores' directory"
             echo "::set-output name=run_build::true"
-          fi  
+          fi
 
   image-build:
     needs: check-build
