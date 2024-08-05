@@ -43,10 +43,10 @@ RUN chmod +x $(which ffmpeg)
 RUN python3 -m pip install --upgrade pip
 
 # Install Wav2Lip from pip
-RUN pip install Wav2Lipy
+RUN pip install --no-deps Wav2Lipy
 
 # Install GFPGAN from pip
-RUN pip install GFPGAN
+RUN pip install --no-deps GFPGAN
 
 # Download pre-trained models
 # Install gdown
