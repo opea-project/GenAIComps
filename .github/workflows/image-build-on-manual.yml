@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
     inputs:
       services:
-        default: "asr,dataprep,retrievers"
-        description: "List of services to build"
+        default: "asr"
+        description: "List of services to build including [asr,dataprep,embeddings,llms,reranks,retrievers,tts,web_retrievers]"
         required: true
         type: string
       tag:
@@ -17,7 +17,7 @@ on:
         required: true
         type: string
       node:
-        default: "docker-build-gaudi"
+        default: "docker-build-xeon,docker-build-gaudi"
         description: "Node to run the build on [docker-build-xeon,docker-build-gaudi]"
         required: true
         type: string
