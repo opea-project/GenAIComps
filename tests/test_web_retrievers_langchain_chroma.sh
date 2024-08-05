@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -28,6 +28,8 @@ function start_service() {
 }
 
 function validate_microservice() {
+    docker logs test-comps-web-retriever-tei-endpoint
+    docker logs test-comps-web-retriever-chroma-server
     retriever_port=5019
     export PATH="${HOME}/miniforge3/bin:$PATH"
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")

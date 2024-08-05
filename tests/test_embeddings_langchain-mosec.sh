@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -31,6 +31,8 @@ function start_service() {
 }
 
 function validate_microservice() {
+    docker logs test-comps-embedding-langchain-mosec-endpoint
+    docker logs test-comps-embedding-langchain-mosec-server
     mosec_service_port=5002
     http_proxy="" curl http://${ip_address}:$mosec_service_port/v1/embeddings \
         -X POST \
