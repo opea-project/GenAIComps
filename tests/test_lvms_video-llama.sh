@@ -10,9 +10,8 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd) 
-    docker build  -t opea/video-llama-lvm-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/video-llama/server/docker/Dockerfile .
-    docker build  -t opea/lvm-video-llama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/video-llama/Dockerfile .
-    # --no-cache
+    docker build --no-cache -t opea/video-llama-lvm-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/video-llama/server/docker/Dockerfile .
+    docker build --no-cache -t opea/lvm-video-llama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/video-llama/Dockerfile .
     
 }
 
@@ -24,8 +23,10 @@ function start_service() {
     docker compose -f comps/lvms/video-llama/docker_compose.yaml up -d
 
     echo "Waiting for the service to start, downloading model..."
+    sleep 1m
+
     until docker logs video-llama-lvm-server 2>&1 | grep -q "Uvicorn running on"; do
-        sleep 1
+        sleep 5m
     done
 }
 
@@ -44,7 +45,7 @@ function validate_microservice() {
 function stop_docker() {
     cid=$(docker ps -aq --filter "name=video-llama")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-    if docker volume ls | grep -q video-llama-model; then docker volume rm video-llama-model; fi
+    if docker volume ls | grep -q video-llama-model; then docker volume rm video-llama_video-llama-model; fi
 
 }
 
