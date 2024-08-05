@@ -29,7 +29,7 @@ import Wav2Lip.face_detection as face_detection
 
 # gfpgan
 from basicsr.utils import imwrite
-from GFPGAN.gfpgan import GFPGANer
+from gfpgan import GFPGANer
 from tqdm import tqdm
 from Wav2Lip.models import Wav2Lip
 
