@@ -18,6 +18,9 @@ jobs:
     outputs:
       run_build: ${{ steps.get-changes.outputs.run_build }}
     steps:
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+
       - name: Check if build is needed
         id: get-changes
         run: |
