@@ -24,12 +24,12 @@ jobs:
         id: get-changes
         run: |
           set -x 
-          changes_files=$(git diff --name-only "@{24 hours ago}" | grep comps/cores)
+          changes_files=$(git diff --name-only "@{24 hours ago}" | grep comps/cores | grep -vE '*.md')
           if [ -z "$changes_files" ]; then
-            echo "No changes in the last 24 hours"
+            echo "No changes in the last 24 hours for the 'comps/cores' directory"
             echo "::set-output name=run_build::false"
           else
-            echo "Changes detected in the last 24 hours"
+            echo "Changes detected in the last 24 hours for the 'comps/cores' directory"
             echo "::set-output name=run_build::true"
           fi  
 
