@@ -18,7 +18,7 @@ on:
         type: string
       node:
         default: "docker-build-gaudi"
-        description: "Node to run the build on [docker-build-xeon, docker-build-gaudi]"
+        description: "Node to run the build on [docker-build-xeon,docker-build-gaudi]"
         required: true
         type: string
 
@@ -32,10 +32,12 @@ jobs:
       - name: Get test Services
         id: get-services
         run: |
-          services=$(echo ${{ github.event.inputs.services }} | jq -R 'split(",") | map(gsub(" "; ""))')
+          set -x 
+          service_list=$(echo ${{ github.event.inputs.services }} | tr ',' ' ')
+          services=$(printf '%s\n' "${service_list[@]}" | jq -R '.' | jq -sc '.')
           echo "services=$services" >> $GITHUB_OUTPUT
-          nodes=$(echo ${{ github.event.inputs.node }} | jq -R 'split(",") | map(gsub(" "; ""))')
-          echo "nodes=$nodes" >> $GITHUB_OUTPUT
+          nodes=$(echo ${{ github.event.inputs.node }}  | tr ',' ' ')
+          echo "nodes=[\"${nodes[@]}\"]" >> $GITHUB_OUTPUT
 
   image-build:
     needs: get-build-matrix
