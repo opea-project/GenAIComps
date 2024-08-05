@@ -1,0 +1,59 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Build latest images on schedule event
+
+on:
+  schedule:
+    - cron: '0 17 * * *' # 5:00 PM UTC every day, 1:00 AM CST every day
+
+env:
+    services: '["asr","dataprep","embeddings","llms","reranks","retrievers","tts","web_retrievers"]'
+    tag: "latest"
+    nodes: '["docker-build-xeon","docker-build-gaudi"]'
+
+jobs:
+  check-build:
+    runs-on: ubuntu-latest
+    outputs:
+      run_build: ${{ steps.get-changes.outputs.run_build }}
+    steps:
+      - name: Check if build is needed
+        id: get-changes
+        run: |
+          set -x 
+          changes_files=$(git diff --name-only "@{24 hours ago}" | grep comps/cores)
+          if [ -z "$changes_files" ]; then
+            echo "No changes in the last 24 hours"
+            echo "::set-output name=run_build::false"
+          else
+            echo "Changes detected in the last 24 hours"
+            echo "::set-output name=run_build::true"
+          fi  
+
+  image-build:
+    needs: check-build
+    if: ${{ needs.check-build.outputs.run_build == 'true' }}
+    strategy:
+      matrix:
+        service: ${{ fromJSON(env.services) }}
+        node: ${{ fromJSON(env.nodes) }}
+    runs-on: ${{ matrix.node }}
+    continue-on-error: true
+    steps:
+      - name: Clean Up Working Directory
+        run: |
+          sudo rm -rf ${{github.workspace}}/*
+
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+
+      - name: Build image
+        env:
+          service: ${{ matrix.service }}
+        uses: opea-project/validation/actions/image-build@main
+        with:
+          work_dir: ${{ github.workspace }}
+          docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/${service}-compose.yaml
+          registry: ${OPEA_IMAGE_REPO}
+          tag: ${tag}
