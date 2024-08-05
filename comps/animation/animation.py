@@ -1,14 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import cv2
-import numpy as np
-import ffmpeg
 import os
 import pathlib
 import platform
 import subprocess
 import time
+
+import cv2
+import ffmpeg
+import numpy as np
 
 # Wav2Lip-GFPGAN
 import requests
