@@ -6,6 +6,8 @@ import argparse
 import logging
 import os
 from threading import Thread
+from urllib.parse import urlparse
+import requests
 import yaml
 
 import decord
@@ -122,19 +124,22 @@ def chat_reset(chat_state, img_list):
     return chat_state, img_list
 
 
-def inference(chat, streamer, video: videoInfo, instruction: str):
+def inference(chat: Chat, streamer, video: videoInfo, instruction: str):
     logging.info("Video-Llama generation begin.")
     video_path = video.video_path
     start_time = video.start_time
     duration = video.duration
     
     chat.upload_video_without_audio(video_path, start_time, duration)
-    chat.ask("<rag_prompt>"+instruction)#, chat_state) # the state is reserved.
+    chat.ask("<rag_prompt>"+instruction)
     chat.answer(
         max_new_tokens=150, num_beams=1, min_length=1, top_p=0.9,
         repetition_penalty=1.0, length_penalty=1, temperature=0.02,
         max_length=2000, keep_conv_hist=True, streamer=streamer
     )
+    if "similar video" not in instruction:
+        logging.info("Resetting the chat history")
+        chat.clear()
     logging.info("Video-Llama generation done, remove video.")
     os.remove(video_path)
 
@@ -154,27 +159,37 @@ async def health() -> Response:
 
 @app.post("/generate", response_class=StreamingResponse)
 async def generate(\
-    video: UploadFile = File(...),
-    start: float = Query(0.0),
-    duration: float = Query(10.0),
-    prompt: str = Query("What is the man doing?"),
-    max_new_tokens: int = Query(512)
+    video_url: str = Query(..., description="remote URL of the video to be processed"),
+    start: float = Query(..., description="video clip start time in seconds", example=0.0),
+    duration: float = Query(..., description="video clip duration in seconds", example=10.0),
+    prompt: str = Query(..., description="Query for Video-LLama", example="What is the man doing?"),
+    max_new_tokens: int = Query(512, description="Maximum number of tokens to generate", example=512),
 ) -> StreamingResponse:
 
-    if video.content_type != "video/mp4":
+    parsed_url = urlparse(video_url)
+    video_name = os.path.basename(parsed_url.path)
+    if video_name.lower().endswith('.mp4'):
+        logging.info(f"Format check passed, the file '{video_name}' is an MP4 file.")
+    else:
+        logging.info(f"Format check failed, the file '{video_name}' is not an MP4 file.")
         return JSONResponse(status_code=400, content={"message": "Invalid file type. Only mp4 videos are allowed."})
-   
-    # Save Video file
+    
     try:
-        contents = await video.read()
-        video_name = video.filename
         video_path = os.path.join(VIDEO_DIR, video_name)
-        with open(video_path, "wb") as f:
-            f.write(contents)
-        logging.info(f"Video saved to {video_path}")
+        response = requests.get(video_url, stream=True)
+
+        if response.status_code == 200:
+            with open(video_path, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:  # filter out keep-alive new chunks
+                        file.write(chunk)
+            logging.info(f"File downloaded: {video_path}")
+        else:
+            logging.info(f"Error downloading file: {response.status_code}")
+            return JSONResponse(status_code=500, content={"message": "Error downloading file."})
     except Exception as e:
-        logging.info(f"Error saving video: {e}")
-        return JSONResponse(status_code=500, content={"message": "Error saving video."})
+        logging.info(f"Error downloading file: {response.status_code}")
+        return JSONResponse(status_code=500, content={"message": "Error downloading file."})
     
     video_info = videoInfo(start_time=start, duration=duration, video_path=video_path)
 
@@ -188,7 +203,7 @@ async def generate(\
 # Main entry point
 parser = argparse.ArgumentParser()
 parser.add_argument("--host", type=str, default="0.0.0.0")
-parser.add_argument("--port", type=int, default=8008)
+parser.add_argument("--port", type=int, default=9009)
 args = parser.parse_args()
 
 context_db = construct_instructions()

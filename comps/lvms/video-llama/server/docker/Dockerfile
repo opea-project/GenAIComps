@@ -6,12 +6,13 @@ FROM python:3.9-slim
 ENV LANG=C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    git git-lfs vim && \
+    git git-lfs && \ 
     git lfs install
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user:user /home/user/
+RUN mkdir /home/user/model && chown user:user -R /home/user/model
 
 USER user
 
@@ -22,11 +23,6 @@ COPY --chown=user:user comps/lvms/video-llama/server/requirements.txt /home/user
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/lvms/video-llama/server/requirements.txt
-
-# FIXME: remove this and add to requirement when done
-RUN pip install sentence-transformers==3.0.1
-RUN pip install faiss-cpu
-RUN pip install sentencepiece
 
 # FIXME: remove this when done
 COPY --chown=user:user comps /home/user/comps
@@ -43,9 +39,5 @@ RUN git clone ${VIDEO_LLAMA_REPO} Video-LLaMA && \
 
 ENV PYTHONPATH=/home/user
 
-# FIXME: move to line 15
-USER root
-RUN mkdir /home/user/model && chown user:user -R /home/user/model
-USER user
 
 ENTRYPOINT ["bash", "start.sh"]
