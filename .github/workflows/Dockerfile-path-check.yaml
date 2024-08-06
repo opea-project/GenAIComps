@@ -90,7 +90,7 @@ jobs:
             echo "Please modify the corresponding yaml in GenAIComps/.github/workflows/docker/compose and ask suyue.chen@intel.com for final confirmation."
             exit 1
           fi
-      
+
       - name: Check for changed Dockerfile paths in readme
         run: |
           set -xe
