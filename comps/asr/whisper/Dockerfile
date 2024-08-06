@@ -9,7 +9,6 @@ RUN useradd -m -s /bin/bash user && \
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
-ENV PYTHONPATH=/home/user
 
 # Install system dependencies
 RUN apt-get update \

@@ -84,17 +84,17 @@ RUN mkdir -p /usr/local/xft/lib \
     && ln -s /usr/local/xft/include /usr/local/include/xft/include
 
 RUN echo "export \$(python -c 'import xfastertransformer as xft; print(xft.get_env())')" >> ~/.bashrc
-
-COPY comps /root/comps
+USER user
+COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /root/comps/llms/text-generation/vllm-xft/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/llms/text-generation/vllm-xft/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/root
 
-RUN chmod +x /root/comps/llms/text-generation/vllm-xft/run.sh
+RUN chmod +x /home/user/comps/llms/text-generation/vllm-xft/run.sh
 
-WORKDIR /root/comps/llms/text-generation/vllm-xft/
+WORKDIR /home/user/comps/llms/text-generation/vllm-xft/
 
-ENTRYPOINT ["/root/comps/llms/text-generation/vllm-xft/run.sh"]
-USER user
+ENTRYPOINT ["/home/user/comps/llms/text-generation/vllm-xft/run.sh"]
+
