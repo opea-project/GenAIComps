@@ -90,7 +90,7 @@ class EmbeddingRequest(BaseModel):
     user: Optional[str] = None
 
     # define
-    request_type: Literal["embedding"]
+    request_type: Literal["embedding"] = "embedding"
 
 
 class EmbeddingResponseData(BaseModel):
@@ -117,7 +117,7 @@ class RetrievalRequest(BaseModel):
     score_threshold: float = 0.2
 
     # define
-    request_type: Literal["retrieval"]
+    request_type: Literal["retrieval"] = "retrieval"
 
 
 class RetrievalResponseData(BaseModel):
@@ -135,7 +135,7 @@ class RerankingRequest(BaseModel):
     top_n: int = 1
 
     # define
-    request_type: Literal["reranking"]
+    request_type: Literal["reranking"] = "reranking"
 
 
 class RerankingResponseData(BaseModel):
@@ -183,8 +183,17 @@ class ChatCompletionRequest(BaseModel):
     suffix: Optional[str] = None
 
     # vllm reference: https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L130
-    top_k: Optional[int] = -1
     repetition_penalty: Optional[float] = 1.0
+
+    # tgi reference: https://huggingface.github.io/text-generation-inference/#/Text%20Generation%20Inference/generate
+    # some tgi parameters in use
+    # default values are same with
+    # https://github.com/huggingface/text-generation-inference/blob/main/router/src/lib.rs#L190
+    # max_new_tokens: Optional[int] = 100 # Priority use openai
+    top_k: Optional[int] = None
+    # top_p: Optional[float] = None # Priority use openai
+    typical_p: Optional[float] = None
+    # repetition_penalty: Optional[float] = None
 
     # doc: begin-chat-completion-extra-params
     echo: Optional[bool] = Field(
@@ -236,16 +245,6 @@ class ChatCompletionRequest(BaseModel):
     )
     # doc: end-chat-completion-extra-params
 
-    # tgi reference: https://huggingface.github.io/text-generation-inference/#/Text%20Generation%20Inference/generate
-    # some tgi parameters in use
-    # default values are same with
-    # https://github.com/huggingface/text-generation-inference/blob/main/router/src/lib.rs#L190
-    # max_new_tokens: Optional[int] = 100 # Priority use openai
-    # top_k: Optional[int] = None
-    # top_p: Optional[float] = None # Priority use openai
-    typical_p: Optional[float] = None
-    # repetition_penalty: Optional[float] = None
-
     # embedding
     input: Union[List[int], List[List[int]], str, List[str]] = None  # user query/question from messages[-]
     encoding_format: Optional[str] = Field("float", pattern="^(float|base64)$")
@@ -266,7 +265,7 @@ class ChatCompletionRequest(BaseModel):
     reranked_docs: Union[List[RerankingResponseData], List[Dict[str, Any]]] = Field(default_factory=list)
 
     # define
-    request_type: Literal["chat"]
+    request_type: Literal["chat"] = "chat"
 
 
 class AudioChatCompletionRequest(BaseModel):

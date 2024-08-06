@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
 from langsmith import traceable
 from openai import OpenAI
-from template import ChatRagTemplate
+from template import ChatTemplate
 
 from comps import (
     GeneratedDoc,
@@ -53,9 +53,11 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                     prompt = input.chat_template.format(question=input.query)
             else:
                 # use default template
-                prompt = ChatRagTemplate.generate_prompt(input.query, input.documents)
+                prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
         else:
             prompt = input.query
+            if input.chat_template:
+                prompt = input.chat_template.format(question=input.query)
 
         text_generation = await llm.text_generation(
             prompt=prompt,

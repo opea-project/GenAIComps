@@ -118,6 +118,15 @@ class LLMParams(BaseDoc):
     repetition_penalty: float = 1.03
     streaming: bool = True
 
+    chat_template: Optional[str] = Field(
+        default=None,
+        description=(
+            "A template to use for this conversion. "
+            "If this is not passed, the model's default chat template will be "
+            "used instead. We recommend that the template contains {context} and {question} for rag,"
+            "or only contains {question} for chat completion without rag."
+        ),
+    )
 
 class RAGASParams(BaseDoc):
     questions: DocList[TextDoc]

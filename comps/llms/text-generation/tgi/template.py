@@ -4,9 +4,9 @@
 import re
 
 
-class ChatRagTemplate:
+class ChatTemplate:
     @staticmethod
-    def generate_prompt(question, documents):
+    def generate_rag_prompt(question, documents):
         context_str = "\n".join(documents)
         if context_str and len(re.findall("[\u4E00-\u9FFF]", context_str)) / len(context_str) >= 0.3:
             # chinese context
