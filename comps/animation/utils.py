@@ -327,9 +327,9 @@ def load_gfpgan(args, bg_upsampler):
         raise ValueError(f"Wrong model version {args.version}.")
 
     # determine model path
-    model_path = path.join("src/GFPGAN/experiments/pretrained_models", model_name + ".pth")
+    model_path = path.join("/usr/local/lib/python3.10/dist-packages/gfpgan/experiments/pretrained_models", model_name + ".pth")
     if not path.isfile(model_path):
-        model_path = path.join("src/GFPGAN/realesrgan/weights", model_name + ".pth")
+        model_path = path.join("usr/local/lib/python3.10/dist-packages/gfpgan/realesrgan/weights", model_name + ".pth")
     if not path.isfile(model_path):
         raise ValueError(f"Model {model_name} does not exist")
 
