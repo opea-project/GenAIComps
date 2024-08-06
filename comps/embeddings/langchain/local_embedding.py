@@ -3,7 +3,6 @@
 
 from langchain_huggingface import HuggingFaceEmbeddings
 
-
 from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, opea_telemetry, register_microservice
 
 
