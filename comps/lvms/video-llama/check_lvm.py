@@ -15,14 +15,14 @@ content = {
     'max_new_tokens': 150
     }
 
+start = datetime.datetime.now()
 with requests.post(api_url, params=content, stream=True) as response:
-    start = datetime.datetime.now()
     for chunk in response.iter_content(chunk_size=8192):
         if chunk:
             print(chunk.decode('utf-8'), end='', flush=True)  # Flush to ensure immediate output 
     
-    end = datetime.datetime.now()
-    print(f"Total time: {end - start}")
+end = datetime.datetime.now()
+print(f"\nTotal time: {end - start}")
 
 ####### lvm request ########
 print("lvm request")
@@ -38,12 +38,12 @@ data = {
     "max_new_tokens": 150
 }
 
+start = datetime.datetime.now()
 with requests.post(api_url, headers=headers, data=json.dumps(data), stream=True) as response:
-    start = datetime.datetime.now()
     for chunk in response.iter_content(chunk_size=8192):
         if chunk:
             print(chunk.decode('utf-8'), end='', flush=True)  # Flush to ensure immediate output 
 
-    end = datetime.datetime.now()
-    print(f"Total time: {end - start}")
+end = datetime.datetime.now()
+print(f"\nTotal time: {end - start}")
 
