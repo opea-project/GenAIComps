@@ -66,11 +66,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Clone repo GenAIExamples
-      #   run: |
-      #     cd ..
-      #     git clone https://github.com/opea-project/GenAIExamples
-
       - name: Check for changed Dockerfile paths
         run: |
           set -xe
