@@ -7,7 +7,7 @@ FROM python:3.11-slim
 ENV LANG=en_US.UTF-8
 
 COPY comps /home/comps
-# COPY  comps/lvms/video-llama/requirements.txt /home/comps/lvms/video-llama/requirements.txt
+
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/comps/lvms/video-llama/requirements.txt
 
