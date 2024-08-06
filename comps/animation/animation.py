@@ -103,7 +103,7 @@ def animate(input: Base64ByteStrDoc):
             # command = f"ffmpeg -y -i {args.audio} -strict -2 temp/temp.wav"
             # subprocess.call(command, shell=True)
 
-            ffmpeg.input(args.audio).output("temp/temp.wav", strict="-2").overwrite_output().run()
+            ffmpeg.input(args.audio).output("temp/temp.wav", strict="-2").run(overwrite_output=True)
             args.audio = "temp/temp.wav"
     else:
         sr, y = base64_to_int16_to_wav(input.byte_str, "temp/temp.wav")
@@ -208,7 +208,7 @@ def animate(input: Base64ByteStrDoc):
         vcodec="libx264",
         preset="medium",
         acodec="aac",
-    ).run()
+    ).run(overwrite_output=True)
 
     statistics_dict["opea_service@animation"].append_latency(time.time() - start, None)
     # return_str = f"Video generated successfully, check {args.outfile} for the result."

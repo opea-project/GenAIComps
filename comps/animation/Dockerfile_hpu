@@ -73,6 +73,7 @@ RUN sed -i 's/from torchvision.transforms.functional_tensor import rgb_to_graysc
 # Modify the core.py file to include 'hpu' in the device check
 RUN sed -i "s/if 'cpu' not in device and 'cuda' not in device:/if 'cpu' not in device and 'cuda' not in device and 'hpu' not in device:/" /usr/local/lib/python3.10/dist-packages/Wav2Lip/face_detection/detection/core.py
 
+# To be compatible with librosa==0.10.2, instead of librosa==0.7.0 because the co-dependency numba==0.48 cannot be pip installed
 RUN sed -i 's/hp.sample_rate, hp.n_fft/sr=hp.sample_rate, n_fft=hp.n_fft/' /usr/local/lib/python3.10/dist-packages/Wav2Lip/audio.py
 
 # Set the working directory
