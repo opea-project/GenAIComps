@@ -3,6 +3,7 @@ fastapi
 huggingface_hub
 langsmith
 llama-index-embeddings-text-embeddings-inference
+llama-index-embeddings-huggingface-api
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
