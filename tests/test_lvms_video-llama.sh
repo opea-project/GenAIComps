@@ -32,14 +32,12 @@ function start_service() {
 
 function validate_microservice() {
     result=$(http_proxy="" curl http://$ip_address:9000/v1/lvm -X POST -d '{"video_url":"https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4","chunck_start": 0,"chunck_duration": 9,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
-    echo $result
     if [[ $result == *"silence"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
         exit 1
     fi
-
 }
 
 function stop_docker() {
