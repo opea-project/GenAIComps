@@ -5,7 +5,7 @@
 services:
   asr:
     build:
-      dockerfile: comps/asr/Dockerfile
+      dockerfile: comps/asr/ef/Dockerfile
     image: ${REGISTRY}opea/asr:${TAG:-latest}
   whisper:
     build:
