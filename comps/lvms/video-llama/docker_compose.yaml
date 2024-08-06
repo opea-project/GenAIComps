@@ -17,8 +17,6 @@ services:
     volumes:
       - "/home/$USER/.cache:/home/user/.cache" # RECOMMENDED: use local cache to avoid download
       - video-llama-model:/home/user/model
-      # - "/home/raspadmin/tahani/GenAIExamples/VideoRAGQnA/meta-llama/Llama-2-7b-chat-hf:/home/user/model/Video-LLaMA-2-7B-Finetuned/llama-2-7b-chat-hf" # FIXME: dev use
-      # - "/home/raspadmin/tahani/GenAIExamples/VideoRAGQnA/embedding/video_llama_weights/VL_LLaMA_2_7B_Finetuned.pth:/home/user/model/Video-LLaMA-2-7B-Finetuned/VL_LLaMA_2_7B_Finetuned.pth"
     restart: unless-stopped
 
   lvm:
