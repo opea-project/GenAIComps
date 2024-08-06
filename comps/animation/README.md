@@ -18,7 +18,7 @@ docker build -t opea/animation:latest -f comps/animation/Dockerfile_hpu .
 export ip_address=$(hostname -I | awk '{print $1}')
 export ANIMATION_PORT=7860
 export INFERENCE_MODE='wav2clip_only'
-export CHECKPOINT_PATH='src/Wav2Lip/checkpoints/wav2lip_gan.pth'
+export CHECKPOINT_PATH='/usr/local/lib/python3.10/dist-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
 export FACE='assets/avatar1.jpg'
 # export AUDIO='assets/eg3_ref.wav' # audio file path is optional, will use base64str as input if is 'None'
 export AUDIO='None'
