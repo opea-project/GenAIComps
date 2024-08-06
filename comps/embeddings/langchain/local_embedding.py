@@ -23,5 +23,6 @@ def embedding(input: TextDoc) -> EmbedDoc:
 
 
 if __name__ == "__main__":
+    print("Starting local embedding service")
     embeddings = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-large-en-v1.5")
     opea_microservices["opea_service@local_embedding"].start()
