@@ -128,6 +128,7 @@ class LLMParams(BaseDoc):
         ),
     )
 
+
 class RAGASParams(BaseDoc):
     questions: DocList[TextDoc]
     answers: DocList[TextDoc]
