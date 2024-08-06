@@ -1,6 +1,6 @@
 aiohttp
 docarray[full]
-fastapi
+fastapi[standard]
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

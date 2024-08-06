@@ -1,6 +1,6 @@
 aiohttp
 docarray
-fastapi
+fastapi[standard]
 httpx
 opentelemetry-api
 opentelemetry-exporter-otlp

@@ -1,7 +1,7 @@
 aiohttp
 docarray[full]
 easyocr
-fastapi
+fastapi[standard]
 httpx
 langsmith
 llama-index-vector-stores-redis

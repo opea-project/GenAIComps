@@ -1,6 +1,6 @@
 docarray[full]
 easyocr
-fastapi
+fastapi[standard]
 haystack-ai==2.2.4
 langchain_community
 langsmith

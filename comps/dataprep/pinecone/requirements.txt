@@ -1,7 +1,7 @@
 beautifulsoup4
 docarray[full]
 easyocr
-fastapi
+fastapi[standard]
 huggingface_hub
 langchain
 langchain-community

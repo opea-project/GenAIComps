@@ -1,5 +1,5 @@
 docarray[full]
-fastapi
+fastapi[standard]
 langchain==0.1.16
 langsmith
 opentelemetry-api

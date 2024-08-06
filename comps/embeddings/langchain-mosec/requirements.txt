@@ -1,5 +1,5 @@
 docarray[full]
-fastapi
+fastapi[standard]
 langchain
 langchain_community
 openai

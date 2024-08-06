@@ -3,7 +3,7 @@ detect_secrets
 docarray[full]
 easyocr
 einops
-fastapi
+fastapi[standard]
 gibberish-detector
 huggingface_hub
 langchain

@@ -1,6 +1,6 @@
 aiohttp
 docarray[full]
-fastapi
+fastapi[standard]
 httpx
 langsmith
 opentelemetry-api

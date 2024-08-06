@@ -1,6 +1,6 @@
 datasets
 docarray[full]
-fastapi
+fastapi[standard]
 huggingface_hub
 langchain==0.1.16
 langsmith

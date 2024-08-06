@@ -3,7 +3,7 @@ docarray[full]
 
 #used by tools
 duckduckgo-search
-fastapi
+fastapi[standard]
 huggingface_hub
 langchain #==0.1.12
 langchain-huggingface
