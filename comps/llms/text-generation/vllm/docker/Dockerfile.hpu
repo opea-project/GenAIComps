@@ -4,7 +4,7 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 ENV LANG=en_US.UTF-8
-
+USER user
 WORKDIR /root
 
 RUN pip install --upgrade-strategy eager optimum[habana]
@@ -23,4 +23,3 @@ ENV PT_HPU_LAZY_ACC_PAR_MODE=0
 ENV PT_HPU_ENABLE_LAZY_COLLECTIVES=true
 
 CMD ["/bin/bash"]
-USER user
