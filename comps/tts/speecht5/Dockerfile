@@ -14,8 +14,10 @@ ENV PYTHONPATH=/home/user
 RUN apt-get update \
     && apt-get install -y ffmpeg \
     && apt-get install -y curl
+
+COPY --chown=user:user comps /home/user/comps
+
 USER user
-COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/tts/requirements.txt

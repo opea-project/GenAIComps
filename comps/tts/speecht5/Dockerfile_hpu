@@ -16,8 +16,10 @@ ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
 RUN apt-get update \
     && apt-get install -y ffmpeg \
     && apt-get install -y curl
+
+COPY --chown=user:user comps /home/user/comps
+
 USER user
-COPY comps /home/user/comps
 
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip && \
