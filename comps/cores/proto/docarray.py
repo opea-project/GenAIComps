@@ -130,3 +130,7 @@ class LVMDoc(BaseDoc):
     image: str
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512
+
+
+class AnimationDoc(BaseDoc):
+    video_save_path: str

@@ -29,6 +29,7 @@ class ServiceType(Enum):
     LVM = 12
     KNOWLEDGE_GRAPH = 13
     WEB_RETRIEVER = 14
+    ANIMATION = 15
 
 
 class MegaServiceEndpoint(Enum):
@@ -44,6 +45,7 @@ class MegaServiceEndpoint(Enum):
     SEARCH_QNA = "/v1/searchqna"
     TRANSLATION = "/v1/translation"
     FAQ_GEN = "/v1/faqgen"
+    AVATAR_CHATBOT = "/v1/avatarchatbot"
     # Follow OPENAI
     EMBEDDINGS = "/v1/embeddings"
     TTS = "/v1/audio/speech"

@@ -1,0 +1,30 @@
+basicsr==1.4.2
+docarray[full]
+facexlib==0.3.0
+fastapi
+ffmpeg-python
+gradio==4.38.1
+gradio_client==1.1.0
+grpcio==1.64.1
+huggingface-hub==0.24.0
+librosa==0.10.2
+lmdb==1.5.1
+numba==0.60.0
+numpy==1.23.5
+opencv-python==4.10.0.84
+
+# used by cloud native
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pandas
+prometheus_fastapi_instrumentator
+pyarrow
+pydantic #==1.10.13
+pyyaml==6.0
+scipy==1.14.0
+shortuuid
+tavily-python
+tb-nightly==2.18.0a20240721
+tqdm==4.66.4
+yapf==0.40.2

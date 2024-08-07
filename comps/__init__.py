@@ -18,6 +18,7 @@ from comps.cores.proto.docarray import (
     RAGASScores,
     GraphDoc,
     LVMDoc,
+    AnimationDoc,
 )
 
 # Constants
@@ -37,6 +38,7 @@ from comps.cores.mega.gateway import (
     SearchQnAGateway,
     AudioQnAGateway,
     FaqGenGateway,
+    AvatarChatbotGateway,
 )
 
 # Telemetry
