@@ -3,7 +3,7 @@
 
 FROM python:3.11-slim
 
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
