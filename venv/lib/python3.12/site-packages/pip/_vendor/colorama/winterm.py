@@ -2,28 +2,32 @@
 try:
     from msvcrt import get_osfhandle
 except ImportError:
+
     def get_osfhandle(_):
         raise OSError("This isn't windows!")
 
 
 from . import win32
 
+
 # from wincon.h
 class WinColor(object):
-    BLACK   = 0
-    BLUE    = 1
-    GREEN   = 2
-    CYAN    = 3
-    RED     = 4
+    BLACK = 0
+    BLUE = 1
+    GREEN = 2
+    CYAN = 3
+    RED = 4
     MAGENTA = 5
-    YELLOW  = 6
-    GREY    = 7
+    YELLOW = 6
+    GREY = 7
+
 
 # from wincon.h
 class WinStyle(object):
-    NORMAL              = 0x00 # dim text, dim background
-    BRIGHT              = 0x08 # bright text, dim background
-    BRIGHT_BACKGROUND   = 0x80 # dim text, bright background
+    NORMAL = 0x00  # dim text, dim background
+    BRIGHT = 0x08  # bright text, dim background
+    BRIGHT_BACKGROUND = 0x80  # dim text, bright background
+
 
 class WinTerm(object):
 
@@ -139,7 +143,7 @@ class WinTerm(object):
             # invalid mode
             return
         # fill the entire screen with blanks
-        win32.FillConsoleOutputCharacter(handle, ' ', cells_to_erase, from_coord)
+        win32.FillConsoleOutputCharacter(handle, " ", cells_to_erase, from_coord)
         # now set the buffer's attributes accordingly
         win32.FillConsoleOutputAttribute(handle, self.get_attrs(), cells_to_erase, from_coord)
         if mode == 2:
@@ -167,7 +171,7 @@ class WinTerm(object):
             # invalid mode
             return
         # fill the entire screen with blanks
-        win32.FillConsoleOutputCharacter(handle, ' ', cells_to_erase, from_coord)
+        win32.FillConsoleOutputCharacter(handle, " ", cells_to_erase, from_coord)
         # now set the buffer's attributes accordingly
         win32.FillConsoleOutputAttribute(handle, self.get_attrs(), cells_to_erase, from_coord)
 
