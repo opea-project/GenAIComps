@@ -15,7 +15,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     vim \
     libcairo2 \
     poppler-utils \
-	tesseract-ocr
+    tesseract-ocr
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
