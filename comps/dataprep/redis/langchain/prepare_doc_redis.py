@@ -7,6 +7,7 @@ import shutil
 import uuid
 from pathlib import Path
 from typing import List, Optional, Union
+import uvicorn
 
 # from pyspark import SparkConf, SparkContext
 import redis
