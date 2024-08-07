@@ -1,9 +1,9 @@
+aiohttp
 docarray
 fastapi
-predictionguard==2.2.1
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+predictionguard==2.2.1
 prometheus-fastapi-instrumentator
 shortuuid
-aiohttp

@@ -335,17 +335,16 @@ curl http://${your_ip}:9000/v1/chat/completions \
 
 ## 4. Validated Model
 
-| Model                     | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | Ray | Prediction Guard |
-| ------------------------- | --------- | -------- | ---------- | --- | ---------------- |
-| Intel/neural-chat-7b-v3-3 | ✓         | ✓        | ✓          | ✓   | ✓                |
-| Llama-2-7b-chat-hf        | ✓         | ✓        | ✓          | ✓   | x                |
-| Llama-2-70b-chat-hf       | ✓         | -        | ✓          | x   | x                |
-| Meta-Llama-3-8B-Instruct  | ✓         | ✓        | ✓          | ✓   | x                |
-| Meta-Llama-3-70B-Instruct | ✓         | -        | ✓          | x   | x                |
-| Phi-3                     | x         | Limit 4K | Limit 4K   | ✓   | x                |
-| Hermes-2-Pro-Llama-3-8B   | -         | -        | -          | -   | ✓                |
-| Nous-Hermes-Llama2-13B    | -         | -        | -          | -   | ✓                |
-| Hermes-2-Pro-Mistral-7B   | -         | -        | -          | -   | ✓                |
-| llama-3-sqlcoder-8b       | -         | -        | -          | -   | ✓                |
-| deepseek-coder-6.7b-instruct | -      | -        | -          | -   | ✓                |
-
+| Model                        | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | Ray | Prediction Guard |
+| ---------------------------- | --------- | -------- | ---------- | --- | ---------------- |
+| Intel/neural-chat-7b-v3-3    | ✓         | ✓        | ✓          | ✓   | ✓                |
+| Llama-2-7b-chat-hf           | ✓         | ✓        | ✓          | ✓   | x                |
+| Llama-2-70b-chat-hf          | ✓         | -        | ✓          | x   | x                |
+| Meta-Llama-3-8B-Instruct     | ✓         | ✓        | ✓          | ✓   | x                |
+| Meta-Llama-3-70B-Instruct    | ✓         | -        | ✓          | x   | x                |
+| Phi-3                        | x         | Limit 4K | Limit 4K   | ✓   | x                |
+| Hermes-2-Pro-Llama-3-8B      | -         | -        | -          | -   | ✓                |
+| Nous-Hermes-Llama2-13B       | -         | -        | -          | -   | ✓                |
+| Hermes-2-Pro-Mistral-7B      | -         | -        | -          | -   | ✓                |
+| llama-3-sqlcoder-8b          | -         | -        | -          | -   | ✓                |
+| deepseek-coder-6.7b-instruct | -         | -        | -          | -   | ✓                |

@@ -6,8 +6,8 @@ import json
 import multiprocessing
 import os
 import re
-import unicodedata
 import subprocess
+import unicodedata
 from urllib.parse import urlparse, urlunparse
 
 import easyocr
@@ -81,8 +81,8 @@ def load_doc(doc_path):
     txt_path = doc_path.replace(".doc", ".txt")
 
     try:
-        with open(txt_path, 'w') as output_file:
-            subprocess.run(['antiword', doc_path], stdout=output_file, check=True)
+        with open(txt_path, "w") as output_file:
+            subprocess.run(["antiword", doc_path], stdout=output_file, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error processing file: {e}")
     text = load_txt(txt_path)

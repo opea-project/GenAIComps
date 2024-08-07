@@ -34,5 +34,5 @@ curl -X POST http://localhost:9090/v1/toxicity \
     -H 'Content-Type: application/json' \
     -d '{
       "text": "I hate you!!"
-    }' 
+    }'
 ```
