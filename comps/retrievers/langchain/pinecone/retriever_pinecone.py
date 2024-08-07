@@ -55,12 +55,12 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
         if input.distance_threshold is None:
             raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
         docs_and_similarities = vector_db.similarity_search_by_vector_with_score(
-            embedding=input.embedding, k=input.k, distance_threshold=input.distance_threshold
+            embedding=input.embedding, k=input.k
         )
         search_res = [doc for doc, similarity in docs_and_similarities if similarity > input.distance_threshold]
     elif input.search_type == "similarity_score_threshold":
         docs_and_similarities = vector_db.similarity_search_by_vector_with_score(
-            query=input.text, k=input.k, score_threshold=input.score_threshold
+            query=input.text, k=input.k
         )
         search_res = [doc for doc, similarity in docs_and_similarities if similarity > input.score_threshold]
     elif input.search_type == "mmr":
