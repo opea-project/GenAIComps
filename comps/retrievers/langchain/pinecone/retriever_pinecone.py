@@ -4,10 +4,10 @@
 import os
 import time
 
+from config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langsmith import traceable
-from config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
 from pinecone import Pinecone, ServerlessSpec
 
 from comps import (
@@ -36,19 +36,17 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 def retrieve(input: EmbedDoc) -> SearchedDoc:
     start = time.time()
 
-    pc = Pinecone(api_key=PINECONE_API_KEY) 
+    pc = Pinecone(api_key=PINECONE_API_KEY)
 
     index = pc.Index(PINECONE_INDEX_NAME)
-    print(index.describe_index_stats()['total_vector_count'])
+    print(index.describe_index_stats()["total_vector_count"])
     # check if the Pinecone index has data
-    if index.describe_index_stats()['total_vector_count'] == 0:
+    if index.describe_index_stats()["total_vector_count"] == 0:
         result = SearchedDoc(retrieved_docs=[], initial_query=input.text)
         statistics_dict["opea_service@retriever_pinecone"].append_latency(time.time() - start, None)
         return result
 
-    search_res = vector_db.max_marginal_relevance_search(
-        query=input.text, k=input.k, fetch_k=input.fetch_k
-    )
+    search_res = vector_db.max_marginal_relevance_search(query=input.text, k=input.k, fetch_k=input.fetch_k)
     # if the Pinecone index has data, perform the search
     if input.search_type == "similarity":
         docs_and_similarities = vector_db.similarity_search_by_vector_with_score(embedding=input.embedding, k=input.k)

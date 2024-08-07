@@ -33,24 +33,26 @@ from comps.dataprep.utils import (
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 upload_folder = "./uploaded_files/"
 
+
 def check_index_existance(client):
     print(f"[ check index existence ] checking {PINECONE_INDEX_NAME}")
-    
+
     existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
     if PINECONE_INDEX_NAME not in existing_indexes:
-        print(f"[ check index existence ] index does not exist")
+        print("[ check index existence ] index does not exist")
         return None
     else:
         return True
+
 
 def create_index(client):
     print(f"[ create index ] creating index {PINECONE_INDEX_NAME}")
     try:
         client.create_index(
-        name=PINECONE_INDEX_NAME,
-        dimension=768,
-        metric="cosine",
-        spec=ServerlessSpec(cloud="aws", region="us-east-1"),
+            name=PINECONE_INDEX_NAME,
+            dimension=768,
+            metric="cosine",
+            spec=ServerlessSpec(cloud="aws", region="us-east-1"),
         )
         print(f"[ create index ] index {PINECONE_INDEX_NAME} successfully created")
     except Exception as e:
@@ -58,23 +60,20 @@ def create_index(client):
         return False
     return True
 
+
 def store_by_id(client, key, value):
     print(f"[ store by id ] storing ids of {key}")
     try:
         index = client.Index(PINECONE_INDEX_NAME)
-        index.upsert(
-            vectors=[
-                {"id":"file:" + key, "values":value}
-            ], 
-            namespace="ns1"
-                )
-        
+        index.upsert(vectors=[{"id": "file:" + key, "values": value}], namespace="ns1")
+
         print(f"[ store by id ] store document success. id: file:{key}")
     except Exception as e:
         print(f"[ store by id ] fail to store document file:{key}: {e}")
         return False
     return True
-    
+
+
 def ingest_data_to_pinecone(doc_path: DocPath):
     """Ingest document to Pinecone."""
     path = doc_path.path
@@ -125,7 +124,7 @@ def ingest_data_to_pinecone(doc_path: DocPath):
             index_name=PINECONE_INDEX_NAME,
         )
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
-    
+
     # store file_ids into index file-keys
     pc = Pinecone(api_key=PINECONE_API_KEY)
 

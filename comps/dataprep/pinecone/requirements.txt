@@ -7,9 +7,9 @@ fastapi
 huggingface_hub
 langchain
 langchain-community
-langchain-text-splitters
-langchain-pinecone
 langchain-openai
+langchain-pinecone
+langchain-text-splitters
 langsmith
 markdown
 numpy
@@ -18,11 +18,11 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
 Pillow
-prometheus-fastapi-instrumentator
 pinecone-client
+prometheus-fastapi-instrumentator
+pymupdf
 pyspark
 python-bidi==0.4.2
-pymupdf
 python-docx
 python-pptx
 sentence_transformers

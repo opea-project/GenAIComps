@@ -14,9 +14,9 @@ opentelemetry-sdk
 pandas
 Pillow
 pinecone-client
+prometheus_fastapi_instrumentator
 pymupdf
 python-docx
 sentence_transformers
 shortuuid
-prometheus_fastapi_instrumentator
 uvicorn
