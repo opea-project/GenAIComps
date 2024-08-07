@@ -35,5 +35,5 @@ curl -X POST http://localhost:9075/v1/factuality \
     -d '{
       "reference": "The sky is blue.",
       "text": "The sky is green."
-    }' 
+    }'
 ```

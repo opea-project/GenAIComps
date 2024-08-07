@@ -50,5 +50,5 @@ curl -X POST http://localhost:9399/v1/lvm \
       "image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC",
       "prompt": "What is this?",
       "max_new_tokens": 30
-    }' 
+    }'
 ```

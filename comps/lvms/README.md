@@ -11,7 +11,7 @@ The [transformers](transformers) directory contains instructions for running ser
 1. A LLaVA model server under [transformers/llava](transformers/llava)
 2. An OPEA LVM service under [transformers](transformers)
 
-See [tranformers/README.md](transformers/README.md) for more information.
+See [transformers/README.md](transformers/README.md) for more information.
 
 ## Getting started with Prediction Guard
 

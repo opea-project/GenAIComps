@@ -7,18 +7,13 @@ import time
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
-from comps import (
-    ServiceType,
-    opea_microservices, 
-    register_microservice, 
-    register_statistics,
-    statistics_dict
-)
+from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
 
 
 class FactualityDoc(BaseDoc):
     reference: str
     text: str
+
 
 class ScoreDoc(BaseDoc):
     score: float
@@ -31,9 +26,8 @@ class ScoreDoc(BaseDoc):
     host="0.0.0.0",
     port=9075,
     input_datatype=FactualityDoc,
-    output_datatype=ScoreDoc
+    output_datatype=ScoreDoc,
 )
-
 @register_statistics(names=["opea_service@factuality_predictionguard"])
 def factuality_guard(input: FactualityDoc) -> ScoreDoc:
     start = time.time()
@@ -43,10 +37,7 @@ def factuality_guard(input: FactualityDoc) -> ScoreDoc:
     reference = input.reference
     text = input.text
 
-    result = client.factuality.check(
-        reference=reference,
-        text=text
-    )
+    result = client.factuality.check(reference=reference, text=text)
 
     statistics_dict["opea_service@factuality_predictionguard"].append_latency(time.time() - start, None)
     return ScoreDoc(score=result["checks"][0]["score"])

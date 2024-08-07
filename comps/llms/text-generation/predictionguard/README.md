@@ -19,7 +19,7 @@ docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  
 
 # Consume the Prediction Guard Microservice
 
-See the [Prediction Guard docs](https://docs.predictionguard.com/) for available model options. 
+See the [Prediction Guard docs](https://docs.predictionguard.com/) for available model options.
 
 ## Without streaming
 

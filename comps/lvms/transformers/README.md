@@ -3,6 +3,7 @@
 Visual Question and Answering is one of the multimodal tasks empowered by LVMs (Large Visual Models). This microservice supports visual Q&A by using LLaVA as the base large visual model. It accepts two inputs: a prompt and an image. It outputs the answer to the prompt about the image.
 
 The LVM functionality here enables you to run a multimodal LLaVA model via:
+
 - A transformers + fastAPI native server (see "Getting Started - transformers + fastAPI" below); or
 - The Prediction Guard platform running on Gaudi processors in Intel Tiber Developer Cloud (ITDC) (see "Getting Started - Prediction Guard" below)
 
@@ -118,7 +119,7 @@ python check_lvm.py
 
 # Getting Started - Prediction Guard
 
-## 🚀 Start Microservice with Docker 
+## 🚀 Start Microservice with Docker
 
 ### Build Images
 

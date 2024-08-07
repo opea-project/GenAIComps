@@ -8,7 +8,6 @@ import os
 import signal
 import timeit
 from pathlib import Path
-import hashlib
 
 
 class Timer:
