@@ -45,4 +45,3 @@ if __name__ == "__main__":
     lvm_client = InferenceClient(lvm_endpoint)
     print("[LVM] LVM initialized.")
     opea_microservices["opea_service@lvm_tgi"].start()
-
