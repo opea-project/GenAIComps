@@ -36,7 +36,7 @@ upload_folder = "./uploaded_files/"
 
 def check_index_existance(client):
     print(f"[ check index existence ] checking {PINECONE_INDEX_NAME}")
-
+    pc = Pinecone(api_key=PINECONE_API_KEY)
     existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
     if PINECONE_INDEX_NAME not in existing_indexes:
         print("[ check index existence ] index does not exist")
