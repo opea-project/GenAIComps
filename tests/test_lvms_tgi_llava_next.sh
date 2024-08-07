@@ -11,15 +11,15 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
-
     docker build -t opea/llava-tgi:latest .
+    cd ..
     docker build --no-cache -t opea/lvm-tgi:latest -f comps/lvms/Dockerfile_tgi .
 }
 
 function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-lvm-llava-tgi" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 8399:8399 --ipc=host opea/llava-tgi:latest
-    docker run -d --name="test-comps-lvm-tgi" -e LVM_ENDPOINT=http://$ip_address:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm:latest
+    docker run -d --name="test-comps-lvm-tgi" -e LVM_ENDPOINT=http://$ip_address:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm-tgi:latest
     sleep 8m
 }
 
