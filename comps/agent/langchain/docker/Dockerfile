@@ -21,7 +21,7 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then \
-        pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/agent/langchain/requirements.txt \
+        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/agent/langchain/requirements.txt; \
     else \
         pip install --no-cache-dir -r /home/user/comps/agent/langchain/requirements.txt; \
     fi
