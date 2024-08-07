@@ -2,10 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 From ubuntu:22.04
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+USER user
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV GLIBC_TUNABLES glibc.cpu.x86_shstk=permissive
-
+USER root
 COPY comps /root/comps
 
 RUN apt update && apt install -y python3 python3-pip 

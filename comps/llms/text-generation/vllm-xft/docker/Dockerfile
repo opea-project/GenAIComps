@@ -2,9 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 FROM ubuntu:22.04
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
 
+USER user
 ARG TAG=main
 
+USER root
 RUN apt-get update \ 
     && apt-get upgrade -y \ 
     && apt-get install -y --no-install-recommends \
