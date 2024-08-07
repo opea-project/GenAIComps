@@ -5,8 +5,9 @@
 FROM vault.habana.ai/gaudi-docker/1.16.1/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest AS hpu
 
 # Set environment variables
-ENV LANG=en_US.UTF-8
-ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
+ENV LANG=en_US.UTF-8 \
+    PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
+ARG ARCH=cpu
 
 # Install system dependencies
 RUN apt-get update \
@@ -16,7 +17,11 @@ COPY comps /home/comps
 
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/asr/requirements.txt && \
+    if [ ${ARCH} = "cpu"]; then \
+        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/comps/asr/requirements.txt; \
+    else \
+        pip install --no-cache-dir -r /home/comps/asr/requirements.txt; \
+    fi; \
     pip install optimum[habana]
 
 ENV PYTHONPATH=$PYTHONPATH:/home
