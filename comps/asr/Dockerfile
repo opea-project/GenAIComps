@@ -5,19 +5,13 @@ FROM python:3.11-slim
 
 ENV LANG=C.UTF-8
 
-RUN useradd -m -s /bin/bash user && \
-    mkdir -p /home/user && \
-    chown -R user /home/user/
-
-USER user
-
-COPY comps /home/user/comps
+COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/asr/requirements.txt
+    pip install --no-cache-dir -r /home/comps/asr/requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/home/user
+ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/user/comps/asr
+WORKDIR /home/comps/asr
 
 ENTRYPOINT ["python", "asr.py"]
