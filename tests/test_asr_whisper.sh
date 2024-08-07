@@ -17,7 +17,7 @@ function build_docker_images() {
 function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-asr-whisper" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 7066:7066 --ipc=host opea/whisper:comps
-    docker run -d --name="test-comps-asr" -e ASR_ENDPOINT=http://$ip_address:7066 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9089:9089 --ipc=host opea/asr:comps
+    docker run -d --name="test-comps-asr" -e ASR_ENDPOINT=http://$ip_address:7066 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9089:9099 --ipc=host opea/asr:comps
     sleep 3m
 }
 
