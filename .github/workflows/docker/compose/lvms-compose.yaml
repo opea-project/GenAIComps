@@ -1,0 +1,20 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+# images used by GenAIExamples: lvm,llava
+services:
+  lvm:
+    build:
+      dockerfile: comps/lvms/Dockerfile
+    image: ${REGISTRY}opea/lvm:${TAG:-latest}
+  # Xeon CPU
+  llava:
+    build:
+      dockerfile: comps/lvms/llava/Dockerfile
+    image: ${REGISTRY}opea/llava:${TAG:-latest}
+  # Gaudi2 HPU
+  llava_hpu:
+    build:
+      dockerfile: comps/lvms/llava/Dockerfile_hpu
+    image: ${REGISTRY}opea/llava_hpu:${TAG:-latest}

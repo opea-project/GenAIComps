@@ -28,3 +28,19 @@ services:
     build:
       dockerfile: comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice
     image: ${REGISTRY}opea/llm-vllm-ray:${TAG:-latest}
+  vllm_ray:
+    build:
+      dockerfile: comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray
+    image: ${REGISTRY}vllm_ray:${TAG:-latest}
+  vllm:
+    build:
+      dockerfile: omps/llms/text-generation/vllm/docker/Dockerfile.hpu
+    image: ${REGISTRY}vllm:${TAG:-latest}
+  llm-vllm-xft:
+    build:
+      dockerfile: comps/llms/text-generation/vllm-xft/docker/Dockerfile
+    image: ${REGISTRY}opea/llm-vllm-xft:${TAG:-latest}
+  lm-eval:
+    build:
+      dockerfile: comps/llms/utils/lm-eval/Dockerfile.cpu
+    image: ${REGISTRY}opea/lm-eval:${TAG:-latest}
