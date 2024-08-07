@@ -26,9 +26,7 @@ def setup_logging() -> None:
 
 
 def get_session() -> requests.Session:
-    adapter = CacheControlAdapter(
-        DictCache(), cache_etags=True, serializer=None, heuristic=None
-    )
+    adapter = CacheControlAdapter(DictCache(), cache_etags=True, serializer=None, heuristic=None)
     sess = requests.Session()
     sess.mount("http://", adapter)
     sess.mount("https://", adapter)
@@ -54,9 +52,7 @@ def main() -> None:
     setup_logging()
 
     # try setting the cache
-    cache_controller: CacheController = (
-        sess.cache_controller  # type: ignore[attr-defined]
-    )
+    cache_controller: CacheController = sess.cache_controller  # type: ignore[attr-defined]
     cache_controller.cache_response(resp.request, resp.raw)
 
     # Now try to get it
