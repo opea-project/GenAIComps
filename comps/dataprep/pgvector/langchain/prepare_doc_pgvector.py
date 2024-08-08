@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 from typing import List, Optional, Union
 from urllib.parse import urlparse
-import psycopg2
 
+import psycopg2
 from config import CHUNK_OVERLAP, CHUNK_SIZE, EMBED_MODEL, INDEX_NAME, PG_CONNECTION_STRING
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -60,7 +60,7 @@ def delete_embeddings(doc_name):
         cur = connection.cursor()
         if doc_name == "all":
             cur.execute(
-                'DELETE FROM langchain_pg_collection lpe WHERE lpe.name = %(index_name)s',
+                "DELETE FROM langchain_pg_collection lpe WHERE lpe.name = %(index_name)s",
                 {"index_name": INDEX_NAME},
             )
         else:

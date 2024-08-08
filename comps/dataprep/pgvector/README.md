@@ -69,6 +69,7 @@ docker compose -f docker-compose-dataprep-pgvector.yaml up -d
 # 🚀3. Consume Microservice
 
 ## 3.1 Consume Upload API
+
 Once document preparation microservice for PGVector is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
 ```bash
@@ -77,7 +78,6 @@ curl -X POST \
     -d '{"path":"/path/to/document"}' \
     http://localhost:6007/v1/dataprep
 ```
-
 
 ## 3.2 Consume get_file API
 
