@@ -21,7 +21,7 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # pinecone retriever
-    export PINECONE_API_KEY="f98c36ea-20fa-4d02-9ddc-d331739c4923"
+    export PINECONE_API_KEY=$PINECONE_KEY
     export PINECONE_INDEX_NAME="langchain-test"
     export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
     retriever_port=5009

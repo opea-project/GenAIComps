@@ -14,7 +14,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export PINECONE_API_KEY="f98c36ea-20fa-4d02-9ddc-d331739c4923"
+    export PINECONE_API_KEY=$PINECONE_KEY
     export PINECONE_INDEX_NAME="test-index"
     export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
 
