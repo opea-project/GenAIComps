@@ -506,4 +506,3 @@ class VisualQnAGateway(Gateway):
             )
         )
         return ChatCompletionResponse(model="visualqna", choices=choices, usage=usage)
-
