@@ -61,7 +61,7 @@ def find_timestamp_from_video(metadata_list, video):
     input_datatype=SearchedMultimodalDoc,
     output_datatype=LVMVideoDoc,
 )
-@traceable(run_type="rerank")
+@traceable(run_type="llm")
 @register_statistics(names=["opea_service@reranking_visual_rag"])
 def reranking(input: SearchedMultimodalDoc) -> LVMVideoDoc:
     start = time.time()
