@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -31,6 +31,8 @@ function start_service() {
 }
 
 function validate_microservice() {
+    docker logs test-comps-vectorstore-postgres
+    docker logs test-comps-dataprep-pgvector
     URL="http://$ip_address:6007/v1/dataprep"
     echo 'The OPEA platform includes: Detailed framework of composable building blocks for state-of-the-art generative AI systems including LLMs, data stores, and prompt engines' > ./dataprep_file.txt
     curl --noproxy $ip_address --location --request POST \
