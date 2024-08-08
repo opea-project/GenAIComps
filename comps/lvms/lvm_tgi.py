@@ -44,6 +44,7 @@ async def lvm(request: LVMDoc):
     image_prompt = f"![]({image})\n{prompt}\nASSISTANT:"
 
     if streaming:
+
         async def stream_generator():
             chat_response = ""
             text_generation = await lvm_client.text_generation(
@@ -67,14 +68,17 @@ async def lvm(request: LVMDoc):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        generated_str = await lvm_client.text_generation(image_prompt,
-                                                         max_new_tokens=max_new_tokens,
-                                                         repetition_penalty=repetition_penalty,
-                                                         temperature=temperature,
-                                                         top_k=top_k,
-                                                         top_p=top_p,)
+        generated_str = await lvm_client.text_generation(
+            image_prompt,
+            max_new_tokens=max_new_tokens,
+            repetition_penalty=repetition_penalty,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+        )
         statistics_dict["opea_service@lvm_tgi"].append_latency(time.time() - start, None)
         return TextDoc(text=generated_str)
+
 
 if __name__ == "__main__":
     lvm_endpoint = os.getenv("LVM_ENDPOINT", "http://localhost:8399")

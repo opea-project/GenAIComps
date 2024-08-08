@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+
 import requests
 from fastapi import Request
 from fastapi.responses import StreamingResponse
@@ -88,7 +89,9 @@ class Gateway:
                         text = ""
                         text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                         text += "\n".join(text_list)
-                        image_list = [item["image_url"]["url"] for item in message["content"] if item["type"] == "image_url"]
+                        image_list = [
+                            item["image_url"]["url"] for item in message["content"] if item["type"] == "image_url"
+                        ]
                         if image_list:
                             messages_dict[msg_role] = (text, image_list)
                         else:
@@ -111,7 +114,7 @@ class Gateway:
                         prompt += role + ":"
                     for img in image_list:
                         response = requests.get(img)
-                        images.append(base64.b64encode(response.content).decode('utf-8'))
+                        images.append(base64.b64encode(response.content).decode("utf-8"))
                 else:
                     if message:
                         prompt += role + ": " + message + "\n"
