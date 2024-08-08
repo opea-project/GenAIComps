@@ -44,9 +44,7 @@ async def save_file_to_local_disk(save_path: str, file):
 
 def delete_embeddings(doc_name):
     """Get all ids from a vectorstore."""
-    # Assuming PGVector is the vector store object
     try:
-        # Assuming PGVector is the vector store object
         result = urlparse(PG_CONNECTION_STRING)
         username = result.username
         password = result.password
@@ -60,12 +58,17 @@ def delete_embeddings(doc_name):
         print(f"Deleting {doc_name} from vectorstore")
 
         cur = connection.cursor()
-
-        cur.execute(
-            "DELETE  FROM langchain_pg_embedding lpe WHERE lpe.uuid in (SELECT lpc.uuid\
-                FROM langchain_pg_embedding lpc where lpc.cmetadata ->> 'doc_name' = %(doc_name)s)",
-            {"doc_name": str(doc_name)},
-        )
+        if doc_name == "all":
+            cur.execute(
+                'DELETE FROM langchain_pg_collection lpe WHERE lpe.name = %(index_name)s',
+                {"index_name": INDEX_NAME},
+            )
+        else:
+            cur.execute(
+                "DELETE  FROM langchain_pg_embedding lpe WHERE lpe.uuid in (SELECT lpc.uuid\
+                    FROM langchain_pg_embedding lpc where lpc.cmetadata ->> 'doc_name' = %(doc_name)s)",
+                {"doc_name": doc_name},
+            )
 
         connection.commit()  # commit the transaction
         cur.close()
@@ -235,20 +238,10 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
         - folder path (e.g. /path/to/folder)
         - "all": delete all files uploaded
     """
-    # delete all uploaded files
-    if tei_embedding_endpoint:
-        # create embeddings using TEI endpoint service
-        embedder = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
-    else:
-        # create embeddings using local embedding model
-        embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
-    vector_store_client = PGVector(
-        embedding_function=embedder, collection_name=INDEX_NAME, connection_string=PG_CONNECTION_STRING  # type: ignore
-    )
     if file_path == "all":
         print("[dataprep - del] delete all files")
         remove_folder_with_ignore(upload_folder)
-        vector_store_client.delete_collection()
+        assert delete_embeddings(file_path)
         print("[dataprep - del] successfully delete all files.")
         create_upload_folder(upload_folder)
         return {"status": True}
