@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 FROM ubuntu:22.04
-RUN useradd -m -s /bin/bash user && \
-    mkdir -p /home/user && \
-    chown -R user /home/user/
+
 ARG TAG=main
 
 RUN apt-get update \ 
@@ -84,17 +82,16 @@ RUN mkdir -p /usr/local/xft/lib \
     && ln -s /usr/local/xft/include /usr/local/include/xft/include
 
 RUN echo "export \$(python -c 'import xfastertransformer as xft; print(xft.get_env())')" >> ~/.bashrc
-USER user
-COPY comps /home/user/comps
+
+COPY comps /root/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/llms/text-generation/vllm-xft/requirements.txt
+    pip install --no-cache-dir -r /root/comps/llms/text-generation/vllm-xft/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/root
 
-RUN chmod +x /home/user/comps/llms/text-generation/vllm-xft/run.sh
+RUN chmod +x /root/comps/llms/text-generation/vllm-xft/run.sh
 
-WORKDIR /home/user/comps/llms/text-generation/vllm-xft/
+WORKDIR /root/comps/llms/text-generation/vllm-xft/
 
-ENTRYPOINT ["/home/user/comps/llms/text-generation/vllm-xft/run.sh"]
-
+ENTRYPOINT ["/root/comps/llms/text-generation/vllm-xft/run.sh"]
