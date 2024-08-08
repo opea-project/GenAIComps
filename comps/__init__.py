@@ -12,12 +12,16 @@ from comps.cores.proto.docarray import (
     GeneratedDoc,
     LLMParamsDoc,
     SearchedDoc,
+    SearchedMultimodalDoc,
     RerankedDoc,
     TextDoc,
+    ImageDoc,
+    TextImageDoc,
     RAGASParams,
     RAGASScores,
     GraphDoc,
     LVMDoc,
+    LVMVideoDoc,
 )
 
 # Constants

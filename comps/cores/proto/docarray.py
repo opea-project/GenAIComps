@@ -1,11 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+<<<<<<< HEAD
 from typing import Dict, List, Optional, Union
+=======
+from typing import Optional, Tuple, Union
+>>>>>>> fddc313 (initial commit)
 
 import numpy as np
 from docarray import BaseDoc, DocList
-from docarray.documents import AudioDoc
+from docarray.documents import AudioDoc, VideoDoc
 from docarray.typing import AudioUrl
 from pydantic import Field, conint, conlist, field_validator
 
@@ -19,6 +23,11 @@ class TopologyInfo:
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
+class ImageDoc(BaseDoc):
+    image_path: str
+    
+class TextImageDoc(BaseDoc):
+    doc: Tuple[Union[TextDoc, ImageDoc]]
 
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
@@ -66,6 +75,14 @@ class SearchedDoc(BaseDoc):
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
 
+class SearchedMultimodalDoc(BaseDoc):
+    retrieved_docs: DocList[TextImageDoc]
+    initial_query: str
+    top_n: int = 1
+    metadata: Optional[DocList[dict]] = [{}]
+
+    class Config:
+        json_encoders = {np.ndarray: lambda x: x.tolist()}
 
 class GeneratedDoc(BaseDoc):
     text: str
@@ -170,3 +187,10 @@ class LVMDoc(BaseDoc):
     temperature: float = 0.01
     repetition_penalty: float = 1.03
     streaming: bool = False
+
+class LVMVideoDoc(BaseDoc):
+    video_url: str
+    chunck_start: float
+    chunck_duration: float
+    prompt: str
+    max_new_tokens: conint(ge=0, le=1024) = 512
