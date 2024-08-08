@@ -1,0 +1,22 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3.8"
+
+services:
+  reranking:
+    image: opea/reranking-videoragqna:latest
+    container_name: reranking-videoragqna-server
+    ports:
+      - "8000:8000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      CHUNK_DURATION: ${CHUNK_DURATION}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

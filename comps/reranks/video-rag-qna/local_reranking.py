@@ -17,7 +17,9 @@ from comps import (
     statistics_dict,
 )
 
-chunck_duration = os.getenv("CHUNCK_DURATION", 10)
+chunk_duration = os.getenv("CHUNK_DURATION", "10")
+chunk_duration = chunk_duration.strip() or "10"
+chunk_duration = float(chunk_duration) if chunk_duration.isdigit() else 10.0
 
 logging.basicConfig(
     level=logging.INFO,
@@ -71,7 +73,7 @@ def reranking(input: SearchedMultimodalDoc) -> LVMVideoDoc:
     # only use the first top video
     timestamp = find_timestamp_from_video(input.metadata, top_video_names[0])
 
-    result = LVMVideoDoc(video_url="TODO", prompt=input.initial_query, chunck_start=timestamp, chunck_duration=float(chunck_duration), max_new_tokens=512)
+    result = LVMVideoDoc(video_url="TODO", prompt=input.initial_query, chunk_start=timestamp, chunk_duration=float(chunk_duration), max_new_tokens=512)
     statistics_dict["opea_service@reranking_visual_rag"].append_latency(time.time() - start, None)
     
     return result
@@ -79,4 +81,3 @@ def reranking(input: SearchedMultimodalDoc) -> LVMVideoDoc:
 
 if __name__ == "__main__":
     opea_microservices["opea_service@reranking_visual_rag"].start()
-
