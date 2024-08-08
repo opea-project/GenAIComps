@@ -31,23 +31,23 @@ logging.basicConfig(level=logging.INFO)
     output_datatype=StreamingResponse,
 )
 @register_statistics(names=["opea_service@lvm"])
-async def lvm(request: LVMVideoDoc):
+async def lvm(input: LVMVideoDoc):
     """
     This function handles the LVM microservice, which generates text based on a video URL, start time, duration, prompt, and maximum new tokens.
 
     Parameters:
-    request (LVMVideoDoc): The input request containing the video URL, start time, duration, prompt, and maximum new tokens.
+    input (LVMVideoDoc): The input containing the video URL, start time, duration, prompt, and maximum new tokens.
 
     Returns:
     StreamingResponse: A streaming response containing the generated text in text/event-stream format, or a JSON error response if the upstream API responds with an error.
     """
-    logging.info("[lvm] Received request")
+    logging.info("[lvm] Received input")
 
-    video_url = request.video_url
-    chunck_start = request.chunck_start
-    chunck_duration = request.chunck_duration
-    prompt = request.prompt
-    max_new_tokens = request.max_new_tokens
+    video_url = input.video_url
+    chunck_start = input.chunck_start
+    chunck_duration = input.chunck_duration
+    prompt = input.prompt
+    max_new_tokens = input.max_new_tokens
 
     params = {'video_url': video_url,'start': chunck_start,'duration': chunck_duration,'prompt': prompt,'max_new_tokens': max_new_tokens}
     logging.info(f"[lvm] Params: {params}")
