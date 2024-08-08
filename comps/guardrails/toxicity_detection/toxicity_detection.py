@@ -17,7 +17,7 @@ from langsmith import traceable
 # from utils import initialize_model
 from transformers import pipeline
 
-from comps import TextDoc, ServiceType, opea_microservices, register_microservice
+from comps import ServiceType, TextDoc, opea_microservices, register_microservice
 
 
 @register_microservice(
@@ -33,9 +33,9 @@ from comps import TextDoc, ServiceType, opea_microservices, register_microservic
 def llm_generate(input: TextDoc):
     input_text = input.text
     toxic = toxicity_pipeline(input_text)
-    print('done')
+    print("done")
     if toxic[0]["label"] == "toxic":
-        return TextDoc(text=f"Violated policies: toxicity, please check your input.", downstream_black_list=[".*"])
+        return TextDoc(text="Violated policies: toxicity, please check your input.", downstream_black_list=[".*"])
     else:
         return TextDoc(text=input_text)
 
