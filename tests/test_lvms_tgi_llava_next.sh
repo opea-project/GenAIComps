@@ -18,9 +18,10 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-lvm-llava-tgi" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 8399:8399 --ipc=host opea/llava-tgi:latest
+    model="llava-hf/llava-v1.6-mistral-7b-hf"
+    docker run -d --name="test-comps-lvm-llava-tgi" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 8399:80 --runtime=habana -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e SKIP_TOKENIZER_IN_TGI=true -e HABANA_VISIBLE_DEVICES=all  -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/llava-tgi:latest --model-id $model --max-input-tokens 4096 --max-total-tokens 8192
     docker run -d --name="test-comps-lvm-tgi" -e LVM_ENDPOINT=http://$ip_address:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm-tgi:latest
-    sleep 8m
+    sleep 3m
 }
 
 function validate_microservice() {
