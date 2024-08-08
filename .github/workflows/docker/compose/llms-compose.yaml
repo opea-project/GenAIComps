@@ -31,11 +31,11 @@ services:
   vllm_ray:
     build:
       dockerfile: comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray
-    image: ${REGISTRY}vllm_ray:${TAG:-latest}
+    image: ${REGISTRY}opea/vllm_ray:${TAG:-latest}
   vllm:
     build:
-      dockerfile: omps/llms/text-generation/vllm/docker/Dockerfile.hpu
-    image: ${REGISTRY}vllm:${TAG:-latest}
+      dockerfile: comps/llms/text-generation/vllm/docker/Dockerfile.hpu
+    image: ${REGISTRY}opea/vllm:${TAG:-latest}
   llm-vllm-xft:
     build:
       dockerfile: comps/llms/text-generation/vllm-xft/docker/Dockerfile
