@@ -4,7 +4,7 @@
 import os
 
 # Embedding model
-EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 
 # Pinecone configuration
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "xxx_xxx")

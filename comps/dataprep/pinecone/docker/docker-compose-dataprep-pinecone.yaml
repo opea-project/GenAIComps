@@ -24,6 +24,7 @@ services:
     ports:
       - "6007:6007"
       - "6008:6008"
+      - "6009:6009"
     ipc: host
     environment:
       no_proxy: ${no_proxy}

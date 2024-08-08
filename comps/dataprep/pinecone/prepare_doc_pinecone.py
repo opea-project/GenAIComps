@@ -34,7 +34,7 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 upload_folder = "./uploaded_files/"
 
 
-def check_index_existance(client):
+def check_index_existance():
     print(f"[ check index existence ] checking {PINECONE_INDEX_NAME}")
     pc = Pinecone(api_key=PINECONE_API_KEY)
     existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
@@ -43,7 +43,6 @@ def check_index_existance(client):
         return None
     else:
         return True
-
 
 def create_index(client):
     print(f"[ create index ] creating index {PINECONE_INDEX_NAME}")
@@ -60,19 +59,16 @@ def create_index(client):
         return False
     return True
 
-
-def store_by_id(client, key, value):
-    print(f"[ store by id ] storing ids of {key}")
+def drop_index(index_name):
+    print(f"[ drop index ] dropping index {index_name}")
+    pc = Pinecone(api_key=PINECONE_API_KEY)
     try:
-        index = client.Index(PINECONE_INDEX_NAME)
-        index.upsert(vectors=[{"id": "file:" + key, "values": value}], namespace="ns1")
-
-        print(f"[ store by id ] store document success. id: file:{key}")
+        pc.delete_index(index_name)
+        print(f"[ drop index ] index {index_name} deleted")
     except Exception as e:
-        print(f"[ store by id ] fail to store document file:{key}: {e}")
+        print(f"[ drop index ] index {index_name} delete failed: {e}")
         return False
     return True
-
 
 def ingest_data_to_pinecone(doc_path: DocPath):
     """Ingest document to Pinecone."""
@@ -109,6 +105,15 @@ def ingest_data_to_pinecone(doc_path: DocPath):
         # create embeddings using local embedding model
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+
+    #Checking Index existance
+    if (not check_index_existance()): 
+        # Creating the index
+        create_index(pc)
+        print("Successfully created the index", PINECONE_INDEX_NAME)
+    
+
     # Batch size
     batch_size = 32
     num_chunks = len(chunks)
@@ -139,6 +144,12 @@ async def ingest_link_to_pinecone(link_list: List[str]):
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
     pc = Pinecone(api_key=PINECONE_API_KEY)
+
+    #Checking Index existance
+    if (not check_index_existance()):
+        # Creating the index
+        create_index(pc)
+        print("Successfully created the index", PINECONE_INDEX_NAME)
 
     # save link contents and doc_ids one by one
     for link in link_list:
@@ -222,7 +233,30 @@ async def rag_get_file_structure():
     return file_content
 
 
+@register_microservice(
+    name="opea_service@prepare_doc_pinecone_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
+)
+@traceable(run_type="tool")
+async def delete_all(file_path: str = Body(..., embed=True)):
+    """Delete file according to `file_path`.
+
+    `file_path`:
+        - "all": delete all files uploaded
+    """
+    # delete all uploaded files
+    if file_path == "all":
+        print("[dataprep - del] delete all files")
+        remove_folder_with_ignore(upload_folder)
+        assert drop_index(index_name=PINECONE_INDEX_NAME)
+        print("[dataprep - del] successfully delete all files.")
+        create_upload_folder(upload_folder)
+        return {"status": True}
+    else:
+        raise HTTPException(status_code=404, detail="Single file deletion is not implemented yet")
+
+    
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
     opea_microservices["opea_service@prepare_doc_pinecone"].start()
     opea_microservices["opea_service@prepare_doc_pinecone_file"].start()
+    opea_microservices["opea_service@prepare_doc_pinecone_del"].start()
