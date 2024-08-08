@@ -44,6 +44,7 @@ def check_index_existance():
     else:
         return True
 
+
 def create_index(client):
     print(f"[ create index ] creating index {PINECONE_INDEX_NAME}")
     try:
@@ -59,6 +60,7 @@ def create_index(client):
         return False
     return True
 
+
 def drop_index(index_name):
     print(f"[ drop index ] dropping index {index_name}")
     pc = Pinecone(api_key=PINECONE_API_KEY)
@@ -69,6 +71,7 @@ def drop_index(index_name):
         print(f"[ drop index ] index {index_name} delete failed: {e}")
         return False
     return True
+
 
 def ingest_data_to_pinecone(doc_path: DocPath):
     """Ingest document to Pinecone."""
@@ -107,12 +110,11 @@ def ingest_data_to_pinecone(doc_path: DocPath):
 
     pc = Pinecone(api_key=PINECONE_API_KEY)
 
-    #Checking Index existance
-    if (not check_index_existance()): 
+    # Checking Index existence
+    if not check_index_existance():
         # Creating the index
         create_index(pc)
         print("Successfully created the index", PINECONE_INDEX_NAME)
-    
 
     # Batch size
     batch_size = 32
@@ -145,8 +147,8 @@ async def ingest_link_to_pinecone(link_list: List[str]):
 
     pc = Pinecone(api_key=PINECONE_API_KEY)
 
-    #Checking Index existance
-    if (not check_index_existance()):
+    # Checking Index existence
+    if not check_index_existance():
         # Creating the index
         create_index(pc)
         print("Successfully created the index", PINECONE_INDEX_NAME)
@@ -254,7 +256,7 @@ async def delete_all(file_path: str = Body(..., embed=True)):
     else:
         raise HTTPException(status_code=404, detail="Single file deletion is not implemented yet")
 
-    
+
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
     opea_microservices["opea_service@prepare_doc_pinecone"].start()
