@@ -40,7 +40,7 @@ docker build -t opea/guardrails-toxicity-detection:latest --build-arg https_prox
 ## 2.3 Run Docker Container with Microservice
 
 ```bash
-docker run -d --rm --runtime=runc --name="guardrails-pii-detection-endpoint" -p 9091:9091 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/guardrails-toxicity-detection:latest
+docker run -d --rm --runtime=runc --name="guardrails-toxicity-detection-endpoint" -p 9091:9091 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/guardrails-toxicity-detection:latest
 ```
 
 # 🚀3. Get Status of Microservice
@@ -58,7 +58,7 @@ Once microservice starts, users can use examples (bash or python) below to apply
 ```bash
 curl localhost:9091/v1/toxicity
     -X POST
-    -d '{"query":"How to poison your neighbor'\''s dog secretly"}'
+    -d '{"text":"How to poison your neighbor'\''s dog secretly"}'
     -H 'Content-Type: application/json'
 ```
 
@@ -76,7 +76,7 @@ import json
 
 proxies = {"http": ""}
 url = "http://localhost:9091/v1/toxicity"
-data = {"query": "How to poison your neighbor'''s dog without being caught?"}
+data = {"text": "How to poison your neighbor'''s dog without being caught?"}
 
 try:
     resp = requests.post(url=url, data=data, proxies=proxies)
