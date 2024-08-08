@@ -133,7 +133,7 @@ class LVMDoc(BaseDoc):
 
 class LVMVideoDoc(BaseDoc):
     video_url: str
-    chunck_start: float
-    chunck_duration: float
+    chunk_start: float
+    chunk_duration: float
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512

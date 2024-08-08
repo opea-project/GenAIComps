@@ -32,8 +32,8 @@ headers = {
 }
 data = {
     "video_url": "https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4",
-    "chunck_start": 0,
-    "chunck_duration": 9,
+    "chunk_start": 0,
+    "chunk_duration": 9,
     "prompt": "what is the person doing",
     "max_new_tokens": 150
 }
