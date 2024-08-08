@@ -20,7 +20,7 @@ RUN chmod +x /home/user/comps/retrievers/langchain/pinecone/run.sh
 USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/langchain/pinecone/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

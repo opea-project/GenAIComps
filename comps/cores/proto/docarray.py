@@ -10,7 +10,13 @@ from docarray.typing import AudioUrl
 from pydantic import Field, conint, conlist
 
 
-class TextDoc(BaseDoc):
+class TopologyInfo:
+    # will not keep forwarding to the downstream nodes in the black list
+    # should be a pattern string
+    downstream_black_list: Optional[list] = []
+
+
+class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
 
@@ -26,9 +32,9 @@ class DocPath(BaseDoc):
     table_strategy: str = "fast"
 
 
-class EmbedDoc768(BaseDoc):
+class EmbedDoc(BaseDoc):
     text: str
-    embedding: conlist(float, min_length=768, max_length=768)
+    embedding: conlist(float, min_length=0)
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
@@ -52,11 +58,6 @@ class Audio2TextDoc(AudioDoc):
     )
 
 
-class EmbedDoc1024(BaseDoc):
-    text: str
-    embedding: conlist(float, min_length=1024, max_length=1024)
-
-
 class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
     initial_query: str
@@ -77,6 +78,7 @@ class RerankedDoc(BaseDoc):
 
 
 class LLMParamsDoc(BaseDoc):
+    model: Optional[str] = None  # for openai and ollama
     query: str
     max_new_tokens: int = 1024
     top_k: int = 10
