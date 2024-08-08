@@ -19,4 +19,4 @@ services:
   embedding-tei-llamaindex:
     build:
       dockerfile: comps/embeddings/llama_index/docker/Dockerfile
-    image: ${REGISTRY}opea/embedding-tei-llamaindex:${TAG:-latest}  
+    image: ${REGISTRY}opea/embedding-tei-llamaindex:${TAG:-latest}
