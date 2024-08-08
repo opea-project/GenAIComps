@@ -52,7 +52,7 @@ export ip_address=$(hostname -I | awk '{print $1}')
 http_proxy="" curl -X POST "http://${ip_address}:9009/generate?video_url=https%3A%2F%2Fgithub.com%2FDAMO-NLP-SG%2FVideo-LLaMA%2Fraw%2Fmain%2Fexamples%2Fsilence_girl.mp4&start=0.0&duration=9&prompt=What%20is%20the%20person%20doing%3F&max_new_tokens=150" -H "accept: */*" -d ''
 
 ## check lvm
-http_proxy="" curl -X POST http://${ip_address}:9000/v1/lvm -d '{"video_url":"https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4","chunck_start": 0,"chunck_duration": 9,"prompt":"What is the person doing?","max_new_tokens": 150}' -H 'Content-Type: application/json'
+http_proxy="" curl -X POST http://${ip_address}:9000/v1/lvm -d '{"video_url":"https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4","chunk_start": 0,"chunk_duration": 9,"prompt":"What is the person doing?","max_new_tokens": 150}' -H 'Content-Type: application/json'
 
 # or use python
 export ip_address=$(hostname -I | awk '{print $1}')

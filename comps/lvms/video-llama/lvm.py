@@ -44,12 +44,12 @@ async def lvm(input: LVMVideoDoc):
     logging.info("[lvm] Received input")
 
     video_url = input.video_url
-    chunck_start = input.chunck_start
-    chunck_duration = input.chunck_duration
+    chunk_start = input.chunk_start
+    chunk_duration = input.chunk_duration
     prompt = input.prompt
     max_new_tokens = input.max_new_tokens
 
-    params = {'video_url': video_url,'start': chunck_start,'duration': chunck_duration,'prompt': prompt,'max_new_tokens': max_new_tokens}
+    params = {'video_url': video_url,'start': chunk_start,'duration': chunk_duration,'prompt': prompt,'max_new_tokens': max_new_tokens}
     logging.info(f"[lvm] Params: {params}")
 
     response = requests.post(url=f"{lvm_endpoint}/generate", params=params, proxies={"http": None}, stream=True)
