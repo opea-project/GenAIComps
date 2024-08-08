@@ -7,6 +7,7 @@ import logging
 import os
 # import time
 
+from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 import requests
 
@@ -56,6 +57,7 @@ async def lvm(input: LVMVideoDoc):
     logging.info(f"[lvm] Response status code: {response.status_code}")
     if response.status_code == 200:
         def streamer():
+            yield f"{{'video_url': '{video_url}', 'chunk_start': {chunk_start}, 'chunk_duration': {chunk_duration}}}\n".encode('utf-8')
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     yield chunk
@@ -64,7 +66,7 @@ async def lvm(input: LVMVideoDoc):
         return StreamingResponse(streamer(), media_type="text/event-stream")
     else:
         logging.error(f"[lvm] Error: {response.text}")
-        return {"error": "The upstream API responded with an error."}
+        raise HTTPException(status_code=500, detail="The upstream API responded with an error.")
 
 
 if __name__ == "__main__":
