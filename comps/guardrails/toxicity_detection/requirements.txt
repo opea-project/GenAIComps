@@ -1,5 +1,7 @@
+aiohttp
 docarray[full]
 fastapi
+httpx
 huggingface_hub
 langchain-community
 langchain-huggingface
@@ -9,3 +11,6 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
 shortuuid
+pyyaml
+requests
+uvicorn
