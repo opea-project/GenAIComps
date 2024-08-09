@@ -8,8 +8,6 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 dataprep_service_port=5013
-dataprep_file_service_port=5016
-dataprep_del_service_port=5020
 
 function build_docker_images() {
     cd $WORKPATH
@@ -31,7 +29,7 @@ function start_service() {
 
     sleep 10s
 
-    docker run -d --name="dataprep-pgvector" -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 -p ${dataprep_del_service_port}:6009 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} opea/dataprep-pgvector:latest
+    docker run -d --name="dataprep-pgvector" -p ${dataprep_service_port}:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} opea/dataprep-pgvector:latest
 
     sleep 3m
 }
@@ -62,7 +60,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/get_file
-    URL="http://${ip_address}:$dataprep_file_service_port/v1/dataprep/get_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get_file"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."
@@ -82,7 +80,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/delete_file
-    URL="http://${ip_address}:$dataprep_del_service_port/v1/dataprep/delete_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete_file"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - del ] HTTP status is 200."

@@ -27,8 +27,6 @@ services:
     container_name: dataprep-pgvector
     ports:
       - "6007:6007"
-      - "6008:6008"
-      - "6009:6009"
     ipc: host
     environment:
       http_proxy: ${http_proxy}
@@ -37,22 +35,7 @@ services:
       INDEX_NAME: ${INDEX_NAME}
       TEI_ENDPOINT: ${TEI_ENDPOINT}
       LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
-      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
     restart: unless-stopped
-
-  tei-embedding-service:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
-    container_name: tei-embedding-server
-    ports:
-      - "6006:80"
-    volumes:
-      - "./data:/data"
-    shm_size: 1g
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-    command: --model-id ${EMBEDDING_MODEL_ID} --auto-truncate
 
 networks:
   default:
