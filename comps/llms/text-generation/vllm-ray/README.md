@@ -65,12 +65,6 @@ Then we warp the VLLM Ray service into OPEA microcervice.
 bash ./build_docker_microservice.sh
 ```
 
-Note: If you want to enable tensor parallel, please set `setuptools==69.5.1` in requirements.txt before build docker with following command.
-
-```
-sed -i "s/setuptools/setuptools==69.5.1/g" requirements.txt
-```
-
 ### Launch the microservice
 
 ```bash
