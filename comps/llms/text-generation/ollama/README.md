@@ -64,7 +64,7 @@ docker build --no-cache -t opea/llm-ollama:latest --build-arg https_proxy=$https
 # Run the Ollama Microservice
 
 ```bash
-docker run --network host opea/llm-ollama:latest
+docker run --network host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/llm-ollama:latest
 ```
 
 # Consume the Ollama Microservice
