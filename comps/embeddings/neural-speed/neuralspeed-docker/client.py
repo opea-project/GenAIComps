@@ -15,7 +15,7 @@ import os
 
 input_text = "what a nice day"
 req = {
-    "query": [input_text],
+    "query": input_text,
 }
 
 httpx_response = httpx.post("http://127.0.0.1:6001/inference", content=msgspec.msgpack.encode(req))
