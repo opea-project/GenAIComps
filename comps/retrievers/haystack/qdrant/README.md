@@ -30,17 +30,25 @@ python haystack/qdrant/retriever_qdrant.py
 
 # 2. 🚀Start Microservice with Docker (Option 2)
 
-## 2.1 Build Docker Image
+## 2.1 Setup Environment Variables
+
+```bash
+export QDRANT_HOST=${your_qdrant_host_ip}
+export QDRANT_PORT=6333
+export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
+```
+
+## 2.2 Build Docker Image
 
 ```bash
 cd ../../
 docker build -t opea/retriever-qdrant:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/haystack/qdrant/docker/Dockerfile .
 ```
 
-## 2.2 Run Docker with CLI
+## 2.3 Run Docker with CLI
 
 ```bash
-docker run -d --name="retriever-qdrant-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_EMBEDDING_ENDPOINT=${your_tei_endpoint} -e QDRANT_HOST=${your_qdrant_host_ip} -e QDRANT_PORT=${your_qdrant_port} opea/retriever-qdrant:latest
+docker run -d --name="retriever-qdrant-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e QDRANT_HOST=$QDRANT_HOST -e QDRANT_PORT=$QDRANT_PORT opea/retriever-qdrant:latest
 ```
 
 # 🚀3. Consume Retriever Service
