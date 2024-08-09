@@ -15,17 +15,25 @@ Follow [these instructions](https://github.com/ollama/ollama) to set up and run 
 Note:
 Special settings are necessary to pull models behind the proxy.
 
-```bash
-sudo vim /etc/systemd/system/ollama.service
-```
+- Step1: Modify the ollama service configure file.
 
-Add your proxy to the above configure file.
+  ```bash
+  sudo vim /etc/systemd/system/ollama.service
+  ```
 
-```markdown
-[Service]
-Environment="http_proxy=${your_proxy}"
-Environment="https_proxy=${your_proxy}"
-```
+  Add your proxy to the above configure file.
+
+  ```markdown
+  [Service]
+  Environment="http_proxy=${your_proxy}"
+  Environment="https_proxy=${your_proxy}"
+  ```
+
+- Step2: Restart the ollama service.
+  ```bash
+  sudo systemctl daemon-reload
+  sudo systemctl restart ollama
+  ```
 
 ## Usage
 
