@@ -197,39 +197,38 @@ async def ingest_documents(
             encode_file = encode_filename(file.filename)
             save_path = upload_folder + encode_file
             await save_content_to_local_disk(save_path, file)
-            ingest_data_to_redis(
-                DocPath(
-                    path=save_path,
-                    chunk_size=chunk_size,
-                    chunk_overlap=chunk_overlap,
-                    process_table=process_table,
-                    table_strategy=table_strategy,
-                )
-            )
             uploaded_files.append(save_path)
             print(f"Successfully saved file {save_path}")
 
-        # def process_files_wrapper(files):
-        #     if not isinstance(files, list):
-        #         files = [files]
-        #     for file in files:
-        #         ingest_data_to_redis(DocPath(path=file, chunk_size=chunk_size, chunk_overlap=chunk_overlap))
+        def process_files_wrapper(files):
+            if not isinstance(files, list):
+                files = [files]
+            for file in files:
+                ingest_data_to_redis(
+                    DocPath(
+                        path=file,
+                        chunk_size=chunk_size,
+                        chunk_overlap=chunk_overlap,
+                        process_table=process_table,
+                        table_strategy=table_strategy,
+                    )
+                )
 
-        # try:
-        #     # Create a SparkContext
-        #     conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
-        #     sc = SparkContext(conf=conf)
-        #     # Create an RDD with parallel processing
-        #     parallel_num = min(len(uploaded_files), os.cpu_count())
-        #     rdd = sc.parallelize(uploaded_files, parallel_num)
-        #     # Perform a parallel operation
-        #     rdd_trans = rdd.map(process_files_wrapper)
-        #     rdd_trans.collect()
-        #     # Stop the SparkContext
-        #     sc.stop()
-        # except:
-        #     # Stop the SparkContext
-        #     sc.stop()
+        try:
+            # Create a SparkContext
+            conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
+            sc = SparkContext(conf=conf)
+            # Create an RDD with parallel processing
+            parallel_num = min(len(uploaded_files), os.cpu_count())
+            rdd = sc.parallelize(uploaded_files, parallel_num)
+            # Perform a parallel operation
+            rdd_trans = rdd.map(process_files_wrapper)
+            rdd_trans.collect()
+            # Stop the SparkContext
+            sc.stop()
+        except:
+            # Stop the SparkContext
+            sc.stop()
 
         return {"status": 200, "message": "Data preparation succeeded"}
 
