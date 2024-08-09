@@ -22,13 +22,13 @@ function start_service() {
 }
 
 function validate_microservice() {
-    docker logs test-comps-tts-speecht5
-    docker logs test-comps-tts
     result=$(http_proxy="" curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json')
     if [[ $result == *"Ukl"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
+        docker logs test-comps-tts-speecht5
+        docker logs test-comps-tts
         exit 1
     fi
 

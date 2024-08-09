@@ -22,13 +22,13 @@ function start_service() {
 }
 
 function validate_microservice() {
-    docker logs test-comps-asr-whisper
-    docker logs test-comps-asr
     result=$(http_proxy="" curl http://localhost:9089/v1/audio/transcriptions -XPOST -d '{"byte_str": "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"}' -H 'Content-Type: application/json')
     if [[ $result == *"you"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
+        docker logs test-comps-asr-whisper
+        docker logs test-comps-asr
         exit 1
     fi
 

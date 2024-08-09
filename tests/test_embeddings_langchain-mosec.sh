@@ -31,13 +31,19 @@ function start_service() {
 }
 
 function validate_microservice() {
-    docker logs test-comps-embedding-langchain-mosec-endpoint
-    docker logs test-comps-embedding-langchain-mosec-server
     mosec_service_port=5002
     http_proxy="" curl http://${ip_address}:$mosec_service_port/v1/embeddings \
         -X POST \
         -d '{"text":"What is Deep Learning?"}' \
         -H 'Content-Type: application/json'
+    if [ $? -eq 0 ]; then
+        echo "curl command executed successfully"
+    else
+        echo "curl command failed"
+        docker logs test-comps-embedding-langchain-mosec-endpoint
+        docker logs test-comps-embedding-langchain-mosec-server
+        exit 1
+    fi
 }
 
 function stop_docker() {

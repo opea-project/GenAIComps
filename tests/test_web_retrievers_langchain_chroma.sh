@@ -28,8 +28,6 @@ function start_service() {
 }
 
 function validate_microservice() {
-    docker logs test-comps-web-retriever-tei-endpoint
-    docker logs test-comps-web-retriever-chroma-server
     retriever_port=5019
     export PATH="${HOME}/miniforge3/bin:$PATH"
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
@@ -38,6 +36,7 @@ function validate_microservice() {
         -d "{\"text\":\"What is OPEA?\",\"embedding\":${test_embedding}}" \
         -H 'Content-Type: application/json'
     docker logs test-comps-web-retriever-tei-endpoint
+    docker logs test-comps-web-retriever-chroma-server
 }
 
 function stop_docker() {

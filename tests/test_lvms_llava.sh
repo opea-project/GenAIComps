@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -22,13 +22,14 @@ function start_service() {
 }
 
 function validate_microservice() {
-    docker logs test-comps-lvm-llava
-    docker logs test-comps-lvm
+
     result=$(http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?"}' -H 'Content-Type: application/json')
     if [[ $result == *"yellow"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
+        docker logs test-comps-lvm-llava
+        docker logs test-comps-lvm
         exit 1
     fi
 
