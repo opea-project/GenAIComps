@@ -1,11 +1,15 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import time
 from typing import Any, List
+
+import numpy
 from mosec import Server, Worker, get_logger
 from mosec.mixin import TypedMsgPackMixin
 from msgspec import Struct
-from transformers import AutoTokenizer
 from neural_speed import Model
-import numpy
-import time
+from transformers import AutoTokenizer
 
 logger = get_logger()
 
@@ -42,9 +46,9 @@ class Inference(TypedMsgPackMixin, Worker):
 
     def forward(self, data: List[Request]) -> List[Response]:
         batch = len(data)
-        sequnces = [d.query for d in data]
+        sequences = [d.query for d in data]
         inputs = self.tokenizer(
-            sequnces,
+            sequences,
             padding=True,
             truncation=True,
             max_length=INFERENCE_CONTEXT,
@@ -58,7 +62,7 @@ class Inference(TypedMsgPackMixin, Worker):
             continuous_batching=False,
             ignore_padding=True,
         )
-        logger.info(f'batch {batch} input shape {inputs.input_ids.shape} time {time.time()-st}')
+        logger.info(f"batch {batch} input shape {inputs.input_ids.shape} time {time.time()-st}")
         ns_outputs = ns_outputs[:, 0]
         ns_outputs = ns_outputs / numpy.linalg.norm(ns_outputs, axis=1, keepdims=True)
         resps = []
@@ -70,8 +74,7 @@ class Inference(TypedMsgPackMixin, Worker):
 
 if __name__ == "__main__":
     server = Server()
-    server.append_worker(Inference,
-                         max_batch_size=INFERENCE_BATCH_SIZE,
-                         max_wait_time=INFERENCE_MAX_WAIT_TIME,
-                         num=INFERENCE_WORKER_NUM)
+    server.append_worker(
+        Inference, max_batch_size=INFERENCE_BATCH_SIZE, max_wait_time=INFERENCE_MAX_WAIT_TIME, num=INFERENCE_WORKER_NUM
+    )
     server.run()

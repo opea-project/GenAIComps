@@ -1,9 +1,12 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import os
 from http import HTTPStatus
 
 import httpx
 import msgspec
 import requests
-import os
 
 # req = {
 #     "query": [

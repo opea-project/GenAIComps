@@ -5,10 +5,11 @@ import os
 import time
 from typing import List, Optional
 
+import httpx
+import msgspec
+import requests
 from langchain_community.embeddings import OpenAIEmbeddings
 from langsmith import traceable
-import httpx
-import msgspec, requests
 
 from comps import (
     EmbedDoc,
@@ -23,11 +24,9 @@ from comps import (
 
 class MosecEmbeddings(OpenAIEmbeddings):
 
-    def _get_len_safe_embeddings(self,
-                                 texts: List[str],
-                                 *,
-                                 engine: str,
-                                 chunk_size: Optional[int] = None) -> List[List[float]]:
+    def _get_len_safe_embeddings(
+        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
+    ) -> List[List[float]]:
         _chunk_size = chunk_size or self.chunk_size
         batched_embeddings: List[List[float]] = []
         response = self.client.create(input=texts, **self._invocation_params)
@@ -68,8 +67,8 @@ def embedding(input: TextDoc) -> EmbedDoc:
     request_url = MOSEC_EMBEDDING_ENDPOINT + "/inference"
     resp = requests.post(request_url, data=msgspec.msgpack.encode(req))
 
-    embed_vector = msgspec.msgpack.decode(resp.content)['embeddings']
-    res = EmbedDoc(text=req['query'][0], embedding=embed_vector)
+    embed_vector = msgspec.msgpack.decode(resp.content)["embeddings"]
+    res = EmbedDoc(text=req["query"][0], embedding=embed_vector)
     statistics_dict["opea_service@embedding_mosec"].append_latency(time.time() - start, None)
     return res
 

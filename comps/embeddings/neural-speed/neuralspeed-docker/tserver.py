@@ -1,9 +1,13 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import Any, List
+
 from mosec import Server, Worker, get_logger
 from mosec.mixin import TypedMsgPackMixin
 from msgspec import Struct
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from neural_speed import Model
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 logger = get_logger()
 
