@@ -42,7 +42,7 @@ case ${micro_service} in
     "embeddings/langchain")
         IMAGE_NAME="opea/embedding-tei"
         ;;
-    "retrievers/langchain")
+    "retrievers/langchain/redis")
         IMAGE_NAME="opea/retriever-redis"
         ;;
     "reranks/tei")
@@ -56,6 +56,9 @@ case ${micro_service} in
         ;;
     "llms/summarization/tgi")
         IMAGE_NAME="opea/llm-docsum-tgi"
+        ;;
+    "llms/faq-generation/tgi")
+        IMAGE_NAME="opea/llm-faqgen-tgi"
         ;;
     "web_retrievers/langchain/chroma")
         IMAGE_NAME="opea/web-retriever-chroma"

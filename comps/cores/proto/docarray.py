@@ -32,9 +32,9 @@ class DocPath(BaseDoc):
     table_strategy: str = "fast"
 
 
-class EmbedDoc768(BaseDoc):
+class EmbedDoc(BaseDoc):
     text: str
-    embedding: conlist(float, min_length=768, max_length=768)
+    embedding: conlist(float, min_length=0)
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
@@ -56,11 +56,6 @@ class Audio2TextDoc(AudioDoc):
         description="The language that Whisper prefer to detect.",
         default="auto",
     )
-
-
-class EmbedDoc1024(BaseDoc):
-    text: str
-    embedding: conlist(float, min_length=1024, max_length=1024)
 
 
 class SearchedDoc(BaseDoc):
@@ -135,3 +130,9 @@ class LVMDoc(BaseDoc):
     image: str
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512
+    top_k: int = 10
+    top_p: float = 0.95
+    typical_p: float = 0.95
+    temperature: float = 0.01
+    repetition_penalty: float = 1.03
+    streaming: bool = False

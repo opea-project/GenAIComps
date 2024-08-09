@@ -28,7 +28,6 @@ class MicroService:
         endpoint: Optional[str] = "/",
         input_datatype: Type[Any] = TextDoc,
         output_datatype: Type[Any] = TextDoc,
-        replicas: int = 1,
         provider: Optional[str] = None,
         provider_endpoint: Optional[str] = None,
         use_remote_service: Optional[bool] = False,
@@ -53,7 +52,6 @@ class MicroService:
             self.uvicorn_kwargs["ssl_certfile"] = ssl_certfile
 
         if not use_remote_service:
-            self.replicas = replicas
             self.provider = provider
             self.provider_endpoint = provider_endpoint
             self.endpoints = []
@@ -154,29 +152,28 @@ def register_microservice(
     endpoint: Optional[str] = "/",
     input_datatype: Type[Any] = TextDoc,
     output_datatype: Type[Any] = TextDoc,
-    replicas: int = 1,
     provider: Optional[str] = None,
     provider_endpoint: Optional[str] = None,
 ):
     def decorator(func):
-        micro_service = MicroService(
-            name=name,
-            service_role=service_role,
-            service_type=service_type,
-            protocol=protocol,
-            host=host,
-            port=port,
-            ssl_keyfile=ssl_keyfile,
-            ssl_certfile=ssl_certfile,
-            endpoint=endpoint,
-            input_datatype=input_datatype,
-            output_datatype=output_datatype,
-            replicas=replicas,
-            provider=provider,
-            provider_endpoint=provider_endpoint,
-        )
-        micro_service.app.router.add_api_route(endpoint, func, methods=["POST"])
-        opea_microservices[name] = micro_service
+        if name not in opea_microservices:
+            micro_service = MicroService(
+                name=name,
+                service_role=service_role,
+                service_type=service_type,
+                protocol=protocol,
+                host=host,
+                port=port,
+                ssl_keyfile=ssl_keyfile,
+                ssl_certfile=ssl_certfile,
+                endpoint=endpoint,
+                input_datatype=input_datatype,
+                output_datatype=output_datatype,
+                provider=provider,
+                provider_endpoint=provider_endpoint,
+            )
+            opea_microservices[name] = micro_service
+        opea_microservices[name].app.router.add_api_route(endpoint, func, methods=["POST"])
         return func
 
     return decorator
