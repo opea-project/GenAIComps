@@ -1,7 +1,8 @@
 docarray[full]
 fastapi
 huggingface_hub
-langchain
+langchain==0.2.12
+langchain_huggingface
 langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
