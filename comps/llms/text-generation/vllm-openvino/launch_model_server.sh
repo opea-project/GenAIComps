@@ -59,4 +59,3 @@ docker run -d --rm --name="vllm-openvino-server" \
       --model \"$model_name\" \
       --host 0.0.0.0 \
       --port 80"
-

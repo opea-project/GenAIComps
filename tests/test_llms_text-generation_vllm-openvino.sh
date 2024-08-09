@@ -20,7 +20,7 @@ function build_container() {
       -f Dockerfile.openvino \
       . \
       --build-arg https_proxy=$https_proxy \
-      --build-arg http_proxy=$http_proxy    
+      --build-arg http_proxy=$http_proxy
     cd $WORKPATH
     rm -rf vllm-openvino
 }
@@ -41,7 +41,7 @@ start_container() {
           --model \"Intel/neural-chat-7b-v3-3\" \
           --host 0.0.0.0 \
           --port $port"
-    
+
     # check whether service is fully ready
     n=0
     until [[ "$n" -ge 300 ]]; do
@@ -87,7 +87,7 @@ function test_api_endpoint {
         local response=$(curl "http://localhost:$port/$endpoint" \
           --write-out '%{http_code}' \
           --silent \
-          --output /dev/null)        
+          --output /dev/null)
     fi
 
     # Assert the response status code
@@ -99,7 +99,7 @@ function test_api_endpoint {
 }
 # Main function
 main() {
-    
+
     build_container
     start_container
 
@@ -116,4 +116,3 @@ main() {
 
 # Call main function
 main
-
