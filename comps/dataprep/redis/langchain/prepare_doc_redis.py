@@ -10,6 +10,7 @@ from typing import List, Optional, Union
 
 # from pyspark import SparkConf, SparkContext
 import redis
+import uvicorn
 from config import EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, REDIS_URL
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter

@@ -79,14 +79,12 @@ def load_txt(txt_path):
 def load_doc(doc_path):
     """Load doc file."""
     txt_path = doc_path.replace(".doc", ".txt")
+
     try:
-        with open(txt_path, "w") as outfile:
-            subprocess.run(["antiword", doc_path], stdout=outfile, check=True)
-    except:
-        raise AssertionError(
-            "antiword failed or not installed, if not installed,"
-            + 'use "apt-get update && apt-get install -y antiword" to install it.'
-        )
+        with open(txt_path, "w") as output_file:
+            subprocess.run(["antiword", doc_path], stdout=output_file, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error processing file: {e}")
     text = load_txt(txt_path)
     os.remove(txt_path)
     return text

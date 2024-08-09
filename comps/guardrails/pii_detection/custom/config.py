@@ -42,4 +42,4 @@ def get_boolean_env_var(var_name, default_value=False):
 LLM_URL = os.getenv("LLM_ENDPOINT_URL", None)
 
 current_file_path = pathlib.Path(__file__).parent.resolve()
-comps_path = os.path.join(current_file_path, "../../../")
+comps_path = os.path.join(current_file_path, "../../../../")
