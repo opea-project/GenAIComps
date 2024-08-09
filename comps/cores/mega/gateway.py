@@ -3,11 +3,11 @@
 
 import base64
 import os
+from io import BytesIO
+
 import requests
 from fastapi import Request
 from fastapi.responses import StreamingResponse
-
-from io import BytesIO
 from PIL import Image
 
 from ..proto.api_protocol import (
