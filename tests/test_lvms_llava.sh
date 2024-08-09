@@ -10,14 +10,14 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/llava:latest -f comps/lvms/llava/Dockerfile .
-    docker build --no-cache -t opea/lvm:latest -f comps/lvms/Dockerfile .
+    docker build -t opea/llava:comps -f comps/lvms/llava/Dockerfile .
+    docker build --no-cache -t opea/lvm:comps -f comps/lvms/Dockerfile .
 }
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 8399:8399 --ipc=host opea/llava:latest
-    docker run -d --name="test-comps-lvm" -e LVM_ENDPOINT=http://$ip_address:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm:latest
+    docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 8399:8399 --ipc=host opea/llava:comps
+    docker run -d --name="test-comps-lvm" -e LVM_ENDPOINT=http://$ip_address:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm:comps
     sleep 8m
 }
 
