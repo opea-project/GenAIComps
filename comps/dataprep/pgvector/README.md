@@ -8,7 +8,6 @@
 pip install -r requirements.txt
 ```
 
-
 ## 1.2 Setup Environment Variables
 
 ```bash
@@ -18,10 +17,10 @@ export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
 ```
+
 ## 1.3 Start PGVector
 
 Please refer to this [readme](../../vectorstores/langchain/pgvector/README.md).
-
 
 ## 1.4 Start Document Preparation Microservice for PGVector with Python Script
 
