@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList
@@ -19,6 +19,11 @@ class TopologyInfo:
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
+class ImageDoc(BaseDoc):
+    image_path: str
+
+class TextImageDoc(BaseDoc):
+    doc: Tuple[Union[TextDoc, ImageDoc]]
 
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
@@ -66,7 +71,15 @@ class SearchedDoc(BaseDoc):
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
 
+class SearchedMultimodalDoc(BaseDoc):
+    retrieved_docs: DocList[TextImageDoc]
+    initial_query: str
+    top_n: int = 1
+    #metadata: DocList[dict]
 
+    class Config:
+        json_encoders = {np.ndarray: lambda x: x.tolist()}
+        
 class GeneratedDoc(BaseDoc):
     text: str
     prompt: str
