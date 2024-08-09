@@ -9,11 +9,10 @@ ARG ARCH=cpu
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ ${ARCH} = "cpu"]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/comps/tts/requirements.txt && \
-        pip freeze | grep nvidia | xargs pip uninstall -y ; \
+    if [ "${ARCH}" = "cpu" ]; then \
+        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/comps/tts/requirements.txt ; \
     else \
-        pip install --no-cache-dir -r /home/comps/tts/requirements.txt; \
+        pip install --no-cache-dir -r /home/comps/tts/requirements.txt ; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home
