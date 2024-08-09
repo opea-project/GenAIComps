@@ -8,11 +8,8 @@
 pip install -r requirements.txt
 ```
 
-## 1.2 Start PGVector
 
-Please refer to this [readme](../../../vectorstores/langchain/pgvcetor/README.md).
-
-## 1.3 Setup Environment Variables
+## 1.2 Setup Environment Variables
 
 ```bash
 export PG_CONNECTION_STRING=postgresql+psycopg2://testuser:testpwd@${your_ip}:5432/vectordb
@@ -21,6 +18,10 @@ export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
 ```
+## 1.3 Start PGVector
+
+Please refer to this [readme](../../vectorstores/langchain/pgvector/README.md).
+
 
 ## 1.4 Start Document Preparation Microservice for PGVector with Python Script
 
@@ -34,7 +35,7 @@ python prepare_doc_pgvector.py
 
 ## 2.1 Start PGVector
 
-Please refer to this [readme](../../../vectorstores/langchain/pgvector/README.md).
+Please refer to this [readme](../../vectorstores/langchain/pgvector/README.md).
 
 ## 2.2 Setup Environment Variables
 
@@ -56,7 +57,7 @@ docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_pro
 ## 2.4 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-pgvector" -p 6007:6007 -p 6008:6008 -p 6009:6009 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=$PG_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-pgvector:latest
+docker run  --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=$PG_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-pgvector:latest
 ```
 
 ## 2.5 Run with Docker Compose (Option B)
@@ -86,7 +87,7 @@ To get uploaded file structures, use the following command:
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6011/v1/dataprep/get_file
+    http://localhost:6007/v1/dataprep/get_file
 ```
 
 Then you will get the response JSON like this:
@@ -119,17 +120,17 @@ The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "https://www.ces.tech/.txt"}' \
-    http://localhost:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 
 # delete file
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "uploaded_file_1.txt"}' \
-    http://localhost:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 
 # delete all files and links
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "all"}' \
-    http://localhost:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 ```

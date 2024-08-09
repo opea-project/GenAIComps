@@ -212,7 +212,7 @@ async def ingest_documents(
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_pgvector_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
+    name="opea_service@prepare_doc_pgvector", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6007
 )
 @traceable(run_type="tool")
 async def rag_get_file_structure():
@@ -227,7 +227,7 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_pgvector_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
+    name="opea_service@prepare_doc_pgvector", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6007
 )
 @traceable(run_type="tool")
 async def delete_single_file(file_path: str = Body(..., embed=True)):
@@ -272,5 +272,3 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
     opea_microservices["opea_service@prepare_doc_pgvector"].start()
-    opea_microservices["opea_service@prepare_doc_pgvector_file"].start()
-    opea_microservices["opea_service@prepare_doc_pgvector_del"].start()
