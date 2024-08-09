@@ -63,13 +63,13 @@ class MosecEmbeddings(OpenAIEmbeddings):
 def embedding(input: TextDoc) -> EmbedDoc:
     start = time.time()
     req = {
-        "query": [input.text],
+        "query": input.text,
     }
     request_url = MOSEC_EMBEDDING_ENDPOINT + "/inference"
     resp = requests.post(request_url, data=msgspec.msgpack.encode(req))
 
     embed_vector = msgspec.msgpack.decode(resp.content)['embeddings']
-    res = EmbedDoc(text=req['query'][0], embedding=embed_vector[0])
+    res = EmbedDoc(text=req['query'][0], embedding=embed_vector)
     statistics_dict["opea_service@embedding_mosec"].append_latency(time.time() - start, None)
     return res
 
