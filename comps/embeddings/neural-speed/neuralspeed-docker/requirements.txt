@@ -1,0 +1,18 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+accelerate
+cmake
+datasets
+huggingface_hub
+matplotlib
+numpy
+peft
+protobuf<3.20
+py-cpuinfo
+sentencepiece
+# setuptools==69.5.1
+# setuptools_scm==8.0.4
+tiktoken
+torch
+transformers
+transformers_stream_generator
+zipfile38
