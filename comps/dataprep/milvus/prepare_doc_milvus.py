@@ -237,7 +237,6 @@ async def ingest_documents(
 @register_microservice(
     name="opea_service@prepare_doc_milvus_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6011
 )
-@traceable(run_type="tool")
 async def rag_get_file_structure():
     print("[ dataprep - get file ] start to get file structure")
 
@@ -268,7 +267,6 @@ def delete_by_partition_field(my_milvus, partition_field):
 @register_microservice(
     name="opea_service@prepare_doc_milvus_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6012
 )
-@traceable(run_type="tool")
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
 
