@@ -13,6 +13,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       CHUNK_DURATION: ${CHUNK_DURATION}
+      FILE_SERVER_URL: ${FILE_SERVER_URL}
     restart: unless-stopped
 
 networks:

@@ -17,9 +17,10 @@ from comps import (
     statistics_dict,
 )
 
-chunk_duration = os.getenv("CHUNK_DURATION", "10")
-chunk_duration = chunk_duration.strip() or "10"
+chunk_duration = os.getenv("CHUNK_DURATION", "10") or "10"
 chunk_duration = float(chunk_duration) if chunk_duration.isdigit() else 10.0
+
+file_server_url = os.getenv("FILE_SERVER_URL") or "http://0.0.0.0:6005"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,7 +30,7 @@ logging.basicConfig(
 
 def get_top_doc(top_n, videos) -> list:
     hit_score = {}
-    if videos == None:
+    if videos is None:
         return None
     for video_name in videos:
         try:
@@ -47,10 +48,14 @@ def get_top_doc(top_n, videos) -> list:
     return top_n_names
 
 def find_timestamp_from_video(metadata_list, video):
-    for metadata in metadata_list:
-        if metadata['video'] == video:
-            return metadata['timestamp']
-    return None
+    return next(
+        (
+            metadata['timestamp']
+            for metadata in metadata_list
+            if metadata['video'] == video
+        ),
+        None,
+    )
 
 @register_microservice(
     name="opea_service@reranking_visual_rag",
@@ -72,8 +77,9 @@ def reranking(input: SearchedMultimodalDoc) -> LVMVideoDoc:
 
     # only use the first top video
     timestamp = find_timestamp_from_video(input.metadata, top_video_names[0])
-
-    result = LVMVideoDoc(video_url="TODO", prompt=input.initial_query, chunk_start=timestamp, chunk_duration=float(chunk_duration), max_new_tokens=512)
+    video_url = f"{file_server_url.rstrip('/')}/{top_video_names[0]}"
+    
+    result = LVMVideoDoc(video_url=video_url, prompt=input.initial_query, chunk_start=timestamp, chunk_duration=float(chunk_duration), max_new_tokens=512)
     statistics_dict["opea_service@reranking_visual_rag"].append_latency(time.time() - start, None)
     
     return result

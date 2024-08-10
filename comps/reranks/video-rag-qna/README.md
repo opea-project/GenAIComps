@@ -14,6 +14,7 @@ docker build --no-cache -t opea/reranking-videoragqna:latest --build-arg https_p
 ## 1.2 Start Rerank Service
 
 ```bash
+export FILE_SERVER_URL="http://fake-file-server"
 docker compose -f comps/reranks/video-rag-qna/docker/docker_compose_reranking.yaml up -d
 # wait until ready
 until docker logs reranking-videoragqna-server 2>&1 | grep -q "Uvicorn running on"; do
@@ -47,7 +48,7 @@ curl -X 'POST' \
 The result should be:
 
 ```bash
-{"id":"c7a81fbc19636801520db696ff62c2d0","video_url":"TODO","chunk_start":20.0,"chunk_duration":10.0,"prompt":"this is the query","max_new_tokens":512}
+{"id":"random number","video_url":"http://fake-file-server/top_video_name","chunk_start":20.0,"chunk_duration":10.0,"prompt":"this is the query","max_new_tokens":512}
 ```
 
 # ♻️ 3. Clean
