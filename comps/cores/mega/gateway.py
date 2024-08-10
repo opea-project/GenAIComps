@@ -77,6 +77,7 @@ class Gateway:
         pass
 
     def _handle_message(self, messages):
+        images = []
         if isinstance(messages, str):
             prompt = messages
         else:
@@ -107,7 +108,6 @@ class Gateway:
                     raise ValueError(f"Unknown role: {msg_role}")
             if system_prompt:
                 prompt = system_prompt + "\n"
-            images = []
             for role, message in messages_dict.items():
                 if isinstance(message, tuple):
                     text, image_list = message
