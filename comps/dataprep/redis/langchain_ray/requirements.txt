@@ -18,6 +18,7 @@ pyarrow
 pymupdf
 python-bidi==0.4.2
 python-docx
+python-multipart
 python-pptx
 ray
 redis
