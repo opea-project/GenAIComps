@@ -11,3 +11,4 @@ pymupdf
 qdrant-haystack
 sentence_transformers
 shortuuid
+uvicorn

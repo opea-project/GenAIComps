@@ -103,31 +103,8 @@ def delete_by_id(client, id):
     return True
 
 
-def ingest_data_to_redis(doc_path: DocPath):
-    """Ingest document to Redis."""
-    path = doc_path.path
-    print(f"Parsing document {path}.")
-
-    if path.endswith(".html"):
-        headers_to_split_on = [
-            ("h1", "Header 1"),
-            ("h2", "Header 2"),
-            ("h3", "Header 3"),
-        ]
-        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
-    else:
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True, separators=get_separators()
-        )
-
-    content = document_loader(path)
-
-    chunks = text_splitter.split_text(content)
-    if doc_path.process_table and path.endswith(".pdf"):
-        table_chunks = get_tables_result(path, doc_path.table_strategy)
-        chunks = chunks + table_chunks
-    print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
-
+def ingest_chunks_to_redis(file_name: str, chunks: List):
+    print(f"[ ingest chunks ] file name: {file_name}")
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
@@ -142,7 +119,7 @@ def ingest_data_to_redis(doc_path: DocPath):
 
     file_ids = []
     for i in range(0, num_chunks, batch_size):
-        print(f"Current batch: {i}")
+        print(f"[ ingest chunks ] Current batch: {i}")
         batch_chunks = chunks[i : i + batch_size]
         batch_texts = batch_chunks
 
@@ -152,56 +129,50 @@ def ingest_data_to_redis(doc_path: DocPath):
             index_name=INDEX_NAME,
             redis_url=REDIS_URL,
         )
-        print(f"keys: {keys}")
+        print(f"[ ingest chunks ] keys: {keys}")
         file_ids.extend(keys)
-        print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
+        print(f"[ ingest chunks ] Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
     # store file_ids into index file-keys
     r = redis.Redis(connection_pool=redis_pool)
     client = r.ft(KEY_INDEX_NAME)
     if not check_index_existance(client):
         assert create_index(client)
-    file_name = doc_path.path.split("/")[-1]
     assert store_by_id(client, key=file_name, value="#".join(file_ids))
 
     return True
 
 
-async def ingest_link_to_redis(link_list: List[str]):
-    # Create embedding obj
-    if tei_embedding_endpoint:
-        # create embeddings using TEI endpoint service
-        embedder = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+def ingest_data_to_redis(doc_path: DocPath):
+    """Ingest document to Redis."""
+    path = doc_path.path
+    print(f"Parsing document {path}.")
+
+    if path.endswith(".html"):
+        headers_to_split_on = [
+            ("h1", "Header 1"),
+            ("h2", "Header 2"),
+            ("h3", "Header 3"),
+        ]
+        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     else:
-        # create embeddings using local embedding model
-        embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
-
-    # Create redis connection obj
-    r = redis.Redis(connection_pool=redis_pool)
-    client = r.ft(KEY_INDEX_NAME)
-
-    # save link contents and doc_ids one by one
-    for link in link_list:
-        content = parse_html([link])[0][0]
-        print(f"[ ingest link ] link: {link} content: {content}")
-        encoded_link = encode_filename(link)
-        save_path = upload_folder + encoded_link + ".txt"
-        print(f"[ ingest link ] save_path: {save_path}")
-        await save_content_to_local_disk(save_path, content)
-
-        _, keys = Redis.from_texts_return_keys(
-            texts=content,
-            embedding=embedder,
-            index_name=INDEX_NAME,
-            redis_url=REDIS_URL,
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=doc_path.chunk_size,
+            chunk_overlap=doc_path.chunk_overlap,
+            add_start_index=True,
+            separators=get_separators(),
         )
-        print(f"keys: {keys}")
-        if not check_index_existance(client):
-            assert create_index(client)
-        file_name = encoded_link + ".txt"
-        assert store_by_id(client, key=file_name, value="#".join(keys))
 
-    return True
+    content = document_loader(path)
+
+    chunks = text_splitter.split_text(content)
+    if doc_path.process_table and path.endswith(".pdf"):
+        table_chunks = get_tables_result(path, doc_path.table_strategy)
+        chunks = chunks + table_chunks
+    print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
+
+    file_name = doc_path.path.split("/")[-1]
+    return ingest_chunks_to_redis(file_name, chunks)
 
 
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
@@ -265,7 +236,20 @@ async def ingest_documents(
             link_list = json.loads(link_list)  # Parse JSON string to list
             if not isinstance(link_list, list):
                 raise HTTPException(status_code=400, detail="link_list should be a list.")
-            await ingest_link_to_redis(link_list)
+            for link in link_list:
+                encoded_link = encode_filename(link)
+                save_path = upload_folder + encoded_link + ".txt"
+                content = parse_html([link])[0][0]
+                await save_content_to_local_disk(save_path, content)
+                ingest_data_to_redis(
+                    DocPath(
+                        path=save_path,
+                        chunk_size=chunk_size,
+                        chunk_overlap=chunk_overlap,
+                        process_table=process_table,
+                        table_strategy=table_strategy,
+                    )
+                )
             print(f"Successfully saved link list {link_list}")
             return {"status": 200, "message": "Data preparation succeeded"}
         except json.JSONDecodeError:
@@ -275,7 +259,7 @@ async def ingest_documents(
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_redis_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
+    name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6007
 )
 async def rag_get_file_structure():
     print("[ dataprep - get file ] start to get file structure")
@@ -289,7 +273,7 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_redis_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
+    name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6007
 )
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
@@ -346,5 +330,3 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
     opea_microservices["opea_service@prepare_doc_redis"].start()
-    opea_microservices["opea_service@prepare_doc_redis_file"].start()
-    opea_microservices["opea_service@prepare_doc_redis_del"].start()

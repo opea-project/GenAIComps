@@ -12,4 +12,4 @@ pymupdf
 redis
 sentence_transformers
 shortuuid
-
+uvicorn

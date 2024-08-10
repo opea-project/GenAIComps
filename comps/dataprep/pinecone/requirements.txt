@@ -17,3 +17,4 @@ pymupdf
 python-docx
 sentence_transformers
 shortuuid
+uvicorn
