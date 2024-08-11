@@ -10,8 +10,12 @@ on:
     paths:
       - .github/workflows/pr-examples-test.yml
       - comps/cores/**
+      - comps/embeddings/langchain/**
+      - comps/retrievers/langchain/redis/**
+      - comps/reranks/tei/**
+      - comps/llms/text-generation/tgi/**
+      - comps/dataprep/redis/langchain/**
       - requirements.txt
-      - setup.py
 
 # If there is a new commit, the previous jobs will be canceled
 concurrency:
