@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
 from langsmith import traceable
 from openai import OpenAI
+from langchain_core.prompts import PromptTemplate
 from template import ChatTemplate
 
 from comps import (
@@ -40,24 +41,27 @@ llm = AsyncInferenceClient(
 @register_statistics(names=["opea_service@llm_tgi"])
 async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
 
+    prompt_template = None
+    if input.chat_template:
+        prompt_template = PromptTemplate.from_template(input.chat_template)
+        input_variables = prompt_template.input_variables
+
     stream_gen_time = []
     start = time.time()
 
     if isinstance(input, LLMParamsDoc):
-        # apply default template for rag documnents
-        if input.documents:
-            if input.chat_template:
-                if "{context}" in input.chat_template:
-                    prompt = input.chat_template.format(question=input.query, context="\n".join(input.documents))
-                else:
-                    prompt = input.chat_template.format(question=input.query)
+        prompt = input.query
+        if prompt_template:
+            if sorted(input_variables) == ["context", "question"]:
+                prompt = prompt_template.format(question=input.query, context="\n".join(input.documents))
+            elif input_variables == ["question"]:
+                prompt = prompt_template.format(question=input.query)
             else:
-                # use default template
-                prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
+                print(f"{prompt_template} not used, we only support 2 input variables ['question', 'context']")
         else:
-            prompt = input.query
-            if input.chat_template:
-                prompt = input.chat_template.format(question=input.query)
+            if input.documents:
+                # use rag default template
+                prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
 
         text_generation = await llm.text_generation(
             prompt=prompt,
@@ -69,7 +73,6 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             top_p=input.top_p,
         )
         if input.streaming:
-
             async def stream_generator():
                 chat_response = ""
                 async for text in text_generation:
@@ -95,14 +98,17 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
 
         if isinstance(input.messages, str):
             prompt = input.messages
-            if input.chat_template is not None:
-                if "{context}" in input.chat_template:
-                    if input.documents is None or input.documents == []:
-                        prompt = input.chat_template.format(question=input.messages, context="")
-                    else:
-                        prompt = input.chat_template.format(question=input.messages, context="\n".join(input.documents))
+            if prompt_template:
+                if sorted(input_variables) == ["context", "question"]:
+                    prompt = prompt_template.format(question=input.messages, context="\n".join(input.documents))
+                elif input_variables == ["question"]:
+                    prompt = prompt_template.format(question=input.messages)
                 else:
-                    prompt = input.chat_template.format(question=input.messages)
+                    print(f"{prompt_template} not used, we only support 2 input variables ['question', 'context']")
+            else:
+                if input.documents:
+                    # use rag default template
+                    prompt = ChatTemplate.generate_rag_prompt(input.messages, input.documents)
 
             chat_completion = client.completions.create(
                 model="tgi",
@@ -131,13 +137,12 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                     else:
                         input.messages[0]["content"].format(context="\n".join(input.documents))
             else:
-                if input.chat_template is not None:
-                    system_prompt = input.chat_template
-                    if "{context}" in system_prompt:
-                        if input.documents is None or input.documents == []:
-                            system_prompt = system_prompt.format(context="")
-                        else:
-                            system_prompt = system_prompt.format(context="\n".join(input.documents))
+                if prompt_template:
+                    system_prompt = prompt_template
+                    if input_variables == ["context"]:
+                        system_prompt = prompt_template.format(context="\n".join(input.documents))
+                    else:
+                        print(f"{prompt_template} not used, only support 1 input variables ['context']")
 
                     input.messages.insert(0, {"role": "system", "content": system_prompt})
 
@@ -166,7 +171,6 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             )
 
         if input.stream:
-
             def stream_generator():
                 for c in chat_completion:
                     print(c)

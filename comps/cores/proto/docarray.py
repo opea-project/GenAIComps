@@ -7,7 +7,7 @@ import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl
-from pydantic import Field, conint, conlist
+from pydantic import Field, conint, conlist, field_validator
 
 
 class TopologyInfo:
@@ -98,7 +98,7 @@ class LLMParamsDoc(BaseDoc):
         ),
     )
     documents: Optional[Union[List[Dict[str, str]], List[str]]] = Field(
-        default=None,
+        default=[],
         description=(
             "A list of dicts representing documents that will be accessible to "
             "the model if it is performing RAG (retrieval-augmented generation)."
@@ -107,6 +107,10 @@ class LLMParamsDoc(BaseDoc):
             '"title" and "text" keys.'
         ),
     )
+
+    @field_validator('chat_template')
+    def chat_template_must_contain_variables(cls, v):
+        return v
 
 
 class LLMParams(BaseDoc):
