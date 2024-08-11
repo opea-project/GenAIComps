@@ -48,13 +48,14 @@ jobs:
           
           cd ${{ github.workspace }}/GenAIExamples/ChatQnA/tests
           GenAIComps_dir=${{github.workspace}}
+          sed -i '/GenAIComps.git/d' test_chatqna_on_gaudi.sh
           sed -i "s#cd GenAIComps#cd ${GenAIComps_dir}#g" test_chatqna_on_gaudi.sh
           sed -i "s#docker build -t#docker build --no-cache -q -t#g" test_chatqna_on_gaudi.sh
           sed -i "s#:latest#:comps#g" test_chatqna_on_gaudi.sh
           cat test_chatqna_on_gaudi.sh
           
           echo "Run test..."
-          bash test_chatqna_on_gaudi.sh
+          timeout 50m bash test_chatqna_on_gaudi.sh
 
       - name: Clean up container
         if: cancelled() || failure()
@@ -62,7 +63,6 @@ jobs:
           cd ${{ github.workspace }}/GenAIExamples/ChatQnA/docker/gaudi
           docker compose stop && docker compose rm -f
           docker system prune -f
-          docker rmi $(docker images --filter reference="*/*:comps" -q) || true
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}
