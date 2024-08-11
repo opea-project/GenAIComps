@@ -42,17 +42,17 @@ jobs:
           HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
         run: |
           git clone https://github.com/opea-project/GenAIExamples.git
-          cd ${{ github.workspace }}/GenAIExamples/ChatQnA/docker/gaudi 
+          cd ${{ github.workspace }}/GenAIExamples/ChatQnA/docker/gaudi
           sed -i "s#:latest#:comps#g" compose.yaml
           cat compose.yaml
-          
+
           cd ${{ github.workspace }}/GenAIExamples/ChatQnA/tests
           GenAIComps_dir=${{github.workspace}}
           sed -i "s#cd GenAIComps#cd ${GenAIComps_dir}#g" test_chatqna_on_gaudi.sh
           sed -i "s#docker build -t#docker build --no-cache -q -t#g" test_chatqna_on_gaudi.sh
           sed -i "s#:latest#:comps#g" test_chatqna_on_gaudi.sh
           cat test_chatqna_on_gaudi.sh
-          
+
           echo "Run test..."
           bash test_chatqna_on_gaudi.sh
 
