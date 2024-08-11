@@ -108,7 +108,7 @@ class LLMParamsDoc(BaseDoc):
         ),
     )
 
-    @field_validator('chat_template')
+    @field_validator("chat_template")
     def chat_template_must_contain_variables(cls, v):
         return v
 

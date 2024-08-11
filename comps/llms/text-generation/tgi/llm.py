@@ -7,9 +7,9 @@ from typing import Union
 
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
+from langchain_core.prompts import PromptTemplate
 from langsmith import traceable
 from openai import OpenAI
-from langchain_core.prompts import PromptTemplate
 from template import ChatTemplate
 
 from comps import (
@@ -73,6 +73,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             top_p=input.top_p,
         )
         if input.streaming:
+
             async def stream_generator():
                 chat_response = ""
                 async for text in text_generation:
@@ -171,6 +172,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             )
 
         if input.stream:
+
             def stream_generator():
                 for c in chat_completion:
                     print(c)
