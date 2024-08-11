@@ -1,0 +1,57 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Example-test
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+    paths:
+      - .github/workflows/pr-examples-test.yml
+      - comps/cores/**
+      - requirements.txt
+      - setup.py
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  MegaService:
+    runs-on: gaudi
+    steps:
+      - name: Clean Up Working Directory
+        run: |
+          sudo rm -rf ${{github.workspace}} || true
+          echo y | docker system prune
+
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+        with:
+          ref: "refs/pull/${{ github.event.number }}/merge"
+
+      - name: Run ChatQnA
+        run: |
+          git clone https://github.com/opea-project/GenAIExamples.git
+          cd GenAIExamples/ChatQnA/tests
+          GenAIComps_dir=${{github.workspace}}
+          sed -i "s#cd GenAIComps#cd ${GenAIComps_dir}#g" test_chatqna_on_gaudi.sh
+          sed -i "s#docker build -t#docker build --no-cache -q -t#g" test_chatqna_on_gaudi.sh
+          cat test_chatqna_on_gaudi.sh
+          bash test_chatqna_on_gaudi.sh
+
+      - name: Clean up container
+        if: cancelled() || failure()
+        run: |
+          cd ${{ github.workspace }}/GenAIExamples/ChatQnA/docker/gaudi
+          docker compose stop && docker compose rm -f
+          echo y | docker system prune --all
+
+      - name: Publish pipeline artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "Examples-Test-Logs"
+          path: ${{ github.workspace }}/GenAIExamples/ChatQnA/tests/*.log
