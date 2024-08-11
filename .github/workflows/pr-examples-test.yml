@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Clean Up Working Directory
         run: |
-          sudo rm -rf ${{github.workspace}} || true
+          sudo rm -rf ${{github.workspace}}/* || true
           echo y | docker system prune
 
       - name: Checkout out Repo

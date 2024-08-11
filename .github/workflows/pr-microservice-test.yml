@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: Clean Up Working Directory
         run: |
-          sudo rm -rf ${{github.workspace}}
+          sudo rm -rf ${{github.workspace}}/*
           docker system prune -f
 
       - name: Checkout out Repo
