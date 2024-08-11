@@ -12,7 +12,7 @@ on:
       - tests/**
       - "!**.md"
       - "!**.txt"
-      - .github/workflows/microservice-test.yml
+      - .github/workflows/pr-microservice-test.yml
 
 # If there is a new commit, the previous jobs will be canceled
 concurrency:
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   job1:
-    uses: ./.github/workflows/reuse-get-test-matrix.yml
+    uses: ./.github/workflows/_get-test-matrix.yml
 
   Microservice-test:
     needs: job1
