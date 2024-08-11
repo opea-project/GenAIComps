@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  MegaService:
+  example-test:
     runs-on: gaudi
     steps:
       - name: Clean Up Working Directory

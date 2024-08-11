@@ -10,14 +10,14 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/whisper:latest -f comps/asr/whisper/Dockerfile .
-    docker build -t opea/asr:latest -f comps/asr/Dockerfile .
+    docker build -t opea/whisper:comps -f comps/asr/whisper/Dockerfile .
+    docker build -t opea/asr:comps -f comps/asr/Dockerfile .
 }
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-asr-whisper" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 7066:7066 --ipc=host opea/whisper:latest
-    docker run -d --name="test-comps-asr" -e ASR_ENDPOINT=http://$ip_address:7066 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9099:9099 --ipc=host opea/asr:latest
+    docker run -d --name="test-comps-asr-whisper" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 7066:7066 --ipc=host opea/whisper:comps
+    docker run -d --name="test-comps-asr" -e ASR_ENDPOINT=http://$ip_address:7066 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9099:9099 --ipc=host opea/asr:comps
     sleep 3m
 }
 

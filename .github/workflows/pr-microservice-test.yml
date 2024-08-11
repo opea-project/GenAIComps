@@ -33,7 +33,7 @@ jobs:
       - name: Clean Up Working Directory
         run: |
           sudo rm -rf ${{github.workspace}}
-          echo y | docker system prune
+          docker system prune -f
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
         run: |
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-          echo y | docker system prune --all
+          docker system prune -f
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}
