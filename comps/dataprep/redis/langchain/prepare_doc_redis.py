@@ -14,8 +14,8 @@ from config import EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, REDIS_URL, SEARCH_BA
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_community.vectorstores import Redis
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
