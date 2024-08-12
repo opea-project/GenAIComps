@@ -225,7 +225,22 @@ class RAGAgentDocGraderV1(BaseAgent):
             yield "data: [DONE]\n\n"
         except Exception as e:
             yield str(e)
+    
+    async def non_streaming_run(self, query, config):
+        initial_state = self.prepare_initial_state(query)
+        try:
+            async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
+                message = s["messages"][-1]
+                if isinstance(message, tuple):
+                    print(message)
+                else:
+                    message.pretty_print()
 
+            last_message = s['messages'][-1]
+            print('******Response: ', last_message.content)
+            return last_message.content
+        except Exception as e:
+            return str(e)
 
 
 
