@@ -13,7 +13,7 @@ function build_docker_images() {
     docker pull pgvector/pgvector:0.7.0-pg16
 
     # build dataprep image for pgvector
-    docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/pgvector/langchain/docker/Dockerfile .
+    docker build -t opea/dataprep-pgvector:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/pgvector/langchain/docker/Dockerfile .
 }
 
 function start_service() {
@@ -25,7 +25,7 @@ function start_service() {
 
     sleep 10s
 
-    docker run -d --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} opea/dataprep-pgvector:latest
+    docker run -d --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} opea/dataprep-pgvector:comps
 
     sleep 3m
 }

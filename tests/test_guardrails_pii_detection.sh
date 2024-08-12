@@ -10,13 +10,13 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     echo "Start building docker images for microservice"
     cd $WORKPATH
-    docker build -t opea/guardrails-pii-detection:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/pii_detection/docker/Dockerfile .
+    docker build -t opea/guardrails-pii-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/pii_detection/docker/Dockerfile .
     echo "Docker images built"
 }
 
 function start_service() {
     echo "Starting microservice"
-    docker run -d --runtime=runc --name="test-guardrails-pii-detection-endpoint" -p 6357:6357 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-pii-detection:latest
+    docker run -d --runtime=runc --name="test-guardrails-pii-detection-endpoint" -p 6357:6357 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-pii-detection:comps
     sleep 5
     echo "Microservice started"
 }

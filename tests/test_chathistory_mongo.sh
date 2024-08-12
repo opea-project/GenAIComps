@@ -15,7 +15,7 @@ export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker run -d -p 27017:27017 --name=test-comps-mongo mongo:latest
+    docker run -d -p 27017:27017 --name=test-comps-mongo mongo:comps
 
     docker build --no-cache -t opea/chathistory-mongo-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/mongo/docker/Dockerfile .
 }
