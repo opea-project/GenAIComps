@@ -1,8 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
+import os
+from io import BytesIO
+
+import requests
 from fastapi import Request
 from fastapi.responses import StreamingResponse
+from PIL import Image
 
 from ..proto.api_protocol import (
     AudioChatCompletionRequest,
@@ -71,10 +77,13 @@ class Gateway:
         pass
 
     def _handle_message(self, messages):
+        images = []
         if isinstance(messages, str):
             prompt = messages
         else:
             messages_dict = {}
+            system_prompt = ""
+            prompt = ""
             for message in messages:
                 msg_role = message["role"]
                 if msg_role == "system":
@@ -84,20 +93,56 @@ class Gateway:
                         text = ""
                         text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
                         text += "\n".join(text_list)
-                        messages_dict[msg_role] = text
+                        image_list = [
+                            item["image_url"]["url"] for item in message["content"] if item["type"] == "image_url"
+                        ]
+                        if image_list:
+                            messages_dict[msg_role] = (text, image_list)
+                        else:
+                            messages_dict[msg_role] = text
                     else:
                         messages_dict[msg_role] = message["content"]
                 elif msg_role == "assistant":
                     messages_dict[msg_role] = message["content"]
                 else:
                     raise ValueError(f"Unknown role: {msg_role}")
-            prompt = system_prompt + "\n"
+            if system_prompt:
+                prompt = system_prompt + "\n"
             for role, message in messages_dict.items():
-                if message:
-                    prompt += role + ": " + message + "\n"
+                if isinstance(message, tuple):
+                    text, image_list = message
+                    if text:
+                        prompt += role + ": " + text + "\n"
+                    else:
+                        prompt += role + ":"
+                    for img in image_list:
+                        # URL
+                        if img.startswith("http://") or img.startswith("https://"):
+                            response = requests.get(img)
+                            image = Image.open(BytesIO(response.content)).convert("RGBA")
+                            image_bytes = BytesIO()
+                            image.save(image_bytes, format="PNG")
+                            img_b64_str = base64.b64encode(image_bytes.getvalue()).decode()
+                        # Local Path
+                        elif os.path.exists(img):
+                            image = Image.open(img).convert("RGBA")
+                            image_bytes = BytesIO()
+                            image.save(image_bytes, format="PNG")
+                            img_b64_str = base64.b64encode(image_bytes.getvalue()).decode()
+                        # Bytes
+                        else:
+                            img_b64_str = img
+
+                        images.append(img_b64_str)
                 else:
-                    prompt += role + ":"
-        return prompt
+                    if message:
+                        prompt += role + ": " + message + "\n"
+                    else:
+                        prompt += role + ":"
+        if images:
+            return prompt, images
+        else:
+            return prompt
 
 
 class ChatQnAGateway(Gateway):
@@ -449,9 +494,9 @@ class VisualQnAGateway(Gateway):
 
     async def handle_request(self, request: Request):
         data = await request.json()
-        stream_opt = data.get("stream", True)
+        stream_opt = data.get("stream", False)
         chat_request = ChatCompletionRequest.parse_obj(data)
-        prompt = self._handle_message(chat_request.messages)
+        prompt, images = self._handle_message(chat_request.messages)
         parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
@@ -461,7 +506,7 @@ class VisualQnAGateway(Gateway):
             streaming=stream_opt,
         )
         result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={"query": prompt}, llm_parameters=parameters
+            initial_inputs={"prompt": prompt, "image": images[0]}, llm_parameters=parameters
         )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LVM.
