@@ -24,3 +24,4 @@ python-pptx
 sentence_transformers
 shortuuid
 uvicorn
+python-multipart
