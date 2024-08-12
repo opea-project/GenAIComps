@@ -36,9 +36,9 @@ function validate_microservice() {
         -d "{\"text\":\"What is OPEA?\",\"embedding\":${test_embedding}}" \
         -H 'Content-Type: application/json')
     if [[ $result == *"title"* ]]; then
-        echo "Result correct. HTTP status is 200."
+        echo "Result correct."
     else
-        echo "Result wrong. HTTP status is not 200. Received status was $result"
+        echo "Result wrong. Received status was $result"
         docker logs test-comps-web-retriever-tei-endpoint
         docker logs test-comps-web-retriever-chroma-server
         exit 1
