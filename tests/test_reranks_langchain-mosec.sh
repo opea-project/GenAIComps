@@ -43,7 +43,7 @@ function validate_microservice() {
         docker logs test-comps-reranking-langchain-mosec-endpoint
         docker logs test-comps-reranking-langchain-mosec-server
         exit 1
-    fi    
+    fi
 }
 
 function stop_docker() {
