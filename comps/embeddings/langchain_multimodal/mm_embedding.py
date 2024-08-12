@@ -10,6 +10,7 @@ from typing import Union, List
 from langsmith import traceable
 from comps import (
     EmbedDoc,
+    EmbedDoc1024,
     ServiceType,
     TextDoc,
     ImageDoc,
@@ -28,29 +29,30 @@ MMDoc = Union[TextDoc, ImageDoc, TextImageDoc]
     host="0.0.0.0",
     port=6000,
     input_datatype=MMDoc,
-    output_datatype=EmbedDoc,
+    output_datatype=EmbedDoc1024,
 )
 
 @traceable(run_type="embedding")
 
-def embedding(input: MMDoc) -> EmbedDoc:
-    
-    embeddings = BridgeTowerEmbeddings()
+def embedding(input: MMDoc) -> EmbedDoc1024:
+    start = time.time()
+    print(input)
 
+    embeddings = BridgeTowerEmbeddings()
+    
     if isinstance(input, TextDoc):
         # Handle text input
         embed_vector = embeddings.embed_query(input.text)
-        res = EmbedDoc(text=input.text, embedding=embed_vector)
-    
-    #elif isinstance(input, TextImageDoc):
+        res = EmbedDoc1024(texts=[input.text], embedding=embed_vector)
+
+    elif isinstance(input, TextImageDoc):
         # Handle text + image input
-    #    embed_vector = embeddings.embed_image_text_pairs(input.texts, input.images, batch_size=2)
-    #    res = EmbedDoc(text=input.texts, embedding=embed_vector)
+        embed_vector = embeddings.embed_image_text_pairs(input.texts, input.images, batch_size=2)
+        res = EmbedDoc1024(texts=input.texts, image_paths=input.images, embedding=embed_vector)
     else:
         raise ValueError("Invalid input type")
 
     return res
 
-
 if __name__ == "__main__":
-   opea_microservices["opea_service@multimodal_embedding"].start()
+    opea_microservices["opea_service@multimodal_embedding"].start()
