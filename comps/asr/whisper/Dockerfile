@@ -4,9 +4,8 @@
 FROM python:3.11-slim
 
 # Set environment variables
-ENV LANG=en_US.UTF-8 \
-    PYTHONPATH=/home/user
-ARG ARCH=cpu
+ENV LANG=en_US.UTF-8
+ENV PYTHONPATH=/home/user
 
 # Install system dependencies
 RUN apt-get update \
@@ -15,11 +14,7 @@ RUN apt-get update \
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ "${ARCH}" = "cpu" ]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/comps/asr/requirements.txt ; \
-    else \
-        pip install --no-cache-dir -r /home/comps/asr/requirements.txt ; \
-    fi
+    pip install --no-cache-dir -r /home/comps/asr/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
