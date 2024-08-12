@@ -243,7 +243,7 @@ To get uploaded file structures, use the following command:
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6008/v1/dataprep/get_file
+    http://localhost:6007/v1/dataprep/get_file
 ```
 
 Then you will get the response JSON like this:
@@ -276,17 +276,17 @@ The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "https://www.ces.tech/.txt"}' \
-    http://10.165.57.68:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 
 # delete file
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "uploaded_file_1.txt"}' \
-    http://10.165.57.68:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 
 # delete all files and links
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "all"}' \
-    http://10.165.57.68:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 ```
