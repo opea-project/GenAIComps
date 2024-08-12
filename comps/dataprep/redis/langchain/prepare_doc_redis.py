@@ -139,7 +139,7 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
     client = r.ft(KEY_INDEX_NAME)
     if not check_index_existance(client):
         assert create_index(client)
-    
+
     try:
         assert store_by_id(client, key=file_name, value="#".join(file_ids))
     except Exception as e:
@@ -213,8 +213,10 @@ async def ingest_documents(
             except Exception as e:
                 print(f"[ upload file ] File {file.filename} does not exist.")
             if key_ids:
-                raise HTTPException(status_code=400, detail=f"Uploaded file {file.filename} already exists. Please change file name.")
-            
+                raise HTTPException(
+                    status_code=400, detail=f"Uploaded file {file.filename} already exists. Please change file name."
+                )
+
             save_path = upload_folder + encode_file
             await save_content_to_local_disk(save_path, file)
             ingest_data_to_redis(
@@ -269,7 +271,9 @@ async def ingest_documents(
             except Exception as e:
                 print(f"[ upload file ] Link {link} does not exist. Keep storing.")
             if key_ids:
-                raise HTTPException(status_code=400, detail=f"Uploaded link {link} already exists. Please change another link.")
+                raise HTTPException(
+                    status_code=400, detail=f"Uploaded link {link} already exists. Please change another link."
+                )
 
             save_path = upload_folder + encoded_link + ".txt"
             content = parse_html([link])[0][0]
@@ -301,14 +305,14 @@ async def rag_get_file_structure():
     offset = 0
     file_list = []
     while True:
-        response = r.execute_command('FT.SEARCH', KEY_INDEX_NAME, "*", 'LIMIT', offset, offset+SEARCH_BATCH_SIZE)
+        response = r.execute_command("FT.SEARCH", KEY_INDEX_NAME, "*", "LIMIT", offset, offset + SEARCH_BATCH_SIZE)
         # no doc retrieved
         if len(response) < 2:
             break
         file_list = format_search_results(response, file_list)
         offset += SEARCH_BATCH_SIZE
         # last batch
-        if ( len(response) - 1 ) // 2 < SEARCH_BATCH_SIZE:
+        if (len(response) - 1) // 2 < SEARCH_BATCH_SIZE:
             break
     return file_list
 
@@ -319,6 +323,7 @@ async def rag_get_file_structure():
 @traceable(run_type="tool")
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
+
     `file_path`:
         - specific file path (e.g. /path/to/file.txt)
         - "all": delete all files uploaded
@@ -328,11 +333,11 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     r = redis.Redis(connection_pool=redis_pool)
     client = r.ft(KEY_INDEX_NAME)
     client2 = r.ft(INDEX_NAME)
-    
+
     # delete all uploaded files
     if file_path == "all":
         print("[dataprep - del] delete all files")
-        
+
         # drop index KEY_INDEX_NAME
         if check_index_existance(client):
             try:
@@ -352,14 +357,14 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
                 raise HTTPException(status_code=500, detail=f"Fail to drop index {INDEX_NAME}.")
         else:
             print(f"[dataprep - del] Index {INDEX_NAME} does not exits.")
-            
+
         # delete files on local disk
         try:
             remove_folder_with_ignore(upload_folder)
         except Exception as e:
             print(f"[dataprep - del] {e}. Fail to delete {upload_folder}.")
             raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}.")
-        
+
         print("[dataprep - del] successfully delete all files.")
         create_upload_folder(upload_folder)
         return {"status": True}
@@ -376,7 +381,9 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
             key_ids = search_by_id(client, doc_id).key_ids
         except Exception as e:
             print(f"[dataprep - del] {e}, File {file_path} does not exists.")
-            raise HTTPException(status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path.")
+            raise HTTPException(
+                status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path."
+            )
         file_ids = key_ids.split("#")
 
         # delete file
@@ -395,8 +402,10 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
                     content = search_by_id(client2, file_id).content
                 except Exception as e:
                     print(f"[dataprep - del] {e}. File {file_path} does not exists.")
-                    raise HTTPException(status_code=404, detail=f"File not found in db {INDEX_NAME}. Please check file_path.")
-                
+                    raise HTTPException(
+                        status_code=404, detail=f"File not found in db {INDEX_NAME}. Please check file_path."
+                    )
+
                 # delete file content
                 try:
                     assert delete_by_id(client2, file_id)
@@ -406,7 +415,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
 
             # delete file on local disk
             delete_path.unlink()
-        
+
         # delete folder
         else:
             print(f"[dataprep - del] Delete folder {file_path} is not supported for now.")
