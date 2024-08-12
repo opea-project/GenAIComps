@@ -13,10 +13,10 @@ import redis
 from config import EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_community.vectorstores import Redis
 from langchain_text_splitters import HTMLHeaderTextSplitter
-from langsmith import traceable
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
@@ -109,7 +109,7 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
-        embedder = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+        embedder = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
     else:
         # create embeddings using local embedding model
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
@@ -181,7 +181,6 @@ def ingest_data_to_redis(doc_path: DocPath):
 
 
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
-@traceable(run_type="tool")
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
     link_list: Optional[str] = Form(None),
@@ -296,7 +295,6 @@ async def ingest_documents(
 @register_microservice(
     name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6007
 )
-@traceable(run_type="tool")
 async def rag_get_file_structure():
     print("[ dataprep - get file ] start to get file structure")
 
@@ -320,7 +318,6 @@ async def rag_get_file_structure():
 @register_microservice(
     name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6007
 )
-@traceable(run_type="tool")
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
 
