@@ -20,8 +20,8 @@ prometheus-fastapi-instrumentator==7.0.0
 psycopg2-binary
 pymupdf
 python-docx
+python-multipart
 python-pptx
 sentence_transformers
 shortuuid
 uvicorn
-python-multipart
