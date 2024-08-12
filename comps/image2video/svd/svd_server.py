@@ -9,10 +9,9 @@ import time
 import torch
 import uvicorn
 from diffusers import StableVideoDiffusionPipeline
-from diffusers.utils import load_image, export_to_video
+from diffusers.utils import export_to_video, load_image
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
-
 
 app = FastAPI()
 
@@ -51,9 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=42)
 
     args = parser.parse_args()
-    pipe = StableVideoDiffusionPipeline.from_pretrained(
-        args.model_name_or_path
-    )
+    pipe = StableVideoDiffusionPipeline.from_pretrained(args.model_name_or_path)
     print("Stable Video Diffusion model initialized.")
 
     uvicorn.run(

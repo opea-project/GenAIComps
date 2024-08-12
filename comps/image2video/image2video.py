@@ -4,12 +4,14 @@
 
 import json
 import os
-import requests
 import time
+
+import requests
+
 from comps import (
     ImagesPath,
-    VideoPath,
     ServiceType,
+    VideoPath,
     opea_microservices,
     register_microservice,
     register_statistics,
@@ -31,7 +33,9 @@ async def image2video(input: ImagesPath):
     start = time.time()
     images_path = [img.image_path for img in input.images_path]
     inputs = {"images_path": images_path}
-    video_path = requests.post(url=f"{svd_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None}).json()["video_path"]
+    video_path = requests.post(url=f"{svd_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None}).json()[
+        "video_path"
+    ]
 
     statistics_dict["opea_service@image2video"].append_latency(time.time() - start, None)
     return VideoPath(video_path=video_path)

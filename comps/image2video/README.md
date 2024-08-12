@@ -11,7 +11,7 @@ pip install -r requirements.txt
 pip install -r svd/requirements.txt
 ```
 
-## 1.2 Start SVD Service 
+## 1.2 Start SVD Service
 
 ```bash
 # Start SVD service
