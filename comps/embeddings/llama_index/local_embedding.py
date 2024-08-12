@@ -2,10 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from langsmith import traceable
-from llama_index.embeddings.huggingface_api import (
-    HuggingFaceInferenceAPIEmbedding,
-)
-
+from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedding
 
 from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
