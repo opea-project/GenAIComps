@@ -15,6 +15,10 @@ def instantiate_agent(args, strategy="react"):
         from .strategy.agentic_rag import RAGAgentwithLanggraph
 
         return RAGAgentwithLanggraph(args)
+    elif strategy == "docgrader":
+        from .strategy.docgrader import RAGAgentDocGraderV1
+
+        return RAGAgentDocGraderV1(args)
     else:
         from .strategy.base_agent import BaseAgent, BaseAgentState
 
