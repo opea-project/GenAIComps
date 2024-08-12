@@ -47,6 +47,17 @@ class EmbedDoc(BaseDoc):
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
 
+class EmbedDoc1024(BaseDoc):
+     texts: conlist(str)  
+     embedding: conlist(float)
+     search_type: str = "similarity"
+     k: int = 4
+     distance_threshold: Optional[float] = None
+     fetch_k: int = 20
+     lambda_mult: float = 0.5
+     score_threshold: float = 0.2
+     image_paths: Optional[conlist(str)] = None
+
 
 class Audio2TextDoc(AudioDoc):
     url: Optional[AudioUrl] = Field(
