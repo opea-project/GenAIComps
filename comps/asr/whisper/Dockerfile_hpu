@@ -9,9 +9,8 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user /home/user/
 
 # Set environment variables
-ENV LANG=en_US.UTF-8 \
-    PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
-ARG ARCH=cpu
+ENV LANG=en_US.UTF-8
+ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
 
 # Install system dependencies
 RUN apt-get update \
@@ -23,11 +22,7 @@ USER user
 
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ "${ARCH}" = "cpu" ]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/asr/requirements.txt ; \
-    else \
-        pip install --no-cache-dir -r /home/user/comps/asr/requirements.txt ; \
-    fi && \
+    pip install --no-cache-dir -r /home/user/comps/asr/requirements.txt && \
     pip install optimum[habana]
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
