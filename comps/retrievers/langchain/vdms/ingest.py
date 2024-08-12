@@ -15,14 +15,14 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFace
 from langchain_community.vectorstores import VDMS
 from langchain_community.vectorstores.vdms import VDMS_Client
 from PIL import Image
-from vdms_config import (
+from vdms_config import (  # , INDEX_SCHEMA, VDMS_URL
     COLLECTION_NAME,
     DISTANCE_STRATEGY,
     EMBED_MODEL,
     SEARCH_ENGINE,
     VDMS_HOST,
     VDMS_PORT,
-) #, INDEX_SCHEMA, VDMS_URL
+)
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 client = VDMS_Client(VDMS_HOST, VDMS_PORT)
