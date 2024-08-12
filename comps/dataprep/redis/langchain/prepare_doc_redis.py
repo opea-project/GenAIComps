@@ -413,6 +413,8 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
             # delete file on local disk
             delete_path.unlink()
 
+            return {"status": True}
+
         # delete folder
         else:
             print(f"[dataprep - del] Delete folder {file_path} is not supported for now.")
