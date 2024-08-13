@@ -69,13 +69,12 @@ VDMS_PORT = int(os.getenv("VDMS_PORT", 55555))
 
 # Vector Index Configuration
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag-vdms")
-#HUGGINGFACEHUB_API_TOKEN ="dummy-token"
-
+# HUGGINGFACEHUB_API_TOKEN ="dummy-token"
 
 
 # current_file_path = os.path.abspath(__file__)
 # parent_dir = os.path.dirname(current_file_path)
 # VDMS_SCHEMA = os.getenv("VDMS_SCHEMA", "vdms_schema.yml")
 # INDEX_SCHEMA = os.path.join(parent_dir, VDMS_SCHEMA)
-SEARCH_ENGINE="FaissFlat"
-DISTANCE_STRATEGY="L2"
+SEARCH_ENGINE = "FaissFlat"
+DISTANCE_STRATEGY = "L2"

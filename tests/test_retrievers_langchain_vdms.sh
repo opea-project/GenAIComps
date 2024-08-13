@@ -16,8 +16,8 @@ function build_docker_images() {
         --build-arg https_proxy=$https_proxy \
         --build-arg http_proxy=$http_proxy \
         --build-arg huggingfacehub_api_token=$hf_token\
-        -f comps/retrievers/langchain/vdms/docker/Dockerfile .    
-    
+        -f comps/retrievers/langchain/vdms/docker/Dockerfile .
+
 }
 
 function start_service() {
@@ -38,7 +38,7 @@ function start_service() {
     sleep 30s
 
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
-    
+
     export INDEX_NAME="rag-vdms"
 
     # vdms retriever
@@ -52,16 +52,16 @@ function start_service() {
 }
 
 function validate_microservice() {
-    
+
 
     retriever_port=7000
     URL="http://${ip_address}:$retriever_port/v1/retrieval"
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 
-        
+
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
-    
-    #echo "HTTP_STATUS = $HTTP_STATUS"    
+
+    #echo "HTTP_STATUS = $HTTP_STATUS"
 
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ retriever ] HTTP status is 200. Checking content..."

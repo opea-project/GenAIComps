@@ -6,15 +6,16 @@ import time
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
+from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 from langsmith import traceable
-from vdms_config import (
+from vdms_config import (  # , HUGGINGFACEHUB_API_TOKEN, INDEX_SCHEMA, VDMS_URL
     COLLECTION_NAME,
     DISTANCE_STRATEGY,
     EMBED_MODEL,
     SEARCH_ENGINE,
     VDMS_HOST,
     VDMS_PORT,
-) #, HUGGINGFACEHUB_API_TOKEN, INDEX_SCHEMA, VDMS_URL
+)
 
 from comps import (
     EmbedDoc,
@@ -27,30 +28,29 @@ from comps import (
     statistics_dict,
 )
 
-from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
-
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
-hf_token=os.getenv("HUGGINGFACEHUB_API_TOKEN")
+hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
 
-#Debugging 
-all_variables = dir() 
+# Debugging
+all_variables = dir()
 
-for name in all_variables: 
-    
-    # Print the item if it doesn't start with '__' 
-     if not name.startswith('__'): 
-         myvalue = eval(name) 
-         print(name, "is", type(myvalue), "and = ", myvalue)
+for name in all_variables:
 
-#client = VDMS_Client(VDMS_HOST, VDMS_PORT)
+    # Print the item if it doesn't start with '__'
+    if not name.startswith("__"):
+        myvalue = eval(name)
+        print(name, "is", type(myvalue), "and = ", myvalue)
+
+# client = VDMS_Client(VDMS_HOST, VDMS_PORT)
 
 
-#VDMS_HOST="172.17.0.2"
-#VDMS_HOST="10.54.80.228"
-#print("Host =", VDMS_HOST)
-#end debugging
+# VDMS_HOST="172.17.0.2"
+# VDMS_HOST="10.54.80.228"
+# print("Host =", VDMS_HOST)
+# end debugging
 
 client = VDMS_Client(VDMS_HOST, VDMS_PORT)
+
 
 @register_microservice(
     name="opea_service@retriever_vdms",
@@ -95,19 +95,18 @@ if __name__ == "__main__":
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
-        #print(f"TEI_EMBEDDING_ENDPOINT:{tei_embedding_endpoint}")
-        #embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint,huggingfacehub_api_token=hf_token)
-        #embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+        # print(f"TEI_EMBEDDING_ENDPOINT:{tei_embedding_endpoint}")
+        # embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint,huggingfacehub_api_token=hf_token)
+        # embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
         embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint, huggingfacehub_api_token=hf_token)
-        #embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
+        # embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
-
-#debug
-    #embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
-#end debug
+    # debug
+    # embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+    # end debug
 
     vector_db = VDMS(
         client=client,
