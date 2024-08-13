@@ -14,12 +14,14 @@ class TopologyInfo:
     # will not keep forwarding to the downstream nodes in the black list
     # should be a pattern string
     downstream_black_list: Optional[list] = []
-
+    
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
-
+class ImageData(BaseDoc):
+    image: conlist(float, min_length=0) 
+    
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
