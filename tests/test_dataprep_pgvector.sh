@@ -28,7 +28,7 @@ function start_service() {
 
     sleep 10s
 
-    docker run -d --name="test-comps-dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} opea/dataprep-pgvector:comps
+    docker run -d --name="test-comps-dataprep-pgvector" -p ${dataprep_service_port}:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} opea/dataprep-pgvector:comps
 
     sleep 3m
 }
