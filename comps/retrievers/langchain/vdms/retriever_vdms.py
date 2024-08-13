@@ -63,22 +63,25 @@ client = VDMS_Client(VDMS_HOST, VDMS_PORT)
 @register_statistics(names=["opea_service@retriever_vdms"])
 def retrieve(input: EmbedDoc) -> SearchedDoc:
     start = time.time()
+    constraints = None 
+    #place holder for adding constraints this has to be passed in the EmbedDoc input
+    #so retriever can filter on them, if this functionality is needed
     if input.search_type == "similarity":
-        search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, k=input.k)
+        search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, k=input.k, filter=constraints)
     elif input.search_type == "similarity_distance_threshold":
         if input.distance_threshold is None:
             raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
         search_res = vector_db.similarity_search_by_vector(
-            embedding=input.embedding, k=input.k, distance_threshold=input.distance_threshold
+            embedding=input.embedding, k=input.k, distance_threshold=input.distance_threshold, filter=constraints
         )
     elif input.search_type == "similarity_score_threshold":
         docs_and_similarities = vector_db.similarity_search_with_relevance_scores(
-            query=input.text, k=input.k, score_threshold=input.score_threshold
+            query=input.text, k=input.k, score_threshold=input.score_threshold, filter=constraints
         )
         search_res = [doc for doc, _ in docs_and_similarities]
     elif input.search_type == "mmr":
         search_res = vector_db.max_marginal_relevance_search(
-            query=input.text, k=input.k, fetch_k=input.fetch_k, lambda_mult=input.lambda_mult
+            query=input.text, k=input.k, fetch_k=input.fetch_k, lambda_mult=input.lambda_mult, filter=constraints
         )
     searched_docs = []
     for r in search_res:
@@ -110,7 +113,7 @@ if __name__ == "__main__":
         client=client,
         embedding=embeddings,
         collection_name=COLLECTION_NAME,
-        embedding_dimensions=128,
+        embedding_dimensions=768,
         distance_strategy=DISTANCE_STRATEGY,
         engine=SEARCH_ENGINE,
     )
