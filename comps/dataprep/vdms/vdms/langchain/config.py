@@ -3,10 +3,12 @@
 
 import os
 
+
 def getEnv(key, default_value=None):
     env_value = os.getenv(key, default=default_value)
     print(f"{key}: {env_value}")
     return env_value
+
 
 # Embedding model
 EMBED_MODEL = getEnv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
