@@ -47,7 +47,7 @@ class ServiceOrchestrator(DAG):
         timeout = aiohttp.ClientTimeout(total=1000)
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
             pending = {
-                asyncio.create_task(self.execute(session, node, initial_inputs, runtime_graph))
+                asyncio.create_task(self.execute(session, node, initial_inputs, runtime_graph, llm_parameters))
                 for node in self.ind_nodes()
             }
             ind_nodes = self.ind_nodes()
@@ -117,7 +117,10 @@ class ServiceOrchestrator(DAG):
             if inputs.get(field) != value:
                 inputs[field] = value
 
-        if self.services[cur_node].service_type == ServiceType.LLM and llm_parameters.streaming:
+        if (
+            self.services[cur_node].service_type == ServiceType.LLM
+            or self.services[cur_node].service_type == ServiceType.LVM
+        ) and llm_parameters.streaming:
             # Still leave to sync requests.post for StreamingResponse
             response = requests.post(
                 url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
@@ -126,8 +129,8 @@ class ServiceOrchestrator(DAG):
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
                 cur_node = downstream[0]
-            hitted_ends = [".", "?", "!", "。", "，", "！"]
-            endpoint = self.services[downstream[0]].endpoint_path
+                hitted_ends = [".", "?", "!", "。", "，", "！"]
+                downstream_endpoint = self.services[downstream[0]].endpoint_path
 
             def generate():
                 if response:
@@ -140,7 +143,7 @@ class ServiceOrchestrator(DAG):
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
                                     res = requests.post(
-                                        url=endpoint,
+                                        url=downstream_endpoint,
                                         data=json.dumps({"text": buffered_chunk_str}),
                                         proxies={"http": None},
                                     )

@@ -8,8 +8,7 @@ from comps.cores.proto.docarray import (
     Audio2TextDoc,
     Base64ByteStrDoc,
     DocPath,
-    EmbedDoc768,
-    EmbedDoc1024,
+    EmbedDoc,
     GeneratedDoc,
     LLMParamsDoc,
     SearchedDoc,
@@ -41,6 +40,7 @@ from comps.cores.mega.gateway import (
     SearchQnAGateway,
     AudioQnAGateway,
     FaqGenGateway,
+    VisualQnAGateway,
 )
 
 # Telemetry
