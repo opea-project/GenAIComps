@@ -12,12 +12,12 @@ function build_docker_images() {
     cd $WORKPATH
     docker build \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray  \
-        -t opea/vllm_ray:habana --network=host .
+        --no-cache -t opea/vllm_ray:habana --network=host .
 
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build \
-        -t opea/llm-vllm-ray:comps \
+        --no-cache -t opea/llm-vllm-ray:comps \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice .
 }
 

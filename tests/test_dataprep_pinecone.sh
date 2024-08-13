@@ -10,7 +10,7 @@ function build_docker_images() {
     cd $WORKPATH
 
     # build dataprep image for pinecone
-    docker build -t opea/dataprep-pinecone:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/pinecone/docker/Dockerfile .
+    docker build --no-cache -t opea/dataprep-pinecone:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/pinecone/docker/Dockerfile .
 }
 
 function start_service() {

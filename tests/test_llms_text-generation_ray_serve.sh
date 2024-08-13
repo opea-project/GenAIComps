@@ -13,13 +13,13 @@ function build_docker_images() {
     docker build \
         -f comps/llms/text-generation/ray_serve/docker/Dockerfile.rayserve \
         --network=host \
-        -t ray_serve:habana .
+        --no-cache -t ray_serve:habana .
 
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build  \
         -t opea/llm-ray:comps \
-        -f comps/llms/text-generation/ray_serve/docker/Dockerfile.microservice .
+        --no-cache -f comps/llms/text-generation/ray_serve/docker/Dockerfile.microservice .
 }
 
 function start_service() {
