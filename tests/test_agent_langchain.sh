@@ -17,7 +17,7 @@ function build_docker_images() {
     echo "Building the docker images"
     cd $WORKPATH
     echo $WORKPATH
-    docker build -t opea/comps-agent-langchain:latest -f comps/agent/langchain/docker/Dockerfile .
+    docker build -t opea/comps-agent-langchain:comps -f comps/agent/langchain/docker/Dockerfile .
 
 }
 
@@ -29,12 +29,12 @@ function start_tgi_service() {
     echo "start tgi gaudi service"
     docker run -d --runtime=habana --name "comps-tgi-gaudi-service" -p $tgi_port:80 -v $tgi_volume:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:latest --model-id $model --max-input-tokens 4096 --max-total-tokens 8092
     sleep 5s
-    docker logs comps-tgi-gaudi-service
+    docker logs test-comps-tgi-gaudi-service
 
     echo "Waiting tgi gaudi ready"
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs comps-tgi-gaudi-service > ${WORKPATH}/tests/tgi-gaudi-service.log
+        docker logs test-comps-tgi-gaudi-service > ${WORKPATH}/tests/tgi-gaudi-service.log
         n=$((n+1))
         if grep -q Connected ${WORKPATH}/tests/tgi-gaudi-service.log; then
             break
@@ -42,7 +42,7 @@ function start_tgi_service() {
         sleep 5s
     done
     sleep 5s
-    docker logs comps-tgi-gaudi-service
+    docker logs test-comps-tgi-gaudi-service
     echo "Service started successfully"
 }
 
@@ -112,10 +112,6 @@ function stop_tgi_docker() {
 
 function stop_agent_docker() {
     cid=$(docker ps -aq --filter "name=comps-agent-endpoint")
-    echo "Stopping the docker containers "${cid}
-    if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
-    echo "Docker containers stopped successfully"
-}
 
 function stop_docker() {
     stop_tgi_docker
