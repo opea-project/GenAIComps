@@ -6,6 +6,7 @@ easyocr
 fastapi
 huggingface_hub
 langchain
+langchain_huggingface
 langchain-community
 langchain-text-splitters
 markdown
