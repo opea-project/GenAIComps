@@ -2,11 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-def instantiate_agent(args, strategy="react"):
-    if strategy == "react":
+def instantiate_agent(args, strategy="react_langchain"):
+    if strategy == "react_langchain":
         from .strategy.react import ReActAgentwithLangchain
 
         return ReActAgentwithLangchain(args)
+    elif strategy == "react_langgraph":
+        from .strategy.react import ReActAgentwithLanggraph
+
+        return ReActAgentwithLanggraph(args)
     elif strategy == "plan_execute":
         from .strategy.planexec import PlanExecuteAgentWithLangGraph
 
@@ -20,6 +24,4 @@ def instantiate_agent(args, strategy="react"):
 
         return RAGAgentDocGraderV1(args)
     else:
-        from .strategy.base_agent import BaseAgent, BaseAgentState
-
-        return BaseAgent(args)
+        raise ValueError(f"Agent strategy: {strategy} not supported!")

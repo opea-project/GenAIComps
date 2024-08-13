@@ -7,6 +7,8 @@
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
+tgi_port=8080
+tgi_volume=$WORKPATH/data
 
 function build_docker_images() {
     echo "Building the docker images"
@@ -16,7 +18,7 @@ function build_docker_images() {
 
 }
 
-function start_service() {
+function start_tgi_service() {
     # redis endpoint
     export model=meta-llama/Meta-Llama-3-8B-Instruct
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
@@ -24,14 +26,9 @@ function start_service() {
 
     #single card
     echo "start tgi gaudi service"
-    docker run -d --runtime=habana --name "comps-tgi-gaudi-service" -p 8080:80 -v ./data:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:latest --model-id $model --max-input-tokens 4096 --max-total-tokens 8092
+    docker run -d --runtime=habana --name "comps-tgi-gaudi-service" -p $tgi_port:80 -v $tgi_volume:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:latest --model-id $model --max-input-tokens 4096 --max-total-tokens 8092
     sleep 5s
     docker logs comps-tgi-gaudi-service
-
-    echo "Starting agent microservice"
-    docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=react -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursion_limit=5 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:latest
-    sleep 5s
-    docker logs comps-langchain-agent-endpoint
 
     echo "Waiting tgi gaudi ready"
     n=0
@@ -47,6 +44,33 @@ function start_service() {
     docker logs comps-tgi-gaudi-service
     echo "Service started successfully"
 }
+
+function start_react_langchain_agent_service() {
+    echo "Starting react_langgraph agent microservice"
+    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=react_langchain -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:latest
+    sleep 5s
+    docker logs comps-agent-endpoint
+    echo "Service started successfully"
+}
+
+
+function start_react_langgraph_agent_service() {
+    echo "Starting react_langgraph agent microservice"
+    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=react_langgraph -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:latest
+    sleep 5s
+    docker logs comps-agent-endpoint
+    echo "Service started successfully"
+}
+
+
+function start_docgrader_agent_service() {
+    echo "Starting docgrader agent microservice"
+    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=docgrader -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:latest
+    sleep 5s
+    docker logs comps-agent-endpoint
+    echo "Service started successfully"
+}
+
 
 function validate() {
     local CONTENT="$1"
@@ -73,19 +97,28 @@ function validate_microservice() {
     echo "return value is $EXIT_CODE"
     if [ "$EXIT_CODE" == "1" ]; then
         docker logs comps-tgi-gaudi-service &> ${LOG_PATH}/test-comps-tgi-gaudi-service.log
-        docker logs comps-langchain-agent-endpoint &> ${LOG_PATH}/test-comps-langchain-agent-endpoint.log
+        docker logs comps-agent-endpoint &> ${LOG_PATH}/test-comps-langchain-agent-endpoint.log
         exit 1
     fi
 }
 
-function stop_docker() {
+function stop_tgi_docker() {
     cid=$(docker ps -aq --filter "name=comps-tgi-gaudi-service")
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
-    cid=$(docker ps -aq --filter "name=comps-langchain-agent-endpoint")
+    echo "Docker containers stopped successfully"
+}
+
+function stop_agent_docker() {
+    cid=$(docker ps -aq --filter "name=comps-agent-endpoint")
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
     echo "Docker containers stopped successfully"
+}
+
+function stop_docker() {
+    stop_tgi_docker
+    stop_agent_docker
 }
 
 function main() {
@@ -93,9 +126,28 @@ function main() {
     stop_docker
 
     build_docker_images
-    start_service
 
+    start_tgi_service
+
+    # test react_langchain
+    start_react_langchain_agent_service
+    echo "=============Testing ReAct Langchain============="
     validate_microservice
+    stop_agent_docker
+    echo "============================================="
+
+    # test react_langgraph
+    start_react_langgraph_agent_service
+    echo "===========Testing ReAct Langgraph============="
+    validate_microservice
+    stop_agent_docker
+    echo "============================================="
+
+    # test docgrader
+    start_docgrader_agent_service
+    echo "=============Testing Docgrader============="
+    validate_microservice
+    echo "============================================="
 
     stop_docker
     echo y | docker system prune 2>&1 > /dev/null
