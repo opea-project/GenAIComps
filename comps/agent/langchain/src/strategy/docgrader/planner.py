@@ -10,17 +10,17 @@ from langchain_core.output_parsers.openai_tools import PydanticToolsParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_openai import ChatOpenAI
 
 from ..base_agent import BaseAgent
 from .prompt import DOC_GRADER_PROMPT, RAGv1_PROMPT
 
+instruction = "Retrieved document is not sufficient or relevant to answer the query. Reformulate the query to search knowledge base again."
+MAX_RETRY = 3
 
-instruction="Retrieved document is not sufficient or relevant to answer the query. Reformulate the query to search knowledge base again."
-MAX_RETRY=3
 
 class AgentStateV1(TypedDict):
     # The add_messages function defines how an update should be processed
@@ -29,6 +29,7 @@ class AgentStateV1(TypedDict):
     output: str
     doc_score: str
     query_time: str
+
 
 class RagAgent:
     """Invokes the agent model to generate a response based on the current state. Given
@@ -60,6 +61,7 @@ class Retriever:
     @classmethod
     def create(cls, tools_descriptions):
         return ToolNode(tools_descriptions)
+
 
 class DocumentGraderV1:
     """Determines whether the retrieved documents are relevant to the question.
@@ -93,9 +95,9 @@ class DocumentGraderV1:
     def __call__(self, state) -> Literal["generate", "rewrite"]:
         print("---CALL DocumentGrader---")
         messages = state["messages"]
-        last_message = messages[-1] # the latest retrieved doc
+        last_message = messages[-1]  # the latest retrieved doc
 
-        question = messages[0].content # the original query
+        question = messages[0].content  # the original query
         docs = last_message.content
 
         scored_result = self.chain.invoke({"question": question, "context": docs})
@@ -104,12 +106,13 @@ class DocumentGraderV1:
 
         if score.startswith("yes"):
             print("---DECISION: DOCS RELEVANT---")
-            return {"doc_score":"generate"}
+            return {"doc_score": "generate"}
 
         else:
             print(f"---DECISION: DOCS NOT RELEVANT, score is {score}---")
-            
-            return {"messages":[HumanMessage(content=instruction)], "doc_score": "rewrite"}
+
+            return {"messages": [HumanMessage(content=instruction)], "doc_score": "rewrite"}
+
 
 class TextGeneratorV1:
     """Generate answer.
@@ -131,11 +134,11 @@ class TextGeneratorV1:
         print("---GENERATE---")
         messages = state["messages"]
         question = messages[0].content
-        query_time = state['query_time']
+        query_time = state["query_time"]
 
         # find the latest retrieved doc
         # which is a ToolMessage
-        for m in state['messages'][::-1]:
+        for m in state["messages"][::-1]:
             if isinstance(m, ToolMessage):
                 last_message = m
                 break
@@ -144,11 +147,11 @@ class TextGeneratorV1:
         docs = last_message.content
 
         # Run
-        response = self.rag_chain.invoke({"context": docs, "question": question, "time":query_time})
-        print('@@@@ Used this doc for generation:\n', docs)
-        print('@@@@ Generated response: ', response)
+        response = self.rag_chain.invoke({"context": docs, "question": question, "time": query_time})
+        print("@@@@ Used this doc for generation:\n", docs)
+        print("@@@@ Generated response: ", response)
         return {"messages": [response], "output": response}
-    
+
 
 class RAGAgentDocGraderV1(BaseAgent):
     def __init__(self, args):
@@ -186,28 +189,28 @@ class RAGAgentDocGraderV1(BaseAgent):
             "doc_grader",
             self.should_retry,
             {
-                False: "generate",  
-                True: "agent",  
+                False: "generate",
+                True: "agent",
             },
         )
         workflow.add_edge("generate", END)
 
         self.app = workflow.compile()
-    
+
     def should_retry(self, state):
         # first check how many retry attempts have been made
         num_retry = 0
-        for m in state['messages']:
+        for m in state["messages"]:
             if instruction in m.content:
                 num_retry += 1
 
         print("**********Num retry: ", num_retry)
-        
-        if (num_retry <MAX_RETRY) and (state["doc_score"] == "rewrite"):
+
+        if (num_retry < MAX_RETRY) and (state["doc_score"] == "rewrite"):
             return True
         else:
             return False
-    
+
     def prepare_initial_state(self, query):
         return {"messages": [HumanMessage(content=query)]}
 
@@ -225,7 +228,7 @@ class RAGAgentDocGraderV1(BaseAgent):
             yield "data: [DONE]\n\n"
         except Exception as e:
             yield str(e)
-    
+
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -236,13 +239,8 @@ class RAGAgentDocGraderV1(BaseAgent):
                 else:
                     message.pretty_print()
 
-            last_message = s['messages'][-1]
-            print('******Response: ', last_message.content)
+            last_message = s["messages"][-1]
+            print("******Response: ", last_message.content)
             return last_message.content
         except Exception as e:
             return str(e)
-
-
-
-
-    

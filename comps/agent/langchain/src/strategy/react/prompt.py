@@ -8,7 +8,7 @@ hwchase17_react_prompt = PromptTemplate.from_template(
 )
 
 
-REACT_SYS_MESSAGE="""\
+REACT_SYS_MESSAGE = """\
 Decompose the user request into a series of simple tasks when necessary and solve the problem step by step.
 When you cannot get the answer at first, do not give up. Reflect on the info you have from the tools and try to solve the problem in a different way.
 Please follow these guidelines when formulating your answer:

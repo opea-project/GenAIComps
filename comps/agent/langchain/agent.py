@@ -12,7 +12,7 @@ cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 
-from comps import LLMParamsDoc, GeneratedDoc, ServiceType, opea_microservices, register_microservice
+from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 from comps.agent.langchain.src.agent import instantiate_agent
 from comps.agent.langchain.src.utils import get_args
 
@@ -35,19 +35,19 @@ async def llm_generate(input: LLMParamsDoc):
     agent_inst = instantiate_agent(args, args.strategy)
     print(type(agent_inst))
 
-
     # 2. prepare the input for the agent
     if input.streaming:
-        print('-----------STREAMING-------------')
+        print("-----------STREAMING-------------")
         return StreamingResponse(agent_inst.stream_generator(input.query, config), media_type="text/event-stream")
 
     else:
         # TODO: add support for non-streaming mode
-        print('-----------NOT STREAMING-------------')
+        print("-----------NOT STREAMING-------------")
         response = await agent_inst.non_streaming_run(input.query, config)
-        print('-----------Response-------------')
+        print("-----------Response-------------")
         print(response)
         return GeneratedDoc(text=response, prompt=input.query)
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@comps-react-agent"].start()

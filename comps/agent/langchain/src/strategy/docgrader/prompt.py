@@ -3,7 +3,7 @@
 
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 
-DOC_GRADER_PROMPT="""\
+DOC_GRADER_PROMPT = """\
 Given the QUERY, determine if a relevant answer can be derived from the DOCUMENT.\n
 QUERY: {question} \n
 DOCUMENT:\n{context}\n\n
