@@ -11,7 +11,7 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
-    docker build -t opea/llava-tgi:latest .
+    docker build --no-cache -t opea/llava-tgi:latest .
     cd ..
     docker build --no-cache -t opea/lvm-tgi:latest -f comps/lvms/Dockerfile_tgi .
 }

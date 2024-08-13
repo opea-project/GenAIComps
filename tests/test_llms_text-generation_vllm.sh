@@ -12,13 +12,13 @@ function build_docker_images() {
     cd $WORKPATH/comps/llms/text-generation/vllm
     docker build \
         -f docker/Dockerfile.hpu \
-        -t opea/vllm:hpu \
+        --no-cache -t opea/vllm:hpu \
         --shm-size=128g .
 
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build  \
-        -t opea/llm-vllm:comps \
+        --no-cache -t opea/llm-vllm:comps \
         -f comps/llms/text-generation/vllm/docker/Dockerfile.microservice .
 }
 
