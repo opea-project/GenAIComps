@@ -33,7 +33,7 @@ start_container() {
       --ipc=host \
       -e HTTPS_PROXY=$https_proxy \
       -e HTTP_PROXY=$https_proxy \
-      -v $HF_CACHE_DIR:/root/.cache/huggingface \
+      -v $HF_CACHE_DIR:/home/user/.cache/huggingface \
       vllm:openvino /bin/bash -c "\
         cd / && \
         export VLLM_CPU_KVCACHE_SPACE=50 && \
