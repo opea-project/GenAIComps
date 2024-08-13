@@ -9,7 +9,7 @@ WORKPATH="$( cd "$( dirname "$0" )" && pwd )"
 # Define variables
 port=8123
 HF_CACHE_DIR=$HOME/.cache/huggingface
-DOCKER_IMAGE="vllm:openvino"
+DOCKER_IMAGE="vllm-openvino:comps"
 CONTAINER_NAME="vllm-openvino-container"
 
 function build_container() {
