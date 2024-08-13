@@ -59,14 +59,25 @@ class WhisperModel:
         waveform = AudioSegment.from_file("warmup.wav").set_frame_rate(16000)
         waveform = self._audiosegment_to_librosawav(waveform)
 
-        processed_inputs = self.processor(
-            waveform,
-            return_tensors="pt",
-            truncation=False,
-            padding="longest",
-            return_attention_mask=True,
-            sampling_rate=16000,
-        )
+        try:
+            processed_inputs = self.processor(
+                waveform,
+                return_tensors="pt",
+                truncation=False,
+                padding="longest",
+                return_attention_mask=True,
+                sampling_rate=16000,
+            )
+        except RuntimeError as e:
+            if "Padding size should be less than" in str(e):
+                # short-form
+                processed_inputs = self.processor(
+                    waveform,
+                    return_tensors="pt",
+                    sampling_rate=16000,
+                )
+            else:
+                raise e
 
         if processed_inputs.input_features.shape[-1] < 3000:
             # short-form
@@ -111,14 +122,25 @@ class WhisperModel:
             audio_dataset = Dataset.from_dict({"audio": [audio_path]}).cast_column("audio", Audio(sampling_rate=16000))
             waveform = audio_dataset[0]["audio"]["array"]
 
-        processed_inputs = self.processor(
-            waveform,
-            return_tensors="pt",
-            truncation=False,
-            padding="longest",
-            return_attention_mask=True,
-            sampling_rate=16000,
-        )
+        try:
+            processed_inputs = self.processor(
+                waveform,
+                return_tensors="pt",
+                truncation=False,
+                padding="longest",
+                return_attention_mask=True,
+                sampling_rate=16000,
+            )
+        except RuntimeError as e:
+            if "Padding size should be less than" in str(e):
+                # short-form
+                processed_inputs = self.processor(
+                    waveform,
+                    return_tensors="pt",
+                    sampling_rate=16000,
+                )
+            else:
+                raise e
         if processed_inputs.input_features.shape[-1] < 3000:
             # short-form
             processed_inputs = self.processor(
@@ -126,7 +148,7 @@ class WhisperModel:
                 return_tensors="pt",
                 sampling_rate=16000,
             )
-        else:
+        elif self.device == "hpu":
             processed_inputs["input_features"] = torch.nn.functional.pad(
                 processed_inputs.input_features,
                 (0, self.hpu_max_len - processed_inputs.input_features.size(-1)),
