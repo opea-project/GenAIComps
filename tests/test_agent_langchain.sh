@@ -36,7 +36,7 @@ function start_service() {
     echo "Waiting tgi gaudi ready"
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs comps-tgi-gaudi-service > ${WORKPATH}/tests/tgi-gaudi-service.log
+        docker logs test-comps-tgi-gaudi-service > ${WORKPATH}/tests/tgi-gaudi-service.log
         n=$((n+1))
         if grep -q Connected ${WORKPATH}/tests/tgi-gaudi-service.log; then
             break
