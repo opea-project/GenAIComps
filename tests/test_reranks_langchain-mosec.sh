@@ -31,10 +31,10 @@ function start_service() {
 }
 
 function validate_microservice() {
-    mosec_service_port=5002
-    result=$(http_proxy="" curl http://${ip_address}:$mosec_service_port/v1/embeddings \
+    mosec_service_port=5007
+    result=$(http_proxy="" curl http://${ip_address}:${mosec_service_port}/v1/reranking\
         -X POST \
-        -d '{"text":"What is Deep Learning?"}' \
+        -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
         -H 'Content-Type: application/json')
     if [[ $result == *"Human"* ]]; then
         echo "Result correct."
