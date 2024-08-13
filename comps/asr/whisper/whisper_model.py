@@ -78,16 +78,23 @@ class WhisperModel:
         else:
             processed_inputs["input_features"] = torch.nn.functional.pad(
                 processed_inputs.input_features,
-                (0,self.hpu_max_len-processed_inputs.input_features.size(-1)),
-                value=-1.5
+                (0, self.hpu_max_len - processed_inputs.input_features.size(-1)),
+                value=-1.5,
             )
             processed_inputs["attention_mask"] = torch.nn.functional.pad(
                 processed_inputs.attention_mask,
-                (0,self.hpu_max_len + 1 - processed_inputs.attention_mask.size(-1)),
-                value=0
+                (0, self.hpu_max_len + 1 - processed_inputs.attention_mask.size(-1)),
+                value=0,
             )
 
-        _ = self.model.generate(**(processed_inputs.to(self.device,)), language=self.language)
+        _ = self.model.generate(
+            **(
+                processed_inputs.to(
+                    self.device,
+                )
+            ),
+            language=self.language,
+        )
 
     def audio2text(self, audio_path):
         """Convert audio to text.
@@ -122,16 +129,23 @@ class WhisperModel:
         else:
             processed_inputs["input_features"] = torch.nn.functional.pad(
                 processed_inputs.input_features,
-                (0,self.hpu_max_len-processed_inputs.input_features.size(-1)),
-                value=-1.5
+                (0, self.hpu_max_len - processed_inputs.input_features.size(-1)),
+                value=-1.5,
             )
             processed_inputs["attention_mask"] = torch.nn.functional.pad(
                 processed_inputs.attention_mask,
-                (0,self.hpu_max_len + 1 - processed_inputs.attention_mask.size(-1)),
-                value=0
+                (0, self.hpu_max_len + 1 - processed_inputs.attention_mask.size(-1)),
+                value=0,
             )
 
-        predicted_ids = self.model.generate(**(processed_inputs.to(self.device,)), language=self.language)
+        predicted_ids = self.model.generate(
+            **(
+                processed_inputs.to(
+                    self.device,
+                )
+            ),
+            language=self.language,
+        )
         # pylint: disable=E1101
         result = self.processor.tokenizer.batch_decode(predicted_ids, skip_special_tokens=True, normalize=True)[0]
         if self.language in ["chinese", "mandarin"]:
