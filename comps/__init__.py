@@ -19,6 +19,9 @@ from comps.cores.proto.docarray import (
     RAGASScores,
     GraphDoc,
     LVMDoc,
+    ImagePath,
+    ImagesPath,
+    VideoPath,
 )
 
 # Constants
