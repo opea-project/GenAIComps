@@ -6,9 +6,9 @@ easyocr
 fastapi
 huggingface_hub
 langchain
-langchain_huggingface
 langchain-community
 langchain-text-splitters
+langchain_huggingface
 markdown
 numpy
 opentelemetry-api

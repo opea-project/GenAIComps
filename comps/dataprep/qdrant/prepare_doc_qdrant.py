@@ -8,14 +8,18 @@ from config import COLLECTION_NAME, EMBED_MODEL, QDRANT_HOST, QDRANT_PORT, TEI_E
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_community.vectorstores import Qdrant
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
-    document_loader, get_separators, get_tables_result,
-    encode_filename, save_content_to_local_disk, parse_html
+    document_loader,
+    encode_filename,
+    get_separators,
+    get_tables_result,
+    parse_html,
+    save_content_to_local_disk,
 )
 
 upload_folder = "./uploaded_files/"
@@ -35,10 +39,10 @@ def ingest_data_to_qdrant(doc_path: DocPath):
         text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     else:
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=doc_path.chunk_size, 
-            chunk_overlap=doc_path.chunk_overlap, 
-            add_start_index=True, 
-            separators=get_separators()
+            chunk_size=doc_path.chunk_size,
+            chunk_overlap=doc_path.chunk_overlap,
+            add_start_index=True,
+            separators=get_separators(),
         )
 
     content = document_loader(path)
@@ -48,7 +52,7 @@ def ingest_data_to_qdrant(doc_path: DocPath):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
         chunks = chunks + table_chunks
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
-    
+
     # Create vectorstore
     if TEI_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service
@@ -57,7 +61,7 @@ def ingest_data_to_qdrant(doc_path: DocPath):
         # create embeddings using local embedding model
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
-    print(f"embedder created.")
+    print("embedder created.")
 
     # Batch size
     batch_size = 32
@@ -76,6 +80,7 @@ def ingest_data_to_qdrant(doc_path: DocPath):
         print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
     return True
+
 
 @register_microservice(
     name="opea_service@prepare_doc_qdrant",
@@ -139,7 +144,7 @@ async def ingest_documents(
                 )
             except json.JSONDecodeError:
                 raise HTTPException(status_code=500, detail="Fail to ingest data into qdrant.")
-        
+
             print(f"Successfully saved link {link}")
 
         return {"status": 200, "message": "Data preparation succeeded"}
