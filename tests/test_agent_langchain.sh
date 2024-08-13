@@ -24,7 +24,7 @@ function start_service() {
 
     #single card
     echo "start tgi gaudi service"
-    docker run -d --runtime=habana --name "test-comps-tgi-gaudi-service" -p 8080:80 -v ./data:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:comps --model-id $model --max-input-tokens 4096 --max-total-tokens 8092
+    docker run -d --runtime=habana --name "test-comps-tgi-gaudi-service" -p 8080:80 -v ./data:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:latest --model-id $model --max-input-tokens 4096 --max-total-tokens 8092
     sleep 5s
     docker logs test-comps-tgi-gaudi-service
 
