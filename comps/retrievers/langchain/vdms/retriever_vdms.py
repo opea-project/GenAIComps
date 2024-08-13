@@ -63,10 +63,10 @@ client = VDMS_Client(VDMS_HOST, VDMS_PORT)
 @register_statistics(names=["opea_service@retriever_vdms"])
 def retrieve(input: EmbedDoc) -> SearchedDoc:
     start = time.time()
-    constraints = None 
-    #place holder for adding constraints this has to be passed in the EmbedDoc input
-    #so retriever can filter on them, if this functionality is needed
-    
+    constraints = None
+    # place holder for adding constraints this has to be passed in the EmbedDoc input
+    # so retriever can filter on them, if this functionality is needed
+
     if input.search_type == "similarity":
         search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, k=input.k, filter=constraints)
     elif input.search_type == "similarity_distance_threshold":
