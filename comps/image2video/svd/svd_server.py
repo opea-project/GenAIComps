@@ -16,12 +16,6 @@ from fastapi.responses import JSONResponse, Response
 app = FastAPI()
 
 
-@app.get("/health")
-async def health() -> Response:
-    """Health check."""
-    return Response(status_code=200)
-
-
 @app.post("/generate")
 async def generate(request: Request) -> Response:
     print("SVD generation begin.")

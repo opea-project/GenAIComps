@@ -1,6 +1,6 @@
 # Image-to-Video Microservice
 
-Image-to-Video is a task that generate video in conditioning the provided image(s). This microservice supports image-to-video task by using Stable Video Diffusion (SVD) model.
+Image-to-Video is a task that generate video conditioning on the provided image(s). This microservice supports image-to-video task by using Stable Video Diffusion (SVD) model.
 
 # 🚀1. Start Microservice with Python (Option 1)
 
@@ -56,7 +56,6 @@ docker run --ipc=host -p 9368:9368 -e http_proxy=$http_proxy -e https_proxy=$htt
 
 ```bash
 ip_address=$(hostname -I | awk '{print $1}')
-
 docker run -p 9369:9369 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e SVD_ENDPOINT=http://$ip_address:9368 opea/image2video:latest
 ```
 
