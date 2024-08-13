@@ -112,6 +112,10 @@ function stop_tgi_docker() {
 
 function stop_agent_docker() {
     cid=$(docker ps -aq --filter "name=comps-agent-endpoint")
+    echo "Stopping the docker containers "${cid}
+    if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
+    echo "Docker containers stopped successfully"
+}
 
 function stop_docker() {
     stop_tgi_docker
