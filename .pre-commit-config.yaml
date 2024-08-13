@@ -119,3 +119,11 @@ repos:
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix, --no-cache]
+
+  - repo: local
+    hooks:
+      - id: freeze-requirements
+        name: freeze requirements
+        entry: bash .github/workflows/scripts/freeze_requirements.sh
+        language: system
+        require_serial: true
