@@ -1,7 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents import AgentExecutor 
+from langchain.agents import create_react_agent as create_react_langchain_agent
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
@@ -17,9 +18,9 @@ class ReActAgentwithLangchain(BaseAgent):
         super().__init__(args)
         prompt = hwchase17_react_prompt
         if has_multi_tool_inputs(self.tools_descriptions):
-            raise ValueError("Only supports single input tools when using strategy == react")
+            raise ValueError("Only supports single input tools when using strategy == react_langchain")
         else:
-            agent_chain = create_react_agent(
+            agent_chain = create_react_langchain_agent(
                 self.llm_endpoint, self.tools_descriptions, prompt, tools_renderer=tool_renderer
             )
         self.app = AgentExecutor(
