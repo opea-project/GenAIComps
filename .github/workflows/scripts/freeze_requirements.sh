@@ -14,27 +14,22 @@ function freeze() {
         "$folder/freeze.txt" "$file"
     if [[ -e "$folder/freeze.txt" ]]; then
         if [[ "$keep_origin_packages" == "true" ]]; then
-            filter_packages
+            packages1=$(cut -d'=' -f1 "$file" | sort)
+            packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | sort)
+            common_packages=$(comm -12 <(echo "$packages1") <(echo "$packages2"))
+            rm "$file"
+            while IFS= read -r line; do
+                package=$(echo "$line" | cut -d'=' -f1)
+                if echo "$common_packages" | grep -q "^$package$"; then
+                    echo "$line" >>"$file"
+                fi
+            done <"$folder/freeze.txt"
+            rm "$folder/freeze.txt"
         else
             mv "$folder/freeze.txt" "$file"
         fi
         exit 1
     fi
-}
-
-
-function filter_packages() {
-    packages1=$(cut -d'=' -f1 "$file" | sort)
-    packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | sort)
-    common_packages=$(comm -12 <(echo "$packages1") <(echo "$packages2"))
-    rm "$file"
-    while IFS= read -r line; do
-        package=$(echo "$line" | cut -d'=' -f1)
-        if echo "$common_packages" | grep -q "^$package$"; then
-            echo "$line" >>"$file"
-        fi
-    done <"$folder/freeze.txt"
-    rm "$folder/freeze.txt"
 }
 
 
