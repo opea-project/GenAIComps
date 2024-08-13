@@ -34,7 +34,7 @@ start_container() {
       -e HTTPS_PROXY=$https_proxy \
       -e HTTP_PROXY=$https_proxy \
       -v $HF_CACHE_DIR:/root/.cache/huggingface \
-      vllm:openvino /bin/bash -c "\
+      vllm-openvino:comps /bin/bash -c "\
         cd / && \
         export VLLM_CPU_KVCACHE_SPACE=50 && \
         python3 -m vllm.entrypoints.openai.api_server \
