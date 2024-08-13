@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -27,6 +27,8 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
+        docker logs test-comps-tts-speecht5
+        docker logs test-comps-tts
         exit 1
     fi
 
