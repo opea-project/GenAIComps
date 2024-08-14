@@ -11,7 +11,7 @@ services:
       - "6379:6379"
       - "8001:8001"
   retriever:
-    image: opea/retriever-redis:latest
+    image: opea/retriever-redis:${RETRIEVER_REDIS_VERSION:-latest}
     container_name: retriever-redis-server
     ports:
       - "7000:7000"

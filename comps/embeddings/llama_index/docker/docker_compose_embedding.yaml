@@ -5,7 +5,7 @@ version: "3.8"
 
 services:
   embedding:
-    image: opea/embedding-tei:latest
+    image: opea/embedding-tei:${EMBEDDING_TEI_VERSION:-latest}
     container_name: embedding-tei-server
     ports:
       - "6000:6000"
