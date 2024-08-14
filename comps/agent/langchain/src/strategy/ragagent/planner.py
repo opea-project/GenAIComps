@@ -14,6 +14,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.checkpoint.memory import MemorySaver
 
 from ..base_agent import BaseAgent
 from .prompt import DOC_GRADER_PROMPT, RAG_PROMPT
@@ -154,7 +155,7 @@ class TextGenerator:
 
 
 class RAGAgent(BaseAgent):
-    def __init__(self, args):
+    def __init__(self, args, with_memory=False):
         super().__init__(args)
 
         # Define Nodes
@@ -195,7 +196,10 @@ class RAGAgent(BaseAgent):
         )
         workflow.add_edge("generate", END)
 
-        self.app = workflow.compile()
+        if with_memory:
+            self.app = workflow.compile(checkpointer=MemorySaver())
+        else:
+            self.app = workflow.compile()
 
     def should_retry(self, state):
         # first check how many retry attempts have been made
