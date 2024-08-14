@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Union, Tuple
 import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
-from docarray.typing import AudioUrl
+from docarray.typing import AudioUrl, ImageUrl
 from pydantic import Field, conint, conlist, field_validator
 
 
@@ -17,13 +17,23 @@ class TopologyInfo:
 
 
 class TextDoc(BaseDoc, TopologyInfo):
-    text: str
+    text: str = None
 
 class ImageDoc(BaseDoc):
-    image_path: str
+    url: Optional[ImageUrl] = Field(
+        description="The path to the image. It can be remote (Web) URL, or a local file path",
+        default=None,
+    )
+    base64_image: Optional[str] = Field(
+        description="The base64-based encoding of the image",
+        default=None,
+    )
 
 class TextImageDoc(BaseDoc):
-    doc: Tuple[Union[TextDoc, ImageDoc]]
+    image: ImageDoc = None
+    text: TextDoc = None
+
+MultimodalDoc = Union[TextDoc, ImageDoc, TextImageDoc]
 
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
@@ -46,18 +56,19 @@ class EmbedDoc(BaseDoc):
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
+    # do we need to have image_path here
+    # image_paths: Optional[conlist(str)] = None
 
-class EmbedDoc1024(BaseDoc):
-     texts: conlist(str)  
-     embedding: conlist(float)
-     search_type: str = "similarity"
-     k: int = 4
-     distance_threshold: Optional[float] = None
-     fetch_k: int = 20
-     lambda_mult: float = 0.5
-     score_threshold: float = 0.2
-     image_paths: Optional[conlist(str)] = None
-
+class EmbedMultimodalDoc(EmbedDoc):
+    # extend EmbedDoc with these attributes
+    url: Optional[ImageUrl] = Field(
+        description="The path to the image. It can be remote (Web) URL, or a local file path.",
+        default=None,
+    )
+    base64_image: Optional[str] = Field(
+        description="The base64-based encoding of the image.",
+        default=None,
+    )
 
 class Audio2TextDoc(AudioDoc):
     url: Optional[AudioUrl] = Field(
