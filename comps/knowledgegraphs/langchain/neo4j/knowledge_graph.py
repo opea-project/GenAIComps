@@ -10,9 +10,8 @@ comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 import json
 
-import requests
 from langchain import hub
-from langchain.agents import AgentExecutor, Tool, load_tools
+from langchain.agents import AgentExecutor, Tool
 from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.agents.output_parsers import ReActJsonSingleInputOutputParser
 from langchain.chains import GraphCypherQAChain, RetrievalQA
@@ -22,9 +21,8 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.graphs import Neo4jGraph
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_community.vectorstores.neo4j_vector import Neo4jVector
-from langsmith import traceable
 
-from comps import GeneratedDoc, GraphDoc, ServiceType, opea_microservices, register_microservice
+from comps import GeneratedDoc, GraphDoc, opea_microservices, register_microservice
 
 
 def get_retriever(input, neo4j_endpoint, neo4j_username, neo4j_password, llm):
@@ -100,7 +98,7 @@ def get_agent(vector_qa, cypher_chain, llm_repo_id):
 
 
 @register_microservice(
-    name="opea_service@knowledge_graph",
+    name="opea_service@knowledge_graph_neo4j",
     endpoint="/v1/graphs",
     host="0.0.0.0",
     port=8060,
