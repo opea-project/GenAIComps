@@ -20,6 +20,7 @@ from vdms_config import (  # , HUGGINGFACEHUB_API_TOKEN, INDEX_SCHEMA, VDMS_URL
 from comps import (
     EmbedDoc,
     SearchedDoc,
+    SearchedMultimodalDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -61,7 +62,7 @@ client = VDMS_Client(VDMS_HOST, VDMS_PORT)
 )
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_vdms"])
-def retrieve(input: EmbedDoc) -> SearchedDoc:
+def retrieve(input: EmbedDoc) -> SearchedMultimodalDoc:
     start = time.time()
     constraints = None
     # place holder for adding constraints this has to be passed in the EmbedDoc input
@@ -85,9 +86,11 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
             query=input.text, k=input.k, fetch_k=input.fetch_k, lambda_mult=input.lambda_mult, filter=constraints
         )
     searched_docs = []
+    metadata_list = []
     for r in search_res:
         searched_docs.append(TextDoc(text=r.page_content))
-    result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
+        metadata_list.append(r.metadata)
+    result = SearchedMultimodalDoc(retrieved_docs=searched_docs, metadata=metadata_list, initial_query=input.text)
     statistics_dict["opea_service@retriever_vdms"].append_latency(time.time() - start, None)
     return result
 
@@ -99,7 +102,7 @@ if __name__ == "__main__":
         # print(f"TEI_EMBEDDING_ENDPOINT:{tei_embedding_endpoint}")
         # embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint,huggingfacehub_api_token=hf_token)
         # embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
-        embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint, huggingfacehub_api_token=hf_token)
+        embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint, huggingfacehub_api_token=hf_token)        
         # embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
     else:
         # create embeddings using local embedding model
@@ -113,7 +116,7 @@ if __name__ == "__main__":
         client=client,
         embedding=embeddings,
         collection_name=COLLECTION_NAME,
-        embedding_dimensions=768,
+        #embedding_dimensions=768,
         distance_strategy=DISTANCE_STRATEGY,
         engine=SEARCH_ENGINE,
     )

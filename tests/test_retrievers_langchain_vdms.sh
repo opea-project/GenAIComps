@@ -33,6 +33,7 @@ function start_service() {
     model="BAAI/bge-base-en-v1.5"
     docker run -d --name="test-comps-retriever-tei-endpoint" \
         -p $tei_endpoint:80 -v ./data:/data \
+        -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy \
         --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 \
         --model-id $model
     sleep 30s
