@@ -15,10 +15,7 @@ def instantiate_agent(args, strategy="react_langchain"):
         from .strategy.planexec import PlanExecuteAgentWithLangGraph
 
         return PlanExecuteAgentWithLangGraph(args)
-    elif strategy == "agentic_rag":
-        from .strategy.agentic_rag import RAGAgentwithLanggraph
 
-        return RAGAgentwithLanggraph(args)
     elif strategy == "docgrader":
         from .strategy.docgrader import RAGAgentDocGraderV1
 
