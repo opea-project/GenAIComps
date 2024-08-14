@@ -9,6 +9,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/retriever-pinecone:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/pinecone/docker/Dockerfile .
+    if $? ; then
+        echo "opea/retriever-pinecone built successful"
+    else
+        echo "opea/retriever-pinecone built fail"
+        exit 1
+    fi
 }
 
 function start_service() {

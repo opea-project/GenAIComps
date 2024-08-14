@@ -13,12 +13,24 @@ function build_docker_images() {
     docker build \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray  \
         -t opea/vllm_ray-habana:comps --network=host .
+    if $? ; then
+        echo "opea/vllm_ray-habana built successful"
+    else
+        echo "opea/vllm_ray-habana built fail"
+        exit 1
+    fi
 
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build \
         -t opea/llm-vllm-ray:comps \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice .
+    if $? ; then
+        echo "opea/llm-vllm-ray built successful"
+    else
+        echo "opea/llm-vllm-ray built fail"
+        exit 1
+    fi
 }
 
 function start_service() {

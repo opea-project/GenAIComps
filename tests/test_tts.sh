@@ -11,7 +11,19 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     docker build --no-cache -t opea/speecht5:comps -f comps/tts/speecht5/Dockerfile .
+    if $? ; then
+        echo "opea/speecht5 built successful"
+    else
+        echo "opea/speecht5 built fail"
+        exit 1
+    fi
     docker build --no-cache -t opea/tts:comps -f comps/tts/Dockerfile .
+    if $? ; then
+        echo "opea/tts built successful"
+    else
+        echo "opea/tts built fail"
+        exit 1
+    fi
 }
 
 function start_service() {

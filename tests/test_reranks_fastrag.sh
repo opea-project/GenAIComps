@@ -9,6 +9,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/reranking-fastrag:comps -f comps/reranks/fastrag/docker/Dockerfile .
+    if $? ; then
+        echo "opea/reranking-fastrag built successful"
+    else
+        echo "opea/reranking-fastrag built fail"
+        exit 1
+    fi
 }
 
 function start_service() {

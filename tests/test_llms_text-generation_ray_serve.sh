@@ -14,12 +14,24 @@ function build_docker_images() {
         -f comps/llms/text-generation/ray_serve/docker/Dockerfile.rayserve \
         --network=host \
         -t ray_serve_habana:comps .
+    if $? ; then
+        echo "ray_serve_habana built successful"
+    else
+        echo "ray_serve_habana built fail"
+        exit 1
+    fi
 
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build  \
         -t opea/llm-ray:comps \
         -f comps/llms/text-generation/ray_serve/docker/Dockerfile.microservice .
+    if $? ; then
+        echo "opea/llm-ray built successful"
+    else
+        echo "opea/llm-ray built fail"
+        exit 1
+    fi
 }
 
 function start_service() {

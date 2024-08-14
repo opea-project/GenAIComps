@@ -12,6 +12,12 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     docker build --no-cache -t opea/embedding-tei-llamaindex:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/llama_index/docker/Dockerfile .
+    if $? ; then
+        echo "opea/embedding-tei-llamaindex built successful"
+    else
+        echo "opea/embedding-tei-llamaindex built fail"
+        exit 1
+    fi
 }
 
 function start_service() {

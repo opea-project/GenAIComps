@@ -10,7 +10,13 @@ function build_docker_images() {
     cd $WORKPATH
 
     # build dataprep image for pinecone
-    docker build -t opea/dataprep-pinecone:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/pinecone/docker/Dockerfile .
+    docker build -t opea/dataprep-pinecone:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/pinecone/docker/Dockerfile .
+    if $? ; then
+        echo "opea/dataprep-pinecone built successful"
+    else
+        echo "opea/dataprep-pinecone built fail"
+        exit 1
+    fi
 }
 
 function start_service() {
@@ -18,7 +24,7 @@ function start_service() {
     export PINECONE_INDEX_NAME="test-index"
     export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
 
-    docker run -d --name="dataprep-pinecone" -p 6007:6007 -p 6008:6008 -p 6009:6009 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e PINECONE_API_KEY=$PINECONE_API_KEY -e PINECONE_INDEX_NAME=$PINECONE_INDEX_NAME opea/dataprep-pinecone:latest
+    docker run -d --name="dataprep-pinecone" -p 6007:6007 -p 6008:6008 -p 6009:6009 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e PINECONE_API_KEY=$PINECONE_API_KEY -e PINECONE_INDEX_NAME=$PINECONE_INDEX_NAME opea/dataprep-pinecone:comps
 
     sleep 1m
 }

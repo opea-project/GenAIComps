@@ -11,6 +11,12 @@ LOG_PATH="$WORKPATH/tests"
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/llm-tgi:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/summarization/tgi/Dockerfile .
+    if $? ; then
+        echo "opea/llm-tgi built successful"
+    else
+        echo "opea/llm-tgi built fail"
+        exit 1
+    fi
 }
 
 function start_service() {
