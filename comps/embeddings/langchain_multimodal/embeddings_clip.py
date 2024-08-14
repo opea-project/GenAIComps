@@ -41,7 +41,7 @@ class tCLIP(nn.Module):
         vid_embs = []
         for frames in frames_batch:
             frame_embeddings = self.get_image_embeddings(frames)
-#            frame_embeddings = rearrange(frame_embeddings, "(b n) d -> b n d", b=len(frames_batch))
+            frame_embeddings = rearrange(frame_embeddings, "(b n) d -> b n d", b=len(frames_batch))
             # Normalize, mean aggregate and return normalized video_embeddings
             frame_embeddings = frame_embeddings / frame_embeddings.norm(dim=-1, keepdim=True) 
             video_embeddings = frame_embeddings.mean(dim=1)

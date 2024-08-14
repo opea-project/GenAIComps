@@ -19,8 +19,9 @@ class TopologyInfo:
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
-class ImageData(BaseDoc):
-    image: conlist(float, min_length=0) 
+class MultimodalTextInput(BaseDoc):
+    text: str
+    constraints : dict = None 
     
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
@@ -43,6 +44,7 @@ class EmbedDoc(BaseDoc):
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
+    constraints: dict = None
 
 
 class Audio2TextDoc(AudioDoc):
