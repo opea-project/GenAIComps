@@ -3,14 +3,7 @@
 
 import os
 
-from config import (
-    COLLECTION_NAME,
-    DISTANCE_STRATEGY,
-    EMBED_MODEL,
-    SEARCH_ENGINE,
-    VDMS_HOST,
-    VDMS_PORT,
-)
+from config import COLLECTION_NAME, DISTANCE_STRATEGY, EMBED_MODEL, SEARCH_ENGINE, VDMS_HOST, VDMS_PORT
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
@@ -56,7 +49,7 @@ def ingest_documents(doc_path: DocPath):
         chunks = chunks + table_chunks
 
     print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
-    
+
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
