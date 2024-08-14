@@ -26,9 +26,6 @@ import time
 from pathlib import Path
 
 import torch
-from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
-from transformers.utils import check_min_version
-
 from optimum.habana.checkpoint_utils import (
     get_ds_injection_policy,
     get_repo_root,
@@ -42,6 +39,8 @@ from optimum.habana.utils import (
     get_habana_frameworks_version,
     set_seed,
 )
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+from transformers.utils import check_min_version
 
 
 def adjust_batch(batch, size):
@@ -166,7 +165,6 @@ def setup_device(args):
 # patching LinearAllreduce to use ScopedLinearAllReduce
 def patch_scoped_linear_all_reduce(model):
     from deepspeed.module_inject.layers import LinearAllreduce
-
     from optimum.habana.transformers.models.modeling_all_models import ScopedLinearAllReduce
 
     for name, module in model.named_children():
@@ -227,7 +225,6 @@ def setup_model(args, model_dtype, model_kwargs, logger):
 
     if args.use_hpu_graphs:
         from habana_frameworks.torch.hpu import wrap_in_hpu_graph
-
         from optimum.habana.transformers.trainer import _is_peft_model
 
         if check_habana_frameworks_version("1.13.0") and model.config.model_type == "falcon":

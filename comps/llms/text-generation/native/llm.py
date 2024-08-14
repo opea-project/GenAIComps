@@ -12,22 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import time
-import logging
+
 import torch
-from utils import initialize_model
 from langchain_core.prompts import PromptTemplate
-from template import ChatTemplate, input_sentences, args_dict
+from template import ChatTemplate, args_dict, input_sentences
+from utils import initialize_model
+
 from comps import (
-    LLMParamsDoc, 
-    ServiceType, 
-    opea_microservices, 
+    GeneratedDoc,
+    LLMParamsDoc,
+    ServiceType,
+    opea_microservices,
     register_microservice,
     register_statistics,
-    GeneratedDoc
 )
-
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -55,7 +56,8 @@ def generate(
     profiling_steps=0,
     profiling_warmup_steps=0,
     ignore_eos=True,
-    profiling_record_shapes=False):
+    profiling_record_shapes=False,
+):
     """Generates sequences from the input sentences and returns them."""
     logger.info(f"[llm - generate] starting to inference with prompt {input_query}")
     encode_t0 = time.perf_counter()
@@ -68,12 +70,12 @@ def generate(
     for t in input_tokens:
         logger.info(f"[llm - generate] t: {t}")
         if torch.is_tensor(input_tokens[t]):
-            logger.info(f"[llm - generate] input[t] is tensor")
+            logger.info("[llm - generate] input[t] is tensor")
             input_tokens[t] = input_tokens[t].to(device)
             logger.info(f"[llm - generate] new tensor: {input_tokens[t]}")
 
-    logger.info(f"[llm - generate] inputs transferred.")
-    
+    logger.info("[llm - generate] inputs transferred.")
+
     iteration_times = []
     outputs = model.generate(
         **input_tokens,
@@ -87,7 +89,7 @@ def generate(
         iteration_times=iteration_times,
         profiling_record_shapes=profiling_record_shapes,
     ).cpu()
-    logger.info(f"[llm - generate] result generated")
+    logger.info("[llm - generate] result generated")
     first_token_time = iteration_times[0] + encode_duration
     result = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     logger.info(f"[llm - generate] result: {result}")

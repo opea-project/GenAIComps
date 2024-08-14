@@ -1,7 +1,7 @@
-langchain_core
 docarray
 fastapi
 httpx
+langchain_core
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
