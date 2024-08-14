@@ -28,7 +28,7 @@ from comps import (
     service_type=ServiceType.EMBEDDING,
     endpoint="/v1/embeddings",
     host="0.0.0.0",
-    port=6002,
+    port=6000,
     input_datatype=MultimodalDoc,
     output_datatype=EmbedMultimodalDoc,
 )
@@ -37,7 +37,9 @@ from comps import (
 
 def embedding(input: MultimodalDoc) -> EmbedDoc:
     start = time.time()
-    print(input)
+    # print("HELLLLLOOOOOOOO")
+    # print(input)
+    # print(type(input))
 
     embeddings = BridgeTowerEmbedding()
     
