@@ -36,7 +36,7 @@ function build_docker_images() {
 
 function start_service() {
     export LLM_MODEL="facebook/opt-125m"
-    port_number=8008
+    port_number=5025
     docker run -d --rm \
         --runtime=habana \
         --name="test-comps-vllm-service" \
