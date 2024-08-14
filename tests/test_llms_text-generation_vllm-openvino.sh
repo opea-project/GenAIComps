@@ -101,7 +101,7 @@ function test_api_endpoint {
         echo "PASS: $endpoint returned expected status code: $expected_status"
     else
         echo "FAIL: $endpoint returned unexpected status code: $response (expected: $expected_status)"
-        docker logs $CONTAINER_NAME 
+        docker logs $CONTAINER_NAME
     fi
 }
 # Main function
