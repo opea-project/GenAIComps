@@ -40,8 +40,8 @@ function check_branch_name() {
     branch_name=$(git branch --show-current)
     if [[ "$branch_name" == *"rc" ]]; then
         echo "$branch_name is release branch"
-    else
-        echo "$branch_name is not release branch" && exit 0
+    # else
+    #     echo "$branch_name is not release branch" && exit 0
     fi
 }
 
