@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -46,6 +46,7 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
+        docker logs test-comps-promptregistry-mongo-server
         exit 1
     fi
 

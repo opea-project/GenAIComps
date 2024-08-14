@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -33,10 +33,10 @@ function start_service() {
 
 function validate_microservice() {
     tei_service_port=5002
-    http_proxy="" curl http://${ip_address}:$tei_service_port/v1/embeddings \
+    result=$(http_proxy="" curl http://${ip_address}:$tei_service_port/v1/embeddings \
         -X POST \
         -d '{"text":"What is Deep Learning?"}' \
-        -H 'Content-Type: application/json'
+        -H 'Content-Type: application/json')
 }
 
 function stop_docker() {

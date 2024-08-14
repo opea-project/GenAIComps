@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -50,7 +50,6 @@ function validate_microservice() {
         -d '{"query":"Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data."}' \
         -H 'Content-Type: application/json'
     docker logs test-comps-llm-tgi-endpoint
-    docker logs test-comps-llm-tgi-server
 
     cd $LOG_PATH
     tei_service_port=5015

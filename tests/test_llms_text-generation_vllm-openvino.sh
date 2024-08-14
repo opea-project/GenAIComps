@@ -2,15 +2,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH="$( cd "$( dirname "$0" )" && pwd )"
 
 # Define variables
-port=8123
+port=5033
 HF_CACHE_DIR=$HOME/.cache/huggingface
 DOCKER_IMAGE="vllm-openvino:comps"
-CONTAINER_NAME="vllm-openvino-container"
+CONTAINER_NAME="test-comps-vllm-openvino-container"
 
 function build_container() {
     cd $WORKPATH
@@ -101,6 +101,7 @@ function test_api_endpoint {
         echo "PASS: $endpoint returned expected status code: $expected_status"
     else
         echo "FAIL: $endpoint returned unexpected status code: $response (expected: $expected_status)"
+        docker logs $CONTAINER_NAME 
     fi
 }
 # Main function

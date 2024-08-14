@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -53,7 +53,7 @@ function start_service() {
     export vLLM_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm \
         --name="test-comps-vllm-microservice" \
-        -p 9000:9000 \
+        -p 5030:9000 \
         --ipc=host \
         -e vLLM_ENDPOINT=$vLLM_ENDPOINT \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
@@ -74,21 +74,21 @@ function start_service() {
 }
 
 function validate_microservice() {
-    http_proxy="" curl http://${ip_address}:8008/v1/completions \
+    result=$(http_proxy="" curl http://${ip_address}:8008/v1/completions \
         -H "Content-Type: application/json" \
         -d '{
         "model": "facebook/opt-125m",
         "prompt": "What is Deep Learning?",
         "max_tokens": 32,
         "temperature": 0
-        }'
-    http_proxy="" curl http://${ip_address}:9000/v1/chat/completions \
+        }')
+    result_2=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_p":0.95,"temperature":0.01,"streaming":false}' \
-        -H 'Content-Type: application/json'
+        -H 'Content-Type: application/json')
             docker logs test-comps-vllm-service
             docker logs test-comps-vllm-microservice
-        }
+}
 
 function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-vllm*")

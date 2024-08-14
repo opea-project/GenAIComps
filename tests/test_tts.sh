@@ -28,13 +28,13 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-tts-speecht5" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 7055:7055 --ipc=host opea/speecht5:comps
-    docker run -d --name="test-comps-tts" -e TTS_ENDPOINT=http://$ip_address:7055 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9088:9088 --ipc=host opea/tts:comps
+    docker run -d --name="test-comps-tts-speecht5" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5017:7055 --ipc=host opea/speecht5:comps
+    docker run -d --name="test-comps-tts" -e TTS_ENDPOINT=http://$ip_address:5017 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5016:9088 --ipc=host opea/tts:comps
     sleep 3m
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:5016/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json')
     if [[ $result == *"Ukl"* ]]; then
         echo "Result correct."
     else

@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -45,10 +45,10 @@ function validate_microservice() {
     export PATH="${HOME}/miniforge3/bin:$PATH"
     source activate
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
-    http_proxy='' curl http://${ip_address}:$retriever_port/v1/retrieval \
+    result=$(http_proxy='' curl http://${ip_address}:$retriever_port/v1/retrieval \
         -X POST \
         -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" \
-        -H 'Content-Type: application/json'
+        -H 'Content-Type: application/json')
     docker logs test-comps-retriever-qdrant-server
     docker logs test-comps-retriever-tei-endpoint
 }
