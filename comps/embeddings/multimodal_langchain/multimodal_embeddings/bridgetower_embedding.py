@@ -3,9 +3,7 @@ from langchain_core.embeddings import Embeddings
 from langchain_core.pydantic_v1 import (
     BaseModel, Extra
 )
-import sys
-sys.path.append('../') # to load bridgetower_custom
-from BridgeTowerCustom.bridgetower_custom import BridgeTowerTextFeatureExtractor, BridgeTowerForITC
+from .bridgetower_custom import BridgeTowerTextFeatureExtractor, BridgeTowerForITC
 from transformers import BridgeTowerProcessor
 import torch
 from PIL import Image
@@ -13,7 +11,7 @@ from torchvision.io import ImageReadMode, read_image
 import torchvision.transforms.functional as transform
 
 
-class BridgeTowerEmbeddings(BaseModel, Embeddings):
+class BridgeTowerEmbedding(BaseModel, Embeddings):
     """ BridgeTower embedding model """
     model_name: str = "BridgeTower/bridgetower-large-itm-mlm-itc"
     device: str = "cpu"
@@ -22,8 +20,17 @@ class BridgeTowerEmbeddings(BaseModel, Embeddings):
     MODEL: Any
 
     def __init__(self, **kwargs: Any):
-        """Initialize the BridgeTowerEmbeddings class"""
+        """Initialize the BridgeTowerEmbedding class"""
         super().__init__(**kwargs)
+
+        # try to import habana_frameworks.torch.core if using device 'hpu'
+        if self.device == 'hpu':
+            try: 
+                import habana_frameworks.torch.core as htcore
+            except ImportModuleError :  # type: ignore
+                print("HPU is not available. Using CPU instead")
+                self.device = torch.device('cpu')
+
         self.TEXT_MODEL = BridgeTowerTextFeatureExtractor.from_pretrained(self.model_name).to(self.device)
         self.PROCESSOR = BridgeTowerProcessor.from_pretrained(self.model_name)
         self.MODEL = BridgeTowerForITC.from_pretrained(self.model_name).to(self.device)

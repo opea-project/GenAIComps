@@ -9,7 +9,6 @@ from comps.cores.proto.docarray import (
     Base64ByteStrDoc,
     DocPath,
     EmbedDoc,
-    EmbedDoc1024,
     GeneratedDoc,
     LLMParamsDoc,
     SearchedDoc,
@@ -21,6 +20,8 @@ from comps.cores.proto.docarray import (
     RAGASScores,
     GraphDoc,
     LVMDoc,
+    MultimodalDoc,
+    EmbedMultimodalDoc,
 )
 
 # Constants
