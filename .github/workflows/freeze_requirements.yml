@@ -1,0 +1,30 @@
+name: Freeze-requirements
+
+on:
+  workflow_dispatch:
+
+jobs:
+  freeze-requirements:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "${{ secrets.USER_NAME }}"
+          git config --global user.email "${{ secrets.USER_EMAIL }}"
+          git remote set-url origin https://${{ secrets.USER_NAME }}:"${{ secrets.TOKEN }}"@github.com/opea-project/GenAIComps.git
+
+      - name: Run script
+        run: |
+          bash .github/workflows/scripts/freeze_requirements.sh
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Freeze requirements"
+          git push
