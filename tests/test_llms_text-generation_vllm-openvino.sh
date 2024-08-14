@@ -9,7 +9,7 @@ WORKPATH="$( cd "$( dirname "$0" )" && pwd )"
 # Define variables
 port=8123
 HF_CACHE_DIR=$HOME/.cache/huggingface
-DOCKER_IMAGE="vllm:openvino"
+DOCKER_IMAGE="vllm-openvino:comps"
 CONTAINER_NAME="vllm-openvino-container"
 
 function build_container() {
@@ -33,8 +33,8 @@ start_container() {
       --ipc=host \
       -e HTTPS_PROXY=$https_proxy \
       -e HTTP_PROXY=$https_proxy \
-      -v $HF_CACHE_DIR:/home/user/.cache/huggingface \
-      vllm:openvino /bin/bash -c "\
+      -v $HF_CACHE_DIR:/root/.cache/huggingface \
+      vllm-openvino:comps /bin/bash -c "\
         cd / && \
         export VLLM_CPU_KVCACHE_SPACE=50 && \
         python3 -m vllm.entrypoints.openai.api_server \
