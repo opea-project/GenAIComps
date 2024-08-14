@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer, AutoProcessor, CLIPModel
 import torch.nn as nn
-#from einops import rearrange
+from einops import rearrange
 
 model_name='openai/clip-vit-base-patch32'
 
