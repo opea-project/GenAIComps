@@ -30,11 +30,12 @@ class ImageDoc(BaseDoc):
         default=None,
     )
 
+
 class TextImageDoc(BaseDoc):
     image: ImageDoc = None
     text: TextDoc = None
 
-MultimodalDoc = Union[TextDoc, ImageDoc, TextImageDoc]
+MultimodalDoc = Union[TextDoc, ImageDoc, TextImageDoc, ]
 
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
