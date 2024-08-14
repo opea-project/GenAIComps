@@ -15,10 +15,10 @@ function build_docker_images() {
         --network=host \
         -t ray_serve_habana:comps .
     if $? ; then
-        echo "ray_serve_habana built successful"
-    else
         echo "ray_serve_habana built fail"
         exit 1
+    else
+        echo "ray_serve_habana built successful"
     fi
 
     ## Build OPEA microservice docker
@@ -27,10 +27,10 @@ function build_docker_images() {
         -t opea/llm-ray:comps \
         -f comps/llms/text-generation/ray_serve/docker/Dockerfile.microservice .
     if $? ; then
-        echo "opea/llm-ray built successful"
-    else
         echo "opea/llm-ray built fail"
         exit 1
+    else
+        echo "opea/llm-ray built successful"
     fi
 }
 

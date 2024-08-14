@@ -11,10 +11,10 @@ function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/llm-tgi:comps -f comps/llms/text-generation/tgi/Dockerfile .
     if $? ; then
-        echo "opea/llm-tgi built successful"
-    else
         echo "opea/llm-tgi built fail"
         exit 1
+    else
+        echo "opea/llm-tgi built successful"
     fi
 }
 

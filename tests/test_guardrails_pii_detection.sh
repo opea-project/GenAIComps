@@ -12,10 +12,10 @@ function build_docker_images() {
     cd $WORKPATH
     docker build -t opea/guardrails-pii-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/pii_detection/docker/Dockerfile .
     if $? ; then
-        echo "opea/guardrails-pii-detection built successful"
-    else
         echo "opea/guardrails-pii-detection built fail"
         exit 1
+    else
+        echo "opea/guardrails-pii-detection built successful"
     fi
 }
 

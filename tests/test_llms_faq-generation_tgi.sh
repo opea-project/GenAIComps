@@ -12,10 +12,10 @@ function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/llm-faqgen-tgi:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/faq-generation/tgi/Dockerfile .
     if $? ; then
-        echo "opea/llm-faqgen-tgi built successful"
-    else
         echo "opea/llm-faqgen-tgi built fail"
         exit 1
+    else
+        echo "opea/llm-faqgen-tgi built successful"
     fi
 }
 

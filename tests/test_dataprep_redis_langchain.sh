@@ -13,10 +13,10 @@ function build_docker_images() {
     echo $(pwd)
     docker build --no-cache -t opea/dataprep-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain/docker/Dockerfile .
     if $? ; then
-        echo "opea/dataprep-redis built successful"
-    else
         echo "opea/dataprep-redis built fail"
         exit 1
+    else
+        echo "opea/dataprep-redis built successful"
     fi
 }
 

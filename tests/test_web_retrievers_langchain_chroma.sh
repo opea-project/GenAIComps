@@ -10,10 +10,10 @@ function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/web-retriever-chroma:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/web_retrievers/langchain/chroma/docker/Dockerfile .
     if $? ; then
-        echo "opea/web-retriever-chroma built successful"
-    else
         echo "opea/web-retriever-chroma built fail"
         exit 1
+    else
+        echo "opea/web-retriever-chroma built successful"
     fi
 }
 

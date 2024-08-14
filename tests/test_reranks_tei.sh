@@ -10,10 +10,10 @@ function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/reranking-tei:comps -f comps/reranks/tei/docker/Dockerfile .
     if $? ; then
-        echo "opea/reranking-tei built successful"
-    else
         echo "opea/reranking-tei built fail"
         exit 1
+    else
+        echo "opea/reranking-tei built successful"
     fi
 }
 

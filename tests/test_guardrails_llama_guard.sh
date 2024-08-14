@@ -13,10 +13,10 @@ function build_docker_images() {
     docker pull ghcr.io/huggingface/tgi-gaudi:2.0.1
     docker build --no-cache -t opea/guardrails-tgi:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/llama_guard/docker/Dockerfile .
     if $? ; then
-        echo "opea/guardrails-tgi built successful"
-    else
         echo "opea/guardrails-tgi built fail"
         exit 1
+    else
+        echo "opea/guardrails-tgi built successful"
     fi
 }
 

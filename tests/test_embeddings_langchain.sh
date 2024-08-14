@@ -12,10 +12,10 @@ function build_docker_images() {
     echo $(pwd)
     docker build --no-cache -t opea/embedding-tei:comps -f comps/embeddings/langchain/docker/Dockerfile .
     if $? ; then
-        echo "opea/embedding-tei built successful"
-    else
         echo "opea/embedding-tei built fail"
         exit 1
+    else
+        echo "opea/embedding-tei built successful"
     fi
 }
 

@@ -12,10 +12,10 @@ function build_docker_images() {
     # build dataprep image for pinecone
     docker build -t opea/dataprep-pinecone:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/pinecone/docker/Dockerfile .
     if $? ; then
-        echo "opea/dataprep-pinecone built successful"
-    else
         echo "opea/dataprep-pinecone built fail"
         exit 1
+    else
+        echo "opea/dataprep-pinecone built successful"
     fi
 }
 

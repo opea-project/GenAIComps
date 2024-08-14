@@ -14,10 +14,10 @@ function build_docker_images() {
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray  \
         -t opea/vllm_ray-habana:comps --network=host .
     if $? ; then
-        echo "opea/vllm_ray-habana built successful"
-    else
         echo "opea/vllm_ray-habana built fail"
         exit 1
+    else
+        echo "opea/vllm_ray-habana built successful"
     fi
 
     ## Build OPEA microservice docker
@@ -26,10 +26,10 @@ function build_docker_images() {
         -t opea/llm-vllm-ray:comps \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice .
     if $? ; then
-        echo "opea/llm-vllm-ray built successful"
-    else
         echo "opea/llm-vllm-ray built fail"
         exit 1
+    else
+        echo "opea/llm-vllm-ray built successful"
     fi
 }
 
@@ -46,7 +46,7 @@ function start_service() {
         --ipc=host \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
         -p $port_number:8000 \
-        opea/vllm_ray:habana \
+        opea/vllm_ray-habana:comps \
         /bin/bash -c "ray start --head && python vllm_ray_openai.py --port_number 8000 --model_id_or_path $LLM_MODEL --tensor_parallel_size 2 --enforce_eager False"
 
     export vLLM_RAY_ENDPOINT="http://${ip_address}:${port_number}"

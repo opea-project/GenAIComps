@@ -10,10 +10,10 @@ function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/retriever-pinecone:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/pinecone/docker/Dockerfile .
     if $? ; then
-        echo "opea/retriever-pinecone built successful"
-    else
         echo "opea/retriever-pinecone built fail"
         exit 1
+    else
+        echo "opea/retriever-pinecone built successful"
     fi
 }
 

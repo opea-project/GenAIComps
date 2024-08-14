@@ -15,10 +15,10 @@ function build_docker_images() {
         -t opea/vllm-hpu:comps \
         --shm-size=128g .
     if $? ; then
-        echo "opea/vllm-hpu built successful"
-    else
         echo "opea/vllm-hpu built fail"
         exit 1
+    else
+        echo "opea/vllm-hpu built successful"
     fi
 
     ## Build OPEA microservice docker
@@ -27,10 +27,10 @@ function build_docker_images() {
         -t opea/llm-vllm:comps \
         -f comps/llms/text-generation/vllm/docker/Dockerfile.microservice .
     if $? ; then
-        echo "opea/llm-vllm built successful"
-    else
         echo "opea/llm-vllm built fail"
         exit 1
+    else
+        echo "opea/llm-vllm built successful"
     fi
 }
 
