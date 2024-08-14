@@ -23,7 +23,7 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   dataprep-pgvector:
-    image: opea/dataprep-pgvector:latest
+    image: opea/dataprep-pgvector:${DATAPREP_PGVECTOR_VERSION:-latest}
     container_name: dataprep-pgvector
     ports:
       - "6007:6007"

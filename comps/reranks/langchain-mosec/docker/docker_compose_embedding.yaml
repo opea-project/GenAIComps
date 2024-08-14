@@ -5,7 +5,7 @@ version: "3.8"
 
 services:
   reranking:
-    image: opea/reranking-langchain-mosec:latest
+    image: opea/reranking-langchain-mosec:${RERANKING_LANGCHAIN_MOSEC_VERSION:-latest}
     container_name: reranking-langchain-mosec-server
     ports:
       - "6000:8000"

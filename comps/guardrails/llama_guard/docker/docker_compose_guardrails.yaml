@@ -16,7 +16,7 @@ services:
     shm_size: 1g
     command: --model-id ${LLM_MODEL_ID} --max-input-tokens 1024 --max-total-tokens 2048
   guardrails:
-    image: opea/guardrails-tgi:latest
+    image: opea/guardrails-tgi:${GUARDRAILS_TGI_VERSION:-latest}
     container_name: guardrails-tgi-gaudi-server
     ports:
       - "9090:9090"

@@ -14,7 +14,7 @@ services:
     shm_size: 1g
     command: --model-id ${RERANK_MODEL_ID} --hf-api-token ${HF_TOKEN}
   reranking:
-    image: opea/reranking-tei:latest
+    image: opea/reranking-tei:${RERANKING_TEI_VERSION:-latest}
     container_name: reranking-tei-xeon-server
     ports:
       - "8000:8000"

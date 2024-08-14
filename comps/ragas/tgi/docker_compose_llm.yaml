@@ -14,7 +14,7 @@ services:
     shm_size: 1g
     command: --model-id ${LLM_MODEL_ID}
   llm:
-    image: opea/gen-ai-comps:llm-tgi-server:latest
+    image: opea/gen-ai-comps:llm-tgi-server:${LLM_TGI_VERSION:-latest}
     container_name: llm-tgi-server
     ports:
       - "9000:9000"

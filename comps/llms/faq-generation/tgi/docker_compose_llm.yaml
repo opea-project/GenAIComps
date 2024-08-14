@@ -16,7 +16,7 @@ services:
     shm_size: 1g
     command: --model-id ${LLM_MODEL_ID}
   llm:
-    image: opea/llm-faqgen-tgi:latest
+    image: opea/llm-faqgen-tgi:${LLM_FAQGEN_TGI_VERSION:-latest}
     container_name: llm-faqgen-server
     ports:
       - "9000:9000"

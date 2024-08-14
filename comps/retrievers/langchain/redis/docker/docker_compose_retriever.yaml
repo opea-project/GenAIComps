@@ -14,7 +14,7 @@ services:
     shm_size: 1g
     command: --model-id ${RETRIEVE_MODEL_ID}
   retriever:
-    image: opea/retriever-redis:latest
+    image: opea/retriever-redis:${RETRIEVER_REDIS_VERSION:-latest}
     container_name: retriever-redis-server
     ports:
       - "7000:7000"

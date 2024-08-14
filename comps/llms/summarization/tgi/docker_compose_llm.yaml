@@ -16,7 +16,7 @@ services:
     shm_size: 1g
     command: --model-id ${LLM_MODEL_ID}
   llm:
-    image: opea/llm-docsum-tgi:latest
+    image: opea/llm-docsum-tgi:${LLM_DOCSUM_TGI_VERSION:-latest}
     container_name: llm-docsum-tgi-server
     ports:
       - "9000:9000"
