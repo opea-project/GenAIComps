@@ -93,7 +93,7 @@ function validate_microservice() {
         docker logs test-comps-vllm-service
         docker logs test-comps-vllm-microservice
         exit 1
-    fi 
+    fi
 }
 
 function stop_docker() {
