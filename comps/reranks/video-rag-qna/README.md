@@ -22,11 +22,12 @@ done
 ```
 
 Available configuration by environment variable:
+
 - CHUNK_DURATION: target chunk duration, should be aligned with VideoRAGQnA dataprep. Default 10s.
 
 # ✅ 2. Test
 
-``` bash
+```bash
 export ip_address=$(hostname -I | awk '{print $1}')
 curl -X 'POST' \
 "http://${ip_address}:8000/v1/reranking" \
