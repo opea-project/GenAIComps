@@ -468,10 +468,15 @@ def check_requests(request) -> Optional[JSONResponse]:
 class Hyperparameters(BaseModel):
     batch_size: Optional[Literal["auto"], int] = "auto"
     """Number of examples in each batch.
-    A larger batch size means that model parameters are updated less frequently, but with lower variance."""
+
+    A larger batch size means that model parameters are updated less frequently, but with lower variance.
+    """
 
     learning_rate_multiplier: Optional[Literal["auto"], float] = "auto"
-    """Scaling factor for the learning rate. A smaller learning rate may be useful to avoid overfitting."""
+    """Scaling factor for the learning rate.
+
+    A smaller learning rate may be useful to avoid overfitting.
+    """
 
     n_epochs: Optional[Literal["auto"], int] = "auto"
     """The number of epochs to train the model for.
@@ -480,6 +485,7 @@ class Hyperparameters(BaseModel):
     the optimal number of epochs based on the size of the dataset. If setting the
     number manually, we support any number between 1 and 50 epochs.
     """
+
 
 class FineTuningJobWandbIntegration(BaseModel):
     project: str
@@ -509,7 +515,7 @@ class FineTuningJobWandbIntegration(BaseModel):
 
 class FineTuningJobWandbIntegrationObject(BaseModel):
     type: Literal["wandb"]
-    """The type of the integration being enabled for the fine-tuning job"""
+    """The type of the integration being enabled for the fine-tuning job."""
 
     wandb: FineTuningJobWandbIntegration
     """The settings for your integration with Weights and Biases.
@@ -518,6 +524,7 @@ class FineTuningJobWandbIntegrationObject(BaseModel):
     can set an explicit display name for your run, add tags to your run, and set a
     default entity (team, username, etc) to be associated with your run.
     """
+
 
 class FineTuningJobsRequest(BaseModel):
     # Ordered by official OpenAI API documentation
@@ -537,7 +544,7 @@ class FineTuningJobsRequest(BaseModel):
     validation_file: Optional[str, None] = None
     """The ID of an uploaded file that contains validation data."""
 
-    integrations: Optional[List[FineTuningJobWandbIntegrationObject]] = None 
+    integrations: Optional[List[FineTuningJobWandbIntegrationObject]] = None
     """A list of integrations to enable for your fine-tuning job."""
 
     seed: Optional[str, None] = None
@@ -567,10 +574,8 @@ class FineTuningJob(BaseModel):
     """The Unix timestamp (in seconds) for when the fine-tuning job was created."""
 
     error: Optional[Error] = None
-    """
-    For fine-tuning jobs that have `failed`, this will contain more information on
-    the cause of the failure.
-    """
+    """For fine-tuning jobs that have `failed`, this will contain more information on
+    the cause of the failure."""
 
     fine_tuned_model: Optional[str] = None
     """The name of the fine-tuned model that is being created.
@@ -608,10 +613,8 @@ class FineTuningJob(BaseModel):
     """
 
     status: Literal["validating_files", "queued", "running", "succeeded", "failed", "cancelled"]
-    """
-    The current status of the fine-tuning job, which can be either
-    `validating_files`, `queued`, `running`, `succeeded`, `failed`, or `cancelled`.
-    """
+    """The current status of the fine-tuning job, which can be either
+    `validating_files`, `queued`, `running`, `succeeded`, `failed`, or `cancelled`."""
 
     trained_tokens: Optional[int] = None
     """The total number of billable tokens processed by this fine-tuning job.
@@ -640,7 +643,8 @@ class FineTuningJob(BaseModel):
     """The seed used for the fine-tuning job."""
 
     estimated_finish: Optional[int] = None
-    """
-    The Unix timestamp (in seconds) for when the fine-tuning job is estimated to
-    finish. The value will be null if the fine-tuning job is not running.
+    """The Unix timestamp (in seconds) for when the fine-tuning job is estimated to
+    finish.
+
+    The value will be null if the fine-tuning job is not running.
     """

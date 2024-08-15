@@ -1,20 +1,16 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 import random
 import time
 import uuid
 from typing import Any, Dict, List, Set
+
+from envs import CHECK_JOB_STATUS_INTERVAL, DATASET_BASE_PATH, MODEL_CONFIG_FILE_MAP, ray_client
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 
-
-from comps.cores.proto.api_protocol import FineTuningJobsRequest, FineTuningJob
-
-from envs import (
-    DATASET_BASE_PATH,
-    MODEL_CONFIG_FILE_MAP,
-    CHECK_JOB_STATUS_INTERVAL,
-    ray_client
-)
+from comps.cores.proto.api_protocol import FineTuningJob, FineTuningJobsRequest
 
 FineTuningJobID = str
 running_finetuning_jobs: Dict[FineTuningJobID, FineTuningJob] = {}
@@ -73,4 +69,3 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest):
     # background_tasks.add_task(update_job_status, job.id)
 
     return job
-
