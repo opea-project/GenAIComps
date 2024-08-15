@@ -8,9 +8,13 @@ import uuid
 from typing import Any, Dict, List, Set
 
 from envs import CHECK_JOB_STATUS_INTERVAL, DATASET_BASE_PATH, MODEL_CONFIG_FILE_MAP, ray_client
+from finetune_config import FinetuneConfig
+
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 
 from comps.cores.proto.api_protocol import FineTuningJob, FineTuningJobsRequest
+
+from ray.job_submission import JobSubmissionClient
 
 FineTuningJobID = str
 running_finetuning_jobs: Dict[FineTuningJobID, FineTuningJob] = {}
@@ -23,6 +27,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest):
     train_file_path = os.path.join(DATASET_BASE_PATH, train_file)
 
     model_config_file = MODEL_CONFIG_FILE_MAP.get(base_model)
+
     if not model_config_file:
         raise HTTPException(status_code=404, detail=f"Base model '{base_model}' not supported!")
 
@@ -33,6 +38,15 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest):
         finetune_config = parse_yaml_raw_as(FinetuneConfig, f)
 
     finetune_config.Dataset.train_file = train_file_path
+
+    if request.hyperparameters.epochs != "auto":
+        finetune_config.Training.epochs = request.hyperparameters.epochs
+
+    if request.hyperparameters.batch_size != "auto":
+        finetune_config.Training.batch_size = request.hyperparameters.batch_size
+
+    if request.hyperparameters.learning_rate_multiplier != "auto":
+        finetune_config.Training.learning_rate = request.hyperparameters.learning_rate_multiplier
 
     job = FineTuningJob(
         id=f"ft-job-{uuid.uuid4()}",
@@ -65,7 +79,5 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest):
 
     running_finetuning_jobs[job.id] = job
     finetuning_job_to_ray_job[job.id] = ray_job_id
-
-    # background_tasks.add_task(update_job_status, job.id)
 
     return job

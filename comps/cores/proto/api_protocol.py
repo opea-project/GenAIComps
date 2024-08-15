@@ -466,19 +466,19 @@ def check_requests(request) -> Optional[JSONResponse]:
 
 
 class Hyperparameters(BaseModel):
-    batch_size: Optional[Literal["auto"], int] = "auto"
+    batch_size: Optional[Union[Literal["auto"], int]] = "auto"
     """Number of examples in each batch.
 
     A larger batch size means that model parameters are updated less frequently, but with lower variance.
     """
 
-    learning_rate_multiplier: Optional[Literal["auto"], float] = "auto"
+    learning_rate_multiplier: Optional[Union[Literal["auto"], float]] = "auto"
     """Scaling factor for the learning rate.
 
     A smaller learning rate may be useful to avoid overfitting.
     """
 
-    n_epochs: Optional[Literal["auto"], int] = "auto"
+    n_epochs: Optional[Union[Literal["auto"], int]] = "auto"
     """The number of epochs to train the model for.
 
     An epoch refers to one full cycle through the training dataset. "auto" decides
@@ -535,19 +535,19 @@ class FineTuningJobsRequest(BaseModel):
     training_file: str
     """The ID of an uploaded file that contains training data."""
 
-    hyperparameters: Optional[Hyperparameters]
+    hyperparameters: Optional[Hyperparameters] = Hyperparameters
     """The hyperparameters used for the fine-tuning job."""
 
-    suffix: Optional[str, None] = None
+    suffix: Optional[str] = None
     """A string of up to 64 characters that will be added to your fine-tuned model name."""
 
-    validation_file: Optional[str, None] = None
+    validation_file: Optional[str] = None
     """The ID of an uploaded file that contains validation data."""
 
     integrations: Optional[List[FineTuningJobWandbIntegrationObject]] = None
     """A list of integrations to enable for your fine-tuning job."""
 
-    seed: Optional[str, None] = None
+    seed: Optional[str] = None
 
 
 class Error(BaseModel):
@@ -599,13 +599,13 @@ class FineTuningJob(BaseModel):
     model: str
     """The base model that is being fine-tuned."""
 
-    object: Literal["fine_tuning.job"]
+    object: Literal["fine_tuning.job"] = "fine_tuning.job"
     """The object type, which is always "fine_tuning.job"."""
 
-    organization_id: str
+    organization_id: Optional[str] = None
     """The organization that owns the fine-tuning job."""
 
-    result_files: List[str]
+    result_files: List[str] = None
     """The compiled results file ID(s) for the fine-tuning job.
 
     You can retrieve the results with the
@@ -639,7 +639,7 @@ class FineTuningJob(BaseModel):
     integrations: Optional[List[FineTuningJobWandbIntegrationObject]] = None
     """A list of integrations to enable for this fine-tuning job."""
 
-    seed: int
+    seed: Optional[int] = None
     """The seed used for the fine-tuning job."""
 
     estimated_finish: Optional[int] = None
