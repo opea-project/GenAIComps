@@ -7,7 +7,7 @@ import time
 from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
 
 from typing import Union, List
-from langsmith import traceable
+from langsmith import traceable # type: ignore
 from comps import (
     EmbedDoc,
     EmbedMultimodalDoc,
@@ -20,13 +20,14 @@ from comps import (
 )
 
 
+port = os.getenv("MM_EMBEDDING_MS_PORT", 6600)
 
 @register_microservice(
     name="opea_service@multimodal_embedding",
     service_type=ServiceType.EMBEDDING,
     endpoint="/v1/embeddings",
     host="0.0.0.0",
-    port=6000,
+    port=port,
     input_datatype=MultimodalDoc,
     output_datatype=EmbedMultimodalDoc,
 )
