@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-version: "3.8"
+version: "1.0"
 
 services:
   embedding:
@@ -14,7 +14,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      MMEI_EMBEDDING_ENDPOINT: ${MMEI_EMBEDDING_ENDPOINT}
     restart: unless-stopped
 
 networks:
