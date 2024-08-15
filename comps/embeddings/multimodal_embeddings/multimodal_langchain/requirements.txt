@@ -10,3 +10,6 @@ prometheus-fastapi-instrumentator
 transformers
 shortuuid
 uvicorn
+pydantic
+torch
+torchvision

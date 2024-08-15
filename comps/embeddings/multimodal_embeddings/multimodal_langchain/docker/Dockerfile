@@ -20,6 +20,8 @@ COPY comps /home/user/comps
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal_embeddings/multimodal_langchain/requirements.txt
 
+RUN pip install --upgrade pydantic
+
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/embeddings/multimodal_embeddings/multimodal_langchain
