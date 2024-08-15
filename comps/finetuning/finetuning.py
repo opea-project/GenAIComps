@@ -11,5 +11,6 @@ from comps.cores.proto.api_protocol import FineTuningJobsRequest
 def create_finetuning_jobs(request: FineTuningJobsRequest):
     return handle_create_finetuning_jobs(request)
 
+
 if __name__ == "__main__":
     opea_microservices["opea_service@finetuning"].start()
