@@ -18,13 +18,11 @@ RUN apt-get update && \
     libjemalloc-dev \
     vim
 
-# RUN useradd -m -s /bin/bash user && \
-#     mkdir -p /home/user && \
-#     chown -R user /home/user/
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
 
-# USER user
-
-RUN mkdir -p /home/user
+USER user
 
 COPY comps /home/user/comps
 
@@ -41,5 +39,4 @@ ENV PYTHONPATH=/root:/home/user
 
 WORKDIR /home/user/comps/llms/text-generation/native
 
-ENTRYPOINT ["sleep", "infinity"]
-# ENTRYPOINT ["python", "llm.py"]
+ENTRYPOINT ["python", "llm.py"]

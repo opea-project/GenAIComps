@@ -11,23 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
+sys.path.append("/test/GenAIComps/")
 
-import os
-import time
 import logging
+import time
+import threading
+
 import torch
-from utils import initialize_model
 from langchain_core.prompts import PromptTemplate
-from template import ChatTemplate, input_sentences, args_dict
+from template import ChatTemplate, args_dict, input_sentences
+from utils import initialize_model
+
 from comps import (
-    LLMParamsDoc, 
-    ServiceType, 
-    opea_microservices, 
+    GeneratedDoc,
+    LLMParamsDoc,
+    ServiceType,
+    opea_microservices,
     register_microservice,
     register_statistics,
-    GeneratedDoc
 )
-
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -36,15 +39,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 class Args:
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
-
+model = None
+assistant_model = None
+tokenizer = None
+generation_config = None
 args = Args(**args_dict)
-model, assistant_model, tokenizer, generation_config = initialize_model(args, logger)
-logger.info("[llm] model and tokenizer initialized.")
+initialization_lock = threading.Lock()
+initialized = False
 
 
 def generate(
@@ -55,10 +60,12 @@ def generate(
     profiling_steps=0,
     profiling_warmup_steps=0,
     ignore_eos=True,
-    profiling_record_shapes=False):
+    profiling_record_shapes=False,
+):
     """Generates sequences from the input sentences and returns them."""
     logger.info(f"[llm - generate] starting to inference with prompt {input_query}")
     encode_t0 = time.perf_counter()
+
     # Tokenization
     input_tokens = tokenizer.batch_encode_plus(input_query, return_tensors="pt", padding=True)
     encode_duration = time.perf_counter() - encode_t0
@@ -68,12 +75,13 @@ def generate(
     for t in input_tokens:
         logger.info(f"[llm - generate] t: {t}")
         if torch.is_tensor(input_tokens[t]):
-            logger.info(f"[llm - generate] input[t] is tensor")
-            input_tokens[t] = input_tokens[t].to(device)
-            logger.info(f"[llm - generate] new tensor: {input_tokens[t]}")
+            logger.info("[llm - generate] input[t] is tensor")
+            logger.info(f"[llm - generate] device: {model.device}")
+            input_tokens[t] = input_tokens[t].to(model.device)
+            # logger.info(f"[llm - generate] new tensor: {input_tokens[t]}")
 
-    logger.info(f"[llm - generate] inputs transferred.")
-    
+    logger.info("[llm - generate] inputs transferred.")
+
     iteration_times = []
     outputs = model.generate(
         **input_tokens,
@@ -87,12 +95,36 @@ def generate(
         iteration_times=iteration_times,
         profiling_record_shapes=profiling_record_shapes,
     ).cpu()
-    logger.info(f"[llm - generate] result generated")
+    logger.info("[llm - generate] result generated")
     first_token_time = iteration_times[0] + encode_duration
     result = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     logger.info(f"[llm - generate] result: {result}")
     logger.info(f"[llm - generate] Time to first token = {first_token_time*1000}ms")
     return result
+
+
+def initialize():
+    global model, assistant_model, tokenizer, generation_config, initialized
+    with initialization_lock:
+        if not initialized:
+            # initialize model and tokenizer
+            import habana_frameworks.torch.hpu as torch_hpu
+            from optimum.habana.utils import HabanaProfile
+            model, assistant_model, tokenizer, generation_config = initialize_model(args, logger)
+            logger.info("[llm] model and tokenizer initialized.")
+
+            # compilation and model warmup
+            HabanaProfile.disable()
+            logger.info("[llm - native] Graph compilation...")
+            for _ in range(args.warmup):
+                generate(input_sentences)   
+            logger.info("[llm - native] model warm up finished.")
+            torch_hpu.synchronize()
+            HabanaProfile.enable()
+            logger.info("[llm - native] Ready to inference")
+            res = generate(["What is Deep Learning?"])
+            logger.info(f"[llm - native] test result: {res}")
+            initialized = True
 
 
 @register_microservice(
@@ -104,6 +136,8 @@ def generate(
 )
 @register_statistics(names=["opea_service@llm_native"])
 def llm_generate(input: LLMParamsDoc):
+    initialize()
+
     prompt = input.query
     prompt_template = None
     if input.chat_template:
@@ -115,31 +149,15 @@ def llm_generate(input: LLMParamsDoc):
         elif input_variables == ["question"]:
             prompt = prompt_template.format(question=input.query)
         else:
-            print(f"{prompt_template} not used, we only support 2 input variables ['question', 'context']")
+            logger.info(f"{prompt_template} not used, we only support 2 input variables ['question', 'context']")
     else:
         if input.documents:
             prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
     res = generate([prompt])
 
     logger.info(f"[llm - native] inference result: {res}")
-    return GeneratedDoc(text=res, prompt=input.query)
+    return GeneratedDoc(text=res[0], prompt=input.query)
 
 
 if __name__ == "__main__":
-    import habana_frameworks.torch.hpu as torch_hpu
-    from optimum.habana.utils import HabanaProfile
-
-    # compilation stage disable profiling
-    HabanaProfile.disable()
-    logger.info("[llm - native] Graph compilation...")
-    for _ in range(args.warmup):
-        generate(input_sentences)
-    logger.info("[llm - native] model warm up finished.")
-    torch_hpu.synchronize()
-    HabanaProfile.enable()
-    logger.info("[llm - native] Ready to inference")
-
-    res = generate(["What is Deep Learning?"])
-    logger.info(f"[llm - native] test result: {res}")
-
     opea_microservices["opea_service@llm_native"].start()
