@@ -39,7 +39,7 @@ function start_tgi_service() {
     echo "Waiting tgi gaudi ready"
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-tgi-gaudi-service > ${WORKPATH}/tests/tgi-gaudi-service.log
+        docker logs test-comps-tgi-gaudi-service
         n=$((n+1))
         if grep -q Connected ${WORKPATH}/tests/tgi-gaudi-service.log; then
             break
@@ -94,7 +94,7 @@ function validate() {
 
 function validate_microservice() {
     echo "Testing agent service"
-    local CONTENT=$(http_proxy="" curl http://${ip_address}:5042/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
+    local CONTENT=$(http_proxy="" curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
      "query": "What is Intel OPEA project?"
     }' | tee ${LOG_PATH}/test-agent-langchain.log)
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent-langchain")
@@ -103,7 +103,7 @@ function validate_microservice() {
     echo "return value is $EXIT_CODE"
     if [ "$EXIT_CODE" == "1" ]; then
         echo "==============tgi container log ==================="
-        docker logs comps-tgi-gaudi-service
+        docker logs test-comps-tgi-gaudi-service
         echo "==============agent container log ===================" 
         docker logs comps-agent-endpoint
         exit 1
@@ -111,7 +111,7 @@ function validate_microservice() {
 }
 
 function stop_tgi_docker() {
-    cid=$(docker ps -aq --filter "name=comps-tgi-gaudi-service")
+    cid=$(docker ps -aq --filter "name=test-comps-tgi-gaudi-service")
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
     echo "Docker containers stopped successfully"
