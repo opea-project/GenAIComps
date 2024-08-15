@@ -4,7 +4,7 @@
 import os
 import time
 
-from multimodal_embeddings import BridgeTowerEmbedding
+from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
 
 from typing import Union, List
 from langsmith import traceable
@@ -28,7 +28,7 @@ from comps import (
     service_type=ServiceType.EMBEDDING,
     endpoint="/v1/embeddings",
     host="0.0.0.0",
-    port=6000,
+    port=6200,
     input_datatype=MultimodalDoc,
     output_datatype=EmbedMultimodalDoc,
 )
@@ -37,11 +37,6 @@ from comps import (
 
 def embedding(input: MultimodalDoc) -> EmbedDoc:
     start = time.time()
-    # print("HELLLLLOOOOOOOO")
-    # print(input)
-    # print(type(input))
-
-    embeddings = BridgeTowerEmbedding()
     
     if isinstance(input, TextDoc):
         # Handle text input
@@ -50,12 +45,14 @@ def embedding(input: MultimodalDoc) -> EmbedDoc:
 
     elif isinstance(input, TextImageDoc):
         # Handle text + image input
-        embed_vector = embeddings.embed_image_text_pairs(input.texts, input.images, batch_size=2)
-        res = EmbedMultimodalDoc(texts=input.texts, image_paths=input.images, embedding=embed_vector)
+        pil_image = input.image.url.load_pil()
+        embed_vector = embeddings.embed_image_text_pairs([input.text.text], [pil_image], batch_size=1)[0]
+        res = EmbedMultimodalDoc(text=input.text.text, url=input.image.url, embedding=embed_vector)
     else:
         raise ValueError("Invalid input type")
 
     return res
 
 if __name__ == "__main__":
+    embeddings = BridgeTowerEmbedding()
     opea_microservices["opea_service@multimodal_embedding"].start()

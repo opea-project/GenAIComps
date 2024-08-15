@@ -58,8 +58,6 @@ class EmbedDoc(BaseDoc):
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
-    # do we need to have image_path here
-    # image_paths: Optional[conlist(str)] = None
 
 class EmbedMultimodalDoc(EmbedDoc):
     # extend EmbedDoc with these attributes
