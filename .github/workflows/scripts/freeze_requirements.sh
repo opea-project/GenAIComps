@@ -7,14 +7,19 @@ function freeze() {
     local file=$1
     local folder=$(dirname "$file")
     local keep_origin_packages="true"
+    echo "::group::Check $file ..."          
     pip-compile \
         --no-upgrade \
         --no-annotate \
         --no-header \
         --output-file "$folder/freeze.txt" \
         "$file"
+    echo "::endgroup::"
     if [[ -e "$folder/freeze.txt" ]]; then
         if [[ "$keep_origin_packages" == "true" ]]; then
+            sed -i '/^\s*#/d; s/#.*//; /^\s*$/d' "$file"
+            sed -i '/^\s*#/d; s/#.*//; /^\s*$/d' "$folder/freeze.txt"
+
             packages1=$(cut -d'=' -f1 "$file" | sort)
             packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | sort)
             common_packages=$(comm -12 <(echo "$packages2" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g') <(echo "$packages1" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g'))
@@ -28,7 +33,7 @@ function freeze() {
                     echo "$line" >>"$file"
                 fi
             done <"$folder/freeze.txt"
-            rm "$folder/freeze.txt"
+            # rm "$folder/freeze.txt"
         else
             mv "$folder/freeze.txt" "$file"
         fi
@@ -37,11 +42,11 @@ function freeze() {
 }
 
 function check_branch_name() {
-    branch_name=$(git branch --show-current)
-    if [[ "$branch_name" == *"rc" ]]; then
-        echo "$branch_name is release branch"
-    # else
-    #     echo "$branch_name is not release branch" && exit 0
+    if [[ "$GITHUB_REF_NAME" == *"rc" ]]; then
+        echo "$GITHUB_REF_NAME is release branch"
+    else
+        echo "$GITHUB_REF_NAME is not release branch"
+        # exit 0
     fi
 }
 
