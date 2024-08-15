@@ -105,7 +105,7 @@ function validate_microservice() {
         echo "==============tgi container log ==================="
 <<<<<<< HEAD
         docker logs test-comps-tgi-gaudi-service
-        echo "==============agent container log ===================" 
+        echo "==============agent container log ==================="
 =======
         docker logs comps-tgi-gaudi-service
         echo "==============agent container log ==================="
