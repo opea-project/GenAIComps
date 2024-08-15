@@ -17,8 +17,13 @@ function build_docker_images() {
     echo "Building the docker images"
     cd $WORKPATH
     echo $WORKPATH
-    docker build -t opea/comps-agent-langchain:comps -f comps/agent/langchain/docker/Dockerfile .
-
+    docker build --no-cache -t opea/comps-agent-langchain:comps -f comps/agent/langchain/docker/Dockerfile .
+    if $? ; then
+        echo "opea/comps-agent-langchain built fail"
+        exit 1
+    else
+        echo "opea/comps-agent-langchain built successful"
+    fi
 }
 
 function start_tgi_service() {
@@ -89,7 +94,7 @@ function validate() {
 
 function validate_microservice() {
     echo "Testing agent service"
-    local CONTENT=$(curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
+    local CONTENT=$(curl http://${ip_address}:5042/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
      "query": "What is Intel OPEA project?"
     }' | tee ${LOG_PATH}/test-agent-langchain.log)
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent-langchain")
