@@ -24,8 +24,9 @@ This agent strategy includes steps listed below:
    - After generation, go to END.
 
 Note:
- - The max number of retrieves is set at 3.
- - You can specify a small `recursion_limit` to stop early or a big `recursion_limit` to fully use the 3 retrieves.
- - The TextGenerator only looks at the last retrieved docs.
+
+- The max number of retrieves is set at 3.
+- You can specify a small `recursion_limit` to stop early or a big `recursion_limit` to fully use the 3 retrieves.
+- The TextGenerator only looks at the last retrieved docs.
 
 ![Agentic Rag Workflow](https://blog.langchain.dev/content/images/size/w1000/2024/02/image-16.png)
