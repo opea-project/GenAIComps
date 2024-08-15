@@ -41,11 +41,11 @@ function freeze() {
 }
 
 function check_branch_name() {
-    if [[ "$GITHUB_REF_NAME" == *"rc" ]]; then
-        echo "$GITHUB_REF_NAME is release branch"
-    else
-        echo "$GITHUB_REF_NAME is not release branch"
+    if [[ "$GITHUB_REF_NAME" == "main" ]]; then
+        echo "$GITHUB_REF_NAME is protected branch"
         exit 0
+    else
+        echo "branch name is $GITHUB_REF_NAME"
     fi
 }
 
