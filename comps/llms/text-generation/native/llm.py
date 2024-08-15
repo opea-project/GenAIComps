@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+
 sys.path.append("/test/GenAIComps/")
 
 import logging
-import time
 import threading
+import time
 
 import torch
 from langchain_core.prompts import PromptTemplate
@@ -39,9 +40,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class Args:
     def __init__(self, **entries):
         self.__dict__.update(entries)
+
 
 model = None
 assistant_model = None
@@ -109,6 +112,7 @@ def initialize():
             # initialize model and tokenizer
             import habana_frameworks.torch.hpu as torch_hpu
             from optimum.habana.utils import HabanaProfile
+
             model, assistant_model, tokenizer, generation_config = initialize_model(args, logger)
             logger.info("[llm] model and tokenizer initialized.")
 
@@ -116,7 +120,7 @@ def initialize():
             HabanaProfile.disable()
             logger.info("[llm - native] Graph compilation...")
             for _ in range(args.warmup):
-                generate(input_sentences)   
+                generate(input_sentences)
             logger.info("[llm - native] model warm up finished.")
             torch_hpu.synchronize()
             HabanaProfile.enable()
