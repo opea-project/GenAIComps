@@ -1,16 +1,20 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import time
 from typing import Any, List
+
+import numpy
 from mosec import Server, Worker, get_logger
 from mosec.mixin import TypedMsgPackMixin
 from msgspec import Struct
-from transformers import AutoTokenizer
 from neural_speed import Model
-import numpy
-import time
+from transformers import AutoTokenizer
 
 logger = get_logger()
 
 INFERENCE_BATCH_SIZE = 32
-INFERENCE_MAX_WAIT_TIME = 30 
+INFERENCE_MAX_WAIT_TIME = 30
 INFERENCE_WORKER_NUM = 1
 INFERENCE_CONTEXT = 512
 
@@ -19,11 +23,14 @@ NS_Bin = "/root/bge-base-q8.bin"
 
 NS_Model = "bert"
 
+
 class Request(Struct, kw_only=True):
     query: str
 
+
 class Response(Struct, kw_only=True):
     embeddings: List[float]
+
 
 class Inference(TypedMsgPackMixin, Worker):
     def __init__(self):
@@ -34,14 +41,14 @@ class Inference(TypedMsgPackMixin, Worker):
             NS_Model,
             NS_Bin,
             batch_size=INFERENCE_BATCH_SIZE,
-            n_ctx=INFERENCE_CONTEXT+2,
+            n_ctx=INFERENCE_CONTEXT + 2,
         )
 
     def forward(self, data: List[Request]) -> List[Response]:
         batch = len(data)
-        sequnces=[d.query for d in data]
+        sequences = [d.query for d in data]
         inputs = self.tokenizer(
-            sequnces,
+            sequences,
             padding=True,
             truncation=True,
             max_length=INFERENCE_CONTEXT,
@@ -55,10 +62,10 @@ class Inference(TypedMsgPackMixin, Worker):
             continuous_batching=False,
             ignore_padding=True,
         )
-        logger.info(f'batch {batch} input shape {inputs.input_ids.shape} time {time.time()-st}')
+        logger.info(f"batch {batch} input shape {inputs.input_ids.shape} time {time.time()-st}")
         ns_outputs = ns_outputs[:, 0]
         ns_outputs = ns_outputs / numpy.linalg.norm(ns_outputs, axis=1, keepdims=True)
-        resps=[]
+        resps = []
         for i in range(batch):
             resp = Response(embeddings=ns_outputs[i].tolist())
             resps.append(resp)
@@ -67,6 +74,7 @@ class Inference(TypedMsgPackMixin, Worker):
 
 if __name__ == "__main__":
     server = Server()
-    server.append_worker(Inference, max_batch_size=INFERENCE_BATCH_SIZE
-                         , max_wait_time=INFERENCE_MAX_WAIT_TIME, num=INFERENCE_WORKER_NUM)
+    server.append_worker(
+        Inference, max_batch_size=INFERENCE_BATCH_SIZE, max_wait_time=INFERENCE_MAX_WAIT_TIME, num=INFERENCE_WORKER_NUM
+    )
     server.run()
