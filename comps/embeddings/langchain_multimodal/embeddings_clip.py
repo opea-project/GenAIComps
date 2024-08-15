@@ -8,14 +8,14 @@ clip = CLIPModel.from_pretrained(model_name)
 processor = AutoProcessor.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-class tCLIP(nn.Module):
+class vCLIP(nn.Module):
     def __init__(self, cfg):
         super().__init__()
 
         self.num_frm = cfg["num_frm"]
         self.model_name = cfg["model_name"]
         
-    def get_text_embeddings(self, texts):
+    def embed_querry(self, texts):
         """
         input is list of texts
         """
@@ -23,7 +23,9 @@ class tCLIP(nn.Module):
         text_features = clip.get_text_features(**text_inputs)
         return text_features
 
-
+    def get_embedding_lenth(self):
+        return len(embed_querry("sample_text"))
+        
     def get_image_embeddings(self, images):
         """
         input is list of images
