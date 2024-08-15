@@ -104,7 +104,7 @@ function validate_microservice() {
     if [ "$EXIT_CODE" == "1" ]; then
         echo "==============tgi container log ==================="
         docker logs test-comps-tgi-gaudi-service
-        echo "==============agent container log ===================" 
+        echo "==============agent container log ==================="
         docker logs comps-agent-endpoint
         exit 1
     fi
