@@ -535,7 +535,7 @@ class FineTuningJobsRequest(BaseModel):
     training_file: str
     """The ID of an uploaded file that contains training data."""
 
-    hyperparameters: Optional[Hyperparameters] = Hyperparameters
+    hyperparameters: Optional[Hyperparameters] = None
     """The hyperparameters used for the fine-tuning job."""
 
     suffix: Optional[str] = None
