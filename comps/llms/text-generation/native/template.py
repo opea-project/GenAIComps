@@ -95,4 +95,5 @@ args_dict = {
     "disk_offload": False,
     "trust_remote_code": False,
     "quant_config": "",
+    "world_size": 0
 }
