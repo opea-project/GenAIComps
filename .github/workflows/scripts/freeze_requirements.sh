@@ -33,11 +33,10 @@ function freeze() {
                     echo "$line" >>"$file"
                 fi
             done <"$folder/freeze.txt"
-            # rm "$folder/freeze.txt"
+            rm "$folder/freeze.txt"
         else
             mv "$folder/freeze.txt" "$file"
         fi
-        exit 1
     fi
 }
 
@@ -52,7 +51,7 @@ function check_branch_name() {
 
 function main() {
     check_branch_name
-    pip install pip-tools --upgrade
+    echo "::group::pip install pip-tools" && pip install pip-tools --upgrade && echo "::endgroup::"
     export -f freeze
     find . -name "requirements.txt" | xargs -n 1 -I {} bash -c 'freeze "$@"' _ {}
 }
