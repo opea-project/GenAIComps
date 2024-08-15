@@ -20,9 +20,9 @@ function freeze() {
             sed -i '/^\s*#/d; s/#.*//; /^\s*$/d' "$file"
             sed -i '/^\s*#/d; s/#.*//; /^\s*$/d' "$folder/freeze.txt"
 
-            packages1=$(cut -d'=' -f1 "$file" | sort)
-            packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | sort)
-            common_packages=$(comm -12 <(echo "$packages2" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g') <(echo "$packages1" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g'))
+            packages1=$(cut -d'=' -f1 "$file" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g')
+            packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g')
+            common_packages=$(comm -12 <(echo "$packages2" | sort) <(echo "$packages1" | sort))
 
             rm "$file"
             while IFS= read -r line; do
