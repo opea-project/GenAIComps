@@ -34,7 +34,13 @@ function validate_microservice() {
     echo 'The OPEA platform includes: Detailed framework of composable building blocks for state-of-the-art generative AI systems including LLMs, data stores, and prompt engines' > ./dataprep_file.txt
     result=$(curl --noproxy $ip_address --location --request POST \
       --form 'files=@./dataprep_file.txt' $URL)
-
+    if [[ $result == *"200"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-dataprep-pinecone
+        exit 1
+    fi
     DELETE_URL="http://$ip_address:6009/v1/dataprep/delete_file"
     result_2=$(curl --noproxy $ip_address --location --request POST \
       -d '{"file_path": "all"}' -H 'Content-Type: application/json' $DELETE_URL)
