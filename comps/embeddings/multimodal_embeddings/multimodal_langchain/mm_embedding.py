@@ -20,7 +20,7 @@ from comps import (
 )
 
 
-port = os.getenv("MM_EMBEDDING_MS_PORT", 6600)
+port = int(os.getenv("MM_EMBEDDING_MS_PORT", 6600))
 
 @register_microservice(
     name="opea_service@multimodal_embedding",
