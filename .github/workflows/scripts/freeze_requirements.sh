@@ -7,7 +7,7 @@ function freeze() {
     local file=$1
     local folder=$(dirname "$file")
     local keep_origin_packages="true"
-    echo "::group::Check $file ..."          
+    echo "::group::Check $file ..."
     pip-compile \
         --no-upgrade \
         --no-annotate \
