@@ -78,7 +78,6 @@ def generate(
             logger.info("[llm - generate] input[t] is tensor")
             logger.info(f"[llm - generate] device: {model.device}")
             input_tokens[t] = input_tokens[t].to(model.device)
-            # logger.info(f"[llm - generate] new tensor: {input_tokens[t]}")
 
     logger.info("[llm - generate] inputs transferred.")
 

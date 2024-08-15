@@ -1,8 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import re
 import os
+import re
 
 
 class ChatTemplate:
@@ -44,7 +44,7 @@ input_sentences = [
 
 llm_model = os.getenv("LLM_NATIVE_MODEL", "Qwen/Qwen2-7B-Instruct")
 args_dict = {
-    "device": 'hpu',
+    "device": "hpu",
     "model_name_or_path": llm_model,
     "bf16": True,
     "max_new_tokens": 100,
@@ -55,8 +55,8 @@ args_dict = {
     "local_rank": 0,
     "use_kv_cache": True,
     "use_hpu_graphs": True,
-    "dataset_name": None, 
-    "column_name": None, 
+    "dataset_name": None,
+    "column_name": None,
     "do_sample": False,
     "num_beams": 1,
     "trim_logits": False,
@@ -64,14 +64,14 @@ args_dict = {
     "profiling_warmup_steps": 0,
     "profiling_steps": 0,
     "profiling_record_shapes": False,
-    "prompt": None, 
-    "bad_words": None, 
+    "prompt": None,
+    "bad_words": None,
     "force_words": None,
     "assistant_model": None,
     "peft_model": None,
     "num_return_sequences": 1,
     "token": None,
-    "model_revision": 'main',
+    "model_revision": "main",
     "attn_softmax_bf16": False,
     "output_dir": None,
     "bucket_size": -1,
@@ -94,5 +94,5 @@ args_dict = {
     "const_serialization_path": None,
     "disk_offload": False,
     "trust_remote_code": False,
-    "quant_config": ''
+    "quant_config": "",
 }
