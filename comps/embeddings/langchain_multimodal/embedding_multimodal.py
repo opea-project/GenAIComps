@@ -3,7 +3,7 @@
 
 import os
 import time
-from embeddings_clip import tCLIP
+from embeddings_clip import vCLIP
 from typing import Union
 from langsmith import traceable
 from comps import (
@@ -49,6 +49,6 @@ def embedding(input: MultimodalTextInput) -> EmbedDoc:
 
 
 if __name__ == "__main__":
-    embeddings = tCLIP({"model_name": "openai/clip-vit-base-patch32", "num_frm": 4})
+    embeddings = vCLIP({"model_name": "openai/clip-vit-base-patch32", "num_frm": 4})
     opea_microservices["opea_service@embedding_multimodal"].start()
     
