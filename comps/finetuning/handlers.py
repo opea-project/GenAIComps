@@ -9,12 +9,10 @@ from typing import Any, Dict, List, Set
 
 from envs import CHECK_JOB_STATUS_INTERVAL, DATASET_BASE_PATH, MODEL_CONFIG_FILE_MAP, ray_client
 from finetune_config import FinetuneConfig
-
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
+from ray.job_submission import JobSubmissionClient
 
 from comps.cores.proto.api_protocol import FineTuningJob, FineTuningJobsRequest
-
-from ray.job_submission import JobSubmissionClient
 
 FineTuningJobID = str
 running_finetuning_jobs: Dict[FineTuningJobID, FineTuningJob] = {}
@@ -38,7 +36,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest):
         finetune_config = parse_yaml_raw_as(FinetuneConfig, f)
 
     finetune_config.Dataset.train_file = train_file_path
-    
+
     if request.hyperparameters is not None:
         if request.hyperparameters.epochs != "auto":
             finetune_config.Training.epochs = request.hyperparameters.epochs
