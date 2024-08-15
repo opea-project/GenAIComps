@@ -10,7 +10,7 @@ import requests
 ip_address = os.getenv("ip_address")
 ####### video-llama request ########
 print("video-llama request")
-api_url = f"http://{ip_address}:9009/generate"
+api_url = f"http://${ip_address}:9009/generate"
 content = {
     "video_url": "https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4",
     "start": 0.0,
@@ -30,7 +30,7 @@ print(f"\nTotal time: {end - start}")
 
 ####### lvm request ########
 print("lvm request")
-api_url = f"http://{ip_address}:9000/v1/lvm"
+api_url = f"http://${ip_address}:9000/v1/lvm"
 headers = {"Content-Type": "application/json"}
 data = {
     "video_url": "https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4",
