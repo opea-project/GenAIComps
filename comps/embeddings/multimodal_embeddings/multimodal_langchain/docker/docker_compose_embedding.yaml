@@ -8,13 +8,14 @@ services:
     image: opea/embedding-multimodal:latest
     container_name: embedding-multimodal-server
     ports:
-      - "6000:6000"
+      - "${multimodal_embedding_microservice_port}:${multimodal_embedding_microservice_port}"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       MMEI_EMBEDDING_ENDPOINT: ${MMEI_EMBEDDING_ENDPOINT}
+      MM_EMBEDDING_MS_PORT: ${multimodal_embedding_microservice_port}
     restart: unless-stopped
 
 networks:
