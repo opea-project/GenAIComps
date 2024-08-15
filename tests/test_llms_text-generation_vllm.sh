@@ -82,6 +82,14 @@ function validate_microservice() {
         "max_tokens": 32,
         "temperature": 0
         }')
+    if [[ $result == *"text"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-vllm-service
+        docker logs test-comps-vllm-microservice
+        exit 1
+    fi
     result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_p":0.95,"temperature":0.01,"streaming":false}' \

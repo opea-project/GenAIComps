@@ -84,7 +84,7 @@ function validate_microservice() {
         docker logs test-comps-vllm-ray-microservice
         exit 1
     fi
-    result$(http_proxy="" curl http://${ip_address}:5032/v1/chat/completions \
+    result=$(http_proxy="" curl http://${ip_address}:5032/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
         -H 'Content-Type: application/json')
