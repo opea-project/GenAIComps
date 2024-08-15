@@ -14,12 +14,15 @@ class TopologyInfo:
     # will not keep forwarding to the downstream nodes in the black list
     # should be a pattern string
     downstream_black_list: Optional[list] = []
-
+    
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
-
+class MultimodalTextInput(BaseDoc):
+    text: str
+    constraints : dict = None 
+    
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
@@ -41,6 +44,7 @@ class EmbedDoc(BaseDoc):
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
+    constraints: dict = None
 
 
 class Audio2TextDoc(AudioDoc):
