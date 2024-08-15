@@ -18,10 +18,10 @@ function freeze() {
     if [[ -e "$folder/freeze.txt" ]]; then
         if [[ "$keep_origin_packages" == "true" ]]; then
             sed -i '/^\s*#/d; s/#.*//; /^\s*$/d; s/ //g' "$file"
-            sed -i '/^\s*#/d; s/#.*//; /^\s*$/d; s/ //g' "$folder/freeze.txt"
+            sed -i '/^\s*#/d; s/#.*//; /^\s*$/d; s/ //g; s/huggingface-hub\[inference\]/huggingface-hub/g; s/uvicorn\[standard\]/uvicorn/g' "$folder/freeze.txt"
 
             packages1=$(tr '><' '=' <"$file" | cut -d'=' -f1 | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g')
-            packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g' | sed 's/huggingface-hub\[inference\]/huggingface-hub/g' | sed 's/uvicorn\[standard\]/uvicorn/g' )
+            packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g' )
             common_packages=$(comm -12 <(echo "$packages2" | sort) <(echo "$packages1" | sort))
             grep '^git\+' "$file" >temp_file || touch temp_file
             rm -rf "$file" && mv temp_file "$file"
