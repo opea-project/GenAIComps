@@ -13,12 +13,10 @@ from comps import (
     EmbedMultimodalDoc,
     ServiceType,
     TextDoc,
-    ImageDoc,
     TextImageDoc,
     MultimodalDoc,
     opea_microservices,
     register_microservice,
-    statistics_dict,
 )
 
 
@@ -28,7 +26,7 @@ from comps import (
     service_type=ServiceType.EMBEDDING,
     endpoint="/v1/embeddings",
     host="0.0.0.0",
-    port=6200,
+    port=6000,
     input_datatype=MultimodalDoc,
     output_datatype=EmbedMultimodalDoc,
 )
@@ -36,7 +34,6 @@ from comps import (
 @traceable(run_type="embedding")
 
 def embedding(input: MultimodalDoc) -> EmbedDoc:
-    start = time.time()
     
     if isinstance(input, TextDoc):
         # Handle text input
