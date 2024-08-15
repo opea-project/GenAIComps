@@ -21,7 +21,7 @@ function freeze() {
             sed -i '/^\s*#/d; s/#.*//; /^\s*$/d' "$folder/freeze.txt"
 
             packages1=$(tr '><' '=' <"$file" | cut -d'=' -f1 | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g')
-            packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g' | sed 's/huggingface-hub\[inference\]/huggingface-hub/g' | sed 's/llama-index-core/llama-index/g')
+            packages2=$(cut -d'=' -f1 "$folder/freeze.txt" | tr '[:upper:]' '[:lower:]' | sed 's/[-_]/-/g' | sed 's/huggingface-hub\[inference\]/huggingface-hub/g' | sed 's/llama-index-core/llama-index/g' | sed 's/uvicorn\[standard\]/uvicorn/g' )
             common_packages=$(comm -12 <(echo "$packages2" | sort) <(echo "$packages1" | sort))
             grep '^git\+' "$file" >temp_file || touch temp_file
             rm -rf "$file" && mv temp_file "$file"
