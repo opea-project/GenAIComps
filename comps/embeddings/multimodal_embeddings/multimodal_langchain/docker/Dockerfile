@@ -18,7 +18,7 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/embeddings/langchain_multimodal/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal_embeddings/multimodal_langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
