@@ -59,4 +59,3 @@ curl http://${your_ip}:9000/v1/chat/completions\
   -d '{"query":"What is Deep Learning?"}' \
   -H 'Content-Type: application/json'
 ```
-
