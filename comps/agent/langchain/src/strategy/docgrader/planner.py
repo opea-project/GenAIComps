@@ -16,13 +16,13 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from ..base_agent import BaseAgent
-from .prompt import DOC_GRADER_PROMPT, RAGv1_PROMPT
+from .prompt import DOC_GRADER_PROMPT, RAG_PROMPT
 
 instruction = "Retrieved document is not sufficient or relevant to answer the query. Reformulate the query to search knowledge base again."
 MAX_RETRY = 3
 
 
-class AgentStateV1(TypedDict):
+class AgentState(TypedDict):
     # The add_messages function defines how an update should be processed
     # Default is to replace. add_messages says "append"
     messages: Annotated[Sequence[BaseMessage], add_messages]
@@ -63,7 +63,7 @@ class Retriever:
         return ToolNode(tools_descriptions)
 
 
-class DocumentGraderV1:
+class DocumentGrader:
     """Determines whether the retrieved documents are relevant to the question.
 
     Args:
@@ -114,7 +114,7 @@ class DocumentGraderV1:
             return {"messages": [HumanMessage(content=instruction)], "doc_score": "rewrite"}
 
 
-class TextGeneratorV1:
+class TextGenerator:
     """Generate answer.
 
     Args:
@@ -127,7 +127,7 @@ class TextGeneratorV1:
     def __init__(self, llm_endpoint, model_id=None):
         # Chain
         # prompt = rlm_rag_prompt
-        prompt = RAGv1_PROMPT
+        prompt = RAG_PROMPT
         self.rag_chain = prompt | llm_endpoint | StrOutputParser()
 
     def __call__(self, state):
@@ -153,18 +153,18 @@ class TextGeneratorV1:
         return {"messages": [response], "output": response}
 
 
-class RAGAgentDocGraderV1(BaseAgent):
+class RAGAgentDocGrader(BaseAgent):
     def __init__(self, args):
         super().__init__(args)
 
         # Define Nodes
-        document_grader = DocumentGraderV1(self.llm_endpoint, args.model)
+        document_grader = DocumentGrader(self.llm_endpoint, args.model)
         rag_agent = RagAgent(self.llm_endpoint, args.model, self.tools_descriptions)
-        text_generator = TextGeneratorV1(self.llm_endpoint)
+        text_generator = TextGenerator(self.llm_endpoint)
         retriever = Retriever.create(self.tools_descriptions)
 
         # Define graph
-        workflow = StateGraph(AgentStateV1)
+        workflow = StateGraph(AgentState)
 
         # Define the nodes we will cycle between
         workflow.add_node("agent", rag_agent)

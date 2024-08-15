@@ -1,6 +1,6 @@
-# Agentic Rag
+# RAG Agent with DocGrader
 
-This strategy is a practise provided with [LangGraph](https://langchain-ai.github.io/langgraph/tutorials/rag/langgraph_agentic_rag)
+This strategy is specifically designed to improve answer quality over conventional RAG.
 This agent strategy includes steps listed below:
 
 1. RagAgent
@@ -14,12 +14,18 @@ This agent strategy includes steps listed below:
    - Get relative Info from tools, Goto 'DocumentGrader'
 
 3. DocumentGrader
-   Judge retrieved info relevance based query
+   Judge retrieved info relevance based on query
 
-   - Yes: Complete the query with Final answer
-   - No: Goto 'Rewriter'
+   - Yes: Go to TextGenerator
+   - No: Go back to agent to rewrite query.
 
-4. Rewriter
-   Rewrite the query and Goto 'RagAgent'
+4. TextGenerator
+   - Generate an answer based on query and last retrieved context.
+   - After generation, go to END.
+
+Note:
+ - The max number of retrieves is set at 3.
+ - You can specify a small `recursion_limit` to stop early or a big `recursion_limit` to fully use the 3 retrieves.
+ - The TextGenerator only looks at the last retrieved docs.
 
 ![Agentic Rag Workflow](https://blog.langchain.dev/content/images/size/w1000/2024/02/image-16.png)

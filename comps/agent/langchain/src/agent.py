@@ -17,8 +17,8 @@ def instantiate_agent(args, strategy="react_langchain"):
         return PlanExecuteAgentWithLangGraph(args)
 
     elif strategy == "docgrader":
-        from .strategy.docgrader import RAGAgentDocGraderV1
+        from .strategy.docgrader import RAGAgentDocGrader
 
-        return RAGAgentDocGraderV1(args)
+        return RAGAgentDocGrader(args)
     else:
         raise ValueError(f"Agent strategy: {strategy} not supported!")

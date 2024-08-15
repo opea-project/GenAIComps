@@ -26,7 +26,7 @@ Please follow these guidelines when formulating your answer:
 ### Answer:
 """
 
-RAGv1_PROMPT = ChatPromptTemplate.from_messages(
+RAG_PROMPT = ChatPromptTemplate.from_messages(
     [
         (
             "human",
