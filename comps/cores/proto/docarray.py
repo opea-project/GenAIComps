@@ -171,6 +171,7 @@ class LVMDoc(BaseDoc):
     repetition_penalty: float = 1.03
     streaming: bool = False
 
+
 class LVMVideoDoc(BaseDoc):
     video_url: str
     chunk_start: float

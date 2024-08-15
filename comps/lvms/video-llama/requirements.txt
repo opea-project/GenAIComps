@@ -1,10 +1,10 @@
 datasets
 docarray
 fastapi
-uvicorn
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
 pydub
 shortuuid
+uvicorn

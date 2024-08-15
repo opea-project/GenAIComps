@@ -22,7 +22,7 @@ index 32d9294..f5eedd2 100644
 +Rules:\
 +- Don't answer any question which is not related to provied video content.\
 +- Don't be toxic and don't include harmful information.\
-+- Give answer only if you find it in the video conent, otherwise just say You don't have enough information to answer the question.\
++- Give answer only if you find it in the video content, otherwise just say You don't have enough information to answer the question.\
 +\
 +Here are the video embeddings:",
      roles=("USER", "ASSISTANT"),
@@ -81,7 +81,7 @@ index 32d9294..f5eedd2 100644
 +            streamer=streamer
          )
          output_token = outputs[0]
-         if output_token[0] == 0:  # the model might output a unknow token <unk> at the beginning. remove it
+         if output_token[0] == 0:  # the model might output a unknown token <unk> at the beginning. remove it
 @@ -221,25 +240,27 @@ class Chat:
          if output_token[0] == 1:  # some users find that there is a start token <s> at the beginning. remove it
              output_token = output_token[1:]

@@ -2,7 +2,6 @@
 
 This is a Docker-based microservice that runs Video-Llama as a Large Vision Model (LVM). It utilizes Llama-2-7b-chat-hf for conversations based on video dialogues. It support Intel Xeon CPU.
 
-
 # 🚀1. Start Microservice with Docker
 
 ## 1.1 Build Images
