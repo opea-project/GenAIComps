@@ -26,5 +26,5 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/embeddings/neural-speed
 
-ENTRYPOINT ["python", "embedding_neuralspeed.py"]
+ENTRYPOINT ["python", "embedding_neuralspeed_svc.py"]
 
