@@ -15,16 +15,19 @@ pip install -r requirements.txt
 ### 1.2.1 Start Ray Cluster
 
 OneCCL and Intel MPI libraries should be dynamically linked in every node before Ray starts:
+
 ```bash
 source $(python -c "import oneccl_bindings_for_pytorch as torch_ccl; print(torch_ccl.cwd)")/env/setvars.sh
 ```
 
 Start Ray locally using the following command.
+
 ```bash
 ray start --head
 ```
 
 For a multi-node cluster, start additional Ray worker nodes with below command.
+
 ```bash
 ray start --address='${head_node_ip}:6379'
 ```

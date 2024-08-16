@@ -14,9 +14,9 @@
 # limitations under the License.
 #
 
-from pydantic import BaseModel, validator
-from typing import Optional, List, Union
+from typing import List, Optional, Union
 
+from pydantic import BaseModel, validator
 
 PRECISION_BF16 = "bf16"
 PRECISION_FP16 = "fp16"

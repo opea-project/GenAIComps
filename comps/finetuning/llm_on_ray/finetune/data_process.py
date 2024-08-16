@@ -28,7 +28,9 @@ class DataProcessor:
     def __init__(self, config, tokenizer):
         self.tokenizer = tokenizer
         self.end = tokenizer.eos_token
-        self.intro = "Below is an instruction that describes a task. Write a response that appropriately completes the request."
+        self.intro = (
+            "Below is an instruction that describes a task. Write a response that appropriately completes the request."
+        )
         self.instruction = "### Instruction:\n"
         self.input = "### Input:\n"
         self.response = "### Response:\n"
@@ -68,16 +70,7 @@ class DataProcessor:
                 )
                 prompts["prompt_sources"].append(prompt)
             else:
-                prompt = (
-                    self.intro
-                    + self.end
-                    + "\n"
-                    + self.instruction
-                    + instruction
-                    + self.end
-                    + "\n"
-                    + self.response
-                )
+                prompt = self.intro + self.end + "\n" + self.instruction + instruction + self.end + "\n" + self.response
                 prompts["prompt_sources"].append(prompt)
             prompt_response = response + self.end
             prompts["prompt_targets"].append(prompt_response)
@@ -119,9 +112,7 @@ class DataProcessor:
                 instruction,
                 re.DOTALL,
             )
-            convs_tokens = [
-                self.tokenizer.tokenize(conv) + self.tokenizer.tokenize("\n") for conv in convs
-            ]
+            convs_tokens = [self.tokenizer.tokenize(conv) + self.tokenizer.tokenize("\n") for conv in convs]
             header_tokens = self.tokenizer.tokenize(header) + self.tokenizer.tokenize("\n")
             max_input = self.max_source_length - len(header_tokens) - len(assistant_tokens)
             truncated_convs = self.__truncate_sequences(convs_tokens, max_input)
@@ -129,14 +120,10 @@ class DataProcessor:
                 truncated_convs = [convs_tokens[-1][: max_input - 3] + convs_tokens[-1][-3:]]
 
             prompt_tokens = [header_tokens] + truncated_convs + [assistant_tokens]
-            prompt_ids = [
-                self.tokenizer.convert_tokens_to_ids(prompt_token) for prompt_token in prompt_tokens
-            ]
+            prompt_ids = [self.tokenizer.convert_tokens_to_ids(prompt_token) for prompt_token in prompt_tokens]
             prompt_ids = list(chain(*prompt_ids))
 
-            resp_ids = self.tokenizer.convert_tokens_to_ids(
-                self.tokenizer.tokenize(response.strip())
-            )
+            resp_ids = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(response.strip()))
             # keep last and eos_id
             max_resp = self.max_seq_length - len(prompt_ids) - 1
 

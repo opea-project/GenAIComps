@@ -16,32 +16,26 @@
 
 #!/usr/bin/env python
 
-import os
 import argparse
+import copy
+import os
 import re
 import sys
-import copy
-
-from typing import Any, Dict, Union, Optional
-
 from itertools import chain
+from typing import Any, Dict, Optional, Union
 
-import torch
 import datasets
-import transformers
-
-from peft import get_peft_model, LoraConfig
-
 import ray
-from ray.train.torch import TorchTrainer
-from ray.air.config import ScalingConfig
-from ray.air import RunConfig, FailureConfig
-
-from pydantic_yaml import parse_yaml_raw_as
-
+import torch
+import transformers
 from llm_on_ray import common
 from llm_on_ray.finetune.data_process import DataProcessor
 from llm_on_ray.finetune.finetune_config import FinetuneConfig
+from peft import LoraConfig, get_peft_model
+from pydantic_yaml import parse_yaml_raw_as
+from ray.air import FailureConfig, RunConfig
+from ray.air.config import ScalingConfig
+from ray.train.torch import TorchTrainer
 
 
 def adapt_transformers_to_device(config: Dict):
@@ -176,9 +170,7 @@ def load_dataset(config: Dict):
 
         validation_split_percentage = config["Dataset"].get("validation_split_percentage", 0)
         if validation_split_percentage / 100 > 0.0 and validation_split_percentage / 100 < 1.0:
-            dataset_dict = train_dataset.train_test_split(
-                test_size=validation_split_percentage / 100
-            )
+            dataset_dict = train_dataset.train_test_split(test_size=validation_split_percentage / 100)
             dataset_dict["validation"] = dataset_dict["test"]
             return dataset_dict
 
@@ -193,9 +185,7 @@ def load_dataset(config: Dict):
         if "validation" not in raw_dataset.keys() and (
             validation_split_percentage / 100 > 0.0 and validation_split_percentage / 100 < 1.0
         ):
-            dataset_dict = raw_dataset["train"].train_test_split(
-                test_size=validation_split_percentage / 100
-            )
+            dataset_dict = raw_dataset["train"].train_test_split(test_size=validation_split_percentage / 100)
             dataset_dict["validation"] = dataset_dict["test"]
             return dataset_dict
 
@@ -265,9 +255,7 @@ def load_model(config: Dict):
     model_name = config["General"]["base_model"]
     model_dtype = convert_dtype(config["Training"].get("mixed_precision", "no"))
     model_config = config["General"].get("config", {})
-    model = transformers.AutoModelForCausalLM.from_pretrained(
-        model_name, torch_dtype=model_dtype, **model_config
-    )
+    model = transformers.AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=model_dtype, **model_config)
 
     lora_config = config["General"].get("lora_config", None)
     if lora_config:
@@ -295,17 +283,14 @@ def get_trainer(config: Dict, model, tokenizer, tokenized_dataset, data_collator
             model=model,
             args=training_args,
             train_dataset=tokenized_dataset["train"],
-            eval_dataset=tokenized_dataset["validation"]
-            if tokenized_dataset.get("validation") is not None
-            else None,
+            eval_dataset=tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
             tokenizer=tokenizer,
             data_collator=data_collator,
         )
         return training_args, trainer
     elif device in ["hpu"]:
-        from optimum.habana.transformers import GaudiTrainer
-        from optimum.habana.transformers import GaudiTrainingArguments
         from optimum.habana import GaudiConfig
+        from optimum.habana.transformers import GaudiTrainer, GaudiTrainingArguments
 
         # If gaudi_config_name is provided, load gaudi_config from huggingface model hub(https://huggingface.co/Habana), otherwise use default gaudi_config
         gaudi_config_name = config["General"].get("gaudi_config_name", None)
@@ -322,9 +307,7 @@ def get_trainer(config: Dict, model, tokenizer, tokenized_dataset, data_collator
             args=training_args,
             gaudi_config=gaudi_config,
             train_dataset=tokenized_dataset["train"],
-            eval_dataset=tokenized_dataset["validation"]
-            if tokenized_dataset.get("validation") is not None
-            else None,
+            eval_dataset=tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
             tokenizer=tokenizer,
             data_collator=data_collator,
         )
@@ -366,9 +349,7 @@ def train_func(config: Dict[str, Any]):
 
 
 def get_finetune_config():
-    parser = argparse.ArgumentParser(
-        description="Finetune a transformers model on a causal language modeling task"
-    )
+    parser = argparse.ArgumentParser(description="Finetune a transformers model on a causal language modeling task")
     parser.add_argument(
         "--config_file",
         type=str,
@@ -402,9 +383,7 @@ def main(external_config=None):
     resources_per_worker = config["Training"].get("resources_per_worker")
 
     if num_training_workers > 1 and config["Training"].get("accelerate_mode", None) is None:
-        config["Training"][
-            "accelerate_mode"
-        ] = "DDP"  # will use DDP to accelerate if no method specified
+        config["Training"]["accelerate_mode"] = "DDP"  # will use DDP to accelerate if no method specified
 
     ccl_worker_count = 1
     device = config["Training"]["device"]
@@ -427,9 +406,7 @@ def main(external_config=None):
             runtime_env["pip"] = ["transformers==4.26.0"]
 
         if device == "gpu":
-            num_cpus = (
-                resources_per_worker["CPU"] * num_training_workers + 1
-            )  # additional 1 for head worker
+            num_cpus = resources_per_worker["CPU"] * num_training_workers + 1  # additional 1 for head worker
             ray.init(num_cpus=num_cpus, runtime_env=runtime_env)
         else:
             ray.init(runtime_env=runtime_env)

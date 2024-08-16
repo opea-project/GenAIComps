@@ -14,13 +14,14 @@
 # limitations under the License.
 #
 
-from ray.train.torch.config import _TorchBackend
-from ray.train.torch.config import TorchConfig as RayTorchConfig
-from ray.train._internal.worker_group import WorkerGroup
-from dataclasses import dataclass
-from typing import Optional
 import os
 import sys
+from dataclasses import dataclass
+from typing import Optional
+
+from ray.train._internal.worker_group import WorkerGroup
+from ray.train.torch.config import TorchConfig as RayTorchConfig
+from ray.train.torch.config import _TorchBackend
 
 # The package importlib_metadata is in a different place, depending on the Python version.
 if sys.version_info < (3, 8):
@@ -40,7 +41,7 @@ class TorchConfig(RayTorchConfig):
 
 
 def xpu_libs_import():
-    """try to import IPEX and oneCCL."""
+    """Try to import IPEX and oneCCL."""
     try:
         import intel_extension_for_pytorch
     except ImportError:
@@ -56,7 +57,7 @@ def xpu_libs_import():
 
 
 def hpu_libs_import():
-    """try to import habana frameworkfs for torch"""
+    """Try to import habana frameworkfs for torch."""
     try:
         import habana_frameworks.torch  # noqa: F401
     except ImportError as habana_not_exist:
@@ -72,11 +73,7 @@ class EnableCCLBackend(_TorchBackend):
     device: Optional[str] = None
 
     def on_start(self, worker_group: WorkerGroup, backend_config: RayTorchConfig):
-        libs_import = (
-            hpu_libs_import
-            if self.device is not None and self.device.startswith("hpu")
-            else xpu_libs_import
-        )
+        libs_import = hpu_libs_import if self.device is not None and self.device.startswith("hpu") else xpu_libs_import
         for i in range(len(worker_group)):
             worker_group.execute_single_async(i, libs_import)
         super().on_start(worker_group, backend_config)
