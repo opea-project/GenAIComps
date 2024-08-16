@@ -34,6 +34,8 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 ENV HUGGINGFACEHUB_API_TOKEN=dummy
 
+ENV USECLIP 0
+
 ENV no_proxy=localhost,127.0.0.1
 
 ENV http_proxy=""
