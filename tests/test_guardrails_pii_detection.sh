@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     echo "Start building docker images for microservice"
     cd $WORKPATH
-    docker build -t opea/guardrails-pii-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/pii_detection/docker/Dockerfile .
+    docker build --no-cache -t opea/guardrails-pii-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/pii_detection/docker/Dockerfile .
     if $? ; then
         echo "opea/guardrails-pii-detection built fail"
         exit 1
@@ -31,15 +31,42 @@ function validate_microservice() {
     export PATH="${HOME}/miniforge3/bin:$PATH"
     source activate
     echo "test 1 - single task - ner"
-    python comps/guardrails/pii_detection/test.py --test_text --batch_size 1 --ip_addr $ip_address --strategy ner
+    result=$(python comps/guardrails/pii_detection/test.py --test_text --batch_size 1 --ip_addr $ip_address --strategy ner)
+    if [[ $result == *"An error occurred"* ]]; then
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-guardrails-pii-detection-endpoint
+        exit 1
+    else
+        echo "Result correct."
+    fi
     echo "test 2 - 20 tasks in parallel - ner"
-    python comps/guardrails/pii_detection/test.py --test_text --batch_size 20 --ip_addr $ip_address --strategy ner
+    result=$(python comps/guardrails/pii_detection/test.py --test_text --batch_size 20 --ip_addr $ip_address --strategy ner)
+    if [[ $result == *"An error occurred"* ]]; then
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-guardrails-pii-detection-endpoint
+        exit 1
+    else
+        echo "Result correct."
+    fi
     echo "test 3 - single task - ml"
-    python comps/guardrails/pii_detection/test.py --test_text --batch_size 1 --ip_addr $ip_address --strategy ml
+    result=$(python comps/guardrails/pii_detection/test.py --test_text --batch_size 1 --ip_addr $ip_address --strategy ml)
+    if [[ $result == *"An error occurred"* ]]; then
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-guardrails-pii-detection-endpoint
+        exit 1
+    else
+        echo "Result correct."
+    fi
     echo "test 4 - 20 tasks in parallel - ml"
-    python comps/guardrails/pii_detection/test.py --test_text --batch_size 20 --ip_addr $ip_address --strategy ml
+    result=$(python comps/guardrails/pii_detection/test.py --test_text --batch_size 20 --ip_addr $ip_address --strategy ml)
+    if [[ $result == *"An error occurred"* ]]; then
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-guardrails-pii-detection-endpoint
+        exit 1
+    else
+        echo "Result correct."
+    fi
     echo "Validate microservice completed"
-    docker logs test-comps-guardrails-pii-detection-endpoint
 }
 
 function stop_docker() {
