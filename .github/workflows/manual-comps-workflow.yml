@@ -12,12 +12,12 @@ on:
       #   type: string
       service:
         default: "asr"
-        description: 'List of services to test [agent,asr,chathistory,dataprep,embeddings,guardrails,knowledgegraphs,llms,lvms,prompt_registry,ragas,reranks,retrievers,tts,vectorstores,web_retrievers]'
+        description: "List of services to test [agent,asr,chathistory,dataprep,embeddings,guardrails,knowledgegraphs,llms,lvms,prompt_registry,ragas,reranks,retrievers,tts,vectorstores,web_retrievers]"
         required: true
         type: string
       name:
         default: "comps"
-        description: 'List of names to test [_faq-generation,_ls tefastrag,_haystack,_langchain,_langchain-mosec,_llama,_llava,_milvus,_mongo,_pgvector,_pii,_pinecone,_qdrant,_redis,_registry,_retrievers,_summarization,_tei,_text-generation,_tgi]'
+        description: "List of names to test [_faq-generation,_ls tefastrag,_haystack,_langchain,_langchain-mosec,_llama,_llava,_milvus,_mongo,_pgvector,_pii,_pinecone,_qdrant,_redis,_registry,_retrievers,_summarization,_tei,_text-generation,_tgi]"
         required: true
         type: string
       tag:
@@ -55,15 +55,15 @@ jobs:
       # nodes: ${{ steps.get-matrix.outputs.nodes }}
       names: ${{ steps.get-matrix.outputs.names }}
     steps:
-    - name: Create Matrix
-      id: get-matrix
-      run: |
-        services=($(echo ${{ inputs.services }} | tr ',' ' '))
-        echo "services=$services_json" >> $GITHUB_OUTPUT
-        # nodes=($(echo ${{ inputs.nodes }} | tr ',' ' '))
-        # echo "nodes=$nodes_json" >> $GITHUB_OUTPUT
-        names=($(echo ${{ inputs.names }} | tr ',' ' '))
-        echo "names=$names_json" >> $GITHUB_OUTPUT
+      - name: Create Matrix
+        id: get-matrix
+        run: |
+          services=($(echo ${{ inputs.services }} | tr ',' ' '))
+          echo "services=$services_json" >> $GITHUB_OUTPUT
+          # nodes=($(echo ${{ inputs.nodes }} | tr ',' ' '))
+          # echo "nodes=$nodes_json" >> $GITHUB_OUTPUT
+          names=($(echo ${{ inputs.names }} | tr ',' ' '))
+          echo "names=$names_json" >> $GITHUB_OUTPUT
 
   run-services:
     needs: [get-test-matrix]
