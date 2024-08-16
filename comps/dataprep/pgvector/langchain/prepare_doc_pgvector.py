@@ -93,7 +93,7 @@ def ingest_doc_to_pgvector(doc_path: DocPath):
         chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, add_start_index=True, separators=get_separators()
     )
 
-    content = document_loader(path)
+    content = document_loader(doc_path)
     if isinstance(content, list):
         chunks = content
     elif isinstance(content, str):
