@@ -33,6 +33,7 @@ class Response(Struct, kw_only=True):
 
 
 class Inference(TypedMsgPackMixin, Worker):
+
     def __init__(self):
         super().__init__()
         self.tokenizer = AutoTokenizer.from_pretrained(TorchModel)
@@ -74,7 +75,8 @@ class Inference(TypedMsgPackMixin, Worker):
 
 if __name__ == "__main__":
     server = Server()
-    server.append_worker(
-        Inference, max_batch_size=INFERENCE_BATCH_SIZE, max_wait_time=INFERENCE_MAX_WAIT_TIME, num=INFERENCE_WORKER_NUM
-    )
+    server.append_worker(Inference,
+                         max_batch_size=INFERENCE_BATCH_SIZE,
+                         max_wait_time=INFERENCE_MAX_WAIT_TIME,
+                         num=INFERENCE_WORKER_NUM)
     server.run()
