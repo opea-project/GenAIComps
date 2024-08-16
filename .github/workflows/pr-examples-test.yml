@@ -53,7 +53,7 @@ jobs:
           echo "Run test..."
           export IMAGE_TAG="comps"
           timeout 50m bash test_chatqna_on_gaudi.sh
-          
+
           echo "LOG_PATH=$(pwd)/*.log" >> $GITHUB_ENV
 
       - name: Clean up container
