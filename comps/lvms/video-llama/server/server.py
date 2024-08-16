@@ -11,9 +11,8 @@ from urllib.parse import urlparse
 import decord
 import requests
 import uvicorn
-import yaml
 from extract_vl_embedding import VLEmbeddingExtractor as VL
-from fastapi import FastAPI, File, Query, UploadFile
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from langchain_community.embeddings import HuggingFaceEmbeddings
@@ -156,6 +155,11 @@ def stream_res(video, instruction, max_new_tokens):
     for text in streamer:
         yield text
 
+def is_local_file(url):
+    """
+    Returns True if url is a local file, False otherwise
+    """
+    return not url.startswith('http://') and not url.startswith('https://')
 
 @app.get("/health")
 async def health() -> Response:
@@ -171,32 +175,41 @@ async def generate(
     prompt: str = Query(..., description="Query for Video-LLama", examples="What is the man doing?"),
     max_new_tokens: int = Query(150, description="Maximum number of tokens to generate", examples=150),
 ) -> StreamingResponse:
-
-    parsed_url = urlparse(video_url)
-    video_name = os.path.basename(parsed_url.path)
+    if not is_local_file(video_url):
+        parsed_url = urlparse(video_url)
+        video_name = os.path.basename(parsed_url.path)
+    else:
+        video_name = os.path.basename(video_url)
+    
     if video_name.lower().endswith(".mp4"):
         logging.info(f"Format check passed, the file '{video_name}' is an MP4 file.")
     else:
         logging.info(f"Format check failed, the file '{video_name}' is not an MP4 file.")
         return JSONResponse(status_code=400, content={"message": "Invalid file type. Only mp4 videos are allowed."})
 
-    try:
-        video_path = os.path.join(VIDEO_DIR, video_name)
-        response = requests.get(video_url, stream=True)
+    if not is_local_file(video_url):
+        try:
+            video_path = os.path.join(VIDEO_DIR, video_name)
+            response = requests.get(video_url, stream=True)
 
-        if response.status_code == 200:
-            with open(video_path, "wb") as file:
-                for chunk in response.iter_content(chunk_size=1024):
-                    if chunk:  # filter out keep-alive new chunks
-                        file.write(chunk)
-            logging.info(f"File downloaded: {video_path}")
-        else:
+            if response.status_code == 200:
+                with open(video_path, "wb") as file:
+                    for chunk in response.iter_content(chunk_size=1024):
+                        if chunk:  # filter out keep-alive new chunks
+                            file.write(chunk)
+                logging.info(f"File downloaded: {video_path}")
+            else:
+                logging.info(f"Error downloading file: {response.status_code}")
+                return JSONResponse(status_code=500, content={"message": "Error downloading file."})
+        except Exception as e:
             logging.info(f"Error downloading file: {response.status_code}")
             return JSONResponse(status_code=500, content={"message": "Error downloading file."})
-    except Exception as e:
-        logging.info(f"Error downloading file: {response.status_code}")
-        return JSONResponse(status_code=500, content={"message": "Error downloading file."})
-
+    else:
+        # check if the video exist
+        video_path = video_url
+        if not os.path.exists(video_path):
+            logging.info(f"File not found: {video_path}")
+            return JSONResponse(status_code=404, content={"message": "File not found."})
     video_info = videoInfo(start_time=start, duration=duration, video_path=video_path)
 
     # format context and instruction
