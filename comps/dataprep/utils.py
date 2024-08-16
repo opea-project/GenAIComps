@@ -290,14 +290,14 @@ def load_yaml(yaml_path):
 def load_xlsx(input_path):
     """Load and process xlsx file."""
     df = pd.read_excel(input_path)
-    content_list = df.apply(lambda row: ', '.join(row.astype(str)), axis=1).tolist()
+    content_list = df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
     return content_list
 
 
 def load_csv(input_path):
     """Load the csv file."""
     df = pd.read_csv(input_path)
-    content_list = df.apply(lambda row: ', '.join(row.astype(str)), axis=1).tolist()
+    content_list = df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
     return content_list
 
 

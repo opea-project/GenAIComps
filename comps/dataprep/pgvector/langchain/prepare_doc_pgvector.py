@@ -92,7 +92,7 @@ def ingest_doc_to_pgvector(doc_path: DocPath):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, add_start_index=True, separators=get_separators()
     )
-    
+
     content = document_loader(path)
     if isinstance(content, list):
         chunks = content
@@ -100,7 +100,7 @@ def ingest_doc_to_pgvector(doc_path: DocPath):
         chunks = text_splitter.split_text(content)
     else:
         raise TypeError("The content must be either a list or a string.")
-    
+
     print("Done preprocessing. Created ", len(chunks), " chunks of the original file")
     print("PG Connection", PG_CONNECTION_STRING)
     metadata = [dict({"doc_name": str(doc_path)})]

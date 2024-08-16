@@ -95,7 +95,7 @@ def ingest_data_to_milvus(doc_path: DocPath):
         chunks = text_splitter.split_text(content)
     else:
         raise TypeError("The content must be either a list or a string.")
-    
+
     if doc_path.process_table and path.endswith(".pdf"):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
         chunks = chunks + table_chunks
