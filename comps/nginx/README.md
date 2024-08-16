@@ -7,6 +7,7 @@ In GenAIComps, we utilize nginx to streamline our network services. We provide a
 ## 🚀1. Build Docker Image
 
 ```bash
+cd docker
 docker build -t opea/nginx:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f ./Dockerfile .
 ```
 
@@ -14,7 +15,7 @@ docker build -t opea/nginx:latest --build-arg https_proxy=$https_proxy --build-a
 
 To use Nginx for service forwarding, users need to setup environment variables first. The variables set here will be substituted in `nginx.conf.template`.
 
-For example, if you want to use Nginx to forward the frontend, backend services of a [ChatQnA](https://github.com/opea-project/GenAIExamples/tree/main/ChatQnA) example, setup environment variables as below:
+For example, if you want to use Nginx to forward the frontend, backend services of a [ChatQnA](https://github.com/opea-project/GenAIExamples/tree/main/ChatQnA) example, setup environment variables as below.
 
 ```bash
 export FRONTEND_SERVICE_IP=${your_frontend_service_ip}
@@ -22,7 +23,10 @@ export FRONTEND_SERVICE_PORT=5173
 export BACKEND_SERVICE_NAME=chatqna
 export BACKEND_SERVICE_IP=${your_backend_service_ip}
 export BACKEND_SERVICE_PORT=8888
+export NGINX_PORT=${your_nginx_port}
 ```
+
+Nginx will expose `80` as the default port. You can choose other available ports as `${your_nginx_port}` for Nginx docker.
 
 For other examples, change the variable above following the corresponding READMEs.
 
@@ -40,16 +44,23 @@ location ${dataprep_service_endpoint} {
 
 ## 🚀3. Start Nginx Service
 
-Nginx will expose `80` as the default port. You can choose other available ports as `${your_nginx_port}` for Nginx docker.
+### 3.1 Start with CLI (Option 1)
 
 ```bash
-docker run -d --name opea-nginx -p ${your_nginx_port}:80 \
+docker run -d --name opea-nginx -p ${NGINX_PORT}:80 \
 	-e FRONTEND_SERVICE_IP=${FRONTEND_SERVICE_IP} \
 	-e FRONTEND_SERVICE_PORT=${FRONTEND_SERVICE_PORT} \
 	-e BACKEND_SERVICE_NAME=${BACKEND_SERVICE_NAME} \
     -e BACKEND_SERVICE_IP=${BACKEND_SERVICE_IP} \
     -e BACKEND_SERVICE_PORT=${BACKEND_SERVICE_PORT} \
     opea/nginx:latest
+```
+
+### 3.2 Start with Docker Compose (Option 2)
+
+```bash
+cd docker
+docker compose -f docker_compose.yaml up -d
 ```
 
 ## 🚀4. Consume Forwarded Service
