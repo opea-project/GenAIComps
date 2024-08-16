@@ -155,11 +155,11 @@ def stream_res(video, instruction, max_new_tokens):
     for text in streamer:
         yield text
 
+
 def is_local_file(url):
-    """
-    Returns True if url is a local file, False otherwise
-    """
-    return not url.startswith('http://') and not url.startswith('https://')
+    """Returns True if url is a local file, False otherwise."""
+    return not url.startswith("http://") and not url.startswith("https://")
+
 
 @app.get("/health")
 async def health() -> Response:
@@ -180,7 +180,7 @@ async def generate(
         video_name = os.path.basename(parsed_url.path)
     else:
         video_name = os.path.basename(video_url)
-    
+
     if video_name.lower().endswith(".mp4"):
         logging.info(f"Format check passed, the file '{video_name}' is an MP4 file.")
     else:
