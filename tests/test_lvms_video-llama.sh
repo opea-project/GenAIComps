@@ -17,7 +17,7 @@ function build_docker_images() {
 
 function start_service() {
     cd $WORKPATH
-    export no_proxy=$no_proxy,$ip_address
+    unset http_proxy
     export LVM_ENDPOINT=http://$ip_address:9009
 
     docker compose -f comps/lvms/video-llama/docker_compose.yaml up -d
@@ -31,7 +31,7 @@ function start_service() {
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://$ip_address:9000/v1/lvm -X POST -d '{"video_url":"./data/silence_girl.mp4","chunk_start": 0,"chunk_duration": 7,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:9000/v1/lvm -X POST -d '{"video_url":"./data/silence_girl.mp4","chunk_start": 0,"chunk_duration": 7,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
     if [[ $result == *"silence"* ]]; then
         echo "Result correct."
     else
