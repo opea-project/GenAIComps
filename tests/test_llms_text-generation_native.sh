@@ -14,6 +14,12 @@ function build_docker_images() {
         --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy \
         -t opea/llm-native:comps \
         -f comps/llms/text-generation/native/docker/Dockerfile .
+    if $? ; then
+        echo "opea/llm-native built fail"
+        exit 1
+    else
+        echo "opea/llm-native built successful"
+    fi
 }
 
 function start_service() {
