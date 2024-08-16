@@ -22,11 +22,12 @@ function start_service() {
 
     docker compose -f comps/lvms/video-llama/docker_compose.yaml up -d
 
+    env
     echo "Waiting for the service to start, downloading model..."
     sleep 1m
 
-    until docker logs video-llama-lvm-server 2>&1 | grep -q "Uvicorn running on"; do
-        sleep 5m
+    until docker logs video-llama-lvm-server 2>&1 | tee /dev/stderr | grep -q "Uvicorn running on"; do
+    sleep 5m
     done
 }
 
