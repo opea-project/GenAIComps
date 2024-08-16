@@ -31,15 +31,15 @@ class AgentState(TypedDict):
     query_time: str
 
 
-class RagAgent:
-    """Invokes the agent model to generate a response based on the current state. Given
+class QueryWriter:
+    """Invokes llm to generate a response based on the current state. Given
     the question, it will decide to retrieve using the retriever tool, or simply end.
 
     Args:
         state (messages): The current state
 
     Returns:
-        dict: The updated state with the agent response appended to messages
+        dict: The updated state with the response appended to messages
     """
 
     def __init__(self, llm_endpoint, model_id, tools):
@@ -49,7 +49,7 @@ class RagAgent:
             self.llm = llm_endpoint.bind_tools(tools)
 
     def __call__(self, state):
-        print("---CALL RagAgent---")
+        print("---CALL QueryWriter---")
         messages = state["messages"]
 
         response = self.llm.invoke(messages)
@@ -153,13 +153,13 @@ class TextGenerator:
         return {"messages": [response], "output": response}
 
 
-class RAGAgentDocGrader(BaseAgent):
+class RAGAgent(BaseAgent):
     def __init__(self, args):
         super().__init__(args)
 
         # Define Nodes
         document_grader = DocumentGrader(self.llm_endpoint, args.model)
-        rag_agent = RagAgent(self.llm_endpoint, args.model, self.tools_descriptions)
+        query_writer = QueryWriter(self.llm_endpoint, args.model, self.tools_descriptions)
         text_generator = TextGenerator(self.llm_endpoint)
         retriever = Retriever.create(self.tools_descriptions)
 
@@ -167,15 +167,15 @@ class RAGAgentDocGrader(BaseAgent):
         workflow = StateGraph(AgentState)
 
         # Define the nodes we will cycle between
-        workflow.add_node("agent", rag_agent)
+        workflow.add_node("query_writer", query_writer)
         workflow.add_node("retrieve", retriever)
         workflow.add_node("doc_grader", document_grader)
         workflow.add_node("generate", text_generator)
 
         # connect as graph
-        workflow.add_edge(START, "agent")
+        workflow.add_edge(START, "query_writer")
         workflow.add_conditional_edges(
-            "agent",
+            "query_writer",
             tools_condition,
             {
                 "tools": "retrieve",  # if tools_condition return 'tools', then go to 'retrieve'
@@ -190,7 +190,7 @@ class RAGAgentDocGrader(BaseAgent):
             self.should_retry,
             {
                 False: "generate",
-                True: "agent",
+                True: "query_writer",
             },
         )
         workflow.add_edge("generate", END)

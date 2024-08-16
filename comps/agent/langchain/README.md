@@ -9,13 +9,13 @@ This agent microservice is built on Langchain/Langgraph frameworks. Agents integ
 We currently support the following types of agents:
 
 1. ReAct: use `react_langchain` or `react_langgraph` as strategy. First introduced in this seminal [paper](https://arxiv.org/abs/2210.03629). The ReAct agent engages in "reason-act-observe" cycles to solve problems. Please refer to this [doc](https://python.langchain.com/v0.2/docs/how_to/migrate_agent/) to understand the differences between the langchain and langgraph versions of react agents.
-2. RAG agent: `docgrader` strategy. This agent is specifically designed for improving RAG performance. It has the capability to rephrase query, check relevancy of retrieved context, and iterate if context is not relevant.
+2. RAG agent: `rag_agent` strategy. This agent is specifically designed for improving RAG performance. It has the capability to rephrase query, check relevancy of retrieved context, and iterate if context is not relevant.
 3. Plan and execute: `plan_execute` strategy. This type of agent first makes a step-by-step plan given a user request, and then execute the plan sequentially (or in parallel, to be implemented in future). If the execution results can solve the problem, then the agent will output an answer; otherwise, it will replan and execute again.
    For advanced developers who want to implement their own agent strategies, please refer to [Section 5](#5-customize-agent-strategy) below.
 
-### 1.2 LLM backend
+### 1.2 LLM engine
 
-Agents use LLM for reasoning and planning. We support 2 options of LLM backend:
+Agents use LLM for reasoning and planning. We support 2 options of LLM engine:
 
 1. Open-source LLMs served with TGI-gaudi. To use open-source llms, follow the instructions in [Section 2](#222-start-microservices) below. Note: we recommend using state-of-the-art LLMs, such as llama3.1-70B-instruct, to get higher success rate.
 2. OpenAI LLMs via API calls. To use OpenAI llms, specify `llm_engine=openai` and `export OPENAI_API_KEY=<your-openai-key>`

@@ -68,6 +68,14 @@ function start_react_langgraph_agent_service() {
     echo "Service started successfully"
 }
 
+function start_react_langgraph_agent_service_openai() {
+    echo "Starting react_langgraph agent microservice"
+    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e model=gpt-4o-mini-2024-07-18 -e strategy=react_langgraph -e llm_engine=openai -e OPENAI_API_KEY=${OPENAI_API_KEY} -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
+    sleep 5s
+    docker logs comps-agent-endpoint
+    echo "Service started successfully"
+}
+
 
 function start_docgrader_agent_service() {
     echo "Starting docgrader agent microservice"
@@ -146,13 +154,14 @@ function main() {
 
     # # test react_langgraph
     ## For now need OpenAI llms for react_langgraph
-    # start_react_langgraph_agent_service
-    # echo "===========Testing ReAct Langgraph============="
-    # validate_microservice
-    # stop_agent_docker
-    # echo "============================================="
+    start_react_langgraph_agent_service_openai
+    echo "===========Testing ReAct Langgraph (OpenAI LLM)============="
+    validate_microservice
+    stop_agent_docker
+    echo "============================================="
 
-    # test docgrader
+
+    # test rag agent
     start_docgrader_agent_service
     echo "=============Testing Docgrader============="
     validate_microservice
