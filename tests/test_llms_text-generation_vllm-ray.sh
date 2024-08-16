@@ -12,7 +12,7 @@ function build_docker_images() {
     cd $WORKPATH
     docker build \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray  \
-        -t opea/vllm_ray-habana:comps --network=host .
+        --no-cache -t opea/vllm_ray-habana:comps --network=host .
     if $? ; then
         echo "opea/vllm_ray-habana built fail"
         exit 1
@@ -23,7 +23,7 @@ function build_docker_images() {
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build \
-        -t opea/llm-vllm-ray:comps \
+        --no-cache -t opea/llm-vllm-ray:comps \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice .
     if $? ; then
         echo "opea/llm-vllm-ray built fail"
@@ -76,12 +76,26 @@ function validate_microservice() {
     result=$(http_proxy="" curl http://${ip_address}:5031/v1/chat/completions \
         -H "Content-Type: application/json" \
         -d '{"model": "facebook/opt-125m", "messages": [{"role": "user", "content": "How are you?"}]}')
-    result_2=$(http_proxy="" curl http://${ip_address}:5032/v1/chat/completions \
+    if [[ $result == *"message"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-vllm-ray-service
+        docker logs test-comps-vllm-ray-microservice
+        exit 1
+    fi
+    result=$(http_proxy="" curl http://${ip_address}:5032/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
         -H 'Content-Type: application/json')
-    docker logs test-comps-vllm-ray-service
-    docker logs test-comps-vllm-ray-microservice
+    if [[ $result == *"text"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-vllm-ray-service
+        docker logs test-comps-vllm-ray-microservice
+        exit 1
+    fi
 }
 
 function stop_docker() {
