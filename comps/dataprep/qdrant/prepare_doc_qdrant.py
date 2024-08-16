@@ -46,12 +46,17 @@ def ingest_data_to_qdrant(doc_path: DocPath):
         )
 
     content = document_loader(path)
-
-    chunks = text_splitter.split_text(content)
+    if isinstance(content, list):
+        chunks = content
+    elif isinstance(content, str):
+        chunks = text_splitter.split_text(content)
+    else:
+        raise TypeError("The content must be either a list or a string.")
+    
     if doc_path.process_table and path.endswith(".pdf"):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
         chunks = chunks + table_chunks
-    print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
+    print("Done preprocessing. Created ", len(chunks), " chunks of the original file")
 
     # Create vectorstore
     if TEI_EMBEDDING_ENDPOINT:
