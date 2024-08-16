@@ -80,8 +80,8 @@ class Dataset(BaseModel):
     mask_input: bool = True
     mask_response: bool = True
     data_preprocess_type: str = "neural_chat"
-    max_train_samples: Optional[int]
-    max_eval_samples: Optional[int]
+    max_train_samples: int = 0
+    max_eval_samples: int = 0
 
 
 class RayResourceConfig(BaseModel):
