@@ -55,7 +55,6 @@ function check_branch_name() {
 
 function main() {
     check_branch_name
-    upgrade_transformers
     echo "::group::pip install pip-tools" && pip install pip-tools --upgrade && echo "::endgroup::"
     export -f freeze
     find . -name "requirements.txt" | xargs -n 1 -I {} bash -c 'freeze "$@"' _ {}
