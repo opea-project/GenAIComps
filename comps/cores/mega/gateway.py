@@ -17,10 +17,10 @@ from ..proto.api_protocol import (
     ChatCompletionResponse,
     ChatCompletionResponseChoice,
     ChatMessage,
+    EmbeddingRequest,
     UsageInfo,
-    EmbeddingRequest
 )
-from ..proto.docarray import LLMParams, RerankedDoc, TextDoc, LLMParamsDoc
+from ..proto.docarray import LLMParams, LLMParamsDoc, RerankedDoc, TextDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -538,9 +538,12 @@ class RetrievalToolGateway(Gateway):
 
     def __init__(self, megaservice, host="0.0.0.0", port=8889):
         super().__init__(
-            megaservice, host, port, str(MegaServiceEndpoint.RETRIEVALTOOL),
+            megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.RETRIEVALTOOL),
             Union[TextDoc, EmbeddingRequest, ChatCompletionRequest],  # ChatCompletionRequest,
-            Union[RerankedDoc, LLMParamsDoc]  # ChatCompletionResponse
+            Union[RerankedDoc, LLMParamsDoc],  # ChatCompletionResponse
         )
 
     async def handle_request(self, request: Request):
