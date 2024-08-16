@@ -12,7 +12,7 @@ docker build -t opea/nginx:latest --build-arg https_proxy=$https_proxy --build-a
 
 ## 🚀2. Environment Settings
 
-To use Nginx for servcie forwarding, users need to setup environment variables first. The variables set here will be substituted in `nginx.conf.template`.
+To use Nginx for service forwarding, users need to setup environment variables first. The variables set here will be substituted in `nginx.conf.template`.
 
 For example, if you want to use Nginx to forward the frontend, backend services of a [ChatQnA](https://github.com/opea-project/GenAIExamples/tree/main/ChatQnA) example, setup environment variables as below:
 
@@ -40,7 +40,7 @@ location ${dataprep_service_endpoint} {
 
 ## 🚀3. Start Nginx Service
 
-Nginx will expose `80` as the default port. You can choose other avaliable ports as `${your_nginx_port}` for Nginx docker.
+Nginx will expose `80` as the default port. You can choose other available ports as `${your_nginx_port}` for Nginx docker.
 
 ```bash
 docker run -d --name opea-nginx -p ${your_nginx_port}:80 \
