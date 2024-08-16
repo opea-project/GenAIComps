@@ -95,7 +95,7 @@ def ingest_data_to_pinecone(doc_path: DocPath):
 
     content = document_loader(path)
 
-    structured_types = ['.xlsx', '.csv', '.json', 'jsonl']
+    structured_types = [".xlsx", ".csv", ".json", "jsonl"]
     _, ext = os.path.splitext(path)
 
     if ext in structured_types:
