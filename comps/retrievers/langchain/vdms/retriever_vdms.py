@@ -7,7 +7,6 @@ import time
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
-
 from langsmith import traceable
 from vdms_config import (  # , HUGGINGFACEHUB_API_TOKEN, INDEX_SCHEMA, VDMS_URL
     COLLECTION_NAME,
@@ -36,7 +35,8 @@ use_clip = int(os.getenv("USECLIP"))
 
 if use_clip:
     import sys
-    sys.path.append('../../../embeddings/langchain_multimodal/')
+
+    sys.path.append("../../../embeddings/langchain_multimodal/")
     from embeddings_clip import vCLIP
 
 # Debugging
@@ -65,7 +65,9 @@ def retrieve(input: EmbedDoc) -> SearchedMultimodalDoc:
     start = time.time()
 
     if input.search_type == "similarity":
-        search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, k=input.k, filter=input.constraints)
+        search_res = vector_db.similarity_search_by_vector(
+            embedding=input.embedding, k=input.k, filter=input.constraints
+        )
     elif input.search_type == "similarity_distance_threshold":
         if input.distance_threshold is None:
             raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
@@ -93,36 +95,37 @@ def retrieve(input: EmbedDoc) -> SearchedMultimodalDoc:
 
 if __name__ == "__main__":
     # Create vectorstore
-    
+
     if use_clip:
         embeddings = vCLIP({"model_name": "openai/clip-vit-base-patch32", "num_frm": 4})
+<<<<<<< HEAD
         dimensions=embeddings.get_embedding_length()
+=======
+        dimensions = embeddings.get_embedding_lenth()
+>>>>>>> origin/sameh-retriever
     elif tei_embedding_endpoint:
-        embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint, huggingfacehub_api_token=hf_token)        
+        embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint, huggingfacehub_api_token=hf_token)
     else:
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
-        # create embeddings using local embedding model        
-        
-    
+        # create embeddings using local embedding model
 
     if use_clip:
         vector_db = VDMS(
-        client=client,
-        embedding=embeddings,
-        collection_name=COLLECTION_NAME,
-        embedding_dimensions=dimensions,
-        distance_strategy=DISTANCE_STRATEGY,
-        engine=SEARCH_ENGINE,
-    )
+            client=client,
+            embedding=embeddings,
+            collection_name=COLLECTION_NAME,
+            embedding_dimensions=dimensions,
+            distance_strategy=DISTANCE_STRATEGY,
+            engine=SEARCH_ENGINE,
+        )
     else:
         vector_db = VDMS(
-        client=client,
-        embedding=embeddings,
-        collection_name=COLLECTION_NAME,
-        #embedding_dimensions=768,
-        distance_strategy=DISTANCE_STRATEGY,
-        engine=SEARCH_ENGINE,
-    )
-
+            client=client,
+            embedding=embeddings,
+            collection_name=COLLECTION_NAME,
+            # embedding_dimensions=768,
+            distance_strategy=DISTANCE_STRATEGY,
+            engine=SEARCH_ENGINE,
+        )
 
     opea_microservices["opea_service@retriever_vdms"].start()
