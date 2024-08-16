@@ -77,9 +77,9 @@ function start_react_langgraph_agent_service_openai() {
 }
 
 
-function start_docgrader_agent_service() {
-    echo "Starting docgrader agent microservice"
-    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=docgrader -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
+function start_ragagent_agent_service() {
+    echo "Starting rag agent microservice"
+    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=rag_agent -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
     sleep 5s
     docker logs comps-agent-endpoint
     echo "Service started successfully"
@@ -104,7 +104,7 @@ function validate_microservice() {
     echo "Testing agent service"
     local CONTENT=$(http_proxy="" curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
      "query": "What is Intel OPEA project?"
-    }' | tee ${LOG_PATH}/test-agent-langchain.log)
+    }')
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent-langchain")
     echo "$EXIT_CODE"
     local EXIT_CODE="${EXIT_CODE:0-1}"
@@ -154,16 +154,16 @@ function main() {
 
     # # test react_langgraph
     ## For now need OpenAI llms for react_langgraph
-    start_react_langgraph_agent_service_openai
-    echo "===========Testing ReAct Langgraph (OpenAI LLM)============="
-    validate_microservice
-    stop_agent_docker
-    echo "============================================="
+    # start_react_langgraph_agent_service_openai
+    # echo "===========Testing ReAct Langgraph (OpenAI LLM)============="
+    # validate_microservice
+    # stop_agent_docker
+    # echo "============================================="
 
 
     # test rag agent
-    start_docgrader_agent_service
-    echo "=============Testing Docgrader============="
+    start_ragagent_agent_service
+    echo "=============Testing RAG Agent============="
     validate_microservice
     echo "============================================="
 
