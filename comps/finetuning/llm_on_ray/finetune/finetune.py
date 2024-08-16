@@ -28,14 +28,15 @@ import datasets
 import ray
 import torch
 import transformers
-from ...llm_on_ray import common
-from .data_process import DataProcessor
-from .finetune_config import FinetuneConfig
 from peft import LoraConfig, get_peft_model
 from pydantic_yaml import parse_yaml_raw_as
 from ray.air import FailureConfig, RunConfig
 from ray.air.config import ScalingConfig
 from ray.train.torch import TorchTrainer
+
+from ...llm_on_ray import common
+from .data_process import DataProcessor
+from .finetune_config import FinetuneConfig
 
 
 def adapt_transformers_to_device(config: Dict):
