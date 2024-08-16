@@ -169,12 +169,14 @@ def ingest_data_to_redis(doc_path: DocPath):
         )
 
     content = document_loader(path)
-    if isinstance(content, list):
+
+    structured_types = ['.xlsx', '.csv', '.json', 'jsonl']
+    _, ext = os.path.splitext(path)
+
+    if ext in structured_types:
         chunks = content
-    elif isinstance(content, str):
-        chunks = text_splitter.split_text(content)
     else:
-        raise TypeError("The content must be either a list or a string.")
+        chunks = text_splitter.split_text(content)
 
     ### Specially processing for the table content in PDFs
     if doc_path.process_table and path.endswith(".pdf"):

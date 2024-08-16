@@ -94,12 +94,14 @@ def ingest_doc_to_pgvector(doc_path: DocPath):
     )
 
     content = document_loader(doc_path)
-    if isinstance(content, list):
+    
+    structured_types = ['.xlsx', '.csv', '.json', 'jsonl']
+    _, ext = os.path.splitext(doc_path)
+
+    if ext in structured_types:
         chunks = content
-    elif isinstance(content, str):
-        chunks = text_splitter.split_text(content)
     else:
-        raise TypeError("The content must be either a list or a string.")
+        chunks = text_splitter.split_text(content)
 
     print("Done preprocessing. Created ", len(chunks), " chunks of the original file")
     print("PG Connection", PG_CONNECTION_STRING)
