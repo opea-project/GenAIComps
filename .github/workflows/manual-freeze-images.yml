@@ -1,13 +1,13 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-name: Freeze-requirements
+name: Freeze-images
 
 on:
   workflow_dispatch:
 
 jobs:
-  freeze-requirements:
+  freeze-images:
     runs-on: ubuntu-latest
 
     steps:
