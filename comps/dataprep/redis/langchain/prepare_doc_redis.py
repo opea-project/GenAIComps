@@ -173,12 +173,14 @@ def ingest_data_to_redis(doc_path: DocPath):
         chunks = content
     elif isinstance(content, str):
         chunks = text_splitter.split_text(content)
+    else:
+        raise TypeError("The content must be either a list or a string.")
 
     ### Specially processing for the table content in PDFs
     if doc_path.process_table and path.endswith(".pdf"):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
         chunks = chunks + table_chunks
-    print("Done preprocessing. Created ", len(chunks), " chunks of the given file")
+    print("Done preprocessing. Created ", len(chunks), " chunks of the given file.")
 
     file_name = doc_path.path.split("/")[-1]
     return ingest_chunks_to_redis(file_name, chunks)
