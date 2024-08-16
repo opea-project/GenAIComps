@@ -3,7 +3,7 @@
 
 import argparse
 
-from llm_on_ray.finetune.finetune_config import FinetuneConfig
+from .llm_on_ray.finetune.finetune_config import FinetuneConfig
 from pydantic_yaml import parse_yaml_raw_as
 from transformers import TrainerCallback, TrainerControl, TrainerState, TrainingArguments
 
@@ -28,7 +28,7 @@ def main():
     callback = FineTuneCallback()
     finetune_config["Training"]["callbacks"] = [callback]
 
-    from llm_on_ray.finetune.finetune import main as llm_on_ray_finetune_main
+    from .llm_on_ray.finetune.finetune import main as llm_on_ray_finetune_main
 
     llm_on_ray_finetune_main(finetune_config)
 

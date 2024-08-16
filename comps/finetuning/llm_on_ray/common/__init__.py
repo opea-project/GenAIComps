@@ -14,5 +14,5 @@
 # limitations under the License.
 #
 
-from llm_on_ray.common.logging import logger
-from llm_on_ray.common.torch_config import TorchConfig
+from .logging import logger
+from .torch_config import TorchConfig

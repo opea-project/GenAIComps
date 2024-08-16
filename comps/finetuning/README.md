@@ -7,6 +7,9 @@ LLM Fine-tuning microservice involves adapting a base model to a specific task o
 ## 1.1 Install Requirements
 
 ```bash
+python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+python -m pip install intel-extension-for-pytorch
+python -m pip install oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/us/
 pip install -r requirements.txt
 ```
 
@@ -36,14 +39,14 @@ ray start --address='${head_node_ip}:6379'
 
 ```bash
 export RAY_ADDRESS="ray://${ray_head_ip}:10001"
-python finetuning/finetuning_service.py
+python finetuning_service.py
 ```
 
 # 🚀2. Consume Finetuning Service
 
 ## 2.1 Create fine-tuning job
 
-Assuming a training file `alpaca_data.json` is uploaded, the following script launches a finetuning job using `meta-llama/Llama-2-7b-chat-hf` as base model:
+Assuming a training file `alpaca_data.json` is uploaded, it can be downloaded in [here](https://github.com/tatsu-lab/stanford_alpaca/blob/main/alpaca_data.json), the following script launches a finetuning job using `meta-llama/Llama-2-7b-chat-hf` as base model:
 
 ```bash
 curl http://${your_ip}:8000/v1/fine_tuning/jobs \

@@ -1,0 +1,31 @@
+# Use the same python version with ray
+FROM python:3.10.14
+
+RUN --mount=type=cache,target=/var/cache/apt apt-get update -y \
+    && apt-get install -y vim htop net-tools dnsutils \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/bash user && \
+mkdir -p /home/user && \
+chown -R user /home/user/
+
+USER user
+
+COPY comps /home/user/comps
+
+RUN pip install --no-cache-dir --upgrade pip && \
+    python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
+    python -m pip install intel-extension-for-pytorch && \
+    python -m pip install oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/us/ && \
+    pip install --no-cache-dir -r /home/user/comps/finetuning/requirements.txt
+
+RUN echo 'source $(python -c "import oneccl_bindings_for_pytorch as torch_ccl; print(torch_ccl.cwd)")/env/setvars.sh' >> ~/.bashrc
+
+RUN ray start --head
+
+ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+WORKDIR /home/user/comps/embeddings/langchain
+
+CMD ["python", "finetuning_service.py"]

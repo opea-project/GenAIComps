@@ -28,9 +28,9 @@ import datasets
 import ray
 import torch
 import transformers
-from llm_on_ray import common
-from llm_on_ray.finetune.data_process import DataProcessor
-from llm_on_ray.finetune.finetune_config import FinetuneConfig
+from ...llm_on_ray import common
+from .data_process import DataProcessor
+from .finetune_config import FinetuneConfig
 from peft import LoraConfig, get_peft_model
 from pydantic_yaml import parse_yaml_raw_as
 from ray.air import FailureConfig, RunConfig

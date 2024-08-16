@@ -18,7 +18,7 @@ import glob
 import importlib
 import os
 
-from llm_on_ray.common.logging import logger
+from .logging import logger
 
 
 def import_all_modules(basedir, prefix=None):
