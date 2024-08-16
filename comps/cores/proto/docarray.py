@@ -19,9 +19,10 @@ class TopologyInfo:
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
+
 class ImageDoc(BaseDoc):
     image_path: str
-    
+
 
 class TextImageDoc(BaseDoc):
     doc: Tuple[Union[TextDoc, ImageDoc]]
