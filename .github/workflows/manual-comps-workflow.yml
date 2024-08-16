@@ -3,6 +3,9 @@
 
 name: Comps CD workflow on manual event
 on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review, synchronize]
   workflow_dispatch:
     inputs:
       # nodes:
