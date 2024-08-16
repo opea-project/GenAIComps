@@ -36,7 +36,7 @@ def embedding(input: MultimodalTextInput) -> EmbedDoc:
    
     if isinstance(input, MultimodalTextInput):
         # Handle text input
-        embed_vector = embeddings.embed_querry(input.text).tolist()[0]
+        embed_vector = embeddings.embed_query(input.text).tolist()[0]
         res = EmbedDoc(text=input.text, embedding=embed_vector, constraints={})
 
     else:
