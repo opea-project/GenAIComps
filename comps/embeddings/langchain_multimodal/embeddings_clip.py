@@ -15,7 +15,7 @@ class vCLIP(nn.Module):
         self.num_frm = cfg["num_frm"]
         self.model_name = cfg["model_name"]
         
-    def embed_querry(self, texts):
+    def embed_query(self, texts):
         """
         input is list of texts
         """
@@ -23,7 +23,7 @@ class vCLIP(nn.Module):
         text_features = clip.get_text_features(**text_inputs)
         return text_features
 
-    def get_embedding_lenth(self):
+    def get_embedding_length(self):
         return len(embed_querry("sample_text"))
         
     def get_image_embeddings(self, images):
