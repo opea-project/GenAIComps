@@ -9,6 +9,7 @@ docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_p
 ```
 docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec:neuralspeed -f comps/embeddings/neural-speed/docker/Dockerfile .
 ```
+
 Note: Please contact us to request model files before building images.
 
 # launch Mosec endpoint docker container
