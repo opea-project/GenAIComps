@@ -31,7 +31,7 @@ function start_service() {
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://$ip_address:9000/v1/lvm -X POST -d '{"video_url":"https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4","chunk_start": 0,"chunk_duration": 9,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://$ip_address:9000/v1/lvm -X POST -d '{"video_url":"./data/silence_girl.mp4","chunk_start": 0,"chunk_duration": 7,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
     if [[ $result == *"silence"* ]]; then
         echo "Result correct."
     else
