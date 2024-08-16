@@ -24,9 +24,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ARG VIDEO_LLAMA_REPO=https://github.com/DAMO-NLP-SG/Video-LLaMA.git
 ARG VIDEO_LLAMA_COMMIT=0adb19e
-RUN git clone ${VIDEO_LLAMA_REPO} Video-LLaMA && \
+RUN tar -xvf video-llama.patch.tar && \
+    git clone ${VIDEO_LLAMA_REPO} Video-LLaMA && \
     cd Video-LLaMA && git checkout ${VIDEO_LLAMA_COMMIT} && \
-    sed -i '219s/unknow/unknown/' video_llama/conversation/conversation_video.py && \
     git apply --whitespace=fix ../video-llama.patch && \
     mv video_llama ../ && \
     cd ../ && rm -rf Video-LLaMA
