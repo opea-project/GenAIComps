@@ -7,6 +7,9 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
-sentence_transformers
+transformers
 shortuuid
 uvicorn
+pydantic
+torch
+torchvision
