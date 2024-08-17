@@ -21,7 +21,9 @@ app = FastAPI()
 @app.get("/v1/health_check")
 async def health() -> Response:
     """Health check."""
-    return Response(status_code=200)
+    return Response(status_code=200, 
+                    content=b'{"message" : "BridgeTower server is running..."}'
+                    )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
