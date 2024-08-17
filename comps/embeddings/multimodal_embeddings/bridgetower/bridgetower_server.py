@@ -18,7 +18,7 @@ use_hpu_graphs = True
 
 app = FastAPI()
 
-@app.get("/health")
+@app.get("/v1/health_check")
 async def health() -> Response:
     """Health check."""
     return Response(status_code=200)
@@ -60,7 +60,7 @@ if __name__ == "__main__":
             batch_size=1,
         )
     print('Done warmup...')
-    
+
     uvicorn.run(
         app,
         host=args.host,
