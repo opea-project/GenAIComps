@@ -19,6 +19,7 @@ prometheus-fastapi-instrumentator
 pyarrow
 pymupdf
 python-docx
+python-multipart
 ray
 redis
 scikit-learn

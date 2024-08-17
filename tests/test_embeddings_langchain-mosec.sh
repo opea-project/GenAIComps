@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -11,12 +11,24 @@ function build_mosec_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy --no-cache -t opea/embedding-langchain-mosec-endpoint:comps -f comps/embeddings/langchain-mosec/mosec-docker/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/embedding-langchain-mosec-endpoint built fail"
+        exit 1
+    else
+        echo "opea/embedding-langchain-mosec-endpoint built successful"
+    fi
 }
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy --no-cache -t opea/embedding-langchain-mosec:comps -f comps/embeddings/langchain-mosec/docker/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/embedding-langchain-mosec built fail"
+        exit 1
+    else
+        echo "opea/embedding-langchain-mosec built successful"
+    fi
 }
 
 function start_service() {
@@ -36,6 +48,14 @@ function validate_microservice() {
         -X POST \
         -d '{"text":"What is Deep Learning?"}' \
         -H 'Content-Type: application/json'
+    if [ $? -eq 0 ]; then
+        echo "curl command executed successfully"
+    else
+        echo "curl command failed"
+        docker logs test-comps-embedding-langchain-mosec-endpoint
+        docker logs test-comps-embedding-langchain-mosec-server
+        exit 1
+    fi
 }
 
 function stop_docker() {
