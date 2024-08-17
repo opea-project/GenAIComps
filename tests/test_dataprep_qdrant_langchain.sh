@@ -13,6 +13,12 @@ function build_docker_images() {
 
     # dataprep qdrant image
     docker build --no-cache -t opea/dataprep-qdrant:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/qdrant/docker/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/dataprep-qdrant built fail"
+        exit 1
+    else
+        echo "opea/dataprep-qdrant built successful"
+    fi
 }
 
 function start_service() {
@@ -51,6 +57,9 @@ function validate_services() {
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-qdrant-langchain
+        docker logs test-comps-dataprep-qdrant-langchain-tei
+        docker logs test-comps-dataprep-qdrant-langchain-server
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -58,6 +67,9 @@ function validate_services() {
     # check response body
     if [[ "$RESPONSE_BODY" != *"$EXPECTED_RESULT"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-qdrant-langchain
+        docker logs test-comps-dataprep-qdrant-langchain-tei
+        docker logs test-comps-dataprep-qdrant-langchain-server
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
