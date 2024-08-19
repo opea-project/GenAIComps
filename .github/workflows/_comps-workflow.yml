@@ -37,46 +37,31 @@ on:
       #   required: false
       #   type: string
 jobs:
-  triggered:
+####################################################################################################
+# Image Build
+####################################################################################################
+  build-images:
     runs-on: "docker-build-${{ inputs.node }}"
     continue-on-error: true
     steps:
-      - name: check
-        run: echo "running"
-# ####################################################################################################
-# # Image Build
-# ####################################################################################################
-#   build-images:
-#     runs-on: "docker-build-${{ inputs.node }}"
-#     continue-on-error: true
-#     steps:
-#       - name: Clean Up Working Directory
-#         run: sudo rm -rf ${{github.workspace}}/*
+      - name: Clean Up Working Directory
+        run: sudo rm -rf ${{github.workspace}}/*
 
-#       - name: Checkout out Repo
-#         uses: actions/checkout@v4
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
 
-#       - name: Clone required Repo
-#         run: |
-#           cd ${{ github.workspace }}/${{ inputs.example }}/docker
-#           docker_compose_path=${{ github.workspace }}/${{ inputs.example }}/docker/docker_build_compose.yaml
-#           if [[ $(grep -c "tei-gaudi:" ${docker_compose_path}) != 0 ]]; then
-#               git clone https://github.com/huggingface/tei-gaudi.git
-#           fi
-#           if [[ $(grep -c "vllm:" ${docker_compose_path}) != 0 ]]; then
-#               git clone https://github.com/vllm-project/vllm.git
-#           fi
-#           git clone https://github.com/opea-project/GenAIComps.git
-#           cd GenAIComps && git checkout ${{ inputs.GenAIComps_branch }} && cd ../
+      - name: Clone required Repo
+        run: |
+          echo "Clone code"
 
-#       - name: Build Image
-#         if: ${{ fromJSON(inputs.build) }}
-#         uses: opea-project/validation/actions/image-build@main
-#         with:
-#           work_dir: ${{ github.workspace }}/${{ inputs.example }}/docker
-#           docker_compose_path: ${{ github.workspace }}/${{ inputs.example }}/docker/docker_build_compose.yaml
-#           registry: ${OPEA_IMAGE_REPO}opea
-#           tag: ${{ inputs.tag }}
+      # - name: Build Image
+      #   if: ${{ fromJSON(inputs.build) }}
+      #   uses: opea-project/validation/actions/image-build@main
+      #   with:
+      #     work_dir: ${{ github.workspace }}/${{ inputs.service }}/docker
+      #     docker_compose_path: ${{ github.workspace }}/${{ inputs.service }}/docker/docker_build_compose.yaml
+      #     registry: ${OPEA_IMAGE_REPO}opea
+      #     tag: ${{ inputs.tag }}
 
 # ####################################################################################################
 # # Trivy Scan
@@ -140,6 +125,7 @@ jobs:
 #       example: ${{ inputs.example }}
 #       hardware: ${{ inputs.node }}
 #     secrets: inherit
+
 
 # ####################################################################################################
 # # K8S Test
