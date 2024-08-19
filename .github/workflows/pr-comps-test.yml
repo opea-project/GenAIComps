@@ -20,16 +20,16 @@ jobs:
         run: |
           echo "running"
 
-  # get-test-matrix:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     services: "dataprep" #${{ steps.get-matrix.outputs.services }}
-  #     names: "_pgvector" #${{ steps.get-matrix.outputs.names }}
-  #   steps:
-  #     - name: run workflow
-  #       id: get-matrix
-  #       run: |
-  #         echo "workflow is triggered"
+  get-test-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      services: "dataprep" #${{ steps.get-matrix.outputs.services }}
+      names: "_pgvector" #${{ steps.get-matrix.outputs.names }}
+    steps:
+      - name: run workflow
+        id: get-matrix
+        run: |
+          echo "workflow is triggered"
 
   # run-examples:
   #   needs: [get-test-matrix]
