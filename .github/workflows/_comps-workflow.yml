@@ -54,7 +54,6 @@ jobs:
         run: |
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
-          echo "service=$service" >> $GITHUB_OUTPUT
           docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
           echo ${docker_compose_yml}
           if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
@@ -63,15 +62,17 @@ jobs:
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/vllm-project/vllm.git vllm-openvino
           fi
+          echo "service=$service" >> $GITHUB_OUTPUT
 
       - name: Build Image
         # if: ${{ fromJSON(inputs.build) }}
-        uses: opea-project/validation/actions/image-build@main
-        with:
-          work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
-          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
-          registry: ${OPEA_IMAGE_REPO}opea
-          tag: ${{ inputs.tag }}
+        # uses: opea-project/validation/actions/image-build@main
+        # with:
+        #   work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
+        #   docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
+        #   registry: ${OPEA_IMAGE_REPO}opea
+        #   tag: ${{ inputs.tag }}
+        run: echo $service
 # ####################################################################################################
 # # Trivy Scan
 # ####################################################################################################
