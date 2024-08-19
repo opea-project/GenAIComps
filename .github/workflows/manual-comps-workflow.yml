@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
-
+  
   workflow_dispatch:
     inputs:
       service:
@@ -52,10 +52,10 @@ jobs:
       services: "dataprep" #${{ steps.get-matrix.outputs.services }}
       names: "_pgvector" #${{ steps.get-matrix.outputs.names }}
       steps:
-       - name: run workflow
-        id: get-matrix
-        run: |
-          echo "workflow is triggered"
+        - name: run workflow
+          id: get-matrix
+          run: |
+            echo "workflow is triggered"
 
   run-services:
     needs: [get-test-matrix]
