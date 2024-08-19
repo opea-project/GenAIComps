@@ -652,7 +652,8 @@ class FineTuningJob(BaseModel):
 
 class FineTuningJobIDRequest(BaseModel):
     # Ordered by official OpenAI API documentation
-    # https://platform.openai.com/docs/api-reference/fine-tuning/list
+    # https://platform.openai.com/docs/api-reference/fine-tuning/retrieve
+    # https://platform.openai.com/docs/api-reference/fine-tuning/cancel
     fine_tuning_job_id: str
     """The ID of the fine-tuning job."""
 
