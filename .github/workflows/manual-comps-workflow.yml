@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
-  
+
   workflow_dispatch:
     inputs:
       service:
@@ -39,7 +39,6 @@ on:
       #   description: 'Test services with docker compose'
       #   required: false
       #   type: boolean
-
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
