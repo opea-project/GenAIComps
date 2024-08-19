@@ -54,33 +54,34 @@ jobs:
   get-test-matrix:
     runs-on: ubuntu-latest
     outputs:
-      services: ${{ steps.get-matrix.outputs.services }}
+      services: "dataprep"   #${{ steps.get-matrix.outputs.services }}
       # nodes: ${{ steps.get-matrix.outputs.nodes }}
-      names: ${{ steps.get-matrix.outputs.names }}
-    steps:
-      - name: Create Matrix
-        id: get-matrix
-        run: |
-          services=($(echo ${{ inputs.services }} | tr ',' ' '))
-          echo "services=$services_json" >> $GITHUB_OUTPUT
-          # nodes=($(echo ${{ inputs.nodes }} | tr ',' ' '))
-          # echo "nodes=$nodes_json" >> $GITHUB_OUTPUT
-          names=($(echo ${{ inputs.names }} | tr ',' ' '))
-          echo "names=$names_json" >> $GITHUB_OUTPUT
+      names: "_pgvector"   #${{ steps.get-matrix.outputs.names }}
+
+    # steps:
+    #   - name: Create Matrix
+    #     id: get-matrix
+    #     run: |
+    #       services=($(echo ${{ inputs.services }} | tr ',' ' '))
+    #       echo "services=$services_json" >> $GITHUB_OUTPUT
+    #       # nodes=($(echo ${{ inputs.nodes }} | tr ',' ' '))
+    #       # echo "nodes=$nodes_json" >> $GITHUB_OUTPUT
+    #       names=($(echo ${{ inputs.names }} | tr ',' ' '))
+    #       echo "names=$names_json" >> $GITHUB_OUTPUT
 
   run-services:
     needs: [get-test-matrix]
     strategy:
       matrix:
-        service: ${{ fromJson(needs.get-test-matrix.outputs.services) }}
+        service: "dataprep"   # ${{ fromJson(needs.get-test-matrix.outputs.services) }}
         # node: ${{ fromJson(needs.get-test-matrix.outputs.nodes) }}
-        name: ${{ fromJson(needs.get-test-matrix.outputs.names }}
+        name: "_pgvector"  #${{ fromJson(needs.get-test-matrix.outputs.names }}
       fail-fast: false
-    uses: ./.github/workflows/_example-workflow.yml
+    uses: ./.github/workflows/_comps-workflow.yml
     with:
       service: ${{ matrix.service }}
       name: ${{ matrix.name }}
-      tag: ${{ inputs.tag }}
+      tag: "comps" #${{ inputs.tag }}
       # build: ${{ fromJSON(inputs.build) }}
       # scan: ${{ fromJSON(inputs.scan) }}
       # test_compose: ${{ fromJSON(inputs.test_compose) }}
