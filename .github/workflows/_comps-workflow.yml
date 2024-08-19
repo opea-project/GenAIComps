@@ -63,7 +63,7 @@ jobs:
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/vllm-project/vllm.git vllm-openvino
           fi
-          echo "service=$service" >> $GITHUB_ENV
+          echo "::set-output name=service::$service"
 
       - name: Build Image
         # if: ${{ fromJSON(inputs.build) }}
@@ -72,7 +72,7 @@ jobs:
           work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
           docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ steps.clone_repo.outputs.service }}-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
-          tag: ${{ inputs.tag }}s
+          tag: ${{ inputs.tag }}
 # ####################################################################################################
 # # Trivy Scan
 # ####################################################################################################
