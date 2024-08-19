@@ -1,0 +1,32 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Comps CD workflow on manual event
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+    # paths:
+    #   - .github/workflows/pr-examples-test.yml
+    #   - comps/cores/**
+    #   - comps/embeddings/langchain/**
+    #   - comps/retrievers/langchain/redis/**
+    #   - comps/reranks/tei/**
+    #   - comps/llms/text-generation/tgi/**
+    #   - comps/dataprep/redis/langchain/**
+    #   - requirements.txt
+    #   - "!**.md"
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  example-test:
+    runs-on: gaudi-01-3
+    steps:
+      - name: Clean Up Working Directory
+        run: |
+          
+          echo "running"
