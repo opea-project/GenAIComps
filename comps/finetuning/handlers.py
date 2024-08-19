@@ -12,7 +12,12 @@ from finetune_config import FinetuneConfig
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
-from comps.cores.proto.api_protocol import FineTuningJob, FineTuningJobIDRequest, FineTuningJobList, FineTuningJobsRequest
+from comps.cores.proto.api_protocol import (
+    FineTuningJob,
+    FineTuningJobIDRequest,
+    FineTuningJobList,
+    FineTuningJobsRequest,
+)
 
 FineTuningJobID = str
 running_finetuning_jobs: Dict[FineTuningJobID, FineTuningJob] = {}
@@ -121,6 +126,8 @@ def handle_cancel_finetuning_job(request: FineTuningJobIDRequest):
         job.status = "cancelled"
     else:
         # If the job is not running, return a message indicating it cannot be cancelled
-        raise HTTPException(status_code=400, detail=f"Job with ID '{fine_tuning_job_id}' is not running and cannot be cancelled.")
-    
+        raise HTTPException(
+            status_code=400, detail=f"Job with ID '{fine_tuning_job_id}' is not running and cannot be cancelled."
+        )
+
     return job

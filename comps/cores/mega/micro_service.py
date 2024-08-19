@@ -154,7 +154,7 @@ def register_microservice(
     output_datatype: Type[Any] = TextDoc,
     provider: Optional[str] = None,
     provider_endpoint: Optional[str] = None,
-    methods: List[str] = ["POST"], 
+    methods: List[str] = ["POST"],
 ):
     def decorator(func):
         if name not in opea_microservices:

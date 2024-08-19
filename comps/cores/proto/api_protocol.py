@@ -79,6 +79,7 @@ class TokenCheckResponseItem(BaseModel):
 class TokenCheckResponse(BaseModel):
     prompts: List[TokenCheckResponseItem]
 
+
 class EmbeddingRequest(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/embeddings
@@ -648,12 +649,13 @@ class FineTuningJob(BaseModel):
     The value will be null if the fine-tuning job is not running.
     """
 
+
 class FineTuningJobIDRequest(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/fine-tuning/list
     fine_tuning_job_id: str
     """The ID of the fine-tuning job."""
-   
+
 
 class FineTuningJobListRequest(BaseModel):
     # Ordered by official OpenAI API documentation
@@ -663,21 +665,22 @@ class FineTuningJobListRequest(BaseModel):
 
     limit: Optional[int] = 20
     """Number of fine-tuning jobs to retrieve."""
-   
+
 
 class FineTuningJobList(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/fine-tuning/list
     object: str = "list"
-    """The object type, which is always "list". This indicates that the returned data is a list of fine-tuning jobs."""
-    
+    """The object type, which is always "list".
+
+    This indicates that the returned data is a list of fine-tuning jobs.
+    """
+
     data: List[FineTuningJob]
     """A list containing FineTuningJob objects."""
 
     has_more: bool
     """Indicates whether there are more fine-tuning jobs beyond the current list.
-    
+
     If true, additional requests can be made to retrieve more jobs.
     """
-
-
