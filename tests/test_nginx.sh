@@ -31,7 +31,7 @@ function start_service() {
 function validate_service() {
     NGINX_PORT=80
     URL="http://${ip_address}:${NGINX_PORT}/home"
-    DOCKER_NAME="opea-xeon-nginx-server"
+    DOCKER_NAME="test-comps-nginx-server"
     SERVICE_NAME="nginx"
     EXPECTED_RESULT="Welcome to nginx!"
 
