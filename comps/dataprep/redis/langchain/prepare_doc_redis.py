@@ -20,7 +20,7 @@ from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
     create_upload_folder,
     document_loader,
@@ -33,7 +33,6 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("prepare_doc_redis")
 logflag = os.getenv("LOGFLAG", False)
 

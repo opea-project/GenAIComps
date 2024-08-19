@@ -6,11 +6,12 @@ from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRe
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 from qdrant_config import EMBED_DIMENSION, EMBED_ENDPOINT, EMBED_MODEL, INDEX_NAME, QDRANT_HOST, QDRANT_PORT
 
-from comps import EmbedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 import os
-from comps import CustomLogger
+from comps import CustomLogger, EmbedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+
 logger = CustomLogger("retriever_qdrant")
 logflag = os.getenv("LOGFLAG", False)
+
 
 # Create a pipeline for querying a Qdrant document store
 def initialize_qdrant_retriever() -> QdrantEmbeddingRetriever:

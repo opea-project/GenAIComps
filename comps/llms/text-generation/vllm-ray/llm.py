@@ -17,11 +17,11 @@ import os
 from fastapi.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
 
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
-from comps import CustomLogger
 logger = CustomLogger("llm_vllm_ray")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@llm_vllm_ray",

@@ -8,6 +8,7 @@ from typing import List, Optional
 from langchain_community.embeddings import OpenAIEmbeddings
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     ServiceType,
     TextDoc,
@@ -17,9 +18,9 @@ from comps import (
     statistics_dict,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("embedding_mosec")
 logflag = os.getenv("LOGFLAG", False)
+
 
 class MosecEmbeddings(OpenAIEmbeddings):
     def _get_len_safe_embeddings(

@@ -19,6 +19,7 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, OpenAIEmbed
 from langchain_milvus.vectorstores import Milvus
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     SearchedDoc,
     ServiceType,
@@ -29,9 +30,9 @@ from comps import (
     statistics_dict,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("retriever_milvus")
 logflag = os.getenv("LOGFLAG", False)
+
 
 class MosecEmbeddings(OpenAIEmbeddings):
     def _get_len_safe_embeddings(

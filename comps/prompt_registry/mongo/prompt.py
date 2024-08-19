@@ -5,11 +5,13 @@ from typing import Optional
 from mongo_store import PromptStore
 from pydantic import BaseModel
 
+from comps import CustomLogger
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 import os
 from comps import CustomLogger
 logger = CustomLogger("prompt_mongo")
 logflag = os.getenv("LOGFLAG", False)
+
 
 class PromptCreate(BaseModel):
     """This class represents the data model for creating and storing a new prompt in the database.

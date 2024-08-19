@@ -11,6 +11,7 @@ from typing import Union
 import requests
 
 from comps import (
+    CustomLogger,
     LLMParamsDoc,
     SearchedDoc,
     ServiceType,
@@ -26,9 +27,9 @@ from comps.cores.proto.api_protocol import (
     RerankingResponseData,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("reranking_tgi_gaudi")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@reranking_tgi_gaudi",

@@ -14,7 +14,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import PGVector
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
     create_upload_folder,
     document_loader,
@@ -26,7 +26,6 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("prepare_doc_pgvector")
 logflag = os.getenv("LOGFLAG", False)
 

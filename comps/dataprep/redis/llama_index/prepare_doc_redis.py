@@ -16,9 +16,8 @@ from redis import Redis
 from redisvl.schema import IndexSchema
 from utils import *
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 
-from comps import CustomLogger
 logger = CustomLogger("prepare_doc_redis")
 logflag = os.getenv("LOGFLAG", False)
 

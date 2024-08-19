@@ -23,11 +23,11 @@ from langchain_community.graphs import Neo4jGraph
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_community.vectorstores.neo4j_vector import Neo4jVector
 
-from comps import GeneratedDoc, GraphDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, GraphDoc, ServiceType, opea_microservices, register_microservice
 
-from comps import CustomLogger
 logger = CustomLogger("knowledge_graph")
 logflag = os.getenv("LOGFLAG", False)
+
 
 def get_retriever(input, neo4j_endpoint, neo4j_username, neo4j_password, llm):
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")

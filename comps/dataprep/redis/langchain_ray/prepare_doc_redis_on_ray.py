@@ -40,7 +40,7 @@ from ray.data.block import Block
 from ray.data.datasource import FileBasedDatasource
 from tqdm import tqdm
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
     Timer,
     create_upload_folder,
@@ -54,7 +54,6 @@ from comps.dataprep.utils import (
     timeout,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("prepare_doc_redis")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -78,7 +77,7 @@ def prepare_env(enable_ray=False, pip_requirements=None):
 def generate_log_name(file_list):
     file_set = f"{sorted(file_list)}"
     # if logflag:
-        # logger.info(f"file_set: {file_set}")
+    # logger.info(f"file_set: {file_set}")
     md5_str = hashlib.md5(file_set.encode(), usedforsecurity=False).hexdigest()
     return f"status/status_{md5_str}.log"
 
@@ -202,7 +201,7 @@ def data_to_redis(data):
             redis_url=REDIS_URL,
         )
         # if logflag:
-            # logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
+        # logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
     return num_chunks
 
 

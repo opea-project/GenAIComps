@@ -9,6 +9,7 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFace
 from langchain_community.vectorstores import PGVector
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     SearchedDoc,
     ServiceType,
@@ -19,7 +20,6 @@ from comps import (
     statistics_dict,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("retriever_pgvector")
 logflag = os.getenv("LOGFLAG", False)
 

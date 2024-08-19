@@ -10,6 +10,7 @@ from langchain_community.vectorstores import Redis
 from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     SearchedDoc,
     ServiceType,
@@ -26,7 +27,6 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponseData,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("retriever_redis")
 logflag = os.getenv("LOGFLAG", False)
 

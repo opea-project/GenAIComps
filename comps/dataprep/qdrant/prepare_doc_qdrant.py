@@ -12,7 +12,7 @@ from langchain_community.vectorstores import Qdrant
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
     document_loader,
     encode_filename,
@@ -22,8 +22,11 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
+<<<<<<< HEAD
 import os
 from comps import CustomLogger
+=======
+>>>>>>> origin/add_logging
 logger = CustomLogger("prepare_doc_qdrant")
 logflag = os.getenv("LOGFLAG", False)
 

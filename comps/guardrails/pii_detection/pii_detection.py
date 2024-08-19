@@ -17,7 +17,7 @@ from typing import List
 
 from tqdm import tqdm
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.guardrails.pii_detection.data_utils import document_loader, parse_html
 from comps.guardrails.pii_detection.pii.pii_utils import PIIDetector, PIIDetectorWithML, PIIDetectorWithNER
 from comps.guardrails.pii_detection.ray_utils import ray_execute, ray_runner_initialization, rayds_initialization
@@ -29,9 +29,9 @@ from comps.guardrails.pii_detection.utils import (
     save_file_to_local_disk,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("guardrails-pii-detection")
 logflag = os.getenv("LOGFLAG", False)
+
 
 def get_pii_detection_inst(strategy="dummy", settings=None):
     if strategy == "ner":

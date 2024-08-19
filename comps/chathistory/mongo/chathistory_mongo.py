@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from mongo_store import DocumentStore
 from pydantic import BaseModel
 
+from comps import CustomLogger
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
@@ -13,6 +14,7 @@ import os
 from comps import CustomLogger
 logger = CustomLogger("chathistory_mongo")
 logflag = os.getenv("LOGFLAG", False)
+
 
 class ChatMessage(BaseModel):
     data: ChatCompletionRequest
