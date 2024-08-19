@@ -14,7 +14,7 @@ on:
       tag:
         description: Container Tag
         required: false
-        default: "latest"
+        default: "comps"
         type: string
       service:
         description: Service to test

@@ -6,48 +6,48 @@ on:
   pull_request:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
-  workflow_dispatch:
-    inputs:
-      # nodes:
-      #   default: "gaudi"
-      #   description: "Hardware to run test"
-      #   required: true
-      #   type: string
-      service:
-        default: "asr"
-        description: "List of services to test [agent,asr,chathistory,dataprep,embeddings,guardrails,knowledgegraphs,llms,lvms,prompt_registry,ragas,reranks,retrievers,tts,vectorstores,web_retrievers]"
-        required: true
-        type: string
-      name:
-        default: "comps"
-        description: "List of names to test [_faq-generation,_ls tefastrag,_haystack,_langchain,_langchain-mosec,_llama,_llava,_milvus,_mongo,_pgvector,_pii,_pinecone,_qdrant,_redis,_registry,_retrievers,_summarization,_tei,_text-generation,_tgi]"
-        required: true
-        type: string
-      tag:
-        default: "comps"
-        description: "Tag to apply to images"
-        required: true
-        type: string
-      # build:
-      #   default: true
-      #   description: 'Build test required images for Comps'
-      #   required: false
-      #   type: boolean
-      # scan:
-      #   default: true
-      #   description: 'Scan all images with Trivy'
-      #   required: false
-      #   type: boolean
-      # test_compose:
-      #   default: true
-      #   description: 'Test services with docker compose'
-      #   required: false
-      #   type: boolean
-      # GenAIComps_branch:
-      #   default: "main"
-      #   description: 'GenAIComps branch for image build'
-      #   required: false
-      #   type: string
+  # workflow_dispatch:
+  #   inputs:
+  #     # nodes:
+  #     #   default: "gaudi"
+  #     #   description: "Hardware to run test"
+  #     #   required: true
+  #     #   type: string
+  #     service:
+  #       default: "asr"
+  #       description: "List of services to test [agent,asr,chathistory,dataprep,embeddings,guardrails,knowledgegraphs,llms,lvms,prompt_registry,ragas,reranks,retrievers,tts,vectorstores,web_retrievers]"
+  #       required: true
+  #       type: string
+  #     name:
+  #       default: "comps"
+  #       description: "List of names to test [_faq-generation,_ls tefastrag,_haystack,_langchain,_langchain-mosec,_llama,_llava,_milvus,_mongo,_pgvector,_pii,_pinecone,_qdrant,_redis,_registry,_retrievers,_summarization,_tei,_text-generation,_tgi]"
+  #       required: true
+  #       type: string
+  #     tag:
+  #       default: "comps"
+  #       description: "Tag to apply to images"
+  #       required: true
+  #       type: string
+  #     # build:
+  #     #   default: true
+  #     #   description: 'Build test required images for Comps'
+  #     #   required: false
+  #     #   type: boolean
+  #     # scan:
+  #     #   default: true
+  #     #   description: 'Scan all images with Trivy'
+  #     #   required: false
+  #     #   type: boolean
+  #     # test_compose:
+  #     #   default: true
+  #     #   description: 'Test services with docker compose'
+  #     #   required: false
+  #     #   type: boolean
+  #     # GenAIComps_branch:
+  #     #   default: "main"
+  #     #   description: 'GenAIComps branch for image build'
+  #     #   required: false
+  #     #   type: string
 
 permissions: read-all
 jobs:

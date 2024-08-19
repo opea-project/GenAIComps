@@ -16,7 +16,7 @@ on:
         required: true
         type: string
       tag:
-        default: "latest"
+        default: "comps"
         required: false
         type: string
       # build:
@@ -43,35 +43,35 @@ jobs:
   ####################################################################################################
   # Image Build
   ####################################################################################################
-  # build-images:
-  #   runs-on: "docker-build-${{ inputs.node }}"
-  #   continue-on-error: true
-  #   steps:
-  #     - name: Clean Up Working Directory
-  #       run: sudo rm -rf ${{github.workspace}}/*
+  build-images:
+    runs-on: "docker-build-gaudi"
+    continue-on-error: true
+    steps:
+      - name: Clean Up Working Directory
+        run: sudo rm -rf ${{github.workspace}}/*
 
-  #     - name: Checkout out Repo
-  #       uses: actions/checkout@v4
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
 
-  #     - name: Clone required Repo
-  #       run: |
-  #         cd ${{ github.workspace }}/.github/workflows/docker/compose
-  #         docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
-  #         if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
-  #             git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
-  #         fi
-  #         if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
-  #             git clone https://github.com/vllm-project/vllm.git vllm-openvino
-  #         fi
+      - name: Clone required Repo
+        run: |
+          cd ${{ github.workspace }}/.github/workflows/docker/compose
+          docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+          if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
+              git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
+          fi
+          if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
+              git clone https://github.com/vllm-project/vllm.git vllm-openvino
+          fi
 
-  #     - name: Build Image
-  #       if: ${{ fromJSON(inputs.build) }}
-  #       uses: opea-project/validation/actions/image-build@main
-  #       with:
-  #         work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
-  #         docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
-  #         registry: ${OPEA_IMAGE_REPO}opea
-  #         tag: ${{ inputs.tag }}
+      - name: Build Image
+        if: ${{ fromJSON(inputs.build) }}
+        uses: opea-project/validation/actions/image-build@main
+        with:
+          work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
+          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+          registry: ${OPEA_IMAGE_REPO}opea
+          tag: ${{ inputs.tag }}
 
   ####################################################################################################
   # Trivy Scan
