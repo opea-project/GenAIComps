@@ -37,11 +37,11 @@ on:
       #   required: false
       #   type: string
 jobs:
-  trigered:
+  triggered:
     runs-on: "docker-build-${{ inputs.node }}"
     continue-on-error: true
     steps:
-      - name: check 
+      - name: check
         run: echo "running"
 # ####################################################################################################
 # # Image Build
@@ -140,7 +140,6 @@ jobs:
 #       example: ${{ inputs.example }}
 #       hardware: ${{ inputs.node }}
 #     secrets: inherit
-
 
 # ####################################################################################################
 # # K8S Test
