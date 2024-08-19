@@ -12,7 +12,7 @@ from finetune_config import FinetuneConfig
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
-from comps.cores.proto.api_protocol import FineTuningJob, FineTuningJobsRequest
+from comps.cores.proto.api_protocol import FineTuningJob, FineTuningJobIDRequest, FineTuningJobList, FineTuningJobsRequest
 
 FineTuningJobID = str
 running_finetuning_jobs: Dict[FineTuningJobID, FineTuningJob] = {}
@@ -79,4 +79,48 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest):
     running_finetuning_jobs[job.id] = job
     finetuning_job_to_ray_job[job.id] = ray_job_id
 
+    return job
+
+
+def handle_list_finetuning_jobs():
+    finetuning_jobs_list = FineTuningJobList(data=list(running_finetuning_jobs.values()), has_more=False)
+
+    return finetuning_jobs_list
+
+
+def handle_retrieve_finetuning_job(request: FineTuningJobIDRequest):
+    fine_tuning_job_id = request.fine_tuning_job_id
+
+    job = running_finetuning_jobs.get(fine_tuning_job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
+    return job
+
+
+def handle_cancel_finetuning_job(request: FineTuningJobIDRequest):
+    fine_tuning_job_id = request.fine_tuning_job_id
+
+    ray_job_id = finetuning_job_to_ray_job.get(fine_tuning_job_id)
+    if ray_job_id is None:
+        raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
+
+    global ray_client
+    ray_client = JobSubmissionClient() if ray_client is None else ray_client
+    ray_client.stop_job(ray_job_id)
+
+    job = running_finetuning_jobs.get(fine_tuning_job_id)
+
+    if job is None:
+        raise HTTPException(status_code=404, detail=f"Job with ID '{fine_tuning_job_id}' not found in running jobs!")
+
+    # Check the job status before attempting to cancel
+    if job.status == "running":
+        # Stop the Ray job
+        ray_client.stop_job(ray_job_id)
+        # Update job status to cancelled
+        job.status = "cancelled"
+    else:
+        # If the job is not running, return a message indicating it cannot be cancelled
+        raise HTTPException(status_code=400, detail=f"Job with ID '{fine_tuning_job_id}' is not running and cannot be cancelled.")
+    
     return job
