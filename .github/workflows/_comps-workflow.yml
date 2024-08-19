@@ -54,8 +54,9 @@ jobs:
         run: |
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
-          echo "services=$service" >> $GITHUB_OUTPUT
+          echo "service=$service" >> $GITHUB_OUTPUT
           docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
+          echo ${docker_compose_yml}
           if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
           fi
