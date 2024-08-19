@@ -53,7 +53,9 @@ jobs:
       - name: Clone required Repo
         run: |
           cd ${{ github.workspace }}/.github/workflows/docker/compose
-          docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+          service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
+          echo "services=$service" >> $GITHUB_OUTPUT
+          docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
           if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
           fi
@@ -66,7 +68,7 @@ jobs:
         uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
-          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
 # ####################################################################################################
