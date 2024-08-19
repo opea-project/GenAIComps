@@ -5,6 +5,9 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, opea_telemetry, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("local_embedding")
+logflag = os.getenv("LOGFLAG", False)
 
 @register_microservice(
     name="opea_service@local_embedding",
@@ -17,8 +20,12 @@ from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, opea_telem
 )
 @opea_telemetry
 def embedding(input: TextDoc) -> EmbedDoc:
+    if logflag:
+        logger.info(input)
     embed_vector = embeddings.embed_query(input.text)
     res = EmbedDoc(text=input.text, embedding=embed_vector)
+    if logflag:
+        logger.info(res)
     return res
 
 

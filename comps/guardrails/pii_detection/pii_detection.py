@@ -30,13 +30,18 @@ from comps.guardrails.pii_detection.utils import (
     save_file_to_local_disk,
 )
 
+from comps import CustomLogger
+logger = CustomLogger("guardrails-pii-detection")
+logflag = os.getenv("LOGFLAG", False)
 
 def get_pii_detection_inst(strategy="dummy", settings=None):
     if strategy == "ner":
-        print("invoking NER detector.......")
+        if logflag:
+            logger.info("invoking NER detector.......")
         return PIIDetectorWithNER()
     elif strategy == "ml":
-        print("invoking ML detector.......")
+        if logflag:
+            logger.info("invoking ML detector.......")
         return PIIDetectorWithML()
     else:
         raise ValueError(f"Invalid strategy: {strategy}")
@@ -49,7 +54,8 @@ def file_based_pii_detect(file_list: List[DocPath], strategy, enable_ray=False, 
 
     if enable_ray:
         num_cpus = get_max_cpus(len(file_list))
-        print(f"per task num_cpus: {num_cpus}")
+        if logflag:
+            logger.info(f"per task num_cpus: {num_cpus}")
 
         log_name = generate_log_name(file_list)
         ds = rayds_initialization(file_list, document_loader, lazy_mode=True, num_cpus=num_cpus)
@@ -76,7 +82,8 @@ def link_based_pii_detect(link_list: List[str], strategy, enable_ray=False, debu
 
     if enable_ray:
         num_cpus = get_max_cpus(len(link_list))
-        print(f"per task num_cpus: {num_cpus}")
+        if logflag:
+            logger.info(f"per task num_cpus: {num_cpus}")
 
         log_name = generate_log_name(link_list)
         ds = rayds_initialization(link_list, _parse_html, lazy_mode=True, num_cpus=num_cpus)
@@ -87,8 +94,8 @@ def link_based_pii_detect(link_list: List[str], strategy, enable_ray=False, debu
         for link in tqdm(link_list, total=len(link_list)):
             with Timer(f"read document {link}."):
                 data = _parse_html(link)
-            if debug:
-                print("content is: ", data)
+            if debug or logflag:
+                logger.info("content is: ", data)
             with Timer(f"detect pii on document {link}"):
                 ret.append(pii_detector.detect_pii(data))
     return ret
@@ -100,7 +107,8 @@ def text_based_pii_detect(text_list: List[str], strategy, enable_ray=False, debu
 
     if enable_ray:
         num_cpus = get_max_cpus(len(text_list))
-        print(f"per task num_cpus: {num_cpus}")
+        if logflag:
+            logger.info(f"per task num_cpus: {num_cpus}")
 
         log_name = generate_log_name(text_list)
         ds = rayds_initialization(text_list, None, lazy_mode=True, num_cpus=num_cpus)
@@ -109,8 +117,8 @@ def text_based_pii_detect(text_list: List[str], strategy, enable_ray=False, debu
     else:
         ret = []
         for data in tqdm(text_list, total=len(text_list)):
-            if debug:
-                print("content is: ", data)
+            if debug or logflag:
+                logger.info("content is: ", data)
             with Timer(f"detect pii on document {data[:50]}"):
                 ret.append(pii_detector.detect_pii(data))
     return ret
@@ -125,13 +133,19 @@ async def pii_detection(
     text_list: str = Form(None),
     strategy: str = Form(None),
 ):
+    if logflag:
+        logger.info(files)
+        logger.info(link_list)
+        logger.info(text_list)
+        logger.info(strategy)
     if not files and not link_list and not text_list:
         raise HTTPException(status_code=400, detail="Either files, link_list, or text_list must be provided.")
 
     if strategy is None:
         strategy = "ner"
 
-    print("PII detection using strategy: ", strategy)
+    if logflag:
+        logger.info("PII detection using strategy: ", strategy)
 
     pip_requirement = ["detect-secrets", "phonenumbers", "gibberish-detector"]
 
@@ -154,7 +168,10 @@ async def pii_detection(
             if enable_ray:
                 prepare_env(enable_ray=enable_ray, pip_requirements=pip_requirement, comps_path=comps_path)
             ret = file_based_pii_detect(saved_path_list, strategy, enable_ray=enable_ray)
-            return {"status": 200, "message": json.dumps(ret)}
+            result = {"status": 200, "message": json.dumps(ret)}
+            if logflag:
+                logger.info(result)
+            return result
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"An error occurred: {e}")
 
@@ -167,7 +184,10 @@ async def pii_detection(
             if enable_ray:
                 prepare_env(enable_ray=enable_ray, pip_requirements=pip_requirement, comps_path=comps_path)
             ret = text_based_pii_detect(text_list, strategy, enable_ray=enable_ray)
-            return {"status": 200, "message": json.dumps(ret)}
+            result = {"status": 200, "message": json.dumps(ret)}
+            if logflag:
+                logger.info(result)
+            return result
         except json.JSONDecodeError:
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
         except Exception as e:
@@ -182,7 +202,10 @@ async def pii_detection(
             if enable_ray:
                 prepare_env(enable_ray=enable_ray, pip_requirements=pip_requirement, comps_path=comps_path)
             ret = link_based_pii_detect(link_list, strategy, enable_ray=enable_ray)
-            return {"status": 200, "message": json.dumps(ret)}
+            result = {"status": 200, "message": json.dumps(ret)}
+            if logflag:
+                logger.info(result)
+            return result
         except json.JSONDecodeError:
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
         except Exception as e:

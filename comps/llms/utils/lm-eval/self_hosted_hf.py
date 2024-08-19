@@ -12,6 +12,10 @@ from evals.evaluation.lm_evaluation_harness.lm_eval.models.huggingface import HF
 
 from comps import ServiceType, opea_microservices, opea_telemetry, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("self_hosted_hf")
+logflag = os.getenv("LOGFLAG", False)
+
 lm_eval.api.registry.MODEL_REGISTRY["hf"] = HFLM
 lm_eval.api.registry.MODEL_REGISTRY["gaudi-hf"] = GaudiHFModelAdapter
 
@@ -46,6 +50,8 @@ llm = lm_eval.api.registry.get_model(model).create_from_arg_string(
 )
 @opea_telemetry
 def llm_generate(input: LLMCompletionDoc):
+    if logflag:
+        logger.info(input)
     global llm
     batched_inputs = torch.tensor(input.batched_inputs, dtype=torch.long, device=llm.device)
     with torch.no_grad():
@@ -56,13 +62,14 @@ def llm_generate(input: LLMCompletionDoc):
     # Check if per-token argmax is exactly equal to continuation
     greedy_tokens = logits.argmax(dim=-1)
     logprobs = torch.gather(logits, 2, batched_inputs[:, 1:].unsqueeze(-1)).squeeze(-1)
-
-    return {
+    result = {
         "greedy_tokens": greedy_tokens.detach().cpu().tolist(),
         "logprobs": logprobs.detach().cpu().tolist(),
         "batched_inputs": input.batched_inputs,
     }
-
+    if logflag:
+        logger.info(result)
+    return result
 
 if __name__ == "__main__":
     opea_microservices["opea_service@self_hosted_hf"].start()

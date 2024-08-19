@@ -8,6 +8,9 @@ from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInfer
 
 from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("embedding_tei_llamaindex")
+logflag = os.getenv("LOGFLAG", False)
 
 @register_microservice(
     name="opea_service@embedding_tei_llamaindex",
@@ -20,8 +23,12 @@ from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_m
 )
 @traceable(run_type="embedding")
 def embedding(input: TextDoc) -> EmbedDoc:
+    if logflag:
+        logger.info(input)
     embed_vector = embeddings._get_query_embedding(input.text)
     res = EmbedDoc(text=input.text, embedding=embed_vector)
+    if logflag:
+        logger.info(res)
     return res
 
 
@@ -29,5 +36,5 @@ if __name__ == "__main__":
     tei_embedding_model_name = os.getenv("TEI_EMBEDDING_MODEL_NAME", "BAAI/bge-large-en-v1.5")
     tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8090")
     embeddings = TextEmbeddingsInference(model_name=tei_embedding_model_name, base_url=tei_embedding_endpoint)
-    print("TEI Gaudi Embedding initialized.")
+    logger.info("TEI Gaudi Embedding initialized.")
     opea_microservices["opea_service@embedding_tei_llamaindex"].start()

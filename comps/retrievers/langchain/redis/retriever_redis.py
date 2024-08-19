@@ -27,6 +27,10 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponseData,
 )
 
+from comps import CustomLogger
+logger = CustomLogger("retriever_redis")
+logflag = os.getenv("LOGFLAG", False)
+
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 
@@ -42,7 +46,8 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 def retrieve(
     input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
 ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
-
+    if logflag:
+        logger.info(input)
     start = time.time()
     # check if the Redis index has data
     if vector_db.client.keys() == []:
@@ -91,6 +96,8 @@ def retrieve(
             result = input
 
     statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
+    if logflag:
+        logger.info(result)
     return result
 
 

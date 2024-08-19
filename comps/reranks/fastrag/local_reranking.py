@@ -9,6 +9,9 @@ from langsmith import traceable
 from comps.cores.mega.micro_service import ServiceType, opea_microservices, register_microservice
 from comps.cores.proto.docarray import RerankedDoc, SearchedDoc, TextDoc
 
+from comps import CustomLogger
+logger = CustomLogger("local_reranking")
+logflag = os.getenv("LOGFLAG", False)
 
 @register_microservice(
     name="opea_service@local_reranking",
@@ -21,12 +24,16 @@ from comps.cores.proto.docarray import RerankedDoc, SearchedDoc, TextDoc
 )
 @traceable(run_type="llm")
 def reranking(input: SearchedDoc) -> RerankedDoc:
+    if logflag:
+        logger.info(input)
     documents = []
     for i, d in enumerate(input.retrieved_docs):
         documents.append(Document(content=d.text, id=(i + 1)))
     sorted_documents = reranker_model.run(input.initial_query, documents)["documents"]
     ranked_documents = [TextDoc(id=doc.id, text=doc.content) for doc in sorted_documents]
     res = RerankedDoc(initial_query=input.initial_query, reranked_docs=ranked_documents)
+    if logflag:
+        logger.info(res)
     return res
 
 

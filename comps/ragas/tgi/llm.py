@@ -17,6 +17,10 @@ from ragas.metrics import answer_relevancy, context_precision, context_recall, f
 
 from comps import GeneratedDoc, RAGASParams, RAGASScores, ServiceType, opea_microservices, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("ragas_tgi_llm")
+logflag = os.getenv("LOGFLAG", False)
+
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 
@@ -32,6 +36,8 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 )
 @traceable(run_type="llm")
 def llm_generate(input: RAGASParams):
+    if logflag:
+        logger.info(input)
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 
     # Create vectorstore
@@ -73,13 +79,15 @@ def llm_generate(input: RAGASParams):
     faithfulness_average = df["faithfulness"][:].mean()
     context_recall_average = df["context_recall"][:].mean()
     context_precision_average = df["context_precision"][:].mean()
-
-    return RAGASScores(
+    result = RAGASScores(
         answer_relevancy=answer_relevancy_average,
         faithfulness=faithfulness_average,
         context_recallL=context_recall_average,
         context_precision=context_precision_average,
     )
+    if logflag:
+        logger.info(result)
+    return result
 
 
 if __name__ == "__main__":

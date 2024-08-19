@@ -16,6 +16,10 @@ from comps import LLMParamsDoc, ServiceType, opea_microservices, register_micros
 from comps.agent.langchain.src.agent import instantiate_agent
 from comps.agent.langchain.src.utils import get_args
 
+from comps import CustomLogger
+logger = CustomLogger("comps-react-agent")
+logflag = os.getenv("LOGFLAG", False)
+
 args, _ = get_args()
 
 
@@ -28,11 +32,15 @@ args, _ = get_args()
     input_datatype=LLMParamsDoc,
 )
 def llm_generate(input: LLMParamsDoc):
+    if logflag:
+        logger.info(input)
     # 1. initialize the agent
-    print("args: ", args)
+    if logflag:
+        logger.info("args: ", args)
     config = {"recursion_limit": args.recursion_limit}
     agent_inst = instantiate_agent(args, args.strategy)
-    print(type(agent_inst))
+    if logflag:
+        logger.info(type(agent_inst))
 
     # 2. prepare the input for the agent
     if input.streaming:

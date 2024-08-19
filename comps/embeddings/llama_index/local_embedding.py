@@ -6,6 +6,9 @@ from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedd
 
 from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("local_embedding")
+logflag = os.getenv("LOGFLAG", False)
 
 @register_microservice(
     name="opea_service@local_embedding",
@@ -18,8 +21,12 @@ from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_m
 )
 @traceable(run_type="embedding")
 def embedding(input: TextDoc) -> EmbedDoc:
+    if logflag:
+        logger.info(input)
     embed_vector = embeddings.get_text_embedding(input.text)
     res = EmbedDoc(text=input.text, embedding=embed_vector)
+    if logflag:
+        logger.info(res)
     return res
 
 

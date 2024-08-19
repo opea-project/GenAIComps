@@ -20,6 +20,10 @@ from comps import (
     statistics_dict,
 )
 
+from comps import CustomLogger
+logger = CustomLogger("retriever_pgvector")
+logflag = os.getenv("LOGFLAG", False)
+
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 
@@ -33,6 +37,8 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_pgvector"])
 def retrieve(input: EmbedDoc) -> SearchedDoc:
+    if logflag:
+        logger.info(input)
     start = time.time()
     search_res = vector_db.similarity_search_by_vector(embedding=input.embedding)
     searched_docs = []
@@ -40,6 +46,8 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
         searched_docs.append(TextDoc(text=r.page_content))
     result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
     statistics_dict["opea_service@retriever_pgvector"].append_latency(time.time() - start, None)
+    if logflag:
+        logger.info(result)
     return result
 
 

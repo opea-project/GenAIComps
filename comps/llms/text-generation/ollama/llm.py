@@ -9,6 +9,9 @@ from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("llm_ollama")
+logflag = os.getenv("LOGFLAG", False)
 
 @register_microservice(
     name="opea_service@llm_ollama",
@@ -19,6 +22,8 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
 )
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
+    if logflag:
+        logger.info(input)
     ollama = Ollama(
         base_url=ollama_endpoint,
         model=input.model if input.model else model_name,
@@ -36,14 +41,18 @@ def llm_generate(input: LLMParamsDoc):
             async for text in ollama.astream(input.query):
                 chat_response += text
                 chunk_repr = repr(text.encode("utf-8"))
-                print(f"[llm - chat_stream] chunk:{chunk_repr}")
+                if logflag:
+                    logger.info(f"[llm - chat_stream] chunk:{chunk_repr}")
                 yield f"data: {chunk_repr}\n\n"
-            print(f"[llm - chat_stream] stream response: {chat_response}")
+            if logflag:
+                logger.info(f"[llm - chat_stream] stream response: {chat_response}")
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         response = ollama.invoke(input.query)
+        if logflag:
+            logger.info(response)
         return GeneratedDoc(text=response, prompt=input.query)
 
 

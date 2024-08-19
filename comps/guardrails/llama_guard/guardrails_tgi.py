@@ -11,6 +11,10 @@ from langsmith import traceable
 
 from comps import GeneratedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("guardrails_tgi")
+logflag = os.getenv("LOGFLAG", False)
+
 DEFAULT_MODEL = "meta-llama/LlamaGuard-7b"
 
 
@@ -65,6 +69,8 @@ def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
 )
 @traceable(run_type="llm")
 def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
+    if logflag:
+        logger.info(input)
     if isinstance(input, GeneratedDoc):
         messages = [{"role": "user", "content": input.prompt}, {"role": "assistant", "content": input.text}]
     else:
@@ -75,12 +81,15 @@ def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
         unsafe_dict = get_unsafe_dict(llm_engine_hf.model_id)
         policy_violation_level = response_input_guard.split("\n")[1].strip()
         policy_violations = unsafe_dict[policy_violation_level]
-        print(f"Violated policies: {policy_violations}")
+        if logflag:
+            logger.info(f"Violated policies: {policy_violations}")
         res = TextDoc(
             text=f"Violated policies: {policy_violations}, please check your input.", downstream_black_list=[".*"]
         )
     else:
         res = TextDoc(text=input.text)
+    if logflag:
+        logger.info(res)
     return res
 
 
@@ -98,5 +107,5 @@ if __name__ == "__main__":
     )
     # chat engine for server-side prompt templating
     llm_engine_hf = ChatHuggingFace(llm=llm_guard, model_id=safety_guard_model)
-    print("guardrails - router] LLM initialized.")
+    logger.info("guardrails - router] LLM initialized.")
     opea_microservices["opea_service@guardrails_tgi"].start()

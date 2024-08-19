@@ -9,6 +9,9 @@ from qdrant_config import EMBED_DIMENSION, EMBED_ENDPOINT, EMBED_MODEL, INDEX_NA
 
 from comps import EmbedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("retriever_qdrant")
+logflag = os.getenv("LOGFLAG", False)
 
 # Create a pipeline for querying a Qdrant document store
 def initialize_qdrant_retriever() -> QdrantEmbeddingRetriever:
@@ -30,9 +33,13 @@ def initialize_qdrant_retriever() -> QdrantEmbeddingRetriever:
 )
 @traceable(run_type="retriever")
 def retrieve(input: EmbedDoc) -> SearchedDoc:
+    if logflag:
+        logger.info(input)
     search_res = retriever.run(query_embedding=input.embedding)["documents"]
     searched_docs = [TextDoc(text=r.content) for r in search_res if r.content]
     result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
+    if logflag:
+        logger.info(result)
     return result
 
 

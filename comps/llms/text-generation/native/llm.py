@@ -33,6 +33,8 @@ from comps import (
     register_statistics,
 )
 
+logflag = os.getenv("LOGFLAG", False)
+
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     datefmt="%m/%d/%Y %H:%M:%S",
@@ -140,7 +142,8 @@ def initialize():
 @register_statistics(names=["opea_service@llm_native"])
 def llm_generate(input: LLMParamsDoc):
     initialize()
-
+    if logflag:
+        logger.info(input)
     prompt = input.query
     prompt_template = None
     if input.chat_template:
@@ -158,7 +161,8 @@ def llm_generate(input: LLMParamsDoc):
             prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
     res = generate([prompt])
 
-    logger.info(f"[llm - native] inference result: {res}")
+    if logflag:
+        logger.info(f"[llm - native] inference result: {res}")
     return GeneratedDoc(text=res[0], prompt=input.query)
 
 

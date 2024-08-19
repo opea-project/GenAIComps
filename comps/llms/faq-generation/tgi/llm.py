@@ -13,6 +13,9 @@ from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
+from comps import CustomLogger
+logger = CustomLogger("llm_faqgen")
+logflag = os.getenv("LOGFLAG", False)
 
 @traceable(run_type="tool")
 def post_process_text(text: str):
@@ -35,6 +38,8 @@ def post_process_text(text: str):
 )
 @traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
+    if logflag:
+        logger.info(input)
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
@@ -74,6 +79,8 @@ def llm_generate(input: LLMParamsDoc):
     else:
         response = llm_chain.invoke(input.query)
         response = response["result"].split("</s>")[0].split("\n")[0]
+        if logflag:
+            logger.info(response)
         return GeneratedDoc(text=response, prompt=input.query)
 
 
