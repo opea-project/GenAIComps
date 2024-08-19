@@ -6,6 +6,40 @@ on:
   pull_request:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize]
+  
+  workflow_dispatch:
+    inputs:
+      service:
+        default: "asr"
+        description: "List of services to test [agent,asr,chathistory,dataprep,embeddings,guardrails,knowledgegraphs,llms,lvms,prompt_registry,ragas,reranks,retrievers,tts,vectorstores,web_retrievers]"
+        required: true
+        type: string
+      name:
+        default: "comps"
+        description: "List of names to test [_faq-generation,_ls tefastrag,_haystack,_langchain,_langchain-mosec,_llama,_llava,_milvus,_mongo,_pgvector,_pii,_pinecone,_qdrant,_redis,_registry,_retrievers,_summarization,_tei,_text-generation,_tgi]"
+        required: true
+        type: string
+      tag:
+        default: "comps"
+        description: "Tag to apply to images"
+        required: true
+        type: string
+      # build:
+      #   default: true
+      #   description: 'Build test required images for Comps'
+      #   required: false
+      #   type: boolean
+      # scan:
+      #   default: true
+      #   description: 'Scan all images with Trivy'
+      #   required: false
+      #   type: boolean
+      # test_compose:
+      #   default: true
+      #   description: 'Test services with docker compose'
+      #   required: false
+      #   type: boolean
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -17,6 +51,11 @@ jobs:
     outputs:
       services: "dataprep" #${{ steps.get-matrix.outputs.services }}
       names: "_pgvector" #${{ steps.get-matrix.outputs.names }}
+      steps:
+       - name: run workflow
+        id: get-matrix
+        run: |
+          echo "workflow is triggered"
 
   run-services:
     needs: [get-test-matrix]
@@ -26,14 +65,11 @@ jobs:
         # node: ${{ fromJson(needs.get-test-matrix.outputs.nodes) }}
         name: ${{ fromJson(needs.get-test-matrix.outputs.names }}
       fail-fast: false
-    # uses: ./.github/workflows/_comps-workflow.yml
+    uses: ./.github/workflows/_comps-workflow.yml
     with:
       service: ${{ matrix.service }}
       name: ${{ matrix.name }}
       tag: "comps" #${{ inputs.tag }}
-    steps: |
-      echo $service, $name, $tag
-
       # build: ${{ fromJSON(inputs.build) }}
       # scan: ${{ fromJSON(inputs.scan) }}
       # test_compose: ${{ fromJSON(inputs.test_compose) }}
