@@ -22,7 +22,6 @@ import time
 
 import requests
 from langchain_core.prompts import ChatPromptTemplate
-from langsmith import traceable
 
 from comps import (
     LLMParamsDoc,
@@ -47,7 +46,6 @@ logflag = os.getenv("LOGFLAG", False)
     input_datatype=SearchedDoc,
     output_datatype=LLMParamsDoc,
 )
-@traceable(run_type="llm")
 @register_statistics(names=["opea_service@reranking_mosec_xeon"])
 def reranking(input: SearchedDoc) -> LLMParamsDoc:
     if logflag:

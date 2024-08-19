@@ -9,7 +9,6 @@ import time
 from typing import Union
 
 import requests
-from langsmith import traceable
 
 from comps import (
     LLMParamsDoc,
@@ -40,7 +39,6 @@ logflag = os.getenv("LOGFLAG", False)
     input_datatype=SearchedDoc,
     output_datatype=LLMParamsDoc,
 )
-@traceable(run_type="llm")
 @register_statistics(names=["opea_service@reranking_tgi_gaudi"])
 def reranking(
     input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]

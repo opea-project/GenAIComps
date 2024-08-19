@@ -1,7 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from langsmith import traceable
 from sentence_transformers import CrossEncoder
 
 from comps import RerankedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
@@ -19,7 +18,6 @@ logflag = os.getenv("LOGFLAG", False)
     input_datatype=SearchedDoc,
     output_datatype=RerankedDoc,
 )
-@traceable(run_type="llm")
 def reranking(input: SearchedDoc) -> RerankedDoc:
     if logflag:
         logger.info(input)

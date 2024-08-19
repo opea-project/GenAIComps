@@ -11,7 +11,6 @@ from langchain_community.embeddings import (
     HuggingFaceInstructEmbeddings,
 )
 from langchain_community.llms import HuggingFaceEndpoint
-from langsmith import traceable
 from ragas import evaluate
 from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
 
@@ -34,7 +33,6 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
     input_datatype=RAGASParams,
     output_datatype=RAGASScores,
 )
-@traceable(run_type="llm")
 def llm_generate(input: RAGASParams):
     if logflag:
         logger.info(input)

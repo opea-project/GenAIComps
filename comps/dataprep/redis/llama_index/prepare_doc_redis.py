@@ -8,7 +8,6 @@ from typing import List, Optional, Union
 
 from config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 from fastapi import Body, File, HTTPException, UploadFile
-from langsmith import traceable
 from llama_index.core import SimpleDirectoryReader, StorageContext, VectorStoreIndex
 from llama_index.core.settings import Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
@@ -60,7 +59,6 @@ async def ingest_data_to_redis(doc_path: DocPath):
 
 
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
-@traceable(run_type="tool")
 # llama index only support upload files now
 async def ingest_documents(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
     if logflag:
@@ -90,7 +88,6 @@ async def ingest_documents(files: Optional[Union[UploadFile, List[UploadFile]]] 
 @register_microservice(
     name="opea_service@prepare_doc_redis_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
 )
-@traceable(run_type="tool")
 async def rag_get_file_structure():
     if logflag:
         logger.info("[ get_file_structure] ")
@@ -109,7 +106,6 @@ async def rag_get_file_structure():
 @register_microservice(
     name="opea_service@prepare_doc_redis_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
 )
-@traceable(run_type="tool")
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
 

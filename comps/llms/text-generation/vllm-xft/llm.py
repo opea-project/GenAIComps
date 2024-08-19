@@ -5,7 +5,6 @@ import os
 
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import VLLMOpenAI
-from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
@@ -20,7 +19,6 @@ logflag = os.getenv("LOGFLAG", False)
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)

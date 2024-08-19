@@ -3,7 +3,6 @@
 
 import os
 
-from langsmith import traceable
 from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 
 from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
@@ -21,7 +20,6 @@ logflag = os.getenv("LOGFLAG", False)
     input_datatype=TextDoc,
     output_datatype=EmbedDoc,
 )
-@traceable(run_type="embedding")
 def embedding(input: TextDoc) -> EmbedDoc:
     if logflag:
         logger.info(input)
