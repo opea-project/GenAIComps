@@ -32,7 +32,7 @@ from comps import (
     register_microservice,
     register_statistics,
 )
-
+import os
 logflag = os.getenv("LOGFLAG", False)
 
 logging.basicConfig(

@@ -5,6 +5,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, opea_telemetry, register_microservice
 
+import os
 from comps import CustomLogger
 logger = CustomLogger("local_embedding")
 logflag = os.getenv("LOGFLAG", False)

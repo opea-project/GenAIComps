@@ -7,7 +7,7 @@ from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 from qdrant_config import EMBED_DIMENSION, EMBED_ENDPOINT, EMBED_MODEL, INDEX_NAME, QDRANT_HOST, QDRANT_PORT
 
 from comps import EmbedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
-
+import os
 from comps import CustomLogger
 logger = CustomLogger("retriever_qdrant")
 logflag = os.getenv("LOGFLAG", False)
