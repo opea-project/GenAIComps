@@ -277,7 +277,7 @@ def load_json(json_path):
     with open(json_path, "r") as file:
         data = json.load(file)
     content_list = [json.dumps(item) for item in data]
-    return json.dumps(data)
+    return content_list
 
 
 def load_yaml(yaml_path):
