@@ -68,7 +68,7 @@ jobs:
         # if: ${{ fromJSON(inputs.build) }}
         uses: opea-project/validation/actions/image-build@main
         with:
-          work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
+          work_dir: ${{ github.workspace }}/.github/workflows/docker/compose
           docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ env.service }}-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
@@ -133,17 +133,4 @@ jobs:
 #       tag: ${{ inputs.tag }}
 #       example: ${{ inputs.example }}
 #       hardware: ${{ inputs.node }}
-#     secrets: inherit
-
-# ####################################################################################################
-# # K8S Test
-# ####################################################################################################
-#   test-k8s-manifest:
-#     needs: [build-images]
-#     if: ${{ fromJSON(inputs.test_k8s) }}
-#     uses: ./.github/workflows/_manifest-e2e.yml
-#     with:
-#       example: ${{ inputs.example }}
-#       hardware: ${{ inputs.node }}
-#       tag: ${{ inputs.tag }}
 #     secrets: inherit
