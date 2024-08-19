@@ -26,11 +26,14 @@ jobs:
         # node: ${{ fromJson(needs.get-test-matrix.outputs.nodes) }}
         name: ${{ fromJson(needs.get-test-matrix.outputs.names }}
       fail-fast: false
-    uses: ./.github/workflows/_comps-workflow.yml
+    # uses: ./.github/workflows/_comps-workflow.yml
     with:
       service: ${{ matrix.service }}
       name: ${{ matrix.name }}
       tag: "comps" #${{ inputs.tag }}
+    steps: |
+      echo $service, $name, $tag
+
       # build: ${{ fromJSON(inputs.build) }}
       # scan: ${{ fromJSON(inputs.scan) }}
       # test_compose: ${{ fromJSON(inputs.test_compose) }}
