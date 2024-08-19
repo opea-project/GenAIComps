@@ -16,7 +16,6 @@ import os
 
 from fastapi.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
-from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
@@ -28,7 +27,6 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("vLLM_RAY_ENDPOINT", "http://localhost:8006")
     llm_model = os.getenv("LLM_MODEL", "meta-llama/Llama-2-7b-chat-hf")
