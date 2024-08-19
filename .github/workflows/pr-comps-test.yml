@@ -13,28 +13,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-    get-test-matrix:
+  get-test-matrix:
     runs-on: ubuntu-latest
     outputs:
       examples: ${{ steps.get-matrix.outputs.examples }}
       nodes: ${{ steps.get-matrix.outputs.nodes }}
     steps:
-    - name: Create Matrix
-      id: get-matrix
-      run: |
-        examples=($(echo "dataprep" | tr ',' ' '))
-        examples_json=$(printf '%s\n' "${examples[@]}" | sort -u | jq -R '.' | jq -sc '.')
-        echo "examples=$examples_json" >> $GITHUB_OUTPUT
-        nodes=($(echo "_pgvector" | tr ',' ' '))
-        nodes_json=$(printf '%s\n' "${nodes[@]}" | sort -u | jq -R '.' | jq -sc '.')
-        echo "nodes=$nodes_json" >> $GITHUB_OUTPUT
+      - name: Create Matrix
+        id: get-matrix
+        run: |
+          examples=($(echo "dataprep" | tr ',' ' '))
+          examples_json=$(printf '%s\n' "${examples[@]}" | sort -u | jq -R '.' | jq -sc '.')
+          echo "examples=$examples_json" >> $GITHUB_OUTPUT
+          nodes=($(echo "_pgvector" | tr ',' ' '))
+          nodes_json=$(printf '%s\n' "${nodes[@]}" | sort -u | jq -R '.' | jq -sc '.')
+          echo "nodes=$nodes_json" >> $GITHUB_OUTPUT
 
   run-examples:
     needs: [get-test-matrix]
     strategy:
       matrix:
-        service: ${{ fromJson(needs.get-test-matrix.outputs.services) }}
-        name: ${{ fromJson(needs.get-test-matrix.outputs.names }}
+        service: ${{ fromJson(needs.get-test-matrix.outputs.examples) }}
+        name: ${{ fromJson(needs.get-test-matrix.outputs.nodes }}
       fail-fast: false
     # uses: ./.github/workflows/_comps-workflow.yml
     with:
