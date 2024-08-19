@@ -54,9 +54,9 @@ jobs:
   get-test-matrix:
     runs-on: ubuntu-latest
     outputs:
-      services: "dataprep"   #${{ steps.get-matrix.outputs.services }}
+      services: "dataprep" #${{ steps.get-matrix.outputs.services }}
       # nodes: ${{ steps.get-matrix.outputs.nodes }}
-      names: "_pgvector"   #${{ steps.get-matrix.outputs.names }}
+      names: "_pgvector" #${{ steps.get-matrix.outputs.names }}
 
     # steps:
     #   - name: Create Matrix
@@ -73,9 +73,9 @@ jobs:
     needs: [get-test-matrix]
     strategy:
       matrix:
-        service: "dataprep"   # ${{ fromJson(needs.get-test-matrix.outputs.services) }}
+        service: "dataprep" # ${{ fromJson(needs.get-test-matrix.outputs.services) }}
         # node: ${{ fromJson(needs.get-test-matrix.outputs.nodes) }}
-        name: "_pgvector"  #${{ fromJson(needs.get-test-matrix.outputs.names }}
+        name: "_pgvector" #${{ fromJson(needs.get-test-matrix.outputs.names }}
       fail-fast: false
     uses: ./.github/workflows/_comps-workflow.yml
     with:
