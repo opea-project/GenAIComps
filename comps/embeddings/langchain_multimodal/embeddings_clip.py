@@ -24,7 +24,7 @@ class vCLIP(nn.Module):
         return text_features
 
     def get_embedding_length(self):
-        return len(embed_query("sample_text"))
+        return len(self.embed_query("sample_text"))
         
     def get_image_embeddings(self, images):
         """
