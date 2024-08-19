@@ -1,6 +1,6 @@
 # Multimodal Embeddings Microservice
 
-The Embedding Microservice is designed to efficiently convert textual strings and images into vectorized embeddings, facilitating seamless integration into various machine learning and data processing workflows. This service utilizes advanced algorithms to generate high-quality embeddings that capture the semantic essence of the input text and images, making it ideal for applications in multi-modal data processing, information retrieval, and similar fields.
+The Multimodal Embedding Microservice is designed to efficiently convert textual strings and images into vectorized embeddings, facilitating seamless integration into various machine learning and data processing workflows. This service utilizes advanced algorithms to generate high-quality embeddings that capture the semantic essence of the input text and images, making it ideal for applications in multi-modal data processing, information retrieval, and similar fields.
 
 Key Features:
 
