@@ -66,9 +66,9 @@ jobs:
 
       - name: Build Image
         # if: ${{ fromJSON(inputs.build) }}
-        uses: ZePan110/validation/actions/image-build@main
+        uses: opea-project/validation/actions/image-build@main
         with:
-          work_dir: ${{ github.workspace }}/.github/workflows/docker/compose
+          work_dir: ${{ github.workspace }}/
           docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/${{ env.service }}-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
