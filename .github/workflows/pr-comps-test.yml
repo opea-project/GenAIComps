@@ -35,5 +35,5 @@ jobs:
     with:
       service: ${{ matrix.service }}
       tag: "comps"
-      node: "gaudi"
+      node: gaudi
     secrets: inherit

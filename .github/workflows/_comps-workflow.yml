@@ -6,9 +6,9 @@ permissions: read-all
 on:
   workflow_call:
     inputs:
-      # node:
-      #   required: true
-      #   type: string
+      node:
+        required: true
+        type: string
       service:
         required: true
         type: string
