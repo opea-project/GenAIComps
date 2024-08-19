@@ -1,10 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+
 from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedding
 
-import os
 from comps import CustomLogger, EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+
 logger = CustomLogger("local_embedding")
 logflag = os.getenv("LOGFLAG", False)
 

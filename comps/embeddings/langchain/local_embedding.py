@@ -1,6 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import (
@@ -13,8 +15,6 @@ from comps import (
     register_microservice,
 )
 
-import os
-from comps import CustomLogger
 logger = CustomLogger("local_embedding")
 logflag = os.getenv("LOGFLAG", False)
 

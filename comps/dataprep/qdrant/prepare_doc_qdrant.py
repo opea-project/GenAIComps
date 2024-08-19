@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import os
 from typing import List, Optional, Union
 
 from config import COLLECTION_NAME, EMBED_MODEL, QDRANT_HOST, QDRANT_PORT, TEI_EMBEDDING_ENDPOINT
@@ -22,8 +23,6 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
-import os
-from comps import CustomLogger
 logger = CustomLogger("prepare_doc_qdrant")
 logflag = os.getenv("LOGFLAG", False)
 
