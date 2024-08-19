@@ -51,6 +51,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Clone required Repo
+        id: clone_repo
         run: |
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
@@ -69,9 +70,9 @@ jobs:
         uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
-          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
+          docker_compose_yml: ${{ steps.clone_repo.outputs.docker_compose_yml }} #${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
-          tag: ${{ inputs.tag }}
+          tag: ${{ inputs.tag }}s
 # ####################################################################################################
 # # Trivy Scan
 # ####################################################################################################
