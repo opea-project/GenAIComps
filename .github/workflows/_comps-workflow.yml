@@ -62,7 +62,7 @@ jobs:
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/vllm-project/vllm.git vllm-openvino
           fi
-          echo "service=$service" >> $GITHUB_OUTPUT
+          echo "service=$service" >> $GITHUB_ENV
 
       - name: Build Image
         # if: ${{ fromJSON(inputs.build) }}
