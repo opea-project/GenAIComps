@@ -17,6 +17,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
+ARG EMBEDDER_PORT=8080
+
 WORKDIR /home/user/comps/embeddings/multimodal_embeddings/bridgetower
 
-ENTRYPOINT ["python", "bridgetower_server.py", "--device", "cpu"]
+ENTRYPOINT ["python", "bridgetower_server.py", "--device", "cpu", "--port", ${EMBEDDER_PORT}]
