@@ -3,11 +3,19 @@
 
 from sentence_transformers import CrossEncoder
 
-from comps import RerankedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+from comps import (
+    CustomLogger,
+    RerankedDoc,
+    SearchedDoc,
+    ServiceType,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+)
 
-from comps import CustomLogger
 logger = CustomLogger("local_reranking")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@local_reranking",

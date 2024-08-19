@@ -10,6 +10,7 @@ from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     SearchedDoc,
     ServiceType,
@@ -20,7 +21,6 @@ from comps import (
     statistics_dict,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("retriever_pinecone")
 logflag = os.getenv("LOGFLAG", False)
 

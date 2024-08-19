@@ -8,6 +8,7 @@ from typing import Union
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     ServiceType,
     TextDoc,
@@ -23,9 +24,9 @@ from comps.cores.proto.api_protocol import (
     EmbeddingResponseData,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("embedding_tei_langchain")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@embedding_tei_langchain",

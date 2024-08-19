@@ -12,6 +12,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     SearchedDoc,
     ServiceType,
@@ -22,7 +23,6 @@ from comps import (
     statistics_dict,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("web_retriever_chroma")
 logflag = os.getenv("LOGFLAG", False)
 

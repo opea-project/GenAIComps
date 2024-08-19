@@ -9,6 +9,7 @@ import requests
 
 from comps import (
     Base64ByteStrDoc,
+    CustomLogger,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -17,9 +18,9 @@ from comps import (
     statistics_dict,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("tts")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@tts",

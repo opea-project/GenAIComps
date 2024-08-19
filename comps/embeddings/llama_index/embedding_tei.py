@@ -5,11 +5,11 @@ import os
 
 from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 
-from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+from comps import CustomLogger, EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
-from comps import CustomLogger
 logger = CustomLogger("embedding_tei_llamaindex")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@embedding_tei_llamaindex",

@@ -14,9 +14,16 @@ from langchain_community.llms import HuggingFaceEndpoint
 from ragas import evaluate
 from ragas.metrics import answer_relevancy, context_precision, context_recall, faithfulness
 
-from comps import GeneratedDoc, RAGASParams, RAGASScores, ServiceType, opea_microservices, register_microservice
+from comps import (
+    CustomLogger,
+    GeneratedDoc,
+    RAGASParams,
+    RAGASScores,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+)
 
-from comps import CustomLogger
 logger = CustomLogger("ragas_tgi_llm")
 logflag = os.getenv("LOGFLAG", False)
 

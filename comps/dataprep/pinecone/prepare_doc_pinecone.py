@@ -16,7 +16,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from pinecone import Pinecone, ServerlessSpec
 
-from comps import DocPath, opea_microservices, opea_telemetry, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, opea_telemetry, register_microservice
 from comps.dataprep.utils import (
     create_upload_folder,
     document_loader,
@@ -29,7 +29,6 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("prepare_doc_pinecone")
 logflag = os.getenv("LOGFLAG", False)
 

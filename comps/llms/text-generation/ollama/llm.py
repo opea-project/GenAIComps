@@ -6,11 +6,11 @@ import os
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import Ollama
 
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
-from comps import CustomLogger
 logger = CustomLogger("llm_ollama")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@llm_ollama",

@@ -10,9 +10,8 @@ import torch
 from docarray import BaseDoc
 from evals.evaluation.lm_evaluation_harness.lm_eval.models.huggingface import HFLM, GaudiHFModelAdapter
 
-from comps import ServiceType, opea_microservices, opea_telemetry, register_microservice
+from comps import CustomLogger, ServiceType, opea_microservices, opea_telemetry, register_microservice
 
-from comps import CustomLogger
 logger = CustomLogger("self_hosted_hf")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -70,6 +69,7 @@ def llm_generate(input: LLMCompletionDoc):
     if logflag:
         logger.info(result)
     return result
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@self_hosted_hf"].start()

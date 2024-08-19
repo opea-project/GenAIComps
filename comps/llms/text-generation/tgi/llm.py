@@ -12,6 +12,7 @@ from openai import OpenAI
 from template import ChatTemplate
 
 from comps import (
+    CustomLogger,
     GeneratedDoc,
     LLMParamsDoc,
     ServiceType,
@@ -22,7 +23,6 @@ from comps import (
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionStreamResponse
 
-from comps import CustomLogger
 logger = CustomLogger("llm_tgi")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -112,7 +112,9 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                 elif input_variables == ["question"]:
                     prompt = prompt_template.format(question=input.messages)
                 else:
-                    logger.info(f"{prompt_template} not used, we only support 2 input variables ['question', 'context']")
+                    logger.info(
+                        f"{prompt_template} not used, we only support 2 input variables ['question', 'context']"
+                    )
             else:
                 if input.documents:
                     # use rag default template

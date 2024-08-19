@@ -24,7 +24,7 @@ from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from pyspark import SparkConf, SparkContext
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
     create_upload_folder,
     document_loader,
@@ -37,7 +37,6 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("prepare_doc_milvus")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -148,7 +147,9 @@ async def ingest_link_to_milvus(link_list: List[str]):
     if MOSEC_EMBEDDING_ENDPOINT:
         # create embeddings using MOSEC endpoint service
         if logflag:
-            logger.info(f"MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT},MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}")
+            logger.info(
+                f"MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT},MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
+            )
         embedder = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
     elif TEI_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service

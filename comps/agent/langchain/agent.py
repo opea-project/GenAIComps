@@ -12,11 +12,10 @@ cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 
-from comps import LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 from comps.agent.langchain.src.agent import instantiate_agent
 from comps.agent.langchain.src.utils import get_args
 
-from comps import CustomLogger
 logger = CustomLogger("comps-react-agent")
 logflag = os.getenv("LOGFLAG", False)
 

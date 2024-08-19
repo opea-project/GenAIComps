@@ -10,11 +10,11 @@ from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.llms import HuggingFaceEndpoint
 
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
-from comps import CustomLogger
 logger = CustomLogger("llm_faqgen")
 logflag = os.getenv("LOGFLAG", False)
+
 
 def post_process_text(text: str):
     if text == " ":

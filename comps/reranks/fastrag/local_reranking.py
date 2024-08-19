@@ -5,12 +5,13 @@ from config import RANKER_MODEL
 from fastrag.rankers import IPEXBiEncoderSimilarityRanker
 from haystack import Document
 
+from comps import CustomLogger
 from comps.cores.mega.micro_service import ServiceType, opea_microservices, register_microservice
 from comps.cores.proto.docarray import RerankedDoc, SearchedDoc, TextDoc
 
-from comps import CustomLogger
 logger = CustomLogger("local_reranking")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@local_reranking",

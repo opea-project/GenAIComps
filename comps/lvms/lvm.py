@@ -9,6 +9,7 @@ import time
 import requests
 
 from comps import (
+    CustomLogger,
     LVMDoc,
     ServiceType,
     TextDoc,
@@ -18,9 +19,9 @@ from comps import (
     statistics_dict,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("lvm")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@lvm",

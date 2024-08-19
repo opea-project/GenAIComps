@@ -24,6 +24,7 @@ import requests
 from langchain_core.prompts import ChatPromptTemplate
 
 from comps import (
+    CustomLogger,
     LLMParamsDoc,
     SearchedDoc,
     ServiceType,
@@ -33,9 +34,9 @@ from comps import (
     statistics_dict,
 )
 
-from comps import CustomLogger
 logger = CustomLogger("reranking_mosec_xeon")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@reranking_mosec_xeon",

@@ -9,11 +9,11 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_huggingface import HuggingFaceEndpoint
 
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
-from comps import CustomLogger
 logger = CustomLogger("llm_docsum")
 logflag = os.getenv("LOGFLAG", False)
+
 
 def post_process_text(text: str):
     if text == " ":
