@@ -69,7 +69,7 @@ jobs:
         uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}/.github/workflows/docker/compose
-          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ env.service }}-compose.yaml
+          docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/${{ env.service }}-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
 # ####################################################################################################
