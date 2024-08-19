@@ -1,5 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import os
 from typing import Optional
 
 from mongo_store import PromptStore
@@ -7,8 +8,7 @@ from pydantic import BaseModel
 
 from comps import CustomLogger
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
-import os
-from comps import CustomLogger
+
 logger = CustomLogger("prompt_mongo")
 logflag = os.getenv("LOGFLAG", False)
 

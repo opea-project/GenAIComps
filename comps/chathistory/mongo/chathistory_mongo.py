@@ -1,5 +1,6 @@
 ﻿# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import os
 from typing import Optional
 
 from fastapi import HTTPException
@@ -10,8 +11,6 @@ from comps import CustomLogger
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
-import os
-from comps import CustomLogger
 logger = CustomLogger("chathistory_mongo")
 logflag = os.getenv("LOGFLAG", False)
 

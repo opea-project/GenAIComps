@@ -24,7 +24,9 @@ from comps.dataprep.utils import (
 
 <<<<<<< HEAD
 import os
+
 from comps import CustomLogger
+
 =======
 >>>>>>> origin/add_logging
 logger = CustomLogger("prepare_doc_qdrant")

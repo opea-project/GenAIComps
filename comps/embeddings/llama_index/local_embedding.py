@@ -4,9 +4,10 @@
 from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedding
 
 <<<<<<< HEAD
-from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 import os
-from comps import CustomLogger
+
+from comps import CustomLogger, EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+
 =======
 from comps import CustomLogger, EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 

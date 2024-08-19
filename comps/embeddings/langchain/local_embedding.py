@@ -15,7 +15,9 @@ from comps import (
 
 <<<<<<< HEAD
 import os
+
 from comps import CustomLogger
+
 =======
 >>>>>>> origin/add_logging
 logger = CustomLogger("local_embedding")

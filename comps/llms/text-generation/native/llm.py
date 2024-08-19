@@ -16,6 +16,7 @@ import sys
 sys.path.append("/test/GenAIComps/")
 
 import logging
+import os
 import threading
 import time
 
@@ -32,7 +33,7 @@ from comps import (
     register_microservice,
     register_statistics,
 )
-import os
+
 logflag = os.getenv("LOGFLAG", False)
 
 logging.basicConfig(
