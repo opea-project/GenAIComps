@@ -13,13 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  example-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: trigger check
-        run: |
-          echo "running"
-
   get-test-matrix:
     runs-on: ubuntu-latest
     outputs:
@@ -31,21 +24,20 @@ jobs:
         run: |
           echo "workflow is triggered"
 
-  # run-examples:
-  #   needs: [get-test-matrix]
-  #   strategy:
-  #     matrix:
-  #       service: ${{ fromJson(needs.get-test-matrix.outputs.services) }}
-  #       # node: ${{ fromJson(needs.get-test-matrix.outputs.nodes) }}
-  #       name: ${{ fromJson(needs.get-test-matrix.outputs.names }}
-  #     fail-fast: false
-  #   # uses: ./.github/workflows/_comps-workflow.yml
-  #   with:
-  #     service: ${{ matrix.service }}
-  #     name: ${{ matrix.name }}
-  #     tag: "comps"
-  #   steps:
-  #     - name: run workflow
-  #       id: get-matrix
-  #       run: |
-  #         echo "$service, $name, $tag"
+  run-examples:
+    needs: [get-test-matrix]
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.get-test-matrix.outputs.services) }}
+        name: ${{ fromJson(needs.get-test-matrix.outputs.names }}
+      fail-fast: false
+    # uses: ./.github/workflows/_comps-workflow.yml
+    with:
+      service: ${{ matrix.service }}
+      name: ${{ matrix.name }}
+      tag: "comps"
+    steps:
+      - name: run workflow
+        id: get-matrix
+        run: |
+          echo "$service, $name, $tag"
