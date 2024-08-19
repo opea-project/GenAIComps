@@ -66,13 +66,12 @@ jobs:
 
       - name: Build Image
         # if: ${{ fromJSON(inputs.build) }}
-        # uses: opea-project/validation/actions/image-build@main
-        # with:
-        #   work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
-        #   docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
-        #   registry: ${OPEA_IMAGE_REPO}opea
-        #   tag: ${{ inputs.tag }}
-        run: echo $service
+        uses: opea-project/validation/actions/image-build@main
+        with:
+          work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
+          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
+          registry: ${OPEA_IMAGE_REPO}opea
+          tag: ${{ inputs.tag }}
 # ####################################################################################################
 # # Trivy Scan
 # ####################################################################################################
