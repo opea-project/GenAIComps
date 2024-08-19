@@ -23,7 +23,7 @@ function start_service() {
     export NGINX_PORT=80
 
     # Start Docker Containers
-    docker run -d --name opea-xeon-nginx-server -p 80:80 opea/nginx:comps
+    docker run -d --name test-comps-nginx-server -p 80:80 opea/nginx:comps
 
     sleep 5s
 }
@@ -58,7 +58,7 @@ function validate_service() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=opea-xeon-nginx*")
+    cid=$(docker ps -aq --filter "name=test-comps-nginx*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
