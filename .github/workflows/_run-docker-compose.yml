@@ -67,6 +67,9 @@ jobs:
     runs-on: ${{ inputs.hardware }}
     # continue-on-error: true
     steps:
+      - name: check 
+        run: |
+          echo "running"
       - name: Clean up Working Directory
         run: |
           sudo rm -rf ${{github.workspace}}/*
