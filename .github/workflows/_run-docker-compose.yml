@@ -67,7 +67,7 @@ jobs:
     runs-on: ${{ inputs.hardware }}
     # continue-on-error: true
     steps:
-      - name: check 
+      - name: check
         run: |
           echo "running"
       - name: Clean up Working Directory
