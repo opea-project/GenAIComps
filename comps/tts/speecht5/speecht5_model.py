@@ -75,6 +75,8 @@ class SpeechT5Model:
             if last_punc_idx != -1:
                 last_chunk = last_chunk[: last_punc_idx + 1]
                 res.append(last_chunk[: last_punc_idx + 1])
+            else:
+                res.append(last_chunk)
         res = [i + "." for i in res]  # avoid unexpected end of sequence
         return res
 
