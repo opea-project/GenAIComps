@@ -26,11 +26,11 @@ jobs:
       services: "dataprep" #${{ steps.get-matrix.outputs.services }}
       names: "_pgvector" #${{ steps.get-matrix.outputs.names }}
     steps:
-    - name: run workflow
-      id: get-matrix
-      run: |
-        echo "workflow is triggered"
-        
+      - name: run workflow
+        id: get-matrix
+        run: |
+          echo "workflow is triggered"
+
   run-examples:
     needs: [get-test-matrix]
     strategy:
@@ -45,7 +45,7 @@ jobs:
       name: ${{ matrix.name }}
       tag: "comps"
     steps:
-    - name: run workflow
-      id: get-matrix
-      run: |
-        echo "$service, $name, $tag"
+      - name: run workflow
+        id: get-matrix
+        run: |
+          echo "$service, $name, $tag"
