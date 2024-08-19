@@ -74,7 +74,7 @@ function validate_microservice() {
 function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-lvm*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-    if docker volume ls | grep -q video-llama-model; then docker volume rm video-llama_video-llama-model; fi
+    if docker volume ls | grep -q video-llama-model; then docker volume rm video-llama-model; fi
 
 }
 
