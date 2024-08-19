@@ -69,7 +69,6 @@ jobs:
           docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
-
 # ####################################################################################################
 # # Trivy Scan
 # ####################################################################################################
