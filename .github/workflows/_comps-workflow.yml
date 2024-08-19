@@ -51,7 +51,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Clone required Repo
-        id: clone_repo
         run: |
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
@@ -63,14 +62,14 @@ jobs:
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/vllm-project/vllm.git vllm-openvino
           fi
-          echo "::set-output name=service::$service"
+          echo "service=$service" >> $GITHUB_ENV
 
       - name: Build Image
         # if: ${{ fromJSON(inputs.build) }}
         uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}/.github/workflows/docker/compose/
-          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ steps.clone_repo.outputs.service }}-compose.yaml
+          docker_compose_yml: ${{ github.workspace }}/.github/workflows/docker/compose/${{ env.service }}-compose.yaml
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
 # ####################################################################################################
