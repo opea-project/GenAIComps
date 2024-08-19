@@ -22,13 +22,8 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
-<<<<<<< HEAD
 import os
-
 from comps import CustomLogger
-
-=======
->>>>>>> origin/add_logging
 logger = CustomLogger("prepare_doc_qdrant")
 logflag = os.getenv("LOGFLAG", False)
 

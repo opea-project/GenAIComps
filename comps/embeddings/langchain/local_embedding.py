@@ -13,13 +13,8 @@ from comps import (
     register_microservice,
 )
 
-<<<<<<< HEAD
 import os
-
 from comps import CustomLogger
-
-=======
->>>>>>> origin/add_logging
 logger = CustomLogger("local_embedding")
 logflag = os.getenv("LOGFLAG", False)
 

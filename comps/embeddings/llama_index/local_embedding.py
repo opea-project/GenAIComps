@@ -3,15 +3,8 @@
 
 from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedding
 
-<<<<<<< HEAD
 import os
-
 from comps import CustomLogger, EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
-
-=======
-from comps import CustomLogger, EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
-
->>>>>>> origin/add_logging
 logger = CustomLogger("local_embedding")
 logflag = os.getenv("LOGFLAG", False)
 
