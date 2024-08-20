@@ -2,7 +2,7 @@
 
 LLM Fine-tuning microservice involves adapting a base model to a specific task or dataset to improve its performance on that task.
 
-# 🚀1. Start Microservice with Python
+# 🚀1. Start Microservice with Python (Optional 1)
 
 ## 1.1 Install Requirements
 
@@ -38,13 +38,34 @@ ray start --address='${head_node_ip}:6379'
 ### 1.2.2 Start Finetuning Service
 
 ```bash
+export HF_TOKEN=${your_huggingface_token}
 export RAY_ADDRESS="ray://${ray_head_ip}:10001"
 python finetuning_service.py
 ```
 
-# 🚀2. Consume Finetuning Service
+# 🚀2. Start Microservice with Docker (Optional 2)
 
-## 2.1 Create fine-tuning job
+## 2.1 Build Docker Image
+
+Build docker image with below command:
+
+```bash
+export HF_TOKEN=${your_huggingface_token}
+cd ../../
+docker build -t opea/finetuning:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/docker/Dockerfile_cpu .
+```
+
+## 2.2 Run Docker with CLI
+
+Start docker container with below command:
+
+```bash
+docker run -d --name="finetuning-server" -p 8000:8000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/finetuning:latest
+```
+
+# 🚀3. Consume Finetuning Service
+
+## 3.1 Create fine-tuning job
 
 Assuming a training file `alpaca_data.json` is uploaded, it can be downloaded in [here](https://github.com/tatsu-lab/stanford_alpaca/blob/main/alpaca_data.json), the following script launches a finetuning job using `meta-llama/Llama-2-7b-chat-hf` as base model:
 

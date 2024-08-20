@@ -61,6 +61,8 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
         finetune_config = parse_yaml_raw_as(FinetuneConfig, f)
 
     finetune_config.Dataset.train_file = train_file_path
+    if os.getenv("HF_TOKEN", None):
+        finetune_config.General.config.use_auth_token = os.getenv("HF_TOKEN", None)
 
     job = FineTuningJob(
         id=f"ft-job-{uuid.uuid4()}",
