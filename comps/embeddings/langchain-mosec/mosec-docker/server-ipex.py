@@ -13,7 +13,7 @@ import transformers  # type: ignore
 from llmspec import EmbeddingData, EmbeddingRequest, EmbeddingResponse, TokenUsage
 from mosec import ClientError, Runtime, Server, Worker
 
-DEFAULT_MODEL = "/root/bge-large-zh/"
+DEFAULT_MODEL = "/home/user/bge-large-zh-v1.5/"
 
 
 class Embedding(Worker):
@@ -34,9 +34,14 @@ class Embedding(Worker):
         d = torch.randint(vocab_size, size=[batch_size, seq_length])
         t = torch.randint(0, 1, size=[batch_size, seq_length])
         m = torch.randint(1, 2, size=[batch_size, seq_length])
-        self.model = torch.jit.trace(self.model, [d, t, m], check_trace=False, strict=False)
+        model_inputs = [d]
+        if "token_type_ids" in self.tokenizer.model_input_names:
+            model_inputs.append(t)
+        if "attention_mask" in self.tokenizer.model_input_names:
+            model_inputs.append(m)
+        self.model = torch.jit.trace(self.model, model_inputs, check_trace=False, strict=False)
         self.model = torch.jit.freeze(self.model)
-        self.model(d, t, m)
+        self.model(*model_inputs)
 
     def get_embedding_with_token_count(self, sentences: Union[str, List[Union[str, List[int]]]]):
         # Mean Pooling - Take attention mask into account for correct averaging
@@ -108,8 +113,9 @@ class Embedding(Worker):
 if __name__ == "__main__":
     MAX_BATCH_SIZE = int(os.environ.get("MAX_BATCH_SIZE", 128))
     MAX_WAIT_TIME = int(os.environ.get("MAX_WAIT_TIME", 10))
+    MAX_FORWARD_TIMEOUT = int(os.environ.get("FORWARD_TIMEOUT", 60))
     server = Server()
-    emb = Runtime(Embedding, max_batch_size=MAX_BATCH_SIZE, max_wait_time=MAX_WAIT_TIME)
+    emb = Runtime(Embedding, max_batch_size=MAX_BATCH_SIZE, max_wait_time=MAX_WAIT_TIME, timeout=MAX_FORWARD_TIMEOUT)
     server.register_runtime(
         {
             "/v1/embeddings": [emb],

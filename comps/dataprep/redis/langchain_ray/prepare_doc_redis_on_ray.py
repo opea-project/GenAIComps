@@ -21,12 +21,11 @@ from pathlib import Path
 from typing import Callable, List, Optional, Union
 
 import pandas as pd
-from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, TIMEOUT_SECONDS
+from config import EMBED_MODEL, INDEX_NAME, REDIS_URL, TIMEOUT_SECONDS
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
-from langsmith import traceable
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../../")
@@ -48,6 +47,7 @@ from comps.dataprep.utils import (
     document_loader,
     encode_filename,
     get_file_structure,
+    get_separators,
     parse_html,
     remove_folder_with_ignore,
     save_content_to_local_disk,
@@ -74,7 +74,7 @@ def prepare_env(enable_ray=False, pip_requirements=None):
 def generate_log_name(file_list):
     file_set = f"{sorted(file_list)}"
     # print(f"file_set: {file_set}")
-    md5_str = hashlib.md5(file_set.encode()).hexdigest()
+    md5_str = hashlib.md5(file_set.encode(), usedforsecurity=False).hexdigest()
     return f"status/status_{md5_str}.log"
 
 
@@ -170,7 +170,9 @@ def data_to_redis_ray(data):
 
 
 def data_to_redis(data):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1500, chunk_overlap=100, add_start_index=True, separators=get_separators(), is_separator_regex=False
+    )
     chunks = text_splitter.split_text(data)
 
     # Create vectorstore
@@ -192,7 +194,6 @@ def data_to_redis(data):
             texts=batch_texts,
             embedding=embedder,
             index_name=INDEX_NAME,
-            index_schema=INDEX_SCHEMA,
             redis_url=REDIS_URL,
         )
         # print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
@@ -320,7 +321,6 @@ async def ingest_documents(files: List[UploadFile] = File(None), link_list: str 
 @register_microservice(
     name="opea_service@prepare_doc_redis_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
 )
-@traceable(run_type="tool")
 async def rag_get_file_structure():
     print("[ get_file_structure] ")
 
@@ -335,7 +335,6 @@ async def rag_get_file_structure():
 @register_microservice(
     name="opea_service@prepare_doc_redis_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
 )
-@traceable(run_type="tool")
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
 

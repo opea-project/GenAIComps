@@ -7,13 +7,11 @@ from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.llms import HuggingFaceEndpoint
-from langsmith import traceable
+from langchain_huggingface import HuggingFaceEndpoint
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
 
-@traceable(run_type="tool")
 def post_process_text(text: str):
     if text == " ":
         return "data: @#$\n\n"
@@ -32,7 +30,6 @@ def post_process_text(text: str):
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     llm = HuggingFaceEndpoint(

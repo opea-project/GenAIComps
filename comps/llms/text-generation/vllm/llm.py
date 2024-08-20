@@ -5,7 +5,6 @@ import os
 
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import VLLMOpenAI
-from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, opea_telemetry, register_microservice
 
@@ -29,10 +28,9 @@ def post_process_text(text: str):
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
-    llm_endpoint = os.getenv("vLLM_LLM_ENDPOINT", "http://localhost:8008")
-    model_name = os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3-8B-Instruct")
+    llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
+    model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
     llm = VLLMOpenAI(
         openai_api_key="EMPTY",
         openai_api_base=llm_endpoint + "/v1",
@@ -40,7 +38,6 @@ def llm_generate(input: LLMParamsDoc):
         model_name=model_name,
         top_p=input.top_p,
         temperature=input.temperature,
-        presence_penalty=input.repetition_penalty,
         streaming=input.streaming,
     )
 
@@ -50,14 +47,8 @@ def llm_generate(input: LLMParamsDoc):
             chat_response = ""
             for text in llm.stream(input.query):
                 chat_response += text
-                processed_text = post_process_text(text)
-                if text and processed_text:
-                    if "</s>" in text:
-                        res = text.split("</s>")[0]
-                        if res != "":
-                            yield res
-                        break
-                    yield processed_text
+                chunk_repr = repr(text.encode("utf-8"))
+                yield f"data: {chunk_repr}\n\n"
             print(f"[llm - chat_stream] stream response: {chat_response}")
             yield "data: [DONE]\n\n"
 

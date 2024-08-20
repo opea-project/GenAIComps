@@ -1,0 +1,86 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: MegaService-test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+    paths:
+      - .github/workflows/mix-megaservice-test.yml
+      - comps/cores/**
+      - requirements.txt
+      - setup.py
+      - tests/cores/**
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CONTAINER_NAME: "ut-test-container"
+  TEST_NAME: "mega"
+
+jobs:
+  MegaService:
+    runs-on: gaudi
+    steps:
+      - name: Clean Up Working Directory
+        run: |
+          sudo rm -rf ${{github.workspace}}/*
+          if [[ $(docker ps -a | grep -i '${{ env.CONTAINER_NAME }}'$) ]]; then
+              docker start ${{ env.CONTAINER_NAME }}
+              echo "remove left files through container ..."
+              docker exec ${{ env.CONTAINER_NAME }} bash -c "rm -fr /GenAIComps || true"
+              docker stop ${{ env.CONTAINER_NAME }} && docker rm -vf ${{ env.CONTAINER_NAME }} || true
+          fi
+
+      - name: Get checkout ref
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ] || [ "${{ github.event_name }}" == "pull_request_target" ]; then
+            echo "CHECKOUT_REF=refs/pull/${{ github.event.number }}/merge" >> $GITHUB_ENV
+          else
+            echo "CHECKOUT_REF=${{ github.ref }}" >> $GITHUB_ENV
+          fi
+          echo "checkout ref ${{ env.CHECKOUT_REF }}"
+
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - name: Docker Build
+        run: |
+          docker build -f ${{ github.workspace }}/.github/workflows/docker/ut.dockerfile -t ut-test:1.0 .
+
+      - name: Docker Run
+        run: |
+          docker run -dit --memory="4g" --memory-reservation="1g" --disable-content-trust --privileged --name=${{ env.CONTAINER_NAME }} --shm-size="1g" \
+          -v ${{ github.workspace }}:/GenAIComps ut-test:1.0
+
+      - name: Install Dependencies
+        run: |
+          docker exec ${{ env.CONTAINER_NAME }} bash -c "cd /GenAIComps && pip install -r requirements.txt && python setup.py install"
+
+      - name: Run UT
+        run: |
+          docker exec ${{ env.CONTAINER_NAME }} \
+          bash -c "bash /GenAIComps/.github/workflows/scripts/test_ut.sh ${{ env.TEST_NAME }}"
+
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Publish pipeline artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ github.workspace }}/.github/workflows/scripts/*.log
