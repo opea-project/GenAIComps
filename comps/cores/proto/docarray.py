@@ -19,10 +19,6 @@ class TopologyInfo:
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
 
-class MultimodalTextInput(BaseDoc):
-    text: str
-    constraints : dict = None 
-    
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
