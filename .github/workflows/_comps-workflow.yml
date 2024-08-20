@@ -41,7 +41,7 @@ jobs:
       - name: Clone required Repo
         run: |
           cd ${{ github.workspace }}/.github/workflows/docker/compose
-          service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
+          # service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
           docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/$service-compose.yaml
           echo ${docker_compose_yml}
           if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
