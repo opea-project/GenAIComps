@@ -10,6 +10,6 @@ prometheus-fastapi-instrumentator
 transformers
 shortuuid
 uvicorn
-pydantic
 torch
 torchvision
+pydantic==2.8.2
