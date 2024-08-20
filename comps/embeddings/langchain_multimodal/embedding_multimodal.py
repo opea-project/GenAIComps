@@ -12,7 +12,6 @@ from comps import (
     EmbedDoc,
     ServiceType,
     TextDoc,
-    MultimodalTextInput,
     opea_microservices,
     opea_telemetry,
     register_microservice,
@@ -55,17 +54,17 @@ def filtler_dates(prompt):
     endpoint="/v1/embeddings",
     host="0.0.0.0",
     port=6000,
-    input_datatype=MultimodalTextInput,
+    input_datatype=TextDoc,
     output_datatype=EmbedDoc,
 )
 @opea_telemetry
 @traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_multimodal"])
 
-def embedding(input: MultimodalTextInput) -> EmbedDoc:
+def embedding(input: TextDoc) -> EmbedDoc:
     start = time.time()
    
-    if isinstance(input, MultimodalTextInput):
+    if isinstance(input, TextDoc):
         # Handle text input
         embed_vector = embeddings.embed_query(input.text).tolist()[0]
         res = EmbedDoc(text=input.text, embedding=embed_vector, constraints=filtler_dates(input.text))
