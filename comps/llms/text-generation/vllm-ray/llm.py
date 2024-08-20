@@ -16,21 +16,8 @@ import os
 
 from fastapi.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
-from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-
-
-@traceable(run_type="tool")
-def post_process_text(text: str):
-    if text == " ":
-        return "data: @#$\n\n"
-    if text == "\n":
-        return "data: <br/>\n\n"
-    if text.isspace():
-        return None
-    new_text = text.replace(" ", "@#$")
-    return f"data: {new_text}\n\n"
 
 
 @register_microservice(
@@ -40,7 +27,6 @@ def post_process_text(text: str):
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("vLLM_RAY_ENDPOINT", "http://localhost:8006")
     llm_model = os.getenv("LLM_MODEL", "meta-llama/Llama-2-7b-chat-hf")
@@ -56,19 +42,13 @@ def llm_generate(input: LLMParamsDoc):
 
     if input.streaming:
 
-        async def stream_generator():
+        def stream_generator():
             chat_response = ""
-            async for text in llm.astream(input.query):
+            for text in llm.stream(input.query):
                 text = text.content
                 chat_response += text
-                processed_text = post_process_text(text)
-                if text and processed_text:
-                    if "</s>" in text:
-                        res = text.split("</s>")[0]
-                        if res != "":
-                            yield res
-                        break
-                    yield processed_text
+                chunk_repr = repr(text.encode("utf-8"))
+                yield f"data: {chunk_repr}\n\n"
             print(f"[llm - chat_stream] stream response: {chat_response}")
             yield "data: [DONE]\n\n"
 

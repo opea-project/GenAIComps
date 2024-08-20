@@ -38,14 +38,17 @@ jobs:
         run: |
           set -xe
           if [ "${{ github.event_name }}" == "pull_request" ] || [ "${{ github.event_name }}" == "pull_request_target" ]; then
-            base_commit=${{ github.event.pull_request.base.sha }}
+            LATEST_COMMIT_SHA=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/opea-project/GenAIComps/commits?sha=main" | jq -r '.[0].sha')
+            echo "Latest commit SHA is $LATEST_COMMIT_SHA"
+            base_commit=$LATEST_COMMIT_SHA
           else
             base_commit=$(git rev-parse HEAD~1) # push event
           fi
           merged_commit=$(git log -1 --format='%H')
 
           changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | \
-          grep 'comps/' | grep -vE '*.md|*.txt|comps/cores')" || true
+          grep 'comps/' | grep -vE '*.md|comps/cores')" || true
           services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '*.py' | sort -u) || true
           run_matrix="{\"include\":["
           for service in ${services}; do

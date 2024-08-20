@@ -36,7 +36,9 @@ from comps.cores.mega.gateway import (
     TranslationGateway,
     SearchQnAGateway,
     AudioQnAGateway,
+    RetrievalToolGateway,
     FaqGenGateway,
+    VisualQnAGateway,
 )
 
 # Telemetry

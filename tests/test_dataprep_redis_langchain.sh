@@ -12,16 +12,20 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     docker build --no-cache -t opea/dataprep-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain/docker/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/dataprep-redis built fail"
+        exit 1
+    else
+        echo "opea/dataprep-redis built successful"
+    fi
 }
 
 function start_service() {
     REDIS_PORT=6380
     docker run -d --name="test-comps-dataprep-redis-langchain" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $REDIS_PORT:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
     dataprep_service_port=5013
-    dataprep_file_service_port=5016
-    dataprep_del_service_port=5020
     REDIS_URL="redis://${ip_address}:${REDIS_PORT}"
-    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e REDIS_HOST=$ip_address -e REDIS_PORT=$REDIS_PORT -p ${dataprep_service_port}:6007 -p ${dataprep_file_service_port}:6008 -p ${dataprep_del_service_port}:6009 --ipc=host opea/dataprep-redis:comps
+    docker run -d --name="test-comps-dataprep-redis-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e REDIS_HOST=$ip_address -e REDIS_PORT=$REDIS_PORT -p ${dataprep_service_port}:6007 --ipc=host opea/dataprep-redis:comps
     sleep 1m
 }
 
@@ -35,16 +39,17 @@ function validate_microservice() {
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
-    docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_upload_file.log
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -56,55 +61,56 @@ function validate_microservice() {
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - link"
-    docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_upload_link.log
+
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_upload_link.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_upload_link.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
     # test /v1/dataprep/get_file
-    dataprep_file_service_port=5016
-    URL="http://${ip_address}:$dataprep_file_service_port/v1/dataprep/get_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get_file"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - get"
-    docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_file.log
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *'{"name":'* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
     # test /v1/dataprep/delete_file
-    dataprep_del_service_port=5020
-    URL="http://${ip_address}:$dataprep_del_service_port/v1/dataprep/delete_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete_file"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - del"
-    docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
 
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -112,6 +118,7 @@ function validate_microservice() {
     # check response body
     if [[ "$RESPONSE_BODY" != *'{"status":true}'* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."

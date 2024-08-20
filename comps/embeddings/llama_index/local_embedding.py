@@ -1,8 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from langsmith import traceable
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedding
 
 from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
@@ -16,7 +15,6 @@ from comps import EmbedDoc, ServiceType, TextDoc, opea_microservices, register_m
     input_datatype=TextDoc,
     output_datatype=EmbedDoc,
 )
-@traceable(run_type="embedding")
 def embedding(input: TextDoc) -> EmbedDoc:
     embed_vector = embeddings.get_text_embedding(input.text)
     res = EmbedDoc(text=input.text, embedding=embed_vector)
@@ -24,5 +22,5 @@ def embedding(input: TextDoc) -> EmbedDoc:
 
 
 if __name__ == "__main__":
-    embeddings = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5")
+    embeddings = HuggingFaceInferenceAPIEmbedding(model_name="BAAI/bge-large-en-v1.5")
     opea_microservices["opea_service@local_embedding"].start()
