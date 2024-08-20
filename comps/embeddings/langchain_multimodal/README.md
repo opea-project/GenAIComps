@@ -14,13 +14,11 @@ Key Features:
 
 Users are albe to configure and build embedding-related services according to their actual needs.
 
-
-
-## 🚀1. Start Microservice with Docker 
+## 🚀1. Start Microservice with Docker
 
 ### 1.2 Build Docker Image
 
-#### Build Langchain Docker 
+#### Build Langchain Docker
 
 ```bash
 cd ../../..
@@ -43,7 +41,6 @@ curl http://localhost:6000/v1/health_check\
   -X GET \
   -H 'Content-Type: application/json'
 ```
-
 
 ### 2.2 Consume Embedding Service
 

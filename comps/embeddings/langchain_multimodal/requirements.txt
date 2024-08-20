@@ -1,8 +1,11 @@
+dateparser
 docarray[full]
+einops
 fastapi
 huggingface_hub
 langchain
 langsmith
+open_clip_torch
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -10,6 +13,3 @@ prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
 uvicorn
-open_clip_torch
-einops
-dateparser
