@@ -16,10 +16,10 @@ on:
         default: "comps"
         required: false
         type: string
-      # build:
-      #   default: true
-      #   required: false
-      #   type: boolean
+      build:
+        default: true
+        required: false
+        type: boolean
       # scan:
       #   default: true
       #   required: false
@@ -53,7 +53,7 @@ jobs:
           # echo "service=$service" >> $GITHUB_ENV
 
       - name: Build Image
-        # if: ${{ fromJSON(inputs.build) }}
+        if: ${{ fromJSON(inputs.build) }}
         uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}/
