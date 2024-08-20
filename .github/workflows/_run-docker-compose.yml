@@ -92,8 +92,8 @@ jobs:
           test_case: ${{ matrix.test_case }}
         run: |
           cd ${{ github.workspace }}/tests
-          echo "${test_case}", "${service}"
-          # echo "service=${service}" >> $GITHUB_ENV
+          service=$(echo "${test_case}" | sed 's/test_\(.*\)\.sh/\1/')
+          echo "service=${service}" >> $GITHUB_ENV
           if [ -f ${test_case} ]; then timeout 30m bash ${test_case}; else echo "Test script {${test_case}} not found, skip test!"; fi
 
       - name: Clean up container
