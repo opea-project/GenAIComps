@@ -7,3 +7,5 @@ opentelemetry-sdk
 predictionguard==2.2.1
 prometheus-fastapi-instrumentator
 shortuuid
+pyyaml
+uvicorn
