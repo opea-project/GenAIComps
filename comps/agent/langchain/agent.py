@@ -30,7 +30,6 @@ args, _ = get_args()
     port=args.port,
     input_datatype=LLMParamsDoc,
 )
-
 async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
