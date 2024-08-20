@@ -23,14 +23,14 @@ Users are albe to configure and build embedding-related services according to th
 #### Build Langchain Docker 
 
 ```bash
-cd ../../
+cd ../../..
 docker build -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/langchain_multimodal/docker/Dockerfile .
 ```
 
 ### 1.4 Run Docker with Docker Compose
 
 ```bash
-cd docker
+cd comps/embeddings/langchain_multimodal/docker
 docker compose -f docker_compose_embedding.yaml up -d
 ```
 
