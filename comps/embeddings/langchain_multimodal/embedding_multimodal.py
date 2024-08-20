@@ -53,7 +53,7 @@ def filtler_dates(prompt):
         else:  ## Interval  of time:last 48 hours, last 2 days,..
             constraints = {"date_time": [">=", {"_date": iso_date_time}]}
         return constraints
-    
+
     else:
         return {}
 
