@@ -21,7 +21,7 @@ jobs:
       - name: Create Matrix
         id: get-matrix
         run: |
-          services=($(echo "dataprep_pgvector" | tr ',' ' '))
+          services=($(echo "asr,embeddings" | tr ',' ' '))
           services_json=$(printf '%s\n' "${services[@]}" | sort -u | jq -R '.' | jq -sc '.')
           echo "services=$services_json" >> $GITHUB_OUTPUT
 
