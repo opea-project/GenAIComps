@@ -1,8 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import torch.nn as nn
 import torch
+import torch.nn as nn
 from einops import rearrange
 from transformers import AutoProcessor, AutoTokenizer, CLIPModel
 
