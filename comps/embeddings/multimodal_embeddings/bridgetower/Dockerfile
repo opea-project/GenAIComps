@@ -10,15 +10,16 @@ USER user
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
 
-COPY comps /home/user/comps
+COPY --chown=user comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal_embeddings/bridgetower/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal_embeddings/multimodal_langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 ARG EMBEDDER_PORT=8080
+ENV PORT=$EMBEDDER_PORT
 
 WORKDIR /home/user/comps/embeddings/multimodal_embeddings/bridgetower
 
-ENTRYPOINT ["python", "bridgetower_server.py", "--device", "cpu", "--port", "echo $EMBEDDER_PORT"]
+ENTRYPOINT ["python", "bridgetower_server.py", "--device", "cpu"]
