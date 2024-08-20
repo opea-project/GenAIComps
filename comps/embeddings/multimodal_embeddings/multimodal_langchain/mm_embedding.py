@@ -2,11 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import time
 
 from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
 
-from typing import Union, List
 from langsmith import traceable # type: ignore
 from comps import (
     EmbedDoc,
