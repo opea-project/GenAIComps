@@ -28,7 +28,7 @@ def filtler_dates(prompt):
     today_date = base_date.date()
     dates_found = search_dates(prompt, settings={"PREFER_DATES_FROM": "past", "RELATIVE_BASE": base_date})
 
-    if dates_found != None:
+    if dates_found is not None:
         for date_tuple in dates_found:
             date_string, parsed_date = date_tuple
             date_out = str(parsed_date.date())
@@ -53,6 +53,9 @@ def filtler_dates(prompt):
         else:  ## Interval  of time:last 48 hours, last 2 days,..
             constraints = {"date_time": [">=", {"_date": iso_date_time}]}
         return constraints
+    
+    else:
+        return {}
 
 
 @register_microservice(
