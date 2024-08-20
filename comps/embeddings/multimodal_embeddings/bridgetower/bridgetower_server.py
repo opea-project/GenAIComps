@@ -13,6 +13,7 @@ import uuid
 from functools import partial
 import asyncio
 from utils import build_logger
+import os
 
 worker_id = str(uuid.uuid4())[:6]
 print(f"worker_id: {worker_id}")
@@ -90,7 +91,6 @@ async def get_woker_status():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=8080)
     parser.add_argument("--model_name_or_path", 
                         type=str, 
                         default="BridgeTower/bridgetower-large-itm-mlm-itc")
@@ -99,8 +99,12 @@ if __name__ == "__main__":
     parser.add_argument("--limit-model-concurrency", type=int, default=5)
 
     args = parser.parse_args()
+    # get port from env variable if exist
+    args.port = int(os.getenv("PORT", 8080))
+
     print(f"device: {args.device}")
     logger.info(f"args: {args}")
+    
     if args.device == "hpu":
         try: 
             import habana_frameworks.torch.core as htcore
