@@ -2,25 +2,31 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH="$( cd "$( dirname "$0" )" && pwd )"
 
 # Define variables
-port=8123
+port=5033
 HF_CACHE_DIR=$HOME/.cache/huggingface
 DOCKER_IMAGE="vllm-openvino:comps"
-CONTAINER_NAME="vllm-openvino-container"
+CONTAINER_NAME="test-comps-vllm-openvino-container"
 
 function build_container() {
     cd $WORKPATH
     git clone https://github.com/vllm-project/vllm.git vllm-openvino
     cd ./vllm-openvino/
-    docker build -t $DOCKER_IMAGE \
+    docker build --no-cache -t $DOCKER_IMAGE \
       -f Dockerfile.openvino \
       . \
       --build-arg https_proxy=$https_proxy \
       --build-arg http_proxy=$http_proxy
+    if [ $? -ne 0 ]; then
+        echo "vllm-openvino built fail"
+        exit 1
+    else
+        echo "vllm-openvino built successful"
+    fi
     cd $WORKPATH
     rm -rf vllm-openvino
 }
@@ -95,6 +101,8 @@ function test_api_endpoint {
         echo "PASS: $endpoint returned expected status code: $expected_status"
     else
         echo "FAIL: $endpoint returned unexpected status code: $response (expected: $expected_status)"
+        docker logs $CONTAINER_NAME
+        exit 1
     fi
 }
 # Main function

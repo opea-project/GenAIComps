@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -12,19 +12,31 @@ function build_docker_images() {
     cd $WORKPATH/comps/llms/text-generation/vllm
     docker build \
         -f docker/Dockerfile.hpu \
-        -t opea/vllm-hpu:comps \
+        --no-cache -t opea/vllm-hpu:comps \
         --shm-size=128g .
+    if [ $? -ne 0 ]; then
+        echo "opea/vllm-hpu built fail"
+        exit 1
+    else
+        echo "opea/vllm-hpu built successful"
+    fi
 
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build  \
-        -t opea/llm-vllm:comps \
+        --no-cache -t opea/llm-vllm:comps \
         -f comps/llms/text-generation/vllm/docker/Dockerfile.microservice .
+    if [ $? -ne 0 ]; then
+        echo "opea/llm-vllm built fail"
+        exit 1
+    else
+        echo "opea/llm-vllm built successful"
+    fi
 }
 
 function start_service() {
     export LLM_MODEL="facebook/opt-125m"
-    port_number=8008
+    port_number=5025
     docker run -d --rm \
         --runtime=habana \
         --name="test-comps-vllm-service" \
@@ -41,7 +53,7 @@ function start_service() {
     export vLLM_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm \
         --name="test-comps-vllm-microservice" \
-        -p 9000:9000 \
+        -p 5030:9000 \
         --ipc=host \
         -e vLLM_ENDPOINT=$vLLM_ENDPOINT \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
@@ -62,21 +74,35 @@ function start_service() {
 }
 
 function validate_microservice() {
-    http_proxy="" curl http://${ip_address}:8008/v1/completions \
+    result=$(http_proxy="" curl http://${ip_address}:5025/v1/completions \
         -H "Content-Type: application/json" \
         -d '{
         "model": "facebook/opt-125m",
         "prompt": "What is Deep Learning?",
         "max_tokens": 32,
         "temperature": 0
-        }'
-    http_proxy="" curl http://${ip_address}:9000/v1/chat/completions \
+        }')
+    if [[ $result == *"text"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-vllm-service
+        docker logs test-comps-vllm-microservice
+        exit 1
+    fi
+    result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_p":0.95,"temperature":0.01,"streaming":false}' \
-        -H 'Content-Type: application/json'
-            docker logs test-comps-vllm-service
-            docker logs test-comps-vllm-microservice
-        }
+        -H 'Content-Type: application/json')
+    if [[ $result == *"text"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-vllm-service
+        docker logs test-comps-vllm-microservice
+        exit 1
+    fi
+}
 
 function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-vllm*")

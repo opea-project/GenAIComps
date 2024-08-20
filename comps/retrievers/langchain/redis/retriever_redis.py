@@ -7,10 +7,10 @@ from typing import Union
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
-from langsmith import traceable
 from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     SearchedDoc,
     ServiceType,
@@ -27,6 +27,9 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponseData,
 )
 
+logger = CustomLogger("retriever_redis")
+logflag = os.getenv("LOGFLAG", False)
+
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 
@@ -37,12 +40,12 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
     host="0.0.0.0",
     port=7000,
 )
-@traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_redis"])
 def retrieve(
     input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
 ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
-
+    if logflag:
+        logger.info(input)
     start = time.time()
     # check if the Redis index has data
     if vector_db.client.keys() == []:
@@ -91,6 +94,8 @@ def retrieve(
             result = input
 
     statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
+    if logflag:
+        logger.info(result)
     return result
 
 
