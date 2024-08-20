@@ -60,16 +60,16 @@ jobs:
 
   run-test:
     needs: [get-test-case]
-    strategy:
-      matrix:
-        test_case: ${{ fromJSON(needs.get-test-case.outputs.test_cases) }}
-      fail-fast: false
-    runs-on: ${{ inputs.hardware }}
+    # strategy:
+    #   matrix:
+    #     test_case: ${{ fromJSON(needs.get-test-case.outputs.test_cases) }}
+    #   fail-fast: false
+    # runs-on: ${{ inputs.hardware }}
     # continue-on-error: true
     steps:
       - name: check
         run: |
-          echo "running"
+          echo "${{ fromJSON(needs.get-test-case.outputs.test_cases) }}"
       - name: Clean up Working Directory
         run: |
           sudo rm -rf ${{github.workspace}}/*
