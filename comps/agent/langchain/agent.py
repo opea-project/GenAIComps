@@ -58,14 +58,14 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
     # 2. prepare the input for the agent
     if input.streaming:
         print("-----------STREAMING-------------")
-        return StreamingResponse(agent_inst.stream_generator(input.query, config), media_type="text/event-stream")
+        return StreamingResponse(agent_inst.stream_generator(input_query, config), media_type="text/event-stream")
 
     else:
         print("-----------NOT STREAMING-------------")
-        response = await agent_inst.non_streaming_run(input.query, config)
+        response = await agent_inst.non_streaming_run(input_query, config)
         print("-----------Response-------------")
         print(response)
-        return GeneratedDoc(text=response, prompt=input.query)
+        return GeneratedDoc(text=response, prompt=input_query)
 
 
 @register_microservice(

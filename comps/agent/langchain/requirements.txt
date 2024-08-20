@@ -4,7 +4,6 @@ docarray[full]
 #used by tools
 duckduckgo-search
 fastapi
-huggingface_hub==0.24.0
 langgraph
 langsmith
 langchain==0.2.9
@@ -12,6 +11,7 @@ langchain-huggingface
 langchain-openai
 langchain_community==0.2.7
 langchainhub==0.1.20
+huggingface_hub==0.24.0
 numpy
 
 # used by cloud native
