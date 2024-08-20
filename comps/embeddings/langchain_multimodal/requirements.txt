@@ -12,3 +12,4 @@ shortuuid
 uvicorn
 open_clip_torch
 einops
+dateparser
