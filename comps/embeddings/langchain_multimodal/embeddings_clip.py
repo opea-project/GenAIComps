@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import torch.nn as nn
+import torch
 from einops import rearrange
 from transformers import AutoProcessor, AutoTokenizer, CLIPModel
 
