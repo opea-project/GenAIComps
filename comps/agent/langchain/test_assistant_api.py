@@ -62,7 +62,7 @@ def test_assistants_http(args):
         return
 
     # step 4. run
-    print("You may cancel the run with cmdline")
+    print("You may cancel the running process with cmdline")
     print(f"curl {url}/threads/{thread_id}/runs/cancel -X POST -H 'Content-Type: application/json'")
 
     query = {"assistant_id": assistant_id}
