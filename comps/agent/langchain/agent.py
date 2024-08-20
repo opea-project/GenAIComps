@@ -5,26 +5,38 @@ import json
 import os
 import pathlib
 import sys
+from datetime import datetime
 from typing import Union
 
 from fastapi.responses import StreamingResponse
-from datetime import datetime
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-from comps.cores.proto.api_protocol import ChatCompletionRequest, CreateAssistantsRequest, AssistantsObject, ThreadObject, MessageObject, RunObject, MessageContent, CreateThreadsRequest, CreateMessagesRequest, CreateRunResponse
 from comps.agent.langchain.src.agent import instantiate_agent
-from comps.agent.langchain.src.thread import instantiate_thread_memory,thread_completion_callback
-from comps.agent.langchain.src.utils import get_args
 from comps.agent.langchain.src.global_var import assistants_global_kv, threads_global_kv
+from comps.agent.langchain.src.thread import instantiate_thread_memory, thread_completion_callback
+from comps.agent.langchain.src.utils import get_args
+from comps.cores.proto.api_protocol import (
+    AssistantsObject,
+    ChatCompletionRequest,
+    CreateAssistantsRequest,
+    CreateMessagesRequest,
+    CreateRunResponse,
+    CreateThreadsRequest,
+    MessageContent,
+    MessageObject,
+    RunObject,
+    ThreadObject,
+)
 
 logger = CustomLogger("comps-react-agent")
 logflag = os.getenv("LOGFLAG", False)
 
 args, _ = get_args()
+
 
 @register_microservice(
     name="opea_service@comps-chat-agent",
@@ -54,7 +66,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             input_query = input.messages
         else:
             input_query = input.messages[-1]["content"]
-        
+
     # 2. prepare the input for the agent
     if input.streaming:
         print("-----------STREAMING-------------")
@@ -85,7 +97,10 @@ def create_assistants(input: CreateAssistantsRequest):
     print(f"Record assistant inst {agent_id} in global KV")
 
     # get current time in string format
-    return AssistantsObject(id=agent_id, created_at=created_at,)
+    return AssistantsObject(
+        id=agent_id,
+        created_at=created_at,
+    )
 
 
 @register_microservice(
@@ -103,7 +118,10 @@ def create_threads(input: CreateThreadsRequest):
         g_threads[thread_id] = (thread_inst, created_at, status)
     print(f"Record thread inst {thread_id} in global KV")
 
-    return ThreadObject(id=thread_id, created_at=created_at,)
+    return ThreadObject(
+        id=thread_id,
+        created_at=created_at,
+    )
 
 
 @register_microservice(
@@ -123,9 +141,16 @@ def create_messages(thread_id, input: CreateMessagesRequest):
     else:
         query = input.content[-1]["text"]
     msg_id, created_at = thread_inst.add_query(query)
-    
+
     structured_content = MessageContent(text=query)
-    return MessageObject(id=msg_id, created_at=created_at, thread_id=thread_id, role=role, content=[structured_content],)
+    return MessageObject(
+        id=msg_id,
+        created_at=created_at,
+        thread_id=thread_id,
+        role=role,
+        content=[structured_content],
+    )
+
 
 @register_microservice(
     name="opea_service@comps-chat-agent",
@@ -136,23 +161,27 @@ def create_messages(thread_id, input: CreateMessagesRequest):
 def create_run(thread_id, input: CreateRunResponse):
     with threads_global_kv as g_threads:
         thread_inst, _, status = g_threads[thread_id]
-        
+
     if status == "running":
         return "[error] Thread is already running, need to cancel the current run or wait for it to finish"
-        
+
     agent_id = input.assistant_id
     with assistants_global_kv as g_assistants:
         agent_inst, _ = g_assistants[agent_id]
-    
+
     config = {"recursion_limit": args.recursion_limit}
     input_query = thread_inst.get_query()
     try:
-        return StreamingResponse(thread_completion_callback(agent_inst.stream_generator(input_query, config, thread_id), thread_id), media_type="text/event-stream")
+        return StreamingResponse(
+            thread_completion_callback(agent_inst.stream_generator(input_query, config, thread_id), thread_id),
+            media_type="text/event-stream",
+        )
     except Exception as e:
         with threads_global_kv as g_threads:
             thread_inst, created_at, status = g_threads[thread_id]
             g_threads[thread_id] = (thread_inst, created_at, "ready")
         return f"An error occurred: {e}. This thread is now set as ready"
+
 
 @register_microservice(
     name="opea_service@comps-chat-agent",
@@ -170,6 +199,7 @@ def cancel_run(thread_id):
         else:
             g_threads[thread_id] = (thread_inst, created_at, "try_cancel")
             return "submit cancel request"
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@comps-chat-agent"].start()

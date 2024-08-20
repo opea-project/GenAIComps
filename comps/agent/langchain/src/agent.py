@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+
 def instantiate_agent(args, strategy="react_langchain", with_memory=False):
     if strategy == "react_langchain":
         from .strategy.react import ReActAgentwithLangchain

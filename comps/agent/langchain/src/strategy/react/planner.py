@@ -3,19 +3,19 @@
 
 from langchain.agents import AgentExecutor
 from langchain.agents import create_react_agent as create_react_langchain_agent
+from langchain.memory import ChatMessageHistory
 from langchain_core.messages import HumanMessage
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
+from ...global_var import threads_global_kv
 from ...utils import has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
-
 from .prompt import REACT_SYS_MESSAGE, hwchase17_react_prompt
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain.memory import ChatMessageHistory
-from langgraph.checkpoint.memory import MemorySaver
-from ...global_var import threads_global_kv
+
 
 class ReActAgentwithLangchain(BaseAgent):
     def __init__(self, args, with_memory=False):
@@ -31,6 +31,7 @@ class ReActAgentwithLangchain(BaseAgent):
             agent=agent_chain, tools=self.tools_descriptions, verbose=True, handle_parsing_errors=True
         )
         self.memory = {}
+
         def get_session_history(session_id):
             if session_id in self.memory:
                 return self.memory[session_id]
@@ -46,7 +47,7 @@ class ReActAgentwithLangchain(BaseAgent):
                 input_messages_key="input",
                 history_messages_key="chat_history",
                 history_factory_config=[],
-        )
+            )
 
     def prepare_initial_state(self, query):
         return {"input": query}
@@ -92,7 +93,9 @@ class ReActAgentwithLanggraph(BaseAgent):
         tools = self.tools_descriptions
 
         if with_memory:
-            self.app = create_react_agent(self.llm, tools=tools, state_modifier=REACT_SYS_MESSAGE, checkpointer=MemorySaver())
+            self.app = create_react_agent(
+                self.llm, tools=tools, state_modifier=REACT_SYS_MESSAGE, checkpointer=MemorySaver()
+            )
         else:
             self.app = create_react_agent(self.llm, tools=tools, state_modifier=REACT_SYS_MESSAGE)
 

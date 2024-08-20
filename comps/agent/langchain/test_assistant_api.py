@@ -7,7 +7,7 @@ import json
 import requests
 from src.utils import get_args
 
-    
+
 def test_assistants_http(args):
     proxies = {"http": ""}
     url = f"http://{args.ip_addr}:{args.ext_port}/v1"
@@ -24,7 +24,7 @@ def test_assistants_http(args):
                 for line in resp.iter_lines(decode_unicode=True):
                     print(line)
                 ret = None
-            
+
             resp.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
             return ret
         except requests.exceptions.RequestException as e:
@@ -40,16 +40,16 @@ def test_assistants_http(args):
     else:
         print("Error when creating assistants !!!!")
         return
-    
+
     # step 2. create threads
     query = {}
-    if ret := process_request(f"threads", query):
+    if ret := process_request("threads", query):
         thread_id = ret.get("id")
         print("Created Thread Id: ", thread_id)
     else:
         print("Error when creating threads !!!!")
         return
-    
+
     # step 3. add messages
     if args.query is None:
         query = {"role": "user", "content": "How old was Bill Gates when he built Microsoft?"}
@@ -60,11 +60,11 @@ def test_assistants_http(args):
     else:
         print("Error when add messages !!!!")
         return
-    
+
     # step 4. run
     print("You may cancel the run with cmdline")
     print(f"curl {url}/threads/{thread_id}/runs/cancel -X POST -H 'Content-Type: application/json'")
-    
+
     query = {"assistant_id": assistant_id}
     process_request(f"threads/{thread_id}/runs", query, is_stream=True)
 

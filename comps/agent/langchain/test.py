@@ -5,11 +5,11 @@ import argparse
 import json
 import os
 import traceback
+from time import sleep
 
 import pandas as pd
 import requests
 from src.utils import format_date, get_args
-from time import sleep
 
 
 def test_agent_local(args):
@@ -84,7 +84,8 @@ def test_agent_http(args):
 
     df["trace"] = traces
     df.to_csv(os.path.join(args.filedir, args.output), index=False)
-    
+
+
 def test_assistants_http(args):
     proxies = {"http": ""}
     ip_addr = args.ip_addr
@@ -102,7 +103,7 @@ def test_assistants_http(args):
                 for line in resp.iter_lines(decode_unicode=True):
                     print(line)
                 ret = None
-            
+
             resp.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
             return ret
         except requests.exceptions.RequestException as e:
@@ -118,16 +119,16 @@ def test_assistants_http(args):
     else:
         print("Error when creating assistants !!!!")
         return
-    
+
     # step 2. create threads
     query = {}
-    if ret := process_request(f"threads", query):
+    if ret := process_request("threads", query):
         thread_id = ret.get("id")
         print("Created Thread Id: ", thread_id)
     else:
         print("Error when creating threads !!!!")
         return
-    
+
     # step 3. add messages
     if args.query is None:
         query = {"role": "user", "content": "How old was Bill Gates when he built Microsoft?"}
@@ -138,14 +139,14 @@ def test_assistants_http(args):
     else:
         print("Error when add messages !!!!")
         return
-    
+
     # step 4. run
     print("You may cancel the run with cmdline")
     print(f"curl {url}/threads/{thread_id}/runs/cancel -X POST -H 'Content-Type: application/json'")
-    
+
     query = {"assistant_id": assistant_id}
     process_request(f"threads/{thread_id}/runs", query, is_stream=True)
-    
+
 
 def test_ut(args):
     from src.tools import get_tools_descriptions

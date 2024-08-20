@@ -1,9 +1,10 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+from uuid import uuid4
+
 from ..tools import get_tools_descriptions
 from ..utils import setup_llm
-from uuid import uuid4
 
 
 class BaseAgent:

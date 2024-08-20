@@ -405,12 +405,15 @@ class AssistantsObject(BaseModel):
     instructions: Optional[str] = None
     tools: Optional[List[ChatCompletionToolsParam]] = None
 
+
 class Attachments(BaseModel):
     file_list: List[UploadFile] = []
+
 
 class MessageContent(BaseModel):
     type: str = "text"
     text: Optional[str] = None
+
 
 class MessageObject(BaseModel):
     id: str
@@ -424,6 +427,7 @@ class MessageObject(BaseModel):
     run_id: Optional[str] = None
     attachments: Attachments = None
 
+
 class RunObject(BaseModel):
     id: str
     object: str = "run"
@@ -433,6 +437,7 @@ class RunObject(BaseModel):
     status: Optional[str] = None
     last_error: Optional[str] = None
 
+
 class CreateAssistantsRequest(BaseModel):
     model: Optional[str] = None
     name: Optional[str] = None
@@ -440,21 +445,26 @@ class CreateAssistantsRequest(BaseModel):
     instructions: Optional[str] = None
     tools: Optional[List[ChatCompletionToolsParam]] = None
 
+
 class CreateMessagesRequest(BaseModel):
     role: str = "user"
     content: Union[str, List[MessageContent]]
     attachments: Attachments = None
 
+
 class CreateThreadsRequest(BaseModel):
     messages: Optional[List[CreateMessagesRequest]] = None
+
 
 class CreateRunResponse(BaseModel):
     assistant_id: str
 
+
 class ListAssistantsRequest(BaseModel):
     limit: int = 10
     order: Optional[str] = "desc"
-    
+
+
 class ApiErrorCode(IntEnum):
     """
     https://platform.openai.com/docs/guides/error-codes/api-errors
