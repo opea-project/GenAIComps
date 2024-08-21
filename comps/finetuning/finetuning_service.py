@@ -3,19 +3,20 @@
 
 import os
 import urllib.parse
+from typing import List, Optional, Union
 
 from fastapi import BackgroundTasks, File, UploadFile
-from typing import List, Optional, Union
+
 from comps import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest
 from comps.finetuning.handlers import (
+    DATASET_BASE_PATH,
     handle_cancel_finetuning_job,
     handle_create_finetuning_jobs,
+    handle_list_finetuning_checkpoints,
     handle_list_finetuning_jobs,
     handle_retrieve_finetuning_job,
     save_content_to_local_disk,
-    handle_list_finetuning_checkpoints,
-    DATASET_BASE_PATH,
 )
 
 
@@ -48,9 +49,14 @@ def cancel_finetuning_job(request: FineTuningJobIDRequest):
 
 
 @register_microservice(
-    name="opea_service@finetuning", endpoint="/v1/finetune/upload_training_files", host="0.0.0.0", port=8001,
+    name="opea_service@finetuning",
+    endpoint="/v1/finetune/upload_training_files",
+    host="0.0.0.0",
+    port=8001,
 )
-async def upload_training_files(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),):
+async def upload_training_files(
+    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+):
     if files:
         if not isinstance(files, list):
             files = [files]
@@ -67,7 +73,7 @@ async def upload_training_files(files: Optional[Union[UploadFile, List[UploadFil
 )
 def list_checkpoints(request: FineTuningJobIDRequest):
     checkpoints = handle_list_finetuning_checkpoints(request)
-    return {"status": 200, "checkpoints":str(checkpoints)}
+    return {"status": 200, "checkpoints": str(checkpoints)}
 
 
 if __name__ == "__main__":
