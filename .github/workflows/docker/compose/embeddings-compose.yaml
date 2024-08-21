@@ -16,7 +16,7 @@ services:
     build:
       dockerfile: comps/embeddings/langchain-mosec/docker/Dockerfile
     image: ${REGISTRY}opea/embedding-langchain-mosec:${TAG:-latest}
-  embedding-tei-llamaindex:
+  embedding-tei-llama-index:
     build:
       dockerfile: comps/embeddings/llama_index/docker/Dockerfile
-    image: ${REGISTRY}opea/embedding-tei-llamaindex:${TAG:-latest}
+    image: ${REGISTRY}opea/embedding-tei-llama-index:${TAG:-latest}
