@@ -24,6 +24,19 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
         """Initialize the BridgeTowerEmbedding class"""
         super().__init__(**kwargs)
 
+        if 'device' in kwargs:
+            if kwargs['device'] == 'hpu':
+                try: 
+                    import habana_frameworks.torch.core as htcore
+                    self.device = torch.device("hpu")
+                except ImportModuleError :  # type: ignore
+                    self.device = 'cpu'
+            elif kwargs['device'] == 'gpu':
+                if torch.cuda.is_available():
+                    self.device = 'cuda'
+            else:
+                self.device = 'cpu'
+                
         self.TEXT_MODEL = BridgeTowerTextFeatureExtractor.from_pretrained(self.model_name).to(self.device)
         self.PROCESSOR = BridgeTowerProcessor.from_pretrained(self.model_name)
         self.MODEL = BridgeTowerForITC.from_pretrained(self.model_name).to(self.device)

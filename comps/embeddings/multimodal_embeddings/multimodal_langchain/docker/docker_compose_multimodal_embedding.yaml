@@ -1,21 +1,19 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-version: "1.0"
-
 services:
   embedding:
     image: opea/embedding-multimodal:latest
     container_name: embedding-multimodal-server
     ports:
-      - ${multimodal_embedding_microservice_port}:${multimodal_embedding_microservice_port}
+      - ${MM_EMBEDDING_PORT_MICROSERVICE}:${MM_EMBEDDING_PORT_MICROSERVICE}
     ipc: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       MMEI_EMBEDDING_ENDPOINT: ${MMEI_EMBEDDING_ENDPOINT}
-      MM_EMBEDDING_MS_PORT: ${multimodal_embedding_microservice_port}
+      MM_EMBEDDING_PORT_MICROSERVICE: ${MM_EMBEDDING_PORT_MICROSERVICE}
     restart: unless-stopped
 
 networks:

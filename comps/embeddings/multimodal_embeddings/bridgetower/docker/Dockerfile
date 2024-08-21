@@ -1,29 +1,25 @@
-
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-FROM langchain/langchain:latest
-
-RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    libgl1-mesa-glx \
-    libjemalloc-dev \
-    vim
-
+FROM python:3.10-slim
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
-
 USER user
+# Set environment variables
+ENV LANG=en_US.UTF-8
+ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
 
-COPY comps /home/user/comps
+COPY --chown=user comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal_embeddings/multimodal_langchain/requirements.txt
 
-# RUN pip install --upgrade pydantic
-
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/embeddings/multimodal_embeddings/multimodal_langchain
+ARG EMBEDDER_PORT=8080
+ENV PORT=$EMBEDDER_PORT
 
-ENTRYPOINT ["python", "mm_embedding_mmei.py"]
+WORKDIR /home/user/comps/embeddings/multimodal_embeddings/bridgetower
+
+ENTRYPOINT ["python", "bridgetower_server.py", "--device", "cpu"]

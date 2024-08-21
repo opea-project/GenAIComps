@@ -2,14 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import time
 
 from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
 
-from typing import Union, List
 from langsmith import traceable # type: ignore
 from comps import (
     EmbedDoc,
+    CustomLogger,
     EmbedMultimodalDoc,
     ServiceType,
     TextDoc,
@@ -19,11 +18,13 @@ from comps import (
     register_microservice,
 )
 
+logger = CustomLogger("local_multimodal_embedding")
+logflag = os.getenv("LOGFLAG", False)
 
-port = int(os.getenv("MM_EMBEDDING_MS_PORT", 6600))
+port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6600))
 
 @register_microservice(
-    name="opea_service@multimodal_embedding",
+    name="opea_service@local_multimodal_embedding",
     service_type=ServiceType.EMBEDDING,
     endpoint="/v1/embeddings",
     host="0.0.0.0",
@@ -33,9 +34,10 @@ port = int(os.getenv("MM_EMBEDDING_MS_PORT", 6600))
 )
 
 @traceable(run_type="embedding")
-
 def embedding(input: MultimodalDoc) -> EmbedDoc:
-    
+    if logflag:
+        logger.info(input)
+
     if isinstance(input, TextDoc):
         # Handle text input
         embed_vector = embeddings.embed_query(input.text)
@@ -48,9 +50,11 @@ def embedding(input: MultimodalDoc) -> EmbedDoc:
         res = EmbedMultimodalDoc(text=input.text.text, url=input.image.url, embedding=embed_vector)
     else:
         raise ValueError("Invalid input type")
-
+    
+    if logflag:
+        logger.info(res)
     return res
 
 if __name__ == "__main__":
     embeddings = BridgeTowerEmbedding()
-    opea_microservices["opea_service@multimodal_embedding"].start()
+    opea_microservices["opea_service@local_multimodal_embedding"].start()
