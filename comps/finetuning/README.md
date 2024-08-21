@@ -44,7 +44,8 @@ python finetuning_service.py
 
 # 🚀2. Start Microservice with Docker (Optional 2)
 
-## 2.1 Build Docker Image
+## 2.1 Setup on CPU
+### 2.1.1 Build Docker Image
 
 Build docker image with below command:
 
@@ -54,13 +55,33 @@ cd ../../
 docker build -t opea/finetuning:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/docker/Dockerfile_cpu .
 ```
 
-## 2.2 Run Docker with CLI
+### 2.1.2 Run Docker with CLI
 
 Start docker container with below command:
 
 ```bash
-docker run -d --name="finetuning-server" -p 8001:8001 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/finetuning:latest
+docker run -d --name="finetuning-server" -p 8005:8005 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/finetuning:latest
 ```
+
+## 2.2 Setup on Gaudi2
+### 2.2.1 Build Docker Image
+
+Build docker image with below command:
+
+```bash
+cd ../../
+docker build -t opea/finetuning-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/finetuning/docker/Dockerfile_hpu .
+```
+
+### 2.2.2 Run Docker with CLI
+
+Start docker container with below command:
+
+```bash
+export HF_TOKEN=${your_huggingface_token}
+docker run --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p 8005:8005 -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --net=host --ipc=host -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e HF_TOKEN="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" opea/finetuning-gaudi:latest
+```
+
 
 # 🚀3. Consume Finetuning Service
 
@@ -70,10 +91,10 @@ Assuming a training file `alpaca_data.json` is uploaded, it can be downloaded in
 
 ```bash
 # upload a training file
-curl http://${your_ip}:8001/v1/finetune/upload_training_files -X POST -H "Content-Type: multipart/form-data" -F "files=@./alpaca_data.json"
+curl http://${your_ip}:8005/v1/finetune/upload_training_files -X POST -H "Content-Type: multipart/form-data" -F "files=@./alpaca_data.json"
 
 # create a finetuning job
-curl http://${your_ip}:8001/v1/fine_tuning/jobs \
+curl http://${your_ip}:8005/v1/fine_tuning/jobs \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{
@@ -82,18 +103,18 @@ curl http://${your_ip}:8001/v1/fine_tuning/jobs \
   }'
 
 # list finetuning jobs
-curl http://${your_ip}:8001/v1/fine_tuning/jobs   -X GET
+curl http://${your_ip}:8005/v1/fine_tuning/jobs   -X GET
 
 # retrieve one finetuning job
-curl http://localhost:8001/v1/fine_tuning/jobs/retrieve   -X POST   -H "Content-Type: application/json"   -d '{
+curl http://localhost:8005/v1/fine_tuning/jobs/retrieve   -X POST   -H "Content-Type: application/json"   -d '{
     "fine_tuning_job_id": ${fine_tuning_job_id}}'
 
 # cancel one finetuning job
 
-curl http://localhost:8001/v1/fine_tuning/jobs/cancel   -X POST   -H "Content-Type: application/json"   -d '{
+curl http://localhost:8005/v1/fine_tuning/jobs/cancel   -X POST   -H "Content-Type: application/json"   -d '{
     "fine_tuning_job_id": ${fine_tuning_job_id}}'
 
 # list checkpoints of a finetuning job
-curl http://${your_ip}:8001/v1/finetune/list_checkpoints -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": ${fine_tuning_job_id}}'
+curl http://${your_ip}:8005/v1/finetune/list_checkpoints -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": ${fine_tuning_job_id}}'
 
 ```

@@ -8,7 +8,7 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 peft
 prometheus-fastapi-instrumentator
-pydantic
+pydantic==2.8.2
 pydantic_yaml
 python-multipart
 pyyaml

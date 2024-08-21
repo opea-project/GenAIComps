@@ -3,6 +3,7 @@
 
 General:
   base_model: meta-llama/Llama-2-7b-chat-hf
+  output_dir: "./tmp"
   gpt_base_model: false
   save_strategy: no
   config:

@@ -101,6 +101,10 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
         seed=random.randint(0, 1000) if request.seed is None else request.seed,
     )
     finetune_config.General.output_dir = os.path.join(JOBS_PATH, job.id)
+    if os.getenv("DEVICE", ""):
+        print(f"specific device: {os.getenv('DEVICE')}")
+        finetune_config.Training.device = os.getenv("DEVICE")
+
     finetune_config_file = f"{JOBS_PATH}/{job.id}.yaml"
     to_yaml_file(finetune_config_file, finetune_config)
 
