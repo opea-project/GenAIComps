@@ -5,7 +5,6 @@ httpx
 huggingface_hub
 langchain-community
 langchain-huggingface
-langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

@@ -1,9 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from langsmith import traceable
-
-# from utils import initialize_model
 from transformers import pipeline
 
 from comps import ServiceType, TextDoc, opea_microservices, register_microservice
@@ -18,7 +15,6 @@ from comps import ServiceType, TextDoc, opea_microservices, register_microservic
     input_datatype=TextDoc,
     output_datatype=TextDoc,
 )
-@traceable(run_type="llm")
 def llm_generate(input: TextDoc):
     input_text = input.text
     toxic = toxicity_pipeline(input_text)
