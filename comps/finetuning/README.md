@@ -60,7 +60,7 @@ docker build -t opea/finetuning:latest --build-arg https_proxy=$https_proxy --bu
 Start docker container with below command:
 
 ```bash
-docker run -d --name="finetuning-server" -p 8000:8000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/finetuning:latest
+docker run -d --name="finetuning-server" -p 8001:8001 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/finetuning:latest
 ```
 
 # 🚀3. Consume Finetuning Service
@@ -70,11 +70,25 @@ docker run -d --name="finetuning-server" -p 8000:8000 --runtime=runc --ipc=host 
 Assuming a training file `alpaca_data.json` is uploaded, it can be downloaded in [here](https://github.com/tatsu-lab/stanford_alpaca/blob/main/alpaca_data.json), the following script launches a finetuning job using `meta-llama/Llama-2-7b-chat-hf` as base model:
 
 ```bash
-curl http://${your_ip}:8000/v1/fine_tuning/jobs \
+# create a finetuning job
+curl http://${your_ip}:8001/v1/fine_tuning/jobs \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{
     "training_file": "alpaca_data.json",
     "model": "meta-llama/Llama-2-7b-chat-hf"
   }'
+
+# list finetuning jobs
+curl http://${your_ip}:8001/v1/fine_tuning/jobs   -X GET
+
+# retrive one finetuning job
+curl http://localhost:8001/v1/fine_tuning/jobs/retrieve   -X POST   -H "Content-Type: application/json"   -d '{
+    "fine_tuning_job_id": ${fine_tuning_job_id}}'
+
+# cancel one finetuning job
+
+curl http://localhost:8001/v1/fine_tuning/jobs/cancel   -X POST   -H "Content-Type: application/json"   -d '{
+    "fine_tuning_job_id": ${fine_tuning_job_id}}'
+
 ```
