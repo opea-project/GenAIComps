@@ -5,7 +5,7 @@
 
 # HABANA environment
 # FROM vault.habana.ai/gaudi-docker/1.16.1/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest as hpu
-FROM opea/habanalabs:1.16.1-pytorch-installer-2.2.2:latest as hpu
+FROM opea/habanalabs:1.16.1-pytorch-installer-2.2.2 as hpu
 
 ENV LANG=en_US.UTF-8
 ARG REPO=https://github.com/huggingface/optimum-habana.git
