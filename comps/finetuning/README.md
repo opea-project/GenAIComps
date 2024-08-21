@@ -45,6 +45,7 @@ python finetuning_service.py
 # 🚀2. Start Microservice with Docker (Optional 2)
 
 ## 2.1 Setup on CPU
+
 ### 2.1.1 Build Docker Image
 
 Build docker image with below command:
@@ -64,6 +65,7 @@ docker run -d --name="finetuning-server" -p 8005:8005 --runtime=runc --ipc=host 
 ```
 
 ## 2.2 Setup on Gaudi2
+
 ### 2.2.1 Build Docker Image
 
 Build docker image with below command:
@@ -81,7 +83,6 @@ Start docker container with below command:
 export HF_TOKEN=${your_huggingface_token}
 docker run --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p 8005:8005 -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --net=host --ipc=host -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e HF_TOKEN="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" opea/finetuning-gaudi:latest
 ```
-
 
 # 🚀3. Consume Finetuning Service
 

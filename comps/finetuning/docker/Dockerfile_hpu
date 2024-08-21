@@ -25,7 +25,7 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/finetuning
 
-ENTRYPOINT ["/bin/bash", "lanuch.sh"]
+ENTRYPOINT ["/bin/bash", "launch.sh"]
 
 # CMD ["/bin/bash"]
 
