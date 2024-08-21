@@ -1,6 +1,6 @@
 # Multimodal Embeddings Microservice
 
-The Multimodal Embedding Microservice is designed to efficiently convert textual strings and images into vectorized embeddings, facilitating seamless integration into various machine learning and data processing workflows. This service utilizes advanced algorithms to generate high-quality embeddings that capture the semantic essence of the input text and images, making it ideal for applications in multi-modal data processing, information retrieval, and similar fields.
+The Multimodal Embedding Microservice is designed to efficiently convert pairs of textual string and image into vectorized embeddings, facilitating seamless integration into various machine learning and data processing workflows. This service utilizes advanced algorithms to generate high-quality embeddings that capture the joint semantic essence of the input text-and-image pairs, making it ideal for applications in multi-modal data processing, information retrieval, and similar fields.
 
 Key Features:
 
@@ -14,9 +14,80 @@ Key Features:
 
 Users are albe to configure and build embedding-related services according to their actual needs.
 
+## 🚀1. Start Microservice with Python (Option 1)
+Currently, we provide two ways to implement the multimodal embedding service:
+1. Build the multimodal embedding model **locally** from the server, which is faster, but takes up memory on the local server.
+2. Build it based on the multimodal embedding inference endpoint (**MMEI endpoint**), which provides more flexibility, but may bring some network latency.
 
+For both of the implementations, you need to install requirements first.
+### 1.1 Install Requirements
+```bash
+# run with langchain
+pip install -r multimodal_langchain/requirements.txt
+```
 
-## 🚀1. Start Microservice with Docker 
+### 1.2 Start Embedding Service
+You can select one of the following to start the multimodal embedding service:
+
+**Start Multimodal Embedding Service with MMEI**
+
+First, you need to start a MMEI service. 
+```bash
+export your_mmei_port=8080
+export EMBEDDER_PORT=$your_mmei_port
+```
+
+Currently, we employ [**BridgeTower**](https://huggingface.co/BridgeTower/bridgetower-large-itm-mlm-gaudi) model for MMEI and provide two ways to start MMEI: 
+1. Start MMEI on Gaudi2 HPU
+2. Start MMEI on Xeon CPU (if Gaudi2 HPU is not available)
+
+* Gaudi2 HPU
+
+```bash
+cd ../../..
+docker build -t opea/bridgetower-embedder:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/bridgetower/docker/Dockerfile_hpu .
+cd comps/embeddings/multimodal_embeddings/bridgetower/docker/
+docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
+```
+
+* Xeon CPU
+
+```bash
+cd ../../..
+docker build -t opea/bridgetower-embedder:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/bridgetower/docker/Dockerfile .
+cd comps/embeddings/multimodal_embeddings/bridgetower/docker/
+docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
+```
+
+Then you need to test your MMEI service using the following commands:
+
+```bash
+curl http://localhost:$your_mmei_port/v1/encode \
+     -X POST \
+     -H "Content-Type:application/json" \
+     -d '{"text":"This is example"}'
+```
+
+Start the embedding service with MMEI_EMBEDDING_ENDPOINT.
+```bash
+# run with langchain
+cd multimodal_langchain
+export MMEI_EMBEDDING_ENDPOINT="http://localhost:$your_mmei_port/v1/encode"
+export your_embedding_port_microservice=6600
+export MM_EMBEDDING_MS_PORT=$your_embedding_port_microservice
+python mm_embedding_mmei.py
+```
+
+**Start Embedding Service with Local Model**
+
+```bash
+# run with langchain
+cd multimodal_langchain
+export your_embedding_port_microservice=6600
+export MM_EMBEDDING_MS_PORT=$your_embedding_port_microservice
+python local_mm_embedding.py
+```
+## 🚀2. Start Microservice with Docker 
 
 ### 1.2 Build Docker Image
 
