@@ -28,7 +28,7 @@ HELP http_requests_total Total number of requests by method, status and handler.
 http_requests_total{handler="/metrics",method="GET",status="2xx"} 3.0
 http_requests_total{handler="/v1/chatqna",method="POST",status="2xx"} 2.0
 ...
-# HELP http_request_size_bytes Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated. 
+# HELP http_request_size_bytes Content length of incoming requests by handler. Only value of header is respected. Otherwise ignored. No percentile calculated.
 # TYPE http_request_size_bytes summary
 http_request_size_bytes_count{handler="/metrics"} 3.0
 http_request_size_bytes_sum{handler="/metrics"} 0.0
@@ -70,14 +70,13 @@ These metrics can be scraped by the Prometheus server into a time-series databas
 
 Below are some default metrics endpoints for specific microservices:
 
-
-| component    | port | endpoint | metircs doc |
-| -------- | ------- | ------- | ------- |
-| TGI  | 80    | /metrics | [link](https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/monitoring) |
-| milvus | 9091     | /metrics | [link](https://milvus.io/docs/monitor.md) |
-| vLLM    | 18688    | /metrics | [link](https://docs.vllm.ai/en/v0.5.0/serving/metrics.html) |
-| TEI embedding | 6006 | /metrics | [link](https://huggingface.github.io/text-embeddings-inference/#/Text%20Embeddings%20Inference/metrics) |
-| TEI reranking | 8808 | /metrics | [link](https://huggingface.github.io/text-embeddings-inference/#/Text%20Embeddings%20Inference/metrics) |
+| component     | port  | endpoint | metircs doc                                                                                             |
+| ------------- | ----- | -------- | ------------------------------------------------------------------------------------------------------- |
+| TGI           | 80    | /metrics | [link](https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/monitoring)             |
+| milvus        | 9091  | /metrics | [link](https://milvus.io/docs/monitor.md)                                                               |
+| vLLM          | 18688 | /metrics | [link](https://docs.vllm.ai/en/v0.5.0/serving/metrics.html)                                             |
+| TEI embedding | 6006  | /metrics | [link](https://huggingface.github.io/text-embeddings-inference/#/Text%20Embeddings%20Inference/metrics) |
+| TEI reranking | 8808  | /metrics | [link](https://huggingface.github.io/text-embeddings-inference/#/Text%20Embeddings%20Inference/metrics) |
 
 ## Tracing
 
@@ -85,12 +84,14 @@ OPEA use OpenTelemetry to trace function call stacks. To trace a function, add t
 
 By default, tracing data is exported to `http://localhost:4318/v1/traces`. This endpoint can be customized by editing the `TELEMETRY_ENDPOINT` environment variable.
 
-
 ```py
 from comps import opea_telemetry
+
+
 @opea_telemetry
 async def your_async_func():
     pass
+
 
 @opea_telemetry
 def your_sync_func():
