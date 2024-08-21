@@ -3,25 +3,26 @@
 
 import os
 
-from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
+from langsmith import traceable  # type: ignore
 
-from langsmith import traceable # type: ignore
 from comps import (
-    EmbedDoc,
     CustomLogger,
+    EmbedDoc,
     EmbedMultimodalDoc,
+    MultimodalDoc,
     ServiceType,
     TextDoc,
     TextImageDoc,
-    MultimodalDoc,
     opea_microservices,
     register_microservice,
 )
+from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
 
 logger = CustomLogger("local_multimodal_embedding")
 logflag = os.getenv("LOGFLAG", False)
 
 port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6600))
+
 
 @register_microservice(
     name="opea_service@local_multimodal_embedding",
@@ -32,7 +33,6 @@ port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6600))
     input_datatype=MultimodalDoc,
     output_datatype=EmbedMultimodalDoc,
 )
-
 @traceable(run_type="embedding")
 def embedding(input: MultimodalDoc) -> EmbedDoc:
     if logflag:
@@ -50,10 +50,11 @@ def embedding(input: MultimodalDoc) -> EmbedDoc:
         res = EmbedMultimodalDoc(text=input.text.text, url=input.image.url, embedding=embed_vector)
     else:
         raise ValueError("Invalid input type")
-    
+
     if logflag:
         logger.info(res)
     return res
+
 
 if __name__ == "__main__":
     embeddings = BridgeTowerEmbedding()

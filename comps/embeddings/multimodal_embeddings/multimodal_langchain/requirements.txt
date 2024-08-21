@@ -7,9 +7,9 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
-transformers
+pydantic==2.8.2
 shortuuid
-uvicorn
 torch
 torchvision
-pydantic==2.8.2
+transformers
+uvicorn

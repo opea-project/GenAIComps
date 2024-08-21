@@ -74,7 +74,7 @@ function validate_microservice_image_text_pair_embedding() {
         -X POST \
         -H "Content-Type: application/json" \
         -d '{"text": {"text" : "This is some sample text."}, "image" : {"url": "https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true"}}')
-        
+
     if [[ $result == *"embedding"* ]]; then
         echo "Result correct."
     else
