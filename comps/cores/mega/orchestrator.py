@@ -144,8 +144,8 @@ class ServiceOrchestrator(DAG):
             llm_parameters_dict = llm_parameters.dict()
 
             for field, value in llm_parameters_dict.items():
-            if inputs.get(field) != value:
-                inputs[field] = value
+                if inputs.get(field) != value:
+                    inputs[field] = value
             # Still leave to sync requests.post for StreamingResponse
 
             response = requests.post(
