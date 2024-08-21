@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList
@@ -18,6 +18,14 @@ class TopologyInfo:
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str
+
+
+class ImageDoc(BaseDoc):
+    image_path: str
+
+
+class TextImageDoc(BaseDoc):
+    doc: Tuple[Union[TextDoc, ImageDoc]]
 
 
 class Base64ByteStrDoc(BaseDoc):
@@ -41,6 +49,7 @@ class EmbedDoc(BaseDoc):
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
+    constraints: dict = None
 
 
 class Audio2TextDoc(AudioDoc):
@@ -62,6 +71,16 @@ class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
     initial_query: str
     top_n: int = 1
+
+    class Config:
+        json_encoders = {np.ndarray: lambda x: x.tolist()}
+
+
+class SearchedMultimodalDoc(BaseDoc):
+    retrieved_docs: List[TextImageDoc]
+    initial_query: str
+    top_n: int = 1
+    metadata: Optional[List[Dict]] = None
 
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
