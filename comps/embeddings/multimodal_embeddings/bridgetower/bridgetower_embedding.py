@@ -1,50 +1,55 @@
-from typing import Any, Dict, List, Optional
-from langchain_core.embeddings import Embeddings
-from langchain_core.pydantic_v1 import (
-    BaseModel, Extra
-)
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
-from .bridgetower_custom import BridgeTowerTextFeatureExtractor, BridgeTowerForITC
-from transformers import BridgeTowerProcessor
+from typing import Any, Dict, List, Optional
+
 import torch
-from PIL import Image
-from torchvision.io import read_image #, ImageReadMode
 import torchvision.transforms.functional as transform
+from langchain_core.embeddings import Embeddings
+from langchain_core.pydantic_v1 import BaseModel, Extra
+from PIL import Image
+from torchvision.io import read_image  # , ImageReadMode
+from transformers import BridgeTowerProcessor
+
+from .bridgetower_custom import BridgeTowerForITC, BridgeTowerTextFeatureExtractor
 
 
 class BridgeTowerEmbedding(BaseModel, Embeddings):
-    """ BridgeTower embedding model """
+    """BridgeTower embedding model."""
+
     model_name: str = "BridgeTower/bridgetower-large-itm-mlm-itc"
     device: str = "cpu"
-    TEXT_MODEL : Any
+    TEXT_MODEL: Any
     PROCESSOR: Any
     MODEL: Any
 
     def __init__(self, **kwargs: Any):
-        """Initialize the BridgeTowerEmbedding class"""
+        """Initialize the BridgeTowerEmbedding class."""
         super().__init__(**kwargs)
 
-        if 'device' in kwargs:
-            if kwargs['device'] == 'hpu':
-                try: 
+        if "device" in kwargs:
+            if kwargs["device"] == "hpu":
+                try:
                     import habana_frameworks.torch.core as htcore
+
                     self.device = torch.device("hpu")
-                except ImportModuleError :  # type: ignore
-                    self.device = 'cpu'
-            elif kwargs['device'] == 'gpu':
+                except ImportModuleError:  # type: ignore
+                    self.device = "cpu"
+            elif kwargs["device"] == "gpu":
                 if torch.cuda.is_available():
-                    self.device = 'cuda'
+                    self.device = "cuda"
             else:
-                self.device = 'cpu'
-                
+                self.device = "cpu"
+
         self.TEXT_MODEL = BridgeTowerTextFeatureExtractor.from_pretrained(self.model_name).to(self.device)
         self.PROCESSOR = BridgeTowerProcessor.from_pretrained(self.model_name)
         self.MODEL = BridgeTowerForITC.from_pretrained(self.model_name).to(self.device)
 
     class Config:
         """Configuration for this pydantic object."""
+
         extra = Extra.forbid
-    
+
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """Embed a list of documents using BridgeTower.
 
@@ -71,7 +76,7 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
         """
         return self.embed_documents([text])[0]
 
-    def embed_image_text_pairs(self, texts: List[str], images: list[Image], batch_size=2) -> List[List[float]]: # type: ignore
+    def embed_image_text_pairs(self, texts: List[str], images: list[Image], batch_size=2) -> List[List[float]]:  # type: ignore
         """Embed a list of image-text pairs using BridgeTower.
 
         Args:
@@ -83,7 +88,7 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
         """
 
         # the length of texts must be equal to the length of images
-        assert len(texts)==len(images), "the len of captions should be equal to the len of images"
+        assert len(texts) == len(images), "the len of captions should be equal to the len of images"
 
         image_list = []
         text_list = []
@@ -93,31 +98,29 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
             # img = read_image(path_to_img, mode=ImageReadMode.RGB)
             # img = transform.to_pil_image(img)
 
-            img = pil_img.convert('RGB')
+            img = pil_img.convert("RGB")
             image_list.append(img)
             text_list.append(text)
             if len(text_list) == batch_size:
-                batch = self.PROCESSOR(image_list, text_list, 
-                                       return_tensors='pt', max_length=200, 
-                                       padding='max_length', truncation=True
-                                       ).to(self.device)
+                batch = self.PROCESSOR(
+                    image_list, text_list, return_tensors="pt", max_length=200, padding="max_length", truncation=True
+                ).to(self.device)
                 with torch.no_grad():
                     batch_embeddings = self.MODEL(**batch, output_hidden_states=True)
 
                 for i in range(len(text_list)):
-                    embeddings.append(batch_embeddings.logits[i,2,:].detach().cpu().numpy().tolist())
+                    embeddings.append(batch_embeddings.logits[i, 2, :].detach().cpu().numpy().tolist())
                 image_list = []
                 text_list = []
         # embedding the remaining
         if len(text_list) > 0:
-            batch = self.PROCESSOR(image_list, text_list, 
-                                   return_tensors='pt', max_length=100, 
-                                   padding='max_length', truncation=True
-                                   ).to(self.device)
+            batch = self.PROCESSOR(
+                image_list, text_list, return_tensors="pt", max_length=100, padding="max_length", truncation=True
+            ).to(self.device)
             with torch.no_grad():
                 batch_embeddings = self.MODEL(**batch, output_hidden_states=True)
             for i in range(len(text_list)):
-                embeddings.append(batch_embeddings.logits[i,2,:].detach().cpu().numpy().tolist())
+                embeddings.append(batch_embeddings.logits[i, 2, :].detach().cpu().numpy().tolist())
             image_list = []
             text_list = []
         return embeddings

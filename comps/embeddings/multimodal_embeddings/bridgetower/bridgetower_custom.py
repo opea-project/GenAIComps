@@ -1,17 +1,22 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from collections import OrderedDict
 from typing import List, Optional, Tuple, Union
 
 import torch
-from torch import nn
 import torch.nn.functional as F
-
+from torch import nn
 from torchvision import transforms
-from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
-
+from torchvision.transforms import CenterCrop, Compose, Normalize, Resize, ToTensor
+from transformers import BridgeTowerModel, BridgeTowerPreTrainedModel
 from transformers.modeling_outputs import SequenceClassifierOutput
+from transformers.models.bridgetower.modeling_bridgetower import (
+    BridgeTowerContrastiveHead,
+    BridgeTowerTextModel,
+    BridgeTowerVisionModel,
+)
 
-from transformers import BridgeTowerPreTrainedModel, BridgeTowerModel
-from transformers.models.bridgetower.modeling_bridgetower import BridgeTowerTextModel, BridgeTowerVisionModel, BridgeTowerContrastiveHead
 
 class LayerNorm(nn.LayerNorm):
     """Subclass torch's LayerNorm to handle fp16."""
@@ -21,35 +26,36 @@ class LayerNorm(nn.LayerNorm):
         ret = super().forward(x.type(torch.float32))
         return ret.type(orig_type)
 
+
 class BridgeTowerImageFeatureExtractor(nn.Module):
     def __init__(
-            self, 
-            patch_size=14, 
-            width=1024, 
-            resolution_after=294, 
-            ckpt_path=None,
-        ):
+        self,
+        patch_size=14,
+        width=1024,
+        resolution_after=294,
+        ckpt_path=None,
+    ):
         super().__init__()
 
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=width, kernel_size=patch_size, stride=patch_size, bias=False)
 
-        scale = width ** -0.5
+        scale = width**-0.5
         self.class_embedding = nn.Parameter(scale * torch.randn(width))
         self.positional_embedding = nn.Parameter(scale * torch.randn((resolution_after // patch_size) ** 2 + 1, width))
         self.ln_pre = LayerNorm(width)
 
         if ckpt_path is not None:
             sd = torch.load(ckpt_path)
-            if 'state_dict' in sd:
+            if "state_dict" in sd:
                 sd = sd["state_dict"]
-            print(f'Loading feature extractor checkpoint from {ckpt_path}')
+            print(f"Loading feature extractor checkpoint from {ckpt_path}")
             self.load_state_dict(sd)
 
     def forward(self, x: torch.Tensor):
         x = self.conv1(x)  # shape = [*, width, grid, grid]
         x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
         x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
-        t=self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device)
+        t = self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device)
         x = torch.cat([t, x], dim=1)  # shape = [*, grid ** 2 + 1, width]
         x = x + self.positional_embedding.to(x.dtype)
         x = self.ln_pre(x)
@@ -75,6 +81,7 @@ class _BridgeTowerTextModelWrapper(nn.Module):
     def forward(self, **kwargs):
         return self.text_model(**kwargs)
 
+
 class _BridgeTowerVisionModelWrapper(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -84,7 +91,10 @@ class _BridgeTowerVisionModelWrapper(nn.Module):
             self.cross_modal_image_transform = nn.Linear(config.vision_config.hidden_size, config.hidden_size)
         else:
             self.cross_modal_image_transform = nn.ModuleList(
-                [nn.Linear(config.vision_config.hidden_size, config.hidden_size) for _ in range(config.num_hidden_layers)]
+                [
+                    nn.Linear(config.vision_config.hidden_size, config.hidden_size)
+                    for _ in range(config.num_hidden_layers)
+                ]
             )
         self.token_type_embeddings = nn.Embedding(2, config.hidden_size)
 
@@ -113,7 +123,7 @@ class BridgeTowerVisionFeatureExtractor(BridgeTowerPreTrainedModel):
     ):
 
         outputs = self.bridgetower(input_ids=input_ids, attention_mask=attention_mask, output_hidden_states=True)
-        final_hidden_cls = outputs.hidden_states[-1][:,0,:]
+        final_hidden_cls = outputs.hidden_states[-1][:, 0, :]
 
         image_embeds_with_ln = self.bridgetower.vision_model.visual.forward_post(final_hidden_cls)
         image_token_type_embeddings = self.bridgetower.token_type_embeddings(
@@ -148,7 +158,7 @@ class BridgeTowerTextFeatureExtractor(BridgeTowerPreTrainedModel):
     ):
 
         outputs = self.bridgetower(input_ids=input_ids, attention_mask=attention_mask, output_hidden_states=True)
-        final_hidden_cls = outputs.hidden_states[-1][:,0,:]
+        final_hidden_cls = outputs.hidden_states[-1][:, 0, :]
         final_hidden_cls = F.normalize(self.itc_text_head(final_hidden_cls), dim=-1, p=2)
 
         return final_hidden_cls
@@ -183,7 +193,7 @@ class BridgeTowerForITC(BridgeTowerPreTrainedModel):
         labels: Optional[torch.LongTensor] = None,
     ) -> Union[SequenceClassifierOutput, Tuple[torch.FloatTensor]]:
 
-        assert output_hidden_states, 'output_hidden_states should be set to True for BridgeTowerForITC'
+        assert output_hidden_states, "output_hidden_states should be set to True for BridgeTowerForITC"
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         outputs = self.bridgetower(
@@ -213,12 +223,11 @@ class BridgeTowerForITC(BridgeTowerPreTrainedModel):
         ).expand_as(image_embeds_with_ln)
 
         final_hidden_img = (
-            self.bridgetower.cross_modal_image_transform(image_embeds_with_ln)
-            + image_token_type_embeddings
+            self.bridgetower.cross_modal_image_transform(image_embeds_with_ln) + image_token_type_embeddings
         )
 
-        final_hidden_txt = F.normalize(self.itc_text_head(final_hidden_txt[:,0,:]), dim=-1, p=2)
-        final_hidden_img = F.normalize(self.itc_image_head(final_hidden_img[:,0,:]), dim=-1, p=2)
+        final_hidden_txt = F.normalize(self.itc_text_head(final_hidden_txt[:, 0, :]), dim=-1, p=2)
+        final_hidden_img = F.normalize(self.itc_image_head(final_hidden_img[:, 0, :]), dim=-1, p=2)
         final_hidden_cross = F.normalize(self.itc_cross_modal_head(pooler_output), dim=-1, p=2)
 
         logits = torch.stack([final_hidden_txt, final_hidden_img, final_hidden_cross], dim=-2)

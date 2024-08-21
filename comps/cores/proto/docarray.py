@@ -5,9 +5,8 @@ from typing import Dict, List, Optional, Union, Tuple
 
 import numpy as np
 from docarray import BaseDoc, DocList
-from docarray.documents import AudioDoc
-from docarray.typing import AudioUrl, ImageUrl
 from docarray.documents import AudioDoc, VideoDoc
+from docarray.typing import AudioUrl, ImageUrl
 from pydantic import Field, conint, conlist, field_validator
 
 
@@ -19,6 +18,7 @@ class TopologyInfo:
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str = None
+
 
 class ImageDoc(BaseDoc):
     url: Optional[ImageUrl] = Field(
@@ -35,7 +35,13 @@ class TextImageDoc(BaseDoc):
     image: ImageDoc = None
     text: TextDoc = None
 
-MultimodalDoc = Union[TextDoc, ImageDoc, TextImageDoc, ]
+
+MultimodalDoc = Union[
+    TextDoc,
+    ImageDoc,
+    TextImageDoc,
+]
+
 
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
@@ -59,6 +65,7 @@ class EmbedDoc(BaseDoc):
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
 
+
 class EmbedMultimodalDoc(EmbedDoc):
     # extend EmbedDoc with these attributes
     url: Optional[ImageUrl] = Field(
@@ -69,6 +76,7 @@ class EmbedMultimodalDoc(EmbedDoc):
         description="The base64-based encoding of the image.",
         default=None,
     )
+
 
 class Audio2TextDoc(AudioDoc):
     url: Optional[AudioUrl] = Field(
@@ -93,7 +101,7 @@ class SearchedDoc(BaseDoc):
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
 
-        
+
 class GeneratedDoc(BaseDoc):
     text: str
     prompt: str
