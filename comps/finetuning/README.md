@@ -39,7 +39,6 @@ ray start --address='${head_node_ip}:6379'
 
 ```bash
 export HF_TOKEN=${your_huggingface_token}
-export RAY_ADDRESS="ray://${ray_head_ip}:10001"
 python finetuning_service.py
 ```
 
@@ -70,6 +69,9 @@ docker run -d --name="finetuning-server" -p 8001:8001 --runtime=runc --ipc=host 
 Assuming a training file `alpaca_data.json` is uploaded, it can be downloaded in [here](https://github.com/tatsu-lab/stanford_alpaca/blob/main/alpaca_data.json), the following script launches a finetuning job using `meta-llama/Llama-2-7b-chat-hf` as base model:
 
 ```bash
+# upload a training file
+curl http://${your_ip}:8001/v1/finetune/upload_training_files -X POST -H "Content-Type: multipart/form-data" -F "files=@./alpaca_data.json"
+
 # create a finetuning job
 curl http://${your_ip}:8001/v1/fine_tuning/jobs \
   -X POST \
@@ -90,5 +92,8 @@ curl http://localhost:8001/v1/fine_tuning/jobs/retrieve   -X POST   -H "Content-
 
 curl http://localhost:8001/v1/fine_tuning/jobs/cancel   -X POST   -H "Content-Type: application/json"   -d '{
     "fine_tuning_job_id": ${fine_tuning_job_id}}'
+
+# list checkpoints of a finetuning job
+curl http://${your_ip}:8001/v1/finetune/list_checkpoints -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": ${fine_tuning_job_id}}'
 
 ```

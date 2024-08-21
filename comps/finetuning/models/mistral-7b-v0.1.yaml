@@ -4,7 +4,6 @@
 General:
   base_model: mistralai/Mistral-7B-v0.1
   gpt_base_model: false
-  output_dir: /tmp/llm-ray/output
   save_strategy: no
   config:
     trust_remote_code: false

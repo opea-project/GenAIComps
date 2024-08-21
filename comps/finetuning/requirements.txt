@@ -10,6 +10,7 @@ peft
 prometheus-fastapi-instrumentator
 pydantic
 pydantic_yaml
+python-multipart
 pyyaml
 ray[all]
 requests

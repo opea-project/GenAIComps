@@ -4,7 +4,6 @@
 General:
   base_model: meta-llama/Llama-2-7b-chat-hf
   gpt_base_model: false
-  output_dir: /tmp/llm-ray/output
   save_strategy: no
   config:
     trust_remote_code: false

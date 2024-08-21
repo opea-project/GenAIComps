@@ -5,7 +5,8 @@ import os
 import random
 import time
 import uuid
-from typing import Any, Dict, List, Set
+from pathlib import Path
+from typing import Dict
 
 from fastapi import BackgroundTasks, HTTPException
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
@@ -99,7 +100,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
         status="running",
         seed=random.randint(0, 1000) if request.seed is None else request.seed,
     )
-
+    finetune_config.General.output_dir = os.path.join(JOBS_PATH, job.id)
     finetune_config_file = f"{JOBS_PATH}/{job.id}.yaml"
     to_yaml_file(finetune_config_file, finetune_config)
 
@@ -151,3 +152,31 @@ def handle_cancel_finetuning_job(request: FineTuningJobIDRequest):
     job = running_finetuning_jobs.get(fine_tuning_job_id)
     job.status = "cancelled"
     return job
+
+
+async def save_content_to_local_disk(save_path: str, content):
+    save_path = Path(save_path)
+    try:
+        if isinstance(content, str):
+            with open(save_path, "w", encoding="utf-8") as file:
+                file.write(content)
+        else:
+            with save_path.open("wb") as fout:
+                content = await content.read()
+                fout.write(content)
+    except Exception as e:
+        print(f"Write file failed. Exception: {e}")
+        raise Exception(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
+
+
+def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
+    fine_tuning_job_id = request.fine_tuning_job_id
+
+    job = running_finetuning_jobs.get(fine_tuning_job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
+    output_dir = os.path.join(JOBS_PATH, job.id)
+    checkpoints = []
+    if os.path.exists(output_dir):
+        checkpoints = os.listdir(output_dir)
+    return checkpoints
