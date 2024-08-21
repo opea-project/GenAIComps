@@ -11,8 +11,13 @@ from fastapi import BackgroundTasks, HTTPException
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
+from comps.cores.proto.api_protocol import (
+    FineTuningJob,
+    FineTuningJobIDRequest,
+    FineTuningJobList,
+    FineTuningJobsRequest,
+)
 from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
-from comps.finetuning.models import FineTuningJob, FineTuningJobList, FineTuningJobsRequest
 
 MODEL_CONFIG_FILE_MAP = {
     "meta-llama/Llama-2-7b-chat-hf": "./models/llama-2-7b-chat-hf.yaml",
@@ -20,6 +25,12 @@ MODEL_CONFIG_FILE_MAP = {
 }
 
 DATASET_BASE_PATH = "datasets"
+JOBS_PATH = "jobs"
+if not os.path.exists(DATASET_BASE_PATH):
+    os.mkdir(DATASET_BASE_PATH)
+
+if not os.path.exists(JOBS_PATH):
+    os.mkdir(JOBS_PATH)
 
 FineTuningJobID = str
 CHECK_JOB_STATUS_INTERVAL = 5  # Check every 5 secs
@@ -61,6 +72,17 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
         finetune_config = parse_yaml_raw_as(FinetuneConfig, f)
 
     finetune_config.Dataset.train_file = train_file_path
+
+    if request.hyperparameters is not None:
+        if request.hyperparameters.epochs != "auto":
+            finetune_config.Training.epochs = request.hyperparameters.epochs
+
+        if request.hyperparameters.batch_size != "auto":
+            finetune_config.Training.batch_size = request.hyperparameters.batch_size
+
+        if request.hyperparameters.learning_rate_multiplier != "auto":
+            finetune_config.Training.learning_rate = request.hyperparameters.learning_rate_multiplier
+
     if os.getenv("HF_TOKEN", None):
         finetune_config.General.config.use_auth_token = os.getenv("HF_TOKEN", None)
 
@@ -75,11 +97,10 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
             "learning_rate_multiplier": finetune_config.Training.learning_rate,
         },
         status="running",
-        # TODO: Add seed in finetune config
-        seed=random.randint(0, 1000),
+        seed=random.randint(0, 1000) if request.seed is None else request.seed,
     )
 
-    finetune_config_file = f"jobs/{job.id}.yaml"
+    finetune_config_file = f"{JOBS_PATH}/{job.id}.yaml"
     to_yaml_file(finetune_config_file, finetune_config)
 
     global ray_client
@@ -107,14 +128,18 @@ def handle_list_finetuning_jobs():
     return finetuning_jobs_list
 
 
-def handle_retrieve_finetuning_job(fine_tuning_job_id):
+def handle_retrieve_finetuning_job(request: FineTuningJobIDRequest):
+    fine_tuning_job_id = request.fine_tuning_job_id
+
     job = running_finetuning_jobs.get(fine_tuning_job_id)
     if job is None:
         raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
     return job
 
 
-def handle_cancel_finetuning_job(fine_tuning_job_id):
+def handle_cancel_finetuning_job(request: FineTuningJobIDRequest):
+    fine_tuning_job_id = request.fine_tuning_job_id
+
     ray_job_id = finetuning_job_to_ray_job.get(fine_tuning_job_id)
     if ray_job_id is None:
         raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
@@ -126,15 +151,3 @@ def handle_cancel_finetuning_job(fine_tuning_job_id):
     job = running_finetuning_jobs.get(fine_tuning_job_id)
     job.status = "cancelled"
     return job
-
-
-# def cancel_all_jobs():
-#     global ray_client
-#     ray_client = JobSubmissionClient() if ray_client is None else ray_client
-#     # stop all jobs
-#     for job_id in finetuning_job_to_ray_job.values():
-#         ray_client.stop_job(job_id)
-
-#     for job_id in running_finetuning_jobs:
-#         running_finetuning_jobs[job_id].status = "cancelled"
-#     return running_finetuning_jobs
