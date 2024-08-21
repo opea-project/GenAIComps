@@ -1,11 +1,10 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
-
 import time
-
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
+from fastapi import FastAPI, HTTPException
 
 from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
 
@@ -31,6 +30,9 @@ class ScoreDoc(BaseDoc):
 @register_statistics(names=["opea_service@factuality_predictionguard"])
 def factuality_guard(input: FactualityDoc) -> ScoreDoc:
     start = time.time()
+
+    if not input.reference.strip() or not input.text.strip():
+        raise HTTPException(status_code=400, detail="Reference and text cannot be empty")
 
     client = PredictionGuard()
 
