@@ -13,7 +13,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       MMEI_EMBEDDING_ENDPOINT: ${MMEI_EMBEDDING_ENDPOINT}
-      MM_EMBEDDING_MS_PORT: ${MM_EMBEDDING_PORT_MICROSERVICE}
+      MM_EMBEDDING_PORT_MICROSERVICE: ${MM_EMBEDDING_PORT_MICROSERVICE}
     restart: unless-stopped
 
 networks:
