@@ -132,57 +132,53 @@ class ServiceOrchestrator(DAG):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
 
-        llm_parameters_dict = llm_parameters.dict()
-        for field, value in llm_parameters_dict.items():
-            if inputs.get(field) != value:
-                inputs[field] = value
-
         if (
             self.services[cur_node].service_type == ServiceType.LLM
             or self.services[cur_node].service_type == ServiceType.LVM
-        ) and llm_parameters.streaming:
-            llm_parameters_dict = llm_parameters.dict()
-
-            for field, value in llm_parameters_dict.items():
-                if inputs.get(field) != value:
-                    inputs[field] = value
-            # Still leave to sync requests.post for StreamingResponse
-
-            response = requests.post(
-                url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
-            )
-            downstream = runtime_graph.downstream(cur_node)
-            if downstream:
-                assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
-                cur_node = downstream[0]
-                hitted_ends = [".", "?", "!", "。", "，", "！"]
-                downstream_endpoint = self.services[downstream[0]].endpoint_path
-
-            def generate():
-                if response:
-                    buffered_chunk_str = ""
-                    for chunk in response.iter_content(chunk_size=None):
-                        if chunk:
-                            if downstream:
-                                chunk = chunk.decode("utf-8")
-                                buffered_chunk_str += self.extract_chunk_str(chunk)
-                                is_last = chunk.endswith("[DONE]\n\n")
-                                if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
-                                    res = requests.post(
-                                        url=downstream_endpoint,
-                                        data=json.dumps({"text": buffered_chunk_str}),
-                                        proxies={"http": None},
-                                    )
-                                    res_json = res.json()
-                                    if "text" in res_json:
-                                        res_txt = res_json["text"]
-                                    else:
-                                        raise Exception("Other response types not supported yet!")
-                                    buffered_chunk_str = ""  # clear
-                                    yield from self.token_generator(res_txt, is_last=is_last)
-                            else:
-                                yield chunk
-
+        ):  
+            if llm_parameters.streaming:
+                llm_parameters_dict = llm_parameters.dict()
+            
+                for field, value in llm_parameters_dict.items():
+                    if inputs.get(field) != value:
+                        inputs[field] = value
+                # Still leave to sync requests.post for StreamingResponse
+            
+                response = requests.post(
+                    url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
+                )
+                downstream = runtime_graph.downstream(cur_node)
+                if downstream:
+                    assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
+                    cur_node = downstream[0]
+                    hitted_ends = [".", "?", "!", "。", "，", "！"]
+                    downstream_endpoint = self.services[downstream[0]].endpoint_path
+            
+                def generate():
+                    if response:
+                        buffered_chunk_str = ""
+                        for chunk in response.iter_content(chunk_size=None):
+                            if chunk:
+                                if downstream:
+                                    chunk = chunk.decode("utf-8")
+                                    buffered_chunk_str += self.extract_chunk_str(chunk)
+                                    is_last = chunk.endswith("[DONE]\n\n")
+                                    if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
+                                        res = requests.post(
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            proxies={"http": None},
+                                        )
+                                        res_json = res.json()
+                                        if "text" in res_json:
+                                            res_txt = res_json["text"]
+                                        else:
+                                            raise Exception("Other response types not supported yet!")
+                                        buffered_chunk_str = ""  # clear
+                                        yield from self.token_generator(res_txt, is_last=is_last)
+                                else:
+                                    yield chunk
+                
                 return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
             else:
                 async with session.post(endpoint, json=inputs) as response:
