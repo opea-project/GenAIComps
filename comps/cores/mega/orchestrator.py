@@ -135,15 +135,15 @@ class ServiceOrchestrator(DAG):
         if (
             self.services[cur_node].service_type == ServiceType.LLM
             or self.services[cur_node].service_type == ServiceType.LVM
-        ):  
+        ):
             if llm_parameters.streaming:
                 llm_parameters_dict = llm_parameters.dict()
-            
+
                 for field, value in llm_parameters_dict.items():
                     if inputs.get(field) != value:
                         inputs[field] = value
                 # Still leave to sync requests.post for StreamingResponse
-            
+
                 response = requests.post(
                     url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
                 )
@@ -153,7 +153,7 @@ class ServiceOrchestrator(DAG):
                     cur_node = downstream[0]
                     hitted_ends = [".", "?", "!", "。", "，", "！"]
                     downstream_endpoint = self.services[downstream[0]].endpoint_path
-            
+
                 def generate():
                     if response:
                         buffered_chunk_str = ""
@@ -178,7 +178,7 @@ class ServiceOrchestrator(DAG):
                                         yield from self.token_generator(res_txt, is_last=is_last)
                                 else:
                                     yield chunk
-                
+
                 return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
             else:
                 async with session.post(endpoint, json=inputs) as response:
