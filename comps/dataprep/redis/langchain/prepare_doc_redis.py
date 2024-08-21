@@ -196,7 +196,7 @@ def ingest_data_to_redis(doc_path: DocPath):
 
     content = document_loader(path)
     if logflag:
-        logger.info(f"[ ingest data ] file content loaded")
+        logger.info("[ ingest data ] file content loaded")
 
     chunks = text_splitter.split_text(content)
     if doc_path.process_table and path.endswith(".pdf"):
@@ -344,13 +344,13 @@ async def rag_get_file_structure():
     offset = 0
     file_list = []
 
-    # check index existance
+    # check index existence
     res = check_index_existance(r.ft(KEY_INDEX_NAME))
     if not res:
         if logflag:
             logger.info(f"[ get ] index {KEY_INDEX_NAME} does not exist")
         return file_list
-    
+
     while True:
         response = r.execute_command("FT.SEARCH", KEY_INDEX_NAME, "*", "LIMIT", offset, offset + SEARCH_BATCH_SIZE)
         # no doc retrieved
