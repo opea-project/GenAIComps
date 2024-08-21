@@ -49,9 +49,9 @@ function start_service() {
     cd comps/embeddings/multimodal_embeddings/bridgetower/docker/
     docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
     cd $WORKPATH
-    cd multimodal_langchain/docker
+    cd comps/embeddings/multimodal_embeddings/multimodal_langchain/docker/
     docker compose -f docker_compose_multimodal_embedding.yaml up -d
-    sleep 3m
+    sleep 2m
 }
 function validate_microservice_text_embedding() {
     result=$(http_proxy="" curl http://${ip_address}:$MM_EMBEDDING_PORT_MICROSERVICE/v1/embeddings \
