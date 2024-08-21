@@ -107,7 +107,6 @@ def ingest_data_to_milvus(doc_path: DocPath):
     if logflag:
         logger.info("[ ingest data ] Done preprocessing. Created ", len(chunks), " chunks of the original file.")
 
-
     # Create vectorstore
     if MOSEC_EMBEDDING_ENDPOINT:
         # create embeddings using MOSEC endpoint service

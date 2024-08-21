@@ -103,7 +103,6 @@ def ingest_doc_to_pgvector(doc_path: DocPath):
 
     content = document_loader(doc_path)
 
-
     structured_types = [".xlsx", ".csv", ".json", "jsonl"]
     _, ext = os.path.splitext(doc_path)
 
