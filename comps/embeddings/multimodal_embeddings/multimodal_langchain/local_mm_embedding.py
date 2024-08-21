@@ -21,7 +21,7 @@ from comps import (
 logger = CustomLogger("local_multimodal_embedding")
 logflag = os.getenv("LOGFLAG", False)
 
-port = int(os.getenv("MM_EMBEDDING_MS_PORT", 6600))
+port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6600))
 
 @register_microservice(
     name="opea_service@local_multimodal_embedding",

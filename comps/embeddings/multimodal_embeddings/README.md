@@ -74,7 +74,7 @@ Start the embedding service with MMEI_EMBEDDING_ENDPOINT.
 cd multimodal_langchain
 export MMEI_EMBEDDING_ENDPOINT="http://localhost:$your_mmei_port/v1/encode"
 export your_embedding_port_microservice=6600
-export MM_EMBEDDING_MS_PORT=$your_embedding_port_microservice
+export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 python mm_embedding_mmei.py
 ```
 
@@ -84,46 +84,90 @@ python mm_embedding_mmei.py
 # run with langchain
 cd multimodal_langchain
 export your_embedding_port_microservice=6600
-export MM_EMBEDDING_MS_PORT=$your_embedding_port_microservice
+export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 python local_mm_embedding.py
 ```
-## 🚀2. Start Microservice with Docker 
+## 🚀2. Start Microservice with Docker (Option 2)
 
-### 1.2 Build Docker Image
+### 2.1 Start Multimodal Embedding Inference (MMEI) Service
+
+First, you need to start a MMEI service. 
+
+```bash
+export your_mmei_port=8080
+export EMBEDDER_PORT=$your_mmei_port
+```
+
+Currently, we employ [**BridgeTower**](https://huggingface.co/BridgeTower/bridgetower-large-itm-mlm-gaudi) model for MMEI and provide two ways to start MMEI: 
+1. Start MMEI on Gaudi2 HPU
+2. Start MMEI on Xeon CPU (if Gaudi2 HPU is not available)
+
+* Gaudi2 HPU
+
+```bash
+cd ../../..
+docker build -t opea/bridgetower-embedder:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/bridgetower/docker/Dockerfile_hpu .
+cd comps/embeddings/multimodal_embeddings/bridgetower/docker/
+docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
+```
+
+* Xeon CPU
+
+```bash
+cd ../../..
+docker build -t opea/bridgetower-embedder:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/bridgetower/docker/Dockerfile .
+cd comps/embeddings/multimodal_embeddings/bridgetower/docker/
+docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
+```
+
+Then you need to test your MMEI service using the following commands:
+
+```bash
+curl http://localhost:$your_mmei_port/v1/encode \
+     -X POST \
+     -H "Content-Type:application/json" \
+     -d '{"text":"This is example"}'
+```
+
+Export the `MMEI_EMBEDDING_ENDPOINT` for later usage:
+
+```bash
+export ip_address=$(hostname -I | awk '{print $1}')
+export MMEI_EMBEDDING_ENDPOINT="http://$ip_address:$your_mmei_port/v1/encode"
+```
+### 2.2  Build Docker Image
 
 #### Build Langchain Docker 
 
 ```bash
-cd ../../
+cd ../../..
 docker build -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/multimodal_langchain/docker/Dockerfile .
 ```
 
-### 1.4 Run Docker with Docker Compose
+### 2.3 Run Docker with Docker Compose
 
 ```bash
-cd docker
+cd multimodal_langchain/docker
+export your_embedding_port_microservice=6600
+export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 docker compose -f docker_compose_multimodal_embedding.yaml up -d
 ```
 
-## 🚀2. Consume Embedding Service
-
-### 2.1 Check Service Status
-
-```bash
-curl http://localhost:6601/v1/health_check\
-  -X GET \
-  -H 'Content-Type: application/json'
-```
-
+## 🚀3. Consume Embedding Service
 
 ### 2.2 Consume Embedding Service
 
+**Compute a joint embedding of an image-text pair**
 ```bash
-curl -X POST http://0.0.0.0:6601/v1/embeddings \
+curl -X POST http://0.0.0.0:6600/v1/embeddings \
      -H "Content-Type: application/json" \
      -d '{"text": {"text" : "This is some sample text."}, "image" : {"url": "https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true"}}'
- 
-curl -X POST http://0.0.0.0:6601/v1/embeddings \
+```
+
+**Compute an embedding of a text**
+
+```bash
+curl -X POST http://0.0.0.0:6600/v1/embeddings \
      -H "Content-Type: application/json" \
      -d '{"text" : "This is some sample text."}'
 ```
