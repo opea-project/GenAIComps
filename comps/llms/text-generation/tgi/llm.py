@@ -14,8 +14,8 @@ from template import ChatTemplate
 from comps import (
     CustomLogger,
     GeneratedDoc,
-    SearchedDoc,
     LLMParamsDoc,
+    SearchedDoc,
     ServiceType,
     opea_microservices,
     register_microservice,
@@ -55,7 +55,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
 
     if isinstance(input, SearchedDoc):
         if logflag:
-            logger.info(f"[ SearchedDoc ] input from retriever microservice")
+            logger.info("[ SearchedDoc ] input from retriever microservice")
         prompt = input.initial_query
         if input.retrieved_docs:
             if logflag:
@@ -77,6 +77,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             top_p=new_input.top_p,
         )
         if new_input.streaming:
+
             async def stream_generator():
                 chat_response = ""
                 async for text in text_generation:
@@ -100,7 +101,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
 
     elif isinstance(input, LLMParamsDoc):
         if logflag:
-            logger.info(f"[ LLMParamsDoc ] input from rerank microservice")
+            logger.info("[ LLMParamsDoc ] input from rerank microservice")
         prompt = input.query
         if prompt_template:
             if sorted(input_variables) == ["context", "question"]:
@@ -108,7 +109,9 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             elif input_variables == ["question"]:
                 prompt = prompt_template.format(question=input.query)
             else:
-                logger.info(f"[ LLMParamsDoc ] {prompt_template} not used, we only support 2 input variables ['question', 'context']")
+                logger.info(
+                    f"[ LLMParamsDoc ] {prompt_template} not used, we only support 2 input variables ['question', 'context']"
+                )
         else:
             if input.documents:
                 # use rag default template
@@ -148,7 +151,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
 
     else:
         if logflag:
-            logger.info(f"[ ChatCompletionRequest ] input in opea format")
+            logger.info("[ ChatCompletionRequest ] input in opea format")
         client = OpenAI(
             api_key="EMPTY",
             base_url=llm_endpoint + "/v1",
@@ -202,7 +205,9 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                     if input_variables == ["context"]:
                         system_prompt = prompt_template.format(context="\n".join(input.documents))
                     else:
-                        logger.info(f"[ ChatCompletionRequest ] {prompt_template} not used, only support 1 input variables ['context']")
+                        logger.info(
+                            f"[ ChatCompletionRequest ] {prompt_template} not used, only support 1 input variables ['context']"
+                        )
 
                     input.messages.insert(0, {"role": "system", "content": system_prompt})
 
