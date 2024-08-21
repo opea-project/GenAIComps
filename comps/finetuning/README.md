@@ -82,7 +82,7 @@ curl http://${your_ip}:8001/v1/fine_tuning/jobs \
 # list finetuning jobs
 curl http://${your_ip}:8001/v1/fine_tuning/jobs   -X GET
 
-# retrive one finetuning job
+# retrieve one finetuning job
 curl http://localhost:8001/v1/fine_tuning/jobs/retrieve   -X POST   -H "Content-Type: application/json"   -d '{
     "fine_tuning_job_id": ${fine_tuning_job_id}}'
 
