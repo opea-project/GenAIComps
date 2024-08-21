@@ -14,10 +14,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_text_splitters import HTMLHeaderTextSplitter
-from langsmith import traceable
 from pinecone import Pinecone, ServerlessSpec
 
-from comps import DocPath, opea_microservices, opea_telemetry, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, opea_telemetry, register_microservice
 from comps.dataprep.utils import (
     create_upload_folder,
     document_loader,
@@ -30,23 +29,29 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
+logger = CustomLogger("prepare_doc_pinecone")
+logflag = os.getenv("LOGFLAG", False)
+
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 upload_folder = "./uploaded_files/"
 
 
 def check_index_existance():
-    print(f"[ check index existence ] checking {PINECONE_INDEX_NAME}")
+    if logflag:
+        logger.info(f"[ check index existence ] checking {PINECONE_INDEX_NAME}")
     pc = Pinecone(api_key=PINECONE_API_KEY)
     existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
     if PINECONE_INDEX_NAME not in existing_indexes:
-        print("[ check index existence ] index does not exist")
+        if logflag:
+            logger.info("[ check index existence ] index does not exist")
         return None
     else:
         return True
 
 
 def create_index(client):
-    print(f"[ create index ] creating index {PINECONE_INDEX_NAME}")
+    if logflag:
+        logger.info(f"[ create index ] creating index {PINECONE_INDEX_NAME}")
     try:
         client.create_index(
             name=PINECONE_INDEX_NAME,
@@ -54,21 +59,26 @@ def create_index(client):
             metric="cosine",
             spec=ServerlessSpec(cloud="aws", region="us-east-1"),
         )
-        print(f"[ create index ] index {PINECONE_INDEX_NAME} successfully created")
+        if logflag:
+            logger.info(f"[ create index ] index {PINECONE_INDEX_NAME} successfully created")
     except Exception as e:
-        print(f"[ create index ] fail to create index {PINECONE_INDEX_NAME}: {e}")
+        if logflag:
+            logger.info(f"[ create index ] fail to create index {PINECONE_INDEX_NAME}: {e}")
         return False
     return True
 
 
 def drop_index(index_name):
-    print(f"[ drop index ] dropping index {index_name}")
+    if logflag:
+        logger.info(f"[ drop index ] dropping index {index_name}")
     pc = Pinecone(api_key=PINECONE_API_KEY)
     try:
         pc.delete_index(index_name)
-        print(f"[ drop index ] index {index_name} deleted")
+        if logflag:
+            logger.info(f"[ drop index ] index {index_name} deleted")
     except Exception as e:
-        print(f"[ drop index ] index {index_name} delete failed: {e}")
+        if logflag:
+            logger.info(f"[ drop index ] index {index_name} delete failed: {e}")
         return False
     return True
 
@@ -76,7 +86,8 @@ def drop_index(index_name):
 def ingest_data_to_pinecone(doc_path: DocPath):
     """Ingest document to Pinecone."""
     path = doc_path.path
-    print(f"Parsing document {path}.")
+    if logflag:
+        logger.info(f"Parsing document {path}.")
 
     if path.endswith(".html"):
         headers_to_split_on = [
@@ -98,7 +109,8 @@ def ingest_data_to_pinecone(doc_path: DocPath):
     if doc_path.process_table and path.endswith(".pdf"):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
         chunks = chunks + table_chunks
-    print("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
+    if logflag:
+        logger.info("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
 
     # Create vectorstore
     if tei_embedding_endpoint:
@@ -114,7 +126,8 @@ def ingest_data_to_pinecone(doc_path: DocPath):
     if not check_index_existance():
         # Creating the index
         create_index(pc)
-        print("Successfully created the index", PINECONE_INDEX_NAME)
+        if logflag:
+            logger.info("Successfully created the index", PINECONE_INDEX_NAME)
 
     # Batch size
     batch_size = 32
@@ -130,7 +143,8 @@ def ingest_data_to_pinecone(doc_path: DocPath):
             embedding=embedder,
             index_name=PINECONE_INDEX_NAME,
         )
-        print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
+        if logflag:
+            logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
     # store file_ids into index file-keys
     pc = Pinecone(api_key=PINECONE_API_KEY)
@@ -151,15 +165,18 @@ async def ingest_link_to_pinecone(link_list: List[str]):
     if not check_index_existance():
         # Creating the index
         create_index(pc)
-        print("Successfully created the index", PINECONE_INDEX_NAME)
+        if logflag:
+            logger.info("Successfully created the index", PINECONE_INDEX_NAME)
 
     # save link contents and doc_ids one by one
     for link in link_list:
         content = parse_html([link])[0][0]
-        print(f"[ ingest link ] link: {link} content: {content}")
+        if logflag:
+            logger.info(f"[ ingest link ] link: {link} content: {content}")
         encoded_link = encode_filename(link)
         save_path = upload_folder + encoded_link + ".txt"
-        print(f"[ ingest link ] save_path: {save_path}")
+        if logflag:
+            logger.info(f"[ ingest link ] save_path: {save_path}")
         await save_content_to_local_disk(save_path, content)
 
         vectorstore = PineconeVectorStore.from_texts(
@@ -172,7 +189,6 @@ async def ingest_link_to_pinecone(link_list: List[str]):
 
 
 @register_microservice(name="opea_service@prepare_doc_pinecone", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
-@traceable(run_type="tool")
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
     link_list: Optional[str] = Form(None),
@@ -181,8 +197,9 @@ async def ingest_documents(
     process_table: bool = Form(False),
     table_strategy: str = Form("fast"),
 ):
-    print(f"files:{files}")
-    print(f"link_list:{link_list}")
+    if logflag:
+        logger.info(f"files:{files}")
+        logger.info(f"link_list:{link_list}")
 
     if files:
         if not isinstance(files, list):
@@ -202,9 +219,12 @@ async def ingest_documents(
                 )
             )
             uploaded_files.append(save_path)
-            print(f"Successfully saved file {save_path}")
-
-        return {"status": 200, "message": "Data preparation succeeded"}
+            if logflag:
+                logger.info(f"Successfully saved file {save_path}")
+        result = {"status": 200, "message": "Data preparation succeeded"}
+        if logflag:
+            logger.info(result)
+        return result
 
     if link_list:
         try:
@@ -212,8 +232,11 @@ async def ingest_documents(
             if not isinstance(link_list, list):
                 raise HTTPException(status_code=400, detail="link_list should be a list.")
             await ingest_link_to_pinecone(link_list)
-            print(f"Successfully saved link list {link_list}")
-            return {"status": 200, "message": "Data preparation succeeded"}
+            result = {"status": 200, "message": "Data preparation succeeded"}
+            if logflag:
+                logger.info(f"Successfully saved link list {link_list}")
+                logger.info(result)
+            return result
         except json.JSONDecodeError:
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
 
@@ -223,22 +246,24 @@ async def ingest_documents(
 @register_microservice(
     name="opea_service@prepare_doc_pinecone_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
 )
-@traceable(run_type="tool")
 async def rag_get_file_structure():
-    print("[ dataprep - get file ] start to get file structure")
+    if logflag:
+        logger.info("[ dataprep - get file ] start to get file structure")
 
     if not Path(upload_folder).exists():
-        print("No file uploaded, return empty list.")
+        if logflag:
+            logger.info("No file uploaded, return empty list.")
         return []
 
     file_content = get_file_structure(upload_folder)
+    if logflag:
+        logger.info(file_content)
     return file_content
 
 
 @register_microservice(
     name="opea_service@prepare_doc_pinecone_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
 )
-@traceable(run_type="tool")
 async def delete_all(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
 
@@ -247,11 +272,15 @@ async def delete_all(file_path: str = Body(..., embed=True)):
     """
     # delete all uploaded files
     if file_path == "all":
-        print("[dataprep - del] delete all files")
+        if logflag:
+            logger.info("[dataprep - del] delete all files")
         remove_folder_with_ignore(upload_folder)
         assert drop_index(index_name=PINECONE_INDEX_NAME)
-        print("[dataprep - del] successfully delete all files.")
+        if logflag:
+            logger.info("[dataprep - del] successfully delete all files.")
         create_upload_folder(upload_folder)
+        if logflag:
+            logger.info({"status": True})
         return {"status": True}
     else:
         raise HTTPException(status_code=404, detail="Single file deletion is not implemented yet")
