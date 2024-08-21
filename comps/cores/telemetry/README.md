@@ -22,7 +22,7 @@ curl localhost:{port of your service}/metrics
 
 Then you will see Prometheus format metrics printed out as follows:
 
-```
+```yaml
 HELP http_requests_total Total number of requests by method, status and handler.
 # TYPE http_requests_total counter
 http_requests_total{handler="/metrics",method="GET",status="2xx"} 3.0
@@ -43,7 +43,7 @@ To access the metrics exposed by each specific microservice, ensure that you che
 
 For example, you can `curl localhost:6006/metrics` to retrieve the TEI embedding metrics, and the output should look like follows:
 
-```
+```yaml
 # TYPE te_embed_count counter
 te_embed_count 7
 
