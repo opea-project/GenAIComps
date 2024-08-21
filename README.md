@@ -31,11 +31,14 @@ git clone https://github.com/opea-project/GenAIComps
 cd GenAIComps
 pip install -e .
 ```
+
 - Install Data Science Stack on your workstation
 
-Follow the [tutorial](https://documentation.ubuntu.com/data-science-stack/en/latest/tutorial/getting-started/) to install Data Science Stack on your Linux-based workstation. You will need to go through the followig steps:
+Follow the [tutorial](https://documentation.ubuntu.com/data-science-stack/en/latest/tutorial/getting-started/) to install Data Science Stack on your Linux-based workstation. You will need to go through the following steps:
+
 1. Setup MicroK8s
-```sudo snap install microk8s --channel 1.28/stable --classic
+
+````sudo snap install microk8s --channel 1.28/stable --classic
 sudo microk8s enable hostpath-storage
 sudo microk8s enable dns
 sudo microk8s enable rbac```
@@ -209,7 +212,7 @@ def embedding(input: TextDoc) -> EmbedDoc:
     embed_vector = embeddings.embed_query(input.text)
     res = EmbedDoc(text=input.text, embedding=embed_vector)
     return res
-```
+````
 
 ## MegaService
 
