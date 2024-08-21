@@ -11,14 +11,13 @@ from fastapi import BackgroundTasks, HTTPException
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
-from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
-
 from comps.cores.proto.api_protocol import (
     FineTuningJob,
     FineTuningJobIDRequest,
     FineTuningJobList,
     FineTuningJobsRequest,
 )
+from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
 
 MODEL_CONFIG_FILE_MAP = {
     "meta-llama/Llama-2-7b-chat-hf": "./models/llama-2-7b-chat-hf.yaml",
@@ -152,4 +151,3 @@ def handle_cancel_finetuning_job(request: FineTuningJobIDRequest):
     job = running_finetuning_jobs.get(fine_tuning_job_id)
     job.status = "cancelled"
     return job
-

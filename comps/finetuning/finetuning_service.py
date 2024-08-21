@@ -3,14 +3,14 @@
 
 from fastapi import BackgroundTasks
 
+from comps import opea_microservices, register_microservice
+from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest
 from comps.finetuning.handlers import (
     handle_cancel_finetuning_job,
     handle_create_finetuning_jobs,
     handle_list_finetuning_jobs,
     handle_retrieve_finetuning_job,
 )
-from comps import opea_microservices, register_microservice
-from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest
 
 
 @register_microservice(name="opea_service@finetuning", endpoint="/v1/fine_tuning/jobs", host="0.0.0.0", port=8001)
@@ -26,10 +26,7 @@ def list_finetuning_jobs():
 
 
 @register_microservice(
-    name="opea_service@finetuning",
-    endpoint="/v1/fine_tuning/jobs/retrieve",
-    host="0.0.0.0",
-    port=8001
+    name="opea_service@finetuning", endpoint="/v1/fine_tuning/jobs/retrieve", host="0.0.0.0", port=8001
 )
 def retrieve_finetuning_job(request: FineTuningJobIDRequest):
     job = handle_retrieve_finetuning_job(request)
@@ -37,10 +34,7 @@ def retrieve_finetuning_job(request: FineTuningJobIDRequest):
 
 
 @register_microservice(
-    name="opea_service@finetuning",
-    endpoint="/v1/fine_tuning/jobs/cancel",
-    host="0.0.0.0",
-    port=8001
+    name="opea_service@finetuning", endpoint="/v1/fine_tuning/jobs/cancel", host="0.0.0.0", port=8001
 )
 def cancel_finetuning_job(request: FineTuningJobIDRequest):
     job = handle_cancel_finetuning_job(request)
