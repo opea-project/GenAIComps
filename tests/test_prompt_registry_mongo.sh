@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -17,12 +17,18 @@ function build_docker_images() {
     echo $(pwd)
     docker run -d -p 27017:27017 --name=test-comps-mongo mongo:latest
 
-    docker build --no-cache -t opea/promptregistry-mongo-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/prompt_registry/mongo/docker/Dockerfile .
+    docker build --no-cache -t opea/promptregistry-mongo-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/prompt_registry/mongo/docker/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/promptregistry-mongo-server built fail"
+        exit 1
+    else
+        echo "opea/promptregistry-mongo-server built successful"
+    fi
 }
 
 function start_service() {
 
-    docker run -d --name="test-comps-promptregistry-mongo-server" -p 6012:6012 -p 6013:6013 -p 6014:6014 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/promptregistry-mongo-server:latest
+    docker run -d --name="test-comps-promptregistry-mongo-server" -p 6012:6012 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/promptregistry-mongo-server:comps
 
     sleep 10s
 }
@@ -40,6 +46,7 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
+        docker logs test-comps-promptregistry-mongo-server
         exit 1
     fi
 

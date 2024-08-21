@@ -175,6 +175,7 @@ def register_microservice(
             )
             opea_microservices[name] = micro_service
         opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
+
         return func
 
     return decorator

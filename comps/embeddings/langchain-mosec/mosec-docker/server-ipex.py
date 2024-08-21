@@ -13,7 +13,7 @@ import transformers  # type: ignore
 from llmspec import EmbeddingData, EmbeddingRequest, EmbeddingResponse, TokenUsage
 from mosec import ClientError, Runtime, Server, Worker
 
-DEFAULT_MODEL = "/root/bge-large-zh/"
+DEFAULT_MODEL = "/home/user/bge-large-zh-v1.5/"
 
 
 class Embedding(Worker):
@@ -113,8 +113,9 @@ class Embedding(Worker):
 if __name__ == "__main__":
     MAX_BATCH_SIZE = int(os.environ.get("MAX_BATCH_SIZE", 128))
     MAX_WAIT_TIME = int(os.environ.get("MAX_WAIT_TIME", 10))
+    MAX_FORWARD_TIMEOUT = int(os.environ.get("FORWARD_TIMEOUT", 60))
     server = Server()
-    emb = Runtime(Embedding, max_batch_size=MAX_BATCH_SIZE, max_wait_time=MAX_WAIT_TIME)
+    emb = Runtime(Embedding, max_batch_size=MAX_BATCH_SIZE, max_wait_time=MAX_WAIT_TIME, timeout=MAX_FORWARD_TIMEOUT)
     server.register_runtime(
         {
             "/v1/embeddings": [emb],
