@@ -22,6 +22,7 @@ from comps.cores.proto.docarray import (
     LVMDoc,
     MultimodalDoc,
     EmbedMultimodalDoc,
+    LVMVideoDoc,
 )
 
 # Constants
