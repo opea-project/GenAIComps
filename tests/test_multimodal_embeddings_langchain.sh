@@ -6,17 +6,17 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
-export your_mmei_port=8081
+export your_mmei_port=8089
 export EMBEDDER_PORT=$your_mmei_port
 export MMEI_EMBEDDING_ENDPOINT="http://$ip_address:$your_mmei_port/v1/encode"
-export your_embedding_port_microservice=6601
+export your_embedding_port_microservice=6609
 export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 unset http_proxy
 
 function build_mmei_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/bridgetower-embedder:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/bridgetower/docker/Dockerfile .
+    docker build --no-cache -t opea/bridgetower-embedder:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/bridgetower/docker/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/bridgetower-embedder built fail"
@@ -29,7 +29,7 @@ function build_mmei_docker_images() {
 function build_embedding_service_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/multimodal_langchain/docker/Dockerfile .
+    docker build --no-cache -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_embeddings/multimodal_langchain/docker/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/embedding-multimodal built fail"
