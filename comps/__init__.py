@@ -18,6 +18,7 @@ from comps.cores.proto.docarray import (
     RAGASScores,
     GraphDoc,
     LVMDoc,
+    LVMVideoDoc,
     ImagePath,
     ImagesPath,
     VideoPath,
@@ -39,6 +40,7 @@ from comps.cores.mega.gateway import (
     TranslationGateway,
     SearchQnAGateway,
     AudioQnAGateway,
+    RetrievalToolGateway,
     FaqGenGateway,
     VisualQnAGateway,
 )
@@ -48,3 +50,6 @@ from comps.cores.telemetry.opea_telemetry import opea_telemetry
 
 # Statistics
 from comps.cores.mega.base_statistics import statistics_dict, register_statistics
+
+# Logger
+from comps.cores.mega.logger import CustomLogger

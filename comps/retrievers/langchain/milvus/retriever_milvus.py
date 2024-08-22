@@ -15,11 +15,11 @@ from config import (
     MODEL_ID,
     MOSEC_EMBEDDING_ENDPOINT,
 )
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, OpenAIEmbeddings
 from langchain_milvus.vectorstores import Milvus
-from langsmith import traceable
 
 from comps import (
+    CustomLogger,
     EmbedDoc,
     SearchedDoc,
     ServiceType,
@@ -29,6 +29,9 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+
+logger = CustomLogger("retriever_milvus")
+logflag = os.getenv("LOGFLAG", False)
 
 
 class MosecEmbeddings(OpenAIEmbeddings):
@@ -63,9 +66,10 @@ class MosecEmbeddings(OpenAIEmbeddings):
     host="0.0.0.0",
     port=7000,
 )
-@traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_milvus"])
 def retrieve(input: EmbedDoc) -> SearchedDoc:
+    if logflag:
+        logger.info(input)
     vector_db = Milvus(
         embeddings,
         connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
@@ -94,6 +98,8 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
         searched_docs.append(TextDoc(text=r.page_content))
     result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
     statistics_dict["opea_service@retriever_milvus"].append_latency(time.time() - start, None)
+    if logflag:
+        logger.info(result)
     return result
 
 
