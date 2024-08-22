@@ -13,8 +13,10 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libgl1-mesa-glx \
     libjemalloc-dev \
     default-jre \
-    libreoffice \
-    vim
+    vim \
+    poppler-utils \
+    tesseract-ocr \
+    libreoffice 
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
