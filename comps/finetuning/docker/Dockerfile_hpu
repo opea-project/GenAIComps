@@ -3,8 +3,6 @@ FROM vault.habana.ai/gaudi-docker/1.16.1/ubuntu22.04/habanalabs/pytorch-installe
 
 ENV DEVICE="hpu"
 
-RUN apt-get update -y && apt-get install -y vim htop net-tools dnsutils
-
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
