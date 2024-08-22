@@ -6,9 +6,9 @@ Toxicity Detection Microservice allows AI Application developers to safeguard us
 
 Toxicity is defined as rude, disrespectful, or unreasonable language likely to make someone leave a conversation. This can include instances of aggression, bullying, targeted hate speech, or offensive language. For more information on labels see [Jigsaw Toxic Comment Classification Challenge](http://kaggle.com/c/jigsaw-toxic-comment-classification-challenge).
 
-## Future Development 
+## Future Development
 
-* Add a RoBERTa (125M params) toxicity model fine-tuned on Gaudi2 with ToxicChat and Jigsaw dataset in an optimized serving framework.
+- Add a RoBERTa (125M params) toxicity model fine-tuned on Gaudi2 with ToxicChat and Jigsaw dataset in an optimized serving framework.
 
 # 🚀1. Start Microservice with Python（Option 1）
 
@@ -86,5 +86,3 @@ try:
 except requests.exceptions.RequestException as e:
     print("An error occurred:", e)
 ```
-
-
