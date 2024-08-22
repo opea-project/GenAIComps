@@ -6,6 +6,8 @@ import time
 
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
+from fastapi import FastAPI, HTTPException
+
 
 from comps import ServiceType, TextDoc, opea_microservices, register_microservice, register_statistics, statistics_dict
 
@@ -30,6 +32,10 @@ def injection_guard(input: TextDoc) -> ScoreDoc:
     client = PredictionGuard()
 
     text = input.text
+
+    # Add input validation
+    if not text.strip():
+        raise HTTPException(status_code=400, detail="Input text cannot be empty")
 
     result = client.injection.check(prompt=text)
 
