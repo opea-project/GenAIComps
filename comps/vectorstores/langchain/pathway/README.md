@@ -39,13 +39,14 @@ data_sources = [data]
 
 ### Other configs (parser, splitter and the embedder)
 
-Pathway vectorstore handles the ingestion and processing of the documents. 
+Pathway vectorstore handles the ingestion and processing of the documents.
 This allows you to configure the parser, splitter and the embedder.
 Whenever a file is added or modified in one of the sources, Pathway will automatically ingest the file.
 
 By default, `ParseUnstructured` parser, `langchain.text_splitter.CharacterTextSplitter` splitter and `BAAI/bge-base-en-v1.5` embedder are used.
 
 For more information, see the relevant Pathway docs:
+
 - [Vector store docs](https://pathway.com/developers/api-docs/pathway-xpacks-llm/vectorstore)
 - [parsers docs](https://pathway.com/developers/api-docs/pathway-xpacks-llm/parsers)
 - [splitters docs](https://pathway.com/developers/api-docs/pathway-xpacks-llm/splitters)
@@ -79,4 +80,5 @@ curl -X 'POST' \
 ```
 
 This should respond with something like:
+
 > `{"file_count": 1, "last_indexed": 1724325093, "last_modified": 1724317365}`

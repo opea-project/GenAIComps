@@ -6,7 +6,7 @@
 
 We suggest using `docker compose` to run this app, refer to [`docker compose`](#with-the-docker-compose) section below.
 
-If you prefer to run them seperately, refer to this section.
+If you prefer to run them separately, refer to this section.
 
 #### (Optionally) Start the TEI (embedder) service separately
 
