@@ -31,7 +31,7 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
                     import habana_frameworks.torch.core as htcore
 
                     self.device = torch.device("hpu")
-                except ImportError: 
+                except ImportError:
                     self.device = "cpu"
             elif kwargs["device"] == "gpu":
                 if torch.cuda.is_available():
