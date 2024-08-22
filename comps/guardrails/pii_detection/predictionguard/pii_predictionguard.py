@@ -1,16 +1,17 @@
-# Copyright (C) 2024 Prediction Guard, Inc.
-# SPDX-License-Identified: Apache-2.0
-
-
 import json
 import time
 from typing import List, Optional
 
+from fastapi import HTTPException
+import logging
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
 from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
 
+# Initialize Logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class PIIRequestDoc(BaseDoc):
     prompt: str
@@ -42,15 +43,31 @@ def pii_guard(input: PIIRequestDoc) -> PIIResponseDoc:
     replace = input.replace
     replace_method = input.replace_method
 
-    result = client.pii.check(prompt=prompt, replace=replace, replace_method=replace_method)
+    # Validate replace_method
+    if replace_method not in ["random", "mask"]:
+        raise HTTPException(status_code=400, detail="Invalid replace method provided.")
+
+    try:
+        result = client.pii.check(prompt=prompt, replace=replace, replace_method=replace_method)
+    except Exception as e:
+        logger.error(f"Error during PII check: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred during PII detection")
 
     statistics_dict["opea_service@pii_predictionguard"].append_latency(time.time() - start, None)
-    if "new_prompt" in result["checks"][0].keys():
-        return PIIResponseDoc(new_prompt=result["checks"][0]["new_prompt"])
-    elif "pii_types_and_positions" in result["checks"][0].keys():
-        detected_pii = json.loads(result["checks"][0]["pii_types_and_positions"])
-        return PIIResponseDoc(detected_pii=detected_pii)
 
+    response_doc = PIIResponseDoc(detected_pii=[], new_prompt=None)
+    
+    if "new_prompt" in result["checks"][0]:
+        logger.info("PII replaced in the prompt.")
+        response_doc.new_prompt = result["checks"][0]["new_prompt"]
+    elif "pii_types_and_positions" in result["checks"][0]:
+        try:
+            detected_pii = json.loads(result["checks"][0]["pii_types_and_positions"])
+            response_doc.detected_pii = detected_pii
+        except json.JSONDecodeError:
+            logger.info("No PII detected in the prompt.")
+
+    return response_doc
 
 if __name__ == "__main__":
     print("Prediction Guard PII Detection initialized.")
