@@ -50,6 +50,7 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """Embed a list of documents using BridgeTower.
+
         Args:
             texts: The list of texts to embed.
         Returns:
@@ -63,6 +64,7 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
 
     def embed_query(self, text: str) -> List[float]:
         """Embed a query using BridgeTower.
+
         Args:
             text: The text to embed.
         Returns:
@@ -72,6 +74,7 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
 
     def embed_image_text_pairs(self, texts: List[str], images: list[Image], batch_size=2) -> List[List[float]]:  # type: ignore
         """Embed a list of image-text pairs using BridgeTower.
+
         Args:
             texts: The list of texts to embed.
             images: The list of path-to-images to embed

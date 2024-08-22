@@ -76,7 +76,8 @@ class EmbedMultimodalDoc(EmbedDoc):
         description="The base64-based encoding of the image.",
         default=None,
     )
-    
+
+
 class Audio2TextDoc(AudioDoc):
     url: Optional[AudioUrl] = Field(
         description="The path to the audio.",
