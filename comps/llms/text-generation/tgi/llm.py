@@ -58,13 +58,9 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             logger.info("[ SearchedDoc ] input from retriever microservice")
         prompt = input.initial_query
         if input.retrieved_docs:
-            if logflag:
-                logger.info(f"[ SearchedDoc ] retrieved docs: {input.retrieved_docs}")
-                for doc in input.retrieved_docs:
-                    logger.info(f"[ SearchedDoc ] {doc}")
             docs = [doc.text for doc in input.retrieved_docs]
             if logflag:
-                logger.info(f"[ SearchedDoc ] docs: {docs}")
+                logger.info(f"[ SearchedDoc ] combined retrieved docs: {docs}")
             prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs)
         # use default llm parameters for inferencing
         new_input = LLMParamsDoc(query=prompt)
