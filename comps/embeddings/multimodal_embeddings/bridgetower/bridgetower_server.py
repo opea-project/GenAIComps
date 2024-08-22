@@ -122,7 +122,7 @@ if __name__ == "__main__":
     if args.device == "hpu":
         try:
             import habana_frameworks.torch.core as htcore
-        except ImportModuleError:  # type: ignore
+        except ImportError:
             print("device: hpu is not available. Using cpu instead!")
             args.device = "cpu"
 
