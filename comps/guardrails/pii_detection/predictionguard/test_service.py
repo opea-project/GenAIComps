@@ -1,15 +1,17 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import unittest
+
 import requests
+
 
 class TestPIIGuardService(unittest.TestCase):
     def setUp(self):
         self.base_url = "http://localhost:9080/v1/pii"
 
     def test_pii_detection(self):
-        payload = {
-            "prompt": "My name is John Doe, and my credit card number is 4111 1111 1111 1111.",
-            "replace": False
-        }
+        payload = {"prompt": "My name is John Doe, and my credit card number is 4111 1111 1111 1111.", "replace": False}
         response = requests.post(self.base_url, json=payload)
         print("Response:", response.status_code, response.text)
         self.assertEqual(response.status_code, 200)
@@ -22,7 +24,7 @@ class TestPIIGuardService(unittest.TestCase):
         payload = {
             "prompt": "My name is John Doe, and my credit card number is 4111 1111 1111 1111.",
             "replace": True,
-            "replace_method": "random"
+            "replace_method": "random",
         }
         response = requests.post(self.base_url, json=payload)
         print("Response:", response.status_code, response.text)
@@ -32,10 +34,7 @@ class TestPIIGuardService(unittest.TestCase):
         self.assertNotEqual(response_json["new_prompt"], payload["prompt"])
 
     def test_no_pii_detection(self):
-        payload = {
-            "prompt": "This is a test with no sensitive information.",
-            "replace": False
-        }
+        payload = {"prompt": "This is a test with no sensitive information.", "replace": False}
         response = requests.post(self.base_url, json=payload)
         print("Response Status Code:", response.status_code)
         print("Response Text:", response.text)
@@ -48,11 +47,12 @@ class TestPIIGuardService(unittest.TestCase):
         payload = {
             "prompt": "My name is John Doe, and my credit card number is 4111 1111 1111 1111.",
             "replace": True,
-            "replace_method": "invalid_method"
+            "replace_method": "invalid_method",
         }
         response = requests.post(self.base_url, json=payload)
         print("Response:", response.status_code, response.text)
         self.assertEqual(response.status_code, 400)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,10 +1,13 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
+import logging
 import time
 from typing import List, Optional
 
-from fastapi import HTTPException
-import logging
 from docarray import BaseDoc
+from fastapi import HTTPException
 from predictionguard import PredictionGuard
 
 from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
@@ -12,6 +15,7 @@ from comps import ServiceType, opea_microservices, register_microservice, regist
 # Initialize Logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class PIIRequestDoc(BaseDoc):
     prompt: str
@@ -56,7 +60,7 @@ def pii_guard(input: PIIRequestDoc) -> PIIResponseDoc:
     statistics_dict["opea_service@pii_predictionguard"].append_latency(time.time() - start, None)
 
     response_doc = PIIResponseDoc(detected_pii=[], new_prompt=None)
-    
+
     if "new_prompt" in result["checks"][0]:
         logger.info("PII replaced in the prompt.")
         response_doc.new_prompt = result["checks"][0]["new_prompt"]
@@ -68,6 +72,7 @@ def pii_guard(input: PIIRequestDoc) -> PIIResponseDoc:
             logger.info("No PII detected in the prompt.")
 
     return response_doc
+
 
 if __name__ == "__main__":
     print("Prediction Guard PII Detection initialized.")
