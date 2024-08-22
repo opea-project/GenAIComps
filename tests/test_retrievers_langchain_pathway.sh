@@ -15,7 +15,7 @@ function build_docker_images() {
     docker build -t vectorstore-pathway .
 
     cd $WORKPATH
-    # --no-cache 
+    # --no-cache
     docker build -t opea/retriever-pathway:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/pathway/docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/retriever-pathway built fail"
@@ -37,7 +37,7 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
-    
+
     result=$(http_proxy=''
     curl $TEI_EMBEDDING_ENDPOINT     -X POST     -d '{"inputs":"Hey,"}'     -H 'Content-Type: application/json')
 
