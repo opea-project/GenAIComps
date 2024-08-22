@@ -46,7 +46,7 @@ function start_service() {
     unset http_proxy
     use_clip=0 #set to 1 if openai clip embedding should be used
 
-    docker run -d --name="test-comps-retriever-vdms-server" -p 7000:7000 --ipc=host \
+    docker run -d --name="test-comps-retriever-vdms-server" -p 5009:7000 --ipc=host \
     -e INDEX_NAME=$INDEX_NAME -e VDMS_HOST=$ip_address \
     -e https_proxy=$https_proxy -e http_proxy=$http_proxy \
     -e VDMS_PORT=$vdms_port -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
@@ -58,7 +58,7 @@ function start_service() {
 function validate_microservice() {
 
 
-    retriever_port=7000
+    retriever_port=5009
     URL="http://${ip_address}:$retriever_port/v1/retrieval"
     #test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 
