@@ -3,7 +3,6 @@ easyocr
 fastapi
 haystack-ai==2.3.1
 langchain_community
-langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
