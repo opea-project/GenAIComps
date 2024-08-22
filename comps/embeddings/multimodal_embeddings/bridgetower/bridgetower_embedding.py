@@ -1,14 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Dict, List, Optional
+from typing import Any, List
 
 import torch
-import torchvision.transforms.functional as transform
 from langchain_core.embeddings import Embeddings
 from langchain_core.pydantic_v1 import BaseModel, Extra
 from PIL import Image
-from torchvision.io import read_image  # , ImageReadMode
 from transformers import BridgeTowerProcessor
 
 from .bridgetower_custom import BridgeTowerForITC, BridgeTowerTextFeatureExtractor
@@ -33,7 +31,7 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
                     import habana_frameworks.torch.core as htcore
 
                     self.device = torch.device("hpu")
-                except ImportModuleError:  # type: ignore
+                except ImportError: 
                     self.device = "cpu"
             elif kwargs["device"] == "gpu":
                 if torch.cuda.is_available():
