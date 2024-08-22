@@ -1,1 +1,1 @@
-ignore-words-list = assertIn
+assertIn
