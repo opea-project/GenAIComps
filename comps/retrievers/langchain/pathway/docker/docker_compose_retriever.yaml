@@ -19,6 +19,7 @@ services:
     ports:
       - "7000:7000"
     ipc: host
+    network_mode: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}

@@ -8,7 +8,7 @@ from langchain_community.vectorstores import PathwayVectorClient
 from langsmith import traceable
 
 from comps import (
-    EmbedDoc768,
+    EmbedDoc,
     SearchedDoc,
     ServiceType,
     TextDoc,
@@ -35,7 +35,7 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 )
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_pathway"])
-def retrieve(input: EmbedDoc768) -> SearchedDoc:
+def retrieve(input: EmbedDoc) -> SearchedDoc:
     start = time.time()
     documents = pw_client.similarity_search(input.text, input.fetch_k)
 

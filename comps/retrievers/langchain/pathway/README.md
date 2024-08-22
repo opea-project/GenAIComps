@@ -1,16 +1,14 @@
 # Retriever Microservice with Pathway
 
-# 🚀Start Microservice with Python
+## 🚀Start Microservices
 
-## Install Requirements
+### With the Docker CLI
 
-```bash
-pip install -r requirements.txt
-```
+We suggest using `docker compose` to run this app, refer to [`docker compose`](#with-the-docker-compose) section below.
 
-### With the Docker compose
+If you prefer to run them seperately, refer to this section.
 
-(Optionally) Start the embedder service separately.
+#### (Optionally) Start the TEI (embedder) service separately
 
 > Note that Docker compose will start this service as well, this step is thus optional.
 
@@ -29,66 +27,26 @@ docker run -p 6060:80 -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pu
 Health check the embedding service with:
 
 ```bash
+curl 127.0.0.1:6060/embed     -X POST     -d '{"inputs":"What is Deep Learning?"}'     -H 'Content-Type: application/json'
+```
+
+If the model supports re-ranking, you can also use:
+
+```bash
 curl 127.0.0.1:6060/rerank     -X POST     -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}'     -H 'Content-Type: application/json'
 ```
 
-## Start the Pathway Vector DB Server
+#### Start Retriever Service
 
-Make sure to set the Pathway environment variables.
+Retriever service queries the Pathway vector store on incoming requests.
+Make sure that Pathway vector store is already running, [see Pathway vector store here](../../../vectorstores/langchain/pathway/README.md).
 
-> Note: If you are using `TEI_EMBEDDING_ENDPOINT`, make sure embedding service is already running.
+Retriever service expects the Pathway host and port variables to connect to the vector DB. Set the Pathway vector store environment variables.
 
 ```bash
 export PATHWAY_HOST=0.0.0.0
 export PATHWAY_PORT=8666
-model=BAAI/bge-base-en-v1.5
-revision=refs/pr/4
-# TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"  # uncomment if you want to use the hosted embedding service, example: "http://127.0.0.1:6060"
 ```
-
-## Setting up the Pathway data sources
-
-Pathway can listen to many sources simultaneously, such as local files, S3 folders, cloud storage, and any data stream. Whenever a new file is added or an existing file is modified, Pathway parses, chunks and indexes the documents in real-time.
-
-See [pathway-io](https://pathway.com/developers/api-docs/pathway-io) for more information.
-
-You can easily connect to the data inside the folder with the Pathway file system connector. The data will automatically be updated by Pathway whenever the content of the folder changes. In this example, we create a single data source that reads the files under the `./data` folder.
-
-You can manage your data sources by configuring the `data_sources` in `pathway_vs.py`.
-
-```python
-import pathway as pw
-
-data = pw.io.fs.read(
-    "./data",
-    format="binary",
-    mode="streaming",
-    with_metadata=True,
-)  # This creates a Pathway connector that tracks
-# all the files in the ./data directory
-
-data_sources = [data]
-```
-
-Build the Docker and run the Pathway Vector Store:
-
-```bash
-cd comps/retrievers/langchain/pathway
-
-docker build -t vectorstore-pathway .
-
-# with locally loaded model, you may add `EMBED_MODEL` env variable to configure the model.
-docker run -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -v ./data:/app/data -p ${PATHWAY_PORT}:${PATHWAY_PORT} vectorstore-pathway
-
-# with the hosted embedder (network argument is needed for the vector server to reach to the embedding service)
-docker run -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -v ./data:/app/data -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" vectorstore-pathway
-```
-
-## Start Retriever Service
-
-Note that the retriever service also expects the Pathway host and port variables to connect to the vector DB.
-
-### With the Docker CLI
 
 ```bash
 # make sure you are in the root folder of the repo
@@ -99,8 +57,30 @@ docker run -p 7000:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWA
 
 ### With the Docker compose
 
+First, set the env variables:
+
 ```bash
-cd /comps/retrievers/langchain/pathway/docker
+export PATHWAY_HOST=0.0.0.0
+export PATHWAY_PORT=8666
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=${your_langchain_api_key}
+export LANGCHAIN_PROJECT="opea/retriever"
+model=BAAI/bge-base-en-v1.5
+revision=refs/pr/4
+# TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"  # if you want to use the hosted embedding service, example: "http://127.0.0.1:6060"
+```
+
+Text embeddings inference service expects the `RETRIEVE_MODEL_ID` variable to be set.
+
+```bash
+export RETRIEVE_MODEL_ID=BAAI/bge-base-en-v1.5
+```
+
+Note that following docker compose sets the `network_mode: host` in retriever image to allow local vector store connection.
+This will start the both the embedding and retriever services:
+
+```bash
+cd comps/retrievers/langchain/pathway/docker
 
 docker compose -f docker_compose_retriever.yaml build
 docker compose -f docker_compose_retriever.yaml up

@@ -18,8 +18,8 @@ RUN pip install "unstructured[all-docs] >= 0.10.28, < 0.15"
 RUN pip install langchain_openai
 RUN pip install sentence_transformers
 
-COPY pathway_vs.py /app/
+COPY vectorstore_pathway.py /app/
 
 
-CMD ["python", "pathway_vs.py"]
+CMD ["python", "vectorstore_pathway.py"]
 

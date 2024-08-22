@@ -5,7 +5,7 @@ import logging
 import os
 
 import pathway as pw
-from langchain.text_splitter import CharacterTextSplitter
+from langchain import text_splitter 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from pathway.xpacks.llm.parsers import ParseUnstructured
 from pathway.xpacks.llm.vector_store import VectorStoreServer
@@ -25,7 +25,7 @@ data = pw.io.fs.read(
 
 data_sources = [data]
 
-splitter = CharacterTextSplitter()
+splitter = text_splitter.TokenTextSplitter(chunk_size=450, chunk_overlap=50)
 
 host = os.getenv("PATHWAY_HOST", "127.0.0.1")
 port = int(os.getenv("PATHWAY_PORT", 8666))
