@@ -15,6 +15,16 @@ on:
         description: "Build test required images for Comps"
         required: false
         type: boolean
+      test:
+        default: true
+        description: 'Test comps with docker compose'
+        required: false
+        type: boolean
+      tag:
+        default: "comps"
+        description: "Tag to apply to images"
+        required: true
+        type: string
       mode:
         default: "CD"
         description: "Whether the test range is CI or CD"
@@ -45,7 +55,8 @@ jobs:
     uses: ./.github/workflows/_comps-workflow.yml
     with:
       service: ${{ matrix.service }}
-      tag: "comps"
+      tag: ${{ inputs.tag }}
       node: gaudi
       mode: ${{ inputs.mode }}
+      test: ${{ inputs.test }}
     secrets: inherit

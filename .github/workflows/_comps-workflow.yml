@@ -20,6 +20,11 @@ on:
         default: true
         required: false
         type: boolean
+      test:
+        default: true
+        description: 'Test comps with docker compose'
+        required: false
+        type: boolean
       mode:
         default: "CD"
         description: "Whether the test range is CI or CD"
@@ -124,6 +129,7 @@ jobs:
   ####################################################################################################
   test-service-compose:
     needs: [build-images]
+    if: ${{ fromJSON(inputs.test) }}
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
       tag: ${{ inputs.tag }}
