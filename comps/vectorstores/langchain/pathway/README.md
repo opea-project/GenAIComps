@@ -59,13 +59,13 @@ Build the Docker and run the Pathway Vector Store:
 ```bash
 cd comps/vectorstores/langchain/pathway
 
-docker build -t vectorstore-pathway .
+docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t vectorstore-pathway .
 
 # with locally loaded model, you may add `EMBED_MODEL` env variable to configure the model.
-docker run -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -v ./data:/app/data -p ${PATHWAY_PORT}:${PATHWAY_PORT} vectorstore-pathway
+docker run -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v ./data:/app/data -p ${PATHWAY_PORT}:${PATHWAY_PORT} vectorstore-pathway
 
 # with the hosted embedder (network argument is needed for the vector server to reach to the embedding service)
-docker run -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -v ./data:/app/data -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" vectorstore-pathway
+docker run -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v ./data:/app/data -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" vectorstore-pathway
 ```
 
 ## Health check the vector store

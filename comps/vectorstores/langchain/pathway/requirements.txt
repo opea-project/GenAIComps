@@ -1,0 +1,4 @@
+pathway[xpack-llm] >= 0.14.1
+unstructured[all-docs] >= 0.10.28,<0.15
+langchain_openai
+sentence_transformers

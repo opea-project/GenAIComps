@@ -14,10 +14,9 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-RUN pip install -U pathway[xpack-llm]
-RUN pip install "unstructured[all-docs] >= 0.10.28, < 0.15"
-RUN pip install langchain_openai
-RUN pip install sentence_transformers
+COPY requirements.txt /app/
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY vectorstore_pathway.py /app/
 

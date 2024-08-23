@@ -12,7 +12,7 @@ function build_docker_images() {
 
     cd comps/vectorstores/langchain/pathway
 
-    docker build -t vectorstore-pathway .
+    docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t vectorstore-pathway .
 
     cd $WORKPATH
     # --no-cache 
@@ -31,7 +31,7 @@ function start_service() {
     # tei endpoint
     tei_endpoint=5008
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model # --network="host"
+    docker run -d --name="test-comps-retriever-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
 
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
@@ -50,13 +50,13 @@ function start_service() {
     export PATHWAY_HOST="0.0.0.0"
     export PATHWAY_PORT=5432
 
-    docker run -d --name="test-comps-vectorstore-pathway" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -v $WORKPATH/comps/vectorstores/langchain/pathway/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" vectorstore-pathway
+    docker run -d --name="test-comps-vectorstore-pathway" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v $WORKPATH/comps/vectorstores/langchain/pathway/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" vectorstore-pathway
 
     sleep 45s
 
     export PATHWAY_HOST=$ip_address  # needed in order to reach to vector store
 
-    docker run -d --name="test-retriever-pathway" -p 5009:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} opea/retriever-pathway:latest
+    docker run -d --name="test-retriever-pathway" -p 5009:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/retriever-pathway:latest
 
     sleep 10s
 }

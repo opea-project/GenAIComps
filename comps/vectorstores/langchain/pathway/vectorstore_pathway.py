@@ -16,6 +16,9 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
+# This creates a Pathway connector that tracks all the files in the `data/` directory.
+# Additions and modifications will be reflected on the index automatically.
+
 data = pw.io.fs.read(
     "./data",
     format="binary",

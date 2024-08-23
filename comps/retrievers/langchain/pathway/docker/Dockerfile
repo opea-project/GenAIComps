@@ -27,4 +27,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/retrievers/langchain/pathway
 
-ENTRYPOINT ["python", "retriever_pathway.py"]
+ENTRYPOINT ["bash", "entrypoint.sh"]
