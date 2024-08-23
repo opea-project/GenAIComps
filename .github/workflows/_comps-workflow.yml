@@ -22,7 +22,7 @@ on:
         type: boolean
       test:
         default: true
-        description: 'Test comps with docker compose'
+        description: "Test comps with docker compose"
         required: false
         type: boolean
       mode:
