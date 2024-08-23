@@ -1,0 +1,18 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+# images used by GenAIExamples: reranking-tei
+services:
+  reranking-fastrag:
+    build:
+      dockerfile: comps/reranks/fastrag/docker/Dockerfile
+    image: ${REGISTRY}opea/reranking-fastrag:${TAG:-latest}
+  reranking-langchain-mosec-endpoint:
+    build:
+      dockerfile: comps/reranks/langchain-mosec/mosec-docker/Dockerfile
+    image: ${REGISTRY}opea/reranking-langchain-mosec-endpoint:${TAG:-latest}
+  reranking-langchain-mosec:
+    build:
+      dockerfile: comps/reranks/langchain-mosec/docker/Dockerfile
+    image: ${REGISTRY}opea/reranking-langchain-mosec:${TAG:-latest}

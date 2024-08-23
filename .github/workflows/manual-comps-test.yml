@@ -15,6 +15,11 @@ on:
         description: "Build test required images for Comps"
         required: false
         type: boolean
+      mode:
+        default: "CD"
+        description: "Whether the test range is CI or CD"
+        required: false
+        type: string
 
 permissions: read-all
 
@@ -42,4 +47,5 @@ jobs:
       service: ${{ matrix.service }}
       tag: "comps"
       node: gaudi
+      mode: ${{ inputs.mode }}
     secrets: inherit

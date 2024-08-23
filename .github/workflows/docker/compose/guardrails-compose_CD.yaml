@@ -5,7 +5,7 @@
 # images used by GenAIExamples: guardrails-tgi
 # others: guardrails-pii-detection
 services:
-  guardrails-tgi:
+  guardrails-pii-detection:
     build:
-      dockerfile: comps/guardrails/llama_guard/docker/Dockerfile
-    image: ${REGISTRY}opea/guardrails-tgi:${TAG:-latest}
+      dockerfile: comps/guardrails/pii_detection/docker/Dockerfile
+    image: ${REGISTRY}opea/guardrails-pii-detection:${TAG:-latest}

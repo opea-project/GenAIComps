@@ -20,6 +20,11 @@ on:
         default: true
         required: false
         type: boolean
+      mode:
+        default: "CD"
+        description: "Whether the test range is CI or CD"
+        required: false
+        type: string
       # scan:
       #   default: true
       #   required: false
@@ -39,25 +44,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Clone required Repo
+        id: get-yaml-path
         run: |
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           # service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
-          docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
-          echo ${docker_compose_yml}
+          if [[ "${{ inputs.mode }}" == "CD" ]]; then
+            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose*.yaml
+          else
+            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+          fi
+          echo "docker_compose_path=${docker_compose_yml}" >> $GITHUB_OUTPUT
           if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
           fi
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/vllm-project/vllm.git vllm-openvino
           fi
-          # echo "service=$service" >> $GITHUB_ENV
 
       - name: Build Image
         if: ${{ fromJSON(inputs.build) }}
         uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}/
-          docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+          docker_compose_path: ${{ steps.get-yaml-path.outputs.docker_compose_path }}
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
   # ####################################################################################################

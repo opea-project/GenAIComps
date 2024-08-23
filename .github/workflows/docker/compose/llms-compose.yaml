@@ -8,10 +8,6 @@ services:
     build:
       dockerfile: comps/llms/text-generation/tgi/Dockerfile
     image: ${REGISTRY}opea/llm-tgi:${TAG:-latest}
-  llm-native:
-    build:
-      dockerfile: comps/llms/text-generation/native/docker/Dockerfile
-    image: ${REGISTRY}opea/llm-native:${TAG:-latest}
   llm-ollama:
     build:
       dockerfile: comps/llms/text-generation/ollama/Dockerfile
