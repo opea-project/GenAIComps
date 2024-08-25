@@ -5,9 +5,7 @@ import argparse
 
 from pydantic_yaml import parse_yaml_raw_as
 from transformers import TrainerCallback, TrainerControl, TrainerState, TrainingArguments
-
 from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
-
 
 class FineTuneCallback(TrainerCallback):
     def __init__(self) -> None:
