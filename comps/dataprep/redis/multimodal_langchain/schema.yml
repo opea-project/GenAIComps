@@ -8,7 +8,6 @@ text:
 - name: source_video
 - name: embedding_type
 - name: title
-- name: description
 - name: transcript_for_inference
 numeric:
 - name: time_of_frame_ms

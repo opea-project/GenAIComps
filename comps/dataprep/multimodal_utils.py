@@ -173,6 +173,7 @@ def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: s
         json.dump(annotations, f)
 
     vidcap.release()
+    return annotations
 
 
 def use_lvm(endpoint: str, img_b64_string: str, prompt: str ="Provide a short description for this scene."):
