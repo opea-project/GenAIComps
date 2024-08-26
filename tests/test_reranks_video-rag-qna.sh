@@ -13,7 +13,16 @@ function build_docker_images() {
 }
 
 function start_service() {
-    docker compose -f comps/reranks/video-rag-qna/docker/docker_compose_reranking.yaml up -d
+    docker run -d --name "test-comps-reranking-videoragqna-server" \
+        -p 5032:8000 \
+        --ipc=host \
+        -e no_proxy=${no_proxy} \
+        -e http_proxy=${http_proxy} \
+        -e https_proxy=${https_proxy} \
+        -e CHUNK_DURATION=${CHUNK_DURATION} \
+        -e FILE_SERVER_ENDPOINT=${FILE_SERVER_ENDPOINT} \
+        opea/reranking-videoragqna:latest
+
 
     until docker logs reranking-videoragqna-server 2>&1 | grep -q "Uvicorn running on"; do
         sleep 2
@@ -24,7 +33,7 @@ function validate_microservice() {
     result=$(\
     http_proxy="" \
     curl -X 'POST' \
-        "http://${ip_address}:8000/v1/reranking" \
+        "http://${ip_address}:5032/v1/reranking" \
         -H 'accept: application/json' \
         -H 'Content-Type: application/json' \
         -d '{
@@ -48,7 +57,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=reranking-videoragqna-server")
+    cid=$(docker ps -aq --filter "name=test-comps-reranking*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
