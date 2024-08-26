@@ -9,7 +9,6 @@ ENV GLIBC_TUNABLES glibc.cpu.x86_shstk=permissive
 COPY comps /root/comps
 COPY neural_speed-0.1.dev117+gafc0030.d20240815-cp310-cp310-linux_x86_64.whl /root/
 COPY bge-base-q8.bin /root/
-COPY libstdc++.so.6 /root
 
 RUN apt update && apt install -y python3 python3-pip 
 RUN pip3 install -r /root/comps/embeddings/neural-speed/neuralspeed-docker/requirements.txt

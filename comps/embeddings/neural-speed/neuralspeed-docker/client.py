@@ -8,14 +8,6 @@ import httpx
 import msgspec
 import requests
 
-# req = {
-#     "query": [
-#         "what a nice day",
-#         "life is short, use python",
-#         "early bird catches the worm",
-#     ],
-# }
-
 input_text = "what a nice day"
 req = {
     "query": input_text,
