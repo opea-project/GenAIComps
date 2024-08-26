@@ -54,8 +54,12 @@ jobs:
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           # service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
           if [[ "${{ inputs.mode }}" == "CD" ]]; then
-            sed -n '/services:/,/^$/p' ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-CD.yaml |sed '1d' >> ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
-            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+            if [ -f "${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml" ]; then
+              sed -n '/services:/,/^$/p' ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml |sed '1d' >> ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-CD.yaml
+            else
+              echo "Docker Compose file not found, skipping extraction"
+            fi
+            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-CD.yaml
           else
             docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
           fi
