@@ -6,9 +6,9 @@ FROM python:3.11-slim
 ENV LANG=C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    libgl1-mesa-glx \
+    build-essential \
     libjemalloc-dev \
-    build-essential
+    libgl1-mesa-glx
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \

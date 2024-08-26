@@ -12,14 +12,15 @@ ARG REPO_VER=v1.12.1
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     git-lfs \
     libgl1-mesa-glx \
-    libjemalloc-dev && \
-    git-lfs install
+    libjemalloc-dev
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
 USER user
+
+RUN git lfs install
 
 COPY comps /home/user/comps
 
