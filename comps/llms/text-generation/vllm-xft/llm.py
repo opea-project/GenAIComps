@@ -5,9 +5,11 @@ import os
 
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import VLLMOpenAI
-from langsmith import traceable
 
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+
+logger = CustomLogger("llm_vllm_xft")
+logflag = os.getenv("LOGFLAG", False)
 
 
 @register_microservice(
@@ -17,8 +19,9 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
+    if logflag:
+        logger.info(input)
     llm_endpoint = os.getenv("vLLM_LLM_ENDPOINT", "http://localhost:18688")
     llm = VLLMOpenAI(
         openai_api_key="EMPTY",
@@ -38,14 +41,18 @@ def llm_generate(input: LLMParamsDoc):
             for text in llm.stream(input.query):
                 chat_response += text
                 chunk_repr = repr(text.encode("utf-8"))
-                print(f"[llm - chat_stream] chunk:{chunk_repr}")
+                if logflag:
+                    logger.info(f"[llm - chat_stream] chunk:{chunk_repr}")
                 yield f"data: {chunk_repr}\n\n"
-            print(f"[llm - chat_stream] stream response: {chat_response}")
+            if logflag:
+                logger.info(f"[llm - chat_stream] stream response: {chat_response}")
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         response = llm.invoke(input.query)
+        if logflag:
+            logger.info(response)
         return GeneratedDoc(text=response, prompt=input.query)
 
 

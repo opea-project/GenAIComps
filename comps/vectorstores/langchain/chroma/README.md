@@ -2,9 +2,9 @@
 
 Chroma is a AI-native open-source vector database focused on developer productivity and happiness. Chroma is licensed under Apache 2.0. Chroma runs in various modes, we can deploy it as a server running your local machine or in the cloud.
 
-# Getting Started
+## Getting Started
 
-## Start Chroma Server
+### Start Chroma Server
 
 To start the Chroma server on your local machine, follow these steps:
 
@@ -14,11 +14,11 @@ cd chroma
 docker compose up -d
 ```
 
-## Start Log Output
+### Start Log Output
 
 Upon starting the server, you should see log outputs similar to the following:
 
-```log
+```
 server-1  | Starting 'uvicorn chromadb.app:app' with args: --workers 1 --host 0.0.0.0 --port 8000 --proxy-headers --log-config chromadb/log_config.yml --timeout-keep-alive 30
 server-1  | INFO:     [02-08-2024 07:03:19] Set chroma_server_nofile to 65536
 server-1  | INFO:     [02-08-2024 07:03:19] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
