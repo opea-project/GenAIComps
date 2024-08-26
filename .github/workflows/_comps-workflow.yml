@@ -60,6 +60,7 @@ jobs:
               else
                 echo "Docker Compose file not found, Copy Docker Compose-CD file to Docker Compose file"
                 cp ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-CD.yaml ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+              fi
             else
               echo "Docker Compose-CD file not found, skipping extraction"
             fi
