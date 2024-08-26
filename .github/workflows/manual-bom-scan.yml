@@ -35,10 +35,6 @@ jobs:
           pip install yq
           # services=($(echo ${{ inputs.services }} | tr ',' ' '))
           services="asr,chathistory"
-          services_json=$(printf '%s\n' "${services[@]}" | sort -u | jq -R '.' | jq -sc '.')
-          echo "services=$services_json" >> $GITHUB_OUTPUT
-
-          services=($(echo ${{ inputs.services }} | tr ',' ' '))
           image_list=[]
           for service in ${services[@]}
           do
@@ -67,7 +63,7 @@ jobs:
           image: ${{ env.OPEA_IMAGE_REPO }}opea/${{ matrix.image }}:comps
           # ${{ inputs.tag }}
           output-file: ${{ matrix.image }}-sbom-scan.txt
-          format: 'spdx-json'
+          format: "spdx-json"
 
       - name: Security Scan Container
         uses: aquasecurity/trivy-action@0.24.0
@@ -75,15 +71,16 @@ jobs:
           image-ref: ${{ env.OPEA_IMAGE_REPO }}opea/${{ matrix.image }}:comps
           # ${{ inputs.tag }}
           output: ${{ matrix.image }}-trivy-scan.txt
-          format: 'table'
-          exit-code: '1'
+          format: "table"
+          exit-code: "1"
           ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
 
       - name: Cleanup
         if: always()
-        run: docker rmi -f ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:comps
+        run:
+          docker rmi -f ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:comps
           # ${{ inputs.tag }}
       - uses: actions/upload-artifact@v4.3.4
         with:
