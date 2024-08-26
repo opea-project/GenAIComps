@@ -34,7 +34,7 @@ jobs:
         run: |
           pip install yq
           # services=($(echo ${{ inputs.services }} | tr ',' ' '))
-          services="asr,chathistory"
+          services=($(echo "asr,chathistory" | tr ',' ' '))
           image_list=[]
           for service in ${services[@]}
           do
