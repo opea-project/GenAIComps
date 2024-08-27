@@ -10,7 +10,6 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding-tei:comps -f comps/embeddings/langchain/docker/Dockerfile .
     docker build --no-cache -t opea/embedding-multimodal:comps -f comps/embeddings/langchain_multimodal/docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/embedding-multimodal built fail"
@@ -21,12 +20,12 @@ function build_docker_images() {
 }
 
 function start_service() {
-    docker run -d --name="test-embedding-multimodal-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 6000:6000 --ipc=host  opea/embedding-multimodal:comps
+    docker run -d --name="test-embedding-multimodal-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5038:6000 --ipc=host  opea/embedding-multimodal:comps
     sleep 3m
 }
 
 function validate_microservice() {
-    service_port=6000
+    service_port=5038
     result=$(http_proxy="" curl http://${ip_address}:$service_port/v1/embeddings \
         -X POST \
         -d '{"text":"how many cars are in this image?"}' \
