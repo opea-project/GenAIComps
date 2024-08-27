@@ -4,7 +4,7 @@
 
 FROM python:3.11-slim
 
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 ARG ARCH="cpu"
 
@@ -13,7 +13,10 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libgl1-mesa-glx \
     libjemalloc-dev \
     default-jre \
-    vim
+    vim \
+    poppler-utils \
+    tesseract-ocr \
+    libreoffice 
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \

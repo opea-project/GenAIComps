@@ -7,13 +7,14 @@ from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.llms import HuggingFaceEndpoint
-from langsmith import traceable
+from langchain_huggingface import HuggingFaceEndpoint
 
-from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+
+logger = CustomLogger("llm_docsum")
+logflag = os.getenv("LOGFLAG", False)
 
 
-@traceable(run_type="tool")
 def post_process_text(text: str):
     if text == " ":
         return "data: @#$\n\n"
@@ -32,8 +33,9 @@ def post_process_text(text: str):
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
+    if logflag:
+        logger.info(input)
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
@@ -60,7 +62,8 @@ def llm_generate(input: LLMParamsDoc):
             _serializer = WellKnownLCSerializer()
             async for chunk in llm_chain.astream_log(docs):
                 data = _serializer.dumps({"ops": chunk.ops}).decode("utf-8")
-                print(f"[docsum - text_summarize] data: {data}")
+                if logflag:
+                    logger.info(f"[docsum - text_summarize] data: {data}")
                 yield f"data: {data}\n\n"
             yield "data: [DONE]\n\n"
 
@@ -68,6 +71,8 @@ def llm_generate(input: LLMParamsDoc):
     else:
         response = llm_chain.invoke(input.query)
         response = response["result"].split("</s>")[0].split("\n")[0]
+        if logflag:
+            logger.info(response)
         return GeneratedDoc(text=response, prompt=input.query)
 
 
