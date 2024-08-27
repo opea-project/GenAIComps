@@ -42,6 +42,7 @@ jobs:
               image_list=$(echo ${image_list} | jq -s '.[0] + .[1] | unique' - <(echo ${images}))
           done
           echo "matrix=$(echo ${image_list} | jq -c '.')" >> $GITHUB_OUTPUT
+          echo $matrix
 
   scan-license:
     needs: get-image-list
