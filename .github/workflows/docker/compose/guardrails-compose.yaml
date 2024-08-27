@@ -13,3 +13,19 @@ services:
     build:
       dockerfile: comps/guardrails/pii_detection/docker/Dockerfile
     image: ${REGISTRY}opea/guardrails-pii-detection:${TAG:-latest}
+  factuality-predictionguard:
+    build:
+      dockerfile: comps/guardrails/factuality/predictionguard/docker/Dockerfile
+    image: ${REGISTRY}opea/factuality-predictionguard:${TAG:-latest}
+  injection-predictionguard:
+    build:
+      dockerfile: comps/guardrails/prompt_injection/predictionguard/docker/Dockerfile
+    image: ${REGISTRY}opea/injection-predictionguard:${TAG:-latest}
+  guardrails-toxicity-detection:
+    build:
+      dockerfile: comps/guardrails/toxicity_detection/docker/Dockerfile
+    image: ${REGISTRY}opea/guardrails-toxicity-detection:${TAG:-latest}
+  pii-predictionguard:
+    build:
+      dockerfile: comps/guardrails/pii_detection/predictionguard/docker/Dockerfile
+    image: ${REGISTRY}opea/pii-predictionguard:${TAG:-latest}
