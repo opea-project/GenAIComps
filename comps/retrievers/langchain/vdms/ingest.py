@@ -16,9 +16,9 @@ from langchain_community.vectorstores import VDMS
 from langchain_community.vectorstores.vdms import VDMS_Client
 from PIL import Image
 from vdms_config import (  # , INDEX_SCHEMA, VDMS_URL
-    INDEX_NAME,
     DISTANCE_STRATEGY,
     EMBED_MODEL,
+    INDEX_NAME,
     SEARCH_ENGINE,
     VDMS_HOST,
     VDMS_PORT,

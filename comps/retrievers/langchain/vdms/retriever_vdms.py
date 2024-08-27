@@ -9,9 +9,9 @@ from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 from langsmith import traceable
 from vdms_config import (  # , HUGGINGFACEHUB_API_TOKEN, INDEX_SCHEMA, VDMS_URL
-    INDEX_NAME,
     DISTANCE_STRATEGY,
     EMBED_MODEL,
+    INDEX_NAME,
     SEARCH_ENGINE,
     VDMS_HOST,
     VDMS_PORT,
