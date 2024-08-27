@@ -68,7 +68,7 @@ VDMS_PORT = int(os.getenv("VDMS_PORT", 55555))
 # VDMS_URL = format_vdms_conn_from_env()
 
 # Vector Index Configuration
-COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag-vdms")
+INDEX_NAME = os.getenv("INDEX_NAME", "rag-vdms")
 # HUGGINGFACEHUB_API_TOKEN ="dummy-token"
 
 

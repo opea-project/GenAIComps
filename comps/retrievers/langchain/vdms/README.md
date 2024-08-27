@@ -61,7 +61,7 @@ python langchain/retriever_vdms.py
 
 ```bash
 export RETRIEVE_MODEL_ID="BAAI/bge-base-en-v1.5"
-export COLLECTION_NAME=${your_index_name}
+export INDEX_NAME=${your_index_name or collection_name}
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
@@ -85,7 +85,7 @@ You can choose one as needed.
 ## 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="retriever-vdms-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e COLLECTION_NAME=$COLLECTION_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT opea/retriever-vdms:latest
+docker run -d --name="retriever-vdms-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT opea/retriever-vdms:latest
 ```
 
 ## 2.4 Run Docker with Docker Compose (Option B)

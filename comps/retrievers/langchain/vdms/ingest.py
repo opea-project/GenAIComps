@@ -16,7 +16,7 @@ from langchain_community.vectorstores import VDMS
 from langchain_community.vectorstores.vdms import VDMS_Client
 from PIL import Image
 from vdms_config import (  # , INDEX_SCHEMA, VDMS_URL
-    COLLECTION_NAME,
+    INDEX_NAME,
     DISTANCE_STRATEGY,
     EMBED_MODEL,
     SEARCH_ENGINE,
@@ -120,7 +120,7 @@ def ingest_documents():
         _ = VDMS.from_texts(
             client=client,
             embedding=embedder,
-            collection_name=COLLECTION_NAME,
+            collection_name=INDEX_NAME,
             distance_strategy=DISTANCE_STRATEGY,
             engine=SEARCH_ENGINE,
             batch_size=batch_size,

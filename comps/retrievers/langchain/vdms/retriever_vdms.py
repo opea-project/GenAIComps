@@ -9,7 +9,7 @@ from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 from langsmith import traceable
 from vdms_config import (  # , HUGGINGFACEHUB_API_TOKEN, INDEX_SCHEMA, VDMS_URL
-    COLLECTION_NAME,
+    INDEX_NAME,
     DISTANCE_STRATEGY,
     EMBED_MODEL,
     SEARCH_ENGINE,
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         vector_db = VDMS(
             client=client,
             embedding=embeddings,
-            collection_name=COLLECTION_NAME,
+            collection_name=INDEX_NAME,
             embedding_dimensions=dimensions,
             distance_strategy=DISTANCE_STRATEGY,
             engine=SEARCH_ENGINE,
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         vector_db = VDMS(
             client=client,
             embedding=embeddings,
-            collection_name=COLLECTION_NAME,
+            collection_name=INDEX_NAME,
             # embedding_dimensions=768,
             distance_strategy=DISTANCE_STRATEGY,
             engine=SEARCH_ENGINE,
