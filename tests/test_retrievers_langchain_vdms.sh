@@ -47,7 +47,7 @@ function start_service() {
     use_clip=0 #set to 1 if openai clip embedding should be used
 
     docker run -d --name="test-comps-retriever-vdms-server" -p 5009:7000 --ipc=host \
-    -e INDEX_NAME=$COLLECTION_NAME -e VDMS_HOST=$ip_address \
+    -e COLLECTION_NAME=$COLLECTION_NAME -e VDMS_HOST=$ip_address \
     -e https_proxy=$https_proxy -e http_proxy=$http_proxy \
     -e VDMS_PORT=$vdms_port -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
     -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e USECLIP=$use_clip \
