@@ -19,6 +19,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from pydantic import BaseModel, Field
 from transformers import TextIteratorStreamer, set_seed
+import validators
 from video_llama.common.registry import registry
 from video_llama.conversation.conversation_video import Chat
 
@@ -160,6 +161,14 @@ def is_local_file(url):
     """Returns True if url is a local file, False otherwise."""
     return not url.startswith("http://") and not url.startswith("https://")
 
+def is_valid_url(url):
+    validation = validators.url(url)
+    if validation:
+        print("URL is valid")
+        return True
+    else:
+        print("URL is invalid")
+        return False
 
 @app.get("/health")
 async def health() -> Response:
@@ -190,8 +199,11 @@ async def generate(
     if not is_local_file(video_url):
         try:
             video_path = os.path.join(VIDEO_DIR, video_name)
-            response = requests.get(video_url, stream=True)
-
+            if is_valid_url(video_url):
+                response = requests.get(video_url, stream=True)
+            else:
+                return JSONResponse(status_code=500, content={"message": "Invalid URL."})
+                
             if response.status_code == 200:
                 with open(video_path, "wb") as file:
                     for chunk in response.iter_content(chunk_size=1024):
