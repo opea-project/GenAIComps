@@ -1,5 +1,6 @@
 docarray[full]
 easyocr
+einops
 fastapi
 langchain-community
 langchain-core
