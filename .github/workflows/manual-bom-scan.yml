@@ -73,8 +73,7 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run:
-          docker rmi -f ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:${{ inputs.tag }}
+        run: docker rmi -f ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:${{ inputs.tag }}
       - uses: actions/upload-artifact@v4.3.4
         with:
           name: ${{ matrix.image }}-scan
