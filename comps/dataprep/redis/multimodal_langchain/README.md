@@ -113,9 +113,9 @@ This mircroservice has provided 3 different ways for users to ingest videos into
 ## 4.1 Consume *videos_with_transcripts* API
 **Use case:** This API is used when a transcript file (under `.vtt` format) is available for each video.
 
-**IMPORTANT NOTES:** 
+**Important notes:** 
 - Make sure the file paths after `files=@` are correct.
-- Every transcript filename must be identical with its corresponding video filename (except their extension .vtt and .mp4). For example, `video1.mp4` and `video1.vtt`. Otherwise, if `video1.vtt` is not included in this API call, this microservice will return error `No captions file video1.vtt found for video1.mp4`.
+- Every transcript file's name must be identical with its corresponding video file's name (except their extension .vtt and .mp4). For example, `video1.mp4` and `video1.vtt`. Otherwise, if `video1.vtt` is not included correctly in this API call, this microservice will return error `No captions file video1.vtt found for video1.mp4`.
 
 ### Single video-transcript pair upload
 
@@ -165,10 +165,9 @@ curl -X POST \
 
 ## 4.3 Consume *generate_captions* API
 
-**Use case:** This API should be used when a video does not have meaningful audio.
+**Use case:** This API should be used when a video does not have meaningful audio or does not have audio.
 
-In this use case, rather than making use of transcripts, this microservice will employ a LVM to generate the captions for video frames. To leverage LVM, please refer to this [README](../../../llms/README.md) to start LVM microservice first before starting this microservice.
-
+In this use case, transcript either does not provide any meaningful information or does not exist. Thus, it is preferred to leverage a LVM microservice to summarize the video frames.
 
 - Single video upload
 
