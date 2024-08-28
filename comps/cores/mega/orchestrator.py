@@ -151,9 +151,7 @@ class ServiceOrchestrator(DAG):
                         if chunk:
                             if downstream:
                                 chunk = chunk.decode("utf-8")
-                                print(f"===={chunk}===")
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
-                                print(f"***{buffered_chunk_str}***")
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
                                     res = requests.post(
@@ -167,7 +165,6 @@ class ServiceOrchestrator(DAG):
                                     else:
                                         raise Exception("Other response types not supported yet!")
                                     buffered_chunk_str = ""  # clear
-                                    print(f"---{res_txt}---")
                                     yield from self.token_generator(res_txt, is_last=is_last)
                             else:
                                 yield chunk
