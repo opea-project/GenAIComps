@@ -14,7 +14,7 @@ function build_docker_images() {
 
 function start_service() {
     docker run -d --name "test-comps-reranking-videoragqna-server" \
-        -p 5032:8000 \
+        -p 5037:8000 \
         --ipc=host \
         -e no_proxy=${no_proxy} \
         -e http_proxy=${http_proxy} \
@@ -33,7 +33,7 @@ function validate_microservice() {
     result=$(\
     http_proxy="" \
     curl -X 'POST' \
-        "http://${ip_address}:5032/v1/reranking" \
+        "http://${ip_address}:5037/v1/reranking" \
         -H 'accept: application/json' \
         -H 'Content-Type: application/json' \
         -d '{
