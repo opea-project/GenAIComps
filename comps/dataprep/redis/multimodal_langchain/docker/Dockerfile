@@ -1,4 +1,3 @@
-
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -22,11 +21,7 @@ RUN cd /root && wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-st
     export PATH=/root/ffmpeg-git-amd64-static:$PATH && \
     cp /root/ffmpeg-git-amd64-static/ffmpeg /usr/local/bin/
 
-RUN useradd -m -s /bin/bash user && \
-    mkdir -p /home/user && \
-    chown -R user /home/user/
-
-USER user
+RUN mkdir -p /home/user
 
 COPY comps /home/user/comps
 
@@ -35,12 +30,6 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/dataprep/redis/multimodal_langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
-
-USER root
-
-RUN mkdir -p /home/user/comps/dataprep/redis/multimodal_langchain/uploaded_files && chown -R user /home/user/comps/dataprep/redis/multimodal_langchain/uploaded_files
-
-USER user
 
 WORKDIR /home/user/comps/dataprep/redis/multimodal_langchain
 

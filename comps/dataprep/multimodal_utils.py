@@ -50,7 +50,7 @@ def convert_video_to_audio(video_path: str, output_audio_path: str):
     audio_clip = video_clip.audio
     audio_clip.write_audiofile(output_audio_path)
     video_clip.close()
-    audio_clip.close()
+    audio_clip.close()    
 
 
 def load_whisper_model(model_name: str = "base"):

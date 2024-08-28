@@ -15,7 +15,7 @@ from langchain_community.vectorstores import Redis
 from langchain_community.vectorstores.redis.base import _generate_field_schema, _prepare_metadata
 from langchain_community.utilities.redis import _array_to_buffer
 from langsmith import traceable
-
+from PIL import Image
 from comps import opea_microservices, register_microservice
 from comps.dataprep.multimodal_utils import (
     create_upload_folder,
@@ -32,6 +32,8 @@ from comps.dataprep.multimodal_utils import (
 )
 from comps.embeddings.multimodal_embeddings.bridgetower.bridgetower_embedding import  BridgeTowerEmbedding
 from langchain_community.vectorstores.redis.schema import read_schema
+import subprocess
+import time
 
 device = "cpu"
 upload_folder = "./uploaded_files/"
@@ -104,25 +106,9 @@ class MultimodalRedis(Redis):
                 raise ValueError("Metadatas must be a list of dicts")
             generated_schema = _generate_field_schema(metadatas[0])
 
-            # if not index_schema:
-            #     index_schema = generated_schema
-            if index_schema:
-                # read in the schema solely to compare to the generated schema
-                user_schema = read_schema(index_schema)  # type: ignore
-                # the very rare case where a super user decides to pass the index
-                # schema and a document loader is used that has metadata which
-                # we need to map into fields.
-                if user_schema != generated_schema:
-                    print(
-                        "`index_schema` does not match generated metadata schema.\n"
-                        + "If you meant to manually override the schema, please "
-                        + "ignore this message.\n"
-                        + f"index_schema: {user_schema}\n"
-                        + f"generated_schema: {generated_schema}\n"
-                    )
-            else:
-                # use the generated schema
+            if not index_schema:
                 index_schema = generated_schema
+            
         # Create instance
         instance = cls(
             redis_url,
@@ -172,9 +158,9 @@ class MultimodalRedis(Redis):
                 raise ValueError("Number of metadatas must match number of texts")
             if not (isinstance(metadatas, list) and isinstance(metadatas[0], dict)):
                 raise ValueError("Metadatas must be a list of dicts")
-
+        pil_imgs =[Image.open(img) for img in images]
         if not embeddings:    
-            embeddings = self._embeddings.embed_image_text_pairs(list(texts), list(images), batch_size=batch_size)
+            embeddings = self._embeddings.embed_image_text_pairs(list(texts), pil_imgs, batch_size=batch_size)
         self._create_index_if_not_exist(dim=len(embeddings[0]))
 
         # Write data to redis
@@ -296,13 +282,8 @@ async def ingest_videos(
             else:
                 raise HTTPException(status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only.")
 
-        # Load whisper model
-        whisper_model = load_whisper_model(model_name=WHISPER_MODEL)
-
-        # Load embeddings model
-        embeddings = BridgeTowerEmbedding(model_name=EMBED_MODEL, device=device)
-
         for video_file in video_files:
+            st = time.time()
             print(f"Processing video {video_file.filename}")
 
             # Assign unique identifier to video
@@ -319,32 +300,48 @@ async def ingest_videos(
 
             # Extract temporary audio wav file from video mp4
             audio_file = video_dir_name + ".wav"
+            print(f"Extracting {audio_file}")
             convert_video_to_audio(os.path.join(upload_folder, video_file_name), os.path.join(upload_folder, audio_file))
+            # convert_video_to_audio_subprocess(os.path.join(upload_folder, video_file_name), 
+            #                                   upload_folder, 
+            #                                   audio_file)
+            print(f"Done extracting {audio_file}")
+
+            # Load whisper model
+            print("Loading whisper model....")
+            whisper_model = load_whisper_model(model_name=WHISPER_MODEL)
+            print("Done loading whisper!")
 
             # Extract transcript from audio
+            print(f"Extracting transcript from audio")
             transcripts = extract_transcript_from_audio(whisper_model, os.path.join(upload_folder, audio_file))
-
+            
             # Save transcript as vtt file and delete audio file
             vtt_file = video_dir_name + ".vtt"
             write_vtt(transcripts, os.path.join(upload_folder, vtt_file))
             delete_audio_file(os.path.join(upload_folder, audio_file))
+            print(f"Done extracting transcript.")
 
             # Store frames and caption annotations in a new directory
+            print("Extracting frames and generating annotation")
             extract_frames_and_annotations_from_transcripts(video_id, 
-                                                                          os.path.join(upload_folder, video_file_name), 
-                                                                          os.path.join(upload_folder, vtt_file), 
-                                                                          os.path.join(upload_folder, video_dir_name))
-
+                                                            os.path.join(upload_folder, video_file_name), 
+                                                            os.path.join(upload_folder, vtt_file), 
+                                                            os.path.join(upload_folder, video_dir_name))
+            print("Done extracting frames and generating annotation")
             # Delete temporary vtt file
             os.remove(os.path.join(upload_folder, vtt_file))
 
             # Ingest multimodal data into redis
+            print("Ingesting data to redis vector store")
             ingest_multimodal(video_name, os.path.join(upload_folder, video_dir_name), embeddings)
 
             # Delete temporary video directory containing frames and annotations
             shutil.rmtree(os.path.join(upload_folder, video_dir_name))
 
             print(f"Processed video {video_file.filename}")
+            end = time.time()
+            print(str(end - st))
 
         return {"status": 200, "message": "Data preparation succeeded"}
 
@@ -365,9 +362,6 @@ async def ingest_videos(
                 video_files.append(file)
             else:
                 raise HTTPException(status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only.")
-
-        # Load embeddings model
-        embeddings = BridgeTowerEmbedding(model_name=EMBED_MODEL, device=device)
 
         for video_file in video_files:
             print(f"Processing video {video_file.filename}")
@@ -428,9 +422,6 @@ async def ingest_videos(
 
         if len(video_files) == 0:
             return HTTPException(status_code=400, detail="The uploaded files have unsupported formats. Please upload atleast one video file (.mp4) with captions (.vtt)")
-
-        # Load embeddings model
-        embeddings = BridgeTowerEmbedding(model_name=EMBED_MODEL, device=device)
 
         for video_file in video_files:
             print(f"Processing video {video_file.filename}")
@@ -513,6 +504,29 @@ async def delete_videos():
     return {"status": True}
 
 
+def convert_video_to_audio_subprocess(video_path: str, output_path: str, audio_file_name: str):
+    """Converts video to audio by execute another python script.
+    
+    :param video_path: file path of video file (.mp4)
+    :param output_path: file path of audio file (.wav) to be created
+    :param audio_file_name: audio file name to be created
+    """
+    cmd = ["python", "./extract_audio_from_video.py", 
+           "-i", f"{video_path}", 
+           "-a", f"{output_path}", 
+           "-o", f"{audio_file_name}"]
+    print(cmd)
+    p = subprocess.Popen(cmd)
+    while True:
+        poll = p.poll()
+        if poll is not None:
+            break
+        time.sleep(1)
+
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
+    # Load embeddings model
+    print("Initializing BridgeTower model as embedder...")
+    embeddings = BridgeTowerEmbedding(model_name=EMBED_MODEL, device=device)
+    print("Done initialization of embedder!")
     opea_microservices["opea_service@prepare_videodoc_redis"].start()
