@@ -82,7 +82,7 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
             """
         prompt = ChatPromptTemplate.from_template(template)
         final_prompt = prompt.format(context=doc.text, question=input.initial_query)
-        statistics_dict["opea_service@reranking_mosec_xeon"].append_latency(time.time() - start, None)
+        statistics_dict["opea_service@reranking_mosec"].append_latency(time.time() - start, None)
 
         return LLMParamsDoc(query=final_prompt.strip())
     else:
