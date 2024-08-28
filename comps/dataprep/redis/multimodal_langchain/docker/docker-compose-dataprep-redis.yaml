@@ -21,7 +21,6 @@ services:
       https_proxy: ${https_proxy}
       REDIS_URL: ${REDIS_URL}
       INDEX_NAME: ${INDEX_NAME}
-      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
       LVM_ENDPOINT: ${LVM_ENDPOINT}
     restart: unless-stopped
 

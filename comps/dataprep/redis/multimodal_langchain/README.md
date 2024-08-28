@@ -7,9 +7,6 @@ This `dataprep` microservice accepts videos (mp4 files) and their transcripts (o
 ## 1.1 Install Requirements
 
 ```bash
-apt update
-apt install default-jre
-
 # Install ffmpeg static build
 wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz
 mkdir ffmpeg-git-amd64-static
@@ -35,7 +32,7 @@ export PYTHONPATH=${path_to_comps}
 
 ## 1.4 Start LVM Microservice (Optional)
 
-This is required only if you are going to consume the *generate_captions* API of this microservice as described [here](#43-consume-generate_captions-api).
+This is required only if you are going to consume the *generate_captions* API of this microservice as in [Section 4.3](#43-consume-generate_captions-api).
 
 Please refer to this [readme](../../../lvms/README.md) to start the LVM microservice.
 After LVM is up, set up environment variables.
@@ -109,9 +106,9 @@ docker container logs -f dataprep-redis-server
 ```
 
 # 🚀4. Consume Microservice
-Once document preparation microservice for Redis is started, user can use below commands to invoke the microservice to convert videos and their transcripts (optional) to embeddings and save to the Redis vector store.
+Once this dataprep microservice is started, user can use the below commands to invoke the microservice to convert videos and their transcripts (optional) to embeddings and save to the Redis vector store.
 
-This mircroservice has provided 3 different ways for users to ingest videos into Redis vector store for the 3 use cases.
+This mircroservice has provided 3 different ways for users to ingest videos into Redis vector store corresponding to the 3 use cases.
 
 ## 4.1 Consume *videos_with_transcripts* API
 **Use case:** This API is used when a transcript file (under `.vtt` format) is available for each video.
