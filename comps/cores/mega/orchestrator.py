@@ -167,6 +167,7 @@ class ServiceOrchestrator(DAG):
                                     else:
                                         raise Exception("Other response types not supported yet!")
                                     buffered_chunk_str = ""  # clear
+                                    print(f"---{buffered_chunk_str}---")
                                     yield from self.token_generator(res_txt, is_last=is_last)
                             else:
                                 yield chunk
