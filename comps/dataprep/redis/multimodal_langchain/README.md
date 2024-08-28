@@ -29,7 +29,7 @@ Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
 ```bash
 export your_ip=$(hostname -I | awk '{print $1}')
 export REDIS_URL="redis://${your_ip}:6379"
-export INDEX_NAME=${your_index_name}
+export INDEX_NAME=${your_redis_index_name}
 export PYTHONPATH=${path_to_comps}
 ```
 
@@ -78,7 +78,7 @@ export your_ip=$(hostname -I | awk '{print $1}')
 export EMBEDDING_MODEL_ID="BridgeTower/bridgetower-large-itm-mlm-itc"
 export REDIS_URL="redis://${your_ip}:6379"
 export WHISPER_MODEL="base"
-export INDEX_NAME=${your_index_name}
+export INDEX_NAME=${your_redis_index_name}
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
 

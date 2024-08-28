@@ -1,6 +1,6 @@
 # Dataprep Microservice with Redis
 
-We have provided dataprep microservice for multimodal data input (e.g., text and image) in the `multimodal_langchain` directory.
+We have provided dataprep microservice for multimodal data input (e.g., text and image) [here](multimodal_langchain/README.md).
 
 For dataprep microservice for text input, we provide here two frameworks: `Langchain` and `LlamaIndex`. We also provide `Langchain_ray` which uses ray to parallel the data prep for multi-file performance improvement(observed 5x - 15x speedup by processing 1000 files/links.).
 
