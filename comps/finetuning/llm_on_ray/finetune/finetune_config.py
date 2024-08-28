@@ -45,10 +45,16 @@ class General(BaseModel):
     config: GeneralConfig
     lora_config: Optional[LoraConfig] = None
     enable_gradient_checkpointing: bool = False
+    task: str = "instruction_tuning"
 
     @validator("report_to")
     def check_report_to(cls, v: str):
         assert v in ["none", "tensorboard"]
+        return v
+
+    @validator("task")
+    def check_report_to(cls, v: str):
+        assert v in ["instruction_tuning", "rerank", "embedding"]
         return v
 
 
@@ -71,6 +77,7 @@ class Dataset(BaseModel):
     data_preprocess_type: str = "neural_chat"
     max_train_samples: int = 0
     max_eval_samples: int = 0
+    train_group_size: int = 8
 
 
 class RayResourceConfig(BaseModel):
