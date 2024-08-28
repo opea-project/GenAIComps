@@ -21,28 +21,29 @@ ACCELERATE_STRATEGY_DEEPSPEED = "DEEPSPEED"
 
 
 class GeneralConfig(BaseModel):
-    trust_remote_code: bool
-    use_auth_token: Optional[str]
+    trust_remote_code: bool = False
+    # set Huggingface token to access dataset/model
+    token: Optional[str] = None
 
 
 class LoraConfig(BaseModel):
-    task_type: str
-    r: int
-    lora_alpha: int
-    lora_dropout: float
+    task_type: str = "CAUSAL_LM"
+    r: int = 8
+    lora_alpha: int = 32
+    lora_dropout: float = 0.1
     target_modules: Optional[List[str]] = None
 
 
-class General(BaseModel):
-    base_model: str
+class GeneralConfig(BaseModel):
+    base_model: str = "Intel/neural-chat-7b-v3-3"
     tokenizer_name: Optional[str] = None
     gaudi_config_name: Optional[str] = None
-    gpt_base_model: bool
-    output_dir: str
+    gpt_base_model: bool = False
+    output_dir: str = "./tmp"
     report_to: str = "none"
     resume_from_checkpoint: Optional[str] = None
     save_strategy: str = "no"
-    config: GeneralConfig
+    config: GeneralConfig = GeneralConfig()
     lora_config: Optional[LoraConfig] = None
     enable_gradient_checkpointing: bool = False
 
@@ -52,10 +53,10 @@ class General(BaseModel):
         return v
 
 
-class Dataset(BaseModel):
-    train_file: str
-    validation_file: Optional[str]
-    validation_split_percentage: int
+class DatasetConfig(BaseModel):
+    train_file: str = None
+    validation_file: Optional[str] = None
+    validation_split_percentage: int = 5
     max_length: int = 512
     group: bool = True
     block_size: int = 512
@@ -74,23 +75,23 @@ class Dataset(BaseModel):
 
 
 class RayResourceConfig(BaseModel):
-    CPU: int
+    CPU: int = 32
     GPU: int = 0
     HPU: int = 0
 
 
-class Training(BaseModel):
-    optimizer: str
-    batch_size: int
-    epochs: int
+class TrainingConfig(BaseModel):
+    optimizer: str = "adamw_torch"
+    batch_size: int = 2
+    epochs: int = 1
     max_train_steps: Optional[int] = None
-    learning_rate: float
-    lr_scheduler: str
-    weight_decay: float
+    learning_rate: float = 5.0e-5
+    lr_scheduler: str = "linear"
+    weight_decay: float = 0.0
     device: str = DEVICE_CPU
     hpu_execution_mode: str = "lazy"
-    num_training_workers: int
-    resources_per_worker: RayResourceConfig
+    num_training_workers: int = 1
+    resources_per_worker: RayResourceConfig = RayResourceConfig()
     accelerate_mode: str = ACCELERATE_STRATEGY_DDP
     mixed_precision: str = PRECISION_NO
     gradient_accumulation_steps: int = 1
@@ -151,6 +152,6 @@ class Training(BaseModel):
 
 
 class FinetuneConfig(BaseModel):
-    General: General
-    Dataset: Dataset
-    Training: Training
+    General: GeneralConfig = GeneralConfig()
+    Dataset: DatasetConfig = DatasetConfig()
+    Training: TrainingConfig = TrainingConfig()

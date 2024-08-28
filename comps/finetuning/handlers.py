@@ -18,12 +18,8 @@ from comps.cores.proto.api_protocol import (
     FineTuningJobList,
     FineTuningJobsRequest,
 )
-from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
+from comps.finetuning.finetune_config import FinetuneConfig
 
-MODEL_CONFIG_FILE_MAP = {
-    "meta-llama/Llama-2-7b-chat-hf": "./models/llama-2-7b-chat-hf.yaml",
-    "mistralai/Mistral-7B-v0.1": "./models/mistral-7b-v0.1.yaml",
-}
 
 DATASET_BASE_PATH = "datasets"
 JOBS_PATH = "jobs"
@@ -62,18 +58,12 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
     train_file = request.training_file
     train_file_path = os.path.join(DATASET_BASE_PATH, train_file)
 
-    model_config_file = MODEL_CONFIG_FILE_MAP.get(base_model)
-    if not model_config_file:
-        raise HTTPException(status_code=404, detail=f"Base model '{base_model}' not supported!")
-
     if not os.path.exists(train_file_path):
         raise HTTPException(status_code=404, detail=f"Training file '{train_file}' not found!")
 
-    with open(model_config_file) as f:
-        finetune_config = parse_yaml_raw_as(FinetuneConfig, f)
-
+    finetune_config = FinetuneConfig()
+    finetune_config.General.base_model = base_model
     finetune_config.Dataset.train_file = train_file_path
-
     if request.hyperparameters is not None:
         if request.hyperparameters.epochs != "auto":
             finetune_config.Training.epochs = request.hyperparameters.epochs
@@ -85,7 +75,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
             finetune_config.Training.learning_rate = request.hyperparameters.learning_rate_multiplier
 
     if os.getenv("HF_TOKEN", None):
-        finetune_config.General.config.use_auth_token = os.getenv("HF_TOKEN", None)
+        finetune_config.General.config.token = os.getenv("HF_TOKEN", None)
 
     job = FineTuningJob(
         id=f"ft-job-{uuid.uuid4()}",
