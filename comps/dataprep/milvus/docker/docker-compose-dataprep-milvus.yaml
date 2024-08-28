@@ -62,7 +62,7 @@ services:
     depends_on:
       - "etcd"
       - "minio"
-  
+
   mosec-embedding:
     image: opea/embedding-mosec-endpoint:latest
     container_name: embedding-mosec-server
@@ -73,7 +73,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
     restart: unless-stopped
-  
+
   dataprep-milvus:
     image: opea/dataprep-milvus:latest
     container_name: dataprep-milvus-server

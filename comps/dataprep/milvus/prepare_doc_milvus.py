@@ -27,9 +27,9 @@ from pyspark import SparkConf, SparkContext
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
     create_upload_folder,
+    decode_filename,
     document_loader,
     encode_filename,
-    decode_filename,
     get_file_structure,
     get_separators,
     get_tables_result,
@@ -126,10 +126,10 @@ def ingest_data_to_milvus(doc_path: DocPath, embedder):
         text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
     else:
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=doc_path.chunk_size, 
-            chunk_overlap=doc_path.chunk_overlap, 
-            add_start_index=True, 
-            separators=get_separators()
+            chunk_size=doc_path.chunk_size,
+            chunk_overlap=doc_path.chunk_overlap,
+            add_start_index=True,
+            separators=get_separators(),
         )
 
     content = document_loader(path)
@@ -166,10 +166,7 @@ def search_by_file(collection, file_name):
 
 
 def search_all(collection):
-    results = collection.query(
-        expr="pk >= 0",
-        output_fields=[partition_field_name, "pk"]
-    )
+    results = collection.query(expr="pk >= 0", output_fields=[partition_field_name, "pk"])
     if logflag:
         logger.info(f"[ search all ] {len(results)} results: {results}")
     return results
@@ -196,9 +193,7 @@ def delete_by_partition_field(my_milvus, partition_field):
         logger.info(f"[ delete partition ] delete success: {res}")
 
 
-@register_microservice(
-    name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6010
-)
+@register_microservice(name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6010)
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
     link_list: Optional[str] = Form(None),
@@ -265,7 +260,8 @@ async def ingest_documents(
                     if logflag:
                         logger.info(f"[ upload ] File {file.filename} already exists.")
                     raise HTTPException(
-                        status_code=400, detail=f"Uploaded file {file.filename} already exists. Please change file name."
+                        status_code=400,
+                        detail=f"Uploaded file {file.filename} already exists. Please change file name.",
                     )
 
             await save_content_to_local_disk(save_path, file)
@@ -277,7 +273,7 @@ async def ingest_documents(
                     process_table=process_table,
                     table_strategy=table_strategy,
                 ),
-                embedder
+                embedder,
             )
             uploaded_files.append(save_path)
             if logflag:
@@ -325,7 +321,7 @@ async def ingest_documents(
         link_list = json.loads(link_list)  # Parse JSON string to list
         if not isinstance(link_list, list):
             raise HTTPException(status_code=400, detail="link_list should be a list.")
-        
+
         for link in link_list:
             encoded_link = encode_filename(link)
             if logflag:
@@ -334,11 +330,9 @@ async def ingest_documents(
             # check whether the link file already exists
             if my_milvus.col:
                 try:
-                    search_res = search_by_file(my_milvus.col, encoded_link+".txt")
+                    search_res = search_by_file(my_milvus.col, encoded_link + ".txt")
                 except Exception as e:
-                    raise HTTPException(
-                        status_code=500, detail=f"Failed when searching in Milvus db for link {link}."
-                    )
+                    raise HTTPException(status_code=500, detail=f"Failed when searching in Milvus db for link {link}.")
                 if len(search_res) > 0:
                     if logflag:
                         logger.info(f"[ upload ] Link {link} already exists.")
@@ -357,7 +351,7 @@ async def ingest_documents(
                     process_table=process_table,
                     table_strategy=table_strategy,
                 ),
-                embedder
+                embedder,
             )
         if logflag:
             logger.info(f"[ upload ] Successfully saved link list {link_list}")
@@ -410,19 +404,17 @@ async def rag_get_file_structure():
     try:
         all_data = search_all(my_milvus.col)
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed when searching in Milvus db for all files."
-        )
+        raise HTTPException(status_code=500, detail="Failed when searching in Milvus db for all files.")
 
     # return [] if no data in db
     if len(all_data) == 0:
         return []
 
-    res_file = [res['filename'] for res in all_data]
+    res_file = [res["filename"] for res in all_data]
     unique_list = list(set(res_file))
     if logflag:
         logger.info(f"[ get ] unique list from db: {unique_list}")
-    
+
     # construct result file list in format
     file_list = []
     for file_name in unique_list:
@@ -484,7 +476,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     if file_path == "all":
         if logflag:
             logger.info("[ delete ] deleting all files")
-        
+
         delete_all_data(my_milvus)
 
         # delete files on local disk
@@ -494,10 +486,10 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
             if logflag:
                 logger.info(f"[ delete ] {e}. Fail to delete {upload_folder}.")
             raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}.")
-        
+
         if logflag:
             logger.info("[ delete ] successfully delete all files.")
-        
+
         create_upload_folder(upload_folder)
         if logflag:
             logger.info("[ delete ] new upload folder created.")
@@ -527,7 +519,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
             if logflag:
                 logger.info(f"[delete] file {file_path} deleted")
             return {"status": True}
-        
+
         # delete folder
         else:
             if logflag:
@@ -539,5 +531,5 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
 
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
-    
+
     opea_microservices["opea_service@prepare_doc_milvus"].start()

@@ -2,7 +2,7 @@
 
 ## 🚀1. Start Microservice with Python (Option 1)
 
-### 1.1  Requirements
+### 1.1 Requirements
 
 ```bash
 pip install -r requirements.txt
