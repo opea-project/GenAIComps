@@ -27,7 +27,7 @@ jobs:
 
       - name: Check for changed Dockerfile paths in yaml
         run: |
-          set -xe
+          set -e
           shopt -s globstar
           cd ${{github.workspace}}
           is_use="FALSE"
@@ -52,7 +52,7 @@ jobs:
 
       - name: Check for changed Dockerfile paths in readme
         run: |
-          set -xe
+          set -e
           shopt -s globstar
           cd ${{github.workspace}}
           is_use="FALSE"
