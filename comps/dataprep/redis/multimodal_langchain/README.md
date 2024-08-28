@@ -33,17 +33,19 @@ export INDEX_NAME=${your_index_name}
 export PYTHONPATH=${path_to_comps}
 ```
 
-## 1.4 Start LVM Microservice
+## 1.4 Start LVM Microservice (Optional)
+
+This is required only if you are going to consume the *generate_captions* API of this microservice as described [here](#43-consume-generate_captions-api).
 
 Please refer to this [readme](../../../lvms/README.md) to start the LVM microservice.
-
 After LVM is up, set up environment variables.
 
 ```bash
-export LVM_ENDPOINT="http://localhost:9399/v1/lvm"
+export your_ip=$(hostname -I | awk '{print $1}')
+export LVM_ENDPOINT="http://${your_ip}:9399/v1/lvm"
 ```
 
-## 1.5 Start Document Preparation Microservice for Redis with Python Script
+## 1.5 Start Data Preparation Microservice for Redis with Python Script
 
 Start document preparation microservice for Redis with below command.
 
@@ -57,14 +59,16 @@ python prepare_videodoc_redis.py
 
 Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
 
-## 2.2 Start LVM Microservice
+## 2.2 Start LVM Microservice (Optional)
+
+This is required only if you are going to consume the *generate_captions* API of this microservice as described [here](#43-consume-generate_captions-api).
 
 Please refer to this [readme](../../../lvms/README.md) to start the LVM microservice.
-
 After LVM is up, set up environment variables.
 
 ```bash
-export LVM_ENDPOINT="http://localhost:9399/v1/lvm"
+export your_ip=$(hostname -I | awk '{print $1}')
+export LVM_ENDPOINT="http://${your_ip}:9399/v1/lvm"
 ```
 
 ## 2.3 Setup Environment Variables
@@ -72,7 +76,6 @@ export LVM_ENDPOINT="http://localhost:9399/v1/lvm"
 ```bash
 export your_ip=$(hostname -I | awk '{print $1}')
 export EMBEDDING_MODEL_ID="BridgeTower/bridgetower-large-itm-mlm-itc"
-export LVM_ENDPOINT="http://${your_ip}:9399/v1/lvm"
 export REDIS_URL="redis://${your_ip}:6379"
 export WHISPER_MODEL="base"
 export INDEX_NAME=${your_index_name}
