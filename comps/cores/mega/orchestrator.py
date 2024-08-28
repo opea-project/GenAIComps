@@ -203,6 +203,6 @@ class ServiceOrchestrator(DAG):
         suffix = "\n\n"
         tokens = re.findall(r"\s?\S+\s?", sentence, re.UNICODE)
         for token in tokens:
-            yield prefix + repr(token.encode("utf-8").replace('\\n', '\n')) + suffix
+            yield prefix + repr(token.replace('\\n', '\n').encode("utf-8")) + suffix
         if is_last:
             yield "data: [DONE]\n\n"
