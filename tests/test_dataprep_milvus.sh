@@ -48,7 +48,7 @@ function start_service() {
     # start dataprep service
     MOSEC_EMBEDDING_ENDPOINT="http://${ip_address}:${mosec_embedding_port}"
     MILVUS=${ip_address}
-    docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:6010 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} -e MILVUS=${MILVUS} --ipc=host opea/dataprep-milvus:comps
+    docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:6010 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} -e MILVUS=${MILVUS} -e LOGFLAG=true --ipc=host opea/dataprep-milvus:comps
     sleep 1m
 }
 
@@ -91,12 +91,19 @@ function validate_service() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    sleep 1s
+    sleep 5s
 }
 
 function validate_microservice() {
     cd $LOG_PATH
     dataprep_service_port=5022
+
+    # test /v1/dataprep/delete_file
+    validate_service \
+        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/delete_file" \
+        '{"status":true}' \
+        "dataprep_del" \
+        "test-comps-dataprep-milvus-server"
 
     # test /v1/dataprep upload file
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
@@ -118,13 +125,6 @@ function validate_microservice() {
         "http://${ip_address}:${dataprep_service_port}/v1/dataprep/get_file" \
         '{"name":' \
         "dataprep_get" \
-        "test-comps-dataprep-milvus-server"
-
-    # test /v1/dataprep/delete_file
-    validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/delete_file" \
-        '{"status":true}' \
-        "dataprep_del" \
         "test-comps-dataprep-milvus-server"
 
 }
