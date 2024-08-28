@@ -33,3 +33,4 @@ transformers
 uvicorn
 validators
 webdataset
+werkzeug
