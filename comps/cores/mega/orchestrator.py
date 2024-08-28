@@ -75,12 +75,11 @@ class ServiceOrchestrator(DAG):
                             if len(downstreams) == 0 and llm_parameters.streaming:
                                 # turn the response to a StreamingResponse
                                 # to make the response uniform to UI
-                                print(response)
                                 def fake_stream(text):
                                     yield "data: b'" + text + "'\n\n"
                                     yield "data: [DONE]\n\n"
                                 self.dump_outputs(node,
-                                    StreamingResponse(fake_stream(response.text), media_type="text/event-stream"),
+                                    StreamingResponse(fake_stream(response["text"]), media_type="text/event-stream"),
                                     result_dict)
 
                     for d_node in downstreams:
