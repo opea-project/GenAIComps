@@ -20,7 +20,6 @@ from comps.cores.proto.api_protocol import (
 )
 from comps.finetuning.finetune_config import FinetuneConfig
 
-
 DATASET_BASE_PATH = "datasets"
 JOBS_PATH = "jobs"
 if not os.path.exists(DATASET_BASE_PATH):
