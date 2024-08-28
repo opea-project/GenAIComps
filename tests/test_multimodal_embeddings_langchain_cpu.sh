@@ -105,7 +105,7 @@ function main() {
     validate_microservice
 
     stop_docker
-    # echo y | docker system prune
+    echo y | docker system prune
 }
 
 main
