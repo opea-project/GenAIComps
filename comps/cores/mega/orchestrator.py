@@ -193,9 +193,10 @@ class ServiceOrchestrator(DAG):
         prefix = "data: b'"
         prefix_2 = 'data: b"'
         suffix = "'\n\n"
+        suffix_2 = '"\n\n'
         if chunk_str.startswith(prefix) or chunk_str.startswith(prefix_2):
             chunk_str = chunk_str[len(prefix) :]
-        if chunk_str.endswith(suffix):
+        if chunk_str.endswith(suffix) or chunk_str.endswith(suffix_2):
             chunk_str = chunk_str[: -len(suffix)]
         return chunk_str
 
