@@ -22,11 +22,14 @@ from comps.finetuning.finetune_config import FinetuneConfig
 
 DATASET_BASE_PATH = "datasets"
 JOBS_PATH = "jobs"
+OUTPUT_DIR = "output"
+
 if not os.path.exists(DATASET_BASE_PATH):
     os.mkdir(DATASET_BASE_PATH)
-
 if not os.path.exists(JOBS_PATH):
     os.mkdir(JOBS_PATH)
+if not os.path.exists(OUTPUT_DIR):
+    os.mkdir(OUTPUT_DIR)
 
 FineTuningJobID = str
 CHECK_JOB_STATUS_INTERVAL = 5  # Check every 5 secs
@@ -89,7 +92,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
         status="running",
         seed=random.randint(0, 1000) if request.seed is None else request.seed,
     )
-    finetune_config.General.output_dir = os.path.join(JOBS_PATH, job.id)
+    finetune_config.General.output_dir = os.path.join(OUTPUT_DIR, job.id)
     if os.getenv("DEVICE", ""):
         print(f"specific device: {os.getenv('DEVICE')}")
         finetune_config.Training.device = os.getenv("DEVICE")
@@ -104,7 +107,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
         # Entrypoint shell command to execute
         entrypoint=f"python finetune_runner.py --config_file {finetune_config_file}",
         # Path to the local directory that contains the script.py file
-        runtime_env={"working_dir": "./"},
+        runtime_env={"working_dir": "./", "excludes": [f"{OUTPUT_DIR}"]},
     )
     print(f"Submitted Ray job: {ray_job_id} ...")
 
