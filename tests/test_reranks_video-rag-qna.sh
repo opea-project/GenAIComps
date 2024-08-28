@@ -24,7 +24,7 @@ function start_service() {
         opea/reranking-videoragqna:latest
 
 
-    until docker logs reranking-videoragqna-server 2>&1 | grep -q "Uvicorn running on"; do
+    until docker logs test-comps-reranking-videoragqna-server 2>&1 | grep -q "Uvicorn running on"; do
         sleep 2
     done
 }
