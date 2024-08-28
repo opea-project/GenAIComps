@@ -302,9 +302,6 @@ async def ingest_videos(
             audio_file = video_dir_name + ".wav"
             print(f"Extracting {audio_file}")
             convert_video_to_audio(os.path.join(upload_folder, video_file_name), os.path.join(upload_folder, audio_file))
-            # convert_video_to_audio_subprocess(os.path.join(upload_folder, video_file_name), 
-            #                                   upload_folder, 
-            #                                   audio_file)
             print(f"Done extracting {audio_file}")
 
             # Load whisper model
@@ -502,26 +499,6 @@ async def delete_videos():
     clear_upload_folder(upload_folder)
     print("Successfully deleted all uploaded videos.")
     return {"status": True}
-
-
-def convert_video_to_audio_subprocess(video_path: str, output_path: str, audio_file_name: str):
-    """Converts video to audio by execute another python script.
-    
-    :param video_path: file path of video file (.mp4)
-    :param output_path: file path of audio file (.wav) to be created
-    :param audio_file_name: audio file name to be created
-    """
-    cmd = ["python", "./extract_audio_from_video.py", 
-           "-i", f"{video_path}", 
-           "-a", f"{output_path}", 
-           "-o", f"{audio_file_name}"]
-    print(cmd)
-    p = subprocess.Popen(cmd)
-    while True:
-        poll = p.poll()
-        if poll is not None:
-            break
-        time.sleep(1)
 
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
