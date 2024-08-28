@@ -115,7 +115,7 @@ place to watch it is on BlackmagicShine.com. We're right here on the smoking
 tire.""" > ${transcript_fn}
 
     echo "Downloading Video"
-    wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -o ${video_fn}
+    wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -O ${video_fn}
     
 }
 
@@ -125,7 +125,6 @@ function validate_microservice() {
     # test v1/dataprep/generate_transcripts upload file
     echo "Testing generate_transcripts API"
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/generate_transcripts"
-    
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -266,6 +265,7 @@ function main() {
     start_lvm
     build_docker_images
     start_service
+    prepare_data
 
     validate_microservice
     delete_data
