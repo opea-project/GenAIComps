@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 import decord
 import requests
 import uvicorn
+import validators
 from extract_vl_embedding import VLEmbeddingExtractor as VL
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,10 +21,9 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from pydantic import BaseModel, Field
 from transformers import TextIteratorStreamer, set_seed
-import validators
-from werkzeug.utils import secure_filename
 from video_llama.common.registry import registry
 from video_llama.conversation.conversation_video import Chat
+from werkzeug.utils import secure_filename
 
 # Initialize decord bridge and seed
 decord.bridge.set_bridge("torch")
@@ -185,7 +185,7 @@ def is_valid_url(url):
         return False
 
     # Check that the path only contains one "." for the file extension
-    if parsed_url.path.count('.') != 1:
+    if parsed_url.path.count(".") != 1:
         logging.error("URL path does not meet the requirement of having only one '.'")
         return False
 
@@ -193,12 +193,14 @@ def is_valid_url(url):
     logging.info("URL is valid")
     return True
 
+
 def is_valid_video(filename):
-    if re.match(r'^[a-zA-Z0-9-_]+\.(mp4)$', filename, re.IGNORECASE):
+    if re.match(r"^[a-zA-Z0-9-_]+\.(mp4)$", filename, re.IGNORECASE):
         return secure_filename(filename)
     else:
         return False
-    
+
+
 @app.get("/health")
 async def health() -> Response:
     """Health check."""
@@ -213,7 +215,7 @@ async def generate(
     prompt: str = Query(..., description="Query for Video-LLama", examples="What is the man doing?"),
     max_new_tokens: int = Query(150, description="Maximum number of tokens to generate", examples=150),
 ) -> StreamingResponse:
-    
+
     if video_url.lower().endswith(".mp4"):
         logging.info(f"Format check passed, the file '{video_url}' is an MP4 file.")
     else:
@@ -223,23 +225,25 @@ async def generate(
     if is_local_file(video_url):
         # validate the video name
         if is_valid_video(video_url):
-            secure_video_name = is_valid_video(video_url) # only support video name without path
+            secure_video_name = is_valid_video(video_url)  # only support video name without path
         else:
             return JSONResponse(status_code=500, content={"message": "Invalid file name."})
-        
+
         video_path = os.path.join(VIDEO_DIR, secure_video_name)
         if os.path.exists(video_path):
-            logging.info(f"File found: {video_path}") 
+            logging.info(f"File found: {video_path}")
         else:
             logging.error(f"File not found: {video_path}")
-            return JSONResponse(status_code=404, content={"message": "File not found. Only local files under data folder are allowed."})
+            return JSONResponse(
+                status_code=404, content={"message": "File not found. Only local files under data folder are allowed."}
+            )
     else:
         # validate the remote URL
         if not is_valid_url(video_url):
             return JSONResponse(status_code=500, content={"message": "Invalid URL."})
         else:
             parsed_url = urlparse(video_url)
-            video_path = os.path.join(VIDEO_DIR, os.path.basename(parsed_url.path))           
+            video_path = os.path.join(VIDEO_DIR, os.path.basename(parsed_url.path))
             try:
                 response = requests.get(video_url, stream=True)
                 if response.status_code == 200:
@@ -254,7 +258,7 @@ async def generate(
             except Exception as e:
                 logging.info(f"Error downloading file: {response.status_code}")
                 return JSONResponse(status_code=500, content={"message": "Error downloading file."})
-        
+
     video_info = videoInfo(start_time=start, duration=duration, video_path=video_path)
 
     # format context and instruction
