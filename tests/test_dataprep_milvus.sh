@@ -63,7 +63,7 @@ function validate_service() {
         cd $LOG_PATH
         HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
     elif [[ $SERVICE_NAME == *"dataprep_upload_link"* ]]; then
-        HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'link_list=["https://www.ces.tech/"]' "$URL")
+        HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'link_list=["https://www.ces.tech/"]' -F "chunk_size=500" "$URL")
     elif [[ $SERVICE_NAME == *"dataprep_get"* ]]; then
         HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H 'Content-Type: application/json' "$URL")
     elif [[ $SERVICE_NAME == *"dataprep_del"* ]]; then
@@ -79,6 +79,10 @@ function validate_service() {
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        #####################
+        if [[ $SERVICE_NAME == *"dataprep_upload_link"* ]]; then
+            docker logs test-comps-dataprep-milvus-mosec-server >> ${LOG_PATH}/mosec-embedding.log
+        fi
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
