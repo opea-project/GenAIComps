@@ -11,7 +11,7 @@ services:
     image: ${REGISTRY}opea/guardrails-tgi:${TAG:-latest}
   guardrails-pii-detection:
     build:
-      dockerfile: comps/guardrails/pii_detection/docker/Dockerfile
+      dockerfile: comps/guardrails/pii_detection/custom/docker/Dockerfile
     image: ${REGISTRY}opea/guardrails-pii-detection:${TAG:-latest}
   factuality-predictionguard:
     build:
