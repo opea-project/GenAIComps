@@ -78,9 +78,12 @@ class ServiceOrchestrator(DAG):
                                 def fake_stream(text):
                                     yield "data: b'" + text + "'\n\n"
                                     yield "data: [DONE]\n\n"
-                                self.dump_outputs(node,
+
+                                self.dump_outputs(
+                                    node,
                                     StreamingResponse(fake_stream(response["text"]), media_type="text/event-stream"),
-                                    result_dict)
+                                    result_dict,
+                                )
 
                     for d_node in downstreams:
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
