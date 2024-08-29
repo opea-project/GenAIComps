@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-finetuning_service_port=8005
+finetuning_service_port=8015
 ray_port=8265
 
 function build_docker_images() {
