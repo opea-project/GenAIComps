@@ -3,8 +3,6 @@
 
 import os
 
-from langsmith import traceable  # type: ignore
-
 from comps import (
     CustomLogger,
     EmbedDoc,
@@ -33,7 +31,6 @@ port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6600))
     input_datatype=MultimodalDoc,
     output_datatype=EmbedMultimodalDoc,
 )
-@traceable(run_type="embedding")
 def embedding(input: MultimodalDoc) -> EmbedDoc:
     if logflag:
         logger.info(input)
