@@ -1,8 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-# this file should be run in the root of the repo
-# images used by GenAIExamples: llm-tgi,llm-ollama,llm-docsum-tgi,llm-faqgen-tgi,llm-vllm,llm-vllm-hpu,llm-vllm-ray,llm-vllm-ray-hpu
 services:
   llm-native:
     build:
