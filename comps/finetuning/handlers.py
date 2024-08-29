@@ -12,6 +12,7 @@ from fastapi import BackgroundTasks, HTTPException
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
+from comps import CustomLogger
 from comps.cores.proto.api_protocol import (
     FineTuningJob,
     FineTuningJobIDRequest,
@@ -19,6 +20,8 @@ from comps.cores.proto.api_protocol import (
     FineTuningJobsRequest,
 )
 from comps.finetuning.finetune_config import FinetuneConfig
+
+logger = CustomLogger("finetuning_handlers")
 
 DATASET_BASE_PATH = "datasets"
 JOBS_PATH = "jobs"
@@ -48,7 +51,7 @@ def update_job_status(job_id: FineTuningJobID):
         status = str(job_status).lower()
         # Ray status "stopped" is OpenAI status "cancelled"
         status = "cancelled" if status == "stopped" else status
-        print(f"Status of job {job_id} is '{status}'")
+        logger.info(f"Status of job {job_id} is '{status}'")
         running_finetuning_jobs[job_id].status = status
         if status == "finished" or status == "cancelled" or status == "failed":
             break
@@ -94,7 +97,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
     )
     finetune_config.General.output_dir = os.path.join(OUTPUT_DIR, job.id)
     if os.getenv("DEVICE", ""):
-        print(f"specific device: {os.getenv('DEVICE')}")
+        logger.info(f"specific device: {os.getenv('DEVICE')}")
         finetune_config.Training.device = os.getenv("DEVICE")
 
     finetune_config_file = f"{JOBS_PATH}/{job.id}.yaml"
@@ -109,7 +112,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
         # Path to the local directory that contains the script.py file
         runtime_env={"working_dir": "./", "excludes": [f"{OUTPUT_DIR}"]},
     )
-    print(f"Submitted Ray job: {ray_job_id} ...")
+    logger.info(f"Submitted Ray job: {ray_job_id} ...")
 
     running_finetuning_jobs[job.id] = job
     finetuning_job_to_ray_job[job.id] = ray_job_id
@@ -161,7 +164,7 @@ async def save_content_to_local_disk(save_path: str, content):
                 content = await content.read()
                 fout.write(content)
     except Exception as e:
-        print(f"Write file failed. Exception: {e}")
+        logger.info(f"Write file failed. Exception: {e}")
         raise Exception(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
