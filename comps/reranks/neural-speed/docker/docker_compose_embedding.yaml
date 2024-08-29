@@ -8,7 +8,7 @@ services:
     image: opea/reranking-langchain-mosec:neuralspeed
     container_name: reranking-langchain-mosec-server
     ports:
-      - "6000:6000"
+      - "6000:8000"
     ipc: host
     environment:
       http_proxy: ${http_proxy}

@@ -22,7 +22,7 @@ for i in range(BATCH):
 
 
 def post_func(threadIdx):
-    resp = httpx.post("http://127.0.0.1:6001/inference", content=reqs[threadIdx])
+    resp = httpx.post("http://127.0.0.1:8080/inference", content=reqs[threadIdx])
     ret = f"thread {threadIdx} \n"
     if resp.status_code == HTTPStatus.OK:
         ret += f"OK: {msgspec.msgpack.decode(resp.content)['scores']}"

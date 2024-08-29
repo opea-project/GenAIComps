@@ -28,7 +28,6 @@ class Request(Struct, kw_only=True):
     query: str
     docs: List[str]
 
-
 class Response(Struct, kw_only=True):
     scores: List[float]
 
@@ -46,17 +45,17 @@ class Inference(TypedMsgPackMixin, Worker):
             n_ctx=INFERENCE_CONTEXT + 2,
         )
 
-    def forward(self, data: List[Request]) -> List[Response]:
-        batch = len(data)
+    def forward(self, datas: List[Request]) -> List[Response]:
+        batch = len(datas)
         ndoc = []
         inps = []
-        for data in data:
+        for data in datas:
             inp = [[data.query, doc] for doc in data.docs]
             inps.extend(inp)
             ndoc.append(len(data.docs))
-        outs = []
-        for i in range(0, len(inps), INFERENCE_BATCH_SIZE):
-            inp_bs = inps[i : i + INFERENCE_BATCH_SIZE]
+        outs=[]
+        for i in range(0,len(inps),INFERENCE_BATCH_SIZE):
+            inp_bs = inps[i:i+INFERENCE_BATCH_SIZE]
             inputs = self.tokenizer(
                 inp_bs, padding=True, truncation=True, max_length=INFERENCE_CONTEXT, return_tensors="pt"
             )
@@ -68,14 +67,14 @@ class Inference(TypedMsgPackMixin, Worker):
                 continuous_batching=False,
                 ignore_padding=True,
             )
-            logger.info(f"Toal batch {batch} input shape {inputs.input_ids.shape} time {time.time()-st}")
+            logger.info(f'Toal batch {batch} input shape {inputs.input_ids.shape} time {time.time()-st}')
             outs.append(output)
-        ns_outputs = numpy.concatenate(outs, axis=0)
-        resps = []
+        ns_outputs=numpy.concatenate(outs,axis=0)
+        resps =[]
         pos = 0
         for i in range(batch):
-            resp = Response(scores=ns_outputs[pos : pos + ndoc[i]].tolist())
-            pos += ndoc[i]
+            resp = Response(scores=ns_outputs[pos:pos+ndoc[i]].tolist())
+            pos+=ndoc[i]
             resps.append(resp)
         return resps
 
