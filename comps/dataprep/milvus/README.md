@@ -233,3 +233,15 @@ curl -X POST \
     -d '{"file_path": "all"}' \
     http://localhost:6007/v1/dataprep/delete_file
 ```
+
+## 🚀4. Troubleshooting
+
+1. If you get errors from Mosec Embedding Endpoint like `cannot find this task, maybe it has expired` while uploading files, try to reduce the `chunk_size` in the curl command like below (the default chunk_size=1500).
+
+    ```bash
+    curl -X POST \
+        -H "Content-Type: multipart/form-data" \
+        -F "files=@./file.pdf" \
+        -F "chunk_size=500" \
+        http://localhost:6010/v1/dataprep
+    ```
