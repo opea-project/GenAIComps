@@ -219,19 +219,19 @@ The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "https://www.ces.tech/.txt"}' \
-    http://localhost:6007/v1/dataprep/delete_file
+    http://localhost:6010/v1/dataprep/delete_file
 
 # delete file
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "uploaded_file_1.txt"}' \
-    http://localhost:6007/v1/dataprep/delete_file
+    http://localhost:6010/v1/dataprep/delete_file
 
 # delete all files and links, will drop the entire db collection
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "all"}' \
-    http://localhost:6007/v1/dataprep/delete_file
+    http://localhost:6010/v1/dataprep/delete_file
 ```
 
 ## 🚀4. Troubleshooting
