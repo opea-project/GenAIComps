@@ -11,8 +11,9 @@ LVM_PORT=5028
 LVM_ENDPOINT="http://${ip_address}:${LVM_PORT}/v1/lvm"
 WHISPER_MODEL="base"
 INDEX_NAME="dataprep"
-transcript_fn="WeAreGoingOnBullrun.vtt"
-video_fn="WeAreGoingOnBullrun.mp4"
+video_name="WeAreGoingOnBullrun"
+transcript_fn="${video_name}.vtt"
+video_fn="${video_name}.mp4"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -205,14 +206,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_file.log
+        docker logs test-comps-dataprep-redis-multimodal-langchain-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
-    if [[ "$RESPONSE_BODY" != *'{"name":'* ]]; then
+    if [[ "$RESPONSE_BODY" != *${video_name}* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_file.log
+        docker logs test-comps-dataprep-redis-multimodal-langchain-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -229,7 +230,7 @@ function validate_microservice() {
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
+        docker logs test-comps-dataprep-redis-multimodal-langchain-server >> ${LOG_PATH}/dataprep_del.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -237,7 +238,7 @@ function validate_microservice() {
     # check response body
     if [[ "$RESPONSE_BODY" != *'{"status":true}'* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
+        docker logs test-comps-dataprep-redis-multimodal-langchain-server >> ${LOG_PATH}/dataprep_del.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
