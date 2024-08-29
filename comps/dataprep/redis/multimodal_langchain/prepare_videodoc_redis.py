@@ -17,7 +17,6 @@ from langchain_community.vectorstores.redis.base import _generate_field_schema, 
 from langchain_community.vectorstores.redis.schema import read_schema
 from langchain_core.embeddings import Embeddings
 from langchain_core.utils import get_from_dict_or_env
-from langsmith import traceable
 from PIL import Image
 
 from comps import opea_microservices, register_microservice
@@ -269,9 +268,8 @@ def drop_index(index_name, redis_url=REDIS_URL):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/generate_transcripts", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_transcripts", host="0.0.0.0", port=6007
 )
-@traceable(run_type="tool")
 async def ingest_videos_generate_transcripts(files: List[UploadFile] = File(None)):
     """Upload videos with speech, generate transcripts using whisper and ingest into redis."""
 
@@ -353,9 +351,8 @@ async def ingest_videos_generate_transcripts(files: List[UploadFile] = File(None
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/generate_captions", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_captions", host="0.0.0.0", port=6007
 )
-@traceable(run_type="tool")
 async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
     """Upload videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
 
@@ -407,11 +404,10 @@ async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
 
 @register_microservice(
     name="opea_service@prepare_videodoc_redis",
-    endpoint="/v1/dataprep/videos_with_transcripts",
+    endpoint="/v1/videos_with_transcripts",
     host="0.0.0.0",
     port=6007,
 )
-@traceable(run_type="tool")
 async def ingest_videos_with_transcripts(files: List[UploadFile] = File(None)):
 
     if files:
@@ -496,7 +492,6 @@ async def ingest_videos_with_transcripts(files: List[UploadFile] = File(None)):
 @register_microservice(
     name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/get_videos", host="0.0.0.0", port=6007
 )
-@traceable(run_type="tool")
 async def rag_get_file_structure():
     """Returns list of names of uploaded videos saved on the server."""
 
@@ -511,7 +506,6 @@ async def rag_get_file_structure():
 @register_microservice(
     name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/delete_videos", host="0.0.0.0", port=6007
 )
-@traceable(run_type="tool")
 async def delete_videos():
     """Delete all uploaded videos along with redis index."""
     index_deleted = drop_index(index_name=INDEX_NAME)

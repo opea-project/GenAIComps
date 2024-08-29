@@ -51,7 +51,7 @@ function start_lvm_service() {
     unset http_proxy
     docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5029:8399 --ipc=host opea/llava:comps
     docker run -d --name="test-comps-lvm" -e LVM_ENDPOINT=http://$ip_address:5029 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${LVM_PORT}:9399 --ipc=host opea/lvm:comps
-    sleep 1m
+    sleep 5m
 }
 
 function start_lvm() {
@@ -123,9 +123,9 @@ tire.""" > ${transcript_fn}
 function validate_microservice() {
     cd $LOG_PATH
 
-    # test v1/dataprep/generate_transcripts upload file
+    # test v1/generate_transcripts upload file
     echo "Testing generate_transcripts API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/generate_transcripts"
+    URL="http://${ip_address}:$dataprep_service_port/v1/generate_transcripts"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -146,9 +146,9 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/dataprep/videos_with_transcripts upload file
+    # test v1/videos_with_transcripts upload file
     echo "Testing videos_with_transcripts API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/videos_with_transcripts"
+    URL="http://${ip_address}:$dataprep_service_port/v1/videos_with_transcripts"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -170,9 +170,9 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/dataprep/generate_captions upload file
+    # test v1/generate_captions upload file
     echo "Testing generate_captions API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/generate_captions"
+    URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')

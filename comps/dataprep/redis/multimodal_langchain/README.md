@@ -127,7 +127,7 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
     -F "files=@./video1.vtt" \
-    http://localhost:6007/v1/dataprep/videos_with_transcripts
+    http://localhost:6007/v1/videos_with_transcripts
 ```
 
 ### Multiple video-transcript pair upload
@@ -139,7 +139,7 @@ curl -X POST \
     -F "files=@./video1.vtt" \
     -F "files=@./video2.mp4" \
     -F "files=@./video2.vtt" \
-    http://localhost:6007/v1/dataprep/videos_with_transcripts
+    http://localhost:6007/v1/videos_with_transcripts
 ```
 
 ## 4.2 Consume _generate_transcripts_ API
@@ -154,7 +154,7 @@ In this use case, this microservice will use [`whisper`](https://openai.com/inde
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
-    http://localhost:6007/v1/dataprep/generate_transcripts
+    http://localhost:6007/v1/generate_transcripts
 ```
 
 ### Multiple video upload
@@ -164,7 +164,7 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
     -F "files=@./video2.mp4" \
-    http://localhost:6007/v1/dataprep/generate_transcripts
+    http://localhost:6007/v1/generate_transcripts
 ```
 
 ## 4.3 Consume _generate_captions_ API
@@ -179,7 +179,7 @@ In this use case, transcript either does not provide any meaningful information 
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
-    http://localhost:6007/v1/dataprep/generate_captions
+    http://localhost:6007/v1/generate_captions
 ```
 
 - Multiple video upload
@@ -189,7 +189,7 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
     -F "files=@./video2.mp4" \
-    http://localhost:6007/v1/dataprep/generate_captions
+    http://localhost:6007/v1/generate_captions
 ```
 
 ## 4.4 Consume get_videos API

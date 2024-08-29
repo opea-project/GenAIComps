@@ -188,6 +188,7 @@ def use_lvm(endpoint: str, img_b64_string: str, prompt: str = "Provide a short d
     """Generate image captions/descriptions using LVM microservice."""
     inputs = {"image": img_b64_string, "prompt": prompt, "max_new_tokens": 32}
     response = requests.post(url=endpoint, data=json.dumps(inputs))
+    print(response)
     return response.json()["text"]
 
 
