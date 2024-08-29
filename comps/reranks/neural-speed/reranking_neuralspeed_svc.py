@@ -22,7 +22,6 @@ from comps import (
     statistics_dict,
 )
 
-
 # class MosecEmbeddings(OpenAIEmbeddings):
 
 #     def _get_len_safe_embeddings(
@@ -67,8 +66,7 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
         url = mosec_reranking_endpoint + "/inference"
         data = {"query": input.initial_query, "texts": docs}
         resp = requests.post(url, data=msgspec.msgpack.encode(data))
-        response = msgspec.msgpack.decode(resp.content)['scores']
-        
+        response = msgspec.msgpack.decode(resp.content)["scores"]
 
         response_data = response.json()
         best_response = max(response_data, key=lambda response: response["score"])
@@ -90,7 +88,7 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
         if logflag:
             logger.info(input.initial_query)
         return LLMParamsDoc(query=input.initial_query)
-    
+
 
 if __name__ == "__main__":
     mosec_reranking_endpoint = os.getenv("MOSEC_RERANKING_ENDPOINT", "http://localhost:6001")
