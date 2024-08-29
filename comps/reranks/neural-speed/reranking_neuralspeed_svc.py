@@ -34,7 +34,6 @@ from comps import (
     input_datatype=SearchedDoc,
     output_datatype=LLMParamsDoc,
 )
-
 @traceable(run_type="reranking")
 @register_statistics(names=["opea_service@reranking_mosec"])
 def reranking(input: SearchedDoc) -> LLMParamsDoc:
