@@ -5,8 +5,6 @@ import logging
 import os
 import time
 
-from langsmith import traceable
-
 from comps import (
     LVMVideoDoc,
     SearchedMultimodalDoc,
@@ -63,7 +61,7 @@ def find_timestamp_from_video(metadata_list, video):
     input_datatype=SearchedMultimodalDoc,
     output_datatype=LVMVideoDoc,
 )
-@traceable(run_type="llm")
+
 @register_statistics(names=["opea_service@reranking_visual_rag"])
 def reranking(input: SearchedMultimodalDoc) -> LVMVideoDoc:
     start = time.time()
