@@ -9,6 +9,7 @@ import httpx
 import msgspec
 import requests
 from langchain_core.prompts import ChatPromptTemplate
+from langsmith import traceable
 
 from comps import (
     CustomLogger,
@@ -22,30 +23,30 @@ from comps import (
 )
 
 
-class MosecEmbeddings(OpenAIEmbeddings):
+# class MosecEmbeddings(OpenAIEmbeddings):
 
-    def _get_len_safe_embeddings(
-        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
-    ) -> List[List[float]]:
-        _chunk_size = chunk_size or self.chunk_size
-        batched_embeddings: List[List[float]] = []
-        response = self.client.create(input=texts, **self._invocation_params)
-        if not isinstance(response, dict):
-            response = response.model_dump()
-        batched_embeddings.extend(r["embedding"] for r in response["data"])
+#     def _get_len_safe_embeddings(
+#         self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
+#     ) -> List[List[float]]:
+#         _chunk_size = chunk_size or self.chunk_size
+#         batched_embeddings: List[List[float]] = []
+#         response = self.client.create(input=texts, **self._invocation_params)
+#         if not isinstance(response, dict):
+#             response = response.model_dump()
+#         batched_embeddings.extend(r["embedding"] for r in response["data"])
 
-        _cached_empty_embedding: Optional[List[float]] = None
+#         _cached_empty_embedding: Optional[List[float]] = None
 
-        def empty_embedding() -> List[float]:
-            nonlocal _cached_empty_embedding
-            if _cached_empty_embedding is None:
-                average_embedded = self.client.create(input="", **self._invocation_params)
-                if not isinstance(average_embedded, dict):
-                    average_embedded = average_embedded.model_dump()
-                _cached_empty_embedding = average_embedded["data"][0]["embedding"]
-            return _cached_empty_embedding
+#         def empty_embedding() -> List[float]:
+#             nonlocal _cached_empty_embedding
+#             if _cached_empty_embedding is None:
+#                 average_embedded = self.client.create(input="", **self._invocation_params)
+#                 if not isinstance(average_embedded, dict):
+#                     average_embedded = average_embedded.model_dump()
+#                 _cached_empty_embedding = average_embedded["data"][0]["embedding"]
+#             return _cached_empty_embedding
 
-        return [e if e is not None else empty_embedding() for e in batched_embeddings]
+#         return [e if e is not None else empty_embedding() for e in batched_embeddings]
 
 
 @register_microservice(
@@ -53,7 +54,7 @@ class MosecEmbeddings(OpenAIEmbeddings):
     service_type=ServiceType.RERANK,
     endpoint="/v1/reranking",
     host="0.0.0.0",
-    port=8000,
+    port=6000,
     input_datatype=SearchedDoc,
     output_datatype=LLMParamsDoc,
 )
@@ -65,7 +66,7 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
         docs = [doc.text for doc in input.retrieved_docs]
         url = mosec_reranking_endpoint + "/inference"
         data = {"query": input.initial_query, "texts": docs}
-        resp = requests.post(request_url, data=msgspec.msgpack.encode(req))
+        resp = requests.post(url, data=msgspec.msgpack.encode(data))
         response = msgspec.msgpack.decode(resp.content)['scores']
         
 
@@ -92,6 +93,6 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
     
 
 if __name__ == "__main__":
-    mosec_reranking_endpoint = os.getenv("MOSEC_RERANKING_ENDPOINT", "http://localhost:8080")
+    mosec_reranking_endpoint = os.getenv("MOSEC_RERANKING_ENDPOINT", "http://localhost:6001")
     print("NeuralSpeed Reranking Microservice Initialized.")
     opea_microservices["opea_service@reranking_mosec"].start()

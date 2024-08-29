@@ -17,11 +17,11 @@ req = {
     ],
 }
 
-httpx_response = httpx.post("http://127.0.0.1:8080/inference", content=msgspec.msgpack.encode(req))
+httpx_response = httpx.post("http://127.0.0.1:6001/inference", content=msgspec.msgpack.encode(req))
 
-requests_response = requests.post("http://127.0.0.1:8080/inference", data=msgspec.msgpack.encode(req))
+requests_response = requests.post("http://127.0.0.1:6001/inference", data=msgspec.msgpack.encode(req))
 
-MOSEC_RERANKING_ENDPOINT = os.environ.get("MOSEC_RERANKING_ENDPOINT", "http://127.0.0.1:8080")
+MOSEC_RERANKING_ENDPOINT = os.environ.get("MOSEC_RERANKING_ENDPOINT", "http://127.0.0.1:6001")
 
 request_url = MOSEC_RERANKING_ENDPOINT + "/inference"
 print(f"request_url = {request_url}")
