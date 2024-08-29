@@ -23,8 +23,8 @@ from ray.air import FailureConfig, RunConfig
 from ray.air.config import ScalingConfig
 from ray.train.torch import TorchTrainer
 
-from comps.finetuning.finetune_config import FinetuneConfig
 from comps import CustomLogger
+from comps.finetuning.finetune_config import FinetuneConfig
 from comps.finetuning.llm_on_ray import common
 from comps.finetuning.llm_on_ray.finetune.data_process import DataProcessor
 
