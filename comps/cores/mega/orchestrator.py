@@ -72,6 +72,18 @@ class ServiceOrchestrator(DAG):
                                         downstreams.remove(downstream)
                                 except re.error as e:
                                     print("Pattern invalid! Operation cancelled.")
+                            if len(downstreams) == 0 and llm_parameters.streaming:
+                                # turn the response to a StreamingResponse
+                                # to make the response uniform to UI
+                                def fake_stream(text):
+                                    yield "data: b'" + text + "'\n\n"
+                                    yield "data: [DONE]\n\n"
+
+                                self.dump_outputs(
+                                    node,
+                                    StreamingResponse(fake_stream(response["text"]), media_type="text/event-stream"),
+                                    result_dict,
+                                )
 
                     for d_node in downstreams:
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
@@ -176,18 +188,20 @@ class ServiceOrchestrator(DAG):
         if chunk_str == "data: [DONE]\n\n":
             return ""
         prefix = "data: b'"
+        prefix_2 = 'data: b"'
         suffix = "'\n\n"
-        if chunk_str.startswith(prefix):
+        suffix_2 = '"\n\n'
+        if chunk_str.startswith(prefix) or chunk_str.startswith(prefix_2):
             chunk_str = chunk_str[len(prefix) :]
-        if chunk_str.endswith(suffix):
+        if chunk_str.endswith(suffix) or chunk_str.endswith(suffix_2):
             chunk_str = chunk_str[: -len(suffix)]
         return chunk_str
 
     def token_generator(self, sentence, is_last=False):
         prefix = "data: "
         suffix = "\n\n"
-        tokens = re.findall(r"\S+\s?", sentence, re.UNICODE)
+        tokens = re.findall(r"\s?\S+\s?", sentence, re.UNICODE)
         for token in tokens:
-            yield prefix + repr(token.encode("utf-8")) + suffix
+            yield prefix + repr(token.replace("\\n", "\n").encode("utf-8")) + suffix
         if is_last:
             yield "data: [DONE]\n\n"
