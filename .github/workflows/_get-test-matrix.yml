@@ -25,7 +25,6 @@ jobs:
           else
             echo "CHECKOUT_REF=${{ github.ref }}" >> $GITHUB_ENV
           fi
-          echo "checkout ref ${{ env.CHECKOUT_REF }}"
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
