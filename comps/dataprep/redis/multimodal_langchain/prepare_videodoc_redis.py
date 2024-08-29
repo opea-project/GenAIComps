@@ -3,44 +3,45 @@
 
 import os
 import shutil
+import subprocess
+import time
 import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Type, Union
 
-from config import EMBED_MODEL, WHISPER_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, LVM_ENDPOINT
+from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, LVM_ENDPOINT, REDIS_URL, WHISPER_MODEL
 from fastapi import File, HTTPException, UploadFile
-from langchain_core.embeddings import Embeddings
-from langchain_core.utils import get_from_dict_or_env
+from langchain_community.utilities.redis import _array_to_buffer
 from langchain_community.vectorstores import Redis
 from langchain_community.vectorstores.redis.base import _generate_field_schema, _prepare_metadata
-from langchain_community.utilities.redis import _array_to_buffer
+from langchain_community.vectorstores.redis.schema import read_schema
+from langchain_core.embeddings import Embeddings
+from langchain_core.utils import get_from_dict_or_env
 from langsmith import traceable
 from PIL import Image
+
 from comps import opea_microservices, register_microservice
 from comps.dataprep.multimodal_utils import (
-    create_upload_folder,
-    load_json_file,
     clear_upload_folder,
-    generate_video_id,
     convert_video_to_audio,
-    load_whisper_model,
-    extract_transcript_from_audio,
-    write_vtt,
+    create_upload_folder,
     delete_audio_file,
     extract_frames_and_annotations_from_transcripts,
-    extract_frames_and_generate_captions
+    extract_frames_and_generate_captions,
+    extract_transcript_from_audio,
+    generate_video_id,
+    load_json_file,
+    load_whisper_model,
+    write_vtt,
 )
-from comps.embeddings.multimodal_embeddings.bridgetower.bridgetower_embedding import  BridgeTowerEmbedding
-from langchain_community.vectorstores.redis.schema import read_schema
-import subprocess
-import time
+from comps.embeddings.multimodal_embeddings.bridgetower.bridgetower_embedding import BridgeTowerEmbedding
 
 device = "cpu"
 upload_folder = "./uploaded_files/"
 
 
 class MultimodalRedis(Redis):
-    """ Redis vector database to process multimodal data"""
+    """Redis vector database to process multimodal data."""
 
     @classmethod
     def from_text_image_pairs_return_keys(
@@ -52,7 +53,7 @@ class MultimodalRedis(Redis):
         index_name: Optional[str] = None,
         index_schema: Optional[Union[Dict[str, str], str, os.PathLike]] = None,
         vector_schema: Optional[Dict[str, Union[str, int]]] = None,
-        **kwargs: Any, 
+        **kwargs: Any,
     ):
         """
         Args:
@@ -77,7 +78,7 @@ class MultimodalRedis(Redis):
             ValueError: If the number of metadatas does not match the number of texts.
         """
         # the length of texts must be equal to the length of images
-        if len(texts)!=len(images):
+        if len(texts) != len(images):
             raise ValueError(f"the len of captions {len(texts)} does not equal the len of images {len(images)}")
 
         redis_url = get_from_dict_or_env(kwargs, "redis_url", "REDIS_URL")
@@ -108,7 +109,7 @@ class MultimodalRedis(Redis):
 
             if not index_schema:
                 index_schema = generated_schema
-            
+
         # Create instance
         instance = cls(
             redis_url,
@@ -131,9 +132,9 @@ class MultimodalRedis(Redis):
         batch_size: int = 2,
         clean_metadata: bool = True,
         **kwargs: Any,
-    ) -> List[str]:    
-
+    ) -> List[str]:
         """Add more embeddings of text-image pairs to the vectorstore.
+
         Args:
             texts (Iterable[str]): Iterable of strings/text to add to the vectorstore.
             images: Iterable[str]: Iterable of strings/text of path-to-image to add to the vectorstore.
@@ -158,8 +159,8 @@ class MultimodalRedis(Redis):
                 raise ValueError("Number of metadatas must match number of texts")
             if not (isinstance(metadatas, list) and isinstance(metadatas[0], dict)):
                 raise ValueError("Metadatas must be a list of dicts")
-        pil_imgs =[Image.open(img) for img in images]
-        if not embeddings:    
+        pil_imgs = [Image.open(img) for img in images]
+        if not embeddings:
             embeddings = self._embeddings.embed_image_text_pairs(list(texts), pil_imgs, batch_size=batch_size)
         self._create_index_if_not_exist(dim=len(embeddings[0]))
 
@@ -176,9 +177,7 @@ class MultimodalRedis(Redis):
                 key,
                 mapping={
                     self._schema.content_key: text,
-                    self._schema.content_vector_key: _array_to_buffer(
-                        embeddings[i], self._schema.vector_dtype
-                    ),
+                    self._schema.content_vector_key: _array_to_buffer(embeddings[i], self._schema.vector_dtype),
                     **metadata,
                 },
             )
@@ -193,56 +192,58 @@ class MultimodalRedis(Redis):
         return ids
 
 
-def prepare_data_and_metadata_from_annotation(annotation, path_to_frames, title, num_transcript_concat_for_ingesting=2, num_transcript_concat_for_inference=7):
+def prepare_data_and_metadata_from_annotation(
+    annotation, path_to_frames, title, num_transcript_concat_for_ingesting=2, num_transcript_concat_for_inference=7
+):
     text_list = []
     image_list = []
     metadatas = []
     for i, frame in enumerate(annotation):
-        frame_index = frame['sub_video_id']
+        frame_index = frame["sub_video_id"]
         path_to_frame = os.path.join(path_to_frames, f"frame_{frame_index}.jpg")
         # augment this frame's transcript with a reasonable number of neighboring frames' transcripts helps semantic retrieval
-        lb_ingesting = max(0, i-num_transcript_concat_for_ingesting)
-        ub_ingesting = min(len(annotation), i+num_transcript_concat_for_ingesting+1) 
-        caption_for_ingesting = ' '.join([annotation[j]['caption'] for j in range(lb_ingesting, ub_ingesting)])
+        lb_ingesting = max(0, i - num_transcript_concat_for_ingesting)
+        ub_ingesting = min(len(annotation), i + num_transcript_concat_for_ingesting + 1)
+        caption_for_ingesting = " ".join([annotation[j]["caption"] for j in range(lb_ingesting, ub_ingesting)])
 
         # augment this frame's transcript with more neighboring frames' transcript to provide more context to LVM for question answering
-        lb_inference = max(0, i-num_transcript_concat_for_inference)
-        ub_inference = min(len(annotation), i+num_transcript_concat_for_inference+1) 
-        caption_for_inference = ' '.join([annotation[j]['caption'] for j in range(lb_inference, ub_inference)])
+        lb_inference = max(0, i - num_transcript_concat_for_inference)
+        ub_inference = min(len(annotation), i + num_transcript_concat_for_inference + 1)
+        caption_for_inference = " ".join([annotation[j]["caption"] for j in range(lb_inference, ub_inference)])
 
-        video_id = frame['video_id']
-        b64_img_str = frame['b64_img_str']
-        time_of_frame = frame['time']
-        embedding_type = 'pair'
-        source_video = frame['video_name']
+        video_id = frame["video_id"]
+        b64_img_str = frame["b64_img_str"]
+        time_of_frame = frame["time"]
+        embedding_type = "pair"
+        source_video = frame["video_name"]
 
         text_list.append(caption_for_ingesting)
         image_list.append(path_to_frame)
-        metadatas.append({
-            'content' : caption_for_ingesting,
-            'b64_img_str': b64_img_str,
-            'video_id': video_id,
-            'source_video' : source_video,
-            'time_of_frame_ms' : float(time_of_frame),
-            'embedding_type' : embedding_type,
-            'title' : title,
-            'transcript_for_inference' : caption_for_inference,
-        })
+        metadatas.append(
+            {
+                "content": caption_for_ingesting,
+                "b64_img_str": b64_img_str,
+                "video_id": video_id,
+                "source_video": source_video,
+                "time_of_frame_ms": float(time_of_frame),
+                "embedding_type": embedding_type,
+                "title": title,
+                "transcript_for_inference": caption_for_inference,
+            }
+        )
 
     return text_list, image_list, metadatas
 
 
 def ingest_multimodal(videoname, data_folder, embeddings):
-    """
-    Ingest text image pairs to Redis from the data/ directory that consists of frames and annotations
-    """
+    """Ingest text image pairs to Redis from the data/ directory that consists of frames and annotations."""
     data_folder = os.path.abspath(data_folder)
-    annotation_file_path = os.path.join(data_folder, 'annotations.json')
-    path_to_frames = os.path.join(data_folder, 'frames')
+    annotation_file_path = os.path.join(data_folder, "annotations.json")
+    path_to_frames = os.path.join(data_folder, "frames")
 
     annotation = load_json_file(annotation_file_path)
 
-    #prepare data to ingest
+    # prepare data to ingest
     text_list, image_list, metadatas = prepare_data_and_metadata_from_annotation(annotation, path_to_frames, videoname)
 
     MultimodalRedis.from_text_image_pairs_return_keys(
@@ -267,12 +268,12 @@ def drop_index(index_name, redis_url=REDIS_URL):
     return True
 
 
-@register_microservice(name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/generate_transcripts", host="0.0.0.0", port=6007)
+@register_microservice(
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/generate_transcripts", host="0.0.0.0", port=6007
+)
 @traceable(run_type="tool")
-async def ingest_videos(
-    files:  List[UploadFile] = File(None)
-):
-    """Upload videos with speech, generate transcripts using whisper and ingest into redis"""
+async def ingest_videos(files: List[UploadFile] = File(None)):
+    """Upload videos with speech, generate transcripts using whisper and ingest into redis."""
 
     if files:
         video_files = []
@@ -280,7 +281,9 @@ async def ingest_videos(
             if os.path.splitext(file.filename)[1] == ".mp4":
                 video_files.append(file)
             else:
-                raise HTTPException(status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only.")
+                raise HTTPException(
+                    status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only."
+                )
 
         for video_file in video_files:
             st = time.time()
@@ -295,13 +298,15 @@ async def ingest_videos(
             video_dir_name = os.path.splitext(video_file_name)[0]
 
             # Save video file in upload_directory
-            with open(os.path.join(upload_folder, video_file_name), 'wb') as f:
+            with open(os.path.join(upload_folder, video_file_name), "wb") as f:
                 shutil.copyfileobj(video_file.file, f)
 
             # Extract temporary audio wav file from video mp4
             audio_file = video_dir_name + ".wav"
             print(f"Extracting {audio_file}")
-            convert_video_to_audio(os.path.join(upload_folder, video_file_name), os.path.join(upload_folder, audio_file))
+            convert_video_to_audio(
+                os.path.join(upload_folder, video_file_name), os.path.join(upload_folder, audio_file)
+            )
             print(f"Done extracting {audio_file}")
 
             # Load whisper model
@@ -310,21 +315,23 @@ async def ingest_videos(
             print("Done loading whisper!")
 
             # Extract transcript from audio
-            print(f"Extracting transcript from audio")
+            print("Extracting transcript from audio")
             transcripts = extract_transcript_from_audio(whisper_model, os.path.join(upload_folder, audio_file))
-            
+
             # Save transcript as vtt file and delete audio file
             vtt_file = video_dir_name + ".vtt"
             write_vtt(transcripts, os.path.join(upload_folder, vtt_file))
             delete_audio_file(os.path.join(upload_folder, audio_file))
-            print(f"Done extracting transcript.")
+            print("Done extracting transcript.")
 
             # Store frames and caption annotations in a new directory
             print("Extracting frames and generating annotation")
-            extract_frames_and_annotations_from_transcripts(video_id, 
-                                                            os.path.join(upload_folder, video_file_name), 
-                                                            os.path.join(upload_folder, vtt_file), 
-                                                            os.path.join(upload_folder, video_dir_name))
+            extract_frames_and_annotations_from_transcripts(
+                video_id,
+                os.path.join(upload_folder, video_file_name),
+                os.path.join(upload_folder, vtt_file),
+                os.path.join(upload_folder, video_dir_name),
+            )
             print("Done extracting frames and generating annotation")
             # Delete temporary vtt file
             os.remove(os.path.join(upload_folder, vtt_file))
@@ -342,15 +349,15 @@ async def ingest_videos(
 
         return {"status": 200, "message": "Data preparation succeeded"}
 
-    raise HTTPException(status_code=400, detail="Must provide atleast one video (.mp4) file.")
+    raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) file.")
 
 
-@register_microservice(name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/generate_captions", host="0.0.0.0", port=6007)
+@register_microservice(
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/generate_captions", host="0.0.0.0", port=6007
+)
 @traceable(run_type="tool")
-async def ingest_videos(
-    files:  List[UploadFile] = File(None)
-):
-    """Upload videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis"""
+async def ingest_videos(files: List[UploadFile] = File(None)):
+    """Upload videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
 
     if files:
         video_files = []
@@ -358,7 +365,9 @@ async def ingest_videos(
             if os.path.splitext(file.filename)[1] == ".mp4":
                 video_files.append(file)
             else:
-                raise HTTPException(status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only.")
+                raise HTTPException(
+                    status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only."
+                )
 
         for video_file in video_files:
             print(f"Processing video {video_file.filename}")
@@ -372,11 +381,16 @@ async def ingest_videos(
             video_dir_name = os.path.splitext(video_file_name)[0]
 
             # Save video file in upload_directory
-            with open(os.path.join(upload_folder, video_file_name), 'wb') as f:
+            with open(os.path.join(upload_folder, video_file_name), "wb") as f:
                 shutil.copyfileobj(video_file.file, f)
 
             # Store frames and caption annotations in a new directory
-            extract_frames_and_generate_captions(video_id, os.path.join(upload_folder, video_file_name), LVM_ENDPOINT, os.path.join(upload_folder, video_dir_name))
+            extract_frames_and_generate_captions(
+                video_id,
+                os.path.join(upload_folder, video_file_name),
+                LVM_ENDPOINT,
+                os.path.join(upload_folder, video_dir_name),
+            )
 
             # Ingest multimodal data into redis
             ingest_multimodal(video_name, os.path.join(upload_folder, video_dir_name), embeddings)
@@ -388,15 +402,17 @@ async def ingest_videos(
 
         return {"status": 200, "message": "Data preparation succeeded"}
 
-    raise HTTPException(status_code=400, detail="Must provide atleast one video (.mp4) file.")
+    raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) file.")
 
 
-
-@register_microservice(name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/videos_with_transcripts", host="0.0.0.0", port=6007)
+@register_microservice(
+    name="opea_service@prepare_videodoc_redis",
+    endpoint="/v1/dataprep/videos_with_transcripts",
+    host="0.0.0.0",
+    port=6007,
+)
 @traceable(run_type="tool")
-async def ingest_videos(
-    files:  List[UploadFile] = File(None)
-):
+async def ingest_videos(files: List[UploadFile] = File(None)):
 
     if files:
         video_files, video_file_names = [], []
@@ -415,10 +431,15 @@ async def ingest_videos(
         for video_file_name in video_file_names:
             file_prefix = os.path.splitext(video_file_name)[0]
             if (file_prefix + ".vtt") not in captions_file_names:
-                raise HTTPException(status_code=400, detail=f"No captions file {file_prefix}.vtt found for {video_file_name}")
+                raise HTTPException(
+                    status_code=400, detail=f"No captions file {file_prefix}.vtt found for {video_file_name}"
+                )
 
         if len(video_files) == 0:
-            return HTTPException(status_code=400, detail="The uploaded files have unsupported formats. Please upload atleast one video file (.mp4) with captions (.vtt)")
+            return HTTPException(
+                status_code=400,
+                detail="The uploaded files have unsupported formats. Please upload at least one video file (.mp4) with captions (.vtt)",
+            )
 
         for video_file in video_files:
             print(f"Processing video {video_file.filename}")
@@ -432,7 +453,7 @@ async def ingest_videos(
             video_dir_name = os.path.splitext(video_file_name)[0]
 
             # Save video file in upload_directory
-            with open(os.path.join(upload_folder, video_file_name), 'wb') as f:
+            with open(os.path.join(upload_folder, video_file_name), "wb") as f:
                 shutil.copyfileobj(video_file.file, f)
 
             # Save captions file in upload directory
@@ -443,22 +464,22 @@ async def ingest_videos(
                     vtt_idx = idx
                     break
             vtt_file = video_dir_name + ".vtt"
-            with open(os.path.join(upload_folder, vtt_file), 'wb') as f:
-                shutil.copyfileobj(captions_files[vtt_idx].file, f)    
+            with open(os.path.join(upload_folder, vtt_file), "wb") as f:
+                shutil.copyfileobj(captions_files[vtt_idx].file, f)
 
             # Store frames and caption annotations in a new directory
-            extract_frames_and_annotations_from_transcripts(video_id, 
-                                                            os.path.join(upload_folder, video_file_name), 
-                                                            os.path.join(upload_folder, vtt_file), 
-                                                            os.path.join(upload_folder, video_dir_name))
+            extract_frames_and_annotations_from_transcripts(
+                video_id,
+                os.path.join(upload_folder, video_file_name),
+                os.path.join(upload_folder, vtt_file),
+                os.path.join(upload_folder, video_dir_name),
+            )
 
             # Delete temporary vtt file
             os.remove(os.path.join(upload_folder, vtt_file))
 
             # Ingest multimodal data into redis
-            ingest_multimodal(video_name, 
-                              os.path.join(upload_folder, video_dir_name), 
-                              embeddings)
+            ingest_multimodal(video_name, os.path.join(upload_folder, video_dir_name), embeddings)
 
             # Delete temporary video directory containing frames and annotations
             shutil.rmtree(os.path.join(upload_folder, video_dir_name))
@@ -467,7 +488,9 @@ async def ingest_videos(
 
         return {"status": 200, "message": "Data preparation succeeded"}
 
-    raise HTTPException(status_code=400, detail="Must provide atleast one pair consisting of video (.mp4) and captions (.vtt)")
+    raise HTTPException(
+        status_code=400, detail="Must provide at least one pair consisting of video (.mp4) and captions (.vtt)"
+    )
 
 
 @register_microservice(
@@ -475,7 +498,7 @@ async def ingest_videos(
 )
 @traceable(run_type="tool")
 async def rag_get_file_structure():
-    """Returns list of names of uploaded videos saved on the server"""
+    """Returns list of names of uploaded videos saved on the server."""
 
     if not Path(upload_folder).exists():
         print("No file uploaded, return empty list.")
@@ -490,7 +513,7 @@ async def rag_get_file_structure():
 )
 @traceable(run_type="tool")
 async def delete_videos():
-    """Delete all uploaded videos along with redis index"""
+    """Delete all uploaded videos along with redis index."""
     index_deleted = drop_index(index_name=INDEX_NAME)
 
     if not index_deleted:
@@ -499,6 +522,7 @@ async def delete_videos():
     clear_upload_folder(upload_folder)
     print("Successfully deleted all uploaded videos.")
     return {"status": True}
+
 
 if __name__ == "__main__":
     create_upload_folder(upload_folder)

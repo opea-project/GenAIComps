@@ -1,6 +1,6 @@
 # Dataprep Microservice for Multimodal Data with Redis
 
-This `dataprep` microservice accepts videos (mp4 files) and their transcripts (optional) from the user and ingests them into Redis vectorstore. 
+This `dataprep` microservice accepts videos (mp4 files) and their transcripts (optional) from the user and ingests them into Redis vectorstore.
 
 # 🚀1. Start Microservice with Python（Option 1）
 
@@ -32,7 +32,7 @@ export PYTHONPATH=${path_to_comps}
 
 ## 1.4 Start LVM Microservice (Optional)
 
-This is required only if you are going to consume the *generate_captions* API of this microservice as in [Section 4.3](#43-consume-generate_captions-api).
+This is required only if you are going to consume the _generate_captions_ API of this microservice as in [Section 4.3](#43-consume-generate_captions-api).
 
 Please refer to this [readme](../../../lvms/README.md) to start the LVM microservice.
 After LVM is up, set up environment variables.
@@ -58,7 +58,7 @@ Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
 
 ## 2.2 Start LVM Microservice (Optional)
 
-This is required only if you are going to consume the *generate_captions* API of this microservice as described [here](#43-consume-generate_captions-api).
+This is required only if you are going to consume the _generate_captions_ API of this microservice as described [here](#43-consume-generate_captions-api).
 
 Please refer to this [readme](../../../lvms/README.md) to start the LVM microservice.
 After LVM is up, set up environment variables.
@@ -106,14 +106,17 @@ docker container logs -f dataprep-redis-server
 ```
 
 # 🚀4. Consume Microservice
+
 Once this dataprep microservice is started, user can use the below commands to invoke the microservice to convert videos and their transcripts (optional) to embeddings and save to the Redis vector store.
 
 This mircroservice has provided 3 different ways for users to ingest videos into Redis vector store corresponding to the 3 use cases.
 
-## 4.1 Consume *videos_with_transcripts* API
+## 4.1 Consume _videos_with_transcripts_ API
+
 **Use case:** This API is used when a transcript file (under `.vtt` format) is available for each video.
 
-**Important notes:** 
+**Important notes:**
+
 - Make sure the file paths after `files=@` are correct.
 - Every transcript file's name must be identical with its corresponding video file's name (except their extension .vtt and .mp4). For example, `video1.mp4` and `video1.vtt`. Otherwise, if `video1.vtt` is not included correctly in this API call, this microservice will return error `No captions file video1.vtt found for video1.mp4`.
 
@@ -128,6 +131,7 @@ curl -X POST \
 ```
 
 ### Multiple video-transcript pair upload
+
 ```bash
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
@@ -138,11 +142,11 @@ curl -X POST \
     http://localhost:6007/v1/dataprep/videos_with_transcripts
 ```
 
-## 4.2 Consume *generate_transcripts* API
-**Use case:** This API should be used when a video has meaningful audio or recognizable speech but its transcript file is not available. 
+## 4.2 Consume _generate_transcripts_ API
+
+**Use case:** This API should be used when a video has meaningful audio or recognizable speech but its transcript file is not available.
 
 In this use case, this microservice will use [`whisper`](https://openai.com/index/whisper/) model to generate the `.vtt` transcript for the video.
-
 
 ### Single video upload
 
@@ -163,7 +167,7 @@ curl -X POST \
     http://localhost:6007/v1/dataprep/generate_transcripts
 ```
 
-## 4.3 Consume *generate_captions* API
+## 4.3 Consume _generate_captions_ API
 
 **Use case:** This API should be used when a video does not have meaningful audio or does not have audio.
 

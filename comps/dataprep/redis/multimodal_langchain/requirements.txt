@@ -4,8 +4,8 @@ langchain==0.1.12
 langchain_benchmarks
 langsmith
 moviepy
-opencv-python
 openai-whisper
+opencv-python
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -14,7 +14,7 @@ prometheus-fastapi-instrumentator
 pydantic==2.8.2
 python-multipart
 redis
-transformers
 shortuuid
+transformers
 uvicorn
 webvtt-py

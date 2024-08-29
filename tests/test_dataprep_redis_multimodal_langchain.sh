@@ -65,11 +65,11 @@ function start_lvm() {
 }
 
 function start_service() {
-    # start redis 
+    # start redis
     echo "Starting Redis server"
     REDIS_PORT=6380
     docker run -d --name="test-comps-dataprep-redis-multimodal-langchain" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $REDIS_PORT:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
-    
+
     # start dataprep microservice
     echo "Starting dataprep microservice"
     dataprep_service_port=5013
@@ -117,7 +117,7 @@ tire.""" > ${transcript_fn}
 
     echo "Downloading Video"
     wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -O ${video_fn}
-    
+
 }
 
 function validate_microservice() {
@@ -149,7 +149,7 @@ function validate_microservice() {
     # test v1/dataprep/videos_with_transcripts upload file
     echo "Testing videos_with_transcripts API"
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/videos_with_transcripts"
-    
+
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -173,7 +173,7 @@ function validate_microservice() {
     # test v1/dataprep/generate_captions upload file
     echo "Testing generate_captions API"
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/generate_captions"
-    
+
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -194,7 +194,7 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    
+
 
     # test /v1/dataprep/get_videos
     echo "Testing get_videos API"
@@ -250,7 +250,7 @@ function stop_docker() {
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
     cid=$(docker ps -aq --filter "name=test-comps-lvm*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-    
+
 }
 
 function delete_data() {
