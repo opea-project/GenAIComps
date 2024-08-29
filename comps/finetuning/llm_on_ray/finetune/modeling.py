@@ -8,15 +8,14 @@ from transformers.modeling_outputs import SequenceClassifierOutput
 from finetune_config import Dataset
 
 
-class CrossEncoder(nn.Module):
+class CrossEncoder(PreTrainedModel):
     def __init__(self, hf_model: PreTrainedModel, data_args: Dataset,
                  train_args: TrainingArguments):
-        super().__init__()
+        super().__init__(hf_model.config)
         self.hf_model = hf_model
         self.train_args = train_args
         self.data_args = data_args
 
-        self.config = self.hf_model.config
         self.cross_entropy = nn.CrossEntropyLoss(reduction='mean')
 
         self.register_buffer(
@@ -54,10 +53,11 @@ class CrossEncoder(nn.Module):
         reranker = cls(hf_model, data_args, train_args)
         return reranker
 
-    def save_pretrained(self, output_dir: str):
+    def save_pretrained(self, output_dir: str, **kwargs):
         state_dict = self.hf_model.state_dict()
         state_dict = type(state_dict)(
             {k: v.clone().cpu()
              for k,
              v in state_dict.items()})
-        self.hf_model.save_pretrained(output_dir, state_dict=state_dict)
+        kwargs.pop("state_dict")
+        self.hf_model.save_pretrained(output_dir, state_dict=state_dict, **kwargs)
