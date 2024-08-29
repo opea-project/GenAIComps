@@ -39,11 +39,27 @@ function validate_microservice() {
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "user": "test",
   "chat_id": "66445d4f71c7eff23d44f78d",
-  "human": "hi",
-  "assistant": "Hi, may I help you?",
-  "data": {
+  "chat_data": {
+    "user": "test",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are helpful assistant"
+      },
+      {
+        "role": "user",
+        "content": "hi",
+        "time": "1724915247"
+      },
+      {
+        "role": "assistant",
+        "content": "Hi, may I help you?",
+        "time": "1724915249"
+      }
+    ]
+  },
+  "feedback_data": {
     "comment": "Moderate",
     "rating": 3,
     "is_thumbs_up": true

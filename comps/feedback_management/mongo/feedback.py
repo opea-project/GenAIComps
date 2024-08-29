@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from comps import CustomLogger
 from mongo_store import FeedbackStore
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
+from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("feedback_mongo")
 logflag = os.getenv("LOGFLAG", False)
@@ -26,22 +27,19 @@ class FeedbackData(BaseModel):
 
 
 class ChatFeedback(BaseModel):
-    """This class represents the model for chat to collect FeedbackData to store in database.
+    """This class represents the model for chat to collect FeedbackData together with ChatCompletionRequest data to store in database.
 
     Attributes:
-        user (str): The user of the requested feedback data.
-        chat_id (str)[Optional]: The chat_id to retrieve its associated feedback metadata from database.
-        human (str): User query.
-        assistant (str): LLM response.
+        chat_data (ChatCompletionRequest): ChatCompletionRequest object containing chat data to be stored.
+        feedback_data (FeedbackData): FeedbackData object containing feedback data for chat to be stored.
+        chat_id (str)[Optional]: The chat_id associated to the chat to be store together with feedback data.
         feedback_id (str)[Optional]: The feedback_id of feedback data to be retrieved from database.
-        data (FeedbackData): FeedbackData object.
     """
-    user: str
+
+    chat_data: ChatCompletionRequest
+    feedback_data: FeedbackData
     chat_id: Optional[str] = None
-    human: str
-    assistant: str
     feedback_id: Optional[str] = None
-    data: FeedbackData
 
 
 class FeedbackId(BaseModel):
@@ -76,7 +74,7 @@ async def create_feedback_data(feedback: ChatFeedback):
         logger.info(feedback)
 
     try:
-        feedback_store = FeedbackStore(feedback.user)
+        feedback_store = FeedbackStore(feedback.chat_data.user)
         feedback_store.initialize_storage()
         if feedback.feedback_id is None:
             response = await feedback_store.save_feedback(feedback)

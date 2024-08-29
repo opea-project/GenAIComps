@@ -56,18 +56,35 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "user": "test",
   "chat_id": "66445d4f71c7eff23d44f78d",
-  "human": "hi",
-  "assistant": "Hi, may I help you?",
-  "data": {
+  "chat_data": {
+    "user": "test",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are helpful assistant"
+      },
+      {
+        "role": "user",
+        "content": "hi",
+        "time": "1724915247"
+      },
+      {
+        "role": "assistant",
+        "content": "Hi, may I help you?",
+        "time": "1724915249"
+      }
+    ]
+  },
+  "feedback_data": {
     "comment": "Moderate",
     "rating": 3,
     "is_thumbs_up": true
   }}'
 
-# Take note that chat_id here would be the id get from chathistory_mongo service
 
+# Take note that chat_id here would be the id get from chathistory_mongo service
+# If you do not wish to mantain chat history via chathistory_mongo service, you may generate some random uuid for it or just leave it empty.
 ```
 
 - Update the feedback data of specified feedback_id
@@ -78,16 +95,34 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "user": "test",
   "chat_id": "66445d4f71c7eff23d44f78d",
-  "human": "hi",
-  "assistant": "Hi, may I help you?",
-  "data": {
-    "comment": "fair and reasonble",
-    "rating": 3,
+  "chat_data": {
+    "user": "test",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are helpful assistant"
+      },
+      {
+        "role": "user",
+        "content": "hi",
+        "time": "1724915247"
+      },
+      {
+        "role": "assistant",
+        "content": "Hi, may I help you?",
+        "time": "1724915249"
+      }
+    ]
+  },
+  "feedback_data": {
+    "comment": "Fair and Moderate answer",
+    "rating": 2,
     "is_thumbs_up": true
   },
   "feedback_id": "{feedback_id of the data that wanted to update}"}'
+
+# Just include any feedback_data field value that you wanted to update.
 ```
 
 - Retrieve feedback data from database based on user or feedback_id

@@ -55,9 +55,9 @@ class FeedbackStore:
         try:
             _id = ObjectId(feedback_data.feedback_id)
             updated_result =  await self.collection.update_one(
-                {"_id": _id, "user": self.user},
+                {"_id": _id, "chat_data.user": self.user},
                 {"$set": {
-                    "data": feedback_data.data.model_dump(by_alias=True, mode="json")
+                    "feedback_data": feedback_data.feedback_data.model_dump(by_alias=True, mode="json")
                     }
                 },
             )
@@ -88,7 +88,7 @@ class FeedbackStore:
         """
         try:
             feedback_data_list: list = []
-            cursor = self.collection.find({"user": self.user}, {"data": 0})
+            cursor = self.collection.find({"chat_data.user": self.user}, {"feedback_data": 0})
 
             async for document in cursor:
                 document["feedback_id"] = str(document["_id"])
@@ -114,7 +114,7 @@ class FeedbackStore:
         """
         try:
             _id = ObjectId(feedback_id)
-            response: dict | None = await self.collection.find_one({"_id": _id, "user": self.user})
+            response: dict | None = await self.collection.find_one({"_id": _id, "chat_data.user": self.user})
             if response:
                 del response["_id"]
                 return response
@@ -143,7 +143,7 @@ class FeedbackStore:
         """
         try:
             _id = ObjectId(feedback_id)
-            result = await self.collection.delete_one({"_id": _id, "user": self.user})
+            result = await self.collection.delete_one({"_id": _id, "chat_data.user": self.user})
 
             delete_count = result.deleted_count
             print(f"Deleted {delete_count} documents!")
