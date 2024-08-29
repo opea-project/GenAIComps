@@ -84,7 +84,7 @@ class BridgeTowerEmbedding(BaseModel, Embeddings):
         """
 
         # the length of texts must be equal to the length of images
-        assert len(texts) == len(images), "the len of captions should be equal to the len of images"
+        assert len(texts) == len(images), "the number of captions should be equal to the number of images"
 
         image_list = []
         text_list = []
