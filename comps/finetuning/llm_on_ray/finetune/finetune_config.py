@@ -53,7 +53,7 @@ class General(BaseModel):
         return v
 
     @validator("task")
-    def check_report_to(cls, v: str):
+    def check_task(cls, v: str):
         assert v in ["instruction_tuning", "rerank", "embedding"]
         return v
 
