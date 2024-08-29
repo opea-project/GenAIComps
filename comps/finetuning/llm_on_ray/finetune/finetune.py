@@ -17,6 +17,7 @@ import datasets
 import ray
 import torch
 import transformers
+from modeling import CrossEncoder
 from peft import LoraConfig, get_peft_model
 from pydantic_yaml import parse_yaml_raw_as
 from ray.air import FailureConfig, RunConfig
@@ -25,9 +26,8 @@ from ray.train.torch import TorchTrainer
 from transformers import Trainer, TrainingArguments
 
 from comps.finetuning.llm_on_ray import common
-from comps.finetuning.llm_on_ray.finetune.data_process import DataProcessor, TrainDatasetForCE, GroupCollator
+from comps.finetuning.llm_on_ray.finetune.data_process import DataProcessor, GroupCollator, TrainDatasetForCE
 from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
-from modeling import CrossEncoder
 
 
 def adapt_transformers_to_device(config: Dict):
@@ -275,8 +275,11 @@ def load_model(config: Dict):
             model = get_peft_model(model, peft_config)
     elif task == "rerank":
         model = CrossEncoder.from_pretrained(
-            config["Dataset"], training_args, model_name,
-            from_tf=bool(".ckpt" in model_name), config=model_config,
+            config["Dataset"],
+            training_args,
+            model_name,
+            from_tf=bool(".ckpt" in model_name),
+            config=model_config,
         )
     elif task == "embedding":
         pass

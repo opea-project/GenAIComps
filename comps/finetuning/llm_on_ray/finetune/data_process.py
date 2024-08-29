@@ -9,7 +9,7 @@ import random
 import re
 from dataclasses import dataclass
 from itertools import chain
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
 import torch
 from torch.utils.data import Dataset
@@ -223,14 +223,14 @@ class TrainDatasetForCE(Dataset):
         return self.total_len
 
     def __getitem__(self, item) -> List[BatchEncoding]:
-        query = self.dataset[item]['query']
-        pos = random.choice(self.dataset[item]['pos'])
+        query = self.dataset[item]["query"]
+        pos = random.choice(self.dataset[item]["pos"])
         train_group_size = self.args.get("train_group_size", 8)
-        if len(self.dataset[item]['neg']) < train_group_size - 1:
-            num = math.ceil((train_group_size - 1) / len(self.dataset[item]['neg']))
-            negs = random.sample(self.dataset[item]['neg'] * num, train_group_size - 1)
+        if len(self.dataset[item]["neg"]) < train_group_size - 1:
+            num = math.ceil((train_group_size - 1) / len(self.dataset[item]["neg"]))
+            negs = random.sample(self.dataset[item]["neg"] * num, train_group_size - 1)
         else:
-            negs = random.sample(self.dataset[item]['neg'], train_group_size - 1)
+            negs = random.sample(self.dataset[item]["neg"], train_group_size - 1)
 
         batch_data = []
         batch_data.append(self.create_one_example(query, pos))
@@ -242,9 +242,7 @@ class TrainDatasetForCE(Dataset):
 
 @dataclass
 class GroupCollator(DataCollatorWithPadding):
-    def __call__(
-            self, features
-    ) -> Tuple[Dict[str, torch.Tensor], Dict[str, torch.Tensor]]:
+    def __call__(self, features) -> Tuple[Dict[str, torch.Tensor], Dict[str, torch.Tensor]]:
         if isinstance(features[0], list):
             features = sum(features, [])
         return super().__call__(features)
