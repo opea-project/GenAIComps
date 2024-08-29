@@ -31,7 +31,7 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/llava:comps -f comps/lvms/llava/Dockerfile_hpu .
+    docker build --no-cache -t opea/llava:comps -f comps/lvms/llava/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llava built fail"
         exit 1
