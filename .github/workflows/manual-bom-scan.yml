@@ -74,8 +74,17 @@ jobs:
       - name: Cleanup
         if: always()
         run: docker rmi -f ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:${{ inputs.tag }}
+
       - uses: actions/upload-artifact@v4.3.4
         with:
-          name: ${{ matrix.image }}-scan
-          path: ${{ matrix.image }}-*-scan.txt
+          name: ${{ matrix.image }}-sbom-scan
+          path: ${{ matrix.image }}-sbom-scan.txt
           overwrite: true
+        if: always()
+
+      - uses: actions/upload-artifact@v4.3.4
+        with:
+          name: ${{ matrix.image }}-trivy-scan
+          path: ${{ matrix.image }}-trivy-scan.txt
+          overwrite: true
+        if: always()
