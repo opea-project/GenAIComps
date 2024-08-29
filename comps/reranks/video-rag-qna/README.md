@@ -2,7 +2,7 @@
 
 This is a Docker-based microservice that do result rerank for VideoRAGQnA use case. Local rerank is used rather than rerank model.
 
-For the `VideoRAGQnA` usecase, during the data preparation phase, frames are extracted from videos and stored in a vector database. To identify the most relevant video, we count the occurrences of each video source among the retrieved data  with rerank function `get_top_doc`. This sorts the video as a descending list of names, ranked by their degree of match with the query. Then we could send the `top_n` videos to the downstream LVM.
+For the `VideoRAGQnA` usecase, during the data preparation phase, frames are extracted from videos and stored in a vector database. To identify the most relevant video, we count the occurrences of each video source among the retrieved data with rerank function `get_top_doc`. This sorts the video as a descending list of names, ranked by their degree of match with the query. Then we could send the `top_n` videos to the downstream LVM.
 
 # 🚀1. Start Microservice with Docker
 
