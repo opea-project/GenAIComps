@@ -18,7 +18,7 @@ INFERENCE_MAX_WAIT_TIME = 30
 INFERENCE_WORKER_NUM = 1
 INFERENCE_CONTEXT = 512
 
-TorchModel = "/root/bge-reranker-large "
+TorchModel = "/root/bge-reranker-large"
 NS_Bin = "/root/bge-large-r-q8.bin"
 
 NS_Model = "bert"
