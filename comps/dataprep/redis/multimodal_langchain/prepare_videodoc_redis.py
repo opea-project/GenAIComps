@@ -272,7 +272,7 @@ def drop_index(index_name, redis_url=REDIS_URL):
     name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/generate_transcripts", host="0.0.0.0", port=6007
 )
 @traceable(run_type="tool")
-async def ingest_videos(files: List[UploadFile] = File(None)):
+async def ingest_videos_generate_transcripts(files: List[UploadFile] = File(None)):
     """Upload videos with speech, generate transcripts using whisper and ingest into redis."""
 
     if files:
@@ -356,7 +356,7 @@ async def ingest_videos(files: List[UploadFile] = File(None)):
     name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/generate_captions", host="0.0.0.0", port=6007
 )
 @traceable(run_type="tool")
-async def ingest_videos(files: List[UploadFile] = File(None)):
+async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
     """Upload videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
 
     if files:
@@ -412,7 +412,7 @@ async def ingest_videos(files: List[UploadFile] = File(None)):
     port=6007,
 )
 @traceable(run_type="tool")
-async def ingest_videos(files: List[UploadFile] = File(None)):
+async def ingest_videos_with_transcripts(files: List[UploadFile] = File(None)):
 
     if files:
         video_files, video_file_names = [], []
