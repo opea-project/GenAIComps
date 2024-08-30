@@ -84,7 +84,7 @@ curl -X 'POST' \
 
 
 # Take note that chat_id here would be the id get from chathistory_mongo service
-# If you do not wish to mantain chat history via chathistory_mongo service, you may generate some random uuid for it or just leave it empty.
+# If you do not wish to maintain chat history via chathistory_mongo service, you may generate some random uuid for it or just leave it empty.
 ```
 
 - Update the feedback data of specified feedback_id

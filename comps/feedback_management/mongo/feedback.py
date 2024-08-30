@@ -1,19 +1,22 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 import os
-from typing import Optional, Annotated
-from pydantic import BaseModel, Field
+from typing import Annotated, Optional
+
 from fastapi import HTTPException
-from comps import CustomLogger
 from mongo_store import FeedbackStore
+from pydantic import BaseModel, Field
+
+from comps import CustomLogger
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("feedback_mongo")
 logflag = os.getenv("LOGFLAG", False)
 
+
 class FeedbackData(BaseModel):
-    """This class represents the data model of FeedbackData collected to store in database."
+    """This class represents the data model of FeedbackData collected to store in database.".
 
     Attributes:
         is_thumbs_up (bool): True if the response is satisfy, False otherwise.

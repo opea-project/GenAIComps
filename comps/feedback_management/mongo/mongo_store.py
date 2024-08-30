@@ -54,12 +54,9 @@ class FeedbackStore:
         """
         try:
             _id = ObjectId(feedback_data.feedback_id)
-            updated_result =  await self.collection.update_one(
+            updated_result = await self.collection.update_one(
                 {"_id": _id, "chat_data.user": self.user},
-                {"$set": {
-                    "feedback_data": feedback_data.feedback_data.model_dump(by_alias=True, mode="json")
-                    }
-                },
+                {"$set": {"feedback_data": feedback_data.feedback_data.model_dump(by_alias=True, mode="json")}},
             )
 
             if updated_result.modified_count == 1:
@@ -75,7 +72,6 @@ class FeedbackStore:
         except Exception as e:
             print(e)
             raise Exception(e)
-
 
     async def get_all_feedback_of_user(self) -> list[dict]:
         """Retrieves all feedback data of a user from the collection.
