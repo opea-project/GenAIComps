@@ -80,13 +80,13 @@ jobs:
       - uses: actions/upload-artifact@v4.3.4
         if: always()
         with:
-          name: ${{ matrix.image }}-sbom-scan
+          name: sbom-scan
           path: ${{ matrix.image }}-sbom-scan.txt
           overwrite: true
 
       - uses: actions/upload-artifact@v4.3.4
         if: always()
         with:
-          name: ${{ matrix.image }}-trivy-scan
+          name: trivy-scan
           path: ${{ matrix.image }}-trivy-scan.txt
           overwrite: true
