@@ -5,6 +5,7 @@ import asyncio
 import copy
 import json
 import re
+import os
 from typing import Dict, List
 
 import aiohttp
@@ -15,6 +16,11 @@ from ..proto.docarray import LLMParams
 from .constants import ServiceType
 from .dag import DAG
 
+from .utils import ChatTemplate
+from .logger import CustomLogger
+
+logger = CustomLogger("comps-core-orchestrator")
+LOGFLAG = os.getenv("LOGFLAG", False)
 
 class ServiceOrchestrator(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
@@ -36,13 +42,15 @@ class ServiceOrchestrator(DAG):
             self.add_edge(from_service.name, to_service.name)
             return True
         except Exception as e:
-            print(e)
+            logger.error(e)
             return False
 
     async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams()):
         result_dict = {}
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)
+        if LOGFLAG:
+            logger.info(initial_inputs)
 
         timeout = aiohttp.ClientTimeout(total=1000)
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
@@ -67,11 +75,12 @@ class ServiceOrchestrator(DAG):
                             for downstream in reversed(downstreams):
                                 try:
                                     if re.findall(black_node, downstream):
-                                        print(f"skip forwardding to {downstream}...")
+                                        if LOGFLAG:
+                                            logger.info(f"skip forwardding to {downstream}...")
                                         runtime_graph.delete_edge(node, downstream)
                                         downstreams.remove(downstream)
                                 except re.error as e:
-                                    print("Pattern invalid! Operation cancelled.")
+                                    logger.error("Pattern invalid! Operation cancelled.")
                             if len(downstreams) == 0 and llm_parameters.streaming:
                                 # turn the response to a StreamingResponse
                                 # to make the response uniform to UI
@@ -125,17 +134,23 @@ class ServiceOrchestrator(DAG):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
         llm_parameters_dict = llm_parameters.dict()
-        for field, value in llm_parameters_dict.items():
-            if inputs.get(field) != value:
-                inputs[field] = value
+        if self.services[cur_node].service_type == ServiceType.LLM and not self.services[cur_node].no_wrapper:
+            for field, value in llm_parameters_dict.items():
+                if inputs.get(field) != value:
+                    inputs[field] = value
+
+        # pre-process
+        inputs = self.align_inputs(inputs, cur_node, inputs, runtime_graph, llm_parameters_dict)
 
         if (
             self.services[cur_node].service_type == ServiceType.LLM
             or self.services[cur_node].service_type == ServiceType.LVM
         ) and llm_parameters.streaming:
             # Still leave to sync requests.post for StreamingResponse
+            if LOGFLAG:
+                logger.info(inputs)
             response = requests.post(
-                url=endpoint, data=json.dumps(inputs), proxies={"http": None}, stream=True, timeout=1000
+                url=endpoint, data=json.dumps(inputs), headers={'Content-type': 'application/json'}, proxies={"http": None}, stream=True, timeout=1000
             )
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
@@ -168,12 +183,45 @@ class ServiceOrchestrator(DAG):
                                     yield from self.token_generator(res_txt, is_last=is_last)
                             else:
                                 yield chunk
-
             return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
         else:
+            if LOGFLAG:
+                logger.info(inputs)
             async with session.post(endpoint, json=inputs) as response:
-                print(f"{cur_node}: {response.status}")
-                return await response.json(), cur_node
+                # Parse as JSON
+                data = await response.json()
+                # post process
+                data = self.align_outputs(data, cur_node, inputs, runtime_graph, llm_parameters_dict)
+
+                return data, cur_node
+
+    def align_inputs(self, inputs):
+        if self.services[cur_node].no_wrapper:
+            if self.services[cur_node].service_type == ServiceType.EMBEDDING:
+                inputs['inputs'] = inputs['text']
+                del inputs['text']
+
+    def align_outputs(self, data, cur_node, inputs, runtime_graph, llm_parameters_dict):
+        if self.services[cur_node].no_wrapper:
+            next_data = {}
+            if self.services[cur_node].service_type == ServiceType.EMBEDDING:
+                assert isinstance(data, list)
+                # Retriever expects a EmbedDoc
+                next_data = {"text": inputs["inputs"],"embedding": data[0]}
+            elif self.services[cur_node].service_type == ServiceType.RETRIEVER:
+                next_data["parameters"] = {}
+                next_data["parameters"].update(llm_parameters_dict)
+                # FIXME default non template, use stream
+                del next_data["parameters"]["id"]
+                del next_data["parameters"]["chat_template"]
+                del next_data["parameters"]["streaming"]
+
+                # assume bypass rererank in mega definition, format prompt contained with retrieved_docs
+                docs = [doc["text"] for doc in data['retrieved_docs']]
+                prompt = ChatTemplate.generate_rag_prompt(data["initial_query"], docs)
+                next_data["inputs"] = prompt
+
+            data = next_data
 
     def dump_outputs(self, node, response, result_dict):
         result_dict[node] = response
