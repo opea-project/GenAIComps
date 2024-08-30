@@ -16,7 +16,6 @@ from ..proto.docarray import LLMParams
 from .constants import ServiceType
 from .dag import DAG
 from .logger import CustomLogger
-from .utils import ChatTemplate
 
 logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
