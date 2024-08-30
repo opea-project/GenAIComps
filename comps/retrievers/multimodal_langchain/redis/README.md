@@ -8,7 +8,7 @@ Overall, this microservice provides robust backend support for applications requ
 
 ## 🚀1. Start Microservice with Python (Option 1)
 
-To start the retriever microservice, you must first install the required python packages.
+To start the retriever microservice, you must first install the required python packages. 
 
 ### 1.1 Install Requirements
 
