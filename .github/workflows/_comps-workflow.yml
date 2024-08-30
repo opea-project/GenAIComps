@@ -51,7 +51,11 @@ jobs:
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           # service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
           if [[ "${{ inputs.mode }}" == "CD" ]]; then
-            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-cd.yaml
+            if [ -f "${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-cd.yaml" ]; then
+              docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-cd.yaml
+            else
+              exit 0
+            fi
           else
             docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
           fi
