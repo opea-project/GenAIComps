@@ -61,8 +61,6 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
 
         return LLMParamsDoc(query=final_prompt.strip())
     else:
-        if logflag:
-            logger.info(input.initial_query)
         return LLMParamsDoc(query=input.initial_query)
 
 
