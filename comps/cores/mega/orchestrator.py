@@ -134,7 +134,7 @@ class ServiceOrchestrator(DAG):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
         llm_parameters_dict = llm_parameters.dict()
-        if self.services[cur_node].service_type == ServiceType.LLM and not self.services[cur_node].no_wrapper:
+        if self.services[cur_node].service_type == ServiceType.LLM:
             for field, value in llm_parameters_dict.items():
                 if inputs.get(field) != value:
                     inputs[field] = value
@@ -201,34 +201,12 @@ class ServiceOrchestrator(DAG):
 
                 return data, cur_node
 
-    def align_inputs(self, inputs, cur_node, runtime_graph, llm_parameters_dict):
-        if self.services[cur_node].no_wrapper:
-            if self.services[cur_node].service_type == ServiceType.EMBEDDING:
-                inputs["inputs"] = inputs["text"]
-                del inputs["text"]
+    def align_inputs(self, inputs, *args, **kwargs):
+        """Override this method in megaservice definition."""
         return inputs
 
-    def align_outputs(self, data, cur_node, inputs, runtime_graph, llm_parameters_dict):
-        if self.services[cur_node].no_wrapper:
-            next_data = {}
-            if self.services[cur_node].service_type == ServiceType.EMBEDDING:
-                assert isinstance(data, list)
-                # Retriever expects a EmbedDoc
-                next_data = {"text": inputs["inputs"], "embedding": data[0]}
-            elif self.services[cur_node].service_type == ServiceType.RETRIEVER:
-                next_data["parameters"] = {}
-                next_data["parameters"].update(llm_parameters_dict)
-                # FIXME default non template, use stream
-                del next_data["parameters"]["id"]
-                del next_data["parameters"]["chat_template"]
-                del next_data["parameters"]["streaming"]
-
-                # assume bypass rererank in mega definition, format prompt contained with retrieved_docs
-                docs = [doc["text"] for doc in data["retrieved_docs"]]
-                prompt = ChatTemplate.generate_rag_prompt(data["initial_query"], docs)
-                next_data["inputs"] = prompt
-
-            data = next_data
+    def align_outputs(self, data, *args, **kwargs):
+        """Override this method in megaservice definition."""
         return data
 
     def dump_outputs(self, node, response, result_dict):

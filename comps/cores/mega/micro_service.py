@@ -31,7 +31,6 @@ class MicroService:
         provider: Optional[str] = None,
         provider_endpoint: Optional[str] = None,
         use_remote_service: Optional[bool] = False,
-        no_wrapper: Optional[bool] = False,
     ):
         """Init the microservice."""
         self.name = f"{name}/{self.__class__.__name__}" if name else self.__class__.__name__
@@ -44,7 +43,6 @@ class MicroService:
         self.input_datatype = input_datatype
         self.output_datatype = output_datatype
         self.use_remote_service = use_remote_service
-        self.no_wrapper = no_wrapper
         self.uvicorn_kwargs = {}
 
         if ssl_keyfile:
