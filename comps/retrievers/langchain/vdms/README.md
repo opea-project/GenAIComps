@@ -7,11 +7,12 @@ The service primarily utilizes similarity measures in vector space to rapidly re
 Overall, this microservice provides robust backend support for applications requiring efficient similarity searches, playing a vital role in scenarios such as recommendation systems, information retrieval, or any other context where precise measurement of document similarity is crucial.
 
 # Visual Data Management System (VDMS)
-VDMS is a storage solution for efficient access of big-”visual”-data that aims to achieve cloud scale by searching for relevant visual data via visual metadata stored as a graph and enabling machine friendly enhancements to visual data for faster access. 
 
-VDMS offers the functionality of VectorDB. It provides multiple engines to index large number of embeddings and to search them for similarity. Based on the use case, the engine used will provide a tradeoff between indexing speed, search speed, total memory footprint, and search accuracy. 
+VDMS is a storage solution for efficient access of big-”visual”-data that aims to achieve cloud scale by searching for relevant visual data via visual metadata stored as a graph and enabling machine friendly enhancements to visual data for faster access.
 
-VDMS also supports a graph database to store different metadata(s) associated with each vector embedding, and to retrieve them supporting a large variety of relationships ranging from simple to very complex relationships.   
+VDMS offers the functionality of VectorDB. It provides multiple engines to index large number of embeddings and to search them for similarity. Based on the use case, the engine used will provide a tradeoff between indexing speed, search speed, total memory footprint, and search accuracy.
+
+VDMS also supports a graph database to store different metadata(s) associated with each vector embedding, and to retrieve them supporting a large variety of relationships ranging from simple to very complex relationships.
 
 In Summary, VDMS supports:
 
