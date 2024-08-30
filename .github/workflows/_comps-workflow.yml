@@ -74,7 +74,7 @@ jobs:
           docker_compose_path: ${{ steps.get-yaml-path.outputs.docker_compose_path }}
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
-  
+
   ####################################################################################################
   # Docker Compose Test
   ####################################################################################################
