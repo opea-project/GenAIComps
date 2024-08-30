@@ -4,8 +4,8 @@
 import asyncio
 import copy
 import json
-import re
 import os
+import re
 from typing import Dict, List
 
 import aiohttp
@@ -15,12 +15,12 @@ from fastapi.responses import StreamingResponse
 from ..proto.docarray import LLMParams
 from .constants import ServiceType
 from .dag import DAG
-
-from .utils import ChatTemplate
 from .logger import CustomLogger
+from .utils import ChatTemplate
 
 logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
+
 
 class ServiceOrchestrator(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
@@ -150,7 +150,12 @@ class ServiceOrchestrator(DAG):
             if LOGFLAG:
                 logger.info(inputs)
             response = requests.post(
-                url=endpoint, data=json.dumps(inputs), headers={'Content-type': 'application/json'}, proxies={"http": None}, stream=True, timeout=1000
+                url=endpoint,
+                data=json.dumps(inputs),
+                headers={"Content-type": "application/json"},
+                proxies={"http": None},
+                stream=True,
+                timeout=1000,
             )
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
@@ -183,6 +188,7 @@ class ServiceOrchestrator(DAG):
                                     yield from self.token_generator(res_txt, is_last=is_last)
                             else:
                                 yield chunk
+
             return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
         else:
             if LOGFLAG:
@@ -198,8 +204,8 @@ class ServiceOrchestrator(DAG):
     def align_inputs(self, inputs, cur_node, runtime_graph, llm_parameters_dict):
         if self.services[cur_node].no_wrapper:
             if self.services[cur_node].service_type == ServiceType.EMBEDDING:
-                inputs['inputs'] = inputs['text']
-                del inputs['text']
+                inputs["inputs"] = inputs["text"]
+                del inputs["text"]
         return inputs
 
     def align_outputs(self, data, cur_node, inputs, runtime_graph, llm_parameters_dict):
@@ -208,7 +214,7 @@ class ServiceOrchestrator(DAG):
             if self.services[cur_node].service_type == ServiceType.EMBEDDING:
                 assert isinstance(data, list)
                 # Retriever expects a EmbedDoc
-                next_data = {"text": inputs["inputs"],"embedding": data[0]}
+                next_data = {"text": inputs["inputs"], "embedding": data[0]}
             elif self.services[cur_node].service_type == ServiceType.RETRIEVER:
                 next_data["parameters"] = {}
                 next_data["parameters"].update(llm_parameters_dict)
@@ -218,7 +224,7 @@ class ServiceOrchestrator(DAG):
                 del next_data["parameters"]["streaming"]
 
                 # assume bypass rererank in mega definition, format prompt contained with retrieved_docs
-                docs = [doc["text"] for doc in data['retrieved_docs']]
+                docs = [doc["text"] for doc in data["retrieved_docs"]]
                 prompt = ChatTemplate.generate_rag_prompt(data["initial_query"], docs)
                 next_data["inputs"] = prompt
 

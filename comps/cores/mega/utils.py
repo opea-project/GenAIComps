@@ -5,9 +5,10 @@ import ipaddress
 import multiprocessing
 import os
 import random
+import re
 from socket import AF_INET, SOCK_STREAM, socket
 from typing import List, Optional, Union
-import re
+
 
 def is_port_free(host: str, port: int) -> bool:
     """Check if a given port on a host is free.
@@ -197,6 +198,7 @@ class SafeContextManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type:
             self.context_to_manage.__exit__(exc_type, exc_val, exc_tb)
+
 
 class ChatTemplate:
     @staticmethod
