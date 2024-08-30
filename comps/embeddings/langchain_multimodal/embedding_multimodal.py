@@ -8,7 +8,6 @@ from typing import Union
 
 from dateparser.search import search_dates
 from embeddings_clip import vCLIP
-from langsmith import traceable
 
 from comps import (
     EmbedDoc,
@@ -68,7 +67,6 @@ def filtler_dates(prompt):
     output_datatype=EmbedDoc,
 )
 @opea_telemetry
-@traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_multimodal"])
 def embedding(input: TextDoc) -> EmbedDoc:
     start = time.time()

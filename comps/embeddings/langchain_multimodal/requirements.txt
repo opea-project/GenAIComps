@@ -4,7 +4,6 @@ einops
 fastapi
 huggingface_hub
 langchain
-langsmith
 open_clip_torch
 opentelemetry-api
 opentelemetry-exporter-otlp

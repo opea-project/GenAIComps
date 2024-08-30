@@ -16,7 +16,7 @@ Users are albe to configure and build embedding-related services according to th
 
 ## 🚀1. Start Microservice with Docker
 
-### 1.2 Build Docker Image
+### 1.1 Build Docker Image
 
 #### Build Langchain Docker
 
@@ -25,7 +25,7 @@ cd ../../..
 docker build -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/langchain_multimodal/docker/Dockerfile .
 ```
 
-### 1.4 Run Docker with Docker Compose
+### 1.2 Run Docker with Docker Compose
 
 ```bash
 cd comps/embeddings/langchain_multimodal/docker
