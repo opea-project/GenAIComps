@@ -140,7 +140,7 @@ class ServiceOrchestrator(DAG):
                     inputs[field] = value
 
         # pre-process
-        inputs = self.align_inputs(inputs, cur_node, inputs, runtime_graph, llm_parameters_dict)
+        inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict)
 
         if (
             self.services[cur_node].service_type == ServiceType.LLM
@@ -195,11 +195,12 @@ class ServiceOrchestrator(DAG):
 
                 return data, cur_node
 
-    def align_inputs(self, inputs):
+    def align_inputs(self, inputs, cur_node, runtime_graph, llm_parameters_dict):
         if self.services[cur_node].no_wrapper:
             if self.services[cur_node].service_type == ServiceType.EMBEDDING:
                 inputs['inputs'] = inputs['text']
                 del inputs['text']
+        return inputs
 
     def align_outputs(self, data, cur_node, inputs, runtime_graph, llm_parameters_dict):
         if self.services[cur_node].no_wrapper:
@@ -222,6 +223,7 @@ class ServiceOrchestrator(DAG):
                 next_data["inputs"] = prompt
 
             data = next_data
+        return data
 
     def dump_outputs(self, node, response, result_dict):
         result_dict[node] = response
