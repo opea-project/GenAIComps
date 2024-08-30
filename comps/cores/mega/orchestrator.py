@@ -188,7 +188,7 @@ class ServiceOrchestrator(DAG):
                             else:
                                 yield chunk
 
-            return StreamingResponse(generate(), media_type="text/event-stream"), cur_node
+            return StreamingResponse(self.align_generator(generate()), media_type="text/event-stream"), cur_node
         else:
             if LOGFLAG:
                 logger.info(inputs)
@@ -207,6 +207,10 @@ class ServiceOrchestrator(DAG):
     def align_outputs(self, data, *args, **kwargs):
         """Override this method in megaservice definition."""
         return data
+
+    def align_generator(self, gen, *args, **kwargs):
+        """Override this method in megaservice definition."""
+        return gen
 
     def dump_outputs(self, node, response, result_dict):
         result_dict[node] = response
