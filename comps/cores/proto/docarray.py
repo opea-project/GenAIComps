@@ -1,12 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc, VideoDoc
-from docarray.typing import AudioUrl
+from docarray.typing import AudioUrl, ImageUrl
 from pydantic import Field, conint, conlist, field_validator
 
 
@@ -17,7 +17,38 @@ class TopologyInfo:
 
 
 class TextDoc(BaseDoc, TopologyInfo):
-    text: str
+    text: str = None
+
+
+class ImageDoc(BaseDoc):
+    url: Optional[ImageUrl] = Field(
+        description="The path to the image. It can be remote (Web) URL, or a local file path",
+        default=None,
+    )
+    base64_image: Optional[str] = Field(
+        description="The base64-based encoding of the image",
+        default=None,
+    )
+
+
+class TextImageDoc(BaseDoc):
+    image: ImageDoc = None
+    text: TextDoc = None
+
+
+MultimodalDoc = Union[
+    TextDoc,
+    ImageDoc,
+    TextImageDoc,
+]
+
+
+class ImageDoc(BaseDoc):
+    image_path: str
+
+
+class TextImageDoc(BaseDoc):
+    doc: Tuple[Union[TextDoc, ImageDoc]]
 
 
 class Base64ByteStrDoc(BaseDoc):
@@ -43,6 +74,18 @@ class EmbedDoc(BaseDoc):
     score_threshold: float = 0.2
 
 
+class EmbedMultimodalDoc(EmbedDoc):
+    # extend EmbedDoc with these attributes
+    url: Optional[ImageUrl] = Field(
+        description="The path to the image. It can be remote (Web) URL, or a local file path.",
+        default=None,
+    )
+    base64_image: Optional[str] = Field(
+        description="The base64-based encoding of the image.",
+        default=None,
+    )
+
+
 class Audio2TextDoc(AudioDoc):
     url: Optional[AudioUrl] = Field(
         description="The path to the audio.",
@@ -62,6 +105,16 @@ class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
     initial_query: str
     top_n: int = 1
+
+    class Config:
+        json_encoders = {np.ndarray: lambda x: x.tolist()}
+
+
+class SearchedMultimodalDoc(BaseDoc):
+    retrieved_docs: List[TextImageDoc]
+    initial_query: str
+    top_n: int = 1
+    metadata: Optional[List[Dict]] = None
 
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
