@@ -5,7 +5,6 @@ import ipaddress
 import multiprocessing
 import os
 import random
-import re
 from socket import AF_INET, SOCK_STREAM, socket
 from typing import List, Optional, Union
 
