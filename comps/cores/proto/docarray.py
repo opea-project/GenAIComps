@@ -43,22 +43,6 @@ MultimodalDoc = Union[
 ]
 
 
-class ImageDoc(BaseDoc):
-    image_path: str
-
-
-class TextImageDoc(BaseDoc):
-    doc: Tuple[Union[TextDoc, ImageDoc]]
-
-
-class ImageDoc(BaseDoc):
-    image_path: str
-
-
-class TextImageDoc(BaseDoc):
-    doc: Tuple[Union[TextDoc, ImageDoc]]
-
-
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
