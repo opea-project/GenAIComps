@@ -18,6 +18,10 @@ For details, please refer to this [readme](langchain/pgvector/README.md)
 
 For details, please refer to this [readme](langchain/pinecone/README.md)
 
+# Vectorstores Microservice with Pathway
+
+For details, please refer to this [readme](langchain/pathway/README.md)
+
 # Vectorstores Microservice with VDMS
 
 For details, please refer to this [readme](langchain/vdms/README.md)
