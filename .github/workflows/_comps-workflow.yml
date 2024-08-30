@@ -54,18 +54,10 @@ jobs:
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           # service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
           if [[ "${{ inputs.mode }}" == "CD" ]]; then
-            if [ -f "${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-CD.yaml" ]; then
-              if [ -f "${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml" ]; then
-                sed -n '/services:/,/^$/p' ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-CD.yaml |sed '1d' >> ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
-              else
-                echo "Docker Compose file not found, Copy Docker Compose-CD file to Docker Compose file"
-                cp ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-CD.yaml ${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
-              fi
-            else
-              echo "Docker Compose-CD file not found, skipping extraction"
-            fi
+            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-cd.yaml
+          else
+            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
           fi
-          docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
           echo "docker_compose_path=${docker_compose_yml}" >> $GITHUB_OUTPUT
           if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
@@ -82,56 +74,7 @@ jobs:
           docker_compose_path: ${{ steps.get-yaml-path.outputs.docker_compose_path }}
           registry: ${OPEA_IMAGE_REPO}opea
           tag: ${{ inputs.tag }}
-  # ####################################################################################################
-  # # Trivy Scan
-  # ####################################################################################################
-  #   get-image-list:
-  #     needs: [build-images]
-  #     if: ${{ fromJSON(inputs.scan) && inputs.node == 'gaudi' }}
-  #     runs-on: ubuntu-latest
-  #     outputs:
-  #       matrix: ${{ steps.scan-matrix.outputs.matrix }}
-  #     steps:
-  #       - name: Checkout out Repo
-  #         uses: actions/checkout@v4
-
-  #       - name: Set Matrix
-  #         id: scan-matrix
-  #         run: |
-  #           pip install yq
-  #           compose_path=${{ github.workspace }}/${{ inputs.example }}/docker/docker_build_compose.yaml
-  #           echo "matrix=$(cat ${compose_path} | yq -r '.[]' | jq 'keys' | jq -c '.')" >> $GITHUB_OUTPUT
-
-  #   scan-images:
-  #     needs: [get-image-list, build-images]
-  #     if: ${{ fromJSON(inputs.scan) && inputs.node == 'gaudi'}}
-  #     runs-on: "docker-build-${{ inputs.node }}"
-  #     strategy:
-  #       matrix:
-  #         image: ${{ fromJSON(needs.get-image-list.outputs.matrix) }}
-  #       fail-fast: false
-  #     steps:
-  #       - name: Pull Image
-  #         run: |
-  #           docker pull ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:${{ inputs.tag }}
-  #           echo "OPEA_IMAGE_REPO=${OPEA_IMAGE_REPO}" >> $GITHUB_ENV
-
-  #       - name: Scan Container
-  #         uses: opea-project/validation/actions/trivy-scan@main
-  #         with:
-  #           image-ref: ${{ env.OPEA_IMAGE_REPO }}opea/${{ matrix.image }}:${{ inputs.tag }}
-  #           output: ${{ matrix.image }}-scan.txt
-
-  #       - name: Cleanup
-  #         if: always()
-  #         run: docker rmi -f ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:${{ inputs.tag }}
-
-  #       - uses: actions/upload-artifact@v4.3.4
-  #         with:
-  #           name: ${{ matrix.image }}-scan
-  #           path: ${{ matrix.image }}-scan.txt
-  #           overwrite: true
-
+  
   ####################################################################################################
   # Docker Compose Test
   ####################################################################################################
