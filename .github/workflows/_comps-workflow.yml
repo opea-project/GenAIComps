@@ -30,10 +30,7 @@ on:
         description: "Whether the test range is CI or CD"
         required: false
         type: string
-      # scan:
-      #   default: true
-      #   required: false
-      #   type: boolean
+
 jobs:
   ####################################################################################################
   # Image Build
