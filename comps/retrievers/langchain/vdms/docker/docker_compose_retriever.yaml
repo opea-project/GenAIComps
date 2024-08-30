@@ -5,7 +5,7 @@ version: "3.8"
 
 services:
   tei_xeon_service:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.2
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
     container_name: tei-xeon-server
     ports:
       - "6060:80"

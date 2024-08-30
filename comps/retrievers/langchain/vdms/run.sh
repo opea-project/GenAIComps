@@ -4,6 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cd /home/user/comps/retrievers/langchain/vdms
-python ingest.py
+#python ingest.py
 
 python retriever_vdms.py

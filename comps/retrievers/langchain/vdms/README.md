@@ -6,6 +6,22 @@ The service primarily utilizes similarity measures in vector space to rapidly re
 
 Overall, this microservice provides robust backend support for applications requiring efficient similarity searches, playing a vital role in scenarios such as recommendation systems, information retrieval, or any other context where precise measurement of document similarity is crucial.
 
+# Visual Data Management System (VDMS)
+VDMS is a storage solution for efficient access of big-”visual”-data that aims to achieve cloud scale by searching for relevant visual data via visual metadata stored as a graph and enabling machine friendly enhancements to visual data for faster access. 
+
+VDMS offers the functionality of VectorDB. It provides multiple engines to index large number of embeddings and to search them for similarity. Based on the use case, the engine used will provide a tradeoff between indexing speed, search speed, total memory footprint, and search accuracy. 
+
+VDMS also supports a graph database to store different metadata(s) associated with each vector embedding, and to retrieve them supporting a large variety of relationships ranging from simple to very complex relationships.   
+
+In Summary, VDMS supports:
+
+K nearest neighbor search
+Euclidean distance (L2) and inner product (IP)
+Libraries for indexing and computing distances: TileDBDense, TileDBSparse, FaissFlat (Default), FaissIVFFlat, Flinng
+Embeddings for text, images, and video
+Vector and metadata searches
+Scalabity to allow for definition of different relationships across the metadata
+
 # 🚀1. Start Microservice with Python (Option 1)
 
 To start the retriever microservice, you must first install the required python packages.
@@ -25,7 +41,7 @@ export LANGCHAIN_PROJECT="opea/retriever"
 model=BAAI/bge-base-en-v1.5
 revision=refs/pr/4
 volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model --revision $revision
 ```
 
 ## 1.3 Verify the TEI Service

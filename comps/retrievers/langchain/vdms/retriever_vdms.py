@@ -7,7 +7,7 @@ import time
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
-from langsmith import traceable
+
 from vdms_config import (  # , HUGGINGFACEHUB_API_TOKEN, INDEX_SCHEMA, VDMS_URL
     DISTANCE_STRATEGY,
     EMBED_MODEL,
@@ -59,7 +59,7 @@ client = VDMS_Client(VDMS_HOST, VDMS_PORT)
     host="0.0.0.0",
     port=7000,
 )
-@traceable(run_type="retriever")
+
 @register_statistics(names=["opea_service@retriever_vdms"])
 def retrieve(input: EmbedDoc) -> SearchedMultimodalDoc:
     start = time.time()
