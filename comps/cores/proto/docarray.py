@@ -65,7 +65,7 @@ class EmbedDoc(BaseDoc):
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
     constraints: Optional[Union[Dict[str, Any], None]] = None
-    #constraints: dict = None
+    # constraints: dict = None
 
 
 class EmbedMultimodalDoc(EmbedDoc):
