@@ -6,10 +6,10 @@ import time
 from typing import List, Optional
 
 from langchain_community.embeddings import OpenAIEmbeddings
-from langsmith import traceable
 
 from comps import (
-    EmbedDoc768,
+    CustomLogger,
+    EmbedDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -17,6 +17,9 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+
+logger = CustomLogger("embedding_mosec")
+logflag = os.getenv("LOGFLAG", False)
 
 
 class MosecEmbeddings(OpenAIEmbeddings):
@@ -51,16 +54,18 @@ class MosecEmbeddings(OpenAIEmbeddings):
     host="0.0.0.0",
     port=6000,
     input_datatype=TextDoc,
-    output_datatype=EmbedDoc768,
+    output_datatype=EmbedDoc,
 )
-@traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_mosec"])
-def embedding(input: TextDoc) -> EmbedDoc768:
+def embedding(input: TextDoc) -> EmbedDoc:
+    if logflag:
+        logger.info(input)
     start = time.time()
     embed_vector = embeddings.embed_query(input.text)
-    embed_vector = embed_vector[:768]  # Keep only the first 768 elements
-    res = EmbedDoc768(text=input.text, embedding=embed_vector)
+    res = EmbedDoc(text=input.text, embedding=embed_vector)
     statistics_dict["opea_service@embedding_mosec"].append_latency(time.time() - start, None)
+    if logflag:
+        logger.info(res)
     return res
 
 
@@ -68,7 +73,7 @@ if __name__ == "__main__":
     MOSEC_EMBEDDING_ENDPOINT = os.environ.get("MOSEC_EMBEDDING_ENDPOINT", "http://127.0.0.1:8080")
     os.environ["OPENAI_API_BASE"] = MOSEC_EMBEDDING_ENDPOINT
     os.environ["OPENAI_API_KEY"] = "Dummy key"
-    MODEL_ID = "/root/bge-large-zh"
+    MODEL_ID = "/home/user/bge-large-zh-v1.5"
     embeddings = MosecEmbeddings(model=MODEL_ID)
-    print("Mosec Embedding initialized.")
+    logger.info("Mosec Embedding initialized.")
     opea_microservices["opea_service@embedding_mosec"].start()

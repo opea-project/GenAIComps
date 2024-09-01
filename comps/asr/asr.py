@@ -8,10 +8,15 @@ import time
 import numpy as np
 import requests
 
+from comps import CustomLogger
+
+logger = CustomLogger("asr")
+logflag = os.getenv("LOGFLAG", False)
+
 from comps import (
     Base64ByteStrDoc,
+    LLMParamsDoc,
     ServiceType,
-    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
@@ -26,21 +31,24 @@ from comps import (
     host="0.0.0.0",
     port=9099,
     input_datatype=Base64ByteStrDoc,
-    output_datatype=TextDoc,
+    output_datatype=LLMParamsDoc,
 )
 @register_statistics(names=["opea_service@asr"])
 async def audio_to_text(audio: Base64ByteStrDoc):
     start = time.time()
     byte_str = audio.byte_str
     inputs = {"audio": byte_str}
+    if logflag:
+        logger.info(inputs)
 
     response = requests.post(url=f"{asr_endpoint}/v1/asr", data=json.dumps(inputs), proxies={"http": None})
-
+    if logflag:
+        logger.info(response)
     statistics_dict["opea_service@asr"].append_latency(time.time() - start, None)
-    return TextDoc(text=response.json()["asr_result"])
+    return LLMParamsDoc(query=response.json()["asr_result"])
 
 
 if __name__ == "__main__":
     asr_endpoint = os.getenv("ASR_ENDPOINT", "http://localhost:7066")
-    print("[asr - router] ASR initialized.")
+    logger.info("[asr - router] ASR initialized.")
     opea_microservices["opea_service@asr"].start()

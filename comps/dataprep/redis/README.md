@@ -1,12 +1,14 @@
 # Dataprep Microservice with Redis
 
-For dataprep microservice, we provide two frameworks: `Langchain` and `LlamaIndex`. We also provide `Langchain_ray` which uses ray to parallel the data prep for multi-file performance improvement(observed 5x - 15x speedup by processing 1000 files/links.).
+We have provided dataprep microservice for multimodal data input (e.g., text and image) [here](multimodal_langchain/README.md).
+
+For dataprep microservice for text input, we provide here two frameworks: `Langchain` and `LlamaIndex`. We also provide `Langchain_ray` which uses ray to parallel the data prep for multi-file performance improvement(observed 5x - 15x speedup by processing 1000 files/links.).
 
 We organized these two folders in the same way, so you can use either framework for dataprep microservice with the following constructions.
 
-# 🚀1. Start Microservice with Python（Option 1）
+## 🚀1. Start Microservice with Python（Option 1）
 
-## 1.1 Install Requirements
+### 1.1 Install Requirements
 
 - option 1: Install Single-process version (for 1-10 files processing)
 
@@ -29,22 +31,45 @@ pip install -r requirements.txt
 cd langchain_ray; pip install -r requirements_ray.txt
 ```
 
-## 1.2 Start Redis Stack Server
+### 1.2 Start Redis Stack Server
 
 Please refer to this [readme](../../vectorstores/langchain/redis/README.md).
 
-## 1.3 Setup Environment Variables
+### 1.3 Setup Environment Variables
 
 ```bash
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
 export PYTHONPATH=${path_to_comps}
 ```
 
-## 1.4 Start Document Preparation Microservice for Redis with Python Script
+### 1.4 Start Embedding Service
+
+First, you need to start a TEI service.
+
+```bash
+your_port=6006
+model="BAAI/bge-large-en-v1.5"
+revision="refs/pr/5"
+docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+```
+
+Then you need to test your TEI service using the following commands:
+
+```bash
+curl localhost:$your_port/embed \
+    -X POST \
+    -d '{"inputs":"What is Deep Learning?"}' \
+    -H 'Content-Type: application/json'
+```
+
+After checking that it works, set up environment variables.
+
+```bash
+export TEI_ENDPOINT="http://localhost:$your_port"
+```
+
+### 1.4 Start Document Preparation Microservice for Redis with Python Script
 
 Start document preparation microservice for Redis with below command.
 
@@ -60,23 +85,23 @@ python prepare_doc_redis.py
 python prepare_doc_redis_on_ray.py
 ```
 
-# 🚀2. Start Microservice with Docker (Option 2)
+## 🚀2. Start Microservice with Docker (Option 2)
 
-## 2.1 Start Redis Stack Server
+### 2.1 Start Redis Stack Server
 
-Please refer to this [readme](../../../vectorstores/langchain/redis/README.md).
+Please refer to this [readme](../../vectorstores/langchain/redis/README.md).
 
-## 2.2 Setup Environment Variables
+### 2.2 Setup Environment Variables
 
 ```bash
+export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+export TEI_ENDPOINT="http://${your_ip}:6006"
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/dataprep"
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
 
-## 2.3 Build Docker Image
+### 2.3 Build Docker Image
 
 - Build docker image with langchain
 
@@ -101,21 +126,21 @@ cd ../../../../
 docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain_ray/docker/Dockerfile .
 ```
 
-## 2.4 Run Docker with CLI (Option A)
+### 2.4 Run Docker with CLI (Option A)
 
 - option 1: Start single-process version (for 1-10 files processing)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 -p 6008:6008 -p 6009:6009 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-redis:latest
+docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep-redis:latest
 ```
 
 - option 2: Start multi-process version (for >10 files processing)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 -p 6008:6008 -p 6009:6009 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
+docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
 ```
 
-## 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
+### 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
 ```bash
 # for langchain
@@ -125,15 +150,15 @@ cd comps/dataprep/redis/llama_index/docker
 docker compose -f docker-compose-dataprep-redis.yaml up -d
 ```
 
-# 🚀3. Status Microservice
+## 🚀3. Status Microservice
 
 ```bash
 docker container logs -f dataprep-redis-server
 ```
 
-# 🚀4. Consume Microservice
+## 🚀4. Consume Microservice
 
-## 4.1 Consume Upload API
+### 4.1 Consume Upload API
 
 Once document preparation microservice for Redis is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
@@ -213,14 +238,14 @@ except requests.exceptions.RequestException as e:
     print("An error occurred:", e)
 ```
 
-## 4.2 Consume get_file API
+### 4.2 Consume get_file API
 
 To get uploaded file structures, use the following command:
 
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6008/v1/dataprep/get_file
+    http://localhost:6007/v1/dataprep/get_file
 ```
 
 Then you will get the response JSON like this:
@@ -242,7 +267,7 @@ Then you will get the response JSON like this:
 ]
 ```
 
-## 4.3 Consume delete_file API
+### 4.3 Consume delete_file API
 
 To delete uploaded file/link, use the following command.
 
@@ -253,17 +278,17 @@ The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "https://www.ces.tech/.txt"}' \
-    http://10.165.57.68:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 
 # delete file
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "uploaded_file_1.txt"}' \
-    http://10.165.57.68:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 
 # delete all files and links
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "all"}' \
-    http://10.165.57.68:6009/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete_file
 ```

@@ -1,10 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from langsmith import traceable
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+import os
 
-from comps import EmbedDoc1024, ServiceType, TextDoc, opea_microservices, register_microservice
+from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedding
+
+from comps import CustomLogger, EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+
+logger = CustomLogger("local_embedding")
+logflag = os.getenv("LOGFLAG", False)
 
 
 @register_microservice(
@@ -14,15 +18,18 @@ from comps import EmbedDoc1024, ServiceType, TextDoc, opea_microservices, regist
     host="0.0.0.0",
     port=6000,
     input_datatype=TextDoc,
-    output_datatype=EmbedDoc1024,
+    output_datatype=EmbedDoc,
 )
-@traceable(run_type="embedding")
-def embedding(input: TextDoc) -> EmbedDoc1024:
+def embedding(input: TextDoc) -> EmbedDoc:
+    if logflag:
+        logger.info(input)
     embed_vector = embeddings.get_text_embedding(input.text)
-    res = EmbedDoc1024(text=input.text, embedding=embed_vector)
+    res = EmbedDoc(text=input.text, embedding=embed_vector)
+    if logflag:
+        logger.info(res)
     return res
 
 
 if __name__ == "__main__":
-    embeddings = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5")
+    embeddings = HuggingFaceInferenceAPIEmbedding(model_name="BAAI/bge-large-en-v1.5")
     opea_microservices["opea_service@local_embedding"].start()

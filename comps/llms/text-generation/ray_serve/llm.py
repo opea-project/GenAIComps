@@ -16,12 +16,10 @@ import os
 
 from fastapi.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
-from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
 
-@traceable(run_type="tool")
 def post_process_text(text: str):
     if text == " ":
         return "data: @#$\n\n"
@@ -40,10 +38,11 @@ def post_process_text(text: str):
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("RAY_Serve_ENDPOINT", "http://localhost:8080")
     llm_model = os.getenv("LLM_MODEL", "Llama-2-7b-chat-hf")
+    if "/" in llm_model:
+        llm_model = llm_model.split("/")[-1]
     llm = ChatOpenAI(
         openai_api_base=llm_endpoint + "/v1",
         model_name=llm_model,

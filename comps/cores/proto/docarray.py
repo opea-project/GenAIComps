@@ -1,17 +1,46 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList
 from docarray.documents import AudioDoc
-from docarray.typing import AudioUrl
-from pydantic import Field, conint, conlist
+from docarray.typing import AudioUrl, ImageUrl
+from pydantic import Field, conint, conlist, field_validator
 
 
-class TextDoc(BaseDoc):
-    text: str
+class TopologyInfo:
+    # will not keep forwarding to the downstream nodes in the black list
+    # should be a pattern string
+    downstream_black_list: Optional[list] = []
+
+
+class TextDoc(BaseDoc, TopologyInfo):
+    text: str = None
+
+
+class ImageDoc(BaseDoc):
+    url: Optional[ImageUrl] = Field(
+        description="The path to the image. It can be remote (Web) URL, or a local file path",
+        default=None,
+    )
+    base64_image: Optional[str] = Field(
+        description="The base64-based encoding of the image",
+        default=None,
+    )
+
+
+class TextImageDoc(BaseDoc):
+    image: ImageDoc = None
+    text: TextDoc = None
+
+
+MultimodalDoc = Union[
+    TextDoc,
+    ImageDoc,
+    TextImageDoc,
+]
 
 
 class Base64ByteStrDoc(BaseDoc):
@@ -26,15 +55,27 @@ class DocPath(BaseDoc):
     table_strategy: str = "fast"
 
 
-class EmbedDoc768(BaseDoc):
+class EmbedDoc(BaseDoc):
     text: str
-    embedding: conlist(float, min_length=768, max_length=768)
+    embedding: conlist(float, min_length=0)
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
+
+
+class EmbedMultimodalDoc(EmbedDoc):
+    # extend EmbedDoc with these attributes
+    url: Optional[ImageUrl] = Field(
+        description="The path to the image. It can be remote (Web) URL, or a local file path.",
+        default=None,
+    )
+    base64_image: Optional[str] = Field(
+        description="The base64-based encoding of the image.",
+        default=None,
+    )
 
 
 class Audio2TextDoc(AudioDoc):
@@ -52,11 +93,6 @@ class Audio2TextDoc(AudioDoc):
     )
 
 
-class EmbedDoc1024(BaseDoc):
-    text: str
-    embedding: conlist(float, min_length=1024, max_length=1024)
-
-
 class SearchedDoc(BaseDoc):
     retrieved_docs: DocList[TextDoc]
     initial_query: str
@@ -64,6 +100,10 @@ class SearchedDoc(BaseDoc):
 
     class Config:
         json_encoders = {np.ndarray: lambda x: x.tolist()}
+
+
+class SearchedMultimodalDoc(SearchedDoc):
+    metadata: List[Dict[str, Any]]
 
 
 class GeneratedDoc(BaseDoc):
@@ -77,6 +117,7 @@ class RerankedDoc(BaseDoc):
 
 
 class LLMParamsDoc(BaseDoc):
+    model: Optional[str] = None  # for openai and ollama
     query: str
     max_new_tokens: int = 1024
     top_k: int = 10
@@ -85,6 +126,30 @@ class LLMParamsDoc(BaseDoc):
     temperature: float = 0.01
     repetition_penalty: float = 1.03
     streaming: bool = True
+
+    chat_template: Optional[str] = Field(
+        default=None,
+        description=(
+            "A template to use for this conversion. "
+            "If this is not passed, the model's default chat template will be "
+            "used instead. We recommend that the template contains {context} and {question} for rag,"
+            "or only contains {question} for chat completion without rag."
+        ),
+    )
+    documents: Optional[Union[List[Dict[str, str]], List[str]]] = Field(
+        default=[],
+        description=(
+            "A list of dicts representing documents that will be accessible to "
+            "the model if it is performing RAG (retrieval-augmented generation)."
+            " If the template does not support RAG, this argument will have no "
+            "effect. We recommend that each document should be a dict containing "
+            '"title" and "text" keys.'
+        ),
+    )
+
+    @field_validator("chat_template")
+    def chat_template_must_contain_variables(cls, v):
+        return v
 
 
 class LLMParams(BaseDoc):
@@ -95,6 +160,16 @@ class LLMParams(BaseDoc):
     temperature: float = 0.01
     repetition_penalty: float = 1.03
     streaming: bool = True
+
+    chat_template: Optional[str] = Field(
+        default=None,
+        description=(
+            "A template to use for this conversion. "
+            "If this is not passed, the model's default chat template will be "
+            "used instead. We recommend that the template contains {context} and {question} for rag,"
+            "or only contains {question} for chat completion without rag."
+        ),
+    )
 
 
 class SecurityDoc(BaseDoc):
@@ -131,5 +206,19 @@ class GraphDoc(BaseDoc):
 
 class LVMDoc(BaseDoc):
     image: str
+    prompt: str
+    max_new_tokens: conint(ge=0, le=1024) = 512
+    top_k: int = 10
+    top_p: float = 0.95
+    typical_p: float = 0.95
+    temperature: float = 0.01
+    repetition_penalty: float = 1.03
+    streaming: bool = False
+
+
+class LVMVideoDoc(BaseDoc):
+    video_url: str
+    chunk_start: float
+    chunk_duration: float
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512

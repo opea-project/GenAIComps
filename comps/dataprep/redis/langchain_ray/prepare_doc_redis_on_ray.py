@@ -21,12 +21,11 @@ from pathlib import Path
 from typing import Callable, List, Optional, Union
 
 import pandas as pd
-from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, TIMEOUT_SECONDS
+from config import EMBED_MODEL, INDEX_NAME, REDIS_URL, TIMEOUT_SECONDS
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Redis
-from langsmith import traceable
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../../")
@@ -41,18 +40,22 @@ from ray.data.block import Block
 from ray.data.datasource import FileBasedDatasource
 from tqdm import tqdm
 
-from comps import DocPath, opea_microservices, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
     Timer,
     create_upload_folder,
     document_loader,
     encode_filename,
     get_file_structure,
+    get_separators,
     parse_html,
     remove_folder_with_ignore,
     save_content_to_local_disk,
     timeout,
 )
+
+logger = CustomLogger("prepare_doc_redis")
+logflag = os.getenv("LOGFLAG", False)
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 debug = False
@@ -73,8 +76,9 @@ def prepare_env(enable_ray=False, pip_requirements=None):
 
 def generate_log_name(file_list):
     file_set = f"{sorted(file_list)}"
-    # print(f"file_set: {file_set}")
-    md5_str = hashlib.md5(file_set.encode()).hexdigest()
+    # if logflag:
+    # logger.info(f"file_set: {file_set}")
+    md5_str = hashlib.md5(file_set.encode(), usedforsecurity=False).hexdigest()
     return f"status/status_{md5_str}.log"
 
 
@@ -170,8 +174,15 @@ def data_to_redis_ray(data):
 
 
 def data_to_redis(data):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=100, add_start_index=True)
-    chunks = text_splitter.split_text(data)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1500, chunk_overlap=100, add_start_index=True, separators=get_separators(), is_separator_regex=False
+    )
+    if isinstance(data, list):
+        chunks = data
+    elif isinstance(data, str):
+        chunks = text_splitter.split_text(data)
+    else:
+        raise TypeError("The content must be either a list or a string.")
 
     # Create vectorstore
     if tei_embedding_endpoint:
@@ -192,10 +203,10 @@ def data_to_redis(data):
             texts=batch_texts,
             embedding=embedder,
             index_name=INDEX_NAME,
-            index_schema=INDEX_SCHEMA,
             redis_url=REDIS_URL,
         )
-        # print(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
+        # if logflag:
+        # logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
     return num_chunks
 
 
@@ -256,8 +267,8 @@ def ingest_link_to_redis(link_list: List[str], enable_ray=False, num_cpus=20):
         for link in tqdm(link_list, total=len(link_list)):
             with Timer(f"read document {link}."):
                 data = _parse_html(link)
-            if debug:
-                print("content is: ", data)
+            if logflag:
+                logger.info("content is: ", data)
             with Timer(f"ingest document {link} to Redis."):
                 data_to_redis(data)
         return True
@@ -265,6 +276,9 @@ def ingest_link_to_redis(link_list: List[str], enable_ray=False, num_cpus=20):
 
 @register_microservice(name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 async def ingest_documents(files: List[UploadFile] = File(None), link_list: str = Form(None)):
+    if logflag:
+        logger.info(files)
+        logger.info(link_list)
     if files and link_list:
         raise HTTPException(status_code=400, detail="Provide either a file or a string list, not both.")
 
@@ -291,9 +305,13 @@ async def ingest_documents(files: List[UploadFile] = File(None), link_list: str 
                 enable_ray = True
             prepare_env(enable_ray=enable_ray)
             num_cpus = get_max_cpus(len(saved_path_list))
-            print(f"per task num_cpus: {num_cpus}")
+            if logflag:
+                logger.info(f"per task num_cpus: {num_cpus}")
             ret = ingest_data_to_redis(saved_path_list, enable_ray=enable_ray, num_cpus=num_cpus)
-            return {"status": 200, "message": f"Data preparation succeeded. ret msg is {ret}"}
+            result = {"status": 200, "message": f"Data preparation succeeded. ret msg is {ret}"}
+            if logflag:
+                logger.info(result)
+            return result
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"An error occurred: {e}")
 
@@ -308,9 +326,13 @@ async def ingest_documents(files: List[UploadFile] = File(None), link_list: str 
                 enable_ray = True
             prepare_env(enable_ray=enable_ray)
             num_cpus = get_max_cpus(len(link_list))
-            print(f"per task num_cpus: {num_cpus}")
+            if logflag:
+                logger.info(f"per task num_cpus: {num_cpus}")
             ret = ingest_link_to_redis(link_list, enable_ray=enable_ray, num_cpus=num_cpus)
-            return {"status": 200, "message": f"Data preparation succeeded, ret msg is {ret}"}
+            result = {"status": 200, "message": f"Data preparation succeeded. ret msg is {ret}"}
+            if logflag:
+                logger.info(result)
+            return result
         except json.JSONDecodeError:
             raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
         except Exception as e:
@@ -320,22 +342,24 @@ async def ingest_documents(files: List[UploadFile] = File(None), link_list: str 
 @register_microservice(
     name="opea_service@prepare_doc_redis_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
 )
-@traceable(run_type="tool")
 async def rag_get_file_structure():
-    print("[ get_file_structure] ")
+    if logflag:
+        logger.info("[ get_file_structure] ")
 
     if not Path(upload_folder).exists():
-        print("No file uploaded, return empty list.")
+        if logflag:
+            logger.info("No file uploaded, return empty list.")
         return []
 
     file_content = get_file_structure(upload_folder)
+    if logflag:
+        logger.info(file_content)
     return file_content
 
 
 @register_microservice(
     name="opea_service@prepare_doc_redis_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
 )
-@traceable(run_type="tool")
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
 
@@ -344,16 +368,23 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
         - folder path (e.g. /path/to/folder)
         - "all": delete all files uploaded
     """
+    if logflag:
+        logger.info(file_path)
     # delete all uploaded files
     if file_path == "all":
-        print("[dataprep - del] delete all files")
+        if logflag:
+            logger.info("[dataprep - del] delete all files")
         remove_folder_with_ignore(upload_folder)
-        print("[dataprep - del] successfully delete all files.")
+        if logflag:
+            logger.info("[dataprep - del] successfully delete all files.")
         create_upload_folder(upload_folder)
+        if logflag:
+            logger.info({"status": True})
         return {"status": True}
 
     delete_path = Path(upload_folder + "/" + encode_filename(file_path))
-    print(f"[dataprep - del] delete_path: {delete_path}")
+    if logflag:
+        logger.info(f"[dataprep - del] delete_path: {delete_path}")
 
     # partially delete files/folders
     if delete_path.exists():
@@ -362,15 +393,21 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
             try:
                 delete_path.unlink()
             except Exception as e:
-                print(f"[dataprep - del] fail to delete file {delete_path}: {e}")
+                if logflag:
+                    logger.info(f"[dataprep - del] fail to delete file {delete_path}: {e}")
+                    logger.info({"status": False})
                 return {"status": False}
         # delete folder
         else:
             try:
                 shutil.rmtree(delete_path)
             except Exception as e:
-                print(f"[dataprep - del] fail to delete folder {delete_path}: {e}")
+                if logflag:
+                    logger.info(f"[dataprep - del] fail to delete folder {delete_path}: {e}")
+                    logger.info({"status": False})
                 return {"status": False}
+        if logflag:
+            logger.info({"status": True})
         return {"status": True}
     else:
         raise HTTPException(status_code=404, detail="File/folder not found. Please check del_path.")

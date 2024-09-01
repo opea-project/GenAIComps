@@ -5,7 +5,9 @@ httpx
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+Pillow
 prometheus-fastapi-instrumentator
 pyyaml
 requests
 shortuuid
+uvicorn

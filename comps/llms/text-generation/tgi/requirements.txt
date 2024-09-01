@@ -1,11 +1,13 @@
+aiohttp
 docarray[full]
 fastapi
+httpx
 huggingface_hub
-langchain==0.1.16
-langsmith
+openai==1.35.13
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
 shortuuid
 transformers
+uvicorn

@@ -1,10 +1,11 @@
+aiohttp
 docarray[full]
 fastapi
-langchain
-langsmith
+httpx
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
+uvicorn

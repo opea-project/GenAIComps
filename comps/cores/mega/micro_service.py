@@ -3,7 +3,7 @@
 
 import asyncio
 import multiprocessing
-from typing import Any, Optional, Type
+from typing import Any, List, Optional, Type
 
 from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
@@ -23,10 +23,11 @@ class MicroService:
         protocol: str = "http",
         host: str = "localhost",
         port: int = 8080,
+        ssl_keyfile: Optional[str] = None,
+        ssl_certfile: Optional[str] = None,
         endpoint: Optional[str] = "/",
         input_datatype: Type[Any] = TextDoc,
         output_datatype: Type[Any] = TextDoc,
-        replicas: int = 1,
         provider: Optional[str] = None,
         provider_endpoint: Optional[str] = None,
         use_remote_service: Optional[bool] = False,
@@ -42,9 +43,15 @@ class MicroService:
         self.input_datatype = input_datatype
         self.output_datatype = output_datatype
         self.use_remote_service = use_remote_service
+        self.uvicorn_kwargs = {}
+
+        if ssl_keyfile:
+            self.uvicorn_kwargs["ssl_keyfile"] = ssl_keyfile
+
+        if ssl_certfile:
+            self.uvicorn_kwargs["ssl_certfile"] = ssl_certfile
 
         if not use_remote_service:
-            self.replicas = replicas
             self.provider = provider
             self.provider_endpoint = provider_endpoint
             self.endpoints = []
@@ -81,7 +88,7 @@ class MicroService:
             "description": "OPEA Microservice Infrastructure",
         }
 
-        return HTTPService(runtime_args=runtime_args)
+        return HTTPService(uvicorn_kwargs=self.uvicorn_kwargs, runtime_args=runtime_args)
 
     async def _async_setup(self):
         """The async method setup the runtime.
@@ -140,30 +147,35 @@ def register_microservice(
     protocol: str = "http",
     host: str = "localhost",
     port: int = 8080,
+    ssl_keyfile: Optional[str] = None,
+    ssl_certfile: Optional[str] = None,
     endpoint: Optional[str] = "/",
     input_datatype: Type[Any] = TextDoc,
     output_datatype: Type[Any] = TextDoc,
-    replicas: int = 1,
     provider: Optional[str] = None,
     provider_endpoint: Optional[str] = None,
+    methods: List[str] = ["POST"],
 ):
     def decorator(func):
-        micro_service = MicroService(
-            name=name,
-            service_role=service_role,
-            service_type=service_type,
-            protocol=protocol,
-            host=host,
-            port=port,
-            endpoint=endpoint,
-            input_datatype=input_datatype,
-            output_datatype=output_datatype,
-            replicas=replicas,
-            provider=provider,
-            provider_endpoint=provider_endpoint,
-        )
-        micro_service.app.router.add_api_route(endpoint, func, methods=["POST"])
-        opea_microservices[name] = micro_service
+        if name not in opea_microservices:
+            micro_service = MicroService(
+                name=name,
+                service_role=service_role,
+                service_type=service_type,
+                protocol=protocol,
+                host=host,
+                port=port,
+                ssl_keyfile=ssl_keyfile,
+                ssl_certfile=ssl_certfile,
+                endpoint=endpoint,
+                input_datatype=input_datatype,
+                output_datatype=output_datatype,
+                provider=provider,
+                provider_endpoint=provider_endpoint,
+            )
+            opea_microservices[name] = micro_service
+        opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
+
         return func
 
     return decorator
