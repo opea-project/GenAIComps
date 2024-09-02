@@ -428,7 +428,8 @@ class Crawler:
         if not headers:
             headers = self.headers
         while max_times:
-            if not url.startswith("http") or not url.startswith("https"):
+            parsed_url = urlparse(url)
+            if not parsed_url.scheme:
                 url = "http://" + url
             print("start fetch %s...", url)
             try:
