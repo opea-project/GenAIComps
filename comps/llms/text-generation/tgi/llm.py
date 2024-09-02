@@ -33,6 +33,15 @@ llm = AsyncInferenceClient(
     timeout=600,
 )
 
+import re
+
+def contains_chinese(text):
+    # Check if it's Chinese character
+    pattern = re.compile(
+        u'[\u4e00-\u9fff]|[\u3000-\u303f]|[\uFF00-\uFFEF]'
+    )
+    return bool(pattern.search(text))
+
 
 @register_microservice(
     name="opea_service@llm_tgi",
@@ -82,7 +91,12 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 async for text in text_generation:
                     stream_gen_time.append(time.time() - start)
                     chat_response += text
-                    chunk_repr = repr(text.encode("utf-8"))
+
+                    if contains_chinese(text):
+                        chunk_repr = text
+                    else:
+                        chunk_repr = repr(text.encode("utf-8"))
+
                     if logflag:
                         logger.info(f"[ SearchedDoc ] chunk:{chunk_repr}")
                     yield f"data: {chunk_repr}\n\n"
@@ -91,7 +105,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 statistics_dict["opea_service@llm_tgi"].append_latency(stream_gen_time[-1], stream_gen_time[0])
                 yield "data: [DONE]\n\n"
 
-            return StreamingResponse(stream_generator(), media_type="text/event-stream")
+            return StreamingResponse(stream_generator(), headers={"Content-Type": "text/event-stream; charset=utf-8"})
         else:
             statistics_dict["opea_service@llm_tgi"].append_latency(time.time() - start, None)
             if logflag:
@@ -132,7 +146,12 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 async for text in text_generation:
                     stream_gen_time.append(time.time() - start)
                     chat_response += text
-                    chunk_repr = repr(text.encode("utf-8"))
+
+                    if contains_chinese(text):
+                        chunk_repr = text
+                    else:
+                        chunk_repr = repr(text.encode("utf-8"))
+
                     if logflag:
                         logger.info(f"[ LLMParamsDoc ] chunk:{chunk_repr}")
                     yield f"data: {chunk_repr}\n\n"
@@ -141,7 +160,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 statistics_dict["opea_service@llm_tgi"].append_latency(stream_gen_time[-1], stream_gen_time[0])
                 yield "data: [DONE]\n\n"
 
-            return StreamingResponse(stream_generator(), media_type="text/event-stream")
+            return StreamingResponse(stream_generator(), headers={"Content-Type": "text/event-stream; charset=utf-8"})
         else:
             statistics_dict["opea_service@llm_tgi"].append_latency(time.time() - start, None)
             if logflag:
@@ -243,7 +262,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                     yield f"data: {c.model_dump_json()}\n\n"
                 yield "data: [DONE]\n\n"
 
-            return StreamingResponse(stream_generator(), media_type="text/event-stream")
+            return StreamingResponse(stream_generator(), headers={"Content-Type": "text/event-stream; charset=utf-8"})
         else:
             if logflag:
                 logger.info(chat_completion)
