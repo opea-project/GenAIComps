@@ -4,7 +4,9 @@
 # Copyright 2023 The LLM-on-Ray Authors.
 
 from typing import List, Optional, Union
+
 from pydantic import BaseModel, validator
+
 from comps.cores.proto.api_protocol import FineTuningJobsRequest
 
 PRECISION_BF16 = "bf16"
