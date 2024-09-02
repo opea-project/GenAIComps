@@ -137,7 +137,6 @@ def ingest_data_to_milvus(doc_path: DocPath, embedder):
     if logflag:
         logger.info("[ ingest data ] file content loaded")
 
-
     structured_types = [".xlsx", ".csv", ".json", "jsonl"]
     _, ext = os.path.splitext(path)
 
@@ -151,7 +150,6 @@ def ingest_data_to_milvus(doc_path: DocPath, embedder):
         chunks = chunks + table_chunks
     if logflag:
         logger.info(f"[ ingest data ] Done preprocessing. Created {len(chunks)} chunks of the original file.")
-
 
     return ingest_chunks_to_milvus(file_name, chunks, embedder)
 

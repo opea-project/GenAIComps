@@ -1,4 +1,3 @@
-
 # ☣️💥🛡️Toxicity Detection Microservice
 
 ## Introduction
@@ -10,7 +9,6 @@ Toxicity is defined as rude, disrespectful, or unreasonable language likely to m
 ## Future Development
 
 - Add a RoBERTa (125M params) toxicity model fine-tuned on Gaudi2 with ToxicChat and Jigsaw dataset in an optimized serving framework.
-
 
 # 🚀1. Start Microservice with Python（Option 1）
 
@@ -26,9 +24,7 @@ pip install -r requirements.txt
 python toxicity_detection.py
 ```
 
-
 # 🚀2. Start Microservice with Docker (Option 2)
-
 
 ## 2.1 Prepare toxicity detection model
 

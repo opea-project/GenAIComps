@@ -24,7 +24,6 @@ from ray.air.config import ScalingConfig
 from ray.train.torch import TorchTrainer
 
 from comps import CustomLogger
-
 from comps.finetuning.llm_on_ray import common
 from comps.finetuning.llm_on_ray.finetune.data_process import DataProcessor
 from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
@@ -340,7 +339,6 @@ def train_func(config: Dict[str, Any]):
     trainer.train(resume_from_checkpoint=training_args.resume_from_checkpoint)
     trainer.save_model()
     logger.info("train finish")
-
 
 
 def get_finetune_config():

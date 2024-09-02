@@ -13,7 +13,6 @@ from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
 from comps import CustomLogger
-
 from comps.cores.proto.api_protocol import (
     FineTuningJob,
     FineTuningJobIDRequest,
@@ -127,7 +126,6 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
     )
 
     logger.info(f"Submitted Ray job: {ray_job_id} ...")
-
 
     running_finetuning_jobs[job.id] = job
     finetuning_job_to_ray_job[job.id] = ray_job_id

@@ -25,7 +25,6 @@ from video_llama.common.registry import registry
 from video_llama.conversation.conversation_video import Chat
 from werkzeug.utils import secure_filename
 
-
 # Initialize decord bridge and seed
 decord.bridge.set_bridge("torch")
 set_seed(22)
@@ -203,6 +202,7 @@ def is_valid_video(filename):
     else:
         return False
 
+
 @app.get("/health")
 async def health() -> Response:
     """Health check."""
@@ -217,7 +217,6 @@ async def generate(
     prompt: str = Query(..., description="Query for Video-LLama", examples="What is the man doing?"),
     max_new_tokens: int = Query(150, description="Maximum number of tokens to generate", examples=150),
 ) -> StreamingResponse:
-
 
     if video_url.lower().endswith(".mp4"):
         logging.info(f"Format check passed, the file '{video_url}' is an MP4 file.")
@@ -268,7 +267,6 @@ async def generate(
     instruction = f"{get_context(prompt,context_db)[0]}: {prompt}"
 
     # logging.info("instruction:",instruction)
-
 
     return StreamingResponse(stream_res(video_info, instruction, max_new_tokens))
 
