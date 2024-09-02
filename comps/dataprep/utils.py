@@ -437,6 +437,30 @@ class Crawler:
                 if response.status_code != 200:
                     print("fail to fetch %s, response status code: %s", url, response.status_code)
                 else:
+                    # Extract charset from the Content-Type header
+                    content_type = response.headers.get('Content-Type', '').lower()
+                    if 'charset=' in content_type:
+                        # Extract charset value from the content-type header
+                        charset = content_type.split('charset=')[-1].strip()
+                        response.encoding = charset
+                    else:
+                        import re
+                        # Extract charset from the response HTML content
+                        charset_from_meta = None
+                        # Check for <meta charset="...">
+                        match = re.search(r'<meta\s+charset=["\']?([^"\'>]+)["\']?', response.text, re.IGNORECASE)
+                        if match:
+                            charset_from_meta = match.group(1)
+                        # Check for <meta http-equiv="Content-Type" content="...; charset=...">
+                        if not charset_from_meta:
+                            match = re.search(r'<meta\s+http-equiv=["\']?content-type["\']?\s+content=["\']?[^"\']*charset=([^"\'>]+)["\']?', response.text, re.IGNORECASE)
+                            if match:
+                                charset_from_meta = match.group(1)
+                        if charset_from_meta:
+                            response.encoding = charset_from_meta
+                        else:
+                            # Fallback to default encoding
+                            response.encoding = 'utf-8'
                     return response
             except Exception as e:
                 print("fail to fetch %s, caused by %s", url, e)
