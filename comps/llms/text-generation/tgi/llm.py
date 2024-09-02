@@ -35,11 +35,10 @@ llm = AsyncInferenceClient(
 
 import re
 
+
 def contains_chinese(text):
     # Check if it's Chinese character
-    pattern = re.compile(
-        u'[\u4e00-\u9fff]|[\u3000-\u303f]|[\uFF00-\uFFEF]'
-    )
+    pattern = re.compile("[\u4e00-\u9fff]|[\u3000-\u303f]|[\uFF00-\uFFEF]")
     return bool(pattern.search(text))
 
 
