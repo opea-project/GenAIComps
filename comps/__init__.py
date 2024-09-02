@@ -12,6 +12,7 @@ from comps.cores.proto.docarray import (
     GeneratedDoc,
     LLMParamsDoc,
     SearchedDoc,
+    SearchedMultimodalDoc,
     RerankedDoc,
     TextDoc,
     RAGASParams,
@@ -22,6 +23,10 @@ from comps.cores.proto.docarray import (
     ImagePath,
     ImagesPath,
     VideoPath,
+    ImageDoc,
+    TextImageDoc,
+    MultimodalDoc,
+    EmbedMultimodalDoc,
 )
 
 # Constants
