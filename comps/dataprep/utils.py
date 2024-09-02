@@ -577,7 +577,6 @@ def load_html_data(url):
     main_content = all_text if main_content == "" else main_content
     main_content = main_content.replace("\n", "")
     main_content = main_content.replace("\n\n", "")
-    main_content = uni_pro(main_content)
     main_content = re.sub(r"\s+", " ", main_content)
     if logflag:
         logger.info("main_content=[%s]" % main_content)
