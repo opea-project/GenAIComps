@@ -4,8 +4,8 @@
 # Copyright 2023 The LLM-on-Ray Authors.
 
 from typing import List, Optional, Union
-
 from pydantic import BaseModel, validator
+from comps.cores.proto.api_protocol import FineTuningJobsRequest
 
 PRECISION_BF16 = "bf16"
 PRECISION_FP16 = "fp16"
@@ -20,7 +20,7 @@ ACCELERATE_STRATEGY_FSDP = "FSDP"
 ACCELERATE_STRATEGY_DEEPSPEED = "DEEPSPEED"
 
 
-class GeneralConfig(BaseModel):
+class LoadConfig(BaseModel):
     trust_remote_code: bool = False
     # set Huggingface token to access dataset/model
     token: Optional[str] = None
@@ -35,7 +35,7 @@ class LoraConfig(BaseModel):
 
 
 class GeneralConfig(BaseModel):
-    base_model: str = "Intel/neural-chat-7b-v3-3"
+    base_model: str = None
     tokenizer_name: Optional[str] = None
     gaudi_config_name: Optional[str] = None
     gpt_base_model: bool = False
@@ -43,8 +43,8 @@ class GeneralConfig(BaseModel):
     report_to: str = "none"
     resume_from_checkpoint: Optional[str] = None
     save_strategy: str = "no"
-    config: GeneralConfig = GeneralConfig()
-    lora_config: Optional[LoraConfig] = None
+    config: LoadConfig = LoadConfig()
+    lora_config: Optional[LoraConfig] = LoraConfig()
     enable_gradient_checkpointing: bool = False
 
     @validator("report_to")
@@ -152,6 +152,13 @@ class TrainingConfig(BaseModel):
 
 
 class FinetuneConfig(BaseModel):
+    General: GeneralConfig = GeneralConfig()
+    Dataset: DatasetConfig = DatasetConfig()
+    Training: TrainingConfig = TrainingConfig()
+
+
+class FineTuningParams(FineTuningJobsRequest):
+    # priority use FineTuningJobsRequest params
     General: GeneralConfig = GeneralConfig()
     Dataset: DatasetConfig = DatasetConfig()
     Training: TrainingConfig = TrainingConfig()

@@ -17,9 +17,8 @@ from comps.cores.proto.api_protocol import (
     FineTuningJob,
     FineTuningJobIDRequest,
     FineTuningJobList,
-    FineTuningJobsRequest,
 )
-from comps.finetuning.finetune_config import FinetuneConfig
+from comps.finetuning.finetune_config import FinetuneConfig, FineTuningParams
 
 logger = CustomLogger("finetuning_handlers")
 
@@ -58,7 +57,7 @@ def update_job_status(job_id: FineTuningJobID):
         time.sleep(CHECK_JOB_STATUS_INTERVAL)
 
 
-def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tasks: BackgroundTasks):
+def handle_create_finetuning_jobs(request: FineTuningParams, background_tasks: BackgroundTasks):
     base_model = request.model
     train_file = request.training_file
     train_file_path = os.path.join(DATASET_BASE_PATH, train_file)
@@ -66,7 +65,7 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
     if not os.path.exists(train_file_path):
         raise HTTPException(status_code=404, detail=f"Training file '{train_file}' not found!")
 
-    finetune_config = FinetuneConfig()
+    finetune_config = FinetuneConfig(General=request.General, Dataset=request.Dataset, Training=request.Training)
     finetune_config.General.base_model = base_model
     finetune_config.Dataset.train_file = train_file_path
     if request.hyperparameters is not None:
@@ -99,6 +98,10 @@ def handle_create_finetuning_jobs(request: FineTuningJobsRequest, background_tas
     if os.getenv("DEVICE", ""):
         logger.info(f"specific device: {os.getenv('DEVICE')}")
         finetune_config.Training.device = os.getenv("DEVICE")
+        if finetune_config.Training.device == "hpu":
+            if finetune_config.Training.resources_per_worker.HPU == 0:
+                # set 1
+                finetune_config.Training.resources_per_worker.HPU = 1
 
     finetune_config_file = f"{JOBS_PATH}/{job.id}.yaml"
     to_yaml_file(finetune_config_file, finetune_config)
