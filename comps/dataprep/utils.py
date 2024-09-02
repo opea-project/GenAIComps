@@ -444,15 +444,16 @@ class Crawler:
                     print("fail to fetch %s, response status code: %s", url, response.status_code)
                 else:
                     # Extract charset from the Content-Type header
-                    content_type = response.headers.get('Content-Type', '').lower()
-                    if 'charset=' in content_type:
+                    content_type = response.headers.get("Content-Type", "").lower()
+                    if "charset=" in content_type:
                         # Extract charset value from the content-type header
-                        charset = content_type.split('charset=')[-1].strip()
+                        charset = content_type.split("charset=")[-1].strip()
                         response.encoding = charset
                         if logflag:
                             logger.info(f"Charset detected and set: {response.encoding}")
                     else:
                         import re
+
                         # Extract charset from the response HTML content
                         charset_from_meta = None
                         # Check for <meta charset="...">
@@ -461,7 +462,11 @@ class Crawler:
                             charset_from_meta = match.group(1)
                         # Check for <meta http-equiv="Content-Type" content="...; charset=...">
                         if not charset_from_meta:
-                            match = re.search(r'<meta\s+http-equiv=["\']?content-type["\']?\s+content=["\']?[^"\']*charset=([^"\'>]+)["\']?', response.text, re.IGNORECASE)
+                            match = re.search(
+                                r'<meta\s+http-equiv=["\']?content-type["\']?\s+content=["\']?[^"\']*charset=([^"\'>]+)["\']?',
+                                response.text,
+                                re.IGNORECASE,
+                            )
                             if match:
                                 charset_from_meta = match.group(1)
                         if charset_from_meta:
@@ -470,7 +475,7 @@ class Crawler:
                                 logger.info(f"Charset detected and set from meta tag: {response.encoding}")
                         else:
                             # Fallback to default encoding
-                            response.encoding = 'utf-8'
+                            response.encoding = "utf-8"
                             if logflag:
                                 logger.info("Charset not specified, using default utf-8")
                     return response
