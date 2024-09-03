@@ -5,11 +5,11 @@ import os
 import urllib.parse
 from typing import List, Optional, Union
 
-from comps.dataprep.utils import save_content_to_local_disk
 from fastapi import BackgroundTasks, File, UploadFile
 
 from comps import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest, UploadFileRequest
+from comps.dataprep.utils import save_content_to_local_disk
 from comps.finetuning.handlers import (
     DATASET_BASE_PATH,
     handle_cancel_finetuning_job,
@@ -52,6 +52,7 @@ def cancel_finetuning_job(request: FineTuningJobIDRequest):
 @register_microservice(name="opea_service@finetuning", endpoint="/v1/files", host="0.0.0.0", port=8015)
 def upload_training_files(request: UploadFileRequest):
     return handle_upload_training_files(request)
+
 
 @register_microservice(
     name="opea_service@finetuning",
