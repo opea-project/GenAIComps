@@ -3,6 +3,7 @@
 
 import logging
 import os
+import re
 import time
 
 from comps import (
@@ -51,6 +52,24 @@ def find_timestamp_from_video(metadata_list, video):
         None,
     )
 
+def format_video_name(video_name):
+    # Check for an existing file extension
+    match = re.search(r'\.(\w+)$', video_name)
+    
+    if match:
+        extension = match.group(1)
+        # If the extension is not 'mp4', raise an error
+        if extension != 'mp4':
+            raise ValueError(f"Invalid file extension: .{extension}. Only '.mp4' is allowed.")
+    
+    # Use regex to remove any suffix after the base name (e.g., '_interval_0', etc.)
+    base_name = re.sub(r'(_interval_\d+)?(\.mp4)?$', '', video_name)
+    
+    # Add the '.mp4' extension
+    formatted_name = f"{base_name}.mp4"
+    
+    return formatted_name
+
 
 @register_microservice(
     name="opea_service@reranking_visual_rag",
@@ -71,7 +90,8 @@ def reranking(input: SearchedMultimodalDoc) -> LVMVideoDoc:
 
     # only use the first top video
     timestamp = find_timestamp_from_video(input.metadata, top_video_names[0])
-    video_url = f"{file_server_endpoint.rstrip('/')}/{top_video_names[0]}"
+    formatted_video_name = format_video_name(top_video_names[0])
+    video_url = f"{file_server_endpoint.rstrip('/')}/{formatted_video_name}"
 
     result = LVMVideoDoc(
         video_url=video_url,
