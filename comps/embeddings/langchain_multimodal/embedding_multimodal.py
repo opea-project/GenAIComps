@@ -14,7 +14,6 @@ from comps import (
     ServiceType,
     TextDoc,
     opea_microservices,
-    opea_telemetry,
     register_microservice,
     register_statistics,
     statistics_dict,
@@ -66,7 +65,6 @@ def filtler_dates(prompt):
     input_datatype=TextDoc,
     output_datatype=EmbedDoc,
 )
-@opea_telemetry
 @register_statistics(names=["opea_service@embedding_multimodal"])
 def embedding(input: TextDoc) -> EmbedDoc:
     start = time.time()
