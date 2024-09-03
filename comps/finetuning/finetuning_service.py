@@ -9,7 +9,6 @@ from fastapi import BackgroundTasks, File, UploadFile
 
 from comps import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest, UploadFileRequest
-from comps.dataprep.utils import save_content_to_local_disk
 from comps.finetuning.handlers import (
     DATASET_BASE_PATH,
     handle_cancel_finetuning_job,
@@ -18,6 +17,7 @@ from comps.finetuning.handlers import (
     handle_list_finetuning_jobs,
     handle_retrieve_finetuning_job,
     handle_upload_training_files,
+    save_content_to_local_disk
 )
 
 
