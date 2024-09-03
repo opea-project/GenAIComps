@@ -181,8 +181,7 @@ async def save_content_to_local_disk(save_path: str, content):
 
 
 async def handle_upload_training_files(request: UploadFileRequest):
-    form = await request.form()
-    file = form.get("file")
+    file = request.file
     filename = urllib.parse.quote(file.filename, safe="")
     save_path = os.path.join(DATASET_BASE_PATH, filename)
     
