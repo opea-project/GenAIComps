@@ -38,6 +38,8 @@ jobs:
   build-images:
     runs-on: "docker-build-${{ inputs.node }}"
     continue-on-error: true
+    outputs:
+      file_exists: ${{ steps.check-docker-compose-exists.outputs.file_exists }}
     steps:
       - name: Clean Up Working Directory
         run: sudo rm -rf ${{github.workspace}}/*
@@ -87,7 +89,7 @@ jobs:
   ####################################################################################################
   test-service-compose:
     needs: [build-images]
-    if: ${{ fromJSON(inputs.test) && steps.check-docker-compose-exists.outputs.file_exists == 'true' }}
+    if: ${{ fromJSON(inputs.test) && needs.build-images.outputs.file_exists == 'true' }}
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
       tag: ${{ inputs.tag }}
