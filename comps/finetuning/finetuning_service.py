@@ -17,7 +17,7 @@ from comps.finetuning.handlers import (
     handle_list_finetuning_jobs,
     handle_retrieve_finetuning_job,
     handle_upload_training_files,
-    save_content_to_local_disk
+    save_content_to_local_disk,
 )
 
 
