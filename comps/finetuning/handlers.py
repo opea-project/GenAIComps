@@ -185,7 +185,7 @@ async def handle_upload_training_files(request: UploadFileRequest):
     filename = urllib.parse.quote(file.filename, safe="")
     save_path = os.path.join(DATASET_BASE_PATH, filename)
     await save_content_to_local_disk(save_path, file)
-    fileBytes = file.read()
+    fileBytes = os.path.getsize(save_path)
     fileInfo = FileObject(
         id=f"file-{uuid.uuid4()}",
         object="file",
