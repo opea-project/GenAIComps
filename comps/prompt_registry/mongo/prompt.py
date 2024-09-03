@@ -1,11 +1,16 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+import os
 from typing import Optional
 
 from mongo_store import PromptStore
 from pydantic import BaseModel
 
+from comps import CustomLogger
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
+
+logger = CustomLogger("prompt_mongo")
+logflag = os.getenv("LOGFLAG", False)
 
 
 class PromptCreate(BaseModel):
@@ -34,7 +39,7 @@ class PromptId(BaseModel):
 
 
 @register_microservice(
-    name="opea_service@prompt_mongo_create",
+    name="opea_service@prompt_mongo",
     endpoint="/v1/prompt/create",
     host="0.0.0.0",
     input_datatype=PromptCreate,
@@ -49,24 +54,27 @@ async def create_prompt(prompt: PromptCreate):
     Returns:
         JSON (PromptResponse): PromptResponse class object, None otherwise.
     """
+    if logflag:
+        logger.info(prompt)
     try:
         prompt_store = PromptStore(prompt.user)
         prompt_store.initialize_storage()
         response = await prompt_store.save_prompt(prompt)
-
+        if logflag:
+            logger.info(response)
         return response
 
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        logger.info(f"An error occurred: {str(e)}")
         return None
 
 
 @register_microservice(
-    name="opea_service@prompt_mongo_get",
+    name="opea_service@prompt_mongo",
     endpoint="/v1/prompt/get",
     host="0.0.0.0",
     input_datatype=PromptId,
-    port=6013,
+    port=6012,
 )
 async def get_prompt(prompt: PromptId):
     """Retrieves prompt from prompt store based on provided PromptId or user.
@@ -77,6 +85,8 @@ async def get_prompt(prompt: PromptId):
     Returns:
         JSON: Retrieved prompt data if successful, None otherwise.
     """
+    if logflag:
+        logger.info(prompt)
     try:
         prompt_store = PromptStore(prompt.user)
         prompt_store.initialize_storage()
@@ -86,20 +96,21 @@ async def get_prompt(prompt: PromptId):
             response = await prompt_store.prompt_search(prompt.prompt_text)
         else:
             response = await prompt_store.get_all_prompt_of_user()
-
+        if logflag:
+            logger.info(response)
         return response
 
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        logger.info(f"An error occurred: {str(e)}")
         return None
 
 
 @register_microservice(
-    name="opea_service@prompt_mongo_delete",
+    name="opea_service@prompt_mongo",
     endpoint="/v1/prompt/delete",
     host="0.0.0.0",
     input_datatype=PromptId,
-    port=6014,
+    port=6012,
 )
 async def delete_prompt(prompt: PromptId):
     """Delete a prompt from prompt store by given PromptId.
@@ -110,6 +121,8 @@ async def delete_prompt(prompt: PromptId):
     Returns:
         Result of deletion if successful, None otherwise.
     """
+    if logflag:
+        logger.info(prompt)
     try:
         prompt_store = PromptStore(prompt.user)
         prompt_store.initialize_storage()
@@ -117,14 +130,14 @@ async def delete_prompt(prompt: PromptId):
             raise Exception("Prompt id is required.")
         else:
             response = await prompt_store.delete_prompt(prompt.prompt_id)
+        if logflag:
+            logger.info(response)
         return response
 
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        logger.info(f"An error occurred: {str(e)}")
         return None
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@prompt_mongo_get"].start()
-    opea_microservices["opea_service@prompt_mongo_create"].start()
-    opea_microservices["opea_service@prompt_mongo_delete"].start()
+    opea_microservices["opea_service@prompt_mongo"].start()

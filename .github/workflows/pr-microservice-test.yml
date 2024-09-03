@@ -1,0 +1,69 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: MicroService-test
+
+on:
+  pull_request_target:
+    branches: ["main", "*rc"]
+    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+    paths:
+      - comps/**
+      - tests/**
+      - "!**.md"
+      - .github/workflows/pr-microservice-test.yml
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  job1:
+    uses: ./.github/workflows/_get-test-matrix.yml
+
+  Microservice-test:
+    needs: job1
+    strategy:
+      matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
+    runs-on: ${{ matrix.hardware }}
+    continue-on-error: true
+    steps:
+      - name: Clean Up Working Directory
+        run: |
+          sudo rm -rf ${{github.workspace}}/*
+          docker system prune -f
+          docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+        with:
+          ref: "refs/pull/${{ github.event.number }}/merge"
+
+      - name: Run microservice test
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
+          PINECONE_KEY: ${{ secrets.PINECONE_KEY }}
+          service_path: ${{ matrix.service }}
+          hardware: ${{ matrix.hardware }}
+        run: |
+          cd tests
+          service=$(echo $service_path | tr '/' '_')
+          echo "service=${service}" >> $GITHUB_ENV
+          if [ -f test_${service}.sh ]; then timeout 60m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
+
+      - name: Clean up container
+        if: cancelled() || failure()
+        run: |
+          cid=$(docker ps -aq --filter "name=test-comps-*")
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          docker system prune -f
+
+      - name: Publish pipeline artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.service }}
+          path: ${{ github.workspace }}/tests/*.log

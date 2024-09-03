@@ -2,13 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+from typing import List, Union
 
 from langchain_community.utilities.requests import JsonRequestsWrapper
 from langchain_huggingface import ChatHuggingFace
 from langchain_huggingface.llms import HuggingFaceEndpoint
-from langsmith import traceable
 
-from comps import ServiceType, TextDoc, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
+
+logger = CustomLogger("guardrails_tgi")
+logflag = os.getenv("LOGFLAG", False)
 
 DEFAULT_MODEL = "meta-llama/LlamaGuard-7b"
 
@@ -59,23 +62,31 @@ def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
     endpoint="/v1/guardrails",
     host="0.0.0.0",
     port=9090,
-    input_datatype=TextDoc,
+    input_datatype=Union[GeneratedDoc, TextDoc],
     output_datatype=TextDoc,
 )
-@traceable(run_type="llm")
-def safety_guard(input: TextDoc) -> TextDoc:
-    response_input_guard = llm_engine_hf.invoke([{"role": "user", "content": input.text}]).content
+def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
+    if logflag:
+        logger.info(input)
+    if isinstance(input, GeneratedDoc):
+        messages = [{"role": "user", "content": input.prompt}, {"role": "assistant", "content": input.text}]
+    else:
+        messages = [{"role": "user", "content": input.text}]
+    response_input_guard = llm_engine_hf.invoke(messages).content
+
     if "unsafe" in response_input_guard:
         unsafe_dict = get_unsafe_dict(llm_engine_hf.model_id)
         policy_violation_level = response_input_guard.split("\n")[1].strip()
         policy_violations = unsafe_dict[policy_violation_level]
-        print(f"Violated policies: {policy_violations}")
+        if logflag:
+            logger.info(f"Violated policies: {policy_violations}")
         res = TextDoc(
             text=f"Violated policies: {policy_violations}, please check your input.", downstream_black_list=[".*"]
         )
     else:
         res = TextDoc(text=input.text)
-
+    if logflag:
+        logger.info(res)
     return res
 
 
@@ -93,5 +104,5 @@ if __name__ == "__main__":
     )
     # chat engine for server-side prompt templating
     llm_engine_hf = ChatHuggingFace(llm=llm_guard, model_id=safety_guard_model)
-    print("guardrails - router] LLM initialized.")
+    logger.info("guardrails - router] LLM initialized.")
     opea_microservices["opea_service@guardrails_tgi"].start()

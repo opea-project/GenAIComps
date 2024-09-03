@@ -2,13 +2,19 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/retriever-qdrant:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/haystack/qdrant/docker/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/retriever-qdrant built fail"
+        exit 1
+    else
+        echo "opea/retriever-qdrant built successful"
+    fi
 }
 
 function start_service() {
@@ -39,12 +45,18 @@ function validate_microservice() {
     export PATH="${HOME}/miniforge3/bin:$PATH"
     source activate
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
-    http_proxy='' curl http://${ip_address}:$retriever_port/v1/retrieval \
+    result=$(http_proxy='' curl http://${ip_address}:$retriever_port/v1/retrieval \
         -X POST \
         -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" \
-        -H 'Content-Type: application/json'
-    docker logs test-comps-retriever-qdrant-server
-    docker logs test-comps-retriever-tei-endpoint
+        -H 'Content-Type: application/json')
+    if [[ $result == *"retrieved_docs"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-retriever-qdrant-server
+        docker logs test-comps-retriever-tei-endpoint
+        exit 1
+    fi
 }
 
 function stop_docker() {
