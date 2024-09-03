@@ -180,11 +180,18 @@ async def save_content_to_local_disk(save_path: str, content):
         raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
-async def handle_upload_training_files(request: UploadFileRequest):
-    file = request.file
+async def handle_upload_training_files(file: UploadFile, request: UploadFileRequest):
     filename = urllib.parse.quote(file.filename, safe="")
     save_path = os.path.join(DATASET_BASE_PATH, filename)
-
+    # fileBytes = os.path.getsize(save_path)
+    # fileInfo = FileObject(
+    #     id=f"file-{uuid.uuid4()}",
+    #     object="file",
+    #     bytes=fileBytes,
+    #     created_at=int(time.time()),
+    #     filename=filename,
+    #     purpose="fine-tune",
+    # )
     await save_content_to_local_disk(save_path, file)
 
     return {"status": 200, "message": "Training files uploaded successfully."}
