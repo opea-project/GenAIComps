@@ -276,7 +276,8 @@ def load_json(json_path):
     """Load and process json file."""
     with open(json_path, "r") as file:
         data = json.load(file)
-    return json.dumps(data)
+    content_list = [json.dumps(item) for item in data]
+    return content_list
 
 
 def load_yaml(yaml_path):
@@ -289,13 +290,15 @@ def load_yaml(yaml_path):
 def load_xlsx(input_path):
     """Load and process xlsx file."""
     df = pd.read_excel(input_path)
-    return df.to_string()
+    content_list = df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
+    return content_list
 
 
 def load_csv(input_path):
     """Load the csv file."""
     df = pd.read_csv(input_path)
-    return df.to_string()
+    content_list = df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
+    return content_list
 
 
 def load_image(image_path):
@@ -715,6 +718,19 @@ def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, 
             result.append(folder_dict)
 
     return result
+
+
+def format_search_results(response, file_list: list):
+    for i in range(1, len(response), 2):
+        file_name = response[i].decode()[5:]
+        file_dict = {
+            "name": decode_filename(file_name),
+            "id": decode_filename(file_name),
+            "type": "File",
+            "parent": "",
+        }
+        file_list.append(file_dict)
+    return file_list
 
 
 def remove_folder_with_ignore(folder_path: str, except_patterns: List = []):

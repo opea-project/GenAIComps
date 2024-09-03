@@ -1,0 +1,62 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Comps CD workflow on manual event
+on:
+  workflow_dispatch:
+    inputs:
+      services:
+        default: "asr"
+        description: "List of services to test [agent,asr,chathistory,dataprep,embeddings,guardrails,llms,lvms,nginx,prompt_registry,reranks,retrievers,tts,web_retrievers]"
+        required: true
+        type: string
+      build:
+        default: true
+        description: "Build test required images for Comps"
+        required: false
+        type: boolean
+      test:
+        default: true
+        description: "Test comps with docker compose"
+        required: false
+        type: boolean
+      tag:
+        default: "comps"
+        description: "Tag to apply to images"
+        required: true
+        type: string
+      mode:
+        default: "CD"
+        description: "Whether the test range is CI or CD"
+        required: false
+        type: string
+
+permissions: read-all
+
+jobs:
+  get-test-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.get-matrix.outputs.services }}
+    steps:
+      - name: Create Matrix
+        id: get-matrix
+        run: |
+          services=($(echo ${{ inputs.services }} | tr ',' ' '))
+          services_json=$(printf '%s\n' "${services[@]}" | sort -u | jq -R '.' | jq -sc '.')
+          echo "services=$services_json" >> $GITHUB_OUTPUT
+
+  run-services:
+    needs: [get-test-matrix]
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.get-test-matrix.outputs.services) }}
+      fail-fast: false
+    uses: ./.github/workflows/_comps-workflow.yml
+    with:
+      service: ${{ matrix.service }}
+      tag: ${{ inputs.tag }}
+      node: gaudi
+      mode: ${{ inputs.mode }}
+      test: ${{ inputs.test }}
+    secrets: inherit

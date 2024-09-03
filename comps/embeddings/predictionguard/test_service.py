@@ -1,5 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import unittest
+
 import requests
+
 
 class TestEmbeddingService(unittest.TestCase):
     def setUp(self):
@@ -21,11 +26,14 @@ class TestEmbeddingService(unittest.TestCase):
         self.assertEqual(response_json["detail"], "Input text cannot be empty")
 
     def test_embedding_vector_length(self):
-        response = requests.post(self.base_url, json={"text": "This is a test text to verify the length of the embedding vector."})
+        response = requests.post(
+            self.base_url, json={"text": "This is a test text to verify the length of the embedding vector."}
+        )
         self.assertEqual(response.status_code, 200)
         embedding = response.json().get("embedding")
         self.assertIsInstance(embedding, list)
         self.assertEqual(len(embedding), 512)  # Ensuring the embedding is truncated to 512 elements
+
 
 if __name__ == "__main__":
     unittest.main()

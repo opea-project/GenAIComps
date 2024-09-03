@@ -2,9 +2,10 @@
 # SPDX-License-Identified: Apache-2.0
 
 import time
+
 from docarray import BaseDoc
-from predictionguard import PredictionGuard
 from fastapi import FastAPI, HTTPException
+from predictionguard import PredictionGuard
 
 from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
 

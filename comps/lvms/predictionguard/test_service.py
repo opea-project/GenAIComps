@@ -1,7 +1,12 @@
-import unittest
-import requests
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import base64
 import os
+import unittest
+
+import requests
+
 
 class TestLVMService(unittest.TestCase):
     def setUp(self):
@@ -14,7 +19,7 @@ class TestLVMService(unittest.TestCase):
             "max_new_tokens": 50,
             "top_k": 50,
             "top_p": 0.99,
-            "temperature": 1.0
+            "temperature": 1.0,
         }
         response = requests.post(self.base_url, json=payload)
         print("Response:", response.status_code, response.text)  # Debugging print statement
@@ -27,9 +32,9 @@ class TestLVMService(unittest.TestCase):
         image_path = "sample.jpg"  # Replace with the correct image path
         if not os.path.exists(image_path):
             self.skipTest(f"Skipping test as {image_path} does not exist.")
-        
+
         with open(image_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
 
         payload = {
             "image": encoded_string,
@@ -37,7 +42,7 @@ class TestLVMService(unittest.TestCase):
             "max_new_tokens": 50,
             "top_k": 50,
             "top_p": 0.99,
-            "temperature": 1.0
+            "temperature": 1.0,
         }
         response = requests.post(self.base_url, json=payload)
         print("Response:", response.status_code, response.text)  # Debugging print statement
@@ -53,7 +58,7 @@ class TestLVMService(unittest.TestCase):
             "max_new_tokens": 50,
             "top_k": 50,
             "top_p": 0.99,
-            "temperature": 1.0
+            "temperature": 1.0,
         }
         response = requests.post(self.base_url, json=payload)
         print("Response:", response.status_code, response.text)  # Debugging print statement
@@ -74,7 +79,7 @@ class TestLVMService(unittest.TestCase):
             "max_new_tokens": 50,
             "top_k": 50,
             "top_p": 0.99,
-            "temperature": 1.0
+            "temperature": 1.0,
         }
         response = requests.post(self.base_url, json=payload)
         print("Response:", response.status_code, response.text)  # Debugging print statement
@@ -87,6 +92,7 @@ class TestLVMService(unittest.TestCase):
                 print("Full Response JSON:", response_json)  # Detailed response print
             except requests.exceptions.JSONDecodeError:
                 self.fail("Response is not valid JSON")
+
 
 if __name__ == "__main__":
     unittest.main()

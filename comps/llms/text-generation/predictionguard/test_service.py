@@ -1,5 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import unittest
+
 import requests
+
 
 class TestLLMService(unittest.TestCase):
     def setUp(self):
@@ -14,7 +19,7 @@ class TestLLMService(unittest.TestCase):
             "temperature": 0.7,
             "top_p": 1.0,
             "top_k": 50,
-            "streaming": False
+            "streaming": False,
         }
         response = requests.post(self.base_url, json=payload)
         self.assertEqual(response.status_code, 200)
@@ -30,7 +35,7 @@ class TestLLMService(unittest.TestCase):
             "temperature": 0.7,
             "top_p": 1.0,
             "top_k": 50,
-            "streaming": True
+            "streaming": True,
         }
         response = requests.post(self.base_url, json=payload, stream=True)
         self.assertEqual(response.status_code, 200)
@@ -54,10 +59,11 @@ class TestLLMService(unittest.TestCase):
             "temperature": 0.7,
             "top_p": 1.0,
             "top_k": 50,
-            "streaming": False
+            "streaming": False,
         }
         response = requests.post(self.base_url, json=payload)
         self.assertEqual(response.status_code, 500)  # Expecting a 500 error since the query is empty
+
 
 if __name__ == "__main__":
     unittest.main()

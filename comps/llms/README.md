@@ -8,19 +8,19 @@ A prerequisite for using this microservice is that users must have a LLM text ge
 Overall, this microservice offers a streamlined way to integrate large language model inference into applications, requiring minimal setup from the user beyond initiating a TGI/vLLM/Ray/PredictionGuard service and configuring the necessary environment variables. This allows for the seamless processing of queries and documents to generate intelligent, context-aware responses.
 Overall, this microservice offers a streamlined way to integrate large language model inference into applications, requiring minimal setup from the user beyond initiating a TGI/vLLM/Ray/PredictionGuard service and configuring the necessary environment variables. This allows for the seamless processing of queries and documents to generate intelligent, context-aware responses.
 
-# 🚀1. Start Microservice with Python (Option 1)
+## 🚀1. Start Microservice with Python (Option 1)
 
 To start the LLM microservice, you need to install python packages first.
 
-## 1.1 Install Requirements
+### 1.1 Install Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 1.2 Start LLM Service
+### 1.2 Start LLM Service
 
-### 1.2.1 Start TGI Service
+#### 1.2.1 Start TGI Service
 
 ```bash
 export HF_TOKEN=${your_hf_api_token}
@@ -30,19 +30,19 @@ export LANGCHAIN_PROJECT="opea/gen-ai-comps:llms"
 docker run -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${your_hf_llm_model}
 ```
 
-### 1.2.2 Start vLLM Service
+#### 1.2.2 Start vLLM Service
 
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
-docker run -it --name vllm_service -p 8008:80 -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -v ./data:/data vllm:cpu /bin/bash -c "cd / && export VLLM_CPU_KVCACHE_SPACE=40 && python3 -m vllm.entrypoints.openai.api_server --model ${your_hf_llm_model} --port 80"
+docker run -it --name vllm_service -p 8008:80 -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -v ./data:/data opea/vllm:cpu /bin/bash -c "cd / && export VLLM_CPU_KVCACHE_SPACE=40 && python3 -m vllm.entrypoints.openai.api_server --model ${your_hf_llm_model} --port 80"
 ```
 
-## 1.2.3 Start Ray Service
+### 1.2.3 Start Ray Service
 
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export TRUST_REMOTE_CODE=True
-docker run -it --runtime=habana --name ray_serve_service -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -p 8008:80 -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TRUST_REMOTE_CODE=$TRUST_REMOTE_CODE ray_serve:habana /bin/bash -c "ray start --head && python api_server_openai.py --port_number 80 --model_id_or_path ${your_hf_llm_model} --chat_processor ${your_hf_chatprocessor}"
+docker run -it --runtime=habana --name ray_serve_service -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -p 8008:80 -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TRUST_REMOTE_CODE=$TRUST_REMOTE_CODE opea/llm-ray:latest /bin/bash -c "ray start --head && python api_server_openai.py --port_number 80 --model_id_or_path ${your_hf_llm_model} --chat_processor ${your_hf_chatprocessor}"
 ```
 
 ## 1.2.3 Start Prediction Guard Service
@@ -55,7 +55,7 @@ Not Applicable if using open access LLMs already hosted in Intel Tiber Developer
 
 ## 1.3 Verify the LLM Service
 
-### 1.3.1 Verify the TGI Service
+#### 1.3.1 Verify the TGI Service
 
 ```bash
 curl http://${your_ip}:8008/generate \
@@ -64,7 +64,7 @@ curl http://${your_ip}:8008/generate \
   -H 'Content-Type: application/json'
 ```
 
-### 1.3.2 Verify the vLLM Service
+#### 1.3.2 Verify the vLLM Service
 
 ```bash
 curl http://${your_ip}:8008/v1/completions \
@@ -77,7 +77,7 @@ curl http://${your_ip}:8008/v1/completions \
   }'
 ```
 
-### 1.3.3 Verify the Ray Service
+#### 1.3.3 Verify the Ray Service
 
 ```bash
 curl http://${your_ip}:8008/v1/chat/completions \
@@ -117,21 +117,21 @@ curl -X POST https://api.predictionguard.com/chat/completions - Streaming Versio
 
 ## 1.4 Start LLM Service with Python Script
 
-### 1.4.1 Start the TGI Service
+#### 1.4.1 Start the TGI Service
 
 ```bash
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 python text-generation/tgi/llm.py
 ```
 
-### 1.4.2 Start the vLLM Service
+#### 1.4.2 Start the vLLM Service
 
 ```bash
 export vLLM_LLM_ENDPOINT="http://${your_ip}:8008"
 python text-generation/vllm/llm.py
 ```
 
-### 1.4.3 Start the Ray Service
+#### 1.4.3 Start the Ray Service
 
 ```bash
 export RAY_Serve_ENDPOINT="http://${your_ip}:8008"
@@ -149,7 +149,7 @@ python text-generation/predictionguard/llm_predictionguard.py
 
 If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start a TGI/vLLM service with docker.
 
-## 2.1 Setup Environment Variables
+### 2.1 Setup Environment Variables
 
 In order to start TGI and LLM services, you need to setup the following environment variables first.
 
@@ -191,14 +191,14 @@ export PREDICTIONGUARD_API_KEY={your_pg_api_key}
 
 ## 2.2 Build Docker Image
 
-### 2.2.1 TGI
+#### 2.2.1 TGI
 
 ```bash
 cd ../../
 docker build -t opea/llm-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/tgi/Dockerfile .
 ```
 
-### 2.2.2 vLLM
+#### 2.2.2 vLLM
 
 Build vllm docker.
 
@@ -213,7 +213,7 @@ cd ../../../../
 docker build -t opea/llm-vllm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/vllm/docker/Dockerfile.microservice .
 ```
 
-### 2.2.3 Ray Serve
+#### 2.2.3 Ray Serve
 
 Build Ray Serve docker.
 
@@ -244,15 +244,15 @@ To start a docker container, you have two options:
 
 You can choose one as needed.
 
-### 2.3.1 Run Docker with CLI (Option A)
+#### 2.3.1 Run Docker with CLI (Option A)
 
-#### 2.3.1.1 TGI
+##### 2.3.1.1 TGI
 
 ```bash
 docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/llm-tgi:latest
 ```
 
-#### 2.3.1.2 vLLM
+##### 2.3.1.2 vLLM
 
 Start vllm endpoint.
 
@@ -266,7 +266,7 @@ Start vllm microservice.
 docker run --name="llm-vllm-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=${no_proxy} -e vLLM_LLM_ENDPOINT=$vLLM_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e LLM_MODEL_ID=$LLM_MODEL_ID opea/llm-vllm:latest
 ```
 
-#### 2.3.1.3 Ray Serve
+##### 2.3.1.3 Ray Serve
 
 Start Ray Serve endpoint.
 
@@ -280,7 +280,7 @@ Start Ray Serve microservice.
 docker run -d --name="llm-ray-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e RAY_Serve_ENDPOINT=$RAY_Serve_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e LLM_MODEL=$LLM_MODEL opea/llm-ray:latest
 ```
 
-#### 2.3.1.4 Prediction Guard
+##### 2.3.1.4 Prediction Guard
 
 ```bash
 docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name llm-predictionguard opea/llm-predictionguard:latest
@@ -288,30 +288,30 @@ docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  
 
 ### 2.3.2 Run Docker with Docker Compose (Option B)
 
-#### 2.3.2.1 TGI
+##### 2.3.2.1 TGI
 
 ```bash
 cd text-generation/tgi
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
-#### 2.3.2.2 vLLM
+##### 2.3.2.2 vLLM
 
 ```bash
 cd text-generation/vllm
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
-#### 2.3.2.3 Ray Serve
+##### 2.3.2.3 Ray Serve
 
 ```bash
 cd text-genetation/ray_serve
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
-# 🚀3. Consume LLM Service
+## 🚀3. Consume LLM Service
 
-## 3.1 Check Service Status
+### 3.1 Check Service Status
 
 ```bash
 curl http://${your_ip}:9000/v1/health_check\
@@ -319,7 +319,7 @@ curl http://${your_ip}:9000/v1/health_check\
   -H 'Content-Type: application/json'
 ```
 
-## 3.2 Consume LLM Service
+### 3.2 Consume LLM Service
 
 You can set the following model parameters according to your actual needs, such as `max_new_tokens`, `streaming`.
 
@@ -339,7 +339,7 @@ curl http://${your_ip}:9000/v1/chat/completions \
   -H 'Content-Type: application/json'
 ```
 
-## 4. Validated Model
+### 4. Validated Model
 
 | Model                        | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | Ray | Prediction Guard |
 | ---------------------------- | --------- | -------- | ---------- | --- | ---------------- |

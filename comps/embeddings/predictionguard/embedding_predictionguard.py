@@ -1,6 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import logging
 import os
 import time
-import logging
+
 from fastapi import FastAPI, HTTPException
 from predictionguard import PredictionGuard
 
@@ -23,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 # Hard-coded model name
 MODEL_NAME = "bridgetower-large-itm-mlm-itc"
+
 
 @register_microservice(
     name="opea_service@embedding_predictionguard",
@@ -54,7 +59,7 @@ def embedding(input: TextDoc) -> EmbedDoc:
         if "data" not in response or not response["data"]:
             logger.error(f"Failed to generate embeddings for model {MODEL_NAME}.")
             raise HTTPException(status_code=500, detail=f"Failed to generate embeddings with model {MODEL_NAME}")
-        
+
         embed_vector = response["data"][0]["embedding"]
         embed_vector = embed_vector[:512]  # Keep only the first 512 elements
         res = EmbedDoc(text=input.text, embedding=embed_vector)
@@ -63,6 +68,7 @@ def embedding(input: TextDoc) -> EmbedDoc:
     except Exception as e:
         logger.exception("An unexpected error occurred.")
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
 
 if __name__ == "__main__":
     logger.info(f"Prediction Guard Embedding initialized with model: {MODEL_NAME}")
