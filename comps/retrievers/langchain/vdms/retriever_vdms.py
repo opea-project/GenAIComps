@@ -39,13 +39,14 @@ if use_clip:
     from embeddings_clip import vCLIP
 
 # Debugging
-all_variables = dir()
+if DEBUG:
+    all_variables = dir()
 
-for name in all_variables:
-    # Print the item if it doesn't start with '__'
-    if not name.startswith("__"):
-        myvalue = eval(name)
-        print(name, "is", type(myvalue), "and = ", myvalue)
+    for name in all_variables:
+        # Print the item if it doesn't start with '__'
+        if not name.startswith("__"):
+            myvalue = eval(name)
+            print(name, "is", type(myvalue), "and = ", myvalue)
 
 
 client = VDMS_Client(VDMS_HOST, VDMS_PORT)
@@ -96,7 +97,7 @@ if __name__ == "__main__":
 
     if use_clip:
         embeddings = vCLIP({"model_name": "openai/clip-vit-base-patch32", "num_frm": 4})
-        dimensions = embeddings.get_embedding_lenth()
+        dimensions = embeddings.get_embedding_length()
     elif tei_embedding_endpoint:
         embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint, huggingfacehub_api_token=hf_token)
     else:
