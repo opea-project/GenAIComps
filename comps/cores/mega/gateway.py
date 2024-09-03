@@ -568,3 +568,6 @@ class RetrievalToolGateway(Gateway):
         response = result_dict[last_node]
         print("response is ", response)
         return response
+
+class MultimodalRAGQnAWithVideosGateway(Gateway):
+    
