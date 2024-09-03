@@ -7,9 +7,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV GLIBC_TUNABLES glibc.cpu.x86_shstk=permissive
 
 COPY comps /root/comps
-COPY neural_speed-0.1.dev45+g41ea0aa-cp310-cp310-linux_x86_64.whl /root/
-COPY bge-large-r-q8.bin /root/
-COPY libstdc++.so.6 /root/
+COPY /data2/nswhl/neural_speed-0.1.dev45+g41ea0aa-cp310-cp310-linux_x86_64.whl /root/
+COPY /data2/nswhl/bge-large-r-q8.bin /root/
+COPY /data2/nswhl/libstdc++.so.6 /root/
 
 RUN apt update && apt install -y python3 python3-pip 
 RUN pip3 install -r /root/comps/reranks/neural-speed/neuralspeed-docker/requirements.txt
