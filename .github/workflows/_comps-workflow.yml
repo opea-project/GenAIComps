@@ -39,7 +39,7 @@ jobs:
     runs-on: "docker-build-${{ inputs.node }}"
     continue-on-error: true
     outputs:
-      file_exists: ${{ steps.check-docker-compose-exists.outputs.file_exists }}
+      file_exists: ${{ steps.get-yaml-path.outputs.file_exists }}
     steps:
       - name: Clean Up Working Directory
         run: sudo rm -rf ${{github.workspace}}/*
@@ -53,10 +53,23 @@ jobs:
           cd ${{ github.workspace }}/.github/workflows/docker/compose
           # service=$(echo ${{ inputs.service }} | cut -d'_' -f1)
           if [[ "${{ inputs.mode }}" == "CD" ]]; then
-            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-cd.yaml
+            if [ -f "${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-cd.yaml" ]; then
+              docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-cd.yaml
+              echo "file_exists=true" >> $GITHUB_OUTPUT
+            else
+              echo "There is no CD part of ${{ inputs.service }} that needs to be executed."
+              echo "file_exists=false" >> $GITHUB_OUTPUT
+            fi
           else
-            docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+            if [ -f "${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml" ]; then
+              docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose.yaml
+              echo "file_exists=true" >> $GITHUB_OUTPUT
+            else
+              echo "There is no CI part of ${{ inputs.service }} that needs to be executed."
+              echo "file_exists=false" >> $GITHUB_OUTPUT
+            fi
           fi
+
           echo "docker_compose_path=${docker_compose_yml}" >> $GITHUB_OUTPUT
           if [[ $(grep -c "llava-tgi:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/yuanwu2017/tgi-gaudi.git && cd tgi-gaudi && git checkout v2.0.4
@@ -65,18 +78,8 @@ jobs:
               git clone https://github.com/vllm-project/vllm.git vllm-openvino
           fi
 
-      - name: Check if Docker Compose CD YAML exists
-        id: check-docker-compose-exists
-        run: |
-          if [ -f "${{ github.workspace }}/.github/workflows/docker/compose/${{ inputs.service }}-compose-cd.yaml" ]; then
-            echo "file_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "There is no CD part of ${{ inputs.service }} that needs to be executed."
-            echo "file_exists=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Build Image
-        if: ${{ fromJSON(inputs.build) && steps.check-docker-compose-exists.outputs.file_exists == 'true' }}
+        if: ${{ fromJSON(inputs.build) && steps.get-yaml-path.outputs.file_exists == 'true' }}
         uses: opea-project/validation/actions/image-build@main
         with:
           work_dir: ${{ github.workspace }}
