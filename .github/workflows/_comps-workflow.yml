@@ -61,7 +61,7 @@ jobs:
           if [ -f "$docker_compose_yml" ]; then
             echo "file_exists=true" >> $GITHUB_OUTPUT
           else
-            echo "There is no CI part of ${{ inputs.service }} that needs to be executed."
+            echo "There is no ${{ inputs.mode }} part of ${{ inputs.service }} that needs to be executed."
             echo "file_exists=false" >> $GITHUB_OUTPUT
           fi
 
