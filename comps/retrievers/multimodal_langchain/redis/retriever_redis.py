@@ -1,13 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import time
 from typing import Union
 
-from comps import BridgeTowerEmbedding
+from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
 from langchain_community.vectorstores import Redis
-from langsmith import traceable
 from multimodal_config import INDEX_NAME, REDIS_URL, REDIS_SCHEMA
 
 from comps import (
@@ -28,14 +26,14 @@ from comps.cores.proto.api_protocol import (
 )
 
 @register_microservice(
-    name="opea_service@retriever_redis",
+    name="opea_service@multimodal_retriever_redis",
     service_type=ServiceType.RETRIEVER,
-    endpoint="/v1/retrieval",
+    endpoint="/v1/multimodal_retrieval",
     host="0.0.0.0",
     port=7000,
 )
-@traceable(run_type="retriever")
-@register_statistics(names=["opea_service@retriever_redis"])
+
+@register_statistics(names=["opea_service@multimodal_retriever_redis"])
 def retrieve(
     input: Union[EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
 ) -> Union[SearchedMultimodalDoc, RetrievalResponse, ChatCompletionRequest]:
@@ -45,11 +43,6 @@ def retrieve(
     if vector_db.client.keys() == []:
         search_res = []
     else:
-        if isinstance(input, EmbedMultimodalDoc):
-            query = input.text
-        else:
-            # for RetrievalRequest, ChatCompletionRequest
-            query = input.input
         # if the Redis index has data, perform the search
         if input.search_type == "similarity":
             search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, k=input.k)
@@ -89,7 +82,7 @@ def retrieve(
             input.documents = [doc.text for doc in retrieved_docs]
             result = input
 
-    statistics_dict["opea_service@retriever_redis"].append_latency(time.time() - start, None)
+    statistics_dict["opea_service@multimodal_retriever_redis"].append_latency(time.time() - start, None)
     return result
 
 
@@ -97,4 +90,4 @@ if __name__ == "__main__":
 
     embeddings = BridgeTowerEmbedding()
     vector_db = Redis.from_existing_index(embedding=embeddings, schema=REDIS_SCHEMA, index_name=INDEX_NAME, redis_url=REDIS_URL)
-    opea_microservices["opea_service@retriever_redis"].start()
+    opea_microservices["opea_service@multimodal_retriever_redis"].start()
