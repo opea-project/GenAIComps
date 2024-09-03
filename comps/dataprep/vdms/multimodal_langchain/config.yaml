@@ -1,5 +1,5 @@
 # Path to all videos
-videos: video_ingest/videos/
+videos: uploaded_files/videos/
 # Do you want to extract frames of videos (True if not done already, else False)
 generate_frames: True
 # How do you want to generate feature embeddings?
@@ -7,13 +7,13 @@ embeddings:
   type: 'video' 
   vclip_model_name: "openai/clip-vit-base-patch32"
   vclip_num_frm: 64
-  path: 'video_ingest/embeddings'
+  path: 'uploaded_files/embeddings'
 # VL-branch config
 vl_branch:
   cfg_path: embedding/video_llama_config/video_llama_eval_only_vl.yaml
   model_type: 'llama_v2'
 # Path to store metadata files
-meta_output_dir: video_ingest/video_metadata/
+meta_output_dir: uploaded_files/video_metadata/
 # Chunk duration defines the interval of time that each embedding will occur
 chunk_duration: 30
 # Clip duration defines the length of the interval in which the embeding will occur
