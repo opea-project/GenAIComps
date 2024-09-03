@@ -55,8 +55,7 @@ jobs:
     steps:
       - name: Pull Image
         run: |
-          docker pull ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:latest
-          # ${{ inputs.tag }}
+          docker pull ${OPEA_IMAGE_REPO}opea/${{ matrix.image }}:${{ inputs.tag }}
           echo "OPEA_IMAGE_REPO=${OPEA_IMAGE_REPO}" >> $GITHUB_ENV
 
       - name: SBOM Scan Container
