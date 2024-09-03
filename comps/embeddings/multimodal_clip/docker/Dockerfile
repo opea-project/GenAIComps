@@ -20,10 +20,10 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ ${ARCH} = "cpu" ]; then pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/embeddings/langchain_multimodal/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal_clip/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/embeddings/langchain_multimodal
+WORKDIR /home/user/comps/embeddings/multimodal_clip
 
 ENTRYPOINT ["python", "embedding_multimodal.py"]
