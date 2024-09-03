@@ -40,6 +40,7 @@ python langchain_multimodal/retriever_redis.py
 ### 2.1 Setup Environment Variables
 
 ```bash
+export your_ip=$(hostname -I | awk '{print $1}')
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
 ```
@@ -47,8 +48,8 @@ export INDEX_NAME=${your_index_name}
 ### 2.2 Build Docker Image
 
 ```bash
-cd ../../
-docker build -t opea/multimodal-retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain_multimodal/redis/docker/Dockerfile .
+cd ../../../../
+docker build -t opea/multimodal-retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/multimodal_langchain/redis/docker/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -61,13 +62,13 @@ You can choose one as needed.
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="retriever-redis-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/multimodal-retriever-redis:latest
+docker run -d --name="multimodal-retriever-redis-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/multimodal-retriever-redis:latest
 ```
 
 ### 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd langchain_multimodal/docker
+cd docker
 docker compose -f docker_compose_retriever.yaml up -d
 ```
 
@@ -79,9 +80,9 @@ To consume the Retriever Microservice, you can generate a mock embedding vector 
 
 ```bash
 your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-curl http://${your_ip}:7000/v1/retrieval \
+curl http://${your_ip}:7000/v1/multimodal_retrieval \
   -X POST \
-  -d {\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding}}" \
+  -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding}}" \
   -H 'Content-Type: application/json'
 ```
 
@@ -89,7 +90,7 @@ You can set the parameters for the retriever.
 
 ```bash
 your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-curl http://localhost:7000/v1/retrieval \
+curl http://localhost:7000/v1/multimodal_retrieval \
   -X POST \
   -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding},\"search_type\":\"similarity\", \"k\":4}" \
   -H 'Content-Type: application/json'
@@ -97,7 +98,7 @@ curl http://localhost:7000/v1/retrieval \
 
 ```bash
 your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-curl http://localhost:7000/v1/retrieval \
+curl http://localhost:7000/v1/multimodal_retrieval \
   -X POST \
   -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding},\"search_type\":\"similarity_distance_threshold\", \"k\":4, \"distance_threshold\":1.0}" \
   -H 'Content-Type: application/json'
@@ -105,7 +106,7 @@ curl http://localhost:7000/v1/retrieval \
 
 ```bash
 your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-curl http://localhost:7000/v1/retrieval \
+curl http://localhost:7000/v1/multimodal_retrieval \
   -X POST \
   -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding},\"search_type\":\"similarity_score_threshold\", \"k\":4, \"score_threshold\":0.2}" \
   -H 'Content-Type: application/json'
@@ -113,7 +114,7 @@ curl http://localhost:7000/v1/retrieval \
 
 ```bash
 your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-curl http://localhost:7000/v1/retrieval \
+curl http://localhost:7000/v1/multimodal_retrieval \
   -X POST \
   -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding},\"search_type\":\"mmr\", \"k\":4, \"fetch_k\":20, \"lambda_mult\":0.5}" \
   -H 'Content-Type: application/json'
