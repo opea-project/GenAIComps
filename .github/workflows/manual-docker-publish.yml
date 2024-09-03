@@ -31,7 +31,7 @@ jobs:
   get-image-list:
     uses: ./.github/workflows/_get-image-list.yml
     with:
-      examples: ${{ inputs.examples }}
+      services: ${{ inputs.services }}
       images: ${{ inputs.images }}
       mode: ${{ inputs.mode }}
 

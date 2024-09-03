@@ -41,11 +41,11 @@ jobs:
   get-image-list:
     uses: ./.github/workflows/_get-image-list.yml
     with:
-      examples: ${{ inputs.services }}
+      services: ${{ inputs.services }}
       images: ${{ inputs.images }}
       mode: ${{ inputs.mode }}
 
-  scan-license:
+  scan-docker:
     needs: get-image-list
     runs-on: "docker-build-gaudi"
     strategy:
