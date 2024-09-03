@@ -4,12 +4,12 @@
 import os
 import random
 import time
-import uuid
 import urllib.parse
-
+import uuid
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-from fastapi import BackgroundTasks, HTTPException, File, UploadFile
+
+from fastapi import BackgroundTasks, File, HTTPException, UploadFile
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
@@ -179,7 +179,7 @@ async def save_content_to_local_disk(save_path: str, content):
         logger.info(f"Write file failed. Exception: {e}")
         raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
-    
+
 async def handle_upload_training_files(request: UploadFileRequest):
     file = request.file
     filename = urllib.parse.quote(file.filename, safe="")
@@ -192,9 +192,9 @@ async def handle_upload_training_files(request: UploadFileRequest):
         bytes=fileBytes,
         created_at=int(time.time()),
         filename=filename,
-        purpose="fine-tune"
+        purpose="fine-tune",
     )
-    return fileInfo 
+    return fileInfo
 
 
 def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
@@ -203,12 +203,15 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
     job = running_finetuning_jobs.get(fine_tuning_job_id)
     if job is None:
         raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
-    # filename 
-    output_dir = os.path.join(JOBS_PATH, job.id, )
+    # filename
+    output_dir = os.path.join(
+        JOBS_PATH,
+        job.id,
+    )
     checkpoints = []
     if os.path.exists(output_dir):
         checkpoints = os.listdir(output_dir)
-        # filename 
+        # filename
 
     checkpointsResponse = FineTuningJobCheckpoint(
         object="fine_tuning.job.checkpoint",
@@ -223,9 +226,9 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
             "valid_loss": 10.112,
             "valid_mean_token_accuracy": 0.145,
             "full_valid_loss": 0.567,
-            "full_valid_mean_token_accuracy": 0.944
+            "full_valid_mean_token_accuracy": 0.944,
         },
-        step_number=88
+        step_number=88,
     )
-    
+
     return checkpoints

@@ -625,6 +625,7 @@ class FineTuningJobsRequest(BaseModel):
 
     seed: Optional[str] = None
 
+
 class FileObject(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/files/object
@@ -633,18 +634,22 @@ class FileObject(BaseModel):
 
     bytes: int
     """The size of the file, in bytes."""
-   
+
     created_at: int
     """The Unix timestamp (in seconds) for when the file was created."""
-    
+
     filename: str
     """The name of the file."""
 
     object: str = "file"
-    """The object type, which is always file. """
+    """The object type, which is always file."""
 
     purpose: str
-    """The intended purpose of the file. Supported values are assistants, assistants_output, batch, batch_output, fine-tune, fine-tune-results and vision."""
+    """The intended purpose of the file.
+
+    Supported values are assistants, assistants_output, batch, batch_output, fine-tune, fine-tune-results and vision.
+    """
+
 
 class Error(BaseModel):
     code: str
@@ -753,14 +758,16 @@ class FineTuningJobIDRequest(BaseModel):
     fine_tuning_job_id: str
     """The ID of the fine-tuning job."""
 
+
 class UploadFileRequest(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/files/create
     file: Union[UploadFile]
-    """The File object (not file name) to be uploaded."""  
+    """The File object (not file name) to be uploaded."""
 
     purpose: str = "fine-tune"
     """The intended purpose of the uploaded file."""
+
 
 class FineTuningJobListRequest(BaseModel):
     # Ordered by official OpenAI API documentation
@@ -771,6 +778,7 @@ class FineTuningJobListRequest(BaseModel):
     limit: Optional[int] = 20
     """Number of fine-tuning jobs to retrieve."""
 
+
 class Metrics(BaseModel):
     step: int
     train_loss: int
@@ -779,6 +787,7 @@ class Metrics(BaseModel):
     valid_mean_token_accuracy: int
     full_valid_loss: int
     full_valid_mean_token_accuracy: int
+
 
 class FineTuningJobCheckpoint(BaseModel):
     # Ordered by official OpenAI API documentation
@@ -803,7 +812,7 @@ class FineTuningJobCheckpoint(BaseModel):
 
     step_number: int
     """The step number that the checkpoint was created at."""
-    
+
 
 class FineTuningJobList(BaseModel):
     # Ordered by official OpenAI API documentation

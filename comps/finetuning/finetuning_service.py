@@ -15,7 +15,7 @@ from comps.finetuning.handlers import (
     handle_list_finetuning_checkpoints,
     handle_list_finetuning_jobs,
     handle_retrieve_finetuning_job,
-    handle_upload_training_files,    
+    handle_upload_training_files,
 )
 
 
@@ -47,11 +47,10 @@ def cancel_finetuning_job(request: FineTuningJobIDRequest):
     return job
 
 
-@register_microservice(
-    name="opea_service@finetuning", endpoint="/v1/files", host="0.0.0.0", port=8015
-)
+@register_microservice(name="opea_service@finetuning", endpoint="/v1/files", host="0.0.0.0", port=8015)
 def upload_training_files(request: UploadFileRequest):
     return handle_upload_training_files(request)
+
 
 @register_microservice(
     name="opea_service@finetuning", endpoint="/v1/finetune/list_checkpoints", host="0.0.0.0", port=8015
