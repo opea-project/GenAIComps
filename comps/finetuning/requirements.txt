@@ -17,3 +17,4 @@ requests
 shortuuid
 transformers
 uvicorn
+cairosvg
