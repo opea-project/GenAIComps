@@ -173,28 +173,22 @@ async def save_content_to_local_disk(save_path: str, content):
                 file.write(content)
         else:
             with save_path.open("wb") as fout:
-                content = await content.read()
-                fout.write(content)
+                content_bytes = await content.read()
+                fout.write(content_bytes)
     except Exception as e:
         logger.info(f"Write file failed. Exception: {e}")
         raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
 async def handle_upload_training_files(request: UploadFileRequest):
-    file = request.file
+    form = await request.form()
+    file = form.get("file")
     filename = urllib.parse.quote(file.filename, safe="")
     save_path = os.path.join(DATASET_BASE_PATH, filename)
+    
     await save_content_to_local_disk(save_path, file)
-    fileBytes = os.path.getsize(save_path)
-    fileInfo = FileObject(
-        id=f"file-{uuid.uuid4()}",
-        object="file",
-        bytes=fileBytes,
-        created_at=int(time.time()),
-        filename=filename,
-        purpose="fine-tune",
-    )
-    return {"status": 200, "message": "Training files uploaded."}
+    
+    return {"status": 200, "message": "Training files uploaded successfully."}
 
 
 def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
