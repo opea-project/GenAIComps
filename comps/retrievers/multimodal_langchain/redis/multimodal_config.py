@@ -1,5 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 
+current_file_path = os.path.abspath(__file__)
+parent_dir = os.path.dirname(current_file_path)
 
 def get_boolean_env_var(var_name, default_value=False):
     """Retrieve the boolean value of an environment variable.
@@ -69,12 +74,7 @@ REDIS_URL = format_redis_conn_from_env()
 # Vector Index Configuration
 INDEX_NAME = os.getenv("INDEX_NAME", "test-index")
 
-current_file_path = os.path.abspath(__file__)
-parent_dir = os.path.dirname(current_file_path)
 REDIS_SCHEMA = os.getenv("REDIS_SCHEMA", "redis_schema.yml")
 schema_path = os.path.join(parent_dir, REDIS_SCHEMA)
 INDEX_SCHEMA = schema_path
-TGI_ENDPOINT = os.getenv("TGI_ENDPOINT", "http://localhost:8080")
-TGI_ENDPOINT_NO_RAG = os.getenv("TGI_ENDPOINT_NO_RAG", "http://localhost:8081")
 NUM_RETRIEVED_RESULTS = int(os.getenv("NUM_RETRIEVED_RESULTS", 1))
-MULTIMODAL_CHAT_MODEL = os.getenv("MULTIMODAL_CHAT_MODEL", "llava-hf/llava-1.5-13b-hf")
