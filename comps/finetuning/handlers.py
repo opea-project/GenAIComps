@@ -5,19 +5,23 @@ import os
 import random
 import time
 import uuid
-from pathlib import Path
-from typing import Dict
+import urllib.parse
 
-from fastapi import BackgroundTasks, HTTPException
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+from fastapi import BackgroundTasks, HTTPException, File, UploadFile
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
 from comps import CustomLogger
 from comps.cores.proto.api_protocol import (
+    FileObject,
     FineTuningJob,
+    FineTuningJobCheckpoint,
     FineTuningJobIDRequest,
     FineTuningJobList,
     FineTuningJobsRequest,
+    UploadFileRequest,
 )
 from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
 
@@ -173,7 +177,24 @@ async def save_content_to_local_disk(save_path: str, content):
                 fout.write(content)
     except Exception as e:
         logger.info(f"Write file failed. Exception: {e}")
-        raise Exception(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
+        raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
+
+    
+async def handle_upload_training_files(request: UploadFileRequest):
+    file = request.file
+    filename = urllib.parse.quote(file.filename, safe="")
+    save_path = os.path.join(DATASET_BASE_PATH, filename)
+    await save_content_to_local_disk(save_path, file)
+    fileBytes = file.read()
+    fileInfo = FileObject(
+        id=f"file-{uuid.uuid4()}",
+        object="file",
+        bytes=fileBytes,
+        created_at=int(time.time()),
+        filename=filename,
+        purpose="fine-tune"
+    )
+    return fileInfo 
 
 
 def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
@@ -182,8 +203,29 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
     job = running_finetuning_jobs.get(fine_tuning_job_id)
     if job is None:
         raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
-    output_dir = os.path.join(JOBS_PATH, job.id)
+    # filename 
+    output_dir = os.path.join(JOBS_PATH, job.id, )
     checkpoints = []
     if os.path.exists(output_dir):
         checkpoints = os.listdir(output_dir)
+        # filename 
+
+    checkpointsResponse = FineTuningJobCheckpoint(
+        object="fine_tuning.job.checkpoint",
+        id=f"ftckpt-{uuid.uuid4()}",
+        created_at=int(time.time()),
+        fine_tuned_model_checkpoint="todo",
+        fine_tuning_job_id=fine_tuning_job_id,
+        metrics={
+            "step": 88,
+            "train_loss": 0.478,
+            "train_mean_token_accuracy": 0.924,
+            "valid_loss": 10.112,
+            "valid_mean_token_accuracy": 0.145,
+            "full_valid_loss": 0.567,
+            "full_valid_mean_token_accuracy": 0.944
+        },
+        step_number=88
+    )
+    
     return checkpoints

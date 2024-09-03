@@ -8,15 +8,14 @@ from typing import List, Optional, Union
 from fastapi import BackgroundTasks, File, UploadFile
 
 from comps import opea_microservices, register_microservice
-from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest
+from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest, UploadFileRequest
 from comps.finetuning.handlers import (
-    DATASET_BASE_PATH,
     handle_cancel_finetuning_job,
     handle_create_finetuning_jobs,
     handle_list_finetuning_checkpoints,
     handle_list_finetuning_jobs,
     handle_retrieve_finetuning_job,
-    save_content_to_local_disk,
+    handle_upload_training_files,    
 )
 
 
@@ -49,23 +48,17 @@ def cancel_finetuning_job(request: FineTuningJobIDRequest):
 
 
 @register_microservice(
-    name="opea_service@finetuning",
-    endpoint="/v1/finetune/upload_training_files",
-    host="0.0.0.0",
-    port=8015,
+    name="opea_service@finetuning", endpoint="/v1/files", host="0.0.0.0", port=8015
 )
-async def upload_training_files(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-):
-    if files:
-        if not isinstance(files, list):
-            files = [files]
-        for file in files:
-            filename = urllib.parse.quote(file.filename, safe="")
-            save_path = os.path.join(DATASET_BASE_PATH, filename)
-            await save_content_to_local_disk(save_path, file)
+def upload_training_files(request: UploadFileRequest):
+    return handle_upload_training_files(request)
 
-    return {"status": 200, "message": "Training files uploaded."}
+@register_microservice(
+    name="opea_service@finetuning", endpoint="/v1/finetune/list_checkpoints", host="0.0.0.0", port=8015
+)
+def list_checkpoints(request: FineTuningJobIDRequest):
+    checkpoints = handle_list_finetuning_checkpoints(request)
+    return checkpoints
 
 
 @register_microservice(
