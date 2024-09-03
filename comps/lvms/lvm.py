@@ -59,7 +59,6 @@ async def lvm(request: Union[LVMDoc, SearchedMultimodalDoc]) -> TextDoc:
         max_new_tokens = request.max_new_tokens
 
     inputs = {"img_b64_str": img_b64_str, "prompt": prompt, "max_new_tokens": max_new_tokens}
-
     # forward to the LLaVA server
     response = requests.post(url=f"{lvm_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None})
 
