@@ -69,15 +69,7 @@ async def upload_training_files(file: UploadFile = File(...), purpose: str = For
 async def upload_training_files(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
 ):
-    if files:
-        if not isinstance(files, list):
-            files = [files]
-        for file in files:
-            filename = urllib.parse.quote(file.filename, safe="")
-            save_path = os.path.join(DATASET_BASE_PATH, filename)
-            await save_content_to_local_disk(save_path, file)
-
-    return {"status": 200, "message": "Training files uploaded."}
+    return await handle_upload_training_files(files)
 
 
 @register_microservice(
