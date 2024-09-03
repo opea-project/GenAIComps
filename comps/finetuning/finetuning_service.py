@@ -67,9 +67,9 @@ async def upload_training_files(file: UploadFile = File(...), purpose: str = For
     port=8015,
 )
 async def upload_training_files(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+    file: UploadFile,
 ):
-    return await handle_upload_training_files(files)
+    return await handle_upload_training_files(file)
 
 
 @register_microservice(

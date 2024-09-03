@@ -196,14 +196,10 @@ async def save_content_to_local_disk(save_path: str, content):
 
 #     return {"status": 200, "message": "Training files uploaded successfully."}
 
-async def handle_upload_training_files(files: UploadFile):
-    if files:
-        if not isinstance(files, list):
-            files = [files]
-        for file in files:
-            filename = urllib.parse.quote(file.filename, safe="")
-            save_path = os.path.join(DATASET_BASE_PATH, filename)
-            await save_content_to_local_disk(save_path, file)
+async def handle_upload_training_files(file: UploadFile):
+    filename = urllib.parse.quote(file.filename, safe="")
+    save_path = os.path.join(DATASET_BASE_PATH, filename)
+    await save_content_to_local_disk(save_path, file)   
 
     return {"status": 200, "message": "Training files uploaded."}
 
