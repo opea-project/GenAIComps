@@ -3,23 +3,23 @@
 
 import os
 import time
+from typing import Union
 
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
-from typing import Union
+from template import ChatTemplate
+
 from comps import (
     CustomLogger,
     LVMDoc,
+    SearchedMultimodalDoc,
     ServiceType,
     TextDoc,
-    SearchedMultimodalDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
-
-from template import ChatTemplate
 
 logger = CustomLogger("lvm_tgi")
 logflag = os.getenv("LOGFLAG", False)
@@ -41,20 +41,24 @@ async def lvm(request: Union[LVMDoc, SearchedMultimodalDoc]) -> TextDoc:
     start = time.time()
     if isinstance(request, SearchedMultimodalDoc):
         # This is to construct LVMDoc from SearchedMultimodalDoc input from retriever microservice
-        #  for Multimodal RAG on Videos application 
+        #  for Multimodal RAG on Videos application
         if logflag:
             logger.info("[SearchedMultimodalDoc ] input from retriever microservice")
         retrieved_metadatas = request.metadata
         if application == "MM_RAG_ON_VIDEOS":
-            img_b64_str = retrieved_metadatas[0]['b64_img_str']
+            img_b64_str = retrieved_metadatas[0]["b64_img_str"]
             initial_query = request.initial_query
             prompt = ChatTemplate.generate_multimodal_rag_on_videos_prompt(initial_query, retrieved_metadatas)
             # use default lvm parameters for inferencing
             new_request = LVMDoc(image=img_b64_str, prompt=prompt)
             if logflag:
-                logger.info(f"prompt generated for [SearchedMultimodalDoc ] input from retriever microservice: {prompt}")
+                logger.info(
+                    f"prompt generated for [SearchedMultimodalDoc ] input from retriever microservice: {prompt}"
+                )
         else:
-            raise NotImplementedError(f"For application {application}: it has NOT implemented SearchedMultimodalDoc input from retriever microservice!")
+            raise NotImplementedError(
+                f"For application {application}: it has NOT implemented SearchedMultimodalDoc input from retriever microservice!"
+            )
     else:
         new_request = request
     stream_gen_time = []

@@ -7,5 +7,5 @@ opentelemetry-sdk
 prometheus-fastapi-instrumentator
 redis
 shortuuid
-uvicorn
 transformers
+uvicorn

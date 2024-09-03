@@ -6,8 +6,10 @@ import os
 current_file_path = os.path.abspath(__file__)
 parent_dir = os.path.dirname(current_file_path)
 
+
 def get_boolean_env_var(var_name, default_value=False):
     """Retrieve the boolean value of an environment variable.
+
     Args:
     var_name (str): The name of the environment variable to retrieve.
     default_value (bool): The default value to return if the variable
@@ -31,7 +33,7 @@ def get_boolean_env_var(var_name, default_value=False):
 
 
 # Check for openai API key
-#if "OPENAI_API_KEY" not in os.environ:
+# if "OPENAI_API_KEY" not in os.environ:
 #    raise Exception("Must provide an OPENAI_API_KEY as an env var.")
 
 

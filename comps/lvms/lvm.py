@@ -6,7 +6,9 @@ import json
 import os
 import time
 from typing import Union
+
 import requests
+from template import ChatTemplate
 
 from comps import (
     CustomLogger,
@@ -19,7 +21,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from template import ChatTemplate
 
 logger = CustomLogger("lvm")
 logflag = os.getenv("LOGFLAG", False)
@@ -42,16 +43,20 @@ async def lvm(request: Union[LVMDoc, SearchedMultimodalDoc]) -> TextDoc:
             logger.info("[SearchedMultimodalDoc ] input from retriever microservice")
         retrieved_metadatas = request.metadata
         if application == "MM_RAG_ON_VIDEOS":
-            img_b64_str = retrieved_metadatas[0]['b64_img_str']
+            img_b64_str = retrieved_metadatas[0]["b64_img_str"]
             initial_query = request.initial_query
             prompt = ChatTemplate.generate_multimodal_rag_on_videos_prompt(initial_query, retrieved_metadatas)
             # use default lvm parameters for inferencing
             new_input = LVMDoc(image=img_b64_str, prompt=prompt)
             max_new_tokens = new_input.max_new_tokens
             if logflag:
-                logger.info(f"prompt generated for [SearchedMultimodalDoc ] input from retriever microservice: {prompt}")
+                logger.info(
+                    f"prompt generated for [SearchedMultimodalDoc ] input from retriever microservice: {prompt}"
+                )
         else:
-            raise NotImplementedError(f"For application {application}: it has NOT implemented SearchedMultimodalDoc input from retriever microservice!")
+            raise NotImplementedError(
+                f"For application {application}: it has NOT implemented SearchedMultimodalDoc input from retriever microservice!"
+            )
 
     else:
         img_b64_str = request.image

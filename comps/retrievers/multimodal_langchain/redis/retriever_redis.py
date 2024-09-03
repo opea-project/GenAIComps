@@ -4,9 +4,8 @@
 import time
 from typing import Union
 
-from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
 from langchain_community.vectorstores import Redis
-from multimodal_config import INDEX_NAME, REDIS_URL, REDIS_SCHEMA
+from multimodal_config import INDEX_NAME, REDIS_SCHEMA, REDIS_URL
 
 from comps import (
     EmbedMultimodalDoc,
@@ -24,6 +23,8 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponse,
     RetrievalResponseData,
 )
+from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
+
 
 @register_microservice(
     name="opea_service@multimodal_retriever_redis",
@@ -32,7 +33,6 @@ from comps.cores.proto.api_protocol import (
     host="0.0.0.0",
     port=7000,
 )
-
 @register_statistics(names=["opea_service@multimodal_retriever_redis"])
 def retrieve(
     input: Union[EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
@@ -89,5 +89,7 @@ def retrieve(
 if __name__ == "__main__":
 
     embeddings = BridgeTowerEmbedding()
-    vector_db = Redis.from_existing_index(embedding=embeddings, schema=REDIS_SCHEMA, index_name=INDEX_NAME, redis_url=REDIS_URL)
+    vector_db = Redis.from_existing_index(
+        embedding=embeddings, schema=REDIS_SCHEMA, index_name=INDEX_NAME, redis_url=REDIS_URL
+    )
     opea_microservices["opea_service@multimodal_retriever_redis"].start()

@@ -8,13 +8,14 @@ Overall, this microservice provides robust backend support for applications requ
 
 ## 🚀1. Start Microservice with Python (Option 1)
 
-To start the retriever microservice, you must first install the required python packages. 
+To start the retriever microservice, you must first install the required python packages.
 
 ### 1.1 Install Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
+
 ### 1.2 Setup VectorDB Service
 
 You need to setup your own VectorDB service (Redis in this example), and ingest your knowledge documents into the vector database.
@@ -25,9 +26,10 @@ Remember to ingest data into it manually.
 ```bash
 docker run -d --name="redis-vector-db" -p 6379:6379 -p 8001:8001 redis/redis-stack:7.2.0-v9
 ```
+
 ### 1.3 Ingest images or video
 
-Upload a video or images using the dataprep microservice, instructions can be found  [here](https://github.com/opea-project/GenAIComps/tree/main/comps/dataprep/redis/multimodal_langchain/README.md).
+Upload a video or images using the dataprep microservice, instructions can be found [here](https://github.com/opea-project/GenAIComps/tree/main/comps/dataprep/redis/multimodal_langchain/README.md).
 
 ### 1.4 Start Retriever Service
 
