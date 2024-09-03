@@ -10,6 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_mosec_docker_images() {
     cd $WORKPATH
     echo $(pwd)
+    cp /data2/nswhl/* ./
     docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t langchain-mosec:neuralspeed-reranks -f comps/reranks/neural-speed/neuralspeed-docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/reranking-langchain-mosec-endpoint built fail"
