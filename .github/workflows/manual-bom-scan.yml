@@ -39,7 +39,7 @@ jobs:
       - name: Set Matrix
         id: scan-matrix
         run: |
-          pip install yq
+          pip install --no-cache-dir yq
           services=($(echo ${{ inputs.services }} | tr ',' ' '))
           image_list=[]
           for service in ${services[@]}
