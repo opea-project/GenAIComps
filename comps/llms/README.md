@@ -62,7 +62,7 @@ curl http://${your_ip}:8008/v1/completions \
   -d '{
   "model": ${your_hf_llm_model},
   "prompt": "What is Deep Learning?",
-  "max_tokens": 32,
+  "max_new_tokens": 32,
   "temperature": 0
   }'
 ```
@@ -78,7 +78,7 @@ curl http://${your_ip}:8008/v1/chat/completions \
         {"role": "assistant", "content": "You are a helpful assistant."},
         {"role": "user", "content": "What is Deep Learning?"},
     ],
-  "max_tokens": 32,
+  "max_new_tokens": 32,
   "stream": True
   }'
 ```

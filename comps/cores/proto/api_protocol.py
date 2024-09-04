@@ -63,7 +63,7 @@ class ChatCompletionNamedToolChoiceParam(BaseModel):
 class TokenCheckRequestItem(BaseModel):
     model: str
     prompt: str
-    max_tokens: int
+    max_new_tokens: int
 
 
 class TokenCheckRequest(BaseModel):
@@ -160,7 +160,7 @@ class ChatCompletionRequest(BaseModel):
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[bool] = False
     top_logprobs: Optional[int] = 0
-    max_tokens: Optional[int] = 1024  # use https://platform.openai.com/docs/api-reference/completions/create
+    max_new_tokens: Optional[int] = 1024  # use https://platform.openai.com/docs/api-reference/completions/create
     n: Optional[int] = 1
     presence_penalty: Optional[float] = 0.0
     response_format: Optional[ResponseFormat] = None
@@ -282,7 +282,7 @@ class AudioChatCompletionRequest(BaseModel):
     top_p: Optional[float] = 0.95
     top_k: Optional[int] = 10
     n: Optional[int] = 1
-    max_tokens: Optional[int] = 1024
+    max_new_tokens: Optional[int] = 1024
     stop: Optional[Union[str, List[str]]] = None
     stream: Optional[bool] = False
     presence_penalty: Optional[float] = 1.03
@@ -335,7 +335,7 @@ class CompletionRequest(BaseModel):
     suffix: Optional[str] = None
     temperature: Optional[float] = 0.7
     n: Optional[int] = 1
-    max_tokens: Optional[int] = 16
+    max_new_tokens: Optional[int] = 16
     stop: Optional[Union[str, List[str]]] = None
     stream: Optional[bool] = False
     top_p: Optional[float] = 1.0
@@ -496,10 +496,10 @@ def create_error_response(status_code: int, message: str) -> JSONResponse:
 
 def check_requests(request) -> Optional[JSONResponse]:
     # Check all params
-    if request.max_tokens is not None and request.max_tokens <= 0:
+    if request.max_new_tokens is not None and request.max_new_tokens <= 0:
         return create_error_response(
             ApiErrorCode.PARAM_OUT_OF_RANGE,
-            f"{request.max_tokens} is less than the minimum of 1 - 'max_tokens'",
+            f"{request.max_new_tokens} is less than the minimum of 1 - 'max_new_tokens'",
         )
     if request.n is not None and request.n <= 0:
         return create_error_response(

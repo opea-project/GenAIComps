@@ -41,7 +41,7 @@ curl http://localhost:8000/v1/completions \
   -d '{
   "model": "meta-llama/Llama-2-7b-hf",
   "prompt": "What is the key advantage of Openvino framework?",
-  "max_tokens": 300,
+  "max_new_tokens": 300,
   "temperature": 0.7
   }'
 ```
