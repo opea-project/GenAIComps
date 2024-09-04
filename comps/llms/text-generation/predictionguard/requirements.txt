@@ -8,3 +8,5 @@ predictionguard
 prometheus-fastapi-instrumentator
 shortuuid
 transformers
+uvicorn
+Pillow
