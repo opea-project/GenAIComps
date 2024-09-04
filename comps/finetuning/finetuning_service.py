@@ -3,7 +3,8 @@
 from fastapi import BackgroundTasks, Depends
 
 from comps import opea_microservices, register_microservice
-from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest, UploadFileRequest
+from comps.cores.proto.api_protocol import FineTuningJobIDRequest, UploadFileRequest
+from comps.finetuning.finetune_config import FineTuningParams
 from comps.finetuning.handlers import (
     handle_cancel_finetuning_job,
     handle_create_finetuning_jobs,
@@ -16,7 +17,7 @@ from comps.finetuning.handlers import (
 
 
 @register_microservice(name="opea_service@finetuning", endpoint="/v1/fine_tuning/jobs", host="0.0.0.0", port=8015)
-def create_finetuning_jobs(request: FineTuningJobsRequest, background_tasks: BackgroundTasks):
+def create_finetuning_jobs(request: FineTuningParams, background_tasks: BackgroundTasks):
     return handle_create_finetuning_jobs(request, background_tasks)
 
 
