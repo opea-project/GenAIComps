@@ -44,7 +44,7 @@ class ServiceOrchestrator(DAG):
             logger.error(e)
             return False
 
-    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams()):
+    async def schedule(self, initial_inputs: Dict, llm_parameters: LLMParams = LLMParams(), **kwargs):
         result_dict = {}
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)
@@ -54,7 +54,7 @@ class ServiceOrchestrator(DAG):
         timeout = aiohttp.ClientTimeout(total=1000)
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
             pending = {
-                asyncio.create_task(self.execute(session, node, initial_inputs, runtime_graph, llm_parameters))
+                asyncio.create_task(self.execute(session, node, initial_inputs, runtime_graph, llm_parameters, **kwargs))
                 for node in self.ind_nodes()
             }
             ind_nodes = self.ind_nodes()
@@ -98,7 +98,7 @@ class ServiceOrchestrator(DAG):
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
                             pending.add(
                                 asyncio.create_task(
-                                    self.execute(session, d_node, inputs, runtime_graph, llm_parameters)
+                                    self.execute(session, d_node, inputs, runtime_graph, llm_parameters, **kwargs)
                                 )
                             )
         nodes_to_keep = []
@@ -129,6 +129,7 @@ class ServiceOrchestrator(DAG):
         inputs: Dict,
         runtime_graph: DAG,
         llm_parameters: LLMParams = LLMParams(),
+        **kwargs,
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
@@ -139,7 +140,7 @@ class ServiceOrchestrator(DAG):
                     inputs[field] = value
 
         # pre-process
-        inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict)
+        inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
 
         if (
             self.services[cur_node].service_type == ServiceType.LLM
@@ -188,7 +189,7 @@ class ServiceOrchestrator(DAG):
                             else:
                                 yield chunk
 
-            return StreamingResponse(self.align_generator(generate()), media_type="text/event-stream"), cur_node
+            return StreamingResponse(self.align_generator(generate(), **kwargs), media_type="text/event-stream"), cur_node
         else:
             if LOGFLAG:
                 logger.info(inputs)
@@ -196,7 +197,7 @@ class ServiceOrchestrator(DAG):
                 # Parse as JSON
                 data = await response.json()
                 # post process
-                data = self.align_outputs(data, cur_node, inputs, runtime_graph, llm_parameters_dict)
+                data = self.align_outputs(data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)
 
                 return data, cur_node
 
