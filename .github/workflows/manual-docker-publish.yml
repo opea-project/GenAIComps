@@ -12,7 +12,7 @@ on:
         type: string
       images:
         default: ""
-        description: 'List of images to scan [dataprep-pgvector,dataprep-pinecone...]'
+        description: "List of images to scan [dataprep-pgvector,dataprep-pinecone...]"
         required: false
         type: string
       tag:
@@ -22,7 +22,7 @@ on:
         type: string
       publish_tags:
         default: "latest,v0.9"
-        description: 'Tag list apply to publish images'
+        description: "Tag list apply to publish images"
         required: false
         type: string
 

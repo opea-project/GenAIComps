@@ -12,7 +12,7 @@ on:
         type: string
       images:
         default: ""
-        description: 'List of images to scan [dataprep-pgvector,dataprep-pinecone...]'
+        description: "List of images to scan [dataprep-pgvector,dataprep-pinecone...]"
         required: false
         type: string
       tag:
@@ -89,21 +89,21 @@ jobs:
           mv ${{ matrix.image }}-*-scan.txt /tmp/scan-${{ inputs.tag }}-${{ github.run_number }}
 
   upload-artifacts:
-      needs: scan-docker
-      runs-on: "docker-build-gaudi"
-      if: always()
-      steps:
-        - uses: actions/upload-artifact@v4.3.4
-          with:
-            name: sbom-scan-${{ inputs.tag }}-${{ github.run_number }}
-            path: /tmp/scan-${{ inputs.tag }}-${{ github.run_number }}/*-sbom-scan.txt
-            overwrite: true
+    needs: scan-docker
+    runs-on: "docker-build-gaudi"
+    if: always()
+    steps:
+      - uses: actions/upload-artifact@v4.3.4
+        with:
+          name: sbom-scan-${{ inputs.tag }}-${{ github.run_number }}
+          path: /tmp/scan-${{ inputs.tag }}-${{ github.run_number }}/*-sbom-scan.txt
+          overwrite: true
 
-        - uses: actions/upload-artifact@v4.3.4
-          with:
-            name: trivy-scan-${{ inputs.tag }}-${{ github.run_number }}
-            path: /tmp/scan-${{ inputs.tag }}-${{ github.run_number }}/*-trivy-scan.txt
-            overwrite: true
+      - uses: actions/upload-artifact@v4.3.4
+        with:
+          name: trivy-scan-${{ inputs.tag }}-${{ github.run_number }}
+          path: /tmp/scan-${{ inputs.tag }}-${{ github.run_number }}/*-trivy-scan.txt
+          overwrite: true
 
-        - name: Remove Logs
-          run: rm -rf /tmp/scan-${{ inputs.tag }}-${{ github.run_number }} && rm -rf /tmp/sbom-action-*
+      - name: Remove Logs
+        run: rm -rf /tmp/scan-${{ inputs.tag }}-${{ github.run_number }} && rm -rf /tmp/sbom-action-*
