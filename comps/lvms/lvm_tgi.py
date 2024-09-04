@@ -3,16 +3,13 @@
 
 import os
 import time
-from typing import Union
 
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
-from template import ChatTemplate
 
 from comps import (
     CustomLogger,
     LVMDoc,
-    SearchedMultimodalDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -35,41 +32,19 @@ logflag = os.getenv("LOGFLAG", False)
     output_datatype=TextDoc,
 )
 @register_statistics(names=["opea_service@lvm_tgi"])
-async def lvm(request: Union[LVMDoc, SearchedMultimodalDoc]) -> TextDoc:
+async def lvm(request: LVMDoc):
     if logflag:
         logger.info(request)
     start = time.time()
-    if isinstance(request, SearchedMultimodalDoc):
-        # This is to construct LVMDoc from SearchedMultimodalDoc input from retriever microservice
-        #  for Multimodal RAG on Videos application
-        if logflag:
-            logger.info("[SearchedMultimodalDoc ] input from retriever microservice")
-        retrieved_metadatas = request.metadata
-        if application == "MM_RAG_ON_VIDEOS":
-            img_b64_str = retrieved_metadatas[0]["b64_img_str"]
-            initial_query = request.initial_query
-            prompt = ChatTemplate.generate_multimodal_rag_on_videos_prompt(initial_query, retrieved_metadatas)
-            # use default lvm parameters for inferencing
-            new_request = LVMDoc(image=img_b64_str, prompt=prompt)
-            if logflag:
-                logger.info(
-                    f"prompt generated for [SearchedMultimodalDoc ] input from retriever microservice: {prompt}"
-                )
-        else:
-            raise NotImplementedError(
-                f"For application {application}: it has NOT implemented SearchedMultimodalDoc input from retriever microservice!"
-            )
-    else:
-        new_request = request
     stream_gen_time = []
-    img_b64_str = new_request.image
-    prompt = new_request.prompt
-    max_new_tokens = new_request.max_new_tokens
-    streaming = new_request.streaming
-    repetition_penalty = new_request.repetition_penalty
-    temperature = new_request.temperature
-    top_k = new_request.top_k
-    top_p = new_request.top_p
+    img_b64_str = request.image
+    prompt = request.prompt
+    max_new_tokens = request.max_new_tokens
+    streaming = request.streaming
+    repetition_penalty = request.repetition_penalty
+    temperature = request.temperature
+    top_k = request.top_k
+    top_p = request.top_p
 
     image = f"data:image/png;base64,{img_b64_str}"
     image_prompt = f"![]({image})\n{prompt}\nASSISTANT:"
@@ -117,7 +92,6 @@ async def lvm(request: Union[LVMDoc, SearchedMultimodalDoc]) -> TextDoc:
 
 if __name__ == "__main__":
     lvm_endpoint = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
-    application = os.getenv("APPLICATION", None)
     lvm_client = AsyncInferenceClient(lvm_endpoint)
     logger.info("[LVM] LVM initialized.")
     opea_microservices["opea_service@lvm_tgi"].start()

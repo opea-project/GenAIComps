@@ -8,12 +8,13 @@ import time
 from typing import Union
 
 import requests
+from langchain_core.prompts import PromptTemplate
 from template import ChatTemplate
 
 from comps import (
     CustomLogger,
     LVMDoc,
-    SearchedMultimodalDoc,
+    LVMSearchedMultimodalDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -34,29 +35,32 @@ logflag = os.getenv("LOGFLAG", False)
     port=9399,
 )
 @register_statistics(names=["opea_service@lvm"])
-async def lvm(request: Union[LVMDoc, SearchedMultimodalDoc]) -> TextDoc:
+async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
     if logflag:
         logger.info(request)
     start = time.time()
-    if isinstance(request, SearchedMultimodalDoc):
+    if isinstance(request, LVMSearchedMultimodalDoc):
         if logflag:
-            logger.info("[SearchedMultimodalDoc ] input from retriever microservice")
+            logger.info("[LVMSearchedMultimodalDoc ] input from retriever microservice")
         retrieved_metadatas = request.metadata
-        if application == "MM_RAG_ON_VIDEOS":
-            img_b64_str = retrieved_metadatas[0]["b64_img_str"]
-            initial_query = request.initial_query
-            prompt = ChatTemplate.generate_multimodal_rag_on_videos_prompt(initial_query, retrieved_metadatas)
-            # use default lvm parameters for inferencing
-            new_input = LVMDoc(image=img_b64_str, prompt=prompt)
-            max_new_tokens = new_input.max_new_tokens
-            if logflag:
-                logger.info(
-                    f"prompt generated for [SearchedMultimodalDoc ] input from retriever microservice: {prompt}"
-                )
+        img_b64_str = retrieved_metadatas[0]["b64_img_str"]
+        initial_query = request.initial_query
+        context = retrieved_metadatas[0]["transcript_for_inference"]
+        prompt = initial_query
+        if request.chat_template is None:
+            prompt = ChatTemplate.generate_multimodal_rag_on_videos_prompt(initial_query, context)
         else:
-            raise NotImplementedError(
-                f"For application {application}: it has NOT implemented SearchedMultimodalDoc input from retriever microservice!"
-            )
+            prompt_template = PromptTemplate.from_template(request.chat_template)
+            input_variables = prompt_template.input_variables
+            if sorted(input_variables) == ["context", "question"]:
+                prompt = prompt_template.format(question=initial_query, context=context)
+            else:
+                logger.info(
+                    f"[ LVMSearchedMultimodalDoc ] {prompt_template} not used, we only support 2 input variables ['question', 'context']"
+                )
+        max_new_tokens = request.max_new_tokens
+        if logflag:
+            logger.info(f"prompt generated for [LVMSearchedMultimodalDoc ] input from retriever microservice: {prompt}")
 
     else:
         img_b64_str = request.image
@@ -76,7 +80,6 @@ async def lvm(request: Union[LVMDoc, SearchedMultimodalDoc]) -> TextDoc:
 
 if __name__ == "__main__":
     lvm_endpoint = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
-    application = os.getenv("APPLICATION", None)
 
     logger.info("[LVM] LVM initialized.")
     opea_microservices["opea_service@lvm"].start()
