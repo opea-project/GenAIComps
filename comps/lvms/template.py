@@ -5,7 +5,6 @@
 class ChatTemplate:
 
     @staticmethod
-    def generate_multimodal_rag_on_videos_prompt(initial_query: str, retrieved_metadatas):
-        context = retrieved_metadatas[0]["transcript_for_inference"]
+    def generate_multimodal_rag_on_videos_prompt(question: str, context: str):
         template = """The transcript associated with the image is '{context}'. {question}"""
-        return template.format(context=context, question=initial_query)
+        return template.format(context=context, question=question)
