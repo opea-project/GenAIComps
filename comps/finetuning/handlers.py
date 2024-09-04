@@ -17,6 +17,7 @@ from comps import CustomLogger
 from comps.cores.proto.api_protocol import (
     FileObject,
     FineTuningJob,
+    FineTuningJobCheckpoint,
     FineTuningJobIDRequest,
     FineTuningJobList,
     FineTuningJobsRequest,
