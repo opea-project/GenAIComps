@@ -44,7 +44,10 @@ def cancel_finetuning_job(request: FineTuningJobIDRequest):
 
 
 @register_microservice(
-    name="opea_service@finetuning", endpoint="/v1/files", host="0.0.0.0", port=8015,
+    name="opea_service@finetuning",
+    endpoint="/v1/files",
+    host="0.0.0.0",
+    port=8015,
 )
 async def upload_training_files(request: UploadFileRequest = Depends(upload_file)):
     uploadFileInfo = await handle_upload_training_files(request)

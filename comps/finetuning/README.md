@@ -93,7 +93,7 @@ Assuming a training file `alpaca_data.json` is uploaded, it can be downloaded in
 ```bash
 # upload a training file
 
-curl http://${your_ip}:8015/v1/files -X POST -H "Content-Type: multipart/form-data" -F "file=@./alpaca_data.json" -F purpose="fine-tune" 
+curl http://${your_ip}:8015/v1/files -X POST -H "Content-Type: multipart/form-data" -F "file=@./alpaca_data.json" -F purpose="fine-tune"
 
 # create a finetuning job
 curl http://${your_ip}:8015/v1/fine_tuning/jobs \
