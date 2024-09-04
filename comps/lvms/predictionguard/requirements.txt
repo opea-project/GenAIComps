@@ -5,10 +5,10 @@ httpx
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+Pillow
 predictionguard==2.1.0
 prometheus-fastapi-instrumentator
 pyyaml
 requests
 shortuuid
 uvicorn
-Pillow

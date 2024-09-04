@@ -35,7 +35,7 @@ function validate_microservice() {
         -X POST \
         -d '{"model": "Hermes-2-Pro-Llama-3-8B", "query": "What is AI?", "streaming": false, "max_new_tokens": 100, "temperature": 0.7, "top_p": 1.0, "top_k": 50}' \
         -H 'Content-Type: application/json')
-    
+
     if [[ $result == *"text"* ]]; then
         echo "Service response is correct."
     else
