@@ -189,7 +189,7 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
     job = running_finetuning_jobs.get(fine_tuning_job_id)
     if job is None:
         raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
-    output_dir = os.path.join(JOBS_PATH, job.id)
+    output_dir = os.path.join(OUTPUT_DIR, job.id)
     checkpoints = []
     if os.path.exists(output_dir):
         # Iterate over the contents of the directory and add an entry for each
