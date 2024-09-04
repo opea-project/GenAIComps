@@ -23,9 +23,12 @@ from ray.air import FailureConfig, RunConfig
 from ray.air.config import ScalingConfig
 from ray.train.torch import TorchTrainer
 
+from comps import CustomLogger
+from comps.finetuning.finetune_config import FinetuneConfig
 from comps.finetuning.llm_on_ray import common
 from comps.finetuning.llm_on_ray.finetune.data_process import DataProcessor
-from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
+
+logger = CustomLogger("llm_on_ray/finetune")
 
 
 def adapt_transformers_to_device(config: Dict):
@@ -168,8 +171,8 @@ def load_dataset(config: Dict):
     else:
         # try to download and load dataset from huggingface.co
         load_config = config["General"].get("config", {})
-        use_auth_token = load_config.get("use_auth_token", None)
-        raw_dataset = datasets.load_dataset(dataset_file, use_auth_token=use_auth_token)
+        use_auth_token = load_config.get("token", None)
+        raw_dataset = datasets.load_dataset(dataset_file, token=use_auth_token)
 
         validation_split_percentage = config["Dataset"].get("validation_split_percentage", 0)
         if "validation" not in raw_dataset.keys() and (
@@ -332,10 +335,10 @@ def train_func(config: Dict[str, Any]):
 
     training_args, trainer = get_trainer(config, model, tokenizer, tokenized_dataset, data_collator)
 
-    common.logger.info("train start")
+    logger.info("train start")
     trainer.train(resume_from_checkpoint=training_args.resume_from_checkpoint)
     trainer.save_model()
-    common.logger.info("train finish")
+    logger.info("train finish")
 
 
 def get_finetune_config():
@@ -401,7 +404,8 @@ def main(external_config=None):
         else:
             ray.init(runtime_env=runtime_env)
 
-    common.logger.info(f"ray available resources = {ray.available_resources()}")
+    logger.info(f"ray available resources = {ray.available_resources()}")
+
     use_gpu = True if device == "gpu" else False
     scaling_config = ScalingConfig(
         num_workers=num_training_workers,
