@@ -54,7 +54,9 @@ class ServiceOrchestrator(DAG):
         timeout = aiohttp.ClientTimeout(total=1000)
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
             pending = {
-                asyncio.create_task(self.execute(session, node, initial_inputs, runtime_graph, llm_parameters, **kwargs))
+                asyncio.create_task(
+                    self.execute(session, node, initial_inputs, runtime_graph, llm_parameters, **kwargs)
+                )
                 for node in self.ind_nodes()
             }
             ind_nodes = self.ind_nodes()
@@ -189,7 +191,10 @@ class ServiceOrchestrator(DAG):
                             else:
                                 yield chunk
 
-            return StreamingResponse(self.align_generator(generate(), **kwargs), media_type="text/event-stream"), cur_node
+            return (
+                StreamingResponse(self.align_generator(generate(), **kwargs), media_type="text/event-stream"),
+                cur_node,
+            )
         else:
             if LOGFLAG:
                 logger.info(inputs)

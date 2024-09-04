@@ -198,6 +198,7 @@ class RetrieverParms(BaseDoc):
 class RerankerParms(BaseDoc):
     top_n: int = 1
 
+
 class RAGASParams(BaseDoc):
     questions: DocList[TextDoc]
     answers: DocList[TextDoc]
