@@ -56,7 +56,6 @@ def store_into_vectordb(vs, metadata_file_path, embedding_model, config):
         if i.startswith("tmp_"):
             print("removing tmp_*")
             os.system(f"rm -r tmp_*")
-            print("done.")
             break
             
 def generate_video_id():
@@ -64,7 +63,6 @@ def generate_video_id():
     return str(uuid.uuid4())        
 
 def generate_embeddings(config, embedding_model, vs):
-    print('inside generate')
     process_all_videos(config)
     global_metadata_file_path = os.path.join(config["meta_output_dir"], 'metadata.json')
     print(f'global metadata file available at {global_metadata_file_path}')
@@ -119,14 +117,13 @@ def process_videos(files: List[UploadFile] = File(None)):
     if 'video' == 'video':
         # init meanclip model
         model = setup_vclip_model(meanclip_cfg, device="cpu")
-        print('init model')
         vs = store_embeddings.VideoVS(host, port, selected_db, model)
-        print('init vector store')
+
     else:
         print(f"ERROR: Selected embedding type in config.yaml {config['embeddings']['type']} is not in [\'video\', \'frame\']")
         return
     generate_embeddings(config, model, vs)
-    print('done............success..............')
+    
 
 
 if __name__ == "__main__":
