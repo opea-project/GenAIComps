@@ -69,6 +69,8 @@ class vCLIPEmbeddings(BaseModel, Embeddings):
 
     def load_video_for_vclip(self, vid_path, num_frm=4, max_img_size=224, **kwargs):
         # Load video with VideoReader
+        import decord
+        decord.bridge.set_bridge('torch')
         vr = VideoReader(vid_path, ctx=cpu(0))
         fps = vr.get_avg_fps()
         num_frames = len(vr)

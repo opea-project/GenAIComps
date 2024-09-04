@@ -1,5 +1,5 @@
 # Path to all videos
-videos: uploaded_files/videos/
+videos: uploaded_files/
 # Do you want to extract frames of videos (True if not done already, else False)
 generate_frames: True
 # How do you want to generate feature embeddings?

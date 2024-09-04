@@ -31,7 +31,7 @@ ENV PYTHONPATH=/home/user
 
 USER root
 
-RUN mkdir -p /home/user/comps/dataprep/vdms/multimodal_langchain/uploaded_files && chown -R user /home/user/comps/dataprep/vdms/multimodal_langchain/uploaded_files
+RUN mkdir -p /home/user/comps/dataprep/vdms/multimodal_langchain/uploaded_files && chown -R user /home/user/comps/dataprep/vdms/multimodal_langchain
 
 USER user
 
