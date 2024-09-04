@@ -109,7 +109,7 @@ def reranking(input: SearchedMultimodalDoc) -> LVMVideoDoc:
         logging.error(f"Unexpected error in reranking: {str(e)}")
         # Handle any other exceptions with a generic server error response
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
-    
+
     statistics_dict["opea_service@reranking_visual_rag"].append_latency(time.time() - start, None)
 
     return result
