@@ -20,7 +20,7 @@ from ..proto.api_protocol import (
     EmbeddingRequest,
     UsageInfo,
 )
-from ..proto.docarray import LLMParams, LLMParamsDoc, RerankedDoc, TextDoc
+from ..proto.docarray import LLMParams, LLMParamsDoc, RerankedDoc, RerankerParms, RetrieverParms, TextDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
