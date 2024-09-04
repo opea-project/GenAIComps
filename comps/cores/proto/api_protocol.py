@@ -797,3 +797,5 @@ class FileObject(BaseModel):
 
     Supported values are assistants, assistants_output, batch, batch_output, fine-tune, fine-tune-results and vision.
     """
+
+class FineTuningJobCheckpoint():    

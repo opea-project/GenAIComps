@@ -191,7 +191,16 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
     output_dir = os.path.join(JOBS_PATH, job.id)
     checkpoints = []
     if os.path.exists(output_dir):
-        checkpoints = os.listdir(output_dir)
+        # Iterate over the contents of the directory and add an entry for each
+        for _ in os.listdir(output_dir):  # Loop over directory contents
+            checkpointsResponse = FineTuningJobCheckpoint(
+                id=f"ftckpt-{uuid.uuid4()}",  # Generate a unique ID
+                created_at=int(time.time()),  # Use the current timestamp
+                fine_tuned_model_checkpoint=output_dir,  # Directory path itself
+                fine_tuning_job_id=fine_tuning_job_id,
+            )
+            checkpoints.append(checkpointsResponse)
+    
     return checkpoints
 
 
