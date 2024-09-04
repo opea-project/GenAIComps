@@ -798,4 +798,36 @@ class FileObject(BaseModel):
     Supported values are assistants, assistants_output, batch, batch_output, fine-tune, fine-tune-results and vision.
     """
 
-class FineTuningJobCheckpoint():    
+class Metrics(BaseModel):
+    step: int = 88
+    train_loss: int = 0.478
+    train_mean_token_accuracy: int = 0.924
+    valid_loss: int = 10.112
+    valid_mean_token_accuracy: int = 0.145
+    full_valid_loss: int = 0.567
+    full_valid_mean_token_accuracy: int = 0.944
+
+
+class FineTuningJobCheckpoint(BaseModel):
+    # Ordered by official OpenAI API documentation
+    # https://platform.openai.com/docs/api-reference/fine-tuning/checkpoint-object
+    object: str = "fine_tuning.job.checkpoint"
+    """The object type, which is always "fine_tuning.job.checkpoint"."""
+
+    id: str
+    """The checkpoint identifier, which can be referenced in the API endpoints."""
+
+    created_at: int
+    """The Unix timestamp (in seconds) for when the checkpoint was created."""
+
+    fine_tuned_model_checkpoint: str
+    """The name of the fine-tuned checkpoint model that is created."""
+
+    step_number: int
+    """The step number that the checkpoint was created at."""
+
+    metrics: Metrics
+    """Metrics at the step number during the fine-tuning job."""
+
+    step_number: int = 88
+    """The step number that the checkpoint was created at."""
