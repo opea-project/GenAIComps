@@ -6,6 +6,8 @@ import os
 import re
 import time
 
+from fastapi import HTTPException
+
 from comps import (
     LVMVideoDoc,
     SearchedMultimodalDoc,
@@ -84,23 +86,30 @@ def format_video_name(video_name):
 @register_statistics(names=["opea_service@reranking_visual_rag"])
 def reranking(input: SearchedMultimodalDoc) -> LVMVideoDoc:
     start = time.time()
+    try:
+        # get top video name from metadata
+        video_names = [meta["video"] for meta in input.metadata]
+        top_video_names = get_top_doc(input.top_n, video_names)
 
-    # get top video name from metadata
-    video_names = [meta["video"] for meta in input.metadata]
-    top_video_names = get_top_doc(input.top_n, video_names)
+        # only use the first top video
+        timestamp = find_timestamp_from_video(input.metadata, top_video_names[0])
+        formatted_video_name = format_video_name(top_video_names[0])
+        video_url = f"{file_server_endpoint.rstrip('/')}/{formatted_video_name}"
 
-    # only use the first top video
-    timestamp = find_timestamp_from_video(input.metadata, top_video_names[0])
-    formatted_video_name = format_video_name(top_video_names[0])
-    video_url = f"{file_server_endpoint.rstrip('/')}/{formatted_video_name}"
-
-    result = LVMVideoDoc(
-        video_url=video_url,
-        prompt=input.initial_query,
-        chunk_start=timestamp,
-        chunk_duration=float(chunk_duration),
-        max_new_tokens=512,
-    )
+        result = LVMVideoDoc(
+            video_url=video_url,
+            prompt=input.initial_query,
+            chunk_start=timestamp,
+            chunk_duration=float(chunk_duration),
+            max_new_tokens=512,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logging.error(f"Unexpected error in reranking: {str(e)}")
+        # Handle any other exceptions with a generic server error response
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
+    
     statistics_dict["opea_service@reranking_visual_rag"].append_latency(time.time() - start, None)
 
     return result
