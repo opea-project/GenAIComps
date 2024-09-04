@@ -11,3 +11,7 @@ services:
       context: vllm-openvino
       dockerfile: Dockerfile.openvino
     image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
+  llm-predictionguard:
+    build:
+      dockerfile: comps/llms/text-generation/predictionguard/docker/Dockerfile
+    image: ${REGISTRY:-opea}/llm-predictionguard:${TAG:-latest}

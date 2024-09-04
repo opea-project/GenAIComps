@@ -8,3 +8,7 @@ services:
     build:
       dockerfile: comps/embeddings/langchain/docker/Dockerfile
     image: ${REGISTRY:-opea}/embedding-tei:${TAG:-latest}
+  embedding-predictionguard:
+    build:
+      dockerfile: comps/embeddings/predictionguard/docker/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-predictionguard:${TAG:-latest}

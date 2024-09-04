@@ -14,3 +14,7 @@ services:
     build:
       dockerfile: comps/embeddings/llama_index/docker/Dockerfile
     image: ${REGISTRY:-opea}/embedding-tei-llama-index:${TAG:-latest}
+  embedding-predictionguard:
+    build:
+      dockerfile: comps/embeddings/predictionguard/docker/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-predictionguard:${TAG:-latest}

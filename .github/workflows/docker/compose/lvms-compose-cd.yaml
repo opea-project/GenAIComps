@@ -26,3 +26,7 @@ services:
       context: tgi-gaudi
       dockerfile: Dockerfile
     image: ${REGISTRY:-opea}/llava-tgi:${TAG:-latest}
+  lvm-predictionguard:
+    build:
+      dockerfile: comps/lvms/predictionguard/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-predictionguard:${TAG:-latest}
