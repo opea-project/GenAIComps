@@ -16,7 +16,7 @@ services:
   llava_hpu:
     build:
       dockerfile: comps/lvms/llava/Dockerfile_hpu
-    image: ${REGISTRY:-opea}/llava_hpu:${TAG:-latest}
+    image: ${REGISTRY:-opea}/llava-hpu:${TAG:-latest}
   lvm-tgi:
     build:
       dockerfile: comps/lvms/Dockerfile_tgi
