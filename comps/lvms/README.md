@@ -1,34 +1,27 @@
-# Language Vision Model (LVM) Microservice
+# LVM Microservice
 
-This microservice, designed for Large Vision Model (LVM) Inference, processes input consisting of a query string and/or image prompts. It constructs a prompt based on the input, which is then used to perform inference with a large vision model (e.g., LLaVA). The service delivers the inference results as output.
-
-<<<<<<< HEAD
-A prerequisite for using this microservice is that users must have an LVM service (transformers or Prediction Guard) already running. Overall, this microservice offers a streamlined way to integrate large vision model inference into applications, requiring minimal setup from the user. This allows for the seamless processing of text and image prompts to generate intelligent, context-aware responses.
-
-## Getting started with transformers + fastAPI services
-
-=======
+Visual Question and Answering is one of the multimodal tasks empowered by LVMs (Large Visual Models). This microservice supports visual Q&A by using LLaVA as the base large visual model. It accepts two inputs: a prompt and an image. It outputs the answer to the prompt about the image.
 
 ## 🚀1. Start Microservice with Python (Option 1)
 
 ### 1.1 Install Requirements
 
-> > > > > > > upstream/main
-
-The [transformers](transformers) directory contains instructions for running services that serve predictions from a LLaVA LVM. Two services must be spun up to run the LVM:
-
-1. A LLaVA model server under [transformers/llava](transformers/llava)
-2. # An OPEA LVM service under [transformers](transformers)
+```bash
+pip install -r requirements.txt
+```
 
 ### 1.2 Start LLaVA Service/Test
 
-> > > > > > > upstream/main
+- Xeon CPU
 
-See [transformers/README.md](transformers/README.md) for more information.
-
-## Getting started with Prediction Guard
-
-# The [predictionguard](predictionguard) directory contains instructions for running a single service that serves predictions from a LLaVA LVM via the Prediction Guard framework hosted on Intel Tiber Developer Cloud (ITDC). See [predictionguard](predictionguard) for more information.
+```bash
+# Start LLaVA service
+cd llava/
+nohup python llava_server.py --device=cpu &
+# Wait until the server is up
+# Test
+python check_llava_server.py
+```
 
 - Gaudi2 HPU
 
@@ -116,5 +109,3 @@ http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "iVBORw0KGg
 # python
 python check_lvm.py
 ```
-
-> > > > > > > upstream/main
