@@ -27,7 +27,12 @@ from transformers import Trainer, TrainingArguments
 
 from comps import CustomLogger
 from comps.finetuning.llm_on_ray import common
-from comps.finetuning.llm_on_ray.finetune.data_process import DataProcessor, GroupCollator, TrainDatasetForCE
+from comps.finetuning.llm_on_ray.finetune.data_process import (
+    GroupCollator,
+    InstructionDataProcessor,
+    PretrainingDataProcessor,
+    TrainDatasetForCE
+)
 from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
 
 logger = CustomLogger("llm_on_ray/finetune")
@@ -194,7 +199,7 @@ def tokenize_dataset(config: Dict, tokenizer, dataset):
         block_size = config["Dataset"].get("block_size", 512)
         tokenizer.pad_token = tokenizer.eos_token
 
-        processor = DataProcessor(config, tokenizer)
+        processor = InstructionDataProcessor(config, tokenizer)
 
         for key in dataset:
             prompts = processor.make_prompt(dataset[key])
@@ -240,6 +245,47 @@ def tokenize_dataset(config: Dict, tokenizer, dataset):
             )
 
         return tokenized_dataset
+    elif task == "pretraining":
+        group = True
+        block_size = config["Dataset"].get("block_size", 512)
+
+        processor = PretrainingDataProcessor(config, tokenizer)
+
+        column_names = list(dataset["train"].features)
+
+        tokenized_dataset = dataset.map(
+            processor.tokenize,
+            remove_columns=column_names,
+            batched=True,
+            load_from_cache_file=False,
+            desc="Tokenize dataset",
+        )
+
+        if group:
+
+            def group_texts(examples):
+                # Concatenate all texts.
+                concatenated_examples = {k: list(chain(*examples[k])) for k in examples.keys()}
+                total_length = len(concatenated_examples[list(examples.keys())[0]])
+                # We drop the small remainder, we could add padding if the model supported it instead of this drop, you can
+                # customize this part to your needs.
+                if total_length >= block_size:
+                    total_length = (total_length // block_size) * block_size
+                # Split by chunks of max_len.
+                result = {
+                    k: [t[i : i + block_size] for i in range(0, total_length, block_size)]
+                    for k, t in concatenated_examples.items()
+                }
+                return result
+
+            tokenized_dataset = tokenized_dataset.map(
+                group_texts,
+                batched=True,
+                load_from_cache_file=False,
+                desc=f"Grouping texts in chunks of {block_size}",
+            )
+
+        return tokenized_dataset
     elif task == "rerank":
         dataset["train"] = TrainDatasetForCE(dataset["train"], config["Dataset"], tokenizer)
         return dataset
@@ -251,7 +297,7 @@ def tokenize_dataset(config: Dict, tokenizer, dataset):
 
 def prepare_data_collator(config: Dict, tokenizer):
     task = config["General"].get("task", "instruction_tuning")
-    if task == "instruction_tuning":
+    if task == "instruction_tuning" or task == "pretraining":
         return transformers.DataCollatorForLanguageModeling(
             tokenizer=tokenizer, mlm=False, return_tensors="pt", pad_to_multiple_of=8
         )
@@ -269,11 +315,11 @@ def load_model(config: Dict):
     model_config = config["General"].get("config", {})
     task = config["General"].get("task", "instruction_tuning")
     training_args = convert_to_training_args(TrainingArguments, config)
-    if task == "instruction_tuning":
+    if task == "instruction_tuning" or task == "pretraining":
         model = transformers.AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=model_dtype, **model_config)
 
         lora_config = config["General"].get("lora_config", None)
-        if lora_config:
+        if lora_config and task != "pretraining":
             peft_config = LoraConfig(**lora_config)
             model = get_peft_model(model, peft_config)
     elif task == "rerank":
@@ -302,7 +348,7 @@ def load_model(config: Dict):
 
 def get_trainer(config: Dict, model, tokenizer, tokenized_dataset, data_collator):
     device = config["Training"]["device"]
-    if device in ["cpu", "gpu"]:
+    if device in ["cpu", "gpu", "cuda"]:
         training_args = convert_to_training_args(TrainingArguments, config)
         trainer = Trainer(
             model=model,
@@ -403,6 +449,8 @@ def main(external_config=None):
         config = external_config
 
     config["cwd"] = os.getcwd()
+    train_func(config)
+    return None
 
     num_training_workers = config["Training"].get("num_training_workers")
     resources_per_worker = config["Training"].get("resources_per_worker")
