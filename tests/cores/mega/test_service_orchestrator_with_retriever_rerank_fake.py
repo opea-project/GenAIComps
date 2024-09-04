@@ -4,9 +4,18 @@
 import json
 import unittest
 
-from comps import Gateway, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice, EmbedDoc, RerankedDoc
-from comps.cores.proto.docarray import LLMParams, RerankerParms, RetrieverParms
+from comps import (
+    EmbedDoc,
+    Gateway,
+    RerankedDoc,
+    ServiceOrchestrator,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+)
 from comps.cores.mega.constants import ServiceType
+from comps.cores.proto.docarray import LLMParams, RerankerParms, RetrieverParms
+
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add", service_type=ServiceType.RETRIEVER)
 async def s1_add(request: EmbedDoc) -> TextDoc:
@@ -25,17 +34,20 @@ async def s2_add(request: TextDoc) -> TextDoc:
     text += "project!"
     return {"text": text}
 
+
 def align_inputs(self, inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs):
     if self.services[cur_node].service_type == ServiceType.RETRIEVER:
         inputs["k"] = kwargs["retriever_parameters"].k
 
     return inputs
 
+
 def align_outputs(self, outputs, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs):
     if self.services[cur_node].service_type == ServiceType.RERANK:
         top_n = kwargs["reranker_parameters"].top_n
-        outputs['text'] = outputs['text'][:top_n]
+        outputs["text"] = outputs["text"][:top_n]
     return outputs
+
 
 class TestServiceOrchestratorParams(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
@@ -63,8 +75,8 @@ class TestServiceOrchestratorParams(unittest.IsolatedAsyncioTestCase):
             retriever_parameters=RetrieverParms(k=8),
             reranker_parameters=RerankerParms(top_n=20),
         )
-        self.assertEqual(len(result_dict[self.s2.name]["text"]), 20)    # Check reranker top_n is accessed
-        self.assertTrue('8' in result_dict[self.s2.name]["text"])       # Check retriever k is accessed
+        self.assertEqual(len(result_dict[self.s2.name]["text"]), 20)  # Check reranker top_n is accessed
+        self.assertTrue("8" in result_dict[self.s2.name]["text"])  # Check retriever k is accessed
 
 
 if __name__ == "__main__":
