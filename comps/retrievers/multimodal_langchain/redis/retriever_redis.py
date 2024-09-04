@@ -89,7 +89,5 @@ def retrieve(
 if __name__ == "__main__":
 
     embeddings = BridgeTowerEmbedding()
-    vector_db = Redis.from_existing_index(
-        embedding=embeddings, schema=REDIS_SCHEMA, index_name=INDEX_NAME, redis_url=REDIS_URL
-    )
+    vector_db = Redis(embedding=embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
     opea_microservices["opea_service@multimodal_retriever_redis"].start()
