@@ -64,6 +64,7 @@ class EmbedDoc(BaseDoc):
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
+    constraints: Optional[Union[Dict[str, Any], None]] = None
 
 
 class EmbedMultimodalDoc(EmbedDoc):
@@ -170,6 +171,19 @@ class LLMParams(BaseDoc):
             "or only contains {question} for chat completion without rag."
         ),
     )
+
+
+class RetrieverParms(BaseDoc):
+    search_type: str = "similarity"
+    k: int = 4
+    distance_threshold: Optional[float] = None
+    fetch_k: int = 20
+    lambda_mult: float = 0.5
+    score_threshold: float = 0.2
+
+
+class RerankerParms(BaseDoc):
+    top_n: int = 1
 
 
 class RAGASParams(BaseDoc):
