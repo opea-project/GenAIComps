@@ -200,6 +200,8 @@ async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
 
 
 async def handle_upload_training_files(request: UploadFileRequest):
+    if file is None:
+        raise HTTPException(status_code=404, detail=f"upload file failed!")
     file = request.file
     filename = urllib.parse.quote(file.filename, safe="")
     save_path = os.path.join(DATASET_BASE_PATH, filename)
