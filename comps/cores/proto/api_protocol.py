@@ -162,7 +162,7 @@ class ChatCompletionRequest(BaseModel):
     top_logprobs: Optional[int] = 0
     max_new_tokens: Optional[int] = 1024  # use https://platform.openai.com/docs/api-reference/completions/create
     n: Optional[int] = 1
-    presence_penalty: Optional[float] = 0.0
+    repetition_penalty: Optional[float] = 0.0
     response_format: Optional[ResponseFormat] = None
     seed: Optional[int] = None
     service_tier: Optional[str] = None
@@ -285,7 +285,7 @@ class AudioChatCompletionRequest(BaseModel):
     max_new_tokens: Optional[int] = 1024
     stop: Optional[Union[str, List[str]]] = None
     stream: Optional[bool] = False
-    presence_penalty: Optional[float] = 1.03
+    repetition_penalty: Optional[float] = 1.03
     frequency_penalty: Optional[float] = 0.0
     user: Optional[str] = None
 
@@ -342,7 +342,7 @@ class CompletionRequest(BaseModel):
     top_k: Optional[int] = -1
     logprobs: Optional[int] = None
     echo: Optional[bool] = False
-    presence_penalty: Optional[float] = 0.0
+    repetition_penalty: Optional[float] = 0.0
     frequency_penalty: Optional[float] = 0.0
     user: Optional[str] = None
     use_beam_search: Optional[bool] = False
