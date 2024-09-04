@@ -141,9 +141,6 @@ jobs:
           changed_files="$(git diff --name-status --diff-filter=A ${{ github.event.pull_request.base.sha }} ${merged_commit} -- '**/Dockerfile**' | cut -f2)"
           if [ -n "$changed_files" ]; then
             for file in $changed_files; do
-              echo "$file"
-              echo "$(echo "$file" | awk -F '/' '{print $2}')"
-              # if grep -rl "$(echo "$file" | awk -F '/' '{print $2}')" "${{github.workspace}}/.github/workflows/docker/compose/"; then
               if find "${{github.workspace}}/.github/workflows/docker/compose/" -name "*$(echo "$file" | awk -F '/' '{print $2}')*" |grep -q .; then
                 echo "Please check if the added $file is included in the yaml under path ${{github.workspace}}/.github/workflows/docker/compose/."
               else
