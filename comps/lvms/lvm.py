@@ -8,8 +8,8 @@ import time
 from typing import Union
 
 import requests
-from template import ChatTemplate
 from langchain_core.prompts import PromptTemplate
+from template import ChatTemplate
 
 from comps import (
     CustomLogger,
@@ -60,15 +60,13 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
                 )
         max_new_tokens = request.max_new_tokens
         if logflag:
-            logger.info(
-                f"prompt generated for [LVMSearchedMultimodalDoc ] input from retriever microservice: {prompt}"
-            )
+            logger.info(f"prompt generated for [LVMSearchedMultimodalDoc ] input from retriever microservice: {prompt}")
 
     else:
         img_b64_str = request.image
         prompt = request.prompt
         max_new_tokens = request.max_new_tokens
-        
+
     inputs = {"img_b64_str": img_b64_str, "prompt": prompt, "max_new_tokens": max_new_tokens}
     # forward to the LLaVA server
     response = requests.post(url=f"{lvm_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None})

@@ -106,6 +106,7 @@ class SearchedDoc(BaseDoc):
 class SearchedMultimodalDoc(SearchedDoc):
     metadata: List[Dict[str, Any]]
 
+
 class LVMSearchedMultimodalDoc(SearchedMultimodalDoc):
     max_new_tokens: conint(ge=0, le=1024) = 512
     top_k: int = 10
@@ -122,6 +123,7 @@ class LVMSearchedMultimodalDoc(SearchedMultimodalDoc):
             "used instead. We recommend that the template contains {context} and {question} for multimodal-rag on videos."
         ),
     )
+
 
 class GeneratedDoc(BaseDoc):
     text: str
