@@ -75,8 +75,3 @@ REDIS_URL = format_redis_conn_from_env()
 
 # Vector Index Configuration
 INDEX_NAME = os.getenv("INDEX_NAME", "test-index")
-
-REDIS_SCHEMA = os.getenv("REDIS_SCHEMA", "redis_schema.yml")
-schema_path = os.path.join(parent_dir, REDIS_SCHEMA)
-INDEX_SCHEMA = schema_path
-NUM_RETRIEVED_RESULTS = int(os.getenv("NUM_RETRIEVED_RESULTS", 1))

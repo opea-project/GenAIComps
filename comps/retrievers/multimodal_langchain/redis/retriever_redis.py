@@ -5,7 +5,7 @@ import time
 from typing import Union
 
 from langchain_community.vectorstores import Redis
-from multimodal_config import INDEX_NAME, REDIS_SCHEMA, REDIS_URL
+from multimodal_config import INDEX_NAME, REDIS_URL
 
 from comps import (
     EmbedMultimodalDoc,
