@@ -5,7 +5,7 @@
 set -x
 
 WORKPATH=$(dirname "$PWD")
-ip_address=$(ipconfig getifaddr en0)
+ip_address=$(hostname -I | awk '{print $1}')  # Adjust to a more reliable command
 
 function build_docker_images() {
     cd $WORKPATH
@@ -22,6 +22,8 @@ function build_docker_images() {
 function start_service() {
     tei_service_port=6000
     unset http_proxy
+    # Set your API key here (ensure this environment variable is set)
+    export PREDICTIONGUARD_API_KEY="your_actual_api_key"
     docker run -d --name=test-comps-embedding-pg-server \
     -e http_proxy= -e https_proxy= \
     -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \

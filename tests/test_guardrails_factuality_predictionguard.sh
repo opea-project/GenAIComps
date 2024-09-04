@@ -22,6 +22,9 @@ function build_docker_images() {
 function start_service() {
     factuality_service_port=9075
     unset http_proxy
+
+    # Set your API key here (ensure this environment variable is set)
+    export PREDICTIONGUARD_API_KEY="your_actual_api_key"
     docker run -d --name=test-comps-factuality-pg-server \
         -e http_proxy= -e https_proxy= \
         -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
