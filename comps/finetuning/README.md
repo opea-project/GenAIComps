@@ -120,6 +120,6 @@ curl http://${your_ip}:8015/v1/finetune/list_checkpoints -X POST -H "Content-Typ
 
 ```
 
-# ▒~\_~Z~@4. Descriptions for Finetuning parameters
+# 🚀4. Descriptions for Finetuning parameters
 
 We utilize [OpenAI finetuning parameters](https://platform.openai.com/docs/api-reference/fine-tuning) and extend it with more customizable parameters.
