@@ -5,7 +5,7 @@
 set -x  # Print commands and their arguments as they are executed
 
 WORKPATH=$(dirname "$PWD")
-ip_address=$(ipconfig getifaddr en0)  # Adjust as necessary for your environment
+ip_address=$(hostname -I | awk '{print $1}')  # Adjust to a more reliable command
 
 function build_docker_images() {
     cd $WORKPATH
