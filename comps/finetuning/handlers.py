@@ -2,22 +2,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import urllib.parse
 import random
 import time
 import uuid
 from pathlib import Path
 from typing import Dict
 
-from fastapi import BackgroundTasks, HTTPException
+from fastapi import BackgroundTasks, File, HTTPException, UploadFile, Form
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
 from comps import CustomLogger
 from comps.cores.proto.api_protocol import (
+    FileObject,
     FineTuningJob,
     FineTuningJobIDRequest,
     FineTuningJobList,
     FineTuningJobsRequest,
+    UploadFileRequest,
 )
 from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
 
@@ -194,3 +197,24 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
     if os.path.exists(output_dir):
         checkpoints = os.listdir(output_dir)
     return checkpoints
+
+async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
+    return UploadFileRequest(purpose=purpose, file=file)
+
+async def handle_upload_training_files(request: UploadFileRequest):
+    file = request.file
+    filename = urllib.parse.quote(file.filename, safe="")
+    save_path = os.path.join(DATASET_BASE_PATH, filename)
+    await save_content_to_local_disk(save_path, file)   
+
+    fileBytes = os.path.getsize(save_path)
+    fileInfo = FileObject(
+        id=f"file-{uuid.uuid4()}",
+        object="file",
+        bytes=fileBytes,
+        created_at=int(time.time()),
+        filename=filename,
+        purpose="fine-tune",
+    )
+
+    return fileInfo
