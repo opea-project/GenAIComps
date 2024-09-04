@@ -22,9 +22,6 @@ clip_duration: 10
 
 vector_db:
   choice_of_db: 'vdms' # #Supported databases [vdms]
-  host: 0.0.0.0
-  port: 55555 
-
 
 # LLM path
 model_path: meta-llama/Llama-2-7b-chat-hf

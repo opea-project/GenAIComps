@@ -20,7 +20,7 @@ services:
       https_proxy: ${https_proxy}
       VDMS_HOST: ${VDMS_HOST}
       VDMS_PORT: ${VDMS_PORT}
-      COLLECTION_NAME: ${COLLECTION_NAME}
+      INDEX_NAME: ${INDEX_NAME}
     restart: unless-stopped
 
 networks:

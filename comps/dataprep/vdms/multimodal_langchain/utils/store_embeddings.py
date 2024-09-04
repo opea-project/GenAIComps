@@ -90,13 +90,13 @@ class vCLIPEmbeddings(BaseModel, Embeddings):
 
 
 class VideoVS:
-    def __init__(self, host, port, selected_db, video_retriever_model, chosen_video_search_type="similarity"):
+    def __init__(self, host, port, selected_db, video_retriever_model, collection_name, chosen_video_search_type="similarity"):
         self.host = host
         self.port = port
         self.selected_db = selected_db
         self.chosen_video_search_type = chosen_video_search_type
         self.constraints = None
-        self.video_collection = 'video-test'
+        self.video_collection = collection_name
         self.video_embedder = vCLIPEmbeddings(model=video_retriever_model)
         self.chosen_video_search_type = chosen_video_search_type
 

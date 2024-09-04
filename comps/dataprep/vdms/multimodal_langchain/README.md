@@ -28,6 +28,7 @@ export https_proxy=${your_http_proxy}
 export host_ip=$(hostname -I | awk '{print $1}')
 export VDMS_HOST=${host_ip}
 export VDMS_PORT=55555
+export INDEX_NAME="rag-vdms"
 export your_hf_api_token="{your_hf_token}"
 export PYTHONPATH=${path_to_comps}
 ```
@@ -59,6 +60,7 @@ export https_proxy=${your_http_proxy}
 export host_ip=$(hostname -I | awk '{print $1}')
 export VDMS_HOST=${host_ip}
 export VDMS_PORT=55555
+export INDEX_NAME="rag-vdms"
 export your_hf_api_token="{your_hf_token}"
 ```
 
