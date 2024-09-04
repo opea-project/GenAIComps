@@ -6,6 +6,9 @@ set -x  # Print commands and their arguments as they are executed
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')  # Adjust to a more reliable command
+if [ -z "$ip_address" ]; then
+    ip_address="localhost"  # Default to localhost if IP address is empty
+fi
 
 function build_docker_images() {
     cd $WORKPATH
@@ -24,12 +27,11 @@ function start_service() {
     unset http_proxy
 
     # Set your API key here (ensure this environment variable is set)
-    export PREDICTIONGUARD_API_KEY="your_actual_api_key"
     docker run -d --name=test-comps-factuality-pg-server \
         -e http_proxy= -e https_proxy= \
         -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
         -p 9075:9075 --ipc=host opea/factuality-pg:comps
-    sleep 180  # Sleep for 3 minutes to allow the service to start
+    sleep 60  # Sleep for 3 minutes to allow the service to start
 }
 
 function validate_microservice() {

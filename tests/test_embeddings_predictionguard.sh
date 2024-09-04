@@ -6,6 +6,9 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')  # Adjust to a more reliable command
+if [ -z "$ip_address" ]; then
+    ip_address="localhost"  # Default to localhost if IP address is empty
+fi
 
 function build_docker_images() {
     cd $WORKPATH
@@ -22,25 +25,29 @@ function build_docker_images() {
 function start_service() {
     tei_service_port=6000
     unset http_proxy
-    # Set your API key here (ensure this environment variable is set)
-    export PREDICTIONGUARD_API_KEY="your_actual_api_key"
     docker run -d --name=test-comps-embedding-pg-server \
     -e http_proxy= -e https_proxy= \
     -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
     -p 6000:6000 --ipc=host opea/embedding-pg:comps
-    sleep 180
+    sleep 60  # Sleep for 1 minute to allow the service to start
 }
 
 function validate_microservice() {
     tei_service_port=6000
-    result=$(http_proxy="" curl http://${ip_address}:$tei_service_port/v1/embeddings \
+    result=$(http_proxy="" curl http://${ip_address}:${tei_service_port}/v1/embeddings \
         -X POST \
         -d '{"text":"What is Deep Learning?"}' \
         -H 'Content-Type: application/json')
+
+    # Check for a proper response format
     if [[ $result == *"embedding"* ]]; then
         echo "Result correct."
+    elif [[ $result == *"error"* || $result == *"detail"* ]]; then
+        echo "Result wrong. Error received was: $result"
+        docker logs test-comps-embedding-pg-server
+        exit 1
     else
-        echo "Result wrong. Received was $result"
+        echo "Unexpected result format received was: $result"
         docker logs test-comps-embedding-pg-server
         exit 1
     fi
