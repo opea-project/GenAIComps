@@ -39,6 +39,9 @@ if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
 
 FineTuningJobID = str
+CHECKPOINT_ID = str
+Model_PATH = str
+
 CHECK_JOB_STATUS_INTERVAL = 5  # Check every 5 secs
 
 global ray_client
@@ -46,6 +49,8 @@ ray_client: JobSubmissionClient = None
 
 running_finetuning_jobs: Dict[FineTuningJobID, FineTuningJob] = {}
 finetuning_job_to_ray_job: Dict[FineTuningJobID, str] = {}
+checkpoint_job: Dict[CHECKPOINT_ID, Model_PATH] = {}
+
 
 
 # Add a background task to periodicly update job status
@@ -201,8 +206,9 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
                 fine_tuning_job_id=fine_tuning_job_id,
             )
             checkpoints.append(checkpointsResponse)
+            checkpoint_job[checkpointsResponse.id] = checkpointsResponse.fine_tuned_model_checkpoint
     
-    return checkpoints
+    return checkpoints, checkpoint_job
 
 
 async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
