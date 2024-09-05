@@ -1,8 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import time
 import os
+import time
 from typing import Any, List
 
 import numpy
