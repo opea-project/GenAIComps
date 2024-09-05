@@ -584,13 +584,20 @@ class RetrievalToolGateway(Gateway):
         print("response is ", response)
         return response
 
+
 class MultimodalRAGQnAWithVideosGateway(Gateway):
     def __init__(self, multimodal_rag_megaservice, lvm_megaservice, host="0.0.0.0", port=9999):
         self.lvm_megaservice = lvm_megaservice
         super().__init__(
-            multimodal_rag_megaservice, host, port, str(MegaServiceEndpoint.MULTIMODAL_RAG_QNA_WITH_VIDEOS), ChatCompletionRequest, ChatCompletionResponse
+            multimodal_rag_megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.MULTIMODAL_RAG_QNA_WITH_VIDEOS),
+            ChatCompletionRequest,
+            ChatCompletionResponse,
         )
-    # this overrides _handle_message method of Gateway   
+
+    # this overrides _handle_message method of Gateway
     def _handle_message(self, messages):
         images = []
         messages_dicts = []
@@ -625,7 +632,7 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
                     messages_dicts.append(messages_dict)
                 else:
                     raise ValueError(f"Unknown role: {msg_role}")
-                
+
             if system_prompt:
                 prompt = system_prompt + "\n"
             for messages_dict in messages_dicts:
@@ -633,7 +640,7 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
                     if isinstance(message, tuple):
                         text, image_list = message
                         if i == 0:
-                            # do not add role for the very first message. 
+                            # do not add role for the very first message.
                             # this will be added by llava_server
                             if text:
                                 prompt += text + "\n"
@@ -663,7 +670,7 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
                             images.append(img_b64_str)
                     else:
                         if i == 0:
-                            # do not add role for the very first message. 
+                            # do not add role for the very first message.
                             # this will be added by llava_server
                             if message:
                                 prompt += role.upper() + ": " + message + "\n"
@@ -676,14 +683,12 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
             return prompt, images
         else:
             return prompt
-        
+
     async def handle_request(self, request: Request):
         data = await request.json()
         stream_opt = bool(data.get("stream", False))
         if stream_opt == True:
-            print(
-                    f"[ MultimodalRAGQnAWithVideosGateway ] stream=True not used, this has not support streaming yet!"
-                )
+            print("[ MultimodalRAGQnAWithVideosGateway ] stream=True not used, this has not support streaming yet!")
             stream_opt = False
         chat_request = ChatCompletionRequest.model_validate(data)
         # Multimodal RAG QnA With Videos has not yet accepts image as input during QnA.
@@ -692,12 +697,12 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
             # print(f"This request include image, thus it is a follow-up query. Using lvm megaservice")
             prompt, images = prompt_and_image
             cur_megaservice = self.lvm_megaservice
-            initial_inputs={"prompt": prompt, "image": images[0]}
+            initial_inputs = {"prompt": prompt, "image": images[0]}
         else:
             # print(f"This is the first query, requiring multimodal retrieval. Using multimodal rag megaservice")
             prompt = prompt_and_image
             cur_megaservice = self.megaservice
-            initial_inputs={"text": prompt}
+            initial_inputs = {"text": prompt}
 
         parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
@@ -712,11 +717,12 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
             initial_inputs=initial_inputs, llm_parameters=parameters
         )
         for node, response in result_dict.items():
-            # the last microservice in this megaservice is LVM. 
+            # the last microservice in this megaservice is LVM.
             # checking if LVM returns StreamingResponse
-            # Currently, LVM with LLAVA has not yet supported streaming. 
+            # Currently, LVM with LLAVA has not yet supported streaming.
             # @TODO: Will need to test this once LVM with LLAVA supports streaming
-            if ( isinstance(response, StreamingResponse)
+            if (
+                isinstance(response, StreamingResponse)
                 and node == runtime_graph.all_leaves()[-1]
                 and self.megaservice.services[node].service_type == ServiceType.LVM
             ):
