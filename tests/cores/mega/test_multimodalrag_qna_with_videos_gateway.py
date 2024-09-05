@@ -4,8 +4,9 @@
 import json
 import unittest
 from typing import Union
-from fastapi import Request
+
 import requests
+from fastapi import Request
 
 from comps import (
     EmbedDoc,
@@ -200,7 +201,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
             ],
             "max_tokens": 300,
         }
-        mock_request = Request(scope={"type":"http"})
+        mock_request = Request(scope={"type": "http"})
         mock_request._json = json_data
         res = await self.gateway.handle_request(mock_request)
         res = json.loads(res.json())
@@ -208,6 +209,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
             res["choices"][-1]["message"]["content"],
             "<image>\nUSER: hello, \nASSISTANT: opea project! \nUSER: chao, \n\nASSISTANT:",
         )
+
 
 if __name__ == "__main__":
     unittest.main()
