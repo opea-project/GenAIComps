@@ -21,17 +21,17 @@ function build_docker_images() {
 
 function start_service() {
     # redis
-    docker run -d --name test-comps-multimodal-retriever-redis-vector-db -p 5010:6379 -p 5011:8001 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy redis/redis-stack:7.2.0-v9
+    docker run -d --name test-comps-multimodal-retriever-redis-vector-db -p 5689:6379 -p 5011:8001 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy redis/redis-stack:7.2.0-v9
     sleep 10s
 
     # redis retriever
-    export REDIS_URL="redis://${ip_address}:5010"
+    export REDIS_URL="redis://${ip_address}:5689"
     export INDEX_NAME="rag-redis"
     retriever_port=5009
     unset http_proxy
     docker run -d --name="test-comps-multimodal-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/multimodal-retriever-redis:comps
 
-    sleep 3m
+    sleep 5m
 }
 
 function validate_microservice() {
