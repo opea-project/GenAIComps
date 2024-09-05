@@ -25,13 +25,13 @@ function start_service() {
     model="BAAI/bge-large-en-v1.5"
     docker run -d --name="test-comps-embedding-tei-llama-index-endpoint" -p $tei_endpoint:80 -v ./data:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
-    tei_service_port=5010
+    tei_service_port=5034
     docker run -d --name="test-comps-embedding-tei-llama-index-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${tei_service_port}:6000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT  opea/embedding-tei-llama-index:comps
     sleep 3m
 }
 
 function validate_microservice() {
-    tei_service_port=5010
+    tei_service_port=5034
     URL="http://${ip_address}:$tei_service_port/v1/embeddings"
     docker logs test-comps-embedding-tei-llama-index-server >> ${LOG_PATH}/embedding.log
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"text":"What is Deep Learning?"}' -H 'Content-Type: application/json' "$URL")
