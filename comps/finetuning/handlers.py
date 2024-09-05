@@ -208,7 +208,7 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
             checkpoints.append(checkpointsResponse)
             checkpoint_job[checkpointsResponse.id] = checkpointsResponse.fine_tuned_model_checkpoint
     
-    return checkpoints, checkpoint_job
+    return checkpoints
 
 
 async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
