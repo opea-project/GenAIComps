@@ -843,5 +843,5 @@ class FineTuningJobCheckpoint(BaseModel):
     object: Literal["fine_tuning.job.checkpoint"]
     """The object type, which is always "fine_tuning.job.checkpoint"."""
 
-    step_number: int
+    step_number: Optional[int] = None
     """The step number that the checkpoint was created at."""
