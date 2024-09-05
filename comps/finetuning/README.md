@@ -120,8 +120,12 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{
-    "training_file": "toy_finetune_data.json",
-    "model": "BAAI/bge-reranker-large"
+    "training_file": "toy_finetune_data.jsonl",
+    "model": "BAAI/bge-reranker-large",
+    "General":{
+      "task":"rerank",
+      "lora_config":null
+    }
   }'
 ```
 

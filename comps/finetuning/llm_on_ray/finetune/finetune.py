@@ -17,7 +17,6 @@ import datasets
 import ray
 import torch
 import transformers
-from modeling import CrossEncoder
 from peft import LoraConfig, get_peft_model
 from pydantic_yaml import parse_yaml_raw_as
 from ray.air import FailureConfig, RunConfig
@@ -29,7 +28,7 @@ from comps import CustomLogger
 from comps.finetuning.finetune_config import FinetuneConfig
 from comps.finetuning.llm_on_ray import common
 from comps.finetuning.llm_on_ray.finetune.data_process import DataProcessor, GroupCollator, TrainDatasetForCE
-from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
+from comps.finetuning.llm_on_ray.finetune.modeling import CrossEncoder
 
 logger = CustomLogger("llm_on_ray/finetune")
 

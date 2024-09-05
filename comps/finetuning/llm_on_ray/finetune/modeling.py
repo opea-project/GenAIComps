@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import torch
-from finetune_config import Dataset
 from torch import nn
 from transformers import AutoModelForSequenceClassification, PreTrainedModel, TrainingArguments
 from transformers.modeling_outputs import SequenceClassifierOutput
 
+from comps.finetuning.finetune_config import DatasetConfig
 
 class CrossEncoder(PreTrainedModel):
-    def __init__(self, hf_model: PreTrainedModel, data_args: Dataset, train_args: TrainingArguments):
+    def __init__(self, hf_model: PreTrainedModel, data_args: DatasetConfig, train_args: TrainingArguments):
         super().__init__(hf_model.config)
         self.hf_model = hf_model
         self.train_args = train_args
@@ -27,8 +27,8 @@ class CrossEncoder(PreTrainedModel):
         logits = ranker_out.logits
 
         if self.training:
-            scores = logits.view(self.train_args.per_device_train_batch_size, self.data_args.get("train_group_size", 8))
-            loss = self.cross_entropy(scores, self.target_label)
+            scores = logits.view(-1, self.data_args.get("train_group_size", 8))
+            loss = self.cross_entropy(scores, self.target_label[:scores.shape[0]])
 
             return SequenceClassifierOutput(
                 loss=loss,
@@ -38,7 +38,7 @@ class CrossEncoder(PreTrainedModel):
             return ranker_out
 
     @classmethod
-    def from_pretrained(cls, data_args: Dataset, train_args: TrainingArguments, *args, **kwargs):
+    def from_pretrained(cls, data_args: DatasetConfig, train_args: TrainingArguments, *args, **kwargs):
         hf_model = AutoModelForSequenceClassification.from_pretrained(*args, **kwargs)
         reranker = cls(hf_model, data_args, train_args)
         return reranker
