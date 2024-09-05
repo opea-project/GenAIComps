@@ -1,11 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList
-from docarray.documents import AudioDoc, VideoDoc
+from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl, ImageUrl
 from pydantic import Field, conint, conlist, field_validator
 
@@ -43,14 +43,6 @@ MultimodalDoc = Union[
 ]
 
 
-class ImageDoc(BaseDoc):
-    image_path: str
-
-
-class TextImageDoc(BaseDoc):
-    doc: Tuple[Union[TextDoc, ImageDoc]]
-
-
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
@@ -72,6 +64,7 @@ class EmbedDoc(BaseDoc):
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
+    constraints: Optional[Union[Dict[str, Any], None]] = None
 
 
 class EmbedMultimodalDoc(EmbedDoc):
@@ -110,14 +103,8 @@ class SearchedDoc(BaseDoc):
         json_encoders = {np.ndarray: lambda x: x.tolist()}
 
 
-class SearchedMultimodalDoc(BaseDoc):
-    retrieved_docs: List[TextImageDoc]
-    initial_query: str
-    top_n: int = 1
-    metadata: Optional[List[Dict]] = None
-
-    class Config:
-        json_encoders = {np.ndarray: lambda x: x.tolist()}
+class SearchedMultimodalDoc(SearchedDoc):
+    metadata: List[Dict[str, Any]]
 
 
 class GeneratedDoc(BaseDoc):
@@ -184,6 +171,19 @@ class LLMParams(BaseDoc):
             "or only contains {question} for chat completion without rag."
         ),
     )
+
+
+class RetrieverParms(BaseDoc):
+    search_type: str = "similarity"
+    k: int = 4
+    distance_threshold: Optional[float] = None
+    fetch_k: int = 20
+    lambda_mult: float = 0.5
+    score_threshold: float = 0.2
+
+
+class RerankerParms(BaseDoc):
+    top_n: int = 1
 
 
 class RAGASParams(BaseDoc):

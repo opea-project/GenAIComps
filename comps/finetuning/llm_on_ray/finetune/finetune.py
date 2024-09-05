@@ -26,6 +26,7 @@ from ray.train.torch import TorchTrainer
 from transformers import Trainer, TrainingArguments
 
 from comps import CustomLogger
+from comps.finetuning.finetune_config import FinetuneConfig
 from comps.finetuning.llm_on_ray import common
 from comps.finetuning.llm_on_ray.finetune.data_process import (
     GroupCollator,
@@ -33,7 +34,6 @@ from comps.finetuning.llm_on_ray.finetune.data_process import (
     PretrainingDataProcessor,
     TrainDatasetForCE
 )
-from comps.finetuning.llm_on_ray.finetune.finetune_config import FinetuneConfig
 
 logger = CustomLogger("llm_on_ray/finetune")
 
@@ -178,8 +178,8 @@ def load_dataset(config: Dict):
     else:
         # try to download and load dataset from huggingface.co
         load_config = config["General"].get("config", {})
-        use_auth_token = load_config.get("use_auth_token", None)
-        raw_dataset = datasets.load_dataset(dataset_file, use_auth_token=use_auth_token)
+        use_auth_token = load_config.get("token", None)
+        raw_dataset = datasets.load_dataset(dataset_file, token=use_auth_token)
 
         validation_split_percentage = config["Dataset"].get("validation_split_percentage", 0)
         if "validation" not in raw_dataset.keys() and (
@@ -485,6 +485,7 @@ def main(external_config=None):
             ray.init(runtime_env=runtime_env)
 
     logger.info(f"ray available resources = {ray.available_resources()}")
+
     use_gpu = True if device == "gpu" else False
     scaling_config = ScalingConfig(
         num_workers=num_training_workers,
