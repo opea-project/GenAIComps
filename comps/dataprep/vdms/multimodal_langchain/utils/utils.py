@@ -67,65 +67,64 @@ def process_all_videos(config):
         # date_time = t.ctime(os.stat(video_path).st_ctime)
         # Get the local timezone of the machine
         local_timezone = get_localzone()
-        if emb_type == "video":
-            time_format = "%a %b %d %H:%M:%S %Y"
-            if not isinstance(date_time, datetime.datetime):
-                date_time = datetime.datetime.strptime(date_time, time_format)
-            time = date_time.strftime("%H:%M:%S")
-            hours, minutes, seconds = map(float, time.split(":"))
-            date = date_time.strftime("%Y-%m-%d")
-            year, month, day = map(int, date.split("-"))
+        time_format = "%a %b %d %H:%M:%S %Y"
+        if not isinstance(date_time, datetime.datetime):
+            date_time = datetime.datetime.strptime(date_time, time_format)
+        time = date_time.strftime("%H:%M:%S")
+        hours, minutes, seconds = map(float, time.split(":"))
+        date = date_time.strftime("%Y-%m-%d")
+        year, month, day = map(int, date.split("-"))
 
-            if clip_duration is not None and chunk_duration is not None and clip_duration <= chunk_duration:
-                interval_count = 0
-                metadata.pop(each_video)
-                for start_frame, end_frame, start_time, end_time in calculate_intervals(
-                    video_path, chunk_duration, clip_duration
-                ):
-                    keyname = os.path.splitext(os.path.basename(video_path))[0] + f"_interval_{interval_count}"
-                    metadata[keyname] = {"timestamp": start_time}
-                    metadata[keyname].update(
-                        {
-                            "date": date,
-                            "year": year,
-                            "month": month,
-                            "day": day,
-                            "time": time,
-                            "hours": hours,
-                            "minutes": minutes,
-                            "seconds": seconds,
-                        }
-                    )
-                    if selected_db == "vdms":
-                        # Localize the current time to the local timezone of the machine
-                        # Tahani might not need this
-                        current_time_local = date_time.replace(tzinfo=datetime.timezone.utc).astimezone(local_timezone)
+        if clip_duration is not None and chunk_duration is not None and clip_duration <= chunk_duration:
+            interval_count = 0
+            metadata.pop(each_video)
+            for start_frame, end_frame, start_time, end_time in calculate_intervals(
+                video_path, chunk_duration, clip_duration
+            ):
+                keyname = os.path.splitext(os.path.basename(video_path))[0] + f"_interval_{interval_count}"
+                metadata[keyname] = {"timestamp": start_time}
+                metadata[keyname].update(
+                    {
+                        "date": date,
+                        "year": year,
+                        "month": month,
+                        "day": day,
+                        "time": time,
+                        "hours": hours,
+                        "minutes": minutes,
+                        "seconds": seconds,
+                    }
+                )
+                if selected_db == "vdms":
+                    # Localize the current time to the local timezone of the machine
+                    # Tahani might not need this
+                    current_time_local = date_time.replace(tzinfo=datetime.timezone.utc).astimezone(local_timezone)
 
-                        # Convert the localized time to ISO 8601 format with timezone offset
-                        iso_date_time = current_time_local.isoformat()
-                        metadata[keyname]["date_time"] = {"_date": str(iso_date_time)}
+                    # Convert the localized time to ISO 8601 format with timezone offset
+                    iso_date_time = current_time_local.isoformat()
+                    metadata[keyname]["date_time"] = {"_date": str(iso_date_time)}
 
-                    # Open the video file
-                    cap = cv2.VideoCapture(video_path)
+                # Open the video file
+                cap = cv2.VideoCapture(video_path)
 
-                    if int(cv2.__version__.split(".")[0]) < 3:
-                        fps = cap.get(cv2.cv.CV_CAP_PROP_FPS)
-                    else:
-                        fps = cap.get(cv2.CAP_PROP_FPS)
+                if int(cv2.__version__.split(".")[0]) < 3:
+                    fps = cap.get(cv2.cv.CV_CAP_PROP_FPS)
+                else:
+                    fps = cap.get(cv2.CAP_PROP_FPS)
 
-                    total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-                    # get the duration
-                    metadata[keyname].update(
-                        {
-                            "clip_duration": (min(total_frames, end_frame) - start_frame) / fps,
-                            "fps": fps,
-                            "total_frames": total_frames,
-                            #'embedding_path': os.path.join(emb_path, each_video+".pt"),
-                            "video_path": f"{os.path.join(path,each_video)}",
-                        }
-                    )
-                    cap.release()
-                    interval_count += 1
+                total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+                # get the duration
+                metadata[keyname].update(
+                    {
+                        "clip_duration": (min(total_frames, end_frame) - start_frame) / fps,
+                        "fps": fps,
+                        "total_frames": total_frames,
+                        #'embedding_path': os.path.join(emb_path, each_video+".pt"),
+                        "video_path": f"{os.path.join(path,each_video)}",
+                    }
+                )
+                cap.release()
+                interval_count += 1
         metadata[keyname].update(
             {
                 "fps": fps,

@@ -7,10 +7,10 @@ videos: uploaded_files/
 generate_frames: True
 # How do you want to generate feature embeddings?
 embeddings:
-  type: "video"
   vclip_model_name: "openai/clip-vit-base-patch32"
   vclip_num_frm: 64
-  path: "uploaded_files/embeddings"
+  vector_dimensions: 512
+  path: 'uploaded_files/embeddings'
 # VL-branch config
 vl_branch:
   cfg_path: embedding/video_llama_config/video_llama_eval_only_vl.yaml
