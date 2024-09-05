@@ -21,7 +21,7 @@ function build_docker_images() {
 
 function start_service() {
     tei_endpoint=5001
-    model="BAAI/bge-large-en-v1.5"
+    model="BAAI/bge-base-en-v1.5"
     revision="refs/pr/5"
     unset http_proxy
     docker run -d --name="test-comps-embedding-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision

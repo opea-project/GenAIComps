@@ -55,7 +55,7 @@ The initially supported `Microservices` are described in the below table. More `
 		<tr>
 			<td rowspan="2"><a href="./comps/embeddings/README.md">Embedding</a></td>
             <td rowspan="2"><a href="https://www.langchain.com">LangChain</a>/<a href="https://www.llamaindex.ai">LlamaIndex</a></td>
-			<td rowspan="2"><a href="https://huggingface.co/BAAI/bge-large-en-v1.5">BAAI/bge-large-en-v1.5</a></td>
+			<td rowspan="2"><a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BAAI/bge-base-en-v1.5</a></td>
 			<td><a href="https://github.com/huggingface/tei-gaudi">TEI-Gaudi</a></td>
 			<td>Gaudi2</td>
 			<td>Embedding on Gaudi2</td>
