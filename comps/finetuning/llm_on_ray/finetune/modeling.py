@@ -8,6 +8,7 @@ from transformers.modeling_outputs import SequenceClassifierOutput
 
 from comps.finetuning.finetune_config import DatasetConfig
 
+
 class CrossEncoder(PreTrainedModel):
     def __init__(self, hf_model: PreTrainedModel, data_args: DatasetConfig, train_args: TrainingArguments):
         super().__init__(hf_model.config)
@@ -28,7 +29,7 @@ class CrossEncoder(PreTrainedModel):
 
         if self.training:
             scores = logits.view(-1, self.data_args.get("train_group_size", 8))
-            loss = self.cross_entropy(scores, self.target_label[:scores.shape[0]])
+            loss = self.cross_entropy(scores, self.target_label[: scores.shape[0]])
 
             return SequenceClassifierOutput(
                 loss=loss,
