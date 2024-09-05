@@ -122,8 +122,6 @@ def handle_create_finetuning_jobs(request: FineTuningParams, background_tasks: B
     ray_job_id = ray_client.submit_job(
         # Entrypoint shell command to execute
         entrypoint=f"python finetune_runner.py --config_file {finetune_config_file}",
-        # Path to the local directory that contains the script.py file
-        # runtime_env={"working_dir": "./", "excludes": [f"{OUTPUT_DIR}"]},
     )
 
     logger.info(f"Submitted Ray job: {ray_job_id} ...")
