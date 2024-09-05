@@ -8,7 +8,7 @@ WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/llm-tgi:latest -f comps/intent_detection/langchain/Dockerfile .
+    docker build --no-cache -t opea/llm-tgi:latest -f comps/intent_detection/langchain/docker/Dockerfile .
 }
 
 function start_service() {

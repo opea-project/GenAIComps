@@ -12,7 +12,7 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     # langchain mosec embedding image
-    docker build --no-cache -t opea/langchain-mosec:comps --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/langchain-mosec/mosec-docker/Dockerfile .
+    docker build --no-cache -t opea/langchain-mosec:comps --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/langchain/mosec/server/docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/langchain-mosec built fail"
         exit 1

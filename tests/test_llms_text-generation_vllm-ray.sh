@@ -11,7 +11,7 @@ function build_docker_images() {
     ## Build VLLM Ray docker
     cd $WORKPATH
     docker build \
-        -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray  \
+        -f comps/llms/text-generation/vllm/ray/server/docker/Dockerfile  \
         --no-cache -t opea/vllm_ray-habana:comps --network=host .
     if [ $? -ne 0 ]; then
         echo "opea/vllm_ray-habana built fail"
@@ -24,7 +24,7 @@ function build_docker_images() {
     cd $WORKPATH
     docker build \
         --no-cache -t opea/llm-vllm-ray:comps \
-        -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice .
+        -f comps/llms/text-generation/vllm/ray/docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llm-vllm-ray built fail"
         exit 1
@@ -113,7 +113,7 @@ function main() {
     validate_microservice
 
     stop_docker
-    # echo y | docker system prune
+    echo y | docker system prune
 
 }
 

@@ -17,7 +17,7 @@ services:
     image: ${REGISTRY:-opea}/dataprep-milvus:${TAG:-latest}
   dataprep-pgvector:
     build:
-      dockerfile: comps/dataprep/pgvector/langchain/docker/Dockerfile
+      dockerfile: comps/dataprep/pgvector/docker/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-pgvector:${TAG:-latest}
   dataprep-pinecone:
     build:

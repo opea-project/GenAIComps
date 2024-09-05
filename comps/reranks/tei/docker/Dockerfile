@@ -21,7 +21,7 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ ${ARCH} = "cpu" ]; then pip install torch --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/reranks/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/reranks/tei/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

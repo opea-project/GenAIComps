@@ -58,7 +58,7 @@ curl --noproxy "*" http://localhost:11434/api/generate -d '{
 
 ```bash
 cd GenAIComps/
-docker build --no-cache -t opea/llm-ollama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/ollama/Dockerfile .
+docker build --no-cache -t opea/llm-ollama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/ollama/docker/Dockerfile .
 ```
 
 ## Run the Ollama Microservice

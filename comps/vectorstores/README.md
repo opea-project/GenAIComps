@@ -21,3 +21,15 @@ For details, please refer to this [readme](langchain/pinecone/README.md)
 ## Vectorstores Microservice with Pathway
 
 For details, please refer to this [readme](langchain/pathway/README.md)
+
+## Vectorstores Microservice with Milvus
+
+For details, please refer to this [readme](langchain/milvus/README.md)
+
+## Vectorstores Microservice with LanceDB
+
+For details, please refer to this [readme](langchain/lancedb/README.md)
+
+## Vectorstores Microservice with Chroma
+
+For details, please refer to this [readme](langchain/chroma/README.md)

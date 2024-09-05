@@ -54,7 +54,7 @@ export LLM_MODEL_ID=${your_hf_llm_model}
 
 ```bash
 cd ../../
-docker build -t opea/llm-docsum-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/summarization/tgi/Dockerfile .
+docker build -t opea/llm-docsum-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/summarization/tgi/docker/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -73,6 +73,7 @@ docker run -d --name="llm-docsum-tgi-server" -p 9000:9000 --ipc=host -e http_pro
 ### 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
+cd docker
 docker compose -f docker_compose_llm.yaml up -d
 ```
 

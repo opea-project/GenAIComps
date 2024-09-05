@@ -17,7 +17,7 @@ function build_docker_images() {
     else
         echo "opea/video-llama-lvm-server built successful"
     fi
-    docker build --no-cache -t opea/lvm-video-llama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/video-llama/Dockerfile .
+    docker build --no-cache -t opea/lvm-video-llama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/video-llama/docker/Dockerfile .
     if $? ; then
         echo "opea/lvm-video-llama built fail"
         exit 1

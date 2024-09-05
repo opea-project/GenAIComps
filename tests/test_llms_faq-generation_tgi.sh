@@ -10,7 +10,7 @@ LOG_PATH="$WORKPATH/tests"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/llm-faqgen-tgi:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/faq-generation/tgi/Dockerfile .
+    docker build --no-cache -t opea/llm-faqgen-tgi:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/faq-generation/tgi/docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llm-faqgen-tgi built fail"
         exit 1

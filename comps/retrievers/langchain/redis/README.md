@@ -19,13 +19,9 @@ pip install -r requirements.txt
 ### 1.2 Start TEI Service
 
 ```bash
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/retriever"
 model=BAAI/bge-base-en-v1.5
-revision=refs/pr/4
 volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 ```
 
 ### 1.3 Verify the TEI Service
@@ -52,7 +48,7 @@ docker run -d --name="redis-vector-db" -p 6379:6379 -p 8001:8001 redis/redis-sta
 
 ```bash
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
-python langchain/retriever_redis.py
+python retriever_redis.py
 ```
 
 ## 🚀2. Start Microservice with Docker (Option 2)
@@ -64,9 +60,7 @@ export RETRIEVE_MODEL_ID="BAAI/bge-base-en-v1.5"
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/retrievers"
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
 ```
 
 ### 2.2 Build Docker Image
@@ -86,7 +80,7 @@ You can choose one as needed.
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="retriever-redis-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT opea/retriever-redis:latest
+docker run -d --name="retriever-redis-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/retriever-redis:latest
 ```
 
 ### 2.4 Run Docker with Docker Compose (Option B)

@@ -17,5 +17,5 @@ services:
     image: ${REGISTRY:-opea}/retriever-milvus:${TAG:-latest}
   retriever-redis-llamaindex:
     build:
-      dockerfile: comps/retrievers/llamaindex/docker/Dockerfile
+      dockerfile: comps/retrievers/llamaindex/redis/docker/Dockerfile
     image: ${REGISTRY:-opea}/retriever-redis-llamaindex:${TAG:-latest}

@@ -19,13 +19,9 @@ pip install -r requirements.txt
 ### 1.2 Start TEI Service
 
 ```bash
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/retriever"
 model=BAAI/bge-base-en-v1.5
-revision=refs/pr/4
 volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 ```
 
 ### 1.3 Verify the TEI Service
@@ -68,9 +64,6 @@ export RETRIEVE_MODEL_ID="BAAI/bge-base-en-v1.5"
 export PG_CONNECTION_STRING=postgresql+psycopg2://testuser:testpwd@${your_ip}:5432/vectordb
 export INDEX_NAME=${your_index_name}
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/retrievers"
 ```
 
 ### 2.2 Build Docker Image

@@ -6,33 +6,33 @@
 services:
   llm-tgi:
     build:
-      dockerfile: comps/llms/text-generation/tgi/Dockerfile
+      dockerfile: comps/llms/text-generation/tgi/docker/Dockerfile
     image: ${REGISTRY:-opea}/llm-tgi:${TAG:-latest}
   llm-ollama:
     build:
-      dockerfile: comps/llms/text-generation/ollama/Dockerfile
+      dockerfile: comps/llms/text-generation/ollama/docker/Dockerfile
     image: ${REGISTRY:-opea}/llm-ollama:${TAG:-latest}
   llm-docsum-tgi:
     build:
-      dockerfile: comps/llms/summarization/tgi/Dockerfile
+      dockerfile: comps/llms/summarization/tgi/docker/Dockerfile
     image: ${REGISTRY:-opea}/llm-docsum-tgi:${TAG:-latest}
   llm-faqgen-tgi:
     build:
-      dockerfile: comps/llms/faq-generation/tgi/Dockerfile
+      dockerfile: comps/llms/faq-generation/tgi/docker/Dockerfile
     image: ${REGISTRY:-opea}/llm-faqgen-tgi:${TAG:-latest}
   llm-vllm:
     build:
-      dockerfile: comps/llms/text-generation/vllm/docker/Dockerfile.microservice
+      dockerfile: comps/llms/text-generation/vllm/native/docker/Dockerfile
     image: ${REGISTRY:-opea}/llm-vllm:${TAG:-latest}
   llm-vllm-hpu:
     build:
-      dockerfile: comps/llms/text-generation/vllm/docker/Dockerfile.hpu
+      dockerfile: comps/llms/text-generation/vllm/native/server/docker/Dockerfile.Intel_HPU
     image: ${REGISTRY:-opea}/llm-vllm-hpu:${TAG:-latest}
   llm-vllm-ray:
     build:
-      dockerfile: comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice
+      dockerfile: comps/llms/text-generation/vllm/ray/docker/Dockerfile
     image: ${REGISTRY:-opea}/llm-vllm-ray:${TAG:-latest}
   llm-vllm-ray-hpu:
     build:
-      dockerfile: comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray
+      dockerfile: comps/llms/text-generation/vllm/ray/server/docker/Dockerfile
     image: ${REGISTRY:-opea}/llm-vllm-ray-hpu:${TAG:-latest}

@@ -13,9 +13,6 @@ pip install -r requirements.txt
 ```bash
 export PG_CONNECTION_STRING=postgresql+psycopg2://testuser:testpwd@${your_ip}:5432/vectordb
 export INDEX_NAME=${your_index_name}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/gen-ai-comps:dataprep"
 ```
 
 ### 1.3 Start PGVector
@@ -41,16 +38,13 @@ Please refer to this [readme](../../vectorstores/langchain/pgvector/README.md).
 ```bash
 export PG_CONNECTION_STRING=postgresql+psycopg2://testuser:testpwd@${your_ip}:5432/vectordb
 export INDEX_NAME=${your_index_name}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/dataprep"
 ```
 
 ### 2.3 Build Docker Image
 
 ```bash
 cd GenAIComps
-docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/pgvector/langchain/docker/Dockerfile .
+docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/pgvector/docker/Dockerfile .
 ```
 
 ### 2.4 Run Docker with CLI (Option A)
@@ -62,7 +56,7 @@ docker run  --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$ht
 ### 2.5 Run with Docker Compose (Option B)
 
 ```bash
-cd comps/dataprep/langchain/pgvector/docker
+cd comps/dataprep/pgvector/docker
 docker compose -f docker-compose-dataprep-pgvector.yaml up -d
 ```
 

@@ -15,9 +15,8 @@ docker build -t opea/web-retriever-chroma:latest --build-arg https_proxy=$https_
 
 ```bash
 model=BAAI/bge-base-en-v1.5
-revision=refs/pr/4
 volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 ```
 
 ### Start Web Retriever Service

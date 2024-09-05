@@ -22,7 +22,7 @@ function start_service() {
     # tei endpoint
     tei_endpoint=5018
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-web-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
+    docker run -d --name="test-comps-web-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # chroma web retriever

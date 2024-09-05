@@ -20,7 +20,7 @@ function build_docker_images() {
     fi
 
     cd ..
-    docker build --no-cache -t opea/lvm-tgi:comps -f comps/lvms/Dockerfile_tgi .
+    docker build --no-cache -t opea/lvm-tgi:comps -f comps/lvms/tgi-llava/docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-tgi built fail"
         exit 1

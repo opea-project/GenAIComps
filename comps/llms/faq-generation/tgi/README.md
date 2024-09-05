@@ -14,15 +14,13 @@ In order to start TGI and LLM services, you need to setup the following environm
 export HF_TOKEN=${your_hf_api_token}
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL_ID=${your_hf_llm_model}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
 ```
 
 ### 1.2 Build Docker Image
 
 ```bash
 cd ../../../../
-docker build -t opea/llm-faqgen-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/faq-generation/tgi/Dockerfile .
+docker build -t opea/llm-faqgen-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/faq-generation/tgi/docker/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -45,7 +43,7 @@ docker run -d --name="llm-faqgen-server" -p 9000:9000 --ipc=host -e http_proxy=$
 ### 1.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd text-generation/tgi
+cd faq-generation/tgi/docker
 docker compose -f docker_compose_llm.yaml up -d
 ```
 

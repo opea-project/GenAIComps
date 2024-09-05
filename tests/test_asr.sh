@@ -10,14 +10,14 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/whisper:comps -f comps/asr/whisper/Dockerfile .
+    docker build --no-cache -t opea/whisper:comps -f comps/asr/whisper/server/docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/whisper built fail"
         exit 1
     else
         echo "opea/whisper built successful"
     fi
-    docker build --no-cache -t opea/asr:comps -f comps/asr/Dockerfile .
+    docker build --no-cache -t opea/asr:comps -f comps/asr/docker/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/asr built fail"
         exit 1

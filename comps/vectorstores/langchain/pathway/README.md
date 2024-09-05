@@ -57,7 +57,7 @@ For more information, see the relevant Pathway docs:
 Build the Docker and run the Pathway Vector Store:
 
 ```bash
-cd comps/vectorstores/langchain/pathway
+cd comps/vectorstores/langchain/pathway/docker
 
 docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/vectorstore-pathway:latest .
 

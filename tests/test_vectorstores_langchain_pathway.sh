@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
 
-    cd comps/vectorstores/langchain/pathway
+    cd comps/vectorstores/langchain/pathway/docker
 
     docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/vectorstore-pathway:comps .
 
@@ -30,7 +30,7 @@ function start_service() {
     # tei endpoint
     tei_endpoint=5008
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
+    docker run -d --name="test-comps-retriever-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"

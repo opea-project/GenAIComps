@@ -25,7 +25,6 @@ services:
       https_proxy: ${https_proxy}
       TEI_RERANKING_ENDPOINT: ${TEI_RERANKING_ENDPOINT}
       HF_TOKEN: ${HF_TOKEN}
-      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
     restart: unless-stopped
 
 networks:

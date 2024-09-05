@@ -13,15 +13,11 @@ If you prefer to run them separately, refer to this section.
 > Note that Docker compose will start this service as well, this step is thus optional.
 
 ```bash
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/retriever"
 model=BAAI/bge-base-en-v1.5
-revision=refs/pr/4
 # TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"  # if you want to use the hosted embedding service, example: "http://127.0.0.1:6060"
 
 # then run:
-docker run -p 6060:80 -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+docker run -p 6060:80 -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 ```
 
 Health check the embedding service with:
@@ -62,11 +58,7 @@ First, set the env variables:
 ```bash
 export PATHWAY_HOST=0.0.0.0
 export PATHWAY_PORT=8666
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/retriever"
 model=BAAI/bge-base-en-v1.5
-revision=refs/pr/4
 # TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"  # if you want to use the hosted embedding service, example: "http://127.0.0.1:6060"
 ```
 
