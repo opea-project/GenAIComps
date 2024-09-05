@@ -113,4 +113,8 @@ curl -X POST \
     -F "files=@./file3.mp4" \
     http://localhost:6007/v1/dataprep
 ```
+- List of uploaded files
 
+```bash
+curl -X POST http://localhost:6007/v1/dataprep/get_videos
+```

@@ -129,7 +129,7 @@ async def process_videos(files: List[UploadFile] = File(None)):
     generate_embeddings(config, model, vs)
     
 @register_microservice(
-    name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep/get_videos", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep/get_videos", host="0.0.0.0", port=6007,methods=["GET"]
 )
 async def rag_get_file_structure():
     """Returns list of names of uploaded videos saved on the server."""
@@ -143,7 +143,7 @@ async def rag_get_file_structure():
     return mp4_files
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep/get_file/{filename}", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep/get_file/{filename}", host="0.0.0.0", port=6007,methods=["GET"]
 )
 async def rag_get_file(filename: str):
     """Download the file from remote."""
