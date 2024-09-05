@@ -798,6 +798,7 @@ class FileObject(BaseModel):
     Supported values are assistants, assistants_output, batch, batch_output, fine-tune, fine-tune-results and vision.
     """
 
+
 class Metrics(BaseModel):
     full_valid_loss: Optional[float] = None
 
@@ -823,6 +824,15 @@ class FineTuningJobCheckpoint(BaseModel):
 
     fine_tuned_model_checkpoint: str
     """The name of the fine-tuned checkpoint model that is created."""
+
+    fine_tuning_job_id: str
+    """The name of the fine-tuning job that this checkpoint was created from."""
+
+    metrics: Metrics
+    """Metrics at the step number during the fine-tuning job."""
+
+    object: Literal["fine_tuning.job.checkpoint"]
+    """The object type, which is always "fine_tuning.job.checkpoint"."""
 
     fine_tuning_job_id: str
     """The name of the fine-tuning job that this checkpoint was created from."""
