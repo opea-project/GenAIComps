@@ -13,7 +13,7 @@ services:
       dockerfile: comps/lvms/llava/server/docker/Dockerfile
     image: ${REGISTRY:-opea}/llava:${TAG:-latest}
   # Gaudi2 HPU
-  llava_hpu:
+  llava-hpu:
     build:
       dockerfile: comps/lvms/llava/server/docker/Dockerfile.Intel_HPU
     image: ${REGISTRY:-opea}/llava-hpu:${TAG:-latest}
@@ -23,5 +23,6 @@ services:
     image: ${REGISTRY:-opea}/lvm-tgi:${TAG:-latest}
   llava-tgi:
     build:
-      dockerfile: tgi-gaudi/Dockerfile
+      context: tgi-gaudi
+      dockerfile: Dockerfile
     image: ${REGISTRY:-opea}/llava-tgi:${TAG:-latest}
