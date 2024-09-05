@@ -145,6 +145,42 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
             "<image>\nUSER: hello, \nASSISTANT: opea project! \nUSER: chao, \n\nASSISTANT:",
         )
 
+    def test_handle_message(self):
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "hello, "},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": "https://www.ilankelman.org/stopsigns/australia.jpg"},
+                    },
+                ],
+            },
+            {"role": "assistant", "content": "opea project! "},
+            {"role": "user", "content": "chao, "},
+        ]
+        prompt, images = self.gateway._handle_message(messages)
+        self.assertEqual(prompt, "hello, \nASSISTANT: opea project! \nUSER: chao, \n")
+
+    def test_handle_message_with_system_prompt(self):
+        messages = [
+            {"role" : "system", "content" : "System Prompt"}, 
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "hello, "},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": "https://www.ilankelman.org/stopsigns/australia.jpg"},
+                    },
+                ],
+            },
+            {"role": "assistant", "content": "opea project! "},
+            {"role": "user", "content": "chao, "},
+        ]
+        prompt, images = self.gateway._handle_message(messages)
+        self.assertEqual(prompt, "System Prompt\nhello, \nASSISTANT: opea project! \nUSER: chao, \n")
 
 if __name__ == "__main__":
     unittest.main()
