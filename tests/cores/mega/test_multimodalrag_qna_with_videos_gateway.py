@@ -4,7 +4,7 @@
 import json
 import unittest
 from typing import Union
-
+from fastapi import Request
 import requests
 
 from comps import (
@@ -182,6 +182,32 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         prompt, images = self.gateway._handle_message(messages)
         self.assertEqual(prompt, "System Prompt\nhello, \nASSISTANT: opea project! \nUSER: chao, \n")
 
+    async def test_handle_request(self):
+        json_data = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "hello, "},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": "https://www.ilankelman.org/stopsigns/australia.jpg"},
+                        },
+                    ],
+                },
+                {"role": "assistant", "content": "opea project! "},
+                {"role": "user", "content": "chao, "},
+            ],
+            "max_tokens": 300,
+        }
+        mock_request = Request(scope={"type":"http"})
+        mock_request._json = json_data
+        res = await self.gateway.handle_request(mock_request)
+        res = json.loads(res.json())
+        self.assertEqual(
+            res["choices"][-1]["message"]["content"],
+            "<image>\nUSER: hello, \nASSISTANT: opea project! \nUSER: chao, \n\nASSISTANT:",
+        )
 
 if __name__ == "__main__":
     unittest.main()
