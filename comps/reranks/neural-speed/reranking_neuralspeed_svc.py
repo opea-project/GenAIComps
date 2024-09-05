@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import heapq
 import json
 import os
 import re
@@ -11,7 +12,6 @@ import httpx
 import msgspec
 import requests
 import torch
-import heapq
 from langchain_core.prompts import ChatPromptTemplate
 from langsmith import traceable
 
@@ -31,6 +31,7 @@ from comps.cores.proto.api_protocol import (
     RerankingResponse,
     RerankingResponseData,
 )
+
 
 @register_microservice(
     name="opea_service@reranking_mosec",
@@ -60,7 +61,7 @@ def reranking(
         resp = requests.post(url, data=msgspec.msgpack.encode(data))
         response_list = msgspec.msgpack.decode(resp.content)["scores"]
         response = torch.nn.functional.sigmoid(torch.tensor(response_list))
-        length=len(response)
+        length = len(response)
         resp_list = response.tolist()
         sorted_score = heapq.nlargest(length, resp_list)
         sorted_score_index = map(resp_list.index, sorted_score)
@@ -84,6 +85,7 @@ def reranking(
             input.reranked_docs = reranking_docs
             input.documents = [doc["text"] for doc in reranking_results]
             return input
+
 
 if __name__ == "__main__":
     mosec_reranking_endpoint = os.getenv("MOSEC_RERANKING_ENDPOINT", "http://localhost:8080")
