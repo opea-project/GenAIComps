@@ -32,6 +32,7 @@ def read_json(path):
         x = json.load(f)
     return x
 
+
 def store_into_vectordb(vs, metadata_file_path, dimensions):
     GMetadata = read_json(metadata_file_path)
 
@@ -40,16 +41,16 @@ def store_into_vectordb(vs, metadata_file_path, dimensions):
     for idx, (video, data) in enumerate(tqdm(GMetadata.items())):
         metadata_list = []
         ids = []
-        
-        data['video'] = video
+
+        data["video"] = video
         video_name_list = [data["video_path"]]
         metadata_list = [data]
-        if vs.selected_db == 'vdms':
+        if vs.selected_db == "vdms":
             vs.video_db.add_videos(
                 paths=video_name_list,
                 metadatas=metadata_list,
-                start_time=[data['timestamp']],
-                clip_duration=[data['clip_duration']],
+                start_time=[data["timestamp"]],
+                clip_duration=[data["clip_duration"]],
                 embedding_dimensions=dimensions,
             )
         else:
@@ -67,19 +68,15 @@ def generate_video_id():
     """Generates a unique identifier for a video file."""
     return str(uuid.uuid4())
 
+
 def generate_embeddings(config, dimensions, vs):
     process_all_videos(config)
-    global_metadata_file_path = os.path.join(config["meta_output_dir"], 'metadata.json')
-    print(f'global metadata file available at {global_metadata_file_path}')
+    global_metadata_file_path = os.path.join(config["meta_output_dir"], "metadata.json")
+    print(f"global metadata file available at {global_metadata_file_path}")
     store_into_vectordb(vs, global_metadata_file_path, dimensions)
-      
-@register_microservice(
-    name="opea_service@prepare_videodoc_vdms",
-    endpoint="/v1/dataprep",
-    host="0.0.0.0",
-    port=6007
-)
 
+
+@register_microservice(name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 async def process_videos(files: List[UploadFile] = File(None)):
     """Ingest videos to VDMS."""
 
@@ -94,7 +91,7 @@ async def process_videos(files: List[UploadFile] = File(None)):
     emb_path = config["embeddings"]["path"]
     host = VECTORDB_SERVICE_HOST_IP
     port = int(VECTORDB_SERVICE_PORT)
-    selected_db = config['vector_db']['choice_of_db']
+    selected_db = config["vector_db"]["choice_of_db"]
     vector_dimensions = config["embeddings"]["vector_dimensions"]
     print(f"Parsing videos {path}.")
 
@@ -119,17 +116,26 @@ async def process_videos(files: List[UploadFile] = File(None)):
                 shutil.copyfileobj(video_file.file, f)
 
     # Creating DB
-    print ('Creating DB with video embedding and metadata support, \nIt may take few minutes to download and load all required models if you are running for first time.')
-    print('Connecting to {} at {}:{}'.format(selected_db, host, port))
+    print(
+        "Creating DB with video embedding and metadata support, \nIt may take few minutes to download and load all required models if you are running for first time."
+    )
+    print("Connecting to {} at {}:{}".format(selected_db, host, port))
 
     # init meanclip model
     model = setup_vclip_model(meanclip_cfg, device="cpu")
-    vs = store_embeddings.VideoVS(host, port, selected_db, model,collection_name, embedding_dimensions=vector_dimensions)
+    vs = store_embeddings.VideoVS(
+        host, port, selected_db, model, collection_name, embedding_dimensions=vector_dimensions
+    )
 
     generate_embeddings(config, vector_dimensions, vs)
-    
+
+
 @register_microservice(
-    name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep/get_videos", host="0.0.0.0", port=6007, methods=["GET"]
+    name="opea_service@prepare_videodoc_vdms",
+    endpoint="/v1/dataprep/get_videos",
+    host="0.0.0.0",
+    port=6007,
+    methods=["GET"],
 )
 async def rag_get_file_structure():
     """Returns list of names of uploaded videos saved on the server."""
@@ -144,7 +150,11 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep/get_file/{filename}", host="0.0.0.0", port=6007, methods=["GET"]
+    name="opea_service@prepare_videodoc_vdms",
+    endpoint="/v1/dataprep/get_file/{filename}",
+    host="0.0.0.0",
+    port=6007,
+    methods=["GET"],
 )
 async def rag_get_file(filename: str):
     """Download the file from remote."""

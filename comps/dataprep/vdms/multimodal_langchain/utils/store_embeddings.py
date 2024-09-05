@@ -94,8 +94,17 @@ class vCLIPEmbeddings(BaseModel, Embeddings):
 
 
 class VideoVS:
-    def __init__(self, host, port, selected_db, video_retriever_model, collection_name, embedding_dimensions:int = 512, chosen_video_search_type="similarity"):
-        
+    def __init__(
+        self,
+        host,
+        port,
+        selected_db,
+        video_retriever_model,
+        collection_name,
+        embedding_dimensions: int = 512,
+        chosen_video_search_type="similarity",
+    ):
+
         self.host = host
         self.port = port
         self.selected_db = selected_db
@@ -125,5 +134,5 @@ class VideoVS:
                 collection_name=self.video_collection,
                 engine="FaissFlat",
                 distance_strategy="IP",
-                embedding_dimensions=self.embedding_dimensions
+                embedding_dimensions=self.embedding_dimensions,
             )

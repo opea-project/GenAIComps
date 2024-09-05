@@ -10,7 +10,7 @@ embeddings:
   vclip_model_name: "openai/clip-vit-base-patch32"
   vclip_num_frm: 64
   vector_dimensions: 512
-  path: 'uploaded_files/embeddings'
+  path: "uploaded_files/embeddings"
 # VL-branch config
 vl_branch:
   cfg_path: embedding/video_llama_config/video_llama_eval_only_vl.yaml
