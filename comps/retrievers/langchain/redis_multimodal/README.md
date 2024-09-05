@@ -34,7 +34,7 @@ Upload a video or images using the dataprep microservice, instructions can be fo
 ### 1.4 Start Retriever Service
 
 ```bash
-python langchain_multimodal/retriever_redis.py
+python retriever_redis.py
 ```
 
 ## 🚀2. Start Microservice with Docker (Option 2)
@@ -51,7 +51,7 @@ export INDEX_NAME=${your_index_name}
 
 ```bash
 cd ../../../../
-docker build -t opea/multimodal-retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/multimodal_langchain/redis/docker/Dockerfile .
+docker build -t opea/multimodal-retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/redis_multimodal/docker/Dockerfile .
 ```
 
 To start a docker container, you have two options:
