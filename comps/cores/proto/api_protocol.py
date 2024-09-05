@@ -820,8 +820,6 @@ class Metrics(BaseModel):
     full_valid_mean_token_accuracy: float = 0.944
     """The average token accuracy of the model on the full validation set, measuring the overall accuracy."""
 
-
-
 class FineTuningJobCheckpoint(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/fine-tuning/checkpoint-object
