@@ -13,8 +13,6 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 logger = get_logger()
 
-INFERENCE_BATCH_SIZE = 32
-INFERENCE_MAX_WAIT_TIME = 30
 INFERENCE_WORKER_NUM = 1
 INFERENCE_CONTEXT = 512
 
@@ -81,6 +79,8 @@ class Inference(TypedMsgPackMixin, Worker):
 
 
 if __name__ == "__main__":
+    INFERENCE_BATCH_SIZE = int(os.environ.get("MAX_BATCH_SIZE", 128))
+    INFERENCE_MAX_WAIT_TIME = int(os.environ.get("MAX_WAIT_TIME", 1))
     server = Server()
     server.append_worker(
         Inference, max_batch_size=INFERENCE_BATCH_SIZE, max_wait_time=INFERENCE_MAX_WAIT_TIME, num=INFERENCE_WORKER_NUM

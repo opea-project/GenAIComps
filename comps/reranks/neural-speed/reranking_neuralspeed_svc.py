@@ -5,11 +5,13 @@ import json
 import os
 import re
 import time
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import httpx
 import msgspec
 import requests
+import torch
+import heapq
 from langchain_core.prompts import ChatPromptTemplate
 from langsmith import traceable
 
@@ -23,7 +25,12 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
+from comps.cores.proto.api_protocol import (
+    ChatCompletionRequest,
+    RerankingRequest,
+    RerankingResponse,
+    RerankingResponseData,
+)
 
 @register_microservice(
     name="opea_service@reranking_mosec",
@@ -36,33 +43,47 @@ from comps import (
 )
 @traceable(run_type="reranking")
 @register_statistics(names=["opea_service@reranking_mosec"])
-def reranking(input: SearchedDoc) -> LLMParamsDoc:
+def reranking(
+    input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
+) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
     start = time.time()
+    reranking_results = []
     if input.retrieved_docs:
         docs = [doc.text for doc in input.retrieved_docs]
         url = mosec_reranking_endpoint + "/inference"
-        data = {"query": input.initial_query, "docs": docs}
-        resp = requests.post(url, data=msgspec.msgpack.encode(data))
-        response = msgspec.msgpack.decode(resp.content)["scores"]
-
-        best_response_index = max(enumerate(response), key=lambda score: score[1])[0]
-        doc = input.retrieved_docs[best_response_index]
-        if doc.text and len(re.findall("[\u4E00-\u9FFF]", doc.text)) / len(doc.text) >= 0.3:
-            # chinese context
-            template = "仅基于以下背景回答问题:\n{context}\n问题: {question}"
+        if isinstance(input, SearchedDoc):
+            query = input.initial_query
         else:
-            template = """Answer the question based only on the following context:
-    {context}
-    Question: {question}
-            """
-        prompt = ChatPromptTemplate.from_template(template)
-        final_prompt = prompt.format(context=doc.text, question=input.initial_query)
-        statistics_dict["opea_service@reranking_mosec"].append_latency(time.time() - start, None)
+            # for RerankingRequest, ChatCompletionRequest
+            query = input.input
+        data = {"query": query, "docs": docs}
+        resp = requests.post(url, data=msgspec.msgpack.encode(data))
+        response_list = msgspec.msgpack.decode(resp.content)["scores"]
+        response = torch.nn.functional.sigmoid(torch.tensor(response_list))
+        length=len(response)
+        resp_list = response.tolist()
+        sorted_score = heapq.nlargest(length, resp_list)
+        sorted_score_index = map(resp_list.index, sorted_score)
 
-        return LLMParamsDoc(query=final_prompt.strip())
+        for i in range(input.top_n):
+            reranking_results.append(
+                {"text": input.retrieved_docs[list(sorted_score_index)[i]].text, "score": sorted_score[i]}
+            )
+
+    statistics_dict["opea_service@reranking_mosec"].append_latency(time.time() - start, None)
+    if isinstance(input, SearchedDoc):
+        return LLMParamsDoc(query=input.initial_query, documents=[doc["text"] for doc in reranking_results])
     else:
-        return LLMParamsDoc(query=input.initial_query)
+        reranking_docs = []
+        for doc in reranking_results:
+            reranking_docs.append(RerankingResponseData(text=doc["text"], score=doc["score"]))
+        if isinstance(input, RerankingRequest):
+            return RerankingResponse(reranked_docs=reranking_docs)
 
+        if isinstance(input, ChatCompletionRequest):
+            input.reranked_docs = reranking_docs
+            input.documents = [doc["text"] for doc in reranking_results]
+            return input
 
 if __name__ == "__main__":
     mosec_reranking_endpoint = os.getenv("MOSEC_RERANKING_ENDPOINT", "http://localhost:8080")

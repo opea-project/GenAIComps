@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/reranks/neural-speed/requirements.txt
 
 RUN pip3 install llmspec mosec msgspec httpx requests
+RUN pip3 install torch==2.2.2 --trusted-host download.pytorch.org --index-url https://download.pytorch.org/whl/cpu
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
