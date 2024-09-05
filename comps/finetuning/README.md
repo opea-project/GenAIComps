@@ -92,8 +92,7 @@ Download a training file, such as `alpaca_data.json` for instruction tuning and 
 
 ```bash
 # upload a training file
-
-curl http://${your_ip}:8015/v1/finetune/upload_training_files -X POST -H "Content-Type: multipart/form-data" -F "files=@./alpaca_data.json"
+curl http://${your_ip}:8015/v1/files -X POST -H "Content-Type: multipart/form-data" -F "file=@./alpaca_data.json" -F purpose="fine-tune"
 ```
 
 For reranking and embedding models finetuning, the training file [toy_finetune_data.jsonl](https://github.com/FlagOpen/FlagEmbedding/blob/master/examples/finetune/toy_finetune_data.jsonl) is an toy example.
@@ -105,7 +104,6 @@ After a training file like `alpaca_data.json` is uploaded, use the following com
 ```bash
 # create a finetuning job
 curl http://${your_ip}:8015/v1/fine_tuning/jobs \
-
   -X POST \
   -H "Content-Type: application/json" \
   -d '{
@@ -144,3 +142,7 @@ curl http://localhost:8015/v1/fine_tuning/jobs/cancel -X POST -H "Content-Type: 
 # list checkpoints of a finetuning job
 curl http://${your_ip}:8015/v1/finetune/list_checkpoints -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": ${fine_tuning_job_id}}'
 ```
+
+# 🚀4. Descriptions for Finetuning parameters
+
+We utilize [OpenAI finetuning parameters](https://platform.openai.com/docs/api-reference/fine-tuning) and extend it with more customizable parameters.
