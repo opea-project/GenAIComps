@@ -828,16 +828,10 @@ class FineTuningJobCheckpoint(BaseModel):
     fine_tuning_job_id: str
     """The name of the fine-tuning job that this checkpoint was created from."""
 
-    metrics: Metrics
-    """Metrics at the step number during the fine-tuning job."""
-
-    object: Literal["fine_tuning.job.checkpoint"]
-    """The object type, which is always "fine_tuning.job.checkpoint"."""
-
     fine_tuning_job_id: str
     """The name of the fine-tuning job that this checkpoint was created from."""
 
-    metrics: Metrics
+    metrics: Optional[Metrics] = None
     """Metrics at the step number during the fine-tuning job."""
 
     object: Literal["fine_tuning.job.checkpoint"]

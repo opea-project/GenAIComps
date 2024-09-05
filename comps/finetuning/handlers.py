@@ -179,7 +179,6 @@ async def save_content_to_local_disk(save_path: str, content):
         logger.info(f"Write file failed. Exception: {e}")
         raise Exception(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
-
 def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
     fine_tuning_job_id = request.fine_tuning_job_id
 
@@ -196,12 +195,12 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
                 created_at=int(time.time()),  # Use the current timestamp
                 fine_tuned_model_checkpoint=output_dir,  # Directory path itself
                 fine_tuning_job_id=fine_tuning_job_id,
+                object="fine_tuning.job.checkpoint"
             )
             checkpoints.append(checkpointsResponse)
             checkpoint_id_to_checkpoint_path[checkpointsResponse.id] = checkpointsResponse.fine_tuned_model_checkpoint
 
     return checkpoints
-
 
 async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
     return UploadFileRequest(purpose=purpose, file=file)
