@@ -165,7 +165,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
 
     def test_handle_message_with_system_prompt(self):
         messages = [
-            {"role" : "system", "content" : "System Prompt"}, 
+            {"role": "system", "content": "System Prompt"},
             {
                 "role": "user",
                 "content": [
@@ -181,6 +181,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         ]
         prompt, images = self.gateway._handle_message(messages)
         self.assertEqual(prompt, "System Prompt\nhello, \nASSISTANT: opea project! \nUSER: chao, \n")
+
 
 if __name__ == "__main__":
     unittest.main()
