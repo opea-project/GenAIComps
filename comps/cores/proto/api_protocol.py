@@ -798,6 +798,7 @@ class FileObject(BaseModel):
     Supported values are assistants, assistants_output, batch, batch_output, fine-tune, fine-tune-results and vision.
     """
 
+
 class Metrics(BaseModel):
     step: int = 88
     """The current training step number."""
@@ -819,6 +820,7 @@ class Metrics(BaseModel):
 
     full_valid_mean_token_accuracy: float = 0.944
     """The average token accuracy of the model on the full validation set, measuring the overall accuracy."""
+
 
 class FineTuningJobCheckpoint(BaseModel):
     # Ordered by official OpenAI API documentation
