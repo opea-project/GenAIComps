@@ -613,7 +613,7 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
             prompt = prompt_and_image
             cur_megaservice = self.megaservice
             initial_inputs={"text": prompt}
-
+        print("HELPPPPPP", prompt)
         parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,

@@ -20,7 +20,6 @@ import requests
 async def mm_embedding_add(request: MultimodalDoc) -> EmbedDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
-    print('req_dict_embedding', req_dict)
     text = req_dict["text"]
     res = {}
     res["text"] = text
@@ -32,7 +31,6 @@ async def mm_embedding_add(request: MultimodalDoc) -> EmbedDoc:
 async def mm_retriever_add(request: EmbedMultimodalDoc) -> SearchedMultimodalDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
-    print('req_dict_retriever', req_dict)
     text = req_dict["text"]
     res = {}
     res['retrieved_docs'] = []
@@ -49,7 +47,6 @@ async def mm_retriever_add(request: EmbedMultimodalDoc) -> SearchedMultimodalDoc
 async def lvm_add(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
-    print('req_dict_lvm', req_dict)
     if isinstance(request, LVMSearchedMultimodalDoc):
         print("request is the output of multimodal retriever")
         text = req_dict["initial_query"]
@@ -99,8 +96,35 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
     #     print(result_dict)
     #     self.assertEqual(result_dict[self.lvm.name]["text"], "chao, opea project!")
         
-    def test_multimodal_rag_qna_with_videos_gateway(self):
-        json_data = {"messages" : "hello, "}
+    # def test_multimodal_rag_qna_with_videos_gateway(self):
+    #     json_data = {"messages" : "hello, "}
+    #     response = requests.post("http://0.0.0.0:9898/v1/mmragvideoqna", json=json_data)
+    #     response = response.json()
+    #     self.assertEqual(response['choices'][-1]['message']['content'], "hello, opea project!")
+
+    def test_follow_up_qna_with_videos_gateway(self):
+        json_data = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                    {
+                        "type": "text",
+                        "text": "hello, "
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                        "url": "https://www.ilankelman.org/stopsigns/australia.jpg"
+                        }
+                    }
+                    ]
+                }, 
+                {'role': 'assistant', 'content': 'opea project! '},
+                {'role': 'user', 'content': 'chao, '}
+            ],
+            "max_tokens": 300
+        }
         response = requests.post("http://0.0.0.0:9898/v1/mmragvideoqna", json=json_data)
         response = response.json()
         self.assertEqual(response['choices'][-1]['message']['content'], "hello, opea project!")
