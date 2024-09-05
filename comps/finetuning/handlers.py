@@ -60,9 +60,7 @@ def update_job_status(job_id: FineTuningJobID):
         status = str(job_status).lower()
         # Ray status "stopped" is OpenAI status "cancelled"
         status = "cancelled" if status == "stopped" else status
-
         logger.info(f"Status of job {job_id} is '{status}'")
-
         running_finetuning_jobs[job_id].status = status
         if status == "finished" or status == "cancelled" or status == "failed":
             break
@@ -108,7 +106,6 @@ def handle_create_finetuning_jobs(request: FineTuningParams, background_tasks: B
     )
     finetune_config.General.output_dir = os.path.join(OUTPUT_DIR, job.id)
     if os.getenv("DEVICE", ""):
-
         logger.info(f"specific device: {os.getenv('DEVICE')}")
 
         finetune_config.Training.device = os.getenv("DEVICE")
@@ -182,9 +179,7 @@ async def save_content_to_local_disk(save_path: str, content):
                 content = await content.read()
                 fout.write(content)
     except Exception as e:
-
         logger.info(f"Write file failed. Exception: {e}")
-
         raise Exception(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
 
@@ -217,6 +212,8 @@ async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
 
 async def handle_upload_training_files(request: UploadFileRequest):
     file = request.file
+    if file is None:
+        raise HTTPException(status_code=404, detail="upload file failed!")
     filename = urllib.parse.quote(file.filename, safe="")
     save_path = os.path.join(DATASET_BASE_PATH, filename)
     await save_content_to_local_disk(save_path, file)
