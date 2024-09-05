@@ -92,7 +92,7 @@ Assuming a training file `alpaca_data.json` is uploaded, it can be downloaded in
 
 ```bash
 # upload a training file
-curl http://${your_ip}:8015/v1/finetune/upload_training_files -X POST -H "Content-Type: multipart/form-data" -F "files=@./alpaca_data.json"
+curl http://${your_ip}:8015/v1/files -X POST -H "Content-Type: multipart/form-data" -F "file=@./alpaca_data.json" -F purpose="fine-tune"
 
 # create a finetuning job
 curl http://${your_ip}:8015/v1/fine_tuning/jobs \
@@ -111,11 +111,15 @@ curl http://localhost:8015/v1/fine_tuning/jobs/retrieve   -X POST   -H "Content-
     "fine_tuning_job_id": ${fine_tuning_job_id}}'
 
 # cancel one finetuning job
-
 curl http://localhost:8015/v1/fine_tuning/jobs/cancel   -X POST   -H "Content-Type: application/json"   -d '{
     "fine_tuning_job_id": ${fine_tuning_job_id}}'
 
 # list checkpoints of a finetuning job
 curl http://${your_ip}:8015/v1/finetune/list_checkpoints -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": ${fine_tuning_job_id}}'
 
+
 ```
+
+# 🚀4. Descriptions for Finetuning parameters
+
+We utilize [OpenAI finetuning parameters](https://platform.openai.com/docs/api-reference/fine-tuning) and extend it with more customizable parameters.

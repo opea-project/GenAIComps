@@ -1,11 +1,12 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # Use the same python version with ray
 FROM python:3.10.14
 
 ARG HF_TOKEN
 
 ENV HF_TOKEN=$HF_TOKEN
-
-RUN apt-get update -y && apt-get install -y vim htop net-tools dnsutils
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
@@ -19,11 +20,11 @@ USER user
 
 ENV PATH=$PATH:/home/user/.local/bin
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
-    python -m pip install intel-extension-for-pytorch && \
-    python -m pip install oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/us/ && \
-    pip install --no-cache-dir -r /home/user/comps/finetuning/requirements.txt
+RUN python -m pip install --no-cache-dir --upgrade pip && \
+    python -m pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
+    python -m pip install --no-cache-dir intel-extension-for-pytorch && \
+    python -m pip install --no-cache-dir oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/us/ && \
+    python -m pip install --no-cache-dir -r /home/user/comps/finetuning/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
@@ -32,7 +33,8 @@ WORKDIR /home/user/comps/finetuning
 RUN echo PKGPATH=$(python3 -c "import pkg_resources; print(pkg_resources.get_distribution('oneccl-bind-pt').location)") >> run.sh && \
     echo 'export LD_LIBRARY_PATH=$PKGPATH/oneccl_bindings_for_pytorch/opt/mpi/lib/:$LD_LIBRARY_PATH' >> run.sh && \
     echo 'source $PKGPATH/oneccl_bindings_for_pytorch/env/setvars.sh' >> run.sh && \
-    echo ray start --head >> run.sh && \
+    echo ray start --head --dashboard-host=0.0.0.0 >> run.sh && \
+    echo export RAY_ADDRESS=http://localhost:8265 >> run.sh && \
     echo python finetuning_service.py >> run.sh
 
 CMD bash run.sh
