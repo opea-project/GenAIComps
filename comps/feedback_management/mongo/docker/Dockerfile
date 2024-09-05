@@ -1,11 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-FROM langchain/langchain:latest
+FROM python:3.11-slim
 
-ARG ARCH="cpu"
+ENV LANG=C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+    build-essential \
     libgl1-mesa-glx \
     libjemalloc-dev \
     vim
@@ -14,16 +15,17 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-COPY comps /home/user/comps
-
 USER user
 
+COPY comps /home/user/comps
+COPY requirements.txt /home/user/
+
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ ${ARCH} = "cpu" ]; then pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/multimodal_langchain/redis/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/feedback_management/mongo/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/multimodal_langchain/redis
+WORKDIR /home/user/comps/feedback_management/mongo
 
-ENTRYPOINT ["python", "retriever_redis.py"]
+ENTRYPOINT ["python", "feedback.py"]
