@@ -52,7 +52,6 @@ finetuning_job_to_ray_job: Dict[FineTuningJobID, str] = {}
 checkpoint_id_to_checkpoint_path: Dict[CheckpointID, CheckpointPath] = {}
 
 
-
 # Add a background task to periodicly update job status
 def update_job_status(job_id: FineTuningJobID):
     while True:
@@ -200,7 +199,7 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
             )
             checkpoints.append(checkpointsResponse)
             checkpoint_id_to_checkpoint_path[checkpointsResponse.id] = checkpointsResponse.fine_tuned_model_checkpoint
-    
+
     return checkpoints
 
 
