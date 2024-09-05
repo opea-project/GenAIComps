@@ -799,35 +799,22 @@ class FileObject(BaseModel):
     """
 
 class Metrics(BaseModel):
-    step: int = 88
-    """The current training step number."""
+    full_valid_loss: Optional[float] = None
 
-    train_loss: float = 0.478
-    """The loss value during training, which measures the model's performance on the training data."""
+    full_valid_mean_token_accuracy: Optional[float] = None
 
-    train_mean_token_accuracy: float = 0.924
-    """The average token accuracy of the model on the training data."""
+    step: Optional[float] = None
 
-    valid_loss: float = 10.112
-    """The loss value during validation, which measures the model's performance on the validation data."""
+    train_loss: Optional[float] = None
 
-    valid_mean_token_accuracy: float = 0.145
-    """The average token accuracy of the model on the validation data."""
+    train_mean_token_accuracy: Optional[float] = None
 
-    full_valid_loss: float = 0.567
-    """The loss value on the full validation set, indicating the model's overall performance."""
+    valid_loss: Optional[float] = None
 
-    full_valid_mean_token_accuracy: float = 0.944
-    """The average token accuracy of the model on the full validation set, measuring the overall accuracy."""
-
+    valid_mean_token_accuracy: Optional[float] = None
 
 
 class FineTuningJobCheckpoint(BaseModel):
-    # Ordered by official OpenAI API documentation
-    # https://platform.openai.com/docs/api-reference/fine-tuning/checkpoint-object
-    object: str = "fine_tuning.job.checkpoint"
-    """The object type, which is always "fine_tuning.job.checkpoint"."""
-
     id: str
     """The checkpoint identifier, which can be referenced in the API endpoints."""
 
@@ -837,11 +824,14 @@ class FineTuningJobCheckpoint(BaseModel):
     fine_tuned_model_checkpoint: str
     """The name of the fine-tuned checkpoint model that is created."""
 
-    step_number: int
-    """The step number that the checkpoint was created at."""
+    fine_tuning_job_id: str
+    """The name of the fine-tuning job that this checkpoint was created from."""
 
-    metrics: Metrics = Metrics()
+    metrics: Metrics
     """Metrics at the step number during the fine-tuning job."""
 
-    step_number: int = 88
+    object: Literal["fine_tuning.job.checkpoint"]
+    """The object type, which is always "fine_tuning.job.checkpoint"."""
+
+    step_number: int
     """The step number that the checkpoint was created at."""

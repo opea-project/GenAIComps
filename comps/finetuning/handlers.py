@@ -39,8 +39,8 @@ if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
 
 FineTuningJobID = str
-CHECKPOINT_ID = str
-Model_PATH = str
+CheckpointID = str
+CheckpointPath = str
 
 CHECK_JOB_STATUS_INTERVAL = 5  # Check every 5 secs
 
@@ -49,7 +49,7 @@ ray_client: JobSubmissionClient = None
 
 running_finetuning_jobs: Dict[FineTuningJobID, FineTuningJob] = {}
 finetuning_job_to_ray_job: Dict[FineTuningJobID, str] = {}
-checkpoint_job: Dict[CHECKPOINT_ID, Model_PATH] = {}
+checkpoint_id_to_checkpoint_path: Dict[CheckpointID, CheckpointPath] = {}
 
 
 
@@ -206,7 +206,7 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
                 fine_tuning_job_id=fine_tuning_job_id,
             )
             checkpoints.append(checkpointsResponse)
-            checkpoint_job[checkpointsResponse.id] = checkpointsResponse.fine_tuned_model_checkpoint
+            checkpoint_id_to_checkpoint_path[checkpointsResponse.id] = checkpointsResponse.fine_tuned_model_checkpoint
     
     return checkpoints
 
