@@ -687,7 +687,7 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
     async def handle_request(self, request: Request):
         data = await request.json()
         stream_opt = bool(data.get("stream", False))
-        if stream_opt == True:
+        if stream_opt:
             print("[ MultimodalRAGQnAWithVideosGateway ] stream=True not used, this has not support streaming yet!")
             stream_opt = False
         chat_request = ChatCompletionRequest.model_validate(data)
