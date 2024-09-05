@@ -32,7 +32,7 @@ from comps.finetuning.llm_on_ray.finetune.data_process import (
     GroupCollator,
     InstructionDataProcessor,
     PretrainingDataProcessor,
-    TrainDatasetForCE
+    TrainDatasetForCE,
 )
 
 logger = CustomLogger("llm_on_ray/finetune")
