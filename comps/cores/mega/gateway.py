@@ -570,10 +570,11 @@ class RetrievalToolGateway(Gateway):
         return response
 
 class MultimodalRAGQnAWithVideosGateway(Gateway):
-    def __init__(self, megaservice, host="0.0.0.0", port=9999):
+    def __init__(self, multimodal_rag_megaservice, lvm_megaservice, host="0.0.0.0", port=9999):
         super().__init__(
-            megaservice, host, port, str(MegaServiceEndpoint.MULTIMODAL_RAG_QNA_WITH_VIDEOS), ChatCompletionRequest, ChatCompletionResponse
+            multimodal_rag_megaservice, host, port, str(MegaServiceEndpoint.MULTIMODAL_RAG_QNA_WITH_VIDEOS), ChatCompletionRequest, ChatCompletionResponse
         )
+        self.lvm_megaservice = lvm_megaservice
 
     async def handle_request(self, request: Request):
         data = await request.json()
@@ -585,7 +586,16 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
             stream_opt = False
         chat_request = ChatCompletionRequest.model_validate(data)
         # Multimodal RAG QnA With Videos has not yet accepts image as input during QnA.
-        prompt = self._handle_message(chat_request.messages)
+        prompt_and_image = self._handle_message(chat_request.messages)
+        if isinstance(prompt_and_image, tuple):
+            print(f"This request include image, thus it is a follow-up query. Using lvm megaservice")
+            prompt, images = prompt_and_image
+            cur_megaservice = self.lvm_megaservice
+        else:
+            print(f"This is the first query, requiring multimodal retrieval. Using multimodal rag megaservice")
+            prompt = prompt_and_image
+            cur_megaservice = self.megaservice
+
         parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
@@ -595,7 +605,7 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
             streaming=stream_opt,
             chat_template=chat_request.chat_template if chat_request.chat_template else None,
         )
-        result_dict, runtime_graph = await self.megaservice.schedule(
+        result_dict, runtime_graph = await cur_megaservice.schedule(
             initial_inputs={"text": prompt}, llm_parameters=parameters
         )
         for node, response in result_dict.items():
