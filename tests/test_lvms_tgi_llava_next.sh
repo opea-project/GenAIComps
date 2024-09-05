@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    git clone https://github.com/huggingface/tei-gaudi && cd tgi-gaudi && git checkout v2.0.4
+    git clone https://github.com/huggingface/tgi-gaudi && cd tgi-gaudi && git checkout v2.0.4
     docker build --no-cache -t opea/llava-tgi:comps .
     if [ $? -ne 0 ]; then
         echo "opea/llava-tgi built fail"
