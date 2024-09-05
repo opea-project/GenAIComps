@@ -37,7 +37,6 @@ export PYTHONPATH=${path_to_comps}
 
 Start document preparation microservice for VDMS with below command.
 
-
 ```bash
 python ingest_videos.py
 ```
@@ -46,11 +45,9 @@ python ingest_videos.py
 
 ## 2.1 Start VDMS Server
 
-
 ```bash
 docker run -d --name="vdms-vector-db" -p 55555:55555 intellabs/vdms:latest
 ```
-
 
 ## 2.1 Setup Environment Variables
 
@@ -66,21 +63,19 @@ export your_hf_api_token="{your_hf_token}"
 
 ## 2.3 Build Docker Image
 
-- Build docker image 
+- Build docker image
+
 ```bash
 cd ../../../
  docker build -t opea/dataprep-vdms:latest --network host --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/multimodal_langchain/docker/Dockerfile .
 
 ```
 
-
 ## 2.4 Run Docker Compose
-
 
 ```bash
 docker compose -f comps/dataprep/vdms/multimodal_langchain/docker/docker-compose-dataprep-vdms.yaml up -d
 ```
-
 
 # 🚀3. Status Microservice
 
@@ -94,7 +89,6 @@ Once data preparation microservice for VDMS is started, user can use below comma
 
 Make sure the file path after `files=@` is correct.
 
-
 - Single file upload
 
 ```bash
@@ -103,6 +97,7 @@ curl -X POST \
     -F "files=@./file1.mp4" \
     http://localhost:6007/v1/dataprep
 ```
+
 - Multiple file upload
 
 ```bash
@@ -113,6 +108,7 @@ curl -X POST \
     -F "files=@./file3.mp4" \
     http://localhost:6007/v1/dataprep
 ```
+
 - List of uploaded files
 
 ```bash

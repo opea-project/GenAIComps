@@ -1,56 +1,60 @@
-
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import json
-from tqdm import tqdm
-from comps import opea_microservices, register_microservice
-from utils.utils import read_config, process_all_videos
-from utils import store_embeddings
-from utils.vclip import vCLIP
+import os
+import shutil
+import uuid
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Type, Union
+
 from fastapi import File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
-import uuid
-from typing import Any, Dict, Iterable, List, Optional, Type, Union
-import shutil
-from pathlib import Path
+from tqdm import tqdm
+from utils import store_embeddings
+from utils.utils import process_all_videos, read_config
+from utils.vclip import vCLIP
+
+from comps import opea_microservices, register_microservice
 
 VECTORDB_SERVICE_HOST_IP = os.getenv("VDMS_HOST", "0.0.0.0")
 VECTORDB_SERVICE_PORT = os.getenv("VDMS_PORT", 55555)
 collection_name = os.getenv("INDEX_NAME", "rag-vdms")
 
+
 def setup_vclip_model(config, device="cpu"):
     model = vCLIP(config)
     return model
+
 
 def read_json(path):
     with open(path) as f:
         x = json.load(f)
     return x
 
+
 def store_into_vectordb(vs, metadata_file_path, embedding_model, config):
     GMetadata = read_json(metadata_file_path)
     global_counter = 0
 
     total_videos = len(GMetadata.keys())
-    
+
     for idx, (video, data) in enumerate(tqdm(GMetadata.items())):
         image_name_list = []
         embedding_list = []
         metadata_list = []
         ids = []
-        
-        if config['embeddings']['type'] == 'video':
-            data['video'] = video
+
+        if config["embeddings"]["type"] == "video":
+            data["video"] = video
             video_name_list = [data["video_path"]]
             metadata_list = [data]
-            if vs.selected_db == 'vdms':
+            if vs.selected_db == "vdms":
                 vs.video_db.add_videos(
                     paths=video_name_list,
                     metadatas=metadata_list,
-                    start_time=[data['timestamp']],
-                    clip_duration=[data['clip_duration']]
+                    start_time=[data["timestamp"]],
+                    clip_duration=[data["clip_duration"]],
                 )
             else:
                 print(f"ERROR: selected_db {vs.selected_db} not supported. Supported:[vdms]")
@@ -59,41 +63,41 @@ def store_into_vectordb(vs, metadata_file_path, embedding_model, config):
     for i in os.listdir():
         if i.startswith("tmp_"):
             print("removing tmp_*")
-            os.system(f"rm -r tmp_*")
+            os.system("rm -r tmp_*")
             break
-            
+
+
 def generate_video_id():
     """Generates a unique identifier for a video file."""
-    return str(uuid.uuid4())        
+    return str(uuid.uuid4())
+
 
 def generate_embeddings(config, embedding_model, vs):
     process_all_videos(config)
-    global_metadata_file_path = os.path.join(config["meta_output_dir"], 'metadata.json')
-    print(f'global metadata file available at {global_metadata_file_path}')
+    global_metadata_file_path = os.path.join(config["meta_output_dir"], "metadata.json")
+    print(f"global metadata file available at {global_metadata_file_path}")
     store_into_vectordb(vs, global_metadata_file_path, embedding_model, config)
-      
-@register_microservice(
-    name="opea_service@prepare_videodoc_vdms",
-    endpoint="/v1/dataprep",
-    host="0.0.0.0",
-    port=6007
-)
 
+
+@register_microservice(name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 async def process_videos(files: List[UploadFile] = File(None)):
     """Ingest videos to VDMS."""
-    
-    config = read_config('./config.yaml')
-    meanclip_cfg = {"model_name": config['embeddings']['vclip_model_name'], "num_frm": config['embeddings']['vclip_num_frm']}
-    generate_frames = config['generate_frames']
-    path = config['videos']
-    meta_output_dir = config['meta_output_dir']
-    emb_path = config['embeddings']['path']
+
+    config = read_config("./config.yaml")
+    meanclip_cfg = {
+        "model_name": config["embeddings"]["vclip_model_name"],
+        "num_frm": config["embeddings"]["vclip_num_frm"],
+    }
+    generate_frames = config["generate_frames"]
+    path = config["videos"]
+    meta_output_dir = config["meta_output_dir"]
+    emb_path = config["embeddings"]["path"]
     host = VECTORDB_SERVICE_HOST_IP
     port = int(VECTORDB_SERVICE_PORT)
-    selected_db = config['vector_db']['choice_of_db']
+    selected_db = config["vector_db"]["choice_of_db"]
     print(f"Parsing videos {path}.")
-    
-    #Saving videos
+
+    # Saving videos
     if files:
         video_files = []
         for file in files:
@@ -113,43 +117,56 @@ async def process_videos(files: List[UploadFile] = File(None)):
             with open(os.path.join(path, video_file_name), "wb") as f:
                 shutil.copyfileobj(video_file.file, f)
 
-    
     # Creating DB
-    print ('Creating DB with video embedding and metadata support, \nIt may take few minutes to download and load all required models if you are running for first time.')
-    print('Connecting to {} at {}:{}'.format(selected_db, host, port))
-    #check embedding type
-    if 'video' == 'video':
+    print(
+        "Creating DB with video embedding and metadata support, \nIt may take few minutes to download and load all required models if you are running for first time."
+    )
+    print("Connecting to {} at {}:{}".format(selected_db, host, port))
+    # check embedding type
+    if "video" == "video":
         # init meanclip model
         model = setup_vclip_model(meanclip_cfg, device="cpu")
-        vs = store_embeddings.VideoVS(host, port, selected_db, model,collection_name)
+        vs = store_embeddings.VideoVS(host, port, selected_db, model, collection_name)
 
     else:
-        print(f"ERROR: Selected embedding type in config.yaml {config['embeddings']['type']} is not in [\'video\', \'frame\']")
+        print(
+            f"ERROR: Selected embedding type in config.yaml {config['embeddings']['type']} is not in ['video', 'frame']"
+        )
         return
     generate_embeddings(config, model, vs)
-    
+
+
 @register_microservice(
-    name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep/get_videos", host="0.0.0.0", port=6007,methods=["GET"]
+    name="opea_service@prepare_videodoc_vdms",
+    endpoint="/v1/dataprep/get_videos",
+    host="0.0.0.0",
+    port=6007,
+    methods=["GET"],
 )
 async def rag_get_file_structure():
     """Returns list of names of uploaded videos saved on the server."""
-    config = read_config('./config.yaml')
-    if not Path( config['videos']).exists():
+    config = read_config("./config.yaml")
+    if not Path(config["videos"]).exists():
         print("No file uploaded, return empty list.")
         return []
 
-    uploaded_videos = os.listdir(config['videos'])
+    uploaded_videos = os.listdir(config["videos"])
     mp4_files = [file for file in uploaded_videos if file.endswith(".mp4")]
     return mp4_files
 
+
 @register_microservice(
-    name="opea_service@prepare_videodoc_vdms", endpoint="/v1/dataprep/get_file/{filename}", host="0.0.0.0", port=6007,methods=["GET"]
+    name="opea_service@prepare_videodoc_vdms",
+    endpoint="/v1/dataprep/get_file/{filename}",
+    host="0.0.0.0",
+    port=6007,
+    methods=["GET"],
 )
 async def rag_get_file(filename: str):
     """Download the file from remote."""
-    
-    config = read_config('./config.yaml')
-    UPLOAD_DIR=config['videos']
+
+    config = read_config("./config.yaml")
+    UPLOAD_DIR = config["videos"]
     file_path = os.path.join(UPLOAD_DIR, filename)
     if os.path.exists(file_path):
         return FileResponse(path=file_path, filename=filename)
