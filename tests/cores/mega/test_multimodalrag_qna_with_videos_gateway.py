@@ -50,10 +50,13 @@ async def lvm_add(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
     if isinstance(request, LVMSearchedMultimodalDoc):
         print("request is the output of multimodal retriever")
         text = req_dict["initial_query"]
+        text += "opea project!"
+        
     else:
         print("request is from user.")
         text = req_dict["prompt"]
-    text += "opea project!"
+        text = f"<image>\nUSER: {text}\nASSISTANT:"
+        
     res = {}
     res['text'] = text
     return res
@@ -87,20 +90,20 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         cls.lvm.stop()
         cls.gateway.stop()
 
-    # async def test_service_builder_schedule(self):
-    #     result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
-    #     self.assertEqual(result_dict[self.lvm.name]["text"], "hello, opea project!")
+    async def test_service_builder_schedule(self):
+        result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
+        self.assertEqual(result_dict[self.lvm.name]["text"], "hello, opea project!")
 
-    # async def test_follow_up_query_service_builder_schedule(self):
-    #     result_dict, _ = await self.follow_up_query_service_builder.schedule(initial_inputs={"prompt": "chao, ", "image" : "some image"})
-    #     print(result_dict)
-    #     self.assertEqual(result_dict[self.lvm.name]["text"], "chao, opea project!")
+    async def test_follow_up_query_service_builder_schedule(self):
+        result_dict, _ = await self.follow_up_query_service_builder.schedule(initial_inputs={"prompt": "chao, ", "image" : "some image"})
+        # print(result_dict)
+        self.assertEqual(result_dict[self.lvm.name]["text"], "<image>\nUSER: chao, \nASSISTANT:")
         
-    # def test_multimodal_rag_qna_with_videos_gateway(self):
-    #     json_data = {"messages" : "hello, "}
-    #     response = requests.post("http://0.0.0.0:9898/v1/mmragvideoqna", json=json_data)
-    #     response = response.json()
-    #     self.assertEqual(response['choices'][-1]['message']['content'], "hello, opea project!")
+    def test_multimodal_rag_qna_with_videos_gateway(self):
+        json_data = {"messages" : "hello, "}
+        response = requests.post("http://0.0.0.0:9898/v1/mmragvideoqna", json=json_data)
+        response = response.json()
+        self.assertEqual(response['choices'][-1]['message']['content'], "hello, opea project!")
 
     def test_follow_up_qna_with_videos_gateway(self):
         json_data = {
@@ -127,7 +130,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         }
         response = requests.post("http://0.0.0.0:9898/v1/mmragvideoqna", json=json_data)
         response = response.json()
-        self.assertEqual(response['choices'][-1]['message']['content'], "hello, opea project!")
+        self.assertEqual(response['choices'][-1]['message']['content'], "<image>\nUSER: hello, \nASSISTANT: opea project! \nUSER: chao, \n\nASSISTANT:")
 
 if __name__ == "__main__":
     unittest.main()

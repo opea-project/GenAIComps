@@ -108,7 +108,7 @@ class Gateway:
                     messages_dict[msg_role] = message["content"]
                 else:
                     raise ValueError(f"Unknown role: {msg_role}")
-            print('::::::::', messages_dict)
+
             if system_prompt:
                 prompt = system_prompt + "\n"
             for role, message in messages_dict.items():
@@ -590,8 +590,93 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
         super().__init__(
             multimodal_rag_megaservice, host, port, str(MegaServiceEndpoint.MULTIMODAL_RAG_QNA_WITH_VIDEOS), ChatCompletionRequest, ChatCompletionResponse
         )
-        
+    # this overrides _handle_message method of Gateway   
+    def _handle_message(self, messages):
+        images = []
+        messages_dicts = []
+        if isinstance(messages, str):
+            prompt = messages
+        else:
+            messages_dict = {}
+            system_prompt = ""
+            prompt = ""
+            for message in messages:
+                msg_role = message["role"]
+                messages_dict = {}
+                if msg_role == "system":
+                    system_prompt = message["content"]
+                elif msg_role == "user":
+                    if type(message["content"]) == list:
+                        text = ""
+                        text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
+                        text += "\n".join(text_list)
+                        image_list = [
+                            item["image_url"]["url"] for item in message["content"] if item["type"] == "image_url"
+                        ]
+                        if image_list:
+                            messages_dict[msg_role] = (text, image_list)
+                        else:
+                            messages_dict[msg_role] = text
+                    else:
+                        messages_dict[msg_role] = message["content"]
+                    messages_dicts.append(messages_dict)
+                elif msg_role == "assistant":
+                    messages_dict[msg_role] = message["content"]
+                    messages_dicts.append(messages_dict)
+                else:
+                    raise ValueError(f"Unknown role: {msg_role}")
+                
+            if system_prompt:
+                prompt = system_prompt + "\n"
+            for messages_dict in messages_dicts:
+                for i, (role, message) in enumerate(messages_dict.items()):
+                    if isinstance(message, tuple):
+                        text, image_list = message
+                        if i == 0:
+                            # do not add role for the very first message. 
+                            # this will be added by llava_server
+                            if text:
+                                prompt += text + "\n"
+                        else:
+                            if text:
+                                prompt += role.upper() + ": " + text + "\n"
+                            else:
+                                prompt += role.upper() + ":"
+                        for img in image_list:
+                            # URL
+                            if img.startswith("http://") or img.startswith("https://"):
+                                response = requests.get(img)
+                                image = Image.open(BytesIO(response.content)).convert("RGBA")
+                                image_bytes = BytesIO()
+                                image.save(image_bytes, format="PNG")
+                                img_b64_str = base64.b64encode(image_bytes.getvalue()).decode()
+                            # Local Path
+                            elif os.path.exists(img):
+                                image = Image.open(img).convert("RGBA")
+                                image_bytes = BytesIO()
+                                image.save(image_bytes, format="PNG")
+                                img_b64_str = base64.b64encode(image_bytes.getvalue()).decode()
+                            # Bytes
+                            else:
+                                img_b64_str = img
 
+                            images.append(img_b64_str)
+                    else:
+                        if i == 0:
+                            # do not add role for the very first message. 
+                            # this will be added by llava_server
+                            if message:
+                                prompt += role.upper() + ": " + message + "\n"
+                        else:
+                            if message:
+                                prompt += role.upper() + ": " + message + "\n"
+                            else:
+                                prompt += role.upper() + ":"
+        if images:
+            return prompt, images
+        else:
+            return prompt
+        
     async def handle_request(self, request: Request):
         data = await request.json()
         stream_opt = bool(data.get("stream", False))
@@ -604,16 +689,16 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
         # Multimodal RAG QnA With Videos has not yet accepts image as input during QnA.
         prompt_and_image = self._handle_message(chat_request.messages)
         if isinstance(prompt_and_image, tuple):
-            print(f"This request include image, thus it is a follow-up query. Using lvm megaservice")
+            # print(f"This request include image, thus it is a follow-up query. Using lvm megaservice")
             prompt, images = prompt_and_image
             cur_megaservice = self.lvm_megaservice
             initial_inputs={"prompt": prompt, "image": images[0]}
         else:
-            print(f"This is the first query, requiring multimodal retrieval. Using multimodal rag megaservice")
+            # print(f"This is the first query, requiring multimodal retrieval. Using multimodal rag megaservice")
             prompt = prompt_and_image
             cur_megaservice = self.megaservice
             initial_inputs={"text": prompt}
-        print("HELPPPPPP", prompt)
+
         parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
