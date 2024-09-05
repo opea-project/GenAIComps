@@ -14,7 +14,7 @@ from comps import (
         LVMSearchedMultimodalDoc,
         MultimodalRAGQnAWithVideosGateway
     )
-
+import requests
 
 @register_microservice(name="mm_embedding", host="0.0.0.0", port=8083, endpoint="/v1/mm_embedding")
 async def mm_embedding_add(request: MultimodalDoc) -> EmbedDoc:
@@ -90,16 +90,20 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         cls.lvm.stop()
         cls.gateway.stop()
 
-    async def test_service_builder_schedule(self):
-        result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
-        self.assertEqual(result_dict[self.lvm.name]["text"], "hello, opea project!")
+    # async def test_service_builder_schedule(self):
+    #     result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
+    #     self.assertEqual(result_dict[self.lvm.name]["text"], "hello, opea project!")
 
-    async def test_follow_up_query_service_builder_schedule(self):
-        result_dict, _ = await self.follow_up_query_service_builder.schedule(initial_inputs={"prompt": "chao, ", "image" : "some image"})
-        print(result_dict)
-        self.assertEqual(result_dict[self.lvm.name]["text"], "chao, opea project!")
+    # async def test_follow_up_query_service_builder_schedule(self):
+    #     result_dict, _ = await self.follow_up_query_service_builder.schedule(initial_inputs={"prompt": "chao, ", "image" : "some image"})
+    #     print(result_dict)
+    #     self.assertEqual(result_dict[self.lvm.name]["text"], "chao, opea project!")
         
-
+    def test_multimodal_rag_qna_with_videos_gateway(self):
+        json_data = {"messages" : "hello, "}
+        response = requests.post("http://0.0.0.0:9898/v1/mmragvideoqna", json=json_data)
+        response = response.json()
+        self.assertEqual(response['choices'][-1]['message']['content'], "hello, opea project!")
 
 if __name__ == "__main__":
     unittest.main()

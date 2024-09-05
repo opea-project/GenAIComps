@@ -108,6 +108,7 @@ class Gateway:
                     messages_dict[msg_role] = message["content"]
                 else:
                     raise ValueError(f"Unknown role: {msg_role}")
+            print('::::::::', messages_dict)
             if system_prompt:
                 prompt = system_prompt + "\n"
             for role, message in messages_dict.items():
@@ -585,10 +586,11 @@ class RetrievalToolGateway(Gateway):
 
 class MultimodalRAGQnAWithVideosGateway(Gateway):
     def __init__(self, multimodal_rag_megaservice, lvm_megaservice, host="0.0.0.0", port=9999):
+        self.lvm_megaservice = lvm_megaservice
         super().__init__(
             multimodal_rag_megaservice, host, port, str(MegaServiceEndpoint.MULTIMODAL_RAG_QNA_WITH_VIDEOS), ChatCompletionRequest, ChatCompletionResponse
         )
-        self.lvm_megaservice = lvm_megaservice
+        
 
     async def handle_request(self, request: Request):
         data = await request.json()
@@ -605,10 +607,12 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
             print(f"This request include image, thus it is a follow-up query. Using lvm megaservice")
             prompt, images = prompt_and_image
             cur_megaservice = self.lvm_megaservice
+            initial_inputs={"prompt": prompt, "image": images[0]}
         else:
             print(f"This is the first query, requiring multimodal retrieval. Using multimodal rag megaservice")
             prompt = prompt_and_image
             cur_megaservice = self.megaservice
+            initial_inputs={"text": prompt}
 
         parameters = LLMParams(
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
@@ -620,7 +624,7 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
             chat_template=chat_request.chat_template if chat_request.chat_template else None,
         )
         result_dict, runtime_graph = await cur_megaservice.schedule(
-            initial_inputs={"text": prompt}, llm_parameters=parameters
+            initial_inputs=initial_inputs, llm_parameters=parameters
         )
         for node, response in result_dict.items():
             # the last microservice in this megaservice is LVM. 
