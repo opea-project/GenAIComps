@@ -31,7 +31,7 @@ function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-multimodal-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/multimodal-retriever-redis:comps
 
-    sleep 3m
+    sleep 5m
 }
 
 function validate_microservice() {
