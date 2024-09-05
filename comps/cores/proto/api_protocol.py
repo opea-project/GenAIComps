@@ -800,12 +800,26 @@ class FileObject(BaseModel):
 
 class Metrics(BaseModel):
     step: int = 88
-    train_loss: int = 0.478
-    train_mean_token_accuracy: int = 0.924
-    valid_loss: int = 10.112
-    valid_mean_token_accuracy: int = 0.145
-    full_valid_loss: int = 0.567
-    full_valid_mean_token_accuracy: int = 0.944
+    """The current training step number."""
+
+    train_loss: float = 0.478
+    """The loss value during training, which measures the model's performance on the training data."""
+
+    train_mean_token_accuracy: float = 0.924
+    """The average token accuracy of the model on the training data."""
+
+    valid_loss: float = 10.112
+    """The loss value during validation, which measures the model's performance on the validation data."""
+
+    valid_mean_token_accuracy: float = 0.145
+    """The average token accuracy of the model on the validation data."""
+
+    full_valid_loss: float = 0.567
+    """The loss value on the full validation set, indicating the model's overall performance."""
+
+    full_valid_mean_token_accuracy: float = 0.944
+    """The average token accuracy of the model on the full validation set, measuring the overall accuracy."""
+
 
 
 class FineTuningJobCheckpoint(BaseModel):
@@ -826,7 +840,7 @@ class FineTuningJobCheckpoint(BaseModel):
     step_number: int
     """The step number that the checkpoint was created at."""
 
-    metrics: Metrics
+    metrics: Metrics = Metrics()
     """Metrics at the step number during the fine-tuning job."""
 
     step_number: int = 88
