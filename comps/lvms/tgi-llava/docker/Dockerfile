@@ -9,7 +9,7 @@ ENV LANG=en_US.UTF-8
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/comps/lvms/requirements.txt
+    pip install --no-cache-dir -r /home/comps/lvms/tgi-llava/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
