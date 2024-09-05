@@ -32,8 +32,8 @@ For details, please refer to this [readme](langchain/lancedb/README.md)
 
 ## Vectorstores Microservice with Chroma
 
-For details, please refer to this [readme](langchain/chroma/README.md)
-=======
+# For details, please refer to this [readme](langchain/chroma/README.md)
+
 # Vectorstores Microservice with VDMS
 
 For details, please refer to this [readme](langchain/vdms/README.md)
