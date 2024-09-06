@@ -16,6 +16,7 @@ from comps import (
 )
 from comps.cores.proto.docarray import LLMParams
 
+
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:
     req = request.model_dump_json()
