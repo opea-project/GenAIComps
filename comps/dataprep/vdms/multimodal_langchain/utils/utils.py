@@ -50,7 +50,6 @@ def process_all_videos(config):
     meta_output_dir = config["meta_output_dir"]
     selected_db = config["vector_db"]["choice_of_db"]
     emb_path = config["embeddings"]["path"]
-    emb_type = config["embeddings"]["type"]
     chunk_duration = config["chunk_duration"]
     clip_duration = config["clip_duration"]
 
