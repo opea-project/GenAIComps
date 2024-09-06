@@ -2,13 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-from time import sleep
 import unittest
+from time import sleep
 
 from fastapi.responses import StreamingResponse
 
-from comps import ServiceType, VideoRAGQnAGateway, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
+from comps import (
+    ServiceOrchestrator,
+    ServiceType,
+    TextDoc,
+    VideoRAGQnAGateway,
+    opea_microservices,
+    register_microservice,
+)
 from comps.cores.proto.docarray import LLMParams
+
 
 @register_microservice(name="s1", host="172.16.186.61", port=8083, endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:
@@ -24,13 +32,14 @@ async def s2_add(request: TextDoc) -> TextDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
     text = req_dict["text"]
+
     def streamer(text):
         yield f"{text}".encode("utf-8")
         for i in range(3):
             yield "project!".encode("utf-8")
 
     return StreamingResponse(streamer(text), media_type="text/event-stream")
-    
+
 
 class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
@@ -51,9 +60,11 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         self.gateway.stop()
 
     async def test_schedule(self):
-        result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "}, llm_parameters=LLMParams(streaming=True))
+        result_dict, _ = await self.service_builder.schedule(
+            initial_inputs={"text": "hello, "}, llm_parameters=LLMParams(streaming=True)
+        )
         streaming_response = result_dict[self.s2.name]
-        
+
         if isinstance(streaming_response, StreamingResponse):
             content = b""
             async for chunk in streaming_response.body_iterator:
@@ -61,7 +72,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
             final_text = content.decode("utf-8")
 
         print("Streamed content from s2: ", final_text)
-    
+
         expected_result = "hello, opea project!project!project!"
         self.assertEqual(final_text, expected_result)
 
