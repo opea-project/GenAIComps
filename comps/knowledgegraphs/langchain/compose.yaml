@@ -1,0 +1,64 @@
+services:
+  tgi_service:
+    image: ghcr.io/huggingface/text-generation-inference:2.1.0
+    container_name: tgi-service
+    ports:
+      - "8008:80"
+    volumes:
+      - "./data:/data"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      HF_HUB_DISABLE_PROGRESS_BARS: 1
+      HF_HUB_ENABLE_HF_TRANSFER: 0
+    command: --model-id ${LLM_MODEL_ID} --max-input-tokens ${LLM_MAX_INPUT_TOKENS}
+  llm:
+    image: opea/llm-tgi:latest
+    container_name: llm-tgi-server
+    ports:
+      - "9000:9000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      TGI_LLM_ENDPOINT: ${TGI_LLM_ENDPOINT}
+      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+    restart: unless-stopped
+  kg-neo4j:
+    image: neo4j
+    container_name: kg-neo4j-container
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ${PWD}/neo4j_data:/data
+    ipc: host
+    environment:
+      NEO4J_USERNAME: ${NEO4J_USERNAME}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      NEO4J_AUTH: ${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+      PASSWORD: ${NEO4J_PASSWORD}
+      NEO4J_server_config_strict__validation_enabled: false
+      NEO4JLABS_PLUGINS: '["apoc"]'
+  kg-server:
+    image: opea/knowledge_graphs
+    container_name: knowledge-graph-server
+    ports:
+      - "8060:8060"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      NEO4J_ENDPOINT: ${NEO4J_ENDPOINT}
+      NEO4J_USERNAME: ${NEO4J_USERNAME}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+networks:
+  default:
+    driver: bridge
