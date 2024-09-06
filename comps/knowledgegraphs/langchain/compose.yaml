@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 services:
   tgi_service:
     image: ghcr.io/huggingface/text-generation-inference:2.1.0
