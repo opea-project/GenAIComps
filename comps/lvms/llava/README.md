@@ -30,7 +30,7 @@ pip install optimum[habana]
 ```
 
 ```bash
-cd depencency/
+cd dependency/
 # Start LLaVA service
 nohup python llava_server.py &
 # Test
