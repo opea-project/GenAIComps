@@ -7,6 +7,7 @@ import shutil
 import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Type, Union
+import time
 
 from fastapi import File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -49,9 +50,8 @@ def store_into_vectordb(vs, metadata_file_path, dimensions):
             vs.video_db.add_videos(
                 paths=video_name_list,
                 metadatas=metadata_list,
-                start_time=[data["timestamp"]],
-                clip_duration=[data["clip_duration"]],
-                embedding_dimensions=dimensions,
+                start_time=[data['timestamp']],
+                clip_duration=[data['clip_duration']]
             )
         else:
             print(f"ERROR: selected_db {vs.selected_db} not supported. Supported:[vdms]")
@@ -116,17 +116,15 @@ async def process_videos(files: List[UploadFile] = File(None)):
                 shutil.copyfileobj(video_file.file, f)
 
     # Creating DB
-    print(
-        "Creating DB with video embedding and metadata support, \nIt may take few minutes to download and load all required models if you are running for first time."
-    )
-    print("Connecting to {} at {}:{}".format(selected_db, host, port))
+    print ('Creating DB with video embedding and metadata support, \nIt may take few minutes to download and load all required models if you are running for first time.', flush=True)
+    print('Connecting to {} at {}:{}'.format(selected_db, host, port), flush=True)
 
     # init meanclip model
     model = setup_vclip_model(meanclip_cfg, device="cpu")
-    vs = store_embeddings.VideoVS(
-        host, port, selected_db, model, collection_name, embedding_dimensions=vector_dimensions
-    )
-
+    vs = store_embeddings.VideoVS(host, port, selected_db, model,collection_name, embedding_dimensions=vector_dimensions)
+    print("done creating DB, sleep 5s", flush=True)
+    time.sleep(5)
+    
     generate_embeddings(config, vector_dimensions, vs)
 
 
