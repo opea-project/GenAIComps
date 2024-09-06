@@ -86,7 +86,6 @@ docker run --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p 8015:8015 -e OMPI_M
 
 ## 🚀3. Consume Finetuning Service
 
-
 ## 3.1 Upload a training file
 
 Download a training file, such as `alpaca_data.json` for instruction tuning and upload it to the server with below command, this file can be downloaded in [here](https://github.com/tatsu-lab/stanford_alpaca/blob/main/alpaca_data.json):
