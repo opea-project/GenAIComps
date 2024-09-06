@@ -14,6 +14,8 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 logger = get_logger()
 
+INFERENCE_BATCH_SIZE = 128
+INFERENCE_MAX_WAIT_TIME = 10
 INFERENCE_WORKER_NUM = 1
 INFERENCE_CONTEXT = 512
 
