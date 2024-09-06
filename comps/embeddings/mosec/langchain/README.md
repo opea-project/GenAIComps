@@ -1,13 +1,13 @@
 # build Mosec endpoint docker image
 
 ```
-docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec-endpoint:latest -f comps/embeddings/langchain/mosec/server/docker/Dockerfile .
+docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
 ```
 
 ## build embedding microservice docker image
 
 ```
-docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec:latest -f comps/embeddings/langchain/mosec/docker/Dockerfile .
+docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec:latest -f comps/embeddings/mosec/langchain/Dockerfile .
 ```
 
 ## launch Mosec endpoint docker container

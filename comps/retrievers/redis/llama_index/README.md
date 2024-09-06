@@ -48,7 +48,7 @@ export INDEX_NAME=${your_index_name}
 
 ```bash
 cd ../../../..
-docker build -t opea/retriever-redis-llamaindex:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/llamaindex/redis/docker/Dockerfile .
+docker build -t opea/retriever-redis-llamaindex:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/redis/llama_index/Dockerfile .
 ```
 
 To start a docker container, you have two options:

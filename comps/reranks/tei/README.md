@@ -16,9 +16,6 @@ pip install -r requirements.txt
 
 ```bash
 export HF_TOKEN=${your_hf_api_token}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/reranks"
 export RERANK_MODEL_ID="BAAI/bge-reranker-large"
 volume=$PWD/data
 docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
@@ -55,7 +52,7 @@ export TEI_RERANKING_ENDPOINT="http://${your_ip}:8808"
 
 ```bash
 cd ../../
-docker build -t opea/reranking-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/tei/docker/Dockerfile .
+docker build -t opea/reranking-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/tei/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -68,7 +65,7 @@ You can choose one as needed.
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="reranking-tei-server" -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e LANGCHAIN_API_KEY=$LANGCHAIN_API_KEY opea/reranking-tei:latest
+docker run -d --name="reranking-tei-server" -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/reranking-tei:latest
 ```
 
 ### 2.4 Run Docker with Docker Compose (Option B)

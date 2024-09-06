@@ -35,7 +35,7 @@ curl 127.0.0.1:6060/rerank     -X POST     -d '{"query":"What is Deep Learning?"
 #### Start Retriever Service
 
 Retriever service queries the Pathway vector store on incoming requests.
-Make sure that Pathway vector store is already running, [see Pathway vector store here](../../../vectorstores/langchain/pathway/README.md).
+Make sure that Pathway vector store is already running, [see Pathway vector store here](../../../vectorstores/pathway/README.md).
 
 Retriever service expects the Pathway host and port variables to connect to the vector DB. Set the Pathway vector store environment variables.
 
@@ -46,7 +46,7 @@ export PATHWAY_PORT=8666
 
 ```bash
 # make sure you are in the root folder of the repo
-docker build -t opea/retriever-pathway:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/pathway/docker/Dockerfile .
+docker build -t opea/retriever-pathway:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/pathway/langchain/Dockerfile .
 
 docker run -p 7000:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy --network="host" opea/retriever-pathway:latest
 ```
@@ -72,7 +72,7 @@ Note that following docker compose sets the `network_mode: host` in retriever im
 This will start the both the embedding and retriever services:
 
 ```bash
-cd comps/retrievers/langchain/pathway/docker
+cd comps/retrievers/pathway/langchain
 
 docker compose -f docker_compose_retriever.yaml build
 docker compose -f docker_compose_retriever.yaml up

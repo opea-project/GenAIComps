@@ -16,10 +16,10 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/embeddings/langchain/mosec/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/embeddings/mosec/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/embeddings/langchain/mosec
+WORKDIR /home/user/comps/embeddings/mosec/langchain
 
 ENTRYPOINT ["python", "embedding_mosec.py"]

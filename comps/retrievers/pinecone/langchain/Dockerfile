@@ -19,11 +19,11 @@ USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ ${ARCH} = "cpu" ]; then pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/langchain/pinecone/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/pinecone/langchain/requirements.txt
 
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/langchain/pinecone
+WORKDIR /home/user/comps/retrievers/pinecone/langchain
 
 ENTRYPOINT ["python", "retriever_pinecone.py"]

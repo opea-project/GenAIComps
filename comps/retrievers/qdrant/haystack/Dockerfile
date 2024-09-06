@@ -16,10 +16,10 @@ USER user
 COPY comps /home/user/comps
 
 RUN python -m pip install --no-cache-dir --upgrade pip && \
-    python -m pip install --no-cache-dir -r /home/user/comps/retrievers/haystack/qdrant/requirements.txt
+    python -m pip install --no-cache-dir -r /home/user/comps/retrievers/qdrant/haystack/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/haystack/qdrant
+WORKDIR /home/user/comps/retrievers/qdrant/haystack
 
 ENTRYPOINT ["python", "retriever_qdrant.py"]

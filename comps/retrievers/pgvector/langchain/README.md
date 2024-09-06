@@ -69,8 +69,8 @@ export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
 ### 2.2 Build Docker Image
 
 ```bash
-cd comps/retrievers/langchain/pgvector/docker
-docker build -t opea/retriever-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/pgvector/docker/Dockerfile .
+cd comps/retrievers/pgvector/langchain
+docker build -t opea/retriever-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/pgvector/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -89,7 +89,7 @@ docker run -d --name="retriever-pgvector" -p 7000:7000 --ipc=host -e http_proxy=
 ### 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd comps/retrievers/langchain/pgvector/docker
+cd comps/retrievers/pgvector/langchain
 docker compose -f docker_compose_retriever.yaml up -d
 ```
 

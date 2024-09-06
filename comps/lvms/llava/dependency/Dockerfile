@@ -17,6 +17,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/lvms/llava/server
+WORKDIR /home/user/comps/lvms/llava/dependency
 
 ENTRYPOINT ["python", "llava_server.py", "--device", "cpu"]

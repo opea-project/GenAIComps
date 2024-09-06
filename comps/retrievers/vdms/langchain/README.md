@@ -36,13 +36,9 @@ pip install -r requirements.txt
 ## 1.2 Start TEI Service
 
 ```bash
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/retriever"
 model=BAAI/bge-base-en-v1.5
-revision=refs/pr/4
 volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model --revision $revision
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 ```
 
 ## 1.3 Verify the TEI Service
@@ -69,7 +65,7 @@ docker run -d --name="vdms-vector-db" -p 55555:55555 intellabs/vdms:latest
 
 ```bash
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
-python langchain/retriever_vdms.py
+python retriever_vdms.py
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)
@@ -80,16 +76,13 @@ python langchain/retriever_vdms.py
 export RETRIEVE_MODEL_ID="BAAI/bge-base-en-v1.5"
 export INDEX_NAME=${your_index_name or collection_name}
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/retrievers"
 ```
 
 ## 2.2 Build Docker Image
 
 ```bash
 cd ../../
-docker build -t opea/retriever-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/vdms/docker/Dockerfile .
+docker build -t opea/retriever-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/vdms/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -108,7 +101,6 @@ docker run -d --name="retriever-vdms-server" -p 7000:7000 --ipc=host -e http_pro
 ## 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd langchain/vdms/docker
 docker compose -f docker_compose_retriever.yaml up -d
 ```
 

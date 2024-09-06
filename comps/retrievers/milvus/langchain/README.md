@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ### Start Milvus Server
 
-Please refer to this [readme](../../../vectorstores/langchain/milvus/README.md).
+Please refer to this [readme](../../../vectorstores/milvus/README.md).
 
 ### Setup Environment Variables
 
@@ -28,7 +28,7 @@ export MOSEC_EMBEDDING_ENDPOINT=${your_emdding_endpoint}
 
 ```bash
 export MOSEC_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
-python langchain/retriever_redis.py
+python retriever_redis.py
 ```
 
 ## 🚀Start Microservice with Docker
@@ -37,7 +37,7 @@ python langchain/retriever_redis.py
 
 ```bash
 cd ../../
-docker build -t opea/retriever-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/milvus/docker/Dockerfile .
+docker build -t opea/retriever-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/milvus/langchain/Dockerfile .
 ```
 
 ### Run Docker with CLI

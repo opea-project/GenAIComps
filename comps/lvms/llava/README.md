@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 ```bash
 # Start LLaVA service
-cd server/
+cd dependency/
 nohup python llava_server.py --device=cpu &
 # Wait until the server is up
 # Test
@@ -30,7 +30,7 @@ pip install optimum[habana]
 ```
 
 ```bash
-cd server/
+cd depencency/
 # Start LLaVA service
 nohup python llava_server.py &
 # Test
@@ -56,22 +56,22 @@ python check_lvm.py
 - Xeon CPU
 
 ```bash
-cd ../..
-docker build -t opea/llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/server/docker/Dockerfile .
+cd ../../../
+docker build -t opea/llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/dependency/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
 cd ../..
-docker build -t opea/llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/server/docker/Dockerfile.Intel_HPU .
+docker build -t opea/llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/dependency/Dockerfile.intel_hpu .
 ```
 
 #### 2.1.2 LVM Service Image
 
 ```bash
 cd ../..
-docker build -t opea/lvm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/docker/Dockerfile .
+docker build -t opea/lvm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/Dockerfile .
 ```
 
 ### 2.2 Start LLaVA and LVM Service

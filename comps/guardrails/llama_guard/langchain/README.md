@@ -34,9 +34,6 @@ pip install -r requirements.txt
 
 ```bash
 export HF_TOKEN=${your_hf_api_token}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/guardrails"
 volume=$PWD/data
 model_id="meta-llama/Meta-Llama-Guard-2-8B"
 docker pull ghcr.io/huggingface/tgi-gaudi:2.0.1
@@ -62,7 +59,7 @@ export SAFETY_GUARD_MODEL_ID="meta-llama/Meta-Llama-Guard-2-8B"
 
 ```bash
 export SAFETY_GUARD_ENDPOINT="http://${your_ip}:8088"
-python langchain/guardrails_tgi.py
+python guardrails_tgi.py
 ```
 
 ## 🚀2. Start Microservice with Docker (Option 2)
@@ -83,7 +80,7 @@ export LLM_MODEL_ID=${your_hf_llm_model}
 
 ```bash
 cd ../../
-docker build -t opea/guardrails-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/llama_guard/docker/Dockerfile .
+docker build -t opea/guardrails-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/llama_guard/langchain/Dockerfile .
 ```
 
 ### 2.3 Run Docker with CLI
@@ -95,7 +92,6 @@ docker run -d --name="guardrails-tgi-server" -p 9090:9090 --ipc=host -e http_pro
 ### 2.4 Run Docker with Docker Compose
 
 ```bash
-cd langchain/docker
 docker compose -f docker_compose_guardrails.yaml up -d
 ```
 

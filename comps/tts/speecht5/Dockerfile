@@ -14,13 +14,13 @@ COPY comps /home/user/comps
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ "${ARCH}" = "cpu" ]; then \
         pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/tts/requirements.txt ; \
+        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/tts/speecht5/requirements.txt ; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/tts/requirements.txt ; \
+        pip install --no-cache-dir -r /home/user/comps/tts/speecht5/requirements.txt ; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/tts
+WORKDIR /home/user/comps/tts/speecht5
 
 ENTRYPOINT ["python", "tts.py"]

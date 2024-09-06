@@ -25,11 +25,11 @@ USER user
 
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/tts/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/comps/tts/speecht5/requirements.txt && \
     pip install optimum[habana]
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/tts/speecht5
+WORKDIR /home/user/comps/tts/speecht5/dependency
 
 ENTRYPOINT ["python", "speecht5_server.py", "--device", "hpu"]

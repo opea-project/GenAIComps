@@ -18,10 +18,10 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/embeddings/llama_index/tei/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/embeddings/tei/llama_index/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/embeddings/llama_index/tei
+WORKDIR /home/user/comps/embeddings/tei/llama_index
 
 ENTRYPOINT ["python3", "embedding_tei.py"]

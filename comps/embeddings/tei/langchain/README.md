@@ -84,8 +84,8 @@ export TEI_EMBEDDING_MODEL_NAME="BAAI/bge-large-en-v1.5"
 ### 2.2 Build Docker Image
 
 ```bash
-cd ../../../
-docker build -t opea/embedding-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/langchain/tei/docker/Dockerfile .
+cd ../../../../
+docker build -t opea/embedding-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/tei/langchain/Dockerfile .
 ```
 
 ### 2.3 Run Docker with CLI

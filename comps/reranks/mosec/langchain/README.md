@@ -1,13 +1,13 @@
 # build reranking Mosec endpoint docker image
 
 ```
-docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/reranking-langchain-mosec-endpoint:latest -f comps/reranks/langchain-mosec/server/docker/Dockerfile .
+docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/reranking-langchain-mosec-endpoint:latest -f comps/reranks/mosec/langchain/dependency/Dockerfile .
 ```
 
 ## build reranking microservice docker image
 
 ```
-docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/reranking-langchain-mosec:latest -f comps/reranks/langchain-mosec/docker/Dockerfile .
+docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/reranking-langchain-mosec:latest -f comps/reranks/mosec/langchain/Dockerfile .
 ```
 
 ## launch Mosec endpoint docker container

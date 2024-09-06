@@ -21,10 +21,10 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ ${ARCH} = "cpu" ]; then pip install torch --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/guardrails/llama_guard/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/guardrails/llama_guard/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/guardrails/llama_guard/
+WORKDIR /home/user/comps/guardrails/llama_guard/langchain/
 
 ENTRYPOINT ["python", "guardrails_tgi.py"]

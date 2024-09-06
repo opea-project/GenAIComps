@@ -84,16 +84,13 @@ export TEI_EMBEDDING_MODEL_NAME="BAAI/bge-large-en-v1.5"
 ### 2.2 Build Docker Image
 
 ```bash
-cd ../../
-docker build -t opea/embedding-tei-llama-index:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/llama_index/tei/docker/Dockerfile .
+cd ../../../../
+docker build -t opea/embedding-tei-llama-index:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/tei/llama_index/Dockerfile .
 ```
 
 ### 2.3 Run Docker with CLI
 
 ```bash
-# run with langchain docker
-docker run -d --name="embedding-tei-server" -p 6000:6000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e TEI_EMBEDDING_MODEL_NAME=$TEI_EMBEDDING_MODEL_NAME opea/embedding-tei:latest
-# run with llama-index docker
 docker run -d --name="embedding-tei-llama-index-server" -p 6000:6000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e TEI_EMBEDDING_MODEL_NAME=$TEI_EMBEDDING_MODEL_NAME opea/embedding-tei-llama-index:latest
 ```
 

@@ -21,10 +21,10 @@ USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ ${ARCH} = "cpu" ]; then pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/langchain/pathway/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/pathway/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/langchain/pathway
+WORKDIR /home/user/comps/retrievers/pathway/langchain
 
 ENTRYPOINT ["bash", "entrypoint.sh"]

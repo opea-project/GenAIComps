@@ -67,7 +67,7 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
 
 ```bash
 cd ../../
-docker build -t opea/retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/redis/docker/Dockerfile .
+docker build -t opea/retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/redis/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -86,7 +86,6 @@ docker run -d --name="retriever-redis-server" -p 7000:7000 --ipc=host -e http_pr
 ### 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd langchain/docker
 docker compose -f docker_compose_retriever.yaml up -d
 ```
 

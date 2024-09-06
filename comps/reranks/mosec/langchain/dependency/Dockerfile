@@ -22,6 +22,6 @@ RUN cd /home/user/ && export HF_ENDPOINT=https://hf-mirror.com && huggingface-cl
 USER user
 ENV EMB_MODEL="/home/user/bge-reranker-large/"
 
-WORKDIR /home/user/comps/reranks/langchain-mosec/server
+WORKDIR /home/user/comps/reranks/mosec/langchain/dependency
 
 CMD ["python3", "server-ipex.py"]

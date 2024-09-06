@@ -16,10 +16,10 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/llms/faq-generation/tgi/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/llms/faq-generation/tgi/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/llms/faq-generation/tgi
+WORKDIR /home/user/comps/llms/faq-generation/tgi/langchain
 
 ENTRYPOINT ["bash", "entrypoint.sh"]

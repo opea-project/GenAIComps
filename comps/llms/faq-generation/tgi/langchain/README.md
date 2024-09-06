@@ -20,7 +20,7 @@ export LLM_MODEL_ID=${your_hf_llm_model}
 
 ```bash
 cd ../../../../
-docker build -t opea/llm-faqgen-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/faq-generation/tgi/docker/Dockerfile .
+docker build -t opea/llm-faqgen-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/faq-generation/tgi/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:

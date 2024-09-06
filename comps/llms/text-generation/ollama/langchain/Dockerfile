@@ -17,10 +17,10 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/llms/text-generation/ollama/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/llms/text-generation/ollama/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/llms/text-generation/ollama
+WORKDIR /home/user/comps/llms/text-generation/ollama/langchain
 
 ENTRYPOINT ["bash", "entrypoint.sh"]

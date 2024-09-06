@@ -17,10 +17,10 @@ COPY comps /home/user/comps
 USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/llamaindex/redix/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/redis/llama_index/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/llamaindex/redis
+WORKDIR /home/user/comps/retrievers/redis/llama_index
 
 ENTRYPOINT ["python", "retriever_redis.py"]

@@ -17,7 +17,7 @@ For gated models such as `LLAMA-2`, you will have to pass the environment HUGGIN
 First of all, go to the server folder for vllm.
 
 ```bash
-cd server
+cd dependency
 ```
 
 ### 2.1 vLLM on CPU

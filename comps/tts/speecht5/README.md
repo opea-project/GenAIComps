@@ -42,20 +42,20 @@ Alternatively, you can start the TTS microservice with Docker.
 
 ```bash
 cd ../..
-docker build -t opea/speecht5:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/speecht5/server/docker/Dockerfile .
+docker build -t opea/speecht5:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/speecht5/dependency/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
 cd ../..
-docker build -t opea/speecht5-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/speecht5/server/docker/Dockerfile.Intel_HPU .
+docker build -t opea/speecht5-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/speecht5/dependency/Dockerfile.intel_hpu .
 ```
 
 #### 2.1.2 TTS Service Image
 
 ```bash
-docker build -t opea/tts:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/docker/Dockerfile .
+docker build -t opea/tts:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/speecht5/Dockerfile .
 ```
 
 ### 2.2 Start SpeechT5 and TTS Service
