@@ -17,7 +17,7 @@ function build_docker_images() {
     echo "Building the docker images"
     cd $WORKPATH
     echo $WORKPATH
-    docker build --no-cache -t opea/comps-agent-langchain:comps -f comps/agent/langchain/docker/Dockerfile .
+    docker build --no-cache -t opea/comps-agent-langchain:comps -f comps/agent/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/comps-agent-langchain built fail"
         exit 1

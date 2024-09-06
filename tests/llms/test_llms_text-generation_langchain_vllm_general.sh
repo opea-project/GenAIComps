@@ -9,9 +9,9 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     ## Build VLLM Ray docker
-    cd $WORKPATH/comps/llms/text-generation/vllm/general/server
+    cd $WORKPATH/comps/llms/text-generation/langchain/vllm/general/dependency
     docker build \
-        -f docker/Dockerfile.Intel_HPU \
+        -f Dockerfile.intel_hpu \
         --no-cache -t opea/vllm-hpu:comps \
         --shm-size=128g .
     if [ $? -ne 0 ]; then
@@ -25,7 +25,7 @@ function build_docker_images() {
     cd $WORKPATH
     docker build  \
         --no-cache -t opea/llm-vllm:comps \
-        -f comps/llms/text-generation/vllm/general/docker/Dockerfile .
+        -f comps/llms/text-generation/langchain/vllm/general/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llm-vllm built fail"
         exit 1

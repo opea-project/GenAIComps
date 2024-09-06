@@ -17,7 +17,7 @@ pip install -r requirements.txt
 - Xeon CPU
 
 ```bash
-cd server/
+cd dependency/
 nohup python whisper_server.py --device=cpu &
 python check_whisper_server.py
 ```
@@ -35,7 +35,7 @@ If the Whisper server is running properly, you should see the following output:
 ```bash
 pip install optimum[habana]
 
-cd server/
+cd dependency/
 nohup python whisper_server.py --device=hpu &
 python check_whisper_server.py
 ```
@@ -66,20 +66,20 @@ Alternatively, you can also start the ASR microservice with Docker.
 
 ```bash
 cd ../..
-docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/server/docker/Dockerfile .
+docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/dependency/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
 cd ../..
-docker build -t opea/whisper-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/server/docker/Dockerfile.Intel_HPU .
+docker build -t opea/whisper-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/dependency/Dockerfile.intel_hpu .
 ```
 
 #### 2.1.2 ASR Service Image
 
 ```bash
-docker build -t opea/asr:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/docker/Dockerfile .
+docker build -t opea/asr:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/Dockerfile .
 ```
 
 ### 2.2 Start Whisper and ASR Service

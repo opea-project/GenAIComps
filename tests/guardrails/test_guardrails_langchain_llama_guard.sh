@@ -11,7 +11,7 @@ function build_docker_images() {
     echo "Start building docker images for microservice"
     cd $WORKPATH
     docker pull ghcr.io/huggingface/tgi-gaudi:2.0.1
-    docker build --no-cache -t opea/guardrails-tgi:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/llama_guard/docker/Dockerfile .
+    docker build --no-cache -t opea/guardrails-tgi:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/langchain/llama_guard/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/guardrails-tgi built fail"
         exit 1

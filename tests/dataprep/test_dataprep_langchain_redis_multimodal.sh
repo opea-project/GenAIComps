@@ -18,7 +18,7 @@ video_fn="${video_name}.mp4"
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/multimodal_langchain/docker/Dockerfile .
+    docker build --no-cache -t opea/dataprep-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/langchain/redis_multimodal/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-redis built fail"
@@ -31,7 +31,7 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/llava:comps -f comps/lvms/llava/Dockerfile .
+    docker build --no-cache -t opea/llava:comps -f comps/lvms/llava/dependency/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llava built fail"
         exit 1
