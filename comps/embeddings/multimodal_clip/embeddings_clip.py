@@ -27,7 +27,7 @@ class vCLIP(nn.Module):
         return text_features
 
     def get_embedding_length(self):
-        text_features=self.embed_query("sample_text")
+        text_features = self.embed_query("sample_text")
         return text_features.shape[1]
 
     def get_image_embeddings(self, images):
@@ -49,4 +49,3 @@ class vCLIP(nn.Module):
             video_embeddings = video_embeddings / video_embeddings.norm(dim=-1, keepdim=True)
             vid_embs.append(video_embeddings)
         return torch.cat(vid_embs, dim=0)
-    
