@@ -46,7 +46,7 @@ from comps.cores.mega.gateway import (
     RetrievalToolGateway,
     FaqGenGateway,
     VisualQnAGateway,
-    MultimodalRAGQnAWithVideosGateway,
+    MultimodalRAGWithVideosGateway,
 )
 
 # Telemetry

@@ -585,14 +585,14 @@ class RetrievalToolGateway(Gateway):
         return response
 
 
-class MultimodalRAGQnAWithVideosGateway(Gateway):
+class MultimodalRAGWithVideosGateway(Gateway):
     def __init__(self, multimodal_rag_megaservice, lvm_megaservice, host="0.0.0.0", port=9999):
         self.lvm_megaservice = lvm_megaservice
         super().__init__(
             multimodal_rag_megaservice,
             host,
             port,
-            str(MegaServiceEndpoint.MULTIMODAL_RAG_QNA_WITH_VIDEOS),
+            str(MegaServiceEndpoint.MULTIMODAL_RAG_WITH_VIDEOS),
             ChatCompletionRequest,
             ChatCompletionResponse,
         )
@@ -688,7 +688,7 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
         data = await request.json()
         stream_opt = bool(data.get("stream", False))
         if stream_opt:
-            print("[ MultimodalRAGQnAWithVideosGateway ] stream=True not used, this has not support streaming yet!")
+            print("[ MultimodalRAGWithVideosGateway ] stream=True not used, this has not support streaming yet!")
             stream_opt = False
         chat_request = ChatCompletionRequest.model_validate(data)
         # Multimodal RAG QnA With Videos has not yet accepts image as input during QnA.
@@ -738,4 +738,4 @@ class MultimodalRAGQnAWithVideosGateway(Gateway):
                 finish_reason="stop",
             )
         )
-        return ChatCompletionResponse(model="multimodalragqnawithvideos", choices=choices, usage=usage)
+        return ChatCompletionResponse(model="multimodalragwithvideos", choices=choices, usage=usage)
