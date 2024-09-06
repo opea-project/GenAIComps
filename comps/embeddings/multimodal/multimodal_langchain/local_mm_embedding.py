@@ -14,7 +14,7 @@ from comps import (
     opea_microservices,
     register_microservice,
 )
-from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
+from comps.embeddings.multimodal.bridgetower import BridgeTowerEmbedding
 
 logger = CustomLogger("local_multimodal_embedding")
 logflag = os.getenv("LOGFLAG", False)

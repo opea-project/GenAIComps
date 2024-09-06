@@ -33,7 +33,7 @@ from comps.dataprep.multimodal_utils import (
     load_whisper_model,
     write_vtt,
 )
-from comps.embeddings.multimodal_embeddings.bridgetower.bridgetower_embedding import BridgeTowerEmbedding
+from comps.embeddings.multimodal.bridgetower.bridgetower_embedding import BridgeTowerEmbedding
 
 device = "cpu"
 upload_folder = "./uploaded_files/"
