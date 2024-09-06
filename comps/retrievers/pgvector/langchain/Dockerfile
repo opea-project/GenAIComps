@@ -13,8 +13,6 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-RUN chmod +x /home/user/comps/retrievers/pgvector/langchain/run.sh
-
 USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -24,4 +22,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/retrievers/pgvector/langchain
 
-ENTRYPOINT ["/home/user/comps/retrievers/pgvector/langchain/run.sh"]
+ENTRYPOINT ["python", "retriever_pgvector.py"]

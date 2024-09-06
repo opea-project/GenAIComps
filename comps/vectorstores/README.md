@@ -2,23 +2,23 @@
 
 The Vectorstores Microservice provides convenient way to start various vector database servers.
 
-# Vectorstores Microservice with Redis
+## Vectorstores Microservice with Redis
 
 For details, please refer to this [readme](redis/README.md)
 
-# Vectorstores Microservice with Qdrant
+## Vectorstores Microservice with Qdrant
 
 For details, please refer to this [readme](qdrant/README.md)
 
-# Vectorstores Microservice with PGVector
+## Vectorstores Microservice with PGVector
 
 For details, please refer to this [readme](pgvector/README.md)
 
-# Vectorstores Microservice with Pinecone
+## Vectorstores Microservice with Pinecone
 
 For details, please refer to this [readme](pinecone/README.md)
 
-# Vectorstores Microservice with Pathway
+## Vectorstores Microservice with Pathway
 
 For details, please refer to this [readme](pathway/README.md)
 
@@ -34,6 +34,6 @@ For details, please refer to this [readme](lancedb/README.md)
 
 For details, please refer to this [readme](chroma/README.md)
 
-# Vectorstores Microservice with VDMS
+## Vectorstores Microservice with VDMS
 
 For details, please refer to this [readme](vdms/README.md)
