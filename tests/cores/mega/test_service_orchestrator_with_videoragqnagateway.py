@@ -3,7 +3,6 @@
 
 import json
 import unittest
-from time import sleep
 
 from fastapi.responses import StreamingResponse
 
@@ -17,8 +16,7 @@ from comps import (
 )
 from comps.cores.proto.docarray import LLMParams
 
-
-@register_microservice(name="s1", host="172.16.186.61", port=8083, endpoint="/v1/add")
+@register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
@@ -27,7 +25,7 @@ async def s1_add(request: TextDoc) -> TextDoc:
     return {"text": text}
 
 
-@register_microservice(name="s2", host="172.16.186.61", port=8084, endpoint="/v1/add", service_type=ServiceType.LVM)
+@register_microservice(name="s2", host="0.0.0.0", port=8084, endpoint="/v1/add", service_type=ServiceType.LVM)
 async def s2_add(request: TextDoc) -> TextDoc:
     req = request.model_dump_json()
     req_dict = json.loads(req)
