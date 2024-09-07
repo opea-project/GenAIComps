@@ -28,6 +28,7 @@ jobs:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
     runs-on: ${{ matrix.hardware }}
     continue-on-error: true
+    if: ${{ !github.event.pull_request.draft }}
     steps:
       - name: Clean Up Working Directory
         run: |
@@ -51,7 +52,7 @@ jobs:
         run: |
           cd tests
           echo "log_name=${service}_${hardware}" >> $GITHUB_ENV
-          if [ ${hardware} = "intel_cpu" ]; then on_hw=""; else on_hw="_on_${hardware}"; fi 
+          if [ ${hardware} = "intel_cpu" ]; then on_hw=""; else on_hw="_on_${hardware}"; fi
           find . -type f -name test_${service_name}${on_hw}.sh -exec bash {} \;
 
       - name: Clean up container
