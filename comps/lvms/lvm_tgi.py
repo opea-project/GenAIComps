@@ -7,8 +7,8 @@ from typing import Union
 
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
-from template import ChatTemplate
 from langchain_core.prompts import PromptTemplate
+from template import ChatTemplate
 
 from comps import (
     CustomLogger,
