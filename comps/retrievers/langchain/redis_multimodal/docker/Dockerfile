@@ -7,7 +7,8 @@ ARG ARCH="cpu"
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libgl1-mesa-glx \
-    libjemalloc-dev
+    libjemalloc-dev \
+    vim
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
@@ -18,11 +19,11 @@ COPY comps /home/user/comps
 USER user
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/langchain/pinecone/requirements.txt
+    if [ ${ARCH} = "cpu" ]; then pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
+    pip install --no-cache-dir -r /home/user/comps/retrievers/langchain/redis_multimodal/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/langchain/pinecone
+WORKDIR /home/user/comps/retrievers/langchain/redis_multimodal
 
-ENTRYPOINT ["python", "retriever_pinecone.py"]
+ENTRYPOINT ["python", "retriever_redis.py"]
