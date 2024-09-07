@@ -63,6 +63,7 @@ class BiEncoderModel(nn.Module):
 
     def __init__(self,
                  model_name: str = None,
+                 should_concat: bool = False,
                  normlized: bool = False,
                  sentence_pooling_method: str = 'cls',
                  negatives_cross_device: bool = False,
@@ -70,9 +71,10 @@ class BiEncoderModel(nn.Module):
                  use_inbatch_neg: bool = True
                  ):
         super().__init__()
-        self.model = AutoModel.from_pretrained(model_name)
+        self.model = AutoModel.from_pretrained(model_name, add_pooling_layer=False)
         self.cross_entropy = nn.CrossEntropyLoss(reduction='mean')
 
+        self.should_concat = should_concat
         self.normlized = normlized
         self.sentence_pooling_method = sentence_pooling_method
         self.temperature = temperature
@@ -116,14 +118,39 @@ class BiEncoderModel(nn.Module):
             p_reps = torch.nn.functional.normalize(p_reps, dim=-1)
         return p_reps.contiguous()
 
+    def encode_concat(self, query, passage):
+        if query is None or passage is None:
+            return None
+
+        batch_size = query["input_ids"].size()[0]
+
+        psg_out = self.model(
+            input_ids=torch.cat([query["input_ids"], passage["input_ids"]]),
+            attention_mask=torch.cat([query["attention_mask"], passage["attention_mask"]]),
+            return_dict=True
+        )
+        reps = self.sentence_embedding(psg_out.last_hidden_state,
+            torch.cat([query["attention_mask"], passage["attention_mask"]])
+        )
+        if self.normlized:
+            reps = torch.nn.functional.normalize(reps, dim=-1)
+
+        q_reps = reps[:batch_size]
+        p_reps = reps[batch_size:]
+
+        return q_reps.contiguous(), p_reps.contiguous()
+
     def compute_similarity(self, q_reps, p_reps):
         if len(p_reps.size()) == 2:
             return torch.matmul(q_reps, p_reps.transpose(0, 1))
         return torch.matmul(q_reps, p_reps.transpose(-2, -1))
 
     def forward(self, query: Dict[str, torch.Tensor] = None, passage: Dict[str, torch.Tensor] = None):
-        q_reps = self.encode(query)
-        p_reps = self.encode(passage)
+        if self.should_concat:
+            q_reps, p_reps = self.encode_concat(query, passage)
+        else:
+            q_reps = self.encode(query)
+            p_reps = self.encode(passage)
 
         if self.training:
             if self.negatives_cross_device and self.use_inbatch_neg:

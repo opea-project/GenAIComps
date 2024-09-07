@@ -95,10 +95,10 @@ class DatasetConfig(BaseModel):
             "than this will be truncated, sequences shorter will be padded."
         ),
     )
-    query_instruction_for_retrieval: str= Field(
+    query_instruction_for_retrieval: Optional[str] = Field(
         default=None, description="instruction for query"
     )
-    passage_instruction_for_retrieval: str = Field(
+    passage_instruction_for_retrieval: Optional[str] = Field(
         default=None, description="instruction for passage"
     )
 

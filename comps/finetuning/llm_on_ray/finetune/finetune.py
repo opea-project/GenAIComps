@@ -294,10 +294,19 @@ def load_model(config: Dict):
             config=model_config,
         )
     elif task == "embedding":
+        should_concat = False
+        if config["Dataset"]["query_max_len"] == config["Dataset"]["passage_max_len"] \
+                and config["Dataset"]["padding"] == "max_length":
+            should_concat = True
+        if config["Training"]["device"] == "hpu" and not should_concat:
+            raise ValueError("please set query_max_len==passage_max_len and padding='max_length' for hpu.")
+
         if config["Training"].get("embedding_training_config", None) is not None:
-            model = BiEncoderModel(model_name=model_name, **config["Training"]["embedding_training_config"])
+            model = BiEncoderModel(model_name=model_name,
+                should_concat=should_concat,
+                **config["Training"]["embedding_training_config"])
         else:
-            model = BiEncoderModel(model_name=model_name)
+            model = BiEncoderModel(model_name=model_name, should_concate=should_concate)
     else:
         raise NotImplementedError(f"Unsupported task {task}, only support instruction_tuning, rerank, embedding now.")
 
