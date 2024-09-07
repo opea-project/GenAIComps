@@ -46,13 +46,13 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
           PINECONE_KEY: ${{ secrets.PINECONE_KEY }}
-          service_path: ${{ matrix.service }}
+          service: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
         run: |
           cd tests
-          service=$(echo $service_path | tr '/' '_')
-          echo "service=${service}" >> $GITHUB_ENV
-          if [ -f test_${service}.sh ]; then timeout 60m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
+          echo "log_name=${service}_${hardware}" >> $GITHUB_ENV
+          if [ ${hardware} = "intel_cpu" ]; then on_hw=""; else on_hw="_on_${hardware}"; fi 
+          find . -type f -name test_${service_name}${on_hw}.sh -exec bash {} \;
 
       - name: Clean up container
         if: cancelled() || failure()
