@@ -53,7 +53,7 @@ jobs:
           cd tests
           echo "log_name=${service}_${hardware}" >> $GITHUB_ENV
           if [ ${hardware} = "intel_cpu" ]; then on_hw=""; else on_hw="_on_${hardware}"; fi
-          find . -type f -name test_${service}${on_hw}.sh -exec bash {} \;
+          timeout 60m bash $(find . -type f -name test_${service}${on_hw}.sh)
 
       - name: Clean up container
         if: cancelled() || failure()
