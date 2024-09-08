@@ -259,22 +259,22 @@ class TrainDatasetForEmbedding(Dataset):
         return self.total_len
 
     def __getitem__(self, item) -> Tuple[str, List[str]]:
-        query = self.dataset[item]['query']
+        query = self.dataset[item]["query"]
         if self.args["query_instruction_for_retrieval"] is not None:
             query = self.args["query_instruction_for_retrieval"] + query
 
         passages = []
 
-        assert isinstance(self.dataset[item]['pos'], list)
-        pos = random.choice(self.dataset[item]['pos'])
+        assert isinstance(self.dataset[item]["pos"], list)
+        pos = random.choice(self.dataset[item]["pos"])
         passages.append(pos)
 
         train_group_size = self.args.get("train_group_size", 8)
-        if len(self.dataset[item]['neg']) < train_group_size - 1:
-            num = math.ceil((train_group_size - 1) / len(self.dataset[item]['neg']))
-            negs = random.sample(self.dataset[item]['neg'] * num, train_group_size - 1)
+        if len(self.dataset[item]["neg"]) < train_group_size - 1:
+            num = math.ceil((train_group_size - 1) / len(self.dataset[item]["neg"]))
+            negs = random.sample(self.dataset[item]["neg"] * num, train_group_size - 1)
         else:
-            negs = random.sample(self.dataset[item]['neg'], train_group_size - 1)
+            negs = random.sample(self.dataset[item]["neg"], train_group_size - 1)
         passages.extend(negs)
 
         if self.args["passage_instruction_for_retrieval"] is not None:
@@ -284,11 +284,12 @@ class TrainDatasetForEmbedding(Dataset):
 
 @dataclass
 class EmbedCollator(DataCollatorWithPadding):
-    """
-    Wrapper that does conversion from List[Tuple[encode_qry, encode_psg]] to List[qry], List[psg]
+    """Wrapper that does conversion from List[Tuple[encode_qry, encode_psg]] to List[qry], List[psg]
     and pass batch separately to the actual collator.
+
     Abstract out data detail for the model.
     """
+
     query_max_len: int = 32
     passage_max_len: int = 128
 

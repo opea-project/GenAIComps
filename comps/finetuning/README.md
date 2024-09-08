@@ -115,6 +115,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
 ```
 
 ### 3.2.2 Reranking Model Training
+
 Use the following command to launch a finetuning job for reranking model finetuning, such as `BAAI/bge-reranker-large`:
 
 ```bash
@@ -133,6 +134,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
 ```
 
 ### 3.2.3 Embedding Model Training
+
 Use the following command to launch a finetuning job for embedding model finetuning, such as `BAAI/bge-base-en-v1.5`:
 
 ```bash
@@ -150,7 +152,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   }'
 
 
-# If training on Gaudi2, we need to set --padding "max_length" and the value of --query_max_len is same with --passage_max_len for static shape durning training. For example:
+# If training on Gaudi2, we need to set --padding "max_length" and the value of --query_max_len is same with --passage_max_len for static shape during training. For example:
 curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   -X POST \
   -H "Content-Type: application/json" \

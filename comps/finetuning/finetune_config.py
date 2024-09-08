@@ -5,7 +5,7 @@
 
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field, validator
 
 from comps.cores.proto.api_protocol import FineTuningJobsRequest
 
@@ -95,13 +95,8 @@ class DatasetConfig(BaseModel):
             "than this will be truncated, sequences shorter will be padded."
         ),
     )
-    query_instruction_for_retrieval: Optional[str] = Field(
-        default=None, description="instruction for query"
-    )
-    passage_instruction_for_retrieval: Optional[str] = Field(
-        default=None, description="instruction for passage"
-    )
-
+    query_instruction_for_retrieval: Optional[str] = Field(default=None, description="instruction for query")
+    passage_instruction_for_retrieval: Optional[str] = Field(default=None, description="instruction for passage")
 
 
 class RayResourceConfig(BaseModel):
@@ -113,9 +108,10 @@ class RayResourceConfig(BaseModel):
 class EmbeddingTrainingConfig(BaseModel):
     negatives_cross_device: bool = Field(default=False, description="share negatives across devices")
     temperature: Optional[float] = Field(default=0.02)
-    sentence_pooling_method: str = Field(default='cls', description="the pooling method, should be cls or mean")
-    normlized: bool = Field(default=True)
+    sentence_pooling_method: str = Field(default="cls", description="the pooling method, should be cls or mean")
+    normalized: bool = Field(default=True)
     use_inbatch_neg: bool = Field(default=True, description="use passages in the same batch as negatives")
+
 
 class TrainingConfig(BaseModel):
     optimizer: str = "adamw_torch"

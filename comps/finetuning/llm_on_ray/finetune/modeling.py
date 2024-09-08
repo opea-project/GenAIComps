@@ -2,15 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Dict, Optional
+
 import torch
-from torch import nn
 import torch.distributed as dist
-from transformers import (
-    AutoModelForSequenceClassification,
-    PreTrainedModel,
-    AutoModel
-)
-from transformers.modeling_outputs import SequenceClassifierOutput, MaskedLMOutput
+from torch import nn
+from transformers import AutoModel, AutoModelForSequenceClassification, PreTrainedModel
+from transformers.modeling_outputs import MaskedLMOutput, SequenceClassifierOutput
+
 from comps import CustomLogger
 
 logger = CustomLogger("llm_on_ray/finetune/modeling")
@@ -61,37 +59,40 @@ class CrossEncoder(PreTrainedModel):
 class BiEncoderModel(nn.Module):
     TRANSFORMER_CLS = AutoModel
 
-    def __init__(self,
-                 model_name: str = None,
-                 should_concat: bool = False,
-                 normlized: bool = False,
-                 sentence_pooling_method: str = 'cls',
-                 negatives_cross_device: bool = False,
-                 temperature: float = 1.0,
-                 use_inbatch_neg: bool = True
-                 ):
+    def __init__(
+        self,
+        model_name: str = None,
+        should_concat: bool = False,
+        normalized: bool = False,
+        sentence_pooling_method: str = "cls",
+        negatives_cross_device: bool = False,
+        temperature: float = 1.0,
+        use_inbatch_neg: bool = True,
+    ):
         super().__init__()
         self.model = AutoModel.from_pretrained(model_name, add_pooling_layer=False)
-        self.cross_entropy = nn.CrossEntropyLoss(reduction='mean')
+        self.cross_entropy = nn.CrossEntropyLoss(reduction="mean")
 
         self.should_concat = should_concat
-        self.normlized = normlized
+        self.normalized = normalized
         self.sentence_pooling_method = sentence_pooling_method
         self.temperature = temperature
         self.use_inbatch_neg = use_inbatch_neg
         self.config = self.model.config
 
-        if not normlized:
+        if not normalized:
             self.temperature = 1.0
             logger.info("reset temperature = 1.0 due to using inner product to compute similarity")
-        if normlized:
+        if normalized:
             if self.temperature > 0.5:
-                raise ValueError("Temperature should be smaller than 1.0 when use cosine similarity (i.e., normlized=True). Recommend to set it 0.01-0.1")
+                raise ValueError(
+                    "Temperature should be smaller than 1.0 when use cosine similarity (i.e., normalized=True). Recommend to set it 0.01-0.1"
+                )
 
         self.negatives_cross_device = negatives_cross_device
         if self.negatives_cross_device:
             if not dist.is_initialized():
-                raise ValueError('Distributed training has not been initialized for representation all gather.')
+                raise ValueError("Distributed training has not been initialized for representation all gather.")
             #     logger.info("Run in a single GPU, set negatives_cross_device=False")
             #     self.negatives_cross_device = False
             # else:
@@ -102,19 +103,19 @@ class BiEncoderModel(nn.Module):
         self.model.gradient_checkpointing_enable(**kwargs)
 
     def sentence_embedding(self, hidden_state, mask):
-        if self.sentence_pooling_method == 'mean':
+        if self.sentence_pooling_method == "mean":
             s = torch.sum(hidden_state * mask.unsqueeze(-1).float(), dim=1)
             d = mask.sum(axis=1, keepdim=True).float()
             return s / d
-        elif self.sentence_pooling_method == 'cls':
+        elif self.sentence_pooling_method == "cls":
             return hidden_state[:, 0]
 
     def encode(self, features):
         if features is None:
             return None
         psg_out = self.model(**features, return_dict=True)
-        p_reps = self.sentence_embedding(psg_out.last_hidden_state, features['attention_mask'])
-        if self.normlized:
+        p_reps = self.sentence_embedding(psg_out.last_hidden_state, features["attention_mask"])
+        if self.normalized:
             p_reps = torch.nn.functional.normalize(p_reps, dim=-1)
         return p_reps.contiguous()
 
@@ -127,12 +128,12 @@ class BiEncoderModel(nn.Module):
         psg_out = self.model(
             input_ids=torch.cat([query["input_ids"], passage["input_ids"]]),
             attention_mask=torch.cat([query["attention_mask"], passage["attention_mask"]]),
-            return_dict=True
+            return_dict=True,
         )
-        reps = self.sentence_embedding(psg_out.last_hidden_state,
-            torch.cat([query["attention_mask"], passage["attention_mask"]])
+        reps = self.sentence_embedding(
+            psg_out.last_hidden_state, torch.cat([query["attention_mask"], passage["attention_mask"]])
         )
-        if self.normlized:
+        if self.normalized:
             reps = torch.nn.functional.normalize(reps, dim=-1)
 
         q_reps = reps[:batch_size]
@@ -159,14 +160,24 @@ class BiEncoderModel(nn.Module):
 
             group_size = p_reps.size(0) // q_reps.size(0)
             if self.use_inbatch_neg:
-                scores = self.compute_similarity(q_reps, p_reps) / self.temperature # B B*G
+                scores = self.compute_similarity(q_reps, p_reps) / self.temperature  # B B*G
                 scores = scores.view(q_reps.size(0), -1)
 
                 target = torch.arange(scores.size(0), device=scores.device, dtype=torch.long)
                 target = target * group_size
                 loss = self.compute_loss(scores, target)
             else:
-                scores = self.compute_similarity(q_reps[:, None, :,], p_reps.view(q_reps.size(0), group_size, -1)).squeeze(1) / self.temperature # B G
+                scores = (
+                    self.compute_similarity(
+                        q_reps[
+                            :,
+                            None,
+                            :,
+                        ],
+                        p_reps.view(q_reps.size(0), group_size, -1),
+                    ).squeeze(1)
+                    / self.temperature
+                )  # B G
 
                 scores = scores.view(q_reps.size(0), -1)
                 target = torch.zeros(scores.size(0), device=scores.device, dtype=torch.long)
@@ -176,13 +187,7 @@ class BiEncoderModel(nn.Module):
             scores = self.compute_similarity(q_reps, p_reps)
             loss = None
 
-        return MaskedLMOutput(
-            loss=loss,
-            logits=None,
-            hidden_states=None,
-            attentions=None
-        )
-
+        return MaskedLMOutput(loss=loss, logits=None, hidden_states=None, attentions=None)
 
     def compute_loss(self, scores, target):
         return self.cross_entropy(scores, target)
@@ -202,8 +207,5 @@ class BiEncoderModel(nn.Module):
 
     def save(self, output_dir: str):
         state_dict = self.model.state_dict()
-        state_dict = type(state_dict)(
-            {k: v.clone().cpu()
-             for k,
-                 v in state_dict.items()})
+        state_dict = type(state_dict)({k: v.clone().cpu() for k, v in state_dict.items()})
         self.model.save_pretrained(output_dir, state_dict=state_dict)
