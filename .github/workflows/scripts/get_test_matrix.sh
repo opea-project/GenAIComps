@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # service: service path name, like 'agent_langchain', 'asr_whisper'
-# hardware: hardware name, like 'intel_cpu', 'intel_hpu'
+# hardware: 'intel_cpu', 'intel_hpu', ...
 
 set -xe
 changed_files_full=$changed_files_full
