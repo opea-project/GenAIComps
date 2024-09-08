@@ -24,7 +24,7 @@ function build_docker_images() {
 
 function start_service() {
     export no_proxy="localhost,127.0.0.1,"${ip_address}
-    docker run -d --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p $finetuning_service_port:$finetuning_service_port -p $ray_port:$ray_port -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --net=host --ipc=host -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e HF_TOKEN=$HF_TOKEN opea/finetuning-gaudi:latest
+    docker run -d --name="finetuning-server" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p $finetuning_service_port:$finetuning_service_port -p $ray_port:$ray_port -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --net=host --ipc=host -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e HF_TOKEN=$HF_TOKEN opea/finetuning-gaudi:latest
     sleep 1m
 }
 
