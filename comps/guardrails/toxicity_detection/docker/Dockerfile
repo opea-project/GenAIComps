@@ -11,6 +11,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libgl1-mesa-glx \
     libjemalloc-dev
 
+
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
@@ -20,7 +21,7 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ ${ARCH} = "cpu" ]; then pip install torch --index-url https://download.pytorch.org/whl/cpu; fi && \
+    if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; fi && \
     pip install --no-cache-dir -r /home/user/comps/guardrails/toxicity_detection/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user

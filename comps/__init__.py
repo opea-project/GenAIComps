@@ -13,6 +13,7 @@ from comps.cores.proto.docarray import (
     LLMParamsDoc,
     SearchedDoc,
     SearchedMultimodalDoc,
+    LVMSearchedMultimodalDoc,
     RerankedDoc,
     TextDoc,
     RAGASParams,
@@ -48,6 +49,7 @@ from comps.cores.mega.gateway import (
     RetrievalToolGateway,
     FaqGenGateway,
     VisualQnAGateway,
+    MultimodalRAGWithVideosGateway,
 )
 
 # Telemetry

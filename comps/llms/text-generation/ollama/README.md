@@ -9,7 +9,7 @@
 Follow [these instructions](https://github.com/ollama/ollama) to set up and run a local Ollama instance.
 
 - Download and install Ollama onto the available supported platforms (including Windows)
-- Fetch available LLM model via ollama pull <name-of-model>. View a list of available models via the model library and pull to use locally with the command `ollama pull llama3`
+- Fetch available LLM model via `ollama pull <name-of-model>`. View a list of available models via the model library and pull to use locally with the command `ollama pull llama3`
 - This will download the default tagged version of the model. Typically, the default points to the latest, smallest sized-parameter model.
 
 Note:
@@ -41,14 +41,14 @@ Here are a few ways to interact with pulled local models:
 
 #### In the terminal
 
-All of your local models are automatically served on localhost:11434. Run ollama run <name-of-model> to start interacting via the command line directly.
+All of your local models are automatically served on localhost:11434. Run `ollama run <name-of-model>` to start interacting via the command line directly.
 
 #### API access
 
 Send an application/json request to the API endpoint of Ollama to interact.
 
 ```bash
-curl http://localhost:11434/api/generate -d '{
+curl --noproxy "*" http://localhost:11434/api/generate -d '{
   "model": "llama3",
   "prompt":"Why is the sky blue?"
 }'
