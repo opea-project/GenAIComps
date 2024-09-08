@@ -99,6 +99,8 @@ For reranking and embedding models finetuning, the training file [toy_finetune_d
 
 ## 3.2 Create fine-tuning job
 
+### 3.2.1 Instruction Tuning
+
 After a training file like `alpaca_data.json` is uploaded, use the following command to launch a finetuning job using `meta-llama/Llama-2-7b-chat-hf` as base model:
 
 ```bash
@@ -112,6 +114,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   }'
 ```
 
+### 3.2.2 Reranking Model Training
 Use the following command to launch a finetuning job for reranking model finetuning, such as `BAAI/bge-reranker-large`:
 
 ```bash
@@ -127,6 +130,45 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
       "lora_config":null
     }
   }'
+```
+
+### 3.2.3 Embedding Model Training
+Use the following command to launch a finetuning job for embedding model finetuning, such as `BAAI/bge-base-en-v1.5`:
+
+```bash
+# create a finetuning job
+curl http://${your_ip}:8015/v1/fine_tuning/jobs \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "training_file": "toy_finetune_data.jsonl",
+    "model": "BAAI/bge-base-en-v1.5",
+    "General":{
+      "task":"embedding",
+      "lora_config":null
+    }
+  }'
+
+
+# If training on Gaudi2, we need to set --padding "max_length" and the value of --query_max_len is same with --passage_max_len for static shape durning training. For example:
+curl http://${your_ip}:8015/v1/fine_tuning/jobs \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "training_file": "toy_finetune_data.jsonl",
+    "model": "BAAI/bge-base-en-v1.5",
+    "General":{
+      "task":"embedding",
+      "lora_config":null
+    },
+    "Dataset":{
+      "query_max_len":128,
+      "passage_max_len":128,
+      "padding":"max_length"
+    }
+  }'
+
+
 ```
 
 ## 3.3 Manage fine-tuning job
