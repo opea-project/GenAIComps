@@ -309,7 +309,7 @@ def load_model(config: Dict):
                 model_name=model_name, should_concat=should_concat, **config["Training"]["embedding_training_config"]
             )
         else:
-            model = BiEncoderModel(model_name=model_name, should_concate=should_concate)
+            model = BiEncoderModel(model_name=model_name, should_concat=should_concat)
     else:
         raise NotImplementedError(f"Unsupported task {task}, only support instruction_tuning, rerank, embedding now.")
 
