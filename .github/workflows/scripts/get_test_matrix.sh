@@ -57,7 +57,7 @@ function find_test_2() {
             service=${_service%_on_*}
             hardware=${_service#*_on_}
         fi
-        if [ $(echo ${run_matrix} | grep -c "{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},") == 0 ]; then
+        if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
             run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},"
         fi
     done
