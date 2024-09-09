@@ -35,7 +35,7 @@ function validate_microservice() {
 
     echo "==============="
     echo $result
-    
+
     docker logs test-comps-intent-server >> ${LOG_PATH}/intent_detection.log
     docker logs test-comps-intent-tgi-endpoint >> ${LOG_PATH}/tgi-endpoint.log
 }
