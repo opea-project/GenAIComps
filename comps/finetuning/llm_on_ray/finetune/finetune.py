@@ -29,10 +29,10 @@ from comps import CustomLogger
 from comps.finetuning.finetune_config import FinetuneConfig
 from comps.finetuning.llm_on_ray import common
 from comps.finetuning.llm_on_ray.finetune.data_process import (
-    InstructionDataProcessor,
-    PretrainingDataProcessor,
     EmbedCollator,
     GroupCollator,
+    InstructionDataProcessor,
+    PretrainingDataProcessor,
     TrainDatasetForCE,
     TrainDatasetForEmbedding,
 )
