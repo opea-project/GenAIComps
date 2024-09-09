@@ -20,5 +20,5 @@ services:
     image: ${REGISTRY:-opea}/reranking-mosec-neural-speed:${TAG:-latest}
   reranking-mosec-neural-speed-endpoint:
     build:
-      dockerfile: comps/reranks/neural-speed/docker/Dockerfile
+      dockerfile: comps/reranks/neural-speed/neuralspeed-docker/Dockerfile
     image: ${REGISTRY:-opea}/reranking-mosec-neural-speed-endpoint:${TAG:-latest}
