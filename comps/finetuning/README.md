@@ -2,9 +2,9 @@
 
 Fine-tuning microservice involves adapting a model to a specific task or dataset to improve its performance on that task, we currently supported instruction tuning for LLMs, finetuning for reranking and embedding models.
 
-# 🚀1. Start Microservice with Python (Optional 1)
+## 🚀1. Start Microservice with Python (Optional 1)
 
-## 1.1 Install Requirements
+### 1.1 Install Requirements
 
 ```bash
 python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
@@ -13,9 +13,9 @@ python -m pip install oneccl_bind_pt --extra-index-url https://pytorch-extension
 pip install -r requirements.txt
 ```
 
-## 1.2 Start Finetuning Service with Python Script
+### 1.2 Start Finetuning Service with Python Script
 
-### 1.2.1 Start Ray Cluster
+#### 1.2.1 Start Ray Cluster
 
 OneCCL and Intel MPI libraries should be dynamically linked in every node before Ray starts:
 
@@ -35,18 +35,18 @@ For a multi-node cluster, start additional Ray worker nodes with below command.
 ray start --address='${head_node_ip}:6379'
 ```
 
-### 1.2.2 Start Finetuning Service
+#### 1.2.2 Start Finetuning Service
 
 ```bash
 export HF_TOKEN=${your_huggingface_token}
 python finetuning_service.py
 ```
 
-# 🚀2. Start Microservice with Docker (Optional 2)
+## 🚀2. Start Microservice with Docker (Optional 2)
 
-## 2.1 Setup on CPU
+### 2.1 Setup on CPU
 
-### 2.1.1 Build Docker Image
+#### 2.1.1 Build Docker Image
 
 Build docker image with below command:
 
@@ -56,7 +56,7 @@ cd ../../
 docker build -t opea/finetuning:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/docker/Dockerfile_cpu .
 ```
 
-### 2.1.2 Run Docker with CLI
+#### 2.1.2 Run Docker with CLI
 
 Start docker container with below command:
 
@@ -64,9 +64,9 @@ Start docker container with below command:
 docker run -d --name="finetuning-server" -p 8015:8015 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/finetuning:latest
 ```
 
-## 2.2 Setup on Gaudi2
+### 2.2 Setup on Gaudi2
 
-### 2.2.1 Build Docker Image
+#### 2.2.1 Build Docker Image
 
 Build docker image with below command:
 
@@ -75,7 +75,7 @@ cd ../../
 docker build -t opea/finetuning-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/finetuning/docker/Dockerfile_hpu .
 ```
 
-### 2.2.2 Run Docker with CLI
+#### 2.2.2 Run Docker with CLI
 
 Start docker container with below command:
 
@@ -84,7 +84,7 @@ export HF_TOKEN=${your_huggingface_token}
 docker run --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p 8015:8015 -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --net=host --ipc=host -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e HF_TOKEN=$HF_TOKEN opea/finetuning-gaudi:latest
 ```
 
-# 🚀3. Consume Finetuning Service
+## 🚀3. Consume Finetuning Service
 
 ## 3.1 Upload a training file
 
@@ -99,6 +99,8 @@ For reranking and embedding models finetuning, the training file [toy_finetune_d
 
 ## 3.2 Create fine-tuning job
 
+### 3.2.1 Instruction Tuning
+
 After a training file like `alpaca_data.json` is uploaded, use the following command to launch a finetuning job using `meta-llama/Llama-2-7b-chat-hf` as base model:
 
 ```bash
@@ -112,17 +114,63 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   }'
 ```
 
+### 3.2.2 Reranking Model Training
+
 Use the following command to launch a finetuning job for reranking model finetuning, such as `BAAI/bge-reranker-large`:
 
 ```bash
 # create a finetuning job
-curl http://${your_ip}:8005/v1/fine_tuning/jobs \
+curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{
-    "training_file": "toy_finetune_data.json",
-    "model": "BAAI/bge-reranker-large"
+    "training_file": "toy_finetune_data.jsonl",
+    "model": "BAAI/bge-reranker-large",
+    "General":{
+      "task":"rerank",
+      "lora_config":null
+    }
   }'
+```
+
+### 3.2.3 Embedding Model Training
+
+Use the following command to launch a finetuning job for embedding model finetuning, such as `BAAI/bge-base-en-v1.5`:
+
+```bash
+# create a finetuning job
+curl http://${your_ip}:8015/v1/fine_tuning/jobs \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "training_file": "toy_finetune_data.jsonl",
+    "model": "BAAI/bge-base-en-v1.5",
+    "General":{
+      "task":"embedding",
+      "lora_config":null
+    }
+  }'
+
+
+# If training on Gaudi2, we need to set --padding "max_length" and the value of --query_max_len is same with --passage_max_len for static shape during training. For example:
+curl http://${your_ip}:8015/v1/fine_tuning/jobs \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "training_file": "toy_finetune_data.jsonl",
+    "model": "BAAI/bge-base-en-v1.5",
+    "General":{
+      "task":"embedding",
+      "lora_config":null
+    },
+    "Dataset":{
+      "query_max_len":128,
+      "passage_max_len":128,
+      "padding":"max_length"
+    }
+  }'
+
+
 ```
 
 ## 3.3 Manage fine-tuning job
@@ -131,21 +179,18 @@ Below commands show how to list finetuning jobs, retrieve a finetuning job, canc
 
 ```bash
 # list finetuning jobs
-curl http://${your_ip}:8015/v1/fine_tuning/jobs   -X GET
+curl http://${your_ip}:8015/v1/fine_tuning/jobs -X GET
 
 # retrieve one finetuning job
-curl http://localhost:8015/v1/fine_tuning/jobs/retrieve   -X POST   -H "Content-Type: application/json"   -d '{
-    "fine_tuning_job_id": ${fine_tuning_job_id}}'
+curl http://localhost:8015/v1/fine_tuning/jobs/retrieve -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": ${fine_tuning_job_id}}'
 
 # cancel one finetuning job
-curl http://localhost:8015/v1/fine_tuning/jobs/cancel   -X POST   -H "Content-Type: application/json"   -d '{
-    "fine_tuning_job_id": ${fine_tuning_job_id}}'
+curl http://localhost:8015/v1/fine_tuning/jobs/cancel -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": ${fine_tuning_job_id}}'
 
 # list checkpoints of a finetuning job
 curl http://${your_ip}:8015/v1/finetune/list_checkpoints -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": ${fine_tuning_job_id}}'
-
 ```
 
-# 🚀4. Descriptions for Finetuning parameters
+## 🚀4. Descriptions for Finetuning parameters
 
-We utilize [OpenAI finetuning parameters](https://platform.openai.com/docs/api-reference/fine-tuning) and extend it with more customizable parameters.
+We utilize [OpenAI finetuning parameters](https://platform.openai.com/docs/api-reference/fine-tuning) and extend it with more customizable parameters, see the definitions at [finetune_config](https://github.com/opea-project/GenAIComps/blob/main/comps/finetuning/finetune_config.py).
