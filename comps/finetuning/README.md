@@ -193,6 +193,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
 ```
 
 Below is an example for the format of the pretraining dataset:
+
 ```json
 {"text": "A girl with a blue tank top sitting watching three dogs."}
 {"text": "A boy with a blue tank top sitting watching three dogs."}
