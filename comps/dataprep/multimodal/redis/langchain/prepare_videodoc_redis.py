@@ -17,10 +17,7 @@ from langchain_community.vectorstores.redis.base import _generate_field_schema, 
 from langchain_community.vectorstores.redis.schema import read_schema
 from langchain_core.embeddings import Embeddings
 from langchain_core.utils import get_from_dict_or_env
-from PIL import Image
-
-from comps import opea_microservices, register_microservice
-from comps.dataprep.multimodal_utils import (
+from multimodal_utils import (
     clear_upload_folder,
     convert_video_to_audio,
     create_upload_folder,
@@ -33,6 +30,9 @@ from comps.dataprep.multimodal_utils import (
     load_whisper_model,
     write_vtt,
 )
+from PIL import Image
+
+from comps import opea_microservices, register_microservice
 from comps.embeddings.multimodal.bridgetower.bridgetower_embedding import BridgeTowerEmbedding
 
 device = "cpu"

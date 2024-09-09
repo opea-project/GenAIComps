@@ -5,6 +5,7 @@
 set -x
 
 WORKPATH=$(dirname "$PWD")
+LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
@@ -26,16 +27,16 @@ function start_service() {
     docker run -d --name="test-comps-llm-tgi-endpoint" -p $tgi_endpoint_port:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${your_hf_llm_model} --max-input-tokens 1024 --max-total-tokens 2048
     export TGI_LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
 
-    tei_service_port=5005
+    llm_port=5005
     unset http_proxy
-    docker run -d --name="test-comps-llm-tgi-server" -p ${tei_service_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm-tgi:comps
+    docker run -d --name="test-comps-llm-tgi-server" -p ${llm_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm-tgi:comps
 
     # check whether tgi is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-llm-tgi-endpoint > ${WORKPATH}/tests/test-comps-llm-tgi-endpoint.log
+        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/test-comps-llm-tgi-endpoint.log
         n=$((n+1))
-        if grep -q Connected ${WORKPATH}/tests/test-comps-llm-tgi-endpoint.log; then
+        if grep -q Connected ${LOG_PATH}/test-comps-llm-tgi-endpoint.log; then
             break
         fi
         sleep 5s
@@ -44,8 +45,8 @@ function start_service() {
 }
 
 function validate_microservice() {
-    tei_service_port=5005
-    result=$(http_proxy="" curl http://${ip_address}:${tei_service_port}/v1/chat/completions \
+    llm_port=5005
+    result=$(http_proxy="" curl http://${ip_address}:${llm_port}/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?", "max_new_tokens": 128}' \
         -H 'Content-Type: application/json')
@@ -53,14 +54,14 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-llm-tgi-endpoint
-        docker logs test-comps-llm-tgi-server
+        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/test-comps-llm-tgi-endpoint.log
+        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/test-comps-llm-tgi-server.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-llm-*")
+    cid=$(docker ps -aq --filter "name=test-comps-llm-tgi*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

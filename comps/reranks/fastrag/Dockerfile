@@ -21,7 +21,6 @@ COPY comps /home/user/comps
 RUN git clone https://github.com/IntelLabs/fastRAG.git /home/user/fastRAG && \
     cd /home/user/fastRAG && \
     pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/reranks/requirements.txt && \
     pip install --no-cache-dir -r /home/user/comps/reranks/fastrag/requirements.txt && \
     pip install --no-cache-dir . && \
     pip install --no-cache-dir .[intel]

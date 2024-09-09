@@ -38,7 +38,7 @@ function build_lvm_docker_images() {
     else
         echo "opea/llava built successful"
     fi
-    docker build --no-cache -t opea/lvm:comps -f comps/lvms/Dockerfile .
+    docker build --no-cache -t opea/lvm:comps -f comps/lvms/llava/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm built fail"
         exit 1

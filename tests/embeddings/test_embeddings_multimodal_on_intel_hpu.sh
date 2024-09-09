@@ -6,10 +6,10 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
-export your_mmei_port=8089
+export your_mmei_port=8087
 export EMBEDDER_PORT=$your_mmei_port
 export MMEI_EMBEDDING_ENDPOINT="http://$ip_address:$your_mmei_port/v1/encode"
-export your_embedding_port_microservice=6609
+export your_embedding_port_microservice=6608
 export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 unset http_proxy
 
