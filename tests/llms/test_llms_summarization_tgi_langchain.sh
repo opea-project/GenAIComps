@@ -33,7 +33,7 @@ function start_service() {
     # check whether tgi is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-llm-tgi-endpoint > ${LOG_PATH}/test-comps-llm-sum-tgi-endpoint.log
+        docker logs test-comps-llm-sum-tgi-endpoint > ${LOG_PATH}/test-comps-llm-sum-tgi-endpoint.log
         n=$((n+1))
         if grep -q Connected ${LOG_PATH}/test-comps-llm-sum-tgi-endpoint.log; then
             break
@@ -49,8 +49,8 @@ function validate_microservice() {
         -X POST \
         -d '{"query":"Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data."}' \
         -H 'Content-Type: application/json'
-    docker logs test-comps-llm-tgi-endpoint
-    docker logs test-comps-llm-tgi-server
+    docker logs test-comps-llm-sum-tgi-endpoint
+    docker logs test-comps-llm-sum-tgi-server
 
     URL="http://${ip_address}:$sum_port/v1/chat/docsum"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"query": "What is Deep Learning?"}' -H 'Content-Type: application/json' "$URL")
@@ -74,7 +74,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-llm-sum*")
+    cid=$(docker ps -aq --filter "name=test-comps-llm-sum-tgi*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

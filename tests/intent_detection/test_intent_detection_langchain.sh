@@ -5,6 +5,7 @@
 set -xe
 
 WORKPATH=$(dirname "$PWD")
+LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
@@ -19,20 +20,24 @@ function start_service() {
     docker run -d --name="test-comps-intent-tgi-endpoint" -p $tgi_endpoint:80 -v ./data:/data --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id $model
 
     export TGI_LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint}"
-    tei_service_port=5043
+    intent_port=5043
     unset http_proxy
-    docker run -d --name="test-comps-intent-tei-server" -p ${tei_service_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:latest
-    sleep 3m
+    docker run -d --name="test-comps-intent-server" -p ${intent_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:latest
+    sleep 5m
 }
 
 function validate_microservice() {
-    tei_service_port=5043
-    http_proxy="" curl http://${ip_address}:${tei_service_port}/v1/chat/intent\
+    intent_port=5043
+    result=$(http_proxy="" curl http://${ip_address}:${intent_port}/v1/chat/intent\
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":10,"top_k":1,"temperature":0.001,"streaming":false}' \
-        -H 'Content-Type: application/json'
-    docker logs test-comps-intent-tei-server
-    docker logs test-comps-intent-tgi-endpoint
+        -H 'Content-Type: application/json')
+
+    echo "==============="
+    echo $result
+    
+    docker logs test-comps-intent-server >> ${LOG_PATH}/intent_detection.log
+    docker logs test-comps-intent-tgi-endpoint >> ${LOG_PATH}/tgi-endpoint.log
 }
 
 function stop_docker() {

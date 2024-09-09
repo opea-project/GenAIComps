@@ -54,18 +54,29 @@ function start_service() {
         opea/lvm-video-llama:latest
 
     echo "Waiting for the LVM service to start"
-    until docker logs test-comps-lvm-video-llama-dependency 2>&1 | grep -q "Uvicorn running on"; do
-    sleep 5
+    # check whether lvm dependency is fully ready
+    n=0
+    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
+        docker logs test-comps-lvm-video-llama-dependency >> ${LOG_PATH}/lvm-video-llama-dependency.log
+        n=$((n+1))
+        if grep -q "Uvicorn running on" ${LOG_PATH}/lvm-video-llama-dependency.log; then
+            break
+        fi
+        sleep 5s
     done
+    sleep 5s
 
-    docker logs test-comps-lvm-video-llama-dependency >> ${LOG_PATH}/video-llama-dependency.log
-
-    echo "Waiting for the Video-Llama service to start, downloading model..."
-    until docker logs test-comps-lvm-video-llama 2>&1 | grep -q "Uvicorn running on"; do
-    sleep 5m
+    # check whether lvm service is fully ready
+    n=0
+    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
+        docker logs test-comps-lvm-video-llama >> ${LOG_PATH}/lvm-video-llama.log
+        n=$((n+1))
+        if grep -q "Uvicorn running on" ${LOG_PATH}/lvm-video-llama.log; then
+            break
+        fi
+        sleep 5s
     done
-
-    docker logs test-comps-lvm-video-llama >> ${LOG_PATH}/video-llama.log
+    sleep 5s
 }
 
 function validate_microservice() {

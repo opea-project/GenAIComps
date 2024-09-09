@@ -45,7 +45,7 @@ function validate_services() {
         cd $LOG_PATH
         HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
     elif [[ $SERVICE_NAME == *"dataprep_upload_link"* ]]; then
-        HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'link_list=["https://www.ces.tech/"]' "$URL")
+        HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'link_list=["https://opea.dev"]' "$URL")
     else
         HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL")
     fi
@@ -57,9 +57,8 @@ function validate_services() {
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-qdrant-langchain
-        docker logs test-comps-dataprep-qdrant-langchain-tei
-        docker logs test-comps-dataprep-qdrant-langchain-server
+        docker logs test-comps-dataprep-qdrant-langchain-tei >> ${LOG_PATH}/tei-endpoint.log
+        docker logs test-comps-dataprep-qdrant-langchain-server >> ${LOG_PATH}/dataprep-qdrant.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -67,9 +66,8 @@ function validate_services() {
     # check response body
     if [[ "$RESPONSE_BODY" != *"$EXPECTED_RESULT"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-dataprep-qdrant-langchain
-        docker logs test-comps-dataprep-qdrant-langchain-tei
-        docker logs test-comps-dataprep-qdrant-langchain-server
+        docker logs test-comps-dataprep-qdrant-langchain-tei >> ${LOG_PATH}/tei-endpoint.log
+        docker logs test-comps-dataprep-qdrant-langchain-server >> ${LOG_PATH}/dataprep-qdrant.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."

@@ -41,7 +41,7 @@ function start_service() {
         --network bridge \
         opea/llm-native:comps
 
-    sleep 5s
+    sleep 3m
 }
 
 function validate_microservice() {

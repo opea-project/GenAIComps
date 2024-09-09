@@ -34,9 +34,9 @@ function start_service() {
     # check whether tgi is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/test-comps-llm-tgi-endpoint.log
+        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
         n=$((n+1))
-        if grep -q Connected ${LOG_PATH}/test-comps-llm-tgi-endpoint.log; then
+        if grep -q Connected ${LOG_PATH}/llm-tgi.log; then
             break
         fi
         sleep 5s
@@ -54,8 +54,8 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/test-comps-llm-tgi-endpoint.log
-        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/test-comps-llm-tgi-server.log
+        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
+        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm-tgi-server.log
         exit 1
     fi
 }

@@ -64,7 +64,7 @@ function validate_microservice() {
         -X POST \
         -d "{\"query\":\"test\",\"k\":3}" \
         -H 'Content-Type: application/json')
-    if [[ $result == *"["* ]]; then
+    if [[ $result == *"Pathway"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"

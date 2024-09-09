@@ -32,8 +32,8 @@ function start_service() {
 
     # check whether tgi is fully ready
     n=0
-    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-llm-tgi-endpoint > ${LOG_PATH}/test-comps-llm-faq-tgi-endpoint.log
+    until [[ "$n" -ge 200 ]] || [[ $ready == true ]]; do
+        docker logs test-comps-llm-faq-tgi-endpoint > ${LOG_PATH}/test-comps-llm-faq-tgi-endpoint.log
         n=$((n+1))
         if grep -q Connected ${LOG_PATH}/test-comps-llm-faq-tgi-endpoint.log; then
             break
@@ -59,15 +59,15 @@ function validate_microservice() {
 
         if echo 'text: ' | grep -q "$EXPECTED_RESULT"; then
             echo "[ llm - faqgen ] Content is as expected."
-            docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm_faqgen.log
+            docker logs test-comps-llm-faq-tgi-server >> ${LOG_PATH}/llm_faqgen.log
         else
             echo "[ llm - faqgen ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm_faqgen.log
+            docker logs test-comps-llm-faq-tgi-server >> ${LOG_PATH}/llm_faqgen.log
             exit 1
         fi
     else
         echo "[ llm - faqgen ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm_faqgen.log
+        docker logs test-comps-llm-faq-tgi-server >> ${LOG_PATH}/llm_faqgen.log
         exit 1
     fi
 }
