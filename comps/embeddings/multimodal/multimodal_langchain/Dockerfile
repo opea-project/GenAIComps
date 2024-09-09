@@ -18,12 +18,10 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal_embeddings/multimodal_langchain/requirements.txt
-
-# RUN pip install --no-cache-dir --upgrade pydantic
+    pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal/multimodal_langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/embeddings/multimodal_embeddings/multimodal_langchain
+WORKDIR /home/user/comps/embeddings/multimodal/multimodal_langchain
 
 ENTRYPOINT ["python", "mm_embedding_mmei.py"]

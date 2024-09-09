@@ -5,6 +5,7 @@
 set -x
 
 WORKPATH=$(dirname "$PWD")
+LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
@@ -50,9 +51,10 @@ function start_service() {
         /bin/bash -c "ray start --head && python vllm_ray_openai.py --port_number 8000 --model_id_or_path $LLM_MODEL --tensor_parallel_size 2 --enforce_eager False"
 
     export vLLM_RAY_ENDPOINT="http://${ip_address}:${port_number}"
+    service_port=5032
     docker run -d --rm\
         --name="test-comps-vllm-ray-microservice" \
-        -p 5032:9000 \
+        -p $service_port:9000 \
         --ipc=host \
         -e vLLM_RAY_ENDPOINT=$vLLM_RAY_ENDPOINT \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
@@ -62,9 +64,9 @@ function start_service() {
     # check whether vllm ray is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-vllm-ray-service > ${WORKPATH}/tests/test-comps-vllm-ray-service.log
+        docker logs test-comps-vllm-ray-service > ${LOG_PATH}/test-comps-vllm-ray-service.log
         n=$((n+1))
-        if grep -q Connected ${WORKPATH}/tests/test-comps-vllm-ray-service.log; then
+        if grep -q Connected ${LOG_PATH}/test-comps-vllm-ray-service.log; then
             break
         fi
         sleep 5s
@@ -73,18 +75,21 @@ function start_service() {
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://${ip_address}:5031/v1/chat/completions \
+    port_number=5031
+    result=$(http_proxy="" curl http://${ip_address}:$port_number/v1/chat/completions \
         -H "Content-Type: application/json" \
         -d '{"model": "facebook/opt-125m", "messages": [{"role": "user", "content": "How are you?"}]}')
     if [[ $result == *"message"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-vllm-ray-service
-        docker logs test-comps-vllm-ray-microservice
+        docker logs test-comps-vllm-ray-service >> ${LOG_PATH}/ray-dependency.log
+        docker logs test-comps-vllm-ray-microservice >> ${LOG_PATH}/llm-ray.log
         exit 1
     fi
-    result=$(http_proxy="" curl http://${ip_address}:5032/v1/chat/completions \
+
+    service_port=5032
+    result=$(http_proxy="" curl http://${ip_address}:$service_port/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
         -H 'Content-Type: application/json')
@@ -92,8 +97,8 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-vllm-ray-service
-        docker logs test-comps-vllm-ray-microservice
+        docker logs test-comps-vllm-ray-service >> ${LOG_PATH}/ray-dependency.log
+        docker logs test-comps-vllm-ray-microservice >> ${LOG_PATH}/llm-ray.log
         exit 1
     fi
 }

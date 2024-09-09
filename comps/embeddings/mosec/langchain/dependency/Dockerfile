@@ -21,6 +21,6 @@ RUN cd /home/user/ && export HF_ENDPOINT=https://hf-mirror.com && huggingface-cl
 USER user
 ENV EMB_MODEL="/home/user/bge-large-zh-v1.5/"
 
-WORKDIR /home/user/comps/embeddings/mosec/langchain/dependency/docker
+WORKDIR /home/user/comps/embeddings/mosec/langchain/dependency
 
 CMD ["python3", "server-ipex.py"]

@@ -5,6 +5,7 @@
 set -xe
 
 WORKPATH=$(dirname "$PWD")
+LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
@@ -30,9 +31,11 @@ function build_docker_images() {
 function start_service() {
     cd $WORKPATH
     unset http_proxy
-    export LVM_ENDPOINT=http://$ip_address:5030
+    dependency_port=5051
+    server_port=5052
+    export LVM_ENDPOINT=http://$ip_address:$dependency_port
 
-    docker run -d --name="test-comps-lvm-video-llama-dependency" -p 5030:9009 \
+    docker run -d --name="test-comps-lvm-video-llama-dependency" -p $dependency_port:9009 \
         --ipc=host \
         -e http_proxy=$http_proxy \
         -e https_proxy=$https_proxy \
@@ -42,7 +45,7 @@ function start_service() {
         -v video-llama-model:/home/user/model \
         opea/video-llama-lvm-server:latest
 
-    docker run -d --name="test-comps-lvm-video-llama" -p 5031:9000 \
+    docker run -d --name="test-comps-lvm-video-llama" -p $server_port:9000 \
         --ipc=host \
         -e http_proxy=$http_proxy \
         -e https_proxy=$https_proxy \
@@ -55,20 +58,27 @@ function start_service() {
     sleep 5
     done
 
+    docker logs test-comps-lvm-video-llama-dependency >> ${LOG_PATH}/video-llama-dependency.log
+
     echo "Waiting for the Video-Llama service to start, downloading model..."
     until docker logs test-comps-lvm-video-llama 2>&1 | grep -q "Uvicorn running on"; do
     sleep 5m
     done
+
+    docker logs test-comps-lvm-video-llama >> ${LOG_PATH}/video-llama.log
 }
 
 function validate_microservice() {
 
-    result=$(http_proxy="" curl http://localhost:5031/v1/lvm -X POST -d '{"video_url":"silence_girl.mp4","chunk_start": 0,"chunk_duration": 7,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
+    server_port=5052
+    result=$(http_proxy="" curl http://localhost:$server_port/v1/lvm -X POST -d '{"video_url":"silence_girl.mp4","chunk_start": 0,"chunk_duration": 7,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
 
     if [[ $result == *"silence"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
+        docker logs test-comps-lvm-video-llama-dependency >> ${LOG_PATH}/video-llama-dependency.log
+        docker logs test-comps-lvm-video-llama >> ${LOG_PATH}/video-llama.log
         exit 1
     fi
 }

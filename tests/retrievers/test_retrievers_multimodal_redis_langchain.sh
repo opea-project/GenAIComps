@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/multimodal-retriever-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/redis_multimodal/docker/Dockerfile .
+    docker build --no-cache -t opea/multimodal-retriever-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/multimodal/redis/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/multimodal-retriever-redis built fail"
         exit 1
@@ -27,7 +27,7 @@ function start_service() {
     # redis retriever
     export REDIS_URL="redis://${ip_address}:5689"
     export INDEX_NAME="rag-redis"
-    retriever_port=5009
+    retriever_port=5434
     unset http_proxy
     docker run -d --name="test-comps-multimodal-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/multimodal-retriever-redis:comps
 
@@ -35,7 +35,7 @@ function start_service() {
 }
 
 function validate_microservice() {
-    retriever_port=5009
+    retriever_port=5434
     export PATH="${HOME}/miniforge3/bin:$PATH"
     source activate
     URL="http://${ip_address}:$retriever_port/v1/multimodal_retrieval"
