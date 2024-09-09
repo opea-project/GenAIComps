@@ -20,7 +20,7 @@ function build_docker_images() {
 
 function start_service() {
     # qdrant
-    docker run -d --name test-comps-retriever-qdrant-vector-db -p 5010:6333 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy qdrant/qdrant
+    docker run -d --name test-comps-retriever-qdrant-vector-db -p 5056:6333 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy qdrant/qdrant
     sleep 10s
 
     # tei endpoint

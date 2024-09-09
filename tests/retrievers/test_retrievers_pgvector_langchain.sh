@@ -24,7 +24,8 @@ function start_service() {
     export POSTGRES_PASSWORD=testpwd
     export POSTGRES_DB=vectordb
 
-    docker run --name test-comps-retriever-pgvector-vectorstore -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d -v $WORKPATH/comps/vectorstores/langchain/pgvector/init.sql:/docker-entrypoint-initdb.d/init.sql -p 5432:5432 pgvector/pgvector:0.7.0-pg16
+    pgvector_port=5079
+    docker run --name test-comps-retriever-pgvector-vectorstore -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d -v $WORKPATH/comps/vectorstores/langchain/pgvector/init.sql:/docker-entrypoint-initdb.d/init.sql -p $pgvector_port:5432 pgvector/pgvector:0.7.0-pg16
     sleep 10s
 
     # tei endpoint
@@ -35,7 +36,7 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # pgvector retriever
-    docker run -d --name="test-comps-retriever-pgvector-ms" -p 5003:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/retriever-pgvector:comps
+    docker run -d --name="test-comps-retriever-pgvector-ms" -p 5003:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:$pgvector_port/${POSTGRES_DB} -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/retriever-pgvector:comps
     sleep 3m
 }
 

@@ -39,7 +39,7 @@ function start_tgi_service() {
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
         docker logs test-comps-tgi-gaudi-service &> ${LOG_PATH}/tgi-gaudi-service.log
         n=$((n+1))
-        if grep -q Connected ${WORKPATH}/tests/tgi-gaudi-service.log; then
+        if grep -q Connected ${LOG_PATH}/tgi-gaudi-service.log; then
             break
         fi
         sleep 5s
