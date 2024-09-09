@@ -142,9 +142,9 @@ jobs:
           if [ -n "$changed_files" ]; then
             for file in $changed_files; do
               if find "${{github.workspace}}/.github/workflows/docker/compose/" -name "*$(echo "$file" | awk -F '/' '{print $2}')*" |grep -q .; then
-                echo "Please check if the added $file is included in the yaml under path ${{github.workspace}}/.github/workflows/docker/compose/."
+                echo "Please check if the added $file is included in the yaml under path ${{github.workspace}}/.github/workflows/docker/compose/$(echo "$file" | awk -F '/' '{print $2}')-compose-cd.yaml."
               else
-                echo "Please create a new compose file named service_name-compose-cd.yaml in ${{github.workspace}}/.github/workflows/docker/compose/ for $file and fill it in."
+                echo "Please create a new compose file named $(echo "$file" | awk -F '/' '{print $2}')-compose-cd.yaml in ${{github.workspace}}/.github/workflows/docker/compose/ for $file and fill it in."
               fi
             done
             exit 1
