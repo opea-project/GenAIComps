@@ -17,7 +17,6 @@ import datasets
 import ray
 import torch
 import transformers
-from modeling import CrossEncoder
 from peft import LoraConfig, get_peft_model
 from pydantic_yaml import parse_yaml_raw_as
 from ray.air import FailureConfig, RunConfig
@@ -200,7 +199,7 @@ def tokenize_dataset(config: Dict, tokenizer, dataset):
     if task == "instruction_tuning":
         group = config["Dataset"].get("group", True)
         block_size = config["Dataset"].get("block_size", 512)
-        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token = tokenizer.eos_token if not tokenizer.pad_token else tokenizer.pad_token
 
         processor = InstructionDataProcessor(config, tokenizer)
 
@@ -251,6 +250,7 @@ def tokenize_dataset(config: Dict, tokenizer, dataset):
     elif task == "pretraining":
         group = True
         block_size = config["Dataset"].get("block_size", 512)
+        tokenizer.pad_token = tokenizer.eos_token if not tokenizer.pad_token else tokenizer.pad_token
 
         processor = PretrainingDataProcessor(config, tokenizer)
 

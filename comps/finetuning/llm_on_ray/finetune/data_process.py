@@ -211,13 +211,14 @@ class PretrainingDataProcessor:
 
     def tokenize(self, examples):
         keys = list(examples.data.keys())
-        if len(keys) != 1:
+        if len(keys) != 1 and "text" not in keys:
             raise ValueError("Unsupported dataset format")
 
+        key = keys[0] if len(keys) == 1 else "text"
         examples["input_ids"] = []
         examples["labels"] = []
         examples["attention_mask"] = []
-        for exp in examples[keys[0]]:
+        for exp in examples[key]:
             results = self.tokenizer(
                 exp,
                 padding=self.padding,
