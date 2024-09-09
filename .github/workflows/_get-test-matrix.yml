@@ -48,5 +48,6 @@ jobs:
 
           changed_files="$(git diff --name-only ${base_commit} ${merged_commit})" || true
           export changed_files_full=$changed_files
-
+          
+          export WORKSPACE=${{ github.workspace }}
           bash .github/workflows/scripts/get_test_matrix.sh
