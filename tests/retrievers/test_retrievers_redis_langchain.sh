@@ -25,16 +25,16 @@ function start_service() {
     sleep 10s
 
     # tei endpoint
-    tei_endpoint=5008
+    tei_endpoint=5434
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+    docker run -d --name="test-comps-retriever-redis-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # redis retriever
     export REDIS_URL="redis://${ip_address}:5010"
     export INDEX_NAME="rag-redis"
-    retriever_port=5009
+    retriever_port=5435
     # unset http_proxy
     docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/retriever-redis:comps
 
@@ -42,10 +42,11 @@ function start_service() {
 }
 
 function validate_microservice() {
-    retriever_port=5009
+    retriever_port=5435
     export PATH="${HOME}/miniforge3/bin:$PATH"
     source activate
     URL="http://${ip_address}:$retriever_port/v1/retrieval"
+    
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
@@ -58,26 +59,21 @@ function validate_microservice() {
         else
             echo "[ retriever ] Content does not match the expected result: $CONTENT"
             docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+            docker logs test-comps-retriever-redis-tei-endpoint >> ${LOG_PATH}/tei.log
             exit 1
         fi
     else
         echo "[ retriever ] HTTP status is not 200. Received status was $HTTP_STATUS"
         docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+        docker logs test-comps-retriever-redis-tei-endpoint >> ${LOG_PATH}/tei.log
         exit 1
     fi
-
-    docker logs test-comps-retriever-tei-endpoint >> ${LOG_PATH}/tei.log
 }
 
 function stop_docker() {
-    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retriever*")
+    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retriever-redis*")
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
-    fi
-
-    cid_redis=$(docker ps -aq --filter "name=test-redis-vector-db")
-    if [[ ! -z "$cid_redis" ]]; then
-        docker stop $cid_redis && docker rm $cid_redis && sleep 1s
     fi
 }
 

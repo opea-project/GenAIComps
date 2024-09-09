@@ -1,3 +1,6 @@
+aiohttp
+httpx
+prometheus-fastapi-instrumentator
 docarray[full]
 fastapi
 haystack-ai

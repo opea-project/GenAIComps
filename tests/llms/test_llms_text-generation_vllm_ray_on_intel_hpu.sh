@@ -11,7 +11,7 @@ function build_docker_images() {
     ## Build VLLM Ray docker
     cd $WORKPATH
     docker build \
-        -f comps/llms/text-generation/langchain/vllm/ray/dependency/Dockerfile  \
+        -f comps/llms/text-generation/vllm/ray/dependency/Dockerfile  \
         --no-cache -t opea/vllm_ray-habana:comps --network=host .
     if [ $? -ne 0 ]; then
         echo "opea/vllm_ray-habana built fail"
@@ -24,7 +24,7 @@ function build_docker_images() {
     cd $WORKPATH
     docker build \
         --no-cache -t opea/llm-vllm-ray:comps \
-        -f comps/llms/text-generation/langchain/vllm/ray/Dockerfile .
+        -f comps/llms/text-generation/vllm/ray/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llm-vllm-ray built fail"
         exit 1

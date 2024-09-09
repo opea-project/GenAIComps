@@ -23,18 +23,18 @@ function start_service() {
     export POSTGRES_PASSWORD=testpwd
     export POSTGRES_DB=vectordb
 
-    docker run --name test-comps-vectorstore-postgres -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d -v $WORKPATH/comps/vectorstores/langchain/pgvector/init.sql:/docker-entrypoint-initdb.d/init.sql -p 5432:5432 pgvector/pgvector:0.7.0-pg16
+    docker run --name test-comps-retriever-pgvector-vectorstore -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d -v $WORKPATH/comps/vectorstores/langchain/pgvector/init.sql:/docker-entrypoint-initdb.d/init.sql -p 5432:5432 pgvector/pgvector:0.7.0-pg16
     sleep 10s
 
     # tei endpoint
-    tei_endpoint=5008
+    tei_endpoint=5431
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
+    docker run -d --name="test-comps-retriever-pgvector-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # pgvector retriever
-    docker run -d --name="test-retriever-pgvector" -p 5003:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/retriever-pgvector:comps
+    docker run -d --name="test-comps-retriever-pgvector-ms" -p 5003:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/retriever-pgvector:comps
     sleep 3m
 }
 
@@ -58,19 +58,9 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retrievers*")
+    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retriever-pgvector*")
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
-    fi
-
-    cid_redis=$(docker ps -aq --filter "name=test-comps-vectorstore-postgres")
-    if [[ ! -z "$cid_redis" ]]; then
-        docker stop $cid_redis && docker rm $cid_redis && sleep 1s
-    fi
-
-    cid_redis=$(docker ps -aq --filter "name=test-retriever-pgvector")
-    if [[ ! -z "$cid_redis" ]]; then
-        docker stop $cid_redis && docker rm $cid_redis && sleep 1s
     fi
 }
 

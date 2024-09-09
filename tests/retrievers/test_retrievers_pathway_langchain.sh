@@ -10,9 +10,9 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
 
-    cd comps/vectorstores/pathway/langchain
+    cd comps/vectorstores/pathway
 
-    docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/vectorstore-pathway:comps .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/vectorstore-pathway:comps .
 
     cd $WORKPATH
 
@@ -31,7 +31,7 @@ function start_service() {
     # tei endpoint
     tei_endpoint=5008
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
+    docker run -d --name="test-comps-retriever-pathway-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
 
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
@@ -46,15 +46,15 @@ function start_service() {
 
     # pathway
     export PATHWAY_HOST="0.0.0.0"
-    export PATHWAY_PORT=5432
+    export PATHWAY_PORT=5433
 
-    docker run -d --name="test-comps-vectorstore-pathway" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v $WORKPATH/comps/vectorstores/langchain/pathway/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" opea/vectorstore-pathway:comps
+    docker run -d --name="test-comps-retriever-pathway-vectorstore" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v $WORKPATH/comps/vectorstores/pathway/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" opea/vectorstore-pathway:comps
 
     sleep 45s
 
     export PATHWAY_HOST=$ip_address  # needed in order to reach to vector store
 
-    docker run -d --name="test-comps-retriever-pathway" -p 5009:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/retriever-pathway:comps
+    docker run -d --name="test-comps-retriever-pathway-ms" -p 5009:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/retriever-pathway:comps
 
     sleep 10s
 }
@@ -74,15 +74,15 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-vectorstore-pathway >> ${LOG_PATH}/vectorstore-pathway.log
-        docker logs test-comps-retriever-tei-endpoint >> ${LOG_PATH}/tei-endpoint.log
-        docker logs test-comps-retriever-pathway >> ${LOG_PATH}/retriever-pathway.log
+        docker logs test-comps-retriever-pathway-vectorstore >> ${LOG_PATH}/vectorstore-pathway.log
+        docker logs test-comps-retriever-pathway-tei-endpoint >> ${LOG_PATH}/tei-endpoint.log
+        docker logs test-comps-retriever-pathway-ms >> ${LOG_PATH}/retriever-pathway.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps*")
+    cid=$(docker ps -aq --filter "name=test-comps-retriever-pathway*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

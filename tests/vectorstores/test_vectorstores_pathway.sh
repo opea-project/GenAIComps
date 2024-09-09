@@ -17,10 +17,10 @@ function build_docker_images() {
     cd $WORKPATH
 
     if [ $? -ne 0 ]; then
-        echo "opea/retriever-pathway built fail"
+        echo "opea/vectorstore-pathway built fail"
         exit 1
     else
-        echo "opea/retriever-pathway built successful"
+        echo "opea/vectorstore-pathway built successful"
     fi
 }
 
@@ -28,9 +28,9 @@ function start_service() {
     cd $WORKPATH
 
     # tei endpoint
-    tei_endpoint=5008
+    tei_endpoint=5436
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+    docker run -d --name="test-comps-vectorstore-pathway-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
@@ -45,9 +45,9 @@ function start_service() {
 
     # pathway
     export PATHWAY_HOST="0.0.0.0"
-    export PATHWAY_PORT=5432
+    export PATHWAY_PORT=5437
 
-    docker run -d --name="test-comps-vectorstore-pathway" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v $WORKPATH/comps/vectorstores/langchain/pathway/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" opea/vectorstore-pathway:comps
+    docker run -d --name="test-comps-vectorstore-pathway-ms" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v $WORKPATH/comps/vectorstores/langchain/pathway/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" opea/vectorstore-pathway:comps
 
     sleep 45s
 
@@ -68,14 +68,14 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-vectorstore-pathway >> ${LOG_PATH}/vectorstore-pathway.log
-        docker logs test-comps-retriever-tei-endpoint >> ${LOG_PATH}/tei-endpoint.log
+        docker logs test-comps-vectorstore-pathway-ms >> ${LOG_PATH}/vectorstore-pathway.log
+        docker logs test-comps-vectorstore-pathway-tei-endpoint >> ${LOG_PATH}/tei-endpoint.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps*")
+    cid=$(docker ps -aq --filter "name=test-comps-vectorstore-pathway*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

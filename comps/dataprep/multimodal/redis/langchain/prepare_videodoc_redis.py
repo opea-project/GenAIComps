@@ -20,7 +20,7 @@ from langchain_core.utils import get_from_dict_or_env
 from PIL import Image
 
 from comps import opea_microservices, register_microservice
-from comps.dataprep.multimodal_utils import (
+from multimodal_utils import (
     clear_upload_folder,
     convert_video_to_audio,
     create_upload_folder,
