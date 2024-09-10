@@ -584,8 +584,7 @@ class VideoRAGQnAGateway(Gateway):
             ):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
-        response = result_dict[last_node]["text"]
-        metadata = result_dict[last_node].metadata
+        response = result_dict[last_node]["text"] 
         choices = []
         usage = UsageInfo()
         choices.append(
@@ -593,7 +592,6 @@ class VideoRAGQnAGateway(Gateway):
                 index=0,
                 message=ChatMessage(role="assistant", content=response),
                 finish_reason="stop",
-                metadata=metadata,
             )
         )
         return ChatCompletionResponse(model="videoragqna", choices=choices, usage=usage)
@@ -779,7 +777,11 @@ class MultimodalRAGWithVideosGateway(Gateway):
             ):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
+        print("***** ALL ", result_dict[last_node])
+        print("-------keys ", result_dict[last_node].keys())
+        
         response = result_dict[last_node]["text"]
+        metadata = result_dict[last_node]["metadata"]
         choices = []
         usage = UsageInfo()
         choices.append(
@@ -787,6 +789,7 @@ class MultimodalRAGWithVideosGateway(Gateway):
                 index=0,
                 message=ChatMessage(role="assistant", content=response),
                 finish_reason="stop",
+                metadata=metadata,
             )
         )
         return ChatCompletionResponse(model="multimodalragwithvideos", choices=choices, usage=usage)
