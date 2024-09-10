@@ -5,6 +5,7 @@ import os
 import time
 from typing import Union
 
+from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
 from langchain_core.prompts import PromptTemplate
@@ -48,9 +49,11 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
         retrieved_metadatas = request.metadata
         if retrieved_metadatas is None or len(retrieved_metadatas) == 0:
             # there is no video segments retrieved. 
-            # Return status 204 due to llava-tgi-gaudi should receive image as input; 
-            #   Otherwise, the generated text is bad.
-            return {"status": 204, "message": "There is no video segments retrieved given the query!"}
+            # Raise HTTPException status_code 204 
+            # due to llava-tgi-gaudi should receive image as input; Otherwise, the generated text is bad.
+            raise HTTPException(
+                status_code=500, detail="There is no video segments retrieved given the query!"
+            )
         img_b64_str = retrieved_metadatas[0]["b64_img_str"]
         initial_query = request.initial_query
         context = retrieved_metadatas[0]["transcript_for_inference"]
