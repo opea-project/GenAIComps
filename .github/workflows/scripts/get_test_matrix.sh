@@ -6,6 +6,7 @@
 # hardware: 'intel_cpu', 'intel_hpu', ...
 
 set -xe
+cd $WORKSPACE
 changed_files_full=$changed_files_full
 run_matrix="{\"include\":["
 
@@ -76,6 +77,7 @@ function main() {
     echo "===========finish find_test_2============"
 
     run_matrix=$run_matrix"]}"
+    echo "run_matrix=${run_matrix}"
     echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
 }
 
