@@ -24,7 +24,7 @@ function start_service() {
     model=BAAI/bge-reranker-base
     revision=refs/pr/4
     volume=$PWD/data
-    docker run -d --name="test-comps-reranking-tei-endpoint" -p $tei_endpoint:80 -v $volume:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model --revision $revision
+    docker run -d --name="test-comps-reranking-tei-endpoint" -p $tei_endpoint:80 -v $volume:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 
     export TEI_RERANKING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
     tei_service_port=5007
