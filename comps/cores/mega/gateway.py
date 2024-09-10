@@ -777,11 +777,22 @@ class MultimodalRAGWithVideosGateway(Gateway):
             ):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
-        print("***** ALL ", result_dict[last_node])
-        print("-------keys ", result_dict[last_node].keys())
         
-        response = result_dict[last_node]["text"]
-        metadata = result_dict[last_node]["metadata"]
+        if "text" in result_dict[last_node].keys():
+            response = result_dict[last_node]["text"]
+        else:
+            # text in not response message
+            # something wrong, for example due to empty retrieval results
+            if "detail" in result_dict[last_node].keys():
+                response = result_dict[last_node]['detail']
+            else:
+                response = "The server fail to generate answer to your query!"
+        if "metadata" in result_dict[last_node].keys():
+            # from retrieval results
+            metadata = result_dict[last_node]["metadata"]
+        else:
+            # follow-up question, no retrieval
+            metadata = None
         choices = []
         usage = UsageInfo()
         choices.append(
