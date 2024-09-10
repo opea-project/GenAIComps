@@ -37,7 +37,7 @@ context_db = None
 streamer = None
 chat = None
 
-VIDEO_DIR = "/home/user/comps/lvms/video-llama/server/data"
+VIDEO_DIR = "/home/user/comps/lvms/video-llama/dependency/data"
 
 CFG_PATH = "video_llama_config/video_llama_eval_only_vl.yaml"
 MODEL_TYPE = "llama_v2"
