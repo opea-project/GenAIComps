@@ -5,7 +5,7 @@
 
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 
 from comps.cores.proto.api_protocol import FineTuningJobsRequest
 
@@ -16,6 +16,7 @@ PRECISION_NO = "no"
 DEVICE_CPU = "cpu"
 DEVICE_HPU = "hpu"
 DEVICE_GPU = "gpu"
+DEVICE_CUDA = "cuda"
 
 ACCELERATE_STRATEGY_DDP = "DDP"
 ACCELERATE_STRATEGY_FSDP = "FSDP"
@@ -48,10 +49,16 @@ class GeneralConfig(BaseModel):
     config: LoadConfig = LoadConfig()
     lora_config: Optional[LoraConfig] = LoraConfig()
     enable_gradient_checkpointing: bool = False
+    task: str = "instruction_tuning"
 
     @validator("report_to")
     def check_report_to(cls, v: str):
         assert v in ["none", "tensorboard"]
+        return v
+
+    @validator("task")
+    def check_task(cls, v: str):
+        assert v in ["instruction_tuning", "pretraining", "rerank", "embedding"]
         return v
 
 
@@ -68,18 +75,43 @@ class DatasetConfig(BaseModel):
     truncation_side: str = "right"
     max_seq_length: int = 512
     truncation: bool = True
-    padding: bool = True
+    padding: Union[bool, str] = True
     mask_input: bool = True
     mask_response: bool = True
     data_preprocess_type: str = "neural_chat"
     max_train_samples: int = 0
     max_eval_samples: int = 0
+    train_group_size: int = 8
+    query_max_len: int = Field(
+        default=128,
+        description=(
+            "The maximum total input sequence length after tokenization for passage. Sequences longer "
+            "than this will be truncated, sequences shorter will be padded."
+        ),
+    )
+    passage_max_len: int = Field(
+        default=128,
+        description=(
+            "The maximum total input sequence length after tokenization for passage. Sequences longer "
+            "than this will be truncated, sequences shorter will be padded."
+        ),
+    )
+    query_instruction_for_retrieval: Optional[str] = Field(default=None, description="instruction for query")
+    passage_instruction_for_retrieval: Optional[str] = Field(default=None, description="instruction for passage")
 
 
 class RayResourceConfig(BaseModel):
     CPU: int = 32
     GPU: int = 0
     HPU: int = 0
+
+
+class EmbeddingTrainingConfig(BaseModel):
+    negatives_cross_device: bool = Field(default=False, description="share negatives across devices")
+    temperature: Optional[float] = Field(default=0.02)
+    sentence_pooling_method: str = Field(default="cls", description="the pooling method, should be cls or mean")
+    normalized: bool = Field(default=True)
+    use_inbatch_neg: bool = Field(default=True, description="use passages in the same batch as negatives")
 
 
 class TrainingConfig(BaseModel):
@@ -99,12 +131,13 @@ class TrainingConfig(BaseModel):
     gradient_accumulation_steps: int = 1
     logging_steps: int = 10
     deepspeed_config_file: str = ""
+    embedding_training_config: Optional[EmbeddingTrainingConfig] = EmbeddingTrainingConfig()
 
     @validator("device")
     def check_device(cls, v: str):
         # will convert to lower case
         if v:
-            assert v.lower() in [DEVICE_CPU, DEVICE_GPU, DEVICE_HPU]
+            assert v.lower() in [DEVICE_CPU, DEVICE_GPU, DEVICE_HPU, DEVICE_CUDA]
         return v.lower()
 
     @validator("hpu_execution_mode")

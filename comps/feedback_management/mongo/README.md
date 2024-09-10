@@ -27,22 +27,22 @@ python feedback.py
 
 ```bash
 cd ~/GenAIComps
-docker build -t opea/feedbackmanagement-mongo-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/feedback_management/mongo/docker/Dockerfile .
+docker build -t opea/feedbackmanagement-mongo-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/feedback_management/mongo/Dockerfile .
 ```
 
 ### Run Docker with CLI
 
 1. Run mongoDB image
 
-```bash
-docker run -d -p 27017:27017 --name=mongo mongo:latest
-```
+   ```bash
+   docker run -d -p 27017:27017 --name=mongo mongo:latest
+   ```
 
 2. Run Feedback Management service
 
-```bash
-docker run -d --name="feedbackmanagement-mongo-server" -p 6016:6016 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/feedbackmanagement-mongo-server:latest
-```
+   ```bash
+   docker run -d --name="feedbackmanagement-mongo-server" -p 6016:6016 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/feedbackmanagement-mongo-server:latest
+   ```
 
 ### Invoke Microservice
 

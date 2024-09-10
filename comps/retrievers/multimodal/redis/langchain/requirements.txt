@@ -1,0 +1,11 @@
+docarray[full]
+fastapi
+langchain_community
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+redis
+shortuuid
+transformers
+uvicorn

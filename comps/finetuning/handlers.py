@@ -3,6 +3,7 @@
 
 import os
 import random
+import re
 import time
 import urllib.parse
 import uuid
@@ -17,6 +18,7 @@ from comps import CustomLogger
 from comps.cores.proto.api_protocol import (
     FileObject,
     FineTuningJob,
+    FineTuningJobCheckpoint,
     FineTuningJobIDRequest,
     FineTuningJobList,
     FineTuningJobsRequest,
@@ -38,6 +40,9 @@ if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
 
 FineTuningJobID = str
+CheckpointID = str
+CheckpointPath = str
+
 CHECK_JOB_STATUS_INTERVAL = 5  # Check every 5 secs
 
 global ray_client
@@ -45,6 +50,7 @@ ray_client: JobSubmissionClient = None
 
 running_finetuning_jobs: Dict[FineTuningJobID, FineTuningJob] = {}
 finetuning_job_to_ray_job: Dict[FineTuningJobID, str] = {}
+checkpoint_id_to_checkpoint_path: Dict[CheckpointID, CheckpointPath] = {}
 
 
 # Add a background task to periodicly update job status
@@ -56,7 +62,7 @@ def update_job_status(job_id: FineTuningJobID):
         status = "cancelled" if status == "stopped" else status
         logger.info(f"Status of job {job_id} is '{status}'")
         running_finetuning_jobs[job_id].status = status
-        if status == "finished" or status == "cancelled" or status == "failed":
+        if status == "succeeded" or status == "cancelled" or status == "failed":
             break
         time.sleep(CHECK_JOB_STATUS_INTERVAL)
 
@@ -117,8 +123,6 @@ def handle_create_finetuning_jobs(request: FineTuningParams, background_tasks: B
     ray_job_id = ray_client.submit_job(
         # Entrypoint shell command to execute
         entrypoint=f"python finetune_runner.py --config_file {finetune_config_file}",
-        # Path to the local directory that contains the script.py file
-        runtime_env={"working_dir": "./", "excludes": [f"{OUTPUT_DIR}"]},
     )
 
     logger.info(f"Submitted Ray job: {ray_job_id} ...")
@@ -183,10 +187,34 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
     job = running_finetuning_jobs.get(fine_tuning_job_id)
     if job is None:
         raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' not found!")
-    output_dir = os.path.join(JOBS_PATH, job.id)
+    output_dir = os.path.join(OUTPUT_DIR, job.id)
     checkpoints = []
     if os.path.exists(output_dir):
-        checkpoints = os.listdir(output_dir)
+        # Iterate over the contents of the directory and add an entry for each
+        files = os.listdir(output_dir)
+        for file in files:  # Loop over directory contents
+            file_path = os.path.join(output_dir, file)
+            if os.path.isdir(file_path) and file.startswith("checkpoint"):
+                steps = re.findall("\d+", file)[0]
+                checkpointsResponse = FineTuningJobCheckpoint(
+                    id=f"ftckpt-{uuid.uuid4()}",  # Generate a unique ID
+                    created_at=int(time.time()),  # Use the current timestamp
+                    fine_tuned_model_checkpoint=file_path,  # Directory path itself
+                    fine_tuning_job_id=fine_tuning_job_id,
+                    object="fine_tuning.job.checkpoint",
+                    step_number=steps,
+                )
+                checkpoints.append(checkpointsResponse)
+        if job.status == "succeeded":
+            checkpointsResponse = FineTuningJobCheckpoint(
+                id=f"ftckpt-{uuid.uuid4()}",  # Generate a unique ID
+                created_at=int(time.time()),  # Use the current timestamp
+                fine_tuned_model_checkpoint=output_dir,  # Directory path itself
+                fine_tuning_job_id=fine_tuning_job_id,
+                object="fine_tuning.job.checkpoint",
+            )
+            checkpoints.append(checkpointsResponse)
+
     return checkpoints
 
 
