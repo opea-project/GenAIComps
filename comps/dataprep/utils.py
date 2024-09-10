@@ -284,6 +284,15 @@ def load_json(json_path):
     content_list = [json.dumps(item) for item in data]
     return content_list
 
+def load_jsonl(jsonl_path):
+    """Load and process jsonl file."""
+    content_list = []
+    with open(jsonl_path, 'r') as file:
+        for line in file:
+            json_obj = json.loads(line)
+            content_list.append(json_obj)
+    return content_list
+
 
 def load_yaml(yaml_path):
     """Load and process yaml file."""
@@ -351,8 +360,10 @@ def document_loader(doc_path):
         return load_md(doc_path)
     elif doc_path.endswith(".xml"):
         return load_xml(doc_path)
-    elif doc_path.endswith(".json") or doc_path.endswith(".jsonl"):
+    elif doc_path.endswith(".json"):
         return load_json(doc_path)
+    elif doc_path.endswith(".jsonl"):
+        return load_jsonl(doc_path)
     elif doc_path.endswith(".yaml"):
         return load_yaml(doc_path)
     elif doc_path.endswith(".xlsx") or doc_path.endswith(".xls"):
