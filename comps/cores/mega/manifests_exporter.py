@@ -48,26 +48,30 @@ def create_k8s_resources(
             selector=client.V1LabelSelector(match_labels={"app": app_label}),
             template=client.V1PodTemplateSpec(
                 metadata=client.V1ObjectMeta(annotations=annotations, labels={"app": app_label}),
-                spec=client.V1PodSpec(node_selector=node_selector,
-                                      topology_spread_constraints=topology_spread_constraints,
-                                      host_ipc=host_ipc,
-                                      service_account_name="default",
-                                      containers=[
-                                          client.V1Container(name=container_name,
-                                                             image=image,
-                                                             image_pull_policy=image_pull_policy,
-                                                             args=args,
-                                                             ports=[
-                                                                 client.V1ContainerPort(container_port=p)
-                                                                 for p in container_ports
-                                                             ],
-                                                             env_from=env_from if env_from is not None else None,
-                                                             env=env if env is not None else None,
-                                                             resources=resources,
-                                                             volume_mounts=volume_mounts,
-                                                             security_context=security_context)
-                                      ],
-                                      volumes=volumes))))
+                spec=client.V1PodSpec(
+                    node_selector=node_selector,
+                    topology_spread_constraints=topology_spread_constraints,
+                    host_ipc=host_ipc,
+                    service_account_name="default",
+                    containers=[
+                        client.V1Container(
+                            name=container_name,
+                            image=image,
+                            image_pull_policy=image_pull_policy,
+                            args=args,
+                            ports=[client.V1ContainerPort(container_port=p) for p in container_ports],
+                            env_from=env_from if env_from is not None else None,
+                            env=env if env is not None else None,
+                            resources=resources,
+                            volume_mounts=volume_mounts,
+                            security_context=security_context,
+                        )
+                    ],
+                    volumes=volumes,
+                ),
+            ),
+        ),
+    )
 
     return deployment
 
@@ -79,8 +83,9 @@ def create_resource_requirements(limits=None, requests=None):
     :param requests: A dictionary of resource requests, e.g., {"cpu": "2", "memory": "4Gi"}
     :return: A V1ResourceRequirements object
     """
-    return client.V1ResourceRequirements(limits=limits if limits is not None else None,
-                                         requests=requests if requests is not None else None)
+    return client.V1ResourceRequirements(
+        limits=limits if limits is not None else None, requests=requests if requests is not None else None
+    )
 
 
 def create_configmap_object():
@@ -161,7 +166,8 @@ def create_embedding_deployment_and_service(resource_requirements=None):
         env_from=[client.V1EnvFromSource(config_map_ref=client.V1ConfigMapEnvSource(name="qna-config"))],
         args=args,
         volume_mounts=volume_mounts,
-        volumes=volumes)
+        volumes=volumes,
+    )
 
     # deployment = client.V1Deployment(
     #     api_version="apps/v1",
@@ -335,7 +341,8 @@ def create_llm_dependency_deployment_and_service(resource_requirements=None):
         args=args,
         volume_mounts=volume_mounts,
         volumes=volumes,
-        security_context=security_context)
+        security_context=security_context,
+    )
 
     # deployment = client.V1Deployment(
     #     api_version="apps/v1",
@@ -458,7 +465,8 @@ def create_reranking_dependency_deployment_and_service(resource_requirements=Non
         env=env,
         args=args,
         volume_mounts=volume_mounts,
-        volumes=volumes)
+        volumes=volumes,
+    )
 
     # deployment = client.V1Deployment(
     #     api_version="apps/v1",
@@ -528,9 +536,9 @@ def create_reranking_dependency_deployment_and_service(resource_requirements=Non
             "target_port": 80,
         },
     ]
-    service = create_service(name="reranking-dependency-svc",
-                             app_label="reranking-dependency-deploy",
-                             service_ports=ports)
+    service = create_service(
+        name="reranking-dependency-svc", app_label="reranking-dependency-deploy", service_ports=ports
+    )
 
     return deployment, service
 
@@ -599,23 +607,28 @@ def create_llm_deployment_and_service(resource_requirements=None):
 
 def create_dataprep_deployment_and_service(resource_requirements=None):
 
-    env = [
-        client.V1EnvVar(
-            name="REDIS_URL",
-            value_from=client.V1EnvVarSource(
-                config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="REDIS_URL")),
-        ),
-        client.V1EnvVar(
-            name="TEI_ENDPOINT",
-            value_from=client.V1EnvVarSource(
-                config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="TEI_EMBEDDING_ENDPOINT")),
-        ),
-        client.V1EnvVar(
-            name="INDEX_NAME",
-            value_from=client.V1EnvVarSource(
-                config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="INDEX_NAME")),
-        ),
-    ],
+    env = (
+        [
+            client.V1EnvVar(
+                name="REDIS_URL",
+                value_from=client.V1EnvVarSource(
+                    config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="REDIS_URL")
+                ),
+            ),
+            client.V1EnvVar(
+                name="TEI_ENDPOINT",
+                value_from=client.V1EnvVarSource(
+                    config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="TEI_EMBEDDING_ENDPOINT")
+                ),
+            ),
+            client.V1EnvVar(
+                name="INDEX_NAME",
+                value_from=client.V1EnvVarSource(
+                    config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="INDEX_NAME")
+                ),
+            ),
+        ],
+    )
 
     deployment = create_k8s_resources(
         name="dataprep-deploy",
@@ -698,21 +711,9 @@ def create_dataprep_deployment_and_service(resource_requirements=None):
     # )
 
     ports = [
-        {
-            "name": "port1",
-            "port": 6007,
-            "target_port": 6007
-        },
-        {
-            "name": "port2",
-            "port": 6008,
-            "target_port": 6008
-        },
-        {
-            "name": "port3",
-            "port": 6009,
-            "target_port": 6009
-        },
+        {"name": "port1", "port": 6007, "target_port": 6007},
+        {"name": "port2", "port": 6008, "target_port": 6008},
+        {"name": "port3", "port": 6009, "target_port": 6009},
     ]
     service = create_service(name="dataprep-svc", app_label="dataprep-deploy", service_ports=ports)
 
@@ -776,12 +777,7 @@ def create_chatqna_mega_deployment(resource_requirements=None):
     # )
 
     ports = [
-        {
-            "name": "service",
-            "port": 8888,
-            "target_port": 8888,
-            "nodePort": 30888
-        },
+        {"name": "service", "port": 8888, "target_port": 8888, "nodePort": 30888},
     ]
     service = create_service(
         name="chatqna-backend-server-svc",
@@ -803,8 +799,9 @@ def create_reranking_deployment_and_service(resource_requirements=None):
             replicas=1,
             selector=client.V1LabelSelector(match_labels={"app": "reranking-deploy"}),
             template=client.V1PodTemplateSpec(
-                metadata=client.V1ObjectMeta(annotations={"sidecar.istio.io/rewriteAppHTTPProbers": "true"},
-                                             labels={"app": "reranking-deploy"}),
+                metadata=client.V1ObjectMeta(
+                    annotations={"sidecar.istio.io/rewriteAppHTTPProbers": "true"}, labels={"app": "reranking-deploy"}
+                ),
                 spec=client.V1PodSpec(
                     node_selector={"node-type": "chatqna-opea"},
                     topology_spread_constraints=[
@@ -824,8 +821,7 @@ def create_reranking_deployment_and_service(resource_requirements=None):
                             ports=[client.V1ContainerPort(container_port=8000)],
                             resources=resource_requirements,
                             env_from=[
-                                client.V1EnvFromSource(config_map_ref=client.V1ConfigMapEnvSource(
-                                    name="qna-config"))
+                                client.V1EnvFromSource(config_map_ref=client.V1ConfigMapEnvSource(name="qna-config"))
                             ],
                         )
                     ],
@@ -857,8 +853,9 @@ def create_retriever_deployment_and_service(resource_requirements=None):
             replicas=1,
             selector=client.V1LabelSelector(match_labels={"app": "retriever-deploy"}),
             template=client.V1PodTemplateSpec(
-                metadata=client.V1ObjectMeta(annotations={"sidecar.istio.io/rewriteAppHTTPProbers": "true"},
-                                             labels={"app": "retriever-deploy"}),
+                metadata=client.V1ObjectMeta(
+                    annotations={"sidecar.istio.io/rewriteAppHTTPProbers": "true"}, labels={"app": "retriever-deploy"}
+                ),
                 spec=client.V1PodSpec(
                     node_selector={"node-type": "chatqna-opea"},
                     topology_spread_constraints=[
@@ -881,26 +878,34 @@ def create_retriever_deployment_and_service(resource_requirements=None):
                                 client.V1EnvVar(
                                     name="REDIS_URL",
                                     value_from=client.V1EnvVarSource(
-                                        config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config",
-                                                                                         key="REDIS_URL")),
+                                        config_map_key_ref=client.V1ConfigMapKeySelector(
+                                            name="qna-config", key="REDIS_URL"
+                                        )
+                                    ),
                                 ),
                                 client.V1EnvVar(
                                     name="TEI_EMBEDDING_ENDPOINT",
                                     value_from=client.V1EnvVarSource(
                                         config_map_key_ref=client.V1ConfigMapKeySelector(
-                                            name="qna-config", key="TEI_EMBEDDING_ENDPOINT")),
+                                            name="qna-config", key="TEI_EMBEDDING_ENDPOINT"
+                                        )
+                                    ),
                                 ),
                                 client.V1EnvVar(
                                     name="HUGGINGFACEHUB_API_TOKEN",
                                     value_from=client.V1EnvVarSource(
                                         config_map_key_ref=client.V1ConfigMapKeySelector(
-                                            name="qna-config", key="HUGGINGFACEHUB_API_TOKEN")),
+                                            name="qna-config", key="HUGGINGFACEHUB_API_TOKEN"
+                                        )
+                                    ),
                                 ),
                                 client.V1EnvVar(
                                     name="INDEX_NAME",
                                     value_from=client.V1EnvVarSource(
-                                        config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config",
-                                                                                         key="INDEX_NAME")),
+                                        config_map_key_ref=client.V1ConfigMapKeySelector(
+                                            name="qna-config", key="INDEX_NAME"
+                                        )
+                                    ),
                                 ),
                             ],
                         )
@@ -961,16 +966,8 @@ def create_vector_db_deployment_and_service(resource_requirements=None):
     )
 
     ports = [
-        {
-            "name": "vector-db-service",
-            "port": 6379,
-            "target_port": 6379
-        },
-        {
-            "name": "vector-db-insight",
-            "port": 8001,
-            "target_port": 8001
-        },
+        {"name": "vector-db-service", "port": 6379, "target_port": 6379},
+        {"name": "vector-db-insight", "port": 8001, "target_port": 8001},
     ]
     service = create_service(name="vector-db", app_label="vector-db", service_ports=ports)
 
@@ -1007,37 +1004,27 @@ if __name__ == "__main__":
     configmap = create_configmap_object()
 
     # Microservice
-    resource_requirements = create_resource_requirements(limits={
-        "cpu": 8,
-        "memory": "4000Mi"
-    },
-                                                         requests={
-                                                             "cpu": 8,
-                                                             "memory": "4000Mi"
-                                                         })
+    resource_requirements = create_resource_requirements(
+        limits={"cpu": 8, "memory": "4000Mi"}, requests={"cpu": 8, "memory": "4000Mi"}
+    )
     chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(resource_requirements)
     embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(resource_requirements)
     reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(resource_requirements)
     lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(resource_requirements)
 
     # Embedding, Reranking and LLM
-    embedding_resources = create_resource_requirements(limits={
-        "cpu": 80,
-        "memory": "20000Mi"
-    },
-                                                       requests={
-                                                           "cpu": 80,
-                                                           "memory": "20000Mi"
-                                                       })
+    embedding_resources = create_resource_requirements(
+        limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
+    )
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(embedding_resources)
 
     llm_hpu_resource_requirements = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_resource_requirements)
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_resource_requirements)
 
     reranking_hpu_resource_requirements = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     reranking_depn_deployment, reranking_depn_service = create_reranking_dependency_deployment_and_service(
-        reranking_hpu_resource_requirements)
+        reranking_hpu_resource_requirements
+    )
 
     retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(resource_requirements)
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
