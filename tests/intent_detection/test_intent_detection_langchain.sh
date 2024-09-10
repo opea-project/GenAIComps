@@ -7,9 +7,10 @@ set -xe
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
+
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/llm-tgi:latest -f comps/intent_detection/langchain/Dockerfile .
+    docker build --no-cache -t opea/intent-detection:comps -f comps/intent_detection/langchain/Dockerfile .
 }
 
 function start_service() {
@@ -22,8 +23,19 @@ function start_service() {
     export TGI_LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint}"
     intent_port=5043
     unset http_proxy
-    docker run -d --name="test-comps-intent-server" -p ${intent_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:latest
-    sleep 5m
+    docker run -d --name="test-comps-intent-server" -p ${intent_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/intent-detection:comps
+
+    # check whether tgi is fully ready
+    n=0
+    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
+        docker logs test-comps-intent-tgi-endpoint > ${LOG_PATH}/tgi.log
+        n=$((n+1))
+        if grep -q Connected ${LOG_PATH}/tgi.log; then
+            break
+        fi
+        sleep 5s
+    done
+    sleep 5s
 }
 
 function validate_microservice() {
@@ -33,11 +45,16 @@ function validate_microservice() {
         -d '{"query":"What is Deep Learning?","max_new_tokens":10,"top_k":1,"temperature":0.001,"streaming":false}' \
         -H 'Content-Type: application/json')
 
-    echo "==============="
-    echo $result
-
-    docker logs test-comps-intent-server >> ${LOG_PATH}/intent_detection.log
-    docker logs test-comps-intent-tgi-endpoint >> ${LOG_PATH}/tgi-endpoint.log
+    if [[ $result == *"QA"* ]]; then
+        echo $result
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-intent-server > ${LOG_PATH}/intent_detection.log
+        docker logs test-comps-intent-tgi-endpoint > ${LOG_PATH}/tgi.log
+        exit 1
+    fi
+    
 }
 
 function stop_docker() {
