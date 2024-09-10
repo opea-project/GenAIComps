@@ -584,7 +584,7 @@ class VideoRAGQnAGateway(Gateway):
             ):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
-        response = result_dict[last_node]["text"] 
+        response = result_dict[last_node]["text"]
         choices = []
         usage = UsageInfo()
         choices.append(
@@ -779,7 +779,7 @@ class MultimodalRAGWithVideosGateway(Gateway):
         last_node = runtime_graph.all_leaves()[-1]
         print("***** ALL ", result_dict[last_node])
         print("-------keys ", result_dict[last_node].keys())
-        
+
         response = result_dict[last_node]["text"]
         metadata = result_dict[last_node]["metadata"]
         choices = []
