@@ -23,3 +23,6 @@ services:
     build:
       dockerfile: comps/dataprep/pinecone/docker/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-pinecone:${TAG:-latest}
+  dataprep-vdms:
+    build:
+      dockerfile: comps/dataprep/vdms/multimodal_langchain/docker/Dockerfile 
