@@ -18,6 +18,7 @@ from comps import (
     LVMSearchedMultimodalDoc,
     ServiceType,
     TextDoc,
+    MetadataTextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
@@ -84,7 +85,15 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
     result = response.json()["text"]
     if logflag:
         logger.info(result)
-    return TextDoc(text=result)
+    if isinstance(request, LVMSearchedMultimodalDoc):
+            retrieved_metadata = request.metadata[0]
+            return_metadata = {} # this metadata will be used to construct proof for generated text 
+            return_metadata['video_id'] = retrieved_metadata['video_id']
+            return_metadata['source_video'] = retrieved_metadata['source_video']
+            return_metadata['time_of_frame_ms'] = retrieved_metadata['time_of_frame_ms']
+            return MetadataTextDoc(text=result, metadata=return_metadata)
+    else:
+        return TextDoc(text=result)
 
 
 if __name__ == "__main__":
