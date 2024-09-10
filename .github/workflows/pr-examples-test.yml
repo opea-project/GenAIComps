@@ -4,7 +4,7 @@
 name: Example-test
 
 on:
-  pull_request_target:
+  pull_request:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
@@ -43,19 +43,19 @@ jobs:
           HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
         run: |
           cd ../ && sudo rm -rf GenAIExamples
-          git clone https://github.com/opea-project/GenAIExamples.git 
+          git clone https://github.com/opea-project/GenAIExamples.git
           cd GenAIExamples && git checkout refactor_folder && cd ../  # for test only
           cd GenAIExamples/ChatQnA/docker
           cp -r ${{ github.workspace }}/../GenAIComps .
 
           cd ../tests
-          sed -i '/GenAIComps.git/d' test_chatqna_on_gaudi.sh
-          cat test_chatqna_on_gaudi.sh
+          sed -i '/GenAIComps.git/d' test_compose_on_gaudi.sh
+          cat test_compose_on_gaudi.sh
 
           echo "Run test..."
           echo "LOG_DIR=$(pwd)" >> $GITHUB_ENV
           export IMAGE_TAG="comps"
-          timeout 50m bash test_chatqna_on_gaudi.sh
+          timeout 50m bash test_compose_on_gaudi.sh
 
       - name: Clean up container
         if: cancelled() || failure()
