@@ -125,7 +125,7 @@ jobs:
 
       - name: Check for changed Dockerfile paths
         run: |
-          set -e
+          set -xe
           shopt -s globstar
           cd ${{github.workspace}}
           is_use="FALSE"
