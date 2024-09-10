@@ -141,7 +141,7 @@ You can specify chunk_size and chunk_size by the following commands.
 ```bash
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
-    -F "files=@/home/sdp/yuxiang/opea_intent/GenAIComps4/comps/table_extraction/LLAMA2_page6.pdf" \
+    -F "files=@./LLAMA2_page6.pdf" \
     -F "chunk_size=1500" \
     -F "chunk_overlap=100" \
     http://localhost:6007/v1/dataprep
