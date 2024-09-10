@@ -37,7 +37,7 @@ logflag = os.getenv("LOGFLAG", False)
     port=9399,
 )
 @register_statistics(names=["opea_service@lvm"])
-async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
+async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc, MetadataTextDoc]:
     if logflag:
         logger.info(request)
     start = time.time()

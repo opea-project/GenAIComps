@@ -38,7 +38,7 @@ logflag = os.getenv("LOGFLAG", False)
     output_datatype=TextDoc,
 )
 @register_statistics(names=["opea_service@lvm_tgi"])
-async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
+async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc, MetadataTextDoc]:
     if logflag:
         logger.info(request)
     start = time.time()
