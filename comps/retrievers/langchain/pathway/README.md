@@ -16,7 +16,10 @@ If you prefer to run them separately, refer to this section.
 export LANGCHAIN_TRACING_V2=true
 export LANGCHAIN_API_KEY=${your_langchain_api_key}
 export LANGCHAIN_PROJECT="opea/retriever"
+# Model for embedding service
 model=BAAI/bge-base-en-v1.5
+# Model for re-ranking service
+# model="BAAI/bge-reranker-base"
 revision=refs/pr/4
 # TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"  # if you want to use the hosted embedding service, example: "http://127.0.0.1:6060"
 
