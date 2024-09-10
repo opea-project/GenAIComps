@@ -2,9 +2,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import openai
 import os
 import sys
+
+import openai
+
 
 def validate_svc(ip_address, service_port, service_type):
     openai.api_key = os.getenv("OPENAI_API_KEY", "empty")
@@ -16,16 +18,9 @@ def validate_svc(ip_address, service_port, service_type):
     )
 
     if service_type == "llm":
-        response = client.chat.completions.create(
-            model="tgi",
-            messages="What is Deep Learning?",
-            max_tokens=128
-        )
+        response = client.chat.completions.create(model="tgi", messages="What is Deep Learning?", max_tokens=128)
     elif service_type == "embedding":
-        response = client.embeddings.create(
-            model="tei",
-            input="What is Deep Learning?"
-        )
+        response = client.embeddings.create(model="tei", input="What is Deep Learning?")
     else:
         print(f"Unknown service type: {service_type}")
         exit(1)
@@ -35,6 +30,7 @@ def validate_svc(ip_address, service_port, service_type):
     else:
         print(f"Result wrong. Received was {result}")
         exit(1)
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
