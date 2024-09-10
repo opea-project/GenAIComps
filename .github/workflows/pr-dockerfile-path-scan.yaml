@@ -140,6 +140,8 @@ jobs:
                 used_files+="$file "
                 echo "Modified Dockerfile '$file' is referenced in:"
                 echo "$matching_files"
+              else
+                echo "Modified Dockerfile '$file' is not referenced"
               fi
             done
           fi
