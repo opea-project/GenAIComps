@@ -7,5 +7,4 @@ services:
     build:
       dockerfile: comps/agent/langchain/docker/Dockerfile
     image: ${REGISTRY:-opea}/comps-agent-langchain:${TAG:-latest}
-  sopoc:
-    XXX
+  sopoc: XXX

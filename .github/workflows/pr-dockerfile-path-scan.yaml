@@ -132,7 +132,7 @@ jobs:
 
       - name: Check if the Dockerfile has been added
         run: |
-          set -e
+          set -xe
           shopt -s globstar
           cd ${{github.workspace}}
           no_add="FALSE"
