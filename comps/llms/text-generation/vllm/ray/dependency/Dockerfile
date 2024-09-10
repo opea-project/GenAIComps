@@ -6,7 +6,7 @@ FROM opea/habanalabs:1.16.1-pytorch-installer-2.2.2 as hpu
 
 ENV LANG=en_US.UTF-8
 
-WORKDIR /home/user/vllm-ray
+WORKDIR /home/user/vllm/ray
 
 # copy the source code to the package directory
 COPY comps/llms/text-generation/vllm/ray /home/user/vllm/ray

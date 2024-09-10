@@ -25,13 +25,13 @@ function start_service() {
     export POSTGRES_DB=vectordb
 
     pgvector_port=5079
-    docker run --name test-comps-retriever-pgvector-vectorstore -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d -v $WORKPATH/comps/vectorstores/langchain/pgvector/init.sql:/docker-entrypoint-initdb.d/init.sql -p $pgvector_port:5432 pgvector/pgvector:0.7.0-pg16
+    docker run --name test-comps-retriever-pgvector-vectorstore -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d -v $WORKPATH/comps/vectorstores/pgvector/init.sql:/docker-entrypoint-initdb.d/init.sql -p $pgvector_port:5432 pgvector/pgvector:0.7.0-pg16
     sleep 10s
 
     # tei endpoint
     tei_endpoint=5431
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-pgvector-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
+    docker run -d --name="test-comps-retriever-pgvector-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
