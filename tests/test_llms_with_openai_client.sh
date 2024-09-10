@@ -43,7 +43,7 @@ function start_service() {
 
 function validate_microservice() {
     llm_service_port=5095
-    python3 validate_svc_with_openai.py "$ip_address" "$llm_service_port" "llm"
+    python3 ${WORKPATH}/tests/validate_svc_with_openai.py "$ip_address" "$llm_service_port" "llm"
     if [ $? -ne 0 ]; then
         docker logs test-comps-llm-tgi-endpoint
         docker logs test-comps-llm-tgi-server
