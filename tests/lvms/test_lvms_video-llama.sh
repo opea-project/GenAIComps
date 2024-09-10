@@ -52,7 +52,7 @@ function start_service() {
         opea/lvm-video-llama:comps
 
     echo "Waiting for the LVM service to start"
-    
+
     # check whether lvm dependency is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
