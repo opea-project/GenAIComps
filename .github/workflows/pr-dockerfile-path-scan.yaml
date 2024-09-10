@@ -90,6 +90,7 @@ jobs:
         run: |
           cd ..
           git clone https://github.com/opea-project/GenAIExamples
+          cd GenAIExamples && git checkout refactor_folder && cd ../  # for test only
 
       - name: Check for changed Dockerfile paths
         run: |

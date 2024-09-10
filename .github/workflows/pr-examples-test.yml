@@ -45,7 +45,7 @@ jobs:
           cd ../ && sudo rm -rf GenAIExamples
           git clone https://github.com/opea-project/GenAIExamples.git
           cd GenAIExamples && git checkout refactor_folder && cd ../  # for test only
-          cd GenAIExamples/ChatQnA/docker
+          cd GenAIExamples/ChatQnA/docker_image_build
           cp -r ${{ github.workspace }}/../GenAIComps .
 
           cd ../tests
@@ -60,7 +60,7 @@ jobs:
       - name: Clean up container
         if: cancelled() || failure()
         run: |
-          cd ${{ github.workspace }}/../GenAIExamples/ChatQnA/docker/gaudi
+          cd ${{ github.workspace }}/../GenAIExamples/ChatQnA/docker_compose/intel/hpu/gaudi
           docker compose stop && docker compose rm -f
           docker system prune -f
 
