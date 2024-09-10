@@ -348,7 +348,11 @@ async def ingest_videos_generate_transcripts(files: List[UploadFile] = File(None
             end = time.time()
             print(str(end - st))
 
-        return {"status": 200, "message": "Data preparation succeeded", "video_id_maps":uploaded_videos_saved_videos_map}
+        return {
+            "status": 200,
+            "message": "Data preparation succeeded",
+            "video_id_maps": uploaded_videos_saved_videos_map,
+        }
 
     raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) file.")
 
@@ -402,7 +406,11 @@ async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
 
             print(f"Processed video {video_file.filename}")
 
-        return {"status": 200, "message": "Data preparation succeeded", "video_id_maps":uploaded_videos_saved_videos_map}
+        return {
+            "status": 200,
+            "message": "Data preparation succeeded",
+            "video_id_maps": uploaded_videos_saved_videos_map,
+        }
 
     raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) file.")
 
@@ -489,7 +497,11 @@ async def ingest_videos_with_transcripts(files: List[UploadFile] = File(None)):
 
             print(f"Processed video {video_file.filename}")
 
-        return {"status": 200, "message": "Data preparation succeeded", "video_id_maps":uploaded_videos_saved_videos_map}
+        return {
+            "status": 200,
+            "message": "Data preparation succeeded",
+            "video_id_maps": uploaded_videos_saved_videos_map,
+        }
 
     raise HTTPException(
         status_code=400, detail="Must provide at least one pair consisting of video (.mp4) and captions (.vtt)"
