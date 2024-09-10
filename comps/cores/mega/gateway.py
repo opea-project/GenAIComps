@@ -585,9 +585,7 @@ class VideoRAGQnAGateway(Gateway):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
         response = result_dict[last_node]["text"]
-        metadata = None
-        if 'metadata' in result_dict[last_node].keys():
-            metadata = result_dict[last_node]['metadata']
+        metadata = result_dict[last_node].metadata
         choices = []
         usage = UsageInfo()
         choices.append(
