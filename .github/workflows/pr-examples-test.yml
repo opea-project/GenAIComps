@@ -43,7 +43,8 @@ jobs:
           HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
         run: |
           cd ../ && sudo rm -rf GenAIExamples
-          git clone https://github.com/opea-project/GenAIExamples.git
+          git clone https://github.com/opea-project/GenAIExamples.git 
+          cd GenAIExamples && git checkout refactor_folder && cd ../  # for test only
           cd GenAIExamples/ChatQnA/docker
           cp -r ${{ github.workspace }}/../GenAIComps .
 
