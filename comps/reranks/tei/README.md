@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 ```bash
 export HF_TOKEN=${your_hf_api_token}
-export RERANK_MODEL_ID="BAAI/bge-reranker-large"
+export RERANK_MODEL_ID="BAAI/bge-reranker-base"
 volume=$PWD/data
 docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
 ```
