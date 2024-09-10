@@ -585,6 +585,9 @@ class VideoRAGQnAGateway(Gateway):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
         response = result_dict[last_node]["text"]
+        metadata = None
+        if 'metadata' in result_dict[last_node].keys():
+            metadata = result_dict[last_node]['metadata']
         choices = []
         usage = UsageInfo()
         choices.append(
@@ -592,6 +595,7 @@ class VideoRAGQnAGateway(Gateway):
                 index=0,
                 message=ChatMessage(role="assistant", content=response),
                 finish_reason="stop",
+                metadata=metadata,
             )
         )
         return ChatCompletionResponse(model="videoragqna", choices=choices, usage=usage)
