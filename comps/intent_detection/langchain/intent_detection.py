@@ -30,7 +30,7 @@ def llm_generate(input: LLMParamsDoc):
         timeout=600,
     )
 
-    prompt_template = "Please identify the intent of the user query. You may only respond with \"chitchat\" or \QA\" without explanations or engaging in conversation.### User Query: {query}, ### Response: "
+    prompt_template = 'Please identify the intent of the user query. You may only respond with "chitchat" or \QA" without explanations or engaging in conversation.### User Query: {query}, ### Response: '
     prompt = PromptTemplate(template=prompt_template, input_variables=["query"])
 
     llm_chain = LLMChain(prompt=prompt, llm=llm)
