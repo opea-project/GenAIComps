@@ -8,6 +8,7 @@ import urllib.parse
 import uuid
 from pathlib import Path
 from typing import Dict
+import re
 
 from fastapi import BackgroundTasks, File, Form, HTTPException, UploadFile
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
@@ -190,19 +191,22 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
     checkpoints = []
     if os.path.exists(output_dir):
         # Iterate over the contents of the directory and add an entry for each
-        for _ in os.listdir(output_dir):  # Loop over directory contents
-            checkpointsResponse = FineTuningJobCheckpoint(
-                id=f"ftckpt-{uuid.uuid4()}",  # Generate a unique ID
-                created_at=int(time.time()),  # Use the current timestamp
-                fine_tuned_model_checkpoint=output_dir,  # Directory path itself
-                fine_tuning_job_id=fine_tuning_job_id,
-                object="fine_tuning.job.checkpoint",
-            )
-            checkpoints.append(checkpointsResponse)
-            checkpoint_id_to_checkpoint_path[checkpointsResponse.id] = checkpointsResponse.fine_tuned_model_checkpoint
+        files = os.listdir(output_dir)
+        for file in files:  # Loop over directory contents
+            file_path = os.path.join(output_dir, file)
+            if os.path.isdir(file_path) and file.startswith("checkpoint"):
+                steps = re.findall("\d+", file)[0]
+                checkpointsResponse = FineTuningJobCheckpoint(
+                    id=f"ftckpt-{uuid.uuid4()}",  # Generate a unique ID
+                    created_at=int(time.time()),  # Use the current timestamp
+                    fine_tuned_model_checkpoint=file_path,  # Directory path itself
+                    fine_tuning_job_id=fine_tuning_job_id,
+                    object="fine_tuning.job.checkpoint",
+                    step_number=steps
+                )
+                checkpoints.append(checkpointsResponse)
 
     return checkpoints
-
 
 async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
     return UploadFileRequest(purpose=purpose, file=file)
