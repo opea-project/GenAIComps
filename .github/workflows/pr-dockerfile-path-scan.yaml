@@ -51,6 +51,7 @@ jobs:
           fi
 
       - name: Check for changed Dockerfile paths in readme
+        if: always()
         run: |
           set -e
           shopt -s globstar
@@ -75,7 +76,8 @@ jobs:
             exit 1
           fi
 
-      - name: Check if the Dockerfile has been added
+      - name: Check new Dockerfile in compose yaml
+        if: always()
         run: |
           set -xe
           shopt -s globstar
