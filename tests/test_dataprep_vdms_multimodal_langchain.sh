@@ -34,17 +34,28 @@ function start_service() {
 function validate_microservice() {
     cd $LOG_PATH
     wget https://github.com/DAMO-NLP-SG/Video-LLaMA/raw/main/examples/silence_girl.mp4 -O silence_girl.mp4
-    ls && sleep 5
+    sleep 5
 
     # test /v1/dataprep upload file
     URL="http://$ip_address:$dataprep_service_port/v1/dataprep"
-    CONTENT=$(http_proxy="" curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./silence_girl.mp4' -H 'Content-Type: multipart/form-data' ${URL})
-    echo "[ dataprep-upload-videos ] Checking content..."
-    if echo "$CONTENT" | grep "Videos ingested successfully"; then
-        echo "[ dataprep-upload-videos ] Content is correct."
+
+    response=$(http_proxy="" curl -s -w "\n%{http_code}" -X POST -F 'files=@./silence_girl.mp4' -H 'Content-Type: multipart/form-data' ${URL})
+    CONTENT=$(echo "$response" | sed -e '$ d')
+    HTTP_STATUS=$(echo "$response" | tail -n 1)
+
+    if [ "$HTTP_STATUS" -eq 200 ]; then
+        echo "[ dataprep-upload-videos ]  HTTP status is 200. Checking content..."
+        if echo "$CONTENT" | grep "Videos ingested successfully"; then
+            echo "[ dataprep-upload-videos ] Content is correct."
+        else
+            echo "[ dataprep-upload-videos ] Content is not correct. Received content was $CONTENT"
+            docker logs test-comps-dataprep-vdms-server >> ${LOG_PATH}/dataprep-upload-videos.log
+            docker logs test-comps-dataprep-vdms >> ${LOG_PATH}/dataprep-upload-videos_vdms.log
+            exit 1
+        fi
     else
-        echo "[ dataprep-upload-videos ] Content is not correct. Received content was $CONTENT"
-        docker logs test-comps-dataprep-vdms-server >> ${LOG_PATH}/dataprep-upload-videos.log
+        echo "[ dataprep-upload-videos ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-vdms-server >> ${LOG_PATH}/dataprep-get-videos.log
         docker logs test-comps-dataprep-vdms >> ${LOG_PATH}/dataprep-upload-videos_vdms.log
         exit 1
     fi
@@ -55,10 +66,12 @@ function validate_microservice() {
     # test /v1/dataprep/get_videos
     URL="http://$ip_address:$dataprep_service_port/v1/dataprep/get_videos"
 
-    HTTP_STATUS=$(http_proxy="" curl -s -o /dev/null -w "%{http_code}" -X GET ${URL})
+    response=$(http_proxy="" curl -s -w "\n%{http_code}" -X GET ${URL})
+    CONTENT=$(echo "$response" | sed -e '$ d')
+    HTTP_STATUS=$(echo "$response" | tail -n 1)
+
     if [ "$HTTP_STATUS" -eq 200 ]; then
-        echo "[ dataprep-get-videos ]HTTP status is 200. Checking content..."
-        local CONTENT=$(http_proxy="" curl -s -X GET ${URL} | tee ${LOG_PATH}/dataprep-get-videos.log)
+        echo "[ dataprep-get-videos ] HTTP status is 200. Checking content..."
         if echo "$CONTENT" | grep "silence_girl"; then
             echo "[ dataprep-get-videos ] Content is correct."
         else
@@ -73,8 +86,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/get_file/{filename}
-    file_list=$(http_proxy="" curl -s -X GET http://$ip_address:$dataprep_service_port/v1/dataprep/get_videos)
-    echo $file_list
+    file_list=$CONTENT
     filename=$(echo $file_list | sed 's/^\[//;s/\]$//;s/,.*//;s/"//g')
     URL="http://$ip_address:$dataprep_service_port/v1/dataprep/get_file/${filename}"
 
