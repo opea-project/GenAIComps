@@ -62,7 +62,7 @@ def update_job_status(job_id: FineTuningJobID):
         status = "cancelled" if status == "stopped" else status
         logger.info(f"Status of job {job_id} is '{status}'")
         running_finetuning_jobs[job_id].status = status
-        if status == "finished" or status == "cancelled" or status == "failed":
+        if status == "succeeded" or status == "cancelled" or status == "failed":
             break
         time.sleep(CHECK_JOB_STATUS_INTERVAL)
 
@@ -205,6 +205,15 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
                     step_number=steps,
                 )
                 checkpoints.append(checkpointsResponse)
+        if job.status == "succeeded":
+            checkpointsResponse = FineTuningJobCheckpoint(
+                id=f"ftckpt-{uuid.uuid4()}",  # Generate a unique ID
+                created_at=int(time.time()),  # Use the current timestamp
+                fine_tuned_model_checkpoint=output_dir,  # Directory path itself
+                fine_tuning_job_id=fine_tuning_job_id,
+                object="fine_tuning.job.checkpoint",
+            )
+            checkpoints.append(checkpointsResponse)
 
     return checkpoints
 
