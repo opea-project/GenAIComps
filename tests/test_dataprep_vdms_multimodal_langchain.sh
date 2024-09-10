@@ -60,7 +60,7 @@ function validate_microservice() {
 
     # test /v1/dataprep/get_videos
     URL="http://$ip_address:$dataprep_service_port/v1/dataprep/get_videos"
-    
+
     HTTP_STATUS=$(http_proxy="" curl -s -o /dev/null -w "%{http_code}" -X GET ${URL})
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep-get-videos ]HTTP status is 200. Checking content..."
@@ -77,13 +77,13 @@ function validate_microservice() {
         docker logs test-comps-dataprep-vdms-server >> ${LOG_PATH}/dataprep-get-videos.log
         exit 1
     fi
-    
+
     # test /v1/dataprep/get_file/{filename}
     file_list=$(http_proxy="" curl -s -X GET http://$ip_address:$dataprep_service_port/v1/dataprep/get_videos)
     echo $file_list
     filename=$(echo $file_list | sed 's/^\[//;s/\]$//;s/,.*//;s/"//g')
     URL="http://$ip_address:$dataprep_service_port/v1/dataprep/get_file/${filename}"
-    
+
     HTTP_STATUS=$(http_proxy="" curl -s -o /dev/null -w "%{http_code}" -X GET ${URL})
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ download_file ]HTTP status is 200. Checking content..."
