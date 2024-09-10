@@ -33,7 +33,7 @@ function start_service() {
 
 function validate_microservice() {
     cd $LOG_PATH
-    
+
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
 
     dataprep_service_port=5013
