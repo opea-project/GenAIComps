@@ -50,36 +50,36 @@ function start_tgi_service() {
 
 function start_react_langchain_agent_service() {
     echo "Starting react_langchain agent microservice"
-    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 5042:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=react_langchain -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
+    docker run -d --runtime=runc --name="test-comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 5042:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=react_langchain -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
     sleep 5s
 
-    docker logs comps-agent-endpoint
+    docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
 
 
 function start_react_langgraph_agent_service() {
     echo "Starting react_langgraph agent microservice"
-    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 5042:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=react_langgraph -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
+    docker run -d --runtime=runc --name="test-comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 5042:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=react_langgraph -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
     sleep 5s
-    docker logs comps-agent-endpoint
+    docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
 
 function start_react_langgraph_agent_service_openai() {
     echo "Starting react_langgraph agent microservice"
-    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 5042:9090 --ipc=host -e model=gpt-4o-mini-2024-07-18 -e strategy=react_langgraph -e llm_engine=openai -e OPENAI_API_KEY=${OPENAI_API_KEY} -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
+    docker run -d --runtime=runc --name="test-comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 5042:9090 --ipc=host -e model=gpt-4o-mini-2024-07-18 -e strategy=react_langgraph -e llm_engine=openai -e OPENAI_API_KEY=${OPENAI_API_KEY} -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
     sleep 5s
-    docker logs comps-agent-endpoint
+    docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
 
 
 function start_ragagent_agent_service() {
     echo "Starting rag agent microservice"
-    docker run -d --runtime=runc --name="comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 5042:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=rag_agent -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
+    docker run -d --runtime=runc --name="test-comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 5042:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e strategy=rag_agent -e llm_endpoint_url=http://${ip_address}:${tgi_port} -e llm_engine=tgi -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/comps-agent-langchain:comps
     sleep 5s
-    docker logs comps-agent-endpoint
+    docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
 
@@ -109,7 +109,7 @@ function validate_microservice() {
     echo "return value is $EXIT_CODE"
     if [ "$EXIT_CODE" == "1" ]; then
         docker logs test-comps-tgi-gaudi-service &> ${LOG_PATH}/test-comps-tgi-gaudi-service.log
-        docker logs comps-agent-endpoint &> ${LOG_PATH}/test-comps-langchain-agent-endpoint.log
+        docker logs test-comps-agent-endpoint &> ${LOG_PATH}/test-comps-langchain-agent-endpoint.log
         exit 1
     fi
 }
@@ -137,7 +137,7 @@ function stop_tgi_docker() {
 }
 
 function stop_agent_docker() {
-    cid=$(docker ps -aq --filter "name=comps-agent-endpoint")
+    cid=$(docker ps -aq --filter "name=test-comps-agent-endpoint")
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
     echo "Docker containers stopped successfully"

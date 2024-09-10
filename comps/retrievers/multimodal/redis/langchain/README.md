@@ -51,7 +51,7 @@ export INDEX_NAME=${your_index_name}
 
 ```bash
 cd ../../../../
-docker build -t opea/multimodal-retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/langchain/redis_multimodal/docker/Dockerfile .
+docker build -t opea/multimodal-retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/multimodal/redis/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:
