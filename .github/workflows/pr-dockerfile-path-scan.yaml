@@ -135,17 +135,26 @@ jobs:
           set -e
           shopt -s globstar
           cd ${{github.workspace}}
-          is_use="FALSE"
-          used_files=""
+          no_add="FALSE"
           merged_commit=$(git log -1 --format='%H')
           changed_files="$(git diff --name-status --diff-filter=A ${{ github.event.pull_request.base.sha }} ${merged_commit} -- '**/Dockerfile**' | cut -f2)"
           if [ -n "$changed_files" ]; then
             for file in $changed_files; do
-              if find "${{github.workspace}}/.github/workflows/docker/compose/" -name "*$(echo "$file" | awk -F '/' '{print $2}')*" |grep -q .; then
-                echo "Please check if the added $file is included in the yaml under path ${{github.workspace}}/.github/workflows/docker/compose/$(echo "$file" | awk -F '/' '{print $2}')-compose-cd.yaml."
+              service=$(echo "$file" | awk -F '/' '{print $2}')
+              if find "${{github.workspace}}/.github/workflows/docker/compose/" -name "*$service*" |grep -q .; then
+                if grep -q '$service-compose-cd.yaml' <<< "$changed_files"; then
+                  echo "The $file has been added to the ${{github.workspace}}/.github/workflows/docker/compose/$service-compose-cd.yaml."
+                else
+                  echo "Please check if the added $file is included in the yaml under path ${{github.workspace}}/.github/workflows/docker/compose/$service-compose-cd.yaml."
+                  no_add="TRUE"
+                fi
               else
-                echo "Please create a new compose file named $(echo "$file" | awk -F '/' '{print $2}')-compose-cd.yaml in ${{github.workspace}}/.github/workflows/docker/compose/ for $file and fill it in."
+                echo "Please create a new compose file named $service-compose-cd.yaml in ${{github.workspace}}/.github/workflows/docker/compose/ for $file and fill it in."
+                no_add="TRUE"
               fi
             done
+          fi
+
+          if [[ "$no_add" == "TRUE" ]]; then
             exit 1
           fi
