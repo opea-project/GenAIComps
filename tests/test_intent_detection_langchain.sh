@@ -54,7 +54,7 @@ function validate_microservice() {
         docker logs test-comps-intent-tgi-endpoint > ${LOG_PATH}/tgi.log
         exit 1
     fi
-    
+
 }
 
 function stop_docker() {
