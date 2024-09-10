@@ -284,10 +284,11 @@ def load_json(json_path):
     content_list = [json.dumps(item) for item in data]
     return content_list
 
+
 def load_jsonl(jsonl_path):
     """Load and process jsonl file."""
     content_list = []
-    with open(jsonl_path, 'r') as file:
+    with open(jsonl_path, "r") as file:
         for line in file:
             json_obj = json.loads(line)
             content_list.append(json_obj)
