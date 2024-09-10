@@ -5,10 +5,9 @@ import os
 
 from langchain import LLMChain, PromptTemplate
 from langchain_community.llms import HuggingFaceEndpoint
-from langsmith import traceable
 
 from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-from comps.intent_detection.langchain.template import IntentTemplate
+from template import IntentTemplate
 
 
 @register_microservice(
@@ -18,7 +17,6 @@ from comps.intent_detection.langchain.template import IntentTemplate
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     llm = HuggingFaceEndpoint(

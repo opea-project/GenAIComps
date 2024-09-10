@@ -23,7 +23,7 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponse,
     RetrievalResponseData,
 )
-from comps.embeddings.multimodal_embeddings.bridgetower import BridgeTowerEmbedding
+from comps.embeddings.multimodal.bridgetower import BridgeTowerEmbedding
 
 
 @register_microservice(
