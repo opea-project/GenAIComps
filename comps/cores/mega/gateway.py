@@ -584,7 +584,7 @@ class VideoRAGQnAGateway(Gateway):
             ):
                 return response
         last_node = runtime_graph.all_leaves()[-1]
-        response = result_dict[last_node]["text"] 
+        response = result_dict[last_node]["text"]
         choices = []
         usage = UsageInfo()
         choices.append(
