@@ -99,7 +99,7 @@ jobs:
           is_use="FALSE"
           used_files=""
           merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-status --diff-filter=DR ${{ github.event.pull_request.base.sha }} ${merged_commit} -- '**/Dockerfile' | cut -f2)"
+          changed_files="$(git diff --name-status --diff-filter=DR ${{ github.event.pull_request.base.sha }} ${merged_commit} -- '**/Dockerfile**' | cut -f2)"
           if [ -n "$changed_files" ]; then
             for file in $changed_files; do
               matching_files=$(grep -rl "$file" ../GenAIExamples/**/*.md)
