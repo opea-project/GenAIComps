@@ -3,12 +3,12 @@
 
 import os
 import random
+import re
 import time
 import urllib.parse
 import uuid
 from pathlib import Path
 from typing import Dict
-import re
 
 from fastapi import BackgroundTasks, File, Form, HTTPException, UploadFile
 from pydantic_yaml import parse_yaml_raw_as, to_yaml_file
@@ -202,11 +202,12 @@ def handle_list_finetuning_checkpoints(request: FineTuningJobIDRequest):
                     fine_tuned_model_checkpoint=file_path,  # Directory path itself
                     fine_tuning_job_id=fine_tuning_job_id,
                     object="fine_tuning.job.checkpoint",
-                    step_number=steps
+                    step_number=steps,
                 )
                 checkpoints.append(checkpointsResponse)
 
     return checkpoints
+
 
 async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
     return UploadFileRequest(purpose=purpose, file=file)
