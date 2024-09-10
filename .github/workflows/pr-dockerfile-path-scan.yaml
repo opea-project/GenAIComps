@@ -142,7 +142,7 @@ jobs:
             for file in $changed_files; do
               service=$(echo "$file" | awk -F '/' '{print $2}')
               if find "${{github.workspace}}/.github/workflows/docker/compose/" -name "*$service*" |grep -q .; then
-                echo '$service-compose-cd.yaml' '"$service"-compose-cd.yaml'
+                echo $service '$service-compose-cd.yaml' '"$service"-compose-cd.yaml'
                 if grep -q '"$service"-compose-cd.yaml' <<< "$changed_files"; then
                   echo "The $file has been added to the ${{github.workspace}}/.github/workflows/docker/compose/"$service"-compose-cd.yaml."
                 else
