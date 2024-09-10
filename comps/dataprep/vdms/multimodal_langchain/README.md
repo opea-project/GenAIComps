@@ -112,5 +112,13 @@ curl -X POST \
 - List of uploaded files
 
 ```bash
-curl -X POST http://localhost:6007/v1/dataprep/get_videos
+curl -X GET http://localhost:6007/v1/dataprep/get_videos
+```
+
+- Download uploaded files
+
+Please use the file name from the list
+
+```bash
+curl -X GET http://localhost:6007/v1/dataprep/get_file/${filename}
 ```

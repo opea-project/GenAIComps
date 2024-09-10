@@ -131,6 +131,8 @@ async def process_videos(files: List[UploadFile] = File(None)):
     time.sleep(5)
 
     generate_embeddings(config, vector_dimensions, vs)
+    
+    return {"message": "Videos ingested successfully"}
 
 
 @register_microservice(
