@@ -5,7 +5,7 @@ apiVersion: v1
 data:
   EMBEDDING_MODEL_ID: BAAI/bge-base-en-v1.5
   EMBEDDING_SERVICE_HOST_IP: embedding-svc
-  HUGGINGFACEHUB_API_TOKEN: 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
+  HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
   INDEX_NAME: rag-redis
   LLM_MODEL_ID: Intel/neural-chat-7b-v3-3
   LLM_SERVICE_HOST_IP: llm-svc
