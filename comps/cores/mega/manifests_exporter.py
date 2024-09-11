@@ -369,9 +369,7 @@ def create_dataprep_deployment_and_service(resource_requirements=None, replicas=
         resources=resource_requirements,
     )
 
-    ports = [
-        {"name": "port1", "port": 6007, "target_port": 6007}
-    ]
+    ports = [{"name": "port1", "port": 6007, "target_port": 6007}]
     service = create_service(name="dataprep-svc", app_label="dataprep-deploy", service_ports=ports)
 
     return deployment, service
