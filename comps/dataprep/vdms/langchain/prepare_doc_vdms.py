@@ -1,23 +1,34 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import json
+import os
+from typing import List, Optional, Union
+
 from config import COLLECTION_NAME, DISTANCE_STRATEGY, EMBED_MODEL, SEARCH_ENGINE, VDMS_HOST, VDMS_PORT
+from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 from langchain_text_splitters import HTMLHeaderTextSplitter
-from fastapi import Body, File, Form, HTTPException, UploadFile
-from typing import List, Optional, Union
-from comps import CustomLogger,DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import document_loader, get_separators, get_tables_result, encode_filename, save_content_to_local_disk, parse_html, create_upload_folder
+
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
+from comps.dataprep.utils import (
+    create_upload_folder,
+    document_loader,
+    encode_filename,
+    get_separators,
+    get_tables_result,
+    parse_html,
+    save_content_to_local_disk,
+)
 
 tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 client = VDMS_Client(VDMS_HOST, int(VDMS_PORT))
 logger = CustomLogger("prepare_doc_redis")
 logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
+
 
 def ingest_data_to_vdms(doc_path: DocPath):
     """Ingest document to VDMS."""
@@ -130,7 +141,7 @@ async def ingest_documents(
                 logger.info(f"[ upload ] processing link {doc_id}")
 
             # check whether the link file already exists
-            
+
             save_path = upload_folder + encoded_link + ".txt"
             content = parse_html([link])[0][0]
             await save_content_to_local_disk(save_path, content)
@@ -148,7 +159,6 @@ async def ingest_documents(
         return {"status": 200, "message": "Data preparation succeeded"}
 
     raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
-
 
 
 if __name__ == "__main__":
