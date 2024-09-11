@@ -46,7 +46,7 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
 if __name__ == "__main__":
     if EMBED_ENDPOINT:
         # create embeddings using TEI endpoint service
-        embedder = HuggingFaceAPITextEmbedder(api_type="TEXT_EMBEDDINGS_INFERENCE", api_params={"url":EMBED_ENDPOINT})
+        embedder = HuggingFaceAPITextEmbedder(api_type="TEXT_EMBEDDINGS_INFERENCE", api_params={"url": EMBED_ENDPOINT})
     else:
         # create embeddings using local embedding model
         embedder = SentenceTransformersTextEmbedder(model=EMBED_MODEL)
