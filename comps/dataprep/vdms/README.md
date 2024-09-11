@@ -10,7 +10,7 @@ We organized the folders in the same way, so you can use either framework for da
 
 ## 1.1 Install Requirements
 
-- option 1: Install Single-process version (for 1-10 files processing)
+Install Single-process version (for 1-10 files processing)
 
 ```bash
 apt-get update
@@ -46,7 +46,7 @@ export PYTHONPATH=${path_to_comps}
 
 Start document preparation microservice for VDMS with below command.
 
-- option 1: Start single-process version (for 1-10 files processing)
+Start single-process version (for 1-10 files processing)
 
 ```bash
 python prepare_doc_vdms.py
@@ -82,22 +82,22 @@ export PYTHONPATH=${path_to_comps}
 
 - Build docker image with langchain
 
-* option 1: Start single-process version (for 1-10 files processing)
+Start single-process version (for 1-10 files processing)
 
 ```bash
 cd ../../../
-docker build -t opea/dataprep-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/langchain/docker/Dockerfile .
+docker build -t opea/dataprep-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/langchain/Dockerfile .
 ```
 
 <!-- - option 2: Start multi-process version (for >10 files processing)
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-on-ray-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/langchain_ray/docker/Dockerfile . -->
+docker build -t opea/dataprep-on-ray-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/langchain_ray/Dockerfile . -->
 
 ## 2.4 Run Docker with CLI
 
-- option 1: Start single-process version (for 1-10 files processing)
+Start single-process version (for 1-10 files processing)
 
 ```bash
 docker run -d --name="dataprep-vdms-server" -p 6007:6007 --runtime=runc --ipc=host \
@@ -127,7 +127,7 @@ Once document preparation microservice for VDMS is started, user can use below c
 
 Make sure the file path after `files=@` is correct.
 
-<!-- - Single file upload
+- Single file upload
 
 ```bash
 curl -X POST \
@@ -186,4 +186,4 @@ try:
     print("Request successful!")
 except requests.exceptions.RequestException as e:
     print("An error occurred:", e)
-``` -->
+```

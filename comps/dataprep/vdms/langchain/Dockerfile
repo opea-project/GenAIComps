@@ -28,6 +28,10 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 
 ENV PYTHONPATH=/home/user
 
+USER root
+
+RUN mkdir -p /home/user/comps/dataprep/vdms/langchain/uploaded_files && chown -R user /home/user/comps/dataprep/vdms/langchain
+
 USER user
 
 WORKDIR /home/user/comps/dataprep/vdms/langchain

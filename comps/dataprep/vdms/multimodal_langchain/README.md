@@ -67,14 +67,14 @@ export your_hf_api_token="{your_hf_token}"
 
 ```bash
 cd ../../../
- docker build -t opea/dataprep-vdms:latest --network host --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/multimodal_langchain/docker/Dockerfile .
+ docker build -t opea/dataprep-vdms:latest --network host --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/multimodal_langchain/Dockerfile .
 
 ```
 
 ## 2.4 Run Docker Compose
 
 ```bash
-docker compose -f comps/dataprep/vdms/multimodal_langchain/docker/docker-compose-dataprep-vdms.yaml up -d
+docker compose -f comps/dataprep/vdms/multimodal_langchain/docker-compose-dataprep-vdms.yaml up -d
 ```
 
 # 🚀3. Status Microservice
