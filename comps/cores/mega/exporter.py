@@ -5,28 +5,25 @@ import copy
 import os
 import yaml
 
-def convert_to_docker_compose(mega_yaml, output_file, device='cpu'):
-    with open(mega_yaml, 'r') as f:
+
+def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
+    with open(mega_yaml, "r") as f:
         mega_config = yaml.safe_load(f)
 
     services = {}
     env_vars = mega_config.get("environment_variables", {})
 
     # Define environment variable mapping for specific services
-    env_var_rename = {
-        'data_prep': {
-            'TEI_EMBEDDING_ENDPOINT': 'TEI_ENDPOINT'
-        }
-    }
+    env_var_rename = {"data_prep": {"TEI_EMBEDDING_ENDPOINT": "TEI_ENDPOINT"}}
 
-    for service_name, service_config in mega_config['opea_micro_services'].items():
+    for service_name, service_config in mega_config["opea_micro_services"].items():
         for container_name, container_info in service_config.items():
             safe_container_name = container_name.replace("/", "-")
 
             # Initialize environment variables by combining 'common' with specific ones
-            environment = copy.deepcopy(env_vars.get('common', {}))  # Start with 'common' vars
+            environment = copy.deepcopy(env_vars.get("common", {}))  # Start with 'common' vars
             # Service-specific environment (based on anchors like redis, tei_embedding, etc.)
-            service_envs = container_info.get('environment', {})  # The environment anchors in the YAML
+            service_envs = container_info.get("environment", {})  # The environment anchors in the YAML
             for key, value in service_envs.items():
                 environment[key] = value  # Update the environment with specific variables
 
@@ -51,7 +48,7 @@ def convert_to_docker_compose(mega_yaml, output_file, device='cpu'):
                 "ports": [],
                 "ipc": "host",
                 "restart": "unless-stopped",
-                "environment": renamed_environment
+                "environment": renamed_environment,
             }
 
             # Add ports and special settings
@@ -81,58 +78,76 @@ def convert_to_docker_compose(mega_yaml, output_file, device='cpu'):
     services["redis-vector-db"] = {
         "image": "redis/redis-stack:7.2.0-v9",
         "container_name": "redis-vector-db",
-        "ports": ["6379:6379", "8001:8001"]
+        "ports": ["6379:6379", "8001:8001"],
     }
 
     # Process embedding service
-    embedding_service = mega_config['opea_micro_services'].get('embedding', {}).get('opea/embedding-tei', {})
+    embedding_service = mega_config["opea_micro_services"].get("embedding", {}).get("opea/embedding-tei", {})
     if embedding_service:
-        embedding_dependencies = embedding_service.get('dependency', {})
+        embedding_dependencies = embedding_service.get("dependency", {})
         for dep_name, dep_info in embedding_dependencies.items():
             if dep_name == "ghcr.io/huggingface/text-embeddings-inference":
-                if device == 'cpu':
-                    model_id = dep_info.get('requirements', {}).get('model_id', '')
-                    services['text-embeddings-inference-service'] = {
+                if device == "cpu":
+                    model_id = dep_info.get("requirements", {}).get("model_id", "")
+                    services["text-embeddings-inference-service"] = {
                         "image": f"{dep_name}:{dep_info['tag']}",
                         "container_name": "text-embeddings-inference-server",
                         "ports": ["8090:80"],
                         "ipc": "host",
+<<<<<<< HEAD
                         "environment": {**env_vars.get('common', {}),
                                          "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', ''),},
                         "command": f"--model-id {model_id} --auto-truncate"
+=======
+                        "environment": {
+                            **{key: f"${{{key}}}" for key in env_vars.get("common", {})},
+                            "HUGGINGFACEHUB_API_TOKEN": "${HUGGINGFACEHUB_API_TOKEN}",
+                        },
+                        "command": f"--model-id {model_id} --auto-truncate",
+>>>>>>> d8a768ea52b3170d337615614dc5d65641b2ccf1
                     }
             elif dep_name == "opea/tei-gaudi":
-                if device == 'gaudi':
-                    model_id = dep_info.get('requirements', {}).get('model_id', '')
-                    services['text-embeddings-inference-service'] = {
+                if device == "gaudi":
+                    model_id = dep_info.get("requirements", {}).get("model_id", "")
+                    services["text-embeddings-inference-service"] = {
                         "image": f"{dep_name}:{dep_info['tag']}",
                         "container_name": "text-embeddings-inference-server",
                         "ports": ["8090:80"],
                         "ipc": "host",
+<<<<<<< HEAD
                         "environment": {**env_vars.get('common', {}),
                                          "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', ''),},
                         "command": f"--model-id {model_id} --auto-truncate"
+=======
+                        "environment": {
+                            **{key: f"${{{key}}}" for key in env_vars.get("common", {})},
+                            "HUGGINGFACEHUB_API_TOKEN": "${HUGGINGFACEHUB_API_TOKEN}",
+                        },
+                        "command": f"--model-id {model_id} --auto-truncate",
+>>>>>>> d8a768ea52b3170d337615614dc5d65641b2ccf1
                     }
                     # Add specific settings for Habana (Gaudi) devices
-                    services['text-embeddings-inference-service']["runtime"] = "habana"
-                    services['text-embeddings-inference-service']["cap_add"] = ["SYS_NICE"]
-                    services['text-embeddings-inference-service']["environment"].update({
-                        "HABANA_VISIBLE_DEVICES": "all",
-                        "OMPI_MCA_btl_vader_single_copy_mechanism": "none",
-                        "MAX_WARMUP_SEQUENCE_LENGTH": "512",
-                        "INIT_HCCL_ON_ACQUIRE": "0",
-                        "ENABLE_EXPERIMENTAL_FLAGS": "true"
-                    })
+                    services["text-embeddings-inference-service"]["runtime"] = "habana"
+                    services["text-embeddings-inference-service"]["cap_add"] = ["SYS_NICE"]
+                    services["text-embeddings-inference-service"]["environment"].update(
+                        {
+                            "HABANA_VISIBLE_DEVICES": "all",
+                            "OMPI_MCA_btl_vader_single_copy_mechanism": "none",
+                            "MAX_WARMUP_SEQUENCE_LENGTH": "512",
+                            "INIT_HCCL_ON_ACQUIRE": "0",
+                            "ENABLE_EXPERIMENTAL_FLAGS": "true",
+                        }
+                    )
 
     # Reranking service handling
-    reranking_service = mega_config['opea_micro_services'].get('reranking', {}).get('opea/reranking-tei', {})
+    reranking_service = mega_config["opea_micro_services"].get("reranking", {}).get("opea/reranking-tei", {})
     if reranking_service:
-        rerank_dependencies = reranking_service.get('dependency', {})
+        rerank_dependencies = reranking_service.get("dependency", {})
         for dep_name, dep_info in rerank_dependencies.items():
             if dep_name == "ghcr.io/huggingface/text-embeddings-inference":
-                if device == 'cpu':
-                    model_id = dep_info.get('requirements', {}).get('model_id', '')
-                    services['tei-reranking-service'] = {
+                if device == "cpu":
+                    model_id = dep_info.get("requirements", {}).get("model_id", "")
+                    services["tei-reranking-service"] = {
                         "image": f"{dep_name}:{dep_info['tag']}",
                         "container_name": "tei-reranking-server",
                         "ports": ["8808:80"],
@@ -145,9 +160,9 @@ def convert_to_docker_compose(mega_yaml, output_file, device='cpu'):
                         "command": f"--model-id {model_id} --auto-truncate"
                     }
             elif dep_name == "opea/tei-gaudi":
-                if device == 'gaudi':
-                    model_id = dep_info.get('requirements', {}).get('model_id', '')
-                    services['tei-reranking-service'] = {
+                if device == "gaudi":
+                    model_id = dep_info.get("requirements", {}).get("model_id", "")
+                    services["tei-reranking-service"] = {
                         "image": f"{dep_name}:{dep_info['tag']}",
                         "container_name": "tei-reranking-gaudi-server",
                         "ports": ["8808:80"],
@@ -171,14 +186,14 @@ def convert_to_docker_compose(mega_yaml, output_file, device='cpu'):
                     })
 
     # LLM service
-    llm_service = mega_config['opea_micro_services'].get('llm', {}).get('opea/llm-tgi', {})
+    llm_service = mega_config["opea_micro_services"].get("llm", {}).get("opea/llm-tgi", {})
     if llm_service:
-        llm_dependencies = llm_service.get('dependency', {})
+        llm_dependencies = llm_service.get("dependency", {})
         for dep_name, dep_info in llm_dependencies.items():
             if dep_name == "ghcr.io/huggingface/text-generation-inference":
-                if device == 'cpu':
-                    model_id = dep_info.get('requirements', {}).get('model_id', '')
-                    services['llm-service'] = {
+                if device == "cpu":
+                    model_id = dep_info.get("requirements", {}).get("model_id", "")
+                    services["llm-service"] = {
                         "image": f"{dep_name}:{dep_info['tag']}",
                         "container_name": "llm-server",
                         "ports": ["9001:80"],
@@ -187,9 +202,9 @@ def convert_to_docker_compose(mega_yaml, output_file, device='cpu'):
                         "command": f"--model-id {model_id} --max-input-length 1024 --max-total-tokens 2048"
                     }
             elif dep_name == "ghcr.io/huggingface/tgi-gaudi":
-                if device == 'gaudi':
-                    model_id = dep_info.get('requirements', {}).get('model_id', '')
-                    services['llm-service'] = {
+                if device == "gaudi":
+                    model_id = dep_info.get("requirements", {}).get("model_id", "")
+                    services["llm-service"] = {
                         "image": f"{dep_name}:{dep_info['tag']}",
                         "container_name": "llm-server",
                         "ports": ["9001:80"],
@@ -198,12 +213,14 @@ def convert_to_docker_compose(mega_yaml, output_file, device='cpu'):
                         "command": f"--model-id {model_id} --max-input-length 1024 --max-total-tokens 2048"
                     }
                     # Add specific settings for Habana (Gaudi) devices
-                    services['llm-service']["runtime"] = "habana"
-                    services['llm-service']["cap_add"] = ["SYS_NICE"]
-                    services['llm-service']["environment"].update({
-                        "HABANA_VISIBLE_DEVICES": "all",
-                        "OMPI_MCA_btl_vader_single_copy_mechanism": "none",
-                    })
+                    services["llm-service"]["runtime"] = "habana"
+                    services["llm-service"]["cap_add"] = ["SYS_NICE"]
+                    services["llm-service"]["environment"].update(
+                        {
+                            "HABANA_VISIBLE_DEVICES": "all",
+                            "OMPI_MCA_btl_vader_single_copy_mechanism": "none",
+                        }
+                    )
 
         # Extract configuration for all examples from 'opea_mega_service'
         examples = ['chatqna', 'faqgen', 'audioqna', 'visualqna', 'codegen', 'codetrans']
@@ -234,15 +251,11 @@ def convert_to_docker_compose(mega_yaml, output_file, device='cpu'):
     docker_compose = {
         "version": "3.8",
         "services": services,
-        "networks": {
-            "default": {
-                "driver": "bridge"
-            }
-        },
+        "networks": {"default": {"driver": "bridge"}},
     }
 
     # Write to docker-compose.yaml
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         yaml.dump(docker_compose, f, default_flow_style=False)
 
     print("Docker Compose file generated:", output_file)
