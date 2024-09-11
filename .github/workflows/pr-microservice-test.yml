@@ -4,8 +4,8 @@
 name: MicroService-test
 
 on:
-  pull_request_target:
-    branches: [main]
+  pull_request:
+    branches: ["main", "*rc"]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
       - comps/**
@@ -28,6 +28,7 @@ jobs:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
     runs-on: ${{ matrix.hardware }}
     continue-on-error: true
+    if: ${{ !github.event.pull_request.draft }}
     steps:
       - name: Clean Up Working Directory
         run: |
@@ -46,13 +47,14 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
           PINECONE_KEY: ${{ secrets.PINECONE_KEY }}
-          service_path: ${{ matrix.service }}
+          PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY }}
+          service: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
         run: |
           cd tests
-          service=$(echo $service_path | tr '/' '_')
-          echo "service=${service}" >> $GITHUB_ENV
-          if [ -f test_${service}.sh ]; then timeout 30m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
+          echo "log_name=${service}_${hardware}" >> $GITHUB_ENV
+          if [ ${hardware} = "intel_cpu" ]; then on_hw=""; else on_hw="_on_${hardware}"; fi
+          timeout 60m bash $(find . -type f -name test_${service}${on_hw}.sh)
 
       - name: Clean up container
         if: cancelled() || failure()
@@ -65,5 +67,5 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.service }}
+          name: ${{ env.log_name }}
           path: ${{ github.workspace }}/tests/*.log

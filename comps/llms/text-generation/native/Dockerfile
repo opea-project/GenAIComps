@@ -1,22 +1,18 @@
-
-
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 # HABANA environment
-FROM vault.habana.ai/gaudi-docker/1.15.1/ubuntu22.04/habanalabs/pytorch-installer-2.2.0:latest as hpu
+# FROM vault.habana.ai/gaudi-docker/1.16.1/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest as hpu
+FROM opea/habanalabs:1.16.1-pytorch-installer-2.2.2 as hpu
 
 ENV LANG=en_US.UTF-8
 ARG REPO=https://github.com/huggingface/optimum-habana.git
-ARG REPO_VER=v1.11.1
+ARG REPO_VER=v1.12.1
 
-RUN apt-get update && \
-    apt-get install git-lfs && \
-    git-lfs install && \
-    apt-get install -y --no-install-recommends --fix-missing \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    git-lfs \
     libgl1-mesa-glx \
-    libjemalloc-dev \
-    vim
+    libjemalloc-dev
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
@@ -24,18 +20,21 @@ RUN useradd -m -s /bin/bash user && \
 
 USER user
 
-COPY comps /home/user/comps
-COPY comps/llm/text-generation/qwen2/qwen2.patch /home/user/qwen2.patch
+RUN git lfs install
 
-SHELL ["/bin/bash", "--login", "-c"]
-RUN git clone --single-branch -b ${REPO_VER} ${REPO} /optimum-habana
+COPY comps /home/user/comps
+
+RUN pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
+    pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.17.0
+
+RUN git clone ${REPO} /home/user/optimum-habana && \
+    cd /home/user/optimum-habana && git checkout ${REPO_VER} && \
+    cd examples/text-generation && pip install --no-cache-dir -r requirements.txt && \
+    cd /home/user/comps/llms/text-generation/native && pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir --upgrade --force-reinstall pydantic
 
 ENV PYTHONPATH=/root:/home/user
 
-RUN cd /optimum-habana && git apply /qwen2.patch && \
-    cd /optimum-habana/examples/text-generation && pip install -r requirements.txt && \
-    cd /optimum-habana && python setup.py install
-
-WORKDIR /home/user/comps/llms/text-generation/qwen2
+WORKDIR /home/user/comps/llms/text-generation/native
 
 ENTRYPOINT ["python", "llm.py"]

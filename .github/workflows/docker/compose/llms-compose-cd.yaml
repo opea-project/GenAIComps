@@ -1,0 +1,13 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  llm-native:
+    build:
+      dockerfile: comps/llms/text-generation/native/Dockerfile
+    image: ${REGISTRY:-opea}/llm-native:${TAG:-latest}
+  vllm-openvino:
+    build:
+      context: vllm-openvino
+      dockerfile: Dockerfile.openvino
+    image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}

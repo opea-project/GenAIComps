@@ -6,13 +6,13 @@
 services:
   asr:
     build:
-      dockerfile: comps/asr/Dockerfile
-    image: ${REGISTRY}opea/asr:${TAG:-latest}
+      dockerfile: comps/asr/whisper/Dockerfile
+    image: ${REGISTRY:-opea}/asr:${TAG:-latest}
   whisper:
     build:
-      dockerfile: comps/asr/whisper/Dockerfile
-    image: ${REGISTRY}opea/whisper:${TAG:-latest}
+      dockerfile: comps/asr/whisper/dependency/Dockerfile
+    image: ${REGISTRY:-opea}/whisper:${TAG:-latest}
   whisper-gaudi:
     build:
-      dockerfile: comps/asr/whisper/Dockerfile_hpu
-    image: ${REGISTRY}opea/whisper-gaudi:${TAG:-latest}
+      dockerfile: comps/asr/whisper/dependency/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}

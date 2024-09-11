@@ -4,6 +4,7 @@
 import base64
 import os
 from io import BytesIO
+from typing import Union
 
 import requests
 from fastapi import Request
@@ -16,9 +17,10 @@ from ..proto.api_protocol import (
     ChatCompletionResponse,
     ChatCompletionResponseChoice,
     ChatMessage,
+    EmbeddingRequest,
     UsageInfo,
 )
-from ..proto.docarray import LLMParams
+from ..proto.docarray import LLMParams, LLMParamsDoc, RerankedDoc, RerankerParms, RetrieverParms, TextDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -106,6 +108,7 @@ class Gateway:
                     messages_dict[msg_role] = message["content"]
                 else:
                     raise ValueError(f"Unknown role: {msg_role}")
+
             if system_prompt:
                 prompt = system_prompt + "\n"
             for role, message in messages_dict.items():
@@ -165,8 +168,22 @@ class ChatQnAGateway(Gateway):
             streaming=stream_opt,
             chat_template=chat_request.chat_template if chat_request.chat_template else None,
         )
+        retriever_parameters = RetrieverParms(
+            search_type=chat_request.search_type if chat_request.search_type else "similarity",
+            k=chat_request.k if chat_request.k else 4,
+            distance_threshold=chat_request.distance_threshold if chat_request.distance_threshold else None,
+            fetch_k=chat_request.fetch_k if chat_request.fetch_k else 20,
+            lambda_mult=chat_request.lambda_mult if chat_request.lambda_mult else 0.5,
+            score_threshold=chat_request.score_threshold if chat_request.score_threshold else 0.2,
+        )
+        reranker_parameters = RerankerParms(
+            top_n=chat_request.top_n if chat_request.top_n else 1,
+        )
         result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={"text": prompt}, llm_parameters=parameters
+            initial_inputs={"text": prompt},
+            llm_parameters=parameters,
+            retriever_parameters=retriever_parameters,
+            reranker_parameters=reranker_parameters,
         )
         for node, response in result_dict.items():
             if isinstance(response, StreamingResponse):
@@ -529,3 +546,245 @@ class VisualQnAGateway(Gateway):
             )
         )
         return ChatCompletionResponse(model="visualqna", choices=choices, usage=usage)
+
+
+class VideoRAGQnAGateway(Gateway):
+    def __init__(self, megaservice, host="0.0.0.0", port=8888):
+        super().__init__(
+            megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.VIDEO_RAG_QNA),
+            ChatCompletionRequest,
+            ChatCompletionResponse,
+        )
+
+    async def handle_request(self, request: Request):
+        data = await request.json()
+        stream_opt = data.get("stream", False)
+        chat_request = ChatCompletionRequest.parse_obj(data)
+        prompt = self._handle_message(chat_request.messages)
+        parameters = LLMParams(
+            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
+            top_k=chat_request.top_k if chat_request.top_k else 10,
+            top_p=chat_request.top_p if chat_request.top_p else 0.95,
+            temperature=chat_request.temperature if chat_request.temperature else 0.01,
+            repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
+            streaming=stream_opt,
+        )
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"text": prompt}, llm_parameters=parameters
+        )
+        for node, response in result_dict.items():
+            # Here it suppose the last microservice in the megaservice is LVM.
+            if (
+                isinstance(response, StreamingResponse)
+                and node == list(self.megaservice.services.keys())[-1]
+                and self.megaservice.services[node].service_type == ServiceType.LVM
+            ):
+                return response
+        last_node = runtime_graph.all_leaves()[-1]
+        response = result_dict[last_node]["text"]
+        choices = []
+        usage = UsageInfo()
+        choices.append(
+            ChatCompletionResponseChoice(
+                index=0,
+                message=ChatMessage(role="assistant", content=response),
+                finish_reason="stop",
+            )
+        )
+        return ChatCompletionResponse(model="videoragqna", choices=choices, usage=usage)
+
+
+class RetrievalToolGateway(Gateway):
+    """embed+retrieve+rerank."""
+
+    def __init__(self, megaservice, host="0.0.0.0", port=8889):
+        super().__init__(
+            megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.RETRIEVALTOOL),
+            Union[TextDoc, EmbeddingRequest, ChatCompletionRequest],  # ChatCompletionRequest,
+            Union[RerankedDoc, LLMParamsDoc],  # ChatCompletionResponse
+        )
+
+    async def handle_request(self, request: Request):
+        def parser_input(data, TypeClass, key):
+            try:
+                chat_request = TypeClass.parse_obj(data)
+                query = getattr(chat_request, key)
+            except:
+                query = None
+            return query
+
+        data = await request.json()
+        query = None
+        for key, TypeClass in zip(["text", "input", "input"], [TextDoc, EmbeddingRequest, ChatCompletionRequest]):
+            query = parser_input(data, TypeClass, key)
+            if query is not None:
+                break
+        if query is None:
+            raise ValueError(f"Unknown request type: {data}")
+        result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"text": query})
+        last_node = runtime_graph.all_leaves()[-1]
+        response = result_dict[last_node]
+        print("response is ", response)
+        return response
+
+
+class MultimodalRAGWithVideosGateway(Gateway):
+    def __init__(self, multimodal_rag_megaservice, lvm_megaservice, host="0.0.0.0", port=9999):
+        self.lvm_megaservice = lvm_megaservice
+        super().__init__(
+            multimodal_rag_megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.MULTIMODAL_RAG_WITH_VIDEOS),
+            ChatCompletionRequest,
+            ChatCompletionResponse,
+        )
+
+    # this overrides _handle_message method of Gateway
+    def _handle_message(self, messages):
+        images = []
+        messages_dicts = []
+        if isinstance(messages, str):
+            prompt = messages
+        else:
+            messages_dict = {}
+            system_prompt = ""
+            prompt = ""
+            for message in messages:
+                msg_role = message["role"]
+                messages_dict = {}
+                if msg_role == "system":
+                    system_prompt = message["content"]
+                elif msg_role == "user":
+                    if type(message["content"]) == list:
+                        text = ""
+                        text_list = [item["text"] for item in message["content"] if item["type"] == "text"]
+                        text += "\n".join(text_list)
+                        image_list = [
+                            item["image_url"]["url"] for item in message["content"] if item["type"] == "image_url"
+                        ]
+                        if image_list:
+                            messages_dict[msg_role] = (text, image_list)
+                        else:
+                            messages_dict[msg_role] = text
+                    else:
+                        messages_dict[msg_role] = message["content"]
+                    messages_dicts.append(messages_dict)
+                elif msg_role == "assistant":
+                    messages_dict[msg_role] = message["content"]
+                    messages_dicts.append(messages_dict)
+                else:
+                    raise ValueError(f"Unknown role: {msg_role}")
+
+            if system_prompt:
+                prompt = system_prompt + "\n"
+            for messages_dict in messages_dicts:
+                for i, (role, message) in enumerate(messages_dict.items()):
+                    if isinstance(message, tuple):
+                        text, image_list = message
+                        if i == 0:
+                            # do not add role for the very first message.
+                            # this will be added by llava_server
+                            if text:
+                                prompt += text + "\n"
+                        else:
+                            if text:
+                                prompt += role.upper() + ": " + text + "\n"
+                            else:
+                                prompt += role.upper() + ":"
+                        for img in image_list:
+                            # URL
+                            if img.startswith("http://") or img.startswith("https://"):
+                                response = requests.get(img)
+                                image = Image.open(BytesIO(response.content)).convert("RGBA")
+                                image_bytes = BytesIO()
+                                image.save(image_bytes, format="PNG")
+                                img_b64_str = base64.b64encode(image_bytes.getvalue()).decode()
+                            # Local Path
+                            elif os.path.exists(img):
+                                image = Image.open(img).convert("RGBA")
+                                image_bytes = BytesIO()
+                                image.save(image_bytes, format="PNG")
+                                img_b64_str = base64.b64encode(image_bytes.getvalue()).decode()
+                            # Bytes
+                            else:
+                                img_b64_str = img
+
+                            images.append(img_b64_str)
+                    else:
+                        if i == 0:
+                            # do not add role for the very first message.
+                            # this will be added by llava_server
+                            if message:
+                                prompt += role.upper() + ": " + message + "\n"
+                        else:
+                            if message:
+                                prompt += role.upper() + ": " + message + "\n"
+                            else:
+                                prompt += role.upper() + ":"
+        if images:
+            return prompt, images
+        else:
+            return prompt
+
+    async def handle_request(self, request: Request):
+        data = await request.json()
+        stream_opt = bool(data.get("stream", False))
+        if stream_opt:
+            print("[ MultimodalRAGWithVideosGateway ] stream=True not used, this has not support streaming yet!")
+            stream_opt = False
+        chat_request = ChatCompletionRequest.model_validate(data)
+        # Multimodal RAG QnA With Videos has not yet accepts image as input during QnA.
+        prompt_and_image = self._handle_message(chat_request.messages)
+        if isinstance(prompt_and_image, tuple):
+            # print(f"This request include image, thus it is a follow-up query. Using lvm megaservice")
+            prompt, images = prompt_and_image
+            cur_megaservice = self.lvm_megaservice
+            initial_inputs = {"prompt": prompt, "image": images[0]}
+        else:
+            # print(f"This is the first query, requiring multimodal retrieval. Using multimodal rag megaservice")
+            prompt = prompt_and_image
+            cur_megaservice = self.megaservice
+            initial_inputs = {"text": prompt}
+
+        parameters = LLMParams(
+            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
+            top_k=chat_request.top_k if chat_request.top_k else 10,
+            top_p=chat_request.top_p if chat_request.top_p else 0.95,
+            temperature=chat_request.temperature if chat_request.temperature else 0.01,
+            repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
+            streaming=stream_opt,
+            chat_template=chat_request.chat_template if chat_request.chat_template else None,
+        )
+        result_dict, runtime_graph = await cur_megaservice.schedule(
+            initial_inputs=initial_inputs, llm_parameters=parameters
+        )
+        for node, response in result_dict.items():
+            # the last microservice in this megaservice is LVM.
+            # checking if LVM returns StreamingResponse
+            # Currently, LVM with LLAVA has not yet supported streaming.
+            # @TODO: Will need to test this once LVM with LLAVA supports streaming
+            if (
+                isinstance(response, StreamingResponse)
+                and node == runtime_graph.all_leaves()[-1]
+                and self.megaservice.services[node].service_type == ServiceType.LVM
+            ):
+                return response
+        last_node = runtime_graph.all_leaves()[-1]
+        response = result_dict[last_node]["text"]
+        choices = []
+        usage = UsageInfo()
+        choices.append(
+            ChatCompletionResponseChoice(
+                index=0,
+                message=ChatMessage(role="assistant", content=response),
+                finish_reason="stop",
+            )
+        )
+        return ChatCompletionResponse(model="multimodalragwithvideos", choices=choices, usage=usage)

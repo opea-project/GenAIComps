@@ -12,12 +12,19 @@ from comps.cores.proto.docarray import (
     GeneratedDoc,
     LLMParamsDoc,
     SearchedDoc,
+    SearchedMultimodalDoc,
+    LVMSearchedMultimodalDoc,
     RerankedDoc,
     TextDoc,
     RAGASParams,
     RAGASScores,
     GraphDoc,
     LVMDoc,
+    LVMVideoDoc,
+    ImageDoc,
+    TextImageDoc,
+    MultimodalDoc,
+    EmbedMultimodalDoc,
 )
 
 # Constants
@@ -36,8 +43,11 @@ from comps.cores.mega.gateway import (
     TranslationGateway,
     SearchQnAGateway,
     AudioQnAGateway,
+    RetrievalToolGateway,
     FaqGenGateway,
+    VideoRAGQnAGateway,
     VisualQnAGateway,
+    MultimodalRAGWithVideosGateway,
 )
 
 # Telemetry
@@ -45,3 +55,6 @@ from comps.cores.telemetry.opea_telemetry import opea_telemetry
 
 # Statistics
 from comps.cores.mega.base_statistics import statistics_dict, register_statistics
+
+# Logger
+from comps.cores.mega.logger import CustomLogger

@@ -8,13 +8,14 @@ from typing import Union
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
 from langchain_core.prompts import PromptTemplate
-from langsmith import traceable
 from openai import OpenAI
 from template import ChatTemplate
 
 from comps import (
+    CustomLogger,
     GeneratedDoc,
     LLMParamsDoc,
+    SearchedDoc,
     ServiceType,
     opea_microservices,
     register_microservice,
@@ -22,6 +23,9 @@ from comps import (
     statistics_dict,
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionStreamResponse
+
+logger = CustomLogger("llm_tgi")
+logflag = os.getenv("LOGFLAG", False)
 
 llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 llm = AsyncInferenceClient(
@@ -37,19 +41,66 @@ llm = AsyncInferenceClient(
     host="0.0.0.0",
     port=9000,
 )
-@traceable(run_type="llm")
 @register_statistics(names=["opea_service@llm_tgi"])
-async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
-
+async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
+    if logflag:
+        logger.info(input)
     prompt_template = None
-    if input.chat_template:
+    if not isinstance(input, SearchedDoc) and input.chat_template:
         prompt_template = PromptTemplate.from_template(input.chat_template)
         input_variables = prompt_template.input_variables
 
     stream_gen_time = []
     start = time.time()
 
-    if isinstance(input, LLMParamsDoc):
+    if isinstance(input, SearchedDoc):
+        if logflag:
+            logger.info("[ SearchedDoc ] input from retriever microservice")
+        prompt = input.initial_query
+        if input.retrieved_docs:
+            docs = [doc.text for doc in input.retrieved_docs]
+            if logflag:
+                logger.info(f"[ SearchedDoc ] combined retrieved docs: {docs}")
+            prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs)
+        # use default llm parameters for inferencing
+        new_input = LLMParamsDoc(query=prompt)
+        if logflag:
+            logger.info(f"[ SearchedDoc ] final input: {new_input}")
+        text_generation = await llm.text_generation(
+            prompt=prompt,
+            stream=new_input.streaming,
+            max_new_tokens=new_input.max_new_tokens,
+            repetition_penalty=new_input.repetition_penalty,
+            temperature=new_input.temperature,
+            top_k=new_input.top_k,
+            top_p=new_input.top_p,
+        )
+        if new_input.streaming:
+
+            async def stream_generator():
+                chat_response = ""
+                async for text in text_generation:
+                    stream_gen_time.append(time.time() - start)
+                    chat_response += text
+                    chunk_repr = repr(text.encode("utf-8"))
+                    if logflag:
+                        logger.info(f"[ SearchedDoc ] chunk:{chunk_repr}")
+                    yield f"data: {chunk_repr}\n\n"
+                if logflag:
+                    logger.info(f"[ SearchedDoc ] stream response: {chat_response}")
+                statistics_dict["opea_service@llm_tgi"].append_latency(stream_gen_time[-1], stream_gen_time[0])
+                yield "data: [DONE]\n\n"
+
+            return StreamingResponse(stream_generator(), media_type="text/event-stream")
+        else:
+            statistics_dict["opea_service@llm_tgi"].append_latency(time.time() - start, None)
+            if logflag:
+                logger.info(text_generation)
+            return GeneratedDoc(text=text_generation, prompt=new_input.query)
+
+    elif isinstance(input, LLMParamsDoc):
+        if logflag:
+            logger.info("[ LLMParamsDoc ] input from rerank microservice")
         prompt = input.query
         if prompt_template:
             if sorted(input_variables) == ["context", "question"]:
@@ -57,7 +108,9 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
             elif input_variables == ["question"]:
                 prompt = prompt_template.format(question=input.query)
             else:
-                print(f"{prompt_template} not used, we only support 2 input variables ['question', 'context']")
+                logger.info(
+                    f"[ LLMParamsDoc ] {prompt_template} not used, we only support 2 input variables ['question', 'context']"
+                )
         else:
             if input.documents:
                 # use rag default template
@@ -80,18 +133,24 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                     stream_gen_time.append(time.time() - start)
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
-                    print(f"[llm - chat_stream] chunk:{chunk_repr}")
+                    if logflag:
+                        logger.info(f"[ LLMParamsDoc ] chunk:{chunk_repr}")
                     yield f"data: {chunk_repr}\n\n"
-                print(f"[llm - chat_stream] stream response: {chat_response}")
+                if logflag:
+                    logger.info(f"[ LLMParamsDoc ] stream response: {chat_response}")
                 statistics_dict["opea_service@llm_tgi"].append_latency(stream_gen_time[-1], stream_gen_time[0])
                 yield "data: [DONE]\n\n"
 
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
             statistics_dict["opea_service@llm_tgi"].append_latency(time.time() - start, None)
+            if logflag:
+                logger.info(text_generation)
             return GeneratedDoc(text=text_generation, prompt=input.query)
 
     else:
+        if logflag:
+            logger.info("[ ChatCompletionRequest ] input in opea format")
         client = OpenAI(
             api_key="EMPTY",
             base_url=llm_endpoint + "/v1",
@@ -105,7 +164,9 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                 elif input_variables == ["question"]:
                     prompt = prompt_template.format(question=input.messages)
                 else:
-                    print(f"{prompt_template} not used, we only support 2 input variables ['question', 'context']")
+                    logger.info(
+                        f"[ ChatCompletionRequest ] {prompt_template} not used, we only support 2 input variables ['question', 'context']"
+                    )
             else:
                 if input.documents:
                     # use rag default template
@@ -143,7 +204,9 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
                     if input_variables == ["context"]:
                         system_prompt = prompt_template.format(context="\n".join(input.documents))
                     else:
-                        print(f"{prompt_template} not used, only support 1 input variables ['context']")
+                        logger.info(
+                            f"[ ChatCompletionRequest ] {prompt_template} not used, only support 1 input variables ['context']"
+                        )
 
                     input.messages.insert(0, {"role": "system", "content": system_prompt})
 
@@ -175,12 +238,15 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest]):
 
             def stream_generator():
                 for c in chat_completion:
-                    print(c)
+                    if logflag:
+                        logger.info(c)
                     yield f"data: {c.model_dump_json()}\n\n"
                 yield "data: [DONE]\n\n"
 
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
+            if logflag:
+                logger.info(chat_completion)
             return chat_completion
 
 
