@@ -29,16 +29,15 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    llava_port=5171
-    lvm_port=5172
-    docker run -d --name="test-comps-lvm-llava-dependency" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $lvm_port:8399 --ipc=host opea/llava:comps
-    docker run -d --name="test-comps-lvm-llava-server" -e LVM_ENDPOINT=http://$ip_address:$llava_port -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $lvm_port:9399 --ipc=host opea/lvm:comps
+    lvm_port=5051
+    docker run -d --name="test-comps-lvm-llava-dependency" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5028:8399 --ipc=host opea/llava:comps
+    docker run -d --name="test-comps-lvm-llava-server" -e LVM_ENDPOINT=http://$ip_address:5028 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $lvm_port:9399 --ipc=host opea/lvm:comps
     sleep 8m
 }
 
 function validate_microservice() {
 
-    lvm_port=5172
+    lvm_port=5051
     result=$(http_proxy="" curl http://localhost:$lvm_port/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?"}' -H 'Content-Type: application/json')
     if [[ $result == *"yellow"* ]]; then
         echo "Result correct."
