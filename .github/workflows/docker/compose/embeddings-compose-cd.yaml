@@ -26,3 +26,7 @@ services:
     build:
       dockerfile: comps/embeddings/multimodal/multimodal_langchain/Dockerfile
     image: ${REGISTRY:-opea}/embedding-multimodal:${TAG:-latest}
+  embedding-predictionguard:
+    build:
+      dockerfile: comps/embeddings/prediction_guard/docker/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-predictionguard:${TAG:-latest}
