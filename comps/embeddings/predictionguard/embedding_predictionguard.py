@@ -8,17 +8,18 @@ import time
 from predictionguard import PredictionGuard
 
 from comps import (
-    EmbedDoc512, 
-    ServiceType, 
-    TextDoc, 
-    opea_microservices, 
+    EmbedDoc512,
+    ServiceType,
+    TextDoc,
+    opea_microservices,
     register_microservice,
-    register_statistics, 
-    statistics_dict
+    register_statistics,
+    statistics_dict,
 )
 
 # Initialize Prediction Guard client
 client = PredictionGuard()
+
 
 @register_microservice(
     name="opea_service@embedding_predictionguard",
@@ -29,22 +30,18 @@ client = PredictionGuard()
     input_datatype=TextDoc,
     output_datatype=EmbedDoc512,
 )
-
 @register_statistics(names=["opea_service@embedding_predictionguard"])
 def embedding(input: TextDoc) -> EmbedDoc512:
     start = time.time()
-    response = client.embeddings.create(
-        model=pg_embedding_model_name,
-        input=[{"text": input.text}]
-    )
+    response = client.embeddings.create(model=pg_embedding_model_name, input=[{"text": input.text}])
     embed_vector = response["data"][0]["embedding"]
     embed_vector = embed_vector[:512]  # Keep only the first 512 elements
     res = EmbedDoc512(text=input.text, embedding=embed_vector)
     statistics_dict["opea_service@embedding_predictionguard"].append_latency(time.time() - start, None)
     return res
 
+
 if __name__ == "__main__":
     pg_embedding_model_name = os.getenv("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
     print("Prediction Guard Embedding initialized.")
     opea_microservices["opea_service@embedding_predictionguard"].start()
-
