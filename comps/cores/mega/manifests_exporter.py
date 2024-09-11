@@ -483,15 +483,12 @@ if __name__ == "__main__":
 
     configmap = create_configmap_object()
 
-
     guaranteed_resource = create_resource_requirements(
         limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
     )
-    
-    burstable_resource = create_resource_requirements(
-       requests={"cpu": 8, "memory": "4000Mi"}
-    )
-    
+
+    burstable_resource = create_resource_requirements(requests={"cpu": 8, "memory": "4000Mi"})
+
     # Microservice
     chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource)
     embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource)
@@ -502,7 +499,9 @@ if __name__ == "__main__":
     embedding_dependency_resource = create_resource_requirements(
         limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
     )
-    embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(embedding_dependency_resource)
+    embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
+        embedding_dependency_resource
+    )
 
     llm_hpu_resource_requirements = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_resource_requirements)
