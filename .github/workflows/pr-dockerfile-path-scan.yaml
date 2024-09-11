@@ -25,6 +25,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Clone repo GenAIExamples
+        run: |
+          cd ..
+          git clone https://github.com/opea-project/GenAIExamples
+
       - name: Check for changed Dockerfile paths in yaml
         run: |
           set -e
@@ -79,7 +84,7 @@ jobs:
       - name: Check new Dockerfile in compose yaml
         if: always()
         run: |
-          set -xe
+          set -e
           shopt -s globstar
           cd ${{github.workspace}}
           no_add="FALSE"
@@ -104,6 +109,67 @@ jobs:
           fi
 
           if [[ "$no_add" == "TRUE" ]]; then
+            exit 1
+          fi
+
+      - name: Check all Dockerfile mode and if it exists in yaml
+        if: always()
+        run: |
+          set -e
+          shopt -s globstar
+          no_add="FALSE"
+          cd ${{github.workspace}}
+          Dockerfiles=$(find ./comps -name '*Dockerfile*'|sed 's/^\.\///')
+          if [ -n "$Dockerfiles" ]; then
+            for Dockerfile in $Dockerfiles; do
+              service=$(echo "$Dockerfile" | awk -F '/' '{print $2}')
+              if grep -q "$Dockerfile" ../GenAIExamples/**/*build.yaml*; then 
+                mode=""  #CI
+              else
+                mode="-CD"
+              fi
+
+              yaml_file=${{github.workspace}}/.github/workflows/docker/compose/$service'-compose'$mode.yaml
+              if [ -e $yaml_file]; then
+                # check service yaml if exist
+                if ! grep -q "$Dockerfile" $yaml_file; then
+                  echo "Please add $Dockerfile to .github/workflows/docker/compose/"$service"-compose"$mode".yaml."
+                  no_add="TRUE"
+                fi
+              else
+                echo "Please create a new compose file named "$service"-compose"$mode".yaml in ${{github.workspace}}/.github/workflows/docker/compose/ for $Dockerfile and fill it in."
+                no_add="TRUE"
+              fi
+            done
+          fi
+          
+          if [[ "$no_add" == "TRUE" ]]; then
+            exit 1
+          fi
+
+      - name: Check for the exist of Dockerfile in all yamls.
+        if: always()
+        run: |
+          set -e
+          shopt -s globstar
+          no_exist="FALSE"
+          cd ${{github.workspace}}
+          yamls=$(find .github/workflows/docker/compose/ -name '*.yaml'|sed 's/^\.\///')
+          if [ -n "$yamls" ]; then
+            for yaml in $yamls; do
+              dockerfiles=$(grep 'dockerfile:' $yaml|sed 's/dockerfile: //')
+              for dockerfile in $dockerfiles; do
+                if [ -z $dockerfile]; then
+                  # remove dockerimage
+                  # sed '/dockerfile:/I,+2d' $yaml
+                  echo "Should "$dockerfile" not exist in the "$yaml" be removed?"
+                  no_exist="TRUE"
+                fi
+              done
+            done
+          fi
+
+          if [[ "$no_exist" == "TRUE" ]]; then
             exit 1
           fi
 
