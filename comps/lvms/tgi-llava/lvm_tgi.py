@@ -48,7 +48,7 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc
         if logflag:
             logger.info("[LVMSearchedMultimodalDoc ] input from retriever microservice")
         retrieved_metadatas = request.metadata
-        if retrieved_metadatas is None or len(retrieved_metadatas) == 0:
+        if not retrieved_metadatas or len(retrieved_metadatas) == 0:
             # there is no video segments retrieved.
             # Raise HTTPException status_code 204
             # due to llava-tgi-gaudi should receive image as input; Otherwise, the generated text is bad.
