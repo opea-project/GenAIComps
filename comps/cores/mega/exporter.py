@@ -94,17 +94,9 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "container_name": "text-embeddings-inference-server",
                         "ports": ["8090:80"],
                         "ipc": "host",
-<<<<<<< HEAD
                         "environment": {**env_vars.get('common', {}),
                                          "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', ''),},
                         "command": f"--model-id {model_id} --auto-truncate"
-=======
-                        "environment": {
-                            **{key: f"${{{key}}}" for key in env_vars.get("common", {})},
-                            "HUGGINGFACEHUB_API_TOKEN": "${HUGGINGFACEHUB_API_TOKEN}",
-                        },
-                        "command": f"--model-id {model_id} --auto-truncate",
->>>>>>> d8a768ea52b3170d337615614dc5d65641b2ccf1
                     }
             elif dep_name == "opea/tei-gaudi":
                 if device == "gaudi":
@@ -114,17 +106,9 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "container_name": "text-embeddings-inference-server",
                         "ports": ["8090:80"],
                         "ipc": "host",
-<<<<<<< HEAD
                         "environment": {**env_vars.get('common', {}),
                                          "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', ''),},
                         "command": f"--model-id {model_id} --auto-truncate"
-=======
-                        "environment": {
-                            **{key: f"${{{key}}}" for key in env_vars.get("common", {})},
-                            "HUGGINGFACEHUB_API_TOKEN": "${HUGGINGFACEHUB_API_TOKEN}",
-                        },
-                        "command": f"--model-id {model_id} --auto-truncate",
->>>>>>> d8a768ea52b3170d337615614dc5d65641b2ccf1
                     }
                     # Add specific settings for Habana (Gaudi) devices
                     services["text-embeddings-inference-service"]["runtime"] = "habana"
