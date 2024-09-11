@@ -153,12 +153,12 @@ jobs:
           shopt -s globstar
           no_exist="FALSE"
           cd ${{github.workspace}}
-          yamls=$(find .github/workflows/docker/compose/ -name '*.yaml'|sed 's/^\.\///')
+          yamls=$(find .github/workflows/docker/compose/ -name '*.yaml')
           if [ -n "$yamls" ]; then
             for yaml in $yamls; do
               dockerfiles=$(grep 'dockerfile:' "$yaml"|sed 's/dockerfile: //')
               for dockerfile in $dockerfiles; do
-                if [ -z $dockerfile]; then
+                if [ -z $dockerfile ]; then
                   # remove dockerimage
                   # sed '/dockerfile:/I,+2d' $yaml
                   echo "The "$dockerfile" in "$yaml" does not exist, should it be removed?"
