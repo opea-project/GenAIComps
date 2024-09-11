@@ -50,7 +50,7 @@ function validate_upload() {
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
-    
+
     # Check if the parsed values match the expected values
     if [[ "$purpose" != "$EXPECTED_PURPOSE" || "$filename" != "$EXPECTED_FILENAME" ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
@@ -85,7 +85,7 @@ function validate_finetune() {
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
-    
+
     # Check if the parsed values match the expected values
     if [[ "$RESPONSE_BODY" != *"$EXPECTED_DATA"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
