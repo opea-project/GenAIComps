@@ -2,7 +2,6 @@ aiohttp
 docarray
 fastapi
 httpx
-openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

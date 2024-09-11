@@ -80,6 +80,8 @@ function main() {
     stop_docker
     build_docker_images
 
+    pip install openai
+
     llm_models=(
     Intel/neural-chat-7b-v3-3
     meta-llama/Llama-2-7b-chat-hf

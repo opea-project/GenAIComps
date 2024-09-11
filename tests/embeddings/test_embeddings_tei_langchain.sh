@@ -69,6 +69,7 @@ function main() {
     start_service
 
     validate_microservice
+    pip install openai
     validate_microservice_with_openai
 
     stop_docker
