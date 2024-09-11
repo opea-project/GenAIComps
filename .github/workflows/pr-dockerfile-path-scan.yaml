@@ -81,7 +81,7 @@ jobs:
                   no_add="TRUE"
                 fi
               else
-                echo "Please create a new compose file ${{github.workspace}}/.github/workflows/docker/compose/"$service"-compose"$mode".yaml for $Dockerfile and fill it in."
+                echo "Please create a new compose file .github/workflows/docker/compose/"$service"-compose"$mode".yaml for $Dockerfile and fill it in."
                 no_add="TRUE"
               fi
             done
@@ -102,10 +102,12 @@ jobs:
             for yaml in $yamls; do
               dockerfiles=$(grep 'dockerfile:' "$yaml"|sed 's/dockerfile: //')
               for dockerfile in $dockerfiles; do
-                if ! [ -e "$dockerfile" ]; then
-                  # cat "$yaml"
-                  echo "The dockerfile path "$dockerfile" in "$yaml" does not exist, should it be removed?"
-                  no_exist="TRUE"
+                if grep -q "comps/" "$dockerfile"; then
+                  if ! [ -e "$dockerfile" ]; then
+                    # cat "$yaml"
+                    echo "The dockerfile path "$dockerfile" in "$yaml" does not exist, should it be removed?"
+                    no_exist="TRUE"
+                  fi
                 fi
               done
             done
