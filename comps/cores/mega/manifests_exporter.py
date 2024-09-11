@@ -97,21 +97,14 @@ def create_configmap_object():
             "EMBEDDING_MODEL_ID": "BAAI/bge-base-en-v1.5",
             "RERANK_MODEL_ID": "BAAI/bge-reranker-base",
             "LLM_MODEL_ID": "Intel/neural-chat-7b-v3-3",
-            
             "TEI_EMBEDDING_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
-            
             # For dataprep only
-            "TEI_ENDPOINT" : "http://embedding-dependency-svc.default.svc.cluster.local:6006",
-            
+            "TEI_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
             # For dataprep & retrieval & vector_db
             "INDEX_NAME": "rag-redis",
             "REDIS_URL": "redis://vector-db.default.svc.cluster.local:6379",
-            
-            
             "TEI_RERANKING_ENDPOINT": "http://reranking-dependency-svc.default.svc.cluster.local:8808",
             "TGI_LLM_ENDPOINT": "http://llm-dependency-svc.default.svc.cluster.local:9009",
-
-            
             "HUGGINGFACEHUB_API_TOKEN": "${HF_TOKEN}",
             "EMBEDDING_SERVICE_HOST_IP": "embedding-svc",
             "RETRIEVER_SERVICE_HOST_IP": "retriever-svc",
@@ -807,7 +800,7 @@ def create_reranking_deployment_and_service(resource_requirements=None):
         container_ports=[8000],
         resources=resource_requirements,
     )
-    
+
     # deployment = client.V1Deployment(
     #     api_version="apps/v1",
     #     kind="Deployment",
@@ -869,7 +862,6 @@ def create_retriever_deployment_and_service(resource_requirements=None):
         container_ports=[7000],
         resources=resource_requirements,
     )
-
 
     # deployment = client.V1Deployment(
     #     api_version="apps/v1",
