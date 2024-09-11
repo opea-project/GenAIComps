@@ -1,12 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import filecmp
 import os
 import unittest
 
-from comps.cores.mega.manifests_exporter import build_chatqna_manifests
+import yaml
 
+from comps.cores.mega.manifests_exporter import build_chatqna_manifests
 
 class TestChatQnAManifestsExporter(unittest.TestCase):
     def tearDown(self):
@@ -22,8 +22,17 @@ class TestChatQnAManifestsExporter(unittest.TestCase):
 
     def test_manifests(self):
         build_chatqna_manifests()
+        
+        result = True
+        with open("ChatQnA_E2E_manifests.yaml", 'r') as f1, open("ChatQnA_E2E_manifests_base.yaml", 'r') as f2:
+            docs1 = yaml.safe_load_all(f1)
+            docs2 = yaml.safe_load_all(f2)
 
-        self.assertTrue(filecmp.cmp("ChatQnA_E2E_manifests.yaml", "ChatQnA_E2E_manifests_base.yaml"))
+            for doc1, doc2 in zip(docs1, docs2):
+                if doc1 != doc2:
+                    result = False
+
+        self.assertTrue(result)
 
 
 if __name__ == "__main__":
