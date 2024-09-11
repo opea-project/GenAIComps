@@ -39,7 +39,11 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
 
             # Replace placeholders with actual values
             for key in renamed_environment:
-                if isinstance(renamed_environment[key], str) and renamed_environment[key].startswith('${') and renamed_environment[key].endswith('}'):
+                if (
+                    isinstance(renamed_environment[key], str)
+                    and renamed_environment[key].startswith("${")
+                    and renamed_environment[key].endswith("}")
+                ):
                     var_name = renamed_environment[key][2:-1]
                     renamed_environment[key] = os.getenv(var_name, renamed_environment[key])
 
@@ -95,9 +99,11 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "container_name": "text-embeddings-inference-server",
                         "ports": ["8090:80"],
                         "ipc": "host",
-                        "environment": {**env_vars.get('common', {}),
-                                         "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', ''),},
-                        "command": f"--model-id {model_id} --auto-truncate"
+                        "environment": {
+                            **env_vars.get("common", {}),
+                            "HUGGINGFACEHUB_API_TOKEN": env_vars.get("HUGGINGFACEHUB_API_TOKEN", ""),
+                        },
+                        "command": f"--model-id {model_id} --auto-truncate",
                     }
             elif dep_name == "opea/tei-gaudi":
                 if device == "gaudi":
@@ -107,9 +113,11 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "container_name": "text-embeddings-inference-server",
                         "ports": ["8090:80"],
                         "ipc": "host",
-                        "environment": {**env_vars.get('common', {}),
-                                         "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', ''),},
-                        "command": f"--model-id {model_id} --auto-truncate"
+                        "environment": {
+                            **env_vars.get("common", {}),
+                            "HUGGINGFACEHUB_API_TOKEN": env_vars.get("HUGGINGFACEHUB_API_TOKEN", ""),
+                        },
+                        "command": f"--model-id {model_id} --auto-truncate",
                     }
                     # Add specific settings for Habana (Gaudi) devices
                     services["text-embeddings-inference-service"]["runtime"] = "habana"
@@ -138,11 +146,13 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "ports": ["8808:80"],
                         "volumes": ["./data:/data"],
                         "shm_size": "1g",
-                        "environment": {**env_vars.get('common', {}),
-                                         "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', ''),
-                                         "HF_HUB_DISABLE_PROGRESS_BARS": "1",
-                                         "HF_HUB_ENABLE_HF_TRANSFER": "0"},
-                        "command": f"--model-id {model_id} --auto-truncate"
+                        "environment": {
+                            **env_vars.get("common", {}),
+                            "HUGGINGFACEHUB_API_TOKEN": env_vars.get("HUGGINGFACEHUB_API_TOKEN", ""),
+                            "HF_HUB_DISABLE_PROGRESS_BARS": "1",
+                            "HF_HUB_ENABLE_HF_TRANSFER": "0",
+                        },
+                        "command": f"--model-id {model_id} --auto-truncate",
                     }
             elif dep_name == "opea/tei-gaudi":
                 if device == "gaudi":
@@ -153,22 +163,26 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "ports": ["8808:80"],
                         "volumes": ["./data:/data"],
                         "shm_size": "1g",
-                        "environment": {**env_vars.get('common', {}),
-                                         "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', ''),
-                                         "HF_HUB_DISABLE_PROGRESS_BARS": "1",
-                                         "HF_HUB_ENABLE_HF_TRANSFER": "0"},
-                        "command": f"--model-id {model_id} --auto-truncate"
+                        "environment": {
+                            **env_vars.get("common", {}),
+                            "HUGGINGFACEHUB_API_TOKEN": env_vars.get("HUGGINGFACEHUB_API_TOKEN", ""),
+                            "HF_HUB_DISABLE_PROGRESS_BARS": "1",
+                            "HF_HUB_ENABLE_HF_TRANSFER": "0",
+                        },
+                        "command": f"--model-id {model_id} --auto-truncate",
                     }
                     # Add specific settings for Habana (Gaudi) devices
-                    services['tei-reranking-service']["runtime"] = "habana"
-                    services['tei-reranking-service']["cap_add"] = ["SYS_NICE"]
-                    services['tei-reranking-service']["environment"].update({
-                        "HABANA_VISIBLE_DEVICES": "all",
-                        "OMPI_MCA_btl_vader_single_copy_mechanism": "none",
-                        "MAX_WARMUP_SEQUENCE_LENGTH": "512",
-                        "INIT_HCCL_ON_ACQUIRE": "0",
-                        "ENABLE_EXPERIMENTAL_FLAGS": "true"
-                    })
+                    services["tei-reranking-service"]["runtime"] = "habana"
+                    services["tei-reranking-service"]["cap_add"] = ["SYS_NICE"]
+                    services["tei-reranking-service"]["environment"].update(
+                        {
+                            "HABANA_VISIBLE_DEVICES": "all",
+                            "OMPI_MCA_btl_vader_single_copy_mechanism": "none",
+                            "MAX_WARMUP_SEQUENCE_LENGTH": "512",
+                            "INIT_HCCL_ON_ACQUIRE": "0",
+                            "ENABLE_EXPERIMENTAL_FLAGS": "true",
+                        }
+                    )
 
     # LLM service
     llm_service = mega_config["opea_micro_services"].get("llm", {}).get("opea/llm-tgi", {})
@@ -182,9 +196,11 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "image": f"{dep_name}:{dep_info['tag']}",
                         "container_name": "llm-server",
                         "ports": ["9001:80"],
-                        "environment": {**env_vars.get('common', {}),
-                                         "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', '')},
-                        "command": f"--model-id {model_id} --max-input-length 1024 --max-total-tokens 2048"
+                        "environment": {
+                            **env_vars.get("common", {}),
+                            "HUGGINGFACEHUB_API_TOKEN": env_vars.get("HUGGINGFACEHUB_API_TOKEN", ""),
+                        },
+                        "command": f"--model-id {model_id} --max-input-length 1024 --max-total-tokens 2048",
                     }
             elif dep_name == "ghcr.io/huggingface/tgi-gaudi":
                 if device == "gaudi":
@@ -193,9 +209,11 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "image": f"{dep_name}:{dep_info['tag']}",
                         "container_name": "llm-server",
                         "ports": ["9001:80"],
-                        "environment": {**env_vars.get('common', {}),
-                                         "HUGGINGFACEHUB_API_TOKEN": env_vars.get('HUGGINGFACEHUB_API_TOKEN', '')},
-                        "command": f"--model-id {model_id} --max-input-length 1024 --max-total-tokens 2048"
+                        "environment": {
+                            **env_vars.get("common", {}),
+                            "HUGGINGFACEHUB_API_TOKEN": env_vars.get("HUGGINGFACEHUB_API_TOKEN", ""),
+                        },
+                        "command": f"--model-id {model_id} --max-input-length 1024 --max-total-tokens 2048",
                     }
                     # Add specific settings for Habana (Gaudi) devices
                     services["llm-service"]["runtime"] = "habana"
@@ -208,7 +226,7 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                     )
 
         # Extract configuration for all examples from 'opea_mega_service'
-        examples = ['chatqna', 'faqgen', 'audioqna', 'visualqna', 'codegen', 'codetrans']
+        examples = ["chatqna", "faqgen", "audioqna", "visualqna", "codegen", "codetrans"]
         for example in examples:
             service_name = f"opea/{example}"
             ui_service_name = f"opea/{example}-ui"
@@ -216,12 +234,12 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
             # Process both the main service and the UI service
             for service in [service_name, ui_service_name]:
                 # Check if the service exists in the mega.yaml
-                if service in mega_config.get('opea_mega_service', {}):
-                    service_config = mega_config['opea_mega_service'][service]
+                if service in mega_config.get("opea_mega_service", {}):
+                    service_config = mega_config["opea_mega_service"][service]
                     container_name = service
                     safe_container_name = container_name.replace("/", "-")
-                    tag = service_config.get('tag', 'latest')
-                    environment = {**env_vars.get('common', {}), **service_config.get('environment', {})}
+                    tag = service_config.get("tag", "latest")
+                    environment = {**env_vars.get("common", {}), **service_config.get("environment", {})}
 
                     service_entry = {
                         "image": f"{container_name}:{tag}",
@@ -229,7 +247,7 @@ def convert_to_docker_compose(mega_yaml, output_file, device="cpu"):
                         "ports": ["5173:5173"] if "-ui" in service else ["8888:8888"],
                         "ipc": "host",
                         "restart": "unless-stopped",
-                        "environment": environment
+                        "environment": environment,
                     }
                     services[safe_container_name] = service_entry
 
