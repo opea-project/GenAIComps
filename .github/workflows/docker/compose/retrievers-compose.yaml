@@ -11,7 +11,3 @@ services:
     build:
       dockerfile: comps/retrievers/qdrant/haystack/Dockerfile
     image: ${REGISTRY:-opea}/retriever-qdrant:${TAG:-latest}
-  retriever-vdms:
-    build:
-      dockerfile: comps/retrievers/vdms/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/retriever-vdms:${TAG:-latest}
