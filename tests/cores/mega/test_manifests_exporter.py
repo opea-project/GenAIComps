@@ -5,8 +5,6 @@ import filecmp
 import os
 import unittest
 
-import yaml
-
 from comps.cores.mega.manifests_exporter import build_chatqna_manifests
 
 
