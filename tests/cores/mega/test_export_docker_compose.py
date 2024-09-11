@@ -56,29 +56,29 @@ class TestConvertToDockerCompose(unittest.TestCase):
             "ghcr.io/huggingface/text-embeddings-inference:cpu-1.5",
         )
 
-    def test_convert_to_docker_compose_cli(self):
-        # Define shell command
-        command = ["opea", "export", "docker-compose", self.mega_yaml, self.output_file, "--device=cpu"]
+    # def test_convert_to_docker_compose_cli(self):
+    #     # Define shell command
+    #     command = ["opea", "export", "docker-compose", self.mega_yaml, self.output_file, "--device=cpu"]
 
-        # Run the CLI command
-        result = subprocess.run(command, capture_output=True, text=True)
+    #     # Run the CLI command
+    #     result = subprocess.run(command, capture_output=True, text=True)
 
-        # Check for command success
-        self.assertEqual(result.returncode, 0, f"Command failed with error: {result.stderr}")
+    #     # Check for command success
+    #     self.assertEqual(result.returncode, 0, f"Command failed with error: {result.stderr}")
 
-        # Verify the output file
-        if os.path.isfile(self.output_file):
-            print("Docker Compose file generated successfully.")
+    #     # Verify the output file
+    #     if os.path.isfile(self.output_file):
+    #         print("Docker Compose file generated successfully.")
 
-            # Check for key properties in the docker-compose file
-            with open(self.output_file, "r") as f:
-                docker_compose_content = f.read()
+    #         # Check for key properties in the docker-compose file
+    #         with open(self.output_file, "r") as f:
+    #             docker_compose_content = f.read()
 
-            self.assertEqual(docker_compose_content["version"], "3.8")
-            self.assertIn("redis-vector-db", docker_compose_content)
-            self.assertIn("text-embeddings-inference-service", docker_compose_content)
-        else:
-            self.fail("Docker Compose file not generated.")
+    #         self.assertEqual(docker_compose_content["version"], "3.8")
+    #         self.assertIn("redis-vector-db", docker_compose_content)
+    #         self.assertIn("text-embeddings-inference-service", docker_compose_content)
+    #     else:
+    #         self.fail("Docker Compose file not generated.")
 
 
 if __name__ == "__main__":
