@@ -131,9 +131,9 @@ jobs:
 
               yaml_file=${{github.workspace}}/.github/workflows/docker/compose/$service'-compose'$mode'.yaml'
               echo $yaml_file
-              if [ -e $yaml_file]; then
+              if [ -e "$yaml_file" ]; then
                 # check service yaml if exist
-                if ! grep -q "$Dockerfile" $yaml_file; then
+                if ! grep -q "$Dockerfile" "$yaml_file"; then
                   echo "Please add $Dockerfile to .github/workflows/docker/compose/"$service"-compose"$mode".yaml."
                   no_add="TRUE"
                 fi
