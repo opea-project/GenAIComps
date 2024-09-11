@@ -97,11 +97,21 @@ def create_configmap_object():
             "EMBEDDING_MODEL_ID": "BAAI/bge-base-en-v1.5",
             "RERANK_MODEL_ID": "BAAI/bge-reranker-base",
             "LLM_MODEL_ID": "Intel/neural-chat-7b-v3-3",
+            
             "TEI_EMBEDDING_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
+            
+            # For dataprep only
+            "TEI_ENDPOINT" : "http://embedding-dependency-svc.default.svc.cluster.local:6006",
+            
+            # For dataprep & retrieval & vector_db
+            "INDEX_NAME": "rag-redis",
+            "REDIS_URL": "redis://vector-db.default.svc.cluster.local:6379",
+            
+            
             "TEI_RERANKING_ENDPOINT": "http://reranking-dependency-svc.default.svc.cluster.local:8808",
             "TGI_LLM_ENDPOINT": "http://llm-dependency-svc.default.svc.cluster.local:9009",
-            "REDIS_URL": "redis://vector-db.default.svc.cluster.local:6379",
-            "INDEX_NAME": "rag-redis",
+
+            
             "HUGGINGFACEHUB_API_TOKEN": "${HF_TOKEN}",
             "EMBEDDING_SERVICE_HOST_IP": "embedding-svc",
             "RETRIEVER_SERVICE_HOST_IP": "retriever-svc",
@@ -608,28 +618,28 @@ def create_llm_deployment_and_service(resource_requirements=None):
 
 def create_dataprep_deployment_and_service(resource_requirements=None):
 
-    env = (
-        [
-            client.V1EnvVar(
-                name="REDIS_URL",
-                value_from=client.V1EnvVarSource(
-                    config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="REDIS_URL")
-                ),
-            ),
-            client.V1EnvVar(
-                name="TEI_ENDPOINT",
-                value_from=client.V1EnvVarSource(
-                    config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="TEI_EMBEDDING_ENDPOINT")
-                ),
-            ),
-            client.V1EnvVar(
-                name="INDEX_NAME",
-                value_from=client.V1EnvVarSource(
-                    config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="INDEX_NAME")
-                ),
-            ),
-        ],
-    )
+    # env = (
+    #     [
+    #         client.V1EnvVar(
+    #             name="REDIS_URL",
+    #             value_from=client.V1EnvVarSource(
+    #                 config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="REDIS_URL")
+    #             ),
+    #         ),
+    #         client.V1EnvVar(
+    #             name="TEI_ENDPOINT",
+    #             value_from=client.V1EnvVarSource(
+    #                 config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="TEI_EMBEDDING_ENDPOINT")
+    #             ),
+    #         ),
+    #         client.V1EnvVar(
+    #             name="INDEX_NAME",
+    #             value_from=client.V1EnvVarSource(
+    #                 config_map_key_ref=client.V1ConfigMapKeySelector(name="qna-config", key="INDEX_NAME")
+    #             ),
+    #         ),
+    #     ],
+    # )
 
     deployment = create_k8s_resources(
         name="dataprep-deploy",
@@ -640,7 +650,6 @@ def create_dataprep_deployment_and_service(resource_requirements=None):
         container_name="dataprep-deploy",
         container_ports=[6007, 6008, 6009],
         node_selector={"node-type": "chatqna-opea"},
-        env=env[0],
         resources=resource_requirements,
     )
 
@@ -791,46 +800,53 @@ def create_chatqna_mega_deployment(resource_requirements=None):
 
 
 def create_reranking_deployment_and_service(resource_requirements=None):
-
-    deployment = client.V1Deployment(
-        api_version="apps/v1",
-        kind="Deployment",
-        metadata=client.V1ObjectMeta(name="reranking-deploy", namespace="default"),
-        spec=client.V1DeploymentSpec(
-            replicas=1,
-            selector=client.V1LabelSelector(match_labels={"app": "reranking-deploy"}),
-            template=client.V1PodTemplateSpec(
-                metadata=client.V1ObjectMeta(
-                    annotations={"sidecar.istio.io/rewriteAppHTTPProbers": "true"}, labels={"app": "reranking-deploy"}
-                ),
-                spec=client.V1PodSpec(
-                    node_selector={"node-type": "chatqna-opea"},
-                    topology_spread_constraints=[
-                        client.V1TopologySpreadConstraint(
-                            max_skew=1,
-                            topology_key="kubernetes.io/hostname",
-                            when_unsatisfiable="ScheduleAnyway",
-                            label_selector=client.V1LabelSelector(match_labels={"app": "reranking-deploy"}),
-                        )
-                    ],
-                    host_ipc=True,
-                    containers=[
-                        client.V1Container(
-                            name="reranking-deploy",
-                            image="opea/reranking-tei:latest",
-                            image_pull_policy="IfNotPresent",
-                            ports=[client.V1ContainerPort(container_port=8000)],
-                            resources=resource_requirements,
-                            env_from=[
-                                client.V1EnvFromSource(config_map_ref=client.V1ConfigMapEnvSource(name="qna-config"))
-                            ],
-                        )
-                    ],
-                    service_account_name="default",
-                ),
-            ),
-        ),
+    deployment = create_k8s_resources(
+        name="reranking-deploy",
+        replicas=1,
+        image="opea/reranking-tei:latest",
+        container_ports=[8000],
+        resources=resource_requirements,
     )
+    
+    # deployment = client.V1Deployment(
+    #     api_version="apps/v1",
+    #     kind="Deployment",
+    #     metadata=client.V1ObjectMeta(name="reranking-deploy", namespace="default"),
+    #     spec=client.V1DeploymentSpec(
+    #         replicas=1,
+    #         selector=client.V1LabelSelector(match_labels={"app": "reranking-deploy"}),
+    #         template=client.V1PodTemplateSpec(
+    #             metadata=client.V1ObjectMeta(
+    #                 annotations={"sidecar.istio.io/rewriteAppHTTPProbers": "true"}, labels={"app": "reranking-deploy"}
+    #             ),
+    #             spec=client.V1PodSpec(
+    #                 node_selector={"node-type": "chatqna-opea"},
+    #                 topology_spread_constraints=[
+    #                     client.V1TopologySpreadConstraint(
+    #                         max_skew=1,
+    #                         topology_key="kubernetes.io/hostname",
+    #                         when_unsatisfiable="ScheduleAnyway",
+    #                         label_selector=client.V1LabelSelector(match_labels={"app": "reranking-deploy"}),
+    #                     )
+    #                 ],
+    #                 host_ipc=True,
+    #                 containers=[
+    #                     client.V1Container(
+    #                         name="reranking-deploy",
+    #                         image="opea/reranking-tei:latest",
+    #                         image_pull_policy="IfNotPresent",
+    #                         ports=[client.V1ContainerPort(container_port=8000)],
+    #                         resources=resource_requirements,
+    #                         env_from=[
+    #                             client.V1EnvFromSource(config_map_ref=client.V1ConfigMapEnvSource(name="qna-config"))
+    #                         ],
+    #                     )
+    #                 ],
+    #                 service_account_name="default",
+    #             ),
+    #         ),
+    #     ),
+    # )
 
     ports = [
         {
@@ -846,76 +862,85 @@ def create_reranking_deployment_and_service(resource_requirements=None):
 
 def create_retriever_deployment_and_service(resource_requirements=None):
 
-    deployment = client.V1Deployment(
-        api_version="apps/v1",
-        kind="Deployment",
-        metadata=client.V1ObjectMeta(name="retriever-deploy", namespace="default"),
-        spec=client.V1DeploymentSpec(
-            replicas=1,
-            selector=client.V1LabelSelector(match_labels={"app": "retriever-deploy"}),
-            template=client.V1PodTemplateSpec(
-                metadata=client.V1ObjectMeta(
-                    annotations={"sidecar.istio.io/rewriteAppHTTPProbers": "true"}, labels={"app": "retriever-deploy"}
-                ),
-                spec=client.V1PodSpec(
-                    node_selector={"node-type": "chatqna-opea"},
-                    topology_spread_constraints=[
-                        client.V1TopologySpreadConstraint(
-                            max_skew=1,
-                            topology_key="kubernetes.io/hostname",
-                            when_unsatisfiable="ScheduleAnyway",
-                            label_selector=client.V1LabelSelector(match_labels={"app": "retriever-deploy"}),
-                        )
-                    ],
-                    host_ipc=True,
-                    containers=[
-                        client.V1Container(
-                            name="retriever-deploy",
-                            image="opea/retriever-redis:latest",
-                            image_pull_policy="IfNotPresent",
-                            ports=[client.V1ContainerPort(container_port=7000)],
-                            resources=resource_requirements,
-                            env=[
-                                client.V1EnvVar(
-                                    name="REDIS_URL",
-                                    value_from=client.V1EnvVarSource(
-                                        config_map_key_ref=client.V1ConfigMapKeySelector(
-                                            name="qna-config", key="REDIS_URL"
-                                        )
-                                    ),
-                                ),
-                                client.V1EnvVar(
-                                    name="TEI_EMBEDDING_ENDPOINT",
-                                    value_from=client.V1EnvVarSource(
-                                        config_map_key_ref=client.V1ConfigMapKeySelector(
-                                            name="qna-config", key="TEI_EMBEDDING_ENDPOINT"
-                                        )
-                                    ),
-                                ),
-                                client.V1EnvVar(
-                                    name="HUGGINGFACEHUB_API_TOKEN",
-                                    value_from=client.V1EnvVarSource(
-                                        config_map_key_ref=client.V1ConfigMapKeySelector(
-                                            name="qna-config", key="HUGGINGFACEHUB_API_TOKEN"
-                                        )
-                                    ),
-                                ),
-                                client.V1EnvVar(
-                                    name="INDEX_NAME",
-                                    value_from=client.V1EnvVarSource(
-                                        config_map_key_ref=client.V1ConfigMapKeySelector(
-                                            name="qna-config", key="INDEX_NAME"
-                                        )
-                                    ),
-                                ),
-                            ],
-                        )
-                    ],
-                    service_account_name="default",
-                ),
-            ),
-        ),
+    deployment = create_k8s_resources(
+        name="retriever-deploy",
+        replicas=1,
+        image="opea/retriever-redis:latest",
+        container_ports=[7000],
+        resources=resource_requirements,
     )
+
+
+    # deployment = client.V1Deployment(
+    #     api_version="apps/v1",
+    #     kind="Deployment",
+    #     metadata=client.V1ObjectMeta(name="retriever-deploy", namespace="default"),
+    #     spec=client.V1DeploymentSpec(
+    #         replicas=1,
+    #         selector=client.V1LabelSelector(match_labels={"app": "retriever-deploy"}),
+    #         template=client.V1PodTemplateSpec(
+    #             metadata=client.V1ObjectMeta(
+    #                 annotations={"sidecar.istio.io/rewriteAppHTTPProbers": "true"}, labels={"app": "retriever-deploy"}
+    #             ),
+    #             spec=client.V1PodSpec(
+    #                 node_selector={"node-type": "chatqna-opea"},
+    #                 topology_spread_constraints=[
+    #                     client.V1TopologySpreadConstraint(
+    #                         max_skew=1,
+    #                         topology_key="kubernetes.io/hostname",
+    #                         when_unsatisfiable="ScheduleAnyway",
+    #                         label_selector=client.V1LabelSelector(match_labels={"app": "retriever-deploy"}),
+    #                     )
+    #                 ],
+    #                 host_ipc=True,
+    #                 containers=[
+    #                     client.V1Container(
+    #                         name="retriever-deploy",
+    #                         image="opea/retriever-redis:latest",
+    #                         image_pull_policy="IfNotPresent",
+    #                         ports=[client.V1ContainerPort(container_port=7000)],
+    #                         resources=resource_requirements,
+    #                         env=[
+    #                             client.V1EnvVar(
+    #                                 name="REDIS_URL",
+    #                                 value_from=client.V1EnvVarSource(
+    #                                     config_map_key_ref=client.V1ConfigMapKeySelector(
+    #                                         name="qna-config", key="REDIS_URL"
+    #                                     )
+    #                                 ),
+    #                             ),
+    #                             client.V1EnvVar(
+    #                                 name="TEI_EMBEDDING_ENDPOINT",
+    #                                 value_from=client.V1EnvVarSource(
+    #                                     config_map_key_ref=client.V1ConfigMapKeySelector(
+    #                                         name="qna-config", key="TEI_EMBEDDING_ENDPOINT"
+    #                                     )
+    #                                 ),
+    #                             ),
+    #                             client.V1EnvVar(
+    #                                 name="HUGGINGFACEHUB_API_TOKEN",
+    #                                 value_from=client.V1EnvVarSource(
+    #                                     config_map_key_ref=client.V1ConfigMapKeySelector(
+    #                                         name="qna-config", key="HUGGINGFACEHUB_API_TOKEN"
+    #                                     )
+    #                                 ),
+    #                             ),
+    #                             client.V1EnvVar(
+    #                                 name="INDEX_NAME",
+    #                                 value_from=client.V1EnvVarSource(
+    #                                     config_map_key_ref=client.V1ConfigMapKeySelector(
+    #                                         name="qna-config", key="INDEX_NAME"
+    #                                     )
+    #                                 ),
+    #                             ),
+    #                         ],
+    #                     )
+    #                 ],
+    #                 service_account_name="default",
+    #             ),
+    #         ),
+    #     ),
+    # )
 
     ports = [
         {
