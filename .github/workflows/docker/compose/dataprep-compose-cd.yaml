@@ -26,7 +26,7 @@ services:
   dataprep-vdms:
     build:
       dockerfile: comps/dataprep/vdms/multimodal_langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-vdms:${TAG:-latest}  
+    image: ${REGISTRY:-opea}/dataprep-vdms:${TAG:-latest}
   dataprep-vdms:      #need to rename
     build:
       dockerfile: comps/dataprep/vdms/langchain/Dockerfile

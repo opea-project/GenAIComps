@@ -25,8 +25,8 @@ services:
   bridgetower-embedder-gaudi:
     build:
       dockerfile: comps/embeddings/multimodal/bridgetower/Dockerfile.intel_hpu
-    image: ${REGISTRY:-opea}/bridgetower-embedder-gaudi:${TAG:-latest} 
+    image: ${REGISTRY:-opea}/bridgetower-embedder-gaudi:${TAG:-latest}
   embedding-multimodal:         #need to rename
     build:
       dockerfile: comps/embeddings/multimodal/multimodal_langchain/Dockerfile
-    image: ${REGISTRY:-opea}/embedding-multimodal:${TAG:-latest} 
+    image: ${REGISTRY:-opea}/embedding-multimodal:${TAG:-latest}
