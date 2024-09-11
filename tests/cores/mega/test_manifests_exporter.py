@@ -8,6 +8,7 @@ import yaml
 
 from comps.cores.mega.manifests_exporter import build_chatqna_manifests
 
+
 class TestChatQnAManifestsExporter(unittest.TestCase):
     def tearDown(self):
         file_path = "ChatQnA_E2E_manifests.yaml"
@@ -22,9 +23,9 @@ class TestChatQnAManifestsExporter(unittest.TestCase):
 
     def test_manifests(self):
         build_chatqna_manifests()
-        
+
         result = True
-        with open("ChatQnA_E2E_manifests.yaml", 'r') as f1, open("ChatQnA_E2E_manifests_base.yaml", 'r') as f2:
+        with open("ChatQnA_E2E_manifests.yaml", "r") as f1, open("ChatQnA_E2E_manifests_base.yaml", "r") as f2:
             docs1 = yaml.safe_load_all(f1)
             docs2 = yaml.safe_load_all(f2)
 
