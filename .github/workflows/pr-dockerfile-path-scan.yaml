@@ -102,7 +102,7 @@ jobs:
             for yaml in $yamls; do
               dockerfiles=$(grep 'dockerfile:' "$yaml"|sed 's/dockerfile: //')
               for dockerfile in $dockerfiles; do
-                if grep -q "comps/" "$dockerfile"; then
+                if [[ "$dockerfile" == *"comps/"* ]]; then
                   if ! [ -e "$dockerfile" ]; then
                     # cat "$yaml"
                     echo "AR: The dockerfile path "$dockerfile" in "$yaml" does not exist, remove or update it."
