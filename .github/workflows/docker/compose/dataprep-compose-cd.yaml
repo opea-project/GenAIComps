@@ -19,7 +19,7 @@ services:
     build:
       dockerfile: comps/dataprep/pinecone/langchain/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-pinecone:${TAG:-latest}
-  dataprep-redis:       #need to rename
+  dataprep-redis: #need to rename
     build:
       dockerfile: comps/dataprep/multimodal/redis/langchain/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-redis:${TAG:-latest}
@@ -27,7 +27,7 @@ services:
     build:
       dockerfile: comps/dataprep/vdms/multimodal_langchain/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-vdms:${TAG:-latest}
-  dataprep-vdmsxx:      #need to rename
+  dataprep-vdmsxx: #need to rename
     build:
       dockerfile: comps/dataprep/vdms/langchain/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-vdms:${TAG:-latest}
