@@ -74,7 +74,7 @@ class TestConvertToDockerCompose(unittest.TestCase):
             with open(self.output_file, "r") as f:
                 docker_compose_content = f.read()
 
-            self.assertIn('version: "3.8"', docker_compose_content)
+            self.assertEqual(docker_compose_content["version"], "3.8")
             self.assertIn("redis-vector-db", docker_compose_content)
             self.assertIn("text-embeddings-inference-service", docker_compose_content)
         else:
