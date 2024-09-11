@@ -23,13 +23,19 @@ docker run -p 6060:80 -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pu
 Health check the embedding service with:
 
 ```bash
-curl 127.0.0.1:6060/embed     -X POST     -d '{"inputs":"What is Deep Learning?"}'     -H 'Content-Type: application/json'
+curl 127.0.0.1:6060/embed \
+    -X POST \
+    -d '{"inputs":"What is Deep Learning?"}' \
+    -H 'Content-Type: application/json'
 ```
 
 If the model supports re-ranking, you can also use:
 
 ```bash
-curl 127.0.0.1:6060/rerank     -X POST     -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}'     -H 'Content-Type: application/json'
+curl 127.0.0.1:6060/rerank \
+    -X POST \
+    -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
+    -H 'Content-Type: application/json'
 ```
 
 #### Start Retriever Service
@@ -90,7 +96,7 @@ curl http://0.0.0.0:7000/v1/health_check   -X GET   -H 'Content-Type: applicatio
 send an example query:
 
 ```bash
-exm_embeddings=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
+export exm_embeddings=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 
 curl http://0.0.0.0:7000/v1/retrieval   -X POST   -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${exm_embeddings}}"   -H 'Content-Type: application/json'
 ```
