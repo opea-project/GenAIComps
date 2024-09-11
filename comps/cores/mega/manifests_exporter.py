@@ -489,15 +489,7 @@ def save_to_yaml(manifests_list, file_name):
             yaml.dump(kubernetes_obj_to_dict(manifests), f, default_flow_style=False)
             f.write("---\n")
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Read and parse JSON/YAML files and output JSON file")
-    parser.add_argument("--service_info", help="Path to input YAML file")
-
-    args = parser.parse_args()
-
-    service_info = load_service_info(args.service_info)
-
+def build_chatqna_manifests(service_info=None):
     configmap = create_configmap_object(service_info)
 
     guaranteed_resource = create_resource_requirements(
@@ -557,3 +549,14 @@ if __name__ == "__main__":
     ]
 
     save_to_yaml(manifests, "ChatQnA_E2E_manifests.yaml")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Read and parse JSON/YAML files and output JSON file")
+    parser.add_argument("--service_info", help="Path to input YAML file")
+
+    args = parser.parse_args()
+
+    service_info = load_service_info(args.service_info)
+
+    build_chatqna_manifests(service_info)
