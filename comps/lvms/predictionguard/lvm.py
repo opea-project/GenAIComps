@@ -4,16 +4,9 @@
 import time
 
 from docarray import BaseDoc
-from comps import (
-    TextDoc,
-    ServiceType,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
-)
-
 from predictionguard import PredictionGuard
+
+from comps import ServiceType, TextDoc, opea_microservices, register_microservice, register_statistics, statistics_dict
 
 
 class LVMDoc(BaseDoc):
