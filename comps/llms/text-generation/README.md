@@ -8,14 +8,14 @@ Overall, this microservice offers a streamlined way to integrate large language 
 
 ## Validated LLM Models
 
-| Model                     | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | Ray |
-| ------------------------- | --------- | -------- | ---------- | --- |
+| Model                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | Ray |
+| --------------------------- | --------- | -------- | ---------- | --- |
 | [Intel/neural-chat-7b-v3-3] | ✓         | ✓        | ✓          | ✓   |
 | [Llama-2-7b-chat-hf]        | ✓         | ✓        | ✓          | ✓   |
 | [Llama-2-70b-chat-hf]       | ✓         | -        | ✓          | x   |
 | [Meta-Llama-3-8B-Instruct]  | ✓         | ✓        | ✓          | ✓   |
 | [Meta-Llama-3-70B-Instruct] | ✓         | -        | ✓          | x   |
-| [Phi-3]                    | x         | Limit 4K | Limit 4K   | ✓   |
+| [Phi-3]                     | x         | Limit 4K | Limit 4K   | ✓   |
 
 ## Clone OPEA GenAIComps
 
@@ -420,5 +420,4 @@ curl http://${your_ip}:9000/v1/chat/completions \
 [Meta-Llama-3-8B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
 [Meta-Llama-3-70B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct
 [Phi-3]: https://huggingface.co/collections/microsoft/phi-3-6626e15e9585a200d2d761e3
-
 [HuggingFace]: https://huggingface.co/
