@@ -1,8 +1,17 @@
 # # Copyright (C) 2024 Intel Corporation
 # # SPDX-License-Identifier: Apache-2.0
 import yaml
+import argparse
 from kubernetes import client
 
+
+def load_service_info(file_path=None):
+    if file_path:
+        with open(file_path, 'r') as f:
+            data = yaml.safe_load(f)
+        return data
+    
+    return None
 
 def create_k8s_resources(
     name,
@@ -88,30 +97,34 @@ def create_resource_requirements(limits=None, requests=None):
     )
 
 
-def create_configmap_object():
+def create_configmap_object(service_info=None):
+    
+    if service_info is None:
+        config_map = {
+                "EMBEDDING_MODEL_ID": "BAAI/bge-base-en-v1.5",
+                "RERANK_MODEL_ID": "BAAI/bge-reranker-base",
+                "LLM_MODEL_ID": "Intel/neural-chat-7b-v3-3",
+                "TEI_EMBEDDING_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
+                # For dataprep only
+                "TEI_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
+                # For dataprep & retrieval & vector_db
+                "INDEX_NAME": "rag-redis",
+                "REDIS_URL": "redis://vector-db.default.svc.cluster.local:6379",
+                "TEI_RERANKING_ENDPOINT": "http://reranking-dependency-svc.default.svc.cluster.local:8808",
+                "TGI_LLM_ENDPOINT": "http://llm-dependency-svc.default.svc.cluster.local:9009",
+                "HUGGINGFACEHUB_API_TOKEN": "${HF_TOKEN}",
+                "EMBEDDING_SERVICE_HOST_IP": "embedding-svc",
+                "RETRIEVER_SERVICE_HOST_IP": "retriever-svc",
+                "RERANK_SERVICE_HOST_IP": "reranking-svc",
+                "NODE_SELECTOR": "chatqna-opea",
+                "LLM_SERVICE_HOST_IP": "llm-svc",
+            }
+
     configmap = client.V1ConfigMap(
         api_version="v1",
         kind="ConfigMap",
         metadata=client.V1ObjectMeta(name="qna-config", namespace="default"),
-        data={
-            "EMBEDDING_MODEL_ID": "BAAI/bge-base-en-v1.5",
-            "RERANK_MODEL_ID": "BAAI/bge-reranker-base",
-            "LLM_MODEL_ID": "Intel/neural-chat-7b-v3-3",
-            "TEI_EMBEDDING_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
-            # For dataprep only
-            "TEI_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
-            # For dataprep & retrieval & vector_db
-            "INDEX_NAME": "rag-redis",
-            "REDIS_URL": "redis://vector-db.default.svc.cluster.local:6379",
-            "TEI_RERANKING_ENDPOINT": "http://reranking-dependency-svc.default.svc.cluster.local:8808",
-            "TGI_LLM_ENDPOINT": "http://llm-dependency-svc.default.svc.cluster.local:9009",
-            "HUGGINGFACEHUB_API_TOKEN": "${HF_TOKEN}",
-            "EMBEDDING_SERVICE_HOST_IP": "embedding-svc",
-            "RETRIEVER_SERVICE_HOST_IP": "retriever-svc",
-            "RERANK_SERVICE_HOST_IP": "reranking-svc",
-            "NODE_SELECTOR": "chatqna-opea",
-            "LLM_SERVICE_HOST_IP": "llm-svc",
-        },
+        data=config_map
     )
     return configmap
 
@@ -476,8 +489,14 @@ def save_to_yaml(manifests_list, file_name):
 
 
 if __name__ == "__main__":
-
-    configmap = create_configmap_object()
+    parser = argparse.ArgumentParser(description="Read and parse JSON/YAML files and output JSON file")
+    parser.add_argument("--service_info", help="Path to input YAML file")
+    
+    args = parser.parse_args()
+    
+    service_info = load_service_info(args.service_info)
+    
+    configmap = create_configmap_object(service_info)
 
     guaranteed_resource = create_resource_requirements(
         limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
