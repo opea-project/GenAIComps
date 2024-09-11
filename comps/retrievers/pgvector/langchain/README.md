@@ -19,10 +19,7 @@ pip install -r requirements.txt
 ### 1.2 Start TEI Service
 
 ```bash
-# Model for embedding service
 model=BAAI/bge-base-en-v1.5
-# Model for re-ranking service
-# model="BAAI/bge-reranker-base"
 volume=$PWD/data
 docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
 ```
@@ -35,15 +32,6 @@ Health check the embedding service with:
 curl 127.0.0.1:6060/embed \
     -X POST \
     -d '{"inputs":"What is Deep Learning?"}' \
-    -H 'Content-Type: application/json'
-```
-
-If the model supports re-ranking, you can also use:
-
-```bash
-curl 127.0.0.1:6060/rerank \
-    -X POST \
-    -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
     -H 'Content-Type: application/json'
 ```
 
