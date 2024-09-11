@@ -1,0 +1,14 @@
+aiohttp
+docarray
+fastapi
+httpx
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+pyyaml
+requests
+requests
+shortuuid
+predictionguard
+Pillow
