@@ -5,4 +5,4 @@
 
 pip --no-cache-dir install -r requirements-runtime.txt
 
-python llm.py
+python3 llm.py
