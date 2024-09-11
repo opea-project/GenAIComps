@@ -50,12 +50,6 @@ bash ./build_docker_vllm.sh hpu
 
 Set `hw_mode` to `hpu`.
 
-Note: If you want to enable tensor parallel, please set `setuptools==69.5.1` in Dockerfile.hpu before build docker with following command.
-
-```
-sed -i "s/RUN pip install setuptools/RUN pip install setuptools==69.5.1/g" docker/Dockerfile.hpu
-```
-
 #### Launch vLLM service on single node
 
 For small model, we can just use single node.
@@ -129,5 +123,5 @@ bash launch_microservice.sh
 curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
   -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_p":0.95,"temperature":0.01,"streaming":false}' \
-  -H 'Content-Type: application/json'
+  -H 'Content-Type: application/json
 ```

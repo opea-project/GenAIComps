@@ -5,15 +5,10 @@ FROM langchain/langchain:latest
 
 ARG ARCH="cpu"  # Set this to "cpu" or "gpu"
 
-RUN useradd -m -s /bin/bash user && \
-    mkdir -p /home/user && \
-    chown -R user /home/user/
-
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libgl1-mesa-glx \
-    libjemalloc-dev
-
-USER user
+    libjemalloc-dev \
+    vim
 
 COPY comps /home/user/comps
 

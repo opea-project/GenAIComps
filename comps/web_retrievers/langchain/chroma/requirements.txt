@@ -12,4 +12,3 @@ opentelemetry-sdk
 prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
-uvicorn

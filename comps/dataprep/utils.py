@@ -11,8 +11,6 @@ import os
 import re
 import shutil
 import signal
-import subprocess
-import tempfile
 import timeit
 import unicodedata
 import urllib.parse
@@ -41,11 +39,6 @@ from langchain_community.document_loaders import (
 )
 from langchain_community.llms import HuggingFaceEndpoint
 from PIL import Image
-
-from comps import CustomLogger
-
-logger = CustomLogger("prepare_doc_util")
-logflag = os.getenv("LOGFLAG", False)
 
 
 class TimeoutError(Exception):
@@ -164,19 +157,7 @@ def load_doc(doc_path):
     """Load doc file."""
     print("Converting doc file to docx file...")
     docx_path = doc_path + "x"
-    subprocess.run(
-        [
-            "libreoffice",
-            "--headless",
-            "--invisible",
-            "--convert-to",
-            "docx",
-            "--outdir",
-            os.path.dirname(docx_path),
-            doc_path,
-        ],
-        check=True,
-    )
+    os.system(f"libreoffice --headless --invisible --convert-to docx --outdir {os.path.dirname(docx_path)} {doc_path}")
     print("Converted doc file to docx file.")
     text = load_docx(docx_path)
     os.remove(docx_path)
@@ -193,7 +174,8 @@ def load_docx(docx_path):
         if isinstance(r._target, docx.parts.image.ImagePart):
             rid2img[r.rId] = os.path.basename(r._target.partname)
     if rid2img:
-        save_path = tempfile.mkdtemp()
+        save_path = "./imgs/"
+        os.makedirs(save_path, exist_ok=True)
         docx2txt.process(docx_path, save_path)
     for paragraph in doc.paragraphs:
         if hasattr(paragraph, "text"):
@@ -214,19 +196,7 @@ def load_ppt(ppt_path):
     """Load ppt file."""
     print("Converting ppt file to pptx file...")
     pptx_path = ppt_path + "x"
-    subprocess.run(
-        [
-            "libreoffice",
-            "--headless",
-            "--invisible",
-            "--convert-to",
-            "docx",
-            "--outdir",
-            os.path.dirname(pptx_path),
-            ppt_path,
-        ],
-        check=True,
-    )
+    os.system(f"libreoffice --headless --invisible --convert-to pptx --outdir {os.path.dirname(pptx_path)} {ppt_path}")
     print("Converted ppt file to pptx file.")
     text = load_pptx(pptx_path)
     os.remove(pptx_path)
@@ -281,8 +251,7 @@ def load_json(json_path):
     """Load and process json file."""
     with open(json_path, "r") as file:
         data = json.load(file)
-    content_list = [json.dumps(item) for item in data]
-    return content_list
+    return json.dumps(data)
 
 
 def load_yaml(yaml_path):
@@ -295,15 +264,13 @@ def load_yaml(yaml_path):
 def load_xlsx(input_path):
     """Load and process xlsx file."""
     df = pd.read_excel(input_path)
-    content_list = df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
-    return content_list
+    return df.to_string()
 
 
 def load_csv(input_path):
     """Load the csv file."""
     df = pd.read_csv(input_path)
-    content_list = df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
-    return content_list
+    return df.to_string()
 
 
 def load_image(image_path):
@@ -433,51 +400,14 @@ class Crawler:
         if not headers:
             headers = self.headers
         while max_times:
-            parsed_url = urlparse(url)
-            if not parsed_url.scheme:
+            if not url.startswith("http") or not url.startswith("https"):
                 url = "http://" + url
-            if logflag:
-                logger.info("start fetch %s..." % url)
+            print("start fetch %s...", url)
             try:
                 response = requests.get(url, headers=headers, verify=True)
                 if response.status_code != 200:
                     print("fail to fetch %s, response status code: %s", url, response.status_code)
                 else:
-                    # Extract charset from the Content-Type header
-                    content_type = response.headers.get("Content-Type", "").lower()
-                    if "charset=" in content_type:
-                        # Extract charset value from the content-type header
-                        charset = content_type.split("charset=")[-1].strip()
-                        response.encoding = charset
-                        if logflag:
-                            logger.info(f"Charset detected and set: {response.encoding}")
-                    else:
-                        import re
-
-                        # Extract charset from the response HTML content
-                        charset_from_meta = None
-                        # Check for <meta charset="...">
-                        match = re.search(r'<meta\s+charset=["\']?([^"\'>]+)["\']?', response.text, re.IGNORECASE)
-                        if match:
-                            charset_from_meta = match.group(1)
-                        # Check for <meta http-equiv="Content-Type" content="...; charset=...">
-                        if not charset_from_meta:
-                            match = re.search(
-                                r'<meta\s+http-equiv=["\']?content-type["\']?\s+content=["\']?[^"\']*charset=([^"\'>]+)["\']?',
-                                response.text,
-                                re.IGNORECASE,
-                            )
-                            if match:
-                                charset_from_meta = match.group(1)
-                        if charset_from_meta:
-                            response.encoding = charset_from_meta
-                            if logflag:
-                                logger.info(f"Charset detected and set from meta tag: {response.encoding}")
-                        else:
-                            # Fallback to default encoding
-                            response.encoding = "utf-8"
-                            if logflag:
-                                logger.info("Charset not specified, using default utf-8")
                     return response
             except Exception as e:
                 print("fail to fetch %s, caused by %s", url, e)
@@ -582,9 +512,8 @@ def load_html_data(url):
     main_content = all_text if main_content == "" else main_content
     main_content = main_content.replace("\n", "")
     main_content = main_content.replace("\n\n", "")
+    main_content = uni_pro(main_content)
     main_content = re.sub(r"\s+", " ", main_content)
-    if logflag:
-        logger.info("main_content=[%s]" % main_content)
 
     return main_content
 
@@ -761,19 +690,6 @@ def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, 
             result.append(folder_dict)
 
     return result
-
-
-def format_search_results(response, file_list: list):
-    for i in range(1, len(response), 2):
-        file_name = response[i].decode()[5:]
-        file_dict = {
-            "name": decode_filename(file_name),
-            "id": decode_filename(file_name),
-            "type": "File",
-            "parent": "",
-        }
-        file_list.append(file_dict)
-    return file_list
 
 
 def remove_folder_with_ignore(folder_path: str, except_patterns: List = []):

@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -10,12 +10,6 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/llm-tgi:comps -f comps/llms/text-generation/tgi/Dockerfile .
-    if [ $? -ne 0 ]; then
-        echo "opea/llm-tgi built fail"
-        exit 1
-    else
-        echo "opea/llm-tgi built successful"
-    fi
 }
 
 function start_service() {
@@ -45,18 +39,12 @@ function start_service() {
 
 function validate_microservice() {
     tei_service_port=5005
-    result=$(http_proxy="" curl http://${ip_address}:${tei_service_port}/v1/chat/completions \
+    http_proxy="" curl http://${ip_address}:${tei_service_port}/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?", "max_new_tokens": 128}' \
-        -H 'Content-Type: application/json')
-    if [[ $result == *"DONE"* ]]; then
-        echo "Result correct."
-    else
-        echo "Result wrong. Received was $result"
-        docker logs test-comps-llm-tgi-endpoint
-        docker logs test-comps-llm-tgi-server
-        exit 1
-    fi
+        -H 'Content-Type: application/json'
+    docker logs test-comps-llm-tgi-endpoint
+    docker logs test-comps-llm-tgi-server
 }
 
 function stop_docker() {

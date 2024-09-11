@@ -3,26 +3,15 @@
 
 FROM python:3.11-slim
 
-RUN useradd -m -s /bin/bash user && \
-    mkdir -p /home/user && \
-    chown -R user /home/user/
-USER user
-
 ENV LANG=C.UTF-8
-ARG ARCH=cpu
 
-COPY comps /home/user/comps
+COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    if [ "${ARCH}" = "cpu" ]; then \
-        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/asr/requirements.txt ; \
-    else \
-        pip install --no-cache-dir -r /home/user/comps/asr/requirements.txt ; \
-    fi
+    pip install --no-cache-dir -r /home/comps/asr/requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/home/user
+ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/user/comps/asr
+WORKDIR /home/comps/asr
 
 ENTRYPOINT ["python", "asr.py"]

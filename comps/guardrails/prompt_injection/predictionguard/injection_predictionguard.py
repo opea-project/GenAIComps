@@ -5,10 +5,16 @@
 import time
 
 from docarray import BaseDoc
-from fastapi import FastAPI, HTTPException
 from predictionguard import PredictionGuard
 
-from comps import ServiceType, TextDoc, opea_microservices, register_microservice, register_statistics, statistics_dict
+from comps import (
+    ServiceType, 
+    TextDoc, 
+    opea_microservices, 
+    register_microservice, 
+    register_statistics,
+    statistics_dict
+)
 
 
 class ScoreDoc(BaseDoc):
@@ -22,8 +28,9 @@ class ScoreDoc(BaseDoc):
     host="0.0.0.0",
     port=9085,
     input_datatype=TextDoc,
-    output_datatype=ScoreDoc,
+    output_datatype=ScoreDoc
 )
+
 @register_statistics(names=["opea_service@injection_predictionguard"])
 def injection_guard(input: TextDoc) -> ScoreDoc:
     start = time.time()
@@ -32,11 +39,9 @@ def injection_guard(input: TextDoc) -> ScoreDoc:
 
     text = input.text
 
-    # Add input validation
-    if not text.strip():
-        raise HTTPException(status_code=400, detail="Input text cannot be empty")
-
-    result = client.injection.check(prompt=text)
+    result = client.injection.check(
+        prompt=text
+    )
 
     statistics_dict["opea_service@injection_predictionguard"].append_latency(time.time() - start, None)
     return ScoreDoc(score=result["checks"][0]["probability"])

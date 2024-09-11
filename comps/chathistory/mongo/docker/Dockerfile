@@ -3,12 +3,13 @@
 
 FROM python:3.11-slim
 
-ENV LANG=C.UTF-8
+ENV LANG C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
+    libgl1-mesa-glx \
     libjemalloc-dev \
-    libgl1-mesa-glx
+    vim
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \

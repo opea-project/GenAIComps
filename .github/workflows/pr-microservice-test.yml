@@ -5,13 +5,14 @@ name: MicroService-test
 
 on:
   pull_request_target:
-    branches: ["main", "*rc"]
+    branches: [main]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
       - comps/**
       - tests/**
       - "!**.md"
-      - .github/workflows/pr-microservice-test.yml
+      - "!**.txt"
+      - .github/workflows/microservice-test.yml
 
 # If there is a new commit, the previous jobs will be canceled
 concurrency:
@@ -20,7 +21,7 @@ concurrency:
 
 jobs:
   job1:
-    uses: ./.github/workflows/_get-test-matrix.yml
+    uses: ./.github/workflows/reuse-get-test-matrix.yml
 
   Microservice-test:
     needs: job1
@@ -30,10 +31,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Clean Up Working Directory
-        run: |
-          sudo rm -rf ${{github.workspace}}/*
-          docker system prune -f
-          docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+        run: sudo rm -rf ${{github.workspace}}/*
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
@@ -45,21 +43,20 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
-          PINECONE_KEY: ${{ secrets.PINECONE_KEY }}
           service_path: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
         run: |
           cd tests
           service=$(echo $service_path | tr '/' '_')
           echo "service=${service}" >> $GITHUB_ENV
-          if [ -f test_${service}.sh ]; then timeout 60m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
+          if [ -f test_${service}.sh ]; then timeout 30m bash test_${service}.sh; else echo "Test script not found, skip test!"; fi
 
       - name: Clean up container
         if: cancelled() || failure()
         run: |
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-          docker system prune -f
+          echo y | docker system prune --all
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}

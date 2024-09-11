@@ -17,7 +17,3 @@ For details, please refer to this [readme](milvus/README.md)
 # Retriever Microservice with PGVector
 
 For details, please refer to this [readme](pgvector/README.md)
-
-# Retriever Microservice with VDMS
-
-For details, please refer to this [readme](vdms/README.md)

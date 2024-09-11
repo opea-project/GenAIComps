@@ -101,3 +101,11 @@ curl -X POST \
     -F "table_strategy=hq" \
     http://localhost:6007/v1/dataprep
 ```
+
+We support table extraction from pdf documents. You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
+
+Note: If you specify "table_strategy=llm", You should first start TGI Service, please refer to 1.2.1, 1.3.1 in https://github.com/opea-project/GenAIComps/tree/main/comps/llms/README.md, and then `export TGI_LLM_ENDPOINT="http://${your_ip}:8008"`.
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"path":"/path/to/document","process_table":true,"table_strategy":"hq"}' http://localhost:6000/v1/dataprep
+```

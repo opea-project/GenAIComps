@@ -8,6 +8,7 @@ langchain
 langchain_community==0.2.5
 langchain_openai
 langchainhub
+langsmith
 neo4j
 numpy
 opentelemetry-api
@@ -22,4 +23,3 @@ redis
 sentence-transformers
 shortuuid
 tiktoken
-uvicorn

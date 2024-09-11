@@ -1,18 +1,13 @@
 ﻿# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-import os
 from typing import Optional
 
 from fastapi import HTTPException
 from mongo_store import DocumentStore
 from pydantic import BaseModel
 
-from comps import CustomLogger
 from comps.cores.mega.micro_service import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import ChatCompletionRequest
-
-logger = CustomLogger("chathistory_mongo")
-logflag = os.getenv("LOGFLAG", False)
 
 
 class ChatMessage(BaseModel):
@@ -40,7 +35,7 @@ def get_first_string(value):
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name="opea_service@chathistory_mongo_create",
     endpoint="/v1/chathistory/create",
     host="0.0.0.0",
     input_datatype=ChatMessage,
@@ -55,8 +50,7 @@ async def create_documents(document: ChatMessage):
     Returns:
         The result of the operation if successful, None otherwise.
     """
-    if logflag:
-        logger.info(document)
+
     try:
         if document.data.user is None:
             raise HTTPException(status_code=500, detail="Please provide the user information")
@@ -68,21 +62,19 @@ async def create_documents(document: ChatMessage):
             res = await store.update_document(document.id, document.data, document.first_query)
         else:
             res = await store.save_document(document)
-        if logflag:
-            logger.info(res)
         return res
     except Exception as e:
         # Handle the exception here
-        logger.info(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name="opea_service@chathistory_mongo_get",
     endpoint="/v1/chathistory/get",
     host="0.0.0.0",
     input_datatype=ChatId,
-    port=6012,
+    port=6013,
 )
 async def get_documents(document: ChatId):
     """Retrieves documents from the document store based on the provided ChatId.
@@ -93,8 +85,6 @@ async def get_documents(document: ChatId):
     Returns:
         The retrieved documents if successful, None otherwise.
     """
-    if logflag:
-        logger.info(document)
     try:
         store = DocumentStore(document.user)
         store.initialize_storage()
@@ -102,21 +92,19 @@ async def get_documents(document: ChatId):
             res = await store.get_all_documents_of_user()
         else:
             res = await store.get_user_documents_by_id(document.id)
-        if logflag:
-            logger.info(res)
         return res
     except Exception as e:
         # Handle the exception here
-        logger.info(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @register_microservice(
-    name="opea_service@chathistory_mongo",
+    name="opea_service@chathistory_mongo_delete",
     endpoint="/v1/chathistory/delete",
     host="0.0.0.0",
     input_datatype=ChatId,
-    port=6012,
+    port=6014,
 )
 async def delete_documents(document: ChatId):
     """Deletes a document from the document store based on the provided ChatId.
@@ -127,8 +115,6 @@ async def delete_documents(document: ChatId):
     Returns:
         The result of the deletion if successful, None otherwise.
     """
-    if logflag:
-        logger.info(document)
     try:
         store = DocumentStore(document.user)
         store.initialize_storage()
@@ -136,14 +122,14 @@ async def delete_documents(document: ChatId):
             raise Exception("Document id is required.")
         else:
             res = await store.delete_document(document.id)
-        if logflag:
-            logger.info(res)
         return res
     except Exception as e:
         # Handle the exception here
-        logger.info(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@chathistory_mongo"].start()
+    opea_microservices["opea_service@chathistory_mongo_get"].start()
+    opea_microservices["opea_service@chathistory_mongo_create"].start()
+    opea_microservices["opea_service@chathistory_mongo_delete"].start()

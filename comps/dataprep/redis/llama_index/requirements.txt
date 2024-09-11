@@ -1,7 +1,8 @@
 docarray[full]
 fastapi
 huggingface_hub
-llama-index
+langsmith
+llama-index 
 llama-index-embeddings-huggingface==0.2.0
 llama-index-readers-file
 llama-index-vector-stores-redis
@@ -11,8 +12,6 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
 python-bidi==0.4.2
-python-multipart
 redis
 sentence_transformers
 shortuuid
-uvicorn

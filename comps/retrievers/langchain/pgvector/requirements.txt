@@ -2,6 +2,7 @@ docarray[full]
 easyocr
 fastapi
 langchain_community
+langsmith
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -11,4 +12,3 @@ psycopg2-binary
 pymupdf
 sentence_transformers
 shortuuid
-uvicorn

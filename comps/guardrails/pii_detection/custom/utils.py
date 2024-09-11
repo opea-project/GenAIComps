@@ -74,8 +74,8 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
 def generate_log_name(file_list):
     file_set = f"{sorted(file_list)}"
     # print(f"file_set: {file_set}")
-    sha256_str = hashlib.sha256(file_set.encode()).hexdigest()
-    return f"status/status_{sha256_str}.log"
+    md5_str = hashlib.md5(file_set.encode()).hexdigest()
+    return f"status/status_{md5_str}.log"
 
 
 def get_failable_with_time(callable):

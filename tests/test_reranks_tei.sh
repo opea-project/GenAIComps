@@ -2,19 +2,13 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/reranking-tei:comps -f comps/reranks/tei/docker/Dockerfile .
-    if [ $? -ne 0 ]; then
-        echo "opea/reranking-tei built fail"
-        exit 1
-    else
-        echo "opea/reranking-tei built successful"
-    fi
 }
 
 function start_service() {
@@ -40,7 +34,7 @@ function validate_microservice() {
         -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
         -H 'Content-Type: application/json')
 
-    if echo "$CONTENT" | grep -q "documents"; then
+    if echo "$CONTENT" | grep -q "### Search results:"; then
         echo "Content is as expected."
     else
         echo "Content does not match the expected result: $CONTENT"

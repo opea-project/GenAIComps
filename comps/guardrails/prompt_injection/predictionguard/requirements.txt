@@ -5,9 +5,7 @@ huggingface_hub
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-Pillow
 predictionguard==2.2.1
 prometheus-fastapi-instrumentator
 shortuuid
 transformers
-uvicorn

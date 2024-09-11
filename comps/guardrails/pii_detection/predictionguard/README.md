@@ -4,9 +4,9 @@
 
 Detecting Personal Identifiable Information (PII) is important in ensuring that users aren't sending out private data to LLMs. This service allows you to configurably:
 
-1. Detect PII
+1. Detect PII 
 2. Replace PII (with "faked" information)
-3. Mask PII (with placeholders)
+3. Mask PII (with placeholders) 
 
 # 🚀 Start Microservice with Docker
 
@@ -40,11 +40,10 @@ curl -X POST http://localhost:9080/v1/pii \
       "prompt": "My name is John Doe and my phone number is 555-555-5555.",
       "replace": true,
       "replace_method": "random"
-    }'
+    }' 
 ```
 
 API parameters:
-
 - `prompt` (string, required): The text in which you want to detect PII (typically the prompt that you anticipate sending to an LLM)
 - `replace` (boolean, optional, default is `false`): `true` if you want to replace the detected PII in the `prompt`
 - `replace_method` (string, optional, default is `random`): The method you want to use to replace PII (set to either `random`, `fake`, `category`, `mask`)

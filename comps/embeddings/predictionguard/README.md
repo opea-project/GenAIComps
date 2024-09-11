@@ -1,12 +1,10 @@
 # Embedding Generation Prediction Guard Microservice
 
-[Prediction Guard](https://docs.predictionguard.com) offers a comprehensive platform that enables secure, scalable access to a wide range of open-source LLMs (Large Language Models), LVMs (Large Vision Models), and advanced embedding functionality. With built-in safeguards like factual consistency checks, toxicity filters, PII filters, and prompt injection blocking, Prediction Guard ensures that your AI-driven applications are both powerful and responsible. Join the [Prediction Guard Discord channel](https://discord.gg/TFHgnhAFKd) and request an API key to get started.
-
-Embeddings are a critical component in many AI applications, including Retrieval-Augmented Generation (RAG) and semantic search. They transform textual data into high-dimensional vectors, allowing for efficient comparison and retrieval of relevant information. The embedding microservice provided by Prediction Guard is specifically designed to convert text into vectorized embeddings using the BridgeTower model. This service seamlessly integrates with the broader Prediction Guard ecosystem, enabling you to leverage these embeddings for a variety of downstream tasks, such as enhancing search capabilities or improving the contextual relevance of generated content.
+[Prediction Guard](https://docs.predictionguard.com) allows you to utilize hosted open access LLMs, LVMs, and embedding functionality with seamlessly integrated safeguards. In addition to providing a scalable access to open models, Prediction Guard allows you to configure factual consistency checks, toxicity filters, PII filters, and prompt injection blocking. Join the [Prediction Guard Discord channel](https://discord.gg/TFHgnhAFKd) and request an API key to get started.
 
 This embedding microservice is designed to efficiently convert text into vectorized embeddings using the [BridgeTower model](https://huggingface.co/BridgeTower/bridgetower-large-itm-mlm-itc). Thus, it is ideal for both RAG or semantic search applications.
 
-**Note** - The BridgeTower model implemented in Prediction Guard is capable of embedding text, images, or a combination of both. While this service currently focuses on text embeddings, future updates will extend its functionality to support multimodal inputs.
+**Note** - The BridgeTower model implemented in Prediction Guard can actually embed text, images, or text + images (jointly). For now this service only embeds text, but a follow on contribution will enable the multimodal functionality.
 
 # 🚀 Start Microservice with Docker
 

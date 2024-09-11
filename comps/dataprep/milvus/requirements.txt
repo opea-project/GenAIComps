@@ -9,6 +9,7 @@ langchain
 langchain-community
 langchain-text-splitters
 langchain_milvus
+langsmith
 markdown
 numpy
 openai
@@ -25,5 +26,4 @@ python-pptx
 sentence_transformers
 shortuuid
 tiktoken
-unstructured[all-docs]==0.15.7
-uvicorn
+unstructured[all-docs]==0.11.5

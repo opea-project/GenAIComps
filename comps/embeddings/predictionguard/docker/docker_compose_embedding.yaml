@@ -12,6 +12,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      PG_EMBEDDING_MODEL_NAME: ${PG_EMBEDDING_MODEL_NAME}
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
     restart: unless-stopped
 

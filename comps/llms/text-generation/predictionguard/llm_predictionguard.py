@@ -4,19 +4,19 @@
 
 import time
 
-from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
-from predictionguard import PredictionGuard
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from predictionguard import PredictionGuard
 
 from comps import (
-    GeneratedDoc,
+    GeneratedDoc, 
     LLMParamsDoc,
-    ServiceType,
-    opea_microservices,
+    ServiceType, 
+    opea_microservices, 
     register_microservice,
     register_statistics,
-    statistics_dict,
+    statistics_dict
 )
 
 client = PredictionGuard()
@@ -30,20 +30,23 @@ app = FastAPI()
     host="0.0.0.0",
     port=9000,
 )
+
 @register_statistics(names=["opea_service@llm_predictionguard"])
 def llm_generate(input: LLMParamsDoc):
     start = time.time()
-
+    
     messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant. Your goal is to provide accurate, detailed, and safe responses to the user's queries.",
+            "content": "You are a helpful assistant. Your goal is to provide accurate, detailed, and safe responses to the user's queries."
         },
-        {"role": "user", "content": input.query},
+        {
+            "role": "user",
+            "content": input.query
+        }
     ]
 
     if input.streaming:
-
         async def stream_generator():
             chat_response = ""
             for res in client.chat.completions.create(
@@ -53,10 +56,10 @@ def llm_generate(input: LLMParamsDoc):
                 temperature=input.temperature,
                 top_p=input.top_p,
                 top_k=input.top_k,
-                stream=True,
+                stream=True
             ):
-                if "choices" in res["data"] and "delta" in res["data"]["choices"][0]:
-                    delta_content = res["data"]["choices"][0]["delta"]["content"]
+                if 'choices' in res['data'] and 'delta' in res['data']['choices'][0]:
+                    delta_content = res['data']['choices'][0]['delta']['content']
                     chat_response += delta_content
                     yield f"data: {delta_content}\n\n"
                 else:
@@ -72,9 +75,9 @@ def llm_generate(input: LLMParamsDoc):
                 max_tokens=input.max_new_tokens,
                 temperature=input.temperature,
                 top_p=input.top_p,
-                top_k=input.top_k,
+                top_k=input.top_k
             )
-            response_text = response["choices"][0]["message"]["content"]
+            response_text = response['choices'][0]['message']['content']
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 

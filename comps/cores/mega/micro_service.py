@@ -3,7 +3,7 @@
 
 import asyncio
 import multiprocessing
-from typing import Any, List, Optional, Type
+from typing import Any, Optional, Type
 
 from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
@@ -154,28 +154,25 @@ def register_microservice(
     output_datatype: Type[Any] = TextDoc,
     provider: Optional[str] = None,
     provider_endpoint: Optional[str] = None,
-    methods: List[str] = ["POST"],
 ):
     def decorator(func):
-        if name not in opea_microservices:
-            micro_service = MicroService(
-                name=name,
-                service_role=service_role,
-                service_type=service_type,
-                protocol=protocol,
-                host=host,
-                port=port,
-                ssl_keyfile=ssl_keyfile,
-                ssl_certfile=ssl_certfile,
-                endpoint=endpoint,
-                input_datatype=input_datatype,
-                output_datatype=output_datatype,
-                provider=provider,
-                provider_endpoint=provider_endpoint,
-            )
-            opea_microservices[name] = micro_service
-        opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
-
+        micro_service = MicroService(
+            name=name,
+            service_role=service_role,
+            service_type=service_type,
+            protocol=protocol,
+            host=host,
+            port=port,
+            ssl_keyfile=ssl_keyfile,
+            ssl_certfile=ssl_certfile,
+            endpoint=endpoint,
+            input_datatype=input_datatype,
+            output_datatype=output_datatype,
+            provider=provider,
+            provider_endpoint=provider_endpoint,
+        )
+        micro_service.app.router.add_api_route(endpoint, func, methods=["POST"])
+        opea_microservices[name] = micro_service
         return func
 
     return decorator

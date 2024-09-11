@@ -3,13 +3,12 @@
 
 import os
 import time
-from typing import Union
 
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_community.embeddings import HuggingFaceHubEmbeddings
+from langsmith import traceable
 
 from comps import (
-    CustomLogger,
-    EmbedDoc,
+    EmbedDoc768,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -17,15 +16,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.proto.api_protocol import (
-    ChatCompletionRequest,
-    EmbeddingRequest,
-    EmbeddingResponse,
-    EmbeddingResponseData,
-)
-
-logger = CustomLogger("embedding_tei_langchain")
-logflag = os.getenv("LOGFLAG", False)
 
 
 @register_microservice(
@@ -34,38 +24,22 @@ logflag = os.getenv("LOGFLAG", False)
     endpoint="/v1/embeddings",
     host="0.0.0.0",
     port=6000,
+    input_datatype=TextDoc,
+    output_datatype=EmbedDoc768,
 )
+@traceable(run_type="embedding")
 @register_statistics(names=["opea_service@embedding_tei_langchain"])
-def embedding(
-    input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
-) -> Union[EmbedDoc, EmbeddingResponse, ChatCompletionRequest]:
+def embedding(input: TextDoc) -> EmbedDoc768:
     start = time.time()
-    if logflag:
-        logger.info(input)
-    if isinstance(input, TextDoc):
-        embed_vector = embeddings.embed_query(input.text)
-        res = EmbedDoc(text=input.text, embedding=embed_vector)
-    else:
-        embed_vector = embeddings.embed_query(input.input)
-        if input.dimensions is not None:
-            embed_vector = embed_vector[: input.dimensions]
-
-        if isinstance(input, ChatCompletionRequest):
-            input.embedding = embed_vector
-            # keep
-            res = input
-        if isinstance(input, EmbeddingRequest):
-            # for standard openai embedding format
-            res = EmbeddingResponse(data=[EmbeddingResponseData(index=0, embedding=embed_vector)])
-
+    embed_vector = embeddings.embed_query(input.text)
+    embed_vector = embed_vector[:768]  # Keep only the first 768 elements
+    res = EmbedDoc768(text=input.text, embedding=embed_vector)
     statistics_dict["opea_service@embedding_tei_langchain"].append_latency(time.time() - start, None)
-    if logflag:
-        logger.info(res)
     return res
 
 
 if __name__ == "__main__":
     tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080")
-    embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
-    logger.info("TEI Gaudi Embedding initialized.")
+    embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+    print("TEI Gaudi Embedding initialized.")
     opea_microservices["opea_service@embedding_tei_langchain"].start()

@@ -6,7 +6,6 @@ import json
 import multiprocessing
 import os
 import re
-import subprocess
 import unicodedata
 from urllib.parse import urlparse, urlunparse
 
@@ -79,12 +78,13 @@ def load_txt(txt_path):
 def load_doc(doc_path):
     """Load doc file."""
     txt_path = doc_path.replace(".doc", ".txt")
-
     try:
-        with open(txt_path, "w") as output_file:
-            subprocess.run(["antiword", doc_path], stdout=output_file, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error processing file: {e}")
+        os.system(f'antiword "{doc_path}" > "{txt_path}"')
+    except:
+        raise AssertionError(
+            "antiword failed or not installed, if not installed,"
+            + 'use "apt-get update && apt-get install -y antiword" to install it.'
+        )
     text = load_txt(txt_path)
     os.remove(txt_path)
     return text

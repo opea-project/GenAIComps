@@ -7,7 +7,7 @@ fastapi
 huggingface_hub
 langchain
 langchain-community
-langchain-text-splitters
+langsmith
 markdown
 numpy
 opentelemetry-api
@@ -16,16 +16,10 @@ opentelemetry-sdk
 pandas
 pgvector==0.2.5
 Pillow
-prometheus-fastapi-instrumentator
+prometheus-fastapi-instrumentator==7.0.0
 psycopg2-binary
 pymupdf
-pyspark
 python-docx
-python-multipart
 python-pptx
 sentence_transformers
 shortuuid
-tiktoken
-unstructured[all-docs]==0.15.7
-uvicorn
-

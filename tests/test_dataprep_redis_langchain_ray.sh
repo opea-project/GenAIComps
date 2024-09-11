@@ -11,25 +11,20 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     echo "Building the docker images"
     cd $WORKPATH
-    docker build --no-cache -t opea/dataprep-on-ray-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain_ray/docker/Dockerfile .
-    if [ $? -ne 0 ]; then
-        echo "opea/dataprep-on-ray-redis built fail"
-        exit 1
-    else
-        echo "opea/dataprep-on-ray-redis built successful"
-    fi
+    docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain_ray/docker/Dockerfile .
+    echo "Docker image built successfully"
 }
 
 function start_service() {
     echo "Starting redis microservice"
     # redis endpoint
-    docker run -d --name="test-comps-dataprep-redis-ray" --runtime=runc -p 5038:6379 -p 8004:8001 redis/redis-stack:7.2.0-v9
+    docker run -d --name="test-comps-dataprep-redis-ray" --runtime=runc -p 6382:6379 -p 8004:8001 redis/redis-stack:7.2.0-v9
 
     # dataprep-redis-server endpoint
-    export REDIS_URL="redis://${ip_address}:5038"
+    export REDIS_URL="redis://${ip_address}:6382"
     export INDEX_NAME="rag-redis"
     echo "Starting dataprep-redis-server"
-    docker run -d --name="test-comps-dataprep-redis-ray-server" --runtime=runc -p 5037:6007 -p 6010:6008 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:comps
+    docker run -d --name="test-comps-dataprep-redis-ray-server" --runtime=runc -p 6009:6007 -p 6010:6008 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
 
     sleep 10
     echo "Service started successfully"
@@ -38,7 +33,7 @@ function start_service() {
 function validate_microservice() {
     cd $LOG_PATH
 
-    dataprep_service_port=5037
+    dataprep_service_port=6009
     export URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
 
     echo "Starting validating the microservice"

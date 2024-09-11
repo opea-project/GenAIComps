@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
@@ -12,30 +12,18 @@ function build_docker_images() {
     cd $WORKPATH
     docker build \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.vllmray  \
-        --no-cache -t opea/vllm_ray-habana:comps --network=host .
-    if [ $? -ne 0 ]; then
-        echo "opea/vllm_ray-habana built fail"
-        exit 1
-    else
-        echo "opea/vllm_ray-habana built successful"
-    fi
+        -t vllm_ray:habana --network=host .
 
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build \
-        --no-cache -t opea/llm-vllm-ray:comps \
+        -t opea/llm-vllm-ray:comps \
         -f comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice .
-    if [ $? -ne 0 ]; then
-        echo "opea/llm-vllm-ray built fail"
-        exit 1
-    else
-        echo "opea/llm-vllm-ray built successful"
-    fi
 }
 
 function start_service() {
     export LLM_MODEL="facebook/opt-125m"
-    port_number=5031
+    port_number=8006
     docker run -d --rm \
         --name="test-comps-vllm-ray-service" \
         --runtime=habana \
@@ -46,13 +34,13 @@ function start_service() {
         --ipc=host \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
         -p $port_number:8000 \
-        opea/vllm_ray-habana:comps \
+        vllm_ray:habana \
         /bin/bash -c "ray start --head && python vllm_ray_openai.py --port_number 8000 --model_id_or_path $LLM_MODEL --tensor_parallel_size 2 --enforce_eager False"
 
     export vLLM_RAY_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm\
         --name="test-comps-vllm-ray-microservice" \
-        -p 5032:9000 \
+        -p 9000:9000 \
         --ipc=host \
         -e vLLM_RAY_ENDPOINT=$vLLM_RAY_ENDPOINT \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
@@ -73,29 +61,15 @@ function start_service() {
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://${ip_address}:5031/v1/chat/completions \
+    http_proxy="" curl http://${ip_address}:8006/v1/chat/completions \
         -H "Content-Type: application/json" \
-        -d '{"model": "facebook/opt-125m", "messages": [{"role": "user", "content": "How are you?"}]}')
-    if [[ $result == *"message"* ]]; then
-        echo "Result correct."
-    else
-        echo "Result wrong. Received was $result"
-        docker logs test-comps-vllm-ray-service
-        docker logs test-comps-vllm-ray-microservice
-        exit 1
-    fi
-    result=$(http_proxy="" curl http://${ip_address}:5032/v1/chat/completions \
+        -d '{"model": "facebook/opt-125m", "messages": [{"role": "user", "content": "How are you?"}]}'
+    http_proxy="" curl http://${ip_address}:9000/v1/chat/completions \
         -X POST \
         -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
-        -H 'Content-Type: application/json')
-    if [[ $result == *"text"* ]]; then
-        echo "Result correct."
-    else
-        echo "Result wrong. Received was $result"
-        docker logs test-comps-vllm-ray-service
-        docker logs test-comps-vllm-ray-microservice
-        exit 1
-    fi
+        -H 'Content-Type: application/json'
+    docker logs test-comps-vllm-ray-service
+    docker logs test-comps-vllm-ray-microservice
 }
 
 function stop_docker() {

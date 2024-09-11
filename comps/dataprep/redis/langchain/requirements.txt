@@ -5,10 +5,10 @@ docx2txt
 easyocr
 fastapi
 huggingface_hub
-langchain==0.2.12
+langchain
 langchain-community
 langchain-text-splitters
-langchain_huggingface
+langsmith
 markdown
 numpy
 opentelemetry-api
@@ -25,5 +25,4 @@ python-pptx
 redis
 sentence_transformers
 shortuuid
-unstructured[all-docs]==0.15.7
-uvicorn
+unstructured[all-docs]==0.11.5

@@ -5,11 +5,9 @@ import os
 
 from fastapi.responses import StreamingResponse
 from langchain_community.llms import Ollama
+from langsmith import traceable
 
-from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-
-logger = CustomLogger("llm_ollama")
-logflag = os.getenv("LOGFLAG", False)
+from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
 
 @register_microservice(
@@ -19,12 +17,11 @@ logflag = os.getenv("LOGFLAG", False)
     host="0.0.0.0",
     port=9000,
 )
+@traceable(run_type="llm")
 def llm_generate(input: LLMParamsDoc):
-    if logflag:
-        logger.info(input)
     ollama = Ollama(
         base_url=ollama_endpoint,
-        model=input.model if input.model else model_name,
+        model=input.model,
         num_predict=input.max_new_tokens,
         top_k=input.top_k,
         top_p=input.top_p,
@@ -39,22 +36,17 @@ def llm_generate(input: LLMParamsDoc):
             async for text in ollama.astream(input.query):
                 chat_response += text
                 chunk_repr = repr(text.encode("utf-8"))
-                if logflag:
-                    logger.info(f"[llm - chat_stream] chunk:{chunk_repr}")
+                print(f"[llm - chat_stream] chunk:{chunk_repr}")
                 yield f"data: {chunk_repr}\n\n"
-            if logflag:
-                logger.info(f"[llm - chat_stream] stream response: {chat_response}")
+            print(f"[llm - chat_stream] stream response: {chat_response}")
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         response = ollama.invoke(input.query)
-        if logflag:
-            logger.info(response)
         return GeneratedDoc(text=response, prompt=input.query)
 
 
 if __name__ == "__main__":
     ollama_endpoint = os.getenv("OLLAMA_ENDPOINT", "http://localhost:11434")
-    model_name = os.getenv("OLLAMA_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
     opea_microservices["opea_service@llm_ollama"].start()

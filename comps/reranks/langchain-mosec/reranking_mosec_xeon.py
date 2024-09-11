@@ -22,9 +22,9 @@ import time
 
 import requests
 from langchain_core.prompts import ChatPromptTemplate
+from langsmith import traceable
 
 from comps import (
-    CustomLogger,
     LLMParamsDoc,
     SearchedDoc,
     ServiceType,
@@ -33,9 +33,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
-logger = CustomLogger("reranking_mosec_xeon")
-logflag = os.getenv("LOGFLAG", False)
 
 
 @register_microservice(
@@ -47,10 +44,10 @@ logflag = os.getenv("LOGFLAG", False)
     input_datatype=SearchedDoc,
     output_datatype=LLMParamsDoc,
 )
+@traceable(run_type="llm")
 @register_statistics(names=["opea_service@reranking_mosec_xeon"])
 def reranking(input: SearchedDoc) -> LLMParamsDoc:
-    if logflag:
-        logger.info("reranking input: ", input)
+    print("reranking input: ", input)
     start = time.time()
     if input.retrieved_docs:
         docs = [doc.text for doc in input.retrieved_docs]
@@ -72,12 +69,8 @@ def reranking(input: SearchedDoc) -> LLMParamsDoc:
         prompt = ChatPromptTemplate.from_template(template)
         final_prompt = prompt.format(context=doc.text, question=input.initial_query)
         statistics_dict["opea_service@reranking_mosec_xeon"].append_latency(time.time() - start, None)
-        if logflag:
-            logger.info(final_prompt.strip())
         return LLMParamsDoc(query=final_prompt.strip())
     else:
-        if logflag:
-            logger.info(input.initial_query)
         return LLMParamsDoc(query=input.initial_query)
 
 

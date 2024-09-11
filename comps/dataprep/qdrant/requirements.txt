@@ -8,7 +8,6 @@ huggingface_hub
 langchain
 langchain-community
 langchain-text-splitters
-langchain_huggingface
 markdown
 numpy
 opentelemetry-api
@@ -23,5 +22,4 @@ python-pptx
 qdrant-client
 sentence_transformers
 shortuuid
-unstructured[all-docs]==0.15.7
-uvicorn
+unstructured[all-docs]==0.11.5

@@ -16,10 +16,18 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
+<<<<<<<< HEAD:comps/llms/text-generation/vllm-ray/docker/Dockerfile.microservice
+    pip install --no-cache-dir -r /home/user/comps/llms/text-generation/vllm-ray/requirements.txt
+
+ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+WORKDIR /home/user/comps/llms/text-generation/vllm-ray
+========
     pip install --no-cache-dir -r /home/user/comps/llms/faq-generation/tgi/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/llms/faq-generation/tgi
+>>>>>>>> origin/main:comps/llms/faq-generation/tgi/Dockerfile
 
-ENTRYPOINT ["bash", "entrypoint.sh"]
+ENTRYPOINT ["python", "llm.py"]
