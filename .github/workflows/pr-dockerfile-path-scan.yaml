@@ -130,6 +130,7 @@ jobs:
               fi
 
               yaml_file=${{github.workspace}}/.github/workflows/docker/compose/$service'-compose'$mode'.yaml'
+              echo $yaml_file
               if [ -e $yaml_file]; then
                 # check service yaml if exist
                 if ! grep -q "$Dockerfile" $yaml_file; then
