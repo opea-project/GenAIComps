@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 environment_variables:
   common: &common
     no_proxy: "localhost"
@@ -22,7 +25,7 @@ environment_variables:
     MEGA_SERVICE_HOST_IP: localhost
     EMBEDDING_SERVICE_HOST_IP: localhost
     RETRIEVER_SERVICE_HOST_IP: localhost
-    RERANK_SERVICE_HOST_IP=: localhost
+    RERANK_SERVICE_HOST_IP: localhost
     LLM_SERVICE_HOST_IP: localhost
 
   ui: &ui
@@ -48,8 +51,7 @@ opea_micro_services:
           requirements:
             model_id: "BAAI/bge-base-en-v1.5"
       environment:
-        <<: *common
-        <<: *tei_embedding
+        <<: [*common, *tei_embedding]
 
   llm:
     opea/llm-tgi:
@@ -67,25 +69,21 @@ opea_micro_services:
           requirements:
             model_id: "Intel/neural-chat-7b-v3-3"
       environment:
-        <<: *common
-        <<: *llm
+        <<: [*common, *llm]
 
   data_prep:
     opea/dataprep-redis:
       tag: latest
       type: cpu
       environment:
-        <<: *common
-        <<: *redis
-        <<: *tei_embedding
+        <<: [*common, *redis, *tei_embedding]
 
   retrieval:
     opea/retriever-redis:
       tag: latest
       type: cpu
       environment:
-        <<: *common
-        <<: *redis
+        <<: [*common, *redis]
 
   reranking:
     opea/reranking-tei:
@@ -103,20 +101,17 @@ opea_micro_services:
           requirements:
             model_id: "BAAI/bge-reranker-base"
       environment:
-        <<: *common
-        <<: *tei_reranking
+        <<: [*common, *tei_reranking]
 
 opea_mega_service:
   opea/chatqna:
     tag: latest
     type: cpu
     environment:
-      <<: *common
-      <<: *chatqna
+      <<: [*common, *chatqna]
 
   opea/chatqna-ui:
     tag: latest
     type: cpu
     environment:
-      <<: *common
-      <<: *ui
+      <<: [*common, *ui]
