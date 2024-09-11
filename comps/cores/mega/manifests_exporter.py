@@ -16,7 +16,7 @@ def create_k8s_resources(
     topology_spread_constraints=None,
     args=None,
     env=None,
-    env_from=None,
+    env_from=[client.V1EnvFromSource(config_map_ref=client.V1ConfigMapEnvSource(name="qna-config"))],
     resources=None,
     volumes=None,
     volume_mounts=None,
@@ -238,6 +238,7 @@ def create_embedding_svc_deployment_and_service(resource_requirements=None):
         image="opea/embedding-tei:latest",
         container_ports=[6000],
         resources=resource_requirements,
+        env_from=[client.V1EnvFromSource(config_map_ref=client.V1ConfigMapEnvSource(name="qna-config"))],
     )
 
     # deployment = client.V1Deployment(
@@ -548,7 +549,7 @@ def create_llm_deployment_and_service(resource_requirements=None):
     deployment = create_k8s_resources(
         name="llm-deploy",
         replicas=1,
-        image="opea/tei-gaudi:latest",
+        image="opea/llm-tgi:latest",
         container_ports=[9000],
         resources=resource_requirements,
     )
