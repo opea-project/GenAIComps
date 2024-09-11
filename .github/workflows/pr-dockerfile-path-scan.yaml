@@ -150,7 +150,6 @@ jobs:
       - name: Check for the exist of Dockerfile in all yamls.
         if: always()
         run: |
-          set -e
           shopt -s globstar
           no_exist="FALSE"
           cd ${{github.workspace}}
