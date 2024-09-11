@@ -2,20 +2,14 @@
 # SPDX-License-Identified: Apache-2.0
 
 
-import time
 import json
-from typing import Optional, List
+import time
+from typing import List, Optional
 
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
-from comps import (
-    ServiceType, 
-    opea_microservices, 
-    register_microservice, 
-    register_statistics,
-    statistics_dict
-)
+from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
 
 
 class PIIRequestDoc(BaseDoc):
@@ -36,24 +30,19 @@ class PIIResponseDoc(BaseDoc):
     host="0.0.0.0",
     port=9080,
     input_datatype=PIIRequestDoc,
-    output_datatype=PIIResponseDoc
+    output_datatype=PIIResponseDoc,
 )
-
 @register_statistics(names=["opea_service@pii_predictionguard"])
 def pii_guard(input: PIIRequestDoc) -> PIIResponseDoc:
     start = time.time()
-    
+
     client = PredictionGuard()
 
     prompt = input.prompt
     replace = input.replace
     replace_method = input.replace_method
 
-    result = client.pii.check(
-        prompt=prompt,
-        replace=replace,
-        replace_method=replace_method
-    )
+    result = client.pii.check(prompt=prompt, replace=replace, replace_method=replace_method)
 
     statistics_dict["opea_service@pii_predictionguard"].append_latency(time.time() - start, None)
     if "new_prompt" in result["checks"][0].keys():
