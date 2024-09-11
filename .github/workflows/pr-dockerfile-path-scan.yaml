@@ -157,7 +157,7 @@ jobs:
           yamls=$(find .github/workflows/docker/compose/ -name '*.yaml'|sed 's/^\.\///')
           if [ -n "$yamls" ]; then
             for yaml in $yamls; do
-              dockerfiles=$(grep 'dockerfile:' $yaml|sed 's/dockerfile: //')
+              dockerfiles=$(grep 'dockerfile:' "$yaml"|sed 's/dockerfile: //')
               for dockerfile in $dockerfiles; do
                 if [ -z $dockerfile]; then
                   # remove dockerimage
