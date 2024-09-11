@@ -1,12 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
-import yaml
-import os
 import filecmp
+import os
+import unittest
+
+import yaml
 
 from comps.cores.mega.manifests_exporter import build_chatqna_manifests
+
 
 class TestChatQnAManifestsExporter(unittest.TestCase):
     def tearDown(self):
@@ -22,7 +24,7 @@ class TestChatQnAManifestsExporter(unittest.TestCase):
 
     def test_manifests(self):
         build_chatqna_manifests()
- 
+
         self.assertTrue(filecmp.cmp("ChatQnA_E2E_manifests.yaml", "ChatQnA_E2E_manifests_base.yaml"))
 
 

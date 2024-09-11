@@ -489,6 +489,7 @@ def save_to_yaml(manifests_list, file_name):
             yaml.dump(kubernetes_obj_to_dict(manifests), f, default_flow_style=False)
             f.write("---\n")
 
+
 def build_chatqna_manifests(service_info=None):
     configmap = create_configmap_object(service_info)
 
