@@ -1,11 +1,11 @@
+aiohttp
 docarray
 fastapi
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+Pillow
+predictionguard
 prometheus-fastapi-instrumentator
 shortuuid
 transformers
-predictionguard
-aiohttp
-Pillow
