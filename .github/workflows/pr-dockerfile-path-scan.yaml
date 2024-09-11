@@ -157,11 +157,11 @@ jobs:
           if [ -n "$yamls" ]; then
             for yaml in $yamls; do
               dockerfiles=$(grep 'dockerfile:' "$yaml"|sed 's/dockerfile: //')
-              echo $yaml $dockerfiles
               for dockerfile in $dockerfiles; do
                 if ! [ -e "$dockerfile" ]; then
                   # remove dockerimage
                   # sed '/dockerfile:/I,+2d' $yaml
+                  cat "$yaml"
                   echo "The "$dockerfile" in "$yaml" does not exist, should it be removed?"
                   no_exist="TRUE"
                 fi
