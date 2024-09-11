@@ -10,3 +10,19 @@ services:
     build:
       dockerfile: comps/guardrails/toxicity_detection/Dockerfile
     image: ${REGISTRY:-opea}/guardrails-toxicity-detection:${TAG:-latest}
+  guardrails-pii-detection-predictionguard:
+    build:
+      dockerfile: comps/guardrails/pii_detection/predictionguard/docker/Dockerfile
+    image: ${REGISTRY:-opea}/pii-predictionguard:${TAG:-latest}
+  guardrails-toxicity-detection-predictionguard:
+    build:
+      dockerfile: comps/guardrails/toxicity_detection/predictionguard/docker/Dockerfile
+    image: ${REGISTRY:-opea}/toxicity-predictionguard:${TAG:-latest}
+  guardrails-factuality-predictionguard:
+    build:
+      dockerfile: comps/guardrails/factuality/predictionguard/docker/Dockerfile
+    image: ${REGISTRY:-opea}/factuality-predictionguard:${TAG:-latest}
+  guardrails-injection-predictionguard:
+    build:
+      dockerfile: comps/guardrails/prompt_injection/predictionguard/docker/Dockerfile
+    image: ${REGISTRY:-opea}/injection-predictionguard:${TAG:-latest}
