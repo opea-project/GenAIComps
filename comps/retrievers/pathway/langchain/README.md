@@ -13,10 +13,7 @@ If you prefer to run them separately, refer to this section.
 > Note that Docker compose will start this service as well, this step is thus optional.
 
 ```bash
-# Model for embedding service
 model=BAAI/bge-base-en-v1.5
-# Model for re-ranking service
-# model="BAAI/bge-reranker-base"
 # TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"  # if you want to use the hosted embedding service, example: "http://127.0.0.1:6060"
 
 # then run:
