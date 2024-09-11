@@ -483,20 +483,26 @@ if __name__ == "__main__":
 
     configmap = create_configmap_object()
 
-    # Microservice
-    resource_requirements = create_resource_requirements(
-        limits={"cpu": 8, "memory": "4000Mi"}, requests={"cpu": 8, "memory": "4000Mi"}
+
+    guaranteed_resource = create_resource_requirements(
+        limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
     )
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(resource_requirements)
-    embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(resource_requirements)
-    reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(resource_requirements)
-    lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(resource_requirements)
+    
+    burstable_resource = create_resource_requirements(
+       requests={"cpu": 8, "memory": "4000Mi"}
+    )
+    
+    # Microservice
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource)
+    embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource)
+    reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(burstable_resource)
+    lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(burstable_resource)
 
     # Embedding, Reranking and LLM
-    embedding_resources = create_resource_requirements(
+    embedding_dependency_resource = create_resource_requirements(
         limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
     )
-    embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(embedding_resources)
+    embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(embedding_dependency_resource)
 
     llm_hpu_resource_requirements = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_resource_requirements)
@@ -506,7 +512,7 @@ if __name__ == "__main__":
         reranking_hpu_resource_requirements
     )
 
-    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(resource_requirements)
+    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource)
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
     dataprep_deploy, dataprep_svc = create_dataprep_deployment_and_service()
 
@@ -534,4 +540,4 @@ if __name__ == "__main__":
         vector_db_svc,
     ]
 
-    save_to_yaml(manifests, "all_manifests.yaml")
+    save_to_yaml(manifests, "ChatQnA_E2E_manifests.yaml")
