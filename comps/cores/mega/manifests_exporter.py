@@ -141,7 +141,7 @@ def create_service(name, app_label, service_ports, namespace="default", service_
     return service
 
 
-def create_embedding_deployment_and_service(resource_requirements=None):
+def create_embedding_deployment_and_service(resource_requirements=None, replicas=None):
 
     args = ["--model-id", "$(EMBEDDING_MODEL_ID)", "--auto-truncate"]
     volume_mounts = [
@@ -188,7 +188,7 @@ def create_embedding_deployment_and_service(resource_requirements=None):
     return deployment, service
 
 
-def create_embedding_svc_deployment_and_service(resource_requirements=None):
+def create_embedding_svc_deployment_and_service(resource_requirements=None, replicas=None):
 
     deployment = create_k8s_resources(
         name="embedding-deploy",
@@ -211,7 +211,7 @@ def create_embedding_svc_deployment_and_service(resource_requirements=None):
     return deployment, service
 
 
-def create_llm_dependency_deployment_and_service(resource_requirements=None):
+def create_llm_dependency_deployment_and_service(resource_requirements=None, replicas=None):
 
     args = [
         "--model-id",
@@ -275,7 +275,7 @@ def create_llm_dependency_deployment_and_service(resource_requirements=None):
     return deployment, service
 
 
-def create_reranking_dependency_deployment_and_service(resource_requirements=None):
+def create_reranking_dependency_deployment_and_service(resource_requirements=None, replicas=None):
 
     args = ["--model-id", "$(RERANK_MODEL_ID)", "--auto-truncate"]
 
@@ -334,7 +334,7 @@ def create_reranking_dependency_deployment_and_service(resource_requirements=Non
     return deployment, service
 
 
-def create_llm_deployment_and_service(resource_requirements=None):
+def create_llm_deployment_and_service(resource_requirements=None, replicas=None):
 
     deployment = create_k8s_resources(
         name="llm-deploy",
@@ -356,7 +356,7 @@ def create_llm_deployment_and_service(resource_requirements=None):
     return deployment, service
 
 
-def create_dataprep_deployment_and_service(resource_requirements=None):
+def create_dataprep_deployment_and_service(resource_requirements=None, replicas=None):
     deployment = create_k8s_resources(
         name="dataprep-deploy",
         namespace="default",
@@ -364,22 +364,20 @@ def create_dataprep_deployment_and_service(resource_requirements=None):
         app_label="dataprep-deploy",
         image="opea/dataprep-redis:latest",
         container_name="dataprep-deploy",
-        container_ports=[6007, 6008, 6009],
+        container_ports=[6007],
         node_selector={"node-type": "chatqna-opea"},
         resources=resource_requirements,
     )
 
     ports = [
-        {"name": "port1", "port": 6007, "target_port": 6007},
-        {"name": "port2", "port": 6008, "target_port": 6008},
-        {"name": "port3", "port": 6009, "target_port": 6009},
+        {"name": "port1", "port": 6007, "target_port": 6007}
     ]
     service = create_service(name="dataprep-svc", app_label="dataprep-deploy", service_ports=ports)
 
     return deployment, service
 
 
-def create_chatqna_mega_deployment(resource_requirements=None):
+def create_chatqna_mega_deployment(resource_requirements=None, replicas=None):
 
     deployment = create_k8s_resources(
         name="chatqna-backend-server-deploy",
@@ -406,7 +404,7 @@ def create_chatqna_mega_deployment(resource_requirements=None):
     return deployment, service
 
 
-def create_reranking_deployment_and_service(resource_requirements=None):
+def create_reranking_deployment_and_service(resource_requirements=None, replicas=None):
     deployment = create_k8s_resources(
         name="reranking-deploy",
         replicas=1,
@@ -427,7 +425,7 @@ def create_reranking_deployment_and_service(resource_requirements=None):
     return deployment, service
 
 
-def create_retriever_deployment_and_service(resource_requirements=None):
+def create_retriever_deployment_and_service(resource_requirements=None, replicas=None):
 
     deployment = create_k8s_resources(
         name="retriever-deploy",
@@ -449,7 +447,7 @@ def create_retriever_deployment_and_service(resource_requirements=None):
     return deployment, service
 
 
-def create_vector_db_deployment_and_service(resource_requirements=None):
+def create_vector_db_deployment_and_service(resource_requirements=None, replicas=None):
 
     deployment = create_k8s_resources(
         name="vector-db",
@@ -487,7 +485,7 @@ if __name__ == "__main__":
         limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
     )
 
-    burstable_resource = create_resource_requirements(requests={"cpu": 8, "memory": "4000Mi"})
+    burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
 
     # Microservice
     chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource)
