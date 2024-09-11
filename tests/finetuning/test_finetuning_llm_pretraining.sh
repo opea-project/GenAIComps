@@ -13,7 +13,7 @@ ray_port=8265
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/finetuning:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/docker/Dockerfile_cpu .
+    docker build -t opea/finetuning:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/finetuning built fail"
         exit 1
@@ -24,7 +24,7 @@ function build_docker_images() {
 
 function start_service() {
     export no_proxy="localhost,127.0.0.1,"${ip_address}
-    docker run -d --name="finetuning-server" -p $finetuning_service_port:$finetuning_service_port -p $ray_port:$ray_port --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy opea/finetuning:latest
+    docker run -d --name="test-comps-finetuning-pretrain" -p $finetuning_service_port:$finetuning_service_port -p $ray_port:$ray_port --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy opea/finetuning:comps
     sleep 1m
 }
 
@@ -57,7 +57,7 @@ EOF
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs finetuning-server >> ${LOG_PATH}/finetuning-server_upload_file.log
+        docker logs test-comps-finetuning-pretrain >> ${LOG_PATH}/finetuning-server_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -65,7 +65,7 @@ EOF
     # Check if the parsed values match the expected values
     if [[ "$purpose" != "$expected_purpose" || "$filename" != "$expected_filename" ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs finetuning-server >> ${LOG_PATH}/finetuning-server_upload_file.log
+        docker logs test-comps-finetuning-pretrain >> ${LOG_PATH}/finetuning-server_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -80,14 +80,14 @@ EOF
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs finetuning-server >> ${LOG_PATH}/finetuning-server_create.log
+        docker logs test-comps-finetuning-pretrain >> ${LOG_PATH}/finetuning-server_create.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *'{"id":"ft-job'* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs finetuning-server >> ${LOG_PATH}/finetuning-server_create.log
+        docker logs test-comps-finetuning-pretrain >> ${LOG_PATH}/finetuning-server_create.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -97,7 +97,7 @@ EOF
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=finetuning-server*")
+    cid=$(docker ps -aq --filter "name=test-comps-finetuning-pretrain*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
