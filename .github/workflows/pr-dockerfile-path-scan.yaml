@@ -126,10 +126,10 @@ jobs:
               if grep -q "$Dockerfile" ../GenAIExamples/**/*build.yaml*; then
                 mode=""  #CI
               else
-                mode="-CD"
+                mode="-cd" #CD
               fi
 
-              yaml_file=${{github.workspace}}/.github/workflows/docker/compose/$service'-compose'$mode.yaml
+              yaml_file=${{github.workspace}}/.github/workflows/docker/compose/$service'-compose'$mode'.yaml'
               if [ -e $yaml_file]; then
                 # check service yaml if exist
                 if ! grep -q "$Dockerfile" $yaml_file; then
@@ -162,7 +162,7 @@ jobs:
                 if [ -z $dockerfile]; then
                   # remove dockerimage
                   # sed '/dockerfile:/I,+2d' $yaml
-                  echo "Should "$dockerfile" not exist in the "$yaml" be removed?"
+                  echo "The "$dockerfile" in "$yaml" does not exist, should it be removed?"
                   no_exist="TRUE"
                 fi
               done
