@@ -8,4 +8,4 @@ Pillow
 predictionguard==2.2.1
 prometheus-fastapi-instrumentator
 shortuuid
-yaml
+PyYAML
