@@ -81,7 +81,7 @@ jobs:
                   no_add="TRUE"
                 fi
               else
-                echo "Please create a new compose file named "$service"-compose"$mode".yaml in ${{github.workspace}}/.github/workflows/docker/compose/ for $Dockerfile and fill it in."
+                echo "Please create a new compose file ${{github.workspace}}/.github/workflows/docker/compose/"$service"-compose"$mode".yaml for $Dockerfile and fill it in."
                 no_add="TRUE"
               fi
             done
