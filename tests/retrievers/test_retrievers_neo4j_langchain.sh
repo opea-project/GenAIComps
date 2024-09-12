@@ -58,14 +58,14 @@ function validate_microservice() {
             echo "[ retriever ] Content is as expected."
         else
             echo "[ retriever ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
-            docker logs test-comps-retriever-redis-tei-endpoint >> ${LOG_PATH}/tei.log
+            docker logs test-comps-retriever-neo4j-server >> ${LOG_PATH}/retriever.log
+            docker logs test-comps-retriever-neo4j-tei-endpoint >> ${LOG_PATH}/tei.log
             exit 1
         fi
     else
         echo "[ retriever ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
-        docker logs test-comps-retriever-redis-tei-endpoint >> ${LOG_PATH}/tei.log
+        docker logs test-comps-retriever-neo4j-server >> ${LOG_PATH}/retriever.log
+        docker logs test-comps-retriever-neo4j-tei-endpoint >> ${LOG_PATH}/tei.log
         exit 1
     fi
 }
