@@ -654,6 +654,66 @@ def build_tuned_chatqna_manifests_with_rerank(service_info=None, output_filename
     save_to_yaml(manifests, output_filename)
 
 
+def build_tuned_chatqna_manifests_without_rerank(service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1):
+    configmap = create_configmap_object(service_info)
+
+    guaranteed_resource = create_resource_requirements(limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"})
+
+    burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
+
+    tgi_args = [
+        "--model-id",
+        "$(LLM_MODEL_ID)",
+        "--max-input-length",
+        "1024",
+        "--max-total-tokens",
+        "2048",
+        "--max-batch-total-tokens",
+        "65536",
+        "--max-batch-prefill-tokens",
+        "4096",
+    ]
+
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource, image_name="opea/chatqna-without-rerank:latest")
+    embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource, replicas=service_replicas)
+    lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(burstable_resource, replicas=service_replicas)
+    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource, replicas=service_replicas)
+
+    # Embedding, Reranking and LLM
+    embedding_dependency_resource = create_resource_requirements(limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"})
+    embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(embedding_dependency_resource,
+                                                                                             replicas=embedding_replicas)
+
+    llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards, replicas=tgi_replicas, args=tgi_args)
+
+    # Others
+    vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
+    dataprep_deploy, dataprep_svc = create_dataprep_deployment_and_service()
+
+    manifests = [
+        configmap,
+        chatqna_deploy,
+        chatqna_svc,
+        dataprep_deploy,
+        dataprep_svc,
+        embedding_dependency,
+        embedding_dependency_svc,
+        embedding_deploy,
+        embedding_deploy_svc,
+        llm_dependency,
+        llm_dependency_svc,
+        lm_deploy,
+        lm_deploy_svc,
+        retrieval_deployment,
+        retrieval_svc,
+        vector_db_deploy,
+        vector_db_svc,
+    ]
+
+    save_to_yaml(manifests, output_filename)
+    
+
 def build_oob_chatqna_manifests_with_rerank(service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1):
     configmap = create_configmap_object(service_info)
 
@@ -916,5 +976,21 @@ if __name__ == "__main__":
                                               embedding_replicas=4,
                                               service_replicas=4,
                                               output_filename="tuned_four_gaudi_with_rerank.yaml")
+
+    build_tuned_chatqna_manifests_without_rerank(service_info,
+                                              tgi_replicas=8,
+                                              embedding_replicas=1,
+                                              service_replicas=2,
+                                              output_filename="tuned_single_gaudi_without_rerank.yaml")
+    build_tuned_chatqna_manifests_without_rerank(service_info,
+                                              tgi_replicas=16,
+                                              embedding_replicas=2,
+                                              service_replicas=4,
+                                              output_filename="tuned_two_gaudi_without_rerank.yaml")
+    build_tuned_chatqna_manifests_without_rerank(service_info,
+                                              tgi_replicas=32,
+                                              embedding_replicas=4,
+                                              service_replicas=4,
+                                              output_filename="tuned_four_gaudi_without_rerank.yaml")
 
     build_chatqna_manifests(service_info, "ChatQnA_E2E_manifests.yaml")
