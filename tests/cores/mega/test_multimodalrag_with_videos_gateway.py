@@ -137,7 +137,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
                 {"role": "assistant", "content": "opea project! "},
                 {"role": "user", "content": "chao, "},
             ],
-            "max_tokens": 300,
+            "max_new_tokens": 300,
         }
         response = requests.post("http://0.0.0.0:9898/v1/mmragvideoqna", json=json_data)
         response = response.json()
@@ -199,7 +199,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
                 {"role": "assistant", "content": "opea project! "},
                 {"role": "user", "content": "chao, "},
             ],
-            "max_tokens": 300,
+            "max_new_tokens": 300,
         }
         mock_request = Request(scope={"type": "http"})
         mock_request._json = json_data

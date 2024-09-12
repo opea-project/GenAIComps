@@ -79,7 +79,7 @@ function validate_microservice() {
         -d '{
         "model": "facebook/opt-125m",
         "prompt": "What is Deep Learning?",
-        "max_tokens": 32,
+        "max_new_tokens": 32,
         "temperature": 0
         }')
     if [[ $result == *"text"* ]]; then
