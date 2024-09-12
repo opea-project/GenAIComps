@@ -23,16 +23,24 @@ For details, please refer to this [readme](redis/README.md)
 
 ## Dataprep Microservice with Milvus
 
-For details, please refer to this [readme](milvus/README.md)
+For details, please refer to this [readme](milvus/langchain/README.md)
 
 ## Dataprep Microservice with Qdrant
 
-For details, please refer to this [readme](qdrant/README.md)
+For details, please refer to this [readme](qdrant/langchain/README.md)
 
 ## Dataprep Microservice with Pinecone
 
-For details, please refer to this [readme](pinecone/README.md)
+For details, please refer to this [readme](pinecone/langchain/README.md)
 
 ## Dataprep Microservice with PGVector
 
-For details, please refer to this [readme](pgvector/README.md)
+For details, please refer to this [readme](pgvector/langchain/README.md)
+
+## Dataprep Microservice with VDMS
+
+For details, please refer to this [readme](vdms/README.md)
+
+## Dataprep Microservice with Multimodal
+
+For details, please refer to this [readme](multimodal/redis/langchain/README.md)

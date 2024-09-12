@@ -16,6 +16,7 @@ from comps.cores.proto.docarray import (
     LVMSearchedMultimodalDoc,
     RerankedDoc,
     TextDoc,
+    MetadataTextDoc,
     RAGASParams,
     RAGASScores,
     GraphDoc,
@@ -45,6 +46,7 @@ from comps.cores.mega.gateway import (
     AudioQnAGateway,
     RetrievalToolGateway,
     FaqGenGateway,
+    VideoRAGQnAGateway,
     VisualQnAGateway,
     MultimodalRAGWithVideosGateway,
 )

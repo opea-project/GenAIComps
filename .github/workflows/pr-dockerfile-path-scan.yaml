@@ -20,37 +20,18 @@ jobs:
       - name: Clean Up Working Directory
         run: sudo rm -rf ${{github.workspace}}/*
 
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check for changed Dockerfile paths in yaml
+      - name: Clone GenAIExamples
         run: |
-          set -e
-          shopt -s globstar
-          cd ${{github.workspace}}
-          is_use="FALSE"
-          used_files=""
-          merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-status --diff-filter=DR ${{ github.event.pull_request.base.sha }} ${merged_commit} -- '**/Dockerfile**' | cut -f2)"
-          if [ -n "$changed_files" ]; then
-            for file in $changed_files; do
-              if grep -q "$file" .github/workflows/docker/compose/*.yaml; then
-                is_use="TRUE"
-                used_files+="$file "
-              fi
-            done
-          fi
+          cd ..
+          git clone https://github.com/opea-project/GenAIExamples
 
-          if [[ "$is_use" == "TRUE" ]]; then
-            echo "Warning: Changed Dockerfile paths:"
-            echo "$used_files"
-            echo "Please modify the corresponding yaml in GenAIComps/.github/workflows/docker/compose and ask suyue.chen@intel.com for final confirmation."
-            exit 1
-          fi
-
-      - name: Check for changed Dockerfile paths in readme
+      - name: Check Dockerfile Paths in Readme
+        if: always()
         run: |
           set -e
           shopt -s globstar
@@ -71,7 +52,62 @@ jobs:
           if [[ "$is_use" == "TRUE" ]]; then
             echo "Warning: Changed Dockerfile paths:"
             echo "$used_files"
-            echo "Please modify the corresponding README in GenAIComps and ask suyue.chen@intel.com for final confirmation."
+            echo "Please modify the corresponding README in GenAIComps."
+            exit 1
+          fi
+
+      - name: Check Dockerfile path included in image build yaml
+        if: always()
+        run: |
+          set -e
+          shopt -s globstar
+          no_add="FALSE"
+          cd ${{github.workspace}}
+          Dockerfiles=$(find ./comps -name '*Dockerfile*'|sed 's/^\.\///')
+          if [ -n "$Dockerfiles" ]; then
+            for Dockerfile in $Dockerfiles; do
+              service=$(echo "$Dockerfile" | awk -F '/' '{print $2}')
+              if grep -q "$Dockerfile" ../GenAIExamples/**/*build.yaml*; then
+                mode=""  #CI
+              else
+                mode="-cd" #CD
+              fi
+
+              yaml_file=${{github.workspace}}/.github/workflows/docker/compose/"$service"-compose
+              if ! grep -q "$Dockerfile" "$yaml_file"*yaml; then
+                  echo "AR: Update $Dockerfile to .github/workflows/docker/compose/"$service"-compose"$mode".yaml."
+                  no_add="TRUE"
+              fi
+            done
+          fi
+
+          if [[ "$no_add" == "TRUE" ]]; then
+            exit 1
+          fi
+
+      - name: Check Dockerfile inside image build yaml exist in code
+        if: always()
+        run: |
+          shopt -s globstar
+          no_exist="FALSE"
+          cd ${{github.workspace}}
+          yamls=$(find .github/workflows/docker/compose/ -name '*.yaml')
+          if [ -n "$yamls" ]; then
+            for yaml in $yamls; do
+              dockerfiles=$(grep 'dockerfile:' "$yaml"|sed 's/dockerfile: //')
+              for dockerfile in $dockerfiles; do
+                if [[ "$dockerfile" == *"comps/"* ]]; then
+                  if ! [ -e "$dockerfile" ]; then
+                    # cat "$yaml"
+                    echo "AR: The dockerfile path "$dockerfile" in "$yaml" does not exist, remove or update it."
+                    no_exist="TRUE"
+                  fi
+                fi
+              done
+            done
+          fi
+
+          if [[ "$no_exist" == "TRUE" ]]; then
             exit 1
           fi
 
@@ -99,15 +135,17 @@ jobs:
           is_use="FALSE"
           used_files=""
           merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-status --diff-filter=DR ${{ github.event.pull_request.base.sha }} ${merged_commit} -- '**/Dockerfile' | cut -f2)"
+          changed_files="$(git diff --name-status --diff-filter=DR ${{ github.event.pull_request.base.sha }} ${merged_commit} -- '**/Dockerfile**' | cut -f2)"
           if [ -n "$changed_files" ]; then
             for file in $changed_files; do
-              matching_files=$(grep -rl "$file" ../GenAIExamples/**/*.md)
+              matching_files=$(grep -rl "$file" ../GenAIExamples/**/*.md) || true
               if [ -n "$matching_files" ]; then
                 is_use="TRUE"
                 used_files+="$file "
                 echo "Modified Dockerfile '$file' is referenced in:"
                 echo "$matching_files"
+              else
+                echo "Modified Dockerfile '$file' is not referenced"
               fi
             done
           fi
@@ -116,36 +154,5 @@ jobs:
             echo "Warning: Changed Dockerfile paths:"
             echo "$used_files"
             echo "Please modify the corresponding README in GenAIExamples repo and ask suyue.chen@intel.com for final confirmation."
-            exit 1
-          fi
-
-  Dockerfile-addition-detection-in-GenAIComps:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clean Up Working Directory
-        run: sudo rm -rf ${{github.workspace}}/*
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check if the Dockerfile has been added
-        run: |
-          set -e
-          shopt -s globstar
-          cd ${{github.workspace}}
-          is_use="FALSE"
-          used_files=""
-          merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-status --diff-filter=A ${{ github.event.pull_request.base.sha }} ${merged_commit} -- '**/Dockerfile**' | cut -f2)"
-          if [ -n "$changed_files" ]; then
-            for file in $changed_files; do
-              if find "${{github.workspace}}/.github/workflows/docker/compose/" -name "*$(echo "$file" | awk -F '/' '{print $2}')*" |grep -q .; then
-                echo "Please check if the added $file is included in the yaml under path ${{github.workspace}}/.github/workflows/docker/compose/."
-              else
-                echo "Please create a new compose file named service_name-compose-cd.yaml in ${{github.workspace}}/.github/workflows/docker/compose/ for $file and fill it in."
-              fi
-            done
             exit 1
           fi
