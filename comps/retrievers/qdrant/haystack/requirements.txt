@@ -9,6 +9,6 @@ opentelemetry-sdk==1.27.0
 prometheus-fastapi-instrumentator==7.0.0
 pymupdf==1.24.10
 qdrant-haystack==5.1.0
-sentence-transformers==3.1.0
+sentence-transformers==3.0.1
 shortuuid==1.0.13
 uvicorn==0.30.6

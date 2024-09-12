@@ -23,7 +23,7 @@ python-multipart==0.0.9
 ray==2.35.0
 redis==5.0.8
 scikit-learn==1.5.2
-sentence-transformers==3.1.0
+sentence-transformers==3.0.1
 shortuuid==1.0.13
 uvicorn==0.30.6
 virtualenv==20.26.4
