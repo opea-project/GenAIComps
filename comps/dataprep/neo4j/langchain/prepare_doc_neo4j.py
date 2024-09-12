@@ -6,7 +6,7 @@ import os
 from typing import List, Optional, Union
 
 import openai
-from config import NEO4J_PASSWORD, NEO4J_USERNAME, OPENAI_KEY, TGI_LLM_ENDPOINT, NEO4J_URL
+from config import NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, OPENAI_KEY, TGI_LLM_ENDPOINT
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.graphs import Neo4jGraph
@@ -14,8 +14,8 @@ from langchain_community.graphs.graph_document import GraphDocument
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_core.documents import Document
 from langchain_experimental.graph_transformers import LLMGraphTransformer
-from langchain_text_splitters import HTMLHeaderTextSplitter
 from langchain_openai import ChatOpenAI
+from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
