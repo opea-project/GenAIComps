@@ -56,7 +56,7 @@ jobs:
             exit 1
           fi
 
-      - name: Check all Dockerfile mode and if it exists in yaml
+      - name: Check Dockerfile path included in image build yaml
         if: always()
         run: |
           set -e
@@ -73,16 +73,10 @@ jobs:
                 mode="-cd" #CD
               fi
 
-              yaml_file=${{github.workspace}}/.github/workflows/docker/compose/$service'-compose'$mode'.yaml'
-              if [ -e "$yaml_file" ]; then
-                # check service yaml if exist
-                if ! grep -q "$Dockerfile" "$yaml_file"; then
+              yaml_file=${{github.workspace}}/.github/workflows/docker/compose/"$service"-compose
+              if ! grep -q "$Dockerfile" "$yaml_file"*yaml; then
                   echo "AR: Update $Dockerfile to .github/workflows/docker/compose/"$service"-compose"$mode".yaml."
                   no_add="TRUE"
-                fi
-              else
-                echo "AR: Create a new compose file .github/workflows/docker/compose/"$service"-compose"$mode".yaml for $Dockerfile and fill it in."
-                no_add="TRUE"
               fi
             done
           fi
@@ -91,7 +85,7 @@ jobs:
             exit 1
           fi
 
-      - name: Check for the exist of Dockerfile in all yamls.
+      - name: Check Dockerfile inside image build yaml exist in code
         if: always()
         run: |
           shopt -s globstar

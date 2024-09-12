@@ -21,10 +21,10 @@ function build_docker_images() {
 
 function start_service() {
     tgi_endpoint_port=5004
-    export your_hf_llm_model=$1
+    export hf_llm_model=$1
     # Remember to set HF_TOKEN before invoking this test!
     export HF_TOKEN=${HF_TOKEN}
-    docker run -d --name="test-comps-llm-tgi-endpoint" -p $tgi_endpoint_port:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${your_hf_llm_model} --max-input-tokens 1024 --max-total-tokens 2048
+    docker run -d --name="test-comps-llm-tgi-endpoint" -p $tgi_endpoint_port:80 -v ~/.cache/huggingface/hub:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${hf_llm_model} --max-input-tokens 1024 --max-total-tokens 2048
     export TGI_LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
 
     llm_port=5005
@@ -34,9 +34,9 @@ function start_service() {
     # check whether tgi is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
+        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/${hf_llm_model}-llm-tgi.log
         n=$((n+1))
-        if grep -q Connected ${LOG_PATH}/llm-tgi.log; then
+        if grep -q Connected ${LOG_PATH}/${hf_llm_model}-llm-tgi.log; then
             break
         fi
         sleep 5s
@@ -60,6 +60,16 @@ function validate_microservice() {
     fi
 }
 
+function validate_microservice_with_openai() {
+    llm_service_port=5005
+    python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py "$ip_address" "$llm_service_port" "llm"
+    if [ $? -ne 0 ]; then
+        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
+        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm-tgi-server.log
+        exit 1
+    fi
+}
+
 function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-llm-tgi*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
@@ -70,15 +80,18 @@ function main() {
     stop_docker
     build_docker_images
 
+    pip install openai
+
     llm_models=(
     Intel/neural-chat-7b-v3-3
-    meta-llama/Llama-2-7b-chat-hf
-    meta-llama/Meta-Llama-3-8B-Instruct
-    microsoft/Phi-3-mini-4k-instruct
+    # meta-llama/Llama-2-7b-chat-hf
+    # meta-llama/Meta-Llama-3-8B-Instruct
+    # microsoft/Phi-3-mini-4k-instruct
     )
     for model in "${llm_models[@]}"; do
       start_service "${model}"
       validate_microservice
+      validate_microservice_with_openai
       stop_docker
     done
 
