@@ -6,14 +6,7 @@ import unittest
 
 from fastapi.responses import StreamingResponse
 
-from comps import (
-    ServiceOrchestrator,
-    ServiceType,
-    TextDoc,
-    VideoQnAGateway,
-    opea_microservices,
-    register_microservice,
-)
+from comps import ServiceOrchestrator, ServiceType, TextDoc, VideoQnAGateway, opea_microservices, register_microservice
 from comps.cores.proto.docarray import LLMParams
 
 
