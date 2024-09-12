@@ -39,7 +39,7 @@ function start_service() {
     export MOSEC_RERANKING_ENDPOINT="http://${ip_address}:${mosec_endpoint}"
     mosec_service_port=5007
     docker run -d --name="test-comps-reranking-langchain-mosec-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${mosec_service_port}:8000 --ipc=host -e MOSEC_RERANKING_ENDPOINT=$MOSEC_RERANKING_ENDPOINT  opea/reranking-langchain-mosec:comps
-    sleep 5m
+    sleep 3m
 }
 
 function validate_microservice() {
