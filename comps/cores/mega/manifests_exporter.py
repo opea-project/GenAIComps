@@ -606,7 +606,7 @@ def build_tuned_chatqna_manifests_with_rerank(service_info=None, output_filename
         "4096",
     ]
 
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource, image_name="opea/chatqna:latest")
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource, image_name="opea/chatqna:latest", replicas=service_replicas)
     embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource, replicas=service_replicas)
     reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(burstable_resource, replicas=service_replicas)
     lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(burstable_resource, replicas=service_replicas)
@@ -674,7 +674,7 @@ def build_tuned_chatqna_manifests_without_rerank(service_info=None, output_filen
         "4096",
     ]
 
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource, image_name="opea/chatqna-without-rerank:latest")
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource, image_name="opea/chatqna-without-rerank:latest", replicas=service_replicas)
     embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource, replicas=service_replicas)
     lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(burstable_resource, replicas=service_replicas)
     retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource, replicas=service_replicas)
