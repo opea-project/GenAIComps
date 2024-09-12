@@ -12,7 +12,8 @@ apt-get install poppler-utils -y
 
 ### Start Neo4J Server
 
-To launch Neo4j locally, first ensure you have docker installed. Then, you can launch the database with the following docker command. 
+To launch Neo4j locally, first ensure you have docker installed. Then, you can launch the database with the following docker command.
+
 ```bash
 docker run \
     -p 7474:7474 -p 7687:7687 \

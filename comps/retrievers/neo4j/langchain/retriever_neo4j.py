@@ -6,14 +6,8 @@ import os
 import time
 from typing import List, Optional
 
-from config import (
-    EMBED_ENDPOINT,
-    EMBED_MODEL,
-    NEO4J_URL,
-    NEO4J_USERNAME,
-    NEO4J_PASSWORD,
-)
-from langchain_community.embeddings import HuggingFaceHubEmbeddings, HuggingFaceBgeEmbeddings
+from config import EMBED_ENDPOINT, EMBED_MODEL, NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import Neo4jVector
 
 from comps import (
@@ -43,7 +37,7 @@ logflag = os.getenv("LOGFLAG", False)
 def retrieve(input: EmbedDoc) -> SearchedDoc:
     if logflag:
         logger.info(input)
-    
+
     start = time.time()
     if input.search_type == "similarity":
         search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, k=input.k)
@@ -66,7 +60,7 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
     for r in search_res:
         searched_docs.append(TextDoc(text=r.page_content))
     result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
-    
+
     statistics_dict["opea_service@retriever_neo4j"].append_latency(time.time() - start, None)
     if logflag:
         logger.info(result)
@@ -74,21 +68,21 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
 
 
 if __name__ == "__main__":
-    
+
     if EMBED_ENDPOINT:
         # create embeddings using TEI endpoint service
         embeddings = HuggingFaceHubEmbeddings(model=EMBED_ENDPOINT)
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
-        
+
     vector_db = Neo4jVector.from_existing_graph(
         embedding=embeddings,
         url=NEO4J_URL,
         username=NEO4J_USERNAME,
         password=NEO4J_PASSWORD,
-        node_label='__Entity__',
-        text_node_properties=['id', 'description'],
-        embedding_node_property='embedding'
+        node_label="__Entity__",
+        text_node_properties=["id", "description"],
+        embedding_node_property="embedding",
     )
     opea_microservices["opea_service@retriever_neo4j"].start()

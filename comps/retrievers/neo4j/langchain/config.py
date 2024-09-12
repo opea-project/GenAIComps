@@ -13,4 +13,3 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 
 # Embedding endpoints
 EMBED_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
-

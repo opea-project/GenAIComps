@@ -4,6 +4,7 @@ frontend==0.0.3
 huggingface_hub
 langchain
 langchain-community
+neo4j
 numpy
 opentelemetry-api
 opentelemetry-exporter-otlp
@@ -18,5 +19,3 @@ sentence_transformers
 shortuuid
 tiktoken
 uvicorn
-neo4j
-tiktoken

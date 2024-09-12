@@ -4,14 +4,16 @@
 import json
 import os
 from typing import List, Optional, Union
+
 import openai
-from config import TGI_LLM_ENDPOINT, OPENAI_KEY, Neo4J_URL, NEO4J_USERNAME, NEO4J_PASSWORD
+from config import NEO4J_PASSWORD, NEO4J_USERNAME, OPENAI_KEY, TGI_LLM_ENDPOINT, Neo4J_URL
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_experimental.graph_transformers import LLMGraphTransformer
-from langchain_community.llms import HuggingFaceEndpoint
+from langchain_community.graphs import Neo4jGraph
 from langchain_community.graphs.graph_document import GraphDocument
+from langchain_community.llms import HuggingFaceEndpoint
 from langchain_core.documents import Document
+from langchain_experimental.graph_transformers import LLMGraphTransformer
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
@@ -23,7 +25,6 @@ from comps.dataprep.utils import (
     parse_html,
     save_content_to_local_disk,
 )
-from langchain_community.graphs import Neo4jGraph
 
 logger = CustomLogger("prepare_doc_neo4j")
 logflag = os.getenv("LOGFLAG", False)
@@ -67,11 +68,11 @@ def ingest_data_to_neo4j(doc_path: DocPath):
         chunks = chunks + table_chunks
     if logflag:
         logger.info("Done preprocessing. Created ", len(chunks), " chunks of the original file.")
-        
+
     if OPENAI_KEY:
         logger.info("OpenAI API Key is set. Verifying its validity...")
         openai.api_key = OPENAI_KEY
-        
+
         try:
             response = openai.Engine.list()
             logger.info("OpenAI API Key is valid.")
@@ -91,22 +92,16 @@ def ingest_data_to_neo4j(doc_path: DocPath):
         )
 
     llm_transformer = LLMGraphTransformer(
-        llm=llm,
-        node_properties=["description"],
-        relationship_properties=["description"]
+        llm=llm, node_properties=["description"], relationship_properties=["description"]
     )
-    
+
     doc_list = [Document(page_content=text) for text in chunks]
     graph_doc = llm_transformer.convert_to_graph_documents(doc_list)
 
     graph = Neo4jGraph(url=NEO4J_URI, username=NEO4J_USERNAME, password=NEO4J_PASSWORD)
 
-    graph.add_graph_documents(
-        graph_documents,
-        baseEntityLabel=True,
-        include_source=True
-    )
-    
+    graph.add_graph_documents(graph_documents, baseEntityLabel=True, include_source=True)
+
     if logflag:
         logger.info("The graph is built.")
 
