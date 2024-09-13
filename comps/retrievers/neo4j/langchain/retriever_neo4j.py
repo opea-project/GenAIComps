@@ -71,7 +71,8 @@ if __name__ == "__main__":
 
     if EMBED_ENDPOINT:
         # create embeddings using TEI endpoint service
-        embeddings = HuggingFaceHubEmbeddings(model=EMBED_ENDPOINT)
+        hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+        embeddings = HuggingFaceHubEmbeddings(model=EMBED_ENDPOINT, huggingfacehub_api_token=hf_token)
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
