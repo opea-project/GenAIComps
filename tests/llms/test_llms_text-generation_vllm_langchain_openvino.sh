@@ -83,7 +83,7 @@ function test_api_endpoint {
           -d '{
                 "model": "Intel/neural-chat-7b-v3-3",
                 "prompt": "What is the key advantage of Openvino framework",
-                "max_new_tokens": 300,
+                "max_tokens": 300,
                 "temperature": 0.7
               }' \
           --write-out '%{http_code}' \
