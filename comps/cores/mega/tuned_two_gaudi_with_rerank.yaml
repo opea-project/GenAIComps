@@ -26,7 +26,7 @@ metadata:
   name: chatqna-backend-server-deploy
   namespace: default
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: chatqna-backend-server-deploy
@@ -215,7 +215,7 @@ metadata:
   name: embedding-deploy
   namespace: default
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: embedding-deploy
@@ -366,7 +366,7 @@ metadata:
   name: llm-deploy
   namespace: default
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: llm-deploy
@@ -508,7 +508,7 @@ metadata:
   name: reranking-deploy
   namespace: default
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: reranking-deploy
@@ -564,7 +564,7 @@ metadata:
   name: retriever-deploy
   namespace: default
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: retriever-deploy
