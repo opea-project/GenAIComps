@@ -93,9 +93,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         cls.follow_up_query_service_builder = ServiceOrchestrator()
         cls.follow_up_query_service_builder.add(cls.lvm)
 
-        cls.gateway = MultimodalQnAGateway(
-            cls.service_builder, cls.follow_up_query_service_builder, port=9898
-        )
+        cls.gateway = MultimodalQnAGateway(cls.service_builder, cls.follow_up_query_service_builder, port=9898)
 
     @classmethod
     def tearDownClass(cls):
