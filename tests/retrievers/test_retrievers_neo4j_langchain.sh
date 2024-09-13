@@ -10,6 +10,9 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
+    docker run -d -p 7474:7474 -p 7687:7687 -v $PWD/data:/data -v $PWD/plugins:/plugins --name neo4j-apoc1 -e NEO4J_AUTH=neo4j/password -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
+    sleep 60s
+
     docker build --no-cache -t opea/retriever-neo4j:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/retriever-neo4j built fail"
@@ -20,10 +23,6 @@ function build_docker_images() {
 }
 
 function start_service() {
-    # neo4j
-    docker run -d -p 7474:7474 -p 7687:7687 -v $PWD/data:/data -v $PWD/plugins:/plugins --name neo4j-apoc -e NEO4J_AUTH=neo4j/password -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
-    sleep 60s
-
     # tei endpoint
     tei_endpoint=5434
     model="BAAI/bge-base-en-v1.5"
@@ -36,7 +35,7 @@ function start_service() {
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="password"
     # unset http_proxy
-    docker run -d --name="test-comps-retriever-neo4j-server" -p ${retriever_port}:7000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI=$NEO4J_URI -e NEO4J_USERNAME=$NEO4J_USERNAME NEO4J_PASSWORD=$NEO4J_PASSWORD opea/retriever-neo4j:comps
+    docker run -d --name="test-comps-retriever-neo4j-server" -p ${retriever_port}:7000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/retriever-neo4j:comps
 
     sleep 3m
 }
@@ -72,6 +71,10 @@ function validate_microservice() {
 
 function stop_docker() {
     cid_retrievers=$(docker ps -aq --filter "name=test-comps-retriever-neo4j*")
+    if [[ ! -z "$cid_retrievers" ]]; then
+        docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
+    fi
+    cid_db=$(docker ps -aq --filter "name=neo4j-apoc1")
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
     fi
