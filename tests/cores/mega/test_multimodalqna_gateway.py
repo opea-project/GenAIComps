@@ -14,7 +14,7 @@ from comps import (
     LVMDoc,
     LVMSearchedMultimodalDoc,
     MultimodalDoc,
-    MultimodalQnAGateway,
+    MultimodalQnAGateway, 
     SearchedMultimodalDoc,
     ServiceOrchestrator,
     TextDoc,
