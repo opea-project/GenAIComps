@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker run --name neo4j-apoc1 -p 7474:7474 -p 7687:7687 -d -e NEO4J_AUTH=neo4j/password -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
+    docker run -d -p 7474:7474 -p 7687:7687 -v $PWD/data:/data -v $PWD/plugins:/plugins --name neo4j-apoc1 -e NEO4J_AUTH=neo4j/password -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
     sleep 30s
 
     docker build --no-cache -t opea/retriever-neo4j:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/langchain/Dockerfile .
@@ -29,16 +29,17 @@ function start_service() {
     docker run -d --name="test-comps-retriever-neo4j-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
-    export no_proxy="localhost,127.0.0.1,"${ip_address}
+
     # Neo4J retriever
     export NEO4J_URI="bolt://${ip_address}:7687"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="password"
     retriever_port=5435
     # unset http_proxy
+    export no_proxy="localhost,127.0.0.1,"${ip_address}
     docker run -d --name="test-comps-retriever-neo4j-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="password" opea/retriever-neo4j:comps
 
-    sleep 3m
+    sleep 1m
 }
 
 function validate_microservice() {
