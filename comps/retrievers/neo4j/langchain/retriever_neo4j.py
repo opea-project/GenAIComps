@@ -4,7 +4,7 @@
 import argparse
 import os
 import time
-from typing import List, Optional
+from typing import Union
 
 from config import EMBED_ENDPOINT, EMBED_MODEL, NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
@@ -22,9 +22,15 @@ from comps import (
     statistics_dict,
 )
 
+from comps.cores.proto.api_protocol import (
+    ChatCompletionRequest,
+    RetrievalRequest,
+    RetrievalResponse,
+    RetrievalResponseData,
+)
+
 logger = CustomLogger("retriever_neo4j")
 logflag = os.getenv("LOGFLAG", False)
-
 
 @register_microservice(
     name="opea_service@retriever_neo4j",
