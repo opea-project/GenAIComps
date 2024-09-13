@@ -55,7 +55,7 @@ jobs:
           set -x
           service_l=$(echo ${{ inputs.service }} | tr '[:upper:]' '[:lower:]')
           cd ${{ github.workspace }}/tests
-          test_cases=$(find . -type f -name "test_${service_l}*.sh" -print | cut -d/ -f2 | jq -R '.' | jq -sc '.')
+          test_cases=$(find . -type f -name "test_${service_l}*.sh" -exec basename {} \; | jq -R '.' | jq -sc '.')
           echo "test_cases=$test_cases" >> $GITHUB_OUTPUT
 
   run-test:
