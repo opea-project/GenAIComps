@@ -51,6 +51,8 @@ def llm_generate(input: LLMParamsDoc):
         model_name=model_name,
         top_p=input.top_p,
         temperature=input.temperature,
+        frequency_penalty=input.frequency_penalty,
+        presence_penalty=input.presence_penalty,
         streaming=input.streaming,
     )
 
