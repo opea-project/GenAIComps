@@ -53,7 +53,7 @@ jobs:
           cd ${{ github.workspace }}/tests
           test_cases=$(find . -type f -name "test_${service_l}*.sh" -print | jq -R '.' | jq -sc '.')
           echo "test_cases=$test_cases" >> $GITHUB_OUTPUT
-          # TODO: get hardware for test matrix 
+          # TODO: get hardware for test matrix
 
   run-test:
     needs: [get-test-case]
