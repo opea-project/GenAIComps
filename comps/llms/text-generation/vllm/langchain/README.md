@@ -187,4 +187,5 @@ curl http://${your_ip}:9000/v1/chat/completions \
   -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_p":1,"temperature":0.7,"frequency_penalty":0,"presence_penalty":0, "streaming":false}' \
   -H 'Content-Type: application/json'
 ```
+
 For parameters, can refer to [LangChain VLLMOpenAI API](https://api.python.langchain.com/en/latest/llms/langchain_community.llms.vllm.VLLMOpenAI.html)

@@ -85,4 +85,5 @@ curl http://${your_ip}:9000/v1/chat/completions \
   -d '{"query":"What is Deep Learning?","max_new_tokens":17,"presence_penalty":1.03","streaming":false}' \
   -H 'Content-Type: application/json'
 ```
+
 For parameters, can refer to [LangChain ChatOpenAI API](https://python.langchain.com/v0.2/api_reference/openai/chat_models/langchain_openai.chat_models.base.ChatOpenAI.html)
