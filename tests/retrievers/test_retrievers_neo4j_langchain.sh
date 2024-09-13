@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker run -d -p 7474:7474 -p 7687:7687 -v ./data:/data -v ./plugins:/plugins --name test-neo4j-apoc1 -e NEO4J_AUTH=neo4j/password -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
+    docker run -d -p 7474:7474 -p 7687:7687 -v ./data:/data -v ./plugins:/plugins --name test-comps-neo4j-apoc1 -e NEO4J_AUTH=neo4j/password -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
     sleep 30s
 
     docker build --no-cache -t opea/retriever-neo4j:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/langchain/Dockerfile .
@@ -76,7 +76,7 @@ function stop_docker() {
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
     fi
-    cid_db=$(docker ps -aq --filter "name=test-neo4j-apoc1")
+    cid_db=$(docker ps -aq --filter "name=test-comps-neo4j-apoc1")
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
     fi
