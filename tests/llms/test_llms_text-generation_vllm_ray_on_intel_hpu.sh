@@ -91,7 +91,7 @@ function validate_microservice() {
     service_port=5032
     result=$(http_proxy="" curl http://${ip_address}:$service_port/v1/chat/completions \
         -X POST \
-        -d '{"query":"What is Deep Learning?","max_new_tokens":17,"presence_penalty":1.03,"streaming":false}' \
+        -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_p":1,"temperature":0.7,"frequency_penalty":0,"presence_penalty":0, "streaming":false}' \
         -H 'Content-Type: application/json')
     if [[ $result == *"text"* ]]; then
         echo "Result correct."

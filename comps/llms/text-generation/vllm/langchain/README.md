@@ -158,7 +158,7 @@ curl http://${your_ip}:8008/v1/completions \
   -d '{
   "model": "meta-llama/Meta-Llama-3-8B-Instruct",
   "prompt": "What is Deep Learning?",
-  "max_new_tokens": 32,
+  "max_tokens": 32,
   "temperature": 0
   }'
 ```
