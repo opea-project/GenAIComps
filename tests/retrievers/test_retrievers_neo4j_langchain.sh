@@ -11,7 +11,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     docker run -d -p 7474:7474 -p 7687:7687 -v $PWD/data:/data -v $PWD/plugins:/plugins --name neo4j-apoc1 -e NEO4J_AUTH=neo4j/password -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
-    sleep 60s
+    sleep 30s
 
     docker build --no-cache -t opea/retriever-neo4j:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
@@ -34,8 +34,9 @@ function start_service() {
     export NEO4J_URI="bolt://${ip_address}:7687"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="password"
+    retriever_port=5435
     # unset http_proxy
-    docker run -d --name="test-comps-retriever-neo4j-server" -p ${retriever_port}:7000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/retriever-neo4j:comps
+    docker run -d --name="test-comps-retriever-neo4j-server" -p ${retriever_port}:7000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="password" opea/retriever-neo4j:comps
 
     sleep 3m
 }

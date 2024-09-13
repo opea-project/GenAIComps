@@ -34,11 +34,19 @@ logflag = os.getenv("LOGFLAG", False)
     port=7000,
 )
 @register_statistics(names=["opea_service@retriever_neo4j"])
-def retrieve(input: EmbedDoc) -> SearchedDoc:
+def retrieve(
+    input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
+) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
     if logflag:
         logger.info(input)
-
     start = time.time()
+
+    if isinstance(input, EmbedDoc):
+        query = input.text
+    else:
+        # for RetrievalRequest, ChatCompletionRequest
+        query = input.input
+        
     if input.search_type == "similarity":
         search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, query=input.text, k=input.k)
     elif input.search_type == "similarity_distance_threshold":
@@ -56,10 +64,24 @@ def retrieve(input: EmbedDoc) -> SearchedDoc:
         search_res = vector_db.max_marginal_relevance_search(
             query=input.text, k=input.k, fetch_k=input.fetch_k, lambda_mult=input.lambda_mult
         )
-    searched_docs = []
-    for r in search_res:
-        searched_docs.append(TextDoc(text=r.page_content))
-    result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
+    else:
+        raise ValueError(f"{input.search_type} not valid")
+
+    # return different response format
+    retrieved_docs = []
+    if isinstance(input, EmbedDoc):
+        for r in search_res:
+            retrieved_docs.append(TextDoc(text=r.page_content))
+        result = SearchedDoc(retrieved_docs=retrieved_docs, initial_query=input.text)
+    else:
+        for r in search_res:
+            retrieved_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
+        if isinstance(input, RetrievalRequest):
+            result = RetrievalResponse(retrieved_docs=retrieved_docs)
+        elif isinstance(input, ChatCompletionRequest):
+            input.retrieved_docs = retrieved_docs
+            input.documents = [doc.text for doc in retrieved_docs]
+            result = input
 
     statistics_dict["opea_service@retriever_neo4j"].append_latency(time.time() - start, None)
     if logflag:
