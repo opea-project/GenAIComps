@@ -285,6 +285,8 @@ class AudioChatCompletionRequest(BaseModel):
     max_new_tokens: Optional[int] = 1024
     stop: Optional[Union[str, List[str]]] = None
     stream: Optional[bool] = False
+    presence_penalty: Optional[float] = 0.0
+    frequency_penalty: Optional[float] = 0.0
     repetition_penalty: Optional[float] = 1.03
     user: Optional[str] = None
 
@@ -342,7 +344,9 @@ class CompletionRequest(BaseModel):
     top_k: Optional[int] = -1
     logprobs: Optional[int] = None
     echo: Optional[bool] = False
-    repetition_penalty: Optional[float] = 0.0
+    presence_penalty: Optional[float] = 0.0
+    frequency_penalty: Optional[float] = 0.0
+    repetition_penalty: Optional[float] = 1.03
     user: Optional[str] = None
     use_beam_search: Optional[bool] = False
     best_of: Optional[int] = None
