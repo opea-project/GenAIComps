@@ -46,7 +46,7 @@ def retrieve(
     else:
         # for RetrievalRequest, ChatCompletionRequest
         query = input.input
-        
+
     if input.search_type == "similarity":
         search_res = vector_db.similarity_search_by_vector(embedding=input.embedding, query=input.text, k=input.k)
     elif input.search_type == "similarity_distance_threshold":
