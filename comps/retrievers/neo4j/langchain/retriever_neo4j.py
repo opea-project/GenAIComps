@@ -21,7 +21,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
     RetrievalRequest,
@@ -31,6 +30,7 @@ from comps.cores.proto.api_protocol import (
 
 logger = CustomLogger("retriever_neo4j")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @register_microservice(
     name="opea_service@retriever_neo4j",
