@@ -26,7 +26,7 @@ metadata:
   name: chatqna-backend-server-deploy
   namespace: default
 spec:
-  replicas: 1
+  replicas: 8
   selector:
     matchLabels:
       app: chatqna-backend-server-deploy
@@ -138,7 +138,7 @@ metadata:
   name: embedding-dependency-deploy
   namespace: default
 spec:
-  replicas: 1
+  replicas: 8
   selector:
     matchLabels:
       app: embedding-dependency-deploy
@@ -215,7 +215,7 @@ metadata:
   name: llm-dependency-deploy
   namespace: default
 spec:
-  replicas: 7
+  replicas: 63
   selector:
     matchLabels:
       app: llm-dependency-deploy
@@ -396,7 +396,7 @@ metadata:
   name: retriever-deploy
   namespace: default
 spec:
-  replicas: 1
+  replicas: 8
   selector:
     matchLabels:
       app: retriever-deploy
