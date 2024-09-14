@@ -31,7 +31,7 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # Neo4J retriever
-    export NEO4J_URI="bolt://${ip_address}:7687"
+    export NEO4J_URI="bolt://${ip_address}:7688"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="password"
     retriever_port=5435
