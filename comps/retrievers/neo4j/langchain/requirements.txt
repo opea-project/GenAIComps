@@ -2,7 +2,6 @@ docarray[full]
 fastapi
 frontend==0.0.3
 huggingface_hub
-langchain
 langchain-community
 neo4j
 numpy
@@ -19,3 +18,4 @@ sentence_transformers
 shortuuid
 tiktoken
 uvicorn
+langchain==0.2.39
