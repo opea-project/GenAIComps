@@ -37,7 +37,7 @@ function start_service() {
     retriever_port=5435
     # unset http_proxy
     export no_proxy="localhost,127.0.0.1,"${ip_address}
-    docker run -d --name="test-comps-retriever-neo4j-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="password" opea/retriever-neo4j:comps
+    docker run -d --name="test-comps-retriever-neo4j-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7688" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="password" opea/retriever-neo4j:comps
 
     sleep 1m
 }
