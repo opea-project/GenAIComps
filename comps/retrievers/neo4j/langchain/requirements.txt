@@ -2,7 +2,7 @@ docarray[full]
 fastapi
 frontend==0.0.3
 huggingface_hub
-langchain==0.2.39
+langchain
 langchain-community
 neo4j
 numpy
