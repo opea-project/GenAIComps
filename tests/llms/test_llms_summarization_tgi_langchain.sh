@@ -27,7 +27,6 @@ function start_service() {
     docker run -d --name="test-comps-llm-sum-tgi-endpoint" -p $tgi_endpoint_port:80 -v ./data:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${your_hf_llm_model}
     export TGI_LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
 
-    echo "##############################HF_TOKEN IS $HF_TOKEN ################################# "
     sum_port=5076
     docker run -d --name="test-comps-llm-sum-tgi-server" -p ${sum_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm-sum-tgi:comps
 
