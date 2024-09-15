@@ -47,7 +47,7 @@ def llm_generate(input: LLMParamsDoc):
         temperature=input.temperature,
         repetition_penalty=input.repetition_penalty,
         streaming=input.streaming,
-        huggingfacehub_api_token=hf_api_endpoint # Mandatory Hugging Face token to use HuggingFaceEndpoint 
+        huggingfacehub_api_token=hf_api_endpoint,  # Mandatory Hugging Face token to use HuggingFaceEndpoint
     )
     llm_chain = load_summarize_chain(llm=llm, chain_type="map_reduce")
 
