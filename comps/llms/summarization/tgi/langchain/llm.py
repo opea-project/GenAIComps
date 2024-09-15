@@ -37,7 +37,6 @@ def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
-    hf_api_endpoint = os.getenv("HUGGINGFACEHUB_API_TOKEN")
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
         max_new_tokens=input.max_new_tokens,
@@ -47,7 +46,6 @@ def llm_generate(input: LLMParamsDoc):
         temperature=input.temperature,
         repetition_penalty=input.repetition_penalty,
         streaming=input.streaming,
-        huggingfacehub_api_token=hf_api_endpoint # Mandatory Hugging Face token to use HuggingFaceEndpoint 
     )
     llm_chain = load_summarize_chain(llm=llm, chain_type="map_reduce")
 
