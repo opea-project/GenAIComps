@@ -13,7 +13,7 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding-pg:comps -f comps/embeddings/predictionguard/docker/Dockerfile .
+    docker build --no-cache -t opea/embedding-pg:comps -f comps/embeddings/predictionguard/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/embedding-pg built fail"
         exit 1

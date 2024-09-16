@@ -20,7 +20,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../../..
-docker build -t opea/embedding-predictionguard:latest -f comps/embeddings/predictionguard/docker/Dockerfile .
+docker build -t opea/embedding-predictionguard:latest -f comps/embeddings/predictionguard/Dockerfile .
 ```
 
 ## Start Service
