@@ -13,7 +13,7 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/llm-pg:comps -f comps/llms/text-generation/predictionguard/docker/Dockerfile .
+    docker build --no-cache -t opea/llm-pg:comps -f comps/llms/text-generation/predictionguard/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llm-pg built failed"
         exit 1

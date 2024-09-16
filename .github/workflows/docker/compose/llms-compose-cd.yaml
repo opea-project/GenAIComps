@@ -25,5 +25,5 @@ services:
     image: ${REGISTRY:-opea}/llm-vllm-llamaindex-hpu:${TAG:-latest}
   llm-predictionguard:
     build:
-      dockerfile: comps/llms/text-generation/predictionguard/docker/Dockerfile
+      dockerfile: comps/llms/text-generation/predictionguard/Dockerfile
     image: ${REGISTRY:-opea}/llm-predictionguard:${TAG:-latest}
