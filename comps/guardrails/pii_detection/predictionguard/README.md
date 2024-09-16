@@ -22,13 +22,13 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../../..
-docker build -t opea/pii-predictionguard:latest -f comps/guardrails/pii_detection/predictionguard/docker/Dockerfile .
+docker build -t opea/guardrails-pii-predictionguard:latest -f comps/guardrails/pii_detection/predictionguard/Dockerfile .
 ```
 
 ## Start Service
 
 ```bash
-docker run -d --name="pii-predictionguard" -p 9080:9080 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/pii-predictionguard:latest
+docker run -d --name="guardrails-pii-predictionguard" -p 9080:9080 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/guardrails-pii-predictionguard:latest
 ```
 
 # 🚀 Consume PII Detection Service

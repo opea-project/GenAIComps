@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  toxicity:
-    image: opea/toxicity-predictionguard:latest
-    container_name: toxicity-predictionguard
+  factuality:
+    image: opea/guardrails-factuality-predictionguard:latest
+    container_name: guardrails-factuality-predictionguard
     ports:
-      - "9090:9090"
+      - "9075:9075"
     ipc: host
     environment:
       no_proxy: ${no_proxy}

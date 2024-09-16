@@ -18,13 +18,13 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../../..
-docker build -t opea/injection-predictionguard:latest -f comps/guardrails/prompt_injection/predictionguard/docker/Dockerfile .
+docker build -t opea/guardrails-injection-predictionguard:latest -f comps/guardrails/prompt_injection/predictionguard/Dockerfile .
 ```
 
 ## Start Service
 
 ```bash
-docker run -d --name="injection-predictionguard" -p 9085:9085 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/injection-predictionguard:latest
+docker run -d --name="guardrails-injection-predictionguard" -p 9085:9085 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/guardrails-injection-predictionguard:latest
 ```
 
 # 🚀 Consume Prompt Injection Detection Service

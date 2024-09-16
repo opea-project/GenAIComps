@@ -18,13 +18,13 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../../..
-docker build -t opea/factuality-predictionguard:latest -f comps/guardrails/factuality/predictionguard/docker/Dockerfile .
+docker build -t opea/factuality-predictionguard:latest -f comps/guardrails/factuality/predictionguard/Dockerfile .
 ```
 
 ## Start Service
 
 ```bash
-docker run -d --name="factuality-predictionguard" -p 9075:9075 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/factuality-predictionguard:latest
+docker run -d --name="guardrails-factuality-predictionguard" -p 9075:9075 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/guardrails-factuality-predictionguard:latest
 ```
 
 # 🚀 Consume Factuality Check Service

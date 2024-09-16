@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  factuality:
-    image: opea/factuality-predictionguard:latest
-    container_name: factuality-predictionguard
+  pii:
+    image: opea/guardrails-pii-predictionguard:latest
+    container_name: pii-predictionguard
     ports:
-      - "9075:9075"
+      - "9080:9080"
     ipc: host
     environment:
       no_proxy: ${no_proxy}

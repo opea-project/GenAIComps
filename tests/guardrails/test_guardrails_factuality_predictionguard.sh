@@ -13,7 +13,7 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/factuality-pg:comps -f comps/guardrails/factuality/predictionguard/docker/Dockerfile .
+    docker build --no-cache -t opea/factuality-pg:comps -f comps/guardrails/factuality/predictionguard/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/factuality-pg build failed"
         exit 1

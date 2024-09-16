@@ -18,13 +18,13 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../../..
-docker build -t opea/toxicity-predictionguard:latest -f comps/guardrails/toxicity_harm/predictionguard/docker/Dockerfile .
+docker build -t opea/guardrails-toxicity-predictionguard:latest -f comps/guardrails/toxicity_detection/predictionguard/Dockerfile .
 ```
 
 ## Start Service
 
 ```bash
-docker run -d --name="toxicity-predictionguard" -p 9090:9090 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/toxicity-predictionguard:latest
+docker run -d --name="guardrails-toxicity-predictionguard" -p 9090:9090 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY opea/guardrails-toxicity-predictionguard:latest
 ```
 
 # 🚀 Consume Toxicity Check Service
