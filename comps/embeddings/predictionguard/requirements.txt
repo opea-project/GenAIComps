@@ -7,5 +7,5 @@ opentelemetry-sdk
 Pillow
 predictionguard==2.2.1
 prometheus-fastapi-instrumentator
-shortuuid
 PyYAML
+shortuuid
