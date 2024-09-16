@@ -3,8 +3,8 @@
 
 services:
   llm:
-    image: opea/llm-predictionguard:latest
-    container_name: llm-predictionguard
+    image: opea/llm-textgen-predictionguard:latest
+    container_name: llm-textgen-predictionguard
     ports:
       - "9000:9000"
     ipc: host

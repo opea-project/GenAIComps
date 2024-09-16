@@ -8,13 +8,13 @@
 
 ```bash
 cd ../../..
-docker build -t opea/llm-predictionguard:latest -f comps/llms/text-generation/predictionguard/docker/Dockerfile .
+docker build -t opea/llm-textgen-predictionguard:latest -f comps/llms/text-generation/predictionguard/Dockerfile .
 ```
 
 ## Run the Predictionguard Microservice
 
 ```bash
-docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name llm-predictionguard opea/llm-predictionguard:latest
+docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name llm-textgen-predictionguard opea/llm-textgen-predictionguard:latest
 ```
 
 # Consume the Prediction Guard Microservice

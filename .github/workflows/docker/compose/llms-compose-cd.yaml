@@ -26,4 +26,4 @@ services:
   llm-predictionguard:
     build:
       dockerfile: comps/llms/text-generation/predictionguard/Dockerfile
-    image: ${REGISTRY:-opea}/llm-predictionguard:${TAG:-latest}
+    image: ${REGISTRY:-opea}/llm-textgen-predictionguard:${TAG:-latest}
