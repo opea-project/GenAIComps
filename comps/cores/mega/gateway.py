@@ -548,7 +548,7 @@ class VisualQnAGateway(Gateway):
         return ChatCompletionResponse(model="visualqna", choices=choices, usage=usage)
 
 
-class VideoRAGQnAGateway(Gateway):
+class VideoQnAGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(
             megaservice,
@@ -594,7 +594,7 @@ class VideoRAGQnAGateway(Gateway):
                 finish_reason="stop",
             )
         )
-        return ChatCompletionResponse(model="videoragqna", choices=choices, usage=usage)
+        return ChatCompletionResponse(model="videoqna", choices=choices, usage=usage)
 
 
 class RetrievalToolGateway(Gateway):
@@ -634,14 +634,14 @@ class RetrievalToolGateway(Gateway):
         return response
 
 
-class MultimodalRAGWithVideosGateway(Gateway):
+class MultimodalQnAGateway(Gateway):
     def __init__(self, multimodal_rag_megaservice, lvm_megaservice, host="0.0.0.0", port=9999):
         self.lvm_megaservice = lvm_megaservice
         super().__init__(
             multimodal_rag_megaservice,
             host,
             port,
-            str(MegaServiceEndpoint.MULTIMODAL_RAG_WITH_VIDEOS),
+            str(MegaServiceEndpoint.MULTIMODAL_QNA),
             ChatCompletionRequest,
             ChatCompletionResponse,
         )
@@ -737,7 +737,7 @@ class MultimodalRAGWithVideosGateway(Gateway):
         data = await request.json()
         stream_opt = bool(data.get("stream", False))
         if stream_opt:
-            print("[ MultimodalRAGWithVideosGateway ] stream=True not used, this has not support streaming yet!")
+            print("[ MultimodalQnAGateway ] stream=True not used, this has not support streaming yet!")
             stream_opt = False
         chat_request = ChatCompletionRequest.model_validate(data)
         # Multimodal RAG QnA With Videos has not yet accepts image as input during QnA.
@@ -803,4 +803,4 @@ class MultimodalRAGWithVideosGateway(Gateway):
                 metadata=metadata,
             )
         )
-        return ChatCompletionResponse(model="multimodalragwithvideos", choices=choices, usage=usage)
+        return ChatCompletionResponse(model="multimodalqna", choices=choices, usage=usage)
