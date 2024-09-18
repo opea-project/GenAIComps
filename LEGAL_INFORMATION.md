@@ -2,7 +2,7 @@
 
 1. [License](#license)
 2. [Citation](#citation)
-3. [test](#test)
+3. [test](/test)
 
 ## License
 

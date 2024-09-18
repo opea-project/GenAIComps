@@ -216,10 +216,19 @@ jobs:
             for png_line in $png_lines; do
               refer_path=$(echo "$png_line"|cut -d':' -f1 | cut -d'/' -f2-)
               png_path=$(echo "$png_line"|cut -d '(' -f2 | cut -d ')' -f1)
-              if [[ "${png_path:0:1}" == "/" || "${png_path:0:1}" == "#" ]]; then
+              if [[ "${png_path:0:1}" == "/" ]]; then
                 check_path=${{github.workspace}}$png_path
+              elif [[ "${png_path:0:1}" == "#" ]]; then
+                check_path=${{github.workspace}}/$refer_path$png_path
               else
                 check_path=${{github.workspace}}/$(dirname "$refer_path")/$png_path
+              fi
+              if [[ "${png_path:0:1}" == "/" ]]; then
+                check_path=$png_path
+              elif [[ "${png_path:0:1}" == "#" ]]; then
+                check_path=$refer_path$png_path
+              else
+                check_path=$(dirname "$refer_path")/$png_path
               fi
               real_path=$(realpath $check_path)
               if [ $? -ne 0 ]; then
