@@ -79,7 +79,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
         llm = VLLMOpenAI(
             openai_api_key="EMPTY",
             openai_api_base=llm_endpoint + "/v1",
-            max_tokens=new_input.max_new_tokens,
+            max_tokens=new_input.max_tokens,
             model_name=model_name,
             top_p=new_input.top_p,
             temperature=new_input.temperature,
@@ -134,7 +134,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
         llm = VLLMOpenAI(
             openai_api_key="EMPTY",
             openai_api_base=llm_endpoint + "/v1",
-            max_tokens=input.max_new_tokens,
+            max_tokens=input.max_tokens,
             model_name=model_name,
             top_p=input.top_p,
             temperature=input.temperature,

@@ -160,7 +160,7 @@ class ChatQnAGateway(Gateway):
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 1024,
+            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
@@ -216,7 +216,7 @@ class CodeGenGateway(Gateway):
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 1024,
+            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
@@ -354,7 +354,7 @@ class DocSumGateway(Gateway):
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 1024,
+            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
@@ -404,8 +404,8 @@ class AudioQnAGateway(Gateway):
 
         chat_request = AudioChatCompletionRequest.parse_obj(data)
         parameters = LLMParams(
-            # relatively lower max_new_tokens for audio conversation
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 128,
+            # relatively lower max_tokens for audio conversation
+            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 128,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
@@ -436,7 +436,7 @@ class SearchQnAGateway(Gateway):
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 1024,
+            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
@@ -482,7 +482,7 @@ class FaqGenGateway(Gateway):
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 1024,
+            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
@@ -528,7 +528,7 @@ class VisualQnAGateway(Gateway):
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt, images = self._handle_message(chat_request.messages)
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 1024,
+            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
@@ -579,7 +579,7 @@ class VideoQnAGateway(Gateway):
         chat_request = ChatCompletionRequest.parse_obj(data)
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 1024,
+            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
@@ -770,7 +770,7 @@ class MultimodalQnAGateway(Gateway):
             initial_inputs = {"text": prompt}
 
         parameters = LLMParams(
-            max_new_tokens=chat_request.max_new_tokens if chat_request.max_new_tokens else 1024,
+            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,

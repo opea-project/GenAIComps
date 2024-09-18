@@ -145,6 +145,7 @@ class RerankedDoc(BaseDoc):
 class LLMParamsDoc(BaseDoc):
     model: Optional[str] = None  # for openai and ollama
     query: str
+    max_tokens: int = 1024
     max_new_tokens: int = 1024
     top_k: int = 10
     top_p: float = 0.95
@@ -181,6 +182,7 @@ class LLMParamsDoc(BaseDoc):
 
 
 class LLMParams(BaseDoc):
+    max_tokens: int = 1024
     max_new_tokens: int = 1024
     top_k: int = 10
     top_p: float = 0.95
