@@ -1,14 +1,10 @@
-datasets
-docarray[full]
+docarray
 fastapi
-huggingface_hub
-langchain
-langchain_community
+httpx
+llama_index
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
-ragas
 shortuuid
-transformers
 uvicorn

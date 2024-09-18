@@ -13,43 +13,43 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/llm-pg:comps -f comps/llms/text-generation/predictionguard/Dockerfile .
+    docker build --no-cache -t opea/lvm-pg:comps -f comps/lvms/predictionguard/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/llm-pg built failed"
+        echo "opea/lvm-pg build failed"
         exit 1
     else
-        echo "opea/llm-pg built successfully"
+        echo "opea/lvm-pg built successfully"
     fi
 }
 
 function start_service() {
-    llm_service_port=9000
+    lvm_service_port=9399
     unset http_proxy
-    docker run -d --name=test-comps-llm-pg-server \
+    docker run -d --name=test-comps-lvm-pg-server \
         -e http_proxy= -e https_proxy= \
         -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
-        -p 9000:9000 --ipc=host opea/llm-pg:comps
+        -p 9399:9399 --ipc=host opea/lvm-pg:comps
     sleep 60  # Sleep for 1 minute to allow the service to start
 }
 
 function validate_microservice() {
-    llm_service_port=9000
-    result=$(http_proxy="" curl http://${ip_address}:${llm_service_port}/v1/chat/completions \
+    lvm_service_port=9399
+    result=$(http_proxy="" curl http://${ip_address}:${lvm_service_port}/v1/lvm \
         -X POST \
-        -d '{"model": "Hermes-2-Pro-Llama-3-8B", "query": "What is AI?", "streaming": false, "max_tokens": 100, "temperature": 0.7, "top_p": 1.0, "top_k": 50}' \
+        -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt": "Describe the image.", "max_new_tokens": 100}' \
         -H 'Content-Type: application/json')
 
     if [[ $result == *"text"* ]]; then
         echo "Service response is correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-llm-pg-server
+        docker logs test-comps-lvm-pg-server
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-llm-pg-*")
+    cid=$(docker ps -aq --filter "name=test-comps-lvm-pg-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
