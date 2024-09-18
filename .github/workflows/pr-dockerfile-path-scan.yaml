@@ -237,10 +237,7 @@ jobs:
                     echo "*****Retry successfully*****"
                   else
                     echo "Retry failed. Check branch ${{ github.event.pull_request.head.ref }}"
-                    # fail="TRUE"
-
                     url_dev=$branch$(echo "$real_path" | sed 's|.*/GenAIComps||')
-                    echo $url_dev
                     response=$(curl -I -L -s -o /dev/null -w "%{http_code}" "$url_dev")
                     if [ "$response" -ne 200 ]; then
                       echo "**********Validation failed, try again**********"
@@ -251,8 +248,9 @@ jobs:
                         echo "Invalid link from $real_path: $url_dev"
                         fail="TRUE"
                       fi
+                    else
+                      echo "Check branch ${{ github.event.pull_request.head.ref }} successfully."
                     fi
-
                   fi
                 fi
               fi
