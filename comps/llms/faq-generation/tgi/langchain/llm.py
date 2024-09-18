@@ -26,6 +26,7 @@ def post_process_text(text: str):
     new_text = text.replace(" ", "@#$")
     return f"data: {new_text}\n\n"
 
+##for debug test
 
 @register_microservice(
     name="opea_service@llm_faqgen",
@@ -40,7 +41,7 @@ def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
-        max_new_tokens=input.max_tokens,
+        max_new_tokens=input.max_new_tokens,
         top_k=input.top_k,
         top_p=input.top_p,
         typical_p=input.typical_p,
