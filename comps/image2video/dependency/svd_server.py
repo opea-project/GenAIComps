@@ -41,10 +41,28 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=9368)
     parser.add_argument("--model_name_or_path", type=str, default="stabilityai/stable-video-diffusion-img2vid-xt")
     parser.add_argument("--video_path", type=str, default="generated.mp4")
+    parser.add_argument("--use_hpu_graphs", default=False, action="store_true")
+    parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--seed", type=int, default=42)
 
     args = parser.parse_args()
-    pipe = StableVideoDiffusionPipeline.from_pretrained(args.model_name_or_path)
+    if args.device == "hpu":
+        from optimum.habana.diffusers import GaudiEulerDiscreteScheduler, GaudiStableVideoDiffusionPipeline
+        scheduler = GaudiEulerDiscreteScheduler.from_pretrained(args.model_name_or_path, subfolder="scheduler")
+        kwargs = {
+            "scheduler": scheduler,
+            "use_habana": True,
+            "use_hpu_graphs": args.use_hpu_graphs,
+            "gaudi_config": "Habana/stable-diffusion",
+        }
+        pipeline = GaudiStableVideoDiffusionPipeline.from_pretrained(
+            args.model_name_or_path,
+            **kwargs,
+        )
+    elif args.device == "cpu":
+        pipe = StableVideoDiffusionPipeline.from_pretrained(args.model_name_or_path)
+    else:
+        raise NotImplementedError(f"Only support cpu and hpu device now, device {args.device} not supported.")
     print("Stable Video Diffusion model initialized.")
 
     uvicorn.run(

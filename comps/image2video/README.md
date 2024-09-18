@@ -8,14 +8,14 @@ Image-to-Video is a task that generate video conditioning on the provided image(
 
 ```bash
 pip install -r requirements.txt
-pip install -r svd/requirements.txt
+pip install -r dependency/requirements.txt
 ```
 
 ## 1.2 Start SVD Service
 
 ```bash
 # Start SVD service
-cd svd/
+cd dependency/
 python svd_server.py
 ```
 
@@ -33,9 +33,18 @@ python image2video.py
 
 ### 2.1.1 SVD Server Image
 
+Build SVD server image on Xeon with below command:
+
 ```bash
 cd ../..
-docker build -t opea/svd:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/svd/Dockerfile .
+docker build -t opea/svd:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/dependency/Dockerfile .
+```
+
+Build SVD server image on Gaudi with below command:
+
+```bash
+cd ../..
+docker build -t opea/svd-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/dependency/Dockerfile.intel_hpu .
 ```
 
 ### 2.1.2 Image-to-Video Service Image
@@ -48,8 +57,16 @@ docker build -t opea/image2video:latest --build-arg https_proxy=$https_proxy --b
 
 ### 2.2.1 Start SVD server
 
+Start SVD server on Xeon with below command:
+
 ```bash
 docker run --ipc=host -p 9368:9368 -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/svd:latest
+```
+
+Start SVD server on Gaudi with below command:
+
+```bash
+docker run -p 9368:9368 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/svd-gaudi:latest
 ```
 
 ### 2.2.2 Start Image-to-Video service
