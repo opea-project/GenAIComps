@@ -26,7 +26,7 @@ async def generate(request: Request) -> Response:
     images = [load_image(img) for img in images_path]
     images = [image.resize((1024, 576)) for image in images]
 
-    generator = torch.manual_seed(args.seed)
+    generator = torch.manual_seed(args.seed) if args.device == "cpu" else None
     frames = pipe(images, decode_chunk_size=8, generator=generator).frames[0]
     video_path = os.path.join(os.getcwd(), args.video_path)
     export_to_video(frames, video_path, fps=7)
@@ -48,7 +48,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.device == "hpu":
         from optimum.habana.diffusers import GaudiEulerDiscreteScheduler, GaudiStableVideoDiffusionPipeline
-
+        from optimum.habana.utils import set_seed
+        set_seed(args.seed)
         scheduler = GaudiEulerDiscreteScheduler.from_pretrained(args.model_name_or_path, subfolder="scheduler")
         kwargs = {
             "scheduler": scheduler,
@@ -56,7 +57,7 @@ if __name__ == "__main__":
             "use_hpu_graphs": args.use_hpu_graphs,
             "gaudi_config": "Habana/stable-diffusion",
         }
-        pipeline = GaudiStableVideoDiffusionPipeline.from_pretrained(
+        pipe = GaudiStableVideoDiffusionPipeline.from_pretrained(
             args.model_name_or_path,
             **kwargs,
         )
