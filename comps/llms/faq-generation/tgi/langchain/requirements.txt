@@ -1,7 +1,7 @@
 docarray[full]
 fastapi
 huggingface_hub
-langchain #==0.1.12
+langchain
 langchain-huggingface
 langchain-openai
 langchain_community
