@@ -208,6 +208,7 @@ jobs:
       - name: Checking Relative Path Validity
         run: |
           cd ${{github.workspace}}
+          echo ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.repo.full_name }}
           fail="FALSE"
           branch="https://github.com/opea-project/GenAIComps/blob/${{ github.event.pull_request.head.ref }}"
           link_head="https://github.com/opea-project/GenAIComps/blob/main"
