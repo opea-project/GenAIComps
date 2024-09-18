@@ -27,6 +27,7 @@ logflag = os.getenv("LOGFLAG", False)
 llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
 model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
 
+
 @opea_telemetry
 def post_process_text(text: str):
     if text == " ":
