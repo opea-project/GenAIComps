@@ -210,7 +210,6 @@ jobs:
           cd ${{github.workspace}}
           fail="FALSE"
           branch="https://github.com/opea-project/GenAIComps/blob/${{ github.event.pull_request.head.ref }}"
-          echo $branch
           link_head="https://github.com/opea-project/GenAIComps/blob/main"
           png_lines=$(grep -Eo '\]\([^)]+\)' --include='*.md' -r .|grep -Ev 'http')
           if [ -n "$png_lines" ]; then
@@ -231,7 +230,6 @@ jobs:
               else
                 url=$link_head$(echo "$real_path" | sed 's|.*/GenAIComps||')
                 response=$(curl -I -L -s -o /dev/null -w "%{http_code}" "$url")
-                echo "$url"
                 if [ "$response" -ne 200 ]; then
                   echo "**********Validation failed, try again**********"
                   response_retry=$(curl -s -o /dev/null -w "%{http_code}" "$url")
@@ -241,7 +239,8 @@ jobs:
                     echo "Retry failed. Check branch ${{ github.event.pull_request.head.ref }}"
                     # fail="TRUE"
 
-                    url_dev=$link_head$(echo "$real_path" | sed 's|.*/GenAIComps/||')
+                    url_dev=$branch$(echo "$real_path" | sed 's|.*/GenAIComps||')
+                    echo $url_dev
                     response=$(curl -I -L -s -o /dev/null -w "%{http_code}" "$url_dev")
                     if [ "$response" -ne 200 ]; then
                       echo "**********Validation failed, try again**********"
@@ -249,7 +248,7 @@ jobs:
                       if [ "$response_retry" -eq 200 ]; then
                         echo "*****Retry successfully*****"
                       else
-                        echo "Invalid link from $real_path: $url_dev, $png_line"
+                        echo "Invalid link from $real_path: $url_dev"
                         fail="TRUE"
                       fi
                     fi
