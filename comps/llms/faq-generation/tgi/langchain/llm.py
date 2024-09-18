@@ -26,6 +26,7 @@ def post_process_text(text: str):
     new_text = text.replace(" ", "@#$")
     return f"data: {new_text}\n\n"
 
+
 @register_microservice(
     name="opea_service@llm_faqgen",
     service_type=ServiceType.LLM,
