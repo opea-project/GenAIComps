@@ -233,7 +233,7 @@ jobs:
                   if [ "$response_retry" -eq 200 ]; then
                     echo "*****Retry successfully*****"
                   else
-                    echo "Invalid link from $check_path: $url"
+                    echo "Invalid link from $check_path: $url, $png_line"
                     fail="TRUE"
                   fi
                 fi
