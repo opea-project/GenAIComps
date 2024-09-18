@@ -48,6 +48,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.device == "hpu":
         from optimum.habana.diffusers import GaudiEulerDiscreteScheduler, GaudiStableVideoDiffusionPipeline
+
         scheduler = GaudiEulerDiscreteScheduler.from_pretrained(args.model_name_or_path, subfolder="scheduler")
         kwargs = {
             "scheduler": scheduler,
