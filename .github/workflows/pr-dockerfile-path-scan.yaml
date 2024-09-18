@@ -216,19 +216,19 @@ jobs:
             for png_line in $png_lines; do
               refer_path=$(echo "$png_line"|cut -d':' -f1 | cut -d'/' -f2-)
               png_path=$(echo "$png_line"|cut -d '(' -f2 | cut -d ')' -f1)
-              if [[ "${png_path:0:1}" == "/" ]]; then
+              if [[ "${png_path:0:1}" == "/" || "${png_path:0:1}" == "#" ]]; then
                 check_path=${{github.workspace}}$png_path
               else
                 check_path=${{github.workspace}}/$(dirname "$refer_path")/$png_path
               fi
               real_path=$(realpath $check_path)
-              echo "$real_path"
               if [ $? -ne 0 ]; then
                 echo "Path $png_path in file ${{github.workspace}}/$refer_path does not exist"
                 fail="TRUE"
               else
                 url=$link_head$(echo "$real_path" | sed 's|.*/GenAIComps/||')
                 response=$(curl -I -L -s -o /dev/null -w "%{http_code}" "$url")
+                echo "$url"
                 if [ "$response" -ne 200 ]; then
                   echo "**********Validation failed, try again**********"
                   response_retry=$(curl -s -o /dev/null -w "%{http_code}" "$url")
