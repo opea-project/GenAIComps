@@ -157,7 +157,7 @@ jobs:
             exit 1
           fi
 
-    check-the-validity-of-hyperlinks-in-README:
+  check-the-validity-of-hyperlinks-in-README:
     runs-on: ubuntu-latest
     steps:
       - name: Clean Up Working Directory
