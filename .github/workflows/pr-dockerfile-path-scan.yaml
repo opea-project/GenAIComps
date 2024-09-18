@@ -209,6 +209,7 @@ jobs:
         run: |
           cd ${{github.workspace}}
           fail="FALSE"
+          branch="https://github.com/opea-project/GenAIComps/blob/${{ github.event.pull_request.head.ref }}"
           link_head="https://github.com/opea-project/GenAIComps/blob/main/"
           png_lines=$(grep -Eo '\]\([^)]+\)' --include='*.md' -r .|grep -Ev 'http')
           if [ -n "$png_lines" ]; then
@@ -228,6 +229,7 @@ jobs:
                 url=$link_head$(echo "$real_path" | sed 's|.*/GenAIComps/||')
                 response=$(curl -I -L -s -o /dev/null -w "%{http_code}" "$url")
                 if [ "$response" -ne 200 ]; then
+                  echo "$url"
                   echo "**********Validation failed, try again**********"
                   response_retry=$(curl -s -o /dev/null -w "%{http_code}" "$url")
                   if [ "$response_retry" -eq 200 ]; then
