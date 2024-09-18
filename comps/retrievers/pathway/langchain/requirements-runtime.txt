@@ -1,1 +1,1 @@
-langsmith
+langsmith==0.1.121
