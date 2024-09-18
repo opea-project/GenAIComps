@@ -225,7 +225,7 @@ jobs:
                 echo "Path $png_path in file ${{github.workspace}}/$refer_path does not exist"
                 fail="TRUE"
               else
-                url=$link_head$(echo "$real_path" | sed 's|.*/GenAIExamples/||')
+                url=$link_head$(echo "$real_path" | sed 's|.*/GenAIComps/||')
                 response=$(curl -I -L -s -o /dev/null -w "%{http_code}" "$url")
                 if [ "$response" -ne 200 ]; then
                   echo "**********Validation failed, try again**********"
