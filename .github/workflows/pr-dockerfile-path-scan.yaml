@@ -163,7 +163,7 @@ jobs:
       - name: Clean Up Working Directory
         run: sudo rm -rf ${{github.workspace}}/*
 
-      - name: Checkout Repo GenAIExamples
+      - name: Checkout Repo GenAIComps
         uses: actions/checkout@v4
 
       - name: Check the Validity of Hyperlinks
@@ -202,14 +202,14 @@ jobs:
       - name: Clean up Working Directory
         run: sudo rm -rf ${{github.workspace}}/*
 
-      - name: Checkout Repo GenAIExamples
+      - name: Checkout Repo GenAIComps
         uses: actions/checkout@v4
 
       - name: Checking Relative Path Validity
         run: |
           cd ${{github.workspace}}
           fail="FALSE"
-          link_head="https://github.com/opea-project/GenAIExamples/blob/main/"
+          link_head="https://github.com/opea-project/GenAIComps/blob/main/"
           png_lines=$(grep -Eo '\]\([^)]+\)' -r -I .|grep -Ev 'http')
           if [ -n "$png_lines" ]; then
             for png_line in $png_lines; do
