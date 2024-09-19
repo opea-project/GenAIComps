@@ -1,12 +1,12 @@
-docarray[full]
-fastapi
+docarray[full]==0.40.0
+fastapi==0.115.0
 frontend==0.0.3
-huggingface_hub
-langchain_community == 0.2.0
-opentelemetry-api
-opentelemetry-exporter-otlp
-opentelemetry-sdk
-pathway
-prometheus-fastapi-instrumentator
-sentence_transformers
-shortuuid
+huggingface-hub==0.25.0
+langchain-community==0.2.0
+opentelemetry-api==1.27.0
+opentelemetry-exporter-otlp==1.27.0
+opentelemetry-sdk==1.27.0
+pathway==0.15.0
+prometheus-fastapi-instrumentator==7.0.0
+sentence-transformers==3.1.1
+shortuuid==1.0.13
