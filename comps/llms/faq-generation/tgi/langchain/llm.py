@@ -63,6 +63,7 @@ def llm_generate(input: LLMParamsDoc):
     docs = [Document(page_content=t) for t in texts]
 
     if input.streaming:
+
         async def stream_generator():
             from langserve.serialization import WellKnownLCSerializer
 
