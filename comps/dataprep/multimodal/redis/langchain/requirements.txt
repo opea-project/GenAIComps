@@ -1,6 +1,7 @@
 docarray[full]
 fastapi
 langchain
+langchain-community
 moviepy
 openai-whisper
 opencv-python
