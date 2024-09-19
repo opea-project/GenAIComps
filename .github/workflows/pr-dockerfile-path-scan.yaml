@@ -209,7 +209,13 @@ jobs:
         run: |
           cd ${{github.workspace}}
           fail="FALSE"
-          branch="https://github.com/opea-project/GenAIComps/blob/${{ github.event.pull_request.head.ref }}"
+          repo_name=${{ github.event.pull_request.head.repo.full_name }}
+          if [ "$(echo "$repo_name"|cut -d'/' -f1)" != "opea-project" ]; then
+            owner=$(echo "${{ github.event.pull_request.head.repo.full_name }}" |cut -d'/' -f1)
+            branch="https://github.com/$owner/GenAIComps/tree/${{ github.event.pull_request.head.ref }}"
+          else
+            branch="https://github.com/opea-project/GenAIComps/blob/${{ github.event.pull_request.head.ref }}"
+          fi
           link_head="https://github.com/opea-project/GenAIComps/blob/main"
           png_lines=$(grep -Eo '\]\([^)]+\)' --include='*.md' -r .|grep -Ev 'http')
           if [ -n "$png_lines" ]; then
