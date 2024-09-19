@@ -1,10 +1,10 @@
 # VLLM-Ray Endpoint Service
 
-[Ray](https://docs.ray.io/en/latest/serve/index.html) is an LLM serving solution that makes it easy to deploy and manage a variety of open source LLMs, built on [Ray Serve](https://docs.ray.io/en/latest/serve/index.html), has native support for autoscaling and multi-node deployments, which is easy to use for LLM inference serving on Intel Gaudi2 accelerators. The Intel Gaudi2 accelerator supports both training and inference for deep learning models in particular for LLMs. Please visit [Habana AI products](<(https://habana.ai/products)>) for more details.
+[Ray](https://docs.ray.io/en/latest/serve/index.html) is an LLM serving solution that makes it easy to deploy and manage a variety of open source LLMs. Built on [Ray Serve](https://docs.ray.io/en/latest/serve/index.html) it has native support for autoscaling and multi-node deployments, and is easy to use for LLM inference serving across multiple platforms.
 
-[vLLM](https://github.com/vllm-project/vllm) is a fast and easy-to-use library for LLM inference and serving, it delivers state-of-the-art serving throughput with a set of advanced features such as PagedAttention, Continuous batching and etc.. Besides GPUs, vLLM already supported [Intel CPUs](https://www.intel.com/content/www/us/en/products/overview.html) and [Gaudi accelerators](https://habana.ai/products).
+[vLLM](https://github.com/vllm-project/vllm) is a fast and easy-to-use library for LLM inference and serving, it delivers state-of-the-art serving throughput with a set of advanced features such as PagedAttention and Continuous Batching among others. Besides GPUs, vLLM supports [Intel CPUs](https://www.intel.com/content/www/us/en/products/overview.html) and [Intel Gaudi accelerators](https://habana.ai/products).
 
-This guide provides an example on how to launch vLLM with Ray serve endpoint on Gaudi accelerators.
+This guide provides an example on how to launch vLLM with Ray serve endpoint on [Intel Gaudi2 Accelerator](https://www.intel.com/content/www/us/en/products/details/processors/ai-accelerators/gaudi-overview.html).
 
 ## Set up environment
 
@@ -82,6 +82,8 @@ bash ./launch_microservice.sh
 ```bash
 curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
-  -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
+  -d '{"query":"What is Deep Learning?","max_tokens":17,"top_p":1,"temperature":0.7,"frequency_penalty":0,"presence_penalty":0, "streaming":false}' \
   -H 'Content-Type: application/json'
 ```
+
+For parameters, can refer to [LangChain ChatOpenAI API](https://python.langchain.com/v0.2/api_reference/openai/chat_models/langchain_openai.chat_models.base.ChatOpenAI.html)
