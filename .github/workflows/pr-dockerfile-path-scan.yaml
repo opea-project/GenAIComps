@@ -215,6 +215,7 @@ jobs:
       - name: Checking Relative Path Validity
         run: |
           cd ${{github.workspace}}
+          echo ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.head.repo.full_name }}
           fail="FALSE"
           repo_name=${{ github.event.pull_request.head.repo.full_name }}
           if [ "$(echo "$repo_name"|cut -d'/' -f1)" != "opea-project" ]; then
