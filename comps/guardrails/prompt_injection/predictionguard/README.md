@@ -17,7 +17,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ## Build Docker Images
 
 ```bash
-cd GenAIComps/
+cd ../../../../..
 docker build -t opea/guardrails-injection-predictionguard:latest -f comps/guardrails/prompt_injection/predictionguard/Dockerfile .
 ```
 
