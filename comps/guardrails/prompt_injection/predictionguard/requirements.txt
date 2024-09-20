@@ -6,7 +6,7 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 Pillow
-predictionguard==2.2.1
+predictionguard
 prometheus-fastapi-instrumentator
 shortuuid
 transformers

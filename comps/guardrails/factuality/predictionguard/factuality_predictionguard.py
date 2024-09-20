@@ -7,17 +7,7 @@ import time
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
-from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
-
-
-class FactualityDoc(BaseDoc):
-    reference: str
-    text: str
-
-
-class ScoreDoc(BaseDoc):
-    score: float
-
+from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict, FactualityDoc, ScoreDoc
 
 @register_microservice(
     name="opea_service@factuality_predictionguard",

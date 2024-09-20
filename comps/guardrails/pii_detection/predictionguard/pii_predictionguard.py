@@ -9,19 +9,7 @@ from typing import List, Optional
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
-from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict
-
-
-class PIIRequestDoc(BaseDoc):
-    prompt: str
-    replace: Optional[bool] = False
-    replace_method: Optional[str] = "random"
-
-
-class PIIResponseDoc(BaseDoc):
-    detected_pii: Optional[List[dict]] = None
-    new_prompt: Optional[str] = None
-
+from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict, PIIRequestDoc, PIIResponseDoc
 
 @register_microservice(
     name="opea_service@pii_predictionguard",
