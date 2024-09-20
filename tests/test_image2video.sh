@@ -39,8 +39,8 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-tts-speecht5
-        docker logs test-comps-tts
+        docker logs test-comps-image2video-svd
+        docker logs test-comps-image2video
         exit 1
     fi
 

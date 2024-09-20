@@ -17,6 +17,6 @@ RUN apt-get update && apt-get install python3-opencv -y && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/comps/image2video/svd
+WORKDIR /home/comps/image2video/dependency
 
 ENTRYPOINT ["python", "svd_server.py"]
