@@ -17,7 +17,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ## Build Docker Images
 
 ```bash
-cd ../../../..
+cd GenAIComps/
 docker build -t opea/factuality-predictionguard:latest -f comps/guardrails/factuality/predictionguard/Dockerfile .
 ```
 
