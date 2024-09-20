@@ -7,7 +7,16 @@ import time
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
-from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict, FactualityDoc, ScoreDoc
+from comps import (
+    FactualityDoc,
+    ScoreDoc,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
+
 
 @register_microservice(
     name="opea_service@factuality_predictionguard",

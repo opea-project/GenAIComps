@@ -29,7 +29,7 @@ from comps.cores.proto.docarray import (
     FactualityDoc,
     ScoreDoc,
     PIIRequestDoc,
-    PIIResponseDoc
+    PIIResponseDoc,
 )
 
 # Constants

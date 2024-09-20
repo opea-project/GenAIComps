@@ -9,7 +9,16 @@ from typing import List, Optional
 from docarray import BaseDoc
 from predictionguard import PredictionGuard
 
-from comps import ServiceType, opea_microservices, register_microservice, register_statistics, statistics_dict, PIIRequestDoc, PIIResponseDoc
+from comps import (
+    PIIRequestDoc,
+    PIIResponseDoc,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
+
 
 @register_microservice(
     name="opea_service@pii_predictionguard",

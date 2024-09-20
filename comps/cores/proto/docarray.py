@@ -19,6 +19,7 @@ class TopologyInfo:
 class TextDoc(BaseDoc, TopologyInfo):
     text: str = None
 
+
 class FactualityDoc(BaseDoc):
     reference: str
     text: str
@@ -26,6 +27,7 @@ class FactualityDoc(BaseDoc):
 
 class ScoreDoc(BaseDoc):
     score: float
+
 
 class PIIRequestDoc(BaseDoc):
     prompt: str
