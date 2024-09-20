@@ -116,7 +116,15 @@ def initialize():
             import habana_frameworks.torch.hpu as torch_hpu
             from optimum.habana.utils import HabanaProfile
 
-            model, assistant_model, tokenizer, generation_config = initialize_model(args, logger)
+            model = MllamaForConditionalGeneration.from_pretrained(model_id, device_map="hpu", torch_dtype=torch.bfloat16)
+            processor = AutoProcessor.from_pretrained(model_id)
+            prompt = "<|image|><|begin_of_text|>If I had to write a haiku for this one"
+            url = "https://llava-vl.github.io/static/images/view.jpg"
+            raw_image = Image.open(requests.get(url, stream=True).raw)
+            inputs = processor(prompt, raw_image, return_tensors="pt").to(model.device)
+            output = model.generate(**inputs, do_sample=False, max_new_tokens=32)
+            logger.info(processor.decode(output[0], skip_special_tokens=True)[len(prompt):])
+
             logger.info("[llm] model and tokenizer initialized.")
 
             # compilation and model warmup

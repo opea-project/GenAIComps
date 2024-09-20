@@ -1,14 +1,17 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-
+import base64
+import habana_frameworks.torch as htorch
+from io import BytesIO
 import os
+from PIL import Image
+import requests
+import threading
 import time
 import torch
-from typing import Union
-
 from transformers import MllamaForConditionalGeneration, AutoProcessor
-
+from typing import Union
 
 from comps import (
     CustomLogger,
@@ -23,6 +26,25 @@ from comps import (
 
 logger = CustomLogger("lvm-llama-vision-native")
 logflag = os.getenv("LOGFLAG", False)
+initialization_lock = threading.Lock()
+initialized = False
+
+def initialize():
+    global model, processor, initialized
+    with initialization_lock:
+        if not initialized:
+            import habana_frameworks.torch.hpu as torch_hpu
+            model_id = os.getenv("LLAMA_VISION_MODEL_ID", "meta-llama/Llama-3.2-11B-Vision-Instruct")
+            model = MllamaForConditionalGeneration.from_pretrained(model_id, device_map="hpu", torch_dtype=torch.bfloat16)
+            processor = AutoProcessor.from_pretrained(model_id)
+            prompt = "<|image|><|begin_of_text|>If I had to write a haiku for this one"
+            url = "https://llava-vl.github.io/static/images/view.jpg"
+            raw_image = Image.open(requests.get(url, stream=True).raw)
+            inputs = processor(prompt, raw_image, return_tensors="pt").to(model.device)
+            output = model.generate(**inputs, do_sample=False, max_new_tokens=32)
+            logger.info(processor.decode(output[0], skip_special_tokens=True)[len(prompt):])
+            initialized = True
+            logger.info("[LVM] Llama Vision LVM initialized.")
 
 
 @register_microservice(
@@ -34,6 +56,7 @@ logflag = os.getenv("LOGFLAG", False)
 )
 @register_statistics(names=["opea_service@lvm_llama_vision_native"])
 async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
+    initialize()
     if logflag:
         logger.info(request)
     start = time.time()
@@ -41,7 +64,13 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
     prompt = request.prompt
     max_new_tokens = request.max_new_tokens
 
-    inputs = processor(prompt, img_b64_str, return_tensors="pt").to(model.device)
+    text = f"<|image|><|begin_of_text|>{prompt}"
+
+    image_data = base64.b64decode(img_b64_str)
+    image_stream = BytesIO(image_data)
+    raw_image = Image.open(image_stream)
+
+    inputs = processor(text, raw_image, return_tensors="pt").to(model.device)
     output = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
 
     statistics_dict["opea_service@lvm_llama_vision_native"].append_latency(time.time() - start, None)
@@ -53,8 +82,5 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
 
 
 if __name__ == "__main__":
-    model_id = os.getenv("LLAMA_VISION_MODEL_ID", "meta-llama/Llama-3.2-11B-Vision-Instruct")
-    model = MllamaForConditionalGeneration.from_pretrained(model_id, device_map="hpu", torch_dtype=torch.bfloat16)
-    processor = AutoProcessor.from_pretrained(model_id)
-    logger.info("[LVM] Llama Vision LVM initialized.")
     opea_microservices["opea_service@lvm_llama_vision_native"].start()
+

@@ -22,8 +22,11 @@ RUN git lfs install
 COPY comps /home/user/comps
 
 RUN cd /home/user/comps/lvms/llama-vision/ && \
+    # pip install /home/user/comps/transformers-4.45.0.dev0-py3-none-any.whl && \
     pip install --no-cache-dir -r requirements.txt  && \
-    pip install --upgrade Pillow
+    pip install --upgrade Pillow && \
+    pip install --no-cache-dir --upgrade --force-reinstall pydantic && \
+    pip install numpy==1.23.5
 
 ENV PYTHONPATH=/root:/home/user
 
