@@ -57,7 +57,6 @@ export your_ip=$(hostname -I | awk '{print $1}')
 ```bash
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 python ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/tgi/llm.py
-python ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/tgi/llm.py
 ```
 
 #### 1.2.2 Start the vLLM Service
@@ -65,14 +64,12 @@ python ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/tgi/llm.py
 ```bash
 export vLLM_LLM_ENDPOINT="http://${your_ip}:8008"
 python ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/vllm/llm.py
-python ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/vllm/llm.py
 ```
 
 #### 1.2.3 Start the Ray Service
 
 ```bash
 export RAY_Serve_ENDPOINT="http://${your_ip}:8008"
-python ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/ray_serve/llm.py
 python ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/ray_serve/llm.py
 ```
 
