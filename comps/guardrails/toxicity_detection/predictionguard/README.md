@@ -17,7 +17,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ## Build Docker Images
 
 ```bash
-cd ../../../../
+cd ../../../..
 docker build -t opea/guardrails-toxicity-predictionguard:latest -f comps/guardrails/toxicity_detection/predictionguard/Dockerfile .
 ```
 
