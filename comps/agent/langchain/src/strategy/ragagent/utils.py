@@ -1,12 +1,17 @@
-from huggingface_hub import ChatCompletionOutputToolCall, ChatCompletionOutputFunctionDefinition
-from langchain_core.messages.tool import ToolCall
-from langchain_core.messages import BaseMessage, HumanMessage, ToolMessage, AIMessage
-import uuid
-from langchain_core.output_parsers import BaseOutputParser
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
+import uuid
+
+from huggingface_hub import ChatCompletionOutputFunctionDefinition, ChatCompletionOutputToolCall
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMessage
+from langchain_core.messages.tool import ToolCall
+from langchain_core.output_parsers import BaseOutputParser
+
 
 class QueryWriterLlamaOutputParser(BaseOutputParser):
-    def parse(self, text:str):
+    def parse(self, text: str):
         print("raw output from llm: ", text)
         json_lines = text.split("\n")
         print("json_lines: ", json_lines)
@@ -22,13 +27,23 @@ class QueryWriterLlamaOutputParser(BaseOutputParser):
             return None
 
 
-
 def convert_json_to_tool_call(json_str, tool):
     tool_name = tool.name
-    tcid=str(uuid.uuid4())
-    add_kw_tc = {'tool_calls': [ChatCompletionOutputToolCall(function=ChatCompletionOutputFunctionDefinition(arguments={'query': json_str["query"]}, name=tool_name, description=None), id=tcid, type='function')]}
-    tool_call = ToolCall(name=tool_name, args={'query': json_str["query"]}, id=tcid)
+    tcid = str(uuid.uuid4())
+    add_kw_tc = {
+        "tool_calls": [
+            ChatCompletionOutputToolCall(
+                function=ChatCompletionOutputFunctionDefinition(
+                    arguments={"query": json_str["query"]}, name=tool_name, description=None
+                ),
+                id=tcid,
+                type="function",
+            )
+        ]
+    }
+    tool_call = ToolCall(name=tool_name, args={"query": json_str["query"]}, id=tcid)
     return add_kw_tc, tool_call
+
 
 def assemble_history(messages):
     """
@@ -36,21 +51,22 @@ def assemble_history(messages):
     """
     query_history = ""
     n = 1
-    for m in messages[1:]: # exclude the first message
+    for m in messages[1:]:  # exclude the first message
         if isinstance(m, AIMessage):
             # if there is tool call
             if hasattr(m, "tool_calls") and len(m.tool_calls) > 0:
                 for tool_call in m.tool_calls:
                     query = tool_call["args"]["query"]
                     query_history += f"{n}. {query}\n"
-                    n+=1
+                    n += 1
     return query_history
-            
+
+
 def aggregate_docs(messages):
     """
     messages: AI (query writer), TOOL (retriever), HUMAN (Doc Grader
     """
-    docs =[]
+    docs = []
     context = ""
     for m in messages[::-1]:
         if isinstance(m, ToolMessage):

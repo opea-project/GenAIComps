@@ -18,7 +18,7 @@ Please follow these guidelines when formulating your answer:
 """
 
 
-REACT_AGENT_LLAMA_PROMPT ="""\
+REACT_AGENT_LLAMA_PROMPT = """\
 Given the user request, think through the problem step by step.
 Observe the outputs from the tools in the execution history, and think if you can come up with an answer or not. If yes, provide the answer. If not, make tool calls.
 When you cannot get the answer at first, do not give up. Reflect on the steps you have taken so far and try to solve the problem in a different way.

@@ -133,37 +133,35 @@ class ReActAgentwithLanggraph(BaseAgent):
         except Exception as e:
             return str(e)
 
+
+from typing import Annotated, Sequence, TypedDict
+
+from langchain_core.messages import AIMessage, BaseMessage, SystemMessage
+from langchain_core.prompts import PromptTemplate
+from langgraph.graph import END, StateGraph
+from langgraph.graph.message import add_messages
+
 ###############################################################################
 # ReAct Agent:
 # Temporary workaround for open-source LLM served by TGI-gaudi
 # Only validated with with Llama3.1-70B-Instruct model served with TGI-gaudi
 from langgraph.managed import IsLastStep
-from langgraph.graph.message import add_messages
-from langchain_core.messages import (
-    AIMessage,
-    BaseMessage,
-    SystemMessage,
-)
 from langgraph.prebuilt import ToolNode
-from langgraph.graph import END, StateGraph
-from langchain_core.prompts import PromptTemplate
-from typing import (
-    Annotated,
-    Sequence,
-    TypedDict,
-)
+
 
 class AgentState(TypedDict):
     """The state of the agent."""
+
     messages: Annotated[Sequence[BaseMessage], add_messages]
     is_last_step: IsLastStep
 
 
 class ReActAgentNodeLlama:
-    """
-    Do planning and reasoning and generate tool calls.
+    """Do planning and reasoning and generate tool calls.
+
     A workaround for open-source llm served by TGI-gaudi.
     """
+
     def __init__(self, llm_endpoint, model_id, tools, args):
         from .prompt import REACT_AGENT_LLAMA_PROMPT
         from .utils import ReActLlamaOutputParser
@@ -177,18 +175,18 @@ class ReActAgentNodeLlama:
         self.tools = tools
         self.chain = prompt | llm | output_parser
 
-
     def __call__(self, state):
-        from .utils import convert_json_to_tool_call, assemble_history
+        from .utils import assemble_history, convert_json_to_tool_call
+
         print("---CALL Agent node---")
         messages = state["messages"]
 
         # assemble a prompt from messages
         query = messages[0].content
-        history=assemble_history(messages)
+        history = assemble_history(messages)
         print("@@@ History: ", history)
 
-        tools_descriptions = tool_renderer(self.tools)       
+        tools_descriptions = tool_renderer(self.tools)
         print("@@@ Tools description: ", tools_descriptions)
 
         # invoke chain
@@ -204,18 +202,20 @@ class ReActAgentNodeLlama:
                 tool_calls.append(tool_call)
 
         if tool_calls:
-            ai_message=AIMessage(content="", additional_kwargs=add_kw_tc, tool_calls=tool_calls)
+            ai_message = AIMessage(content="", additional_kwargs=add_kw_tc, tool_calls=tool_calls)
         elif "answer" in output[0]:
-            ai_message=AIMessage(content=output[0]["answer"])
+            ai_message = AIMessage(content=output[0]["answer"])
         else:
-            ai_message=AIMessage(content=output)
+            ai_message = AIMessage(content=output)
         return {"messages": [ai_message]}
 
 
 class ReActAgentLlama(BaseAgent):
     def __init__(self, args, with_memory=False):
         super().__init__(args)
-        agent = ReActAgentNodeLlama(llm_endpoint=self.llm_endpoint, model_id=args.model, tools=self.tools_descriptions, args=args)
+        agent = ReActAgentNodeLlama(
+            llm_endpoint=self.llm_endpoint, model_id=args.model, tools=self.tools_descriptions, args=args
+        )
         tool_node = ToolNode(self.tools_descriptions)
 
         workflow = StateGraph(AgentState)
@@ -256,7 +256,6 @@ class ReActAgentLlama(BaseAgent):
         else:
             self.app = workflow.compile()
 
-
     # Define the function that determines whether to continue or not
     def should_continue(self, state: AgentState):
         messages = state["messages"]
@@ -270,7 +269,7 @@ class ReActAgentLlama(BaseAgent):
 
     def prepare_initial_state(self, query):
         return {"messages": [HumanMessage(content=query)]}
-    
+
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:

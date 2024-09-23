@@ -4,8 +4,8 @@
 from typing import Annotated, Any, Literal, Sequence, TypedDict
 
 from langchain.output_parsers import PydanticOutputParser
-from langchain_core.messages import BaseMessage, HumanMessage, ToolMessage, AIMessage
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMessage
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
 from langchain_core.output_parsers.openai_tools import PydanticToolsParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
@@ -15,8 +15,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.output_parsers import JsonOutputParser
-
 
 from ..base_agent import BaseAgent
 from .prompt import DOC_GRADER_PROMPT, RAG_PROMPT, QueryWriterLlamaPrompt
@@ -137,6 +135,7 @@ class TextGenerator:
 
     def __call__(self, state):
         from .utils import aggregate_docs
+
         print("---GENERATE---")
         messages = state["messages"]
         question = messages[0].content
@@ -165,8 +164,8 @@ class RAGAgent(BaseAgent):
         super().__init__(args)
 
         # Define Nodes
-        
-        if args.strategy =="rag_agent":
+
+        if args.strategy == "rag_agent":
             query_writer = QueryWriter(self.llm_endpoint, args.model, self.tools_descriptions)
             document_grader = DocumentGrader(self.llm_endpoint, args.model)
         elif args.strategy == "rag_agent_llama":
@@ -260,11 +259,10 @@ class RAGAgent(BaseAgent):
         except Exception as e:
             return str(e)
 
-   
 
 class QueryWriterLlama:
-    """
-    Temporary workaround to use LLM with TGI-Gaudi.
+    """Temporary workaround to use LLM with TGI-Gaudi.
+
     Use custom output parser to parse text string from LLM into tool calls.
     Only support one tool. Does NOT support multiple tools.
     The tool input variable must be "query".
@@ -272,8 +270,10 @@ class QueryWriterLlama:
     Output of the chain is AIMessage.
     Streaming=false is required for this chain.
     """
+
     def __init__(self, llm_endpoint, model_id, tools):
         from .utils import QueryWriterLlamaOutputParser
+
         assert len(tools) == 1, "Only support one tool, passed in {} tools".format(len(tools))
         output_parser = QueryWriterLlamaOutputParser()
         prompt = PromptTemplate(
@@ -285,7 +285,8 @@ class QueryWriterLlama:
         self.chain = prompt | llm | output_parser
 
     def __call__(self, state):
-        from .utils import convert_json_to_tool_call, assemble_history
+        from .utils import assemble_history, convert_json_to_tool_call
+
         print("---CALL QueryWriter---")
         messages = state["messages"]
 
@@ -307,7 +308,7 @@ class QueryWriterLlama:
         # We return a list, because this will get added to the existing list
         # return {"messages": [response], "output": response}
         ######################################################################
-        
+
         ############ allow multiple tool calls in one AI message ############
         tool_calls = []
         for res in response:
@@ -317,10 +318,10 @@ class QueryWriterLlama:
                 tool_calls.append(tool_call)
 
         if tool_calls:
-            ai_message=AIMessage(content="", additional_kwargs=add_kw_tc, tool_calls=tool_calls)
+            ai_message = AIMessage(content="", additional_kwargs=add_kw_tc, tool_calls=tool_calls)
         else:
-            ai_message=AIMessage(content=response[0]["answer"])
-        
+            ai_message = AIMessage(content=response[0]["answer"])
+
         return {"messages": [ai_message], "output": ai_message.content}
 
 
@@ -336,6 +337,7 @@ class DocumentGraderLlama:
 
     def __init__(self, llm_endpoint, model_id=None):
         from .prompt import DOC_GRADER_Llama_PROMPT
+
         class grade(BaseModel):
             """Binary score for relevance check."""
 
@@ -343,7 +345,7 @@ class DocumentGraderLlama:
 
         # Prompt
         prompt = PromptTemplate(
-            template=DOC_GRADER_Llama_PROMPT,  
+            template=DOC_GRADER_Llama_PROMPT,
             input_variables=["context", "question"],
         )
 
@@ -356,9 +358,10 @@ class DocumentGraderLlama:
 
     def __call__(self, state) -> Literal["generate", "rewrite"]:
         from .utils import aggregate_docs
+
         print("---CALL DocumentGrader---")
         messages = state["messages"]
-        
+
         question = messages[0].content  # the original query
         docs = aggregate_docs(messages)
         print("@@@@ Docs: ", docs)
@@ -372,6 +375,6 @@ class DocumentGraderLlama:
             return {"doc_score": "generate"}
 
         else:
-            print(f"---DECISION: DOCS NOT RELEVANT---")
+            print("---DECISION: DOCS NOT RELEVANT---")
 
             return {"messages": [HumanMessage(content=instruction)], "doc_score": "rewrite"}
