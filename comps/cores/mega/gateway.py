@@ -622,31 +622,58 @@ class RetrievalToolGateway(Gateway):
             host,
             port,
             str(MegaServiceEndpoint.RETRIEVALTOOL),
-            Union[TextDoc, EmbeddingRequest, ChatCompletionRequest],  # ChatCompletionRequest,
+            ChatCompletionRequest, #Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
             Union[RerankedDoc, LLMParamsDoc],  # ChatCompletionResponse
         )
 
     async def handle_request(self, request: Request):
-        def parser_input(data, TypeClass, key):
-            try:
-                chat_request = TypeClass.parse_obj(data)
-                query = getattr(chat_request, key)
-            except:
-                query = None
-            return query
+        # def parser_input(data, TypeClass, key):
+        #     try:
+        #         chat_request = TypeClass.parse_obj(data)
+        #         query = getattr(chat_request, key)
+        #     except:
+        #         query = None
+        #     return query
 
         data = await request.json()
-        query = None
-        for key, TypeClass in zip(["text", "input", "input"], [TextDoc, EmbeddingRequest, ChatCompletionRequest]):
-            query = parser_input(data, TypeClass, key)
-            if query is not None:
-                break
-        if query is None:
-            raise ValueError(f"Unknown request type: {data}")
-        result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"text": query})
+        chat_request = ChatCompletionRequest.parse_obj(data)
+        query = chat_request.input
+        print("Query: ", query)
+        # query = None
+        # for key, TypeClass in zip(["text", "input", "input"], [TextDoc, EmbeddingRequest, ChatCompletionRequest]):
+        #     query = parser_input(data, TypeClass, key)
+        #     if query is not None:
+        #         break
+        # if query is None:
+        #     raise ValueError(f"Unknown request type: {data}")
+        
+        retriever_parameters = RetrieverParms(
+            search_type=chat_request.search_type if chat_request.search_type else "similarity",
+            k=chat_request.k if chat_request.k else 4,
+            distance_threshold=chat_request.distance_threshold if chat_request.distance_threshold else None,
+            fetch_k=chat_request.fetch_k if chat_request.fetch_k else 20,
+            lambda_mult=chat_request.lambda_mult if chat_request.lambda_mult else 0.5,
+            score_threshold=chat_request.score_threshold if chat_request.score_threshold else 0.2,
+        )
+        reranker_parameters = RerankerParms(
+            top_n=chat_request.top_n if chat_request.top_n else 1,
+        )
+
+        print("Retriever parameters:\n",retriever_parameters)
+
+        print("Reranker parameters:\n", reranker_parameters)
+
+        # result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"text": query})
+
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"text": query},
+            retriever_parameters=retriever_parameters,
+            reranker_parameters=reranker_parameters,
+        )
+
         last_node = runtime_graph.all_leaves()[-1]
         response = result_dict[last_node]
-        print("response is ", response)
+        print("Response:\n", response)
         return response
 
 
