@@ -27,6 +27,7 @@ Answers: [/INST]
 <|assistant|>
 """
 
+
 @register_microservice(
     name="opea_service@wildguard_tgi",
     service_type=ServiceType.GUARDRAIL,
@@ -39,7 +40,6 @@ Answers: [/INST]
 def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
     if logflag:
         logger.info(input)
-    
 
     if isinstance(input, GeneratedDoc):
         messages = INSTRUCTION_FORMAT.format(prompt=input.prompt, response=input.text)
@@ -47,14 +47,11 @@ def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
         messages = INSTRUCTION_FORMAT.format(prompt=input.text, response="")
     response_input_guard = llm_guard.invoke(messages)
 
-    if ('Harmful request: yes' in response_input_guard or 
-        'Harmful response: yes' in response_input_guard):
+    if "Harmful request: yes" in response_input_guard or "Harmful response: yes" in response_input_guard:
 
         if logflag:
-            logger.info(f"Violated policies: harmful")
-        res = TextDoc(
-            text=f"Violated policies: harmful, please check your input.", downstream_black_list=[".*"]
-        )
+            logger.info("Violated policies: harmful")
+        res = TextDoc(text="Violated policies: harmful, please check your input.", downstream_black_list=[".*"])
     else:
         res = TextDoc(text=input.text)
     if logflag:
