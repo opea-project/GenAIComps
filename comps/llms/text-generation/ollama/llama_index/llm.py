@@ -33,6 +33,7 @@ def llm_generate(input: LLMParamsDoc):
     )
     # assuming you have Ollama installed and have llama3 model pulled with `ollama pull llama3`
     if input.streaming:
+
         def stream_generator():
             for text in ollama.stream_complete(input.query):
                 output = text.text
