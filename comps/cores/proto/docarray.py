@@ -20,6 +20,26 @@ class TextDoc(BaseDoc, TopologyInfo):
     text: str = None
 
 
+class FactualityDoc(BaseDoc):
+    reference: str
+    text: str
+
+
+class ScoreDoc(BaseDoc):
+    score: float
+
+
+class PIIRequestDoc(BaseDoc):
+    prompt: str
+    replace: Optional[bool] = False
+    replace_method: Optional[str] = "random"
+
+
+class PIIResponseDoc(BaseDoc):
+    detected_pii: Optional[List[dict]] = None
+    new_prompt: Optional[str] = None
+
+
 class MetadataTextDoc(TextDoc):
     metadata: Optional[Dict[str, Any]] = Field(
         description="This encloses all metadata associated with the textdoc.",
@@ -262,3 +282,15 @@ class LVMVideoDoc(BaseDoc):
     chunk_duration: float
     prompt: str
     max_new_tokens: conint(ge=0, le=1024) = 512
+
+
+class ImagePath(BaseDoc):
+    image_path: str
+
+
+class ImagesPath(BaseDoc):
+    images_path: DocList[ImagePath]
+
+
+class VideoPath(BaseDoc):
+    video_path: str
