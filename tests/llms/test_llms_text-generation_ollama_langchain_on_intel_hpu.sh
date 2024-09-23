@@ -28,13 +28,11 @@ function start_service() {
     docker run -d \
         --name="test-comps-llm-ollama-server" \
         -p ${llm_ollama_service_port}:9000 \
-        --runtime=habana \
         --cap-add=SYS_NICE \
         --ipc=host \
         -e http_proxy=${http_proxy} \
         -e https_proxy=${https_proxy} \
         -e LLM_OLLAMA_MODEL=${LLM_OLLAMA_MODEL} \
-        -e HABANA_VISIBLE_DEVICES=all \
         -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
         -e TOKENIZERS_PARALLELISM=false \
         --restart unless-stopped \
