@@ -26,6 +26,7 @@ from comps.cores.proto.docarray import (
     ImagesPath,
     VideoPath,
     ImageDoc,
+    SDInputs,
     TextImageDoc,
     MultimodalDoc,
     EmbedMultimodalDoc,

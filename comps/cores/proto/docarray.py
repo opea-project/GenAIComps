@@ -264,6 +264,11 @@ class LVMVideoDoc(BaseDoc):
     max_new_tokens: conint(ge=0, le=1024) = 512
 
 
+class SDInputs(BaseDoc):
+    prompt: str
+    num_images_per_prompt: int = 1
+
+
 class ImagePath(BaseDoc):
     image_path: str
 
