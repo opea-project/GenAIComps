@@ -1,0 +1,8 @@
+uvicorn
+fastapi
+docarray
+shortuuid
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+pydantic==2.9.2
