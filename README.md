@@ -101,7 +101,7 @@ def embedding(input: TextDoc) -> EmbedDoc:
     embed_vector = embeddings.embed_query(input.text)
     res = EmbedDoc(text=input.text, embedding=embed_vector)
     return res
-````
+```
 
 ## MegaService
 
