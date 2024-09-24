@@ -26,7 +26,7 @@ COPY comps /home/user/comps
 RUN pip install git+https://github.com/HabanaAI/DeepSpeed.git@1.17.1
 RUN pip install git+https://github.com/huggingface/optimum-habana@v1.13.2
 
-RUN /home/user/comps/lvms/llama-vision/  \
+RUN cd /home/user/comps/lvms/llama-vision/  \
     pip install --no-cache-dir --upgrade pip && \
     pip install transformers-4.45.0.dev0-py3-none-any.whl && \
     bash update
@@ -36,6 +36,4 @@ ENV PYTHONPATH=/root:/home/user
 
 WORKDIR /home/user/comps/lvms/llama-vision/
 
-ENTRYPOINT ["/bin/bash"]
-
-#ENTRYPOINT ["python", "lvm_tp.py"]
+ENTRYPOINT ["python", "lvm_tp.py"]
