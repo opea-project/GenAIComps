@@ -646,7 +646,7 @@ class RetrievalToolGateway(Gateway):
             raise ValueError(f"Unknown request type: {data}")
         if chat_request is None:
             raise ValueError(f"Unknown request type: {data}")
-        
+
         if isinstance(chat_request, ChatCompletionRequest):
             retriever_parameters = RetrieverParms(
                 search_type=chat_request.search_type if chat_request.search_type else "similarity",
@@ -659,16 +659,16 @@ class RetrievalToolGateway(Gateway):
             reranker_parameters = RerankerParms(
                 top_n=chat_request.top_n if chat_request.top_n else 1,
             )
-            
+
             initial_inputs = {
                 "messages": query,
-                "input": query, # has to be input due to embedding expects either input or text
+                "input": query,  # has to be input due to embedding expects either input or text
                 "search_type": chat_request.search_type if chat_request.search_type else "similarity",
-                "k": chat_request.k if chat_request.k else 4, 
-                "distance_threshold":chat_request.distance_threshold if chat_request.distance_threshold else None,
+                "k": chat_request.k if chat_request.k else 4,
+                "distance_threshold": chat_request.distance_threshold if chat_request.distance_threshold else None,
                 "fetch_k": chat_request.fetch_k if chat_request.fetch_k else 20,
                 "lambda_mult": chat_request.lambda_mult if chat_request.lambda_mult else 0.5,
-                "score_threshold":chat_request.score_threshold if chat_request.score_threshold else 0.2,
+                "score_threshold": chat_request.score_threshold if chat_request.score_threshold else 0.2,
                 "top_n": chat_request.top_n if chat_request.top_n else 1,
             }
 
