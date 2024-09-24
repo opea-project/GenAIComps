@@ -1,0 +1,9 @@
+#!/bin/bash
+rm met.json -rf
+if [ -d mllama ]; then
+    cp mllama/* /usr/local/lib/python3.10/dist-packages/transformers/models/mllama/
+fi
+cp checkpoint_utils.py /usr/local/lib/python3.10/dist-packages/optimum/habana/
+cp auto_tp.py /usr/local/lib/python3.10/dist-packages/deepspeed/module_inject/
+cp replace_module.py /usr/local/lib/python3.10/dist-packages/deepspeed/module_inject/
+cp transformers_generation_utils.py /usr/local/lib/python3.10/dist-packages/transformers/generation/utils.py

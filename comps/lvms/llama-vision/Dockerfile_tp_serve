@@ -7,7 +7,6 @@ FROM vault.habana.ai/gaudi-docker/1.17.1/ubuntu22.04/habanalabs/pytorch-installe
 ENV LANG=en_US.UTF-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
-    git \
     git-lfs \
     libgl1-mesa-glx \
     libjemalloc-dev
@@ -27,7 +26,8 @@ COPY comps /home/user/comps
 RUN pip install git+https://github.com/HabanaAI/DeepSpeed.git@1.17.1
 RUN pip install git+https://github.com/huggingface/optimum-habana@v1.13.2
 
-RUN cd /home/user/comps/lvms/llama-vision/ && \
+RUN git clone https://github.com/intel-sandbox/gaudi-benchmarking.git /home/user/gaudi-benchmarking && \
+    cd /home/user/gaudi-benchmarking/Meta-Llama-3.2-90B-vision/inference && \
     pip install --no-cache-dir --upgrade pip && \
     pip install transformers-4.45.0.dev0-py3-none-any.whl && \
     bash update
@@ -39,4 +39,4 @@ WORKDIR /home/user/comps/lvms/llama-vision/
 
 ENTRYPOINT ["/bin/bash"]
 
-#ENTRYPOINT ["python", "lvm_tp.py"]
+#ENTRYPOINT ["python", "lvm-tp-serve.py"]

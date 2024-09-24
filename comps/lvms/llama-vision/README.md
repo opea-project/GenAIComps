@@ -12,10 +12,22 @@ cd ../../../
 docker build -t opea/lvm-llama-vision:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile .
 ```
 
+If you need to build the image for 90B models, use the following command:
+
+```bash
+docker build -t opea/lvm-llama-vision-tp:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile_tp .
+```
+
 ### Start LLaVA and LVM Service
 
 ```bash
-docker run -p 9399:9399 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="/data/Llama-3.2-11B-Vision-Instruct" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision:latest
+docker run -it -p 9399:9399 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="/data/Llama-3.2-11B-Vision-Instruct" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision:latest
+```
+
+If you need to run the 90B models, use the following command:
+
+```bash
+docker run -it -p 9399:9399 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="/data/Llama-3.2-90B-Vision-Instruct" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision-tp:latest
 ```
 
 ### Test
