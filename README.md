@@ -28,7 +28,7 @@ pip install -e .
 
 - Install Data Science Stack on your workstation
 
-Follow the [tutorial](https://documentation.ubuntu.com/data-science-stack/en/latest/tutorial/getting-started/) to install Data Science Stack on your Linux-based workstation. You will need to go through the following steps:
+Follow the [tutorial](https://documentation.ubuntu.com/data-science-stack/en/latest/tutorial/get-started/) to install Data Science Stack on your Linux-based workstation. You will need to go through the following steps:
 
 1. Setup MicroK8s
 
