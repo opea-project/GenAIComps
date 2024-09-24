@@ -1,16 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import base64
-import habana_frameworks.torch as htorch
-from io import BytesIO
+from concurrent import futures
+import json
 import os
-from PIL import Image
 import requests
-import threading
 import time
-import torch
-from transformers import MllamaForConditionalGeneration, AutoProcessor
 from typing import Union
 
 from comps import (
@@ -39,19 +34,39 @@ logflag = os.getenv("LOGFLAG", False)
 async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
     if logflag:
         logger.info(request)
+
     start = time.time()
-    img_b64_str = request.image
-    prompt = request.prompt
-    max_new_tokens = request.max_new_tokens
+    # Initialize responses list
+    responses = []
 
-    text = f"<|image|><|begin_of_text|>{prompt}"
+    # Function to send requests to individual TP workers
+    def send_request_to_tp_worker(port):
+        try:
+            # Build the worker URL dynamically
+            url = f'http://127.0.0.1:{port}/v1/lvm_serve'
+            # Send POST request to the TP worker
+            response = requests.post(url, json=request.dict())
+            response.raise_for_status()  # Ensure the request was successful
 
-    image_data = base64.b64decode(img_b64_str)
-    image_stream = BytesIO(image_data)
-    raw_image = Image.open(image_stream)
+            # Parse and process the response
+            json_response = json.loads(response.content)
+            responses.append(TextDoc(text=json_response))
 
+        except requests.exceptions.RequestException as e:
+            # Log any errors that occur
+            logger.error(f"Error sending request to TP worker on port {port}: {e}")
+            return None
 
-    return TextDoc(text=result)
+    # Distribute work across TP workers using ThreadPoolExecutor
+    with futures.ThreadPoolExecutor(max_workers=4) as executor:
+        # TP worker ports (e.g., worker processes listen on sequential ports)
+        worker_ports = [9393 + i + 1 for i in range(4)]
+        # Map the `send_request_to_tp_worker` function to each worker port
+        executor.map(send_request_to_tp_worker, worker_ports)
+
+    statistics_dict["opea_service@lvm_llama_vision_tp_native"].append_latency(time.time() - start, None)
+    if responses:
+        return responses[0]
 
 
 if __name__ == "__main__":
