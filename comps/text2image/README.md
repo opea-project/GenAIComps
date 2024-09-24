@@ -31,7 +31,8 @@ python text2image.py
 
 ## 2.1 Build Images
 
-Select Stable Diffusion (SD) model and assign its name to a enviroment variable as below:
+Select Stable Diffusion (SD) model and assign its name to a environment variable as below:
+
 ```bash
 # SD3
 export MODEL=stabilityai/stable-diffusion-3-medium-diffusers

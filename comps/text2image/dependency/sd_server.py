@@ -60,7 +60,7 @@ if __name__ == "__main__":
             "use_habana": True,
             "use_hpu_graphs": args.use_hpu_graphs,
             "gaudi_config": "Habana/stable-diffusion",
-            "token": args.token
+            "token": args.token,
         }
         if args.bf16:
             kwargs["torch_dtype"] = torch.bfloat16
@@ -80,8 +80,8 @@ if __name__ == "__main__":
             )
         else:
             raise NotImplementedError(
-                "Only support stable-diffusion-3 and stable-diffusion-xl now, " + \
-                f"model {args.model_name_or_path} not supported."
+                "Only support stable-diffusion-3 and stable-diffusion-xl now, "
+                + f"model {args.model_name_or_path} not supported."
             )
     elif args.device == "cpu":
         pipe = DiffusionPipeline.from_pretrained(args.model_name_or_path, token=args.token)
