@@ -1,6 +1,6 @@
 # 🗨 Feedback Management Microservice
 
-The Feedback Management microservice facilitates the storage and retrieval of users'feedback data by establishing a connection with the databases. This microservice is designed to seamlessly integrate with OPEA applications, enabling data persistence and efficient management of user's preferred prompts.
+The Feedback Management microservice facilitates the storage and retrieval of users'feedback data by establishing a connection with the databases. This microservice is designed to seamlessly integrate with OPEA applications, enabling data persistence and efficient management of feedback data.
 
 ---
 
@@ -9,7 +9,7 @@ The Feedback Management microservice facilitates the storage and retrieval of us
 - **Store Feedback**: Save feedback data from user into database.
 - **Retrieve Feedback**: Fetch feedback data from database based on user or id.
 - **Update Feedback**: Update feedback data info in the database based on id.
-- **Delete Prompt**: Remove feedback record from database.
+- **Delete Feedback**: Remove feedback record from database.
 
 ---
 
