@@ -34,4 +34,4 @@ ENV PYTHONPATH=/root:/home/user
 
 WORKDIR /home/user/comps/lvms/llama-vision/
 
-ENTRYPOINT ["python", "lvm_tp.py"]
+ENTRYPOINT ["bash", "run_to.sh"]
