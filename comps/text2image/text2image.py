@@ -10,8 +10,8 @@ import requests
 
 from comps import (
     SDInputs,
+    SDOutputs,
     ServiceType,
-    ImagePath,
     opea_microservices,
     register_microservice,
     register_statistics,
@@ -26,18 +26,18 @@ from comps import (
     host="0.0.0.0",
     port=9379,
     input_datatype=SDInputs,
-    output_datatype=ImagePath,
+    output_datatype=SDOutputs,
 )
 @register_statistics(names=["opea_service@text2image"])
 async def text2image(input: SDInputs):
     start = time.time()
     inputs = {"prompt": input.prompt, "num_images_per_prompt": input.num_images_per_prompt}
-    image_path = requests.post(url=f"{sd_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None}).json()[
-        "image_path"
+    images = requests.post(url=f"{sd_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None}).json()[
+        "images"
     ]
 
     statistics_dict["opea_service@text2image"].append_latency(time.time() - start, None)
-    return ImagePath(image_path=image_path)
+    return SDOutputs(images=images)
 
 
 if __name__ == "__main__":

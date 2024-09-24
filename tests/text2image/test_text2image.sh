@@ -35,7 +35,7 @@ function start_service() {
 
 function validate_microservice() {
     result=$(http_proxy="" curl http://localhost:9379/v1/text2image -XPOST -d '{"prompt":"An astronaut riding a green horse", "num_images_per_prompt":1}' -H 'Content-Type: application/json')
-    if [[ $result == *"green_horse"* ]]; then
+    if [[ $result == *"images"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."

@@ -3,6 +3,7 @@
 """Stand-alone Stable Diffusion FastAPI Server."""
 
 import argparse
+import base64
 import os
 import time
 
@@ -27,11 +28,17 @@ async def generate(request: Request) -> Response:
     images = pipe(prompt, generator=generator, num_images_per_prompt=num_images_per_prompt).images
     image_path = os.path.join(os.getcwd(), prompt.strip().replace(" ", "_").replace("/", ""))
     os.makedirs(image_path, exist_ok=True)
+    results = []
     for i, image in enumerate(images):
-        image.save(os.path.join(image_path, f"image_{i+1}.png"))
+        save_path = os.path.join(image_path, f"image_{i+1}.png")
+        image.save(save_path)
+        with open(save_path, "rb") as f:
+            bytes = f.read()
+        b64_str = base64.b64encode(bytes).decode()
+        results.append(b64_str)
     end = time.time()
     print(f"SD Images output in {image_path}, time = {end-start}s")
-    return JSONResponse({"image_path": image_path})
+    return JSONResponse({"images": results})
 
 
 if __name__ == "__main__":
