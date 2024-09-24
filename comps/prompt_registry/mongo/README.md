@@ -30,15 +30,15 @@ docker build -t opea/promptregistry-mongo-server:latest --build-arg https_proxy=
 
 - Run MongoDB image container
 
-   ```bash
-   docker run -d -p 27017:27017 --name=mongo mongo:latest
-   ```
+  ```bash
+  docker run -d -p 27017:27017 --name=mongo mongo:latest
+  ```
 
 - Run Prompt Registry microservice
 
-   ```bash
-   docker run -d --name="promptregistry-mongo-server" -p 6012:6012 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/promptregistry-mongo-server:latest
-   ```
+  ```bash
+  docker run -d --name="promptregistry-mongo-server" -p 6012:6012 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/promptregistry-mongo-server:latest
+  ```
 
 ---
 
