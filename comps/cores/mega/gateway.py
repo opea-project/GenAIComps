@@ -622,30 +622,15 @@ class RetrievalToolGateway(Gateway):
             host,
             port,
             str(MegaServiceEndpoint.RETRIEVALTOOL),
-            ChatCompletionRequest, #Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
-            Union[RerankedDoc, LLMParamsDoc],  # ChatCompletionResponse
+            ChatCompletionRequest,
+            Union[RerankedDoc, LLMParamsDoc],
         )
 
     async def handle_request(self, request: Request):
-        # def parser_input(data, TypeClass, key):
-        #     try:
-        #         chat_request = TypeClass.parse_obj(data)
-        #         query = getattr(chat_request, key)
-        #     except:
-        #         query = None
-        #     return query
-
         data = await request.json()
         chat_request = ChatCompletionRequest.parse_obj(data)
         query = chat_request.input
         print("Query: ", query)
-        # query = None
-        # for key, TypeClass in zip(["text", "input", "input"], [TextDoc, EmbeddingRequest, ChatCompletionRequest]):
-        #     query = parser_input(data, TypeClass, key)
-        #     if query is not None:
-        #         break
-        # if query is None:
-        #     raise ValueError(f"Unknown request type: {data}")
         
         retriever_parameters = RetrieverParms(
             search_type=chat_request.search_type if chat_request.search_type else "similarity",
@@ -663,10 +648,8 @@ class RetrievalToolGateway(Gateway):
 
         print("Reranker parameters:\n", reranker_parameters)
 
-        # result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"text": query})
-
         result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={"text": query},
+            initial_inputs={"messages":"","input": query, "k": chat_request.k, "top_n": chat_request.top_n},
             retriever_parameters=retriever_parameters,
             reranker_parameters=reranker_parameters,
         )
