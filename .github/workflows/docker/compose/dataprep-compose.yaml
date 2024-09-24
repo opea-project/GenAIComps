@@ -7,17 +7,21 @@
 services:
   dataprep-redis:
     build:
-      dockerfile: comps/dataprep/redis/langchain/docker/Dockerfile
-    image: ${REGISTRY}opea/dataprep-redis:${TAG:-latest}
+      dockerfile: comps/dataprep/redis/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/dataprep-redis:${TAG:-latest}
   dataprep-qdrant:
     build:
-      dockerfile: comps/dataprep/qdrant/docker/Dockerfile
-    image: ${REGISTRY}opea/dataprep-qdrant:${TAG:-latest}
-  dataprep-redis-llama-index:
-    build:
-      dockerfile: comps/dataprep/redis/llama_index/docker/Dockerfile
-    image: ${REGISTRY}opea/dataprep-redis-llama-index:${TAG:-latest}
+      dockerfile: comps/dataprep/qdrant/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/dataprep-qdrant:${TAG:-latest}
   dataprep-on-ray-redis:
     build:
-      dockerfile: comps/dataprep/redis/langchain_ray/docker/Dockerfile
-    image: ${REGISTRY}opea/dataprep-on-ray-redis:${TAG:-latest}
+      dockerfile: comps/dataprep/redis/langchain_ray/Dockerfile
+    image: ${REGISTRY:-opea}/dataprep-on-ray-redis:${TAG:-latest}
+  dataprep-multimodal-vdms:
+    build:
+      dockerfile: comps/dataprep/vdms/multimodal_langchain/Dockerfile
+    image: ${REGISTRY:-opea}/dataprep-multimodal-vdms:${TAG:-latest}
+  dataprep-multimodal-redis:
+    build:
+      dockerfile: comps/dataprep/multimodal/redis/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/dataprep-multimodal-redis:${TAG:-latest}

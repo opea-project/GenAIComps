@@ -1,0 +1,25 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+services:
+  lvm-tgi:
+    build:
+      dockerfile: comps/lvms/tgi-llava/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-tgi:${TAG:-latest}
+  lvm-video-llama:
+    build:
+      dockerfile: comps/lvms/video-llama/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
+  video-llama-lvm-server:
+    build:
+      dockerfile: comps/lvms/video-llama/dependency/Dockerfile
+    image: ${REGISTRY:-opea}/video-llama-lvm-server:${TAG:-latest}
+  lvm-llava:
+    build:
+      dockerfile: comps/lvms/llava/dependency/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-llava:${TAG:-latest}
+  lvm-llava-svc:
+    build:
+      dockerfile: comps/lvms/llava/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-llava-svc:${TAG:-latest}

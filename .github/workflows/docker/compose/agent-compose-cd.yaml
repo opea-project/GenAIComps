@@ -1,0 +1,9 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+services:
+  agent-langchain:
+    build:
+      dockerfile: comps/agent/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/agent-langchain:${TAG:-latest}

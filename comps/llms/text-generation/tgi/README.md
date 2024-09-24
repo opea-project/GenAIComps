@@ -16,9 +16,6 @@ pip install -r requirements.txt
 
 ```bash
 export HF_TOKEN=${your_hf_api_token}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/gen-ai-comps:llms"
 docker run -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${your_hf_llm_model}
 ```
 
@@ -35,7 +32,7 @@ curl http://${your_ip}:8008/generate \
 
 ```bash
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
-python text-generation/tgi/llm.py
+python llm.py
 ```
 
 ## 🚀2. Start Microservice with Docker (Option 2)
@@ -50,15 +47,12 @@ In order to start TGI and LLM services, you need to setup the following environm
 export HF_TOKEN=${your_hf_api_token}
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL_ID=${your_hf_llm_model}
-export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=${your_langchain_api_key}
-export LANGCHAIN_PROJECT="opea/llms"
 ```
 
 ### 2.2 Build Docker Image
 
 ```bash
-cd ../../
+cd ../../../../
 docker build -t opea/llm-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/tgi/Dockerfile .
 ```
 
@@ -94,7 +88,7 @@ curl http://${your_ip}:9000/v1/health_check\
 
 ### 3.2 Consume LLM Service
 
-You can set the following model parameters according to your actual needs, such as `max_new_tokens`, `streaming`.
+You can set the following model parameters according to your actual needs, such as `max_tokens`, `streaming`.
 
 The `streaming` parameter determines the format of the data returned by the API. It will return text string with `streaming=false`, return text streaming flow with `streaming=true`.
 
@@ -102,21 +96,33 @@ The `streaming` parameter determines the format of the data returned by the API.
 # non-streaming mode
 curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
-  -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
+  -d '{"query":"What is Deep Learning?","max_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
   -H 'Content-Type: application/json'
 
 # streaming mode
 curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
-  -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":true}' \
+  -d '{"query":"What is Deep Learning?","max_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":true}' \
   -H 'Content-Type: application/json'
 
+# consume with SearchedDoc
+curl http://${your_ip}:9000/v1/chat/completions \
+  -X POST \
+  -d '{"initial_query":"What is Deep Learning?","retrieved_docs":[{"text":"Deep Learning is a ..."},{"text":"Deep Learning is b ..."}]}' \
+  -H 'Content-Type: application/json'
+```
+
+For parameters in above modes, please refer to [HuggingFace InferenceClient API](https://huggingface.co/docs/huggingface_hub/package_reference/inference_client#huggingface_hub.InferenceClient.text_generation) (except we rename 'max_new_tokens' to 'max_tokens')
+
+```bash
 # custom chat template
 curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
-  -d '{"query":"What is Deep Learning?","max_new_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":true, "chat_template":"### You are a helpful, respectful and honest assistant to help the user with questions.\n### Context: {context}\n### Question: {question}\n### Answer:"}' \
+  -d '{"query":"What is Deep Learning?","max_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"presence_penalty":1.03", frequency_penalty":0.0, "streaming":true, "chat_template":"### You are a helpful, respectful and honest assistant to help the user with questions.\n### Context: {context}\n### Question: {question}\n### Answer:"}' \
   -H 'Content-Type: application/json'
 ```
+
+For parameters in Chat mode, please refer to [OpenAI API](https://platform.openai.com/docs/api-reference/chat/create)
 
 ### 4. Validated Model
 

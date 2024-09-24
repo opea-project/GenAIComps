@@ -39,8 +39,8 @@ export EMBED_MODEL="Intel/bge-small-en-v1.5-rag-int8-static"
 ### 2.2 Build Docker Image
 
 ```bash
-cd ../../
-docker build -t opea/reranking-fastrag:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/fastrag/docker/Dockerfile .
+cd ../../../
+docker build -t opea/reranking-fastrag:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/fastrag/Dockerfile .
 ```
 
 ### 2.3 Run Docker

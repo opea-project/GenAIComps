@@ -12,12 +12,27 @@ from comps.cores.proto.docarray import (
     GeneratedDoc,
     LLMParamsDoc,
     SearchedDoc,
+    SearchedMultimodalDoc,
+    LVMSearchedMultimodalDoc,
     RerankedDoc,
     TextDoc,
+    MetadataTextDoc,
     RAGASParams,
     RAGASScores,
     GraphDoc,
     LVMDoc,
+    LVMVideoDoc,
+    ImagePath,
+    ImagesPath,
+    VideoPath,
+    ImageDoc,
+    TextImageDoc,
+    MultimodalDoc,
+    EmbedMultimodalDoc,
+    FactualityDoc,
+    ScoreDoc,
+    PIIRequestDoc,
+    PIIResponseDoc,
 )
 
 # Constants
@@ -38,7 +53,9 @@ from comps.cores.mega.gateway import (
     AudioQnAGateway,
     RetrievalToolGateway,
     FaqGenGateway,
+    VideoQnAGateway,
     VisualQnAGateway,
+    MultimodalQnAGateway,
 )
 
 # Telemetry

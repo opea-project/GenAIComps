@@ -1,0 +1,12 @@
+aiohttp
+docarray[full]
+fastapi
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+sentencepiece
+shortuuid
+soundfile
+transformers
+uvicorn

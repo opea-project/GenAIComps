@@ -7,15 +7,15 @@ In GenAIComps, we utilize nginx to streamline our network services. We provide a
 ## 🚀1. Build Docker Image
 
 ```bash
-cd docker
-docker build -t opea/nginx:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f ./Dockerfile .
+cd ../..
+docker build -t opea/nginx:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/nginx/Dockerfile .
 ```
 
 ## 🚀2. Environment Settings
 
 To use Nginx for service forwarding, users need to setup environment variables first. The variables set here will be substituted in `nginx.conf.template`.
 
-For example, if you want to use Nginx to forward the frontend, backend services of a [ChatQnA](https://github.com/opea-project/GenAIExamples/tree/main/ChatQnA) example, setup environment variables as below.
+For example, if you want to use Nginx to forward the frontend, backend services of a [ChatQnA](https://github.com/opea-project/GenAIExamples/tree/main/ChatQnA/README.md) example, setup environment variables as below.
 
 ```bash
 export FRONTEND_SERVICE_IP=${your_frontend_service_ip}
@@ -59,7 +59,6 @@ docker run -d --name opea-nginx -p ${NGINX_PORT}:80 \
 ### 3.2 Start with Docker Compose (Option 2)
 
 ```bash
-cd docker
 docker compose -f docker_compose.yaml up -d
 ```
 

@@ -6,5 +6,17 @@
 services:
   embedding-tei:
     build:
-      dockerfile: comps/embeddings/langchain/docker/Dockerfile
-    image: ${REGISTRY}opea/embedding-tei:${TAG:-latest}
+      dockerfile: comps/embeddings/tei/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-tei:${TAG:-latest}
+  embedding-multimodal-clip:
+    build:
+      dockerfile: comps/embeddings/multimodal_clip/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-multimodal-clip:${TAG:-latest}
+  embedding-multimodal-bridgetower:
+    build:
+      dockerfile: comps/embeddings/multimodal/bridgetower/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
+  embedding-multimodal:
+    build:
+      dockerfile: comps/embeddings/multimodal/multimodal_langchain/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-multimodal:${TAG:-latest}

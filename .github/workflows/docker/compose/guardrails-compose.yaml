@@ -7,9 +7,10 @@
 services:
   guardrails-tgi:
     build:
-      dockerfile: comps/guardrails/llama_guard/docker/Dockerfile
-    image: ${REGISTRY}opea/guardrails-tgi:${TAG:-latest}
-  guardrails-pii-detection:
+      dockerfile: comps/guardrails/llama_guard/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/guardrails-tgi:${TAG:-latest}
+
+  guardrails-bias-detection:
     build:
-      dockerfile: comps/guardrails/pii_detection/docker/Dockerfile
-    image: ${REGISTRY}opea/guardrails-pii-detection:${TAG:-latest}
+      dockerfile: comps/guardrails/llama_guard/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/guardrails-bias-detection:${TAG:-latest}

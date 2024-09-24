@@ -1,0 +1,13 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+services:
+  llava-hpu:
+    build:
+      dockerfile: comps/lvms/llava/dependency/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/llava-hpu:${TAG:-latest}
+  lvm-predictionguard:
+    build:
+      dockerfile: comps/lvms/predictionguard/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-predictionguard:${TAG:-latest}
