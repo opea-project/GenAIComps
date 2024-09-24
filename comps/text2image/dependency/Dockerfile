@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/comps/text2image/sd
+WORKDIR /home/comps/text2image/dependency
 
 RUN echo python sd_server.py --model_name_or_path $MODEL >> run.sh
 
