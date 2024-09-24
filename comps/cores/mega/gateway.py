@@ -631,7 +631,7 @@ class RetrievalToolGateway(Gateway):
         chat_request = ChatCompletionRequest.parse_obj(data)
         query = chat_request.input
         print("Query: ", query)
-        
+
         retriever_parameters = RetrieverParms(
             search_type=chat_request.search_type if chat_request.search_type else "similarity",
             k=chat_request.k if chat_request.k else 4,
@@ -644,12 +644,12 @@ class RetrievalToolGateway(Gateway):
             top_n=chat_request.top_n if chat_request.top_n else 1,
         )
 
-        print("Retriever parameters:\n",retriever_parameters)
+        print("Retriever parameters:\n", retriever_parameters)
 
         print("Reranker parameters:\n", reranker_parameters)
 
         result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={"messages":"","input": query, "k": chat_request.k, "top_n": chat_request.top_n},
+            initial_inputs={"messages": "", "input": query, "k": chat_request.k, "top_n": chat_request.top_n},
             retriever_parameters=retriever_parameters,
             reranker_parameters=reranker_parameters,
         )
