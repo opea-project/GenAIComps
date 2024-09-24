@@ -7,7 +7,6 @@ FROM vault.habana.ai/gaudi-docker/1.17.1/ubuntu22.04/habanalabs/pytorch-installe
 ENV LANG=en_US.UTF-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
-    git \
     git-lfs \
     libgl1-mesa-glx \
     libjemalloc-dev
@@ -16,27 +15,18 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-#USER user
+USER user
 
 RUN git lfs install
 
 COPY comps /home/user/comps
 
-
-
-RUN pip install git+https://github.com/HabanaAI/DeepSpeed.git@1.17.1
-RUN pip install git+https://github.com/huggingface/optimum-habana@v1.13.2
-
 RUN cd /home/user/comps/lvms/llama-vision/ && \
-    pip install --no-cache-dir --upgrade pip && \
     pip install transformers-4.45.0.dev0-py3-none-any.whl && \
-    bash update
-
+    pip install --no-cache-dir -r requirements.txt  && \
+    pip install --upgrade Pillow
+    pip install --upgrade Pillow && \
+    pip install --no-cache-dir --upgrade --force-reinstall pydantic && \
+    pip install numpy==1.23.5
 
 ENV PYTHONPATH=/root:/home/user
-
-WORKDIR /home/user/comps/lvms/llama-vision/
-
-ENTRYPOINT ["/bin/bash"]
-
-#ENTRYPOINT ["python", "lvm_tp.py"]

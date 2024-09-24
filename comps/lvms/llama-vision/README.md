@@ -27,7 +27,7 @@ docker run -it -p 9399:9399 -v /mnt/models/:/data --ipc=host -e http_proxy=$http
 If you need to run the 90B models, use the following command:
 
 ```bash
-docker run -it -p 9399:9399 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="/data/Llama-3.2-90B-Vision-Instruct" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision-tp:latest
+docker run -it -p 9599:9599 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="/data/Llama-3.2-90B-Vision-Instruct" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision-tp:latest
 ```
 
 ### Test

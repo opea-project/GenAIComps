@@ -15,13 +15,11 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-#USER user
+USER user
 
 RUN git lfs install
 
 COPY comps /home/user/comps
-
-
 
 RUN pip install git+https://github.com/HabanaAI/DeepSpeed.git@1.17.1
 RUN pip install git+https://github.com/huggingface/optimum-habana@v1.13.2
