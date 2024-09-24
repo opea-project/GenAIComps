@@ -1,6 +1,4 @@
-﻿# https://github.com/langchain-ai/langchain/issues/23585
-
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import os
 from typing import (
@@ -32,7 +30,6 @@ from langchain_community.tools.sql_database.tool import (
     InfoSQLDatabaseTool,
     ListSQLDatabaseTool,
 )
-from langchain_core.output_parsers import JsonOutputParser
 from langchain_huggingface import HuggingFaceEndpoint
 from langchain_community.utilities.sql_database import SQLDatabase
 from sqlalchemy.engine import Result
@@ -48,10 +45,10 @@ generation_params = {
 }
 
 
-LLM_ENDPOINT = os.environ.get("LLM_ENDPOINT", "http://10.223.23.194:8098")
+TGI_LLM_ENDPOINT = os.environ.get("TGI_LLM_ENDPOINT")
 
 llm = HuggingFaceEndpoint(
-    endpoint_url=LLM_ENDPOINT,
+    endpoint_url=TGI_LLM_ENDPOINT,
     task="text-generation",
     **generation_params,
 )
@@ -62,6 +59,8 @@ sql_params = {
 
 logger = CustomLogger("comps-texttosql")
 logflag = os.getenv("LOGFLAG", False)
+
+#https://github.com/langchain-ai/langchain/issues/23585
 
 class BaseSQLDatabaseTool(BaseModel):
     """Base tool for interacting with a SQL database."""
@@ -171,13 +170,19 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
     @root_validator(pre=True)
     def initialize_llm_chain(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         if "llm_chain" not in values:
-            values["llm_chain"] = (
-                values.get("llm")
-                | PromptTemplate(
+            from langchain.chains.llm import LLMChain
+            values["llm_chain"] = LLMChain(
+                llm=values.get("llm"),  # type: ignore[arg-type]
+                prompt=PromptTemplate(
                     template=QUERY_CHECKER, input_variables=["dialect", "query"]
-                )
-                | JsonOutputParser
+                ),
             )
+
+        if values["llm_chain"].prompt.input_variables != ["dialect", "query"]:
+            raise ValueError(
+                "LLM chain for QueryCheckerTool must have input variables ['query', 'dialect']"
+            )
+
         return values
 
     def _run(
@@ -330,7 +335,14 @@ def execute(input, url):
         verbose=True,
         toolkit=CustomSQLDatabaseToolkit(llm=llm, db=db),
         agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        agent_executor_kwargs = {"return_intermediate_steps": True},
     )
 
     result = agent_executor.invoke(input)
+
+    query = []
+    for (log, output) in result["intermediate_steps"]:
+        if log.tool == 'sql_db_query':
+            query.append(log.tool_input)
+    result["sql"] = query[0].replace('Observation','')
     return result

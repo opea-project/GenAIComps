@@ -13,16 +13,13 @@ from typing import (
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
-from comps.texttosql.langchain.src.texttosql import execute
+from src.texttosql import execute
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 
-from comps import CustomLogger, opea_microservices, register_microservice
-
-logger = CustomLogger("comps-texttosql")
-logflag = os.getenv("LOGFLAG", False)
+from comps import opea_microservices, register_microservice
 
 class PostgresConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
@@ -54,10 +51,10 @@ class Input(BaseModel):
     conn_str: Optional[PostgresConnection] = None
     
 @register_microservice(
-    name="opea_service@comps-texttosql",
+    name="opea_service@texttosql",
     endpoint="/v1/test-connection",
     host="0.0.0.0",
-    port=8080,
+    port=8090,
 )
 def test_connection(input: PostgresConnection):
     # Test the database connection
@@ -68,20 +65,18 @@ def test_connection(input: PostgresConnection):
         return False
 
 @register_microservice(
-    name="opea_service@comps-texttosql",
+    name="opea_service@texttosql",
     endpoint="/v1/texttosql",
     host="0.0.0.0",
-    port=8080,
+    port=8090,
 )
 def execute_agent(input: Input):
     # Test the database connection
-    logger.info("User Query: {}".format(input.input_text))
     url = input.conn_str.connection_string()
     if input.conn_str.test_connection():
         result = execute(input.input_text, url)
         return {"result": result}
 
 
-
 if __name__ == "__main__":
-    opea_microservices["opea_service@comps-texttosql"].start()
+    opea_microservices["opea_service@texttosql"].start()
