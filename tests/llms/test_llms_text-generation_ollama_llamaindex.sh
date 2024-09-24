@@ -22,6 +22,7 @@ function build_docker_images() {
     else
         echo "opea/llm-ollama-llamaindex built successful"
     fi
+    sleep 5s
 }
 
 function start_service() {
@@ -30,7 +31,7 @@ function start_service() {
      --network host \
      -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
      opea/llm-ollama:latest
-
+    sleep 5s
 }
 
 function validate_microservice() {
@@ -45,7 +46,7 @@ function validate_microservice() {
         docker logs test-comps-llm-ollama-llamaindex-server
         exit 1
     fi
-
+    sleep 5s
 }
 
 function stop_docker() {
