@@ -7,10 +7,13 @@ Visual Question and Answering is one of the multimodal tasks empowered by LVMs (
 
 ### Build Images
 
+#### Build Llama Vision Model
 ```bash
 cd ../../../
 docker build -t opea/lvm-llama-vision:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile .
 ```
+
+#### Build Llama Vision Model with deepspeed
 
 If you need to build the image for 90B models, use the following command:
 
@@ -18,17 +21,35 @@ If you need to build the image for 90B models, use the following command:
 docker build -t opea/lvm-llama-vision-tp:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile_tp .
 ```
 
-### Start LLaVA and LVM Service
+#### Build Llama Vision Guard Model
+```bash
+cd ../../../
+docker build -t opea/lvm-llama-vision-guard:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile_guard .
+```
+
+
+### Start Llama LVM Service
+
+#### Start Llama Vision Model Service
 
 ```bash
 docker run -it -p 9399:9399 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="/data/Llama-3.2-11B-Vision-Instruct" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision:latest
 ```
 
+#### Start Llama Vision Model Service with deepspeed
+
 If you need to run the 90B models, use the following command:
 
 ```bash
-docker run -it -p 9599:9599 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="/data/Llama-3.2-90B-Vision-Instruct" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision-tp:latest
+docker run -it -p 9599:9599 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e MODEL_ID="/data/Llama-3.2-90B-Vision-Instruct" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice opea/lvm-llama-vision-tp:latest
 ```
+
+#### Start Llama Vision Guard Model Service
+
+```bash
+docker run -it -p 9499:9499 -v /mnt/models/:/data --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="/data/Llama-Guard-3-11B-Vision" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision-guard:latest
+```
+
 
 ### Test
 
@@ -36,4 +57,10 @@ docker run -it -p 9599:9599 -v /mnt/models/:/data --ipc=host -e http_proxy=$http
 # Use curl
 
 # curl
-http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?"}' -H 'Content-Type: application/json'
+http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?", "max_new_tokens": 128}' -H 'Content-Type: application/json'
+
+http_proxy="" curl http://localhost:9499/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?", "max_new_tokens": 128}' -H 'Content-Type: application/json'
+
+http_proxy="" curl http://localhost:9599/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?", "max_new_tokens": 128}' -H 'Content-Type: application/json'
+
+```

@@ -5,4 +5,5 @@ shortuuid
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+prometheus-fastapi-instrumentator
 pydantic==2.9.2

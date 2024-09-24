@@ -7,5 +7,4 @@ opentelemetry-sdk
 prometheus-fastapi-instrumentator
 pydub
 shortuuid
-transformers
 uvicorn

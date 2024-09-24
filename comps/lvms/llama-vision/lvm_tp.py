@@ -49,8 +49,8 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
             response.raise_for_status()  # Ensure the request was successful
 
             # Parse and process the response
-            json_response = json.loads(response.content)
-            responses.append(TextDoc(text=json_response))
+            json_response = response.json()
+            responses.append(TextDoc(text=json_response.get("text", "")))
 
         except requests.exceptions.RequestException as e:
             # Log any errors that occur
