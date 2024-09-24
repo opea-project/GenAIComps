@@ -27,8 +27,8 @@ RUN pip install git+https://github.com/huggingface/optimum-habana@v1.13.2
 RUN cd /home/user/comps/lvms/llama-vision/  \
     pip install --no-cache-dir --upgrade pip && \
     pip install transformers-4.45.0.dev0-py3-none-any.whl && \
-    bash update
-
+    bash update && \
+    pip install -r /home/user/comps/lvms/llama-vision/requirements_tp.txt
 
 ENV PYTHONPATH=/root:/home/user
 
