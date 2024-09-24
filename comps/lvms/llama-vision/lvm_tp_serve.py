@@ -159,7 +159,7 @@ async def lvm_tp_endpoint(input: Union[LVMDoc]) -> Union[TextDoc]:
     image_stream = BytesIO(image_data)
     raw_image = Image.open(image_stream)
 
-    result = generate(text, raw_image)
+    result = generate(text, raw_image, max_new_tokens)
     if logflag:
         logger.info(f"res: {result}")
     return TextDoc(text=result)
