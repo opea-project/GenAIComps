@@ -24,7 +24,7 @@ function start_service() {
     echo "Starting microservice"
     export model_id="allenai/wildguard"
     export SAFETY_GUARD_MODEL_ID="allenai/wildguard"
-    export SAFETY_GUARD_ENDPOINT=http://${ip_address}:5035/v1/chat/completions
+    export SAFETY_GUARD_ENDPOINT=http://${ip_address}:5035
 
     docker run -d --name="test-comps-guardrails-langchain-tgi-server" -p 5035:80 --runtime=habana -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy ghcr.io/huggingface/tgi-gaudi:2.0.1 --model-id $model_id --max-input-length 1024 --max-total-tokens 2048
     sleep 4m
