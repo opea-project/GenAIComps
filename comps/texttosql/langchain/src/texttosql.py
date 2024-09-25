@@ -1,7 +1,7 @@
-# Copyright (C) 2024 Intel Corporation
+﻿# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import os
 from typing import Any, Dict, List, Optional, Sequence, Type, Union
