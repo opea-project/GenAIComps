@@ -8,7 +8,7 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 tgi_port=8080
-tgi_volume=$WORKPATH/data
+tgi_volume=$WORKPATH/data #/data2/cache/hub/Meta-Llama-3.1-70B-Instruct
 
 export model=meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
@@ -32,11 +32,11 @@ function start_tgi_service() {
 
     #single card
     echo "start tgi gaudi service"
-    docker run -d --runtime=habana --name "test-comps-tgi-gaudi-service" -p $tgi_port:80 -v $tgi_volume:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:latest --model-id $model --max-input-tokens 4096 --max-total-tokens 8092
+    docker run -d --runtime=habana --name "test-comps-tgi-gaudi-service" -p $tgi_port:80 -v $tgi_volume:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --max-input-tokens 4096 --max-total-tokens 8192 --sharded true --num-shard 4
     sleep 5s
     echo "Waiting tgi gaudi ready"
     n=0
-    until [[ "$n" -ge 1000 ]] || [[ $ready == true ]]; do
+    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
         docker logs test-comps-tgi-gaudi-service &> ${LOG_PATH}/tgi-gaudi-service.log
         n=$((n+1))
         if grep -q Connected ${LOG_PATH}/tgi-gaudi-service.log; then
