@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple, Set, Optional
 
 import numpy as np
 from docarray import BaseDoc, DocList
@@ -73,6 +73,43 @@ MultimodalDoc = Union[
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
+class SpecDecodeDoc(BaseDoc):
+    no_spec: bool
+    model_req: Optional[str] = None
+    seq_with_bonus_token_in_last_step: Optional[Set[int]] = set()
+
+class SpecDecodeParams(BaseDoc):
+    model: str
+    speculative_model: str
+    num_speculative_tokens: int
+    query: str
+    max_new_tokens: int = 1024
+    top_k: int = 10
+    top_p: float = 0.95
+    typical_p: float = 0.95
+    temperature: float = 0.01
+    repetition_penalty: float = 1.03
+    streaming: bool = True
+
+    chat_template: Optional[str] = Field(
+        default=None,
+        description=(
+            "A template to use for this conversion. "
+            "If this is not passed, the model's default chat template will be "
+            "used instead. We recommend that the template contains {context} and {question} for rag,"
+            "or only contains {question} for chat completion without rag."
+        ),
+    )
+    documents: Optional[Union[List[Dict[str, str]], List[str]]] = Field(
+        default=[],
+        description=(
+            "A list of dicts representing documents that will be accessible to "
+            "the model if it is performing RAG (retrieval-augmented generation)."
+            " If the template does not support RAG, this argument will have no "
+            "effect. We recommend that each document should be a dict containing "
+            '"title" and "text" keys.'
+        ),
+    )
 
 class DocPath(BaseDoc):
     path: str

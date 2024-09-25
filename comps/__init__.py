@@ -7,6 +7,7 @@
 from comps.cores.proto.docarray import (
     Audio2TextDoc,
     Base64ByteStrDoc,
+    SpecDecodeDoc,
     DocPath,
     EmbedDoc,
     GeneratedDoc,
