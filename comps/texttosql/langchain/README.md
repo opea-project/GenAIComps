@@ -112,6 +112,6 @@ Once text to SQL microservice is started, user can use below command to invoke t
 ```bash
 curl http://${your_ip}:9090/v1/texttosql\
         -X POST \
-        -d '{"input_text": "Find the total number of Albums.","conn_str": {"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${ip_address}'", "port": "5442", "database": "'${POSTGRES_DB}'"}}' \
+        -d '{"input_text": "Find the total number of Albums.","conn_str": {"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}}' \
         -H 'Content-Type: application/json'
 ```
