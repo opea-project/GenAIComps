@@ -61,6 +61,13 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
     if not isinstance(input, SearchedDoc) and input.chat_template:
         prompt_template = PromptTemplate.from_template(input.chat_template)
         input_variables = prompt_template.input_variables
+    parameters = {
+        "max_tokens": input.max_tokens,
+        "top_p": input.top_p,
+        "temperature": input.temperature,
+        "frequency_penalty": input.frequency_penalty,
+        "presence_penalty": input.presence_penalty
+    }
 
     if isinstance(input, SearchedDoc):
         if logflag:
@@ -85,10 +92,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
 
             async def stream_generator():
                 chat_response = ""
-                async for text in llm.astream(new_input.query, max_tokens=new_input.max_tokens, top_p=new_input.top_p,
-                                              frequency_penalty=new_input.frequency_penalty,
-                                              presence_penalty=new_input.presence_penalty,
-                                              temperature=new_input.temperature, ):
+                async for text in llm.astream(new_input.query, **parameters):
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -101,9 +105,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
         else:
-            response = llm.invoke(new_input.query, max_tokens=input.max_tokens, top_p=input.top_p,
-                                  temperature=input.temperature, frequency_penalty=input.frequency_penalty,
-                                  presence_penalty=input.presence_penalty)
+            response = llm.invoke(new_input.query, **parameters)
             if logflag:
                 logger.info(response)
 
@@ -133,9 +135,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
 
             async def stream_generator():
                 chat_response = ""
-                async for text in llm.astream(input.query, max_tokens=input.max_tokens, top_p=input.top_p,
-                                              temperature=input.temperature, frequency_penalty=input.frequency_penalty,
-                                              presence_penalty=input.presence_penalty):
+                async for text in llm.astream(input.query, **parameters):
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -148,9 +148,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
         else:
-            response = llm.invoke(input.query, max_tokens=input.max_tokens, top_p=input.top_p,
-                                  temperature=input.temperature, frequency_penalty=input.frequency_penalty,
-                                  presence_penalty=input.presence_penalty)
+            response = llm.invoke(input.query, **parameters)
             if logflag:
                 logger.info(response)
 
