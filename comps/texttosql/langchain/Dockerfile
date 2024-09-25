@@ -28,12 +28,6 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-USER root
-
-RUN mkdir -p /home/user/comps/texttosql/langchain/status && chown -R user /home/user/comps/texttosql/langchain/status
-
-USER user
-
 WORKDIR /home/user/comps/texttosql/langchain/
 
 ENTRYPOINT ["python", "main.py"]
