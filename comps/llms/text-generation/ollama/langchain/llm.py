@@ -17,7 +17,7 @@ logflag = os.getenv("LOGFLAG", False)
     service_type=ServiceType.LLM,
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
-    port=9000,
+    port=2001,
 )
 def llm_generate(input: LLMParamsDoc):
     if logflag:

@@ -35,7 +35,7 @@ function start_service() {
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://${ip_address}:9000/v1/chat/completions \
+    result=$(http_proxy="" curl http://${ip_address}:2001/v1/chat/completions \
         -X POST \
         -d '{"model": "llama3", "query":"What is Deep Learning?","max_new_tokens":32,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":false}' \
         -H 'Content-Type: application/json')
