@@ -26,11 +26,7 @@ logflag = os.getenv("LOGFLAG", False)
 
 llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
 model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
-llm = VLLMOpenAI(
-    openai_api_key="EMPTY",
-    openai_api_base=llm_endpoint + "/v1",
-    model_name=model_name
-)
+llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name)
 
 
 @opea_telemetry
@@ -66,7 +62,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
         "top_p": input.top_p,
         "temperature": input.temperature,
         "frequency_penalty": input.frequency_penalty,
-        "presence_penalty": input.presence_penalty
+        "presence_penalty": input.presence_penalty,
     }
 
     if isinstance(input, SearchedDoc):
