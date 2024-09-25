@@ -3,11 +3,10 @@
 
 services:
   agent:
-    image: opea/test-comps-agent-langchain:latest
+    image: ${agent_image}
     container_name: test-comps-agent-endpoint
     volumes:
       - ${TOOLSET_PATH}:/home/user/tools/
-      - ${WORKDIR}/GenAIComps/comps:/home/user/comps
     ports:
       - "9095:9095"
     ipc: host

@@ -12,7 +12,7 @@ services:
     ipc: host
     environment:
       ip_address: ${ip_address}
-      strategy: rag_agent_llama
+      strategy: react_langchain
       recursion_limit: ${recursion_limit}
       llm_engine: tgi
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
@@ -21,7 +21,7 @@ services:
       temperature: ${temperature}
       max_new_tokens: ${max_new_tokens}
       top_k: 10
-      streaming: false
+      streaming: true
       tools: /home/user/tools/custom_tools.yaml
       require_human_feedback: false
       no_proxy: ${no_proxy}
