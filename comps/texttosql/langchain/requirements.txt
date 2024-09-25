@@ -9,9 +9,9 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
 prometheus_fastapi_instrumentator
+psycopg2-binary 
 pyarrow
 pydantic #==1.10.13
-sqlalchemy
 shortuuid
-psycopg2-binary 
+sqlalchemy
 uvicorn

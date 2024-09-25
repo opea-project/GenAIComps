@@ -4,13 +4,9 @@
 import os
 import pathlib
 import sys
+from typing import Annotated, Optional
 
-from pydantic import BaseModel , Field
-from typing import (
-    Optional,
-    Annotated,
-)
-
+from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from src.texttosql import execute
@@ -21,13 +17,12 @@ sys.path.append(comps_path)
 
 from comps import opea_microservices, register_microservice
 
+
 class PostgresConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
     password: Annotated[str, Field(min_length=1)]
     host: Annotated[str, Field(min_length=1)]
-    port: Annotated[
-        int, Field(ge=1, le=65535)
-    ]  # Default PostgreSQL port with constraints
+    port: Annotated[int, Field(ge=1, le=65535)]  # Default PostgreSQL port with constraints
     database: Annotated[str, Field(min_length=1)]
 
     def connection_string(self) -> str:
@@ -49,7 +44,8 @@ class PostgresConnection(BaseModel):
 class Input(BaseModel):
     input_text: str
     conn_str: Optional[PostgresConnection] = None
-    
+
+
 @register_microservice(
     name="opea_service@texttosql",
     endpoint="/v1/test-connection",
@@ -63,6 +59,7 @@ def test_connection(input: PostgresConnection):
         return True
     else:
         return False
+
 
 @register_microservice(
     name="opea_service@texttosql",

@@ -1,38 +1,27 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 ﻿from __future__ import annotations
 
 import os
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Type,
-    Union,)
+from typing import Any, Dict, List, Optional, Sequence, Type, Union
 
 from langchain.agents import create_react_agent
 from langchain.agents.agent import AgentExecutor, RunnableAgent
 from langchain.agents.agent_types import AgentType
-from langchain_core.callbacks import (
-    AsyncCallbackManagerForToolRun,
-    BaseCallbackManager,
-    CallbackManagerForToolRun,
-)
-
+from langchain_community.agent_toolkits.sql.prompt import SQL_PREFIX, SQL_SUFFIX
+from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
+from langchain_community.tools.sql_database.prompt import QUERY_CHECKER
+from langchain_community.tools.sql_database.tool import InfoSQLDatabaseTool, ListSQLDatabaseTool
+from langchain_community.utilities.sql_database import SQLDatabase
+from langchain_core.callbacks import AsyncCallbackManagerForToolRun, BaseCallbackManager, CallbackManagerForToolRun
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts import BasePromptTemplate, PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field, root_validator
 from langchain_core.tools import BaseTool
-from langchain_community.agent_toolkits.sql.prompt import SQL_PREFIX, SQL_SUFFIX
-from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-from langchain_community.tools.sql_database.prompt import QUERY_CHECKER
-from langchain_community.tools.sql_database.tool import (
-    InfoSQLDatabaseTool,
-    ListSQLDatabaseTool,
-)
 from langchain_huggingface import HuggingFaceEndpoint
-from langchain_community.utilities.sql_database import SQLDatabase
 from sqlalchemy.engine import Result
+
 from comps import CustomLogger
 
 generation_params = {
@@ -93,7 +82,7 @@ class CustomQuerySQLDataBaseTool(BaseSQLDatabaseTool, BaseTool):
     ) -> Union[str, Sequence[Dict[str, Any]], Result]:
         """Execute the query, return the results or an error message."""
         logger.info("query: {}".format(query))
-        query = query.replace("\nObservation", "") 
+        query = query.replace("\nObservation", "")
         result = self.db.run_no_throw(query)
         return result
 
@@ -155,7 +144,9 @@ class _QuerySQLCheckerToolInput(BaseModel):
 
 class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
     """Use an LLM to check if a query is correct.
-    Adapted from https://www.patterns.app/blog/2023/01/18/crunchbot-sql-analyst-gpt/"""
+
+    Adapted from https://www.patterns.app/blog/2023/01/18/crunchbot-sql-analyst-gpt/
+    """
 
     template: str = QUERY_CHECKER
     llm: BaseLanguageModel
@@ -269,7 +260,7 @@ def custom_create_sql_agent(
     prompt: Optional[BasePromptTemplate] = None,
     **kwargs: Any,
 ) -> AgentExecutor:
-    """ """  # noqa: E501
+    """"""  # noqa: E501
 
     tools = toolkit.get_tools()
     if prompt is None:

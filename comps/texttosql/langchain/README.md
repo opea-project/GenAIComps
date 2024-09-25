@@ -25,6 +25,7 @@ cd comps/texttosql/langchain
 
 docker run --name postgres-db --ipc=host -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p 5442:5432 -d -v ./chinook.sql:/docker-entrypoint-initdb.d/chinook.sql postgres:latest
 ```
+
 ### 1.3 Start TGI Service
 
 ```bash
@@ -60,7 +61,7 @@ Start Text to SQL microservice with below command.
 python3 main.py
 ```
 
-## 🚀2.  Start Microservice with Docker (Option 2)
+## 🚀2. Start Microservice with Docker (Option 2)
 
 ### 2.1 Start PostGreSQL Database Service
 
@@ -91,9 +92,11 @@ export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
 docker run  --runtime=runc --name="comps-langchain-texttosql"  -p 9090:8080 --ipc=host -e llm_endpoint_url=${TGI_LLM_ENDPOINT} opea/texttosql:latest
 
 ```
+
 #### 2.6 Run via docker compose. (Option B)
 
-Set Environment Varibles.
+Set Environment Variables.
+
 ```bash
 export TGI_LLM_ENDPOINT=http://${your_ip}:${TGI_PORT}
 export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
@@ -102,8 +105,8 @@ export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=testpwd
 export POSTGRES_DB=chinook
 ```
-docker compose -f docker_compose_texttosql.yaml up 
 
+docker compose -f docker_compose_texttosql.yaml up
 
 ## 🚀3. Consume Microservice
 
