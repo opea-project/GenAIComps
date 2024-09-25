@@ -337,12 +337,6 @@ class DocumentGraderLlama:
 
     def __init__(self, llm_endpoint, model_id=None):
         from .prompt import DOC_GRADER_Llama_PROMPT
-
-        class grade(BaseModel):
-            """Binary score for relevance check."""
-
-            binary_score: str = Field(description="Relevance score 'yes' or 'no'")
-
         # Prompt
         prompt = PromptTemplate(
             template=DOC_GRADER_Llama_PROMPT,
@@ -350,11 +344,10 @@ class DocumentGraderLlama:
         )
 
         if isinstance(llm_endpoint, HuggingFaceEndpoint):
-            llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools([grade])
+            llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id)
         elif isinstance(llm_endpoint, ChatOpenAI):
-            llm = llm_endpoint.bind_tools([grade])
-        output_parser = PydanticToolsParser(tools=[grade], first_tool_only=True)
-        self.chain = prompt | llm | output_parser
+            llm = llm_endpoint
+        self.chain = prompt | llm
 
     def __call__(self, state) -> Literal["generate", "rewrite"]:
         from .utils import aggregate_docs
@@ -368,9 +361,11 @@ class DocumentGraderLlama:
 
         scored_result = self.chain.invoke({"question": question, "context": docs})
 
-        score = scored_result.binary_score
+        score = scored_result.content
+        print("@@@@ Score: ",score)
 
-        if score.startswith("yes"):
+        # if score.startswith("yes"):
+        if "yes" in score:
             print("---DECISION: DOCS RELEVANT---")
             return {"doc_score": "generate"}
 
