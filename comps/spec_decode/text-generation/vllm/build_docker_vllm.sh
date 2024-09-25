@@ -16,10 +16,10 @@
 
 # # Set default values
 # default_hw_mode="cpu"
-# 
+#
 # # Assign arguments to variable
 # hw_mode=${1:-$default_hw_mode}
-# 
+#
 # # Check if all required arguments are provided
 # if [ "$#" -lt 0 ] || [ "$#" -gt 1 ]; then
 #     echo "Usage: $0 [hw_mode]"

@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Dict, List, Optional, Union, Tuple, Set, Optional
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 from docarray import BaseDoc, DocList
@@ -73,10 +73,12 @@ MultimodalDoc = Union[
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
+
 class SpecDecodeDoc(BaseDoc):
     no_spec: bool
     model_req: Optional[str] = None
     seq_with_bonus_token_in_last_step: Optional[Set[int]] = set()
+
 
 class SpecDecodeParams(BaseDoc):
     model: str
@@ -110,6 +112,7 @@ class SpecDecodeParams(BaseDoc):
             '"title" and "text" keys.'
         ),
     )
+
 
 class DocPath(BaseDoc):
     path: str

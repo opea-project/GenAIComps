@@ -7,13 +7,13 @@ from fastapi.responses import StreamingResponse
 from langchain_community.llms import VLLMOpenAI
 
 from comps import (
+    CustomLogger,
     GeneratedDoc,
     LLMParamsDoc,
     ServiceType,
     opea_microservices,
     opea_telemetry,
     register_microservice,
-    CustomLogger,
 )
 
 logger = CustomLogger("spec_decode_vllm")
