@@ -7,8 +7,8 @@
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-tgi_port=8080
-tgi_volume=$WORKPATH/data #/data2/cache/hub/Meta-Llama-3.1-70B-Instruct
+tgi_port=8085
+tgi_volume=$WORKPATH/data #/data2/cache/hub/Meta-Llama-3.1-70B-Instruct #$HF_CACHE_DIR #
 
 export model=meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
@@ -108,8 +108,10 @@ function validate_microservice() {
     local EXIT_CODE="${EXIT_CODE:0-1}"
     echo "return value is $EXIT_CODE"
     if [ "$EXIT_CODE" == "1" ]; then
-        docker logs test-comps-tgi-gaudi-service &> ${LOG_PATH}/test-comps-tgi-gaudi-service.log
-        docker logs test-comps-agent-endpoint &> ${LOG_PATH}/test-comps-langchain-agent-endpoint.log
+        echo "==================TGI logs ======================"
+        docker logs test-comps-tgi-gaudi-service
+        echo "==================Agent logs ======================"
+        docker logs test-comps-agent-endpoint
         exit 1
     fi
 }
@@ -123,8 +125,10 @@ function validate_assistant_api() {
     local EXIT_CODE="${EXIT_CODE:0-1}"
     echo "return value is $EXIT_CODE"
     if [ "$EXIT_CODE" == "1" ]; then
-        docker logs comps-tgi-gaudi-service &> ${LOG_PATH}/test-comps-tgi-gaudi-service.log
-        docker logs comps-langchain-agent-endpoint &> ${LOG_PATH}/test-comps-langchain-agent-endpoint.log
+        echo "==================TGI logs ======================"
+        docker logs comps-tgi-gaudi-service
+        echo "==================Agent logs ======================"
+        docker logs comps-langchain-agent-endpoint
         exit 1
     fi
 }
@@ -150,7 +154,7 @@ function stop_docker() {
 
 function main() {
 
-    stop_docker
+    # stop_docker
     build_docker_images
 
     start_tgi_service
