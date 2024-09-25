@@ -337,6 +337,7 @@ class DocumentGraderLlama:
 
     def __init__(self, llm_endpoint, model_id=None):
         from .prompt import DOC_GRADER_Llama_PROMPT
+
         # Prompt
         prompt = PromptTemplate(
             template=DOC_GRADER_Llama_PROMPT,
@@ -362,7 +363,7 @@ class DocumentGraderLlama:
         scored_result = self.chain.invoke({"question": question, "context": docs})
 
         score = scored_result.content
-        print("@@@@ Score: ",score)
+        print("@@@@ Score: ", score)
 
         # if score.startswith("yes"):
         if "yes" in score:
