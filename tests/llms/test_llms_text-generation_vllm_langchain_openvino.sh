@@ -16,6 +16,7 @@ function build_container() {
     cd $WORKPATH
     git clone https://github.com/vllm-project/vllm.git vllm-openvino
     cd ./vllm-openvino/
+    # for test, something wrong with main branch image build
     docker build --no-cache -t $DOCKER_IMAGE \
       -f Dockerfile.openvino \
       . \
