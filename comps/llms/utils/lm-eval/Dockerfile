@@ -26,11 +26,11 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/GenAIComps/comps/llms/utils/lm-eval/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/llms/utils/lm-eval/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/GenAIComps/comps/llms/utils/lm-eval
+WORKDIR /home/user/comps/llms/utils/lm-eval
 
 
 ENTRYPOINT ["python3", "self_hosted_hf.py"]
