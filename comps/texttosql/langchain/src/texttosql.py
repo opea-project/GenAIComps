@@ -49,7 +49,8 @@ sql_params = {
 logger = CustomLogger("comps-texttosql")
 logflag = os.getenv("LOGFLAG", False)
 
-#https://github.com/langchain-ai/langchain/issues/23585
+# https://github.com/langchain-ai/langchain/issues/23585
+
 
 class BaseSQLDatabaseTool(BaseModel):
     """Base tool for interacting with a SQL database."""
@@ -111,9 +112,7 @@ class CustomInfoSQLDatabaseTool(BaseSQLDatabaseTool, BaseTool):
     ) -> str:
         """Get the schema for tables in a comma-separated list."""
         table_names = table_names.replace("\nObservation", "")  # this changed
-        return self.db.get_table_info_no_throw(
-            [t.strip() for t in table_names.split(",")]
-        )
+        return self.db.get_table_info_no_throw([t.strip() for t in table_names.split(",")])
 
 
 class _ListSQLDataBaseToolInput(BaseModel):
@@ -124,9 +123,7 @@ class CustomListSQLDatabaseTool(BaseSQLDatabaseTool, BaseTool):
     """Tool for getting tables names."""
 
     name: str = "sql_db_list_tables"
-    description: str = (
-        "Input is an empty string, output is a comma-separated list of tables in the database."
-    )
+    description: str = "Input is an empty string, output is a comma-separated list of tables in the database."
     args_schema: Type[BaseModel] = _ListSQLDataBaseToolInput
 
     def _run(
@@ -162,17 +159,14 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
     def initialize_llm_chain(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         if "llm_chain" not in values:
             from langchain.chains.llm import LLMChain
+
             values["llm_chain"] = LLMChain(
                 llm=values.get("llm"),  # type: ignore[arg-type]
-                prompt=PromptTemplate(
-                    template=QUERY_CHECKER, input_variables=["dialect", "query"]
-                ),
+                prompt=PromptTemplate(template=QUERY_CHECKER, input_variables=["dialect", "query"]),
             )
 
         if values["llm_chain"].prompt.input_variables != ["dialect", "query"]:
-            raise ValueError(
-                "LLM chain for QueryCheckerTool must have input variables ['query', 'dialect']"
-            )
+            raise ValueError("LLM chain for QueryCheckerTool must have input variables ['query', 'dialect']")
 
         return values
 
@@ -212,9 +206,7 @@ class CustomSQLDatabaseToolkit(SQLDatabaseToolkit):
             f"{list_sql_database_tool.name} first! "
             "Example Input: table1, table2, table3"
         )
-        info_sql_database_tool = CustomInfoSQLDatabaseTool(
-            db=self.db, description=info_sql_database_tool_description
-        )
+        info_sql_database_tool = CustomInfoSQLDatabaseTool(db=self.db, description=info_sql_database_tool_description)
         query_sql_database_tool_description = (
             "Input to this tool is a detailed and correct SQL query, output is a "
             "result from the database. If the query is not correct, an error message "
@@ -260,7 +252,7 @@ def custom_create_sql_agent(
     prompt: Optional[BasePromptTemplate] = None,
     **kwargs: Any,
 ) -> AgentExecutor:
-    """"""  # noqa: E501
+    """"""
 
     tools = toolkit.get_tools()
     if prompt is None:
@@ -275,14 +267,10 @@ def custom_create_sql_agent(
             db_context = toolkit.get_context()
             if "table_info" in prompt.input_variables:
                 prompt = prompt.partial(table_info=db_context["table_info"])
-                tools = [
-                    tool for tool in tools if not isinstance(tool, InfoSQLDatabaseTool)
-                ]
+                tools = [tool for tool in tools if not isinstance(tool, InfoSQLDatabaseTool)]
             if "table_names" in prompt.input_variables:
                 prompt = prompt.partial(table_names=db_context["table_names"])
-                tools = [
-                    tool for tool in tools if not isinstance(tool, ListSQLDatabaseTool)
-                ]
+                tools = [tool for tool in tools if not isinstance(tool, ListSQLDatabaseTool)]
 
     if prompt is None:
         from langchain.agents.mrkl import prompt as react_prompt
@@ -318,6 +306,7 @@ def custom_create_sql_agent(
         **(agent_executor_kwargs or {}),
     )
 
+
 def execute(input, url):
     db = SQLDatabase.from_uri(url, **sql_params)
     logger.info("Starting Agent")
@@ -326,14 +315,14 @@ def execute(input, url):
         verbose=True,
         toolkit=CustomSQLDatabaseToolkit(llm=llm, db=db),
         agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        agent_executor_kwargs = {"return_intermediate_steps": True},
+        agent_executor_kwargs={"return_intermediate_steps": True},
     )
 
     result = agent_executor.invoke(input)
 
     query = []
-    for (log, output) in result["intermediate_steps"]:
-        if log.tool == 'sql_db_query':
+    for log, output in result["intermediate_steps"]:
+        if log.tool == "sql_db_query":
             query.append(log.tool_input)
-    result["sql"] = query[0].replace('Observation','')
+    result["sql"] = query[0].replace("Observation", "")
     return result
