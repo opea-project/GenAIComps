@@ -16,7 +16,8 @@ logflag = os.getenv("LOGFLAG", False)
 llm_instances: Dict[Tuple[str, str, int], LLM] = {}
 lock = threading.Lock()
 
-def get_llm(spec_step, device, tensor_parallel_size): 
+
+def get_llm(spec_step, device, tensor_parallel_size):
     model_name = os.getenv("LLM_MODEL", "facebook/opt-6.7b")
     speculative_model = os.getenv("SPEC_MODEL", "facebook/opt-125m")
     num_speculative_tokens = os.getenv("NUM_SPECULATIVE_TOKENS", 5)
@@ -48,7 +49,7 @@ def llm_generate(input: SpecDecodeDoc):
     if logflag:
         logger.info(input)
     # reuse the llm model
-    llm = get_llm(spec_step='draft', device='cuda', tensor_parallel_size=1)
+    llm = get_llm(spec_step="draft", device="cuda", tensor_parallel_size=1)
     execute_model_req = pickle.loads(base64.b64decode(input.model_req))
     assert (
         execute_model_req.seq_group_metadata_list is not None

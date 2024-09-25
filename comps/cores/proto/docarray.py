@@ -9,6 +9,7 @@ from docarray.documents import AudioDoc
 from docarray.typing import AudioUrl, ImageUrl
 from pydantic import Field, conint, conlist, field_validator
 
+
 class TopologyInfo:
     # will not keep forwarding to the downstream nodes in the black list
     # should be a pattern string
