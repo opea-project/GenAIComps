@@ -8,7 +8,7 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 tgi_port=8085
-tgi_volume=$HF_CACHE_DIR #$WORKPATH/data #/data2/cache/hub/Meta-Llama-3.1-70B-Instruct #
+tgi_volume=$WORKPATH/data #/data2/cache/hub/Meta-Llama-3.1-70B-Instruct #$HF_CACHE_DIR #
 
 export agent_image="opea/agent-langchain:comps"
 export agent_container_name="test-comps-agent-endpoint"
