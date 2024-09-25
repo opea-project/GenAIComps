@@ -17,7 +17,7 @@ logflag = os.getenv("LOGFLAG", False)
     service_type=ServiceType.LLM,
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
-    port=2001,
+    port=9000,
 )
 def llm_generate(input: LLMParamsDoc):
     if logflag:
@@ -25,7 +25,7 @@ def llm_generate(input: LLMParamsDoc):
     ollama = Ollama(
         base_url=ollama_endpoint,
         model=input.model if input.model else model_name,
-        num_predict=input.max_tokens,
+        num_predict=input.max_new_tokens,
         top_k=input.top_k,
         top_p=input.top_p,
         temperature=input.temperature,
