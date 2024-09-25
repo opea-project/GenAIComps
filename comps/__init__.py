@@ -22,10 +22,17 @@ from comps.cores.proto.docarray import (
     GraphDoc,
     LVMDoc,
     LVMVideoDoc,
+    ImagePath,
+    ImagesPath,
+    VideoPath,
     ImageDoc,
     TextImageDoc,
     MultimodalDoc,
     EmbedMultimodalDoc,
+    FactualityDoc,
+    ScoreDoc,
+    PIIRequestDoc,
+    PIIResponseDoc,
 )
 
 # Constants
@@ -48,7 +55,7 @@ from comps.cores.mega.gateway import (
     FaqGenGateway,
     VideoQnAGateway,
     VisualQnAGateway,
-    MultimodalRAGWithVideosGateway,
+    MultimodalQnAGateway,
 )
 
 # Telemetry

@@ -29,6 +29,8 @@ class ServiceType(Enum):
     LVM = 12
     KNOWLEDGE_GRAPH = 13
     WEB_RETRIEVER = 14
+    IMAGE2VIDEO = 15
+    TEXT2IMAGE = 16
 
 
 class MegaServiceEndpoint(Enum):
@@ -43,7 +45,7 @@ class MegaServiceEndpoint(Enum):
     CODE_TRANS = "/v1/codetrans"
     DOC_SUMMARY = "/v1/docsum"
     SEARCH_QNA = "/v1/searchqna"
-    MULTIMODAL_RAG_WITH_VIDEOS = "/v1/mmragvideoqna"
+    MULTIMODAL_QNA = "/v1/multimodalqna"
     TRANSLATION = "/v1/translation"
     RETRIEVALTOOL = "/v1/retrievaltool"
     FAQ_GEN = "/v1/faqgen"
