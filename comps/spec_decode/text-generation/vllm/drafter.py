@@ -6,19 +6,17 @@ import pickle
 import threading
 from typing import Dict, Tuple
 
-from vllm import LLM, SamplingParams
+from vllm import LLM
 
 from comps import CustomLogger, ServiceType, SpecDecodeDoc, opea_microservices, opea_telemetry, register_microservice
 
 logger = CustomLogger("spec_decode_drafter_vllm")
-# logflag = os.getenv("LOGFLAG", False)
-logflag = True
+logflag = os.getenv("LOGFLAG", False)
 
 llm_instances: Dict[Tuple[str, str, int], LLM] = {}
 lock = threading.Lock()
 
-
-def get_llm():
+def get_llm(spec_step, device, tensor_parallel_size): 
     model_name = os.getenv("LLM_MODEL", "facebook/opt-6.7b")
     speculative_model = os.getenv("SPEC_MODEL", "facebook/opt-125m")
     num_speculative_tokens = os.getenv("NUM_SPECULATIVE_TOKENS", 5)
@@ -27,12 +25,12 @@ def get_llm():
         if (model_name, speculative_model, num_speculative_tokens) not in llm_instances:
             llm = LLM(
                 model=model_name,
-                tensor_parallel_size=1,
+                tensor_parallel_size=tensor_parallel_size,
                 speculative_model=speculative_model,
                 num_speculative_tokens=num_speculative_tokens,
                 use_v2_block_manager=True,
-                spec_step="draft",
-                device="cuda",
+                spec_step=spec_step,
+                device=device,
             )
             llm_instances[(model_name, speculative_model, num_speculative_tokens)] = llm
         return llm_instances[(model_name, speculative_model, num_speculative_tokens)]
@@ -50,7 +48,7 @@ def llm_generate(input: SpecDecodeDoc):
     if logflag:
         logger.info(input)
     # reuse the llm model
-    llm = get_llm()
+    llm = get_llm(spec_step='draft', device='cuda', tensor_parallel_size=1)
     execute_model_req = pickle.loads(base64.b64decode(input.model_req))
     assert (
         execute_model_req.seq_group_metadata_list is not None
