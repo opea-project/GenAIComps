@@ -111,9 +111,10 @@ Start the services.
 ```bash
 docker compose -f docker_compose_texttosql.yaml up
 ```
+
 ## 🚀3. Consume Microservice
 
-Once Text-to-SQL microservice is started, user can use below command 
+Once Text-to-SQL microservice is started, user can use below command
 
 - Test the Database connection
 
@@ -122,6 +123,7 @@ curl --location http://${your_ip}:9090/v1/test-connection \
 --header 'Content-Type: application/json' \
 --data '{"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}'
 ```
+
 - Invoke the microservice.
 
 ```bash
