@@ -23,12 +23,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 USER user
 
-ARG REPO_COMPS=https://github.com/opea-project/GenAIComps.git
-ARG BRANCH=main
-RUN git clone --single-branch --branch=${BRANCH} ${REPO_COMPS} /home/user/GenAIComps/ && \
-    cd /home/user/GenAIComps/ && python3 setup.py install && \
+COPY comps /home/user/comps
+
+RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/GenAIComps/comps/llms/utils/lm-eval/requirements.txt
 
-WORKDIR /home/user/GenAIComps/comps/llms/utils/lm-eval/
+ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+WORKDIR /home/user/GenAIComps/comps/llms/utils/lm-eval
+
 
 ENTRYPOINT ["python3", "self_hosted_hf.py"]
