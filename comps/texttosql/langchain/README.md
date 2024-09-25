@@ -1,6 +1,6 @@
-# Text To SQL Microservice
+# Text-to-SQL Microservice
 
-In today's data-driven world, the ability to efficiently extract insights from databases is crucial. However, querying databases often requires specialized knowledge of SQL and database schemas, which can be a barrier for non-technical users. This is where the Text to SQL microservice comes into play, leveraging the power of LLMs and agentic frameworks to bridge the gap between human language and database queries. This microservice is built on Langchain/Langgraph frameworks.
+In today's data-driven world, the ability to efficiently extract insights from databases is crucial. However, querying databases often requires specialized knowledge of SQL and database schemas, which can be a barrier for non-technical users. This is where the Text-to-SQL microservice comes into play, leveraging the power of LLMs and agentic frameworks to bridge the gap between human language and database queries. This microservice is built on Langchain/Langgraph frameworks.
 
 The microservice enables a wide range of use cases, making it a versatile tool for businesses, researchers, and individuals alike. Users can generate queries based on natural language questions, enabling them to quickly retrieve relevant data from their databases. Additionally, the service can be integrated into chatbots, allowing for natural language interactions and providing accurate responses based on the underlying data. Furthermore, it can be utilized to build custom dashboards, enabling users to visualize and analyze insights based on their specific requirements, all through the power of natural language.
 
@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ### 1.2 Start PostgresDB Service
 
-We will use [Chinook](https://github.com/lerocha/chinook-database) sample database as a default to test the text to SQL microservice. Chinook database is a sample database ideal for demos and testing ORM tools targeting single and multiple database servers.
+We will use [Chinook](https://github.com/lerocha/chinook-database) sample database as a default to test the Text-to-SQL microservice. Chinook database is a sample database ideal for demos and testing ORM tools targeting single and multiple database servers.
 
 ```bash
 export POSTGRES_USER=postgres
@@ -53,9 +53,9 @@ curl http://${your_ip}:${TGI_PORT}/generate \
 export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
 ```
 
-### 1.6 Start Text to SQL Microservice with Python Script
+### 1.6 Start Text-to-SQL Microservice with Python Script
 
-Start Text to SQL microservice with below command.
+Start Text-to-SQL microservice with below command.
 
 ```bash
 python3 main.py
@@ -106,11 +106,23 @@ export POSTGRES_PASSWORD=testpwd
 export POSTGRES_DB=chinook
 ```
 
-docker compose -f docker_compose_texttosql.yaml up
+Start the services.
 
+```bash
+docker compose -f docker_compose_texttosql.yaml up
+```
 ## 🚀3. Consume Microservice
 
-Once text to SQL microservice is started, user can use below command to invoke the microservice.
+Once Text-to-SQL microservice is started, user can use below command 
+
+- Test the Database connection
+
+```bash
+curl --location http://${your_ip}:9090/v1/test-connection \
+--header 'Content-Type: application/json' \
+--data '{"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}'
+```
+- Invoke the microservice.
 
 ```bash
 curl http://${your_ip}:9090/v1/texttosql\
