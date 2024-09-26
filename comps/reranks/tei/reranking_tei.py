@@ -1,11 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import aiohttp
 import json
 import os
 import time
 from typing import Union
+
+import aiohttp
 
 from comps import (
     CustomLogger,
