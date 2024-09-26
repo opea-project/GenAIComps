@@ -165,48 +165,36 @@ jobs:
 
       - name: Checkout Repo GenAIComps
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Check the Validity of Hyperlinks
         # ignore_links=("https://platform.openai.com/docs/api-reference/fine-tuning"
-        #               "https://platform.openai.com/docs/api-reference/"
-        #               "https://openai.com/index/whisper/"
-        #               "https://platform.openai.com/docs/api-reference/chat/create")
+          #               "https://platform.openai.com/docs/api-reference/"
+          #               "https://openai.com/index/whisper/"
+          #               "https://platform.openai.com/docs/api-reference/chat/create")
         run: |
           cd ${{github.workspace}}
           fail="FALSE"
-          merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-status --diff-filter=ARM ${{ github.event.pull_request.base.sha }} ${merged_commit} | awk '/\.md$/ {print $NF}')"
-          if  [ -n "changed_files" ]; then
-            for changed_file in $changed_files; do
-              echo $changed_file
-              url_lines=$(grep -H -Eo '\]\(http[s]?://[^)]+\)' "$changed_file" | grep -Ev 'GenAIComps/blob/main')
-              if [ -n "$url_lines" ]; then
-                for url_line in $url_lines; do
-                  echo $url_line
-                  url=$(echo "$url_line"|cut -d '(' -f2 | cut -d ')' -f1|sed 's/\.git$//')
-                  path=$(echo "$url_line"|cut -d':' -f1 | cut -d'/' -f2-)
-                  if [[ "https://platform.openai.com/docs/api-reference/fine-tuning" == "$url" || "https://platform.openai.com/docs/api-reference/" == "$url" || "https://openai.com/index/whisper/" == "$url" || "https://platform.openai.com/docs/api-reference/chat/create" == "$url" ]]; then
-                    echo "Link "$url" from ${{github.workspace}}/$path need to be verified by a real person."
+          url_lines=$(grep -Eo '\]\(http[s]?://[^)]+\)' --include='*.md' -r .)
+          if [ -n "$url_lines" ]; then
+            for url_line in $url_lines; do
+              url=$(echo "$url_line"|cut -d '(' -f2 | cut -d ')' -f1|sed 's/\.git$//')
+              path=$(echo "$url_line"|cut -d':' -f1 | cut -d'/' -f2-)
+              if [[ "https://platform.openai.com/docs/api-reference/fine-tuning" == "$url" || "https://platform.openai.com/docs/api-reference/" == "$url" || "https://openai.com/index/whisper/" == "$url" || "https://platform.openai.com/docs/api-reference/chat/create" == "$url" ]]; then
+                echo "Link "$url" from ${{github.workspace}}/$path need to be verified by a real person."
+              else
+                response=$(curl -L -s -o /dev/null -w "%{http_code}" "$url")
+                if [ "$response" -ne 200 ]; then
+                  echo "**********Validation failed, try again**********"
+                  response_retry=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+                  if [ "$response_retry" -eq 200 ]; then
+                    echo "*****Retry successfully*****"
                   else
-                    response=$(curl -L -s -o /dev/null -w "%{http_code}" "$url")
-                    if [ "$response" -ne 200 ]; then
-                      echo "**********Validation failed, try again**********"
-                      response_retry=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-                      if [ "$response_retry" -eq 200 ]; then
-                        echo "*****Retry successfully*****"
-                      else
-                        echo "Invalid link from ${{github.workspace}}/$path: $url"
-                        fail="TRUE"
-                      fi
-                    fi
+                    echo "Invalid link from ${{github.workspace}}/$path: $url"
+                    fail="TRUE"
                   fi
-                done
+                fi
               fi
             done
-          else
-            echo "No changed .md file."
           fi
 
           if [[ "$fail" == "TRUE" ]]; then
@@ -224,8 +212,6 @@ jobs:
 
       - name: Checkout Repo GenAIComps
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Checking Relative Path Validity
         run: |
@@ -239,28 +225,33 @@ jobs:
             branch="https://github.com/opea-project/GenAIComps/blob/${{ github.event.pull_request.head.ref }}"
           fi
           link_head="https://github.com/opea-project/GenAIComps/blob/main"
-
-          merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-status --diff-filter=ARM ${{ github.event.pull_request.base.sha }} ${merged_commit} | awk '/\.md$/ {print $NF}')"
           png_lines=$(grep -Eo '\]\([^)]+\)' --include='*.md' -r .|grep -Ev 'http')
           if [ -n "$png_lines" ]; then
             for png_line in $png_lines; do
               refer_path=$(echo "$png_line"|cut -d':' -f1 | cut -d'/' -f2-)
               png_path=$(echo "$png_line"|cut -d '(' -f2 | cut -d ')' -f1)
-
               if [[ "${png_path:0:1}" == "/" ]]; then
                 check_path=${{github.workspace}}$png_path
               elif [[ "${png_path:0:1}" == "#" ]]; then
-                check_path=${{github.workspace}}/$refer_path
+                check_path=${{github.workspace}}/$refer_path$png_path
               else
                 check_path=${{github.workspace}}/$(dirname "$refer_path")/$png_path
               fi
-
-              if [ -e "$check_path" ]; then
-                real_path=$(realpath $check_path)
-                if [[ "$png_line" == *#* ]]; then
-                  if [ -n "changed_files" ] && echo "$changed_files" | grep -q "^${refer_path}$"; then
-                    url_dev=$branch$(echo "$real_path" | sed 's|.*/GenAIComps||')$png_path
+              real_path=$(realpath $check_path)
+              if [ $? -ne 0 ]; then
+                echo "Path $png_path in file ${{github.workspace}}/$refer_path does not exist"
+                fail="TRUE"
+              else
+                url=$link_head$(echo "$real_path" | sed 's|.*/GenAIComps||')
+                response=$(curl -I -L -s -o /dev/null -w "%{http_code}" "$url")
+                if [ "$response" -ne 200 ]; then
+                  echo "**********Validation failed, try again**********"
+                  response_retry=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+                  if [ "$response_retry" -eq 200 ]; then
+                    echo "*****Retry successfully*****"
+                  else
+                    echo "Retry failed. Check branch ${{ github.event.pull_request.head.ref }}"
+                    url_dev=$branch$(echo "$real_path" | sed 's|.*/GenAIComps||')
                     response=$(curl -I -L -s -o /dev/null -w "%{http_code}" "$url_dev")
                     if [ "$response" -ne 200 ]; then
                       echo "**********Validation failed, try again**********"
@@ -272,13 +263,10 @@ jobs:
                         fail="TRUE"
                       fi
                     else
-                      echo "Validation succeed $png_line"
+                      echo "Check branch ${{ github.event.pull_request.head.ref }} successfully."
                     fi
                   fi
                 fi
-              else
-                echo "${{github.workspace}}/$refer_path:$png_path does not exist"
-                fail="TRUE"
               fi
             done
           fi
