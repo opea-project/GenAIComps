@@ -16,3 +16,4 @@ redis
 sentence_transformers
 shortuuid
 uvicorn
+pytesseract

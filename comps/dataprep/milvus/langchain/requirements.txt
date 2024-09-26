@@ -27,3 +27,4 @@ shortuuid
 tiktoken
 unstructured[all-docs]==0.15.7
 uvicorn
+pytesseract
