@@ -36,6 +36,8 @@ function start_service() {
     wget https://raw.githubusercontent.com/milvus-io/milvus/v2.4.9/configs/milvus.yaml
     wget https://github.com/milvus-io/milvus/releases/download/v2.4.9/milvus-standalone-docker-compose.yml -O docker-compose.yml
     sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
+    sed -i 's/9000:/5043:/g' docker-compose.yml
+    sed -i 's/9001:/5044:/g' docker-compose.yml
     docker compose up -d
 
     # set service ports
