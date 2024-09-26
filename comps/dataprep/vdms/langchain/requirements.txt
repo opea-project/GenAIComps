@@ -23,6 +23,7 @@ Pillow
 prometheus-fastapi-instrumentator
 pymupdf
 pyspark
+pytesseract
 python-bidi==0.4.2
 python-docx
 python-pptx
@@ -35,4 +36,3 @@ tzlocal
 unstructured[all-docs]==0.11.5
 uvicorn
 vdms
-pytesseract

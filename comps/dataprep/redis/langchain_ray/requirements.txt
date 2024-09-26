@@ -16,6 +16,7 @@ Pillow
 prometheus-fastapi-instrumentator
 pyarrow
 pymupdf
+pytesseract
 python-bidi==0.4.2
 python-docx
 python-multipart
@@ -27,4 +28,3 @@ shortuuid
 unstructured[all-docs]==0.15.7
 uvicorn
 virtualenv
-pytesseract

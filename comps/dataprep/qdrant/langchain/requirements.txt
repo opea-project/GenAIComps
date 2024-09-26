@@ -18,6 +18,7 @@ pandas
 Pillow
 prometheus-fastapi-instrumentator
 pymupdf
+pytesseract
 python-docx
 python-pptx
 qdrant-client
@@ -25,4 +26,3 @@ sentence_transformers
 shortuuid
 unstructured[all-docs]==0.15.7
 uvicorn
-pytesseract
