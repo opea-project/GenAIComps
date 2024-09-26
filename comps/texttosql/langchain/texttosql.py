@@ -308,8 +308,7 @@ def custom_create_sql_agent(
 
 
 def execute(input, url):
-    """
-    Execute a SQL query using the custom SQL agent.
+    """Execute a SQL query using the custom SQL agent.
 
     Args:
         input (str): The user's input.

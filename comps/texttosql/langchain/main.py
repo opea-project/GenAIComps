@@ -5,8 +5,8 @@ import os
 import pathlib
 import sys
 from typing import Annotated, Optional
-from fastapi.exceptions import HTTPException
 
+from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
@@ -46,6 +46,7 @@ class Input(BaseModel):
     input_text: str
     conn_str: Optional[PostgresConnection] = None
 
+
 @register_microservice(
     name="opea_service@texttosql",
     endpoint="/v1/postgres/health",
@@ -53,8 +54,7 @@ class Input(BaseModel):
     port=8090,
 )
 def test_connection(input: PostgresConnection):
-    """
-    Test the connection to a PostgreSQL database.
+    """Test the connection to a PostgreSQL database.
 
     This function is used as an OPEA microservice to test whether a PostgreSQL
     connection can be established successfully.
@@ -71,7 +71,7 @@ def test_connection(input: PostgresConnection):
     # Test the database connection
     result = input.test_connection()
     if not result:
-            raise HTTPException(status_code=500, detail = "Failed to connect to PostgreSQL database")
+        raise HTTPException(status_code=500, detail="Failed to connect to PostgreSQL database")
     else:
         return {"status": "success", "message": "Connected successfully to PostgreSQL database"}
 
@@ -83,8 +83,7 @@ def test_connection(input: PostgresConnection):
     port=8090,
 )
 def execute_agent(input: Input):
-    """
-    Execute a SQL query from the input text.
+    """Execute a SQL query from the input text.
 
     This function takes an Input object containing the input text and database connection information.
     It uses the execute function from the texttosql module to execute the SQL query and returns the result.
@@ -100,7 +99,8 @@ def execute_agent(input: Input):
         result = execute(input.input_text, url)
         return {"result": result}
     else:
-        raise HTTPException(status_code=500, detail = "Failed to connect to PostgreSQL database")
+        raise HTTPException(status_code=500, detail="Failed to connect to PostgreSQL database")
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@texttosql"].start()
