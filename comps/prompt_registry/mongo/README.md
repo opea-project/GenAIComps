@@ -50,7 +50,7 @@ The Prompt Registry microservice exposes the following API endpoints:
 
   ```bash
   curl -X 'POST' \
-    http://{host_ip}:6018/v1/prompt/create \
+    http://${host_ip}:6018/v1/prompt/create \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
@@ -62,7 +62,7 @@ The Prompt Registry microservice exposes the following API endpoints:
 
   ```bash
   curl -X 'POST' \
-    http://{host_ip}:6018/v1/prompt/get \
+    http://${host_ip}:6018/v1/prompt/get \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
@@ -73,7 +73,7 @@ The Prompt Registry microservice exposes the following API endpoints:
 
   ```bash
   curl -X 'POST' \
-    http://{host_ip}:6018/v1/prompt/get \
+    http://${host_ip}:6018/v1/prompt/get \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
@@ -84,7 +84,7 @@ The Prompt Registry microservice exposes the following API endpoints:
 
   ```bash
   curl -X 'POST' \
-    http://{host_ip}:6018/v1/prompt/get \
+    http://${host_ip}:6018/v1/prompt/get \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
@@ -95,7 +95,7 @@ The Prompt Registry microservice exposes the following API endpoints:
 
   ```bash
   curl -X 'POST' \
-    http://{host_ip}:6018/v1/prompt/delete \
+    http://${host_ip}:6018/v1/prompt/delete \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
