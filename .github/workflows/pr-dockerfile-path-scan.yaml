@@ -184,7 +184,6 @@ jobs:
               url_lines=$(grep -H -Eo '\]\(http[s]?://[^)]+\)' "$changed_file" | grep -Ev 'GenAIComps/blob/main')
               if [ -n "$url_lines" ]; then
                 for url_line in $url_lines; do
-                  echo $url_line
                   url=$(echo "$url_line"|cut -d '(' -f2 | cut -d ')' -f1|sed 's/\.git$//')
                   path=$(echo "$url_line"|cut -d':' -f1 | cut -d'/' -f2-)
                   if [[ "https://platform.openai.com/docs/api-reference/fine-tuning" == "$url" || "https://platform.openai.com/docs/api-reference/" == "$url" || "https://openai.com/index/whisper/" == "$url" || "https://platform.openai.com/docs/api-reference/chat/create" == "$url" ]]; then
@@ -277,7 +276,7 @@ jobs:
                   fi
                 fi
               else
-                echo "${{github.workspace}}/$refer_path:$png_path does not exist"
+                echo "$check_path does not exist"
                 fail="TRUE"
               fi
             done
