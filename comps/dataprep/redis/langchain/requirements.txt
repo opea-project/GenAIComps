@@ -27,3 +27,4 @@ sentence_transformers
 shortuuid
 unstructured[all-docs]
 uvicorn
+pytesseract
