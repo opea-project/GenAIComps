@@ -308,6 +308,16 @@ def custom_create_sql_agent(
 
 
 def execute(input, url):
+    """
+    Execute a SQL query using the custom SQL agent.
+
+    Args:
+        input (str): The user's input.
+        url (str): The URL of the database to connect to.
+
+    Returns:
+        dict: The result of the SQL execution.
+    """
     db = SQLDatabase.from_uri(url, **sql_params)
     logger.info("Starting Agent")
     agent_executor = custom_create_sql_agent(

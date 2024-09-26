@@ -119,7 +119,7 @@ Once Text-to-SQL microservice is started, user can use below command
 - Test the Database connection
 
 ```bash
-curl --location http://${your_ip}:9090/v1/test-connection \
+curl --location http://${your_ip}:9090/v1/postgres/health \
 --header 'Content-Type: application/json' \
 --data '{"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}'
 ```
