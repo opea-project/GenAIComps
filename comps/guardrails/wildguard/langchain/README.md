@@ -92,7 +92,7 @@ docker compose -f docker_compose_guardrails.yaml up -d
 ### 3.1 Check Service Status
 
 ```bash
-curl http://localhost:9090/v1/health_check\
+curl http://localhost:9090/v1/health_check \
   -X GET \
   -H 'Content-Type: application/json'
 ```
@@ -100,7 +100,7 @@ curl http://localhost:9090/v1/health_check\
 ### 3.2 Consume Guardrails Service
 
 ```bash
-curl http://localhost:9090/v1/guardrails\
+curl http://localhost:9090/v1/guardrails \
   -X POST \
   -d '{"text":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}' \
   -H 'Content-Type: application/json'

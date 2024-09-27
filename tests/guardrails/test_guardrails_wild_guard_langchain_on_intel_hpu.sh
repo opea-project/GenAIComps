@@ -55,7 +55,6 @@ function validate_microservice() {
         docker logs test-comps-guardrails-langchain-service
         exit 1
     fi
-
 }
 
 function stop_docker() {
