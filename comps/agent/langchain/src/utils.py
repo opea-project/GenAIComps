@@ -46,14 +46,19 @@ def setup_hf_tgi_client(args):
 
 
 def setup_vllm_client(args):
-    from langchain_community.llms.vllm import VLLMOpenAI
+    from langchain_openai import ChatOpenAI
 
     openai_endpoint = f"{args.llm_endpoint_url}/v1"
-    llm = VLLMOpenAI(
+    params = {
+        "temperature": args.temperature,
+        "max_tokens": args.max_new_tokens,
+        "streaming": args.streaming,
+    }
+    llm = ChatOpenAI(
         openai_api_key="EMPTY",
         openai_api_base=openai_endpoint,
         model_name=args.model,
-        streaming=args.streaming,
+        **params
     )
     return llm
 
