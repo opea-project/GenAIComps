@@ -10,7 +10,6 @@ from comps import (
     RerankedDoc,
     SearchedDoc,
     ServiceType,
-    TextDoc,
     opea_microservices,
     register_microservice,
 )

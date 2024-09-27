@@ -1,10 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import heapq
 import json
 import os
-import re
 import time
 from typing import Union
 
