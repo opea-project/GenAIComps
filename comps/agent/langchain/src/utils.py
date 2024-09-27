@@ -54,12 +54,7 @@ def setup_vllm_client(args):
         "max_tokens": args.max_new_tokens,
         "streaming": args.streaming,
     }
-    llm = ChatOpenAI(
-        openai_api_key="EMPTY",
-        openai_api_base=openai_endpoint,
-        model_name=args.model,
-        **params
-    )
+    llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)
     return llm
 
 
