@@ -120,7 +120,6 @@ function start_react_langgraph_agent_service() {
 }
 
 function start_react_langgraph_agent_service_vllm() {
-    export WORKPATH=$WORKPATH
     echo "Starting react_langgraph agent microservice"
     docker compose -f $WORKPATH/tests/agent/react_vllm.yaml up -d
     sleep 5s
