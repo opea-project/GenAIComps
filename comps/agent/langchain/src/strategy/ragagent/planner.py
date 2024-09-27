@@ -366,7 +366,7 @@ class DocumentGraderLlama:
         print("@@@@ Score: ", score)
 
         # if score.startswith("yes"):
-        if "yes" in score:
+        if "yes" in score.lower():
             print("---DECISION: DOCS RELEVANT---")
             return {"doc_score": "generate"}
 
