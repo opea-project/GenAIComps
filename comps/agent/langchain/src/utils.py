@@ -5,6 +5,13 @@ import argparse
 
 from .config import env_config
 
+def wrap_chat(llm_endpoint, model_id):
+    from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+    if isinstance(llm_endpoint, HuggingFaceEndpoint):
+        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id)
+    else:
+        llm = llm_endpoint    
+    return llm
 
 def format_date(date):
     # input m/dd/yyyy hr:min

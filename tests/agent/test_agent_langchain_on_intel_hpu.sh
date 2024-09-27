@@ -86,6 +86,28 @@ function start_vllm_service() {
 
     #single card
     echo "start vllm gaudi service"
+    docker run -d --runtime=habana --rm --name "test-comps-vllm-gaudi-service" -p $vllm_port:80 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm:hpu --model ${model} --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs  4096 --max-seq_len-to-capture 8192
+    sleep 5s
+    echo "Waiting vllm gaudi ready"
+    n=0
+    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
+        docker logs test-comps-vllm-gaudi-service &> ${LOG_PATH}/vllm-gaudi-service.log
+        n=$((n+1))
+        if grep -q "Uvicorn running on" ${LOG_PATH}/vllm-gaudi-service.log; then
+            break
+        fi
+        sleep 5s
+    done
+    sleep 5s
+    echo "Service started successfully"
+}
+
+function start_vllm_auto_tool_choice_service() {
+    # redis endpoint
+    echo "token is ${HF_TOKEN}"
+
+    #single card
+    echo "start vllm gaudi service"
     docker run -d --runtime=habana --rm --name "test-comps-vllm-gaudi-service" -p $vllm_port:80 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm:hpu --model ${model} --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs  4096 --max-seq_len-to-capture 8192 --enable-auto-tool-choice --tool-call-parser mistral
     sleep 5s
     echo "Waiting vllm gaudi ready"
@@ -122,6 +144,14 @@ function start_react_langgraph_agent_service() {
 function start_react_langgraph_agent_service_vllm() {
     echo "Starting react_langgraph agent microservice"
     docker compose -f $WORKPATH/tests/agent/react_vllm.yaml up -d
+    sleep 5s
+    docker logs test-comps-agent-endpoint
+    echo "Service started successfully"
+}
+
+function start_planexec_agent_service_vllm() {
+    echo "Starting planexec agent microservice"
+    docker compose -f $WORKPATH/tests/agent/planexec_vllm.yaml up -d
     sleep 5s
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
@@ -226,6 +256,7 @@ function main() {
     stop_docker
     build_docker_images
 
+    # ==================== TGI tests ====================
     start_tgi_service
 
     # test rag agent
@@ -253,20 +284,29 @@ function main() {
 
     stop_tgi_docker
 
-    # test on vllm based agent
+    # ==================== VLLM tests ====================
     build_vllm_docker_images
 
     export model=mistralai/Mistral-7B-Instruct-v0.3
     export LLM_MODEL_ID=${model}
-    start_vllm_service
 
-    # test react_llama
+    # test react with vllm
+    start_vllm_auto_tool_choice_service
     start_react_langgraph_agent_service_vllm
     echo "===========Testing ReAct VLLM ============="
     validate_microservice
     stop_agent_docker
+    stop_vllm_docker
     echo "============================================="
 
+    # test plan execute with vllm
+    start_vllm_service
+    start_planexec_agent_service_vllm
+    echo "===========Testing Plan Execute VLLM ============="
+    validate_microservice
+    stop_agent_docker
+    stop_vllm_docker
+    echo "============================================="
 
     stop_docker
     echo y | docker system prune 2>&1 > /dev/null
