@@ -8,23 +8,33 @@ Text-to-Image is a task that generate image conditioning on the provided text. T
 
 ```bash
 pip install -r requirements.txt
-pip install -r dependency/requirements.txt
 ```
 
-## 1.2 Start SD Service
+## 1.2 Start Text-to-Image Microservice
+
+Select Stable Diffusion (SD) model and assign its name to a environment variable as below:
 
 ```bash
-# Start SD service
-cd dependency/
-python sd_server.py --token $HF_TOKEN
+# SD1.5
+export MODEL=stable-diffusion-v1-5/stable-diffusion-v1-5
+# SD2.1
+export MODEL=stabilityai/stable-diffusion-2-1
+# SDXL
+export MODEL=stabilityai/stable-diffusion-xl-base-1.0
+# SD3
+export MODEL=stabilityai/stable-diffusion-3-medium-diffusers
 ```
 
-## 1.3 Start Text-to-Image Microservice
+Set huggingface token:
 
 ```bash
-cd ..
-# Start the OPEA Microservice
-python text2image.py
+export HF_TOKEN=<your huggingface token>
+```
+
+Start the OPEA Microservice:
+
+```bash
+python text2image.py --bf16 --model_name_or_path $MODEL --token $HF_TOKEN
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)
@@ -34,58 +44,53 @@ python text2image.py
 Select Stable Diffusion (SD) model and assign its name to a environment variable as below:
 
 ```bash
-# SD3
-export MODEL=stabilityai/stable-diffusion-3-medium-diffusers
+# SD1.5
+export MODEL=stable-diffusion-v1-5/stable-diffusion-v1-5
+# SD2.1
+export MODEL=stabilityai/stable-diffusion-2-1
 # SDXL
 export MODEL=stabilityai/stable-diffusion-xl-base-1.0
+# SD3
+export MODEL=stabilityai/stable-diffusion-3-medium-diffusers
 ```
 
-### 2.1.1 SD Server Image
+### 2.1.1 Text-to-Image Service Image on Xeon
 
-Build SD server image on Xeon with below command:
+Build text-to-image service image on Xeon with below command:
 
 ```bash
 cd ../..
-docker build -t opea/sd:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg MODEL=$MODEL -f comps/text2image/dependency/Dockerfile .
-```
-
-Build SD server image on Gaudi with below command:
-
-```bash
-cd ../..
-docker build -t opea/sd-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg MODEL=$MODEL -f comps/text2image/dependency/Dockerfile.intel_hpu .
-```
-
-### 2.1.2 Text-to-Image Service Image
-
-```bash
 docker build -t opea/text2image:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2image/Dockerfile .
 ```
 
-## 2.2 Start SD and Text-to-Image Service
+### 2.1.2 Text-to-Image Service Image on Gaudi
 
-### 2.2.1 Start SD server
-
-Start SD server on Xeon with below command:
+Build text-to-image service image on Gaudi with below command:
 
 ```bash
-docker run --ipc=host -p 9378:9378 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN opea/sd:latest
+cd ../..
+docker build -t opea/text2image-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2image/Dockerfile.intel_hpu .
 ```
 
-Start SD server on Gaudi with below command:
+## 2.2 Start Text-to-Image Service
+
+### 2.2.1 Start Text-to-Image Service on Xeon
+
+Start text-to-image service on Xeon with below command:
 
 ```bash
-docker run -p 9378:9378 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN opea/sd-gaudi:latest
+docker run --ipc=host -p 9379:9379 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/text2image:latest
 ```
 
-### 2.2.2 Start Text-to-Image service
+### 2.2.2 Start Text-to-Image Service on Gaudi
+
+Start text-to-image service on Gaudi with below command:
 
 ```bash
-ip_address=$(hostname -I | awk '{print $1}')
-docker run -p 9379:9379 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e SD_ENDPOINT=http://$ip_address:9378 opea/text2image:latest
+docker run -p 9379:9379 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/text2image-gaudi:latest
 ```
 
-### 2.2.3 Test
+# 3 Test Text-to-Image Service
 
 ```bash
 http_proxy="" curl http://localhost:9379/v1/text2image -XPOST -d '{"prompt":"An astronaut riding a green horse", "num_images_per_prompt":1}' -H 'Content-Type: application/json'

@@ -2,17 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # this file should be run in the root of the repo
-# images used by GenAIExamples: text2image,sd,sd-gaudi
+# images used by GenAIExamples: text2image,text2image-gaudi
 services:
   text2image:
     build:
       dockerfile: comps/text2image/Dockerfile
     image: ${REGISTRY:-opea}/text2image:${TAG:-latest}
-  sd:
+  text2image-gaudi:
     build:
-      dockerfile: comps/text2image/dependency/Dockerfile
-    image: ${REGISTRY:-opea}/sd:${TAG:-latest}
-  sd-gaudi:
-    build:
-      dockerfile: comps/text2image/dependency/Dockerfile.intel_hpu
-    image: ${REGISTRY:-opea}/sd-gaudi:${TAG:-latest}
+      dockerfile: comps/text2image/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/text2image-gaudi:${TAG:-latest}
