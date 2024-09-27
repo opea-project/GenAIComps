@@ -5,14 +5,7 @@ import os
 
 from sentence_transformers import CrossEncoder
 
-from comps import (
-    CustomLogger,
-    RerankedDoc,
-    SearchedDoc,
-    ServiceType,
-    opea_microservices,
-    register_microservice,
-)
+from comps import CustomLogger, RerankedDoc, SearchedDoc, ServiceType, opea_microservices, register_microservice
 
 logger = CustomLogger("local_reranking")
 logflag = os.getenv("LOGFLAG", False)
