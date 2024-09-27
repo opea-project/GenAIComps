@@ -21,7 +21,6 @@ from comps import (
     statistics_dict,
 )
 
-
 logger = CustomLogger("text2image")
 pipe = None
 args = None
@@ -42,12 +41,14 @@ def initialize():
             if not args.token:
                 args.token = os.getenv("HF_TOKEN")
             if args.device == "hpu":
-                kwargs.update({
-                    "use_habana": True,
-                    "use_hpu_graphs": args.use_hpu_graphs,
-                    "gaudi_config": "Habana/stable-diffusion",
-                    "token": args.token,
-                })
+                kwargs.update(
+                    {
+                        "use_habana": True,
+                        "use_hpu_graphs": args.use_hpu_graphs,
+                        "gaudi_config": "Habana/stable-diffusion",
+                        "token": args.token,
+                    }
+                )
                 # if "stable-diffusion-3" in args.model_name_or_path:
                 #     from optimum.habana.diffusers import GaudiStableDiffusion3Pipeline
 
@@ -117,6 +118,6 @@ if __name__ == "__main__":
     parser.add_argument("--bf16", action="store_true")
 
     args = parser.parse_args()
-    
+
     logger.info("Text2image server started.")
     opea_microservices["opea_service@text2image"].start()
