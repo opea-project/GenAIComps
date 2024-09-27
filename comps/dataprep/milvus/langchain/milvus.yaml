@@ -614,7 +614,7 @@ dataNode:
   memory:
     forceSyncEnable: true # Set true to force sync if memory usage is too high
     forceSyncSegmentNum: 1 # number of segments to sync, segments with top largest buffer will be synced.
-    checkInterval: 3000 # the interal to check datanode memory usage, in milliseconds
+    checkInterval: 3000 # the interval to check datanode memory usage, in milliseconds
     forceSyncWatermark: 0.5 # memory watermark for standalone, upon reaching this watermark, segments will be synced.
   timetick:
     byRPC: true
