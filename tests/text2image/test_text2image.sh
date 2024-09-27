@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/text2image:latest --build-arg MODEL=stabilityai/stable-diffusion-xl-base-1.0 -f comps/text2image/Dockerfile .
+    docker build --no-cache -t opea/text2image:latest -f comps/text2image/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/text2image built fail"
         exit 1
@@ -21,7 +21,7 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-text2image" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9379:9379 --ipc=host opea/text2image:latest
+    docker run -d --name="test-comps-text2image" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e MODEL=stabilityai/stable-diffusion-xl-base-1.0 -p 9379:9379 --ipc=host opea/text2image:latest
     sleep 30s
 }
 

@@ -49,14 +49,14 @@ def initialize():
                         "token": args.token,
                     }
                 )
-                # if "stable-diffusion-3" in args.model_name_or_path:
-                #     from optimum.habana.diffusers import GaudiStableDiffusion3Pipeline
+                if "stable-diffusion-3" in args.model_name_or_path:
+                    from optimum.habana.diffusers import GaudiStableDiffusion3Pipeline
 
-                #     pipe = GaudiStableDiffusion3Pipeline.from_pretrained(
-                #         args.model_name_or_path,
-                #         **kwargs,
-                #     )
-                if "stable-diffusion" in args.model_name_or_path.lower() or "flux" in args.model_name_or_path.lower():
+                    pipe = GaudiStableDiffusion3Pipeline.from_pretrained(
+                        args.model_name_or_path,
+                        **kwargs,
+                    )
+                elif "stable-diffusion" in args.model_name_or_path.lower() or "flux" in args.model_name_or_path.lower():
                     from optimum.habana.diffusers import AutoPipelineForText2Image
 
                     pipe = AutoPipelineForText2Image.from_pretrained(
