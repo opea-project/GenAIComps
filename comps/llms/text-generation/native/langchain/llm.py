@@ -117,7 +117,6 @@ def initialize():
             from optimum.habana.utils import HabanaProfile
 
             model, assistant_model, tokenizer, generation_config = initialize_model(args, logger)
-
             logger.info("[llm] model and tokenizer initialized.")
 
             # compilation and model warmup
