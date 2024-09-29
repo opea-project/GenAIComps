@@ -2,12 +2,12 @@
 
 Visual Question and Answering is one of the multimodal tasks empowered by LVMs (Large Visual Models). This microservice supports visual Q&A by using Llama Vision as the base large visual model. It accepts two inputs: a prompt and an image. It outputs the answer to the prompt about the image.
 
-
 ## 🚀 Start Microservice with Docker
 
 ### Build Images
 
 #### Build Llama Vision Model
+
 ```bash
 cd ../../../
 docker build -t opea/lvm-llama-vision:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile .
@@ -22,11 +22,11 @@ docker build -t opea/lvm-llama-vision-tp:latest --build-arg https_proxy=$https_p
 ```
 
 #### Build Llama Vision Guard Model
+
 ```bash
 cd ../../../
 docker build -t opea/lvm-llama-vision-guard:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile_guard .
 ```
-
 
 ### Start Llama LVM Service
 
@@ -54,7 +54,6 @@ docker run -it -p 9599:9599 --ipc=host -e http_proxy=$http_proxy -e https_proxy=
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
 docker run -it -p 9499:9499 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLAMA_VISION_MODEL_ID="meta-llama/Llama-Guard-3-11B-Vision" -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host opea/lvm-llama-vision-guard:latest
 ```
-
 
 ### Test
 

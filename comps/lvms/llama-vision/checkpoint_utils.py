@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 import os
 from pathlib import Path
@@ -9,9 +12,7 @@ from transformers.utils import is_offline_mode
 
 
 def get_repo_root(model_name_or_path, local_rank=-1, token=None):
-    """
-    Downloads the specified model checkpoint and returns the repository where it was downloaded.
-    """
+    """Downloads the specified model checkpoint and returns the repository where it was downloaded."""
     if Path(model_name_or_path).is_dir():
         # If it is a local model, no need to download anything
         return model_name_or_path
@@ -81,9 +82,7 @@ def get_checkpoint_files(model_name_or_path, local_rank, token=None):
 
 
 def write_checkpoints_json(model_name_or_path, local_rank, f, token=None):
-    """
-    Dumps metadata into a JSON file for DeepSpeed-inference.
-    """
+    """Dumps metadata into a JSON file for DeepSpeed-inference."""
     checkpoint_files = get_checkpoint_files(model_name_or_path, local_rank, token)
     data = {"type": "ds_model", "checkpoints": checkpoint_files, "version": 1.0}
     json.dump(data, f)
@@ -91,10 +90,8 @@ def write_checkpoints_json(model_name_or_path, local_rank, f, token=None):
 
 
 def model_on_meta(config):
-    """
-    Checks if load the model to meta.
-    """
-    #return config.model_type in ["bloom", "llama", "falcon", "mixtral", "qwen2", "mllama"]
+    """Checks if load the model to meta."""
+    # return config.model_type in ["bloom", "llama", "falcon", "mixtral", "qwen2", "mllama"]
     return config.model_type in ["bloom", "llama", "falcon", "mixtral", "qwen2"]
 
 
@@ -109,10 +106,8 @@ def get_optimized_model_name(config):
 
 
 def model_is_optimized(config):
-    """
-    Checks if the given config belongs to a model in optimum/habana/transformers/models, which has a
-    new input token_idx.
-    """
+    """Checks if the given config belongs to a model in optimum/habana/transformers/models, which has a
+    new input token_idx."""
     return get_optimized_model_name(config) is not None
 
 
@@ -149,7 +144,7 @@ def get_ds_injection_policy(config):
             from transformers.models.llama.modeling_llama import LlamaDecoderLayer
 
             policy = {LlamaDecoderLayer: ("self_attn.o_proj", "mlp.down_proj")}
-            
+
         # if model_type == "mllama":
         # #AutoTP:  [(<class 'transformers.models.mllama.modeling_mllama.MllamaVisionEncoderLayer'>, {'self_attn.o_proj', 'mlp.fc2'}), (<class 'transformers.models.mllama.modeling_mllama.MllamaSelfAttentionDecoderLayer'>, ['self_attn.o_proj', 'mlp.down_proj']), (<class 'transformers.models.mllama.modeling_mllama.MllamaCrossAttentionDecoderLayer'>, ['cross_attn.o_proj', 'mlp.down_proj'])]
         #     from transformers.models.mllama.modeling_mllama import MllamaVisionEncoderLayer, MllamaSelfAttentionDecoderLayer, MllamaCrossAttentionDecoderLayer
