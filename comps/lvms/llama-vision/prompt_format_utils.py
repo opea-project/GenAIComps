@@ -284,9 +284,9 @@ LLAMA_GUARD_3_CATEGORY = [
 ]
 
 
-def create_conversation(messges: List[str]) -> List[ConversationTurn]:
+def create_conversation(messages: List[str]) -> List[ConversationTurn]:
     conversations = []
-    for i, message in enumerate(messges):
+    for i, message in enumerate(messages):
         conversations.append(
             ConversationTurn(message=message, agent_type=AgentType.USER if i % 2 == 0 else AgentType.AGENT)
         )

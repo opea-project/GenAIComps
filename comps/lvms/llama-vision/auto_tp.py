@@ -361,7 +361,7 @@ class AutoTP:
         self.mp_group = mp_group
 
     def _replace(self, child, name, conv_linear_layer):
-        if getattr(child, "replaced", False) == True:
+        if getattr(child, "replaced", False):
             return
         weight_shape = child.weight.shape
         mp_replace = ReplaceWithTensorSlicing(mp_group=self.mp_group)
@@ -447,7 +447,7 @@ class AutoTP:
             return LinearLayer(weight=torch.nn.parameter.Parameter(data_dc, requires_grad=False), bias=bias_data_dc)
 
     def _slice_embedding(self, child, name, conv_linear_layer):
-        if getattr(child, "replaced", False) == True:
+        if getattr(child, "replaced", False):
             return
         mp_replace = ReplaceWithTensorSlicing(mp_group=self.mp_group)
 
@@ -464,7 +464,7 @@ class AutoTP:
         return new_embedding
 
     def update_mp_params(self, child):
-        if getattr(child, "replaced", False) == True:
+        if getattr(child, "replaced", False):
             return
         for param in [
             "n_heads",
