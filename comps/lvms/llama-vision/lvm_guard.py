@@ -66,7 +66,7 @@ def initialize():
             prompt_len = len(inputs['input_ids'][0])
             output = model.generate(**inputs, pad_token_id=0, max_new_tokens=32)
             generated_tokens = output[:, prompt_len:]
-            logger.info(processor.decode(generated_tokens[0]))
+            logger.info(processor.decode(generated_tokens[0], skip_special_tokens=True))
             initialized = True
             logger.info("[LVM] Llama Vision GUARD LVM initialized.")
 
@@ -122,9 +122,9 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
     prompt_len = len(inputs['input_ids'][0])
     output = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
     generated_tokens = output[:, prompt_len:]
-
+    result = processor.decode(generated_tokens[0], skip_special_tokens=True)
     statistics_dict["opea_service@lvm_llama_vision_guard_native"].append_latency(time.time() - start, None)
-    result = processor.decode(generated_tokens[0])
+
     if logflag:
         logger.info(result)
 

@@ -44,7 +44,8 @@ If you need to run the 90B models, use the following command:
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
 export WORLD_SIZE=4
-docker run -it -p 9599:9599 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e MODEL_ID="meta-llama/Llama-3.2-90B-Vision-Instruct" -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e WORLD_SIZE=$WORLD_SIZE --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice opea/lvm-llama-vision-tp:latest
+export no_proxy=localhosst,127.0.0.1
+docker run -it -p 9599:9599 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MODEL_ID="meta-llama/Llama-3.2-90B-Vision-Instruct" -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e WORLD_SIZE=$WORLD_SIZE --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice opea/lvm-llama-vision-tp:latest
 ```
 
 #### Start Llama Vision Guard Model Service
@@ -60,11 +61,13 @@ docker run -it -p 9499:9499 --ipc=host -e http_proxy=$http_proxy -e https_proxy=
 ```bash
 # Use curl
 
-# curl
+# curl Llama Vision 11B Model Service
 http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?", "max_new_tokens": 128}' -H 'Content-Type: application/json'
 
+# curl Llama Vision Guard Model Service
 http_proxy="" curl http://localhost:9499/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?", "max_new_tokens": 128}' -H 'Content-Type: application/json'
 
+# curl Llama Vision 90B Model Service
 http_proxy="" curl http://localhost:9599/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?", "max_new_tokens": 128}' -H 'Content-Type: application/json'
 
 ```

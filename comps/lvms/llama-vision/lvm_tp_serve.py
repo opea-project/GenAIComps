@@ -14,6 +14,7 @@ from PIL import Image
 from fastapi import FastAPI
 import deepspeed
 import deepspeed.comm as dist
+from starlette.middleware.cors import CORSMiddleware
 from transformers import MllamaForConditionalGeneration, AutoProcessor
 from transformers.utils import is_offline_mode
 from comps import (
@@ -32,6 +33,14 @@ processor = None
 initialization_lock = threading.Lock()
 initialized = False
 local_rank = 0
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to restrict origins as necessary
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def print_rank0(*msg):
     if local_rank != 0:
@@ -101,8 +110,10 @@ def generate(prompt, raw_image, max_new_tokens=32):
     if logflag:
         logger.info(f"[lvm tp serve] start to generate text with {prompt}")
     inputs = processor(raw_image, prompt, return_tensors="pt").to(torch.device("hpu"))
+    prompt_len = len(inputs['input_ids'][0])
     output = model.generate(**inputs, max_new_tokens=max_new_tokens)
-    result = processor.decode(output[0])
+    generated_tokens = output[:, prompt_len:]
+    result = processor.decode(generated_tokens[0], skip_special_tokens=True)
     if logflag:
         logger.info(f"[lvm tp serve] text generated: {result}")
     return result
@@ -114,7 +125,7 @@ def initialize():
         logger.info(f"[lvm tp serve] start to initialize model and processor")
     initialized = True
     huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-    model = MllamaForConditionalGeneration.from_pretrained(model_id, torch_dtype=torch.bfloat16, token=huggingface_token)
+    model = MllamaForConditionalGeneration.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto", token=huggingface_token)
     processor = AutoProcessor.from_pretrained(model_id, token=huggingface_token)
 
     deepspeed.init_distributed(dist_backend="hccl")
@@ -176,7 +187,6 @@ async def lvm_tp_endpoint(input: Union[LVMDoc]) -> Union[TextDoc]:
         ]}
     ]
     text = processor.apply_chat_template(messages, add_generation_prompt=True)
-
     image_data = base64.b64decode(img_b64_str)
     image_stream = BytesIO(image_data)
     raw_image = Image.open(image_stream)
