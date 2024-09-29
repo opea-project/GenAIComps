@@ -22,7 +22,6 @@ RUN git lfs install
 COPY comps /home/user/comps
 
 RUN cd /home/user/comps/lvms/llama-vision/ && \
-    pip install transformers-4.45.0.dev0-py3-none-any.whl && \
     pip install --no-cache-dir -r requirements.txt  && \
     pip install --upgrade Pillow
 

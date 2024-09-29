@@ -7,4 +7,7 @@ opentelemetry-sdk
 prometheus-fastapi-instrumentator
 pydub
 shortuuid
+transformers==4.45.1
+pydantic==2.9.2
+numpy<2
 uvicorn

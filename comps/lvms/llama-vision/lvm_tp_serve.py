@@ -6,6 +6,7 @@ import base64
 import uvicorn
 import requests
 import threading
+from huggingface_hub import snapshot_download
 from io import BytesIO
 from pathlib import Path
 from typing import Union
@@ -14,6 +15,7 @@ from fastapi import FastAPI
 import deepspeed
 import deepspeed.comm as dist
 from transformers import MllamaForConditionalGeneration, AutoProcessor
+from transformers.utils import is_offline_mode
 from comps import (
     CustomLogger,
     LVMDoc,
@@ -31,8 +33,13 @@ initialization_lock = threading.Lock()
 initialized = False
 local_rank = 0
 
+def print_rank0(*msg):
+    if local_rank != 0:
+        return
+    print(*msg)
 
 def get_repo_root(model_name_or_path):
+    huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
     if os.path.exists(model_name_or_path):
         # local path
         return model_name_or_path
@@ -47,6 +54,7 @@ def get_repo_root(model_name_or_path):
             local_files_only=is_offline_mode(),
             cache_dir=os.getenv("TRANSFORMERS_CACHE", None),
             allow_patterns=allow_patterns,
+            token=huggingface_token,
             # ignore_patterns=["*.safetensors"],
         )
 
@@ -57,6 +65,7 @@ def get_repo_root(model_name_or_path):
         local_files_only=is_offline_mode(),
         cache_dir=os.getenv("TRANSFORMERS_CACHE", None),
         allow_patterns=allow_patterns,
+        token=huggingface_token,
         # ignore_patterns=["*.safetensors"],
     )
 
@@ -91,9 +100,9 @@ def get_int_from_env(env_keys, default):
 def generate(prompt, raw_image, max_new_tokens=32):
     if logflag:
         logger.info(f"[lvm tp serve] start to generate text with {prompt}")
-    inputs = processor(prompt, raw_image, return_tensors="pt").to(torch.device("hpu"))
-    output = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens, pad_token_id=processor.tokenizer.pad_token_id)
-    result = processor.decode(output[0], skip_special_tokens=True)[len(prompt):]
+    inputs = processor(raw_image, prompt, return_tensors="pt").to(torch.device("hpu"))
+    output = model.generate(**inputs, max_new_tokens=max_new_tokens)
+    result = processor.decode(output[0])
     if logflag:
         logger.info(f"[lvm tp serve] text generated: {result}")
     return result
@@ -104,8 +113,9 @@ def initialize():
     if logflag:
         logger.info(f"[lvm tp serve] start to initialize model and processor")
     initialized = True
-    model = MllamaForConditionalGeneration.from_pretrained(model_id, torch_dtype=torch.bfloat16)
-    processor = AutoProcessor.from_pretrained(model_id)
+    huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    model = MllamaForConditionalGeneration.from_pretrained(model_id, torch_dtype=torch.bfloat16, token=huggingface_token)
+    processor = AutoProcessor.from_pretrained(model_id, token=huggingface_token)
 
     deepspeed.init_distributed(dist_backend="hccl")
     local_rank = get_int_from_env(["LOCAL_RANK", "MPI_LOCALRANKID"], "0")
@@ -136,13 +146,19 @@ def initialize():
     if logflag:
         logger.info(f"[lvm tp serve] start to warm up model")
     warmup = 3
-    prompt = "<|image|><|begin_of_text|>If I had to write a haiku for this one"
+    messages = [
+        {"role": "user", "content": [
+            {"type": "image"},
+            {"type": "text", "text": "If I had to write a haiku for this one, it would be: "}
+        ]}
+    ]
+    input_text = processor.apply_chat_template(messages, add_generation_prompt=True)
     url = "https://llava-vl.github.io/static/images/view.jpg"
     raw_image = Image.open(requests.get(url, stream=True).raw)
     for i in range(warmup):
         if logflag:
             logger.info(f"[lvm tp serve] warming up iteration {i}")
-        generate(prompt, raw_image)
+        generate(input_text, raw_image)
 
 
 @app.post("/v1/lvm_serve")
@@ -153,7 +169,13 @@ async def lvm_tp_endpoint(input: Union[LVMDoc]) -> Union[TextDoc]:
     img_b64_str = input.image
     prompt = input.prompt
     max_new_tokens = input.max_new_tokens
-    text = f"<|image|><|begin_of_text|>{prompt}"
+    messages = [
+        {"role": "user", "content": [
+            {"type": "image"},
+            {"type": "text", "text": prompt}
+        ]}
+    ]
+    text = processor.apply_chat_template(messages, add_generation_prompt=True)
 
     image_data = base64.b64decode(img_b64_str)
     image_stream = BytesIO(image_data)

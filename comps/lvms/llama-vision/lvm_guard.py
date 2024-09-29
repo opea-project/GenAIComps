@@ -10,7 +10,7 @@ import requests
 import threading
 import time
 import torch
-from transformers import MllamaForConditionalGeneration, AutoProcessor
+from transformers import AutoModelForVision2Seq, AutoProcessor
 from typing import Union
 from prompt_format_utils import build_default_prompt, create_conversation, LlamaGuardVersion
 from comps import (
@@ -40,14 +40,33 @@ def initialize():
         if not initialized:
             import habana_frameworks.torch.hpu as torch_hpu
             model_id = os.getenv("LLAMA_VISION_GUARD_MODEL_ID", "meta-llama/Llama-Guard-3-11B-Vision")
-            model = MllamaForConditionalGeneration.from_pretrained(model_id, device_map="hpu", torch_dtype=torch.bfloat16)
-            processor = AutoProcessor.from_pretrained(model_id)
-            prompt = "<|image|><|begin_of_text|>If I had to write a haiku for this one"
+            huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+            model = AutoModelForVision2Seq.from_pretrained(model_id, device_map="hpu", torch_dtype=torch.bfloat16, token=huggingface_token)
+            processor = AutoProcessor.from_pretrained(model_id, token=huggingface_token)
             url = "https://llava-vl.github.io/static/images/view.jpg"
+            conversation = [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": "If I had to write a haiku for this one, it would be: "
+                        },
+                        {
+                            "type": "image",
+                        },
+                    ],
+                }
+            ]
+            input_prompt = processor.apply_chat_template(
+                conversation, return_tensors="pt"
+            )
             raw_image = Image.open(requests.get(url, stream=True).raw)
-            inputs = processor(prompt, raw_image, return_tensors="pt").to(model.device)
-            output = model.generate(**inputs, do_sample=False, max_new_tokens=32)
-            logger.info(processor.decode(output[0], skip_special_tokens=True)[len(prompt):])
+            inputs = processor(text=input_prompt, images=raw_image, return_tensors="pt").to(model.device)
+            prompt_len = len(inputs['input_ids'][0])
+            output = model.generate(**inputs, pad_token_id=0, max_new_tokens=32)
+            generated_tokens = output[:, prompt_len:]
+            logger.info(processor.decode(generated_tokens[0]))
             initialized = True
             logger.info("[LVM] Llama Vision GUARD LVM initialized.")
 
@@ -77,17 +96,35 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
                 create_conversation([prompt[0]]),
                 llama_guard_version)
 
-    text = f"<|image|><|begin_of_text|>{formatted_prompt}"
+    conversation = [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text", 
+                    "text": formatted_prompt
+                },
+                {
+                    "type": "image",
+                },
+            ],
+        }
+    ]
+    input_prompt = processor.apply_chat_template(
+        conversation, return_tensors="pt"
+    )
 
     image_data = base64.b64decode(img_b64_str)
     image_stream = BytesIO(image_data)
     raw_image = Image.open(image_stream)
 
-    inputs = processor(text, raw_image, return_tensors="pt").to(model.device)
+    inputs = processor(text=input_prompt, images=raw_image, return_tensors="pt").to(model.device)
+    prompt_len = len(inputs['input_ids'][0])
     output = model.generate(**inputs, do_sample=False, max_new_tokens=max_new_tokens)
+    generated_tokens = output[:, prompt_len:]
 
     statistics_dict["opea_service@lvm_llama_vision_guard_native"].append_latency(time.time() - start, None)
-    result = processor.decode(output[0], skip_special_tokens=True)[len(prompt):]
+    result = processor.decode(generated_tokens[0])
     if logflag:
         logger.info(result)
 
@@ -96,4 +133,3 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
 
 if __name__ == "__main__":
     opea_microservices["opea_service@lvm_llama_vision_guard_native"].start()
-
