@@ -12,8 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-A simple launcher script for distributed training on HPUs.
+"""A simple launcher script for distributed training on HPUs.
 
 Single node:
 ::
@@ -34,13 +33,12 @@ from argparse import REMAINDER, ArgumentParser
 from optimum.habana.distributed import DistributedRunner
 from optimum.utils import logging
 
-
 logger = logging.get_logger(__name__)
 
 
 def parse_args():
-    """
-    Helper function parsing the command line options.
+    """Helper function parsing the command line options.
+
     @retval ArgumentParser
     """
     parser = ArgumentParser(

@@ -1,28 +1,28 @@
-import os
-import json
-import time
-import torch
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import base64
-import uvicorn
-import requests
+import json
+import os
 import threading
-from huggingface_hub import snapshot_download
+import time
 from io import BytesIO
 from pathlib import Path
 from typing import Union
-from PIL import Image
-from fastapi import FastAPI
+
 import deepspeed
 import deepspeed.comm as dist
+import requests
+import torch
+import uvicorn
+from fastapi import FastAPI
+from huggingface_hub import snapshot_download
+from PIL import Image
 from starlette.middleware.cors import CORSMiddleware
-from transformers import MllamaForConditionalGeneration, AutoProcessor
+from transformers import AutoProcessor, MllamaForConditionalGeneration
 from transformers.utils import is_offline_mode
-from comps import (
-    CustomLogger,
-    LVMDoc,
-    TextDoc,
-)
 
+from comps import CustomLogger, LVMDoc, TextDoc
 
 app = FastAPI(title="NeuralChat Gaudi Serving Process", description="Serving", version="0.0.1")
 logger = CustomLogger("lvm-llama-vision-tp")
@@ -42,10 +42,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def print_rank0(*msg):
     if local_rank != 0:
         return
     print(*msg)
+
 
 def get_repo_root(model_name_or_path):
     huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
@@ -84,7 +86,11 @@ def get_checkpoint_files(model_name_or_path):
 
     # extensions: .bin | .pt
     # creates a list of paths from all downloaded files in cache dir
-    file_list = [str(entry) for entry in Path(cached_repo_dir).rglob("*.[sbp][ait][fn][e][t][e][n][s][o][r][s]") if entry.is_file()]
+    file_list = [
+        str(entry)
+        for entry in Path(cached_repo_dir).rglob("*.[sbp][ait][fn][e][t][e][n][s][o][r][s]")
+        if entry.is_file()
+    ]
     print(file_list)
     return file_list
 
@@ -110,7 +116,7 @@ def generate(prompt, raw_image, max_new_tokens=32):
     if logflag:
         logger.info(f"[lvm tp serve] start to generate text with {prompt}")
     inputs = processor(raw_image, prompt, return_tensors="pt").to(torch.device("hpu"))
-    prompt_len = len(inputs['input_ids'][0])
+    prompt_len = len(inputs["input_ids"][0])
     output = model.generate(**inputs, max_new_tokens=max_new_tokens)
     generated_tokens = output[:, prompt_len:]
     result = processor.decode(generated_tokens[0], skip_special_tokens=True)
@@ -122,10 +128,12 @@ def generate(prompt, raw_image, max_new_tokens=32):
 def initialize():
     global model, processor, initialized, local_rank
     if logflag:
-        logger.info(f"[lvm tp serve] start to initialize model and processor")
+        logger.info("[lvm tp serve] start to initialize model and processor")
     initialized = True
     huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-    model = MllamaForConditionalGeneration.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto", token=huggingface_token)
+    model = MllamaForConditionalGeneration.from_pretrained(
+        model_id, torch_dtype=torch.bfloat16, device_map="auto", token=huggingface_token
+    )
     processor = AutoProcessor.from_pretrained(model_id, token=huggingface_token)
 
     deepspeed.init_distributed(dist_backend="hccl")
@@ -138,7 +146,7 @@ def initialize():
     checkpoints_json = "checkpoints.json"
     write_checkpoints_json(local_rank, checkpoints_json)
     if logflag:
-        logger.info(f"[lvm tp serve] checkpoint json written")
+        logger.info("[lvm tp serve] checkpoint json written")
 
     # sleep for 10 seconds to avoid multi-process conflict
     time.sleep(10)
@@ -151,17 +159,20 @@ def initialize():
     )
     if logflag:
         logger.info(model)
-        logger.info(f"[lvm tp serve] model initialized")
+        logger.info("[lvm tp serve] model initialized")
 
     # warm up model
     if logflag:
-        logger.info(f"[lvm tp serve] start to warm up model")
+        logger.info("[lvm tp serve] start to warm up model")
     warmup = 3
     messages = [
-        {"role": "user", "content": [
-            {"type": "image"},
-            {"type": "text", "text": "If I had to write a haiku for this one, it would be: "}
-        ]}
+        {
+            "role": "user",
+            "content": [
+                {"type": "image"},
+                {"type": "text", "text": "If I had to write a haiku for this one, it would be: "},
+            ],
+        }
     ]
     input_text = processor.apply_chat_template(messages, add_generation_prompt=True)
     url = "https://llava-vl.github.io/static/images/view.jpg"
@@ -176,16 +187,11 @@ def initialize():
 async def lvm_tp_endpoint(input: Union[LVMDoc]) -> Union[TextDoc]:
     if logflag:
         logger.info(input)
-    
+
     img_b64_str = input.image
     prompt = input.prompt
     max_new_tokens = input.max_new_tokens
-    messages = [
-        {"role": "user", "content": [
-            {"type": "image"},
-            {"type": "text", "text": prompt}
-        ]}
-    ]
+    messages = [{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": prompt}]}]
     text = processor.apply_chat_template(messages, add_generation_prompt=True)
     image_data = base64.b64decode(img_b64_str)
     image_stream = BytesIO(image_data)

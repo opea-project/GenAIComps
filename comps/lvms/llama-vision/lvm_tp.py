@@ -1,12 +1,13 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from concurrent import futures
 import json
 import os
-import requests
 import time
+from concurrent import futures
 from typing import Union
+
+import requests
 
 from comps import (
     CustomLogger,
@@ -43,7 +44,7 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
     def send_request_to_tp_worker(port):
         try:
             # Build the worker URL dynamically
-            url = f'http://127.0.0.1:{port}/v1/lvm_serve'
+            url = f"http://127.0.0.1:{port}/v1/lvm_serve"
             # Send POST request to the TP worker
             response = requests.post(url, json=request.dict())
             response.raise_for_status()  # Ensure the request was successful
@@ -71,4 +72,3 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
 
 if __name__ == "__main__":
     opea_microservices["opea_service@lvm_llama_vision_tp_native"].start()
-

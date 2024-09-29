@@ -15,6 +15,7 @@
 # limitations under the License.
 import copy
 import inspect
+import time
 import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
@@ -24,15 +25,8 @@ import torch
 import torch.distributed as dist
 from torch import nn
 from torch.nn import functional as F
-import time
 
-from ..cache_utils import (
-    Cache,
-    DynamicCache,
-    EncoderDecoderCache,
-    OffloadedCache,
-    QuantizedCacheConfig,
-)
+from ..cache_utils import Cache, DynamicCache, EncoderDecoderCache, OffloadedCache, QuantizedCacheConfig
 from ..configuration_utils import PretrainedConfig
 from ..integrations.deepspeed import is_deepspeed_zero3_enabled
 from ..modeling_outputs import CausalLMOutputWithPast, Seq2SeqLMOutput
@@ -107,7 +101,6 @@ from .stopping_criteria import (
     StopStringCriteria,
 )
 
-
 if TYPE_CHECKING:
     from ..modeling_utils import PreTrainedModel
     from ..tokenization_utils_base import PreTrainedTokenizerBase
@@ -121,8 +114,7 @@ if is_accelerate_available():
 
 @dataclass
 class GenerateDecoderOnlyOutput(ModelOutput):
-    """
-    Outputs of decoder-only generation models, when using non-beam methods.
+    """Outputs of decoder-only generation models, when using non-beam methods.
 
     Args:
         sequences (`torch.LongTensor` of shape `(batch_size, sequence_length)`):
@@ -157,8 +149,7 @@ class GenerateDecoderOnlyOutput(ModelOutput):
 
 @dataclass
 class GenerateEncoderDecoderOutput(ModelOutput):
-    """
-    Outputs of encoder-decoder generation models, when using non-beam methods.
+    """Outputs of encoder-decoder generation models, when using non-beam methods.
 
     Args:
         sequences (`torch.LongTensor` of shape `(batch_size*num_return_sequences, sequence_length)`):
@@ -205,8 +196,7 @@ class GenerateEncoderDecoderOutput(ModelOutput):
 
 @dataclass
 class GenerateBeamDecoderOnlyOutput(ModelOutput):
-    """
-    Outputs of decoder-only generation models, when using beam methods.
+    """Outputs of decoder-only generation models, when using beam methods.
 
     Args:
         sequences (`torch.LongTensor` of shape `(batch_size*num_return_sequences, sequence_length)`):
@@ -249,8 +239,7 @@ class GenerateBeamDecoderOnlyOutput(ModelOutput):
 
 @dataclass
 class GenerateBeamEncoderDecoderOutput(ModelOutput):
-    """
-    Outputs of encoder-decoder generation models, when using beam methods.
+    """Outputs of encoder-decoder generation models, when using beam methods.
 
     Args:
         sequences (`torch.LongTensor` of shape `(batch_size*num_return_sequences, sequence_length)`):
@@ -333,8 +322,7 @@ GenerateOutput = Union[GenerateNonBeamOutput, GenerateBeamOutput]
 
 
 class GenerationMixin:
-    """
-    A class containing all functions for auto-regressive text generation, to be used as a mixin in [`PreTrainedModel`].
+    """A class containing all functions for auto-regressive text generation, to be used as a mixin in [`PreTrainedModel`].
 
     The class exposes [`~generation.GenerationMixin.generate`], which can be used for:
         - *greedy decoding* if `num_beams=1` and `do_sample=False`
@@ -360,9 +348,7 @@ class GenerationMixin:
         bos_token_id: Optional[torch.Tensor] = None,
         model_kwargs: Optional[Dict[str, torch.Tensor]] = None,
     ) -> Tuple[torch.Tensor, Optional[str], Dict[str, torch.Tensor]]:
-        """
-        This function extracts the model-specific `inputs` for generation.
-        """
+        """This function extracts the model-specific `inputs` for generation."""
         # 1. retrieve all kwargs that are non-None or non-model input related.
         # some encoder-decoder models have different names for model and encoder
         if (
@@ -528,7 +514,7 @@ class GenerationMixin:
         decoder_start_token_id: torch.Tensor,
         device: torch.device = None,
     ) -> Tuple[torch.LongTensor, Dict[str, torch.Tensor]]:
-        """Prepares `decoder_input_ids` for generation with encoder-decoder models"""
+        """Prepares `decoder_input_ids` for generation with encoder-decoder models."""
         # 1. Check whether the user has defined `decoder_input_ids` manually. To facilitate in terms of input naming,
         # we also allow the user to pass it under `input_ids`, if the encoder does not use it as the main input.
         if model_kwargs is not None and "decoder_input_ids" in model_kwargs:
@@ -688,9 +674,7 @@ class GenerationMixin:
         logits_processor: LogitsProcessorList,
         model_kwargs: Dict,
     ) -> CandidateGenerator:
-        """
-        Returns the candidate generator to be used in `assisted_generation`
-        """
+        """Returns the candidate generator to be used in `assisted_generation`"""
         if generation_config.prompt_lookup_num_tokens is not None:
             candidate_generator = PromptLookupCandidateGenerator(
                 eos_token_id=generation_config._eos_token_tensor,
@@ -721,10 +705,8 @@ class GenerationMixin:
         negative_prompt_ids: Optional[torch.Tensor] = None,
         negative_prompt_attention_mask: Optional[torch.Tensor] = None,
     ) -> LogitsProcessorList:
-        """
-        This class returns a [`LogitsProcessorList`] list object that contains all relevant [`LogitsProcessor`]
-        instances used to modify the scores of the language model head.
-        """
+        """This class returns a [`LogitsProcessorList`] list object that contains all relevant [`LogitsProcessor`]
+        instances used to modify the scores of the language model head."""
         # instantiate processors list
         processors = LogitsProcessorList()
 
@@ -916,9 +898,7 @@ class GenerationMixin:
                 )
             if generation_config.epsilon_cutoff is not None and 0.0 < generation_config.epsilon_cutoff < 1.0:
                 processors.append(
-                    EpsilonLogitsWarper(
-                        epsilon=generation_config.epsilon_cutoff, min_tokens_to_keep=min_tokens_to_keep
-                    )
+                    EpsilonLogitsWarper(epsilon=generation_config.epsilon_cutoff, min_tokens_to_keep=min_tokens_to_keep)
                 )
             if generation_config.eta_cutoff is not None and 0.0 < generation_config.eta_cutoff < 1.0:
                 processors.append(
@@ -991,8 +971,7 @@ class GenerationMixin:
         beam_indices: Optional[torch.Tensor] = None,
         normalize_logits: bool = False,
     ) -> torch.Tensor:
-        """
-        Computes the transition scores of sequences given the generation scores (and beam indices, if beam search was
+        """Computes the transition scores of sequences given the generation scores (and beam indices, if beam search was
         used). This is a convenient method to quicky obtain the scores of the selected tokens at generation time.
 
         Parameters:
@@ -1065,7 +1044,8 @@ class GenerationMixin:
         >>> reconstructed_scores = transition_scores.sum(axis=1) / (output_length**length_penalty)
         >>> print(np.allclose(outputs.sequences_scores, reconstructed_scores))
         True
-        ```"""
+        ```
+        """
         # 1. In absence of `beam_indices`, we can assume that we come from e.g. greedy search, which is equivalent
         # to a beam search approach were the first (and only) beam is always selected
         if beam_indices is None:
@@ -1107,8 +1087,9 @@ class GenerationMixin:
         return transition_scores
 
     def _validate_model_class(self):
-        """
-        Confirms that the model class is compatible with generation. If not, raises an exception that points to the
+        """Confirms that the model class is compatible with generation.
+
+        If not, raises an exception that points to the
         right class to use.
         """
         if not is_torchdynamo_compiling() and not self.can_generate():
@@ -1152,7 +1133,10 @@ class GenerationMixin:
             raise ValueError("Make sure the main and assistant model use the same tokenizer")
 
     def _validate_model_kwargs(self, model_kwargs: Dict[str, Any]):
-        """Validates model kwargs for generation. Generate argument typos will also be caught here."""
+        """Validates model kwargs for generation.
+
+        Generate argument typos will also be caught here.
+        """
         # If a `Cache` instance is passed, checks whether the model is compatible with it
         if isinstance(model_kwargs.get("past_key_values", None), Cache) and not self._supports_cache_class:
             raise ValueError(
@@ -1212,7 +1196,7 @@ class GenerationMixin:
             )
 
     def _validate_generated_length(self, generation_config, input_ids_length, has_default_max_length):
-        """Performs validation related to the resulting generated length"""
+        """Performs validation related to the resulting generated length."""
 
         # Can't throw warnings/exceptions during compilation
         if is_torchdynamo_compiling():
@@ -1269,7 +1253,7 @@ class GenerationMixin:
         input_ids_length,
         inputs_tensor,
     ):
-        """Prepared max and min length in generaion configs to avoid clashes between similar attributes"""
+        """Prepared max and min length in generation configs to avoid clashes between similar attributes."""
 
         if generation_config.max_new_tokens is not None:
             if not has_default_max_length and generation_config.max_length is not None:
@@ -1313,8 +1297,9 @@ class GenerationMixin:
     def _prepare_generation_config(
         self, generation_config: Optional[GenerationConfig], **kwargs: Dict
     ) -> Tuple[GenerationConfig, Dict]:
-        """
-        Prepares the base generation config, then applies any generation configuration options from kwargs. This
+        """Prepares the base generation config, then applies any generation configuration options from kwargs.
+
+        This
         function handles retrocompatibility with respect to configuration files.
         """
         # TODO joao: when we can detect `fullgraph=True` in `torch.compile` (https://github.com/pytorch/pytorch/pull/120400)
@@ -1370,7 +1355,7 @@ class GenerationMixin:
         return generation_config, model_kwargs
 
     def _get_initial_cache_position(self, input_ids, model_kwargs):
-        """Calculates `cache_position` for the pre-fill stage based on `input_ids` and optionally past length"""
+        """Calculates `cache_position` for the pre-fill stage based on `input_ids` and optionally past length."""
         # `torch.compile`-friendly `torch.arange` from a shape -- the lines below are equivalent to `torch.arange`
         if "inputs_embeds" in model_kwargs:
             cache_position = torch.ones_like(model_kwargs["inputs_embeds"][0, :, 0], dtype=torch.int64).cumsum(0) - 1
@@ -1397,8 +1382,7 @@ class GenerationMixin:
     def _get_cache(
         self, cache_implementation: str, batch_size: int, max_cache_len: int, device: torch.device, model_kwargs
     ) -> Cache:
-        """
-        Sets a cache for `generate`, that will persist across calls. A new cache will only be initialized a
+        """Sets a cache for `generate`, that will persist across calls. A new cache will only be initialized a
         new `generate` call requires a larger cache or uses a different batch size.
 
         Returns the resulting cache object.
@@ -1457,8 +1441,8 @@ class GenerationMixin:
         return self._cache
 
     def _supports_default_dynamic_cache(self) -> bool:
-        """
-        Return `True` if current model can use a `DynamicCache` instance when initializing the `past_key_values`.
+        """Return `True` if current model can use a `DynamicCache` instance when initializing the `past_key_values`.
+
         This is mostly the same as `_supports_cache_class` attribute, but add exception for `Jamba` model which
         uses its own `HybridMambaAttentionDynamicCache` and do not need to initialize the Cache in advance in
         order to save memory (because no back and forth `to_legacy_cache` and `from_legacy_cache` will be performed
@@ -1475,8 +1459,9 @@ class GenerationMixin:
         max_cache_length: int,
         device: torch.device,
     ) -> bool:
-        """
-        Prepares the cache for generation (if applicable), given `generate`'s paramaterization. If a cache is
+        """Prepares the cache for generation (if applicable), given `generate`'s parameterization.
+
+        If a cache is
         instantiated, writes it to `model_kwargs`, under the name expected by the model.
         """
 
@@ -1584,9 +1569,10 @@ class GenerationMixin:
             )
 
     def _supports_num_logits_to_keep(self) -> bool:
-        """
-        Return True if the current model supports the keyword argument `num_logits_to_keep` in forward()
-        to save memory. Checking it in this way allows to avoid using a new model attribute.
+        """Return True if the current model supports the keyword argument `num_logits_to_keep` in forward()
+        to save memory.
+
+        Checking it in this way allows to avoid using a new model attribute.
         """
         return "num_logits_to_keep" in set(inspect.signature(self.forward).parameters.keys())
 
@@ -1596,8 +1582,7 @@ class GenerationMixin:
         kwargs_has_attention_mask: Optional[bool] = None,
         device: Optional[Union[torch.device, str]] = None,
     ):
-        """
-        Prepares the special tokens for generation, overwriting the generation config with their processed versions
+        """Prepares the special tokens for generation, overwriting the generation config with their processed versions
         converted to tensor.
 
         Note that `generation_config` is changed in place and stops being serializable after this method is called.
@@ -1688,9 +1673,7 @@ class GenerationMixin:
         negative_prompt_attention_mask: Optional[torch.Tensor] = None,
         **kwargs,
     ) -> Union[GenerateOutput, torch.LongTensor]:
-        r"""
-
-        Generates sequences of token ids for models with a language modeling head.
+        r"""Generates sequences of token ids for models with a language modeling head.
 
         <Tip warning={true}>
 
@@ -1739,7 +1722,7 @@ class GenerationMixin:
                 generating before other GPUs. Otherwise it'll be set to `False`.
             assistant_model (`PreTrainedModel`, *optional*):
                 An assistant model that can be used to accelerate generation. The assistant model must have the exact
-                same tokenizer. The acceleration is achieved when forecasting candidate tokens with the assistent model
+                same tokenizer. The acceleration is achieved when forecasting candidate tokens with the assistant model
                 is much faster than running generation with the model you're calling generate from. As such, the
                 assistant model should be much smaller.
             streamer (`BaseStreamer`, *optional*):
@@ -2167,13 +2150,10 @@ class GenerationMixin:
             # handle BC (convert by default if he user hasn't passed a cache AND the cache is of the default type)
             should_convert_cache = generation_config.return_legacy_cache
             is_user_defined_cache = user_defined_cache is not None
-            is_default_cache_type = (
-                type(result.past_key_values) == DynamicCache  # noqa E721
-                or (
-                    isinstance(result.past_key_values, EncoderDecoderCache)
-                    and type(result.past_key_values.self_attention_cache) == DynamicCache  # noqa E721
-                    and type(result.past_key_values.cross_attention_cache) == DynamicCache  # noqa E721
-                )
+            is_default_cache_type = type(result.past_key_values) == DynamicCache or (  # E721
+                isinstance(result.past_key_values, EncoderDecoderCache)
+                and type(result.past_key_values.self_attention_cache) == DynamicCache  # noqa E721
+                and type(result.past_key_values.cross_attention_cache) == DynamicCache  # noqa E721
             )
             if not is_user_defined_cache and is_default_cache_type:
                 logger.warning_once(
@@ -2185,7 +2165,8 @@ class GenerationMixin:
             if should_convert_cache:
                 result.past_key_values = result.past_key_values.to_legacy_cache()
         import os
-        CAPTURE_FIRST_NEXT_TOKEN_LATENCY = os.getenv("CAPTURE_FIRST_NEXT_TOKEN_LATENCY", False) 
+
+        CAPTURE_FIRST_NEXT_TOKEN_LATENCY = os.getenv("CAPTURE_FIRST_NEXT_TOKEN_LATENCY", False)
         if CAPTURE_FIRST_NEXT_TOKEN_LATENCY:
             return result, first_token_latency, next_token_avg_latency
         else:
@@ -2199,8 +2180,9 @@ class GenerationMixin:
         cur_len: Optional[int] = None,
         max_length: Optional[int] = None,
     ) -> bool:
-        """
-        Returns whether there are still unfinished sequences in the device. The existence of unfinished sequences is
+        """Returns whether there are still unfinished sequences in the device.
+
+        The existence of unfinished sequences is
         fed through `this_peer_finished`. ZeRO stage 3-friendly.
         """
         # torch.compile does not support data-dependent control flow. This is a workaround to allow torch.compile,
@@ -2225,8 +2207,8 @@ class GenerationMixin:
     def heal_tokens(
         self, input_ids: torch.LongTensor, tokenizer: Optional["PreTrainedTokenizerBase"] = None
     ) -> torch.LongTensor:
-        r"""
-        Generates sequences of token ids for models with a language modeling head.
+        r"""Generates sequences of token ids for models with a language modeling head.
+
         Parameters:
             input_ids (`torch.LongTensor`): The sequence used as a prompt for the generation.
             tokenizer (`PreTrainedTokenizerBase`, *optional*): The tokenizer used to decode the input ids.
@@ -2449,9 +2431,7 @@ class GenerationMixin:
 
                 if output_hidden_states:
                     decoder_hidden_states += (
-                        (outputs.decoder_hidden_states,)
-                        if self.config.is_encoder_decoder
-                        else (outputs.hidden_states,)
+                        (outputs.decoder_hidden_states,) if self.config.is_encoder_decoder else (outputs.hidden_states,)
                     )
 
             if do_sample:  # sample
@@ -2504,8 +2484,7 @@ class GenerationMixin:
         streamer: Optional["BaseStreamer"],
         **model_kwargs,
     ) -> Union[GenerateNonBeamOutput, torch.LongTensor]:
-        r"""
-        Generates sequences of token ids for models with a language modeling head using **contrastive search** and can
+        r"""Generates sequences of token ids for models with a language modeling head using **contrastive search** and can
         be used for text-decoder, text-to-text, speech-to-text, and vision-to-text models.
 
         Parameters:
@@ -2648,9 +2627,7 @@ class GenerationMixin:
 
                 if output_hidden_states:
                     decoder_hidden_states += (
-                        (outputs.decoder_hidden_states,)
-                        if self.config.is_encoder_decoder
-                        else (outputs.hidden_states,)
+                        (outputs.decoder_hidden_states,) if self.config.is_encoder_decoder else (outputs.hidden_states,)
                     )
 
             # This is needed to properly delete outputs.logits which may be very large for this first iteration
@@ -2714,7 +2691,7 @@ class GenerationMixin:
                     output_attentions=output_attentions,
                 )
 
-            # This is essential to avoid having a last reference to the big past K-V and double the necesary memory
+            # This is essential to avoid having a last reference to the big past K-V and double the necessary memory
             # in the next loop
             del next_model_inputs
 
@@ -2893,8 +2870,7 @@ class GenerationMixin:
         streamer: Optional["BaseStreamer"],
         **model_kwargs,
     ) -> Union[GenerateNonBeamOutput, torch.LongTensor]:
-        r"""
-        Generates sequences of token ids for models with a language modeling head using **multinomial sampling** and
+        r"""Generates sequences of token ids for models with a language modeling head using **multinomial sampling** and
         can be used for text-decoder, text-to-text, speech-to-text, and vision-to-text models.
 
         Parameters:
@@ -2935,6 +2911,7 @@ class GenerationMixin:
         has_eos_stopping_criteria = any(hasattr(criteria, "eos_token_id") for criteria in stopping_criteria)
         do_sample = generation_config.do_sample
         import os
+
         CAPTURE_FIRST_NEXT_TOKEN_LATENCY = os.getenv("CAPTURE_FIRST_NEXT_TOKEN_LATENCY", False)
 
         # init attention / hidden states / scores tuples
@@ -2999,9 +2976,7 @@ class GenerationMixin:
 
                 if output_hidden_states:
                     decoder_hidden_states += (
-                        (outputs.decoder_hidden_states,)
-                        if self.config.is_encoder_decoder
-                        else (outputs.hidden_states,)
+                        (outputs.decoder_hidden_states,) if self.config.is_encoder_decoder else (outputs.hidden_states,)
                     )
 
             # token selection
@@ -3018,15 +2993,16 @@ class GenerationMixin:
 
             if CAPTURE_FIRST_NEXT_TOKEN_LATENCY:
                 import habana_frameworks.torch.hpu as torch_hpu
+
                 torch_hpu.synchronize()
                 token_infer_duration = time.perf_counter() - t0
                 if first_token:
-                    #print(f"First Token time:{token_infer_duration} secs")
+                    # print(f"First Token time:{token_infer_duration} secs")
                     first_token_latency = token_infer_duration
                     first_token = False
                 else:
                     next_token_duration_list.append(token_infer_duration)
-                
+
             # update generated ids, model inputs, and length for next step
             input_ids = torch.cat([input_ids, next_tokens[:, None]], dim=-1)
             if streamer is not None:
@@ -3045,13 +3021,12 @@ class GenerationMixin:
             # Otherwise a reference to outputs is kept which keeps the logits alive in the next iteration
             del outputs
 
-
         if CAPTURE_FIRST_NEXT_TOKEN_LATENCY:
-            next_token_avg_latency = (sum(next_token_duration_list) / len(next_token_duration_list))
+            next_token_avg_latency = sum(next_token_duration_list) / len(next_token_duration_list)
         else:
             next_token_avg_latency = 0
-        #print(f"Next Token avg time:{} secs")
-        
+        # print(f"Next Token avg time:{} secs")
+
         if streamer is not None:
             streamer.end()
 
@@ -3081,8 +3056,7 @@ class GenerationMixin:
             return input_ids, first_token_latency, next_token_avg_latency
 
     def _temporary_reorder_cache(self, past_key_values, beam_idx):
-        """
-        Temporary function to handle the different types of cache reordering processes while we roll out `Cache`.
+        """Temporary function to handle the different types of cache reordering processes while we roll out `Cache`.
 
         TODO: standardize cache formats and make all models compatible with `Cache`. It would remove the need
         for this function, with `Cache.reorder_cache` being the sole remaining code path
@@ -3118,8 +3092,7 @@ class GenerationMixin:
         synced_gpus: bool,
         **model_kwargs,
     ) -> Union[GenerateBeamOutput, torch.LongTensor]:
-        r"""
-        Generates sequences of token ids for models with a language modeling head using **beam search decoding** and
+        r"""Generates sequences of token ids for models with a language modeling head using **beam search decoding** and
         can be used for text-decoder, text-to-text, speech-to-text, and vision-to-text models.
 
         Parameters:
@@ -3271,9 +3244,7 @@ class GenerationMixin:
                         cross_attentions += (outputs.cross_attentions,)
                 if output_hidden_states:
                     decoder_hidden_states += (
-                        (outputs.decoder_hidden_states,)
-                        if self.config.is_encoder_decoder
-                        else (outputs.hidden_states,)
+                        (outputs.decoder_hidden_states,) if self.config.is_encoder_decoder else (outputs.hidden_states,)
                     )
 
             # reshape for beam search
@@ -3396,8 +3367,7 @@ class GenerationMixin:
         synced_gpus: bool,
         **model_kwargs,
     ):
-        r"""
-        Generates sequences of token ids for models with a language modeling head using **diverse beam search
+        r"""Generates sequences of token ids for models with a language modeling head using **diverse beam search
         decoding** and can be used for text-decoder, text-to-text, speech-to-text, and vision-to-text models.
 
         Parameters:
@@ -3470,7 +3440,7 @@ class GenerationMixin:
             )
 
         # initialise score of first beam of each group with 0 and the rest with -1e9. This ensures that the beams in
-        # the same group don't produce same tokens everytime.
+        # the same group don't produce same tokens every time.
         beam_scores = torch.full((batch_size, num_beams), -1e9, dtype=torch.float, device=device)
         beam_scores[:, ::num_sub_beams] = 0
         beam_scores = beam_scores.view((batch_size * num_beams,))
@@ -3599,9 +3569,7 @@ class GenerationMixin:
 
                 if output_hidden_states:
                     decoder_hidden_states += (
-                        (outputs.decoder_hidden_states,)
-                        if self.config.is_encoder_decoder
-                        else (outputs.hidden_states,)
+                        (outputs.decoder_hidden_states,) if self.config.is_encoder_decoder else (outputs.hidden_states,)
                     )
 
             input_ids = torch.cat([input_ids, current_tokens.unsqueeze(-1)], dim=-1)
@@ -3684,8 +3652,7 @@ class GenerationMixin:
         synced_gpus: bool,
         **model_kwargs,
     ) -> Union[GenerateBeamOutput, torch.LongTensor]:
-        r"""
-        Generates sequences of token ids for models with a language modeling head using **constrained beam search
+        r"""Generates sequences of token ids for models with a language modeling head using **constrained beam search
         decoding** and can be used for text-decoder, text-to-text, speech-to-text, and vision-to-text models.
 
         Parameters:
@@ -3806,9 +3773,7 @@ class GenerationMixin:
 
                 if output_hidden_states:
                     decoder_hidden_states += (
-                        (outputs.decoder_hidden_states,)
-                        if self.config.is_encoder_decoder
-                        else (outputs.hidden_states,)
+                        (outputs.decoder_hidden_states,) if self.config.is_encoder_decoder else (outputs.hidden_states,)
                     )
 
             # reshape for beam search
@@ -3921,8 +3886,7 @@ class GenerationMixin:
         streamer: Optional["BaseStreamer"],
         **model_kwargs,
     ) -> Union[GenerateNonBeamOutput, torch.LongTensor]:
-        r"""
-        Generates sequences of token ids for models with a language modeling head using **greedy decoding** or
+        r"""Generates sequences of token ids for models with a language modeling head using **greedy decoding** or
         **sample** (depending on `do_sample`), assisted by candidate sequences. Assisted generation is an example of a
         candidate decoding strategy. Can be used for text-decoder, text-to-text, speech-to-text, and vision-to-text
         models.
@@ -4244,10 +4208,8 @@ def _speculative_sampling(
 
 
 def _split_model_outputs(outputs, new_outputs, cur_len, added_len, is_decoder_attention=False):
-    """
-    Given the (decoder/cross attentions)/(decoder hidden states) for multiple generated tokens, splits it into a tuple
-    where each member corresponds to a single generated token.
-    """
+    """Given the (decoder/cross attentions)/(decoder hidden states) for multiple generated tokens, splits it into a tuple
+    where each member corresponds to a single generated token."""
     # Retrocompatibility: in our generation functions, the first iteration includes the attention/hidden states for the
     # prompt.
     if len(outputs) == 0:
@@ -4276,9 +4238,10 @@ def _ranking_fast(
     alpha: float,
     beam_width: int,
 ) -> torch.FloatTensor:
-    """
-    Reranks the top_k candidates based on a degeneration penalty (cosine similarity with previous tokens), as described
-    in the paper "A Contrastive Framework for Neural Text Generation". Returns the index of the best candidate for each
+    """Reranks the top_k candidates based on a degeneration penalty (cosine similarity with previous tokens), as described
+    in the paper "A Contrastive Framework for Neural Text Generation".
+
+    Returns the index of the best candidate for each
     row in the batch.
     """
     norm_context_hidden = context_hidden / context_hidden.norm(dim=2, keepdim=True)
@@ -4331,9 +4294,10 @@ def _split(data, full_batch_size: int, num_hidden_layers: int, split_size: int =
 def _split_model_inputs(
     model_input: Union[ModelOutput, Dict], split_size: int, full_batch_size: int, config: PretrainedConfig
 ) -> List[Union[ModelOutput, Dict]]:
-    """
-    Split a ModelOutput object (or its subclasses) or Dict into a list of same-class objects based on a specified split
-    size. The input object is dict when it was prepared for forward pass and ModelOutput when it was returned from
+    """Split a ModelOutput object (or its subclasses) or Dict into a list of same-class objects based on a specified split
+    size.
+
+    The input object is dict when it was prepared for forward pass and ModelOutput when it was returned from
     previous forward pass.
     """
     # Edge case: if model_input is None, return a list of Nones
@@ -4395,8 +4359,9 @@ def _split_model_inputs(
 
 
 def stack_model_outputs(model_outputs: List[ModelOutput], config: PretrainedConfig) -> ModelOutput:
-    """
-    Stack a list of ModelOutput objects (or its subclasses) along the batch_size dimension. The function infers the
+    """Stack a list of ModelOutput objects (or its subclasses) along the batch_size dimension.
+
+    The function infers the
     specific ModelOutput subclass from the list provided.
     """
     if not model_outputs:
@@ -4412,9 +4377,7 @@ def stack_model_outputs(model_outputs: List[ModelOutput], config: PretrainedConf
 
     # Helper function to concat tensors or tuples of tensors
     def _concat(data):
-        """
-        Reverse of `_split` function above.
-        """
+        """Reverse of `_split` function above."""
         if any(data is None for data in data):
             return None
         if isinstance(data[0], torch.Tensor):
