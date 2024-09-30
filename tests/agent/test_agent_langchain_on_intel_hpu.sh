@@ -9,7 +9,7 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 tgi_port=8085
 tgi_volume=$WORKPATH/data
-vllm_port=8085
+vllm_port=8086
 vllm_volume=$WORKPATH/data
 
 export agent_image="opea/agent-langchain:comps"
@@ -298,6 +298,7 @@ function main() {
     export model=mistralai/Mistral-7B-Instruct-v0.3
     export LLM_MODEL_ID=${model}
     export model_parser=mistral
+    export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 
     # test react with vllm
     start_vllm_auto_tool_choice_service
