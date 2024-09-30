@@ -6,8 +6,11 @@ from __future__ import annotations
 import os
 from typing import Any, Dict, List, Optional, Sequence, Type, Union
 
-from sqlalchemy.engine import Result
-from comps import CustomLogger
+from langchain.agents import create_react_agent
+from langchain.agents.agent import AgentExecutor, RunnableAgent
+from langchain.agents.agent_types import AgentType
+from langchain.agents.mrkl import prompt as react_prompt
+from langchain.chains.llm import LLMChain
 from langchain_community.agent_toolkits.sql.prompt import SQL_PREFIX, SQL_SUFFIX
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 from langchain_community.tools.sql_database.prompt import QUERY_CHECKER
@@ -19,12 +22,9 @@ from langchain_core.prompts import BasePromptTemplate, PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field, root_validator
 from langchain_core.tools import BaseTool
 from langchain_huggingface import HuggingFaceEndpoint
-from langchain.agents import create_react_agent
-from langchain.agents.agent import AgentExecutor, RunnableAgent
-from langchain.agents.agent_types import AgentType
-from langchain.agents.mrkl import prompt as react_prompt
-from langchain.chains.llm import LLMChain
+from sqlalchemy.engine import Result
 
+from comps import CustomLogger
 
 generation_params = {
     "max_new_tokens": 1024,
@@ -159,12 +159,12 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
 
     @root_validator(pre=True)
     def initialize_llm_chain(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """initializes the LLM chain if it does not exist in the given values dictionary."""
+        """Initializes the LLM chain if it does not exist in the given values dictionary."""
 
         if "llm_chain" not in values:
             values["llm_chain"] = LLMChain(
-               llm=values.get("llm"),  # type: ignore[arg-type]
-               prompt=PromptTemplate(template=QUERY_CHECKER, input_variables=["dialect", "query"]),
+                llm=values.get("llm"),  # type: ignore[arg-type]
+                prompt=PromptTemplate(template=QUERY_CHECKER, input_variables=["dialect", "query"]),
             )
 
         if values["llm_chain"].prompt.input_variables != ["dialect", "query"]:
@@ -197,7 +197,7 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
 
 
 class CustomSQLDatabaseToolkit(SQLDatabaseToolkit):
-    """Provides functionality to manage and manipulate SQL databases in customized way"""
+    """Provides functionality to manage and manipulate SQL databases in customized way."""
 
     def get_tools(self) -> List[BaseTool]:
         """Get the tools in the toolkit."""
@@ -255,7 +255,7 @@ def custom_create_sql_agent(
     prompt: Optional[BasePromptTemplate] = None,
     **kwargs: Any,
 ) -> AgentExecutor:
-    """Creates a SQL agent with specified parameters"""
+    """Creates a SQL agent with specified parameters."""
 
     tools = toolkit.get_tools()
     if prompt is None:

@@ -7,6 +7,7 @@ The microservice enables a wide range of use cases, making it a versatile tool f
 ---
 
 ## 🛠️ Features
+
 **Execute SQL Query from input text**: Convert user input natural language into SQL queries.
 
 ---

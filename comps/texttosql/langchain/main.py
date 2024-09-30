@@ -5,12 +5,14 @@ import os
 import pathlib
 import sys
 from typing import Annotated, Optional
-from comps import opea_microservices, register_microservice
+
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from texttosql import execute
+
+from comps import opea_microservices, register_microservice
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
