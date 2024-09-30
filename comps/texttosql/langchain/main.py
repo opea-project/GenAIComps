@@ -5,7 +5,7 @@ import os
 import pathlib
 import sys
 from typing import Annotated, Optional
-
+from comps import opea_microservices, register_microservice
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
@@ -15,8 +15,6 @@ from texttosql import execute
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
-
-from comps import opea_microservices, register_microservice
 
 
 class PostgresConnection(BaseModel):
@@ -34,7 +32,7 @@ class PostgresConnection(BaseModel):
         connection_string = self.connection_string()
         try:
             engine = create_engine(connection_string)
-            with engine.connect() as connection:
+            with engine.connect() as _:
                 # If the connection is successful, return True
                 return True
         except SQLAlchemyError as e:
