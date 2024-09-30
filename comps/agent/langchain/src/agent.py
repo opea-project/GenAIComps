@@ -26,7 +26,7 @@ def instantiate_agent(args, strategy="react_langchain", with_memory=False):
         from .strategy.ragagent import RAGAgent
 
         return RAGAgent(args, with_memory)
-    
+
     elif strategy == "workflow_executor":
         from .strategy.workflowexec import WorkflowExecutorAgentWithLangGraph
 

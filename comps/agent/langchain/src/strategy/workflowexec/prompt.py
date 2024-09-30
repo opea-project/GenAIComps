@@ -1,4 +1,13 @@
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate, MessagesPlaceholder
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+    PromptTemplate,
+    SystemMessagePromptTemplate,
+)
 
 system_prompt = (
     "You are a supervisor tasked with managing a conversation between the following workers: {members}."
@@ -10,15 +19,17 @@ system_prompt = (
 
 supervisor_prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", system_prompt +
-        " Given the conversation and history below, who should act next?"
-        " Or should we FINISH? Select one of: {options}"),
+        (
+            "system",
+            system_prompt + " Given the conversation and history below, who should act next?"
+            " Or should we FINISH? Select one of: {options}",
+        ),
         MessagesPlaceholder(variable_name="messages"),
     ]
 )
-  
+
 agent_sys_prompt = (
-    "You are a helpful AI assistant, collaborating with other assistants." 
+    "You are a helpful AI assistant, collaborating with other assistants."
     " If you are unable to answer, another assistant with different tools will help."
     " Remember to only give a summary."
     " Do not give your own reasoning."
