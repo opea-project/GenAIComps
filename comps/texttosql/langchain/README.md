@@ -1,14 +1,6 @@
-# 🛢 Text-to-SQL Microservice
+# 🛢🔗 Text-to-SQL Microservice with Langchain
 
-In today's data-driven world, the ability to efficiently extract insights from databases is crucial. However, querying databases often requires specialized knowledge of SQL and database schemas, which can be a barrier for non-technical users. This is where the Text-to-SQL microservice comes into play, leveraging the power of LLMs and agentic frameworks to bridge the gap between human language and database queries. This microservice is built on LangChain/LangGraph frameworks.
-
-The microservice enables a wide range of use cases, making it a versatile tool for businesses, researchers, and individuals alike. Users can generate queries based on natural language questions, enabling them to quickly retrieve relevant data from their databases. Additionally, the service can be integrated into ChatBots, allowing for natural language interactions and providing accurate responses based on the underlying data. Furthermore, it can be utilized to build custom dashboards, enabling users to visualize and analyze insights based on their specific requirements, all through the power of natural language.
-
----
-
-## 🛠️ Features
-
-**Execute SQL Query from input text**: Convert user input natural language into SQL queries.
+This README provides set-up instructions and comprehensive details regarding the Text-to-SQL microservices via LangChain. In this configuration, we will employ PostgresDB as our example database to showcase this microservice.
 
 ---
 
