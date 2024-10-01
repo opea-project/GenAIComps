@@ -127,11 +127,13 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
                 # use rag default template
                 prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
 
+        new_input = LLMParamsDoc(query=prompt)
+        
         if input.streaming:
 
             async def stream_generator():
                 chat_response = ""
-                async for text in llm.astream(input.query, **parameters):
+                async for text in llm.astream(new_input.query, **parameters):
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -144,7 +146,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
         else:
-            response = llm.invoke(input.query, **parameters)
+            response = llm.invoke(new_input.query, **parameters)
             if logflag:
                 logger.info(response)
 
