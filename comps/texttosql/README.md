@@ -18,4 +18,4 @@ The text-to-sql microservice able to implement with various framework and suppor
 
 ### 🔗 Utilizing Text-to-SQL with Langchain framework
 
-For addtional information, please refer to this [README](./langchain/README.md)
+For additional information, please refer to this [README](./langchain/README.md)
