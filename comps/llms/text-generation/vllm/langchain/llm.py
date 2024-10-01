@@ -128,7 +128,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
                 prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
 
         new_input = LLMParamsDoc(query=prompt)
-        
+
         if input.streaming:
 
             async def stream_generator():
