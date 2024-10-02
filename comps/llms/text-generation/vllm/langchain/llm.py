@@ -26,11 +26,8 @@ logflag = os.getenv("LOGFLAG", False)
 
 llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
 model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
-llm = VLLMOpenAI(
-    openai_api_key="EMPTY",
-    openai_api_base=llm_endpoint + "/v1",
-    model_name=model_name
-)
+llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name)
+
 
 @opea_telemetry
 def post_process_text(text: str):
