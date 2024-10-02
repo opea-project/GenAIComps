@@ -26,8 +26,11 @@ logflag = os.getenv("LOGFLAG", False)
 
 llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
 model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
-llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name)
-
+llm = VLLMOpenAI(
+    openai_api_key="EMPTY",
+    openai_api_base=llm_endpoint + "/v1",
+    model_name=model_name
+)
 
 @opea_telemetry
 def post_process_text(text: str):
@@ -57,13 +60,6 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
     if not isinstance(input, SearchedDoc) and input.chat_template:
         prompt_template = PromptTemplate.from_template(input.chat_template)
         input_variables = prompt_template.input_variables
-    parameters = {
-        "max_tokens": input.max_tokens,
-        "top_p": input.top_p,
-        "temperature": input.temperature,
-        "frequency_penalty": input.frequency_penalty,
-        "presence_penalty": input.presence_penalty,
-    }
 
     if isinstance(input, SearchedDoc):
         if logflag:
@@ -80,6 +76,14 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
 
         # use default llm parameter for inference
         new_input = LLMParamsDoc(query=prompt)
+
+        parameters = {
+            "max_tokens": new_input.max_tokens,
+            "top_p": new_input.top_p,
+            "temperature": new_input.temperature,
+            "frequency_penalty": new_input.frequency_penalty,
+            "presence_penalty": new_input.presence_penalty,
+        }
 
         if logflag:
             logger.info(f"[ SearchedDoc ] final input: {new_input}")
@@ -112,6 +116,14 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             logger.info("[ LLMParamsDoc ] input from rerank microservice")
 
         prompt = input.query
+
+        parameters = {
+            "max_tokens": input.max_tokens,
+            "top_p": input.top_p,
+            "temperature": input.temperature,
+            "frequency_penalty": input.frequency_penalty,
+            "presence_penalty": input.presence_penalty,
+        }
 
         if prompt_template:
             if sorted(input_variables) == ["context", "question"]:
