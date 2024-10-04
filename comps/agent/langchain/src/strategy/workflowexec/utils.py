@@ -3,6 +3,7 @@
 
 from langchain_core.messages import AIMessage, ToolMessage
 
+
 def assemble_history(messages):
     """
     messages: AI, TOOL, AI, TOOL, etc.
