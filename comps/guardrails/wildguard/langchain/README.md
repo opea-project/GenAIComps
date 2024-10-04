@@ -11,7 +11,7 @@ The Guardrails Microservice now offers two primary types of guardrails:
 
 We offer content moderation support utilizing Allen Institute for AI's [WildGuard](https://huggingface.co/allenai/wildguard) model.
 
-Any content that is detected in the following categories is determined as unsafe:
+`allenai/wildguard` was fine-tuned from `mistralai/Mistral-7B-v0.3` on their own [`allenai/wildguardmix`](https://huggingface.co/datasets/allenai/wildguardmix) dataset. Any content that is detected in the following categories is determined as unsafe:
 
 - Privacy
 - Misinformation
