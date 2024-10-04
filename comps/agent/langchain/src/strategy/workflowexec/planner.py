@@ -8,96 +8,156 @@ import warnings
 from enum import Enum
 from typing import Annotated, Sequence, TypedDict
 
-warnings.filterwarnings("ignore")
-
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage
-from langchain_core.pydantic_v1 import BaseModel
+from langchain_core.prompts import PromptTemplate
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import END, START, StateGraph
-from langgraph.prebuilt import create_react_agent
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
 
 from ...global_var import threads_global_kv
 from ...utils import has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
-from .prompt import agent_sys_prompt, supervisor_prompt
-
+from .utils import assemble_history
+from .prompt import (
+    SCHEDULER_SYS_PROMPT,
+    STATUS_CHECKER_SYS_PROMPT,
+    DATA_RETRIEVER_SYS_PROMPT,
+    REASONING_PROMPT
+)
 
 class AgentState(TypedDict):
-    messages: Annotated[Sequence[BaseMessage], operator.add]
-    next: str
+    messages: Annotated[Sequence[BaseMessage], add_messages]
+    workflow_status: str
+    workflow_output_data: str
 
+class WorkflowSchedulerNode:
 
-class Next(str, Enum):
-    workflow_scheduler = "workflow_scheduler"
-    workflow_status_checker = "workflow_status_checker"
-    workflow_data_retriever = "workflow_data_retriever"
-    FINISH = "FINISH"
-
-
-class routeResponse(BaseModel):
-    next: Next
-
-
-class SupervisorAgent:
-    def __init__(self, llm_endpoint, members):
-        self.llm_endpoint = llm_endpoint
-        options = ["FINISH"] + members
-        self.prompt = supervisor_prompt.partial(options=str(options), members=", ".join(members))
-
-    def supervisor_agent(self, state):
-        supervisor_chain = self.prompt | self.llm_endpoint.with_structured_output(
-            routeResponse, method="function_calling"
+    def __init__(self, llm, tools):
+        prompt = PromptTemplate(
+            template=SCHEDULER_SYS_PROMPT,
+            input_variables=["input", "history"],
         )
-        return supervisor_chain.invoke(state)
+        self.chain =  prompt | llm.bind_tools(tools) | (lambda x: x.tool_calls[0]["args"]) | workflow_scheduler
 
+    def __call__(self, state):
+        print("---CALL WorkflowScheduler node---")
+        messages = state["messages"]
 
-def agent_node(state, agent, name):
-    result = agent.invoke(state)
-    return {"messages": [HumanMessage(content=result["messages"][-1].content, name=name)]}
+        response = self.chain.invoke(messages)
+
+        return {"messages": [HumanMessage(content=response)]}
+
+class WorkflowStatusCheckerNode:
+
+    def __init__(self, llm, tools):
+
+        prompt = PromptTemplate(
+            template=STATUS_CHECKER_SYS_PROMPT,
+            input_variables=["input", "history"],
+        )
+        self.chain =  prompt | llm.bind_tools(tools) | (lambda x: x.tool_calls[0]["args"]) | status_checker
+
+    def __call__(self, state):
+        print("---CALL WorkflowStatusChecker node---")
+        messages = state["messages"]
+
+        query = messages[0].content
+        history = assemble_history(messages)
+
+        response = self.chain.invoke({"input": query, "history": history})
+
+        return {"messages": [AIMessage(content=response["message"])], "workflow_status": response["status"]}
+
+class WorkflowDataRetrieverNode:
+
+    def __init__(self, llm, tools):
+        prompt = PromptTemplate(
+            template=DATA_RETRIEVER_SYS_PROMPT,
+            input_variables=["input", "history"],
+        )
+        self.chain =  prompt | llm.bind_tools(tools) | (lambda x: x.tool_calls[0]["args"]) | workflow_data_retriever
+
+    def __call__(self, state):
+        print("---CALL WorkflowDataRetriever node---")
+        messages = state["messages"]
+
+        query = messages[0].content
+        history = assemble_history(messages)
+        # print("@@@ History: ", history)
+
+        response = self.chain.invoke({"input": query, "history": history})
+
+        return {"messages": [AIMessage(content=response)], "workflow_output_data": response}
+
+def reasoning_agent(state, llm):
+    reasoning_prompt = PromptTemplate(
+        template=REASONING_PROMPT,
+        input_variables=["input", "tool_output"],
+    )
+    chain = reasoning_prompt | llm
+
+    messages = state["messages"]
+    query = messages[0].content
+    tool_output = state["workflow_output_data"]
+
+    response = chain.invoke({"input": query, "tool_output": tool_output})
+    return {"messages": [HumanMessage(content=response.content)]}
+
+def should_retry(state):
+    MAX_RETRY = 3
+    num_retry = 0
+    instruction = "Workflow execution is still in progress."
+    exceed_retries_message = "Total number of retries exceeded and workflow is still in progress. Exiting graph."
+
+    for m in state["messages"]:
+        if instruction in m.content:
+            num_retry += 1
+
+    print("**********Num retry: ", num_retry)
+
+    if state["workflow_status"] == "failed":
+        print("Workflow execution failed. Exiting graph")
+        return "end"
+    elif (num_retry < MAX_RETRY) and (state["workflow_status"] == "finished"):
+        return True
+    elif (num_retry < MAX_RETRY) and (not state["workflow_status"] == "finished"):
+        return False    
+    else:
+        print(exceed_retries_message)
+        return "end"
 
 
 class WorkflowExecutorAgentWithLangGraph(BaseAgent):
     def __init__(self, args, with_memory=False):
         super().__init__(args)
 
-        members = [tool.name for tool in self.tools_descriptions]
-
-        workflow_executor_agent = create_react_agent(
-            self.llm_endpoint,
-            self.tools_descriptions,
-            messages_modifier=agent_sys_prompt + "You schedule the workflow using the parameters given.",
-        )
-        status_checker_agent = create_react_agent(
-            self.llm_endpoint,
-            self.tools_descriptions,
-            messages_modifier=agent_sys_prompt + "You check if the workflow is finished. Return only the status.",
-        )
-        workflow_retriever_agent = create_react_agent(
-            self.llm_endpoint,
-            self.tools_descriptions,
-            messages_modifier=agent_sys_prompt
-            + "You retrieve the workflow output data and answer the user's original question.",
-        )
-
-        workflow_executor_node = functools.partial(agent_node, agent=workflow_executor_agent, name="workflow_scheduler")
-        status_checker_node = functools.partial(agent_node, agent=status_checker_agent, name="workflow_status_checker")
-        workflow_retriever_node = functools.partial(
-            agent_node, agent=workflow_retriever_agent, name="workflow_data_retriever"
-        )
+        workflow_scheduler_node = WorkflowSchedulerNode(self.llm_endpoint, self.tools_descriptions)
+        status_checker_node = WorkflowStatusCheckerNode(self.llm_endpoint, self.tools_descriptions)
+        workflow_retriever_node = WorkflowDataRetrieverNode(self.llm_endpoint, self.tools_descriptions)
+        
+        reasoning_node = functools.partial(reasoning_agent, llm=self.llm_endpoint)
 
         workflow = StateGraph(AgentState)
-        workflow.add_node("workflow_scheduler", workflow_executor_node)
+        workflow.add_node("workflow_scheduler", workflow_scheduler_node)
         workflow.add_node("workflow_status_checker", status_checker_node)
         workflow.add_node("workflow_data_retriever", workflow_retriever_node)
-        workflow.add_node("supervisor", SupervisorAgent(self.llm_endpoint, members).supervisor_agent)
+        workflow.add_node("reasoning_agent", reasoning_node)
 
-        for member in members:
-            workflow.add_edge(member, "supervisor")
-        conditional_map = {k: k for k in members}
-        conditional_map["FINISH"] = END
-        workflow.add_conditional_edges("supervisor", lambda x: x["next"], conditional_map)
-        workflow.add_edge(START, "supervisor")
+        workflow.add_edge(START, "workflow_scheduler")
+        workflow.add_edge("workflow_scheduler", "workflow_status_checker")
 
+        workflow.add_conditional_edges(
+            "workflow_status_checker",
+            should_retry,
+            {
+                True: "workflow_data_retriever",
+                False: "workflow_status_checker",
+                "end": END
+            },
+        )
+        
+        workflow.add_edge("workflow_data_retriever", "reasoning_agent")
+        workflow.add_edge("reasoning_agent", END)
         if with_memory:
             self.app = workflow.compile(checkpointer=MemorySaver())
         else:
