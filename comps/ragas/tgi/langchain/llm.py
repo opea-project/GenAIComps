@@ -6,9 +6,7 @@ import os
 from datasets import Dataset
 from langchain_community.embeddings import (
     HuggingFaceBgeEmbeddings,
-    HuggingFaceEmbeddings,
     HuggingFaceHubEmbeddings,
-    HuggingFaceInstructEmbeddings,
 )
 from langchain_community.llms import HuggingFaceEndpoint
 from ragas import evaluate
@@ -16,7 +14,6 @@ from ragas.metrics import answer_relevancy, context_precision, context_recall, f
 
 from comps import (
     CustomLogger,
-    GeneratedDoc,
     RAGASParams,
     RAGASScores,
     ServiceType,

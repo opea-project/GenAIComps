@@ -3,20 +3,18 @@
 
 import json
 import os
-import shutil
-import uuid
 from pathlib import Path
 from typing import List, Optional, Union
 
 from config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from pinecone import Pinecone, ServerlessSpec
 
-from comps import CustomLogger, DocPath, opea_microservices, opea_telemetry, register_microservice
+from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
     create_upload_folder,
     document_loader,
