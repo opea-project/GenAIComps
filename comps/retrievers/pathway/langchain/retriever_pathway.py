@@ -35,9 +35,9 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 )
 @traceable(run_type="retriever")
 @register_statistics(names=["opea_service@retriever_pathway"])
-async def retrieve(input: EmbedDoc) -> SearchedDoc:
+def retrieve(input: EmbedDoc) -> SearchedDoc:
     start = time.time()
-    documents = await pw_client.asimilarity_search(input.text, input.fetch_k)
+    documents = pw_client.similarity_search(input.text, input.fetch_k)
 
     docs = [TextDoc(text=r.page_content) for r in documents]
 

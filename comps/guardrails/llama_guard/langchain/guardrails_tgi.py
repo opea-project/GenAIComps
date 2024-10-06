@@ -65,19 +65,18 @@ def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
     input_datatype=Union[GeneratedDoc, TextDoc],
     output_datatype=TextDoc,
 )
-async def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
+def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
     if logflag:
         logger.info(input)
     if isinstance(input, GeneratedDoc):
         messages = [{"role": "user", "content": input.prompt}, {"role": "assistant", "content": input.text}]
     else:
         messages = [{"role": "user", "content": input.text}]
-    response_input_guard = await llm_engine_hf.ainvoke(messages)
-    response_input_guard_content = response_input_guard.content
+    response_input_guard = llm_engine_hf.invoke(messages)
 
-    if "unsafe" in response_input_guard_content:
+    if "unsafe" in response_input_guard:
         unsafe_dict = get_unsafe_dict(llm_engine_hf.model_id)
-        policy_violation_level = response_input_guard_content.split("\n")[1].strip()
+        policy_violation_level = response_input_guard.split("\n")[1].strip()
         policy_violations = unsafe_dict[policy_violation_level]
         if logflag:
             logger.info(f"Violated policies: {policy_violations}")

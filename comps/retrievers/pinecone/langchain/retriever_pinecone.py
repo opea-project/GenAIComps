@@ -5,7 +5,7 @@ import os
 import time
 
 from config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEndpointEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
-        embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+        embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)

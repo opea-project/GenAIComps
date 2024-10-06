@@ -5,7 +5,7 @@ import os
 import time
 from typing import Union
 
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEndpointEmbeddings
 from langchain_community.vectorstores import Redis
 from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # Create vectorstore
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
-        embeddings = HuggingFaceHubEmbeddings(model=tei_embedding_endpoint)
+        embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
