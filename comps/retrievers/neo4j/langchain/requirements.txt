@@ -4,6 +4,7 @@ frontend
 huggingface_hub
 langchain
 langchain-community
+langchain_huggingface
 neo4j
 numpy
 opentelemetry-api
