@@ -54,7 +54,9 @@ async def retrieve(
         query = input.input
 
     if input.search_type == "similarity":
-        search_res = await vector_db.asimilarity_search_by_vector(embedding=input.embedding, query=input.text, k=input.k)
+        search_res = await vector_db.asimilarity_search_by_vector(
+            embedding=input.embedding, query=input.text, k=input.k
+        )
     elif input.search_type == "similarity_distance_threshold":
         if input.distance_threshold is None:
             raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
