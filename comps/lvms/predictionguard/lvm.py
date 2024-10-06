@@ -41,7 +41,7 @@ async def lvm(request: LVMDoc) -> TextDoc:
             ],
         },
     ]
-    result = client.chat.completions.create(
+    result = await client.chat.completions.create(
         model="llava-1.5-7b-hf",
         messages=messages,
         max_tokens=request.max_new_tokens,

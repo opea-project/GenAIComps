@@ -172,7 +172,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                     # use rag default template
                     prompt = ChatTemplate.generate_rag_prompt(input.messages, input.documents)
 
-            chat_completion = client.completions.create(
+            chat_completion = await client.completions.create(
                 model="tgi",
                 prompt=prompt,
                 best_of=input.best_of,
@@ -210,7 +210,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
 
                     input.messages.insert(0, {"role": "system", "content": system_prompt})
 
-            chat_completion = client.chat.completions.create(
+            chat_completion = await client.chat.completions.create(
                 model="tgi",
                 messages=input.messages,
                 frequency_penalty=input.frequency_penalty,

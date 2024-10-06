@@ -31,7 +31,7 @@ app = FastAPI()
     port=9000,
 )
 @register_statistics(names=["opea_service@llm_predictionguard"])
-def llm_generate(input: LLMParamsDoc):
+async def llm_generate(input: LLMParamsDoc):
     start = time.time()
 
     messages = [
@@ -46,7 +46,7 @@ def llm_generate(input: LLMParamsDoc):
 
         async def stream_generator():
             chat_response = ""
-            for res in client.chat.completions.create(
+            for res in await client.chat.completions.create(
                 model=input.model,
                 messages=messages,
                 max_tokens=input.max_tokens,
@@ -66,7 +66,7 @@ def llm_generate(input: LLMParamsDoc):
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         try:
-            response = client.chat.completions.create(
+            response = await client.chat.completions.create(
                 model=input.model,
                 messages=messages,
                 max_tokens=input.max_tokens,
