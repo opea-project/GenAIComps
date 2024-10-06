@@ -5,9 +5,10 @@ import os
 import time
 
 from config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEndpointEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_pinecone import PineconeVectorStore
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 
 from comps import (
     CustomLogger,

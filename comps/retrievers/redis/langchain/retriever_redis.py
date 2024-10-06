@@ -5,7 +5,8 @@ import os
 import time
 from typing import Union
 
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEndpointEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_community.vectorstores import Redis
 from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 
