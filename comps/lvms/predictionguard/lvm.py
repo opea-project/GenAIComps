@@ -28,7 +28,7 @@ class LVMDoc(BaseDoc):
     output_datatype=TextDoc,
 )
 @register_statistics(names=["opea_service@lvm_predictionguard"])
-async def lvm(request: LVMDoc) -> TextDoc:
+def lvm(request: LVMDoc) -> TextDoc:
     start = time.time()
 
     # make a request to the Prediction Guard API using the LlaVa model
@@ -41,7 +41,7 @@ async def lvm(request: LVMDoc) -> TextDoc:
             ],
         },
     ]
-    result = await client.chat.completions.create(
+    result = client.chat.completions.create(
         model="llava-1.5-7b-hf",
         messages=messages,
         max_tokens=request.max_new_tokens,

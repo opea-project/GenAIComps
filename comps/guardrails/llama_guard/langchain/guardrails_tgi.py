@@ -72,11 +72,12 @@ async def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
         messages = [{"role": "user", "content": input.prompt}, {"role": "assistant", "content": input.text}]
     else:
         messages = [{"role": "user", "content": input.text}]
-    response_input_guard = await llm_engine_hf.ainvoke(messages).content
+    response_input_guard = await llm_engine_hf.ainvoke(messages)
+    response_input_guard_content = response_input_guard.content
 
-    if "unsafe" in response_input_guard:
+    if "unsafe" in response_input_guard_content:
         unsafe_dict = get_unsafe_dict(llm_engine_hf.model_id)
-        policy_violation_level = response_input_guard.split("\n")[1].strip()
+        policy_violation_level = response_input_guard_content.split("\n")[1].strip()
         policy_violations = unsafe_dict[policy_violation_level]
         if logflag:
             logger.info(f"Violated policies: {policy_violations}")
