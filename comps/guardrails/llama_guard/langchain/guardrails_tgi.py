@@ -72,7 +72,7 @@ def safety_guard(input: Union[GeneratedDoc, TextDoc]) -> TextDoc:
         messages = [{"role": "user", "content": input.prompt}, {"role": "assistant", "content": input.text}]
     else:
         messages = [{"role": "user", "content": input.text}]
-    response_input_guard = llm_engine_hf.invoke(messages)
+    response_input_guard = llm_engine_hf.invoke(messages).content
 
     if "unsafe" in response_input_guard:
         unsafe_dict = get_unsafe_dict(llm_engine_hf.model_id)
