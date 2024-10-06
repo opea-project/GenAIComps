@@ -3,7 +3,6 @@ fastapi
 frontend==0.0.3
 huggingface_hub
 langchain_community == 0.2.0
-langchain_huggingface
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
