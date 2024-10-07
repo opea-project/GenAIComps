@@ -51,6 +51,9 @@ class SpeechT5Model:
 
     def split_long_text_into_batch(self, text, batch_length=128):
         """Batch the long text into sequences of shorter sentences."""
+        # ctao - Replace AI with "A, I"
+        text = text.replace("AI", "A, I")
+        text = text.replace("OPEX", "OPEA")
         res = []
         hitted_ends = [",", ".", "?", "!", "。", ";", " "]
         idx = 0
