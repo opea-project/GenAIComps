@@ -23,7 +23,7 @@ export FACE='assets/avatar1.jpg'
 # export AUDIO='assets/eg3_ref.wav' # audio file path is optional, will use base64str as input if is 'None'
 export AUDIO='None'
 export FACESIZE=96
-export OUTFILE='/home/demo/ctao/forks/GenAIComps/comps/animation/outputs/result.mp4'
+export OUTFILE="$(pwd)/comps/animation/outputs/result.mp4"
 export GFPGAN_MODEL_VERSION=1.3
 export UPSCALE_FACTOR=1
 export FPS=10
@@ -34,7 +34,7 @@ export FPS=10
 <!-- docker run --privileged --rm -itd -->
 
 ```bash
-docker run --privileged -d --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "animation-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES="3" -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e ANIMATION_PORT=$ANIMATION_PORT opea/animation:latest
+docker run --privileged -d --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "animation-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e ANIMATION_PORT=$ANIMATION_PORT opea/animation:latest
 ```
 
 # 🚀2. Start Microservice with Python (option 2)
@@ -44,7 +44,7 @@ Follow 1.1 and 1.2 steps from the above section to build the Docker image and se
 ## 2.1. Run the Docker container by overriding the entrypoint
 
 ```bash
-docker run --privileged --rm -it --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "animation-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES="3" -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e ANIMATION_PORT=$ANIMATION_PORT --entrypoint /bin/bash opea/animation:latest
+docker run --privileged --rm -it --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "animation-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e ANIMATION_PORT=$ANIMATION_PORT --entrypoint /bin/bash opea/animation:latest
 ```
 
 ## 2.2 Inside the container, run the following command to start the microservice
