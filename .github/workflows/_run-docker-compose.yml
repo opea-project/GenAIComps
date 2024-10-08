@@ -71,7 +71,7 @@ jobs:
   run-test:
     needs: [get-test-case]
     strategy:
-      matrix: 
+      matrix:
         include: ${{ fromJSON(needs.get-test-case.outputs.run_matrix).include }}
     runs-on: ${{ matrix.hardware }}
     continue-on-error: true
