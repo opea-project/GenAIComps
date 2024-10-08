@@ -24,7 +24,7 @@ jobs:
   get-test-case:
     runs-on: ubuntu-latest
     outputs:
-      test_cases: ${{ steps.test-case-matrix.outputs.test_cases }}
+      run_matrix: ${{ steps.test-case-matrix.outputs.run_matrix }}
       CHECKOUT_REF: ${{ steps.get-checkout-ref.outputs.CHECKOUT_REF }}
     steps:
       - name: Get checkout ref
@@ -72,7 +72,7 @@ jobs:
   run-test:
     needs: [get-test-case]
     strategy:
-      matrix: 
+      matrix:
         include: ${{ fromJSON(needs.get-test-case.outputs.run_matrix) }}
     runs-on: ${{ matrix.hardware }}
     continue-on-error: true
