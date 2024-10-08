@@ -5,26 +5,29 @@
 This agent strategy is designed to handle running workflow operation tools. The strategy includes the following steps:
 
 1. `WorkflowScheduler` - Invokes llm to generate `workflow_scheduler` tool call to start workflow with extracted parameters and workflow id from user query.
-    - Executes `workflow_scheduler` tool in `ToolChainNode`.
-    - `ToolResult` will contain a `workflow_key` used to track current workflow for `WorkflowStatusChecker` and `WorkflowDataRetriever`.
-    - After starting workflow, go to `WorkflowStatusChecker`.
+
+   - Executes `workflow_scheduler` tool in `ToolChainNode`.
+   - `ToolResult` will contain a `workflow_key` used to track current workflow for `WorkflowStatusChecker` and `WorkflowDataRetriever`.
+   - After starting workflow, go to `WorkflowStatusChecker`.
 
 2. `WorkflowStatusChecker` - Invokes llm to generate `workflow_status_checker` tool call to check workflow execution status.
-    - Executes `workflow_status_checker` tool in `ToolChainNode`.
-    - Repeat step until `workflow_status` returned from tool is `finished`.
-    - If max number of retries are exceeded before status returns `finished`, go to `END`.
-    - When `workflow_status` returns `finished`, go to `WorkflowDataRetriever`.
+
+   - Executes `workflow_status_checker` tool in `ToolChainNode`.
+   - Repeat step until `workflow_status` returned from tool is `finished`.
+   - If max number of retries are exceeded before status returns `finished`, go to `END`.
+   - When `workflow_status` returns `finished`, go to `WorkflowDataRetriever`.
 
 3. `WorkflowDataRetriever` - Invokes llm to generate `workflow_data_retriever` tool call to retrieve the output data from the workflow.
-    - Executes `workflow_data_retriever` tool in `ToolChainNode`.
-    - Sends `state` which now contains retrieved data to `ReasoningNode`.
+
+   - Executes `workflow_data_retriever` tool in `ToolChainNode`.
+   - Sends `state` which now contains retrieved data to `ReasoningNode`.
 
 4. `ToolChainNode` - Incorporates `ToolNode` to execute tool calls passed from `WorkflowScheduler`, `WorkflowStatusChecker`, and `WorkflowDataRetriever`.
 
-5. `ReasoningNode` - Used to answer  the user's original question with the provided workflow output data from `WorkflowDataRetriever`.
+5. `ReasoningNode` - Used to answer the user's original question with the provided workflow output data from `WorkflowDataRetriever`.
 
-    - After reasoning, go to `END`.
-    - The reasoning agent prompt can be customized to obtain a desired final output response.
+   - After reasoning, go to `END`.
+   - The reasoning agent prompt can be customized to obtain a desired final output response.
 
 Below shows the flow of the workflow executor:
 

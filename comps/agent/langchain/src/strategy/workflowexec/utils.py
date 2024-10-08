@@ -3,6 +3,7 @@
 
 from langchain_core.messages import AIMessage, ToolMessage
 
+
 def assemble_history(messages):
     """
     messages: AI, TOOL, AI, TOOL, etc.
@@ -21,6 +22,7 @@ def assemble_history(messages):
             query_history += f"Tool Output: {m.content}\n"
     return query_history
 
+
 def prepare_tool_call(response, sender: str):
     tool_calls = []
     for tool_call in response.tool_calls:
@@ -30,5 +32,5 @@ def prepare_tool_call(response, sender: str):
         ai_message = AIMessage(content="", tool_calls=tool_calls)
     else:
         ai_message = AIMessage(content=response)
-        
+
     return {"messages": [ai_message], "sender": sender}

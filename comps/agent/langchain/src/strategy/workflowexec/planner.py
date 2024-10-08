@@ -1,17 +1,17 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import time
 import json
-from typing import Annotated, Sequence, TypedDict, Dict
+import time
+from typing import Annotated, Dict, Sequence, TypedDict
 
+from langchain.pydantic_v1 import BaseModel, Field
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from langchain_core.prompts import PromptTemplate
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
-from langchain.pydantic_v1 import BaseModel, Field
 
 from ...global_var import threads_global_kv
 from ...utils import has_multi_tool_inputs, tool_renderer
@@ -23,17 +23,21 @@ MAX_RETRY = 50
 instruction = "Workflow execution is still in progress."
 exceed_retries_message = "Total number of retries exceeded and workflow is still in progress. Exiting graph."
 
+
 class WorkflowParams(BaseModel):
     workflow_id: int = Field(description="Workflow id")
-    params: Dict[str, str]= Field(description="Workflow paramaters. Dictionary keys can have whitespace")
+    params: Dict[str, str] = Field(description="Workflow parameters. Dictionary keys can have whitespace")
+
 
 class WorkflowKey(BaseModel):
     workflow_key: str = Field(description="Workflow key")
+
 
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
     sender: str
     workflow_status: str
+
 
 class WorkflowScheduler:
     """Invokes llm to generate a workflow_scheduler tool call based on the current state. The llm extracts the params and workflow_id from the user query.
@@ -54,7 +58,7 @@ class WorkflowScheduler:
         class workflow_scheduler(WorkflowParams):
             """Used to start the workflow with a specified id."""
 
-        self.chain =  prompt | llm.bind_tools([workflow_scheduler])
+        self.chain = prompt | llm.bind_tools([workflow_scheduler])
 
     def __call__(self, state):
         print("---CALL WorkflowScheduler node---")
@@ -63,6 +67,7 @@ class WorkflowScheduler:
         response = self.chain.invoke(messages)
 
         return prepare_tool_call(response, self.name)
+
 
 class WorkflowStatusChecker:
     """Invokes llm to generate a workflow_status_checker tool call based on the current state. The llm extracts workflow_key from the conversation history.
@@ -86,7 +91,7 @@ class WorkflowStatusChecker:
 
             workflow_key: str = Field(description="Workflow key")
 
-        self.chain =  prompt | llm.bind_tools([workflow_status_checker])
+        self.chain = prompt | llm.bind_tools([workflow_status_checker])
 
     def __call__(self, state):
         print("---CALL WorkflowStatusChecker node---")
@@ -99,6 +104,7 @@ class WorkflowStatusChecker:
         response = self.chain.invoke({"input": query, "history": history})
 
         return prepare_tool_call(response, self.name)
+
 
 class WorkflowDataRetriever:
     """Invokes llm to generate a workflow_data_retriever tool call based on the current state. The llm extracts workflow_key from the conversation history.
@@ -121,7 +127,7 @@ class WorkflowDataRetriever:
 
             workflow_key: str = Field(description="Workflow key")
 
-        self.chain =  prompt | llm.bind_tools([workflow_data_retriever])
+        self.chain = prompt | llm.bind_tools([workflow_data_retriever])
 
     def __call__(self, state):
         print("---CALL WorkflowDataRetriever node---")
@@ -136,8 +142,9 @@ class WorkflowDataRetriever:
 
         return prepare_tool_call(response, self.name)
 
+
 class ReasoningNode:
-    """Invokes llm to answer the user's orginal question using the workflow output data.
+    """Invokes llm to answer the user's original question using the workflow output data.
 
     Args:
         state (messages): The current state
@@ -160,6 +167,7 @@ class ReasoningNode:
 
         response = self.chain.invoke({"input": query, "tool_output": tool_output})
         return {"messages": [AIMessage(content=response.content)]}
+
 
 class ToolChainNode:
     """Executes tool calls based on the current state. Returns the tool result in the form of AIMessage.
@@ -187,6 +195,7 @@ class ToolChainNode:
         else:
             return {"messages": [AIMessage(content=response["messages"][0].content)]}
 
+
 def should_continue(state: AgentState):
     messages = state["messages"]
     last_message = messages[-1]
@@ -195,9 +204,10 @@ def should_continue(state: AgentState):
     else:
         return "end"
 
+
 def should_retry(state):
     num_retry = 0
-    
+
     for m in state["messages"]:
         if instruction in m.content:
             num_retry += 1
@@ -210,11 +220,12 @@ def should_retry(state):
     elif (num_retry < MAX_RETRY) and (state["workflow_status"] == "finished"):
         return True
     elif (num_retry < MAX_RETRY) and (not state["workflow_status"] == "finished"):
-        time.sleep(100)   # interval bewteen each status checking retry
+        time.sleep(100)  # interval between each status checking retry
         return False
     else:
         print(exceed_retries_message)
         return "end"
+
 
 class WorkflowExecutorAgentWithLangGraph(BaseAgent):
     def __init__(self, args, with_memory=False):
@@ -239,45 +250,29 @@ class WorkflowExecutorAgentWithLangGraph(BaseAgent):
         workflow.add_conditional_edges(
             "workflow_scheduler",
             should_continue,
-            {
-                "call_tool": "tools",
-                "end": END
-            },
+            {"call_tool": "tools", "end": END},
         )
         workflow.add_conditional_edges(
             "workflow_status_checker",
             should_continue,
-            {
-                "call_tool": "status_checker_tool",
-                "end": END
-            },
+            {"call_tool": "status_checker_tool", "end": END},
         )
         workflow.add_conditional_edges(
             "workflow_data_retriever",
             should_continue,
-            {
-                "call_tool": "tools",
-                "end": END
-            },
+            {"call_tool": "tools", "end": END},
         )
 
         workflow.add_conditional_edges(
             "tools",
             lambda x: x["sender"],
-            {
-                "workflow_scheduler": "workflow_status_checker",
-                "workflow_data_retriever": "reasoning_agent"
-            },
+            {"workflow_scheduler": "workflow_status_checker", "workflow_data_retriever": "reasoning_agent"},
         )
 
         workflow.add_conditional_edges(
             "status_checker_tool",
             should_retry,
-            {
-                True: "workflow_data_retriever",
-                False: "workflow_status_checker",
-                "end": END
-            },
+            {True: "workflow_data_retriever", False: "workflow_status_checker", "end": END},
         )
 
         workflow.add_edge("reasoning_agent", END)
