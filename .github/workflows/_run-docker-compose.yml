@@ -49,19 +49,31 @@ jobs:
         id: test-case-matrix
         run: |
           set -x
+          run_matrix="{\"include\":["
           service_l=$(echo ${{ inputs.service }} | tr '[:upper:]' '[:lower:]')
           cd ${{ github.workspace }}/tests
-          test_cases=$(find . -type f -name "test_${service_l}*.sh" -print | jq -R '.' | jq -sc '.')
-          echo "test_cases=$test_cases" >> $GITHUB_OUTPUT
-          # TODO: get hardware for test matrix
+          # test_cases=$(find . -type f -name "test_${service_l}*.sh" -print | jq -R '.' | jq -sc '.')
+          test_cases=$(find . -type f -name "test_${service_l}*.sh")
+          for script in $test_cases; do
+            echo $script
+            if echo "$script" | grep -q "on"; then
+              _service=$(echo $script | cut -d'/' -f3 | cut -d'.' -f1 | awk -F'on_' '{print $2}')
+              hardware=${_service#*_on_}
+              run_matrix="${run_matrix}{\"test_case\":\"${script}\",\"hardware\":\"${hardware}\"},"
+            else
+              run_matrix="${run_matrix}{\"test_case\":\"${script}\",\"hardware\":\"intel_cpu\"},"
+            fi
+          done
+          echo $run_matrix
+          run_matrix=$run_matrix"]}"
+          echo "run_matrix=${run_matrix}"
+          echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
 
   run-test:
     needs: [get-test-case]
     strategy:
-      matrix:
-        test_case: ${{ fromJSON(needs.get-test-case.outputs.test_cases) }}
-      fail-fast: false
-    runs-on: gaudi
+      matrix: ${{ fromJSON(needs.get-test-case.outputs.run_matrix) }}
+    runs-on: ${{ matrix.hardware }}
     continue-on-error: true
     steps:
       - name: Clean up Working Directory
@@ -86,6 +98,7 @@ jobs:
           PINECONE_KEY: ${{ secrets.PINECONE_KEY }}
           service: ${{ inputs.service }}
           test_case: ${{ matrix.test_case }}
+          hardware: ${{ matrix.hardware }}
         run: |
           cd ${{ github.workspace }}/tests
           service=$(echo "${test_case}" | cut -d'_' -f2- |cut -d'.' -f1)
