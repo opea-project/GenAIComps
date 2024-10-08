@@ -1,46 +1,37 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from langchain_core.prompts import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    MessagesPlaceholder,
-    PromptTemplate,
-    SystemMessagePromptTemplate,
-)
-
 SCHEDULER_SYS_PROMPT = """\
 You start the workflow using the parameters provided.
 
-IMPORTANT: You MUST ALWAYS make tool calls. Only call 1 tool per step.
+IMPORTANT: You MUST ALWAYS make tool calls.
 
 User request: {input}
 Now begin!
 """
 
 STATUS_CHECKER_SYS_PROMPT = """\
-You are to check the status of the workflow.
+You are to check the status of the workflow. The status will be checked repeatedly until the workflow status is finished, so the history might contain multiple tool calls already.
+Below shows the previous chat history.
 
-Begin Execution History:
+Previous chat history:
 {history}
-End Execution History.
+End of the previous chat history.
 
-IMPORTANT: You MUST ALWAYS make tool calls. Only call 1 tool per step.
+IMPORTANT: You MUST ALWAYS make tool calls.
 
-User request: {input}
 Now begin!
 """
 
 DATA_RETRIEVER_SYS_PROMPT = """\
 You are to retrieve the data from the workflow.
 
-Begin Execution History:
+Previous chat history:
 {history}
-End Execution History.
+End of the previous chat history.
 
-IMPORTANT: You MUST ALWAYS make tool calls. Only call 1 tool per step.
+IMPORTANT: You MUST ALWAYS make tool calls.
 
-User request: {input}
 Now begin!
 """
 

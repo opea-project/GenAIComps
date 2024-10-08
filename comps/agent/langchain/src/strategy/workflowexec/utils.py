@@ -3,7 +3,6 @@
 
 from langchain_core.messages import AIMessage, ToolMessage
 
-
 def assemble_history(messages):
     """
     messages: AI, TOOL, AI, TOOL, etc.
@@ -14,13 +13,22 @@ def assemble_history(messages):
         if isinstance(m, AIMessage):
             # if there is tool call
             if hasattr(m, "tool_calls") and len(m.tool_calls) > 0:
-                for tool_call in m.tool_calls:
-                    tool = tool_call["name"]
-                    tc_args = tool_call["args"]
-                    query_history += f"Tool Call: {tool} - {tc_args}\n"
+                pass
             else:
                 # did not make tool calls
                 query_history += f"Assistant Output {n}: {m.content}\n"
         elif isinstance(m, ToolMessage):
             query_history += f"Tool Output: {m.content}\n"
     return query_history
+
+def prepare_tool_call(response, sender: str):
+    tool_calls = []
+    for tool_call in response.tool_calls:
+        tool_calls.append(tool_call)
+
+    if tool_calls:
+        ai_message = AIMessage(content="", tool_calls=tool_calls)
+    else:
+        ai_message = AIMessage(content=response)
+        
+    return {"messages": [ai_message], "sender": sender}
