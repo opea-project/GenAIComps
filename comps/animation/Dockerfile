@@ -1,11 +1,10 @@
 # Use a base image
-# FROM python:3.11-slim
-FROM vault.habana.ai/gaudi-docker/1.16.2/ubuntu22.04/habanalabs/pytorch-installer-2.2.2:latest AS hpu
+FROM python:3.11-slim
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
-ENV PYTHONPATH=/home:/home/user:/usr/lib/habanalabs/:/optimum-habana
-ENV PYTHON=/usr/bin/python3.10
+ENV PYTHONPATH=/home:/home/user
+ENV PYTHON=/usr/bin/python3.11
 
 # Install dependencies
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
@@ -81,5 +80,5 @@ WORKDIR /home/user/comps/animation
 
 # Define the command to run when the container starts
 RUN chmod +x /usr/local/bin/entrypoint.sh
-ENV DEVICE="hpu"
+ENV DEVICE="cpu"
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

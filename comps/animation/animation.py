@@ -41,11 +41,20 @@ from comps import (
     statistics_dict,
 )
 
-device = "hpu" if hthpu.is_available() else "cpu"
-print("Using {} for inference.".format(device))
-
 args = get_args()
 print("args: ", args)
+
+# Specify device
+if args.device == "hpu" and hthpu.is_available():
+    device = "hpu"
+elif args.device == "cuda":
+    device = "cuda"
+elif args.device == "cpu":
+    device = "cpu"
+else:
+    device = "cpu"
+    print("Invalid device argument, fall back to cpu")
+print("Using {} for inference.".format(device))
 
 
 # Register the microservice
@@ -144,7 +153,7 @@ def animate(input: Base64ByteStrDoc):
     ):
         if i == 0:
             # load Wav2Lip model
-            model = load_model(args.checkpoint_path)
+            model = load_model(args)
             print("Wav2Lip Model loaded")
 
             # load BG sampler if needed

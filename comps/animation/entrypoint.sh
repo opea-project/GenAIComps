@@ -8,6 +8,7 @@ export PT_HPU_ENABLE_REFINE_DYNAMIC_SHAPES=1
 
 # Wav2Lip, GFPGAN
 python3 animation.py \
+--device $DEVICE \
 --port $((ANIMATION_PORT)) \
 --inference_mode $INFERENCE_MODE \
 --checkpoint_path $CHECKPOINT_PATH \

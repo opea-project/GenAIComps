@@ -33,13 +33,11 @@ from gfpgan import GFPGANer
 from tqdm import tqdm
 from Wav2Lip.models import Wav2Lip
 
-device = "hpu" if hthpu.is_available() else "cpu"
-print("Using {} for inference.".format(device))
-
 
 def get_args():
     parser = argparse.ArgumentParser(description="Inference code to lip-sync videos in the wild using Wav2Lip models")
     # General config
+    parser.add_argument("--device", type=str, choices=["hpu", "cpu", "cuda"], default="cpu")
     parser.add_argument("--port", type=int, default=7860)
     parser.add_argument(
         "--inference_mode",
@@ -173,7 +171,7 @@ def get_smoothened_boxes(boxes, T):
 
 
 def face_detect(args, images):
-    detector = face_detection.FaceAlignment(face_detection.LandmarksType._2D, flip_input=False, device=device)
+    detector = face_detection.FaceAlignment(face_detection.LandmarksType._2D, flip_input=False, device=args.device)
 
     batch_size = args.face_det_batch_size
 
@@ -264,24 +262,24 @@ def datagen(args, frames, mels):
         yield img_batch, mel_batch, frame_batch, coords_batch
 
 
-def _load(checkpoint_path):
-    if device == "cuda":
-        checkpoint = torch.load(checkpoint_path)
+def _load(args):
+    if args.device == "cuda":
+        checkpoint = torch.load(args.checkpoint_path)
     else:
-        checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage)
+        checkpoint = torch.load(args.checkpoint_path, map_location=lambda storage, loc: storage)
     return checkpoint
 
 
-def load_model(path):
+def load_model(args):
     model = Wav2Lip()
-    print("Load checkpoint from: {}".format(path))
-    checkpoint = _load(path)
+    print("Load checkpoint from: {}".format(args.checkpoint_path))
+    checkpoint = _load(args.checkpoint_path)
     s = checkpoint["state_dict"]
     new_s = {}
     for k, v in s.items():
         new_s[k.replace("module.", "")] = v
     model.load_state_dict(new_s)
-    return model.eval().to(device)
+    return model.eval().to(args.device)
 
 
 def load_bg_upsampler(args):
@@ -307,7 +305,7 @@ def load_bg_upsampler(args):
             pre_pad=0,
             half=True,
         )  # need to set False in CPU mode
-    return bg_upsampler.eval().to(device)
+    return bg_upsampler.eval().to(args.device)
 
 
 def load_gfpgan(args, bg_upsampler):
@@ -341,7 +339,7 @@ def load_gfpgan(args, bg_upsampler):
         arch=arch,
         channel_multiplier=channel_multiplier,
         bg_upsampler=bg_upsampler,
-        device=device,
+        device=args.device,
     )
 
     # torch.compile
