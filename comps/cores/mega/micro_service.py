@@ -106,7 +106,7 @@ class MicroService:
                     req["response"].set_result(result)
 
     async def static_batching_infer(self, service_type: Enum, batch: list[dict]):
-        """Need to overrided."""
+        """Need to implement."""
         raise NotImplementedError("Unimplemented static batching inference!")
 
     def _validate_env(self):
