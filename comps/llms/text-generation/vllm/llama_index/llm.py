@@ -38,7 +38,7 @@ def post_process_text(text: str):
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=9000,
-    llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008"),
+    llm_endpoint=os.getenv("vLLM_ENDPOINT", "http://localhost:8008"),
 )
 def llm_generate(input: LLMParamsDoc):
     if logflag:

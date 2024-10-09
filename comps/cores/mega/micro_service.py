@@ -3,18 +3,21 @@
 
 import asyncio
 import multiprocessing
-import requests
 import time
 from typing import Any, List, Optional, Type
 
+import requests
+
 from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
-from .utils import check_ports_availability
 from .logger import CustomLogger
+from .utils import check_ports_availability
 
 opea_microservices = {}
 
 logger = CustomLogger("micro-service")
+
+
 class MicroService:
     """MicroService class to create a microservice."""
 
@@ -56,7 +59,7 @@ class MicroService:
                             else:
                                 logger.info(f"LLM endpoint is ready - but error status code - {llm_endpoint}")
                             success = True
-                        
+
                 except requests.exceptions.RequestException as e:
                     logger.info(f"Error: {e} - {llm_endpoint}")
                     time.sleep(2.5)
