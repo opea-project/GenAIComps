@@ -1,6 +1,7 @@
 # Reranking Microservice via TEI
 
-`Text Embeddings Inference (TEI)` is a comprehensive toolkit designed for efficient deployment and serving of open source text embeddings models. It enable us to host our own reranker endpoint seamlessly.
+`Text Embeddings Inference (TEI)` is a comprehensive toolkit designed for efficient deployment and serving of open source text embeddings models.
+It enable us to host our own reranker endpoint seamlessly.
 
 This README provides set-up instructions and comprehensive details regarding the reranking microservice via TEI.
 

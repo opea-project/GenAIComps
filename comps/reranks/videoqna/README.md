@@ -1,8 +1,12 @@
 # Rerank Microservice with VideoQnA
 
-This README provides set-up instructions and comprehensive details regarding the reranking microservice with VideoQnA. This microservice is designed that do result rerank for VideoQnA use case. Local rerank is used rather than rerank model.
+This README provides set-up instructions and comprehensive details regarding the reranking microservice with VideoQnA.
+This microservice is designed that do result rerank for VideoQnA use case. Local rerank is used rather than rerank model.
 
-For the `VideoQnA` usecase, during the data preparation phase, frames are extracted from videos and stored in a vector database. To identify the most relevant video, we count the occurrences of each video source among the retrieved data with rerank function `get_top_doc`. This sorts the video as a descending list of names, ranked by their degree of match with the query. Then we could send the `top_n` videos to the downstream LVM.
+For the `VideoQnA` usecase, during the data preparation phase, frames are extracted from videos and stored in a vector database.
+To identify the most relevant video, we count the occurrences of each video source among the retrieved data with rerank function `get_top_doc`.
+This sorts the video as a descending list of names, ranked by their degree of match with the query.
+Then we could send the `top_n` videos to the downstream LVM.
 
 ---
 
