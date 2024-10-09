@@ -3,9 +3,9 @@
 
 import asyncio
 import multiprocessing
-from typing import Any, List, Optional, Type
 from collections import defaultdict, deque
 from enum import Enum
+from typing import Any, List, Optional, Type
 
 from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
@@ -70,9 +70,11 @@ class MicroService:
             if self.static_batching:
                 self.buffer_lock = asyncio.Lock()
                 self.request_buffer = defaultdict(deque)
+
                 @self.app.on_event("startup")
                 async def startup_event():
                     asyncio.create_task(self._static_batch_processor())
+
             self.event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.event_loop)
             self.event_loop.run_until_complete(self._async_setup())
@@ -101,12 +103,11 @@ class MicroService:
                 results = await self.static_batching_infer(service_type, batch)
 
                 for req, result in zip(batch, results):
-                    req['response'].set_result(result)
+                    req["response"].set_result(result)
 
     async def static_batching_infer(self, service_type: Enum, batch: list[dict]):
         """Need to overrided."""
         raise NotImplementedError("Unimplemented static batching inference!")
-
 
     def _validate_env(self):
         """Check whether to use the microservice locally."""

@@ -1,32 +1,30 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
+import inspect
 import os
 from enum import Enum
+from pathlib import Path
+
+import torch
+from habana_frameworks.torch.hpu import wrap_in_hpu_graph
+from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+from sentence_transformers.models import Pooling
+from transformers import AutoModel, AutoModelForSequenceClassification, AutoTokenizer
 
 from comps import (
-    CustomLogger, RerankedDoc, SearchedDoc,
+    CustomLogger,
     EmbedDoc,
     LLMParamsDoc,
+    RerankedDoc,
+    SearchedDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
     opea_telemetry,
     register_microservice,
 )
-import asyncio
-
-import inspect
-import torch
-
-from pathlib import Path
-from sentence_transformers.models import Pooling
-
-from transformers import AutoTokenizer, AutoModel, AutoModelForSequenceClassification, AutoTokenizer
-
-from habana_frameworks.torch.hpu import wrap_in_hpu_graph
-from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
-
 
 logger = CustomLogger("local_embedding_reranking")
 logflag = os.getenv("LOGFLAG", False)
@@ -47,11 +45,7 @@ class EmbeddingModel:
     ):
         if device == torch.device("hpu"):
             adapt_transformers_to_gaudi()
-        model = (
-            AutoModel.from_pretrained(model_path, trust_remote_code=trust_remote)
-            .to(dtype)
-            .to(device)
-        )
+        model = AutoModel.from_pretrained(model_path, trust_remote_code=trust_remote).to(dtype).to(device)
         self.model = model
         if device == torch.device("hpu"):
             logger.info("Use graph mode for HPU")
@@ -68,14 +62,8 @@ class EmbeddingModel:
         else:
             max_input_length = model.config.max_position_embeddings - position_offset
         self.max_input_length = max_input_length
-        self.has_position_ids = (
-            inspect.signature(model.forward).parameters.get("position_ids", None)
-            is not None
-        )
-        self.has_token_type_ids = (
-            inspect.signature(model.forward).parameters.get("token_type_ids", None)
-            is not None
-        )
+        self.has_position_ids = inspect.signature(model.forward).parameters.get("position_ids", None) is not None
+        self.has_token_type_ids = inspect.signature(model.forward).parameters.get("token_type_ids", None) is not None
 
     def embed(self, batch):
         output = self.model(**batch)
@@ -87,7 +75,6 @@ class EmbeddingModel:
         cpu_results = embedding.reshape(-1).tolist()
 
         return [cpu_results[i * self.hidden_size : (i + 1) * self.hidden_size] for i in range(len(batch.input_ids))]
-    
 
 
 class RerankingModel:
@@ -97,7 +84,7 @@ class RerankingModel:
 
         model = AutoModelForSequenceClassification.from_pretrained(model_path)
         model = model.to(dtype).to(device)
-        
+
         if device == torch.device("hpu"):
             logger.info("Use graph mode for HPU")
             model = wrap_in_hpu_graph(model, disable_tensor_cache=True)
@@ -113,19 +100,11 @@ class RerankingModel:
         else:
             max_input_length = model.config.max_position_embeddings - position_offset
         self.max_input_length = max_input_length
-        self.has_position_ids = (
-            inspect.signature(model.forward).parameters.get("position_ids", None)
-            is not None
-        )
-        self.has_token_type_ids = (
-            inspect.signature(model.forward).parameters.get("token_type_ids", None)
-            is not None
-        )
+        self.has_position_ids = inspect.signature(model.forward).parameters.get("position_ids", None) is not None
+        self.has_token_type_ids = inspect.signature(model.forward).parameters.get("token_type_ids", None) is not None
 
     def embed(self, batch):
-        raise NotImplementedError(
-            f"Embed is not a valid operation for model type {self.model.config.model_type}"
-        )
+        raise NotImplementedError(f"Embed is not a valid operation for model type {self.model.config.model_type}")
 
     def predict(self, batch):
         output = self.model(**batch, return_dict=True)
@@ -138,9 +117,11 @@ async def static_batching_infer(self, service_type: Enum, batch: list[dict]):
 
     if service_type == ServiceType.EMBEDDING:
         # TODO PADDING TO (MAX_BS, MAX_LEN)?
-        sentences = [req['request'].text for req in batch]
+        sentences = [req["request"].text for req in batch]
         with torch.no_grad():
-            encoded_input = embedding_tokenizer(sentences, padding=True, truncation=True, return_tensors='pt').to(device="hpu")
+            encoded_input = embedding_tokenizer(sentences, padding=True, truncation=True, return_tensors="pt").to(
+                device="hpu"
+            )
             results = embedding_model.embed(encoded_input)
         print(results)  # list[list[float]]
 
@@ -151,31 +132,34 @@ async def static_batching_infer(self, service_type: Enum, batch: list[dict]):
         pairs = []
         doc_lengths = []
         for req in batch:
-            doc_len = len(req['request'].retrieved_docs)
+            doc_len = len(req["request"].retrieved_docs)
             doc_lengths.append(doc_len)
             for idx in range(doc_len):
-                pairs.append([req['request'].initial_query, req['request'].retrieved_docs[idx]])
+                pairs.append([req["request"].initial_query, req["request"].retrieved_docs[idx]])
 
         # pairs = [req['request'].initial_query, req['request'] for req in batch]
         with torch.no_grad():
-            inputs = reranking_tokenizer(pairs, padding=True, truncation=True, return_tensors='pt', max_length=512).to("hpu")
+            inputs = reranking_tokenizer(pairs, padding=True, truncation=True, return_tensors="pt", max_length=512).to(
+                "hpu"
+            )
             scores = reranking_model.predict(inputs)
             print(scores)
-        
+
         # reduce each query's best related doc
         final_results = []
         start = 0
         for idx, doc_len in enumerate(doc_lengths):
-            req_scores = scores[start:start+doc_len]
-            docs = batch[idx]['request'][start:start+doc_len]
+            req_scores = scores[start : start + doc_len]
+            docs = batch[idx]["request"][start : start + doc_len]
             # select the top 1
             doc = docs[req_scores.index(max(req_scores))]
-            
-            final_results.append(LLMParamsDoc(query=batch[idx]['request'].initial_query, documents=[doc]))
+
+            final_results.append(LLMParamsDoc(query=batch[idx]["request"].initial_query, documents=[doc]))
 
             start += doc_len
-        
+
         return final_results
+
 
 @register_microservice(
     name="opea_service@local_reranking_embedding",
@@ -191,7 +175,7 @@ async def static_batching_infer(self, service_type: Enum, batch: list[dict]):
 )
 @opea_telemetry
 async def embedding(input: TextDoc) -> EmbedDoc:
-    
+
     if logflag:
         logger.info(input)
     # Create a future for this specific request
@@ -244,15 +228,16 @@ async def reranking(input: SearchedDoc) -> LLMParamsDoc:
     #     logger.info(res)
     # return res
 
+
 if __name__ == "__main__":
-    embedding_model = EmbeddingModel(model_path='BAAI/bge-base-zh-v1.5', device="hpu", dtype=torch.float32)
-    embedding_tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-base-zh-v1.5')
+    embedding_model = EmbeddingModel(model_path="BAAI/bge-base-zh-v1.5", device="hpu", dtype=torch.float32)
+    embedding_tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-base-zh-v1.5")
     # sentences = ["sample-1", "sample-2"]
     # encoded_input = embedding_tokenizer(sentences, padding=True, truncation=True, return_tensors='pt').to(device="hpu")
     # results = embedding_model.embed(encoded_input)
     # print(results)
-    reranking_model = RerankingModel(model_path='BAAI/bge-reranker-base', device="hpu",dtype=torch.float32)
-    reranking_tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-reranker-base')
+    reranking_model = RerankingModel(model_path="BAAI/bge-reranker-base", device="hpu", dtype=torch.float32)
+    reranking_tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-reranker-base")
 
     # pairs = [['what is panda?', 'hi'], ['what is panda?', 'The giant panda (Ailuropoda melanoleuca), sometimes called a panda bear or simply panda, is a bear species endemic to China.']]
     # with torch.no_grad():
