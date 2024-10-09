@@ -15,6 +15,7 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
     endpoint="/v1/chat/intent",
     host="0.0.0.0",
     port=9000,
+    llm_endpoint=os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080"),
 )
 def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")

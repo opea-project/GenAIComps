@@ -3,15 +3,18 @@
 
 import asyncio
 import multiprocessing
+import requests
+import time
 from typing import Any, List, Optional, Type
 
 from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
 from .utils import check_ports_availability
+from .logger import CustomLogger
 
 opea_microservices = {}
 
-
+logger = CustomLogger("micro-service")
 class MicroService:
     """MicroService class to create a microservice."""
 
@@ -31,8 +34,61 @@ class MicroService:
         provider: Optional[str] = None,
         provider_endpoint: Optional[str] = None,
         use_remote_service: Optional[bool] = False,
+        methods: List[str] = ["POST"],
+        llm_endpoint: Optional[str] = None,
     ):
         """Init the microservice."""
+
+        # Make sure LLM/Microservice endpoint are ready
+        logger.info(f"Init microservice - {name}")
+        if llm_endpoint is not None:
+            logger.info(f"LLM Endpoint requested for microservice @ {llm_endpoint}")
+            success = False
+            while success is False:
+                try:
+                    for item in methods:
+                        # Do we want to cater for GET request?
+                        # if yes, how to make it clean
+                        if item.upper() == "POST":
+                            response = requests.post(llm_endpoint)
+                            if response.status_code == 200:
+                                logger.info(f"LLM endpoint is ready - {llm_endpoint}")
+                            else:
+                                logger.info(f"LLM endpoint is ready - but error status code - {llm_endpoint}")
+                            success = True
+                        
+                except requests.exceptions.RequestException as e:
+                    logger.info(f"Error: {e} - {llm_endpoint}")
+                    time.sleep(2.5)
+        else:
+            url = f"{host}:{port}{endpoint}"
+            if protocol.upper() == "HTTP":
+                url = f"http://{url}"
+            elif protocol.upper() == "HTTPS":
+                url = f"https://{url}"
+            # enable future support for gRPC?
+
+            logger.info(f"Endpoint requested for microservice @ {url}")
+            success = False
+            while success is False:
+                try:
+                    for item in methods:
+                        # Do we want to cater for GET request?
+                        # if yes, how to make it clean
+                        if item.upper() == "POST":
+                            response = requests.post(url)
+                            if response.status_code == 200:
+                                logger.info(f"Microservice endpoint is ready - {url}")
+                            else:
+                                logger.info(f"Microservice endpoint is ready - but error status code - {url}")
+                            success = True
+                        else:
+                            logger.info(f"Microservice endpoint method not supported - Skipping - {url}")
+                            success = True
+                except requests.exceptions.RequestException as e:
+                    logger.info(f"Error: {e} - {url}")
+                    time.sleep(2.5)
+
         self.name = f"{name}/{self.__class__.__name__}" if name else self.__class__.__name__
         self.service_role = service_role
         self.service_type = service_type
@@ -155,6 +211,7 @@ def register_microservice(
     provider: Optional[str] = None,
     provider_endpoint: Optional[str] = None,
     methods: List[str] = ["POST"],
+    llm_endpoint: Optional[str] = None,
 ):
     def decorator(func):
         if name not in opea_microservices:
@@ -172,6 +229,8 @@ def register_microservice(
                 output_datatype=output_datatype,
                 provider=provider,
                 provider_endpoint=provider_endpoint,
+                methods=methods,
+                llm_endpoint=llm_endpoint,
             )
             opea_microservices[name] = micro_service
         opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)

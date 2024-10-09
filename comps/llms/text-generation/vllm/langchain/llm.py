@@ -47,6 +47,7 @@ def post_process_text(text: str):
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=9000,
+    llm_endpoint=llm_endpoint,
 )
 def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
     if logflag:

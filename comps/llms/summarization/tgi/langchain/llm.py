@@ -32,6 +32,7 @@ def post_process_text(text: str):
     endpoint="/v1/chat/docsum",
     host="0.0.0.0",
     port=9000,
+    llm_endpoint=os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080"),
 )
 def llm_generate(input: LLMParamsDoc):
     if logflag:
