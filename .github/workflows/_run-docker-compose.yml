@@ -67,7 +67,7 @@ jobs:
           run_matrix=$run_matrix"]}"
           echo "run_matrix=${run_matrix}"
           echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
-        
+
       - name: Debug run_matrix
         run: echo "${{ steps.test-case-matrix.outputs.run_matrix }}"
 
