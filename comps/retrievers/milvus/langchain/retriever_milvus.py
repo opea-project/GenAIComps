@@ -8,12 +8,12 @@ from typing import List, Optional
 
 from config import (
     COLLECTION_NAME,
-    TEI_EMBEDDING_ENDPOINT,
     LOCAL_EMBEDDING_MODEL,
     MILVUS_HOST,
     MILVUS_PORT,
-    MOSEC_EMBEDDING_MODEL,
     MOSEC_EMBEDDING_ENDPOINT,
+    MOSEC_EMBEDDING_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
 )
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_milvus.vectorstores import Milvus

@@ -9,12 +9,12 @@ from typing import List, Optional, Union
 
 from config import (
     COLLECTION_NAME,
+    LOCAL_EMBEDDING_MODEL,
     MILVUS_HOST,
     MILVUS_PORT,
     MOSEC_EMBEDDING_ENDPOINT,
     MOSEC_EMBEDDING_MODEL,
     TEI_EMBEDDING_ENDPOINT,
-    LOCAL_EMBEDDING_MODEL,
 )
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
