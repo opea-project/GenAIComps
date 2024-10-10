@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # Use this script to test if a given TCP host/port are available
 
 WAITFORIT_cmdname=${0##*/}
