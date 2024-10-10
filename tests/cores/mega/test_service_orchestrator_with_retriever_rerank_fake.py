@@ -4,14 +4,7 @@
 import json
 import unittest
 
-from comps import (
-    EmbedDoc,
-    Gateway,
-    ServiceOrchestrator,
-    TextDoc,
-    opea_microservices,
-    register_microservice,
-)
+from comps import EmbedDoc, Gateway, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
 from comps.cores.mega.constants import ServiceType
 from comps.cores.proto.docarray import RerankerParms, RetrieverParms
 
