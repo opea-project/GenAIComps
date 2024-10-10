@@ -147,10 +147,10 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
         for idx, doc_len in enumerate(doc_lengths):
             req_scores = scores[start : start + doc_len]
             cur_req = batch[idx]["request"]
-            docs: list[TextDoc] = cur_req.retrieved_docs[0 : doc_len]
+            docs: list[TextDoc] = cur_req.retrieved_docs[0:doc_len]
             docs = [doc.text for doc in docs]
             # sort and select top n docs
-            top_n_docs = sorted(list(zip(docs, req_scores)), key=lambda x: x[1], reverse=True)[:cur_req.top_n]
+            top_n_docs = sorted(list(zip(docs, req_scores)), key=lambda x: x[1], reverse=True)[: cur_req.top_n]
             top_n_docs: list[str] = [tupl[0] for tupl in top_n_docs]
             final_results.append(LLMParamsDoc(query=cur_req.initial_query, documents=top_n_docs))
 
