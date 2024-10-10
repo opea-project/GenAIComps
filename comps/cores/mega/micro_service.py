@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import multiprocessing
+import os
 from collections import defaultdict, deque
 from enum import Enum
 from typing import Any, List, Optional, Type
@@ -10,9 +10,12 @@ from typing import Any, List, Optional, Type
 from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
 from .utils import check_ports_availability
+from .logger import CustomLogger
 
 opea_microservices = {}
 
+logger = CustomLogger("micro_service")
+logflag = os.getenv("LOGFLAG", False)
 
 class MicroService:
     """MicroService class to create a microservice."""
@@ -81,23 +84,25 @@ class MicroService:
 
     async def _static_batch_processor(self):
         while True:
+            if logflag:
+                logger.info("static batch processor looping...")
+
             await asyncio.sleep(self.static_batching_timeout)
-            runtime_batch = {}  # {ServiceType.Embedding: [{"request": xx, "response": yy}, {}]}
+            runtime_batch: dict[Enum, list[dict]] = {}  # {ServiceType.Embedding: [{"request": xx, "response": yy}, {}]}
 
             async with self.buffer_lock:
                 # prepare the runtime batch, access to buffer is locked
                 if self.request_buffer:
-                    # grab max(MAX_BATCH_SIZE, REQUEST_SIZE) requests from buffer
-
                     for service_type, request_lst in self.request_buffer.items():
                         batch = []
-                        for _ in range(max(self.static_batching_max_batch_size, len(request_lst))):
+                        # grab min(MAX_BATCH_SIZE, REQUEST_SIZE) requests from buffer
+                        for _ in range(min(self.static_batching_max_batch_size, len(request_lst))):
                             batch.append(request_lst.popleft())
 
                         runtime_batch[service_type] = batch
 
             # Run batched inference on the batch and set results
-            for service_type, batch in runtime_batch:
+            for service_type, batch in runtime_batch.items():
                 if not batch:
                     continue
                 results = await self.static_batching_infer(service_type, batch)
@@ -165,8 +170,10 @@ class MicroService:
 
     def start(self):
         self._validate_env()
-        self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
-        self.process.start()
+        # Resolve HPU segmentation fault and potential tokenizer issues by limiting to same process
+        # self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
+        # self.process.start()
+        self.run()
 
     async def _async_teardown(self):
         """Shutdown the server."""
