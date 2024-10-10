@@ -26,6 +26,7 @@ logflag = os.getenv("LOGFLAG", False)
 
 llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
 model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
+llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name)
 
 
 @opea_telemetry
@@ -47,7 +48,7 @@ def post_process_text(text: str):
     host="0.0.0.0",
     port=9000,
 )
-def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
+async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
     if logflag:
         logger.info(input)
 
@@ -73,26 +74,22 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
         # use default llm parameter for inference
         new_input = LLMParamsDoc(query=prompt)
 
+        parameters = {
+            "max_tokens": new_input.max_tokens,
+            "top_p": new_input.top_p,
+            "temperature": new_input.temperature,
+            "frequency_penalty": new_input.frequency_penalty,
+            "presence_penalty": new_input.presence_penalty,
+        }
+
         if logflag:
             logger.info(f"[ SearchedDoc ] final input: {new_input}")
 
-        llm = VLLMOpenAI(
-            openai_api_key="EMPTY",
-            openai_api_base=llm_endpoint + "/v1",
-            max_tokens=new_input.max_tokens,
-            model_name=model_name,
-            top_p=new_input.top_p,
-            temperature=new_input.temperature,
-            frequency_penalty=new_input.frequency_penalty,
-            presence_penalty=new_input.presence_penalty,
-            streaming=new_input.streaming,
-        )
-
         if new_input.streaming:
 
-            def stream_generator():
+            async def stream_generator():
                 chat_response = ""
-                for text in llm.stream(new_input.query):
+                async for text in llm.astream(new_input.query, **parameters):
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -105,7 +102,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
         else:
-            response = llm.invoke(new_input.query)
+            response = await llm.ainvoke(new_input.query, **parameters)
             if logflag:
                 logger.info(response)
 
@@ -116,6 +113,14 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             logger.info("[ LLMParamsDoc ] input from rerank microservice")
 
         prompt = input.query
+
+        parameters = {
+            "max_tokens": input.max_tokens,
+            "top_p": input.top_p,
+            "temperature": input.temperature,
+            "frequency_penalty": input.frequency_penalty,
+            "presence_penalty": input.presence_penalty,
+        }
 
         if prompt_template:
             if sorted(input_variables) == ["context", "question"]:
@@ -131,23 +136,11 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
                 # use rag default template
                 prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
 
-        llm = VLLMOpenAI(
-            openai_api_key="EMPTY",
-            openai_api_base=llm_endpoint + "/v1",
-            max_tokens=input.max_tokens,
-            model_name=model_name,
-            top_p=input.top_p,
-            temperature=input.temperature,
-            frequency_penalty=input.frequency_penalty,
-            presence_penalty=input.presence_penalty,
-            streaming=input.streaming,
-        )
-
         if input.streaming:
 
-            def stream_generator():
+            async def stream_generator():
                 chat_response = ""
-                for text in llm.stream(input.query):
+                async for text in llm.astream(prompt, **parameters):
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -160,7 +153,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
         else:
-            response = llm.invoke(input.query)
+            response = await llm.ainvoke(prompt, **parameters)
             if logflag:
                 logger.info(response)
 

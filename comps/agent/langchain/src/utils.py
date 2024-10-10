@@ -6,6 +6,16 @@ import argparse
 from .config import env_config
 
 
+def wrap_chat(llm_endpoint, model_id):
+    from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+
+    if isinstance(llm_endpoint, HuggingFaceEndpoint):
+        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id)
+    else:
+        llm = llm_endpoint
+    return llm
+
+
 def format_date(date):
     # input m/dd/yyyy hr:min
     # output yyyy-mm-dd
@@ -46,15 +56,15 @@ def setup_hf_tgi_client(args):
 
 
 def setup_vllm_client(args):
-    from langchain_community.llms.vllm import VLLMOpenAI
+    from langchain_openai import ChatOpenAI
 
     openai_endpoint = f"{args.llm_endpoint_url}/v1"
-    llm = VLLMOpenAI(
-        openai_api_key="EMPTY",
-        openai_api_base=openai_endpoint,
-        model_name=args.model,
-        streaming=args.streaming,
-    )
+    params = {
+        "temperature": args.temperature,
+        "max_tokens": args.max_new_tokens,
+        "streaming": args.streaming,
+    }
+    llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)
     return llm
 
 
@@ -118,7 +128,7 @@ def get_args():
     parser.add_argument("--streaming", type=str, default="true")
     parser.add_argument("--port", type=int, default=9090)
     parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
-    parser.add_argument("--strategy", type=str, default="react")
+    parser.add_argument("--strategy", type=str, default="react_langchain")
     parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
     parser.add_argument("--tools", type=str, default="tools/custom_tools.yaml")
     parser.add_argument("--recursion_limit", type=int, default=5)
@@ -147,4 +157,5 @@ def get_args():
         sys_args.streaming = True
     else:
         sys_args.streaming = False
+    print("==========sys_args==========:\n", sys_args)
     return sys_args, unknown_args

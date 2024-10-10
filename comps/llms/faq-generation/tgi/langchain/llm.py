@@ -34,10 +34,9 @@ def post_process_text(text: str):
     host="0.0.0.0",
     port=9000,
 )
-def llm_generate(input: LLMParamsDoc):
+async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
-    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
         max_new_tokens=input.max_tokens,
@@ -54,14 +53,12 @@ def llm_generate(input: LLMParamsDoc):
     """
     PROMPT = PromptTemplate.from_template(templ)
     llm_chain = load_summarize_chain(llm=llm, prompt=PROMPT)
+    texts = text_splitter.split_text(input.query)
+
+    # Create multiple documents
+    docs = [Document(page_content=t) for t in texts]
 
     if input.streaming:
-        # Split text
-        text_splitter = CharacterTextSplitter()
-
-        texts = text_splitter.split_text(input.query)
-        # Create multiple documents
-        docs = [Document(page_content=t) for t in texts]
 
         async def stream_generator():
             from langserve.serialization import WellKnownLCSerializer
@@ -69,17 +66,22 @@ def llm_generate(input: LLMParamsDoc):
             _serializer = WellKnownLCSerializer()
             async for chunk in llm_chain.astream_log(docs):
                 data = _serializer.dumps({"ops": chunk.ops}).decode("utf-8")
+                if logflag:
+                    logger.info(data)
                 yield f"data: {data}\n\n"
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = llm_chain.invoke(input.query)
-        response = response["result"].split("</s>")[0].split("\n")[0]
+        response = await llm_chain.ainvoke(docs)
+        response = response["output_text"]
         if logflag:
             logger.info(response)
         return GeneratedDoc(text=response, prompt=input.query)
 
 
 if __name__ == "__main__":
+    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+    # Split text
+    text_splitter = CharacterTextSplitter()
     opea_microservices["opea_service@llm_faqgen"].start()

@@ -31,11 +31,10 @@ function build_docker_images() {
 
 function start_service() {
     # start milvus vector db
-    mkdir $WORKPATH/milvus
-    cd $WORKPATH/milvus
-    wget https://raw.githubusercontent.com/milvus-io/milvus/v2.4.9/configs/milvus.yaml
-    wget https://github.com/milvus-io/milvus/releases/download/v2.4.9/milvus-standalone-docker-compose.yml -O docker-compose.yml
-    sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
+    cd $WORKPATH/comps/dataprep/milvus/langchain/
+    # wget https://raw.githubusercontent.com/milvus-io/milvus/v2.4.9/configs/milvus.yaml
+    # wget https://github.com/milvus-io/milvus/releases/download/v2.4.9/milvus-standalone-docker-compose.yml -O docker-compose.yml
+    # sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
     docker compose up -d
 
     # set service ports
@@ -47,8 +46,8 @@ function start_service() {
 
     # start dataprep service
     MOSEC_EMBEDDING_ENDPOINT="http://${ip_address}:${mosec_embedding_port}"
-    MILVUS=${ip_address}
-    docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:6010 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} -e MILVUS=${MILVUS} -e LOGFLAG=true --ipc=host opea/dataprep-milvus:comps
+    MILVUS_HOST=${ip_address}
+    docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:6010 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e LOGFLAG=true --ipc=host opea/dataprep-milvus:comps
     sleep 1m
 }
 
