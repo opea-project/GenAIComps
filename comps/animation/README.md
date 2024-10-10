@@ -7,7 +7,7 @@ The avatar animation model is a combination of two models: Wav2Lip and GAN-based
 ## 1.1 Build the Docker image
 
 ```bash
-# git clone https://github.com/opea-project/GenAIComps.git
+git clone https://github.com/opea-project/GenAIComps.git
 cd GenAIComps
 docker build -t opea/animation:latest -f comps/animation/Dockerfile_hpu .
 ```
@@ -60,7 +60,6 @@ Once microservice starts, user can use below script to validate the running micr
 ```bash
 cd GenAIComps
 export ip_address=$(hostname -I | awk '{print $1}')
-# curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/assets/audio/sample_question.json
 ```
 
 or
