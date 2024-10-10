@@ -20,11 +20,18 @@ function build_docker_images() {
 
 function start_service() {
 
+    env
+
     # tei endpoint
     tei_endpoint=5053
     model="BAAI/bge-base-en-v1.5"
     docker run -d --name="test-comps-retriever-pinecone-tei-endpoint" -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
-    sleep 30s
+    bash ./tests/retrievers/wait-for-it.sh ${ip_address}:${tei_endpoint} -s -t 30 -- echo "tei endpoint up"
+    TEI_ENDPOINT_UP=$?
+    if [ ${TEI_ENDPOINT_UP} -ne 0 ]; then
+        echo "Could not start TEI endpoint. Exiting."
+        exit 1
+    fi
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
     # pinecone retriever
@@ -35,7 +42,12 @@ function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-retriever-pinecone-server" -p ${retriever_port}:7000 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PINECONE_API_KEY=$PINECONE_API_KEY -e PINECONE_INDEX_NAME=$PINECONE_INDEX_NAME -e INDEX_NAME=$PINECONE_INDEX_NAME opea/retriever-pinecone:comps
 
-    sleep 2m
+    bash ./tests/retrievers/wait-for-it.sh ${ip_address}:$retriever_port -s -t 300 -- echo "retriever up"
+    RETRIEVER_UP=$?
+    if [ ${RETRIEVER_UP} -ne 0 ]; then
+        echo "Could not start Retriever. Exiting."
+        exit 1
+    fi
 }
 
 function validate_microservice() {
