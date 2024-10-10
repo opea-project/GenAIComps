@@ -31,3 +31,7 @@ services:
     build:
       dockerfile: comps/llms/text-generation/predictionguard/Dockerfile
     image: ${REGISTRY:-opea}/llm-textgen-predictionguard:${TAG:-latest}
+  llm-ollama-llamaindex:
+    build:
+      dockerfile: comps/llms/text-generation/ollama/llama_index/Dockerfile
+    image: ${REGISTRY:-opea}/llm-ollama-llamaindex:${TAG:-latest}
