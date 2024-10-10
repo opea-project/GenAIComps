@@ -29,7 +29,7 @@ export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 
 ## Prerequisites
 
-You must create a user account with [HuggingFace] and obtain permission to use the gated LLM models by adhering to the guidelines provided on the respective model's webpage. The enviroment variables `LLM_MODEL` would be the HuggingFace model id and the `HF_TOKEN` is your HuggugFace account's "User Access Token".
+You must create a user account with [HuggingFace] and obtain permission to use the gated LLM models by adhering to the guidelines provided on the respective model's webpage. The environment variables `LLM_MODEL` would be the HuggingFace model id and the `HF_TOKEN` is your HuggugFace account's "User Access Token".
 
 ## 🚀1. Start Microservice with Python (Option 1)
 
@@ -59,7 +59,7 @@ cd ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/tgi
 pip install -r requirements.txt
 ```
 
-Execute the docker run command to initiate the backend, along with the Python script that launches the microservice. 
+Execute the docker run command to initiate the backend, along with the Python script that launches the microservice.
 
 ```bash
 export TGI_HOST_IP=$(hostname -I | awk '{print $1}')  # This sets IP of the current machine
@@ -78,7 +78,7 @@ docker run -d \
   --model-id ${LLM_MODEL}
 
 # Start the microservice with an endpoint as the above docker run command
-export TGI_LLM_ENDPOINT="http://${TGI_HOST_IP}:8008" 
+export TGI_LLM_ENDPOINT="http://${TGI_HOST_IP}:8008"
 
 python llm.py
 ```
@@ -93,7 +93,7 @@ cd ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/vllm/langchain
 pip install -r requirements.txt
 ```
 
-Execute the docker run command to initiate the backend, along with the Python script that launches the microservice. 
+Execute the docker run command to initiate the backend, along with the Python script that launches the microservice.
 
 ```bash
 export vLLM_HOST_IP=$(hostname -I | awk '{print $1}')  # This sets IP of the current machine
@@ -131,7 +131,7 @@ cd ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/vllm/ray
 pip install -r requirements.txt
 ```
 
-Execute the docker run command to initiate the backend, along with the Python script that launches the microservice. 
+Execute the docker run command to initiate the backend, along with the Python script that launches the microservice.
 
 ```bash
 export vLLM_RAY_HOST_IP=$(hostname -I | awk '{print $1}')  # This sets IP of the current machine
@@ -172,7 +172,7 @@ python llm.py
 
 In order to start the microservices with docker, you need to build the docker images first for the microservice.
 
-### 2.1  Build Docker Image
+### 2.1 Build Docker Image
 
 #### 2.1.1 TGI
 
@@ -221,7 +221,6 @@ docker build \
 
 ### 2.2 Start LLM Service with the built image
 
-
 To start a docker container, you have two options:
 
 - A. Run Docker with CLI
@@ -256,7 +255,6 @@ export RAY_Serve_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL=${your_hf_llm_model}
 export CHAT_PROCESSOR="ChatModelLlama"
 ```
-
 
 ### 2.3 Run Docker with CLI (Option A)
 
