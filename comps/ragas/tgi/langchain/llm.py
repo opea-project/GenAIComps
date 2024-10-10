@@ -39,6 +39,7 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
     port=9050,
     input_datatype=RAGASParams,
     output_datatype=RAGASScores,
+    llm_endpoint=os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080"),
 )
 def llm_generate(input: RAGASParams):
     if logflag:
