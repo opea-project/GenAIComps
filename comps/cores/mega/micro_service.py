@@ -2,14 +2,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import multiprocessing
+import os
+from collections import defaultdict, deque
+from enum import Enum
 from typing import Any, List, Optional, Type
 
 from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
+from .logger import CustomLogger
 from .utils import check_ports_availability
 
 opea_microservices = {}
+
+logger = CustomLogger("micro_service")
+logflag = os.getenv("LOGFLAG", False)
 
 
 class MicroService:
@@ -31,6 +37,9 @@ class MicroService:
         provider: Optional[str] = None,
         provider_endpoint: Optional[str] = None,
         use_remote_service: Optional[bool] = False,
+        static_batching: bool = False,
+        static_batching_timeout: int = 1,
+        static_batching_max_batch_size: int = 32,
     ):
         """Init the microservice."""
         self.name = f"{name}/{self.__class__.__name__}" if name else self.__class__.__name__
@@ -43,6 +52,9 @@ class MicroService:
         self.input_datatype = input_datatype
         self.output_datatype = output_datatype
         self.use_remote_service = use_remote_service
+        self.static_batching = static_batching
+        self.static_batching_timeout = static_batching_timeout
+        self.static_batching_max_batch_size = static_batching_max_batch_size
         self.uvicorn_kwargs = {}
 
         if ssl_keyfile:
@@ -58,9 +70,50 @@ class MicroService:
 
             self.server = self._get_server()
             self.app = self.server.app
+            # create a batch request processor loop if using static batching
+            if self.static_batching:
+                self.buffer_lock = asyncio.Lock()
+                self.request_buffer = defaultdict(deque)
+
+                @self.app.on_event("startup")
+                async def startup_event():
+                    asyncio.create_task(self._static_batch_processor())
+
             self.event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.event_loop)
             self.event_loop.run_until_complete(self._async_setup())
+
+    async def _static_batch_processor(self):
+        while True:
+            if logflag:
+                logger.info("static batch processor looping...")
+
+            await asyncio.sleep(self.static_batching_timeout)
+            runtime_batch: dict[Enum, list[dict]] = {}  # {ServiceType.Embedding: [{"request": xx, "response": yy}, {}]}
+
+            async with self.buffer_lock:
+                # prepare the runtime batch, access to buffer is locked
+                if self.request_buffer:
+                    for service_type, request_lst in self.request_buffer.items():
+                        batch = []
+                        # grab min(MAX_BATCH_SIZE, REQUEST_SIZE) requests from buffer
+                        for _ in range(min(self.static_batching_max_batch_size, len(request_lst))):
+                            batch.append(request_lst.popleft())
+
+                        runtime_batch[service_type] = batch
+
+            # Run batched inference on the batch and set results
+            for service_type, batch in runtime_batch.items():
+                if not batch:
+                    continue
+                results = await self.static_batching_infer(service_type, batch)
+
+                for req, result in zip(batch, results):
+                    req["response"].set_result(result)
+
+    async def static_batching_infer(self, service_type: Enum, batch: list[dict]):
+        """Need to implement."""
+        raise NotImplementedError("Unimplemented static batching inference!")
 
     def _validate_env(self):
         """Check whether to use the microservice locally."""
@@ -118,8 +171,10 @@ class MicroService:
 
     def start(self):
         self._validate_env()
-        self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
-        self.process.start()
+        # Resolve HPU segmentation fault and potential tokenizer issues by limiting to same process
+        # self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
+        # self.process.start()
+        self.run()
 
     async def _async_teardown(self):
         """Shutdown the server."""
@@ -155,6 +210,9 @@ def register_microservice(
     provider: Optional[str] = None,
     provider_endpoint: Optional[str] = None,
     methods: List[str] = ["POST"],
+    static_batching: bool = False,
+    static_batching_timeout: int = 1,
+    static_batching_max_batch_size: int = 32,
 ):
     def decorator(func):
         if name not in opea_microservices:
@@ -172,6 +230,9 @@ def register_microservice(
                 output_datatype=output_datatype,
                 provider=provider,
                 provider_endpoint=provider_endpoint,
+                static_batching=static_batching,
+                static_batching_timeout=static_batching_timeout,
+                static_batching_max_batch_size=static_batching_max_batch_size,
             )
             opea_microservices[name] = micro_service
         opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
