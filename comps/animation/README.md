@@ -7,7 +7,7 @@ The avatar animation model is a combination of two models: Wav2Lip and GAN-based
 ## 1.1 Build the Docker image
 
 ```bash
-git clone https://github.com/opea-project/GenAIComps.git
+# git clone https://github.com/opea-project/GenAIComps.git
 cd GenAIComps
 docker build -t opea/animation:latest -f comps/animation/Dockerfile_hpu .
 ```
