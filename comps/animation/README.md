@@ -60,7 +60,7 @@ Once microservice starts, user can use below script to validate the running micr
 ```bash
 cd GenAIComps
 export ip_address=$(hostname -I | awk '{print $1}')
-curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/assets/audio/sample_question.json
+# curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/assets/audio/sample_question.json
 ```
 
 or
@@ -75,7 +75,7 @@ The expected output is a message similar to the following:
 ```bash
 "Status code: 200"
 "Check $OUTFILE for the result."
-"{'id': '33dd8249228b0e011a33b449af9aa776', 'video_save_path': '/home/demo/ctao/forks/GenAIComps/comps/animation/outputs/result.mp4'}"
+"{'id': '33dd8249228b0e011a33b449af9aa776', 'video_save_path': '.../GenAIComps/comps/animation/outputs/result.mp4'}"
 ```
 
 Please find "./outputs/result.mp4" as a reference generated video.
