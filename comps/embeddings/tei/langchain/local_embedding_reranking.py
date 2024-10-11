@@ -26,14 +26,12 @@ from comps import (
     opea_telemetry,
     register_microservice,
 )
-
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
     EmbeddingRequest,
     EmbeddingResponse,
     EmbeddingResponseData,
 )
-
 
 logger = CustomLogger("local_embedding_reranking")
 logflag = os.getenv("LOGFLAG", False)
