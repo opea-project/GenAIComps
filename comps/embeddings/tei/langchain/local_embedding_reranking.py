@@ -6,6 +6,7 @@ import inspect
 import os
 from enum import Enum
 from pathlib import Path
+from typing import Union
 
 import torch
 from habana_frameworks.torch.hpu import wrap_in_hpu_graph
@@ -25,6 +26,14 @@ from comps import (
     opea_telemetry,
     register_microservice,
 )
+
+from comps.cores.proto.api_protocol import (
+    ChatCompletionRequest,
+    EmbeddingRequest,
+    EmbeddingResponse,
+    EmbeddingResponseData,
+)
+
 
 logger = CustomLogger("local_embedding_reranking")
 logflag = os.getenv("LOGFLAG", False)
@@ -165,13 +174,13 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
     endpoint="/v1/embeddings",
     host="0.0.0.0",
     port=6001,
-    input_datatype=TextDoc,
-    output_datatype=EmbedDoc,
     static_batching=True,
     static_batching_timeout=STATIC_BATCHING_TIMEOUT,
     static_batching_max_batch_size=STATIC_BATCHING_MAX_BATCH_SIZE,
 )
-async def embedding(input: TextDoc) -> EmbedDoc:
+async def embedding(
+    input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
+) -> Union[EmbedDoc, EmbeddingResponse, ChatCompletionRequest]:
 
     if logflag:
         logger.info(input)
