@@ -1,8 +1,6 @@
-
 # GPT-SoVITS Microservice
 
 [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) allows you to to do zero-shot voice cloning and text to speech of multi languages such as English, Japanese, Korean, Cantonese and Chinese.
-
 
 This microservice is validated on Xeon/CUDA. HPU support is under development.
 
@@ -20,7 +18,7 @@ docker run  -itd -p 9880:9880 -e http_proxy=$http_proxy -e https_proxy=$https_pr
 
 ## Test
 
-* Chinese only
+- Chinese only
 
 ```bash
 curl localhost:9880/ -XPOST -d '{
@@ -29,7 +27,7 @@ curl localhost:9880/ -XPOST -d '{
 }' --output out.wav
 ```
 
-* English only
+- English only
 
 ```bash
 curl localhost:9880/ -XPOST -d '{
@@ -38,7 +36,7 @@ curl localhost:9880/ -XPOST -d '{
 }' --output out.wav
 ```
 
-* Auto detection of languages
+- Auto detection of languages
 
 ```bash
 curl localhost:9880/ -XPOST -d '{
@@ -47,12 +45,12 @@ curl localhost:9880/ -XPOST -d '{
 }' --output out.wav
 ```
 
-* Change reference audio
+- Change reference audio
 
 ```bash
 curl localhost:9880/change_refer -d '{
     "refer_wav_path": "path_to_your_audio.wav",
     "prompt_text": "transcription_of_your_audio",
     "prompt_language": "language_of_your_audio"
-}' 
+}'
 ```
