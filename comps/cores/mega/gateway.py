@@ -73,10 +73,10 @@ class Gateway:
         response = {}
         for node, service in self.megaservice.services.items():
             # Check if the service has a 'description' attribute and it is not None
-            if hasattr(service, 'description') and service.description:
+            if hasattr(service, "description") and service.description:
                 response[node] = {"description": service.description}
             # Check if the service has an 'endpoint' attribute and it is not None
-            if hasattr(service, 'endpoint') and service.endpoint:
+            if hasattr(service, "endpoint") and service.endpoint:
                 if node in response:
                     response[node]["endpoint"] = service.endpoint
                 else:
