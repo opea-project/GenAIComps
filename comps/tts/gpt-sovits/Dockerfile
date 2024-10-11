@@ -30,4 +30,3 @@ WORKDIR /home/user/GPT-SoVITS
 RUN wget "https://github.com/intel/intel-extension-for-transformers/raw/refs/heads/main/intel_extension_for_transformers/neural_chat/assets/audio/welcome_cn.wav"
 
 ENTRYPOINT ["python", "api.py", "--default_refer_path", "./welcome_cn.wav", "--default_refer_text", "欢迎使用", "--default_refer_language", "zh"]
-# ENTRYPOINT ["sleep", "infinity"]
