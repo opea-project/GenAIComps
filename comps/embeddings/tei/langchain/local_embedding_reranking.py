@@ -37,7 +37,7 @@ logger = CustomLogger("local_embedding_reranking")
 logflag = os.getenv("LOGFLAG", False)
 
 # keep it consistent for different routers for now
-STATIC_BATCHING_TIMEOUT = float(os.getenv("STATIC_BATCHING_TIMEOUT", 0.1))
+STATIC_BATCHING_TIMEOUT = float(os.getenv("STATIC_BATCHING_TIMEOUT", 0.01))
 STATIC_BATCHING_MAX_BATCH_SIZE = int(os.getenv("STATIC_BATCHING_MAX_BATCH_SIZE", 32))
 
 
