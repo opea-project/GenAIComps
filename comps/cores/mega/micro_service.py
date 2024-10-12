@@ -84,10 +84,9 @@ class MicroService:
             self.event_loop.run_until_complete(self._async_setup())
 
     async def _static_batch_processor(self):
+        if logflag:
+            logger.info("static batch processor looping...")
         while True:
-            if logflag:
-                logger.info("static batch processor looping...")
-
             await asyncio.sleep(self.static_batching_timeout)
             runtime_batch: dict[Enum, list[dict]] = {}  # {ServiceType.Embedding: [{"request": xx, "response": yy}, {}]}
 

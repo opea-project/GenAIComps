@@ -127,7 +127,7 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
         # TODO PADDING TO (MAX_BS, MAX_LEN)
         sentences = [req["request"].text for req in batch]
         with torch.no_grad():
-            encoded_input = embedding_tokenizer(sentences, padding=True, truncation=True, return_tensors="pt").to(
+            encoded_input = embedding_tokenizer(sentences, padding="max_length", truncation=True, return_tensors="pt").to(
                 device="hpu"
             )
             results = embedding_model.embed(encoded_input)
@@ -143,7 +143,7 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
                 pairs.append([req["request"].initial_query, req["request"].retrieved_docs[idx].text])
 
         with torch.no_grad():
-            inputs = reranking_tokenizer(pairs, padding=True, truncation=True, return_tensors="pt", max_length=512).to(
+            inputs = reranking_tokenizer(pairs, padding="max_length", truncation=True, return_tensors="pt", max_length=512).to(
                 "hpu"
             )
             scores = reranking_model.predict(inputs)
