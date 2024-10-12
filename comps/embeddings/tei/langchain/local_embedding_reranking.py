@@ -127,10 +127,11 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
         # TODO PADDING TO (MAX_BS, MAX_LEN)
         sentences = [req["request"].text for req in batch]
         with torch.no_grad():
-            encoded_input = embedding_tokenizer(sentences, padding="max_length", truncation=True, return_tensors="pt").to(
+            encoded_input = embedding_tokenizer(sentences, padding="max_length", truncation=True, return_tensors="pt", max_length=128).to(
                 device="hpu"
             )
-            results = embedding_model.embed(encoded_input)
+            with torch.autocast("hpu", dtype=torch.bfloat16):
+                results = embedding_model.embed(encoded_input)
 
         return [EmbedDoc(text=txt, embedding=embed_vector) for txt, embed_vector in zip(sentences, results)]
     elif service_type == ServiceType.RERANK:
@@ -143,10 +144,11 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
                 pairs.append([req["request"].initial_query, req["request"].retrieved_docs[idx].text])
 
         with torch.no_grad():
-            inputs = reranking_tokenizer(pairs, padding="max_length", truncation=True, return_tensors="pt", max_length=512).to(
+            inputs = reranking_tokenizer(pairs, padding="max_length", truncation=True, return_tensors="pt", max_length=128).to(
                 "hpu"
             )
-            scores = reranking_model.predict(inputs)
+            with torch.autocast("hpu", dtype=torch.bfloat16):
+                scores = reranking_model.predict(inputs)
 
         # reduce each query's best related doc
         final_results = []
