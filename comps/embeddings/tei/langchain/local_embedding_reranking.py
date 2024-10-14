@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import inspect
 import os
 from enum import Enum
 from pathlib import Path
@@ -11,26 +10,22 @@ from typing import Union
 import torch
 from habana_frameworks.torch.hpu import wrap_in_hpu_graph
 from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
-from sentence_transformers.models import Pooling
 from transformers import AutoModel, AutoModelForSequenceClassification, AutoTokenizer
 
 from comps import (
     CustomLogger,
     EmbedDoc,
     LLMParamsDoc,
-    RerankedDoc,
     SearchedDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
-    opea_telemetry,
     register_microservice,
 )
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
     EmbeddingRequest,
     EmbeddingResponse,
-    EmbeddingResponseData,
 )
 
 logger = CustomLogger("local_embedding_reranking")
@@ -47,7 +42,6 @@ class EmbeddingModel:
         model_path: Path,
         device: torch.device,
         dtype: torch.dtype,
-        pool: str = "cls",
         trust_remote: bool = False,
     ):
         if device == torch.device("hpu"):
@@ -57,31 +51,12 @@ class EmbeddingModel:
         if device == torch.device("hpu"):
             logger.info("Use graph mode for HPU")
             model = wrap_in_hpu_graph(model, disable_tensor_cache=True)
-        self.hidden_size = model.config.hidden_size
-        self.pooling = Pooling(self.hidden_size, pooling_mode=pool)
-        position_offset = 0
-        model_type = model.config.model_type
-        if model_type in ["xlm-roberta", "camembert", "roberta"]:
-            position_offset = model.config.pad_token_id + 1
-        max_input_length = 0
-        if hasattr(model.config, "max_seq_length"):
-            max_input_length = model.config.max_seq_length
-        else:
-            max_input_length = model.config.max_position_embeddings - position_offset
-        self.max_input_length = max_input_length
-        self.has_position_ids = inspect.signature(model.forward).parameters.get("position_ids", None) is not None
-        self.has_token_type_ids = inspect.signature(model.forward).parameters.get("token_type_ids", None) is not None
 
     def embed(self, batch):
         output = self.model(**batch)
-        pooling_features = {
-            "token_embeddings": output[0],
-            "attention_mask": batch.attention_mask,
-        }
-        embedding = self.pooling.forward(pooling_features)["sentence_embedding"]
-        cpu_results = embedding.reshape(-1).tolist()
-
-        return [cpu_results[i * self.hidden_size : (i + 1) * self.hidden_size] for i in range(len(batch.input_ids))]
+        sentence_embeddings = output[0][:, 0]
+        sentence_embeddings = torch.nn.functional.normalize(sentence_embeddings, p=2, dim=1)
+        return sentence_embeddings
 
 
 class RerankingModel:
@@ -96,27 +71,11 @@ class RerankingModel:
             logger.info("Use graph mode for HPU")
             model = wrap_in_hpu_graph(model, disable_tensor_cache=True)
         self.model = model
-        self.hidden_size = model.config.hidden_size
-        position_offset = 0
-        model_type = model.config.model_type
-        if model_type in ["xlm-roberta", "camembert", "roberta"]:
-            position_offset = model.config.pad_token_id + 1
-        max_input_length = 0
-        if hasattr(model.config, "max_seq_length"):
-            max_input_length = model.config.max_seq_length
-        else:
-            max_input_length = model.config.max_position_embeddings - position_offset
-        self.max_input_length = max_input_length
-        self.has_position_ids = inspect.signature(model.forward).parameters.get("position_ids", None) is not None
-        self.has_token_type_ids = inspect.signature(model.forward).parameters.get("token_type_ids", None) is not None
-
-    def embed(self, batch):
-        raise NotImplementedError(f"Embed is not a valid operation for model type {self.model.config.model_type}")
 
     def predict(self, batch):
-        output = self.model(**batch, return_dict=True)
-        all_scores = output.logits.tolist()
-        return all_scores
+        scores = self.model(**batch, return_dict=True).logits.view(-1, ).float()
+        scores = torch.sigmoid(scores)
+        return scores
 
 
 async def static_batching_infer(service_type: Enum, batch: list[dict]):
@@ -182,8 +141,8 @@ async def embedding(
     input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
 ) -> Union[EmbedDoc, EmbeddingResponse, ChatCompletionRequest]:
 
-    if logflag:
-        logger.info(input)
+    # if logflag:
+    #     logger.info(input)
     # Create a future for this specific request
     response_future = asyncio.get_event_loop().create_future()
 
@@ -212,8 +171,8 @@ async def embedding(
 )
 async def reranking(input: SearchedDoc) -> LLMParamsDoc:
 
-    if logflag:
-        logger.info(input)
+    # if logflag:
+    #     logger.info(input)
     # Create a future for this specific request
     response_future = asyncio.get_event_loop().create_future()
 
