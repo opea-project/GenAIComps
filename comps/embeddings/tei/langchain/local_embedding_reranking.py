@@ -10,6 +10,8 @@ from typing import Union
 import torch
 from habana_frameworks.torch.hpu import wrap_in_hpu_graph
 from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+from sentence_transformers.models import Pooling
+
 from transformers import AutoModel, AutoModelForSequenceClassification, AutoTokenizer
 
 from comps import (
@@ -47,16 +49,26 @@ class EmbeddingModel:
         if device == torch.device("hpu"):
             adapt_transformers_to_gaudi()
         model = AutoModel.from_pretrained(model_path, trust_remote_code=trust_remote).to(dtype).to(device)
-        self.model = model
         if device == torch.device("hpu"):
             logger.info("Use graph mode for HPU")
             model = wrap_in_hpu_graph(model, disable_tensor_cache=True)
+        self.hidden_size = model.config.hidden_size
+        self.pooling = Pooling(self.hidden_size, pooling_mode='cls')
+        self.model = model
 
     def embed(self, batch):
         output = self.model(**batch)
-        sentence_embeddings = output[0][:, 0]
-        sentence_embeddings = torch.nn.functional.normalize(sentence_embeddings, p=2, dim=1)
-        return sentence_embeddings
+        # sentence_embeddings = output[0][:, 0]
+        # sentence_embeddings = torch.nn.functional.normalize(sentence_embeddings, p=2, dim=1)
+        pooling_features = {
+            "token_embeddings": output[0],
+            "attention_mask": batch.attention_mask,
+        }
+        embedding = self.pooling.forward(pooling_features)["sentence_embedding"]
+        ## normalize
+        embedding = torch.nn.functional.normalize(embedding, p=2, dim=1)
+        cpu_results = embedding.reshape(-1).tolist()
+        return [cpu_results[i * self.hidden_size : (i + 1) * self.hidden_size] for i in range(len(batch.input_ids))]
 
 
 class RerankingModel:
