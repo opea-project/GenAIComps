@@ -11,7 +11,6 @@ import torch
 from habana_frameworks.torch.hpu import wrap_in_hpu_graph
 from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
 from sentence_transformers.models import Pooling
-
 from transformers import AutoModel, AutoModelForSequenceClassification, AutoTokenizer
 
 from comps import (
@@ -24,11 +23,7 @@ from comps import (
     opea_microservices,
     register_microservice,
 )
-from comps.cores.proto.api_protocol import (
-    ChatCompletionRequest,
-    EmbeddingRequest,
-    EmbeddingResponse,
-)
+from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingRequest, EmbeddingResponse
 
 logger = CustomLogger("local_embedding_reranking")
 logflag = os.getenv("LOGFLAG", False)
@@ -53,7 +48,7 @@ class EmbeddingModel:
             logger.info("Use graph mode for HPU")
             model = wrap_in_hpu_graph(model, disable_tensor_cache=True)
         self.hidden_size = model.config.hidden_size
-        self.pooling = Pooling(self.hidden_size, pooling_mode='cls')
+        self.pooling = Pooling(self.hidden_size, pooling_mode="cls")
         self.model = model
 
     def embed(self, batch):
@@ -85,7 +80,13 @@ class RerankingModel:
         self.model = model
 
     def predict(self, batch):
-        scores = self.model(**batch, return_dict=True).logits.view(-1, ).float()
+        scores = (
+            self.model(**batch, return_dict=True)
+            .logits.view(
+                -1,
+            )
+            .float()
+        )
         scores = torch.sigmoid(scores)
         return scores
 
@@ -98,9 +99,12 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
         # TODO PADDING TO (MAX_BS, MAX_LEN) padding="max_length" max_length=128
         sentences = [req["request"].text for req in batch]
         with torch.no_grad():
-            encoded_input = embedding_tokenizer(sentences, padding=True, truncation=True, return_tensors="pt",).to(
-                device="hpu"
-            )
+            encoded_input = embedding_tokenizer(
+                sentences,
+                padding=True,
+                truncation=True,
+                return_tensors="pt",
+            ).to(device="hpu")
             # with torch.autocast("hpu", dtype=torch.bfloat16):
             results = embedding_model.embed(encoded_input)
 
@@ -115,9 +119,12 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
                 pairs.append([req["request"].initial_query, req["request"].retrieved_docs[idx].text])
 
         with torch.no_grad():
-            inputs = reranking_tokenizer(pairs, padding=True, truncation=True, return_tensors="pt",).to(
-                "hpu"
-            )
+            inputs = reranking_tokenizer(
+                pairs,
+                padding=True,
+                truncation=True,
+                return_tensors="pt",
+            ).to("hpu")
             scores = reranking_model.predict(inputs)
 
         # reduce each query's best related doc
