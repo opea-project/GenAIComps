@@ -144,17 +144,17 @@ bash ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/vllm/ray/dependency/buil
 
 # Initiate the backend
 docker run \
-  --name="vllm-ray-service"   \
-  --runtime=habana   \
-  -v $DATA_DIR:/data   \
-  -e HABANA_VISIBLE_DEVICES=all   \
-  -e OMPI_MCA_btl_vader_single_copy_mechanism=none   \
-  --cap-add=sys_nice   \
-  --ipc=host   \
-  -p 8006:8000   \
-  -e HF_TOKEN=$HF_TOKEN   \
-  opea/vllm_ray:habana   \
-  /bin/bash -c "\
+  --name="vllm-ray-service" \
+  --runtime=habana \
+  -v $DATA_DIR:/data \
+  -e HABANA_VISIBLE_DEVICES=all \
+  -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
+  --cap-add=sys_nice \
+  --ipc=host \
+  -p 8006:8000 \
+  -e HF_TOKEN=$HF_TOKEN \
+  opea/vllm_ray:habana \
+  /bin/bash -c " \
     ray start --head && \
     python vllm_ray_openai.py \
     --port_number 8000 \
