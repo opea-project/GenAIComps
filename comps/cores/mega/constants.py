@@ -31,6 +31,7 @@ class ServiceType(Enum):
     WEB_RETRIEVER = 14
     IMAGE2VIDEO = 15
     TEXT2IMAGE = 16
+    ANIMATION = 17
 
 
 class MegaServiceEndpoint(Enum):

@@ -12,23 +12,22 @@ import io
 import os
 from glob import glob
 
-# wav2lip
 from os import listdir, path
-
 import cv2
-
-# habana
-import habana_frameworks.torch.core as htcore
-import habana_frameworks.torch.hpu as hthpu
 import numpy as np
 import scipy
 import soundfile as sf
 import torch
+
+# wav2lip
 import Wav2Lip.audio as audio
 import Wav2Lip.face_detection as face_detection
 
+# habana
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch.hpu as hthpu
+
 # gfpgan
-from basicsr.utils import imwrite
 from gfpgan import GFPGANer
 from tqdm import tqdm
 from Wav2Lip.models import Wav2Lip
@@ -38,13 +37,14 @@ def get_args():
     parser = argparse.ArgumentParser(description="Inference code to lip-sync videos in the wild using Wav2Lip models")
     # General config
     parser.add_argument("--device", type=str, choices=["hpu", "cpu", "cuda"], default="cpu")
+    parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int, default=7860)
     parser.add_argument(
         "--inference_mode",
         type=str,
-        choices=["wav2clip_only", "wav2clip+gfpgan"],
-        default="wav2clip+gfpgan",
-        help="whether to use just wav2clip or include gfpgan",
+        choices=["wav2lip_only", "wav2lip+gfpgan"],
+        default="wav2lip+gfpgan",
+        help="whether to use just wav2lip or include gfpgan",
     )
     # Wav2Lip config
     parser.add_argument(
@@ -273,7 +273,7 @@ def _load(args):
 def load_model(args):
     model = Wav2Lip()
     print("Load checkpoint from: {}".format(args.checkpoint_path))
-    checkpoint = _load(args.checkpoint_path)
+    checkpoint = _load(args)
     s = checkpoint["state_dict"]
     new_s = {}
     for k, v in s.items():
@@ -342,11 +342,7 @@ def load_gfpgan(args, bg_upsampler):
         device=args.device,
     )
 
-    # torch.compile
-    # restorer.face_helper.face_det = torch.compile(restorer.face_helper.face_det, backend="hpu_backend")
-    # restorer.face_helper.face_parse = torch.compile(restorer.face_helper.face_parse, backend="hpu_backend")
-    # restorer.gfpgan = torch.compile(restorer.gfpgan, backend="hpu_backend") # some compilation issue
-    # print("Model GFPGAN and face helper compiled")
+    # Optional: torch.compile
 
     return restorer
 

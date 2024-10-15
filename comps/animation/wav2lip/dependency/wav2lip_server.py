@@ -5,70 +5,35 @@
 # Copyright (c) 2012, Anaconda, Inc. All rights reserved.
 
 import os
-import pathlib
-import platform
-import subprocess
-import time
-
 import cv2
 import ffmpeg
 import numpy as np
 
+# FastAPI
+import uvicorn
+from fastapi import FastAPI, Request
+from fastapi.responses import Response
+
 # Wav2Lip-GFPGAN
-import requests
 import Wav2Lip.audio as audio
-import Wav2Lip.face_detection as face_detection
-from basicsr.utils import imwrite
-from gfpgan import GFPGANer
-from Wav2Lip.models import Wav2Lip
-
-cur_path = pathlib.Path(__file__).parent.resolve()
-comps_path = os.path.join(cur_path, "../")
-
-# Habana
-import habana_frameworks.torch.core as htcore
-import habana_frameworks.torch.hpu as hthpu
 from utils import *
 
-# GenAIComps
-from comps import (
-    AnimationDoc,
-    Base64ByteStrDoc,
-    ServiceType,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
-)
 
-args = get_args()
-print("args: ", args)
+app = FastAPI()
+model = None
 
-# Specify device
-if args.device == "hpu" and hthpu.is_available():
-    device = "hpu"
-elif args.device == "cuda":
-    device = "cuda"
-elif args.device == "cpu":
-    device = "cpu"
-else:
-    device = "cpu"
-    print("Invalid device argument, fall back to cpu")
-print("Using {} for inference.".format(device))
+@app.get("/v1/health")
+async def health() -> Response:
+    """Health check."""
+    return Response(status_code=200)
 
+@app.post("/v1/wav2lip")
+async def animate(request: Request):
+    print("Animation generation begins.")
 
-# Register the microservice
-@register_microservice(
-    name="opea_service@animation",
-    service_type=ServiceType.ANIMATION,
-    endpoint="/v1/animation",
-    host="0.0.0.0",
-    port=args.port,
-    input_datatype=Base64ByteStrDoc,
-)
-@register_statistics(names=["opea_service@animation"])
-def animate(input: Base64ByteStrDoc):
-    start = time.time()
+    # Wait for request
+    request_dict = await request.json()
+    audio_b64_str = request_dict.pop("audio")
 
     if not os.path.exists("inputs"):
         os.makedirs("inputs")
@@ -77,7 +42,6 @@ def animate(input: Base64ByteStrDoc):
     if not os.path.exists("outputs"):
         os.makedirs("outputs")
 
-    print(args.face, args.audio)
     if not os.path.isfile(args.face):
         raise ValueError("--face argument must be a valid path to video/image file")
     elif args.face.split(".")[-1] in ["jpg", "jpeg", "png"]:
@@ -118,7 +82,7 @@ def animate(input: Base64ByteStrDoc):
             ffmpeg.input(args.audio).output("temp/temp.wav", strict="-2").run(overwrite_output=True)
             args.audio = "temp/temp.wav"
     else:
-        sr, y = base64_to_int16_to_wav(input.byte_str, "temp/temp.wav")
+        sr, y = base64_to_int16_to_wav(audio_b64_str, "temp/temp.wav")
         args.audio = "temp/temp.wav"
 
     wav = audio.load_wav(args.audio, 16000)
@@ -128,7 +92,6 @@ def animate(input: Base64ByteStrDoc):
         raise ValueError("Mel contains nan! Using a TTS voice? Add a small epsilon noise to the wav file and try again")
 
     # one single video frame corresponds to 80/25*0.01 = 0.032 seconds (or 32 milliseconds) of audio
-    # 30 fps video will match closer to audio, than 25 fps
     mel_chunks = []
     mel_idx_multiplier = 80.0 / fps
     i = 0
@@ -152,30 +115,8 @@ def animate(input: Base64ByteStrDoc):
         tqdm(gen, total=int(np.ceil(float(len(mel_chunks)) / batch_size)))
     ):
         if i == 0:
-            # load Wav2Lip model
-            model = load_model(args)
-            print("Wav2Lip Model loaded")
-
-            # load BG sampler if needed
-            if args.inference_mode == "wav2clip+gfpgan" and args.bg_upsampler == "realesrgan":
-                model_bg_upsampler = load_bg_upsampler(args)
-                print("Model BG Sampler loaded")
-            # model_bg_upsampler = torch.compile(model_bg_upsampler, backend="hpu_backend")
-            # print("Model BG Sampler compiled")
-            else:
-                model_bg_upsampler = None
-                print("Model BG Sampler not loaded")
-
-            # load GFPGAN model if needed
-            if args.inference_mode == "wav2clip+gfpgan":
-                model_restorer = load_gfpgan(args, model_bg_upsampler)
-                print("Model GFPGAN and face helper loaded")
-            else:
-                model_restorer = None
-                print("Model GFPGAN not loaded")
-
             frame_h, frame_w = full_frames[0].shape[:-1]
-            if args.inference_mode == "wav2clip_only":
+            if args.inference_mode == "wav2lip_only":
                 out = cv2.VideoWriter("temp/result.avi", cv2.VideoWriter_fourcc(*"DIVX"), fps, (frame_w, frame_h))
             else:
                 out = cv2.VideoWriter(
@@ -199,17 +140,12 @@ def animate(input: Base64ByteStrDoc):
             f[y1:y2, x1:x2] = p  # patching
 
             # restore faces and background if necessary
-            if args.inference_mode == "wav2clip+gfpgan":
+            if args.inference_mode == "wav2lip+gfpgan":
                 cropped_faces, restored_faces, f = model_restorer.enhance(
                     f, has_aligned=args.aligned, only_center_face=args.only_center_face, paste_back=True
                 )
             out.write(f)
     out.release()
-
-    # command = "ffmpeg -y -i {} -i {} -strict -2 -c:v libx264 -crf 23 -preset medium -c:a aac {}".format(
-    #     args.audio, "temp/result.avi", args.outfile
-    # )
-    # subprocess.call(command, shell=platform.system() != "Windows")
 
     ffmpeg.output(
         ffmpeg.input(args.audio),
@@ -222,11 +158,46 @@ def animate(input: Base64ByteStrDoc):
         acodec="aac",
     ).run(overwrite_output=True)
 
-    statistics_dict["opea_service@animation"].append_latency(time.time() - start, None)
-    # return_str = f"Video generated successfully, check {args.outfile} for the result."
-    return AnimationDoc(video_save_path=args.outfile)
+    return {"wav2lip_result": args.outfile}
 
 
 if __name__ == "__main__":
-    print("Animation initialized.")
-    opea_microservices["opea_service@animation"].start()
+    # Load arguments
+    args = get_args()
+    print("args: ", args)
+
+    # Specify device
+    # Habana
+    import habana_frameworks.torch.hpu as hthpu
+    if args.device == "hpu" and hthpu.is_available():
+        device = "hpu"
+    elif args.device == "cuda":
+        device = "cuda"
+    elif args.device == "cpu":
+        device = "cpu"
+    else:
+        device = "cpu"
+        print("Invalid device argument, fall back to cpu")
+    print("Using {} for inference.".format(device))
+
+    # Load Wav2Lip, BG sampler, GFPGAN models
+    model = load_model(args)
+    print("Wav2Lip Model loaded")
+
+    if args.inference_mode == "wav2lip+gfpgan" and args.bg_upsampler == "realesrgan":
+        model_bg_upsampler = load_bg_upsampler(args)
+        print("Model BG Sampler loaded")
+    else:
+        model_bg_upsampler = None
+        print("Model BG Sampler not loaded")
+
+    # load GFPGAN model if needed
+    if args.inference_mode == "wav2lip+gfpgan":
+        model_restorer = load_gfpgan(args, model_bg_upsampler)
+        print("Model GFPGAN and face helper loaded")
+    else:
+        model_restorer = None
+        print("Model GFPGAN not loaded")
+
+    # Run FastAPI
+    uvicorn.run(app, host=args.host, port=args.port)

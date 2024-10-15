@@ -7,7 +7,7 @@ import os
 import requests
 
 ip_address = os.environ.get("ip_address")
-endpoint = f"http://{ip_address}:7860/v1/animation"
+endpoint = f"http://{ip_address}:9066/v1/animation"
 outfile = os.environ.get("OUTFILE")
 
 # Read the JSON file

@@ -11,13 +11,15 @@ ENV PYTHON=/usr/bin/python3.10
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     yasm \
     libx264-dev
+RUN apt-get install -y nasm
+RUN rm -rf /var/lib/apt/lists/*
 
 # TO-DO: Add a user for security
 
 # Install GenAIComps
 RUN mkdir -p /home/user/comps
 COPY comps /home/user/comps
-COPY comps/animation/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY comps/animation/dependency/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Install ppmpeg with x264 software codec
 RUN git clone https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/FFmpeg
@@ -27,17 +29,6 @@ RUN ./configure --enable-gpl --enable-libx264 && \
     make install && \
     hash -r
 RUN chmod +x $(which ffmpeg)
-
-# # Install Wav2Lip-GFPGAN from github
-# RUN git clone https://github.com/ajay-sainy/Wav2Lip-GFPGAN.git /home/user/comps/animation/src
-# # Rename subfolders "Wav2Lip" and "GFPGAN"
-# RUN mv /home/user/comps/animation/src/Wav2Lip-master /home/user/comps/animation/src/Wav2Lip && \
-#     mv /home/user/comps/animation/src/GFPGAN-master /home/user/comps/animation/src/GFPGAN
-
-# # Set the PYTHONPATH environment variable
-# RUN touch /home/user/comps/animation/src/Wav2Lip/__init__.py
-# RUN touch /home/user/comps/animation/src/GFPGAN/__init__.py
-# ENV PYTHONPATH="/home/user/comps/animation/src:/home/user/comps/animation/src/Wav2Lip:/home/user/comps/animation/src/GFPGAN:$PYTHONPATH"
 
 # Upgrade pip
 RUN python3 -m pip install --upgrade pip

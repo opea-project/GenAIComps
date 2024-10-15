@@ -7,9 +7,9 @@ export PT_HPU_LAZY_MODE=0
 export PT_HPU_ENABLE_REFINE_DYNAMIC_SHAPES=1
 
 # Wav2Lip, GFPGAN
-python3 animation.py \
+python3 dependency/wav2lip_server.py \
 --device $DEVICE \
---port $((ANIMATION_PORT)) \
+--port $((WAV2LIP_PORT)) \
 --inference_mode $INFERENCE_MODE \
 --checkpoint_path $CHECKPOINT_PATH \
 --face $FACE \
