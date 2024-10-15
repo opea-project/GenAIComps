@@ -30,8 +30,8 @@ logger = CustomLogger("local_embedding_reranking")
 logflag = os.getenv("LOGFLAG", False)
 
 # keep it consistent for different routers for now
-STATIC_BATCHING_TIMEOUT = float(os.getenv("STATIC_BATCHING_TIMEOUT", 0.01))
-STATIC_BATCHING_MAX_BATCH_SIZE = int(os.getenv("STATIC_BATCHING_MAX_BATCH_SIZE", 32))
+DYNAMIC_BATCHING_TIMEOUT = float(os.getenv("DYNAMIC_BATCHING_TIMEOUT", 0.01))
+DYNAMIC_BATCHING_MAX_BATCH_SIZE = int(os.getenv("DYNAMIC_BATCHING_MAX_BATCH_SIZE", 32))
 PAD_SEQUENCE_TO_MULTIPLE_OF = int(os.environ.get("PAD_SEQUENCE_TO_MULTIPLE_OF", 128))
 
 
@@ -110,7 +110,7 @@ def pad_batch(inputs: dict, max_input_len: int):
     return inputs
 
 
-async def static_batching_infer(service_type: Enum, batch: list[dict]):
+async def dynamic_batching_infer(service_type: Enum, batch: list[dict]):
     if logflag:
         logger.info(f"{service_type} {len(batch)} request inference begin >>>")
 
@@ -172,9 +172,9 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
     endpoint="/v1/embeddings",
     host="0.0.0.0",
     port=6001,
-    static_batching=True,
-    static_batching_timeout=STATIC_BATCHING_TIMEOUT,
-    static_batching_max_batch_size=STATIC_BATCHING_MAX_BATCH_SIZE,
+    dynamic_batching=True,
+    dynamic_batching_timeout=DYNAMIC_BATCHING_TIMEOUT,
+    dynamic_batching_max_batch_size=DYNAMIC_BATCHING_MAX_BATCH_SIZE,
 )
 async def embedding(
     input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
@@ -186,7 +186,7 @@ async def embedding(
     response_future = asyncio.get_event_loop().create_future()
 
     cur_microservice = opea_microservices["opea_service@local_embedding_reranking"]
-    cur_microservice.static_batching_infer = static_batching_infer
+    cur_microservice.dynamic_batching_infer = dynamic_batching_infer
     async with cur_microservice.buffer_lock:
         cur_microservice.request_buffer[ServiceType.EMBEDDING].append({"request": input, "response": response_future})
 
@@ -204,9 +204,9 @@ async def embedding(
     port=6001,
     input_datatype=SearchedDoc,
     output_datatype=LLMParamsDoc,
-    static_batching=True,
-    static_batching_timeout=STATIC_BATCHING_TIMEOUT,
-    static_batching_max_batch_size=STATIC_BATCHING_MAX_BATCH_SIZE,
+    dynamic_batching=True,
+    dynamic_batching_timeout=DYNAMIC_BATCHING_TIMEOUT,
+    dynamic_batching_max_batch_size=DYNAMIC_BATCHING_MAX_BATCH_SIZE,
 )
 async def reranking(input: SearchedDoc) -> LLMParamsDoc:
 
@@ -216,7 +216,7 @@ async def reranking(input: SearchedDoc) -> LLMParamsDoc:
     response_future = asyncio.get_event_loop().create_future()
 
     cur_microservice = opea_microservices["opea_service@local_embedding_reranking"]
-    cur_microservice.static_batching_infer = static_batching_infer
+    cur_microservice.dynamic_batching_infer = dynamic_batching_infer
     async with cur_microservice.buffer_lock:
         cur_microservice.request_buffer[ServiceType.RERANK].append({"request": input, "response": response_future})
 
