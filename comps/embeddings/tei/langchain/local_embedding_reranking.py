@@ -245,4 +245,4 @@ if __name__ == "__main__":
     #     inputs = reranking_tokenizer(pairs, padding=True, truncation=True, return_tensors='pt', max_length=512).to("hpu")
     #     scores = reranking_model.predict(inputs)
     #     print(scores)
-    opea_microservices["opea_service@local_embedding_reranking"].start()
+    opea_microservices["opea_service@local_embedding_reranking"].start(in_single_process=True)

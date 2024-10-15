@@ -11,7 +11,7 @@ from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
 from .logger import CustomLogger
 from .utils import check_ports_availability
-
+import multiprocessing
 opea_microservices = {}
 
 logger = CustomLogger("micro_service")
@@ -168,12 +168,14 @@ class MicroService:
         self._validate_env()
         self.event_loop.run_until_complete(self._async_run_forever())
 
-    def start(self):
+    def start(self, in_single_process=False):
         self._validate_env()
-        # Resolve HPU segmentation fault and potential tokenizer issues by limiting to same process
-        # self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
-        # self.process.start()
-        self.run()
+        if in_single_process:
+            # Resolve HPU segmentation fault and potential tokenizer issues by limiting to same process
+            self.run()
+        else:
+            self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
+            self.process.start()
 
     async def _async_teardown(self):
         """Shutdown the server."""
