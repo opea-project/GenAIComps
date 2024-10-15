@@ -1,11 +1,11 @@
 # Retriever Microservice with Neo4J
 
 Retrieval assumes a GraphRAGStore exists.
-Retreval follows these steps:
+Retrieval follows these steps:
 -Perform hierarchical_leiden to identify communities in the knowledge graph
 -Performs similarty to find the relevant entities to the input query
 -Generates a community symmary for each community
--Generates an answer to the query for each community summary (this will later be aggregated into a single anwser)
+-Generates an answer to the query for each community summary (this will later be aggregated into a single answer)
 
 ## 🚀Start Microservice with Python
 
@@ -29,6 +29,7 @@ docker run \
     -e NEO4J_PLUGINS=\[\"apoc\"\]  \
     neo4j:latest
 ```
+
 For the retrieval to work assumes the data exists already in the Neo4j GraphPropertyStore. You can use `/comps/data_prep/neo4j/llama-index/extract_graph_neo4j.py` to create the graph using your input documents.
 
 ### Setup Environment Variables

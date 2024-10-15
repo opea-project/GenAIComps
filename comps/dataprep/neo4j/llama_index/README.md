@@ -25,7 +25,6 @@ docker run \
     neo4j:latest
 ```
 
-
 ### Setup Environment Variables
 
 ```bash

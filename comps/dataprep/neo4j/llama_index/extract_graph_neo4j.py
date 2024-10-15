@@ -1,27 +1,34 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+# GraphRAGExtractor dependencies
+import asyncio
 import json
 import os
-from typing import Any, List, Callable, Optional, Union, Dict
 
+# GraphRAGStore dependencies
+import re
+from collections import defaultdict
+from typing import Any, Callable, Dict, List, Optional, Union
+
+import nest_asyncio
+import networkx as nx
 import openai
-from openai import Client
 from config import NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, OPENAI_KEY, TGI_LLM_ENDPOINT
 from fastapi import File, Form, HTTPException, UploadFile
-
-from llama_index.core import Document, PropertyGraphIndex, Settings
-
-from llama_index.core.node_parser import LangchainNodeParser
-from llama_index.llms.text_generation_inference import TextGenerationInference
-from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
-
+from graspologic.partition import hierarchical_leiden
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_text_splitters import HTMLHeaderTextSplitter
-
+from llama_index.core import Document, PropertyGraphIndex, Settings
+from llama_index.core.llms import ChatMessage
+from llama_index.core.node_parser import LangchainNodeParser
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
+from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
+from llama_index.llms.openai import OpenAI
+from llama_index.llms.text_generation_inference import TextGenerationInference
 from neo4j import GraphDatabase
+from openai import Client
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
@@ -33,41 +40,20 @@ from comps.dataprep.utils import (
     save_content_to_local_disk,
 )
 
-#GraphRAGStore dependencies
-import re
-import networkx as nx
-from graspologic.partition import hierarchical_leiden
-from collections import defaultdict
-from llama_index.core.llms import ChatMessage
-from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
-
-#GraphRAGExtractor dependencies
-import asyncio
-import nest_asyncio
-
 nest_asyncio.apply()
 
 from llama_index.core.async_utils import run_jobs
-from llama_index.core.indices.property_graph.utils import (
-    default_parse_triplets_fn,
-)
-from llama_index.core.prompts.default_prompts import (
-    DEFAULT_KG_TRIPLET_EXTRACT_PROMPT,
-)
-from llama_index.core.graph_stores.types import (
-    EntityNode,
-    KG_NODES_KEY,
-    KG_RELATIONS_KEY,
-    Relation,
-)
+from llama_index.core.bridge.pydantic import BaseModel, Field
+from llama_index.core.graph_stores.types import KG_NODES_KEY, KG_RELATIONS_KEY, EntityNode, Relation
+from llama_index.core.indices.property_graph.utils import default_parse_triplets_fn
 from llama_index.core.llms.llm import LLM
 from llama_index.core.prompts import PromptTemplate
-from llama_index.core.schema import TransformComponent, BaseNode
-from llama_index.core.bridge.pydantic import BaseModel, Field
-   
+from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_PROMPT
+from llama_index.core.schema import BaseNode, TransformComponent
+
 
 class GraphRAGStore(Neo4jPropertyGraphStore):
-    #https://github.com/run-llama/llama_index/blob/main/docs/docs/examples/cookbooks/GraphRAG_v2.ipynb
+    # https://github.com/run-llama/llama_index/blob/main/docs/docs/examples/cookbooks/GraphRAG_v2.ipynb
     community_summary = {}
     entity_info = None
     max_cluster_size = 5
@@ -95,12 +81,8 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     def build_communities(self):
         """Builds communities from the graph and summarizes them."""
         nx_graph = self._create_nx_graph()
-        community_hierarchical_clusters = hierarchical_leiden(
-            nx_graph, max_cluster_size=self.max_cluster_size
-        )
-        self.entity_info, community_info = self._collect_community_info(
-            nx_graph, community_hierarchical_clusters
-        )
+        community_hierarchical_clusters = hierarchical_leiden(nx_graph, max_cluster_size=self.max_cluster_size)
+        self.entity_info, community_info = self._collect_community_info(nx_graph, community_hierarchical_clusters)
         self._summarize_communities(community_info)
 
     def _create_nx_graph(self):
@@ -119,10 +101,8 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         return nx_graph
 
     def _collect_community_info(self, nx_graph, clusters):
-        """
-        Collect information for each node based on their community,
-        allowing entities to belong to multiple clusters.
-        """
+        """Collect information for each node based on their community,
+        allowing entities to belong to multiple clusters."""
         entity_info = defaultdict(set)
         community_info = defaultdict(list)
 
@@ -147,12 +127,8 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     def _summarize_communities(self, community_info):
         """Generate and store summaries for each community."""
         for community_id, details in community_info.items():
-            details_text = (
-                "\n".join(details) + "."
-            )  # Ensure it ends with a period
-            self.community_summary[
-                community_id
-            ] = self.generate_community_summary(details_text)
+            details_text = "\n".join(details) + "."  # Ensure it ends with a period
+            self.community_summary[community_id] = self.generate_community_summary(details_text)
 
             # To store summaries in neo4j
             # summary = self.generate_community_summary(details_text)
@@ -163,28 +139,34 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     def store_community_summary_in_neo4j(self, community_id, summary):
         """Store the community summary in Neo4j."""
         with driver.session() as session:
-            session.run("""
+            session.run(
+                """
                 MERGE (c:Community {id: $community_id})
                 SET c.summary = $summary
-            """, community_id=community_id, summary=summary)
+            """,
+                community_id=community_id,
+                summary=summary,
+            )
 
     def get_community_summaries(self):
         """Returns the community summaries, building them if not already done."""
         if not self.community_summary:
             self.build_communities()
         return self.community_summary
-    
+
     def query_community_summaries(self):
         """Query and print community summaries from Neo4j."""
         with driver.session() as session:
-            result = session.run("""
+            result = session.run(
+                """
                 MATCH (c:Community)
                 RETURN c.id AS community_id, c.summary AS summary
-            """)
+            """
+            )
             for record in result:
                 print(f"Community ID: {record['community_id']}")
                 print(f"Community Summary: {record['summary']}")
-    
+
     def query_schema(self):
         """Query and print the schema information from Neo4j."""
         with driver.session() as session:
@@ -201,6 +183,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                         print(f"Relationship Type: {rel_type}")
                         for prop, prop_info in rel_info["properties"].items():
                             print(f"  Property Key: {prop}, Type: {prop_info['type']}")
+
 
 class GraphRAGExtractor(TransformComponent):
     """Extract triples from a graph.
@@ -252,13 +235,9 @@ class GraphRAGExtractor(TransformComponent):
     def class_name(cls) -> str:
         return "GraphExtractor"
 
-    def __call__(
-        self, nodes: List[BaseNode], show_progress: bool = False, **kwargs: Any
-    ) -> List[BaseNode]:
+    def __call__(self, nodes: List[BaseNode], show_progress: bool = False, **kwargs: Any) -> List[BaseNode]:
         """Extract triples from nodes."""
-        return asyncio.run(
-            self.acall(nodes, show_progress=show_progress, **kwargs)
-        )
+        return asyncio.run(self.acall(nodes, show_progress=show_progress, **kwargs))
 
     async def _aextract(self, node: BaseNode) -> BaseNode:
         """Extract triples from a node."""
@@ -281,9 +260,7 @@ class GraphRAGExtractor(TransformComponent):
         entity_metadata = node.metadata.copy()
         for entity, entity_type, description in entities:
             entity_metadata["entity_description"] = description
-            entity_node = EntityNode(
-                name=entity, label=entity_type, properties=entity_metadata
-            )
+            entity_node = EntityNode(name=entity, label=entity_type, properties=entity_metadata)
             existing_nodes.append(entity_node)
 
         relation_metadata = node.metadata.copy()
@@ -303,9 +280,7 @@ class GraphRAGExtractor(TransformComponent):
         node.metadata[KG_RELATIONS_KEY] = existing_relations
         return node
 
-    async def acall(
-        self, nodes: List[BaseNode], show_progress: bool = False, **kwargs: Any
-    ) -> List[BaseNode]:
+    async def acall(self, nodes: List[BaseNode], show_progress: bool = False, **kwargs: Any) -> List[BaseNode]:
         """Extract triples from nodes async."""
         jobs = []
         for node in nodes:
@@ -350,6 +325,7 @@ output:"""
 entity_pattern = r'\("entity"\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\)'
 relationship_pattern = r'\("relationship"\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\)'
 
+
 def inspect_db():
     try:
         with driver.session() as session:
@@ -372,11 +348,12 @@ def inspect_db():
     finally:
         driver.close()
 
+
 def parse_fn(response_str: str) -> Any:
     entities = re.findall(entity_pattern, response_str)
     relationships = re.findall(relationship_pattern, response_str)
     if logflag:
-        logger.info(f"len of parsed entites: {len(entities)} and relationships: {len(relationships)}")
+        logger.info(f"len of parsed entities: {len(entities)} and relationships: {len(relationships)}")
     return entities, relationships
 
 
@@ -385,7 +362,8 @@ logflag = os.getenv("LOGFLAG", False)
 
 upload_folder = "./uploaded_files/"
 driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
-client= OpenAI()
+client = OpenAI()
+
 
 def ingest_data_to_neo4j(doc_path: DocPath):
     """Ingest document to Neo4J."""
@@ -408,24 +386,24 @@ def ingest_data_to_neo4j(doc_path: DocPath):
             separators=get_separators(),
         )
 
-    content = document_loader(path) #single doc string
+    content = document_loader(path)  # single doc string
     document = Document(text=content)
 
     structured_types = [".xlsx", ".csv", ".json", "jsonl"]
     _, ext = os.path.splitext(path)
 
-    #create llama-index nodes (chunks)
+    # create llama-index nodes (chunks)
     if ext in structured_types:
         nodes = [document]
     else:
-        parser = LangchainNodeParser(text_splitter) #wrap text splitting from langchain w node parser
+        parser = LangchainNodeParser(text_splitter)  # wrap text splitting from langchain w node parser
         nodes = parser.get_nodes_from_documents([document])
 
     if doc_path.process_table and path.endswith(".pdf"):
-        table_chunks = get_tables_result(path, doc_path.table_strategy) #list of text
+        table_chunks = get_tables_result(path, doc_path.table_strategy)  # list of text
         if table_chunks:
-            table_docs = [ Document(text=chunk) for chunk in table_chunks ]
-            nodes=nodes + table_docs
+            table_docs = [Document(text=chunk) for chunk in table_chunks]
+            nodes = nodes + table_docs
             if logflag:
                 logger.info(f"extract tables nodes: len of table_docs  {len(table_docs)}")
 
@@ -445,34 +423,28 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     else:
         llm = TextGenerationInference(
             model_url=TGI_LLM_ENDPOINT,
-            #model_name="meta-llama/Meta-Llama-3-8B-Instruct",
+            # model_name="meta-llama/Meta-Llama-3-8B-Instruct",
             temperature=0.7,
-            max_tokens=512, #5192 otherwise too shor
-            #is_chat_model=False,
+            max_tokens=512,  # 5192 otherwise too shor
+            # is_chat_model=False,
         )
-    
+
     kg_extractor = GraphRAGExtractor(
         llm=llm,
         extract_prompt=KG_TRIPLET_EXTRACT_TMPL,
         max_paths_per_chunk=2,
         parse_fn=parse_fn,
     )
-    
-    graph_store = GraphRAGStore(
-        username="neo4j", password="neo4jtest", url="bolt://10.165.9.52:7687"
-    )
 
-    Settings.embed_model = OpenAIEmbedding(
-        model="text-embedding-3-small", embed_batch_size=100
-    )
+    graph_store = GraphRAGStore(username="neo4j", password="neo4jtest", url="bolt://10.165.9.52:7687")
+
+    Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
 
     if OPENAI_KEY:
         logger.info("OpenAI API Key is set. Verifying its validity...")
         openai.api_key = OPENAI_KEY
         try:
-            embed_model = OpenAIEmbedding(
-                model="text-embedding-3-small", embed_batch_size=100
-            )
+            embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
             logger.info("OpenAI API Key is valid.")
         except openai.AuthenticationError:
             logger.info("OpenAI API Key is invalid.")
@@ -485,27 +457,26 @@ def ingest_data_to_neo4j(doc_path: DocPath):
             timeout=60,  # timeout in seconds
             embed_batch_size=10,  # batch size for embedding
         )
-    #nodes are the chunked docs to insert
+    # nodes are the chunked docs to insert
     index = PropertyGraphIndex(
         nodes=nodes,
         llm=llm,
         kg_extractors=[kg_extractor],
         property_graph_store=graph_store,
-        embed_model=embed_model, 
+        embed_model=embed_model,
         show_progress=True,
     )
-    #inspect_db()
+    # inspect_db()
     if logflag:
         logger.info(f"total number of triplets {len(index.property_graph_store.get_triplets())}")
-    
+
     # index.property_graph_store.build_communities()
-    # print("done bulding communities")
+    # print("done building communities")
 
     if logflag:
         logger.info("The graph is built.")
 
     return True
-
 
 
 @register_microservice(

@@ -2,11 +2,11 @@ docarray[full]
 fastapi
 frontend
 huggingface_hub
-llama_index_graph_stores_neo4j
 llama-index-core
+llama-index-embeddings-text-embeddings-inference
 llama-index-llms-openai
 llama-index-llms-text-generation-inference
-llama-index-embeddings-text-embeddings-inference
+llama_index_graph_stores_neo4j
 neo4j
 numpy
 opentelemetry-api
