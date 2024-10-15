@@ -4,24 +4,27 @@
 # Copyright 1999-2003 The OpenLDAP Foundation, Redwood City, California, USA.  All Rights Reserved.
 # Copyright (c) 2012, Anaconda, Inc. All rights reserved.
 
+import json
 import os
 import time
-import json
+
 import requests
 
 # GenAIComps
 from comps import CustomLogger
+
 logger = CustomLogger("animation")
 logflag = os.getenv("LOGFLAG", False)
 from comps import (
     Base64ByteStrDoc,
-    VideoPath,
     ServiceType,
+    VideoPath,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
+
 
 # Register the microservice
 @register_microservice(

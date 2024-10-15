@@ -11,9 +11,13 @@ import base64
 import io
 import os
 from glob import glob
-
 from os import listdir, path
+
 import cv2
+
+# habana
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch.hpu as hthpu
 import numpy as np
 import scipy
 import soundfile as sf
@@ -22,10 +26,6 @@ import torch
 # wav2lip
 import Wav2Lip.audio as audio
 import Wav2Lip.face_detection as face_detection
-
-# habana
-import habana_frameworks.torch.core as htcore
-import habana_frameworks.torch.hpu as hthpu
 
 # gfpgan
 from gfpgan import GFPGANer

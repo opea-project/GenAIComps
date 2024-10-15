@@ -5,27 +5,29 @@
 # Copyright (c) 2012, Anaconda, Inc. All rights reserved.
 
 import os
+
 import cv2
 import ffmpeg
 import numpy as np
 
 # FastAPI
 import uvicorn
-from fastapi import FastAPI, Request
-from fastapi.responses import Response
 
 # Wav2Lip-GFPGAN
 import Wav2Lip.audio as audio
+from fastapi import FastAPI, Request
+from fastapi.responses import Response
 from utils import *
-
 
 app = FastAPI()
 model = None
+
 
 @app.get("/v1/health")
 async def health() -> Response:
     """Health check."""
     return Response(status_code=200)
+
 
 @app.post("/v1/wav2lip")
 async def animate(request: Request):
@@ -169,6 +171,7 @@ if __name__ == "__main__":
     # Specify device
     # Habana
     import habana_frameworks.torch.hpu as hthpu
+
     if args.device == "hpu" and hthpu.is_available():
         device = "hpu"
     elif args.device == "cuda":

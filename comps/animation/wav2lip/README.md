@@ -26,6 +26,7 @@ docker build -t opea/wav2lip-gaudi:latest -f comps/animation/dependency/Dockerfi
 ```
 
 ### 1.1.2 Animation server image
+
 ```bash
 docker build -t opea/animation:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/animation/wav2lip/Dockerfile .
 ```
@@ -51,7 +52,9 @@ export FPS=10
 ```
 
 # 🚀2. Run the Docker container
+
 ## 2.1 Run Wav2Lip Microservice
+
 - Xeon CPU
 
 ```bash
@@ -65,6 +68,7 @@ docker run --privileged -d --runtime=habana --cap-add=sys_nice --net=host --ipc=
 ```
 
 ## 2.2 Run Animation Microservice
+
 ```bash
 docker run -d -p 9066:9066 --ipc=host --name "animation-service" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e WAV2LIP_ENDPOINT=http://$ip_address:7860 opea/animation:latest
 ```
