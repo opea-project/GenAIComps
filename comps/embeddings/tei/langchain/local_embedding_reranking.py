@@ -6,6 +6,7 @@ import os
 from enum import Enum
 from pathlib import Path
 from typing import Union
+import math
 
 import torch
 from habana_frameworks.torch.hpu import wrap_in_hpu_graph
@@ -31,7 +32,10 @@ logflag = os.getenv("LOGFLAG", False)
 # keep it consistent for different routers for now
 STATIC_BATCHING_TIMEOUT = float(os.getenv("STATIC_BATCHING_TIMEOUT", 0.01))
 STATIC_BATCHING_MAX_BATCH_SIZE = int(os.getenv("STATIC_BATCHING_MAX_BATCH_SIZE", 32))
+PAD_SEQUENCE_TO_MULTIPLE_OF = int(os.environ.get("PAD_SEQUENCE_TO_MULTIPLE_OF", 128))
 
+def round_up(number, k):
+    return (number + k - 1) // k * k
 
 class EmbeddingModel:
     def __init__(
@@ -90,14 +94,24 @@ class RerankingModel:
         scores = torch.sigmoid(scores)
         return scores
 
+def pad_batch(inputs: dict, max_input_len: int):
+    # pad seq_len to MULTIPLE OF, pad bs
+    batch_size, concrete_length = inputs['input_ids'].size()[0], inputs['input_ids'].size()[1]
+    max_length = round_up(concrete_length, PAD_SEQUENCE_TO_MULTIPLE_OF)
+    max_length = min(max_length, max_input_len) # should not exceed max input len
+    new_bs = 2 ** math.ceil(math.log2(batch_size))
+    for x in inputs:
+        inputs[x] = torch.nn.functional.pad(inputs[x], (0, max_length-concrete_length, 0, new_bs-batch_size), value=0)
+    return inputs
+
 
 async def static_batching_infer(service_type: Enum, batch: list[dict]):
     if logflag:
         logger.info(f"{service_type} {len(batch)} request inference begin >>>")
 
     if service_type == ServiceType.EMBEDDING:
-        # TODO PADDING TO (MAX_BS, MAX_LEN) padding="max_length" max_length=128
         sentences = [req["request"].text for req in batch]
+
         with torch.no_grad():
             encoded_input = embedding_tokenizer(
                 sentences,
@@ -105,6 +119,7 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
                 truncation=True,
                 return_tensors="pt",
             ).to(device="hpu")
+            encoded_input = pad_batch(encoded_input, embedding_tokenizer.model_max_length)
             # with torch.autocast("hpu", dtype=torch.bfloat16):
             results = embedding_model.embed(encoded_input)
 
@@ -125,6 +140,7 @@ async def static_batching_infer(service_type: Enum, batch: list[dict]):
                 truncation=True,
                 return_tensors="pt",
             ).to("hpu")
+            inputs = pad_batch(inputs, reranking_tokenizer.model_max_length)
             scores = reranking_model.predict(inputs)
 
         # reduce each query's best related doc
