@@ -18,7 +18,9 @@ class TopologyInfo:
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str = None
-
+    
+class Audio2text(BaseDoc, TopologyInfo):
+    query: str = None
 
 class FactualityDoc(BaseDoc):
     reference: str

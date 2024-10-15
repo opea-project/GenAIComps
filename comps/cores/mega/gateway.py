@@ -345,47 +345,181 @@ class TranslationGateway(Gateway):
 class DocSumGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(
-            megaservice, host, port, str(MegaServiceEndpoint.DOC_SUMMARY), ChatCompletionRequest, ChatCompletionResponse
+            megaservice, 
+            host, 
+            port=port, 
+            endpoint=str(MegaServiceEndpoint.DOC_SUMMARY), 
+            input_datatype=ChatCompletionRequest, 
+            output_datatype=ChatCompletionResponse,
+            # AudioChatCompletionRequest
         )
+
+        # port=8888,
+        # endpoint=str(MegaServiceEndpoint.CHAT_QNA),
+        # input_datatype=ChatCompletionRequest,
+        # output_datatype=ChatCompletionResponse,
+
 
     async def handle_request(self, request: Request):
         data = await request.json()
-        stream_opt = data.get("stream", True)
-        chat_request = ChatCompletionRequest.parse_obj(data)
-        prompt = self._handle_message(chat_request.messages)
-        parameters = LLMParams(
-            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
-            top_k=chat_request.top_k if chat_request.top_k else 10,
-            top_p=chat_request.top_p if chat_request.top_p else 0.95,
-            temperature=chat_request.temperature if chat_request.temperature else 0.01,
-            frequency_penalty=chat_request.frequency_penalty if chat_request.frequency_penalty else 0.0,
-            presence_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 0.0,
-            repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
-            streaming=stream_opt,
-        )
-        result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={"query": prompt}, llm_parameters=parameters
-        )
-        for node, response in result_dict.items():
-            # Here it suppose the last microservice in the megaservice is LLM.
-            if (
-                isinstance(response, StreamingResponse)
-                and node == list(self.megaservice.services.keys())[-1]
-                and self.megaservice.services[node].service_type == ServiceType.LLM
-            ):
-                return response
-        last_node = runtime_graph.all_leaves()[-1]
-        response = result_dict[last_node]["text"]
-        choices = []
-        usage = UsageInfo()
-        choices.append(
-            ChatCompletionResponseChoice(
-                index=0,
-                message=ChatMessage(role="assistant", content=response),
-                finish_reason="stop",
+        # stream_opt = data.get("stream", True)
+        # chat_request = ChatCompletionRequest.parse_obj(data)
+
+        if "video" in data.keys():
+            print("================> video:" )
+            return "video"
+        
+        if "audio" in data.keys():
+            # prompt = self._handle_message(chat_request.audio)
+            print("================> audio:" )
+            # print("====================================")
+            # print("|====>>> data['audio']:", data['audio'])
+            # print("====================================")
+            # print("|====>>> istance:", isinstance(data['audio'], str) , isinstance(data, dict)  ) 
+            # print("====================================")
+            
+            
+            self.endpoint = str(MegaServiceEndpoint.AUDIO_QNA)
+            self.input_datatype = AudioChatCompletionRequest
+            self.output_datatype = ChatCompletionResponse
+
+            chat_request = AudioChatCompletionRequest.parse_obj(data)
+            parameters = LLMParams(
+                # relatively lower max_tokens for audio conversation
+                max_tokens=chat_request.max_tokens if chat_request.max_tokens else 128,
+                top_k=chat_request.top_k if chat_request.top_k else 10,
+                top_p=chat_request.top_p if chat_request.top_p else 0.95,
+                temperature=chat_request.temperature if chat_request.temperature else 0.01,
+                frequency_penalty=chat_request.frequency_penalty if chat_request.frequency_penalty else 0.0,
+                presence_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 0.0,
+                repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
+                # streaming=False,  # TODO add streaming LLM output as input to TTS
+                streaming=True,  # TODO add streaming LLM output as input to TTS
             )
-        )
-        return ChatCompletionResponse(model="docsum", choices=choices, usage=usage)
+                        
+            # print("|====>>> chat_request.audio:", chat_request.audio )
+            
+            # # import pdb; pdb.set_trace()
+            
+            # # TODO: try it with the following code
+            # import json
+            # endpoint = "http://localhost:9099/v1/audio/transcriptions"
+            # # endpoint = "http://10.45.77.241:3001/v1/audio/transcriptions"
+            # # # inputs = {"byte_str": test_audio_base64_str}
+            # inputs = {"byte_str": chat_request.audio}
+            
+            # # print("====================================")
+            # # print(endpoint, inputs)
+                        
+            # response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None})
+            
+            # print("====================================")
+            # print("response.json() ===>:", response.json())
+            # print("====================================")
+
+            result_dict, runtime_graph = await self.megaservice.schedule(
+                initial_inputs={"byte_str": chat_request.audio}, llm_parameters=parameters
+            )
+            
+            print("====================================")
+            print("result_dict ===>:", result_dict)
+            print("====================================")
+
+            # # last_node = runtime_graph.all_leaves()[-1]
+            # # response = result_dict[last_node]["byte_str"]
+            
+            # # print("|====>>> chat_request:", chat_request)
+            # print("====================================")
+            
+            # parameters = LLMParams()
+                        
+            # result_dict, runtime_graph = await self.megaservice.schedule(
+            #     initial_inputs={"byte_str": data['audio'] }, llm_parameters=parameters
+            # )
+            
+            # response = result_dict[last_node]["byte_str"]
+
+            # return response
+            
+            print("result_dict['llm/MicroService'] ===>:", result_dict['llm/MicroService'] )
+            print("====================================")
+            
+            last_node = runtime_graph.all_leaves()[-1]
+            print("last_node ===>:", last_node)
+            print("====================================")
+            
+            response = result_dict[last_node]            
+            print("result_dict[last_node] ===>:", response)
+            print("====================================")
+            
+            return response # result_dict # "test - audio -" # + prompt
+        
+        if "messages" in data.keys():
+            stream_opt = data.get("stream", True)
+            chat_request = ChatCompletionRequest.parse_obj(data)
+            prompt = self._handle_message(chat_request.messages)
+            
+            # import pdb; pdb.set_trace()
+            print("|====>>> data keys:", data.keys() )
+            # print("====================================")
+            # print("|====>>> data:", data)
+            # print("====================================")
+            # print("|====>>> prompt:", prompt)
+            
+            parameters = LLMParams(
+                max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
+                top_k=chat_request.top_k if chat_request.top_k else 10,
+                top_p=chat_request.top_p if chat_request.top_p else 0.95,
+                temperature=chat_request.temperature if chat_request.temperature else 0.01,
+                frequency_penalty=chat_request.frequency_penalty if chat_request.frequency_penalty else 0.0,
+                presence_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 0.0,
+                repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
+                streaming=stream_opt,
+            )
+            
+            
+            result_dict, runtime_graph = await self.megaservice.schedule(
+                initial_inputs={"query": prompt}, llm_parameters=parameters
+            )
+            
+            print("======== result_dict =======")
+            print("result_dict.items():", result_dict.items())
+            
+            for node, response in result_dict.items():
+                # Here it suppose the last microservice in the megaservice is LLM.
+                if (
+                    isinstance(response, StreamingResponse)
+                    and node == list(self.megaservice.services.keys())[-1]
+                    and self.megaservice.services[node].service_type == ServiceType.LLM
+                ):
+                    print("======== response =======")
+                    print(response)
+                    print("=======================================")
+            
+                    return response
+                
+            last_node = runtime_graph.all_leaves()[-1]
+            response = result_dict[last_node]["text"]
+            choices = []
+            usage = UsageInfo()
+            choices.append(
+                ChatCompletionResponseChoice(
+                    index=0,
+                    message=ChatMessage(role="assistant", content=response),
+                    finish_reason="stop",
+                )
+            )
+            
+            final_response = ChatCompletionResponse(model="docsum", choices=choices, usage=usage)
+            
+            print("======== ChatCompletionResponse =======")
+            print(final_response)
+            print("=======================================")
+            
+            # import remote_pdb; remote_pdb.set_trace()
+            
+            return final_response
+            # return ChatCompletionResponse(model="docsum", choices=choices, usage=usage)
 
 
 class AudioQnAGateway(Gateway):
@@ -401,6 +535,11 @@ class AudioQnAGateway(Gateway):
 
     async def handle_request(self, request: Request):
         data = await request.json()
+        
+        # print("====================================")
+        # print("|====>>> handle_request data:", data)
+        # print("====================================")
+    
 
         chat_request = AudioChatCompletionRequest.parse_obj(data)
         parameters = LLMParams(
@@ -414,11 +553,39 @@ class AudioQnAGateway(Gateway):
             repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
             streaming=False,  # TODO add streaming LLM output as input to TTS
         )
+        
+        # print("|====>>> chat_request.audio:", chat_request.audio )
+        
+        
+        # import json
+        # # endpoint = "http://localhost:9099/v1/audio/transcriptions"
+        # endpoint = "http://10.45.77.241:3001/v1/audio/transcriptions"
+        # # inputs = {"byte_str": test_audio_base64_str}
+        # inputs = {"byte_str": chat_request.audio}
+        
+        # print("====================================")
+        # print(endpoint, inputs)
+                
+        # response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None})
+        
+        # print("====================================")
+        # print("response.json() ===>:", response.json())
+        
+        print("################################################################")
+        
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"byte_str": chat_request.audio}, llm_parameters=parameters
         )
 
+        print("==== After self.megaservice.schedule =====")     
+           
         last_node = runtime_graph.all_leaves()[-1]
+        
+        print("====================================")
+        print("last_node ===>:", last_node )
+        print("====================================")
+        
+        
         response = result_dict[last_node]["byte_str"]
 
         return response

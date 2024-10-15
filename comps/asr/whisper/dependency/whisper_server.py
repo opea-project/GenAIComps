@@ -39,6 +39,7 @@ async def audio_to_text(request: Request):
 
     audio = AudioSegment.from_file(file_name)
     audio = audio.set_frame_rate(16000)
+    
     audio.export(f"{file_name}", format="wav")
     try:
         asr_result = asr.audio2text(file_name)
@@ -59,6 +60,10 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="cpu")
 
     args = parser.parse_args()
-    asr = WhisperModel(model_name_or_path=args.model_name_or_path, language=args.language, device=args.device)
+    asr = WhisperModel(model_name_or_path=args.model_name_or_path, 
+                       language=args.language, 
+                       device=args.device, 
+                       return_timestamps=True
+                       )
 
     uvicorn.run(app, host=args.host, port=args.port)
