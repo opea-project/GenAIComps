@@ -36,6 +36,7 @@ PAD_SEQUENCE_TO_MULTIPLE_OF = int(os.environ.get("PAD_SEQUENCE_TO_MULTIPLE_OF", 
 EMBEDDING_MODEL_ID = os.environ.get("EMBEDDING_MODEL_ID", "BAAI/bge-base-en-v1.5")
 RERANK_MODEL_ID = os.environ.get("RERANK_MODEL_ID", "BAAI/bge-reranker-base")
 
+
 def round_up(number, k):
     return (number + k - 1) // k * k
 
@@ -232,17 +233,13 @@ async def reranking(input: SearchedDoc) -> LLMParamsDoc:
 
 
 if __name__ == "__main__":
-    embedding_model = EmbeddingModel(
-        model_path=EMBEDDING_MODEL_ID, device=torch.device("hpu"), dtype=torch.bfloat16
-    )
+    embedding_model = EmbeddingModel(model_path=EMBEDDING_MODEL_ID, device=torch.device("hpu"), dtype=torch.bfloat16)
     embedding_tokenizer = AutoTokenizer.from_pretrained(EMBEDDING_MODEL_ID)
     # sentences = ["sample-1", "sample-2"]
     # encoded_input = embedding_tokenizer(sentences, padding=True, truncation=True, return_tensors='pt').to(device="hpu")
     # results = embedding_model.embed(encoded_input)
     # print(results)
-    reranking_model = RerankingModel(
-        model_path=RERANK_MODEL_ID, device=torch.device("hpu"), dtype=torch.bfloat16
-    )
+    reranking_model = RerankingModel(model_path=RERANK_MODEL_ID, device=torch.device("hpu"), dtype=torch.bfloat16)
     reranking_tokenizer = AutoTokenizer.from_pretrained(RERANK_MODEL_ID)
 
     # pairs = [['what is panda?', 'hi'], ['what is panda?', 'The giant panda (Ailuropoda melanoleuca), sometimes called a panda bear or simply panda, is a bear species endemic to China.']]
