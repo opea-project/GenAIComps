@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import math
 import os
 from enum import Enum
 from pathlib import Path
 from typing import Union
-import math
 
 import torch
 from habana_frameworks.torch.hpu import wrap_in_hpu_graph
@@ -34,8 +34,10 @@ STATIC_BATCHING_TIMEOUT = float(os.getenv("STATIC_BATCHING_TIMEOUT", 0.01))
 STATIC_BATCHING_MAX_BATCH_SIZE = int(os.getenv("STATIC_BATCHING_MAX_BATCH_SIZE", 32))
 PAD_SEQUENCE_TO_MULTIPLE_OF = int(os.environ.get("PAD_SEQUENCE_TO_MULTIPLE_OF", 128))
 
+
 def round_up(number, k):
     return (number + k - 1) // k * k
+
 
 class EmbeddingModel:
     def __init__(
@@ -94,14 +96,17 @@ class RerankingModel:
         scores = torch.sigmoid(scores)
         return scores
 
+
 def pad_batch(inputs: dict, max_input_len: int):
     # pad seq_len to MULTIPLE OF, pad bs
-    batch_size, concrete_length = inputs['input_ids'].size()[0], inputs['input_ids'].size()[1]
+    batch_size, concrete_length = inputs["input_ids"].size()[0], inputs["input_ids"].size()[1]
     max_length = round_up(concrete_length, PAD_SEQUENCE_TO_MULTIPLE_OF)
-    max_length = min(max_length, max_input_len) # should not exceed max input len
+    max_length = min(max_length, max_input_len)  # should not exceed max input len
     new_bs = 2 ** math.ceil(math.log2(batch_size))
     for x in inputs:
-        inputs[x] = torch.nn.functional.pad(inputs[x], (0, max_length-concrete_length, 0, new_bs-batch_size), value=0)
+        inputs[x] = torch.nn.functional.pad(
+            inputs[x], (0, max_length - concrete_length, 0, new_bs - batch_size), value=0
+        )
     return inputs
 
 
