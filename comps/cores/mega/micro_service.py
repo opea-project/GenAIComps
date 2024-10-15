@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import multiprocessing
 import os
 from collections import defaultdict, deque
 from enum import Enum
@@ -11,7 +12,7 @@ from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
 from .logger import CustomLogger
 from .utils import check_ports_availability
-import multiprocessing
+
 opea_microservices = {}
 
 logger = CustomLogger("micro_service")
