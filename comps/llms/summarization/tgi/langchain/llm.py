@@ -34,10 +34,10 @@ def post_process_text(text: str):
     port=9000,
     llm_endpoint=os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080"),
 )
-def llm_generate(input: LLMParamsDoc):
+async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
-    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
         max_new_tokens=input.max_tokens,
@@ -49,9 +49,6 @@ def llm_generate(input: LLMParamsDoc):
         streaming=input.streaming,
     )
     llm_chain = load_summarize_chain(llm=llm, chain_type="map_reduce")
-
-    # Split text
-    text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(input.query)
 
     # Create multiple documents
@@ -72,7 +69,7 @@ def llm_generate(input: LLMParamsDoc):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = llm_chain.invoke(docs)
+        response = await llm_chain.ainvoke(docs)
         response = response["output_text"]
         if logflag:
             logger.info(response)
@@ -80,4 +77,7 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
+    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+    # Split text
+    text_splitter = CharacterTextSplitter()
     opea_microservices["opea_service@llm_docsum"].start()

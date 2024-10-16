@@ -49,7 +49,7 @@ def post_process_text(text: str):
     port=9000,
     llm_endpoint=llm_endpoint,
 )
-def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
+async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
     if logflag:
         logger.info(input)
 
@@ -103,7 +103,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
         else:
-            response = llm.invoke(new_input.query, **parameters)
+            response = await llm.ainvoke(new_input.query, **parameters)
             if logflag:
                 logger.info(response)
 
@@ -154,7 +154,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
         else:
-            response = llm.invoke(prompt, **parameters)
+            response = await llm.ainvoke(prompt, **parameters)
             if logflag:
                 logger.info(response)
 
