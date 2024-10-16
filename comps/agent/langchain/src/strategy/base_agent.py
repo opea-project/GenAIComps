@@ -4,7 +4,7 @@
 from uuid import uuid4
 
 from ..tools import get_tools_descriptions
-from ..utils import setup_llm, adapt_custom_prompt
+from ..utils import adapt_custom_prompt, setup_llm
 
 
 class BaseAgent:

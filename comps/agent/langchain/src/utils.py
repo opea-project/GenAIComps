@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import importlib
 
 from .config import env_config
-import importlib
 
 
 def wrap_chat(llm_endpoint, model_id):
@@ -122,12 +122,14 @@ def has_multi_tool_inputs(tools):
             break
     return ret
 
+
 def load_python_prompt(file_dir_path: str):
     print(file_dir_path)
     spec = importlib.util.spec_from_file_location("custom_prompt", file_dir_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
 
 def adapt_custom_prompt(local_vars, custom_prompt):
     # list attributes of module
@@ -136,6 +138,7 @@ def adapt_custom_prompt(local_vars, custom_prompt):
         for k in custom_prompt_list:
             v = getattr(custom_prompt, k)
             local_vars[k] = v
+
 
 def get_args():
     parser = argparse.ArgumentParser()

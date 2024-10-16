@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 from .utils import load_python_prompt
 
+
 def instantiate_agent(args, strategy="react_langchain", with_memory=False):
     if args.custom_prompt is not None:
         print(f">>>>>> custom_prompt enabled, {args.custom_prompt}")
         custom_prompt = load_python_prompt(args.custom_prompt)
     else:
         custom_prompt = None
-        
+
     if strategy == "react_langchain":
         from .strategy.react import ReActAgentwithLangchain
 
