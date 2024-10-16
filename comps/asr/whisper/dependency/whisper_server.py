@@ -58,12 +58,14 @@ if __name__ == "__main__":
     parser.add_argument("--model_name_or_path", type=str, default="openai/whisper-small")
     parser.add_argument("--language", type=str, default="english")
     parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument("--return_timestamps", type=str, default=True)
+    
 
     args = parser.parse_args()
     asr = WhisperModel(model_name_or_path=args.model_name_or_path, 
                        language=args.language, 
                        device=args.device, 
-                       return_timestamps=True
+                       return_timestamps=args.return_timestamps
                        )
 
     uvicorn.run(app, host=args.host, port=args.port)
