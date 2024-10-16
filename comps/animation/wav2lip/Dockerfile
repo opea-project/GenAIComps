@@ -21,4 +21,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/animation
 
-ENTRYPOINT ["python", "animation.py"]
+ENTRYPOINT ["python3", "animation.py"]
