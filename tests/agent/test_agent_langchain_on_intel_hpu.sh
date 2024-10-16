@@ -12,6 +12,8 @@ tgi_volume=$WORKPATH/data
 vllm_port=8086
 vllm_volume=$WORKPATH/data
 
+export WORKPATH=$WORKPATH
+
 export agent_image="opea/agent-langchain:comps"
 export agent_container_name="test-comps-agent-endpoint"
 
