@@ -59,8 +59,7 @@ def initialize():
                     )
                 else:
                     raise NotImplementedError(
-                        "Only support stable-diffusion-xl now, "
-                        + f"model {args.model_name_or_path} not supported."
+                        "Only support stable-diffusion-xl now, " + f"model {args.model_name_or_path} not supported."
                     )
             elif args.device == "cpu":
                 pipe = AutoPipelineForImage2Image.from_pretrained(args.model_name_or_path, token=args.token, **kwargs)
