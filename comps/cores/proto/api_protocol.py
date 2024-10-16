@@ -175,7 +175,7 @@ class ChatCompletionRequest(BaseModel):
     tool_choice: Optional[Union[Literal["none"], ChatCompletionNamedToolChoiceParam]] = "none"
     parallel_tool_calls: Optional[bool] = True
     user: Optional[str] = None
-    language: str = "auto" # can be "en", "zh"
+    language: str = "auto"  # can be "en", "zh"
 
     # Ordered by official OpenAI API documentation
     # default values are same with

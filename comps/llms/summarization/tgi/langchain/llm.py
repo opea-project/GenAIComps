@@ -4,8 +4,8 @@
 import os
 
 from fastapi.responses import StreamingResponse
-from langchain.prompts import PromptTemplate
 from huggingface_hub import AsyncInferenceClient
+from langchain.prompts import PromptTemplate
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
@@ -34,6 +34,7 @@ templ_zh = """请简要概括以下内容:
 
 概况:"""
 
+
 @register_microservice(
     name="opea_service@llm_docsum",
     service_type=ServiceType.LLM,
@@ -50,8 +51,8 @@ async def llm_generate(input: LLMParamsDoc):
     elif input.language in ["zh"]:
         templ = templ_zh
     else:
-        raise NotImplementedError("Please specify the input language in \"en\", \"zh\", \"auto\"")
-    
+        raise NotImplementedError('Please specify the input language in "en", "zh", "auto"')
+
     prompt_template = PromptTemplate.from_template(templ)
     prompt = prompt_template.format(text=input.query)
 
@@ -67,7 +68,7 @@ async def llm_generate(input: LLMParamsDoc):
         temperature=input.temperature,
         top_k=input.top_k,
         top_p=input.top_p,
-        typical_p=input.typical_p
+        typical_p=input.typical_p,
     )
 
     if input.streaming:

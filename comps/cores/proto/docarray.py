@@ -175,7 +175,7 @@ class LLMParamsDoc(BaseDoc):
     presence_penalty: float = 0.0
     repetition_penalty: float = 1.03
     streaming: bool = True
-    language: str = "auto" # can be "en", "zh"
+    language: str = "auto"  # can be "en", "zh"
 
     chat_template: Optional[str] = Field(
         default=None,
@@ -213,7 +213,7 @@ class LLMParams(BaseDoc):
     presence_penalty: float = 0.0
     repetition_penalty: float = 1.03
     streaming: bool = True
-    language: str = "auto" # can be "en", "zh"
+    language: str = "auto"  # can be "en", "zh"
 
     chat_template: Optional[str] = Field(
         default=None,
