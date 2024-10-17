@@ -10,13 +10,18 @@ import time
 from typing import List, Union
 
 import openai
-from config import NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, OPENAI_KEY, TGI_LLM_ENDPOINT
+from config import NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, TGI_LLM_ENDPOINT, TEI_EMBEDDING_ENDPOINT
+from config import OPENAI_KEY, OPENAI_EMBEDDING_MODEL, OPENAI_LLM_MODEL
 from llama_index.core import PropertyGraphIndex, Settings
 from llama_index.core.llms import LLM, ChatMessage
 from llama_index.core.query_engine import CustomQueryEngine
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.text_generation_inference import TextGenerationInference
+from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
+from llama_index.core.indices.property_graph.sub_retrievers.vector import (
+    VectorContextRetriever,
+)
 from pydantic import BaseModel, PrivateAttr
 
 from comps import (
@@ -36,13 +41,14 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponse,
     RetrievalResponseData,
 )
-from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore
+from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, get_model_name_from_tgi_endpoint
 
 # from config import EMBED_ENDPOINT, EMBED_MODEL, NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME
 # from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 # from langchain_community.vectorstores import Neo4jVector
 
-
+Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
+Settings.llm = OpenAI(temperature=0, model="gpt-4o")
 logger = CustomLogger("retriever_neo4j")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -83,8 +89,16 @@ class GraphRAGQueryEngine(CustomQueryEngine):
     def get_entities(self, query_str, similarity_top_k):
         if logflag:
             logger.info(f"Retrieving entities for query: {query_str} with top_k: {similarity_top_k}")
-        nodes_retrieved = self._index.as_retriever(similarity_top_k=self._similarity_top_k).retrieve(query_str)
-
+        #TODO: make retrever configurable [VectorContextRetriever]or [LLMSynonymRetriever]
+        vecContext_retriever = VectorContextRetriever(
+                        graph_store=self._graph_store,
+                        embed_model=self._index._embed_model,
+                        similarity_top_k=self._similarity_top_k,
+                        #similarity_score=0.6
+                    )
+        nodes_retrieved = self._index.as_retriever(sub_retrievers = [vecContext_retriever],similarity_top_k=self._similarity_top_k).retrieve(query_str)
+        #if subretriever not specified it will use LLMSynonymRetriever with Settings.llm model
+        #nodes_retrieved = self._index.as_retriever(similarity_top_k=self._similarity_top_k).retrieve(query_str)
         entities = set()
         pattern = r"(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)"
 
@@ -150,38 +164,47 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
     start = time.time()
     query = input.messages[0]["content"]
 
-    # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
-    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL)
-    Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
-    llm = OpenAI(temperature=0, model="gpt-4o-mini")
     if OPENAI_KEY:
         logger.info("OpenAI API Key is set. Verifying its validity...")
         openai.api_key = OPENAI_KEY
         try:
-            llm = OpenAI(temperature=0, model="gpt-4o-mini")
+            llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
+            embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
             logger.info("OpenAI API Key is valid.")
         except openai.AuthenticationError:
             logger.info("OpenAI API Key is invalid.")
         except Exception as e:
             logger.info(f"An error occurred while verifying the API Key: {e}")
     else:
+        logger.info("No OpenAI API KEY provided. Will use TGI and TEI endpoints")
+        llm_name=get_model_name_from_tgi_endpoint(TGI_LLM_ENDPOINT)
         llm = TextGenerationInference(
             model_url=TGI_LLM_ENDPOINT,
-            # model_name="meta-llama/Meta-Llama-3-8B-Instruct",
+            model_name=llm_name,
             temperature=0.7,
-            max_tokens=512,  # 5192 otherwise too shor
-            # is_chat_model=False,
+            max_tokens=1512,  # 512otherwise too shor
         )
+        emb_name=get_model_name_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT)
+        embed_model = TextEmbeddingsInference(
+            base_url=TEI_EMBEDDING_ENDPOINT,
+            model_name=emb_name,
+            timeout=60,  # timeout in seconds
+            embed_batch_size=10,  # batch size for embedding
+        )
+    Settings.embed_model = embed_model #OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
+    Settings.llm = llm #OpenAI(temperature=0, model="gpt-4o")
+    # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
+    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm or Settings.llm)
 
     index = PropertyGraphIndex.from_existing(
         property_graph_store=graph_store,
-        embed_model=Settings.embed_model,
+        embed_model=embed_model or Settings.embed_model,
         embed_kg_nodes=True,
     )
     index.property_graph_store.build_communities()
     query_engine = GraphRAGQueryEngine(
         graph_store=index.property_graph_store,
-        llm=llm,
+        llm=llm or Settings.llm,
         index=index,
         similarity_top_k=3,
     )

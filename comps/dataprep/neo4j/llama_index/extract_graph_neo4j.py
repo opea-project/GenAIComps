@@ -5,6 +5,7 @@
 import asyncio
 import json
 import os
+import requests
 
 # GraphRAGStore dependencies
 import re
@@ -14,7 +15,8 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import nest_asyncio
 import networkx as nx
 import openai
-from config import NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, OPENAI_KEY, TGI_LLM_ENDPOINT
+from config import NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, TGI_LLM_ENDPOINT,TEI_EMBEDDING_ENDPOINT
+from config import OPENAI_KEY, OPENAI_EMBEDDING_MODEL, OPENAI_LLM_MODEL
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -51,13 +53,17 @@ from llama_index.core.prompts import PromptTemplate
 from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_PROMPT
 from llama_index.core.schema import BaseNode, TransformComponent
 
+Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
+Settings.llm = OpenAI(temperature=0, model="gpt-4o")
 
 class GraphRAGStore(Neo4jPropertyGraphStore):
     # https://github.com/run-llama/llama_index/blob/main/docs/docs/examples/cookbooks/GraphRAG_v2.ipynb
     community_summary = {}
     entity_info = None
     max_cluster_size = 5
-
+    def __init__(self, username: str, password: str, url: str, llm: LLM):
+        super().__init__(username=username, password=password, url=url)
+        self.llm = llm
     def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM."""
         messages = [
@@ -74,9 +80,18 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
             ),
             ChatMessage(role="user", content=text),
         ]
+        if OPENAI_KEY:
+            response = OpenAI().chat(messages)
+        else:
+            response = self.llm.chat(messages)
+
         response = OpenAI().chat(messages)
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
+
+        clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
+        return clean_response
+
 
     def build_communities(self):
         """Builds communities from the graph and summarizes them."""
@@ -356,6 +371,24 @@ def parse_fn(response_str: str) -> Any:
         logger.info(f"len of parsed entities: {len(entities)} and relationships: {len(relationships)}")
     return entities, relationships
 
+def get_model_name_from_tgi_endpoint(url):
+    try:
+        response = requests.get(url+'/info')
+        response.raise_for_status()  # Ensure we notice bad responses
+        try:
+            model_info = response.json()
+            model_name = model_info.get("model_id")
+            if model_name:
+                return model_name
+            else:
+                logger.error(f"model_id not found in the response from {url}")
+                return None
+        except ValueError:
+            logger.error(f"Invalid JSON response from {url}")
+            return None
+    except requests.RequestException as e:
+        logger.error(f"Request to {url} failed: {e}")
+        return None
 
 logger = CustomLogger("prepare_doc_neo4j")
 logflag = os.getenv("LOGFLAG", False)
@@ -414,61 +447,50 @@ def ingest_data_to_neo4j(doc_path: DocPath):
         logger.info("OpenAI API Key is set. Verifying its validity...")
         openai.api_key = OPENAI_KEY
         try:
-            llm = OpenAI(temperature=0, model="gpt-4o-mini")
+            llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
+            embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
             logger.info("OpenAI API Key is valid.")
         except openai.AuthenticationError:
             logger.info("OpenAI API Key is invalid.")
         except Exception as e:
             logger.info(f"An error occurred while verifying the API Key: {e}")
     else:
+        llm_name=get_model_name_from_tgi_endpoint(TGI_LLM_ENDPOINT)
         llm = TextGenerationInference(
             model_url=TGI_LLM_ENDPOINT,
-            # model_name="meta-llama/Meta-Llama-3-8B-Instruct",
+            model_name=llm_name,
             temperature=0.7,
-            max_tokens=512,  # 5192 otherwise too shor
-            # is_chat_model=False,
+            max_tokens=1512,  # 512otherwise too shor
+        )
+        emb_name=get_model_name_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT)
+        embed_model = TextEmbeddingsInference(
+            base_url=TEI_EMBEDDING_ENDPOINT,
+            model_name=emb_name,
+            timeout=60,  # timeout in seconds
+            embed_batch_size=10,  # batch size for embedding
         )
 
     kg_extractor = GraphRAGExtractor(
-        llm=llm,
+        llm=llm or Settings.llm,
         extract_prompt=KG_TRIPLET_EXTRACT_TMPL,
         max_paths_per_chunk=2,
         parse_fn=parse_fn,
     )
 
-    graph_store = GraphRAGStore(username="neo4j", password="neo4jtest", url="bolt://10.165.9.52:7687")
+    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL,llm=llm)
 
-    Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
-
-    if OPENAI_KEY:
-        logger.info("OpenAI API Key is set. Verifying its validity...")
-        openai.api_key = OPENAI_KEY
-        try:
-            embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
-            logger.info("OpenAI API Key is valid.")
-        except openai.AuthenticationError:
-            logger.info("OpenAI API Key is invalid.")
-        except Exception as e:
-            logger.info(f"An error occurred while verifying the API Key: {e}")
-    else:
-        embed_model = TextEmbeddingsInference(
-            base_url="http://127.0.0.1:8081",
-            model_name="BAAI/bge-large-en-v1.5",  # required for formatting inference text,
-            timeout=60,  # timeout in seconds
-            embed_batch_size=10,  # batch size for embedding
-        )
     # nodes are the chunked docs to insert
     index = PropertyGraphIndex(
         nodes=nodes,
-        llm=llm,
+        llm=llm or Settings.llm,
         kg_extractors=[kg_extractor],
         property_graph_store=graph_store,
-        embed_model=embed_model,
+        embed_model=embed_model or Settings.embed_model,
         show_progress=True,
     )
-    # inspect_db()
+    inspect_db()
     if logflag:
-        logger.info(f"total number of triplets {len(index.property_graph_store.get_triplets())}")
+        logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}")
 
     # index.property_graph_store.build_communities()
     # print("done building communities")

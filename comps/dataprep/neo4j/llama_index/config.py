@@ -9,7 +9,13 @@ NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "neo4jtest")
 
 # LLM/Embedding endpoints
-TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8005")
 TGI_LLM_ENDPOINT_NO_RAG = os.getenv("TGI_LLM_ENDPOINT_NO_RAG", "http://localhost:8081")
-TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_ENDPOINT")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_ENDPOINT", "http://localhost:6006")
+
 OPENAI_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_EMBEDDING_MODEL=os.getenv("OPENAI_EMBEDDING_MODEL","text-embedding-3-small")
+OPENAI_LLM_MODEL=os.getenv("OPENAI_LLM_MODEL","gpt-4o")
+
+USE_OPENAI_FOR_SUMMARIZATION=os.getenv("USE_OPENAI_FOR_SUMMARIZATION", "False")
+USE_OPENAI_FOR_GRAPH_EXTRACTION=os.getenv("USE_OPENAI_FOR_GRAPH_EXTRACTION", "True")
