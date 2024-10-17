@@ -19,13 +19,13 @@ RUN mkdir -p /home/user
 # Copy the application code to the container
 COPY comps /home/user/comps
 COPY requirements.txt /home/user/requirements.txt
-COPY ./comps/dataprep/docsum/video2audio/video2audio_microservice.py /home/user/video2audio_microservice.py
+COPY ./comps/dataprep/docsum/data_prep.py /home/user/data_prep.py
 
 # Install Python dependencies
-RUN python -m pip install --no-cache-dir -r /home/user/requirements.txt moviepy
+RUN python -m pip install --no-cache-dir -r /home/user/requirements.txt 
 
 # Set the working directory
 WORKDIR /home/user/
 
 # Define the entry point for the container
-ENTRYPOINT ["python", "video2audio_microservice.py"]
+ENTRYPOINT ["python", "data_prep.py"]

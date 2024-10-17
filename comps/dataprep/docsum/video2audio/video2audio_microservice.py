@@ -13,7 +13,7 @@ from comps import (
     CustomLogger
 )
 
-from comps.dataprep.docsum.video2audio import Video2Audio
+from comps.dataprep.docsum.video2audio.video2audio import Video2Audio
 
 # Initialize custom logger
 logger = CustomLogger("video2audio")

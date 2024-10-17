@@ -58,7 +58,7 @@ def read_config():
         "--path_to_video",
         help="Location of the video file that will be converted to audio.",
         required=False,
-        default=os.path.join(root_folder, "data/test.mp4")
+        default=os.path.join(root_folder, "../data/test.mp4")
     )
     
     # Add argument for the audio file path
