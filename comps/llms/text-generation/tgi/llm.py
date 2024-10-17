@@ -40,6 +40,7 @@ llm = AsyncInferenceClient(
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=9000,
+    llm_endpoint=llm_endpoint,
 )
 @register_statistics(names=["opea_service@llm_tgi"])
 async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
