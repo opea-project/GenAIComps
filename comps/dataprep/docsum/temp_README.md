@@ -6,8 +6,24 @@ docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build
 ```
 ## Run 
 ```bash
-docker run -p 7066:7066 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/whisper:latest
+docker run -d -p 7066:7066 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/whisper:latest
 ```
+
+
+# A2T Service 
+## Build
+```bash
+docker build -t opea/a2t:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/docsum/audio2text/Dockerfile_microservice .
+
+
+```
+## Run 
+```bash
+ip_address=$(hostname -I | awk '{print $1}')
+
+docker run -d -p 9099:9099 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e A2T_ENDPOINT=http://$ip_address:7066 opea/a2t:latest
+```
+
 
 
 

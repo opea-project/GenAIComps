@@ -75,6 +75,11 @@ MultimodalDoc = Union[
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
+class DocSumDoc(BaseDoc):
+    text: Optional[str] = None
+    audio: Optional[str] = None
+    video: Optional[str] = None
+    
 
 class DocPath(BaseDoc):
     path: str
