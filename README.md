@@ -26,6 +26,28 @@ cd GenAIComps
 pip install -e .
 ```
 
+- Install Data Science Stack on your workstation
+
+Follow the [tutorial](https://documentation.ubuntu.com/data-science-stack/en/latest/tutorial/get-started/) to install Data Science Stack on your Linux-based workstation. You will need to go through the following steps:
+
+1. Setup MicroK8s
+
+````sudo snap install microk8s --channel 1.28/stable --classic
+sudo microk8s enable hostpath-storage
+sudo microk8s enable dns
+sudo microk8s enable rbac```
+2. Initialise the CLI
+```sudo snap install data-science-stack --channel latest/stable```
+3. Initialise the DSS
+```dss initialize --kubeconfig="$(sudo microk8s config)"```
+
+
+- Access from MLOps platform in your data center
+
+Install an MLOps platform such as [Charmed Kubeflow](https://charmed-kubeflow.io/) for AI at scale and add the microservices to it. It will enable organisations not only to perform tasks such as model optimisation (eg: fine-tuning, hyperparameter tuning), but also to automate the workloads.
+
+
+
 ## MicroService
 
 `Microservices` are akin to building blocks, offering the fundamental services for constructing `RAG (Retrieval-Augmented Generation)` applications.
@@ -154,3 +176,4 @@ Thank you for being a part of this journey. We can't wait to see what we can ach
 - [Code of Conduct](https://github.com/opea-project/docs/tree/main/community/CODE_OF_CONDUCT.md)
 - [Security Policy](https://github.com/opea-project/docs/tree/main/community/SECURITY.md)
 - [Legal Information](LEGAL_INFORMATION.md)
+````
