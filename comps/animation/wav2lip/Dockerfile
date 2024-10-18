@@ -15,10 +15,10 @@ ARG ARCH=cpu
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/animation/requirements.txt ;
+    pip install --no-cache-dir -r /home/user/comps/animation/wav2lip/requirements.txt ;
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/animation
+WORKDIR /home/user/comps/animation/wav2lip
 
 ENTRYPOINT ["python3", "animation.py"]

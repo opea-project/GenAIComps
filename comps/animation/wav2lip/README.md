@@ -42,7 +42,7 @@ export ANIMATION_PORT=9066
 export INFERENCE_MODE='wav2lip+gfpgan'
 export CHECKPOINT_PATH='/usr/local/lib/python3.11/site-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
 # export CHECKPOINT_PATH='/usr/local/lib/python3.10/dist-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
-export FACE='assets/avatar1.jpg'
+export FACE="$(pwd)/comps/animation/wav2lip/assets/avatar1.jpg"
 # export AUDIO='assets/eg3_ref.wav' # audio file path is optional, will use base64str in the post request as input if is 'None'
 export AUDIO='None'
 export FACESIZE=96
@@ -59,7 +59,7 @@ export FPS=10
 - Xeon CPU
 
 ```bash
-docker run --privileged -d -p 7860:7860 --ipc=host --name "wav2lip-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e PYTHON=/usr/bin/python3.11 -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT opea/wav2lip:latest
+docker run --privileged -d -p 7860:7860 --ipc=host --name "wav2lip-service" -w /home/user/comps/animation/wav2lip -e PYTHON=/usr/bin/python3.11 -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT opea/wav2lip:latest
 ```
 
 - Gaudi2 HPU
@@ -90,7 +90,7 @@ python3 dependency/check_wav2lip_server.py
 ```bash
 cd GenAIComps
 export ip_address=$(hostname -I | awk '{print $1}')
-curl http://${ip_address}:7860/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/wav2lip/assets/audio/sample_question.json
+curl http://${ip_address}:9066/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/wav2lip/assets/audio/sample_question.json
 ```
 
 or
