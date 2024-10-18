@@ -33,20 +33,38 @@ docker build -t opea/animation:latest --build-arg https_proxy=$https_proxy --bui
 
 ## 1.2. Set environment variables
 
+- Xeon CPU
+
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
 export DEVICE="cpu"
-# export DEVICE="hpu"
 export WAV2LIP_PORT=7860
 export ANIMATION_PORT=9066
 export INFERENCE_MODE='wav2lip+gfpgan'
 export CHECKPOINT_PATH='/usr/local/lib/python3.11/site-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
-# export CHECKPOINT_PATH='/usr/local/lib/python3.10/dist-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
-export FACE="$(pwd)/comps/animation/wav2lip/assets/avatar1.jpg"
+export FACE="comps/animation/wav2lip/assets/avatar1.jpg"
 # export AUDIO='assets/eg3_ref.wav' # audio file path is optional, will use base64str in the post request as input if is 'None'
 export AUDIO='None'
 export FACESIZE=96
-export OUTFILE="$(pwd)/comps/animation/wav2lip/assets/outputs/result.mp4"
+export OUTFILE="comps/animation/wav2lip/assets/outputs/result.mp4"
+export GFPGAN_MODEL_VERSION=1.4 # latest version, can roll back to v1.3 if needed
+export UPSCALE_FACTOR=1
+export FPS=10
+```
+
+- Gaudi2 HPU
+```bash
+export ip_address=$(hostname -I | awk '{print $1}')
+export DEVICE="hpu"
+export WAV2LIP_PORT=7860
+export ANIMATION_PORT=9066
+export INFERENCE_MODE='wav2lip+gfpgan'
+export CHECKPOINT_PATH='/usr/local/lib/python3.10/dist-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
+export FACE="comps/animation/wav2lip/assets/avatar1.jpg"
+# export AUDIO='assets/eg3_ref.wav' # audio file path is optional, will use base64str in the post request as input if is 'None'
+export AUDIO='None'
+export FACESIZE=96
+export OUTFILE="comps/animation/wav2lip/assets/outputs/result.mp4"
 export GFPGAN_MODEL_VERSION=1.4 # latest version, can roll back to v1.3 if needed
 export UPSCALE_FACTOR=1
 export FPS=10
@@ -59,13 +77,13 @@ export FPS=10
 - Xeon CPU
 
 ```bash
-docker run --privileged -d -p 7860:7860 --ipc=host --name "wav2lip-service" -w /home/user/comps/animation/wav2lip -e PYTHON=/usr/bin/python3.11 -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT opea/wav2lip:latest
+docker run --privileged -d --name "wav2lip-service" -p 7860:7860 --ipc=host -w /home/user/comps/animation/wav2lip -e PYTHON=/usr/bin/python3.11 -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT opea/wav2lip:latest
 ```
 
 - Gaudi2 HPU
 
 ```bash
-docker run --privileged -d -p 7860:7860 --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "wav2lip-gaudi-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT opea/wav2lip-gaudi:latest
+docker run --privileged -d --name "wav2lip-gaudi-service" -p 7860:7860 --runtime=habana --cap-add=sys_nice --net=host --ipc=host -w /home/user/comps/animation/wav2lip -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT opea/wav2lip-gaudi:latest
 ```
 
 ## 2.2 Run Animation Microservice
@@ -103,9 +121,7 @@ python3 check_animation_server.py
 The expected output is a message similar to the following:
 
 ```bash
-"Status code: 200"
-"Check $OUTFILE for the result."
-"{'id': '33dd8249228b0e011a33b449af9aa776', 'video_save_path': '.../GenAIComps/comps/animation/wav2lip/assets/outputs/result.mp4'}"
+{'wav2lip_result': '.../GenAIComps/comps/animation/wav2lip/assets/outputs/result.mp4'}
 ```
 
-Please find "./outputs/result.mp4" as a reference generated video.
+Please find "comps/animation/wav2lip/assets/outputs/result.mp4" as a reference generated video.
