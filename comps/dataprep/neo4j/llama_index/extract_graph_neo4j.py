@@ -16,7 +16,8 @@ import nest_asyncio
 import networkx as nx
 import openai
 from config import NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, TGI_LLM_ENDPOINT,TEI_EMBEDDING_ENDPOINT
-from config import OPENAI_KEY, OPENAI_EMBEDDING_MODEL, OPENAI_LLM_MODEL
+from config import OPENAI_API_KEY, OPENAI_EMBEDDING_MODEL, OPENAI_LLM_MODEL
+from config import host_ip
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -80,15 +81,12 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
             ),
             ChatMessage(role="user", content=text),
         ]
-        if OPENAI_KEY:
+        if OPENAI_API_KEY:
             response = OpenAI().chat(messages)
         else:
             response = self.llm.chat(messages)
 
         response = OpenAI().chat(messages)
-        clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
-        return clean_response
-
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
 
@@ -373,7 +371,7 @@ def parse_fn(response_str: str) -> Any:
 
 def get_model_name_from_tgi_endpoint(url):
     try:
-        response = requests.get(url+'/info')
+        response = requests.get(f"{url}/info")
         response.raise_for_status()  # Ensure we notice bad responses
         try:
             model_info = response.json()
@@ -443,9 +441,9 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     if logflag:
         logger.info(f"Done preprocessing. Created  {len(nodes)} chunks of the original file.")
 
-    if OPENAI_KEY:
+    if OPENAI_API_KEY:
         logger.info("OpenAI API Key is set. Verifying its validity...")
-        openai.api_key = OPENAI_KEY
+        openai.api_key = OPENAI_API_KEY
         try:
             llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
             embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
@@ -455,6 +453,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
         except Exception as e:
             logger.info(f"An error occurred while verifying the API Key: {e}")
     else:
+        logger.info("NO OpenAI API Key. TGI/TEI endpoints will be used.")
         llm_name=get_model_name_from_tgi_endpoint(TGI_LLM_ENDPOINT)
         llm = TextGenerationInference(
             model_url=TGI_LLM_ENDPOINT,
@@ -505,7 +504,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     name="opea_service@extract_graph_neo4j",
     endpoint="/v1/dataprep",
     host="0.0.0.0",
-    port=6007,
+    port=6004,
     input_datatype=DocPath,
     output_datatype=None,
 )
