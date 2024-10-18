@@ -16,7 +16,7 @@ MEGA_SERVICE_PORT = int(os.getenv("MEGA_SERVICE_PORT", 8888))
 # ASR_SERVICE_PORT = int(os.getenv("ASR_SERVICE_PORT", 9099))
 
 DATA_SERVICE_HOST_IP = os.getenv("DATA_SERVICE_HOST_IP", "0.0.0.0")
-DATA_SERVICE_PORT = int(os.getenv("DATA_SERVICE_PORT", 7078))
+DATA_SERVICE_PORT = int(os.getenv("DATA_SERVICE_PORT", 7079))
 
 LLM_SERVICE_HOST_IP = os.getenv("LLM_SERVICE_HOST_IP", "0.0.0.0")
 LLM_SERVICE_PORT = int(os.getenv("LLM_SERVICE_PORT", 9000))
@@ -71,7 +71,7 @@ class DocSumService:
         self.megaservice.flow_to(data, llm)
         
         # self.megaservice.flow_to(v2a, asr)
-                
+                        
         self.gateway = DocSumGateway(megaservice=self.megaservice, host="0.0.0.0", port=self.port)
 
 

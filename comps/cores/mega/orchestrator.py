@@ -60,28 +60,16 @@ class ServiceOrchestrator(DAG):
                 for node in self.ind_nodes()
             }
             ind_nodes = self.ind_nodes()
-            
-            print("======= Begin schedule - pending ============")
-            print(pending)
-            print("======== End  schedule - pending =============")            
-            
-            temp_num = 0
+
             while pending:
-                print(">>>>>>> in loop number:", temp_num)
-                temp_num = temp_num+1 
-                
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
                 for done_task in done:
-                    print(">>>>>>> in loop number - done_task :", done_task)
                     response, node = await done_task
-                    
-                    
                     self.dump_outputs(node, response, result_dict)
 
                     # traverse the current node's downstream nodes and execute if all one's predecessors are finished
                     downstreams = runtime_graph.downstream(node)
 
-                    print("remove black nodes bool:", not isinstance(response, StreamingResponse) and "downstream_black_list" in response )
                     # remove all the black nodes that are skipped to be forwarded to
                     if not isinstance(response, StreamingResponse) and "downstream_black_list" in response:
                         for black_node in response["downstream_black_list"]:
@@ -108,13 +96,7 @@ class ServiceOrchestrator(DAG):
                                 )
 
                     for d_node in downstreams:
-                        # print("======= Begin schedule - d_node ============")
-                        # print("d_node:>", d_node)
-                        # print("result_dict:>", result_dict)
-                        # print("============================================")
-                                                
                         if all(i in result_dict for i in runtime_graph.predecessors(d_node)):
-                            
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
                             pending.add(
                                 asyncio.create_task(
@@ -151,7 +133,6 @@ class ServiceOrchestrator(DAG):
         llm_parameters: LLMParams = LLMParams(),
         **kwargs,
     ):
-                
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
         llm_parameters_dict = llm_parameters.dict()
@@ -165,21 +146,11 @@ class ServiceOrchestrator(DAG):
 
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
-        
-        # print(">>>>>>>>> self.services[cur_node].service_type :>", self.services[cur_node].service_type )
-        # print(">>>>>>>>> LLM or LVM :>", self.services[cur_node].service_type == ServiceType.LLM or self.services[cur_node].service_type == ServiceType.LVM  )
-        # print(">>>>>>>>> llm_parameters.streaming :>", llm_parameters.streaming )
-        
-        
+
         if (
             self.services[cur_node].service_type == ServiceType.LLM
             or self.services[cur_node].service_type == ServiceType.LVM
         ) and llm_parameters.streaming:
-            
-            # print("=== in IF ===")
-            # print("=== in IF in orchestrator - endpoint, inputs == cur_node:>", cur_node)
-            # print(">>>>in IF input : ", inputs)
-            
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
@@ -191,10 +162,6 @@ class ServiceOrchestrator(DAG):
                 stream=True,
                 timeout=1000,
             )
-            
-            # print("=== in IF response :> ", dir(response) ) 
-            # print("=== in IF response :> ", response.text ) 
-            
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
@@ -231,26 +198,12 @@ class ServiceOrchestrator(DAG):
                 StreamingResponse(self.align_generator(generate(), **kwargs), media_type="text/event-stream"),
                 cur_node,
             )
-        
         else:
             if LOGFLAG:
                 logger.info(inputs)
-            
-            print("=== ELSE ===")
-            print("=== in orchestrator - endpoint, inputs == cur_node:>", cur_node, endpoint)
-            
             async with session.post(endpoint, json=inputs) as response:
                 # Parse as JSON
-                # print("response.json() >>>> :", await response.json(content_type= 'text/html' ))  
-                # print("====================================")
-                
                 data = await response.json()
-                
-                # print("======= In orchestrator  data in orchestrator >>>> ")
-                # print(data)  
-                # print("==============================================>>>>")
-                # print()
-                
                 # post process
                 data = self.align_outputs(data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)
 
