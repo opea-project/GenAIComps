@@ -1,4 +1,6 @@
 #!/bin/sh
+cd /home/user/comps/animation/wav2lip/ || exit
+
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 

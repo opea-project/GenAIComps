@@ -4,24 +4,24 @@ FROM vault.habana.ai/gaudi-docker/1.16.2/ubuntu22.04/habanalabs/pytorch-installe
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
-ENV PYTHONPATH=/home:/home/user:/usr/lib/habanalabs/:/optimum-habana
+ENV PYTHONPATH=/usr/local/lib/python3.10/dist-packages:/home:/home/user:/usr/lib/habanalabs/:/optimum-habana
 ENV PYTHON=/usr/bin/python3.10
 
 # Install dependencies
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     yasm \
+    build-essential \
+    pkg-config \
     libx264-dev
 RUN apt-get install -y nasm
 RUN rm -rf /var/lib/apt/lists/*
-
-# TO-DO: Add a user for security
 
 # Install GenAIComps
 RUN mkdir -p /home/user/comps
 COPY comps /home/user/comps
 COPY comps/animation/dependency/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Install ppmpeg with x264 software codec
+# Install ffmpeg with x264 software codec
 RUN git clone https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/FFmpeg
 WORKDIR /home/user/comps/animation/FFmpeg
 RUN ./configure --enable-gpl --enable-libx264 && \
@@ -36,12 +36,12 @@ RUN python3 -m pip install --upgrade pip
 # Install Wav2Lip from pip
 RUN pip install --no-deps Wav2Lipy
 RUN rm /usr/local/lib/python3.10/dist-packages/Wav2Lip/__init__.py && touch /usr/local/lib/python3.10/dist-packages/Wav2Lip/__init__.py
-ENV PYTHONPATH="/usr/local/lib/python3.10/dist-packages/Wav2Lip:$PYTHONPATH"
+ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.10/dist-packages/Wav2Lip"
 
 # Install GFPGAN from pip
 RUN pip install --no-deps gfpgan
 RUN touch /usr/local/lib/python3.10/dist-packages/gfpgan/__init__.py
-ENV PYTHONPATH="/usr/local/lib/python3.10/dist-packages/gfpgan:$PYTHONPATH"
+ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.10/dist-packages/gfpgan"
 
 # Download pre-trained models
 # Install gdown

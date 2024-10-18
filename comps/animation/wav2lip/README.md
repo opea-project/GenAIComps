@@ -16,13 +16,13 @@ cd GenAIComps
 - Xeon CPU
 
 ```bash
-docker build -t opea/wav2lip:latest -f comps/animation/dependency/Dockerfile .
+docker build -t opea/wav2lip:latest -f comps/animation/wav2lip/dependency/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
-docker build -t opea/wav2lip-gaudi:latest -f comps/animation/dependency/Dockerfile.intel_hpu .
+docker build -t opea/wav2lip-gaudi:latest -f comps/animation/wav2lip/dependency/Dockerfile.intel_hpu .
 ```
 
 ### 1.1.2 Animation server image
@@ -35,18 +35,19 @@ docker build -t opea/animation:latest --build-arg https_proxy=$https_proxy --bui
 
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
-# export DEVICE="cpu"
-export DEVICE="hpu"
+export DEVICE="cpu"
+# export DEVICE="hpu"
 export WAV2LIP_PORT=7860
 export ANIMATION_PORT=9066
 export INFERENCE_MODE='wav2lip+gfpgan'
-export CHECKPOINT_PATH='/usr/local/lib/python3.10/dist-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
+export CHECKPOINT_PATH='/usr/local/lib/python3.11/site-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
+# export CHECKPOINT_PATH='/usr/local/lib/python3.10/dist-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
 export FACE='assets/avatar1.jpg'
 # export AUDIO='assets/eg3_ref.wav' # audio file path is optional, will use base64str in the post request as input if is 'None'
 export AUDIO='None'
 export FACESIZE=96
 export OUTFILE="$(pwd)/comps/animation/wav2lip/assets/outputs/result.mp4"
-export GFPGAN_MODEL_VERSION=1.3
+export GFPGAN_MODEL_VERSION=1.4 # latest version, can roll back to v1.3 if needed
 export UPSCALE_FACTOR=1
 export FPS=10
 ```
@@ -64,7 +65,7 @@ docker run --privileged -d -p 7860:7860 --ipc=host --name "wav2lip-service" -v /
 - Gaudi2 HPU
 
 ```bash
-docker run --privileged -d --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "wav2lip-gaudi-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT opea/wav2lip-gaudi:latest
+docker run --privileged -d -p 7860:7860 --runtime=habana --cap-add=sys_nice --net=host --ipc=host --name "wav2lip-gaudi-service" -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker -v $(pwd):$(pwd) -w /home/user/comps/animation -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PYTHON=/usr/bin/python3.10 -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT opea/wav2lip-gaudi:latest
 ```
 
 ## 2.2 Run Animation Microservice

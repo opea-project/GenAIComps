@@ -170,14 +170,15 @@ if __name__ == "__main__":
 
     # Specify device
     # Habana
-    import habana_frameworks.torch.hpu as hthpu
-
-    if args.device == "hpu" and hthpu.is_available():
-        device = "hpu"
+    if args.device == "hpu":
+        import habana_frameworks.torch.hpu as hthpu
+        import habana_frameworks.torch.core as htcore
+        if hthpu.is_available():
+            device = "hpu"
+        else:
+            device = "cpu"
     elif args.device == "cuda":
         device = "cuda"
-    elif args.device == "cpu":
-        device = "cpu"
     else:
         device = "cpu"
         print("Invalid device argument, fall back to cpu")
