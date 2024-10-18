@@ -121,7 +121,11 @@ def get_args():
     # we use version to select models, which is more user-friendly
     parser.add_argument("--img_size", type=int, default=96, help="size to reshape the detected face")
     parser.add_argument(
-        "-v", "--version", type=str, default="1.4", help="GFPGAN model version. Option: 1 | 1.2 | 1.3 | 1.4. Default: 1.4"
+        "-v",
+        "--version",
+        type=str,
+        default="1.4",
+        help="GFPGAN model version. Option: 1 | 1.2 | 1.3 | 1.4. Default: 1.4",
     )
     parser.add_argument(
         "-s", "--upscale", type=int, default=2, help="The final upsampling scale of the image. Default: 2"
@@ -325,10 +329,8 @@ def load_gfpgan(args, bg_upsampler):
         raise ValueError(f"Wrong model version {args.version}.")
 
     # determine model path
-    pythonpath = os.environ.get('PYTHONPATH').split(':')[0]
-    model_path = path.join(
-        pythonpath, "gfpgan/experiments/pretrained_models", model_name + ".pth"
-    )
+    pythonpath = os.environ.get("PYTHONPATH").split(":")[0]
+    model_path = path.join(pythonpath, "gfpgan/experiments/pretrained_models", model_name + ".pth")
     if not path.isfile(model_path):
         model_path = path.join(pythonpath, "gfpgan/realesrgan/weights", model_name + ".pth")
     if not path.isfile(model_path):

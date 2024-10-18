@@ -171,8 +171,9 @@ if __name__ == "__main__":
     # Specify device
     # Habana
     if args.device == "hpu":
-        import habana_frameworks.torch.hpu as hthpu
         import habana_frameworks.torch.core as htcore
+        import habana_frameworks.torch.hpu as hthpu
+
         if hthpu.is_available():
             device = "hpu"
         else:
