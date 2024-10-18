@@ -202,9 +202,11 @@ class ServiceOrchestrator(DAG):
             if LOGFLAG:
                 logger.info(inputs)
             async with session.post(endpoint, json=inputs) as response:
-                if response.content_type == 'audio/wav':
+                if response.content_type == "audio/wav":
                     audio_data = await response.read()
-                    data = self.align_outputs(audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)
+                    data = self.align_outputs(
+                        audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs
+                    )
                 else:
                     # Parse as JSON
                     data = await response.json()
