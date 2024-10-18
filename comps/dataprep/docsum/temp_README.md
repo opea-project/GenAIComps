@@ -55,6 +55,34 @@ docker run -it -p 7079:7079 --ipc=host -e http_proxy=$http_proxy -e https_proxy=
 
 ```
 
+# Macro Service 
+
+cd GenAIExamples\Docsum
+
+## Build
+```bash 
+docker build -t opea/docsum:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f Dockerfile .
+```
+## Run 
+```bash
+ip_address=$(hostname -I | awk '{print $1}')
+
+docker run -it -p 8888:8888 --ipc=host \
+    -e http_proxy=$http_proxy \
+    -e https_proxy=$https_proxy  \
+    -e no_proxy=$no_proxy  \
+    opea/docsum:latest 
+
+```
+<!-- 
+    -e A2T_ENDPOINT=http://$ip_address:7066 \
+    -e V2A_ENDPOINT=http://$ip_address:7078 \  
+    # -e A2T_ENDPOINT=http://$ip_address:7066 \
+    # -e V2A_ENDPOINT=http://$ip_address:7078 \
+    # -e DATA_ENDPOINT=http://$ip_address:7079 \   
+    # -e DATA_SERVICE_HOST_IP=http://$ip_address \
+-->
+
 
 
 
