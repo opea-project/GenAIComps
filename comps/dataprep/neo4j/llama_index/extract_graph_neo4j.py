@@ -14,9 +14,17 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import nest_asyncio
 import networkx as nx
 import openai
-from config import NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, TGI_LLM_ENDPOINT,TEI_EMBEDDING_ENDPOINT
-from config import OPENAI_API_KEY, OPENAI_EMBEDDING_MODEL, OPENAI_LLM_MODEL
-from config import host_ip
+from config import (
+    NEO4J_PASSWORD,
+    NEO4J_URL,
+    NEO4J_USERNAME,
+    OPENAI_API_KEY,
+    OPENAI_EMBEDDING_MODEL,
+    OPENAI_LLM_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
+    TGI_LLM_ENDPOINT,
+    host_ip,
+)
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -91,7 +99,6 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         response = OpenAI().chat(messages)
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
-
 
     def build_communities(self):
         """Builds communities from the graph and summarizes them."""
@@ -458,7 +465,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
             logger.info(f"An error occurred while verifying the API Key: {e}")
     else:
         logger.info("NO OpenAI API Key. TGI/TEI endpoints will be used.")
-        llm_name=get_model_name_from_tgi_endpoint(TGI_LLM_ENDPOINT)
+        llm_name = get_model_name_from_tgi_endpoint(TGI_LLM_ENDPOINT)
         llm = TextGenerationInference(
             model_url=TGI_LLM_ENDPOINT,
             model_name=llm_name,

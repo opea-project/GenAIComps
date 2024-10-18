@@ -22,4 +22,3 @@ export NEO4J_USERNAME=neo4j
 export NEO4J_PASSWORD=neo4jtest
 export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:6004/v1/dataprep"
 export LOGFLAG=True
-
