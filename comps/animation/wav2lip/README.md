@@ -53,6 +53,7 @@ export FPS=10
 ```
 
 - Gaudi2 HPU
+
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
 export DEVICE="hpu"
