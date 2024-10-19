@@ -874,7 +874,7 @@ class AvatarChatbotGateway(Gateway):
     async def handle_request(self, request: Request):
         data = await request.json()
 
-        chat_request = AudioChatCompletionRequest.parse_obj(data)
+        chat_request = AudioChatCompletionRequest.model_validate(data)
         parameters = LLMParams(
             # relatively lower max_tokens for audio conversation
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 128,
@@ -885,7 +885,7 @@ class AvatarChatbotGateway(Gateway):
             streaming=False,  # TODO add streaming LLM output as input to TTS
         )
         result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={"byte_str": chat_request.byte_str}, llm_parameters=parameters
+            initial_inputs={"byte_str": chat_request.audio}, llm_parameters=parameters
         )
 
         last_node = runtime_graph.all_leaves()[-1]
