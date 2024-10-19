@@ -60,7 +60,7 @@ class MegaServiceEndpoint(Enum):
     GUARDRAILS = "/v1/guardrails"
     RAGAS = "/v1/ragas"
     GRAPHS = "/v1/graphs"
-    AVATAR_CHATBOT = "v1/avatarchatbot"
+    AVATAR_CHATBOT = "/v1/avatarchatbot"
 
     # COMMON
     LIST_SERVICE = "/v1/list_service"
