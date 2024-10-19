@@ -19,7 +19,7 @@ RUN rm -rf /var/lib/apt/lists/*
 # Install GenAIComps
 RUN mkdir -p /home/user/comps
 COPY comps /home/user/comps
-COPY comps/animation/dependency/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY comps/animation/wav2lip/dependency/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Install ffmpeg with x264 software codec
 RUN git clone https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/FFmpeg
@@ -44,18 +44,12 @@ RUN touch /usr/local/lib/python3.10/dist-packages/gfpgan/__init__.py
 ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.10/dist-packages/gfpgan"
 
 # Download pre-trained models
-# Install gdown
-RUN pip install gdown
 WORKDIR /usr/local/lib/python3.10/dist-packages
-# RUN wget https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth -O Wav2Lip/face_detection/detection/sfd/s3fd.pth
-RUN gdown https://drive.google.com/uc?id=1wwts8U4Wx2lpLOI9uGcUB-TLmKRIFnP8 -O Wav2Lip/face_detection/detection/sfd/s3fd.pth
-RUN mkdir -p Wav2Lip/checkpoints
-RUN gdown https://drive.google.com/uc?id=1mIKfu_onFKbkbrq6cKVRBblXe5bNMhd9 -O Wav2Lip/checkpoints/wav2lip.pth
-RUN gdown https://drive.google.com/uc?id=1DD7dtUfNWqNoW-2Gnp78B4PyaiJ5ybhP -O Wav2Lip/checkpoints/wav2lip_gan.pth
-RUN wget https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth -P gfpgan/experiments/pretrained_models
+RUN chmod +x /home/user/comps/animation/wav2lip/dependency/download_ckpts.sh
+RUN /home/user/comps/animation/wav2lip/dependency/download_ckpts.sh
 
 # Install pip dependencies
-RUN pip install -r /home/user/comps/animation/requirements.txt
+RUN pip install -r /home/user/comps/animation/wav2lip/requirements.txt
 
 # Custom patches
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional
@@ -68,7 +62,7 @@ RUN sed -i "s/if 'cpu' not in device and 'cuda' not in device:/if 'cpu' not in d
 RUN sed -i 's/hp.sample_rate, hp.n_fft/sr=hp.sample_rate, n_fft=hp.n_fft/' /usr/local/lib/python3.10/dist-packages/Wav2Lip/audio.py
 
 # Set the working directory
-WORKDIR /home/user/comps/animation
+WORKDIR /home/user/comps/animation/wav2lip
 
 # Define the command to run when the container starts
 RUN chmod +x /usr/local/bin/entrypoint.sh

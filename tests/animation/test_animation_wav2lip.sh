@@ -35,7 +35,7 @@ function start_service() {
     export ANIMATION_PORT=9066
     export INFERENCE_MODE='wav2lip+gfpgan'
     export CHECKPOINT_PATH='/usr/local/lib/python3.11/site-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
-    export FACE="assets/avatar1.jpg"
+    export FACE="assets/img/avatar1.jpg"
     export AUDIO='None'
     export FACESIZE=96
     export OUTFILE="assets/outputs/result.mp4"
