@@ -884,7 +884,8 @@ class AvatarChatbotGateway(Gateway):
             repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
             streaming=False,  # TODO add streaming LLM output as input to TTS
         )
-        print(parameters)
+        # print(parameters)
+        
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"byte_str": chat_request.audio}, llm_parameters=parameters
         )
