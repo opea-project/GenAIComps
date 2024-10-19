@@ -874,7 +874,7 @@ class AvatarChatbotGateway(Gateway):
     async def handle_request(self, request: Request):
         data = await request.json()
 
-        chat_request = AudioChatCompletionRequest.model_validate(data)
+        chat_request = AudioChatCompletionRequest.parse_obj(data)
         parameters = LLMParams(
             # relatively lower max_tokens for audio conversation
             max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 128,
