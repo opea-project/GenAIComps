@@ -1,6 +1,3 @@
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
-
 version: "3.8"
 services:
   neo4j-apoc:
@@ -74,6 +71,33 @@ services:
       - tei-embedding-service
     ports:
       - "6004:6004"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      host_ip: ${host_ip}
+      NEO4J_URL: ${NEO4J_URL}
+      NEO4J_USERNAME: ${NEO4J_USERNAME}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      TGI_LLM_ENDPOINT: ${TGI_LLM_ENDPOINT}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL}
+      OPENAI_LLM_MODEL: ${OPENAI_LLM_MODEL}
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      LOGFLAG: ${LOGFLAG}
+    restart: unless-stopped
+  retriever-neo4j:
+    image: opea/retriever-neo4j-llama_index:latest
+    container_name: retriever-neo4j-server
+    depends_on:
+      - neo4j-apoc
+      - tgi-gaudi-service
+      - tei-embedding-service
+    ports:
+      - "6009:6009"
     ipc: host
     environment:
       no_proxy: ${no_proxy}

@@ -16,7 +16,7 @@ llama-index-core
 llama-index-embeddings-text-embeddings-inference
 llama-index-llms-openai
 llama-index-llms-text-generation-inference
-llama_index_graph_stores_neo4j
+llama_index_graph_stores_neo4j==0.3.3
 markdown
 neo4j
 numpy

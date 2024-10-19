@@ -15,7 +15,7 @@ from config import (
     NEO4J_URL,
     NEO4J_USERNAME,
     OPENAI_EMBEDDING_MODEL,
-    OPENAI_KEY,
+    OPENAI_API_KEY,
     OPENAI_LLM_MODEL,
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
@@ -48,10 +48,6 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponseData,
 )
 from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, get_model_name_from_tgi_endpoint
-
-# from config import EMBED_ENDPOINT, EMBED_MODEL, NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME
-# from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
-# from langchain_community.vectorstores import Neo4jVector
 
 Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
 Settings.llm = OpenAI(temperature=0, model="gpt-4o")
@@ -163,7 +159,7 @@ class GraphRAGQueryEngine(CustomQueryEngine):
     service_type=ServiceType.RETRIEVER,
     endpoint="/v1/retrieval",
     host="0.0.0.0",
-    port=7000,
+    port=6009,
 )
 @register_statistics(names=["opea_service@retriever_community_answers_neo4j"])
 async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionRequest]:
@@ -172,9 +168,9 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
     start = time.time()
     query = input.messages[0]["content"]
 
-    if OPENAI_KEY:
+    if OPENAI_API_KEY:
         logger.info("OpenAI API Key is set. Verifying its validity...")
-        openai.api_key = OPENAI_KEY
+        openai.api_key = OPENAI_API_KEY
         try:
             llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
             embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
