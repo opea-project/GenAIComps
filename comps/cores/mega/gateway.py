@@ -877,8 +877,8 @@ class AvatarChatbotGateway(Gateway):
         chat_request = AudioChatCompletionRequest.model_validate(data)
         parameters = LLMParams(
             # relatively lower max_tokens for audio conversation
-            max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 128,
-            # max_new_tokens=128,
+            # max_new_tokens=chat_request.max_tokens if chat_request.max_tokens else 128,
+            max_new_tokens=128,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
