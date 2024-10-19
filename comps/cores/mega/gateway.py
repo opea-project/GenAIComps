@@ -889,5 +889,5 @@ class AvatarChatbotGateway(Gateway):
         )
 
         last_node = runtime_graph.all_leaves()[-1]
-        response = result_dict[last_node]["wav2lip_result"]
+        response = result_dict[last_node]["video_path"]
         return response
