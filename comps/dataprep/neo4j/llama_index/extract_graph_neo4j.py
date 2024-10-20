@@ -5,7 +5,6 @@
 import asyncio
 import json
 import os
-import requests
 
 # GraphRAGStore dependencies
 import re
@@ -15,6 +14,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import nest_asyncio
 import networkx as nx
 import openai
+import requests
 from config import (
     NEO4J_PASSWORD,
     NEO4J_URL,
