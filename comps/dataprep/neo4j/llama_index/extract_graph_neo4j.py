@@ -5,6 +5,7 @@
 import asyncio
 import json
 import os
+import requests
 
 # GraphRAGStore dependencies
 import re
