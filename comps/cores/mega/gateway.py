@@ -420,7 +420,10 @@ class AudioQnAGateway(Gateway):
         )
 
         last_node = runtime_graph.all_leaves()[-1]
-        response = result_dict[last_node]["byte_str"]
+        # response = result_dict[last_node]["byte_str"]
+        response = {"byte_str": result_dict[last_node]["byte_str"],
+                    "text": result_dict["llm/MicroService"]["text"],
+                    "query": result_dict["asr/MicroService"]["query"]}
 
         return response
 
