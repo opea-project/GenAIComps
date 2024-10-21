@@ -14,6 +14,7 @@ INDEX_NAME="dataprep"
 video_name="WeAreGoingOnBullrun"
 transcript_fn="${video_name}.vtt"
 video_fn="${video_name}.mp4"
+image_fn="apple.png"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -31,14 +32,14 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/lvm-llava:comps -f comps/lvms/llava/dependency/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/dependency/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava built fail"
         exit 1
     else
         echo "opea/lvm-llava built successful"
     fi
-    docker build --no-cache -t opea/lvm-llava-svc:comps -f comps/lvms/llava/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava-svc:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llava/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava-svc built fail"
         exit 1
@@ -115,7 +116,10 @@ place to watch it is on BlackmagicShine.com. We're right here on the smoking
 00:00:45.240 --> 00:00:47.440
 tire.""" > ${transcript_fn}
 
-    echo "Downloading Video"
+    #echo "Downloading Image"
+    wget https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true -O ${image_fn}
+
+    #echo "Downloading Video"
     wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -O ${video_fn}
 
 }
@@ -170,8 +174,8 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/generate_captions upload file
-    echo "Testing generate_captions API"
+    # test v1/generate_captions upload video file
+    echo "Testing generate_captions API with video"
     URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
@@ -194,7 +198,29 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
+    # test v1/generate_captions upload image file
+    echo "Testing generate_captions API with image"
+    URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
 
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    SERVICE_NAME="dataprep - upload - file"
+
+    if [ "$HTTP_STATUS" -ne "200" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+    fi
+    if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
+        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] Content is as expected."
+    fi
 
     # test /v1/dataprep/get_videos
     echo "Testing get_videos API"
@@ -257,6 +283,7 @@ function delete_data() {
     cd ${LOG_PATH}
     rm -rf WeAreGoingOnBullrun.vtt
     rm -rf WeAreGoingOnBullrun.mp4
+    rm -rf apple.png
     sleep 1s
 }
 
