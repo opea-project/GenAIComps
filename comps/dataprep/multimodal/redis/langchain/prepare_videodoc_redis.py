@@ -23,7 +23,7 @@ from multimodal_utils import (
     extract_frames_and_annotations_from_transcripts,
     extract_frames_and_generate_captions,
     extract_transcript_from_audio,
-    generate_video_id,
+    generate_id,
     load_json_file,
     load_whisper_model,
     write_vtt,
@@ -287,7 +287,7 @@ async def ingest_videos_generate_transcripts(files: List[UploadFile] = File(None
             print(f"Processing video {video_file.filename}")
 
             # Assign unique identifier to video
-            video_id = generate_video_id()
+            video_id = generate_id()
 
             # Create video file name by appending identifier
             video_name = os.path.splitext(video_file.filename)[0]
@@ -349,7 +349,7 @@ async def ingest_videos_generate_transcripts(files: List[UploadFile] = File(None
         return {
             "status": 200,
             "message": "Data preparation succeeded",
-            "video_id_maps": uploaded_videos_saved_videos_map,
+            "file_id_maps": uploaded_videos_saved_videos_map,
         }
 
     raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) file.")
@@ -359,58 +359,58 @@ async def ingest_videos_generate_transcripts(files: List[UploadFile] = File(None
     name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_captions", host="0.0.0.0", port=6007
 )
 async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
-    """Upload videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
+    """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
 
     if files:
-        video_files = []
-        uploaded_videos_saved_videos_map = {}
+        file_paths = []
+        uploaded_files_saved_files_map = {}
         for file in files:
-            if os.path.splitext(file.filename)[1] == ".mp4":
-                video_files.append(file)
+            if os.path.splitext(file.filename)[1] in [".mp4", ".png", ".jpg", ".jpeg", ".gif"]:
+                file_paths.append(file)
             else:
                 raise HTTPException(
-                    status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only."
+                    status_code=400, detail=f"File {file.filename} is not a supported file type. Please upload mp4, png, jpg, jpeg, and gif files only."
                 )
 
-        for video_file in video_files:
-            print(f"Processing video {video_file.filename}")
+        for file in file_paths:
+            print(f"Processing file {file.filename}")
 
-            # Assign unique identifier to video
-            video_id = generate_video_id()
+            # Assign unique identifier to file
+            id = generate_id()
 
-            # Create video file name by appending identifier
-            video_name = os.path.splitext(video_file.filename)[0]
-            video_file_name = f"{video_name}_{video_id}.mp4"
-            video_dir_name = os.path.splitext(video_file_name)[0]
+            # Create file name by appending identifier
+            name, ext = os.path.splitext(file.filename)
+            file_name = f"{name}_{id}{ext}"
+            dir_name = os.path.splitext(file_name)[0]
 
-            # Save video file in upload_directory
-            with open(os.path.join(upload_folder, video_file_name), "wb") as f:
-                shutil.copyfileobj(video_file.file, f)
-            uploaded_videos_saved_videos_map[video_name] = video_file_name
+            # Save file in upload_directory
+            with open(os.path.join(upload_folder, file_name), "wb") as f:
+                shutil.copyfileobj(file.file, f)
+            uploaded_files_saved_files_map[name] = file_name
 
             # Store frames and caption annotations in a new directory
             extract_frames_and_generate_captions(
-                video_id,
-                os.path.join(upload_folder, video_file_name),
+                id,
+                os.path.join(upload_folder, file_name),
                 LVM_ENDPOINT,
-                os.path.join(upload_folder, video_dir_name),
+                os.path.join(upload_folder, dir_name),
             )
 
             # Ingest multimodal data into redis
-            ingest_multimodal(video_name, os.path.join(upload_folder, video_dir_name), embeddings)
+            ingest_multimodal(name, os.path.join(upload_folder, dir_name), embeddings)
 
-            # Delete temporary video directory containing frames and annotations
-            # shutil.rmtree(os.path.join(upload_folder, video_dir_name))
+            # Delete temporary directory containing frames and annotations
+            # shutil.rmtree(os.path.join(upload_folder, dir_name))
 
-            print(f"Processed video {video_file.filename}")
+            print(f"Processed file {file.filename}")
 
         return {
             "status": 200,
             "message": "Data preparation succeeded",
-            "video_id_maps": uploaded_videos_saved_videos_map,
+            "file_id_maps": uploaded_files_saved_files_map,
         }
 
-    raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) file.")
+    raise HTTPException(status_code=400, detail="Must provide at least one file.")
 
 
 @register_microservice(
@@ -434,7 +434,7 @@ async def ingest_images_generate_caption(files: List[UploadFile] = File(None)):
             print(f"Processing image {image_file.filename}")
 
             # Assign unique identifier to image
-            image_id = generate_video_id()
+            image_id = generate_id()
 
             # Create image file name by appending identifier
             image_name, image_ext = os.path.splitext(image_file.filename)
@@ -462,7 +462,7 @@ async def ingest_images_generate_caption(files: List[UploadFile] = File(None)):
         return {
             "status": 200,
             "message": "Data preparation succeeded",
-            "image_id_maps": uploaded_images_saved_images_map,
+            "file_id_maps": uploaded_images_saved_images_map,
         }
 
     raise HTTPException(status_code=400, detail="Must provide at least one image file.")
@@ -508,7 +508,7 @@ async def ingest_videos_with_transcripts(files: List[UploadFile] = File(None)):
             print(f"Processing video {video_file.filename}")
 
             # Assign unique identifier to video
-            video_id = generate_video_id()
+            video_id = generate_id()
 
             # Create video file name by appending identifier
             video_name = os.path.splitext(video_file.filename)[0]
@@ -553,7 +553,7 @@ async def ingest_videos_with_transcripts(files: List[UploadFile] = File(None)):
         return {
             "status": 200,
             "message": "Data preparation succeeded",
-            "video_id_maps": uploaded_videos_saved_videos_map,
+            "file_id_maps": uploaded_videos_saved_videos_map,
         }
 
     raise HTTPException(
