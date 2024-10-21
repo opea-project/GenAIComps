@@ -6,10 +6,9 @@ FROM python:3.11-slim
 ARG ARCH="cpu"
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    libgl1-mesa-glx \
-    libjemalloc-dev \
     iputils-ping \
-    vim
+    libgl1-mesa-glx \
+    libjemalloc-dev
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
@@ -32,11 +31,6 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 ENV HUGGINGFACEHUB_API_TOKEN=dummy
 
 ENV USECLIP 0
-
-ENV no_proxy=localhost,127.0.0.1
-
-ENV http_proxy=""
-ENV https_proxy=""
 
 WORKDIR /home/user/comps/retrievers/vdms/langchain
 
