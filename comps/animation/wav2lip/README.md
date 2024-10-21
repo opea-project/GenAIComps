@@ -100,8 +100,8 @@ Once microservice starts, user can use below script to validate the running micr
 ## 3.1 Validate Wav2Lip service
 
 ```bash
-cd GenAIComps/comps/animation/wav2lip
-python3 dependency/check_wav2lip_server.py
+cd GenAIComps
+python3 comps/animation/wav2lip/dependency/check_wav2lip_server.py
 ```
 
 ## 3.2 Validate Animation service
@@ -115,14 +115,14 @@ curl http://${ip_address}:9066/v1/animation -X POST -H "Content-Type: applicatio
 or
 
 ```bash
-cd GenAIComps/comps/animation/wav2lip
-python3 check_animation_server.py
+cd GenAIComps
+python3 comps/animation/wav2lip/dependency/check_animation_server.py
 ```
 
 The expected output is a message similar to the following:
 
 ```bash
-{'wav2lip_result': '.../GenAIComps/comps/animation/wav2lip/assets/outputs/result.mp4'}
+{'wav2lip_result': '....../GenAIComps/comps/animation/wav2lip/assets/outputs/result.mp4'}
 ```
 
 Please find "comps/animation/wav2lip/assets/outputs/result.mp4" as a reference generated video.
