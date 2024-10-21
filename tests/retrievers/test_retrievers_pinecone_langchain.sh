@@ -29,7 +29,7 @@ function start_service() {
 
     # pinecone retriever
     export PINECONE_API_KEY=$PINECONE_KEY
-    export PINECONE_INDEX_NAME="langchain-test"
+    export PINECONE_INDEX_NAME="langchain-test-index"
     export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
     retriever_port=5054
     unset http_proxy
