@@ -29,8 +29,7 @@ def video_to_audio(path_to_video):
     # Define the endpoint and payload
     endpoint = "http://localhost:7078/v1/video2audio"
     inputs = {"byte_str": video_base64_str}
-    # inputs = {"byte_str": "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"}
-    
+      
     # Send the POST request to the server
     response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None})
     
@@ -58,7 +57,7 @@ def read_config():
         "--path_to_video",
         help="Location of the video file that will be converted to audio.",
         required=False,
-        default=os.path.join(root_folder, "../data/test.mp4")
+        default=os.path.join(root_folder, "../data/test_video_30s.mp4")
     )
     
     # Add argument for the audio file path
