@@ -35,7 +35,7 @@ function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-retriever-pinecone-server" -p ${retriever_port}:7000 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PINECONE_API_KEY=$PINECONE_API_KEY -e PINECONE_INDEX_NAME=$PINECONE_INDEX_NAME -e INDEX_NAME=$PINECONE_INDEX_NAME opea/retriever-pinecone:comps
 
-    sleep 2m
+    sleep 120s
 }
 
 function validate_microservice() {
