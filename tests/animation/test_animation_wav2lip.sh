@@ -49,6 +49,7 @@ function start_service() {
 }
 
 function validate_microservice() {
+    cd $WORKPATH
     result=$(http_proxy="" curl http://localhost:9066/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/wav2lip/assets/audio/sample_question.json)
     if [[ $result == *"result.mp4"* ]]; then
         echo "Result correct."
