@@ -90,5 +90,23 @@ if __name__ == "__main__":
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
-    vector_db = PineconeVectorStore(embedding=embeddings, index_name=PINECONE_INDEX_NAME)
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    spec = ServerlessSpec(cloud="aws", region="us-east-1")
+    
+    existing_indexes = [index_info[PINECONE_INDEX_NAME] for index_info in pc.list_indexes()]
+
+    if PINECONE_INDEX_NAME not in existing_indexes:
+        # create a new index
+        pc.create_index(
+            PINECONE_INDEX_NAME,
+            dimension=1024,  # Based on TEI Embedding service using BAAI/bge-large-en-v1.5
+            spec=spec
+        )
+        while not pc.describe_index(PINECONE_INDEX_NAME).status["ready"]:
+            time.sleep(1)
+
+    index = pc.Index(PINECONE_INDEX_NAME)
+    vector_db = PineconeVectorStore(index=index, embedding=embeddings)
+
     opea_microservices["opea_service@retriever_pinecone"].start()
+
