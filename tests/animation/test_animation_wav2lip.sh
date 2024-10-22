@@ -43,8 +43,8 @@ function start_service() {
     export UPSCALE_FACTOR=1
     export FPS=10
 
-    docker run -d --name="test-comps-animation-wav2lip" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT -p 7860:7860 --ipc=host opea/wav2lip:comps
-    docker run -d --name="test-comps-animation" -e WAV2LIP_ENDPOINT=http://$ip_address:7860 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9066:9066 --ipc=host opea/animation:comps
+    docker run -d --name="test-comps-animation-wav2lip" -v $(pwd)/comps/animation/wav2lip/assets:/home/user/comps/animation/wav2lip/assets -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT -p 7860:7860 --ipc=host opea/wav2lip:comps
+    docker run -d --name="test-comps-animation" -v $(pwd)/comps/animation/wav2lip/assets:/home/user/comps/animation/wav2lip/assets -e WAV2LIP_ENDPOINT=http://$ip_address:7860 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9066:9066 --ipc=host opea/animation:comps
     sleep 3m
 }
 
