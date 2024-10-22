@@ -17,7 +17,7 @@ function build_docker_images() {
     else
         echo "opea/wav2lip built successful"
     fi
-    docker build -t opea/animation:comps -f comps/animation/wav2lip/Dockerfile .
+    docker build --no-cache -t opea/animation:comps -f comps/animation/wav2lip/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/animation built fail"
         exit 1
@@ -45,7 +45,7 @@ function start_service() {
 
     docker run -d --name="test-comps-animation-wav2lip" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT -p 7860:7860 --ipc=host opea/wav2lip:comps
     docker run -d --name="test-comps-animation" -e WAV2LIP_ENDPOINT=http://$ip_address:7860 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9066:9066 --ipc=host opea/animation:comps
-    sleep 1m
+    sleep 3m
 }
 
 function validate_microservice() {
