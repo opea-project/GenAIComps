@@ -21,7 +21,6 @@ class TestConvertToDockerCompose(unittest.TestCase):
         if os.path.isfile(self.output_file):
             os.unlink(self.output_file)
 
-
     def test_convert_to_docker_compose(self):
         # Call the function directly
         convert_to_docker_compose(self.mega_yaml, self.output_file)

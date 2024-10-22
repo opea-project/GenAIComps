@@ -31,7 +31,6 @@ def opea_execute():
     compose_parser.add_argument("mega_yaml", help="Path to the mega YAML file")
     compose_parser.add_argument("output_file", help="Path to the Docker Compose file")
 
-
     # Export to Kubernetes
     kube_parser = export_subparsers.add_parser("kubernetes", help="Export to Kubernetes")
     kube_parser.add_argument("mega_yaml", help="Path to the mega YAML file")
