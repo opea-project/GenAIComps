@@ -18,7 +18,6 @@ llm = AsyncInferenceClient(
     timeout=600,
 )
 
-
 templ_en = """Write a concise summary of the following:
 
 
