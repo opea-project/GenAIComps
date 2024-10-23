@@ -92,21 +92,27 @@ if __name__ == "__main__":
 
     pc = Pinecone(api_key=PINECONE_API_KEY)
     spec = ServerlessSpec(cloud="aws", region="us-east-1")
-    
-    existing_indexes = [index_info[PINECONE_INDEX_NAME] for index_info in pc.list_indexes()]
 
-    if PINECONE_INDEX_NAME not in existing_indexes:
-        # create a new index
-        pc.create_index(
-            PINECONE_INDEX_NAME,
-            dimension=1024,  # Based on TEI Embedding service using BAAI/bge-large-en-v1.5
-            spec=spec
-        )
-        while not pc.describe_index(PINECONE_INDEX_NAME).status["ready"]:
-            time.sleep(1)
+    existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
+    
+    # For testing purposes we want to create a fresh index each time.
+    # In production you would probably keep your index and
+    # replace this with a check if the index doesn't exist then create it.
+    if PINECONE_INDEX_NAME in existing_indexes:
+        pc.configure_index(PINECONE_INDEX_NAME, deletion_protection='disabled')
+        pc.delete_index(PINECONE_INDEX_NAME)
+        time.sleep(1)
+
+    pc.create_index(
+        PINECONE_INDEX_NAME,
+        dimension=1024,  # Based on TEI Embedding service using BAAI/bge-large-en-v1.5
+        deletion_protection="disabled",
+        spec=spec,
+    )
+    while not pc.describe_index(PINECONE_INDEX_NAME).status["ready"]:
+        time.sleep(1)
 
     index = pc.Index(PINECONE_INDEX_NAME)
     vector_db = PineconeVectorStore(index=index, embedding=embeddings)
 
     opea_microservices["opea_service@retriever_pinecone"].start()
-
