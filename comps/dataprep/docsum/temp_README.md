@@ -55,11 +55,6 @@ docker run -it -p 7079:7079 --ipc=host -e http_proxy=$http_proxy -e https_proxy=
 
 ```
 
-docker build -t opea/a2t:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/docsum/audio2text/Dockerfile_microservice .
-docker build -t opea/v2a:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/docsum/video2audio/Dockerfile_microservice .
-docker build -t opea/docsum_data:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/docsum/Dockerfile_data_prep_microservice .
-
-
 # Macro Service 
 
 cd GenAIExamples\Docsum
