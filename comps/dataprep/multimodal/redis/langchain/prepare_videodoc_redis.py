@@ -414,61 +414,6 @@ async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/image_generate_captions", host="0.0.0.0", port=6007
-)
-async def ingest_images_generate_caption(files: List[UploadFile] = File(None)):
-    """Upload images without captions, generate captions using lvm microservice and ingest into redis."""
-
-    if files:
-        image_files = []
-        uploaded_images_saved_images_map = {}
-        for file in files:
-            if os.path.splitext(file.filename)[1] in (".png", ".jpg", ".jpeg", ".gif"):
-                image_files.append(file)
-            else:
-                raise HTTPException(
-                    status_code=400, detail=f"File {file.filename} is not a valid image file type. Please upload .png, .jpg, .jpeg, or .gif files only."
-                )
-
-        for image_file in image_files:
-            print(f"Processing image {image_file.filename}")
-
-            # Assign unique identifier to image
-            image_id = generate_id()
-
-            # Create image file name by appending identifier
-            image_name, image_ext = os.path.splitext(image_file.filename)
-            image_file_name = f"{image_name}_{image_id}{image_ext}"
-            image_dir_name = os.path.splitext(image_file_name)[0]
-
-            # Save image file in upload_directory
-            with open(os.path.join(upload_folder, image_file_name), "wb") as f:
-                shutil.copyfileobj(image_file.file, f)
-            uploaded_images_saved_images_map[image_name] = image_file_name
-
-            # Store frame and caption annotations in a new directory
-            extract_frames_and_generate_captions(
-                 image_id,
-                 os.path.join(upload_folder, image_file_name),
-                 LVM_ENDPOINT,
-                 os.path.join(upload_folder, image_dir_name),
-            )
-
-            # Ingest multimodal data into redis
-            ingest_multimodal(image_name, os.path.join(upload_folder, image_dir_name), embeddings)
-
-            print(f"Processed image {image_file.filename}")
-
-        return {
-            "status": 200,
-            "message": "Data preparation succeeded",
-            "file_id_maps": uploaded_images_saved_images_map,
-        }
-
-    raise HTTPException(status_code=400, detail="Must provide at least one image file.")
-
-
-@register_microservice(
     name="opea_service@prepare_videodoc_redis",
     endpoint="/v1/videos_with_transcripts",
     host="0.0.0.0",
