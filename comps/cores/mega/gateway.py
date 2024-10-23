@@ -1,9 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import aiofiles
 import base64
-import docx2txt
 import os
 from io import BytesIO
 from typing import Union, List
@@ -12,9 +10,6 @@ import requests
 from fastapi import Request
 from fastapi import UploadFile, File
 from fastapi.responses import StreamingResponse
-from langchain.docstore.document import Document
-from langchain.document_loaders import PyPDFLoader
-from langchain.text_splitter import CharacterTextSplitter
 from PIL import Image
 
 from ..proto.api_protocol import (
@@ -355,11 +350,15 @@ class DocSumGateway(Gateway):
         )
 
     def read_pdf(self, file):
+        from langchain.document_loaders import PyPDFLoader
         loader = PyPDFLoader(file)
         docs = loader.load_and_split()
         return docs
 
     def read_text_from_file(self, file, save_file_name):
+        from langchain.text_splitter import CharacterTextSplitter
+        from langchain.docstore.document import Document
+        import docx2txt
         # read text file
         if file.headers["content-type"] == "text/plain":
             file.file.seek(0)
@@ -385,6 +384,7 @@ class DocSumGateway(Gateway):
         file_summaries = []
         for file in files:
             file_path = f"/tmp/{file.filename}"
+            import aiofiles
             async with aiofiles.open(file_path, "wb") as f:
                 await f.write(await file.read())
             text = self.read_text_from_file(file, file_path)
