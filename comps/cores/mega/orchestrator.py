@@ -7,11 +7,11 @@ import json
 import os
 import re
 from typing import Dict, List
-from pydantic import BaseModel
 
 import aiohttp
 import requests
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 from ..proto.docarray import LLMParams
 from .constants import ServiceType
