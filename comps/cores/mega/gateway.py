@@ -6,8 +6,6 @@ import os
 from io import BytesIO
 from typing import List, Union
 
-import aiofiles
-import docx2txt
 import requests
 from fastapi import File, Request, UploadFile
 from fastapi.responses import StreamingResponse
