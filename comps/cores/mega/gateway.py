@@ -363,6 +363,7 @@ class DocSumGateway(Gateway):
             repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
             streaming=stream_opt,
             language=chat_request.language if chat_request.language else "auto",
+            file=chat_request.file,
         )
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"query": prompt}, llm_parameters=parameters

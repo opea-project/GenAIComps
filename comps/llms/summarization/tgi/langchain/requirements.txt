@@ -1,4 +1,5 @@
 docarray[full]
+docx2txt
 fastapi
 huggingface_hub
 langchain #==0.1.12

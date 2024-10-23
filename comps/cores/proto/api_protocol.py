@@ -231,6 +231,7 @@ class ChatCompletionRequest(BaseModel):
             '"title" and "text" keys.'
         ),
     )
+    file: Optional[str] = None  # Path to the uploaded file
     chat_template: Optional[str] = Field(
         default=None,
         description=(
