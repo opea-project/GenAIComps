@@ -4,11 +4,12 @@
 import base64
 import os
 from io import BytesIO
-from typing import Union, List
+from typing import List, Union
 
+import aiofiles
+import docx2txt
 import requests
-from fastapi import Request
-from fastapi import UploadFile, File
+from fastapi import File, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from PIL import Image
 
@@ -395,7 +396,7 @@ class DocSumGateway(Gateway):
             prompt = self._handle_message(chat_request.messages) + "\n".join(file_summaries)
         else:
             prompt = self._handle_message(chat_request.messages)
- 
+
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
