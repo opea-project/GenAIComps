@@ -1,12 +1,12 @@
 # Retriever Microservice with Neo4J
 
-This retrieval miicroservice is intended for use in GraphRAG pipeline and assumes a GraphRAGStore exists. 
+This retrieval miicroservice is intended for use in GraphRAG pipeline and assumes a GraphRAGStore exists.
 Retrieval follows these steps:
+
 - Performs hierarchical_leiden clustering to identify communities in the knowledge graph
 - Performs similarty to find the relevant entities to the input query
 - Generates a community symmary for each community
-- Generates a partial answer to the query for each community summary. This will later be used as context to generate a final query response. Please refer to [GenAIExamples/GraphRAG](https://github.com/opea-project/GenAIExamples). 
-
+- Generates a partial answer to the query for each community summary. This will later be used as context to generate a final query response. Please refer to [GenAIExamples/GraphRAG](https://github.com/opea-project/GenAIExamples).
 
 ## 🚀Start Microservice with Docker
 
@@ -37,7 +37,7 @@ source ./set_env.sh
 
 ### 3. Run Docker with Docker Compose
 
-Docker compose will start 5 microservices: retriever-neo4j, dataprep-neo4j, neo4j-apoc, tgi-gaudi-service and tei-embedding-service. The reason TGI and TEI are needed is because retriever relies on LLM to extract community summaries from the community triplets that are identified as relevant to the input query. Neo4j database supports embeddings natively so we do not need a separate vector store. Checkout the blog [Introducing the Property Graph Index: A Powerful New Way to Build Knowledge Graphs with LLMs](https://www.llamaindex.ai/blog/introducing-the-property-graph-index-a-powerful-new-way-to-build-knowledge-graphs-with-llms) for a better understanding of Property Graph Store and Index. 
+Docker compose will start 5 microservices: retriever-neo4j, dataprep-neo4j, neo4j-apoc, tgi-gaudi-service and tei-embedding-service. The reason TGI and TEI are needed is because retriever relies on LLM to extract community summaries from the community triplets that are identified as relevant to the input query. Neo4j database supports embeddings natively so we do not need a separate vector store. Checkout the blog [Introducing the Property Graph Index: A Powerful New Way to Build Knowledge Graphs with LLMs](https://www.llamaindex.ai/blog/introducing-the-property-graph-index-a-powerful-new-way-to-build-knowledge-graphs-with-llms) for a better understanding of Property Graph Store and Index.
 
 ```bash
 cd comps/retrievers/neo4j/llama_index
@@ -55,7 +55,8 @@ curl http://${host_ip}:6009/v1/health_check \
 ```
 
 ### 3.2 Consume Retriever Service
-If OPEN_AI_KEY is provided it will use OPENAI endpoints for LLM and Embeddings otherwise will use TGI and TEI endpoints. If a model name not provided in the request it will use the default specified by the set_env.sh script. 
+
+If OPEN_AI_KEY is provided it will use OPENAI endpoints for LLM and Embeddings otherwise will use TGI and TEI endpoints. If a model name not provided in the request it will use the default specified by the set_env.sh script.
 
 ```bash
 curl -X POST http://${host_ip}:6009/v1/retrieval \

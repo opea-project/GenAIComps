@@ -20,7 +20,7 @@ function build_docker_images() {
     else
         echo "opea/retriever-neo4j built successful"
     fi
-    
+
     docker build -t opea/dataprep-neo4j:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/neo4j/llama_index/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-neo4j built fail"
@@ -49,7 +49,7 @@ function start_service() {
     sleep 30s
     export TGI_LLM_ENDPOINT="http://${ip_address}:6005"
 
-    # dataprep neo4j 
+    # dataprep neo4j
     # Not testing openai code path since not able to provide key for cicd
     docker run -d --name="test-comps-retriever-neo4j-dataprep-endpoint" -p 6004:6004 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e no_proxy=$no_proxy \
@@ -122,7 +122,7 @@ function validate_microservice() {
         "200 OK" \
         "neo4j-apoc" \
         "test-comps-neo4j-apoc" \
-        "" 
+        ""
     sleep 1m # retrieval can't curl as expected, try to wait for more time
 
     # test /v1/dataprep graph extraction

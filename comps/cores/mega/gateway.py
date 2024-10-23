@@ -159,7 +159,7 @@ class ChatQnAGateway(Gateway):
         print("data in handle request", data)
         stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.parse_obj(data)
-        print("chat reques in handle request", chat_request)
+        print("chat request in handle request", chat_request)
         prompt = self._handle_message(chat_request.messages)
         print("prompt in gateway", prompt)
         parameters = LLMParams(
@@ -897,6 +897,7 @@ class AvatarChatbotGateway(Gateway):
         response = result_dict[last_node]["video_path"]
         return response
 
+
 class GraphragGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(
@@ -907,6 +908,7 @@ class GraphragGateway(Gateway):
         data = await request.json()
         stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.parse_obj(data)
+
         def parser_input(data, TypeClass, key):
             chat_request = None
             try:
@@ -945,7 +947,7 @@ class GraphragGateway(Gateway):
             lambda_mult=chat_request.lambda_mult if chat_request.lambda_mult else 0.5,
             score_threshold=chat_request.score_threshold if chat_request.score_threshold else 0.2,
         )
-        initial_inputs = chat_request 
+        initial_inputs = chat_request
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs=initial_inputs,
             llm_parameters=parameters,

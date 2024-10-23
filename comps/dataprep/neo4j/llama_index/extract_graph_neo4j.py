@@ -62,6 +62,7 @@ from llama_index.core.prompts import PromptTemplate
 from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_PROMPT
 from llama_index.core.schema import BaseNode, TransformComponent
 
+
 class GraphRAGStore(Neo4jPropertyGraphStore):
     # https://github.com/run-llama/llama_index/blob/main/docs/docs/examples/cookbooks/GraphRAG_v2.ipynb
     community_summary = {}

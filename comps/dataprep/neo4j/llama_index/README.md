@@ -20,7 +20,6 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
 source ./set_env.sh
 ```
 
-
 ## 🚀Start Microservice with Docker
 
 ### 1. Build Docker Image
@@ -50,7 +49,7 @@ source ./set_env.sh
 
 ### 3. Run Docker with Docker Compose
 
-Docker compose will start 4 microservices: dataprep-neo4j, neo4j-apoc, tgi-gaudi-service and tei-embedding-service. The reason TGI and TEI are needed is because dataprep relies on LLM to extract entities and relationships from text to build the graph and Neo4j Property Graph Index. Neo4j database supports embeddings natively so we do not need a separate vector store. Checkout the blog [Introducing the Property Graph Index: A Powerful New Way to Build Knowledge Graphs with LLMs](https://www.llamaindex.ai/blog/introducing-the-property-graph-index-a-powerful-new-way-to-build-knowledge-graphs-with-llms) for a better understanding of Property Graph Store and Index. 
+Docker compose will start 4 microservices: dataprep-neo4j, neo4j-apoc, tgi-gaudi-service and tei-embedding-service. The reason TGI and TEI are needed is because dataprep relies on LLM to extract entities and relationships from text to build the graph and Neo4j Property Graph Index. Neo4j database supports embeddings natively so we do not need a separate vector store. Checkout the blog [Introducing the Property Graph Index: A Powerful New Way to Build Knowledge Graphs with LLMs](https://www.llamaindex.ai/blog/introducing-the-property-graph-index-a-powerful-new-way-to-build-knowledge-graphs-with-llms) for a better understanding of Property Graph Store and Index.
 
 ```bash
 cd comps/dataprep/neo4j/llama_index

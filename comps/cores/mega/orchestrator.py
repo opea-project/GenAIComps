@@ -7,7 +7,6 @@ import json
 import os
 import re
 from typing import Dict, List
-from pydantic import BaseModel
 
 import aiohttp
 import requests

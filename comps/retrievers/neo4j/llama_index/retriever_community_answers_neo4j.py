@@ -197,9 +197,7 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
     Settings.embed_model = embed_model
     Settings.llm = llm
     # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
-    graph_store = GraphRAGStore(
-        username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm
-    )
+    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
 
     index = PropertyGraphIndex.from_existing(
         property_graph_store=graph_store,
