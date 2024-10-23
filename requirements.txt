@@ -6,11 +6,14 @@ fastapi
 httpx
 kubernetes
 langchain
+langchain-community
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 Pillow
 prometheus-fastapi-instrumentator
+pypdf
+python-multipart
 pyyaml
 requests
 shortuuid

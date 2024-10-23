@@ -356,8 +356,8 @@ class DocSumGateway(Gateway):
         return docs
 
     def read_text_from_file(self, file, save_file_name):
-        from langchain.docstore.document import Document
         from langchain.text_splitter import CharacterTextSplitter
+        import docx2txt
 
         # read text file
         if file.headers["content-type"] == "text/plain":
@@ -367,13 +367,15 @@ class DocSumGateway(Gateway):
             text_splitter = CharacterTextSplitter()
             texts = text_splitter.split_text(content)
             # Create multiple documents
-            file_content = [Document(page_content=t) for t in texts]
+            file_content = texts
         # read pdf file
         elif file.headers["content-type"] == "application/pdf":
-            file_content = self.read_pdf(save_file_name)
+            documents = self.read_pdf(save_file_name)
+            file_content = [doc.page_content for doc in documents]
         # read docx file
-        elif file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            file_content = docx2txt.process(file)
+        elif file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" or \
+          file.headers["content-type"] == "application/octet-stream":
+            file_content = docx2txt.process(save_file_name)
 
         return file_content
 
@@ -385,11 +387,15 @@ class DocSumGateway(Gateway):
         for file in files:
             file_path = f"/tmp/{file.filename}"
 
+            import aiofiles
             async with aiofiles.open(file_path, "wb") as f:
                 await f.write(await file.read())
-            text = self.read_text_from_file(file, file_path)
+            docs = self.read_text_from_file(file, file_path)
             os.remove(file_path)
-            file_summaries.append(text)
+            if isinstance(docs, list):
+                file_summaries.extend(docs)
+            else:
+                file_summaries.append(docs)
 
         if file_summaries:
             prompt = self._handle_message(chat_request.messages) + "\n".join(file_summaries)
