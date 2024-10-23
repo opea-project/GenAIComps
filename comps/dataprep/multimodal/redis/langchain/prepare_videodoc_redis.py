@@ -562,7 +562,7 @@ async def ingest_videos_with_transcripts(files: List[UploadFile] = File(None)):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/get_videos", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/get_files", host="0.0.0.0", port=6007
 )
 async def rag_get_file_structure():
     """Returns list of names of uploaded videos saved on the server."""
@@ -576,17 +576,17 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/delete_videos", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/delete_files", host="0.0.0.0", port=6007
 )
-async def delete_videos():
-    """Delete all uploaded videos along with redis index."""
+async def delete_files():
+    """Delete all uploaded files along with redis index."""
     index_deleted = drop_index(index_name=INDEX_NAME)
 
     if not index_deleted:
-        raise HTTPException(status_code=409, detail="Uploaded videos could not be deleted. Index does not exist")
+        raise HTTPException(status_code=409, detail="Uploaded files could not be deleted. Index does not exist")
 
     clear_upload_folder(upload_folder)
-    print("Successfully deleted all uploaded videos.")
+    print("Successfully deleted all uploaded files.")
     return {"status": True}
 
 

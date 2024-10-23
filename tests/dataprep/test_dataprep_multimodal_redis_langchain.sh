@@ -196,9 +196,9 @@ function validate_microservice() {
 
 
 
-    # test /v1/dataprep/get_videos
-    echo "Testing get_videos API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get_videos"
+    # test /v1/dataprep/get_files
+    echo "Testing get_files API"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get_files"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -219,9 +219,9 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test /v1/dataprep/delete_videos
-    echo "Testing delete_videos API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete_videos"
+    # test /v1/dataprep/delete_files
+    echo "Testing delete_files API"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete_files"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')

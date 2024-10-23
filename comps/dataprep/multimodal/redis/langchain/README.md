@@ -192,22 +192,22 @@ curl -X POST \
     http://localhost:6007/v1/generate_captions
 ```
 
-### 4.4 Consume get_videos API
+### 4.4 Consume get_files API
 
-To get names of uploaded videos, use the following command.
+To get names of uploaded files, use the following command.
 
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6007/v1/dataprep/get_videos
+    http://localhost:6007/v1/dataprep/get_files
 ```
 
-### 4.5 Consume delete_videos API
+### 4.5 Consume delete_files API
 
-To delete uploaded videos and clear the database, use the following command.
+To delete uploaded files and clear the database, use the following command.
 
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6007/v1/dataprep/delete_videos
+    http://localhost:6007/v1/dataprep/delete_files
 ```
