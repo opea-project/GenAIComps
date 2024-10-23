@@ -1,3 +1,4 @@
+aiofiles
 docarray[full]
 docx2txt
 fastapi
