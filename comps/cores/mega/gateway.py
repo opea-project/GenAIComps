@@ -282,8 +282,8 @@ class CodeTransGateway(Gateway):
             top_p=data.get("top_p", 0.95),
             temperature=data.get("temperature", 0.01),
             repetition_penalty=data.get("repetition_penalty", 1.03),
-            streaming=data.get("stream", True),
-        )     
+            streaming=data.get("stream", True)
+        )
 
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"query": prompt}, llm_parameters=parameters
