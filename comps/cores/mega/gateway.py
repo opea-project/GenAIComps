@@ -356,8 +356,8 @@ class DocSumGateway(Gateway):
         return docs
 
     def read_text_from_file(self, file, save_file_name):
-        from langchain.text_splitter import CharacterTextSplitter
         import docx2txt
+        from langchain.text_splitter import CharacterTextSplitter
 
         # read text file
         if file.headers["content-type"] == "text/plain":
@@ -373,8 +373,10 @@ class DocSumGateway(Gateway):
             documents = self.read_pdf(save_file_name)
             file_content = [doc.page_content for doc in documents]
         # read docx file
-        elif file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" or \
-          file.headers["content-type"] == "application/octet-stream":
+        elif (
+            file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            or file.headers["content-type"] == "application/octet-stream"
+        ):
             file_content = docx2txt.process(save_file_name)
 
         return file_content
@@ -388,6 +390,7 @@ class DocSumGateway(Gateway):
             file_path = f"/tmp/{file.filename}"
 
             import aiofiles
+
             async with aiofiles.open(file_path, "wb") as f:
                 await f.write(await file.read())
             docs = self.read_text_from_file(file, file_path)
