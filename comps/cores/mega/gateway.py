@@ -365,6 +365,7 @@ class DocSumGateway(Gateway):
             presence_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 0.0,
             repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
             streaming=stream_opt,
+            language=chat_request.language if chat_request.language else "auto",
         )
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"query": prompt}, llm_parameters=parameters
@@ -860,6 +861,41 @@ class MultimodalQnAGateway(Gateway):
             )
         )
         return ChatCompletionResponse(model="multimodalqna", choices=choices, usage=usage)
+
+
+class AvatarChatbotGateway(Gateway):
+    def __init__(self, megaservice, host="0.0.0.0", port=8888):
+        super().__init__(
+            megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.AVATAR_CHATBOT),
+            AudioChatCompletionRequest,
+            ChatCompletionResponse,
+        )
+
+    async def handle_request(self, request: Request):
+        data = await request.json()
+
+        chat_request = AudioChatCompletionRequest.model_validate(data)
+        parameters = LLMParams(
+            # relatively lower max_tokens for audio conversation
+            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 128,
+            top_k=chat_request.top_k if chat_request.top_k else 10,
+            top_p=chat_request.top_p if chat_request.top_p else 0.95,
+            temperature=chat_request.temperature if chat_request.temperature else 0.01,
+            repetition_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 1.03,
+            streaming=False,  # TODO add streaming LLM output as input to TTS
+        )
+        # print(parameters)
+
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"byte_str": chat_request.audio}, llm_parameters=parameters
+        )
+
+        last_node = runtime_graph.all_leaves()[-1]
+        response = result_dict[last_node]["video_path"]
+        return response
 
 class GraphragGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
