@@ -62,10 +62,6 @@ from llama_index.core.prompts import PromptTemplate
 from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_PROMPT
 from llama_index.core.schema import BaseNode, TransformComponent
 
-Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
-Settings.llm = OpenAI(temperature=0, model="gpt-4o")
-
-
 class GraphRAGStore(Neo4jPropertyGraphStore):
     # https://github.com/run-llama/llama_index/blob/main/docs/docs/examples/cookbooks/GraphRAG_v2.ipynb
     community_summary = {}
@@ -97,7 +93,6 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         else:
             response = self.llm.chat(messages)
 
-        response = OpenAI().chat(messages)
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
 
@@ -247,7 +242,7 @@ class GraphRAGExtractor(TransformComponent):
             extract_prompt = PromptTemplate(extract_prompt)
 
         super().__init__(
-            llm=llm or Settings.llm,
+            llm=llm,
             extract_prompt=extract_prompt or DEFAULT_KG_TRIPLET_EXTRACT_PROMPT,
             parse_fn=parse_fn,
             num_workers=num_workers,
@@ -480,20 +475,20 @@ def ingest_data_to_neo4j(doc_path: DocPath):
             timeout=60,  # timeout in seconds
             embed_batch_size=10,  # batch size for embedding
         )
-
+    Settings.embed_model = embed_model
+    Settings.llm = llm
     kg_extractor = GraphRAGExtractor(
-        llm=llm or Settings.llm,
+        llm=llm,
         extract_prompt=KG_TRIPLET_EXTRACT_TMPL,
         max_paths_per_chunk=2,
         parse_fn=parse_fn,
     )
-
     graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
 
     # nodes are the chunked docs to insert
     index = PropertyGraphIndex(
         nodes=nodes,
-        llm=llm or Settings.llm,
+        llm=llm,
         kg_extractors=[kg_extractor],
         property_graph_store=graph_store,
         embed_model=embed_model or Settings.embed_model,

@@ -49,8 +49,6 @@ from comps.cores.proto.api_protocol import (
 )
 from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, get_model_name_from_tgi_endpoint
 
-Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
-Settings.llm = OpenAI(temperature=0, model="gpt-4o")
 logger = CustomLogger("retriever_neo4j")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -167,6 +165,7 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
         logger.info(input)
     start = time.time()
     query = input.messages[0]["content"]
+    logger.info(f"Query received in retriever: {query}")
 
     if OPENAI_API_KEY:
         logger.info("OpenAI API Key is set. Verifying its validity...")
@@ -195,11 +194,11 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
             timeout=60,  # timeout in seconds
             embed_batch_size=10,  # batch size for embedding
         )
-    Settings.embed_model = embed_model  # OpenAIEmbedding(model="text-embedding-3-small", embed_batch_size=100)
-    Settings.llm = llm  # OpenAI(temperature=0, model="gpt-4o")
+    Settings.embed_model = embed_model
+    Settings.llm = llm
     # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
     graph_store = GraphRAGStore(
-        username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm or Settings.llm
+        username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm
     )
 
     index = PropertyGraphIndex.from_existing(
@@ -210,7 +209,7 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
     index.property_graph_store.build_communities()
     query_engine = GraphRAGQueryEngine(
         graph_store=index.property_graph_store,
-        llm=llm or Settings.llm,
+        llm=llm,
         index=index,
         similarity_top_k=3,
     )
