@@ -1,8 +1,11 @@
+aiofiles
 aiohttp
 docarray
+docx2txt
 fastapi
 httpx
 kubernetes
+langchain
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

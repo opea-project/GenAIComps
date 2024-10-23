@@ -176,7 +176,6 @@ class LLMParamsDoc(BaseDoc):
     repetition_penalty: float = 1.03
     streaming: bool = True
     language: str = "auto"  # can be "en", "zh"
-    file: Optional[str] = None  # Path to the uploaded file
 
     chat_template: Optional[str] = Field(
         default=None,
@@ -225,7 +224,6 @@ class LLMParams(BaseDoc):
             "or only contains {question} for chat completion without rag."
         ),
     )
-    file: Optional[str] = None  # Path to the uploaded file
 
 
 class RetrieverParms(BaseDoc):

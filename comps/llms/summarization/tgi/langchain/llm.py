@@ -3,14 +3,9 @@
 
 import os
 
-import aiofiles
-import docx2txt
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
-from langchain.docstore.document import Document
-from langchain.document_loaders import PyPDFLoader
 from langchain.prompts import PromptTemplate
-from langchain.text_splitter import CharacterTextSplitter
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
@@ -22,32 +17,6 @@ llm = AsyncInferenceClient(
     model=llm_endpoint,
     timeout=600,
 )
-
-
-def read_pdf(file):
-    loader = PyPDFLoader(file)
-    docs = loader.load_and_split()
-    return docs
-
-
-def read_text_from_file(file, save_file_name):
-    # read text file
-    if file.headers["content-type"] == "text/plain":
-        file.file.seek(0)
-        content = file.file.read().decode("utf-8")
-        # Split text
-        text_splitter = CharacterTextSplitter()
-        texts = text_splitter.split_text(content)
-        # Create multiple documents
-        file_content = [Document(page_content=t) for t in texts]
-    # read pdf file
-    elif file.headers["content-type"] == "application/pdf":
-        file_content = read_pdf(save_file_name)
-    # read docx file
-    elif file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        file_content = docx2txt.process(file)
-
-    return file_content
 
 
 templ_en = """Write a concise summary of the following:
@@ -77,13 +46,6 @@ templ_zh = """请简要概括以下内容:
 async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
-
-    if input.file:
-        file_path = f"/tmp/{input.file.filename}"
-        async with aiofiles.open(file_path, "wb") as f:
-            await f.write(await input.file.read())
-        input.query = read_text_from_file(input.file, file_path)
-        os.remove(file_path)
 
     if input.language in ["en", "auto"]:
         templ = templ_en
