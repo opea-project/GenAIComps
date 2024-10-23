@@ -276,12 +276,13 @@ class CodeTransGateway(Gateway):
         """
         prompt = prompt_template.format(language_from=language_from, language_to=language_to, source_code=source_code)
 
-        stream_opt = data.get("stream", True)
-        repetition_penalty = data.get("repetition_penalty", 1.07)
-        # chat_request = ChatCompletionRequest.parse_obj(data)
         parameters = LLMParams(
-            repetition_penalty=repetition_penalty,
-            streaming=stream_opt,
+            max_tokens=data.get("max_tokens", 1024),
+            top_k=data.get("top_k", 10),
+            top_p=data.get("top_p", 0.95),
+            temperature=data.get("temperature", 0.01),
+            repetition_penalty=data.get("repetition_penalty", 1.03),
+            streaming=data.get("stream", True),
         )     
 
         result_dict, runtime_graph = await self.megaservice.schedule(
