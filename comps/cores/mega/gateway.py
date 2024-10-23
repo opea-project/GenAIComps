@@ -350,14 +350,15 @@ class DocSumGateway(Gateway):
 
     def read_pdf(self, file):
         from langchain.document_loaders import PyPDFLoader
+
         loader = PyPDFLoader(file)
         docs = loader.load_and_split()
         return docs
 
     def read_text_from_file(self, file, save_file_name):
-        from langchain.text_splitter import CharacterTextSplitter
         from langchain.docstore.document import Document
-        import docx2txt
+        from langchain.text_splitter import CharacterTextSplitter
+
         # read text file
         if file.headers["content-type"] == "text/plain":
             file.file.seek(0)
@@ -383,7 +384,7 @@ class DocSumGateway(Gateway):
         file_summaries = []
         for file in files:
             file_path = f"/tmp/{file.filename}"
-            import aiofiles
+
             async with aiofiles.open(file_path, "wb") as f:
                 await f.write(await file.read())
             text = self.read_text_from_file(file, file_path)
