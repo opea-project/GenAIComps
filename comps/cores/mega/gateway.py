@@ -282,7 +282,7 @@ class CodeTransGateway(Gateway):
         parameters = LLMParams(
             repetition_penalty=repetition_penalty,
             streaming=stream_opt,
-        )     
+        )
 
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"query": prompt}, llm_parameters=parameters
