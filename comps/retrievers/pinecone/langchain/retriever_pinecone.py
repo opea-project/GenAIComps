@@ -94,12 +94,12 @@ if __name__ == "__main__":
     spec = ServerlessSpec(cloud="aws", region="us-east-1")
 
     existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
-    
+
     # For testing purposes we want to create a fresh index each time.
     # In production you would probably keep your index and
     # replace this with a check if the index doesn't exist then create it.
     if PINECONE_INDEX_NAME in existing_indexes:
-        pc.configure_index(PINECONE_INDEX_NAME, deletion_protection='disabled')
+        pc.configure_index(PINECONE_INDEX_NAME, deletion_protection="disabled")
         pc.delete_index(PINECONE_INDEX_NAME)
         time.sleep(1)
 
