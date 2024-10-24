@@ -45,7 +45,7 @@ function start_service() {
 
     # dataprep neo4j
     # Not testing openai code path since not able to provide key for cicd
-    docker run -d --name="test-comps-dataprep-neo4j-service" -p 6004:6004 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
+    docker run -d --name="test-comps-dataprep-neo4j-server" -p 6004:6004 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e no_proxy=$no_proxy \
         -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" \
         -e NEO4J_PASSWORD="neo4jtest" opea/dataprep-neo4j:comps
