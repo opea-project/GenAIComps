@@ -14,12 +14,13 @@ INDEX_NAME="dataprep"
 video_name="WeAreGoingOnBullrun"
 transcript_fn="${video_name}.vtt"
 video_fn="${video_name}.mp4"
-image_fn="apple.png"
+image_name="apple"
+image_fn="${image_name}.png"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep-multimodal-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/multimodal/redis/langchain/Dockerfile .
+    docker build --no-cache -t opea/dataprep-multimodal-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/multimodal/redis/langchain/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-multimodal-redis built fail"
@@ -32,14 +33,14 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/lvms/llava/dependency/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava:comps -f comps/lvms/llava/dependency/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava built fail"
         exit 1
     else
         echo "opea/lvm-llava built successful"
     fi
-    docker build --no-cache -t opea/lvm-llava-svc:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/lvms/llava/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava-svc:comps -f comps/lvms/llava/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava-svc built fail"
         exit 1
@@ -49,9 +50,9 @@ function build_lvm_docker_images() {
 }
 
 function start_lvm_service() {
-    # unset http_proxy
-    docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p 5029:8399 --ipc=host opea/lvm-llava:comps
-    docker run -d --name="test-comps-lvm-llava-svc" -e LVM_ENDPOINT=http://$ip_address:5029 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p ${LVM_PORT}:9399 --ipc=host opea/lvm-llava-svc:comps
+    unset http_proxy
+    docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5029:8399 --ipc=host opea/lvm-llava:comps
+    docker run -d --name="test-comps-lvm-llava-svc" -e LVM_ENDPOINT=http://$ip_address:5029 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${LVM_PORT}:9399 --ipc=host opea/lvm-llava-svc:comps
     sleep 5m
 }
 
@@ -69,13 +70,13 @@ function start_service() {
     # start redis
     echo "Starting Redis server"
     REDIS_PORT=6380
-    docker run -d --name="test-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p $REDIS_PORT:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
+    docker run -d --name="test-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $REDIS_PORT:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
 
     # start dataprep microservice
     echo "Starting dataprep microservice"
     dataprep_service_port=5013
     REDIS_URL="redis://${ip_address}:${REDIS_PORT}"
-    docker run -d --name="test-comps-dataprep-multimodal-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e REDIS_URL=$REDIS_URL -e REDIS_HOST=$ip_address -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -p ${dataprep_service_port}:6007 --runtime=runc --ipc=host  opea/dataprep-multimodal-redis:comps
+    docker run -d --name="test-comps-dataprep-multimodal-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -p ${dataprep_service_port}:6007 --runtime=runc --ipc=host  opea/dataprep-multimodal-redis:comps
 
     sleep 1m
 }
@@ -237,7 +238,7 @@ function validate_microservice() {
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
-    if [[ "$RESPONSE_BODY" != *${video_name}* ]]; then
+    if [[ "$RESPONSE_BODY" != *${video_name}* ] || [ "$RESPONSE_BODY" != *${image_name}* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
         docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_file.log
         exit 1
