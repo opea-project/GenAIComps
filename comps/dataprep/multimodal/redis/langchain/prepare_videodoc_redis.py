@@ -500,11 +500,11 @@ async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
 
 @register_microservice(
     name="opea_service@prepare_videodoc_redis",
-    endpoint="/v1/videos_with_transcripts",
+    endpoint="/v1/ingest_with_text",
     host="0.0.0.0",
     port=6007,
 )
-async def ingest_videos_with_transcripts(files: List[UploadFile] = File(None)):
+async def ingest_with_text(files: List[UploadFile] = File(None)):
 
     if files:
         video_files, video_file_names = [], []

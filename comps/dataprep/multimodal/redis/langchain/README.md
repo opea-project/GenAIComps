@@ -114,7 +114,7 @@ Once this dataprep microservice is started, user can use the below commands to i
 
 This microservice has provided 3 different ways for users to ingest files into Redis vector store corresponding to the 3 use cases.
 
-### 4.1 Consume _videos_with_transcripts_ API
+### 4.1 Consume _ingest_with_text_ API
 
 **Use case:** This API is used when a transcript file (under `.vtt` format) is available for each video.
 
@@ -130,7 +130,7 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
     -F "files=@./video1.vtt" \
-    http://localhost:6007/v1/videos_with_transcripts
+    http://localhost:6007/v1/ingest_with_text
 ```
 
 #### Multiple video-transcript pair upload
@@ -142,7 +142,7 @@ curl -X POST \
     -F "files=@./video1.vtt" \
     -F "files=@./video2.mp4" \
     -F "files=@./video2.vtt" \
-    http://localhost:6007/v1/videos_with_transcripts
+    http://localhost:6007/v1/ingest_with_text
 ```
 
 ### 4.2 Consume _generate_transcripts_ API

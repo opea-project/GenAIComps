@@ -156,9 +156,9 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/videos_with_transcripts upload file
-    echo "Testing videos_with_transcripts API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/videos_with_transcripts"
+    # test v1/ingest_with_text upload file
+    echo "Testing ingest_with_text API"
+    URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
