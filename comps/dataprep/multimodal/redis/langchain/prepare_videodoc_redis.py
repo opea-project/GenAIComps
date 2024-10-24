@@ -505,18 +505,21 @@ async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
     port=6007,
 )
 async def ingest_with_text(files: List[UploadFile] = File(None)):
-
     if files:
         video_files, video_file_names = [], []
+        image_files, image_file_names = [], []
         captions_files, captions_file_names = [], []
         uploaded_videos_saved_videos_map = {}
         for file in files:
             if os.path.splitext(file.filename)[1] == ".mp4":
                 video_files.append(file)
                 video_file_names.append(file.filename)
-            elif os.path.splitext(file.filename)[1] == ".vtt":
+            elif os.path.splitext(file.filename)[1] in [".vtt", ".txt"]:
                 captions_files.append(file)
                 captions_file_names.append(file.filename)
+            elif os.path.splitext(file.filename)[1] in [".png", ".jpg", ".jpeg", ".gif"]:
+                image_files.append(file)
+                image_file_names.append(file.filename)
             else:
                 print(f"Skipping file {file.filename} because of unsupported format.")
 
@@ -527,11 +530,19 @@ async def ingest_with_text(files: List[UploadFile] = File(None)):
                 raise HTTPException(
                     status_code=400, detail=f"No captions file {file_prefix}.vtt found for {video_file_name}"
                 )
+            
+        # Check if every image file has a caption file
+        for image_file_name in image_file_names:
+            file_prefix = os.path.splitext(image_file_name)[0]
+            if (file_prefix + ".txt") not in captions_file_names:
+                raise HTTPException(
+                    status_code=400, detail=f"No captions file {file_prefix}.txt found for {image_file_name}"
+                )
 
-        if len(video_files) == 0:
+        if len(video_files) + len(image_files) == 0:
             return HTTPException(
                 status_code=400,
-                detail="The uploaded files have unsupported formats. Please upload at least one video file (.mp4) with captions (.vtt)",
+                detail="The uploaded files have unsupported formats. Please upload at least one video file (.mp4) with captions (.vtt) or one image (.png, .jpg, .jpeg, or .gif) with caption (.txt)",
             )
 
         for video_file in video_files:
@@ -579,6 +590,52 @@ async def ingest_with_text(files: List[UploadFile] = File(None)):
             shutil.rmtree(os.path.join(upload_folder, video_dir_name))
 
             print(f"Processed video {video_file.filename}")
+
+        for image_file in image_files:
+            print(f"Processing image {image_file.filename}")
+
+            # Assign unique identifier to image
+            image_id = generate_id()
+
+            # Create image file name by appending identifier
+            image_name, image_ext = os.path.splitext(image_file.filename)
+            image_file_name = f"{image_name}_{image_id}{image_ext}"
+            image_dir_name = os.path.splitext(image_file_name)[0]
+
+            # Save image file in upload_directory
+            with open(os.path.join(upload_folder, image_file_name), "wb") as f:
+                shutil.copyfileobj(image_file.file, f)
+            uploaded_videos_saved_videos_map[image_name] = image_file_name
+
+            # Save captions file in upload directory
+            txt_file_name = os.path.splitext(image_file.filename)[0] + ".txt"
+            txt_idx = None
+            for idx, caption_file in enumerate(captions_files):
+                if caption_file.filename == txt_file_name:
+                    txt_idx = idx
+                    break
+            txt_file = image_dir_name + ".txt"
+            with open(os.path.join(upload_folder, txt_file), "wb") as f:
+                shutil.copyfileobj(captions_files[txt_idx].file, f)
+
+            # Store images and caption annotations in a new directory
+            extract_frames_and_annotations_from_transcripts(
+                image_id,
+                os.path.join(upload_folder, image_file_name),
+                os.path.join(upload_folder, txt_file),
+                os.path.join(upload_folder, image_dir_name),
+            )
+
+            # Delete temporary txt file
+            os.remove(os.path.join(upload_folder, txt_file))
+
+            # Ingest multimodal data into redis
+            ingest_multimodal(image_name, os.path.join(upload_folder, image_dir_name), embeddings)
+
+            # Delete temporary directory containing images and annotations
+            shutil.rmtree(os.path.join(upload_folder, image_dir_name))
+
+            print(f"Processed image {image_file.filename}")
 
         return {
             "status": 200,

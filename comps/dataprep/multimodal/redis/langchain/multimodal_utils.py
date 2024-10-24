@@ -176,18 +176,28 @@ def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: s
     fps = vidcap.get(cv2.CAP_PROP_FPS)
 
     # read captions file
-    captions = webvtt.read(vtt_path)
+    if os.path.splitext(vtt_path)[-1] == ".vtt":
+        captions = webvtt.read(vtt_path)
+    else:
+        with open(vtt_path, 'r') as f:
+            captions = [line for line in f]
 
     annotations = []
     for idx, caption in enumerate(captions):
-        start_time = str2time(caption.start)
-        end_time = str2time(caption.end)
+        if os.path.splitext(vtt_path)[-1] == ".vtt":
+            start_time = str2time(caption.start)
+            end_time = str2time(caption.end)
 
-        mid_time = (end_time + start_time) / 2
-        text = caption.text.replace("\n", " ")
+            mid_time = (end_time + start_time) / 2
+            text = caption.text.replace("\n", " ")
 
-        frame_no = time_to_frame(mid_time, fps)
-        mid_time_ms = mid_time * 1000
+            frame_no = time_to_frame(mid_time, fps)
+            mid_time_ms = mid_time * 1000
+        else:
+            frame_no = 0
+            mid_time_ms = 0
+            text = captions[0].replace("\n", " ")
+
         vidcap.set(cv2.CAP_PROP_POS_MSEC, mid_time_ms)
         success, frame = vidcap.read()
 
