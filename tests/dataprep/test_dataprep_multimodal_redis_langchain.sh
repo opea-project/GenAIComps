@@ -14,6 +14,8 @@ INDEX_NAME="dataprep"
 video_name="WeAreGoingOnBullrun"
 transcript_fn="${video_name}.vtt"
 video_fn="${video_name}.mp4"
+image_name="apple"
+image_fn="${image_name}.png"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -115,6 +117,9 @@ place to watch it is on BlackmagicShine.com. We're right here on the smoking
 00:00:45.240 --> 00:00:47.440
 tire.""" > ${transcript_fn}
 
+    echo "Downloading Image"
+    wget https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true -O ${image_fn}
+
     echo "Downloading Video"
     wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -O ${video_fn}
 
@@ -170,8 +175,8 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/generate_captions upload file
-    echo "Testing generate_captions API"
+    # test v1/generate_captions upload video file
+    echo "Testing generate_captions API with video"
     URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
@@ -194,7 +199,29 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
+    # test v1/generate_captions upload image file
+    echo "Testing generate_captions API with image"
+    URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
 
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    SERVICE_NAME="dataprep - upload - file"
+
+    if [ "$HTTP_STATUS" -ne "200" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+    fi
+    if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
+        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] Content is as expected."
+    fi
 
     # test /v1/dataprep/get_files
     echo "Testing get_files API"
@@ -211,7 +238,7 @@ function validate_microservice() {
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
-    if [[ "$RESPONSE_BODY" != *${video_name}* ]]; then
+    if [[ "$RESPONSE_BODY" != *${image_name}* || "$RESPONSE_BODY" != *${video_name}* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
         docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_file.log
         exit 1
@@ -257,6 +284,7 @@ function delete_data() {
     cd ${LOG_PATH}
     rm -rf WeAreGoingOnBullrun.vtt
     rm -rf WeAreGoingOnBullrun.mp4
+    rm -rf apple.png
     sleep 1s
 }
 

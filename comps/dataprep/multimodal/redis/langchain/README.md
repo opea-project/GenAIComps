@@ -1,6 +1,8 @@
 # Dataprep Microservice for Multimodal Data with Redis
 
-This `dataprep` microservice accepts videos (mp4 files) and their transcripts (optional) from the user and ingests them into Redis vectorstore.
+This `dataprep` microservice accepts the following from the user and ingests them into a Redis vectorstore:
+* Videos (mp4 files) and their transcripts (optional)
+* Images (gif, jpg, jpeg, and png files)
 
 ## 🚀1. Start Microservice with Python（Option 1）
 
@@ -107,9 +109,9 @@ docker container logs -f dataprep-multimodal-redis
 
 ## 🚀4. Consume Microservice
 
-Once this dataprep microservice is started, user can use the below commands to invoke the microservice to convert videos and their transcripts (optional) to embeddings and save to the Redis vector store.
+Once this dataprep microservice is started, user can use the below commands to invoke the microservice to convert images and videos and their transcripts (optional) to embeddings and save to the Redis vector store.
 
-This mircroservice has provided 3 different ways for users to ingest videos into Redis vector store corresponding to the 3 use cases.
+This microservice has provided 3 different ways for users to ingest files into Redis vector store corresponding to the 3 use cases.
 
 ### 4.1 Consume _videos_with_transcripts_ API
 
@@ -169,9 +171,9 @@ curl -X POST \
 
 ### 4.3 Consume _generate_captions_ API
 
-**Use case:** This API should be used when a video does not have meaningful audio or does not have audio.
+**Use case:** This API should be used when uploading an image, or when uploading a video that does not have meaningful audio or does not have audio.
 
-In this use case, transcript either does not provide any meaningful information or does not exist. Thus, it is preferred to leverage a LVM microservice to summarize the video frames.
+In this use case, there is no meaningful language transcription. Thus, it is preferred to leverage a LVM microservice to summarize the frames.
 
 - Single video upload
 
@@ -189,6 +191,15 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
     -F "files=@./video2.mp4" \
+    http://localhost:6007/v1/generate_captions
+```
+
+- Single image upload
+
+```bash
+curl -X POST \
+    -H "Content-Type: multipart/form-data" \
+    -F "files=@./image.jpg" \
     http://localhost:6007/v1/generate_captions
 ```
 

@@ -39,8 +39,8 @@ def clear_upload_folder(upload_path):
             os.rmdir(dir_path)
 
 
-def generate_video_id():
-    """Generates a unique identifier for a video file."""
+def generate_id():
+    """Generates a unique identifier for a file."""
     return str(uuid.uuid4())
 
 
