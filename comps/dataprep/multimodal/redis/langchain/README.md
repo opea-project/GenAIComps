@@ -1,6 +1,8 @@
 # Dataprep Microservice for Multimodal Data with Redis
 
-This `dataprep` microservice accepts videos (mp4 files) and their transcripts (optional) from the user and ingests them into Redis vectorstore.
+This `dataprep` microservice accepts the following from the user and ingests them into a Redis vectorstore:
+* Videos (mp4 files) and their transcripts (optional)
+* Images (gif, jpg, jpeg, and png files)
 
 ## 🚀1. Start Microservice with Python（Option 1）
 
@@ -107,9 +109,9 @@ docker container logs -f dataprep-multimodal-redis
 
 ## 🚀4. Consume Microservice
 
-Once this dataprep microservice is started, user can use the below commands to invoke the microservice to convert videos and their transcripts (optional) to embeddings and save to the Redis vector store.
+Once this dataprep microservice is started, user can use the below commands to invoke the microservice to convert images and videos and their transcripts (optional) to embeddings and save to the Redis vector store.
 
-This mircroservice has provided 3 different ways for users to ingest videos into Redis vector store corresponding to the 3 use cases.
+This microservice has provided 3 different ways for users to ingest files into Redis vector store corresponding to the 3 use cases.
 
 ### 4.1 Consume _videos_with_transcripts_ API
 
@@ -169,9 +171,9 @@ curl -X POST \
 
 ### 4.3 Consume _generate_captions_ API
 
-**Use case:** This API should be used when a video does not have meaningful audio or does not have audio.
+**Use case:** This API should be used when uploading an image, or when uploading a video that does not have meaningful audio or does not have audio.
 
-In this use case, transcript either does not provide any meaningful information or does not exist. Thus, it is preferred to leverage a LVM microservice to summarize the video frames.
+In this use case, there is no meaningful language transcription. Thus, it is preferred to leverage a LVM microservice to summarize the frames.
 
 - Single video upload
 
@@ -192,22 +194,31 @@ curl -X POST \
     http://localhost:6007/v1/generate_captions
 ```
 
-### 4.4 Consume get_videos API
-
-To get names of uploaded videos, use the following command.
+- Single image upload
 
 ```bash
 curl -X POST \
-    -H "Content-Type: application/json" \
-    http://localhost:6007/v1/dataprep/get_videos
+    -H "Content-Type: multipart/form-data" \
+    -F "files=@./image.jpg" \
+    http://localhost:6007/v1/generate_captions
 ```
 
-### 4.5 Consume delete_videos API
+### 4.4 Consume get_files API
 
-To delete uploaded videos and clear the database, use the following command.
+To get names of uploaded files, use the following command.
 
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6007/v1/dataprep/delete_videos
+    http://localhost:6007/v1/dataprep/get_files
+```
+
+### 4.5 Consume delete_files API
+
+To delete uploaded files and clear the database, use the following command.
+
+```bash
+curl -X POST \
+    -H "Content-Type: application/json" \
+    http://localhost:6007/v1/dataprep/delete_files
 ```
