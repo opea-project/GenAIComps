@@ -129,15 +129,15 @@ function stop_docker() {
 
 function main() {
 
-    #stop_docker
+    stop_docker
 
     build_docker_images
-    #start_service
+    start_service
 
-    #validate_microservice
+    validate_microservice
 
-    #stop_docker
-    #echo y | docker system prune
+    stop_docker
+    echo y | docker system prune
 
 }
 
