@@ -11,12 +11,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/dataprep-neo4j:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/neo4j/llama_index/Dockerfile .
+    docker build --no-cache -t opea/dataprep-neo4j-llamaindex:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/neo4j/llama_index/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/dataprep-neo4j built fail"
+        echo "opea/dataprep-neo4j-llamaindex built fail"
         exit 1
     else
-        echo "opea/dataprep-neo4j built successful"
+        echo "opea/dataprep-neo4j-llamaindex built successful"
     fi
     docker pull ghcr.io/huggingface/tgi-gaudi:2.0.5
     docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
@@ -48,7 +48,7 @@ function start_service() {
     docker run -d --name="test-comps-dataprep-neo4j-server" -p 6004:6004 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e no_proxy=$no_proxy \
         -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" \
-        -e NEO4J_PASSWORD="neo4jtest" opea/dataprep-neo4j:comps
+        -e NEO4J_PASSWORD="neo4jtest" opea/dataprep-neo4j-llamaindex:comps
     sleep 30s
     export DATAPREP_SERVICE_ENDPOINT="http://${ip_address}:6004"
 

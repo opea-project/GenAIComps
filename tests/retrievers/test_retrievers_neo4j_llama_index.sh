@@ -13,20 +13,20 @@ function build_docker_images() {
     docker run -d -p 7474:7474 -p 7687:7687 --name test-comps-neo4j-apoc --env NEO4J_AUTH=neo4j/neo4jtest -e NEO4J_apoc_export_file_enabled=true -e NEO4J_apoc_import_file_enabled=true -e NEO4J_apoc_import_file_use__neo4j__config=true -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
     #sleep 30s
     echo "current dir: $PWD"
-    docker build -t opea/retriever-neo4j:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/llama_index/Dockerfile .
+    docker build --no-cache -t opea/retriever-neo4j-llamaindex:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/llama_index/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/retriever-neo4j built fail"
+        echo "opea/retriever-neo4j-llamaindex built fail"
         exit 1
     else
-        echo "opea/retriever-neo4j built successful"
+        echo "opea/retriever-neo4j-llamaindex built successful"
     fi
 
-    docker build -t opea/dataprep-neo4j:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/neo4j/llama_index/Dockerfile .
+    docker build --no-cache -t opea/dataprep-neo4j-llamaindex:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/neo4j/llama_index/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/dataprep-neo4j built fail"
+        echo "opea/dataprep-neo4j-llamaindex built fail"
         exit 1
     else
-        echo "opea/dataprep-neo4j built successful"
+        echo "opea/dataprep-neo4j-llamaindex built successful"
     fi
     docker pull ghcr.io/huggingface/tgi-gaudi:2.0.5
     docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
@@ -41,7 +41,7 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:6006"
 
     # tgi gaudi endpoint
-    model="Intel/neural-chat-7b-v3-3"
+    model="meta-llama/Meta-Llama-3-8B-Instruct"
     docker run -d --name="test-comps-retriever-neo4j-tgi-endpoint" -p 6005:80 -v ./data:/data --runtime=habana -e HABANA_VISIBLE_DEVICES=all \
         -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e HF_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e ENABLE_HPU_GRAPH=true -e LIMIT_HPU_GRAPH=true \
         -e USE_FLASH_ATTENTION=true -e FLASH_ATTENTION_RECOMPUTE=true --cap-add=sys_nice -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
@@ -54,7 +54,7 @@ function start_service() {
     docker run -d --name="test-comps-retriever-neo4j-dataprep-endpoint" -p 6004:6004 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e no_proxy=$no_proxy \
         -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" \
-        -e NEO4J_PASSWORD="neo4jtest" opea/dataprep-neo4j:comps
+        -e NEO4J_PASSWORD="neo4jtest" opea/dataprep-neo4j-llamaindex:comps
     sleep 30s
     export DATAPREP_SERVICE_ENDPOINT="http://${ip_address}:6004"
 
@@ -67,7 +67,7 @@ function start_service() {
     export no_proxy="localhost,127.0.0.1,"${ip_address}
     docker run -d --name="test-comps-retriever-neo4j-server" -p 6009:6009 --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT \
         -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e https_proxy=$https_proxy \
-        -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="neo4jtest" opea/retriever-neo4j:comps
+        -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="neo4jtest" opea/retriever-neo4j-llamaindex:comps
 
     sleep 1m
 

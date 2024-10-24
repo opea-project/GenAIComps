@@ -65,8 +65,8 @@ services:
       - SYS_NICE
     ipc: host
     command: --model-id ${LLM_MODEL_ID} --max-input-length 2048 --max-total-tokens 4096
-  dataprep-neo4j:
-    image: opea/dataprep-neo4j-llama_index:latest
+  dataprep-neo4j-llamaindex:
+    image: opea/dataprep-neo4j-llamaindex:latest
     container_name: dataprep-neo4j-server
     depends_on:
       - neo4j-apoc
@@ -92,8 +92,8 @@ services:
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       LOGFLAG: ${LOGFLAG}
     restart: unless-stopped
-  retriever-neo4j:
-    image: opea/retriever-neo4j-llama_index:latest
+  retriever-neo4j-llamaindex:
+    image: opea/retriever-neo4j-llamaindex:latest
     container_name: retriever-neo4j-server
     depends_on:
       - neo4j-apoc
