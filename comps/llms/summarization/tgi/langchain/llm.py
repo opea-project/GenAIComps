@@ -2,15 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import aiofiles
 
+import aiofiles
+import docx2txt
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
-from langchain.prompts import PromptTemplate
-
-import docx2txt
-from langchain.document_loaders import PyPDFLoader
 from langchain.docstore.document import Document
+from langchain.document_loaders import PyPDFLoader
+from langchain.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
@@ -33,7 +32,7 @@ def read_pdf(file):
 
 def read_text_from_file(file, save_file_name):
     # read text file
-    if file.headers["content-type"]  == "text/plain":
+    if file.headers["content-type"] == "text/plain":
         file.file.seek(0)
         content = file.file.read().decode("utf-8")
         # Split text
@@ -45,13 +44,11 @@ def read_text_from_file(file, save_file_name):
     elif file.headers["content-type"] == "application/pdf":
         file_content = read_pdf(save_file_name)
     # read docx file
-    elif (
-        file.headers["content-type"]
-        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ):
+    elif file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         file_content = docx2txt.process(file)
 
     return file_content
+
 
 templ_en = """Write a concise summary of the following:
 
