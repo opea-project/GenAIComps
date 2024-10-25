@@ -4,10 +4,10 @@
 import base64
 import os
 from io import BytesIO
-from typing import Union
+from typing import List, Union
 
 import requests
-from fastapi import Request
+from fastapi import File, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from PIL import Image
 
@@ -225,7 +225,7 @@ class CodeGenGateway(Gateway):
             temperature=chat_request.temperature if chat_request.temperature else 0.01,
             frequency_penalty=chat_request.frequency_penalty if chat_request.frequency_penalty else 0.0,
             presence_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 0.0,
-            repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
+            repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.2,
             streaming=stream_opt,
         )
         result_dict, runtime_graph = await self.megaservice.schedule(
@@ -265,19 +265,32 @@ class CodeTransGateway(Gateway):
         language_to = data["language_to"]
         source_code = data["source_code"]
         prompt_template = """
-            ### System: Please translate the following {language_from} codes into {language_to} codes.
+            ### System: Please translate the following {language_from} codes into {language_to} codes. Don't output any other content except translated codes.
 
-            ### Original codes:
-            '''{language_from}
+            ### Original {language_from} codes:
+            '''
 
             {source_code}
 
             '''
 
-            ### Translated codes:
+            ### Translated {language_to} codes:
+
         """
         prompt = prompt_template.format(language_from=language_from, language_to=language_to, source_code=source_code)
-        result_dict, runtime_graph = await self.megaservice.schedule(initial_inputs={"query": prompt})
+
+        parameters = LLMParams(
+            max_tokens=data.get("max_tokens", 1024),
+            top_k=data.get("top_k", 10),
+            top_p=data.get("top_p", 0.95),
+            temperature=data.get("temperature", 0.01),
+            repetition_penalty=data.get("repetition_penalty", 1.03),
+            streaming=data.get("stream", True),
+        )
+
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs={"query": prompt}, llm_parameters=parameters
+        )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
             if (
@@ -351,11 +364,64 @@ class DocSumGateway(Gateway):
             megaservice, host, port, str(MegaServiceEndpoint.DOC_SUMMARY), ChatCompletionRequest, ChatCompletionResponse
         )
 
-    async def handle_request(self, request: Request):
-        data = await request.json()
+    def read_pdf(self, file):
+        from langchain.document_loaders import PyPDFLoader
+
+        loader = PyPDFLoader(file)
+        docs = loader.load_and_split()
+        return docs
+
+    def read_text_from_file(self, file, save_file_name):
+        import docx2txt
+        from langchain.text_splitter import CharacterTextSplitter
+
+        # read text file
+        if file.headers["content-type"] == "text/plain":
+            file.file.seek(0)
+            content = file.file.read().decode("utf-8")
+            # Split text
+            text_splitter = CharacterTextSplitter()
+            texts = text_splitter.split_text(content)
+            # Create multiple documents
+            file_content = texts
+        # read pdf file
+        elif file.headers["content-type"] == "application/pdf":
+            documents = self.read_pdf(save_file_name)
+            file_content = [doc.page_content for doc in documents]
+        # read docx file
+        elif (
+            file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            or file.headers["content-type"] == "application/octet-stream"
+        ):
+            file_content = docx2txt.process(save_file_name)
+
+        return file_content
+
+    async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
+        data = await request.form()
         stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.parse_obj(data)
-        prompt = self._handle_message(chat_request.messages)
+        file_summaries = []
+        if files:
+            for file in files:
+                file_path = f"/tmp/{file.filename}"
+
+                import aiofiles
+
+                async with aiofiles.open(file_path, "wb") as f:
+                    await f.write(await file.read())
+                docs = self.read_text_from_file(file, file_path)
+                os.remove(file_path)
+                if isinstance(docs, list):
+                    file_summaries.extend(docs)
+                else:
+                    file_summaries.append(docs)
+
+        if file_summaries:
+            prompt = self._handle_message(chat_request.messages) + "\n".join(file_summaries)
+        else:
+            prompt = self._handle_message(chat_request.messages)
+
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
