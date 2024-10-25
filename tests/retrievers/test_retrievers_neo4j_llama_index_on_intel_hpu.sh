@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker run -d -p 7474:7474 -p 7687:7687 --name test-comps-neo4j-apoc --env NEO4J_AUTH=neo4j/neo4jtest -e NEO4J_apoc_export_file_enabled=true -e NEO4J_apoc_import_file_enabled=true -e NEO4J_apoc_import_file_use__neo4j__config=true -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
+    docker run -d -p 7474:7474 -p 7687:7687 --name test-comps-retrievers-neo4j-llama-index-neo4japoc --env NEO4J_AUTH=neo4j/neo4jtest -e NEO4J_apoc_export_file_enabled=true -e NEO4J_apoc_import_file_enabled=true -e NEO4J_apoc_import_file_use__neo4j__config=true -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
     #sleep 30s
     echo "current dir: $PWD"
     docker build --no-cache -t opea/retriever-neo4j-llamaindex:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/llama_index/Dockerfile .
@@ -35,14 +35,14 @@ function build_docker_images() {
 function start_service() {
     # tei endpoint
     emb_model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-neo4j-tei-endpoint" -p 6006:80 -v ./data:/data -e no_proxy=$no_proxy -e http_proxy=$http_proxy \
+    docker run -d --name="test-comps-retrievers-neo4j-llama-index-tei" -p 6006:80 -v ./data:/data -e no_proxy=$no_proxy -e http_proxy=$http_proxy \
         -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $emb_model
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:6006"
 
     # tgi gaudi endpoint
     model="meta-llama/Meta-Llama-3-8B-Instruct"
-    docker run -d --name="test-comps-retriever-neo4j-tgi-endpoint" -p 6005:80 -v ./data:/data --runtime=habana -e HABANA_VISIBLE_DEVICES=all \
+    docker run -d --name="test-comps-retrievers-neo4j-llama-index-tgi" -p 6005:80 -v ./data:/data --runtime=habana -e HABANA_VISIBLE_DEVICES=all \
         -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e HF_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e ENABLE_HPU_GRAPH=true -e LIMIT_HPU_GRAPH=true \
         -e USE_FLASH_ATTENTION=true -e FLASH_ATTENTION_RECOMPUTE=true --cap-add=sys_nice -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
         --ipc=host --pull always ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --max-input-tokens 1024 --max-total-tokens 3000
@@ -51,7 +51,7 @@ function start_service() {
 
     # dataprep neo4j
     # Not testing openai code path since not able to provide key for cicd
-    docker run -d --name="test-comps-retriever-neo4j-dataprep-endpoint" -p 6004:6004 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
+    docker run -d --name="test-comps-retrievers-neo4j-llama-index-dataprep" -p 6004:6004 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e no_proxy=$no_proxy \
         -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" \
         -e NEO4J_PASSWORD="neo4jtest" opea/dataprep-neo4j-llamaindex:comps
@@ -65,7 +65,7 @@ function start_service() {
     export NEO4J_PASSWORD="neo4jtest"
     # unset http_proxy
     export no_proxy="localhost,127.0.0.1,"${ip_address}
-    docker run -d --name="test-comps-retriever-neo4j-server" -p 6009:6009 --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT \
+    docker run -d --name="test-comps-retrievers-neo4j-llama-index-server" -p 6009:6009 --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT \
         -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e https_proxy=$https_proxy \
         -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="neo4jtest" opea/retriever-neo4j-llamaindex:comps
 
@@ -121,7 +121,7 @@ function validate_microservice() {
         "${ip_address}:7474" \
         "200 OK" \
         "neo4j-apoc" \
-        "test-comps-neo4j-apoc" \
+        "test-comps-retrievers-neo4j-llama-index-neo4japoc" \
         ""
     sleep 1m # retrieval can't curl as expected, try to wait for more time
 
@@ -130,7 +130,7 @@ function validate_microservice() {
         "${ip_address}:6005/generate" \
         "generated_text" \
         "tgi-gaudi-service" \
-        "test-comps-retriever-neo4j-tgi-endpoint" \
+        "test-comps-retrievers-neo4j-llama-index-tgi" \
         '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
 
     # test /v1/dataprep graph extraction
@@ -139,14 +139,14 @@ function validate_microservice() {
         "http://${ip_address}:6004/v1/dataprep" \
         "Data preparation succeeded" \
         "extract_graph_neo4j" \
-        "test-comps-retriever-neo4j-dataprep-endpoint"
+        "test-comps-retrievers-neo4j-llama-index-dataprep"
 
     # retrieval microservice
     validate_service \
         "${ip_address}:6009/v1/retrieval" \
         "Retrieval of answers from community summaries successful" \
         "retriever_community_answers_neo4j" \
-        "test-comps-retriever-neo4j-server" \
+        "test-comps-retrievers-neo4j-llama-index-server" \
         "{\"messages\": [{\"role\": \"user\",\"content\": \"Who is John Brady and has he had any confrontations?\"}]}"
 
 }
@@ -156,7 +156,7 @@ function stop_docker() {
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
     fi
-    cid_db=$(docker ps -aq --filter "name=test-comps-neo4j-apoc1")
+    cid_db=$(docker ps -aq --filter "name=test-comps-retrievers-neo4j-llama-index-neo4japoc")
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
     fi
