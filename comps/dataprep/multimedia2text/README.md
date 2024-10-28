@@ -140,7 +140,7 @@ Expected output:
 
 ```
 ========= Audio file saved as ======
-/home/mcetin/GenAIComps/comps/dataprep/multimedia2text/video2audio/converted_audio.wav
+comps/dataprep/multimedia2text/video2audio/converted_audio.wav
 ====================================
 ```
 
