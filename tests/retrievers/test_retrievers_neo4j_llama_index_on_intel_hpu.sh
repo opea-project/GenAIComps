@@ -41,8 +41,9 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:6006"
 
     # tgi gaudi endpoint
-    model="meta-llama/Meta-Llama-3-8B-Instruct"
-    docker run -d --name="test-comps-retrievers-neo4j-llama-index-tgi" -p 6005:80 -v ./data:/data --runtime=habana -e HABANA_VISIBLE_DEVICES=all \
+    #model="meta-llama/Meta-Llama-3-8B-Instruct"
+    model="meta-llama/Llama-2-70b-hf"
+    docker run -d --name="test-comps-retrievers-neo4j-llama-index-tgi" -p 6005:80 -v ./data:/data --runtime=habana -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e HABANA_VISIBLE_DEVICES=all \
         -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e HF_TOKEN=$HF_TOKEN -e ENABLE_HPU_GRAPH=true -e LIMIT_HPU_GRAPH=true \
         -e USE_FLASH_ATTENTION=true -e FLASH_ATTENTION_RECOMPUTE=true --cap-add=sys_nice -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
         --ipc=host --pull always ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --max-input-tokens 1024 --max-total-tokens 3000
