@@ -44,7 +44,8 @@ from transformers.utils import check_min_version
 
 from huggingface_hub import login
 HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
-login(token=HUGGINGFACEHUB_API_TOKEN)
+if HUGGINGFACEHUB_API_TOKEN != "":
+    login(token=HUGGINGFACEHUB_API_TOK EN)
 
 def adjust_batch(batch, size):
     curr_size = batch["input_ids"].shape[1]
