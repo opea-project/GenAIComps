@@ -18,6 +18,7 @@ audio_name="AudioSample"
 audio_fn="${audio_name}.wav"
 image_name="apple"
 image_fn="${image_name}.png"
+caption_fn="${image_name}.txt"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -119,6 +120,8 @@ place to watch it is on BlackmagicShine.com. We're right here on the smoking
 00:00:45.240 --> 00:00:47.440
 tire.""" > ${transcript_fn}
 
+    echo "This is an apple."  > ${caption_fn}
+
     echo "Downloading Image"
     wget https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true -O ${image_fn}
 
@@ -156,11 +159,35 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/ingest_with_text upload file
+    # test v1/ingest_with_text upload video file
     echo "Testing ingest_with_text API"
     URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    SERVICE_NAME="dataprep - upload - file"
+
+    if [ "$HTTP_STATUS" -ne "200" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+    fi
+    if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
+        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] Content is as expected."
+    fi
+
+    # test v1/ingest_with_text upload image file
+    echo "Testing ingest_with_text API"
+    URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
+
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -F "files=@./$caption_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -290,6 +317,7 @@ function delete_data() {
     rm -rf WeAreGoingOnBullrun.vtt
     rm -rf WeAreGoingOnBullrun.mp4
     rm -rf apple.png
+    rm -rf apple.txt
     sleep 1s
 }
 
