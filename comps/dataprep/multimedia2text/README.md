@@ -104,7 +104,7 @@ python comps/asr/whisper/dependency/check_whisper_server.py
 
 Expected output:
 
-```json
+```
 {'asr_result': 'who is pat gelsinger'}
 ```
 
@@ -118,11 +118,11 @@ python comps/dataprep/multimedia2text/audio2text/check_a2t_server.py
 
 Expected output:
 
-```json
+```
 {
-  'downstream_black_list': [],
-  'id': 'a4133a4dec8c1daf92e53049b4b535b8',
-  'query': 'and a number of states are starting to adopt them voluntarily special correspondent john delenco of education week reports it takes just 10 minutes to cross through gillette wyoming this small city sits in the northeast corner of the state surrounded by 100s of miles of prairie but schools here in campbell county are on the edge ofthe state surrounded by 100s of miles of prairie but schools here in campbell county are on the edge of something big the next generation son'
+'downstream_black_list': [],
+'id': 'a4133a4dec8c1daf92e53049b4b535b8',
+'query': 'and a number of states are starting to adopt them voluntarily special correspondent john delenco of education week reports it takes just 10 minutes to cross through gillette wyoming this small city sits in the northeast corner of the state surrounded by 100s of miles of prairie but schools here in campbell county are on the edge ofthe state surrounded by 100s of miles of prairie but schools here in campbell county are on the edge of something big the next generation son'
 }
 ```
 
