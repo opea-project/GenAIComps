@@ -5,7 +5,7 @@ This guide provides instructions on how to build and run various Docker services
 1. **Whisper Service**: Converts audio to text.
 2. **A2T Service**: Another service for audio to text conversion.
 3. **Video to Audio Service**: Extracts audio from video files.
-4. **Data Preparation Service**: Prepares multimedia data for text conversion.
+4. **Multimedia2Text Service**: Transforms multimedia data to text data.
 
 ## Prerequisites
 
@@ -69,9 +69,9 @@ docker build -t opea/v2a:latest --build-arg https_proxy=$https_proxy --build-arg
 docker run -d -p 7078:7078 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/v2a:latest
 ```
 
-### Multimedia2text Service
+### Multimedia2Text Service
 
-The Data Preparation Service prepares multimedia data for text conversion. Follow these steps to build and run the service:
+The Multimedia2Text Service transforms multimedia data to text data. Follow these steps to build and run the service:
 
 #### Build
 
@@ -90,23 +90,85 @@ docker run -it -p 7079:7079 --ipc=host -e http_proxy=$http_proxy -e https_proxy=
     opea/multimedia2text:latest
 ```
 
+## Validate Microservices
 
+After building and running the services, you can validate them using the provided Python scripts. Below are the steps to validate each service:
 
+### Whisper Service
 
+Run the following command to validate the Whisper Service:
 
+```bash
+python comps/asr/whisper/dependency/check_whisper_server.py 
+```
 
+Expected output:
 
+```json
+{'asr_result': 'who is pat gelsinger'}
+```
 
+### Audio2Text Service
 
+Run the following command to validate the Audio2Text Service:
 
+```bash
+python comps/dataprep/multimedia2text/audio2text/check_a2t_server.py
+```
 
+Expected output:
 
+```json
+{
+  'downstream_black_list': [],
+  'id': 'a4133a4dec8c1daf92e53049b4b535b8',
+  'query': 'and a number of states are starting to adopt them voluntarily special correspondent john delenco of education week reports it takes just 10 minutes to cross through gillette wyoming this small city sits in the northeast corner of the state surrounded by 100s of miles of prairie but schools here in campbell county are on the edge ofthe state surrounded by 100s of miles of prairie but schools here in campbell county are on the edge of something big the next generation son'
+}
+```
 
+*Note: The `id` value will be different.*
 
+### Video2Audio Service
 
+Run the following command to validate the Video2Audio Service:
 
+```bash
+python comps/dataprep/multimedia2text/video2audio/check_v2a_microserver.py
+```
 
+Expected output:
 
+```
+========= Audio file saved as ======
+/home/mcetin/GenAIComps/comps/dataprep/multimedia2text/video2audio/converted_audio.wav
+====================================
+```
+
+### Multimedia2Text Service
+
+Run the following command to validate the Multimedia2Text Service:
+
+```bash
+python comps/dataprep/multimedia2text/check_multimedia2text.py 
+```
+
+Expected output:
+
+```
+Running test: Whisper service
+>>> Whisper service Test Passed ... 
+
+Running test: Audio2Text service
+>>> Audio2Text service Test Passed ... 
+
+Running test: Video2Text service
+>>> Video2Text service Test Passed ... 
+
+Running test: Multimedia2text service
+>>> Multimedia2text service test for text data type passed ... 
+>>> Multimedia2text service test for audio data type passed ... 
+>>> Multimedia2text service test for video data type passed ... 
+```
 
 
 
