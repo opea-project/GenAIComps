@@ -132,7 +132,7 @@ async def animate(request: Request):
             img_batch = torch.FloatTensor(np.transpose(img_batch, (0, 3, 1, 2))).to(device)
             mel_batch = torch.FloatTensor(np.transpose(mel_batch, (0, 3, 1, 2))).to(device)
 
-            with torch.autocast(device_type="hpu", dtype=torch.bfloat16):
+            with torch.autocast(device_type=args.device, dtype=torch.bfloat16):
                 pred = model(mel_batch, img_batch)
 
             pred = pred.cpu().numpy().transpose(0, 2, 3, 1) * 255.0
