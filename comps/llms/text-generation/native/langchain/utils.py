@@ -26,6 +26,7 @@ import time
 from pathlib import Path
 
 import torch
+from huggingface_hub import login
 from optimum.habana.checkpoint_utils import (
     get_ds_injection_policy,
     get_repo_root,
@@ -42,10 +43,10 @@ from optimum.habana.utils import (
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import check_min_version
 
-from huggingface_hub import login
 HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 if HUGGINGFACEHUB_API_TOKEN != "":
     login(token=HUGGINGFACEHUB_API_TOK EN)
+
 
 def adjust_batch(batch, size):
     curr_size = batch["input_ids"].shape[1]
