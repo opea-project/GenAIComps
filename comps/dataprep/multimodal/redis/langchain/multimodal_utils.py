@@ -128,6 +128,43 @@ def convert_img_to_base64(image):
     return encoded_string.decode()
 
 
+def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path: str, output_dir: str):
+    """ Generates an annotations.json from the transcript file """
+
+    # Set up location to store frames and annotations
+    os.makedirs(output_dir, exist_ok=True)
+
+    # read captions file
+    captions = webvtt.read(vtt_path)
+
+    annotations = []
+    for idx, caption in enumerate(captions):
+        start_time = str2time(caption.start)
+        end_time = str2time(caption.end)
+        mid_time = (end_time + start_time) / 2
+        mid_time_ms = mid_time * 1000
+        text = caption.text.replace("\n", " ")
+
+        # Create annotations for frame from transcripts with an empty image
+        annotations.append(
+            {
+                "video_id": file_id,
+                "video_name": os.path.basename(file_path),
+                "b64_img_str": "",
+                "caption": text,
+                "time": mid_time_ms,
+                "frame_no": 0,
+                "sub_video_id": idx,
+            }
+        )
+
+    # Save transcript annotations as json file for further processing
+    with open(os.path.join(output_dir, "annotations.json"), "w") as f:
+        json.dump(annotations, f)
+
+    return annotations
+
+
 def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: str, vtt_path: str, output_dir: str):
     """Extract frames (.png) and annotations (.json) from video file (.mp4) and captions file (.vtt)"""
     # Set up location to store frames and annotations

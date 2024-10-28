@@ -14,6 +14,8 @@ INDEX_NAME="dataprep"
 video_name="WeAreGoingOnBullrun"
 transcript_fn="${video_name}.vtt"
 video_fn="${video_name}.mp4"
+audio_name="AudioSample"
+audio_fn="${audio_name}.wav"
 image_name="apple"
 image_fn="${image_name}.png"
 
@@ -123,6 +125,9 @@ tire.""" > ${transcript_fn}
     echo "Downloading Video"
     wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -O ${video_fn}
 
+    echo "Downloading Audio"
+    wget https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav -O ${audio_fn}
+
 }
 
 function validate_microservice() {
@@ -131,7 +136,7 @@ function validate_microservice() {
     # test v1/generate_transcripts upload file
     echo "Testing generate_transcripts API"
     URL="http://${ip_address}:$dataprep_service_port/v1/generate_transcripts"
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -F "files=@./$audio_fn"  -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -238,7 +243,7 @@ function validate_microservice() {
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
-    if [[ "$RESPONSE_BODY" != *${image_name}* || "$RESPONSE_BODY" != *${video_name}* ]]; then
+    if [[ "$RESPONSE_BODY" != *${image_name}* || "$RESPONSE_BODY" != *${video_name}* || "$RESPONSE_BODY" != *${audio_name}* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
         docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_file.log
         exit 1
