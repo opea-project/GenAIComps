@@ -84,6 +84,7 @@ async def animate(request: Request):
             ffmpeg.input(args.audio).output("temp/temp.wav", strict="-2").run(overwrite_output=True)
             args.audio = "temp/temp.wav"
     else:
+        print(f"Signature for your audio: {audio_b64_str[:100]}")
         sr, y = base64_to_int16_to_wav(audio_b64_str, "temp/temp.wav")
         args.audio = "temp/temp.wav"
 
@@ -135,7 +136,7 @@ async def animate(request: Request):
             with torch.autocast(device_type=args.device, dtype=torch.bfloat16):
                 pred = model(mel_batch, img_batch)
 
-            pred = pred.cpu().numpy().transpose(0, 2, 3, 1) * 255.0
+            pred = pred.cpu().to(torch.float32).numpy().transpose(0, 2, 3, 1) * 255.0
 
             for p, f, c in tqdm(zip(pred, frames, coords), total=pred.shape[0]):
                 y1, y2, x1, x2 = c
@@ -160,6 +161,8 @@ async def animate(request: Request):
         preset="medium",
         acodec="aac",
     ).run(overwrite_output=True)
+
+    args.audio = "None"  # IMPORTANT: Reset audio to None for the next audio request
 
     return {"wav2lip_result": args.outfile}
 
