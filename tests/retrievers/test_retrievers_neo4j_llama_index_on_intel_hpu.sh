@@ -10,8 +10,6 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker run -d -p 7474:7474 -p 7687:7687 --name test-comps-retrievers-neo4j-llama-index-neo4japoc --env NEO4J_AUTH=neo4j/neo4jtest -e NEO4J_apoc_export_file_enabled=true -e NEO4J_apoc_import_file_enabled=true -e NEO4J_apoc_import_file_use__neo4j__config=true -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
-    #sleep 30s
     echo "current dir: $PWD"
     docker build --no-cache -t opea/retriever-neo4j-llamaindex:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/llama_index/Dockerfile .
     if [ $? -ne 0 ]; then
@@ -33,6 +31,9 @@ function build_docker_images() {
 }
 
 function start_service() {
+    # neo4j-apoc
+    docker run -d -p 7474:7474 -p 7687:7687 --name test-comps-retrievers-neo4j-llama-index-neo4j-apoc --env NEO4J_AUTH=neo4j/neo4jtest -e NEO4J_apoc_export_file_enabled=true -e NEO4J_apoc_import_file_enabled=true -e NEO4J_apoc_import_file_use__neo4j__config=true -e NEO4J_PLUGINS=\[\"apoc\"\] neo4j:latest
+
     # tei endpoint
     emb_model="BAAI/bge-base-en-v1.5"
     docker run -d --name="test-comps-retrievers-neo4j-llama-index-tei" -p 6006:80 -v ./data:/data -e no_proxy=$no_proxy -e http_proxy=$http_proxy \
@@ -56,7 +57,7 @@ function start_service() {
     docker run -d --name="test-comps-retrievers-neo4j-llama-index-dataprep" -p 6004:6004 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e no_proxy=$no_proxy \
         -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" \
-        -e NEO4J_PASSWORD="neo4jtest" opea/dataprep-neo4j-llamaindex:comps
+        -e NEO4J_PASSWORD="neo4jtest" -e LOGFLAG=True opea/dataprep-neo4j-llamaindex:comps
     sleep 30s
     export DATAPREP_SERVICE_ENDPOINT="http://${ip_address}:6004"
 
@@ -69,7 +70,7 @@ function start_service() {
     export no_proxy="localhost,127.0.0.1,"${ip_address}
     docker run -d --name="test-comps-retrievers-neo4j-llama-index-server" -p 6009:6009 --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT \
         -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e https_proxy=$https_proxy \
-        -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="neo4jtest" opea/retriever-neo4j-llamaindex:comps
+        -e NEO4J_URI="bolt://${ip_address}:7687" -e NEO4J_USERNAME="neo4j" -e NEO4J_PASSWORD="neo4jtest" -e LOGFLAG=True opea/retriever-neo4j-llamaindex:comps
 
     sleep 1m
 
@@ -123,7 +124,7 @@ function validate_microservice() {
         "${ip_address}:7474" \
         "200 OK" \
         "neo4j-apoc" \
-        "test-comps-retrievers-neo4j-llama-index-neo4japoc" \
+        "test-comps-retrievers-neo4j-llama-index-neo4j-apoc" \
         ""
     sleep 1m # retrieval can't curl as expected, try to wait for more time
 
@@ -154,11 +155,11 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retriever-neo4j*")
+    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retrievers-neo4j*")
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
     fi
-    cid_db=$(docker ps -aq --filter "name=test-comps-retrievers-neo4j-llama-index-neo4japoc")
+    cid_db=$(docker ps -aq --filter "name=test-comps-retrievers-neo4j-llama-index-neo4j-apoc")
     if [[ ! -z "$cid_retrievers" ]]; then
         docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
     fi
