@@ -50,7 +50,7 @@ function start_service() {
         -e USE_FLASH_ATTENTION=true -e FLASH_ATTENTION_RECOMPUTE=true --cap-add=sys_nice -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
         --ipc=host --pull always ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --sharded true --num-shard 4 --max-input-tokens 1024 --max-total-tokens 3000
     #extra time to load large model
-    sleep 1m
+    sleep 8m
     export TGI_LLM_ENDPOINT="http://${ip_address}:6005"
 
     # dataprep neo4j
