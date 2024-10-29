@@ -119,7 +119,7 @@ cd GenAIComps
 python3 comps/animation/wav2lip/dependency/check_animation_server.py
 ```
 
-The expected output is a message similar to the following:
+The expected output will be a message similar to the following:
 
 ```bash
 {'wav2lip_result': '....../GenAIComps/comps/animation/wav2lip/assets/outputs/result.mp4'}
