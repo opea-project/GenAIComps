@@ -50,7 +50,18 @@ function start_service() {
         -e USE_FLASH_ATTENTION=true -e FLASH_ATTENTION_RECOMPUTE=true --cap-add=sys_nice -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
         --ipc=host --pull always ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --sharded true --num-shard 4 --max-input-tokens 1024 --max-total-tokens 3000
     #extra time to load large model
-    sleep 8m
+    echo "Waiting for tgi gaudi ready"
+    n=0
+    until [[ "$n" -ge 300 ]] || [[ $ready == true ]]; do
+        docker logs test-comps-retrievers-neo4j-llama-index-tgi &> ${LOG_PATH}/tgi-gaudi-service.log
+        n=$((n+1))
+        if grep -q Connected ${LOG_PATH}/tgi-gaudi-service.log; then
+            break
+        fi
+        sleep 5s
+    done
+    sleep 5s
+    echo "Service started successfully"
     export TGI_LLM_ENDPOINT="http://${ip_address}:6005"
 
     # dataprep neo4j
