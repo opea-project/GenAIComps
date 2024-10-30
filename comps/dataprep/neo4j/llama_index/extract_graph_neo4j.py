@@ -323,7 +323,8 @@ Given the text, extract up to {max_knowledge_triplets} entity-relation triplets.
 - entity_name: Name of the entity, capitalized
 - entity_type: Type of the entity
 - entity_description: Comprehensive description of the entity's attributes and activities
-Format each entity as ("entity"$$$$<entity_name>$$$$<entity_type>$$$$<entity_description>)
+Format each entity strictly as ("entity"$$$$<entity_name>$$$$<entity_type>$$$$<entity_description>). Pay attention to the dollar signs ($$$$) separating the fields and the parentheses surrounding the entire entity.
+one example: ("entity"$$$$Apple$$$$Company$$$$Apple Inc. is an American multinational technology company that specializes in consumer electronics, computer software, and online services.)
 
 2. From the entities identified in step 1, identify all pairs of (source_entity, target_entity) that are *clearly related* to each other.
 For each pair of related entities, extract the following information:
@@ -332,7 +333,8 @@ For each pair of related entities, extract the following information:
 - relation: relationship between source_entity and target_entity
 - relationship_description: explanation as to why you think the source entity and the target entity are related to each other
 
-Format each relationship as ("relationship"$$$$<source_entity>$$$$<target_entity>$$$$<relation>$$$$<relationship_description>)
+Format each relationship strictly as ("relationship"$$$$<source_entity>$$$$<target_entity>$$$$<relation>$$$$<relationship_description>). Pay attention to the dollar signs ($$$$) separating the fields and the parentheses surrounding the entire entity.
+one example: ("relationship"$$$$Apple$$$$Steve Jobs$$$$Founded$$$$Steve Jobs co-founded Apple Inc. in 1976.)
 
 3. When finished, output.
 
@@ -341,6 +343,7 @@ Format each relationship as ("relationship"$$$$<source_entity>$$$$<target_entity
 text: {text}
 ######################
 output:"""
+
 entity_pattern = r'\("entity"\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\)'
 relationship_pattern = r'\("relationship"\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\)'
 
