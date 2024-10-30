@@ -166,7 +166,8 @@ def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path:
 
 
 def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: str, vtt_path: str, output_dir: str):
-    """Extract frames (.png) and annotations (.json) from video file (.mp4) and captions file (.vtt)"""
+    """Extract frames (.png) and annotations (.json) from media-text file pairs. File pairs can be a video
+    file (.mp4) and transcript file (.vtt) or an image file (.png, .jpg, .jpeg, .gif) and caption file (.txt)"""
     # Set up location to store frames and annotations
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "frames"), exist_ok=True)
@@ -180,7 +181,7 @@ def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: s
         captions = webvtt.read(vtt_path)
     else:
         with open(vtt_path, 'r') as f:
-            captions = [line for line in f]
+            captions = f.read()
 
     annotations = []
     for idx, caption in enumerate(captions):
@@ -196,7 +197,7 @@ def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: s
         else:
             frame_no = 0
             mid_time_ms = 0
-            text = captions[0].replace("\n", " ")
+            text = captions.replace("\n", " ")
 
         vidcap.set(cv2.CAP_PROP_POS_MSEC, mid_time_ms)
         success, frame = vidcap.read()

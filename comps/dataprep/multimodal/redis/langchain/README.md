@@ -143,7 +143,7 @@ curl -X POST \
     http://localhost:6007/v1/ingest_with_text
 ```
 
-#### Multiple video-transcript pair upload
+#### Multiple file pair upload
 
 ```bash
 curl -X POST \
@@ -152,6 +152,10 @@ curl -X POST \
     -F "files=@./video1.vtt" \
     -F "files=@./video2.mp4" \
     -F "files=@./video2.vtt" \
+    -F "files=@./image1.png" \
+    -F "files=@./image1.txt" \
+    -F "files=@./image2.jpg" \
+    -F "files=@./image2.txt" \
     http://localhost:6007/v1/ingest_with_text
 ```
 

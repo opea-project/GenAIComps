@@ -443,7 +443,7 @@ async def ingest_generate_transcripts(files: List[UploadFile] = File(None)):
 @register_microservice(
     name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_captions", host="0.0.0.0", port=6007
 )
-async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
+async def ingest_generate_caption(files: List[UploadFile] = File(None)):
     """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
 
     if files:
@@ -506,145 +506,95 @@ async def ingest_videos_generate_caption(files: List[UploadFile] = File(None)):
 )
 async def ingest_with_text(files: List[UploadFile] = File(None)):
     if files:
-        video_files, video_file_names = [], []
-        image_files, image_file_names = [], []
-        captions_files, captions_file_names = [], []
-        uploaded_videos_saved_videos_map = {}
+        accepted_media_formats = [".mp4", ".png", ".jpg", ".jpeg", ".gif"]
+        # Create a lookup dictionary containing all media files
+        matched_files = {f.filename: [f] for f in files if os.path.splitext(f.filename)[1] in accepted_media_formats}
+        uploaded_files_map = {}
+        
+        # Go through files again and match caption files to media files
         for file in files:
-            if os.path.splitext(file.filename)[1] == ".mp4":
-                video_files.append(file)
-                video_file_names.append(file.filename)
-            elif os.path.splitext(file.filename)[1] in [".vtt", ".txt"]:
-                captions_files.append(file)
-                captions_file_names.append(file.filename)
-            elif os.path.splitext(file.filename)[1] in [".png", ".jpg", ".jpeg", ".gif"]:
-                image_files.append(file)
-                image_file_names.append(file.filename)
-            else:
+            file_base, file_extension = os.path.splitext(file.filename)
+            if file_extension == '.vtt':
+                if "{}.mp4".format(file_base) in matched_files:
+                    matched_files["{}.mp4".format(file_base)].append(file)
+                else:
+                    print(f"No video was found for caption file {file.filename}.")
+            elif file_extension == '.txt':
+                if "{}.png".format(file_base) in matched_files:
+                    matched_files["{}.png".format(file_base)].append(file)
+                elif "{}.jpg".format(file_base) in matched_files:
+                    matched_files["{}.jpg".format(file_base)].append(file)
+                elif "{}.jpeg".format(file_base) in matched_files:
+                    matched_files["{}.jpeg".format(file_base)].append(file)
+                elif "{}.gif".format(file_base) in matched_files:
+                    matched_files["{}.gif".format(file_base)].append(file)
+                else:
+                    print(f"No image was found for caption file {file.filename}.")
+            elif file_extension not in accepted_media_formats:
                 print(f"Skipping file {file.filename} because of unsupported format.")
 
-        # Check if every video file has a captions file
-        for video_file_name in video_file_names:
-            file_prefix = os.path.splitext(video_file_name)[0]
-            if (file_prefix + ".vtt") not in captions_file_names:
+        # Check if every media file has a caption file
+        for media_file_name, file_pair in matched_files.items():
+            if len(file_pair) != 2:
                 raise HTTPException(
-                    status_code=400, detail=f"No captions file {file_prefix}.vtt found for {video_file_name}"
-                )
-            
-        # Check if every image file has a caption file
-        for image_file_name in image_file_names:
-            file_prefix = os.path.splitext(image_file_name)[0]
-            if (file_prefix + ".txt") not in captions_file_names:
-                raise HTTPException(
-                    status_code=400, detail=f"No captions file {file_prefix}.txt found for {image_file_name}"
+                    status_code=400, detail=f"No caption file found for {media_file_name}"
                 )
 
-        if len(video_files) + len(image_files) == 0:
+        if len(matched_files.keys()) == 0:
             return HTTPException(
                 status_code=400,
                 detail="The uploaded files have unsupported formats. Please upload at least one video file (.mp4) with captions (.vtt) or one image (.png, .jpg, .jpeg, or .gif) with caption (.txt)",
             )
 
-        for video_file in video_files:
-            print(f"Processing video {video_file.filename}")
+        for media_file in matched_files:
+            print(f"Processing file {media_file}")
 
-            # Assign unique identifier to video
-            video_id = generate_id()
+            # Assign unique identifier to file
+            file_id = generate_id()
 
-            # Create video file name by appending identifier
-            video_name = os.path.splitext(video_file.filename)[0]
-            video_file_name = f"{video_name}_{video_id}.mp4"
-            video_dir_name = os.path.splitext(video_file_name)[0]
+            # Create file name by appending identifier
+            file_name, file_extension = os.path.splitext(media_file)
+            media_file_name = f"{file_name}_{file_id}{file_extension}"
+            media_dir_name = os.path.splitext(media_file_name)[0]
 
-            # Save video file in upload_directory
-            with open(os.path.join(upload_folder, video_file_name), "wb") as f:
-                shutil.copyfileobj(video_file.file, f)
-            uploaded_videos_saved_videos_map[video_name] = video_file_name
+            # Save file in upload_directory
+            with open(os.path.join(upload_folder, media_file_name), "wb") as f:
+                shutil.copyfileobj(matched_files[media_file][0].file, f)
+            uploaded_files_map[file_name] = media_file_name
 
-            # Save captions file in upload directory
-            vtt_file_name = os.path.splitext(video_file.filename)[0] + ".vtt"
-            vtt_idx = None
-            for idx, caption_file in enumerate(captions_files):
-                if caption_file.filename == vtt_file_name:
-                    vtt_idx = idx
-                    break
-            vtt_file = video_dir_name + ".vtt"
-            with open(os.path.join(upload_folder, vtt_file), "wb") as f:
-                shutil.copyfileobj(captions_files[vtt_idx].file, f)
+            # Save caption file in upload directory
+            caption_file_extension = os.path.splitext(matched_files[media_file][1].filename)[1]
+            caption_file = f"{media_dir_name}{caption_file_extension}"
+            with open(os.path.join(upload_folder, caption_file), "wb") as f:
+                shutil.copyfileobj(matched_files[media_file][1].file, f)
 
             # Store frames and caption annotations in a new directory
             extract_frames_and_annotations_from_transcripts(
-                video_id,
-                os.path.join(upload_folder, video_file_name),
-                os.path.join(upload_folder, vtt_file),
-                os.path.join(upload_folder, video_dir_name),
+                file_id,
+                os.path.join(upload_folder, media_file_name),
+                os.path.join(upload_folder, caption_file),
+                os.path.join(upload_folder, media_dir_name),
             )
 
-            # Delete temporary vtt file
-            os.remove(os.path.join(upload_folder, vtt_file))
+            # Delete temporary caption file
+            os.remove(os.path.join(upload_folder, caption_file))
 
             # Ingest multimodal data into redis
-            ingest_multimodal(video_name, os.path.join(upload_folder, video_dir_name), embeddings)
+            ingest_multimodal(file_name, os.path.join(upload_folder, media_dir_name), embeddings)
 
-            # Delete temporary video directory containing frames and annotations
-            shutil.rmtree(os.path.join(upload_folder, video_dir_name))
+            # Delete temporary media directory containing frames and annotations
+            shutil.rmtree(os.path.join(upload_folder, media_dir_name))
 
-            print(f"Processed video {video_file.filename}")
-
-        for image_file in image_files:
-            print(f"Processing image {image_file.filename}")
-
-            # Assign unique identifier to image
-            image_id = generate_id()
-
-            # Create image file name by appending identifier
-            image_name, image_ext = os.path.splitext(image_file.filename)
-            image_file_name = f"{image_name}_{image_id}{image_ext}"
-            image_dir_name = os.path.splitext(image_file_name)[0]
-
-            # Save image file in upload_directory
-            with open(os.path.join(upload_folder, image_file_name), "wb") as f:
-                shutil.copyfileobj(image_file.file, f)
-            uploaded_videos_saved_videos_map[image_name] = image_file_name
-
-            # Save captions file in upload directory
-            txt_file_name = os.path.splitext(image_file.filename)[0] + ".txt"
-            txt_idx = None
-            for idx, caption_file in enumerate(captions_files):
-                if caption_file.filename == txt_file_name:
-                    txt_idx = idx
-                    break
-            txt_file = image_dir_name + ".txt"
-            with open(os.path.join(upload_folder, txt_file), "wb") as f:
-                shutil.copyfileobj(captions_files[txt_idx].file, f)
-
-            # Store images and caption annotations in a new directory
-            extract_frames_and_annotations_from_transcripts(
-                image_id,
-                os.path.join(upload_folder, image_file_name),
-                os.path.join(upload_folder, txt_file),
-                os.path.join(upload_folder, image_dir_name),
-            )
-
-            # Delete temporary txt file
-            os.remove(os.path.join(upload_folder, txt_file))
-
-            # Ingest multimodal data into redis
-            ingest_multimodal(image_name, os.path.join(upload_folder, image_dir_name), embeddings)
-
-            # Delete temporary directory containing images and annotations
-            shutil.rmtree(os.path.join(upload_folder, image_dir_name))
-
-            print(f"Processed image {image_file.filename}")
+            print(f"Processed file {media_file}")
 
         return {
             "status": 200,
             "message": "Data preparation succeeded",
-            "file_id_maps": uploaded_videos_saved_videos_map,
+            "file_id_maps": uploaded_files_map,
         }
 
     raise HTTPException(
-        status_code=400, detail="Must provide at least one pair consisting of video (.mp4) and captions (.vtt)"
+        status_code=400, detail="Must provide at least one pair consisting of video (.mp4) and captions (.vtt) or image (.png, .jpg, .jpeg, .gif) with caption (.txt)"
     )
 
 
