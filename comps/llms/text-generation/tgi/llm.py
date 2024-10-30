@@ -22,8 +22,8 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.utils import ConfigError, load_model_configs
 from comps.cores.proto.api_protocol import ChatCompletionRequest
-from comps.cores.mega.utils import load_model_configs, ConfigError
 
 logger = CustomLogger("llm_tgi")
 logflag = os.getenv("LOGFLAG", False)
@@ -32,7 +32,7 @@ logflag = os.getenv("LOGFLAG", False)
 MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
 DEFAULT_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 
-#Extract the model endpoint
+# Extract the model endpoint
 llm_endpoint = ""
 configs_map = {}
 if not MODEL_CONFIGS:
@@ -43,6 +43,7 @@ else:
     except ConfigError as e:
         logger.error(f"Failed to load model configurations: {e}")
         raise ConfigError(f"Failed to load model configurations: {e}")
+
 
 @register_microservice(
     name="opea_service@llm_tgi",
@@ -59,12 +60,12 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
     if input.model and MODEL_CONFIGS and configs_map:
         if configs_map.get(input.model):
             config = configs_map.get(input.model)
-            llm_endpoint = config.get('endpoint')
+            llm_endpoint = config.get("endpoint")
         else:
             logger.error(f"Input model {input.model} not present in model_configs")
             raise ConfigError(f"Input model {input.model} not present in model_configs")
 
-    llm = AsyncInferenceClient(model=llm_endpoint,timeout=600)
+    llm = AsyncInferenceClient(model=llm_endpoint, timeout=600)
 
     prompt_template = None
     if not isinstance(input, SearchedDoc) and input.chat_template:

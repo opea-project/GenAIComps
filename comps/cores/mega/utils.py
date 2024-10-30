@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ipaddress
+import json
 import multiprocessing
 import os
 import random
 from socket import AF_INET, SOCK_STREAM, socket
 from typing import List, Optional, Union
+
 from .logger import CustomLogger
-import json
 
 
 def is_port_free(host: str, port: int) -> bool:
@@ -184,13 +185,16 @@ def random_port() -> Optional[int]:
         unassigned_ports.clear()
         return _random_port()
 
+
 class ConfigError(Exception):
     """Custom exception for configuration errors."""
+
     pass
 
+
 def load_model_configs(model_configs: str) -> dict:
-    """
-    Load and validate the model configurations .
+    """Load and validate the model configurations .
+
     If valid, return the configuration for the specified model name.
     """
     logger = CustomLogger("models_loader")
@@ -198,7 +202,7 @@ def load_model_configs(model_configs: str) -> dict:
         configs = json.loads(model_configs)
         if not isinstance(configs, list) or not configs:
             raise ConfigError("MODEL_CONFIGS must be a non-empty JSON array.")
-        required_keys = {'model_name', 'displayName', 'endpoint', 'minToken', 'maxToken'}
+        required_keys = {"model_name", "displayName", "endpoint", "minToken", "maxToken"}
         configs_map = {}
         for config in configs:
             missing_keys = [key for key in required_keys if key not in config]
@@ -207,7 +211,7 @@ def load_model_configs(model_configs: str) -> dict:
             empty_keys = [key for key in required_keys if not config.get(key)]
             if empty_keys:
                 raise ConfigError(f"Empty values found for configuration fields: {empty_keys}")
-            model_name = config['model_name']
+            model_name = config["model_name"]
             configs_map[model_name] = config
         if not configs_map:
             raise ConfigError("No valid configurations found.")
@@ -218,6 +222,7 @@ def load_model_configs(model_configs: str) -> dict:
     except ConfigError as e:
         logger.error(str(e))
         raise
+
 
 class SafeContextManager:
     """This context manager ensures that the `__exit__` method of the

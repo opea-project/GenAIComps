@@ -8,13 +8,13 @@ class ChatTemplate:
     @staticmethod
     def generate_rag_prompt(question, documents, model):
         context_str = "\n".join(documents)
-        if(model=="meta-llama/Meta-Llama-3.1-70B-Instruct" or model=="meta-llama/Meta-Llama-3.1-8B-Instruct"):
+        if model == "meta-llama/Meta-Llama-3.1-70B-Instruct" or model == "meta-llama/Meta-Llama-3.1-8B-Instruct":
             template = """
-            <|begin_of_text|><|start_header_id|>system<|end_header_id|> You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise <|eot_id|><|start_header_id|>user<|end_header_id|> 
-            Question: {question} 
-            Context: {context} 
+            <|begin_of_text|><|start_header_id|>system<|end_header_id|> You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise <|eot_id|><|start_header_id|>user<|end_header_id|>
+            Question: {question}
+            Context: {context}
             Answer: <|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
-        else :
+        else:
             if context_str and len(re.findall("[\u4E00-\u9FFF]", context_str)) / len(context_str) >= 0.3:
                 # chinese context
                 template = """
