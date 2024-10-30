@@ -33,7 +33,7 @@ MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
 DEFAULT_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 
 # Extract the model endpoint
-llm_endpoint = ""
+llm_endpoint = "http://localhost:8080"
 configs_map = {}
 if not MODEL_CONFIGS:
     llm_endpoint = DEFAULT_ENDPOINT
@@ -57,6 +57,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
     if logflag:
         logger.info(input)
 
+    llm_endpoint = DEFAULT_ENDPOINT
     if input.model and MODEL_CONFIGS and configs_map:
         if configs_map.get(input.model):
             config = configs_map.get(input.model)
