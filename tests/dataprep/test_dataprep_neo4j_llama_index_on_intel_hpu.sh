@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -93,7 +93,7 @@ function validate_service() {
         fi
     fi
 
-    sleep 1s
+    sleep 5s
 }
 
 function validate_microservice() {
@@ -104,8 +104,8 @@ function validate_microservice() {
         "neo4j-apoc" \
         "test-comps-neo4j-apoc" \
         ""
-    sleep 1m # retrieval can't curl as expected, try to wait for more time
-            # tgi for llm service
+    sleep 1m  # retrieval can't curl as expected, try to wait for more time
+    # tgi for llm service
     validate_service \
         "${ip_address}:6005/generate" \
         "generated_text" \

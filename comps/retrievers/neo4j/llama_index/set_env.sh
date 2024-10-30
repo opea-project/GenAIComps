@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-#Remember to set your private variables mentioned in README
-#host_ip, OPENAI_KEY, HUGGINGFACEHUB_API_TOKEN, proxies...
+# Remember to set your private variables mentioned in README
+# host_ip, OPENAI_KEY, HUGGINGFACEHUB_API_TOKEN, proxies...
 
 export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
 export OPENAI_EMBEDDING_MODEL="text-embedding-3-small"

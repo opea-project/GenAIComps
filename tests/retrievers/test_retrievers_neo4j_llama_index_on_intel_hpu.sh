@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -42,13 +42,13 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:6006"
 
     # tgi gaudi endpoint
-    #THIS MODEL IS NOT GOOD ENOUGH FOR EXTRACTING HIGH QUALITY GRAPH BUT OK FOR CI TESTING
+    # Meta-Llama-3-8B-Instruct IS NOT GOOD ENOUGH FOR EXTRACTING HIGH QUALITY GRAPH BUT OK FOR CI TESTING
     model="meta-llama/Meta-Llama-3-8B-Instruct"
     docker run -d --name="test-comps-retrievers-neo4j-llama-index-tgi" -p 6005:80 -v ./data:/data --runtime=habana -e HABANA_VISIBLE_DEVICES=all \
         -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e HF_TOKEN=$HF_TOKEN -e ENABLE_HPU_GRAPH=true -e LIMIT_HPU_GRAPH=true \
         -e USE_FLASH_ATTENTION=true -e FLASH_ATTENTION_RECOMPUTE=true --cap-add=sys_nice -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
         --ipc=host --pull always ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --max-input-tokens 1024 --max-total-tokens 3000
-    #extra time to load large model
+    # extra time to load large model
     echo "Waiting for tgi gaudi ready"
     n=0
     until [[ "$n" -ge 300 ]] || [[ $ready == true ]]; do
@@ -77,7 +77,6 @@ function start_service() {
     export NEO4J_URI="bolt://${ip_address}:7687"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="neo4jtest"
-    # unset http_proxy
     export no_proxy="localhost,127.0.0.1,"${ip_address}
     docker run -d --name="test-comps-retrievers-neo4j-llama-index-server" -p 6009:6009 --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT \
         -e EMBEDDING_MODEL_ID=$emb_model -e LLM_MODEL_ID=$model -e host_ip=$ip_address -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e https_proxy=$https_proxy \
@@ -137,9 +136,9 @@ function validate_microservice() {
         "neo4j-apoc" \
         "test-comps-retrievers-neo4j-llama-index-neo4j-apoc" \
         ""
-    sleep 1m # retrieval can't curl as expected, try to wait for more time
+    sleep 1m  # retrieval can't curl as expected, try to wait for more time
 
-        # tgi for llm service
+    # tgi for llm service
     validate_service \
         "${ip_address}:6005/generate" \
         "generated_text" \
