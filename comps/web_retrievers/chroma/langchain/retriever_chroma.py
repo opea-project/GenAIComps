@@ -54,7 +54,7 @@ def parse_htmls(docs):
 def dump_docs(docs):
     batch_size = 32
     for i in range(0, len(docs), batch_size):
-        vector_db.add_documents(docs[i:i + batch_size])
+        vector_db.add_documents(docs[i : i + batch_size])
 
 
 @register_microservice(
