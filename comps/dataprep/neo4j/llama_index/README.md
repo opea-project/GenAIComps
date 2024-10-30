@@ -5,18 +5,18 @@ This dataprep microservice ingests the input files and uses LLM (TGI or OpenAI m
 ### Setup Environment Variables
 
 ```bash
-#Manually set private environment settings
-export host_ip=${your_hostname IP} #local IP
-export no_proxy=$no_proxy,${host_ip} #important to add {host_ip} for containers communication
+# Manually set private environment settings
+export host_ip=${your_hostname IP}  # local IP
+export no_proxy=$no_proxy,${host_ip}  # important to add {host_ip} for containers communication
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
 export NEO4J_URI=${your_neo4j_url}
 export NEO4J_USERNAME=${your_neo4j_username}
-export NEO4J_PASSWORD=${your_neo4j_password} #should match what was used in NEO4J_AUTH when running the neo4j-apoc
+export NEO4J_PASSWORD=${your_neo4j_password}  # should match what was used in NEO4J_AUTH when running the neo4j-apoc
 export PYTHONPATH=${path_to_comps}
-export OPENAI_KEY=${your_openai_api_key} #optional, when not provided will use smaller models TGI/TEI
+export OPENAI_KEY=${your_openai_api_key}  # optional, when not provided will use smaller models TGI/TEI
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
-#set additional environment settings
+# set additional environment settings
 source ./set_env.sh
 ```
 
@@ -32,18 +32,18 @@ docker build -t opea/dataprep-neo4j-llamaindex:latest --build-arg no_proxy=$no_p
 ### 2. Setup Environment Variables
 
 ```bash
-#Set private environment settings
-export host_ip=${your_hostname IP} #local IP
-export no_proxy=$no_proxy,${host_ip} #important to add {host_ip} for containers communication
+# Set private environment settings
+export host_ip=${your_hostname IP}  # local IP
+export no_proxy=$no_proxy,${host_ip}  # important to add {host_ip} for containers communication
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
 export NEO4J_URI=${your_neo4j_url}
 export NEO4J_USERNAME=${your_neo4j_username}
 export NEO4J_PASSWORD=${your_neo4j_password}
 export PYTHONPATH=${path_to_comps}
-export OPENAI_KEY=${your_openai_api_key} #optional, when not provided will use smaller models TGI/TEI
+export OPENAI_KEY=${your_openai_api_key}  # optional, when not provided will use smaller models TGI/TEI
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
-#set additional environment settings
+# set additional environment settings
 source ./set_env.sh
 ```
 
