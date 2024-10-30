@@ -33,7 +33,11 @@ class HTTPService(BaseService):
         self.uvicorn_kwargs = uvicorn_kwargs or {}
         self.cors = cors
         self._app = self._create_app()
-        Instrumentator().instrument(self._app).expose(self._app)
+        instrumentator = Instrumentator(
+            should_instrument_requests_inprogress=True,
+            inprogress_labels=True,
+        )
+        instrumentator.instrument(self._app).expose(self._app)
 
     @property
     def app(self):
