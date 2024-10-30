@@ -57,7 +57,7 @@ def dump_docs(docs):
     if doc_size > 32:
         cur_idx = 0
         while cur_idx < doc_size:
-            vector_db.add_documents(docs[cur_idx: min(cur_idx+batch_size, doc_size)])
+            vector_db.add_documents(docs[cur_idx : min(cur_idx + batch_size, doc_size)])
             cur_idx += batch_size
     else:
         vector_db.add_documents(docs)
