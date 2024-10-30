@@ -2,7 +2,7 @@
 
 This `dataprep` microservice accepts the following from the user and ingests them into a Redis vectorstore:
 * Videos (mp4 files) and their transcripts (optional)
-* Images (gif, jpg, jpeg, and png files)
+* Images (gif, jpg, jpeg, and png files) and their captions (optional)
 * Audio (wav files)
 
 ## 🚀1. Start Microservice with Python（Option 1）
@@ -114,14 +114,14 @@ Once this dataprep microservice is started, user can use the below commands to i
 
 This microservice has provided 3 different ways for users to ingest files into Redis vector store corresponding to the 3 use cases.
 
-### 4.1 Consume _videos_with_transcripts_ API
+### 4.1 Consume _ingest_with_text_ API
 
-**Use case:** This API is used when a transcript file (under `.vtt` format) is available for each video.
+**Use case:** This API is used when videos are accompanied by transcript files (`.vtt` format) or images are accompanied by text caption files (`.txt` format).
 
 **Important notes:**
 
 - Make sure the file paths after `files=@` are correct.
-- Every transcript file's name must be identical with its corresponding video file's name (except their extension .vtt and .mp4). For example, `video1.mp4` and `video1.vtt`. Otherwise, if `video1.vtt` is not included correctly in this API call, this microservice will return error `No captions file video1.vtt found for video1.mp4`.
+- Every transcript or caption file's name must be identical to its corresponding video or image file's name (except their extension - .vtt goes with .mp4 and .txt goes with .jpg, .jpeg, .png, or .gif). For example, `video1.mp4` and `video1.vtt`. Otherwise, if `video1.vtt` is not included correctly in the API call, the microservice will return an error `No captions file video1.vtt found for video1.mp4`.
 
 #### Single video-transcript pair upload
 
@@ -130,10 +130,20 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
     -F "files=@./video1.vtt" \
-    http://localhost:6007/v1/videos_with_transcripts
+    http://localhost:6007/v1/ingest_with_text
 ```
 
-#### Multiple video-transcript pair upload
+#### Single image-caption pair upload
+
+```bash
+curl -X POST \
+    -H "Content-Type: multipart/form-data" \
+    -F "files=@./image.jpg" \
+    -F "files=@./image.txt" \
+    http://localhost:6007/v1/ingest_with_text
+```
+
+#### Multiple file pair upload
 
 ```bash
 curl -X POST \
@@ -142,7 +152,11 @@ curl -X POST \
     -F "files=@./video1.vtt" \
     -F "files=@./video2.mp4" \
     -F "files=@./video2.vtt" \
-    http://localhost:6007/v1/videos_with_transcripts
+    -F "files=@./image1.png" \
+    -F "files=@./image1.txt" \
+    -F "files=@./image2.jpg" \
+    -F "files=@./image2.txt" \
+    http://localhost:6007/v1/ingest_with_text
 ```
 
 ### 4.2 Consume _generate_transcripts_ API

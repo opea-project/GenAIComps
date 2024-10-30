@@ -166,7 +166,8 @@ def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path:
 
 
 def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: str, vtt_path: str, output_dir: str):
-    """Extract frames (.png) and annotations (.json) from video file (.mp4) and captions file (.vtt)"""
+    """Extract frames (.png) and annotations (.json) from media-text file pairs. File pairs can be a video
+    file (.mp4) and transcript file (.vtt) or an image file (.png, .jpg, .jpeg, .gif) and caption file (.txt)"""
     # Set up location to store frames and annotations
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "frames"), exist_ok=True)
@@ -176,18 +177,28 @@ def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: s
     fps = vidcap.get(cv2.CAP_PROP_FPS)
 
     # read captions file
-    captions = webvtt.read(vtt_path)
+    if os.path.splitext(vtt_path)[-1] == ".vtt":
+        captions = webvtt.read(vtt_path)
+    else:
+        with open(vtt_path, 'r') as f:
+            captions = f.read()
 
     annotations = []
     for idx, caption in enumerate(captions):
-        start_time = str2time(caption.start)
-        end_time = str2time(caption.end)
+        if os.path.splitext(vtt_path)[-1] == ".vtt":
+            start_time = str2time(caption.start)
+            end_time = str2time(caption.end)
 
-        mid_time = (end_time + start_time) / 2
-        text = caption.text.replace("\n", " ")
+            mid_time = (end_time + start_time) / 2
+            text = caption.text.replace("\n", " ")
 
-        frame_no = time_to_frame(mid_time, fps)
-        mid_time_ms = mid_time * 1000
+            frame_no = time_to_frame(mid_time, fps)
+            mid_time_ms = mid_time * 1000
+        else:
+            frame_no = 0
+            mid_time_ms = 0
+            text = captions.replace("\n", " ")
+
         vidcap.set(cv2.CAP_PROP_POS_MSEC, mid_time_ms)
         success, frame = vidcap.read()
 
