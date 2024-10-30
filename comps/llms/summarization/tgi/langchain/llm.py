@@ -58,17 +58,15 @@ async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info("After prompting:")
         logger.info(prompt)
-    
-    access_token = get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+
+    access_token = (
+        get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    )
     headers = {}
     if access_token:
         headers = {"Authorization": f"Bearer {access_token}"}
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
-    llm = AsyncInferenceClient(
-        model=llm_endpoint,
-        timeout=600,
-        headers=headers
-    )
+    llm = AsyncInferenceClient(model=llm_endpoint, timeout=600, headers=headers)
 
     text_generation = await llm.text_generation(
         prompt=prompt,

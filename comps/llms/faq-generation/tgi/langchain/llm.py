@@ -21,6 +21,7 @@ TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
+
 def post_process_text(text: str):
     if text == " ":
         return "data: @#$\n\n"
@@ -42,7 +43,9 @@ def post_process_text(text: str):
 async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
-    access_token = get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    access_token = (
+        get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    )
     server_kwargs = {}
     if access_token:
         server_kwargs["headers"] = {"Authorization": f"Bearer {access_token}"}
@@ -55,7 +58,7 @@ async def llm_generate(input: LLMParamsDoc):
         temperature=input.temperature,
         repetition_penalty=input.repetition_penalty,
         streaming=input.streaming,
-        server_kwargs=server_kwargs
+        server_kwargs=server_kwargs,
     )
     templ = """Create a concise FAQs (frequently asked questions and answers) for following text:
         TEXT: {text}
