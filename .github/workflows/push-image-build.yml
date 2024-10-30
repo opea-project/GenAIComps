@@ -68,7 +68,7 @@ jobs:
 
       - name: Build Image
         if: env.file_exists == 'true'
-        uses: opea-project/validation/actions/image-build@main
+        uses: opea-project/validation/actions/image-build@images-commit
         with:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ env.docker_compose_path }}
