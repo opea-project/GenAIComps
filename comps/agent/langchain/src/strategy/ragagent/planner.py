@@ -15,9 +15,9 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel, Field
 
+from ...utils import setup_chat_model
 from ..base_agent import BaseAgent
 from .prompt import DOC_GRADER_PROMPT, RAG_PROMPT, QueryWriterLlamaPrompt
-from ...utils import setup_chat_model
 
 instruction = "Retrieved document is not sufficient or relevant to answer the query. Reformulate the query to search knowledge base again."
 MAX_RETRY = 3
@@ -162,7 +162,7 @@ class RAGAgent(BaseAgent):
             query_writer = QueryWriterLlama(args, self.tools_descriptions)
             document_grader = DocumentGraderLlama(args)
             text_generator = TextGeneratorLlama(args)
-        
+
         retriever = Retriever.create(self.tools_descriptions)
 
         # Define graph
@@ -367,7 +367,7 @@ class TextGeneratorLlama:
         prompt = RAG_PROMPT
         llm = setup_chat_model(args)
         self.rag_chain = prompt | llm
-        
+
     def __call__(self, state):
         from .utils import aggregate_docs
 

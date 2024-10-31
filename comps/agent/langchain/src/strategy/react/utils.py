@@ -35,7 +35,6 @@ class ReActLlamaOutputParser(BaseOutputParser):
             return text
 
 
-
 def convert_json_to_tool_call(json_str):
     tool_name = json_str["tool"]
     tool_args = json_str["args"]
@@ -55,18 +54,19 @@ def convert_json_to_tool_call(json_str):
 
 def get_tool_output(messages, id):
     for msg in reversed(messages):
-            if isinstance(msg, ToolMessage):
-                if msg.tool_call_id == id:
-                    tool_output = msg.content
-                    break
+        if isinstance(msg, ToolMessage):
+            if msg.tool_call_id == id:
+                tool_output = msg.content
+                break
     return tool_output
+
 
 def assemble_history(messages):
     """
     messages: AI, TOOL, AI, TOOL, etc.
     """
     query_history = ""
-    breaker = "-"*10
+    breaker = "-" * 10
     for m in messages[1:]:  # exclude the first message
         if isinstance(m, AIMessage):
             # if there is tool call
@@ -80,5 +80,5 @@ def assemble_history(messages):
             else:
                 # did not make tool calls
                 query_history += f"Assistant Output: {m.content}\n"
-    
+
     return query_history

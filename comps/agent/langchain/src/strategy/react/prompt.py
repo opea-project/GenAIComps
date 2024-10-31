@@ -17,8 +17,8 @@ Please follow these guidelines when formulating your answer:
 3. Give concise, factual and relevant answers.
 """
 
-REACT_AGENT_LLAMA_PROMPT= """\
-You are tasked with answering user questions. 
+REACT_AGENT_LLAMA_PROMPT = """\
+You are tasked with answering user questions.
 You have the following tools to gather information:
 {tools}
 
@@ -28,7 +28,7 @@ You have the following tools to gather information:
 3. Reason about the information gathered so far and decide if you can answer the question or if you need to call more tools.
 
 **Output format:**
-You should output your thought process. Finish thinking first. Output tool calls or your answer at the end. 
+You should output your thought process. Finish thinking first. Output tool calls or your answer at the end.
 When making tool calls, you should use the following format:
 TOOL CALL: {{"tool": "tool1", "args": {{"arg1": "value1", "arg2": "value2", ...}}}}
 TOOL CALL: {{"tool": "tool2", "args": {{"arg1": "value1", "arg2": "value2", ...}}}}
@@ -42,7 +42,7 @@ Follow these guidelines when formulating your answer:
 3. Give concise, factual and relevant answers.
 
 **IMPORTANT:**
-* Divide the question into sub-questions and conquer sub-questions one by one. 
+* Divide the question into sub-questions and conquer sub-questions one by one.
 * Questions may be time sensitive. Pay attention to the time when the question was asked.
 * You may need to combine information from multiple tools to answer the question.
 * If you did not get the answer at first, do not give up. Reflect on the steps that you have taken and try a different way. Think out of the box. You hard work will be rewarded.

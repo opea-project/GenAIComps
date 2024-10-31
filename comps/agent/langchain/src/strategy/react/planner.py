@@ -137,6 +137,10 @@ from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.prompts import PromptTemplate
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
+from langgraph.managed import IsLastStep
+from langgraph.prebuilt import ToolNode
+
+from ...utils import setup_chat_model
 
 ###############################################################################
 # ReActAgentLlama:
@@ -144,10 +148,6 @@ from langgraph.graph.message import add_messages
 # support multiple tools
 # does not rely on langchain bind_tools API
 # since tgi and vllm still do not have very good support for tool calling like OpenAI
-
-from langgraph.managed import IsLastStep
-from langgraph.prebuilt import ToolNode
-from ...utils import setup_chat_model
 
 
 class AgentState(TypedDict):
@@ -214,9 +214,7 @@ class ReActAgentNodeLlama:
 class ReActAgentLlama(BaseAgent):
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
-        agent = ReActAgentNodeLlama(
-            tools=self.tools_descriptions, args=args
-        )
+        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args)
         tool_node = ToolNode(self.tools_descriptions)
 
         workflow = StateGraph(AgentState)
