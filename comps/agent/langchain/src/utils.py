@@ -111,6 +111,7 @@ def setup_chat_model(args):
     llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)
     return llm
 
+
 def tool_renderer(tools):
     tool_strings = []
     for tool in tools:
