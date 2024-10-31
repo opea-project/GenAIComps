@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from ..base_agent import BaseAgent
 from .prompt import DOC_GRADER_PROMPT, RAG_PROMPT, QueryWriterLlamaPrompt
+from ...utils import setup_chat_model
 
 instruction = "Retrieved document is not sufficient or relevant to answer the query. Reformulate the query to search knowledge base again."
 MAX_RETRY = 3
@@ -127,8 +128,6 @@ class TextGenerator:
     """
 
     def __init__(self, llm_endpoint, model_id=None):
-        # Chain
-        # prompt = rlm_rag_prompt
         prompt = RAG_PROMPT
         self.rag_chain = prompt | llm_endpoint | StrOutputParser()
 
@@ -139,14 +138,6 @@ class TextGenerator:
         messages = state["messages"]
         question = messages[0].content
         query_time = state["query_time"]
-
-        # find the latest retrieved doc
-        # which is a ToolMessage
-        # for m in state["messages"][::-1]:
-        #     if isinstance(m, ToolMessage):
-        #         last_message = m
-        #         break
-        # docs = last_message.content
 
         question = messages[0].content
         docs = aggregate_docs(messages)
@@ -163,14 +154,15 @@ class RAGAgent(BaseAgent):
         super().__init__(args, local_vars=globals(), **kwargs)
 
         # Define Nodes
-
         if args.strategy == "rag_agent":
             query_writer = QueryWriter(self.llm_endpoint, args.model, self.tools_descriptions)
             document_grader = DocumentGrader(self.llm_endpoint, args.model)
+            text_generator = TextGenerator(self.llm_endpoint)
         elif args.strategy == "rag_agent_llama":
-            query_writer = QueryWriterLlama(self.llm_endpoint, args.model, self.tools_descriptions)
-            document_grader = DocumentGraderLlama(self.llm_endpoint, args.model)
-        text_generator = TextGenerator(self.llm_endpoint)
+            query_writer = QueryWriterLlama(args, self.tools_descriptions)
+            document_grader = DocumentGraderLlama(args)
+            text_generator = TextGeneratorLlama(args)
+        
         retriever = Retriever.create(self.tools_descriptions)
 
         # Define graph
@@ -225,7 +217,7 @@ class RAGAgent(BaseAgent):
             return False
 
     def prepare_initial_state(self, query):
-        return {"messages": [HumanMessage(content=query)], "query_time": ""}
+        return {"messages": [HumanMessage(content=query)], "query_time": "", "output": "", "doc_score": ""}
 
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
@@ -270,16 +262,19 @@ class QueryWriterLlama:
     Streaming=false is required for this chain.
     """
 
-    def __init__(self, llm_endpoint, model_id, tools):
+    def __init__(self, args, tools):
         from .utils import QueryWriterLlamaOutputParser
 
         assert len(tools) == 1, "Only support one tool, passed in {} tools".format(len(tools))
+        self.tools = tools
+        self.args = args
+
         output_parser = QueryWriterLlamaOutputParser()
         prompt = PromptTemplate(
             template=QueryWriterLlamaPrompt,
             input_variables=["question", "history", "feedback"],
         )
-        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id)
+        llm = setup_chat_model(args)
         self.tools = tools
         self.chain = prompt | llm | output_parser
 
@@ -295,18 +290,6 @@ class QueryWriterLlama:
 
         response = self.chain.invoke({"question": question, "history": history, "feedback": feedback})
         print("Response from query writer llm: ", response)
-
-        ### Code below assumes one tool call in the response ##############
-        # if "query" in response:
-        #     add_kw_tc, tool_call = convert_json_to_tool_call(response, self.tools[0])
-        #     # print("Tool call:\n", tool_call)
-        #     response = AIMessage(content="", additional_kwargs=add_kw_tc, tool_calls=[tool_call])
-        #     # print(response)
-        # else:
-        #     response = AIMessage(content=response["answer"])
-        # We return a list, because this will get added to the existing list
-        # return {"messages": [response], "output": response}
-        ######################################################################
 
         ############ allow multiple tool calls in one AI message ############
         tool_calls = []
@@ -334,19 +317,14 @@ class DocumentGraderLlama:
         str: A decision for whether the documents are relevant or not
     """
 
-    def __init__(self, llm_endpoint, model_id=None):
+    def __init__(self, args):
         from .prompt import DOC_GRADER_Llama_PROMPT
 
-        # Prompt
         prompt = PromptTemplate(
             template=DOC_GRADER_Llama_PROMPT,
             input_variables=["context", "question"],
         )
-
-        if isinstance(llm_endpoint, HuggingFaceEndpoint):
-            llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id)
-        elif isinstance(llm_endpoint, ChatOpenAI):
-            llm = llm_endpoint
+        llm = setup_chat_model(args)
         self.chain = prompt | llm
 
     def __call__(self, state) -> Literal["generate", "rewrite"]:
@@ -371,5 +349,37 @@ class DocumentGraderLlama:
 
         else:
             print("---DECISION: DOCS NOT RELEVANT---")
-
             return {"messages": [HumanMessage(content=instruction)], "doc_score": "rewrite"}
+
+
+class TextGeneratorLlama:
+    """Generate answer.
+
+    Args:
+        state (messages): The current state
+
+    Returns:
+        dict: The updated state with re-phrased question
+    """
+
+    def __init__(self, args):
+        self.args = args
+        prompt = RAG_PROMPT
+        llm = setup_chat_model(args)
+        self.rag_chain = prompt | llm
+        
+    def __call__(self, state):
+        from .utils import aggregate_docs
+
+        print("---GENERATE---")
+        messages = state["messages"]
+        question = messages[0].content
+        query_time = state["query_time"]
+
+        question = messages[0].content
+        docs = aggregate_docs(messages)
+
+        response = self.rag_chain.invoke({"context": docs, "question": question, "time": query_time})
+        print("@@@@ Used this doc for generation:\n", docs)
+        print("@@@@ Generated response: ", response)
+        return {"messages": [response], "output": response}

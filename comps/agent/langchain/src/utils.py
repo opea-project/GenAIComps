@@ -99,6 +99,18 @@ def setup_llm(args):
     return model
 
 
+def setup_chat_model(args):
+    from langchain_openai import ChatOpenAI
+
+    openai_endpoint = f"{args.llm_endpoint_url}/v1"
+    params = {
+        "temperature": args.temperature,
+        "max_tokens": args.max_new_tokens,
+        "streaming": args.streaming,
+    }
+    llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)
+    return llm
+
 def tool_renderer(tools):
     tool_strings = []
     for tool in tools:
