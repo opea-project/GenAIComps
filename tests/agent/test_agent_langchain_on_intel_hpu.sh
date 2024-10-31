@@ -187,11 +187,11 @@ function validate() {
     local CONTENT="$1"
     local EXPECTED_RESULT="$2"
     local SERVICE_NAME="$3"
-    local CONTENT_TO_VALIDATE= $CONTENT | grep -oP '(?<=text:).*?(?=prompt)'
+    # local CONTENT_TO_VALIDATE= "$CONTENT" | grep -oP '(?<=text:).*?(?=prompt)'
     echo "Content: $CONTENT"
-    echo "Content to validate: $CONTENT_TO_VALIDATE"
+    # echo "Content to validate: $CONTENT_TO_VALIDATE"
 
-    if echo "$CONTENT_TO_VALIDATE" | grep -q "$EXPECTED_RESULT"; then
+    if echo "$CONTENT" | grep -q "$EXPECTED_RESULT"; then
         echo "[ $SERVICE_NAME ] Content is as expected: $CONTENT"
         echo 0
     else
@@ -202,9 +202,10 @@ function validate() {
 
 function validate_microservice() {
     echo "Testing agent service - chat completion API"
-    local CONTENT=$(http_proxy="" curl http://${ip_address}:9095/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
-     "query": "What is OPEA?"
-    }')
+    # local CONTENT=$(http_proxy="" curl http://${ip_address}:9095/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
+    #  "query": "What is OPEA?"
+    # }')
+    CONTENT=$(python3 $WORKPATH/tests/agent/test.py)
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent-langchain")
     echo "$EXIT_CODE"
     local EXIT_CODE="${EXIT_CODE:0-1}"
