@@ -6,8 +6,7 @@ from langchain.agents import create_react_agent as create_react_langchain_agent
 from langchain.memory import ChatMessageHistory
 from langchain_core.messages import HumanMessage
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-from langchain_openai import ChatOpenAI
+from langchain_huggingface import ChatHuggingFace
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
@@ -18,8 +17,8 @@ from .prompt import REACT_SYS_MESSAGE, hwchase17_react_prompt
 
 
 class ReActAgentwithLangchain(BaseAgent):
-    def __init__(self, args, with_memory=False):
-        super().__init__(args)
+    def __init__(self, args, with_memory=False, **kwargs):
+        super().__init__(args, local_vars=globals(), **kwargs)
         prompt = hwchase17_react_prompt
         if has_multi_tool_inputs(self.tools_descriptions):
             raise ValueError("Only supports single input tools when using strategy == react_langchain")
@@ -82,12 +81,13 @@ class ReActAgentwithLangchain(BaseAgent):
 
 
 class ReActAgentwithLanggraph(BaseAgent):
-    def __init__(self, args, with_memory=False):
-        super().__init__(args)
+    def __init__(self, args, with_memory=False, **kwargs):
+        super().__init__(args, local_vars=globals(), **kwargs)
 
         self.llm = wrap_chat(self.llm_endpoint, args.model)
 
         tools = self.tools_descriptions
+        print("REACT_SYS_MESSAGE: ", REACT_SYS_MESSAGE)
 
         if with_memory:
             self.app = create_react_agent(
@@ -133,7 +133,7 @@ class ReActAgentwithLanggraph(BaseAgent):
 
 from typing import Annotated, Sequence, TypedDict
 
-from langchain_core.messages import AIMessage, BaseMessage, SystemMessage
+from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.prompts import PromptTemplate
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
@@ -208,8 +208,8 @@ class ReActAgentNodeLlama:
 
 
 class ReActAgentLlama(BaseAgent):
-    def __init__(self, args, with_memory=False):
-        super().__init__(args)
+    def __init__(self, args, with_memory=False, **kwargs):
+        super().__init__(args, local_vars=globals(), **kwargs)
         agent = ReActAgentNodeLlama(
             llm_endpoint=self.llm_endpoint, model_id=args.model, tools=self.tools_descriptions, args=args
         )
