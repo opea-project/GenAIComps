@@ -141,7 +141,7 @@ function start_react_langchain_agent_service() {
 }
 
 
-function start_react_langgraph_agent_service() {
+function start_react_llama_agent_service() {
     echo "Starting react_langgraph agent microservice"
     docker compose -f $WORKPATH/tests/agent/reactllama.yaml up -d
     sleep 5s
@@ -275,7 +275,7 @@ function main() {
     echo "============================================="
 
     # test react_llama
-    start_react_langgraph_agent_service
+    start_react_llama_agent_service
     echo "===========Testing ReAct Llama ============="
     validate_microservice
     stop_agent_docker
@@ -300,19 +300,19 @@ function main() {
     export model_parser=mistral
     export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 
-    # test react with vllm
+    # test react with vllm - Mistral
     start_vllm_auto_tool_choice_service
     start_react_langgraph_agent_service_vllm
-    echo "===========Testing ReAct VLLM ============="
+    echo "===========Testing ReAct VLLM Mistral ============="
     validate_microservice
     stop_agent_docker
     stop_vllm_docker
     echo "============================================="
 
-    # test plan execute with vllm
+    # test plan execute with vllm - Mistral
     start_vllm_service
     start_planexec_agent_service_vllm
-    echo "===========Testing Plan Execute VLLM ============="
+    echo "===========Testing Plan Execute VLLM Mistral ============="
     validate_microservice
     stop_agent_docker
     stop_vllm_docker
@@ -331,10 +331,10 @@ function main() {
     # stop_vllm_docker
     # echo "============================================="
 
-    # test plan execute with vllm
+    # test plan execute with vllm - llama3.1
     start_vllm_service
     start_planexec_agent_service_vllm
-    echo "===========Testing Plan Execute VLLM ============="
+    echo "===========Testing Plan Execute VLLM Llama3.1 ============="
     validate_microservice
     stop_agent_docker
     stop_vllm_docker
