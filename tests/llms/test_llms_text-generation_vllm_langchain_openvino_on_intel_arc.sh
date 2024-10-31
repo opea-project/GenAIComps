@@ -14,8 +14,10 @@ CONTAINER_NAME="test-comps-vllm-openvino-container"
 
 function build_container() {
     cd $WORKPATH
-    git clone https://github.com/vllm-project/vllm.git
-    cd ./vllm
+    git clone https://github.com/vllm-project/vllm.git vllm-openvino
+    cd ./vllm-openvino
+
+    git reset --hard 067e77f9a87c3466fce41c8fe8710fddc69ec26c # resolve circluar import issue
 
     docker build --no-cache -t $DOCKER_IMAGE \
       -f Dockerfile.openvino \
@@ -29,7 +31,7 @@ function build_container() {
         echo "vllm-openvino built successful"
     fi
     cd $WORKPATH
-    rm -rf vllm
+    rm -rf vllm-openvino
 }
 
 # Function to start Docker container
@@ -40,11 +42,12 @@ start_container() {
       --ipc=host \
       -e HTTPS_PROXY=$https_proxy \
       -e HTTP_PROXY=$https_proxy \
-      -e VLLM_OPENVINO_DEVICE=GPU \
       -v $HF_CACHE_DIR:/root/.cache/huggingface \
       vllm-openvino:comps /bin/bash -c "\
         cd / && \
-        export VLLM_CPU_KVCACHE_SPACE=50 && \
+        export VLLM_CPU_KVCACHE_SPACE=8 && \
+        export VLLM_OPENVINO_DEVICE=GPU && \
+        export VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON && \
         python3 -m vllm.entrypoints.openai.api_server \
           --model \"Intel/neural-chat-7b-v3-3\" \
           --host 0.0.0.0 \
