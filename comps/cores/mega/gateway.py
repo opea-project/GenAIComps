@@ -19,6 +19,7 @@ from ..proto.api_protocol import (
     ChatMessage,
     EmbeddingRequest,
     UsageInfo,
+    DocSumChatCompletionRequest
 )
 from ..proto.docarray import LLMParams, LLMParamsDoc, RerankedDoc, RerankerParms, RetrieverParms, TextDoc, DocSumDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
@@ -349,15 +350,15 @@ class DocSumGateway(Gateway):
             host, 
             port, 
             str(MegaServiceEndpoint.DOC_SUMMARY), 
-            # ChatCompletionRequest, 
-            input_datatype= DocSumDoc,
+            input_datatype= DocSumChatCompletionRequest,
             output_datatype=ChatCompletionResponse
         )
 
     async def handle_request(self, request: Request):
         data = await request.json()
         stream_opt = data.get("stream", True)
-        chat_request = ChatCompletionRequest.parse_obj(data)
+        chat_request = ChatCompletionRequest.model_validate(data)
+        
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
