@@ -17,7 +17,7 @@ function build_container() {
     git clone https://github.com/vllm-project/vllm.git vllm-openvino
     cd ./vllm-openvino
 
-    git reset --hard 067e77f9a87c3466fce41c8fe8710fddc69ec26c # resolve circluar import issue
+    git reset --hard 067e77f9a87c3466fce41c8fe8710fddc69ec26c # resolve circular import issue
 
     docker build --no-cache -t $DOCKER_IMAGE \
       -f Dockerfile.openvino \
