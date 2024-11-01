@@ -5,6 +5,7 @@
 #set -xe
 
 WORKPATH=$(dirname "$PWD")
+echo $WORKPATH
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 tgi_port=8085
@@ -141,6 +142,15 @@ function start_react_langchain_agent_service() {
 }
 
 
+function start_react_langgraph_agent_service_openai() {
+    echo "Starting react_langchain agent microservice"
+    docker compose -f $WORKPATH/tests/agent/react_langgraph_openai.yaml up -d
+    sleep 5s
+    docker logs test-comps-agent-endpoint
+    echo "Service started successfully"
+}
+
+
 function start_react_llama_agent_service() {
     echo "Starting react_langgraph agent microservice"
     docker compose -f $WORKPATH/tests/agent/reactllama.yaml up -d
@@ -165,15 +175,6 @@ function start_planexec_agent_service_vllm() {
     echo "Service started successfully"
 }
 
-function start_react_langgraph_agent_service_openai() {
-    echo "Starting react_langgraph agent microservice"
-    docker run -d --runtime=runc --name="test-comps-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9095:9095 --ipc=host -e model=gpt-4o-mini-2024-07-18 -e strategy=react_langgraph -e llm_engine=openai -e OPENAI_API_KEY=${OPENAI_API_KEY} -e recursion_limit=10 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent-langchain:comps
-    sleep 5s
-    docker logs test-comps-agent-endpoint
-    echo "Service started successfully"
-}
-
-
 function start_ragagent_agent_service() {
     echo "Starting rag agent microservice"
     docker compose -f $WORKPATH/tests/agent/ragagent.yaml up -d
@@ -182,6 +183,21 @@ function start_ragagent_agent_service() {
     echo "Service started successfully"
 }
 
+function start_ragagent_agent_service_openai() {
+    echo "Starting rag agent microservice"
+    docker compose -f $WORKPATH/tests/agent/ragagent_openai.yaml up -d
+    sleep 5s
+    docker logs test-comps-agent-endpoint
+    echo "Service started successfully"
+}
+
+function start_planexec_agent_service_openai() {
+    echo "Starting plan execute agent microservice"
+    docker compose -f $WORKPATH/tests/agent/planexec_openai.yaml up -d
+    sleep 5s
+    docker logs test-comps-agent-endpoint
+    echo "Service started successfully"
+}
 
 function validate() {
     local CONTENT="$1"
@@ -206,6 +222,23 @@ function validate_microservice() {
     #  "query": "What is OPEA?"
     # }')
     CONTENT=$(python3 $WORKPATH/tests/agent/test.py)
+    local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent-langchain")
+    echo "$EXIT_CODE"
+    local EXIT_CODE="${EXIT_CODE:0-1}"
+    echo "return value is $EXIT_CODE"
+    if [ "$EXIT_CODE" == "1" ]; then
+        echo "==================TGI logs ======================"
+        docker logs test-comps-tgi-gaudi-service
+        echo "==================Agent logs ======================"
+        docker logs test-comps-agent-endpoint
+        exit 1
+    fi
+}
+
+
+function validate_microservice_streaming() {
+    echo "Testing agent service - chat completion API"
+    CONTENT=$(python3 $WORKPATH/tests/agent/test.py --stream)
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent-langchain")
     echo "$EXIT_CODE"
     local EXIT_CODE="${EXIT_CODE:0-1}"
@@ -289,7 +322,7 @@ function main() {
     # test react_langchain
     start_react_langchain_agent_service
     echo "=============Testing ReAct Langchain============="
-    validate_microservice
+    validate_microservice_streaming
     validate_assistant_api
     stop_agent_docker
     echo "============================================="
@@ -307,10 +340,10 @@ function main() {
     # test react with vllm - Mistral
     start_vllm_auto_tool_choice_service
     start_react_langgraph_agent_service_vllm
-    echo "===========Testing ReAct VLLM Mistral ============="
+    echo "===========Testing ReAct Langgraph VLLM Mistral ============="
     validate_microservice
-    stop_agent_docker
-    stop_vllm_docker
+    # stop_agent_docker
+    # stop_vllm_docker
     echo "============================================="
 
     # test plan execute with vllm - Mistral
@@ -343,6 +376,25 @@ function main() {
     stop_agent_docker
     stop_vllm_docker
     echo "============================================="
+
+
+    # # ==================== OpenAI tests ====================
+    # start_ragagent_agent_service_openai
+    # echo "=============Testing RAG Agent OpenAI============="
+    # validate_microservice
+    # stop_agent_docker
+    # echo "============================================="
+
+    # start_react_langgraph_agent_service_openai
+    # echo "===========Testing ReAct Langgraph OpenAI ============="
+    # validate_microservice
+    # stop_agent_docker
+    # echo "============================================="
+
+    # start_planexec_agent_service_openai
+    # echo "===========Testing Plan Execute OpenAI ============="
+    # validate_microservice
+    # stop_agent_docker
 
     stop_docker
     echo y | docker system prune 2>&1 > /dev/null

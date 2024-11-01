@@ -14,7 +14,7 @@ from langgraph.graph.message import add_messages
 from pydantic import BaseModel, Field
 
 from ...global_var import threads_global_kv
-from ...utils import has_multi_tool_inputs, tool_renderer, wrap_chat
+from ...utils import has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
 from .prompt import (
     answer_check_prompt,
@@ -24,8 +24,6 @@ from .prompt import (
     planner_prompt,
     replanner_prompt,
 )
-
-# Define protocol
 
 
 class PlanExecute(TypedDict):
@@ -74,7 +72,7 @@ class PlanStepChecker:
         # print("---CALL PlanStepChecker---")
         scored_result = self.chain.invoke(state)
         score = scored_result.binary_score
-        # print(f"Task is {state['context']}, Greade of relevance to question is {score}")
+        print(f"Task is {state['context']}, Score is {score}")
         if score.startswith("yes"):
             return True
         else:
@@ -103,6 +101,7 @@ class Planner:
             while not success:
                 try:
                     plan = self.llm.invoke({"messages": [("user", state["messages"][-1].content)]})
+                    print("Generated plan: ", plan)
                     success = True
                 except OutputParserException as e:
                     pass
@@ -116,7 +115,7 @@ class Planner:
 
             if len(steps) == 0:
                 success = False
-
+        print("Steps: ", steps)
         return {"input": input, "plan": steps}
 
 
@@ -148,6 +147,7 @@ previous steps and output: {out_state}
                 agent_response = self.agent_executor.invoke({"input": task_formatted})
                 output = agent_response["output"]
                 success = True
+            print(f"Task is {step}, Response is {output}")
             out_state.append(f"Task is {step}, Response is {output}")
         return {
             "past_steps": out_state,
@@ -172,6 +172,7 @@ class AnswerMaker:
         while not success:
             try:
                 output = self.llm.invoke(state)
+                print("Generated response: ", output.response)
                 success = True
             except OutputParserException as e:
                 pass
@@ -227,6 +228,7 @@ class Replanner:
             try:
                 output = self.llm.invoke(state)
                 success = True
+                print("Replan: ", output)
             except OutputParserException as e:
                 pass
             except Exception as e:
