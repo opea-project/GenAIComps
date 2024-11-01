@@ -1,9 +1,10 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-import requests
 import argparse
+import os
+
+import requests
 
 
 def generate_answer_agent_api(url, prompt):
@@ -16,14 +17,13 @@ def generate_answer_agent_api(url, prompt):
     return answer
 
 
-
 def process_request(url, query, is_stream=False):
     proxies = {"http": ""}
-    
+
     payload = {
         "query": query,
     }
-    
+
     try:
         resp = requests.post(url=url, json=payload, proxies=proxies, stream=is_stream)
         if not is_stream:
@@ -40,7 +40,7 @@ def process_request(url, query, is_stream=False):
         ret = f"An error occurred:{e}"
         print(ret)
         return False
-    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
