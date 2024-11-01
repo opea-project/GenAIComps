@@ -4,16 +4,11 @@
 from typing import Annotated, Literal, Sequence, TypedDict
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.output_parsers.openai_tools import PydanticToolsParser
 from langchain_core.prompts import PromptTemplate
-from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
-from pydantic import BaseModel, Field
 
 from ...utils import setup_chat_model
 from ..base_agent import BaseAgent
@@ -43,11 +38,8 @@ class QueryWriter:
         dict: The updated state with the response appended to messages
     """
 
-    def __init__(self, llm_endpoint, model_id, tools):
-        if isinstance(llm_endpoint, HuggingFaceEndpoint):
-            self.llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools(tools)
-        elif isinstance(llm_endpoint, ChatOpenAI):
-            self.llm = llm_endpoint.bind_tools(tools)
+    def __init__(self, llm, tools):
+        self.llm = llm.bind_tools(tools)
 
     def __call__(self, state):
         print("---CALL QueryWriter---")
@@ -66,102 +58,19 @@ class Retriever:
         return ToolNode(tools_descriptions)
 
 
-class DocumentGrader:
-    """Determines whether the retrieved documents are relevant to the question.
-
-    Args:
-        state (messages): The current state
-
-    Returns:
-        str: A decision for whether the documents are relevant or not
-    """
-
-    def __init__(self, llm_endpoint, model_id=None):
-        class grade(BaseModel):
-            """Binary score for relevance check."""
-
-            binary_score: str = Field(description="Relevance score 'yes' or 'no'")
-
-        # Prompt
-        prompt = PromptTemplate(
-            template=DOC_GRADER_PROMPT,
-            input_variables=["context", "question"],
-        )
-
-        if isinstance(llm_endpoint, HuggingFaceEndpoint):
-            llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id).bind_tools([grade])
-        elif isinstance(llm_endpoint, ChatOpenAI):
-            llm = llm_endpoint.bind_tools([grade])
-        output_parser = PydanticToolsParser(tools=[grade], first_tool_only=True)
-        self.chain = prompt | llm | output_parser
-
-    def __call__(self, state) -> Literal["generate", "rewrite"]:
-        print("---CALL DocumentGrader---")
-        messages = state["messages"]
-        last_message = messages[-1]  # the latest retrieved doc
-
-        question = messages[0].content  # the original query
-        docs = last_message.content
-
-        scored_result = self.chain.invoke({"question": question, "context": docs})
-
-        score = scored_result.binary_score
-
-        if score.startswith("yes"):
-            print("---DECISION: DOCS RELEVANT---")
-            return {"doc_score": "generate"}
-
-        else:
-            print(f"---DECISION: DOCS NOT RELEVANT, score is {score}---")
-
-            return {"messages": [HumanMessage(content=instruction)], "doc_score": "rewrite"}
-
-
-class TextGenerator:
-    """Generate answer.
-
-    Args:
-        state (messages): The current state
-
-    Returns:
-        dict: The updated state with re-phrased question
-    """
-
-    def __init__(self, llm_endpoint, model_id=None):
-        prompt = RAG_PROMPT
-        self.rag_chain = prompt | llm_endpoint | StrOutputParser()
-
-    def __call__(self, state):
-        from .utils import aggregate_docs
-
-        print("---GENERATE---")
-        messages = state["messages"]
-        question = messages[0].content
-        query_time = state["query_time"]
-
-        question = messages[0].content
-        docs = aggregate_docs(messages)
-
-        # Run
-        response = self.rag_chain.invoke({"context": docs, "question": question, "time": query_time})
-        print("@@@@ Used this doc for generation:\n", docs)
-        print("@@@@ Generated response: ", response)
-        return {"messages": [response], "output": response}
-
-
 class RAGAgent(BaseAgent):
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
         # Define Nodes
         if args.strategy == "rag_agent":
-            query_writer = QueryWriter(self.llm_endpoint, args.model, self.tools_descriptions)
-            document_grader = DocumentGrader(self.llm_endpoint, args.model)
-            text_generator = TextGenerator(self.llm_endpoint)
+            query_writer = QueryWriter(self.llm, self.tools_descriptions)
         elif args.strategy == "rag_agent_llama":
             query_writer = QueryWriterLlama(args, self.tools_descriptions)
-            document_grader = DocumentGraderLlama(args)
-            text_generator = TextGeneratorLlama(args)
+        else:
+            raise ValueError("Only support 'rag_agent' or 'rag_agent_llama' strategy")   
+        document_grader = DocumentGrader(args)
+        text_generator = TextGenerator(args)
 
         retriever = Retriever.create(self.tools_descriptions)
 
@@ -307,7 +216,7 @@ class QueryWriterLlama:
         return {"messages": [ai_message], "output": ai_message.content}
 
 
-class DocumentGraderLlama:
+class DocumentGrader:
     """Determines whether the retrieved documents are relevant to the question.
 
     Args:
@@ -318,10 +227,8 @@ class DocumentGraderLlama:
     """
 
     def __init__(self, args):
-        from .prompt import DOC_GRADER_Llama_PROMPT
-
         prompt = PromptTemplate(
-            template=DOC_GRADER_Llama_PROMPT,
+            template=DOC_GRADER_PROMPT,
             input_variables=["context", "question"],
         )
         llm = setup_chat_model(args)
@@ -352,7 +259,7 @@ class DocumentGraderLlama:
             return {"messages": [HumanMessage(content=instruction)], "doc_score": "rewrite"}
 
 
-class TextGeneratorLlama:
+class TextGenerator:
     """Generate answer.
 
     Args:

@@ -8,6 +8,7 @@ from huggingface_hub import ChatCompletionOutputFunctionDefinition, ChatCompleti
 from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.messages.tool import ToolCall
 from langchain_core.output_parsers import BaseOutputParser
+from langchain_core.utils.json import parse_json_markdown
 
 
 class ReActLlamaOutputParser(BaseOutputParser):
@@ -16,19 +17,23 @@ class ReActLlamaOutputParser(BaseOutputParser):
         json_lines = text.split("\n")
         output = []
         for line in json_lines:
-            try:
-                if "TOOL CALL:" in line:
+            if "TOOL CALL:" in line:
                     line = line.replace("TOOL CALL:", "")
-                if "FINAL ANSWER:" in line:
-                    line = line.replace("FINAL ANSWER:", "")
-                if "assistant" in line:
-                    line = line.replace("assistant", "")
+            if "FINAL ANSWER:" in line:
+                line = line.replace("FINAL ANSWER:", "")
+            if "assistant" in line:
+                line = line.replace("assistant", "")
+            try:
                 parsed_line = json.loads(line)
                 if isinstance(parsed_line, dict):
                     print("parsed line: ", parsed_line)
                     output.append(parsed_line)
-            except Exception as e:
-                print("Exception happened in output parsing: ", str(e))
+            except:
+                try:
+                    parsed_line = parse_json_markdown(line)
+                    output.append(parsed_line)
+                except Exception as e:
+                    print("Exception happened in output parsing: ", str(e))
         if output:
             return output
         else:

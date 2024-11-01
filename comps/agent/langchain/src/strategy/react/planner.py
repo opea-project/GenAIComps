@@ -11,7 +11,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
 from ...global_var import threads_global_kv
-from ...utils import has_multi_tool_inputs, tool_renderer, wrap_chat
+from ...utils import has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
 from .prompt import REACT_SYS_MESSAGE, hwchase17_react_prompt
 
@@ -24,7 +24,7 @@ class ReActAgentwithLangchain(BaseAgent):
             raise ValueError("Only supports single input tools when using strategy == react_langchain")
         else:
             agent_chain = create_react_langchain_agent(
-                self.llm_endpoint, self.tools_descriptions, prompt, tools_renderer=tool_renderer
+                self.llm, self.tools_descriptions, prompt, tools_renderer=tool_renderer
             )
         self.app = AgentExecutor(
             agent=agent_chain, tools=self.tools_descriptions, verbose=True, handle_parsing_errors=True
@@ -84,8 +84,6 @@ class ReActAgentwithLanggraph(BaseAgent):
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
-        self.llm = wrap_chat(self.llm_endpoint, args.model)
-
         tools = self.tools_descriptions
         print("REACT_SYS_MESSAGE: ", REACT_SYS_MESSAGE)
 
@@ -131,6 +129,13 @@ class ReActAgentwithLanggraph(BaseAgent):
             return str(e)
 
 
+###############################################################################
+# ReActAgentLlama:
+# Only validated with with Llama3.1-70B-Instruct model served with TGI-gaudi
+# support multiple tools
+# does not rely on langchain bind_tools API
+# since tgi and vllm still do not have very good support for tool calling like OpenAI
+
 from typing import Annotated, Sequence, TypedDict
 
 from langchain_core.messages import AIMessage, BaseMessage
@@ -141,13 +146,6 @@ from langgraph.managed import IsLastStep
 from langgraph.prebuilt import ToolNode
 
 from ...utils import setup_chat_model
-
-###############################################################################
-# ReActAgentLlama:
-# Only validated with with Llama3.1-70B-Instruct model served with TGI-gaudi
-# support multiple tools
-# does not rely on langchain bind_tools API
-# since tgi and vllm still do not have very good support for tool calling like OpenAI
 
 
 class AgentState(TypedDict):
