@@ -68,7 +68,7 @@ class RAGAgent(BaseAgent):
         elif args.strategy == "rag_agent_llama":
             query_writer = QueryWriterLlama(args, self.tools_descriptions)
         else:
-            raise ValueError("Only support 'rag_agent' or 'rag_agent_llama' strategy")   
+            raise ValueError("Only support 'rag_agent' or 'rag_agent_llama' strategy")
         document_grader = DocumentGrader(args)
         text_generator = TextGenerator(args)
 
