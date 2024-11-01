@@ -14,7 +14,7 @@ COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag_milvus")
 # MOSEC configuration
 MOSEC_EMBEDDING_MODEL = os.environ.get("MOSEC_EMBEDDING_MODEL", "/home/user/bge-large-zh-v1.5")
 MOSEC_EMBEDDING_ENDPOINT = os.environ.get("MOSEC_EMBEDDING_ENDPOINT", "")
-MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
+MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "minio:9000")
 MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY", "minioadmin")
 MINIO_SECRET_KEY=os.environ.get("MINIO_SECRET_KEY", "minioadmin")
 MINIO_SECURE=os.environ.get("MINIO_SECURE", "False").lower() == 'true'

@@ -22,9 +22,9 @@ USER user
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
+RUN pip install --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/minio/milvus/langchain/requirements.txt
+    pip install -r /home/user/comps/dataprep/minio/milvus/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

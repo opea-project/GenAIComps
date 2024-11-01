@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from urllib.parse import unquote
+
+from pydantic import BaseModel, Field, validator
 from typing import List, Optional
 from datetime import datetime
 
@@ -37,11 +39,16 @@ class ObjectUserMetadata(BaseModel):
 
 class S3Object(BaseModel):
     key: str
-    size: int
-    eTag: str
-    contentType: str
-    userMetadata: ObjectUserMetadata
+    size: Optional[int] = None
+    eTag: Optional[str] = None
+    contentType: Optional[str] = None
+    userMetadata: Optional[ObjectUserMetadata] = None
     sequencer: str
+
+    @validator('key')
+    def decode_key(cls, v):
+        """Decode URL-encoded key"""
+        return unquote(v)
 
 class S3(BaseModel):
     s3SchemaVersion: str

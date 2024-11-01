@@ -10,6 +10,7 @@ langchain-community
 langchain-text-splitters
 langchain_milvus
 markdown
+minio
 msgpack
 numpy
 openai

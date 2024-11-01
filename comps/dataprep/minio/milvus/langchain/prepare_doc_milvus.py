@@ -8,23 +8,27 @@ import tempfile
 from pathlib import Path
 from typing import List, Optional, Union
 
-from minio import Minio
+from minio import Minio, S3Error
 
 from comps.dataprep.minio.milvus.langchain.config import MINIO_WAREHOUSE_BUCKET
 from comps.dataprep.minio.minio_schema import MinioEventNotification
 from config import (
     COLLECTION_NAME,
+    LOCAL_EMBEDDING_MODEL,
     MINIO_ENDPOINT,
     MINIO_ACCESS_KEY,
     MINIO_SECRET_KEY,
     MINIO_SECURE,
     MILVUS_HOST,
     MILVUS_PORT,
-    MINIO_DOCUMENT_BUCKET
+    MINIO_DOCUMENT_BUCKET,
+    MOSEC_EMBEDDING_ENDPOINT,
+    MOSEC_EMBEDDING_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
 )
 from fastapi import Body, File, Form, HTTPException, UploadFile, Request
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
@@ -101,11 +105,12 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
         batch_docs = insert_docs[i: i + batch_size]
 
         try:
+            logger.info(f"MILVUS HOST IS: {MILVUS_HOST}")
             _ = Milvus.from_documents(
                 batch_docs,
                 embeddings,
                 collection_name=COLLECTION_NAME,
-                connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+                connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
                 partition_key_field=partition_field_name,
             )
         except Exception as e:
@@ -182,13 +187,27 @@ def search_all(collection):
     return results
 
 
-def delete_all_data(my_milvus):
+def delete_all_data():
     if logflag:
         logger.info("[ delete all ] deleting all data in milvus")
-    if my_milvus.col:
-        my_milvus.col.drop()
-    if logflag:
-        logger.info("[ delete all ] delete success: all data")
+    # List and delete all objects
+    try:
+        # Generate a list of all objects in the bucket
+        objects = minio_client.list_objects(MINIO_DOCUMENT_BUCKET, recursive=True)
+
+        # Delete each object
+        for obj in objects:
+            minio_client.remove_object(MINIO_DOCUMENT_BUCKET, obj.object_name)
+            print(f"Deleted {obj.object_name}")
+
+        print("All objects have been deleted from the bucket.")
+
+    except S3Error as e:
+        print("Error:", e)
+    # if my_milvus.col:
+    #     my_milvus.col.drop()
+    # if logflag:
+    #     logger.info("[ delete all ] delete success: all data")
 
 
 def delete_by_partition_field(my_milvus, partition_field):
@@ -263,6 +282,7 @@ async def ingest_documents(
 
         for link in link_list:
             encoded_link = encode_filename(link)
+
             if logflag:
                 logger.info(f"[ upload ] processing link {encoded_link}")
 
@@ -322,6 +342,11 @@ async def process_documents(event: MinioEventNotification):
                     length=buffer_size,
                     content_type='application/x-msgpack'
                 )
+    if event.EventName == "s3:ObjectRemoved:Delete":
+        for record in event.Records:
+            object_name = record.s3.object.key
+            minio_client.remove_object(MINIO_WAREHOUSE_BUCKET,
+                                       object_name=f"metadata/{object_name}.msgpack")
     return {"status": 200, "message": "Document processed successfully"}
 
 
@@ -329,8 +354,43 @@ async def process_documents(event: MinioEventNotification):
     name="opea_service@prepare_doc_minio_milvus", endpoint="/v1/minio/metadata/notification", host="0.0.0.0", port=6010
 )
 async def process_metadata(event: MinioEventNotification):
-    print(event)
-    pass
+    # json_data = await request.json()
+    # print(json.dumps(json_data, indent=2))
+    if event.EventName == "s3:ObjectCreated:Put":
+        for record in event.Records:
+            bucket_name = record.s3.bucket.name
+            object_name = record.s3.object.key
+            response = minio_client.get_object(bucket_name, object_name)
+            msgpack_data = response.read()
+            response.close()
+            response.release_conn()
+
+            # Deserialize the MsgPack data back into a list
+            chunk_list = msgpack.unpackb(msgpack_data)
+            print(f"Total Chunks are {len(chunk_list)}")
+            file_name = object_name.split(".msgpack")[0].split("metadata/")[1]
+            ingest_chunks_to_milvus(file_name, chunk_list)
+    elif event.EventName == "s3:ObjectRemoved:Delete":
+        # define Milvus obj
+        my_milvus = Milvus(
+            embedding_function=embeddings,
+            collection_name=COLLECTION_NAME,
+            connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
+            index_params=index_params,
+            auto_id=True,
+        )
+        for record in event.Records:
+            object_name = record.s3.object.key
+            file_name = object_name.split(".msgpack")[0].split("metadata/")[1]
+            encode_file_name = encode_filename(file_name)
+            try:
+                delete_by_partition_field(my_milvus, encode_file_name)
+            except Exception as e:
+                if logflag:
+                    logger.info(f"[delete] fail to delete file {file_name}: {e}")
+                return {"status": False}
+
+    return {"status": 200, "message": "Metadata processed successfully"}
 
 
 @register_microservice(
@@ -344,7 +404,7 @@ async def rag_get_file_structure():
     my_milvus = Milvus(
         embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+        connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
         index_params=index_params,
         auto_id=True,
     )
@@ -398,94 +458,59 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     if logflag:
         logger.info(file_path)
 
-    # define Milvus obj
-    my_milvus = Milvus(
-        embedding_function=embeddings,
-        collection_name=COLLECTION_NAME,
-        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
-        index_params=index_params,
-        auto_id=True,
-    )
-
     # delete all uploaded files
     if file_path == "all":
         if logflag:
             logger.info("[ delete ] deleting all files")
 
-        delete_all_data(my_milvus)
 
-        # delete files on local disk
-        try:
-            remove_folder_with_ignore(upload_folder)
-        except Exception as e:
-            if logflag:
-                logger.info(f"[ delete ] {e}. Fail to delete {upload_folder}.")
-            raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}.")
+        delete_all_data()
 
         if logflag:
             logger.info("[ delete ] successfully delete all files.")
 
-        create_upload_folder(upload_folder)
-        if logflag:
-            logger.info("[ delete ] new upload folder created.")
         return {"status": True}
 
     encode_file_name = encode_filename(file_path)
-    delete_path = Path(upload_folder + "/" + encode_file_name)
+
     if logflag:
-        logger.info(f"[delete] delete_path: {delete_path}")
-
-    # partially delete files
-    if delete_path.exists():
-
-        # TODO: check existence before delete
-
-        # delete file
-        if delete_path.is_file():
-            if logflag:
-                logger.info(f"[delete] deleting file {encode_file_name}")
-            try:
-                delete_by_partition_field(my_milvus, encode_file_name)
-            except Exception as e:
-                if logflag:
-                    logger.info(f"[delete] fail to delete file {delete_path}: {e}")
-                return {"status": False}
-            delete_path.unlink()
-            if logflag:
-                logger.info(f"[delete] file {file_path} deleted")
-            return {"status": True}
-
-        # delete folder
-        else:
-            if logflag:
-                logger.info(f"[delete] delete folder {file_path} is not supported for now.")
-            raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
-    else:
-        raise HTTPException(status_code=404, detail="File/folder not found. Please check del_path.")
+        logger.info(f"[delete] deleting file {encode_file_name}")
+    try:
+        minio_client.remove_object(MINIO_DOCUMENT_BUCKET, encode_file_name)
+    except Exception as e:
+        if logflag:
+            logger.info(f"[delete] fail to delete file {encode_file_name}: {e}")
+        return {"status": False}
+    if logflag:
+        logger.info(f"[delete] file {file_path} deleted")
+    return {"status": True}
 
 
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
     print(f"upload folder {upload_folder} created at {Path(upload_folder).absolute()}")
 
-    # # Create vectorstore
-    # if MOSEC_EMBEDDING_ENDPOINT:
-    #     # create embeddings using MOSEC endpoint service
-    #     if logflag:
-    #         logger.info(
-    #             f"[ prepare_doc_minio_milvus ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
-    #         )
-    #     embeddings = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
-    # elif TEI_EMBEDDING_ENDPOINT:
-    #     # create embeddings using TEI endpoint service
-    #     if logflag:
-    #         logger.info(f"[ prepare_doc_minio_milvus ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-    #     embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
-    # else:
-    #     # create embeddings using local embedding model
-    #     if logflag:
-    #         logger.info(f"[ prepare_doc_minio_milvus ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
-    #     embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+    # Create vectorstore
+    if MOSEC_EMBEDDING_ENDPOINT:
+        # create embeddings using MOSEC endpoint service
+        if logflag:
+            logger.info(
+                f"[ prepare_doc_minio_milvus ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
+            )
+        embeddings = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
+    elif TEI_EMBEDDING_ENDPOINT:
+        # create embeddings using TEI endpoint service
+        if logflag:
+            logger.info(f"[ prepare_doc_minio_milvus ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
+        embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+    else:
+        # create embeddings using local embedding model
+        if logflag:
+            logger.info(f"[ prepare_doc_minio_milvus ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
+        embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL, model_kwargs = {
+            'device': 'cpu',
+            'trust_remote_code':True
+        })
 
     opea_microservices["opea_service@prepare_doc_minio_milvus"].start()
     print("DOCPREP Server Started")
