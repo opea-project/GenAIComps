@@ -25,11 +25,17 @@ LOGFLAG = os.getenv("LOGFLAG", False)
 
 
 class OrchestratorMetrics:
+    # Because:
+    # - CI creates several orchestrator instances
+    # - Prometheus requires metrics to be singletons
+    # - Oorchestror instances are not provided their own names
+    # Metrics are class members with "megaservice" name prefix
+    first_token_latency = Histogram("megaservice_first_token_latency", "First token latency (histogram)")
+    inter_token_latency = Histogram("megaservice_inter_token_latency", "Inter-token latency (histogram)")
+    request_latency = Histogram("megaservice_request_latency", "Whole request/reply latency (histogram)")
+
     def __init__(self) -> None:
-        # metric prefix: ServiceOrchestrator instances are named as "Megaservices" in code & docs
-        self.first_token_latency = Histogram("megaservice_first_token_latency", "First token latency (histogram)")
-        self.inter_token_latency = Histogram("megaservice_inter_token_latency", "Inter-token latency (histogram)")
-        self.request_latency = Histogram("megaservice_request_latency", "Whole request/reply latency (histogram)")
+        pass
 
     def token_update(self, token_start: float, is_first: bool) -> float:
         now = time.time()
