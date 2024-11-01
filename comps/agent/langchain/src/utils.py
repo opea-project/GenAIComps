@@ -45,14 +45,16 @@ def setup_hf_tgi_client(args):
     )
     return llm
 
+
 def setup_chat_model(args):
     from langchain_openai import ChatOpenAI
+
     params = {
-            "temperature": args.temperature,
-            "max_tokens": args.max_new_tokens,
-            "top_p": args.top_p,
-            "streaming": args.streaming,
-        }
+        "temperature": args.temperature,
+        "max_tokens": args.max_new_tokens,
+        "top_p": args.top_p,
+        "streaming": args.streaming,
+    }
     if args.llm_engine == "vllm" or args.llm_engine == "tgi":
         openai_endpoint = f"{args.llm_endpoint_url}/v1"
         llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)

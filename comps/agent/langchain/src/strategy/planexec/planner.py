@@ -61,9 +61,7 @@ class PlanStepChecker:
             binary_score: str = Field(description="executable score 'yes' or 'no'")
 
         if is_vllm:
-            llm = llm.bind_tools(
-                [grade], tool_choice={"function": {"name": grade.__name__}}
-            )
+            llm = llm.bind_tools([grade], tool_choice={"function": {"name": grade.__name__}})
         else:
             llm = llm.bind_tools([grade])
 
@@ -85,9 +83,7 @@ class PlanStepChecker:
 class Planner:
     def __init__(self, llm, plan_checker=None, is_vllm=False):
         if is_vllm:
-            llm = llm.bind_tools(
-                [Plan], tool_choice={"function": {"name": Plan.__name__}}
-            )
+            llm = llm.bind_tools([Plan], tool_choice={"function": {"name": Plan.__name__}})
         else:
             llm = llm.bind_tools([Plan])
         output_parser = PydanticToolsParser(tools=[Plan], first_tool_only=True)
@@ -157,9 +153,7 @@ previous steps and output: {out_state}
 class AnswerMaker:
     def __init__(self, llm, is_vllm=False):
         if is_vllm:
-            llm = llm.bind_tools(
-                [Response], tool_choice={"function": {"name": Response.__name__}}
-            )
+            llm = llm.bind_tools([Response], tool_choice={"function": {"name": Response.__name__}})
         else:
             llm = llm.bind_tools([Response])
         output_parser = PydanticToolsParser(tools=[Response], first_tool_only=True)
@@ -193,9 +187,7 @@ class FinalAnswerChecker:
             binary_score: str = Field(description="executable score 'yes' or 'no'")
 
         if is_vllm:
-            llm = llm.bind_tools(
-                [grade], tool_choice={"function": {"name": grade.__name__}}
-            )
+            llm = llm.bind_tools([grade], tool_choice={"function": {"name": grade.__name__}})
         else:
             llm = llm.bind_tools([grade])
         output_parser = PydanticToolsParser(tools=[grade], first_tool_only=True)

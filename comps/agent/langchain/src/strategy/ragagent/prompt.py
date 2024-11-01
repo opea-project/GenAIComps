@@ -60,4 +60,3 @@ If you can directly answer the user question, output your answer in JSON format 
 User Question: {question}
 You Output:\n
 """
-
