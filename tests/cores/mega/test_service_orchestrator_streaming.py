@@ -69,10 +69,14 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
     def test_token_generator(self):
         start = time.time()
         sentence = "I write an example test.</s>"
-        for i in self.service_builder.token_generator(sentence=sentence, token_start=start, is_first=True, is_last=False):
+        for i in self.service_builder.token_generator(
+            sentence=sentence, token_start=start, is_first=True, is_last=False
+        ):
             self.assertTrue(i.startswith("data: b'"))
 
-        for i in self.service_builder.token_generator(sentence=sentence, token_start=start, is_first=False, is_last=True):
+        for i in self.service_builder.token_generator(
+            sentence=sentence, token_start=start, is_first=False, is_last=True
+        ):
             self.assertTrue(i.startswith("data: "))
 
 
