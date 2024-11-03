@@ -1,4 +1,4 @@
-# Dataprep Microservice with Milvus
+# Dataprep Microservice with MinIO and Milvus
 
 ## 🚀1. Start Microservice with Python (Option 1)
 
@@ -23,6 +23,10 @@ export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
 export MILVUS_HOST=${your_milvus_host_ip}
 export MILVUS_PORT=19530
+export MINIO_ACCESS_KEY=${your_minio_access_key}
+export MINIO_SECRET_KEY=${your_minio_secret_key}
+export MINIO_ENDPOINT=${your_minio_endpoint}
+export MINIO_SECURE = ${your_minio_secure}
 export COLLECTION_NAME=${your_collection_name}
 export MOSEC_EMBEDDING_ENDPOINT=${your_embedding_endpoint}
 ```
@@ -71,7 +75,7 @@ cd ../../..
 # build mosec embedding docker image
 docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
 # build dataprep milvus docker image
-docker build -t opea/dataprep-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/milvus/langchain/Dockerfile .
+docker build -t opea/dataprep-minio-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/minio/milvus/langchain/Dockerfile .
 ```
 
 ### 2.3 Setup Environment Variables
@@ -79,24 +83,26 @@ docker build -t opea/dataprep-milvus:latest --build-arg https_proxy=$https_proxy
 ```bash
 export MOSEC_EMBEDDING_ENDPOINT="http://localhost:$your_port"
 export MILVUS_HOST=${your_host_ip}
+export MINIO_ACCESS_KEY=${your_minio_access_key}
+export MINIO_SECRET_KEY=${your_minio_secret_key}
+export MINIO_ENDPOINT=${your_minio_endpoint}
+export MINIO_SECURE = ${your_minio_secure}
 ```
 
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} opea/dataprep-milvus:latest
-```
-
-### 2.4 Run with Docker Compose (Option B)
-
-```bash
-mkdir model
-cd model
-git clone https://huggingface.co/BAAI/bge-base-en-v1.5
-cd ../
-# Update `host_ip` and  `HUGGINGFACEHUB_API_TOKEN` in set_env.sh
-. set_env.sh
-docker compose -f docker-compose-dataprep-milvus.yaml up -d
+docker run -d --name="dataprep-minio-milvus-server" -p 6010:6010 --ipc=host \
+-e http_proxy=$http_proxy \
+-e https_proxy=$https_proxy \
+-e no_proxy=$no_proxy \
+-e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} \
+-e MILVUS_HOST=${MILVUS_HOST} \
+-e MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY} \
+-e MINIO_SECRET_KEY=${MINIO_SECRET_KEY} \
+-e MINIO_ENDPOINT=${MINIO_ENDPOINT} \
+-e MINIO_SECURE=${MINIO_SECURE} \
+opea/dataprep-minio-milvus:latest
 ```
 
 ## 🚀3. Consume Microservice

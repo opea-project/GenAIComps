@@ -1,4 +1,4 @@
-# Dataprep Microservice with Milvus
+# Dataprep Microservice with MinIO and Lancedb
 
 ## 🚀1. Start Microservice with Python (Option 1)
 
@@ -11,23 +11,21 @@ apt-get install libtesseract-dev -y
 apt-get install poppler-utils -y
 ```
 
-### 1.2 Start Milvus Server
-
-Please refer to this [readme](../../../vectorstores/milvus/README.md).
-
-### 1.3 Setup Environment Variables
+### 1.2 Setup Environment Variables
 
 ```bash
 export no_proxy=${your_no_proxy}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export MILVUS_HOST=${your_milvus_host_ip}
-export MILVUS_PORT=19530
+export MINIO_ACCESS_KEY=${your_minio_access_key}
+export MINIO_SECRET_KEY=${your_minio_secret_key}
+export MINIO_ENDPOINT=${your_minio_endpoint}
+export MINIO_SECURE = ${your_minio_secure}
 export COLLECTION_NAME=${your_collection_name}
 export MOSEC_EMBEDDING_ENDPOINT=${your_embedding_endpoint}
 ```
 
-### 1.4 Start Mosec Embedding Service
+### 1.3 Start Mosec Embedding Service
 
 First, you need to build a mosec embedding serving docker image.
 
@@ -47,22 +45,21 @@ Setup environment variables:
 
 ```bash
 export MOSEC_EMBEDDING_ENDPOINT="http://localhost:$your_port"
-export MILVUS_HOST=${your_host_ip}
 ```
 
-### 1.5 Start Document Preparation Microservice for Milvus with Python Script
+### 1.4 Start Document Preparation Microservice for Lancedb with Python Script
 
-Start document preparation microservice for Milvus with below command.
+Start document preparation microservice for Lancedb with below command.
 
 ```bash
-python prepare_doc_milvus.py
+python prepare_doc_lancedb.py
 ```
 
 ## 🚀2. Start Microservice with Docker (Option 2)
 
-### 2.1 Start Milvus Server
+### 2.1 Start Lancedb Server
 
-Please refer to this [readme](../../../vectorstores/milvus/README.md).
+Please refer to this [readme](../../../vectorstores/lancedb/README.md).
 
 ### 2.2 Build Docker Image
 
@@ -70,40 +67,39 @@ Please refer to this [readme](../../../vectorstores/milvus/README.md).
 cd ../../..
 # build mosec embedding docker image
 docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
-# build dataprep milvus docker image
-docker build -t opea/dataprep-minio-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/minio/milvus/langchain/Dockerfile .
+# build dataprep lancedb docker image
+docker build -t opea/dataprep-minio-lancedb:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/minio/lancedb/langchain/Dockerfile .
 ```
 
 ### 2.3 Setup Environment Variables
 
 ```bash
 export MOSEC_EMBEDDING_ENDPOINT="http://localhost:$your_port"
-export MILVUS_HOST=${your_host_ip}
+export MINIO_ACCESS_KEY=${your_minio_access_key}
+export MINIO_SECRET_KEY=${your_minio_secret_key}
+export MINIO_ENDPOINT=${your_minio_endpoint}
+export MINIO_SECURE = ${your_minio_secure}
 ```
 
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} opea/dataprep-milvus:latest
-```
-
-### 2.4 Run with Docker Compose (Option B)
-
-```bash
-mkdir model
-cd model
-git clone https://huggingface.co/BAAI/bge-base-en-v1.5
-cd ../
-# Update `host_ip` and  `HUGGINGFACEHUB_API_TOKEN` in set_env.sh
-. set_env.sh
-docker compose -f docker-compose-dataprep-milvus.yaml up -d
+docker run -d --name="dataprep-lancedb-server" -p 6010:6010 --ipc=host \
+-e http_proxy=$http_proxy -e https_proxy=$https_proxy \
+-e no_proxy=$no_proxy \
+-e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} \
+-e MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY} \
+-e MINIO_SECRET_KEY=${MINIO_SECRET_KEY} \
+-e MINIO_ENDPOINT=${MINIO_ENDPOINT} \
+-e MINIO_SECURE=${MINIO_SECURE} \
+opea/dataprep-lancedb:latest
 ```
 
 ## 🚀3. Consume Microservice
 
 ### 3.1 Consume Upload API
 
-Once document preparation microservice for Milvus is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
+Once document preparation microservice for Lancedb is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
 Make sure the file path after `files=@` is correct.
 
