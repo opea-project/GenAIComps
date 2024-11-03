@@ -14,7 +14,7 @@ MOSEC_EMBEDDING_ENDPOINT = os.environ.get("MOSEC_EMBEDDING_ENDPOINT", "")
 MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "minio:9000")
 MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY", "minioadmin")
 MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "minioadmin")
-MINIO_SECURE = os.environ.get("MINIO_SECURE", "False").lower() == 'true'
+MINIO_SECURE = os.environ.get("MINIO_SECURE", "False").lower() == "true"
 MINIO_DOCUMENT_BUCKET = os.environ.get("MINIO_DOCUMENT_BUCKET", "document")
 MINIO_WAREHOUSE_BUCKET = os.environ.get("MINIO_WAREHOUSE_BUCKET", "warehouse")
 os.environ["OPENAI_API_BASE"] = MOSEC_EMBEDDING_ENDPOINT

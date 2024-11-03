@@ -8,10 +8,10 @@ from typing import List, Optional
 from config import (
     COLLECTION_NAME,
     LOCAL_EMBEDDING_MODEL,
+    MINIO_WAREHOUSE_BUCKET,
     MOSEC_EMBEDDING_ENDPOINT,
     MOSEC_EMBEDDING_MODEL,
     TEI_EMBEDDING_ENDPOINT,
-    MINIO_WAREHOUSE_BUCKET
 )
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_community.vectorstores import LanceDB
@@ -34,7 +34,7 @@ logflag = os.getenv("LOGFLAG", False)
 
 class MosecEmbeddings(OpenAIEmbeddings):
     def _get_len_safe_embeddings(
-            self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
+        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
     ) -> List[List[float]]:
         _chunk_size = chunk_size or self.chunk_size
         batched_embeddings: List[List[float]] = []
@@ -113,14 +113,10 @@ if __name__ == "__main__":
         # create embeddings using local embedding model
         if logflag:
             logger.info(f"[ retriever_lancedb ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
-        embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL, model_kwargs={
-            'device': 'cpu',
-            'trust_remote_code': True
-        })
+        embeddings = HuggingFaceBgeEmbeddings(
+            model_name=LOCAL_EMBEDDING_MODEL, model_kwargs={"device": "cpu", "trust_remote_code": True}
+        )
 
-    vector_db = LanceDB(
-        uri=f"s3://{MINIO_WAREHOUSE_BUCKET}/v-db",
-        embedding=embeddings,
-        table_name=COLLECTION_NAME)
+    vector_db = LanceDB(uri=f"s3://{MINIO_WAREHOUSE_BUCKET}/v-db", embedding=embeddings, table_name=COLLECTION_NAME)
 
     opea_microservices["opea_service@retriever_lancedb"].start()

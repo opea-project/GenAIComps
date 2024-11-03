@@ -10,8 +10,8 @@ langchain
 langchain-community
 langchain-text-splitters
 markdown
-msgpack
 minio
+msgpack
 numpy
 openai
 opentelemetry-api
@@ -25,8 +25,8 @@ pyspark
 pytesseract
 python-docx
 python-pptx
-sentence_transformers
 s3fs
+sentence_transformers
 shortuuid
 tiktoken
 unstructured[all-docs]==0.15.7

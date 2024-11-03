@@ -2,37 +2,35 @@
 # SPDX-License-Identifier: Apache-2.0
 import io
 import json
-
-import lancedb
-import msgpack
 import os
 import tempfile
 from pathlib import Path
 from typing import List, Optional, Union
 
-from minio import Minio, S3Error
-
-from comps.dataprep.minio.minio_schema import MinioEventNotification
+import lancedb
+import msgpack
 from config import (
     COLLECTION_NAME,
     LOCAL_EMBEDDING_MODEL,
-    MINIO_ENDPOINT,
     MINIO_ACCESS_KEY,
+    MINIO_DOCUMENT_BUCKET,
+    MINIO_ENDPOINT,
     MINIO_SECRET_KEY,
     MINIO_SECURE,
-    MINIO_DOCUMENT_BUCKET,
+    MINIO_WAREHOUSE_BUCKET,
     MOSEC_EMBEDDING_ENDPOINT,
     MOSEC_EMBEDDING_MODEL,
     TEI_EMBEDDING_ENDPOINT,
-    MINIO_WAREHOUSE_BUCKET
 )
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_community.vectorstores import LanceDB
 from langchain_text_splitters import HTMLHeaderTextSplitter
+from minio import Minio, S3Error
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
+from comps.dataprep.minio.minio_schema import MinioEventNotification
 from comps.dataprep.utils import (
     decode_filename,
     document_loader,
@@ -51,15 +49,13 @@ index_params = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
 partition_field_name = "filename"
 
 minio_client = Minio(
-    endpoint=MINIO_ENDPOINT,
-    access_key=MINIO_ACCESS_KEY,
-    secret_key=MINIO_SECRET_KEY,
-    secure=MINIO_SECURE)
+    endpoint=MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=MINIO_SECURE
+)
 
 
 class MosecEmbeddings(OpenAIEmbeddings):
     def _get_len_safe_embeddings(
-            self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
+        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
     ) -> List[List[float]]:
         _chunk_size = chunk_size or self.chunk_size
         batched_embeddings: List[List[float]] = []
@@ -103,19 +99,16 @@ def ingest_chunks_to_lancedb(file_name: str, chunks: List):
     for i in range(0, num_chunks, batch_size):
         if logflag:
             logger.info(f"[ ingest chunks ] Current batch: {i}")
-        batch_texts = insert_text[i: i + batch_size]
-        batch_metadata = insert_metadata[i: i + batch_size]
+        batch_texts = insert_text[i : i + batch_size]
+        batch_metadata = insert_metadata[i : i + batch_size]
         batch_embeddings = embeddings.embed_documents(batch_texts)
-        batch_doc_ids = doc_ids[i: i + batch_size]
+        batch_doc_ids = doc_ids[i : i + batch_size]
 
         data_docs = []
         for j, doc in enumerate(batch_texts):
-            data_docs.append({
-                "text": doc,
-                "metadata": batch_metadata[j],
-                "vector": batch_embeddings[j],
-                "id": batch_doc_ids[j]
-            })
+            data_docs.append(
+                {"text": doc, "metadata": batch_metadata[j], "vector": batch_embeddings[j], "id": batch_doc_ids[j]}
+            )
 
         try:
 
@@ -224,15 +217,16 @@ def delete_by_partition_field(my_lancedb, partition_field):
         logger.info(f"[ delete partition ] delete success: {res}")
 
 
-@register_microservice(name="opea_service@prepare_doc_minio_lancedb", endpoint="/v1/dataprep", host="0.0.0.0",
-                       port=6010)
+@register_microservice(
+    name="opea_service@prepare_doc_minio_lancedb", endpoint="/v1/dataprep", host="0.0.0.0", port=6010
+)
 async def ingest_documents(
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1000),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
+    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+    link_list: Optional[str] = Form(None),
+    chunk_size: int = Form(1000),
+    chunk_overlap: int = Form(100),
+    process_table: bool = Form(False),
+    table_strategy: str = Form("fast"),
 ):
     if logflag:
         logger.info(f"[ upload ] files:{files}")
@@ -266,8 +260,9 @@ async def ingest_documents(
                     "chunk_size": chunk_size,
                     "chunk_overlap": chunk_overlap,
                     "process_table": process_table,
-                    "table_strategy": table_strategy
-                })
+                    "table_strategy": table_strategy,
+                },
+            )
 
             uploaded_files.append(save_path)
             if logflag:
@@ -303,8 +298,9 @@ async def ingest_documents(
                     "chunk_size": chunk_size,
                     "chunk_overlap": chunk_overlap,
                     "process_table": process_table,
-                    "table_strategy": table_strategy
-                })
+                    "table_strategy": table_strategy,
+                },
+            )
 
         if logflag:
             logger.info(f"[ upload ] Successfully saved link list {link_list}")
@@ -328,13 +324,15 @@ async def process_documents(event: MinioEventNotification):
             with tempfile.NamedTemporaryFile(delete=True, suffix=file_extension) as temp_file:
                 temp_file_path = temp_file.name
                 minio_client.fget_object(bucket_name, object_name, temp_file_path)
-                chunks = ingest_data_to_minio(DocPath(
-                    path=temp_file_path,
-                    chunk_size=record.s3.object.userMetadata.chunk_size,
-                    chunk_overlap=record.s3.object.userMetadata.chunk_overlap,
-                    process_table=record.s3.object.userMetadata.process_table,
-                    table_strategy=record.s3.object.userMetadata.table_strategy,
-                ))
+                chunks = ingest_data_to_minio(
+                    DocPath(
+                        path=temp_file_path,
+                        chunk_size=record.s3.object.userMetadata.chunk_size,
+                        chunk_overlap=record.s3.object.userMetadata.chunk_overlap,
+                        process_table=record.s3.object.userMetadata.process_table,
+                        table_strategy=record.s3.object.userMetadata.table_strategy,
+                    )
+                )
                 msgpack_data = msgpack.packb(chunks)
                 buffer = io.BytesIO(msgpack_data)
                 buffer_size = buffer.getbuffer().nbytes
@@ -343,13 +341,12 @@ async def process_documents(event: MinioEventNotification):
                     object_name=f"metadata/{object_name}.msgpack",
                     data=buffer,
                     length=buffer_size,
-                    content_type='application/x-msgpack'
+                    content_type="application/x-msgpack",
                 )
     if event.EventName == "s3:ObjectRemoved:Delete":
         for record in event.Records:
             object_name = record.s3.object.key
-            minio_client.remove_object(MINIO_WAREHOUSE_BUCKET,
-                                       object_name=f"metadata/{object_name}.msgpack")
+            minio_client.remove_object(MINIO_WAREHOUSE_BUCKET, object_name=f"metadata/{object_name}.msgpack")
     return {"status": 200, "message": "Document processed successfully"}
 
 
@@ -486,15 +483,11 @@ if __name__ == "__main__":
         # create embeddings using local embedding model
         if logflag:
             logger.info(f"[ prepare_doc_minio_lancedb ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
-        embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL, model_kwargs={
-            'device': 'cpu',
-            'trust_remote_code': True
-        })
+        embeddings = HuggingFaceBgeEmbeddings(
+            model_name=LOCAL_EMBEDDING_MODEL, model_kwargs={"device": "cpu", "trust_remote_code": True}
+        )
     # create lancedb
-    my_lancedb = LanceDB(
-        uri=f"s3://{MINIO_WAREHOUSE_BUCKET}/v-db",
-        embedding=embeddings,
-        table_name=COLLECTION_NAME)
+    my_lancedb = LanceDB(uri=f"s3://{MINIO_WAREHOUSE_BUCKET}/v-db", embedding=embeddings, table_name=COLLECTION_NAME)
 
     opea_microservices["opea_service@prepare_doc_minio_lancedb"].start()
     print("DOCPREP Server Started")

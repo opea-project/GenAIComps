@@ -1,16 +1,22 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+from datetime import datetime
+from typing import List, Optional
 from urllib.parse import unquote
 
 from pydantic import BaseModel, Field, validator
-from typing import List, Optional
-from datetime import datetime
+
 
 class UserIdentity(BaseModel):
     principalId: str
+
 
 class RequestParameters(BaseModel):
     principalId: str
     region: str
     sourceIPAddress: str
+
 
 class ResponseElements(BaseModel):
     x_amz_id_2: str = Field(..., alias="x-amz-id-2")
@@ -18,13 +24,16 @@ class ResponseElements(BaseModel):
     x_minio_deployment_id: str = Field(..., alias="x-minio-deployment-id")
     x_minio_origin_endpoint: str = Field(..., alias="x-minio-origin-endpoint")
 
+
 class BucketOwnerIdentity(BaseModel):
     principalId: str
+
 
 class Bucket(BaseModel):
     name: str
     ownerIdentity: BucketOwnerIdentity
     arn: str
+
 
 class ObjectUserMetadata(BaseModel):
     content_type: str = Field(..., alias="content-type")
@@ -37,6 +46,7 @@ class ObjectUserMetadata(BaseModel):
         populate_by_name = True
         allow_population_by_field_name = True
 
+
 class S3Object(BaseModel):
     key: str
     size: Optional[int] = None
@@ -45,10 +55,11 @@ class S3Object(BaseModel):
     userMetadata: Optional[ObjectUserMetadata] = None
     sequencer: str
 
-    @validator('key')
+    @validator("key")
     def decode_key(cls, v):
-        """Decode URL-encoded key"""
+        """Decode URL-encoded key."""
         return unquote(v)
+
 
 class S3(BaseModel):
     s3SchemaVersion: str
@@ -56,10 +67,12 @@ class S3(BaseModel):
     bucket: Bucket
     object: S3Object
 
+
 class Source(BaseModel):
     host: str
     port: str
     userAgent: str
+
 
 class Record(BaseModel):
     eventVersion: str
@@ -72,6 +85,7 @@ class Record(BaseModel):
     responseElements: ResponseElements
     s3: S3
     source: Source
+
 
 class MinioEventNotification(BaseModel):
     EventName: str
