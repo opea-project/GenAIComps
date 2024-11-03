@@ -28,15 +28,15 @@ services:
     depends_on:
       minio:
         condition: service_healthy
-      dataprep-lancedb-service:
+      dataprep-minio-lancedb-service:
         condition: service_started
 
     environment:
       MINIO_URL: ${MINIO_URL:-http://minio:9000}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
-      DOCUMENT_WEBHOOK_URL: ${DOCUMENT_WEBHOOK_URL:-http://dataprep-lancedb-service:6010/v1/minio/document/notification}
-      METADATA_WEBHOOK_URL: ${METADATA_WEBHOOK_URL:-http://dataprep-lancedb-service:6010/v1/minio/metadata/notification}
+      DOCUMENT_WEBHOOK_URL: ${DOCUMENT_WEBHOOK_URL:-http://dataprep-minio-lancedb-service:6010/v1/minio/document/notification}
+      METADATA_WEBHOOK_URL: ${METADATA_WEBHOOK_URL:-http://dataprep-minio-lancedb-service:6010/v1/minio/metadata/notification}
     entrypoint:
       - /bin/sh
       - -c
@@ -65,17 +65,13 @@ services:
 
         echo 'MinIO setup completed successfully!';
 
-  dataprep-lancedb-service:
-    image: opea/dataprep-minio-lancedb:0.1
+  dataprep-minio-lancedb-service:
+    image: opea/dataprep-minio-lancedb:latest
     container_name: dataprep-lancedb-server
     depends_on:
       - minio
     ports:
       - "6010:6010"
-    volumes:
-      - "./prepare_doc_lancedb.py:/home/user/comps/dataprep/minio/lancedb/langchain/prepare_doc_lancedb.py"
-      - "./config.py:/home/user/comps/dataprep/minio/lancedb/langchain/config.py"
-      - "../../minio_schema.py:/home/user/comps/dataprep/minio/minio_schema.py"
     environment:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
