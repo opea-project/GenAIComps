@@ -34,7 +34,7 @@ python retriever_redis.py
 ### Build Docker Image
 
 ```bash
-cd ../../
+cd ../../../../
 docker build -t opea/retriever-minio-lancedb:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/minio/lancedb/langchain/Dockerfile .
 ```
 

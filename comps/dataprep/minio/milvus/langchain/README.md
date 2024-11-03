@@ -13,7 +13,7 @@ apt-get install poppler-utils -y
 
 ### 1.2 Start Milvus Server
 
-Please refer to this [readme](../../../vectorstores/milvus/README.md).
+Please refer to this [readme](../../../../vectorstores/milvus/README.md).
 
 ### 1.3 Setup Environment Variables
 
@@ -62,12 +62,12 @@ python prepare_doc_milvus.py
 
 ### 2.1 Start Milvus Server
 
-Please refer to this [readme](../../../vectorstores/milvus/README.md).
+Please refer to this [readme](../../../../vectorstores/milvus/README.md).
 
 ### 2.2 Build Docker Image
 
 ```bash
-cd ../../..
+cd ../../../..
 # build mosec embedding docker image
 docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
 # build dataprep milvus docker image

@@ -30,7 +30,7 @@ export MOSEC_EMBEDDING_ENDPOINT=${your_embedding_endpoint}
 First, you need to build a mosec embedding serving docker image.
 
 ```bash
-cd ../../..
+cd ../../../..
 docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
 ```
 
@@ -57,14 +57,10 @@ python prepare_doc_lancedb.py
 
 ## 🚀2. Start Microservice with Docker (Option 2)
 
-### 2.1 Start Lancedb Server
-
-Please refer to this [readme](../../../vectorstores/lancedb/README.md).
-
-### 2.2 Build Docker Image
+### 2.1 Build Docker Image
 
 ```bash
-cd ../../..
+cd ../../../..
 # build mosec embedding docker image
 docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
 # build dataprep lancedb docker image
