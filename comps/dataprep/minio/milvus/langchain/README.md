@@ -155,17 +155,17 @@ import json
 proxies = {"http": ""}
 url = "http://localhost:6010/v1/dataprep"
 urls = [
-   "https://towardsdatascience.com/no-gpu-no-party-fine-tune-bert-for-sentiment-analysis-with-vertex-ai-custom-jobs-d8fc410e908b?source=rss----7f60cf5620c9---4"
+    "https://towardsdatascience.com/no-gpu-no-party-fine-tune-bert-for-sentiment-analysis-with-vertex-ai-custom-jobs-d8fc410e908b?source=rss----7f60cf5620c9---4"
 ]
 payload = {"link_list": json.dumps(urls)}
 
 try:
-   resp = requests.post(url=url, data=payload, proxies=proxies)
-   print(resp.text)
-   resp.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
-   print("Request successful!")
+    resp = requests.post(url=url, data=payload, proxies=proxies)
+    print(resp.text)
+    resp.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
+    print("Request successful!")
 except requests.exceptions.RequestException as e:
-   print("An error occurred:", e)
+    print("An error occurred:", e)
 ```
 
 We support table extraction from pdf documents. You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
@@ -198,18 +198,18 @@ Then you will get the response JSON like this:
 
 ```json
 [
-   {
-      "name": "uploaded_file_1.txt",
-      "id": "uploaded_file_1.txt",
-      "type": "File",
-      "parent": ""
-   },
-   {
-      "name": "uploaded_file_2.txt",
-      "id": "uploaded_file_2.txt",
-      "type": "File",
-      "parent": ""
-   }
+  {
+    "name": "uploaded_file_1.txt",
+    "id": "uploaded_file_1.txt",
+    "type": "File",
+    "parent": ""
+  },
+  {
+    "name": "uploaded_file_2.txt",
+    "id": "uploaded_file_2.txt",
+    "type": "File",
+    "parent": ""
+  }
 ]
 ```
 
