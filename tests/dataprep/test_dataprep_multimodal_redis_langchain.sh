@@ -160,7 +160,7 @@ function validate_microservice() {
     fi
 
     # test v1/ingest_with_text upload video file
-    echo "Testing ingest_with_text API"
+    echo "Testing ingest_with_text API with video+transcripts"
     URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
@@ -184,7 +184,7 @@ function validate_microservice() {
     fi
 
     # test v1/ingest_with_text upload image file
-    echo "Testing ingest_with_text API"
+    echo "Testing ingest_with_text API with image+caption"
     URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -F "files=@./$caption_fn" -H 'Content-Type: multipart/form-data' "$URL")
@@ -200,6 +200,54 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
+        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] Content is as expected."
+    fi
+
+    # test v1/ingest_with_text with video and image
+    echo "Testing ingest_with_text API with both video+transcript and image+caption"
+    URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
+
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -F "files=@./$caption_fn" -F "files=@./$video_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    SERVICE_NAME="dataprep - upload - file"
+
+    if [ "$HTTP_STATUS" -ne "200" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+    fi
+    if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
+        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] Content is as expected."
+    fi
+
+    # test v1/ingest_with_text with invalid input (.png image with .vtt transcript)
+    echo "Testing ingest_with_text API with invalid input (.png and .vtt)"
+    URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
+
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    SERVICE_NAME="dataprep - upload - file"
+
+    if [ "$HTTP_STATUS" -ne "400" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 400. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 400. Checking content..."
+    fi
+    if [[ "$RESPONSE_BODY" != *"No caption file found for $image_fn"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
         docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
