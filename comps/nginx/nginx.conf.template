@@ -10,6 +10,12 @@ server {
         alias  /usr/share/nginx/html/index.html;
     }
 
+    proxy_connect_timeout 600;
+    proxy_send_timeout 600;
+    proxy_read_timeout 600;
+    send_timeout 600;
+    client_max_body_size 10G;
+
     location / {
         proxy_pass http://${FRONTEND_SERVICE_IP}:${FRONTEND_SERVICE_PORT};
         proxy_set_header Host $host;
@@ -20,6 +26,35 @@ server {
 
     location /v1/${BACKEND_SERVICE_NAME} {
         proxy_pass http://${BACKEND_SERVICE_IP}:${BACKEND_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+
+    location /v1/dataprep {
+        proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /v1/dataprep/get_file {
+        proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /v1/dataprep/delete_file {
+        proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -11,9 +11,15 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.llms import HuggingFaceEndpoint
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps.cores.mega.utils import get_access_token
 
 logger = CustomLogger("llm_faqgen")
 logflag = os.getenv("LOGFLAG", False)
+
+# Environment variables
+TOKEN_URL = os.getenv("TOKEN_URL")
+CLIENTID = os.getenv("CLIENTID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
 def post_process_text(text: str):
@@ -34,10 +40,15 @@ def post_process_text(text: str):
     host="0.0.0.0",
     port=9000,
 )
-def llm_generate(input: LLMParamsDoc):
+async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
-    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+    access_token = (
+        get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    )
+    server_kwargs = {}
+    if access_token:
+        server_kwargs["headers"] = {"Authorization": f"Bearer {access_token}"}
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
         max_new_tokens=input.max_tokens,
@@ -47,6 +58,7 @@ def llm_generate(input: LLMParamsDoc):
         temperature=input.temperature,
         repetition_penalty=input.repetition_penalty,
         streaming=input.streaming,
+        server_kwargs=server_kwargs,
     )
     templ = """Create a concise FAQs (frequently asked questions and answers) for following text:
         TEXT: {text}
@@ -54,9 +66,6 @@ def llm_generate(input: LLMParamsDoc):
     """
     PROMPT = PromptTemplate.from_template(templ)
     llm_chain = load_summarize_chain(llm=llm, prompt=PROMPT)
-
-    # Split text
-    text_splitter = CharacterTextSplitter()
     texts = text_splitter.split_text(input.query)
 
     # Create multiple documents
@@ -77,7 +86,7 @@ def llm_generate(input: LLMParamsDoc):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = llm_chain.invoke(docs)
+        response = await llm_chain.ainvoke(docs)
         response = response["output_text"]
         if logflag:
             logger.info(response)
@@ -85,4 +94,7 @@ def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
+    llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+    # Split text
+    text_splitter = CharacterTextSplitter()
     opea_microservices["opea_service@llm_faqgen"].start()
