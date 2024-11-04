@@ -131,6 +131,38 @@ def create_configmap_object(service_info=None):
     return configmap
 
 
+def create_no_wrapper_configmap_object(service_info=None):
+
+    if service_info is None:
+        config_map = {
+            "EMBEDDING_MODEL_ID": "BAAI/bge-base-en-v1.5",
+            "RERANK_MODEL_ID": "BAAI/bge-reranker-base",
+            "LLM_MODEL_ID": "Intel/neural-chat-7b-v3-3",
+            "TEI_EMBEDDING_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
+            # For dataprep only
+            "TEI_ENDPOINT": "http://embedding-dependency-svc.default.svc.cluster.local:6006",
+            # For dataprep & retrieval & vector_db
+            "INDEX_NAME": "rag-redis",
+            "REDIS_URL": "redis://vector-db.default.svc.cluster.local:6379",
+            "TEI_RERANKING_ENDPOINT": "http://reranking-dependency-svc.default.svc.cluster.local:8808",
+            "TGI_LLM_ENDPOINT": "http://llm-dependency-svc.default.svc.cluster.local:9009",
+            "HUGGINGFACEHUB_API_TOKEN": "${HF_TOKEN}",
+            "EMBEDDING_SERVER_HOST_IP": "embedding-dependency-svc",
+            "RETRIEVER_SERVICE_HOST_IP": "retriever-svc",
+            "RERANK_SERVER_HOST_IP": "reranking-dependency-svc",
+            "NODE_SELECTOR": "chatqna-opea",
+            "LLM_SERVER_HOST_IP": "llm-dependency-svc",
+        }
+
+    configmap = client.V1ConfigMap(
+        api_version="v1",
+        kind="ConfigMap",
+        metadata=client.V1ObjectMeta(name="qna-config", namespace="default"),
+        data=config_map,
+    )
+    return configmap
+
+
 def create_service(name, app_label, service_ports, namespace="default", service_type="ClusterIP"):
     ports = []
     for port in service_ports:
@@ -156,7 +188,7 @@ def create_service(name, app_label, service_ports, namespace="default", service_
     return service
 
 
-def create_embedding_deployment_and_service(resource_requirements=None, replicas=None):
+def create_embedding_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
 
     args = ["--model-id", "$(EMBEDDING_MODEL_ID)", "--auto-truncate"]
     volume_mounts = [
@@ -174,7 +206,7 @@ def create_embedding_deployment_and_service(resource_requirements=None, replicas
 
     deployment = create_k8s_resources(
         name="embedding-dependency-deploy",
-        replicas=1,
+        replicas=replicas,
         app_label="embedding-dependency-deploy",
         image="ghcr.io/huggingface/text-embeddings-inference:cpu-1.5",
         container_name="embedding-dependency-deploy",
@@ -203,11 +235,11 @@ def create_embedding_deployment_and_service(resource_requirements=None, replicas
     return deployment, service
 
 
-def create_embedding_svc_deployment_and_service(resource_requirements=None, replicas=None):
+def create_embedding_svc_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
 
     deployment = create_k8s_resources(
         name="embedding-deploy",
-        replicas=1,
+        replicas=replicas,
         image="opea/embedding-tei:latest",
         container_ports=[6000],
         resources=resource_requirements,
@@ -226,20 +258,21 @@ def create_embedding_svc_deployment_and_service(resource_requirements=None, repl
     return deployment, service
 
 
-def create_llm_dependency_deployment_and_service(resource_requirements=None, replicas=None):
+def create_llm_dependency_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
 
-    args = [
-        "--model-id",
-        "$(LLM_MODEL_ID)",
-        "--max-input-length",
-        "1024",
-        "--max-total-tokens",
-        "2048",
-        "--max-batch-total-tokens",
-        "65536",
-        "--max-batch-prefill-tokens",
-        "4096",
-    ]
+    if args is None:
+        args = [
+            "--model-id",
+            "$(LLM_MODEL_ID)",
+            "--max-input-length",
+            "2048",
+            "--max-total-tokens",
+            "4096",
+            "--max-batch-total-tokens",
+            "65536",
+            "--max-batch-prefill-tokens",
+            "4096",
+        ]
 
     volume_mounts = [
         client.V1VolumeMount(mount_path="/data", name="model-volume"),
@@ -265,8 +298,8 @@ def create_llm_dependency_deployment_and_service(resource_requirements=None, rep
     security_context = client.V1SecurityContext(capabilities=client.V1Capabilities(add=["SYS_NICE"]))
     deployment = create_k8s_resources(
         name="llm-dependency-deploy",
-        replicas=7,
-        image="ghcr.io/huggingface/tgi-gaudi:2.0.5",
+        replicas=replicas,
+        image="ghcr.io/huggingface/tgi-gaudi:2.0.4",
         container_ports=[80],
         node_selector={"node-type": "chatqna-opea"},
         resources=resource_requirements,
@@ -290,7 +323,9 @@ def create_llm_dependency_deployment_and_service(resource_requirements=None, rep
     return deployment, service
 
 
-def create_reranking_dependency_deployment_and_service(resource_requirements=None, replicas=None):
+def create_reranking_dependency_deployment_and_service(
+    resource_requirements=None, replicas=1, image_name=None, args=None
+):
 
     args = ["--model-id", "$(RERANK_MODEL_ID)", "--auto-truncate"]
 
@@ -323,7 +358,7 @@ def create_reranking_dependency_deployment_and_service(resource_requirements=Non
 
     deployment = create_k8s_resources(
         name="reranking-dependency-deploy",
-        replicas=1,
+        replicas=replicas,
         image="opea/tei-gaudi:latest",
         container_ports=[80],
         node_selector={"node-type": "chatqna-opea"},
@@ -349,11 +384,11 @@ def create_reranking_dependency_deployment_and_service(resource_requirements=Non
     return deployment, service
 
 
-def create_llm_deployment_and_service(resource_requirements=None, replicas=None):
+def create_llm_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
 
     deployment = create_k8s_resources(
         name="llm-deploy",
-        replicas=1,
+        replicas=replicas,
         image="opea/llm-tgi:latest",
         container_ports=[9000],
         resources=resource_requirements,
@@ -371,11 +406,11 @@ def create_llm_deployment_and_service(resource_requirements=None, replicas=None)
     return deployment, service
 
 
-def create_dataprep_deployment_and_service(resource_requirements=None, replicas=None):
+def create_dataprep_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
     deployment = create_k8s_resources(
         name="dataprep-deploy",
         namespace="default",
-        replicas=1,
+        replicas=replicas,
         app_label="dataprep-deploy",
         image="opea/dataprep-redis:latest",
         container_name="dataprep-deploy",
@@ -390,13 +425,13 @@ def create_dataprep_deployment_and_service(resource_requirements=None, replicas=
     return deployment, service
 
 
-def create_chatqna_mega_deployment(resource_requirements=None, replicas=None):
+def create_chatqna_mega_deployment(resource_requirements=None, replicas=1, image_name=None, args=None):
 
     deployment = create_k8s_resources(
         name="chatqna-backend-server-deploy",
-        replicas=1,
+        replicas=replicas,
         app_label="chatqna-backend-server-deploy",
-        image="opea/chatqna:latest",
+        image=image_name,
         container_name="chatqna-backend-server-deploy",
         container_ports=[8888],
         node_selector={"node-type": "chatqna-opea"},
@@ -417,10 +452,10 @@ def create_chatqna_mega_deployment(resource_requirements=None, replicas=None):
     return deployment, service
 
 
-def create_reranking_deployment_and_service(resource_requirements=None, replicas=None):
+def create_reranking_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
     deployment = create_k8s_resources(
         name="reranking-deploy",
-        replicas=1,
+        replicas=replicas,
         image="opea/reranking-tei:latest",
         container_ports=[8000],
         resources=resource_requirements,
@@ -438,11 +473,11 @@ def create_reranking_deployment_and_service(resource_requirements=None, replicas
     return deployment, service
 
 
-def create_retriever_deployment_and_service(resource_requirements=None, replicas=None):
+def create_retriever_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
 
     deployment = create_k8s_resources(
         name="retriever-deploy",
-        replicas=1,
+        replicas=replicas,
         image="opea/retriever-redis:latest",
         container_ports=[7000],
         resources=resource_requirements,
@@ -460,11 +495,11 @@ def create_retriever_deployment_and_service(resource_requirements=None, replicas
     return deployment, service
 
 
-def create_vector_db_deployment_and_service(resource_requirements=None, replicas=None):
+def create_vector_db_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
 
     deployment = create_k8s_resources(
         name="vector-db",
-        replicas=1,
+        replicas=replicas,
         image="redis/redis-stack:7.2.0-v9",
         container_ports=[6379, 8001],
         resources=resource_requirements,
@@ -490,7 +525,7 @@ def save_to_yaml(manifests_list, file_name):
             f.write("---\n")
 
 
-def build_chatqna_manifests(service_info=None):
+def build_chatqna_manifests(service_info=None, output_filename=None):
     configmap = create_configmap_object(service_info)
 
     guaranteed_resource = create_resource_requirements(
@@ -500,7 +535,7 @@ def build_chatqna_manifests(service_info=None):
     burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
 
     # Microservice
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource)
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource, image_name="opea/chatqna:latest")
     embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource)
     reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(burstable_resource)
     lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(burstable_resource)
@@ -513,12 +548,12 @@ def build_chatqna_manifests(service_info=None):
         embedding_dependency_resource
     )
 
-    llm_hpu_resource_requirements = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_resource_requirements)
+    llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards)
 
-    reranking_hpu_resource_requirements = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    reranking_depn_deployment, reranking_depn_service = create_reranking_dependency_deployment_and_service(
-        reranking_hpu_resource_requirements
+    reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
+    reranking_dependency, reranking_dependency_svc = create_reranking_dependency_deployment_and_service(
+        reranking_hpu_cards
     )
 
     retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource)
@@ -539,8 +574,8 @@ def build_chatqna_manifests(service_info=None):
         llm_dependency_svc,
         lm_deploy,
         lm_deploy_svc,
-        reranking_depn_deployment,
-        reranking_depn_service,
+        reranking_dependency,
+        reranking_dependency_svc,
         reranking_svc,
         reranking_svc_svc,
         retrieval_deployment,
@@ -549,8 +584,222 @@ def build_chatqna_manifests(service_info=None):
         vector_db_svc,
     ]
 
-    save_to_yaml(manifests, "ChatQnA_E2E_manifests.yaml")
+    save_to_yaml(manifests, output_filename)
 
+def build_oob_chatqna_manifests(
+    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1,
+    no_wrapper=False, without_rerank=False
+):
+    configmap = create_no_wrapper_configmap_object(service_info) if no_wrapper \
+        else create_configmap_object(service_info)
+
+    # Microservice
+    # 1. chatqna deploy
+    # [warpper, rerank]
+    images_arrry = [
+        ["opea/chatqna:latest", "opea/chatqna-without-rerank:latest"],
+        ["opea/chatqna-no-wrapper:latest", "opea/chatqna-no-wrapper-without-rerank:latest"],
+    ]
+    chatqna_deploy_replicas= service_replicas if (not no_wrapper and without_rerank) else 1
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
+        image_name=images_arrry[int(no_wrapper)][int(without_rerank)], replicas=chatqna_deploy_replicas
+    )
+
+    # 2. embedding deploy
+    embedding_deploy_replicas = service_replicas if (not no_wrapper and without_rerank) else 1
+    embedding_deploy, embedding_deploy_svc = (None, None) if no_wrapper else \
+        create_embedding_svc_deployment_and_service(replicas=embedding_deploy_replicas)
+
+    # 3. lm_deploy
+    lm_deploy_replicas = service_replicas if (not no_wrapper and without_rerank) else 1
+    lm_deploy, lm_deploy_svc = (None, None) if no_wrapper else \
+        create_llm_deployment_and_service(replicas=lm_deploy_replicas)
+
+    # 4. reranking svc
+    reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service() if \
+        (not no_wrapper and not without_rerank) else (None, None)
+
+    # 5. embedding dependency
+    embedding_dependency_replicas = embedding_replicas if (not no_wrapper and without_rerank) else 1
+    embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
+        replicas=embedding_dependency_replicas
+    )
+
+    # 6. llm_dependency
+    tgi_args = [
+        "--model-id",
+        "$(LLM_MODEL_ID)",
+        "--max-input-length",
+        "2048",
+        "--max-total-tokens",
+        "4096",
+        "--max-batch-total-tokens",
+        "65536",
+        "--max-batch-prefill-tokens",
+        "4096",
+    ] if (not no_wrapper and without_rerank) else None
+    llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
+        llm_hpu_cards, replicas=tgi_replicas, args=tgi_args
+    )
+
+    # 7. reranking dependency
+    reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
+    reranking_dependency, reranking_dependency_svc = (None, None) if without_rerank else \
+        create_reranking_dependency_deployment_and_service(
+            reranking_hpu_cards
+        )
+
+    # 8. others
+    retrieval_deploy_replicas = service_replicas if (not no_wrapper and without_rerank) else 1
+    retrieval_deploy, retrieval_svc = create_retriever_deployment_and_service(replicas=retrieval_deploy_replicas)
+    vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
+    dataprep_deploy, dataprep_svc = create_dataprep_deployment_and_service()
+
+    # manifests
+    manifests = [
+        configmap,
+        chatqna_deploy,
+        chatqna_svc,
+        dataprep_deploy,
+        dataprep_svc,
+        embedding_dependency,
+        embedding_dependency_svc
+    ]
+
+    if embedding_deploy:
+        manifests.extend([embedding_deploy, embedding_deploy_svc])
+
+    manifests.extend([llm_dependency, llm_dependency_svc])
+    if lm_deploy:
+        manifests.extend([lm_deploy, lm_deploy_svc])
+
+    if reranking_dependency:
+        manifests.extend([reranking_dependency, reranking_dependency_svc])
+    if reranking_svc:
+        manifests.extend([reranking_svc, reranking_svc_svc])
+
+    manifests.extend([retrieval_deploy, retrieval_svc, vector_db_deploy, vector_db_svc])
+
+    save_to_yaml(manifests, output_filename)
+
+def build_tuned_chatqna_manifests(
+    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1,
+    no_wrapper=False, without_rerank=False
+):
+    configmap = create_no_wrapper_configmap_object(service_info) if no_wrapper \
+        else create_configmap_object(service_info)
+
+    guaranteed_resource = create_resource_requirements(
+        limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
+    )
+
+    burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
+
+    tgi_args = [
+        "--model-id",
+        "$(LLM_MODEL_ID)",
+        "--max-input-length",
+        "1280",
+        "--max-total-tokens",
+        "2048",
+        "--max-batch-total-tokens",
+        "65536",
+        "--max-batch-prefill-tokens",
+        "4096",
+    ] if no_wrapper else [
+        "--model-id",
+        "$(LLM_MODEL_ID)",
+        "--max-input-length",
+        "1024",
+        "--max-total-tokens",
+        "2048",
+        "--max-batch-total-tokens",
+        "65536",
+        "--max-batch-prefill-tokens",
+        "4096",
+    ]
+
+    # Microservice
+    # 1. chatqna deploy
+    # [warpper, rerank]
+    images_arrry = [
+        ["opea/chatqna:latest", "opea/chatqna-without-rerank:latest"],
+        ["opea/chatqna-no-wrapper:latest", "opea/chatqna-no-wrapper-without-rerank:latest"],
+    ]
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
+        guaranteed_resource,
+        image_name=images_arrry[int(no_wrapper)][int(without_rerank)],
+        replicas=service_replicas
+    )
+
+    # 2. embedding deploy
+    embedding_deploy, embedding_deploy_svc = (None, None) if no_wrapper else \
+        create_embedding_svc_deployment_and_service(burstable_resource, replicas=service_replicas)
+
+    # 3. lm_deploy
+    lm_deploy, lm_deploy_svc = (None, None) if no_wrapper else \
+        create_llm_deployment_and_service(burstable_resource, replicas=service_replicas)
+
+    # 4. reranking svc
+    reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(
+        burstable_resource, replicas=service_replicas
+    ) if (not no_wrapper and not without_rerank) else (None, None)
+
+    # 5. embedding dependency
+    embedding_dependency_resource = create_resource_requirements(
+        limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
+    )
+    embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
+        embedding_dependency_resource, replicas=embedding_replicas
+    )
+
+    # 6. llm_dependency
+    llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
+        llm_hpu_cards, replicas=tgi_replicas, args=tgi_args
+    )
+
+    # 7. reranking dependency
+    reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
+    reranking_dependency, reranking_dependency_svc = (None, None) if without_rerank else \
+        create_reranking_dependency_deployment_and_service(
+            reranking_hpu_cards
+        )
+
+    # 8. others
+    retrieval_deploy, retrieval_svc = create_retriever_deployment_and_service(
+        burstable_resource, replicas=service_replicas
+    )
+    vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
+    dataprep_deploy, dataprep_svc = create_dataprep_deployment_and_service()
+
+    # manifests
+    manifests = [
+        configmap,
+        chatqna_deploy,
+        chatqna_svc,
+        dataprep_deploy,
+        dataprep_svc,
+        embedding_dependency,
+        embedding_dependency_svc
+    ]
+
+    if embedding_deploy:
+        manifests.extend([embedding_deploy, embedding_deploy_svc])
+
+    manifests.extend([llm_dependency, llm_dependency_svc])
+    if lm_deploy:
+        manifests.extend([lm_deploy, lm_deploy_svc])
+
+    if reranking_dependency:
+        manifests.extend([reranking_dependency, reranking_dependency_svc])
+    if reranking_svc:
+        manifests.extend([reranking_svc, reranking_svc_svc])
+
+    manifests.extend([retrieval_deploy, retrieval_svc, vector_db_deploy, vector_db_svc])
+
+    save_to_yaml(manifests, output_filename)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Read and parse JSON/YAML files and output JSON file")
@@ -560,4 +809,65 @@ if __name__ == "__main__":
 
     service_info = load_service_info(args.service_info)
 
-    build_chatqna_manifests(service_info)
+    # build_chatqna_manifests(service_info)
+
+    # build_no_wrapper_chatqna_manifests(service_info)
+
+    no_wrapper_choices = [True, False]
+    without_rerank_choices = [True, False]
+
+    # build oob chatqna manifests
+    oob_gaudi_tgi_replicas = {"single_gaudi": 7, "two_gaudi": 15, "four_gaudi": 31}
+    for no_wrapper in no_wrapper_choices:
+        for without_rerank in without_rerank_choices:
+            for g_node, tgi_replicas in oob_gaudi_tgi_replicas.items():
+                output_filename = "no_wrapper_" if no_wrapper else "oob_"
+                output_filename += g_node
+                output_filename += "_with_rerank.yaml" if not without_rerank else "_without_rerank.yaml"
+                build_oob_chatqna_manifests(
+                    service_info, output_filename=output_filename, tgi_replicas=tgi_replicas,
+                    no_wrapper=no_wrapper, without_rerank=without_rerank
+                )
+
+    # build tuned chatqna manifests
+    # [g_node: [tgi_replicas, embedding_replicas, service_replicas]]
+    tuned_gaudi_replicas_no_warpper_wo_rerank = {
+        "single_gaudi": [8, 1, 2],
+        "two_gaudi": [16, 2, 2],
+        "four_gaudi": [32, 4, 4]
+    }
+    tuned_gaudi_replicas_wrapper_wo_rerank = {
+        "single_gaudi": [8, 1, 1],
+        "two_gaudi": [16, 2, 2],
+        "four_gaudi": [32, 4, 4]
+    }
+    tuned_gaudi_replicas_no_wrapper_w_rerank = {
+        "single_gaudi": [7, 1, 2],
+        "two_gaudi": [15, 2, 2],
+        "four_gaudi": [31, 4, 4],
+        "eight_gaudi": [63, 8, 8]
+    }
+    tuned_gaudi_replicas_wrapper_w_rerank = {
+        "single_gaudi": [7, 1, 1],
+        "two_gaudi": [15, 2, 2],
+        "four_gaudi": [31, 4, 4],
+    }
+
+    tuned_gaudi_replicas_map = [
+        [tuned_gaudi_replicas_wrapper_w_rerank, tuned_gaudi_replicas_wrapper_wo_rerank],
+        [tuned_gaudi_replicas_no_wrapper_w_rerank, tuned_gaudi_replicas_no_warpper_wo_rerank],
+    ]
+
+    for no_wrapper in no_wrapper_choices:
+        for without_rerank in without_rerank_choices:
+            for g_node, replicas in tuned_gaudi_replicas_map[int(no_wrapper)][int(without_rerank)].items():
+                output_filename = "no_wrapper_tuned_" if no_wrapper else "tuned_"
+                output_filename += g_node
+                output_filename += "_with_rerank.yaml" if not without_rerank else "_without_rerank.yaml"
+                build_tuned_chatqna_manifests(
+                    service_info, output_filename=output_filename, tgi_replicas=replicas[0],
+                    embedding_replicas=replicas[1], service_replicas=replicas[2],
+                    no_wrapper=no_wrapper, without_rerank=without_rerank
+                )
+
+    build_chatqna_manifests(service_info, "ChatQnA_E2E_manifests.yaml")
