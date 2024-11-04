@@ -54,11 +54,12 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc
             # due to llava-tgi-gaudi should receive image as input; Otherwise, the generated text is bad.
             raise HTTPException(status_code=500, detail="There is no video segments retrieved given the query!")
         img_b64_str = retrieved_metadatas[0]["b64_img_str"]
+        has_image = img_b64_str != ""
         initial_query = request.initial_query
         context = retrieved_metadatas[0]["transcript_for_inference"]
         prompt = initial_query
         if request.chat_template is None:
-            prompt = ChatTemplate.generate_multimodal_rag_on_videos_prompt(initial_query, context)
+            prompt = ChatTemplate.generate_multimodal_rag_on_videos_prompt(initial_query, context, has_image)
         else:
             prompt_template = PromptTemplate.from_template(request.chat_template)
             input_variables = prompt_template.input_variables
@@ -87,7 +88,14 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc
         top_k = request.top_k
         top_p = request.top_p
 
-    image = f"data:image/png;base64,{img_b64_str}"
+    if img_b64_str:
+        image = f"data:image/png;base64,{img_b64_str}"
+    else:
+        # Work around an issue where LLaVA-NeXT is not providing good responses when prompted without an image.
+        # Provide an image and then instruct the model to ignore the image.
+        image = "https://raw.githubusercontent.com/opea-project/GenAIExamples/refs/tags/v1.0/AudioQnA/ui/svelte/src/lib/assets/icons/png/audio1.png"
+        prompt = f"Please disregard the image and answer the question. {prompt}"
+
     image_prompt = f"![]({image})\n{prompt}\nASSISTANT:"
 
     if streaming:
