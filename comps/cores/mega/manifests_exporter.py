@@ -1099,11 +1099,10 @@ if __name__ == "__main__":
 
     service_info = load_service_info(args.service_info)
 
-
     build_no_wrapper_oob_chatqna_manifests_with_rerank(
         service_info, tgi_replicas=7, output_filename="no_wrapper_single_gaudi_with_rerank.yaml"
     )
-    
+
     build_no_wrapper_tuned_chatqna_manifests_with_rerank(
         service_info,
         tgi_replicas=7,
