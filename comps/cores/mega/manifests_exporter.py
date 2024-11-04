@@ -586,12 +586,19 @@ def build_chatqna_manifests(service_info=None, output_filename=None):
 
     save_to_yaml(manifests, output_filename)
 
+
 def build_oob_chatqna_manifests(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1,
-    no_wrapper=False, without_rerank=False
+    service_info=None,
+    output_filename=None,
+    tgi_replicas=1,
+    embedding_replicas=1,
+    service_replicas=1,
+    no_wrapper=False,
+    without_rerank=False,
 ):
-    configmap = create_no_wrapper_configmap_object(service_info) if no_wrapper \
-        else create_configmap_object(service_info)
+    configmap = (
+        create_no_wrapper_configmap_object(service_info) if no_wrapper else create_configmap_object(service_info)
+    )
 
     # Microservice
     # 1. chatqna deploy
@@ -600,24 +607,27 @@ def build_oob_chatqna_manifests(
         ["opea/chatqna:latest", "opea/chatqna-without-rerank:latest"],
         ["opea/chatqna-no-wrapper:latest", "opea/chatqna-no-wrapper-without-rerank:latest"],
     ]
-    chatqna_deploy_replicas= service_replicas if (not no_wrapper and without_rerank) else 1
+    chatqna_deploy_replicas = service_replicas if (not no_wrapper and without_rerank) else 1
     chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
         image_name=images_arrry[int(no_wrapper)][int(without_rerank)], replicas=chatqna_deploy_replicas
     )
 
     # 2. embedding deploy
     embedding_deploy_replicas = service_replicas if (not no_wrapper and without_rerank) else 1
-    embedding_deploy, embedding_deploy_svc = (None, None) if no_wrapper else \
-        create_embedding_svc_deployment_and_service(replicas=embedding_deploy_replicas)
+    embedding_deploy, embedding_deploy_svc = (
+        (None, None) if no_wrapper else create_embedding_svc_deployment_and_service(replicas=embedding_deploy_replicas)
+    )
 
     # 3. lm_deploy
     lm_deploy_replicas = service_replicas if (not no_wrapper and without_rerank) else 1
-    lm_deploy, lm_deploy_svc = (None, None) if no_wrapper else \
-        create_llm_deployment_and_service(replicas=lm_deploy_replicas)
+    lm_deploy, lm_deploy_svc = (
+        (None, None) if no_wrapper else create_llm_deployment_and_service(replicas=lm_deploy_replicas)
+    )
 
     # 4. reranking svc
-    reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service() if \
-        (not no_wrapper and not without_rerank) else (None, None)
+    reranking_svc, reranking_svc_svc = (
+        create_reranking_deployment_and_service() if (not no_wrapper and not without_rerank) else (None, None)
+    )
 
     # 5. embedding dependency
     embedding_dependency_replicas = embedding_replicas if (not no_wrapper and without_rerank) else 1
@@ -626,18 +636,22 @@ def build_oob_chatqna_manifests(
     )
 
     # 6. llm_dependency
-    tgi_args = [
-        "--model-id",
-        "$(LLM_MODEL_ID)",
-        "--max-input-length",
-        "2048",
-        "--max-total-tokens",
-        "4096",
-        "--max-batch-total-tokens",
-        "65536",
-        "--max-batch-prefill-tokens",
-        "4096",
-    ] if (not no_wrapper and without_rerank) else None
+    tgi_args = (
+        [
+            "--model-id",
+            "$(LLM_MODEL_ID)",
+            "--max-input-length",
+            "2048",
+            "--max-total-tokens",
+            "4096",
+            "--max-batch-total-tokens",
+            "65536",
+            "--max-batch-prefill-tokens",
+            "4096",
+        ]
+        if (not no_wrapper and without_rerank)
+        else None
+    )
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
         llm_hpu_cards, replicas=tgi_replicas, args=tgi_args
@@ -645,10 +659,9 @@ def build_oob_chatqna_manifests(
 
     # 7. reranking dependency
     reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    reranking_dependency, reranking_dependency_svc = (None, None) if without_rerank else \
-        create_reranking_dependency_deployment_and_service(
-            reranking_hpu_cards
-        )
+    reranking_dependency, reranking_dependency_svc = (
+        (None, None) if without_rerank else create_reranking_dependency_deployment_and_service(reranking_hpu_cards)
+    )
 
     # 8. others
     retrieval_deploy_replicas = service_replicas if (not no_wrapper and without_rerank) else 1
@@ -664,7 +677,7 @@ def build_oob_chatqna_manifests(
         dataprep_deploy,
         dataprep_svc,
         embedding_dependency,
-        embedding_dependency_svc
+        embedding_dependency_svc,
     ]
 
     if embedding_deploy:
@@ -683,12 +696,19 @@ def build_oob_chatqna_manifests(
 
     save_to_yaml(manifests, output_filename)
 
+
 def build_tuned_chatqna_manifests(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1,
-    no_wrapper=False, without_rerank=False
+    service_info=None,
+    output_filename=None,
+    tgi_replicas=1,
+    embedding_replicas=1,
+    service_replicas=1,
+    no_wrapper=False,
+    without_rerank=False,
 ):
-    configmap = create_no_wrapper_configmap_object(service_info) if no_wrapper \
-        else create_configmap_object(service_info)
+    configmap = (
+        create_no_wrapper_configmap_object(service_info) if no_wrapper else create_configmap_object(service_info)
+    )
 
     guaranteed_resource = create_resource_requirements(
         limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
@@ -696,29 +716,33 @@ def build_tuned_chatqna_manifests(
 
     burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
 
-    tgi_args = [
-        "--model-id",
-        "$(LLM_MODEL_ID)",
-        "--max-input-length",
-        "1280",
-        "--max-total-tokens",
-        "2048",
-        "--max-batch-total-tokens",
-        "65536",
-        "--max-batch-prefill-tokens",
-        "4096",
-    ] if no_wrapper else [
-        "--model-id",
-        "$(LLM_MODEL_ID)",
-        "--max-input-length",
-        "1024",
-        "--max-total-tokens",
-        "2048",
-        "--max-batch-total-tokens",
-        "65536",
-        "--max-batch-prefill-tokens",
-        "4096",
-    ]
+    tgi_args = (
+        [
+            "--model-id",
+            "$(LLM_MODEL_ID)",
+            "--max-input-length",
+            "1280",
+            "--max-total-tokens",
+            "2048",
+            "--max-batch-total-tokens",
+            "65536",
+            "--max-batch-prefill-tokens",
+            "4096",
+        ]
+        if no_wrapper
+        else [
+            "--model-id",
+            "$(LLM_MODEL_ID)",
+            "--max-input-length",
+            "1024",
+            "--max-total-tokens",
+            "2048",
+            "--max-batch-total-tokens",
+            "65536",
+            "--max-batch-prefill-tokens",
+            "4096",
+        ]
+    )
 
     # Microservice
     # 1. chatqna deploy
@@ -728,23 +752,27 @@ def build_tuned_chatqna_manifests(
         ["opea/chatqna-no-wrapper:latest", "opea/chatqna-no-wrapper-without-rerank:latest"],
     ]
     chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
-        guaranteed_resource,
-        image_name=images_arrry[int(no_wrapper)][int(without_rerank)],
-        replicas=service_replicas
+        guaranteed_resource, image_name=images_arrry[int(no_wrapper)][int(without_rerank)], replicas=service_replicas
     )
 
     # 2. embedding deploy
-    embedding_deploy, embedding_deploy_svc = (None, None) if no_wrapper else \
-        create_embedding_svc_deployment_and_service(burstable_resource, replicas=service_replicas)
+    embedding_deploy, embedding_deploy_svc = (
+        (None, None)
+        if no_wrapper
+        else create_embedding_svc_deployment_and_service(burstable_resource, replicas=service_replicas)
+    )
 
     # 3. lm_deploy
-    lm_deploy, lm_deploy_svc = (None, None) if no_wrapper else \
-        create_llm_deployment_and_service(burstable_resource, replicas=service_replicas)
+    lm_deploy, lm_deploy_svc = (
+        (None, None) if no_wrapper else create_llm_deployment_and_service(burstable_resource, replicas=service_replicas)
+    )
 
     # 4. reranking svc
-    reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(
-        burstable_resource, replicas=service_replicas
-    ) if (not no_wrapper and not without_rerank) else (None, None)
+    reranking_svc, reranking_svc_svc = (
+        create_reranking_deployment_and_service(burstable_resource, replicas=service_replicas)
+        if (not no_wrapper and not without_rerank)
+        else (None, None)
+    )
 
     # 5. embedding dependency
     embedding_dependency_resource = create_resource_requirements(
@@ -762,10 +790,9 @@ def build_tuned_chatqna_manifests(
 
     # 7. reranking dependency
     reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    reranking_dependency, reranking_dependency_svc = (None, None) if without_rerank else \
-        create_reranking_dependency_deployment_and_service(
-            reranking_hpu_cards
-        )
+    reranking_dependency, reranking_dependency_svc = (
+        (None, None) if without_rerank else create_reranking_dependency_deployment_and_service(reranking_hpu_cards)
+    )
 
     # 8. others
     retrieval_deploy, retrieval_svc = create_retriever_deployment_and_service(
@@ -782,7 +809,7 @@ def build_tuned_chatqna_manifests(
         dataprep_deploy,
         dataprep_svc,
         embedding_dependency,
-        embedding_dependency_svc
+        embedding_dependency_svc,
     ]
 
     if embedding_deploy:
@@ -800,6 +827,7 @@ def build_tuned_chatqna_manifests(
     manifests.extend([retrieval_deploy, retrieval_svc, vector_db_deploy, vector_db_svc])
 
     save_to_yaml(manifests, output_filename)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Read and parse JSON/YAML files and output JSON file")
@@ -825,8 +853,11 @@ if __name__ == "__main__":
                 output_filename += g_node
                 output_filename += "_with_rerank.yaml" if not without_rerank else "_without_rerank.yaml"
                 build_oob_chatqna_manifests(
-                    service_info, output_filename=output_filename, tgi_replicas=tgi_replicas,
-                    no_wrapper=no_wrapper, without_rerank=without_rerank
+                    service_info,
+                    output_filename=output_filename,
+                    tgi_replicas=tgi_replicas,
+                    no_wrapper=no_wrapper,
+                    without_rerank=without_rerank,
                 )
 
     # build tuned chatqna manifests
@@ -834,18 +865,18 @@ if __name__ == "__main__":
     tuned_gaudi_replicas_no_warpper_wo_rerank = {
         "single_gaudi": [8, 1, 2],
         "two_gaudi": [16, 2, 2],
-        "four_gaudi": [32, 4, 4]
+        "four_gaudi": [32, 4, 4],
     }
     tuned_gaudi_replicas_wrapper_wo_rerank = {
         "single_gaudi": [8, 1, 1],
         "two_gaudi": [16, 2, 2],
-        "four_gaudi": [32, 4, 4]
+        "four_gaudi": [32, 4, 4],
     }
     tuned_gaudi_replicas_no_wrapper_w_rerank = {
         "single_gaudi": [7, 1, 2],
         "two_gaudi": [15, 2, 2],
         "four_gaudi": [31, 4, 4],
-        "eight_gaudi": [63, 8, 8]
+        "eight_gaudi": [63, 8, 8],
     }
     tuned_gaudi_replicas_wrapper_w_rerank = {
         "single_gaudi": [7, 1, 1],
@@ -865,9 +896,13 @@ if __name__ == "__main__":
                 output_filename += g_node
                 output_filename += "_with_rerank.yaml" if not without_rerank else "_without_rerank.yaml"
                 build_tuned_chatqna_manifests(
-                    service_info, output_filename=output_filename, tgi_replicas=replicas[0],
-                    embedding_replicas=replicas[1], service_replicas=replicas[2],
-                    no_wrapper=no_wrapper, without_rerank=without_rerank
+                    service_info,
+                    output_filename=output_filename,
+                    tgi_replicas=replicas[0],
+                    embedding_replicas=replicas[1],
+                    service_replicas=replicas[2],
+                    no_wrapper=no_wrapper,
+                    without_rerank=without_rerank,
                 )
 
     build_chatqna_manifests(service_info, "ChatQnA_E2E_manifests.yaml")
