@@ -9,7 +9,7 @@ from uvicorn import Config, Server
 
 from .base_service import BaseService
 from .base_statistics import collect_all_statistics
-
+import re
 
 class HTTPService(BaseService):
     """FastAPI HTTP service based on BaseService class.
@@ -35,8 +35,10 @@ class HTTPService(BaseService):
         self._app = self._create_app()
 
         # remove part before '@', used by register_microservice() callers, and
-        # part after '/', added by MicroService(), to get real service name
-        suffix = self.title.split("/")[0].split("@")[-1].lower()
+        # part after '/', added by MicroService(), to get real service name, and
+        # convert invalid characters to '_'
+        suffix = re.sub(r'[^a-zA-Z0-9]', '_', self.title.split("/")[0].split("@")[-1].lower())
+
         instrumentator = Instrumentator(
             inprogress_name=f"http_requests_inprogress_{suffix}",
             should_instrument_requests_inprogress=True,
