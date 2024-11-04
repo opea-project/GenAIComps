@@ -2,18 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import importlib
 
 from .config import env_config
-
-
-def wrap_chat(llm_endpoint, model_id):
-    from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-
-    if isinstance(llm_endpoint, HuggingFaceEndpoint):
-        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id)
-    else:
-        llm = llm_endpoint
-    return llm
 
 
 def format_date(date):
@@ -48,54 +39,30 @@ def setup_hf_tgi_client(args):
     }
 
     llm = HuggingFaceEndpoint(
-        endpoint_url=args.llm_endpoint_url,  ## endpoint_url = "localhost:8080",
+        endpoint_url=args.llm_endpoint_url,
         task="text-generation",
         **generation_params,
     )
     return llm
 
 
-def setup_vllm_client(args):
-    from langchain_openai import ChatOpenAI
-
-    openai_endpoint = f"{args.llm_endpoint_url}/v1"
-    params = {
-        "temperature": args.temperature,
-        "max_tokens": args.max_new_tokens,
-        "streaming": args.streaming,
-    }
-    llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)
-    return llm
-
-
-def setup_openai_client(args):
-    """Lower values for temperature result in more consistent outputs (e.g. 0.2),
-    while higher values generate more diverse and creative results (e.g. 1.0).
-
-    Select a temperature value based on the desired trade-off between coherence
-    and creativity for your specific application. The temperature can range is from 0 to 2.
-    """
+def setup_chat_model(args):
     from langchain_openai import ChatOpenAI
 
     params = {
         "temperature": args.temperature,
         "max_tokens": args.max_new_tokens,
+        "top_p": args.top_p,
         "streaming": args.streaming,
     }
-    llm = ChatOpenAI(model_name=args.model, **params)
-    return llm
-
-
-def setup_llm(args):
-    if args.llm_engine == "vllm":
-        model = setup_vllm_client(args)
-    elif args.llm_engine == "tgi":
-        model = setup_hf_tgi_client(args)
+    if args.llm_engine == "vllm" or args.llm_engine == "tgi":
+        openai_endpoint = f"{args.llm_endpoint_url}/v1"
+        llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)
     elif args.llm_engine == "openai":
-        model = setup_openai_client(args)
+        llm = ChatOpenAI(model_name=args.model, **params)
     else:
-        raise ValueError("Only supports vllm or hf_tgi mode for now")
-    return model
+        raise ValueError("llm_engine must be vllm, tgi or openai")
+    return llm
 
 
 def tool_renderer(tools):
@@ -122,6 +89,23 @@ def has_multi_tool_inputs(tools):
     return ret
 
 
+def load_python_prompt(file_dir_path: str):
+    print(file_dir_path)
+    spec = importlib.util.spec_from_file_location("custom_prompt", file_dir_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def adapt_custom_prompt(local_vars, custom_prompt):
+    # list attributes of module
+    if custom_prompt is not None:
+        custom_prompt_list = [k for k in dir(custom_prompt) if k[:2] != "__"]
+        for k in custom_prompt_list:
+            v = getattr(custom_prompt, k)
+            local_vars[k] = v
+
+
 def get_args():
     parser = argparse.ArgumentParser()
     # llm args
@@ -144,6 +128,7 @@ def get_args():
     parser.add_argument("--temperature", type=float, default=0.01)
     parser.add_argument("--repetition_penalty", type=float, default=1.03)
     parser.add_argument("--return_full_text", type=bool, default=False)
+    parser.add_argument("--custom_prompt", type=str, default=None)
 
     sys_args, unknown_args = parser.parse_known_args()
     # print("env_config: ", env_config)
