@@ -20,8 +20,8 @@ class BaseAgent:
 
         self.storage = None
         if agent_config.enable_session_persistence:
-            from llama_stack.providers.utils.kvstore import kvstore_impl
-            from llama_stack.providers.utils.kvstore import KVStoreConfig
+            from llama_stack.providers.utils.kvstore import KVStoreConfig, kvstore_impl
+
             # need async
             # self.persistence_store = await kvstore_impl(self.config.persistence_store)
             self.persistence_store = await kvstore_impl(KVStoreConfig())

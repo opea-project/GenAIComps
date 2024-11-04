@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-from comps.cores.proto.agents import AgentConfig 
+from comps.cores.proto.agents import AgentConfig
+
 from .utils import load_python_prompt
 
 
