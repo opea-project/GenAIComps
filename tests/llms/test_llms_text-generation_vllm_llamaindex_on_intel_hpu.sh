@@ -12,7 +12,7 @@ function build_docker_images() {
     cd $WORKPATH
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
-    docker build --no-cache -f Dockerfile.hpu -t opea/vllm-hpu:comps --shm-size=128g . 
+    docker build --no-cache -f Dockerfile.hpu -t opea/vllm-hpu:comps --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-hpu built fail"
         exit 1
