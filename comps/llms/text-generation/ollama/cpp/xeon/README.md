@@ -1,12 +1,13 @@
 # Introduction
 
 This Ollama server was compiled from the [official Ollama repository](https://github.com/ollama/ollama) with additional flags suitable for Intel Xeon CPU. Below are the compilation flags:
-- `DGGML_AVX=on` 
-- `DGGML_AVX2=on` 
-- `DGGML_F16C=on` 
-- `DGGML_FMA=on` 
-- `DGGML_AVX512=on` 
-- `DGGML_AVX512_VNNI=on` 
+
+- `DGGML_AVX=on`
+- `DGGML_AVX2=on`
+- `DGGML_F16C=on`
+- `DGGML_FMA=on`
+- `DGGML_AVX512=on`
+- `DGGML_AVX512_VNNI=on`
 - `DGGML_AVX512_VBMI=on`
 
 ## Usage
