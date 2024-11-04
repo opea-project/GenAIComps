@@ -31,6 +31,8 @@ class ServiceType(Enum):
     WEB_RETRIEVER = 14
     IMAGE2VIDEO = 15
     TEXT2IMAGE = 16
+    ANIMATION = 17
+    IMAGE2IMAGE = 18
 
 
 class MegaServiceEndpoint(Enum):
@@ -49,6 +51,7 @@ class MegaServiceEndpoint(Enum):
     TRANSLATION = "/v1/translation"
     RETRIEVALTOOL = "/v1/retrievaltool"
     FAQ_GEN = "/v1/faqgen"
+    GRAPH_RAG = "/v1/graphrag"
     # Follow OPENAI
     EMBEDDINGS = "/v1/embeddings"
     TTS = "/v1/audio/speech"
@@ -59,6 +62,7 @@ class MegaServiceEndpoint(Enum):
     GUARDRAILS = "/v1/guardrails"
     RAGAS = "/v1/ragas"
     GRAPHS = "/v1/graphs"
+    AVATAR_CHATBOT = "/v1/avatarchatbot"
 
     # COMMON
     LIST_SERVICE = "/v1/list_service"

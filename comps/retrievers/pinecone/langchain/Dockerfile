@@ -17,9 +17,9 @@ COPY comps /home/user/comps
 
 USER user
 
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/pinecone/langchain/requirements.txt
+    pip install --no-cache-dir --no-warn-script-location -r /home/user/comps/retrievers/pinecone/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

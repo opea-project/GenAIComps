@@ -4,17 +4,18 @@
 from uuid import uuid4
 
 from ..tools import get_tools_descriptions
-from ..utils import setup_llm
+from ..utils import adapt_custom_prompt, setup_chat_model
 
 
 class BaseAgent:
-    def __init__(self, args) -> None:
-        self.llm_endpoint = setup_llm(args)
+    def __init__(self, args, local_vars=None, **kwargs) -> None:
+        self.llm = setup_chat_model(args)
         self.tools_descriptions = get_tools_descriptions(args.tools)
         self.app = None
         self.memory = None
         self.id = f"assistant_{self.__class__.__name__}_{uuid4()}"
         self.args = args
+        adapt_custom_prompt(local_vars, kwargs.get("custom_prompt"))
         print(self.tools_descriptions)
 
     @property
