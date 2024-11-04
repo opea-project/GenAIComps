@@ -210,8 +210,8 @@ class ReActAgentNodeLlama:
 
 
 class ReActAgentLlama(BaseAgent):
-    def __init__(self, args, with_memory=False, **kwargs):
-        super().__init__(args, local_vars=globals(), **kwargs)
+    def __init__(self, args, agent_config=None, **kwargs):
+        super().__init__(args, local_vars=globals(), agent_config=agent_config, **kwargs)
         agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args)
         tool_node = ToolNode(self.tools_descriptions)
 
@@ -265,7 +265,26 @@ class ReActAgentLlama(BaseAgent):
             return "continue"
 
     def prepare_initial_state(self, query):
-        return {"messages": [HumanMessage(content=query)]}
+
+        session_info = await self.storage.get_session_info(request.session_id)
+        if session_info is None:
+            raise ValueError(f"Session {request.session_id} not found")
+
+        turns = await self.storage.get_session_turns(request.session_id)
+
+        messages = []
+        if len(turns) == 0 and self.agent_config.instructions != "":
+            messages.append(SystemMessage(content=self.agent_config.instructions))
+
+        for i, turn in enumerate(turns):
+            messages.extend(self.turn_to_messages(turn))
+
+        messages.extend(request.messages)
+
+        self.turn_id = str(uuid.uuid4())
+
+        # return {"messages": [HumanMessage(content=query)]}
+        return {"messages": messages}
 
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
@@ -276,6 +295,17 @@ class ReActAgentLlama(BaseAgent):
                     for k, v in node_state.items():
                         if v is not None:
                             yield f"{k}: {v}\n"
+
+                turn = Turn(
+                    turn_id=turn_id,
+                    session_id=request.session_id,
+                    input_messages=request.messages,
+                    output_message=output_message,
+                    started_at=start_time,
+                    completed_at=datetime.now(),
+                    steps=steps,
+                )
+                await self.storage.add_turn_to_session(request.session_id, turn)
 
                 yield f"data: {repr(event)}\n\n"
             yield "data: [DONE]\n\n"
@@ -291,6 +321,17 @@ class ReActAgentLlama(BaseAgent):
                     print(message)
                 else:
                     message.pretty_print()
+
+                turn = Turn(
+                    turn_id=turn_id,
+                    session_id=request.session_id,
+                    input_messages=request.messages,
+                    output_message=output_message,
+                    started_at=start_time,
+                    completed_at=datetime.now(),
+                    steps=steps,
+                )
+                await self.storage.add_turn_to_session(request.session_id, turn)
 
             last_message = s["messages"][-1]
             print("******Response: ", last_message.content)
