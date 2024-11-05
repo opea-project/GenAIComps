@@ -146,18 +146,16 @@ bash launch_vllm_service_openvino.sh -d gpu
 ```
 
 #### Performance tips
-----------------
+
+---
 
 vLLM OpenVINO backend environment variables
 
-
-- `VLLM_OPENVINO_DEVICE` to specify which device utilize for the inference. If there are multiple GPUs in the system, additional indexes can be used to choose the proper one (e.g, ``VLLM_OPENVINO_DEVICE=GPU.1``). If the value is not specified, CPU device is used by default.
+- `VLLM_OPENVINO_DEVICE` to specify which device utilize for the inference. If there are multiple GPUs in the system, additional indexes can be used to choose the proper one (e.g, `VLLM_OPENVINO_DEVICE=GPU.1`). If the value is not specified, CPU device is used by default.
 
 - `VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON` to enable U8 weights compression during model loading stage. By default, compression is turned off. You can also export model with different compression techniques using `optimum-cli` and pass exported folder as `<model_id>`
 
-
 ##### CPU performance tips
-
 
 vLLM OpenVINO backend uses the following environment variables to control behavior:
 
@@ -176,7 +174,7 @@ OpenVINO best known configuration is:
 
 ##### GPU performance tips
 
-GPU device implements the logic for automatic detection of available GPU memory and, by default, tries to reserve as much memory as possible for the KV cache (taking into account ``gpu_memory_utilization`` option). However, this behavior can be overridden by explicitly specifying the desired amount of memory for the KV cache using ``VLLM_OPENVINO_KVCACHE_SPACE`` environment variable (e.g, ``VLLM_OPENVINO_KVCACHE_SPACE=8`` means 8 GB space for KV cache).
+GPU device implements the logic for automatic detection of available GPU memory and, by default, tries to reserve as much memory as possible for the KV cache (taking into account `gpu_memory_utilization` option). However, this behavior can be overridden by explicitly specifying the desired amount of memory for the KV cache using `VLLM_OPENVINO_KVCACHE_SPACE` environment variable (e.g, `VLLM_OPENVINO_KVCACHE_SPACE=8` means 8 GB space for KV cache).
 
 Currently, the best performance using GPU can be achieved with the default vLLM execution parameters for models with quantized weights (8 and 4-bit integer data types are supported) and `preemption-mode=swap`.
 
@@ -184,7 +182,6 @@ OpenVINO best known configuration for GPU is:
 
     $ VLLM_OPENVINO_DEVICE=GPU VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON \
         python3 vllm/benchmarks/benchmark_throughput.py --model meta-llama/Llama-2-7b-chat-hf --dataset vllm/benchmarks/ShareGPT_V3_unfiltered_cleaned_split.json
-
 
 ### 2.4 Query the service
 
