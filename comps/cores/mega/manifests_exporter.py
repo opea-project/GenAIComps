@@ -277,116 +277,125 @@ def create_deployment_and_service(
     return deployment, service
 
 
+def build_deployment_and_service(all_configs, output_file="e2e_manifest.yaml"):
+    config_dict = all_configs.get("config_map", None)
+
+    config_map = create_configmap_object(config_dict=config_dict)
+    save_to_yaml([config_map], output_file)
+
+    all_manifests = []
+    for service_name, service_config in all_configs.items():
+        if service_name == "config_map":
+            continue
+
+        image = service_config.get("image", None)
+        ports = service_config.get("ports", None)
+        node_ports = service_config.get("node_ports", None)
+        volumes_path = service_config.get("volumes", None)
+        replicas = service_config.get("replicas", None)
+        resources = service_config.get("resources", None)
+        envs = service_config.get("envs", None)
+        options = service_config.get("options", None)
+        service_args = service_config.get("args", None)
+        type = service_config.get("type", None)
+
+        if type == "micro_service":
+            service_type = "ClusterIP"
+        elif type == "mega_service":
+            service_type = "NodePort"
+
+        if ports is not None:
+            formatted_ports = [
+                {
+                    "name": f"port{i+1}",
+                    "port": int(p.split(":")[0]),
+                    "target_port": int(p.split(":")[1]),
+                    **({"nodePort": int(node_ports[i])} if node_ports and i < len(node_ports) else {}),
+                }
+                for i, p in enumerate(ports)
+            ]
+
+            logging.debug(f"{formatted_ports}")
+
+        logging.debug(f"{service_args}")
+        logging.debug(f"{volumes_path}")
+        logging.debug(f"envs = {envs}")
+
+        allocated_resources = None
+        if resources is not None:
+            if resources.get("limits", None):
+                allocated_resources = create_resource_requirements(limits=resources["limits"])
+            else:
+                allocated_resources = create_resource_requirements(requests=resources["requests"])
+
+        volumes = None
+        volume_mounts = None
+        if volumes_path:
+            volumes = []
+            volume_mounts = []
+
+            # Process each path in the input list
+            for i, item in enumerate(volumes_path):
+                src, dest = item.split(":")
+
+                # Create volume for the source path
+                volumes.append(
+                    client.V1Volume(
+                        name=f"volume{i+1}",
+                        host_path=client.V1HostPathVolumeSource(path=src, type="Directory"),
+                    )
+                )
+
+                # Create volume mount for the destination path
+                volume_mounts.append(client.V1VolumeMount(name=f"volume{i+1}", mount_path=dest))
+
+            volumes.append(
+                client.V1Volume(
+                    name="shm", empty_dir=client.V1EmptyDirVolumeSource(medium="Memory", size_limit="1Gi")
+                )
+            )
+            volume_mounts.append(client.V1VolumeMount(name="shm", mount_path="/dev/shm"))
+
+        env = [
+            client.V1EnvVar(name="OMPI_MCA_btl_vader_single_copy_mechanism", value="none"),
+            client.V1EnvVar(name="PT_HPU_ENABLE_LAZY_COLLECTIVES", value="true"),
+            client.V1EnvVar(name="runtime", value="habana"),
+            client.V1EnvVar(name="HABANA_VISIBLE_DEVICES", value="all"),
+            client.V1EnvVar(name="HF_TOKEN", value="${HF_TOKEN}"),
+        ]
+
+        deployment, service = create_deployment_and_service(
+            service_name=service_name,
+            image_name=image,
+            args_list=service_args,
+            replicas=replicas,
+            resource_requirements=allocated_resources,
+            volumes=volumes,
+            volume_mounts=volume_mounts,
+            ports=formatted_ports,
+            service_type=service_type,
+        )
+        all_manifests = [deployment, service]
+        save_to_yaml(all_manifests, output_file)
+
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Read and parse JSON/YAML files and output JSON file")
-
-    args = parser.parse_args()
-
-    with open("/home/zhenzhong/repo/opea/forked/yaoqing/GenAIComps/tests/cores/mega/mega.yaml", "r") as file:
+    with open("../../..//tests/cores/mega/mega.yaml", "r") as file:
         input_data = yaml.safe_load(file)
 
     input_data = replace_env_vars(input_data)
     all_configs = extract_service_configs(input_data)
 
-    def build_deployment_and_service(all_configs, output_file="e2e_manifest.yaml"):
-        config_dict = all_configs.get("config_map", None)
-
-        config_map = create_configmap_object(config_dict=config_dict)
-        save_to_yaml([config_map], output_file)
-
-        all_manifests = []
-        for service_name, service_config in all_configs.items():
-            if service_name == "config_map":
-                continue
-
-            image = service_config.get("image", None)
-            ports = service_config.get("ports", None)
-            node_ports = service_config.get("node_ports", None)
-            volumes_path = service_config.get("volumes", None)
-            replicas = service_config.get("replicas", None)
-            resources = service_config.get("resources", None)
-            envs = service_config.get("envs", None)
-            options = service_config.get("options", None)
-            service_args = service_config.get("args", None)
-            type = service_config.get("type", None)
-
-            if type == "micro_service":
-                service_type = "ClusterIP"
-            elif type == "mega_service":
-                service_type = "NodePort"
-
-            if ports is not None:
-                formatted_ports = [
-                    {
-                        "name": f"port{i+1}",
-                        "port": int(p.split(":")[0]),
-                        "target_port": int(p.split(":")[1]),
-                        **({"nodePort": int(node_ports[i])} if node_ports and i < len(node_ports) else {}),
-                    }
-                    for i, p in enumerate(ports)
-                ]
-
-                logging.debug(f"{formatted_ports}")
-
-            logging.debug(f"{service_args}")
-            logging.debug(f"{volumes_path}")
-            logging.debug(f"envs = {envs}")
-
-            allocated_resources = None
-            if resources is not None:
-                if resources.get("limits", None):
-                    allocated_resources = create_resource_requirements(limits=resources["limits"])
-                else:
-                    allocated_resources = create_resource_requirements(requests=resources["requests"])
-
-            volumes = None
-            volume_mounts = None
-            if volumes_path:
-                volumes = []
-                volume_mounts = []
-
-                # Process each path in the input list
-                for i, item in enumerate(volumes_path):
-                    src, dest = item.split(":")
-
-                    # Create volume for the source path
-                    volumes.append(
-                        client.V1Volume(
-                            name=f"volume{i+1}",
-                            host_path=client.V1HostPathVolumeSource(path=src, type="Directory"),
-                        )
-                    )
-
-                    # Create volume mount for the destination path
-                    volume_mounts.append(client.V1VolumeMount(name=f"volume{i+1}", mount_path=dest))
-
-                volumes.append(
-                    client.V1Volume(
-                        name="shm", empty_dir=client.V1EmptyDirVolumeSource(medium="Memory", size_limit="1Gi")
-                    )
-                )
-                volume_mounts.append(client.V1VolumeMount(name="shm", mount_path="/dev/shm"))
-
-            env = [
-                client.V1EnvVar(name="OMPI_MCA_btl_vader_single_copy_mechanism", value="none"),
-                client.V1EnvVar(name="PT_HPU_ENABLE_LAZY_COLLECTIVES", value="true"),
-                client.V1EnvVar(name="runtime", value="habana"),
-                client.V1EnvVar(name="HABANA_VISIBLE_DEVICES", value="all"),
-                client.V1EnvVar(name="HF_TOKEN", value="${HF_TOKEN}"),
-            ]
-
-            deployment, service = create_deployment_and_service(
-                service_name=service_name,
-                image_name=image,
-                args_list=service_args,
-                replicas=replicas,
-                resource_requirements=allocated_resources,
-                volumes=volumes,
-                volume_mounts=volume_mounts,
-                ports=formatted_ports,
-                service_type=service_type,
-            )
-            all_manifests = [deployment, service]
-            save_to_yaml(all_manifests, output_file)
-
     build_deployment_and_service(all_configs, output_file="e2e_manifests.yaml")
+    
+
+def convert_to_manifests(input_yaml_path: str, output_file: str):
+    with open(input_yaml_path, "r") as file:
+        input_data = yaml.safe_load(file)
+
+    input_data = replace_env_vars(input_data)
+    all_configs = extract_service_configs(input_data)
+
+    build_deployment_and_service(all_configs, output_file=output_file)
+    
+    logging.info(f" {output_file} generated:")

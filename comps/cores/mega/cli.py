@@ -4,11 +4,12 @@
 import argparse
 
 from .exporter import convert_to_docker_compose
+from .manifests_exporter import convert_to_manifests
 
 
-def export_kubernetes_manifests(mega_yaml, output_dir, device="cpu"):
-    print(f"Generating Kubernetes manifests from {mega_yaml} to {output_dir}")
-    # Add your logic to convert the YAML to Kubernetes manifest here
+def export_kubernetes_manifests(mega_yaml, output_file):
+    print(f"Generating Kubernetes manifests from {mega_yaml} to {output_file}")
+    convert_to_manifests(mega_yaml, output_file)
 
 
 def export_docker_compose(mega_yaml, output_file):
