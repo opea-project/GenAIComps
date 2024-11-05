@@ -277,12 +277,14 @@ def create_deployment_and_service(
     return deployment, service
 
 
-def build_deployment_and_service(all_configs, output_file="e2e_manifest.yaml"):
+def build_configmap(all_configs, output_file="E2E_manifest.yaml"):
     config_dict = all_configs.get("config_map", None)
 
     config_map = create_configmap_object(config_dict=config_dict)
     save_to_yaml([config_map], output_file)
 
+
+def build_deployment_and_service(all_configs, output_file="E2E_manifest.yaml"):
     all_manifests = []
     for service_name, service_config in all_configs.items():
         if service_name == "config_map":
@@ -350,7 +352,9 @@ def build_deployment_and_service(all_configs, output_file="e2e_manifest.yaml"):
                 volume_mounts.append(client.V1VolumeMount(name=f"volume{i+1}", mount_path=dest))
 
             volumes.append(
-                client.V1Volume(name="shm", empty_dir=client.V1EmptyDirVolumeSource(medium="Memory", size_limit="1Gi"))
+                client.V1Volume(
+                    name="shm", empty_dir=client.V1EmptyDirVolumeSource(medium="Memory", size_limit="1Gi")
+                )
             )
             volume_mounts.append(client.V1VolumeMount(name="shm", mount_path="/dev/shm"))
 
@@ -377,14 +381,16 @@ def build_deployment_and_service(all_configs, output_file="e2e_manifest.yaml"):
         save_to_yaml(all_manifests, output_file)
 
 
-if __name__ == "__main__":
-    with open("../../..//tests/cores/mega/mega.yaml", "r") as file:
+def convert_to_deployment_and_service(input_yaml_path: str, output_file: str):
+    with open(input_yaml_path, "r") as file:
         input_data = yaml.safe_load(file)
 
     input_data = replace_env_vars(input_data)
     all_configs = extract_service_configs(input_data)
 
-    build_deployment_and_service(all_configs, output_file="e2e_manifests.yaml")
+    build_deployment_and_service(all_configs, output_file=output_file)
+    
+    logging.info(f" {output_file} generated:")
 
 
 def convert_to_manifests(input_yaml_path: str, output_file: str):
@@ -394,6 +400,21 @@ def convert_to_manifests(input_yaml_path: str, output_file: str):
     input_data = replace_env_vars(input_data)
     all_configs = extract_service_configs(input_data)
 
-    build_deployment_and_service(all_configs, output_file=output_file)
 
+    build_configmap(all_configs, output_file=output_file)
+    
+    build_deployment_and_service(all_configs, output_file=output_file)
+    
     logging.info(f" {output_file} generated:")
+
+
+if __name__ == "__main__":
+    with open("../../..//tests/cores/mega/mega.yaml", "r") as file:
+        input_data = yaml.safe_load(file)
+
+    input_data = replace_env_vars(input_data)
+    all_configs = extract_service_configs(input_data)
+
+    build_configmap(all_configs, output_file="E2E_manifests.yaml")
+    
+    build_deployment_and_service(all_configs, output_file="E2E_manifests.yaml")
