@@ -15,6 +15,11 @@ services:
       context: vllm-openvino
       dockerfile: Dockerfile.openvino
     image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
+  vllm-openvino-arc:
+    build:
+      context: vllm-openvino-arc
+      dockerfile: Dockerfile.openvino_arc
+    image: ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}
   llm-eval:
     build:
       dockerfile: comps/llms/utils/lm-eval/Dockerfile
