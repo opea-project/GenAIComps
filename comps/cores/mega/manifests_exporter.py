@@ -166,6 +166,7 @@ def save_to_yaml(manifests_list, file_name):
             yaml.dump(kubernetes_obj_to_dict(manifests), f, default_flow_style=False)
             f.write("---\n")
 
+
 def extract_service_configs(input_data: Dict) -> Dict:
 
     all_configs = {}
