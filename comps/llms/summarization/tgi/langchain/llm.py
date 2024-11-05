@@ -41,6 +41,7 @@ templ_zh = """请简要概括以下内容:
     endpoint="/v1/chat/docsum",
     host="0.0.0.0",
     port=9000,
+    llm_endpoint=os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080"),
 )
 async def llm_generate(input: LLMParamsDoc):
     if logflag:
