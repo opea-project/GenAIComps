@@ -1,16 +1,16 @@
 # # Copyright (C) 2024 Intel Corporation
 # # SPDX-License-Identifier: Apache-2.0
 import argparse
-import logging
-import os
-from typing import Any, Dict, List
 
 import yaml
-from exporter import convert_args_to_command, replace_env_vars
+import os
 from kubernetes import client
+from exporter import replace_env_vars, convert_args_to_command
+from typing import Any, Dict, List
+import logging
 
-log_level = os.getenv("LOGLEVEL", "INFO")
-logging.basicConfig(level=log_level.upper(), format="%(asctime)s - %(levelname)s - %(message)s")
+log_level = os.getenv('LOGLEVEL', 'INFO')
+logging.basicConfig(level=log_level.upper(), format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 def load_service_info(file_path=None):
@@ -101,9 +101,8 @@ def create_resource_requirements(limits=None, requests=None):
     :param requests: A dictionary of resource requests, e.g., {"cpu": "2", "memory": "4Gi"}
     :return: A V1ResourceRequirements object
     """
-    return client.V1ResourceRequirements(
-        limits=limits if limits is not None else None, requests=requests if requests is not None else None
-    )
+    return client.V1ResourceRequirements(limits=limits if limits is not None else None,
+                                         requests=requests if requests is not None else None)
 
 
 def create_configmap_object(config_dict=None, config_name="qna-config"):
@@ -246,7 +245,10 @@ def create_embedding_deployment_and_service(resource_requirements=None, replicas
     return deployment, service
 
 
-def create_embedding_svc_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
+def create_embedding_svc_deployment_and_service(resource_requirements=None,
+                                                replicas=1,
+                                                image_name=None,
+                                                args=None):
 
     deployment = create_k8s_resources(
         name="embedding-resources",
@@ -269,7 +271,10 @@ def create_embedding_svc_deployment_and_service(resource_requirements=None, repl
     return deployment, service
 
 
-def create_llm_dependency_deployment_and_service(resource_requirements=None, replicas=1, image_name=None, args=None):
+def create_llm_dependency_deployment_and_service(resource_requirements=None,
+                                                 replicas=1,
+                                                 image_name=None,
+                                                 args=None):
 
     if args is None:
         args = [
@@ -334,9 +339,10 @@ def create_llm_dependency_deployment_and_service(resource_requirements=None, rep
     return deployment, service
 
 
-def create_reranking_dependency_deployment_and_service(
-    resource_requirements=None, replicas=1, image_name=None, args=None
-):
+def create_reranking_dependency_deployment_and_service(resource_requirements=None,
+                                                       replicas=1,
+                                                       image_name=None,
+                                                       args=None):
 
     args = ["--model-id", "$(RERANK_MODEL_ID)", "--auto-truncate"]
 
@@ -388,9 +394,9 @@ def create_reranking_dependency_deployment_and_service(
             "target_port": 80,
         },
     ]
-    service = create_service(
-        name="reranking-dependency-svc", app_label="reranking-dependency-resources", service_ports=ports
-    )
+    service = create_service(name="reranking-dependency-svc",
+                             app_label="reranking-dependency-resources",
+                             service_ports=ports)
 
     return deployment, service
 
@@ -451,7 +457,12 @@ def create_chatqna_mega_deployment(resource_requirements=None, replicas=1, image
     )
 
     ports = [
-        {"name": "service", "port": 8888, "target_port": 8888, "nodePort": 30888},
+        {
+            "name": "service",
+            "port": 8888,
+            "target_port": 8888,
+            "nodePort": 30888
+        },
     ]
     service = create_service(
         name="chatqna-backend-server-svc",
@@ -517,8 +528,16 @@ def create_vector_db_deployment_and_service(resource_requirements=None, replicas
     )
 
     ports = [
-        {"name": "vector-db-service", "port": 6379, "target_port": 6379},
-        {"name": "vector-db-insight", "port": 8001, "target_port": 8001},
+        {
+            "name": "vector-db-service",
+            "port": 6379,
+            "target_port": 6379
+        },
+        {
+            "name": "vector-db-insight",
+            "port": 8001,
+            "target_port": 8001
+        },
     ]
     service = create_service(name="vector-db", app_label="vector-db", service_ports=ports)
 
@@ -539,33 +558,42 @@ def save_to_yaml(manifests_list, file_name):
 def build_chatqna_manifests(service_info=None, output_filename=None):
     configmap = create_configmap_object(service_info)
 
-    guaranteed_resource = create_resource_requirements(
-        limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
-    )
+    guaranteed_resource = create_resource_requirements(limits={
+        "cpu": 8,
+        "memory": "8000Mi"
+    },
+                                                       requests={
+                                                           "cpu": 8,
+                                                           "memory": "8000Mi"
+                                                       })
 
     burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
 
     # Microservice
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource, image_name="opea/chatqna:latest")
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource,
+                                                                 image_name="opea/chatqna:latest")
     embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource)
     reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(burstable_resource)
     lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(burstable_resource)
 
     # Embedding, Reranking and LLM
-    embedding_dependency_resource = create_resource_requirements(
-        limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
-    )
+    embedding_dependency_resource = create_resource_requirements(limits={
+        "cpu": 80,
+        "memory": "20000Mi"
+    },
+                                                                 requests={
+                                                                     "cpu": 80,
+                                                                     "memory": "20000Mi"
+                                                                 })
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
-        embedding_dependency_resource
-    )
+        embedding_dependency_resource)
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards)
 
     reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     reranking_dependency, reranking_dependency_svc = create_reranking_dependency_deployment_and_service(
-        reranking_hpu_cards
-    )
+        reranking_hpu_cards)
 
     retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource)
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
@@ -598,14 +626,21 @@ def build_chatqna_manifests(service_info=None, output_filename=None):
     save_to_yaml(manifests, output_filename)
 
 
-def build_tuned_chatqna_manifests_with_rerank(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1
-):
+def build_tuned_chatqna_manifests_with_rerank(service_info=None,
+                                              output_filename=None,
+                                              tgi_replicas=1,
+                                              embedding_replicas=1,
+                                              service_replicas=1):
     configmap = create_configmap_object(service_info)
 
-    guaranteed_resource = create_resource_requirements(
-        limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
-    )
+    guaranteed_resource = create_resource_requirements(limits={
+        "cpu": 8,
+        "memory": "8000Mi"
+    },
+                                                       requests={
+                                                           "cpu": 8,
+                                                           "memory": "8000Mi"
+                                                       })
 
     burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
 
@@ -622,37 +657,37 @@ def build_tuned_chatqna_manifests_with_rerank(
         "4096",
     ]
 
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
-        guaranteed_resource, image_name="opea/chatqna:latest", replicas=service_replicas
-    )
-    embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(
-        burstable_resource, replicas=service_replicas
-    )
-    reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(
-        burstable_resource, replicas=service_replicas
-    )
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource,
+                                                                 image_name="opea/chatqna:latest",
+                                                                 replicas=service_replicas)
+    embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource,
+                                                                                         replicas=service_replicas)
+    reranking_svc, reranking_svc_svc = create_reranking_deployment_and_service(burstable_resource,
+                                                                               replicas=service_replicas)
     lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(burstable_resource, replicas=service_replicas)
-    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(
-        burstable_resource, replicas=service_replicas
-    )
+    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource,
+                                                                                  replicas=service_replicas)
 
     # Embedding, Reranking and LLM
-    embedding_dependency_resource = create_resource_requirements(
-        limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
-    )
+    embedding_dependency_resource = create_resource_requirements(limits={
+        "cpu": 80,
+        "memory": "20000Mi"
+    },
+                                                                 requests={
+                                                                     "cpu": 80,
+                                                                     "memory": "20000Mi"
+                                                                 })
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
-        embedding_dependency_resource, replicas=embedding_replicas
-    )
+        embedding_dependency_resource, replicas=embedding_replicas)
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_cards, replicas=tgi_replicas, args=tgi_args
-    )
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards,
+                                                                                      replicas=tgi_replicas,
+                                                                                      args=tgi_args)
 
     reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     reranking_dependency, reranking_dependency_svc = create_reranking_dependency_deployment_and_service(
-        reranking_hpu_cards
-    )
+        reranking_hpu_cards)
 
     # Others
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
@@ -685,14 +720,21 @@ def build_tuned_chatqna_manifests_with_rerank(
     save_to_yaml(manifests, output_filename)
 
 
-def build_tuned_chatqna_manifests_without_rerank(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1
-):
+def build_tuned_chatqna_manifests_without_rerank(service_info=None,
+                                                 output_filename=None,
+                                                 tgi_replicas=1,
+                                                 embedding_replicas=1,
+                                                 service_replicas=1):
     configmap = create_configmap_object(service_info)
 
-    guaranteed_resource = create_resource_requirements(
-        limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
-    )
+    guaranteed_resource = create_resource_requirements(limits={
+        "cpu": 8,
+        "memory": "8000Mi"
+    },
+                                                       requests={
+                                                           "cpu": 8,
+                                                           "memory": "8000Mi"
+                                                       })
 
     burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
 
@@ -709,29 +751,31 @@ def build_tuned_chatqna_manifests_without_rerank(
         "4096",
     ]
 
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
-        guaranteed_resource, image_name="opea/chatqna-without-rerank:latest", replicas=service_replicas
-    )
-    embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(
-        burstable_resource, replicas=service_replicas
-    )
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource,
+                                                                 image_name="opea/chatqna-without-rerank:latest",
+                                                                 replicas=service_replicas)
+    embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(burstable_resource,
+                                                                                         replicas=service_replicas)
     lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(burstable_resource, replicas=service_replicas)
-    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(
-        burstable_resource, replicas=service_replicas
-    )
+    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource,
+                                                                                  replicas=service_replicas)
 
     # Embedding, Reranking and LLM
-    embedding_dependency_resource = create_resource_requirements(
-        limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
-    )
+    embedding_dependency_resource = create_resource_requirements(limits={
+        "cpu": 80,
+        "memory": "20000Mi"
+    },
+                                                                 requests={
+                                                                     "cpu": 80,
+                                                                     "memory": "20000Mi"
+                                                                 })
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
-        embedding_dependency_resource, replicas=embedding_replicas
-    )
+        embedding_dependency_resource, replicas=embedding_replicas)
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_cards, replicas=tgi_replicas, args=tgi_args
-    )
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards,
+                                                                                      replicas=tgi_replicas,
+                                                                                      args=tgi_args)
 
     # Others
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
@@ -760,9 +804,11 @@ def build_tuned_chatqna_manifests_without_rerank(
     save_to_yaml(manifests, output_filename)
 
 
-def build_oob_chatqna_manifests_without_rerank(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1
-):
+def build_oob_chatqna_manifests_without_rerank(service_info=None,
+                                               output_filename=None,
+                                               tgi_replicas=1,
+                                               embedding_replicas=1,
+                                               service_replicas=1):
     configmap = create_configmap_object(service_info)
 
     tgi_args = [
@@ -778,22 +824,20 @@ def build_oob_chatqna_manifests_without_rerank(
         "4096",
     ]
 
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
-        image_name="opea/chatqna-without-rerank:latest", replicas=service_replicas
-    )
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(image_name="opea/chatqna-without-rerank:latest",
+                                                                 replicas=service_replicas)
     embedding_deploy, embedding_deploy_svc = create_embedding_svc_deployment_and_service(replicas=service_replicas)
     lm_deploy, lm_deploy_svc = create_llm_deployment_and_service(replicas=service_replicas)
     retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(replicas=service_replicas)
 
     # Embedding, Reranking and LLM
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
-        replicas=embedding_replicas
-    )
+        replicas=embedding_replicas)
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_cards, replicas=tgi_replicas, args=tgi_args
-    )
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards,
+                                                                                      replicas=tgi_replicas,
+                                                                                      args=tgi_args)
 
     # Others
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
@@ -822,9 +866,10 @@ def build_oob_chatqna_manifests_without_rerank(
     save_to_yaml(manifests, output_filename)
 
 
-def build_oob_chatqna_manifests_with_rerank(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1
-):
+def build_oob_chatqna_manifests_with_rerank(service_info=None,
+                                            output_filename=None,
+                                            tgi_replicas=1,
+                                            embedding_replicas=1):
     configmap = create_configmap_object(service_info)
 
     # Microservice
@@ -836,14 +881,12 @@ def build_oob_chatqna_manifests_with_rerank(
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service()
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_cards, replicas=tgi_replicas
-    )
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards,
+                                                                                      replicas=tgi_replicas)
 
     reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     reranking_dependency, reranking_dependency_svc = create_reranking_dependency_deployment_and_service(
-        reranking_hpu_cards
-    )
+        reranking_hpu_cards)
 
     retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service()
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
@@ -876,20 +919,32 @@ def build_oob_chatqna_manifests_with_rerank(
     save_to_yaml(manifests, output_filename)
 
 
-def build_no_wrapper_tuned_chatqna_manifests_with_rerank(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1
-):
+def build_no_wrapper_tuned_chatqna_manifests_with_rerank(service_info=None,
+                                                         output_filename=None,
+                                                         tgi_replicas=1,
+                                                         embedding_replicas=1,
+                                                         service_replicas=1):
     configmap = create_no_wrapper_configmap_object(service_info)
 
-    guaranteed_resource = create_resource_requirements(
-        limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
-    )
+    guaranteed_resource = create_resource_requirements(limits={
+        "cpu": 8,
+        "memory": "8000Mi"
+    },
+                                                       requests={
+                                                           "cpu": 8,
+                                                           "memory": "8000Mi"
+                                                       })
 
     burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
 
-    embedding_dependency_resource = create_resource_requirements(
-        limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
-    )
+    embedding_dependency_resource = create_resource_requirements(limits={
+        "cpu": 80,
+        "memory": "20000Mi"
+    },
+                                                                 requests={
+                                                                     "cpu": 80,
+                                                                     "memory": "20000Mi"
+                                                                 })
 
     tgi_args = [
         "--model-id",
@@ -905,27 +960,24 @@ def build_no_wrapper_tuned_chatqna_manifests_with_rerank(
     ]
 
     # Microservice
-    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
-        guaranteed_resource, replicas=service_replicas, image_name="opea/chatqna-no-wrapper:latest"
-    )
+    chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(guaranteed_resource,
+                                                                 replicas=service_replicas,
+                                                                 image_name="opea/chatqna-no-wrapper:latest")
 
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
-        embedding_dependency_resource, replicas=embedding_replicas
-    )
+        embedding_dependency_resource, replicas=embedding_replicas)
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_cards, replicas=tgi_replicas, args=tgi_args
-    )
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards,
+                                                                                      replicas=tgi_replicas,
+                                                                                      args=tgi_args)
 
     reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     reranking_dependency, reranking_dependency_svc = create_reranking_dependency_deployment_and_service(
-        reranking_hpu_cards
-    )
+        reranking_hpu_cards)
 
-    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(
-        burstable_resource, replicas=service_replicas
-    )
+    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource,
+                                                                                  replicas=service_replicas)
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
     dataprep_deploy, dataprep_svc = create_dataprep_deployment_and_service()
 
@@ -950,20 +1002,32 @@ def build_no_wrapper_tuned_chatqna_manifests_with_rerank(
     save_to_yaml(manifests, output_filename)
 
 
-def build_no_wrapper_tuned_chatqna_manifests_without_rerank(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1
-):
+def build_no_wrapper_tuned_chatqna_manifests_without_rerank(service_info=None,
+                                                            output_filename=None,
+                                                            tgi_replicas=1,
+                                                            embedding_replicas=1,
+                                                            service_replicas=1):
     configmap = create_no_wrapper_configmap_object(service_info)
 
-    guaranteed_resource = create_resource_requirements(
-        limits={"cpu": 8, "memory": "8000Mi"}, requests={"cpu": 8, "memory": "8000Mi"}
-    )
+    guaranteed_resource = create_resource_requirements(limits={
+        "cpu": 8,
+        "memory": "8000Mi"
+    },
+                                                       requests={
+                                                           "cpu": 8,
+                                                           "memory": "8000Mi"
+                                                       })
 
     burstable_resource = create_resource_requirements(requests={"cpu": 4, "memory": "4000Mi"})
 
-    embedding_dependency_resource = create_resource_requirements(
-        limits={"cpu": 80, "memory": "20000Mi"}, requests={"cpu": 80, "memory": "20000Mi"}
-    )
+    embedding_dependency_resource = create_resource_requirements(limits={
+        "cpu": 80,
+        "memory": "20000Mi"
+    },
+                                                                 requests={
+                                                                     "cpu": 80,
+                                                                     "memory": "20000Mi"
+                                                                 })
 
     tgi_args = [
         "--model-id",
@@ -980,21 +1044,18 @@ def build_no_wrapper_tuned_chatqna_manifests_without_rerank(
 
     # Microservice
     chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
-        guaranteed_resource, replicas=service_replicas, image_name="opea/chatqna-no-wrapper-without-rerank:latest"
-    )
+        guaranteed_resource, replicas=service_replicas, image_name="opea/chatqna-no-wrapper-without-rerank:latest")
 
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service(
-        embedding_dependency_resource, replicas=embedding_replicas
-    )
+        embedding_dependency_resource, replicas=embedding_replicas)
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_cards, replicas=tgi_replicas, args=tgi_args
-    )
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards,
+                                                                                      replicas=tgi_replicas,
+                                                                                      args=tgi_args)
 
-    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(
-        burstable_resource, replicas=service_replicas
-    )
+    retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service(burstable_resource,
+                                                                                  replicas=service_replicas)
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
     dataprep_deploy, dataprep_svc = create_dataprep_deployment_and_service()
 
@@ -1017,9 +1078,11 @@ def build_no_wrapper_tuned_chatqna_manifests_without_rerank(
     save_to_yaml(manifests, output_filename)
 
 
-def build_no_wrapper_oob_chatqna_manifests_with_rerank(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1
-):
+def build_no_wrapper_oob_chatqna_manifests_with_rerank(service_info=None,
+                                                       output_filename=None,
+                                                       tgi_replicas=1,
+                                                       embedding_replicas=1,
+                                                       service_replicas=1):
     configmap = create_no_wrapper_configmap_object(service_info)
 
     # Microservice
@@ -1028,14 +1091,12 @@ def build_no_wrapper_oob_chatqna_manifests_with_rerank(
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service()
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_cards, replicas=tgi_replicas
-    )
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards,
+                                                                                      replicas=tgi_replicas)
 
     reranking_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
     reranking_dependency, reranking_dependency_svc = create_reranking_dependency_deployment_and_service(
-        reranking_hpu_cards
-    )
+        reranking_hpu_cards)
 
     retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service()
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
@@ -1062,22 +1123,22 @@ def build_no_wrapper_oob_chatqna_manifests_with_rerank(
     save_to_yaml(manifests, output_filename)
 
 
-def build_no_wrapper_oob_chatqna_manifests_without_rerank(
-    service_info=None, output_filename=None, tgi_replicas=1, embedding_replicas=1, service_replicas=1
-):
+def build_no_wrapper_oob_chatqna_manifests_without_rerank(service_info=None,
+                                                          output_filename=None,
+                                                          tgi_replicas=1,
+                                                          embedding_replicas=1,
+                                                          service_replicas=1):
     configmap = create_no_wrapper_configmap_object(service_info)
 
     # Microservice
     chatqna_deploy, chatqna_svc = create_chatqna_mega_deployment(
-        image_name="opea/chatqna-no-wrapper-without-rerank:latest"
-    )
+        image_name="opea/chatqna-no-wrapper-without-rerank:latest")
 
     embedding_dependency, embedding_dependency_svc = create_embedding_deployment_and_service()
 
     llm_hpu_cards = create_resource_requirements(limits={"habana.ai/gaudi": 1})
-    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(
-        llm_hpu_cards, replicas=tgi_replicas
-    )
+    llm_dependency, llm_dependency_svc = create_llm_dependency_deployment_and_service(llm_hpu_cards,
+                                                                                      replicas=tgi_replicas)
 
     retrieval_deployment, retrieval_svc = create_retriever_deployment_and_service()
     vector_db_deploy, vector_db_svc = create_vector_db_deployment_and_service()
@@ -1109,9 +1170,11 @@ def extract_service_configs(input_data: Dict) -> Dict:
     global_envs = input_data.get("global_envs", {})
     all_configs["config_map"] = global_envs
 
-    all_services = [{**s, "type": "mega_service"} for s in input_data.get("mega_service", [])] + [
-        {**s, "type": "micro_service"} for s in input_data.get("micro_services", [])
-    ]
+    all_services = [{
+        **s, "type": "mega_service"
+    } for s in input_data.get("mega_service", [])] + [{
+        **s, "type": "micro_service"
+    } for s in input_data.get("micro_services", [])]
 
     for service in all_services:
         service_name = service["service_name"]
@@ -1119,7 +1182,8 @@ def extract_service_configs(input_data: Dict) -> Dict:
             "image": service.get("image", None),
             "ports": service.get("ports", None),
             "volumes": service.get("volumes", None),
-            # "envs": service.get("envs", None),
+            "node_ports": service.get("node_ports", None),
+            #"envs": service.get("envs", None),
             "type": service.get("type", None),
         }
 
@@ -1130,10 +1194,12 @@ def extract_service_configs(input_data: Dict) -> Dict:
         #     elif isinstance(env, dict):
         #         service_config["envs"].update(env)
 
-        # print("envs = ", service_config.get("envs", None))
+        #print("envs = ", service_config.get("envs", None))
+        # if "node_ports" in service:
+        #     all_configs['node_ports'] = service["node_ports"]
 
         if "envs" in service:
-            result_dict = {k: v for d in service["envs"] for k, v in d.items()}
+            result_dict = {k: str(v) for d in service["envs"] for k, v in d.items()}
             service_config["envs"] = result_dict
             all_configs["config_map"].update(result_dict)
 
@@ -1144,17 +1210,18 @@ def extract_service_configs(input_data: Dict) -> Dict:
             resources = service.get("resources", {})
             requests = {}
 
-            if "hpu" in service["resources"]:
-                service["limits"] = {"habana.ai/gaudi": 1}
+            if 'hpu' in service['resources']:
+                service['limits'] = {'habana.ai/gaudi': 1}
 
-            if resources.get("cpu"):
-                requests["cpu"] = resources["cpu"]
-            if resources.get("memory"):
-                requests["memory"] = resources["memory"]
-            if resources.get("hpu"):
-                requests["habana.ai/gaudi"] = resources["hpu"]
-
-            service_config["resources"] = {"limits": requests}
+            if resources.get('cpu'):
+                requests['cpu'] = resources['cpu']
+                service_config["resources"] = {"requests": requests}
+            if resources.get('memory'):
+                requests['memory'] = resources['memory']
+                service_config["resources"] = {"requests": requests}
+            if resources.get('hpu'):
+                requests['habana.ai/gaudi'] = resources['hpu']
+                service_config["resources"] = {"limits": requests}            
             print("service_configresources", service["resources"])
 
         if "options" in service:
@@ -1170,34 +1237,31 @@ def extract_service_configs(input_data: Dict) -> Dict:
             for item in service["args"]:
                 if isinstance(item, dict):
                     for key, value in item.items():
-                        service_args_list.extend([key, value])
+                        service_args_list.extend([key, str(value)])
                 else:
                     service_args_list.append(item)
             service_config["args"] = service_args_list
 
-        print(f"{service_name} = {service_config} \n\n\n")
+        print(f'{service_name} = {service_config} \n\n\n')
         all_configs[service_name] = service_config
 
     return all_configs
 
 
-def create_deployment_and_service(
-    service_name,
-    ports,
-    volume_mounts=None,
-    volumes=None,
-    args_list=None,
-    resource_requirements=None,
-    replicas=1,
-    image_name=None,
-    service_type="ClusterIP",
-    args=None,
-):
+def create_deployment_and_service(service_name,
+                                  ports,
+                                  replicas=1,
+                                  volume_mounts=None,
+                                  volumes=None,
+                                  args_list=None,
+                                  resource_requirements=None,
+                                  image_name=None,
+                                  service_type="ClusterIP",
+                                  args=None):
 
-    microservice_deloyment_name = service_name + "-deploy"
-    microservice_service_name = service_name + "-service"
+    microservice_deloyment_name = service_name + '-deploy'
 
-    target_ports = [port["target_port"] for port in ports]
+    target_ports = list(set([port['target_port'] for port in ports]))
 
     deployment = create_k8s_resources(
         name=microservice_deloyment_name,
@@ -1215,7 +1279,7 @@ def create_deployment_and_service(
     )
 
     service = create_service(
-        name=microservice_service_name,
+        name=service_name,
         app_label=microservice_deloyment_name,
         service_type=service_type,
         service_ports=ports,
@@ -1229,52 +1293,70 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    with open("/home/zhenzhong/repo/opea/forked/yaoqing/GenAIComps/tests/cores/mega/mega.yaml", "r") as file:
+    with open('/home/zhenzhong/repo/opea/forked/yaoqing/GenAIComps/tests/cores/mega/mega.yaml', "r") as file:
         input_data = yaml.safe_load(file)
 
     input_data = replace_env_vars(input_data)
     all_configs = extract_service_configs(input_data)
 
     def build_deployment_and_service(all_configs, output_file="e2e_manifest.yaml"):
-        config_dict = all_configs.get("config_map", None)
+        config_dict = all_configs.get('config_map', None)
 
         config_map = create_configmap_object(config_dict=config_dict)
+        save_to_yaml([config_map], output_file)
+        
         all_manifests = []
         for service_name, service_config in all_configs.items():
             if service_name == "config_map":
                 continue
 
-            image = service_config.get("image", None)
-            ports = service_config.get("ports", None)
-            volumes_path = service_config.get("volumes", None)
-            replicas = service_config.get("replicas", None)
-            resources = service_config.get("resources", None)
-            envs = service_config.get("envs", None)
-            options = service_config.get("options", None)
-            service_args = service_config.get("args", None)
-            type = service_config.get("type", None)
+            image = service_config.get('image', None)
+            ports = service_config.get('ports', None)
+            node_ports = service_config.get('node_ports', None)
+            volumes_path = service_config.get('volumes', None)
+            replicas = service_config.get('replicas', None)
+            resources = service_config.get('resources', None)
+            envs = service_config.get('envs', None)
+            options = service_config.get('options', None)
+            service_args = service_config.get('args', None)
+            type = service_config.get('type', None)
 
             if type == "micro_service":
                 service_type = "ClusterIP"
             elif type == "mega_service":
                 service_type = "NodePort"
 
+            # if ports is not None:
+            #     formatted_ports = [{
+            #         "name": f"port{i+1}",
+            #         "port": int(p.split(":")[0]),
+            #         "target_port": int(p.split(":")[1]),
+            #     } for i, p in enumerate(ports)]
+                
             if ports is not None:
-                formatted_ports = [
-                    {
-                        "name": f"port{i+1}",
-                        "port": int(p.split(":")[0]),
-                        "target_port": int(p.split(":")[1]),
-                    }
-                    for i, p in enumerate(ports)
-                ]
+                formatted_ports = [{
+                    "name": f"port{i+1}",
+                    "port": int(p.split(":")[0]),
+                    "target_port": int(p.split(":")[1]),
+                    **({"nodePort": int(node_ports[i])} if node_ports and i < len(node_ports) else {})
+                } for i, p in enumerate(ports)]
 
+                # if node_ports is not None:
+                #     import pdb;pdb.set_trace()
+                    #formatted_ports[i]["nodePort"]=int(node_ports[0])
                 logging.debug(f"{formatted_ports}")
 
             logging.debug(f"{service_args}")
             logging.debug(f"{volumes_path}")
             logging.debug(f"envs = {envs}")
 
+            allocated_resources = None
+            if resources is not None:
+                if resources.get("limits", None):
+                    allocated_resources = create_resource_requirements(limits=resources["limits"])
+                else:
+                    allocated_resources = create_resource_requirements(requests=resources["requests"])
+                
             volumes = None
             volume_mounts = None
             if volumes_path:
@@ -1283,24 +1365,21 @@ if __name__ == "__main__":
 
                 # Process each path in the input list
                 for i, item in enumerate(volumes_path):
-                    src, dest = item.split(":")
+                    src, dest = item.split(':')
 
                     # Create volume for the source path
                     volumes.append(
                         client.V1Volume(
                             name=f"volume{i+1}",
                             host_path=client.V1HostPathVolumeSource(path=src, type="Directory"),
-                        )
-                    )
+                        ))
 
                     # Create volume mount for the destination path
                     volume_mounts.append(client.V1VolumeMount(name=f"volume{i+1}", mount_path=dest))
 
                 volumes.append(
-                    client.V1Volume(
-                        name="shm", empty_dir=client.V1EmptyDirVolumeSource(medium="Memory", size_limit="1Gi")
-                    )
-                )
+                    client.V1Volume(name="shm",
+                                    empty_dir=client.V1EmptyDirVolumeSource(medium="Memory", size_limit="1Gi")))
                 volume_mounts.append(client.V1VolumeMount(name="shm", mount_path="/dev/shm"))
 
             env = [
@@ -1311,20 +1390,19 @@ if __name__ == "__main__":
                 client.V1EnvVar(name="HF_TOKEN", value="${HF_TOKEN}"),
             ]
 
-            deployment, service = create_deployment_and_service(
-                service_name=service_name,
-                image_name=image,
-                args_list=service_args,
-                replicas=replicas,
-                volumes=volumes,
-                volume_mounts=volume_mounts,
-                ports=formatted_ports,
-                service_type=service_type,
-            )
+            deployment, service = create_deployment_and_service(service_name=service_name,
+                                                                image_name=image,
+                                                                args_list=service_args,
+                                                                replicas=replicas,
+                                                                resource_requirements=allocated_resources,
+                                                                volumes=volumes,
+                                                                volume_mounts=volume_mounts,
+                                                                ports=formatted_ports,
+                                                                service_type=service_type)
             all_manifests = [deployment, service]
             save_to_yaml(all_manifests, output_file)
 
-        # save_to_yaml(all_manifests, 'all_test.yaml')
+        #save_to_yaml(all_manifests, 'all_test.yaml')
 
     build_deployment_and_service(all_configs, output_file="all_test.yaml")
 
