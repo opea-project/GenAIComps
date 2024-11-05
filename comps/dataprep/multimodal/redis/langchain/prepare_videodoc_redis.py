@@ -119,8 +119,11 @@ class MultimodalRedis(Redis):
             **kwargs,
         )
         # Add data to Redis
-        keys = instance.add_text_image_pairs(texts, images, metadatas, keys=keys) if images else \
-            instance.add_text(texts, metadatas, keys=keys)
+        keys = (
+            instance.add_text_image_pairs(texts, images, metadatas, keys=keys)
+            if images
+            else instance.add_text(texts, metadatas, keys=keys)
+        )
         return instance, keys
 
     def add_text_image_pairs(
@@ -190,7 +193,7 @@ class MultimodalRedis(Redis):
         # Cleanup final batch
         pipeline.execute()
         return ids
-    
+
     def add_text(
         self,
         texts: Iterable[str],
@@ -415,7 +418,7 @@ async def ingest_generate_transcripts(files: List[UploadFile] = File(None)):
                     os.path.join(upload_folder, vtt_file),
                     os.path.join(upload_folder, dir_name),
                 )
-   
+
             print("Done extracting frames and generating annotation")
             # Delete temporary vtt file
             os.remove(os.path.join(upload_folder, vtt_file))
@@ -454,7 +457,8 @@ async def ingest_generate_caption(files: List[UploadFile] = File(None)):
                 file_paths.append(file)
             else:
                 raise HTTPException(
-                    status_code=400, detail=f"File {file.filename} is not a supported file type. Please upload mp4, png, jpg, jpeg, and gif files only."
+                    status_code=400,
+                    detail=f"File {file.filename} is not a supported file type. Please upload mp4, png, jpg, jpeg, and gif files only.",
                 )
 
         for file in file_paths:
@@ -510,16 +514,16 @@ async def ingest_with_text(files: List[UploadFile] = File(None)):
         # Create a lookup dictionary containing all media files
         matched_files = {f.filename: [f] for f in files if os.path.splitext(f.filename)[1] in accepted_media_formats}
         uploaded_files_map = {}
-        
+
         # Go through files again and match caption files to media files
         for file in files:
             file_base, file_extension = os.path.splitext(file.filename)
-            if file_extension == '.vtt':
+            if file_extension == ".vtt":
                 if "{}.mp4".format(file_base) in matched_files:
                     matched_files["{}.mp4".format(file_base)].append(file)
                 else:
                     print(f"No video was found for caption file {file.filename}.")
-            elif file_extension == '.txt':
+            elif file_extension == ".txt":
                 if "{}.png".format(file_base) in matched_files:
                     matched_files["{}.png".format(file_base)].append(file)
                 elif "{}.jpg".format(file_base) in matched_files:
@@ -536,9 +540,7 @@ async def ingest_with_text(files: List[UploadFile] = File(None)):
         # Check if every media file has a caption file
         for media_file_name, file_pair in matched_files.items():
             if len(file_pair) != 2:
-                raise HTTPException(
-                    status_code=400, detail=f"No caption file found for {media_file_name}"
-                )
+                raise HTTPException(status_code=400, detail=f"No caption file found for {media_file_name}")
 
         if len(matched_files.keys()) == 0:
             return HTTPException(
@@ -594,7 +596,8 @@ async def ingest_with_text(files: List[UploadFile] = File(None)):
         }
 
     raise HTTPException(
-        status_code=400, detail="Must provide at least one pair consisting of video (.mp4) and captions (.vtt) or image (.png, .jpg, .jpeg, .gif) with caption (.txt)"
+        status_code=400,
+        detail="Must provide at least one pair consisting of video (.mp4) and captions (.vtt) or image (.png, .jpg, .jpeg, .gif) with caption (.txt)",
     )
 
 

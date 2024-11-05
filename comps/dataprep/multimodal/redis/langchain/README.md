@@ -1,9 +1,10 @@
 # Dataprep Microservice for Multimodal Data with Redis
 
 This `dataprep` microservice accepts the following from the user and ingests them into a Redis vectorstore:
-* Videos (mp4 files) and their transcripts (optional)
-* Images (gif, jpg, jpeg, and png files) and their captions (optional)
-* Audio (wav files)
+
+- Videos (mp4 files) and their transcripts (optional)
+- Images (gif, jpg, jpeg, and png files) and their captions (optional)
+- Audio (wav files)
 
 ## 🚀1. Start Microservice with Python（Option 1）
 

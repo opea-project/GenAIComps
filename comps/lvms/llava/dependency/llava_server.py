@@ -25,6 +25,7 @@ generator = None
 
 app = FastAPI()
 
+
 def pipeline_preprocess(self, image, prompt=None, timeout=None):
     """
     This replaces the preprocess function used by the image-to-text pipeline

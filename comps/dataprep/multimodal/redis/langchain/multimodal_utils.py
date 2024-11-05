@@ -129,7 +129,7 @@ def convert_img_to_base64(image):
 
 
 def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path: str, output_dir: str):
-    """ Generates an annotations.json from the transcript file """
+    """Generates an annotations.json from the transcript file."""
 
     # Set up location to store frames and annotations
     os.makedirs(output_dir, exist_ok=True)
@@ -166,8 +166,11 @@ def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path:
 
 
 def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: str, vtt_path: str, output_dir: str):
-    """Extract frames (.png) and annotations (.json) from media-text file pairs. File pairs can be a video
-    file (.mp4) and transcript file (.vtt) or an image file (.png, .jpg, .jpeg, .gif) and caption file (.txt)"""
+    """Extract frames (.png) and annotations (.json) from media-text file pairs.
+
+    File pairs can be a video
+    file (.mp4) and transcript file (.vtt) or an image file (.png, .jpg, .jpeg, .gif) and caption file (.txt)
+    """
     # Set up location to store frames and annotations
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "frames"), exist_ok=True)
@@ -180,7 +183,7 @@ def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: s
     if os.path.splitext(vtt_path)[-1] == ".vtt":
         captions = webvtt.read(vtt_path)
     else:
-        with open(vtt_path, 'r') as f:
+        with open(vtt_path, "r") as f:
             captions = f.read()
 
     annotations = []

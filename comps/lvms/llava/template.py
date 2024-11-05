@@ -10,6 +10,8 @@ class ChatTemplate:
         if has_image:
             template = """The transcript associated with the image is '{context}'. {question}"""
         else:
-            template = """Refer to the following results obtained from the local knowledge base: '{context}'. {question}"""
+            template = (
+                """Refer to the following results obtained from the local knowledge base: '{context}'. {question}"""
+            )
 
         return template.format(context=context, question=question)
