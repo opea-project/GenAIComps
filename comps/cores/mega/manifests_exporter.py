@@ -352,9 +352,7 @@ def build_deployment_and_service(all_configs, output_file="E2E_manifest.yaml"):
                 volume_mounts.append(client.V1VolumeMount(name=f"volume{i+1}", mount_path=dest))
 
             volumes.append(
-                client.V1Volume(
-                    name="shm", empty_dir=client.V1EmptyDirVolumeSource(medium="Memory", size_limit="1Gi")
-                )
+                client.V1Volume(name="shm", empty_dir=client.V1EmptyDirVolumeSource(medium="Memory", size_limit="1Gi"))
             )
             volume_mounts.append(client.V1VolumeMount(name="shm", mount_path="/dev/shm"))
 
@@ -389,7 +387,7 @@ def convert_to_deployment_and_service(input_yaml_path: str, output_file: str):
     all_configs = extract_service_configs(input_data)
 
     build_deployment_and_service(all_configs, output_file=output_file)
-    
+
     logging.info(f" {output_file} generated:")
 
 
@@ -400,11 +398,10 @@ def convert_to_manifests(input_yaml_path: str, output_file: str):
     input_data = replace_env_vars(input_data)
     all_configs = extract_service_configs(input_data)
 
-
     build_configmap(all_configs, output_file=output_file)
-    
+
     build_deployment_and_service(all_configs, output_file=output_file)
-    
+
     logging.info(f" {output_file} generated:")
 
 
@@ -416,5 +413,5 @@ if __name__ == "__main__":
     all_configs = extract_service_configs(input_data)
 
     build_configmap(all_configs, output_file="E2E_manifests.yaml")
-    
+
     build_deployment_and_service(all_configs, output_file="E2E_manifests.yaml")
