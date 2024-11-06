@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import copy
-import os
 import logging
+import os
 from typing import Any, Dict, List
-from kubernetes import client
-import yaml
 
+import yaml
+from kubernetes import client
 
 log_level = os.getenv("LOGLEVEL", "INFO")
 logging.basicConfig(level=log_level.upper(), format="%(asctime)s - %(levelname)s - %(message)s")
