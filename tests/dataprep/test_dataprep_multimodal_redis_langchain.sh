@@ -248,7 +248,7 @@ function validate_microservice() {
     else
         echo "[ $SERVICE_NAME ] HTTP status is 400. Checking content..."
     fi
-    if [[ "$RESPONSE_BODY" != *"No caption file found for $image_fn"* ]]; then
+    if [[ "$RESPONSE_BODY" != *"No caption file found for $image_name"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
         docker logs test-comps-dataprep-multimodal-redis >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
