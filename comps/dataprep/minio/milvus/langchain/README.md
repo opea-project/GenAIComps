@@ -36,7 +36,7 @@ cd ../../..
 docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
 ```
 
-Then start the mosec embedding server.
+Then start the Mosec embedding server.
 
 ```bash
 your_port=6010
