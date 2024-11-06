@@ -29,7 +29,7 @@ export MOSEC_EMBEDDING_ENDPOINT=${your_embedding_endpoint}
 
 ### 1.4 Start Mosec Embedding Service
 
-First, you need to build a mosec embedding serving docker image.
+First, you need to build a Mosec embedding serving docker image.
 
 ```bash
 cd ../../..
