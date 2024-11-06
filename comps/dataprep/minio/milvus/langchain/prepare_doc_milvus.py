@@ -59,7 +59,7 @@ minio_client = Minio(
 
 class MosecEmbeddings(OpenAIEmbeddings):
     def _get_len_safe_embeddings(
-            self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
+        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
     ) -> List[List[float]]:
         _chunk_size = chunk_size or self.chunk_size
         batched_embeddings: List[List[float]] = []
@@ -98,7 +98,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
     for i in range(0, num_chunks, batch_size):
         if logflag:
             logger.info(f"[ ingest chunks ] Current batch: {i}")
-        batch_docs = insert_docs[i: i + batch_size]
+        batch_docs = insert_docs[i : i + batch_size]
 
         try:
             logger.info(f"MILVUS HOST IS: {MILVUS_HOST}")
@@ -220,12 +220,12 @@ def delete_by_partition_field(my_milvus, partition_field):
 
 @register_microservice(name="opea_service@prepare_doc_minio_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6010)
 async def ingest_documents(
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1000),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
+    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+    link_list: Optional[str] = Form(None),
+    chunk_size: int = Form(1000),
+    chunk_overlap: int = Form(100),
+    process_table: bool = Form(False),
+    table_strategy: str = Form("fast"),
 ):
     if logflag:
         logger.info(f"[ upload ] files:{files}")
