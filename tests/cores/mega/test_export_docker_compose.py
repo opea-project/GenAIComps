@@ -31,10 +31,10 @@ class TestConvertToDockerCompose(unittest.TestCase):
 
         self.assertEqual(docker_compose["version"], "3.8")
         self.assertIn("services", docker_compose)
-        self.assertIn("redis-svc", docker_compose["services"])
-        self.assertIn("tgi-svc", docker_compose["services"])
+        self.assertIn("redis-vector-db", docker_compose["services"])
+        self.assertIn("llm-server", docker_compose["services"])
         self.assertEqual(
-            docker_compose["services"]["tgi-svc"]["image"],
+            docker_compose["services"]["llm-server"]["image"],
             "ghcr.io/huggingface/tgi-gaudi:2.0.5",
         )
 
