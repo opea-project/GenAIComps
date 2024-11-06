@@ -73,6 +73,7 @@ function validate_finetune() {
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H 'Content-Type: application/json' -d "$INPUT_DATA" "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    FINTUNING_ID=$(echo "$RESPONSE_BODY" | jq -r '.id')
 
     # Parse the JSON response
     purpose=$(echo "$RESPONSE_BODY" | jq -r '.purpose')
@@ -96,6 +97,26 @@ function validate_finetune() {
     fi
 
     sleep 10s
+
+    # check finetuning job status
+    URL="$URL/retrieve"
+    for((i=1;i<=10;i++));
+    do
+	HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H "Content-Type: application/json" -d '{"fine_tuning_job_id": "'$FINTUNING_ID'"}' "$URL")
+	echo $HTTP_RESPONSE
+	RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+	STATUS=$(echo "$RESPONSE_BODY" | jq -r '.status')
+	if [[ "$STATUS" == "succeeded" ]]; then
+	    echo "training: succeeded."
+	    break
+	elif [[ "$STATUS" == "failed" ]]; then
+	    echo "training: failed."
+	    exit 1
+	else
+	    echo "training: '$STATUS'"
+	fi
+	sleep 1m
+    done
 }
 
 function validate_microservice() {
