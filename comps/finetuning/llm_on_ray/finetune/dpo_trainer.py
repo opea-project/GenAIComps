@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import importlib
 from collections import defaultdict
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
@@ -8,20 +9,23 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from datasets import Dataset
-from transformers import DataCollator, PreTrainedModel, PreTrainedTokenizerBase, Trainer, TrainingArguments
-import importlib
 from peft import PeftModel, get_peft_model, prepare_model_for_kbit_training
+from transformers import DataCollator, PreTrainedModel, PreTrainedTokenizerBase, Trainer, TrainingArguments
+
 from comps import CustomLogger
 
 logger = CustomLogger("llm_on_ray/dpo_trainer")
 
+
 def is_peft_available():
     return importlib.util.find_spec("peft") is not None
 
+
 def disable_dropout_in_model(model: torch.nn.Module) -> None:
     for module in model.modules():
-        if isinstance(module, torch.nn.Dropout): # pragma: no cover
+        if isinstance(module, torch.nn.Dropout):  # pragma: no cover
             module.p = 0
+
 
 class DPOTrainer(Trainer):
     r"""
@@ -89,7 +93,7 @@ class DPOTrainer(Trainer):
 
         self.ref_model = ref_model
 
-        if disable_dropout: # pragma: no cover
+        if disable_dropout:  # pragma: no cover
             disable_dropout_in_model(model)
             disable_dropout_in_model(self.ref_model)
 
@@ -110,7 +114,7 @@ class DPOTrainer(Trainer):
             tokenizer=tokenizer,
         )
 
-        if self.is_deepspeed_enabled: # pragma: no cover
+        if self.is_deepspeed_enabled:  # pragma: no cover
             # Read more about the issue in https://github.com/huggingface/trl/pull/687
             self.ref_model = self.accelerator._prepare_deepspeed(self.ref_model)[0]
             self.ref_model.eval()
@@ -154,7 +158,7 @@ class DPOTrainer(Trainer):
             A tensor of shape (batch_size,) containing the average/sum log
                probabilities of the given labels under the given logits.
         """
-        if logits.shape[:-1] != labels.shape: # pragma: no cover
+        if logits.shape[:-1] != labels.shape:  # pragma: no cover
             raise ValueError("Logits (batch and sequence length dim) and labels must have the same shape.")
 
         labels = labels[:, 1:].clone()
@@ -230,7 +234,7 @@ class DPOTrainer(Trainer):
         )
         reward_accuracies = (chosen_rewards > rejected_rewards).float()
 
-        prefix = "eval_" if train_eval == "eval" else "" # pragma: no cover
+        prefix = "eval_" if train_eval == "eval" else ""  # pragma: no cover
         metrics[f"{prefix}rewards/chosen"] = chosen_rewards.mean()
         metrics[f"{prefix}rewards/rejected"] = rejected_rewards.mean()
         metrics[f"{prefix}rewards/accuracies"] = reward_accuracies.mean()
@@ -253,10 +257,10 @@ class DPOTrainer(Trainer):
         loss, metrics = self.get_batch_metrics(model, inputs, train_eval="train")
 
         # force log the metrics
-        if self.accelerator.is_main_process: # pragma: no cover
+        if self.accelerator.is_main_process:  # pragma: no cover
             self.store_metrics(metrics, train_eval="train")
 
-        if return_outputs: # pragma: no cover
+        if return_outputs:  # pragma: no cover
             return (loss, metrics)
         return loss
 
@@ -272,7 +276,7 @@ class DPOTrainer(Trainer):
                 The values to log.
         """
         # logs either has 'loss' or 'eval_loss'
-        train_eval = "train" if "loss" in logs else "eval" # pragma: no cover
+        train_eval = "train" if "loss" in logs else "eval"  # pragma: no cover
         # Add averaged stored metrics to logs
         for key, metrics in self._stored_metrics[train_eval].items():
             logs[key] = torch.tensor(metrics).mean().item()
@@ -281,9 +285,10 @@ class DPOTrainer(Trainer):
         return super().log(logs)
 
 
-try: # pragma: no cover
+try:  # pragma: no cover
     # pylint: disable=E0611
-    from optimum.habana import GaudiConfig, GaudiTrainer # pylint: disable=E0401
+    from optimum.habana import GaudiConfig, GaudiTrainer  # pylint: disable=E0401
+
     class GaudiDPOTrainer(DPOTrainer, GaudiTrainer):
         r"""Initialize habana."""
 
@@ -311,7 +316,7 @@ try: # pragma: no cover
 
             self.ref_model = ref_model
 
-            if disable_dropout: # pragma: no cover
+            if disable_dropout:  # pragma: no cover
                 disable_dropout_in_model(model)
                 disable_dropout_in_model(self.ref_model)
 
@@ -337,7 +342,7 @@ try: # pragma: no cover
                 eval_dataset=eval_dataset,
                 tokenizer=tokenizer,
             )
-            if self.is_deepspeed_enabled: # pragma: no cover
+            if self.is_deepspeed_enabled:  # pragma: no cover
                 # Read more about the issue in https://github.com/huggingface/trl/pull/687
                 self.ref_model = self.accelerator._prepare_deepspeed(self.ref_model)[0]
             else:
@@ -345,8 +350,10 @@ try: # pragma: no cover
             self.ref_model.eval()
 
             if args.use_hpu_graphs_for_training:
-                from habana_frameworks.torch.hpu import wrap_in_hpu_graph # pylint: disable=E0611, E0401
+                from habana_frameworks.torch.hpu import wrap_in_hpu_graph  # pylint: disable=E0611, E0401
+
                 ref_model = self.accelerator.unwrap_model(self.ref_model)
                 ref_model = wrap_in_hpu_graph(ref_model)
+
 except:
     logger.warning("HPU device not ready.")

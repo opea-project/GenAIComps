@@ -26,12 +26,12 @@ from comps import CustomLogger
 from comps.finetuning.finetune_config import FinetuneConfig
 from comps.finetuning.llm_on_ray import common
 from comps.finetuning.llm_on_ray.finetune.data_process import (
+    DPOCollator,
+    DPODataProcessor,
     EmbedCollator,
     GroupCollator,
-    DPOCollator,
     InstructionDataProcessor,
     PretrainingDataProcessor,
-    DPODataProcessor,
     TrainDatasetForCE,
     TrainDatasetForEmbedding,
 )
@@ -341,7 +341,9 @@ def load_model(config: Dict):
     if task in ["instruction_tuning", "pretraining", "dpo"]:
         model = transformers.AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=model_dtype, **model_config)
         if task == "dpo":
-            ref_model = transformers.AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=model_dtype, **model_config)
+            ref_model = transformers.AutoModelForCausalLM.from_pretrained(
+                model_name, torch_dtype=model_dtype, **model_config
+            )
         lora_config = config["General"].get("lora_config", None)
         if lora_config and task == "instruction_tuning":
             peft_config = LoraConfig(**lora_config)
@@ -393,6 +395,7 @@ def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, da
             lora_config = config["General"].get("lora_config", None)
             peft_config = LoraConfig(**lora_config)
             from comps.finetuning.llm_on_ray.finetune.dpo_trainer import DPOTrainer
+
             trainer = DPOTrainer(
                 model,
                 ref_model,
@@ -400,7 +403,9 @@ def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, da
                 data_collator=data_collator,
                 beta=config["Training"].get("dpo_beta", 0.1),
                 train_dataset=tokenized_dataset["train"],
-                eval_dataset=tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
+                eval_dataset=(
+                    tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
+                ),
                 tokenizer=tokenizer,
                 peft_config=peft_config,
                 max_length=config["Dataset"].get("max_length", 1024),
@@ -410,7 +415,9 @@ def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, da
                 model=model,
                 args=training_args,
                 train_dataset=tokenized_dataset["train"],
-                eval_dataset=tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
+                eval_dataset=(
+                    tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
+                ),
                 tokenizer=tokenizer,
                 data_collator=data_collator,
             )
@@ -420,11 +427,12 @@ def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, da
         from optimum.habana.transformers import GaudiTrainer, GaudiTrainingArguments
 
         training_args = convert_to_training_args(GaudiTrainingArguments, config)
-        
+
         if task == "dpo":
             lora_config = config["General"].get("lora_config", None)
             peft_config = LoraConfig(**lora_config)
             from comps.finetuning.llm_on_ray.finetune.dpo_trainer import GaudiDPOTrainer
+
             trainer = GaudiDPOTrainer(
                 model,
                 ref_model,
@@ -432,7 +440,9 @@ def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, da
                 data_collator=data_collator,
                 beta=config["Training"].get("dpo_beta", 0.1),
                 train_dataset=tokenized_dataset["train"],
-                eval_dataset=tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
+                eval_dataset=(
+                    tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
+                ),
                 tokenizer=tokenizer,
                 peft_config=peft_config,
                 max_length=config["Dataset"].get("max_length", 1024),
@@ -452,7 +462,9 @@ def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, da
                 args=training_args,
                 gaudi_config=gaudi_config,
                 train_dataset=tokenized_dataset["train"],
-                eval_dataset=tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
+                eval_dataset=(
+                    tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
+                ),
                 tokenizer=tokenizer,
                 data_collator=data_collator,
             )

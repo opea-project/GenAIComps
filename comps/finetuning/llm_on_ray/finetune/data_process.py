@@ -248,39 +248,40 @@ class DPODataProcessor:
         rejects = {r.strip() for r in examples["rejected"]}
 
         examples = {
-                "prompt": [],
-                "chosen": [],
-                "rejected": [],
-                "chosen_response_only": [],
-                "rejected_response_only": [],
-                "chosen_input_ids": [],
-                "chosen_attention_mask": [],
-                "chosen_labels": [],
-                "rejected_input_ids": [],
-                "rejected_attention_mask": [],
-                "rejected_labels": [],
-                "prompt_input_ids": [],
-                "prompt_attention_mask": []}
+            "prompt": [],
+            "chosen": [],
+            "rejected": [],
+            "chosen_response_only": [],
+            "rejected_response_only": [],
+            "chosen_input_ids": [],
+            "chosen_attention_mask": [],
+            "chosen_labels": [],
+            "rejected_input_ids": [],
+            "rejected_attention_mask": [],
+            "rejected_labels": [],
+            "prompt_input_ids": [],
+            "prompt_attention_mask": [],
+        }
 
         for prompt, chosen, reject in zip(prompts, chosens, rejects):
 
             prompt_tokens = self.tokenizer.tokenize(prompt)
 
             if len(prompt_tokens) > self.max_prompt_length:
-                prompt_tokens = prompt_tokens[:self.max_prompt_length]
+                prompt_tokens = prompt_tokens[: self.max_prompt_length]
 
             prompt_ids = self.tokenizer.convert_tokens_to_ids(prompt_tokens)
             prompt_mask = [1] * len(prompt_ids)
 
             max_resp = self.max_length - len(prompt_ids)
             chosen_tokens = self.tokenizer.tokenize(chosen)
-            chosen_tokens = chosen_tokens[:max_resp - 1]
+            chosen_tokens = chosen_tokens[: max_resp - 1]
             chosen_tokens.append(self.tokenizer.eos_token)
             chosen_ids = self.tokenizer.convert_tokens_to_ids(chosen_tokens)
             chosen_mask = [1] * len(chosen_ids)
 
             reject_tokens = self.tokenizer.tokenize(reject)
-            reject_tokens = reject_tokens[:max_resp - 1]
+            reject_tokens = reject_tokens[: max_resp - 1]
             reject_tokens.append(self.tokenizer.eos_token)
             reject_ids = self.tokenizer.convert_tokens_to_ids(reject_tokens)
             reject_mask = [1] * len(reject_ids)
@@ -450,15 +451,19 @@ class EmbedCollator(DataCollatorWithPadding):
 @dataclass
 class DPOCollator(DataCollatorWithPadding):
     def __call__(self, features) -> Tuple[Dict[str, torch.Tensor], Dict[str, torch.Tensor]]:
-        input_ids = [torch.tensor(ins["chosen_input_ids"]) for ins in features] +\
-                [torch.tensor(ins["rejected_input_ids"]) for ins in features]
-        labels = [torch.tensor(ins["chosen_labels"]) for ins in features] +\
-                [torch.tensor(ins["rejected_labels"]) for ins in features]
-        attention_mask = [torch.tensor(ins["chosen_attention_mask"]) for ins in features] +\
-                [torch.tensor(ins["rejected_attention_mask"]) for ins in features]
+        input_ids = [torch.tensor(ins["chosen_input_ids"]) for ins in features] + [
+            torch.tensor(ins["rejected_input_ids"]) for ins in features
+        ]
+        labels = [torch.tensor(ins["chosen_labels"]) for ins in features] + [
+            torch.tensor(ins["rejected_labels"]) for ins in features
+        ]
+        attention_mask = [torch.tensor(ins["chosen_attention_mask"]) for ins in features] + [
+            torch.tensor(ins["rejected_attention_mask"]) for ins in features
+        ]
 
         input_ids = torch.nn.utils.rnn.pad_sequence(
-                input_ids, batch_first=True, padding_value=self.tokenizer.eos_token_id)
+            input_ids, batch_first=True, padding_value=self.tokenizer.eos_token_id
+        )
         labels = torch.nn.utils.rnn.pad_sequence(labels, batch_first=True, padding_value=IGNORE_INDEX)
         attention_mask = torch.nn.utils.rnn.pad_sequence(attention_mask, batch_first=True, padding_value=0)
         return dict(
