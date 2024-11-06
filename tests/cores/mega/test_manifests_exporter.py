@@ -6,7 +6,7 @@ import unittest
 
 import yaml
 
-from comps.cores.mega.manifests_exporter import convert_to_deployment_and_service
+from comps.cores.mega.exporter import convert_to_deployment_and_service
 
 
 class TestChatQnAManifestsExporter(unittest.TestCase):
