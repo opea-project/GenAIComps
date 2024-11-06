@@ -103,7 +103,7 @@ docker compose -f docker-compose-dataprep-milvus.yaml up -d
 
 ### 3.1 Use Upload API
 
-Once document preparation microservice for Milvus is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
+Once document preparation microservice for Milvus is started, user can use below command to invoke the microservice to convert the document to embedding, and save it to the database.
 
 Make sure the file path after `files=@` is correct.
 
