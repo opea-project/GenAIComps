@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (c) 2015-2024 MinIO, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import io
 import json
@@ -49,9 +49,8 @@ logflag = os.getenv("LOGFLAG", True)
 
 # workaround notes: cp comps/dataprep/utils.py ./milvus/utils.py
 # from utils import document_loader, get_tables_result, parse_html
-index_params = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
-partition_field_name = "filename"
-upload_folder = "./uploaded_files/"
+INDEX_PARAMS = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
+PARTITION_FIELD_NAME = "filename"
 
 minio_client = Minio(
     endpoint=MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=MINIO_SECURE
@@ -60,7 +59,7 @@ minio_client = Minio(
 
 class MosecEmbeddings(OpenAIEmbeddings):
     def _get_len_safe_embeddings(
-        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
+            self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
     ) -> List[List[float]]:
         _chunk_size = chunk_size or self.chunk_size
         batched_embeddings: List[List[float]] = []
@@ -90,7 +89,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
     # insert documents to Milvus
     insert_docs = []
     for chunk in chunks:
-        insert_docs.append(Document(page_content=chunk, metadata={partition_field_name: file_name}))
+        insert_docs.append(Document(page_content=chunk, metadata={PARTITION_FIELD_NAME: file_name}))
 
     # Batch size
     batch_size = 32
@@ -99,7 +98,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
     for i in range(0, num_chunks, batch_size):
         if logflag:
             logger.info(f"[ ingest chunks ] Current batch: {i}")
-        batch_docs = insert_docs[i : i + batch_size]
+        batch_docs = insert_docs[i: i + batch_size]
 
         try:
             logger.info(f"MILVUS HOST IS: {MILVUS_HOST}")
@@ -108,7 +107,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
                 embeddings,
                 collection_name=COLLECTION_NAME,
                 connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
-                partition_key_field=partition_field_name,
+                partition_key_field=PARTITION_FIELD_NAME,
             )
         except Exception as e:
             if logflag:
@@ -166,10 +165,10 @@ def ingest_data_to_minio(doc_path: DocPath):
 
 
 def search_by_file(collection, file_name):
-    query = f"{partition_field_name} == '{file_name}'"
+    query = f"{PARTITION_FIELD_NAME} == '{file_name}'"
     results = collection.query(
         expr=query,
-        output_fields=[partition_field_name, "pk"],
+        output_fields=[PARTITION_FIELD_NAME, "pk"],
     )
     if logflag:
         logger.info(f"[ search by file ] searched by {file_name}")
@@ -178,7 +177,7 @@ def search_by_file(collection, file_name):
 
 
 def search_all(collection):
-    results = collection.query(expr="pk >= 0", output_fields=[partition_field_name, "pk"])
+    results = collection.query(expr="pk >= 0", output_fields=[PARTITION_FIELD_NAME, "pk"])
     if logflag:
         logger.info(f"[ search all ] {len(results)} results: {results}")
     return results
@@ -209,8 +208,8 @@ def delete_all_data():
 
 def delete_by_partition_field(my_milvus, partition_field):
     if logflag:
-        logger.info(f"[ delete partition ] deleting {partition_field_name} {partition_field}")
-    pks = my_milvus.get_pks(f'{partition_field_name} == "{partition_field}"')
+        logger.info(f"[ delete partition ] deleting {PARTITION_FIELD_NAME} {partition_field}")
+    pks = my_milvus.get_pks(f'{PARTITION_FIELD_NAME} == "{partition_field}"')
     if logflag:
         logger.info(f"[ delete partition ] target pks: {pks}")
     res = my_milvus.delete(pks)
@@ -221,12 +220,12 @@ def delete_by_partition_field(my_milvus, partition_field):
 
 @register_microservice(name="opea_service@prepare_doc_minio_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6010)
 async def ingest_documents(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-    link_list: Optional[str] = Form(None),
-    chunk_size: int = Form(1000),
-    chunk_overlap: int = Form(100),
-    process_table: bool = Form(False),
-    table_strategy: str = Form("fast"),
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: int = Form(1000),
+        chunk_overlap: int = Form(100),
+        process_table: bool = Form(False),
+        table_strategy: str = Form("fast"),
 ):
     if logflag:
         logger.info(f"[ upload ] files:{files}")
@@ -376,7 +375,7 @@ async def process_metadata(event: MinioEventNotification):
             embedding_function=embeddings,
             collection_name=COLLECTION_NAME,
             connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
-            index_params=index_params,
+            index_params=INDEX_PARAMS,
             auto_id=True,
         )
         for record in event.Records:
@@ -405,7 +404,7 @@ async def rag_get_file_structure():
         embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
         connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
-        index_params=index_params,
+        index_params=INDEX_PARAMS,
         auto_id=True,
     )
 
@@ -486,8 +485,6 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
 
 
 if __name__ == "__main__":
-    create_upload_folder(upload_folder)
-    print(f"upload folder {upload_folder} created at {Path(upload_folder).absolute()}")
 
     # Create vectorstore
     if MOSEC_EMBEDDING_ENDPOINT:

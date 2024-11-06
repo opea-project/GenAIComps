@@ -1,2 +1,2 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (c) 2015-2024 MinIO, Inc.
 # SPDX-License-Identifier: Apache-2.0

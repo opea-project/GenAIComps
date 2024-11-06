@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (c) 2015-2024 MinIO, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import io
 import json
@@ -45,8 +45,8 @@ logflag = os.getenv("LOGFLAG", True)
 
 # workaround notes: cp comps/dataprep/utils.py ./lancedb/utils.py
 # from utils import document_loader, get_tables_result, parse_html
-index_params = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
-partition_field_name = "filename"
+INDEX_PARAMS = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
+PARTITION_FIELD_NAME = "filename"
 
 minio_client = Minio(
     endpoint=MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=MINIO_SECURE
@@ -90,7 +90,7 @@ def ingest_chunks_to_lancedb(file_name: str, chunks: List):
     doc_ids = []
     for i, chunk in enumerate(chunks):
         insert_text.append(chunk)
-        insert_metadata.append({partition_field_name: file_name})
+        insert_metadata.append({PARTITION_FIELD_NAME: file_name})
         doc_ids.append(f"{file_name}_{i}")
     # Batch size
     batch_size = 32
@@ -172,10 +172,10 @@ def ingest_data_to_minio(doc_path: DocPath):
 
 
 def search_by_file(collection, file_name):
-    query = f"{partition_field_name} == '{file_name}'"
+    query = f"{PARTITION_FIELD_NAME} == '{file_name}'"
     results = collection.query(
         expr=query,
-        output_fields=[partition_field_name, "pk"],
+        output_fields=[PARTITION_FIELD_NAME, "pk"],
     )
     if logflag:
         logger.info(f"[ search by file ] searched by {file_name}")
@@ -184,7 +184,7 @@ def search_by_file(collection, file_name):
 
 
 def search_all(collection):
-    results = collection.search(query="pk >= 0", output_fields=[partition_field_name, "pk"])
+    results = collection.search(query="pk >= 0", output_fields=[PARTITION_FIELD_NAME, "pk"])
     if logflag:
         logger.info(f"[ search all ] {len(results)} results: {results}")
     return results
@@ -211,8 +211,8 @@ def delete_all_data():
 
 def delete_by_partition_field(my_lancedb, partition_field):
     if logflag:
-        logger.info(f"[ delete partition ] deleting {partition_field_name} {partition_field}")
-    res = my_lancedb.delete(filter=f"metadata.{partition_field_name} == '{partition_field}'")
+        logger.info(f"[ delete partition ] deleting {PARTITION_FIELD_NAME} {partition_field}")
+    res = my_lancedb.delete(filter=f"metadata.{PARTITION_FIELD_NAME} == '{partition_field}'")
     if logflag:
         logger.info(f"[ delete partition ] delete success: {res}")
 

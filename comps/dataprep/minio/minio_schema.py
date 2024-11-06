@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (c) 2015-2024 MinIO, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 from datetime import datetime
@@ -61,20 +61,20 @@ class S3Object(BaseModel):
         return unquote(v)
 
 
-class S3(BaseModel):
+class MinIOS3(BaseModel):
     s3SchemaVersion: str
     configurationId: str
     bucket: Bucket
     object: S3Object
 
 
-class Source(BaseModel):
+class MinIOSource(BaseModel):
     host: str
     port: str
     userAgent: str
 
 
-class Record(BaseModel):
+class MinIORecord(BaseModel):
     eventVersion: str
     eventSource: str
     awsRegion: str
@@ -83,14 +83,14 @@ class Record(BaseModel):
     userIdentity: UserIdentity
     requestParameters: RequestParameters
     responseElements: ResponseElements
-    s3: S3
-    source: Source
+    s3: MinIOS3 = Field(..., alias="s3")
+    source: MinIOSource = Field(..., alias="source")
 
 
 class MinioEventNotification(BaseModel):
     EventName: str
     Key: str
-    Records: List[Record]
+    Records: List[MinIORecord] = Field(..., alias="Records")
 
     class Config:
         from_attributes = True
