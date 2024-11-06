@@ -108,7 +108,7 @@ curl -X POST \
     http://localhost:6010/v1/dataprep
 ```
 
-You can specify chunk_size and chunk_size by the following commands. To avoid big chunks, pass a small chun_size like 500 as below (default 1500).
+You can specify `chunk_size` with the following commands. To avoid big chunks, pass a small `chunk_size` like 500 as below (default 1500).
 
 ```bash
 curl -X POST \
