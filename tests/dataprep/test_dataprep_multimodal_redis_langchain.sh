@@ -11,14 +11,15 @@ LVM_PORT=5028
 LVM_ENDPOINT="http://${ip_address}:${LVM_PORT}/v1/lvm"
 WHISPER_MODEL="base"
 INDEX_NAME="dataprep"
+tmp_dir=$(mktemp -d)
 video_name="WeAreGoingOnBullrun"
-transcript_fn="${video_name}.vtt"
-video_fn="${video_name}.mp4"
+transcript_fn="${tmp_dir}/${video_name}.vtt"
+video_fn="${tmp_dir}/${video_name}.mp4"
 audio_name="AudioSample"
-audio_fn="${audio_name}.wav"
+audio_fn="${tmp_dir}/${audio_name}.wav"
 image_name="apple"
-image_fn="${image_name}.png"
-caption_fn="${image_name}.txt"
+image_fn="${tmp_dir}/${image_name}.png"
+caption_fn="${tmp_dir}/${image_name}.txt"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -139,7 +140,7 @@ function validate_microservice() {
     # test v1/generate_transcripts upload file
     echo "Testing generate_transcripts API"
     URL="http://${ip_address}:$dataprep_service_port/v1/generate_transcripts"
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -F "files=@./$audio_fn"  -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$video_fn" -F "files=@$audio_fn"  -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -163,7 +164,7 @@ function validate_microservice() {
     echo "Testing ingest_with_text API with video+transcripts"
     URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$video_fn" -F "files=@$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -187,7 +188,7 @@ function validate_microservice() {
     echo "Testing ingest_with_text API with image+caption"
     URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -F "files=@./$caption_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$caption_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -211,7 +212,7 @@ function validate_microservice() {
     echo "Testing ingest_with_text API with both video+transcript and image+caption"
     URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -F "files=@./$caption_fn" -F "files=@./$video_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$caption_fn" -F "files=@$video_fn" -F "files=@$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -235,7 +236,7 @@ function validate_microservice() {
     echo "Testing ingest_with_text API with invalid input (.png and .vtt)"
     URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -F "files=@./$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -259,7 +260,7 @@ function validate_microservice() {
     echo "Testing generate_captions API with video"
     URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -283,7 +284,7 @@ function validate_microservice() {
     echo "Testing generate_captions API with image"
     URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@./$image_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -362,10 +363,7 @@ function stop_docker() {
 
 function delete_data() {
     cd ${LOG_PATH}
-    rm -rf WeAreGoingOnBullrun.vtt
-    rm -rf WeAreGoingOnBullrun.mp4
-    rm -rf apple.png
-    rm -rf apple.txt
+    rm -rf ${tmp_dir}
     sleep 1s
 }
 
