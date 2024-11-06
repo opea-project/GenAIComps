@@ -209,10 +209,10 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   -X POST \
   -H "Content-Type: application/json" \
   -d '{
-    "training_file": "test_data.json",
+    "training_file": "test_data.jsonl",
     "model": "meta-llama/Llama-2-7b-hf",
     "General":{
-      "task":"dpo",
+      "task":"dpo"
     }
   }'
 ```
