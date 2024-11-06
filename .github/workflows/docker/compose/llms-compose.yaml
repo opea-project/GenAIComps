@@ -6,7 +6,7 @@
 services:
   llm-tgi:
     build:
-      dockerfile: comps/llms/text-generation/tgi/Dockerfile
+      dockerfile: comps/llms/text-generation/tgi/langchain/Dockerfile
     image: ${REGISTRY:-opea}/llm-tgi:${TAG:-latest}
   llm-ollama:
     build:

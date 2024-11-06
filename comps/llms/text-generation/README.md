@@ -54,7 +54,7 @@ pip install -r requirements.txt
 Install the requirements for TGI Service
 
 ```bash
-cd ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/tgi
+cd ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/tgi/langchain
 
 pip install -r requirements.txt
 ```
@@ -184,7 +184,7 @@ docker build \
   --build-arg https_proxy=$https_proxy \
   --build-arg http_proxy=$http_proxy \
   -t opea/llm-tgi:latest \
-  -f comps/llms/text-generation/tgi/Dockerfile .
+  -f comps/llms/text-generation/tgi/langchain/Dockerfile .
 ```
 
 #### 2.1.2 vLLM
@@ -339,7 +339,7 @@ docker run -d \
 #### 2.4.1 TGI
 
 ```bash
-cd ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/tgi
+cd ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/tgi/langchain
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
