@@ -1,10 +1,14 @@
 # Retriever Microservice with Milvus
 
+You can start retriever Microservice either by Python script or docker composer.
+
 ## 🚀Start Microservice with Python
 
 ### Install Requirements
 
 ```bash
+git clone https://github.com/opea-project/GenAIComps.git
+cd GenAIComps/comps/retrievers/milvus/langchain 
 pip install -r requirements.txt
 ```
 
@@ -14,20 +18,14 @@ Please refer to this [readme](../../../vectorstores/milvus/README.md).
 
 ### Setup Environment Variables
 
-```bash
-export no_proxy=${your_no_proxy}
-export http_proxy=${your_http_proxy}
-export https_proxy=${your_http_proxy}
-export MILVUS_HOST=${your_milvus_host_ip}
-export MILVUS_PORT=19530
-export COLLECTION_NAME=${your_collection_name}
-export MOSEC_EMBEDDING_ENDPOINT=${your_emdding_endpoint}
 ```
-
+export HUGGINGFACEHUB_API_TOKEN="YOUR_HUGGINGFACEHUB_API_TOKEN"
+#source set_env.sh
+```
 ### Start Retriever Service
 
 ```bash
-export MOSEC_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
+export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6006"
 python retriever_redis.py
 ```
 
@@ -36,14 +34,17 @@ python retriever_redis.py
 ### Build Docker Image
 
 ```bash
-cd ../../
-docker build -t opea/retriever-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/milvus/langchain/Dockerfile .
+git clone https://github.com/opea-project/GenAIComps.git
+cd GenAIComps/comps/retrievers/milvus/langchain 
+# build dataprep milvus docker image
+docker compose build --no-cache
 ```
 
 ### Run Docker with CLI
 
 ```bash
-docker run -d --name="retriever-milvus-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e MOSEC_EMBEDDING_ENDPOINT=${your_emdding_endpoint} -e MILVUS_HOST=${your_milvus_host_ip}  opea/retriever-milvus:latest
+source set_env.sh
+docker compose up -d
 ```
 
 ## 🚀3. Consume Retriever Service

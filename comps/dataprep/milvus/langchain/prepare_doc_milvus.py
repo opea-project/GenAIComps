@@ -88,11 +88,12 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
         batch_docs = insert_docs[i : i + batch_size]
 
         try:
+            url = "http://" + str(MILVUS_HOST) + ":" + str(MILVUS_PORT)
             _ = Milvus.from_documents(
                 batch_docs,
                 embeddings,
                 collection_name=COLLECTION_NAME,
-                connection_args={"uri": milvus_uri},
+                connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri":url},
                 partition_key_field=partition_field_name,
             )
         except Exception as e:
@@ -190,7 +191,7 @@ def delete_by_partition_field(my_milvus, partition_field):
         logger.info(f"[ delete partition ] delete success: {res}")
 
 
-@register_microservice(name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6010)
+@register_microservice(name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6007)
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
     link_list: Optional[str] = Form(None),
@@ -207,10 +208,11 @@ async def ingest_documents(
         raise HTTPException(status_code=400, detail="Provide either a file or a string list, not both.")
 
     # define Milvus obj
+    url = "http://" + str(MILVUS_HOST) + ":" + str(MILVUS_PORT)
     my_milvus = Milvus(
         embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"uri": milvus_uri},
+        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri":url},
         index_params=index_params,
         auto_id=True,
     )
@@ -336,17 +338,18 @@ async def ingest_documents(
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6010
+    name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6007
 )
 async def rag_get_file_structure():
     if logflag:
         logger.info("[ get ] start to get file structure")
 
     # define Milvus obj
+    url = "http://" + str(MILVUS_HOST) + ":" + str(MILVUS_PORT)
     my_milvus = Milvus(
         embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"uri": milvus_uri},
+        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri": url},
         index_params=index_params,
         auto_id=True,
     )
@@ -388,7 +391,7 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6010
+    name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6007
 )
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
@@ -401,10 +404,11 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
         logger.info(file_path)
 
     # define Milvus obj
+    url = "http://" + str(MILVUS_HOST) + ":" + str(MILVUS_PORT)
     my_milvus = Milvus(
         embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"uri": milvus_uri},
+        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri":url},
         index_params=index_params,
         auto_id=True,
     )
