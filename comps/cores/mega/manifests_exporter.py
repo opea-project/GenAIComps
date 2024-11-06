@@ -1,16 +1,27 @@
 # # Copyright (C) 2024 Intel Corporation
 # # SPDX-License-Identifier: Apache-2.0
-import argparse
+
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import yaml
-from exporter import replace_env_vars
 from kubernetes import client
 
 log_level = os.getenv("LOGLEVEL", "INFO")
 logging.basicConfig(level=log_level.upper(), format="%(asctime)s - %(levelname)s - %(message)s")
+
+
+def replace_env_vars(data: Any) -> Any:
+    if isinstance(data, dict):
+        return {k: replace_env_vars(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [replace_env_vars(v) for v in data]
+    elif isinstance(data, str) and data.startswith("${") and data.endswith("}"):
+        env_var = data[2:-1]
+        return os.getenv(env_var, "")
+    else:
+        return data
 
 
 def create_k8s_resources(
