@@ -80,7 +80,6 @@ jobs:
           docker_compose_path: ${{ steps.get-yaml-path.outputs.docker_compose_path }}
           registry: ${OPEA_IMAGE_REPO}opea
           service_list: ${{ steps.get-build-list.outputs.build_list }}
-          mode: ${{ inputs.mode }}
           tag: ${{ inputs.tag }}
 
   ####################################################################################################
