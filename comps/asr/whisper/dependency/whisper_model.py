@@ -1,7 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import contextlib
 import os
 import time
 import urllib.request
@@ -10,7 +9,6 @@ import numpy as np
 import torch
 from datasets import Audio, Dataset
 from pydub import AudioSegment
-from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
 
 class WhisperModel:
@@ -22,6 +20,7 @@ class WhisperModel:
             from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
 
             adapt_transformers_to_gaudi()
+        from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
         self.device = device
         asr_model_name_or_path = os.environ.get("ASR_MODEL_PATH", model_name_or_path)

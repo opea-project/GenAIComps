@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # HABANA environment
-FROM vault.habana.ai/gaudi-docker/1.17.1/ubuntu22.04/habanalabs/pytorch-installer-2.3.1:latest as hpu
+FROM vault.habana.ai/gaudi-docker/1.18.0/ubuntu22.04/habanalabs/pytorch-installer-2.4.0 AS hpu
 
 ENV LANG=en_US.UTF-8
 
@@ -23,7 +23,7 @@ COPY comps /home/user/comps
 
 RUN cd /home/user/comps/lvms/llama-vision/ && \
     pip install --no-cache-dir -r requirements.txt  && \
-    pip install --upgrade Pillow
+    pip install --no-cache-dir --upgrade Pillow
 
 ENV PYTHONPATH=/root:/home/user
 

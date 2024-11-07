@@ -5,7 +5,7 @@ import json
 import uuid
 
 from huggingface_hub import ChatCompletionOutputFunctionDefinition, ChatCompletionOutputToolCall
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage
 from langchain_core.messages.tool import ToolCall
 from langchain_core.output_parsers import BaseOutputParser
 
@@ -14,17 +14,21 @@ class QueryWriterLlamaOutputParser(BaseOutputParser):
     def parse(self, text: str):
         print("raw output from llm: ", text)
         json_lines = text.split("\n")
-        print("json_lines: ", json_lines)
         output = []
         for line in json_lines:
             try:
-                output.append(json.loads(line))
+                if "assistant" in line:
+                    line = line.replace("assistant", "")
+                print("line: ", line)
+                parsed = json.loads(line)
+                if isinstance(parsed, dict):
+                    output.append(parsed)
             except Exception as e:
                 print("Exception happened in output parsing: ", str(e))
         if output:
             return output
         else:
-            return None
+            return "Error occurred when parsing LLM output."
 
 
 def convert_json_to_tool_call(json_str, tool):

@@ -27,6 +27,7 @@ from comps.cores.proto.docarray import (
     VideoPath,
     ImageDoc,
     SDInputs,
+    SDImg2ImgInputs,
     SDOutputs,
     TextImageDoc,
     MultimodalDoc,
@@ -60,6 +61,8 @@ from comps.cores.mega.gateway import (
     VideoQnAGateway,
     VisualQnAGateway,
     MultimodalQnAGateway,
+    GraphragGateway,
+    AvatarChatbotGateway,
 )
 
 # Telemetry
