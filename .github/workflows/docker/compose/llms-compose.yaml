@@ -45,6 +45,12 @@ services:
       context: vllm-openvino
       dockerfile: Dockerfile.openvino
     image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
+  vllm-fork:
+    build:
+      context: vllm-fork
+      dockerfile: Dockerfile.hpu
+    shm_size: '128g' 
+    image: ${REGISTRY:-opea}/vllm-fork:${TAG:-latest}
   llm-eval:
     build:
       dockerfile: comps/llms/utils/lm-eval/Dockerfile
