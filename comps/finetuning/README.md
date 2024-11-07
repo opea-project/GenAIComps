@@ -95,7 +95,7 @@ Download a training file, such as `alpaca_data.json` for instruction tuning and 
 curl http://${your_ip}:8015/v1/files -X POST -H "Content-Type: multipart/form-data" -F "file=@./alpaca_data.json" -F purpose="fine-tune"
 ```
 
-For reranking and embedding models finetuning, the training file [toy_finetune_data.jsonl](https://github.com/FlagOpen/FlagEmbedding/blob/master/examples/finetune/toy_finetune_data.jsonl) is an toy example.
+For reranking and embedding models finetuning, the training file [toy_finetune_data.jsonl](https://github.com/FlagOpen/FlagEmbedding/blob/1.1/examples/finetune/toy_finetune_data.jsonl) is an toy example.
 
 ### 3.2 Create fine-tuning job
 
