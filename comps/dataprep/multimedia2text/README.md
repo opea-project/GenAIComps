@@ -190,10 +190,21 @@ To stop and remove the Docker containers and images associated with the multimed
    docker stop <container_id_or_name>
    ```
 
+   If you want to stop all running containers at once, you can use:
+   ```bash
+   docker stop $(docker ps -q)
+   ```
+
 3. **Remove Containers**: After stopping the containers, use the `docker rm` command followed by the container IDs or names to remove them.
 
    ```bash
    docker rm <container_id_or_name>
+   ```
+
+   Optionally, you can remove the stopped containers to free up resources:
+
+   ```bash
+   docker rm $(docker ps -a -q) 
    ```
 
 4. **Remove Images**: If you also want to remove the Docker images, use the `docker rmi` command followed by the image IDs or names.
@@ -202,21 +213,12 @@ To stop and remove the Docker containers and images associated with the multimed
    docker rmi <image_id_or_name>
    ```
 
-Example:
+   To remove all unused images, you can use:
 
-```bash
-# List running containers
-docker ps
+   ```bash
+   docker image prune -a
+   ```
 
-# Stop containers
-docker stop <container_id_or_name_1> <container_id_or_name_2>
 
-# Remove containers
-docker rm <container_id_or_name_1> <container_id_or_name_2>
 
-# Remove images
-docker rmi <image_id_or_name_1> <image_id_or_name_2>
-```
-
-By following these steps, you can effectively stop and remove the Docker containers and images associated with the multimedia-to-text services.
 
