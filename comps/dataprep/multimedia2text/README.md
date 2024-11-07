@@ -7,9 +7,17 @@ This guide provides instructions on how to build and run various Docker services
 3. **Video to Audio Service**: Extracts audio from video files.
 4. **Multimedia2Text Service**: Transforms multimedia data to text data.
 
+
 ## Prerequisites
 
-Ensure you have Docker installed and running on your system. Also, make sure you have the necessary proxy settings configured if you are behind a corporate firewall.
+1. **Docker**: Ensure you have Docker installed and running on your system. You can download and install Docker from the [official Docker website](https://www.docker.com/get-started).
+
+2. **Proxy Settings**: If you are behind a corporate firewall, make sure you have the necessary proxy settings configured. This will ensure that Docker and other tools can access the internet.
+
+3. **Python**: If you want to validate services using the provided Python scripts, ensure you have Python 3.11 installed. The current validation tests have been tested with Python 3.11. You can check your Python version by running the following command in your terminal:
+   ```bash
+   python --version
+   ```
 
 ## Getting Started
 
@@ -84,7 +92,7 @@ docker build -t opea/multimedia2text:latest --build-arg https_proxy=$https_proxy
 ```bash
 ip_address=$(hostname -I | awk '{print $1}')
 
-docker run -it -p 7079:7079 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
+docker run -d -p 7079:7079 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
     -e A2T_ENDPOINT=http://$ip_address:7066 \
     -e V2A_ENDPOINT=http://$ip_address:7078 \
     opea/multimedia2text:latest
@@ -166,122 +174,49 @@ Running test: Multimedia2text service
 >>> Multimedia2text service test for video data type passed ... 
 ```
 
+## How to Stop/Remove Services
 
+To stop and remove the Docker containers and images associated with the multimedia-to-text services, follow these steps:
 
+1. **List Running Containers**: First, list all running Docker containers to identify the ones you want to stop and remove.
 
+   ```bash
+   docker ps
+   ```
 
+2. **Stop Containers**: Use the `docker stop` command followed by the container IDs or names to stop the running containers.
 
+   ```bash
+   docker stop <container_id_or_name>
+   ```
 
-<!-- 
+3. **Remove Containers**: After stopping the containers, use the `docker rm` command followed by the container IDs or names to remove them.
 
-# Audio to Text Servide 
+   ```bash
+   docker rm <container_id_or_name>
+   ```
 
-```
-cd GenAIComps
-```
+4. **Remove Images**: If you also want to remove the Docker images, use the `docker rmi` command followed by the image IDs or names.
 
-## Whisper Service 
-### Build
+   ```bash
+   docker rmi <image_id_or_name>
+   ```
+
+Example:
+
 ```bash
-docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/dependency/Dockerfile .
-```
-### Run 
-```bash
-docker run -d -p 7066:7066 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/whisper:latest
-```
+# List running containers
+docker ps
 
+# Stop containers
+docker stop <container_id_or_name_1> <container_id_or_name_2>
 
-## A2T Service 
-### Build
-```bash
-docker build -t opea/a2t:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/multimedia2text/audio2text/Dockerfile .
+# Remove containers
+docker rm <container_id_or_name_1> <container_id_or_name_2>
 
-
-```
-### Run 
-```bash
-ip_address=$(hostname -I | awk '{print $1}')
-
-docker run -d -p 9099:9099 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e A2T_ENDPOINT=http://$ip_address:7066 opea/a2t:latest
+# Remove images
+docker rmi <image_id_or_name_1> <image_id_or_name_2>
 ```
 
-# Video to Audio Service 
-### Build
-```bash
-docker build -t opea/v2a:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/multimedia2text/video2audio/Dockerfile .
-```
-### Run 
-```bash
-docker run -d -p 7078:7078 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/v2a:latest
-```
-
-
-# Data Preperation Service 
-### Build
-```bash
-docker build -t opea/multimedia2text:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/multimedia2text/Dockerfile .
-```
-### Run 
-```bash
-ip_address=$(hostname -I | awk '{print $1}')
-
-docker run -it -p 7079:7079 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
-    -e A2T_ENDPOINT=http://$ip_address:7066 \
-    -e V2A_ENDPOINT=http://$ip_address:7078 \
-    opea/multimedia2text:latest 
-
-```
-
-
-
-
-
-# Macro Service 
-
-cd GenAIExamples\Docsum
-
-## Build
-```bash 
-docker build -t opea/docsum:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f Dockerfile .
-
-```
-## Run 
-cd GenAIExamples/DocSum/docker_compose/intel/cpu/xeon
-```bash
-docker compose up -d
-```
-
- -->
-
-
-
-<!-- 
-ip_address=$(hostname -I | awk '{print $1}')
-
-docker run -it -p 8888:8888 --ipc=host \
-    -e http_proxy=$http_proxy \
-    -e https_proxy=$https_proxy  \
-    -e no_proxy=$no_proxy  \
-    -e DATA_SERVICE_HOST_IP=http://$ip_address \
-    opea/docsum:latest 
-
-``` -->
-<!-- 
-    -e A2T_ENDPOINT=http://$ip_address:7066 \
-    -e V2A_ENDPOINT=http://$ip_address:7078 \  
-    # -e A2T_ENDPOINT=http://$ip_address:7066 \
-    # -e V2A_ENDPOINT=http://$ip_address:7078 \
-    # -e DATA_ENDPOINT=http://$ip_address:7079 \   
-    # -e DATA_SERVICE_HOST_IP=http://$ip_address \
--->
-
-
-
-
-
-
-
-
-
-
+By following these steps, you can effectively stop and remove the Docker containers and images associated with the multimedia-to-text services.
 
