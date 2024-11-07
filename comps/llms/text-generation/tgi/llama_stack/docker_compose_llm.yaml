@@ -1,0 +1,54 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3.8"
+
+services:
+  tgi_service:
+    image: ghcr.io/huggingface/text-generation-inference:2.1.0
+    container_name: tgi-service
+    ports:
+      - "8008:80"
+    volumes:
+      - "./data:/data"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HF_TOKEN: ${HF_TOKEN}
+      HF_HUB_DISABLE_PROGRESS_BARS: 1
+      HF_HUB_ENABLE_HF_TRANSFER: 0
+    command: --model-id ${LLM_MODEL_ID}
+  llamastack:
+    depends_on:
+      tgi_service
+    image: llamastack/distribution-tgi
+    volumes:
+      - ./dependency/llama_stack_run.yaml:/root/my-run.yaml
+    ports:
+      - "5000:5000"
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HF_TOKEN: ${HF_TOKEN}
+    command: --yaml_config /root/my-run.yaml
+  llm:
+    image: opea/llm-tgi-llamastack:latest
+    container_name: llm-tgi-llamastack-server
+    ports:
+      - "9000:9000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLAMA_STACK_ENDPOINT: ${LLAMA_STACK_ENDPOINT}
+      HF_TOKEN: ${HF_TOKEN}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
