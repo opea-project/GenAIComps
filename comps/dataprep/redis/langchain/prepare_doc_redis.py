@@ -445,9 +445,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     except Exception as e:
         if logflag:
             logger.info(f"[ delete ] {e}, File {file_path} does not exists.")
-        raise HTTPException(
-            status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path."
-        )
+        raise HTTPException(status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path.")
     file_ids = key_ids.split("#")
 
     # delete file keys id in db KEY_INDEX_NAME
@@ -466,9 +464,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
         except Exception as e:
             if logflag:
                 logger.info(f"[ delete ] {e}. File {file_path} does not exists.")
-            raise HTTPException(
-                status_code=404, detail=f"File not found in db {INDEX_NAME}. Please check file_path."
-            )
+            raise HTTPException(status_code=404, detail=f"File not found in db {INDEX_NAME}. Please check file_path.")
 
         # delete file content
         try:
@@ -481,9 +477,9 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     # local file does not exist (restarted docker container)
     if not delete_path.exists():
         if logflag:
-            logger.info(f"[ delete ] File {file_path} not saved loacally.")
+            logger.info(f"[ delete ] File {file_path} not saved locally.")
         return {"status": True}
-    
+
     # delete local file
     if delete_path.is_file():
         # delete file on local disk
