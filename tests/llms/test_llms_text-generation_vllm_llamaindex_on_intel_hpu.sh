@@ -64,7 +64,7 @@ function start_service() {
     until [[ "$n" -ge 120 ]] || [[ $ready == true ]]; do
         docker logs test-comps-vllm-service > ${WORKPATH}/tests/test-comps-vllm-service.log
         n=$((n+1))
-        if grep -q Connected ${WORKPATH}/tests/test-comps-vllm-service.log; then
+        if grep -q throughput ${WORKPATH}/tests/test-comps-vllm-service.log; then
             break
         fi
         sleep 5s
