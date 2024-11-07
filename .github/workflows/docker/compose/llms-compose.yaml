@@ -49,7 +49,7 @@ services:
     build:
       context: vllm-fork
       dockerfile: Dockerfile.hpu
-    shm_size: '128g' 
+    shm_size: '128g'
     image: ${REGISTRY:-opea}/vllm-fork:${TAG:-latest}
   llm-eval:
     build:

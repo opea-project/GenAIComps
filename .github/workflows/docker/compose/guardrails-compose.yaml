@@ -41,4 +41,3 @@ services:
     build:
       dockerfile: comps/guardrails/prompt_injection/predictionguard/Dockerfile
     image: ${REGISTRY:-opea}/guardrails-injection-predictionguard:${TAG:-latest}
-
