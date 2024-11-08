@@ -127,7 +127,7 @@ python comps/dataprep/multimedia2text/audio2text/check_a2t_server.py
 Expected output:
 
 ```
-{'downstream_black_list': [], 'id': '21b0459477abea6d85d20f4b5ddcb714', 'query': 'who is pat gelsinger'}
+Test passed successfully!
 ```
 
 *Note: The `id` value will be different.*
@@ -218,7 +218,3 @@ To stop and remove the Docker containers and images associated with the multimed
    ```bash
    docker image prune -a
    ```
-
-
-
-
