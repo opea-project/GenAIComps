@@ -24,7 +24,7 @@ on:
         type: boolean
       mode:
         default: "CD"
-        description: "Whether the test range is CI or CD"
+        description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
 
@@ -54,7 +54,7 @@ jobs:
           if [ -f "$docker_compose_yml" ]; then
             echo "file_exists=true" >> $GITHUB_OUTPUT
           else
-            echo "There is no ${{ inputs.mode }} part of ${{ inputs.service }} that needs to be executed."
+            echo "The docker_compose_yml does not exist!"
             echo "file_exists=false" >> $GITHUB_OUTPUT
           fi
 
