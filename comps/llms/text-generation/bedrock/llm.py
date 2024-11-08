@@ -1,0 +1,85 @@
+import os
+import boto3
+import json
+from fastapi.responses import StreamingResponse
+from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from typing import Union
+from comps import (
+    CustomLogger,
+    GeneratedDoc,
+    LLMParamsDoc,
+    SearchedDoc,
+    ServiceType,
+    opea_microservices,
+    register_microservice,
+    register_statistics,
+    statistics_dict,
+)
+from comps.cores.proto.api_protocol import ChatCompletionRequest
+
+bedrock_runtime = boto3.client(
+    service_name="bedrock-runtime", region_name="us-east-1")
+
+logger = CustomLogger("llm_bedrock_anthropic")
+logflag = os.getenv("LOGFLAG", True)
+
+
+@register_microservice(
+    name="opea_service@llm_bedrock_anthropic",
+    service_type=ServiceType.LLM,
+    endpoint="/v1/chat/completions",
+    host="0.0.0.0",
+    port=9000,
+)
+def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
+    if logflag:
+        logger.info(input)
+    print(input.query)
+    kwargs = {
+        "modelId": "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+        "contentType": "application/json",
+        "accept": "application/json",
+        "body": json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 1000,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": input.query
+                        }
+                    ]
+                }
+            ]
+        })
+    }
+
+    if input.streaming:
+        async def stream_generator():
+            response = bedrock_runtime.invoke_model_with_response_stream(
+                **kwargs)
+            for event in response.get('body'):
+                chunk = json.loads(event['chunk']['bytes'])
+                if chunk['type'] == 'content_block_delta':
+                    text_chunk = chunk['delta']['text']
+                    if logflag:
+                        logger.info(
+                            f"[llm - chat_stream] chunk:{repr(text_chunk.encode('utf-8'))}")
+                    yield f"data: {text_chunk}\n\n"
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(stream_generator(), media_type="text/event-stream")
+    else:
+        response = bedrock_runtime.invoke_model(**kwargs)
+        response_body = json.loads(response.get('body').read())
+        generated_text = response_body.get('content')[0]['text']
+        if logflag:
+            logger.info(generated_text)
+        return GeneratedDoc(text=generated_text, prompt=input.query)
+
+
+if __name__ == "__main__":
+    opea_microservices["opea_service@llm_bedrock_anthropic"].start()
+
