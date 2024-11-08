@@ -8,8 +8,8 @@ from typing import List, Optional, Union
 
 # from pyspark import SparkConf, SparkContext
 import redis
-from config import EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE, ADMIN_ROLE, USER_ROLE
-from fastapi import Body, File, Form, HTTPException, UploadFile, Depends
+from config import ADMIN_ROLE, EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE, USER_ROLE
+from fastapi import Body, Depends, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import Redis
@@ -18,9 +18,8 @@ from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
-from comps.cores.mega.utils import token_validator
-
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
+from comps.cores.mega.utils import token_validator
 from comps.dataprep.utils import (
     create_upload_folder,
     document_loader,
@@ -225,7 +224,7 @@ async def ingest_documents(
     chunk_overlap: int = Form(100),
     process_table: bool = Form(False),
     table_strategy: str = Form("fast"),
-    _: Optional[str] = Depends(token_validator([ADMIN_ROLE]))
+    _: Optional[str] = Depends(token_validator([ADMIN_ROLE])),
 ):
     if logflag:
         logger.info(f"[ upload ] files:{files}")
@@ -344,7 +343,7 @@ async def ingest_documents(
 @register_microservice(
     name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6007
 )
-async def rag_get_file_structure(_: Optional[str] = Depends(token_validator([USER_ROLE,ADMIN_ROLE]))):
+async def rag_get_file_structure(_: Optional[str] = Depends(token_validator([USER_ROLE, ADMIN_ROLE]))):
     if logflag:
         logger.info("[ get ] start to get file structure")
 
@@ -378,7 +377,9 @@ async def rag_get_file_structure(_: Optional[str] = Depends(token_validator([USE
 @register_microservice(
     name="opea_service@prepare_doc_redis", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6007
 )
-async def delete_single_file(file_path: str = Body(..., embed=True), _: Optional[str] = Depends(token_validator([ADMIN_ROLE]))):
+async def delete_single_file(
+    file_path: str = Body(..., embed=True), _: Optional[str] = Depends(token_validator([ADMIN_ROLE]))
+):
     """Delete file according to `file_path`.
 
     `file_path`:

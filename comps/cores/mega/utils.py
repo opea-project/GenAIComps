@@ -7,14 +7,13 @@ import os
 import random
 from socket import AF_INET, SOCK_STREAM, socket
 from typing import List, Optional, Union
-from fastapi import  Depends, HTTPException, Request, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import Optional
-from .keycloak import Keycloak
+
 import jwt
-
 import requests
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from .keycloak import Keycloak
 from .logger import CustomLogger
 
 
@@ -209,16 +208,21 @@ def get_access_token(token_url: str, client_id: str, client_secret: str) -> str:
         logger.error(f"Failed to retrieve access token: {response.status_code}, {response.text}")
         return ""
 
+
 bearer_scheme = HTTPBearer(auto_error=False)
+
+
 def token_validator(allowed_roles: Optional[List[str]] = None):
-    async def validate_token(request: Request, credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme)):
-        """
-        Validates the token, checks for allowed roles, and sets user details in request.state.user if valid.
+    async def validate_token(
+        request: Request, credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme)
+    ):
+        """Validates the token, checks for allowed roles, and sets user details in request.state.user if valid.
+
         Raises HTTPException with appropriate status code and message if validation fails.
         """
         # If token is not provided, skip validation
         JWT_AUTH = os.getenv("JWT_AUTH", False)
-        if  not JWT_AUTH:
+        if not JWT_AUTH:
             request.state.user = None
             return
         if credentials is None:
@@ -235,34 +239,41 @@ def token_validator(allowed_roles: Optional[List[str]] = None):
             token = credentials.credentials
             identity_provider = Keycloak()
             decoded_token = identity_provider.decode_token(token)
-            
+
             if not decoded_token:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Invalid token.")
-            
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token.")
+
             # Extract roles from the token
             user_roles = decoded_token.get("realm_access", {}).get("roles", [])
 
             # Check if user has any of the allowed roles
             if allowed_roles and not any(role in user_roles for role in allowed_roles):
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN , detail="User does not have required permissions.")
-            
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN, detail="User does not have required permissions."
+                )
+
             # Set user details in request.state.user
             request.state.user = {
                 "username": decoded_token.get("preferred_username"),
                 "email": decoded_token.get("email"),
-                "roles": user_roles
+                "roles": user_roles,
             }
-            
+
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired.")
-        
+
         except jwt.InvalidTokenError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token signature.")
         except HTTPException as e:
-            raise e        
+            raise e
         except Exception as e:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Token validation error: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Token validation error: {str(e)}"
+            )
+
     return validate_token
+
+
 class SafeContextManager:
     """This context manager ensures that the `__exit__` method of the
     sub context is called, even when there is an Exception in the

@@ -4,7 +4,6 @@ docarray
 docx2txt
 fastapi
 httpx
-pyjwt
 kubernetes
 langchain
 langchain-community
@@ -13,6 +12,7 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 Pillow
 prometheus-fastapi-instrumentator
+pyjwt
 pypdf
 python-multipart
 pyyaml

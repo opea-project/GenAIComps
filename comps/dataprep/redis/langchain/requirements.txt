@@ -17,13 +17,13 @@ opentelemetry-sdk
 pandas
 Pillow
 prometheus-fastapi-instrumentator
+pyjwt
 pymupdf
 pyspark
 pytesseract
 python-bidi
 python-docx
 python-pptx
-pyjwt
 redis
 sentence_transformers
 shortuuid

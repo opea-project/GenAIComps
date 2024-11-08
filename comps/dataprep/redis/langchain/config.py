@@ -65,5 +65,5 @@ TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
 
 SEARCH_BATCH_SIZE = int(os.getenv("SEARCH_BATCH_SIZE", 10))
 
-ADMIN_ROLE=os.getenv("ADMIN_ROLE_KEY", "admin")
-USER_ROLE=os.getenv("USER_ROLE_KEY", "user")
+ADMIN_ROLE = os.getenv("ADMIN_ROLE_KEY", "admin")
+USER_ROLE = os.getenv("USER_ROLE_KEY", "user")
