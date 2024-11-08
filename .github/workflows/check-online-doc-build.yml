@@ -7,8 +7,8 @@ permissions: {}
 on:
   pull_request:
     paths:
-      -  "**.md"
-      -  "**.rst"
+      - "**.md"
+      - "**.rst"
     branches: [main]
 
 jobs:
