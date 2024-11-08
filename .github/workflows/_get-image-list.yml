@@ -43,7 +43,7 @@ jobs:
               do
                   docker_compose_yml=${{ github.workspace }}/.github/workflows/docker/compose/${service}-compose.yaml
                   if [ -f "$docker_compose_yml" ]; then
-                      build_list=$(bash ${{ github.workspace }}/.github/workflows/scripts/get_cicd_list.sh "${mode}" $docker_compose_yml)
+                      build_list=$(bash ${{ github.workspace }}/.github/workflows/scripts/get_cicd_list.sh "${{ inputs.mode }}" $docker_compose_yml)
                       image_list=$(echo $build_list| jq -R 'split(",")' | jq -s 'add')
                   fi
               done
