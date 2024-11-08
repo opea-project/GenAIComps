@@ -16,7 +16,7 @@ providers:
   - provider_id: tgi0
     provider_type: remote::tgi
     config:
-      url: <ENTER_YOUR_TGI_HOSTED_ENDPOINT>
+      url: ${TGI_LLM_ENDPOINT}
   safety:
   - provider_id: meta0
     provider_type: meta-reference

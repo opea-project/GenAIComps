@@ -6,69 +6,82 @@
 
 This guide provides an example on how to launch TGI endpoint based on Llama Stack on CPU and Gaudi accelerators.
 
-## 🚀1. Start Microservice with Python (Option 1)
+## 🚀1. Setup Environment Variables
+
+In order to start services, you need to setup the following environment variables first.
+
+```bash
+export HF_TOKEN=${your_hf_api_token}
+export LLM_MODEL_ID="meta-llama/Llama-3.1-8B-Instruct" # change to your llama model
+export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
+export LLAMA_STACK_ENDPOINT="http://${your_ip}:5000"
+```
+Insert `TGI_LLM_ENDPOINT` to llama stack configuration yaml, you can use `envsubst` command, or just replace `${TGI_LLM_ENDPOINT}` with actual value manually.
+```bash
+envsubst < ./dependency/llama_stack_run_template.yaml > ./dependency/llama_stack_run.yaml
+```
+Make sure get a `llama_stack_run.yaml` file, in which the inference provider is pointing to the correct TGI server endpoint. E.g.
+```bash
+inference:
+  - provider_id: tgi0
+    provider_type: remote::tgi
+    config:
+      url: http://127.0.0.1:8008
+```
+
+## 🚀2. Start Microservice with Python (Option 1)
 
 To start the LLM microservice, you need to install python packages first.
 
-### 1.1 Install Requirements
+### 2.1 Install Requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 1.2 Start TGI Service
-First we start a TGI endpoint for your LLM model.
+### 2.2 Start TGI Service
+First we start a TGI endpoint for your LLM model on Gaudi.
 ```bash
-export HF_TOKEN=${your_hf_api_token}
-export LLM_MODEL_ID="meta-llama/Llama-3.1-8B-Instruct" # change to your model
-docker run \
-  -p 8008:80 \
-  -v ./data:/data \
-  --name tgi_service \
-  --shm-size 1g \
-  -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy \
-  ghcr.io/huggingface/text-generation-inference:2.1.0 \
-  --model-id ${LLM_MODEL_ID}
+volume="./data" 
+docker run -p 8008:80 \
+    --name tgi_service \
+    -v $volume:/data \
+    --runtime=habana \
+    -e HABANA_VISIBLE_DEVICES=all \
+    -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
+    -e HF_TOKEN=$HF_TOKEN \
+    -e ENABLE_HPU_GRAPH=true \
+    -e LIMIT_HPU_GRAPH=true \
+    -e USE_FLASH_ATTENTION=true \
+    -e FLASH_ATTENTION_RECOMPUTE=true \
+    -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy \
+    --cap-add=sys_nice \
+    --ipc=host \
+    ghcr.io/huggingface/tgi-gaudi:2.0.5 \
+    --model-id ${LLM_MODEL_ID} \
+    --max-input-length 2048 --max-total-tokens 4096
 ```
 
-### 1.3 Start Llama Stack Server
-Then we stat the Llama Stack server based on TGI endpoint.
-
+### 2.3 Start Llama Stack Server
+Then we start the Llama Stack server based on TGI endpoint.
 ```bash
-## insert TGI_LLM_ENDPOINT to llama stack configuration
-export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
-sed -i "s/ENTER_YOUR_TGI_HOSTED_ENDPOINT/${TGI_LLM_ENDPOINT}/g" ./dependency/llama_stack_run.yaml
-
-# start llama stack server
 docker run \
+  --name llamastack-service \
   --network host \
   -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy \
   -p 5000:5000 \
   -v ./dependency/llama_stack_run.yaml:/root/run.yaml llamastack/distribution-tgi --yaml_config /root/run.yaml
 ```
 
-### 1.4 Start Microservice with Python Script
+### 2.4 Start Microservice with Python Script
 ```bash
-export LLAMA_STACK_ENDPOINT="http://${your_ip}:5000"
 python llm.py
 ```
-## 🚀2. Start Microservice with Docker (Option 2)
+## 🚀3. Start Microservice with Docker (Option 2)
 
 If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start TGI and Llama Stack service with docker.
 
-### 2.1 Setup Environment Variables
-
-In order to start services, you need to setup the following environment variables first.
-
-```bash
-export HF_TOKEN=${your_hf_api_token}
-export LLM_MODEL_ID="meta-llama/Llama-3.1-8B-Instruct" # change to your model
-export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
-export LLAMA_STACK_ENDPOINT="http://${your_ip}:5000"
-sed -i "s/ENTER_YOUR_TGI_HOSTED_ENDPOINT/${TGI_LLM_ENDPOINT}/g" ./dependency/llama_stack_run.yaml
-```
-
-### 2.2 Build Docker Image
+### 3.1 Build Docker Image
 
 ```bash
 cd ../../../../
@@ -82,21 +95,21 @@ To start a docker container, you have two options:
 
 You can choose one as needed.
 
-### 2.3 Run Docker with CLI (Option A)
+### 3.2 Run Docker with CLI (Option A)
 
 ```bash
 docker run -d --name="llm-tgi-llamastack-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e LLM_MODEL_ID=$LLM_MODEL_ID -e LLAMA_STACK_ENDPOINT=$LLAMA_STACK_ENDPOINT opea/llm-tgi-llamastack:latest
 ```
 
-### 2.4 Run Docker with Docker Compose (Option B)
+### 3.3 Run Docker with Docker Compose (Option B)
 
 ```bash
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
-## 🚀3. Consume LLM Service
+## 🚀4. Consume LLM Service
 
-### 3.1 Check Service Status
+### 4.1 Check Service Status
 
 ```bash
 curl http://${your_ip}:9000/v1/health_check\
@@ -104,7 +117,7 @@ curl http://${your_ip}:9000/v1/health_check\
   -H 'Content-Type: application/json'
 ```
 
-### 3.2 Consume the Services
+### 4.2 Consume the Services
 
 
 Verify the TGI Service
@@ -125,7 +138,7 @@ curl http://${your_ip}:5000/inference/chat_completion \
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "Write me a 2 sentence poem about the moon"}
     ],
-    "sampling_params": {"temperature": 0.7, "seed": 42, "max_tokens": 512}
+    "sampling_params": {"temperature": 0.7, "max_tokens": 64}
 }'
 ```
 
