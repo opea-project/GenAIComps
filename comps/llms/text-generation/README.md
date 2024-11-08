@@ -111,7 +111,7 @@ docker run -d -it \
   -e HF_TOKEN=${HF_TOKEN} \
   -e VLLM_CPU_KVCACHE_SPACE=40 \
   -v ${DATA_DIR}:/data \
-  opea/vllm-cpu \
+  opea/vllm-cpu:latest \
   --model ${LLM_MODEL} \
   --port 80
 
