@@ -147,8 +147,6 @@ bash launch_vllm_service_openvino.sh -d gpu
 
 #### Performance tips
 
----
-
 vLLM OpenVINO backend environment variables
 
 - `VLLM_OPENVINO_DEVICE` to specify which device utilize for the inference. If there are multiple GPUs in the system, additional indexes can be used to choose the proper one (e.g, `VLLM_OPENVINO_DEVICE=GPU.1`). If the value is not specified, CPU device is used by default.
@@ -188,14 +186,10 @@ OpenVINO best known configuration for GPU is:
 And then you can make requests like below to check the service status:
 
 ```bash
-curl http://${your_ip}:8008/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-  "model": "meta-llama/Meta-Llama-3-8B-Instruct",
-  "prompt": "What is Deep Learning?",
-  "max_tokens": 32,
-  "temperature": 0
-  }'
+curl http://${host_ip}:9009/v1/chat/completions \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"model": "meta-llama/Meta-Llama-3-8B-Instruct", "messages": [{"role": "user", "content": "What is Deep Learning?"}]}'
 ```
 
 ## 🚀3. Set up LLM microservice
