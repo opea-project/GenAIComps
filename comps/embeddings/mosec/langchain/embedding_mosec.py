@@ -4,7 +4,7 @@
 import os
 import time
 from typing import List, Optional
-
+import asyncio
 from langchain_community.embeddings import OpenAIEmbeddings
 
 from comps import (
