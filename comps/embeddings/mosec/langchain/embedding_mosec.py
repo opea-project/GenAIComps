@@ -1,10 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import os
 import time
 from typing import List, Optional
-import asyncio
+
 from langchain_community.embeddings import OpenAIEmbeddings
 
 from comps import (
