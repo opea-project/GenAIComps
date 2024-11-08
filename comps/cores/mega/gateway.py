@@ -24,12 +24,14 @@ from ..proto.docarray import LLMParams, LLMParamsDoc, RerankedDoc, RerankerParms
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
+
 def read_pdf(file):
     from langchain.document_loaders import PyPDFLoader
 
     loader = PyPDFLoader(file)
     docs = loader.load_and_split()
     return docs
+
 
 def read_text_from_file(file, save_file_name):
     import docx2txt
@@ -56,6 +58,7 @@ def read_text_from_file(file, save_file_name):
         file_content = docx2txt.process(save_file_name)
 
     return file_content
+
 
 class Gateway:
     def __init__(
@@ -570,7 +573,7 @@ class FaqGenGateway(Gateway):
             prompt = self._handle_message(chat_request.messages) + "\n".join(file_summaries)
         else:
             prompt = self._handle_message(chat_request.messages)
-        
+
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
