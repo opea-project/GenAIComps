@@ -64,7 +64,7 @@ jobs:
               cd ./vllm-openvino && git checkout v0.6.1 && cd ../
           fi
           if [[ $(grep -c "vllm-hpu:" ${docker_compose_yml}) != 0 ]]; then
-               git clone https://github.com/HabanaAI/vllm-fork.git vllm-hpu
+               git clone https://github.com/HabanaAI/vllm-fork.git vllm-fork
           fi
       - name: Get build list
         id: get-build-list
