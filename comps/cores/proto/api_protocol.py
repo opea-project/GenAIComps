@@ -268,13 +268,14 @@ class ChatCompletionRequest(BaseModel):
     # define
     request_type: Literal["chat"] = "chat"
 
+
 class DocSumChatCompletionRequest(BaseModel):
     llm_params: Optional[ChatCompletionRequest] = None
     text: Optional[str] = None
     audio: Optional[str] = None
     video: Optional[str] = None
     type: Optional[str] = None
-    
+
 
 class AudioChatCompletionRequest(BaseModel):
     audio: str

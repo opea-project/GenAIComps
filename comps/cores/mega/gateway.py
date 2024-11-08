@@ -17,11 +17,11 @@ from ..proto.api_protocol import (
     ChatCompletionResponse,
     ChatCompletionResponseChoice,
     ChatMessage,
+    DocSumChatCompletionRequest,
     EmbeddingRequest,
     UsageInfo,
-    DocSumChatCompletionRequest
 )
-from ..proto.docarray import LLMParams, LLMParamsDoc, RerankedDoc, RerankerParms, RetrieverParms, TextDoc, DocSumDoc
+from ..proto.docarray import DocSumDoc, LLMParams, LLMParamsDoc, RerankedDoc, RerankerParms, RetrieverParms, TextDoc
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -409,19 +409,19 @@ class TranslationGateway(Gateway):
 class DocSumGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(
-            megaservice, 
-            host, 
-            port, 
-            str(MegaServiceEndpoint.DOC_SUMMARY), 
-            input_datatype= DocSumChatCompletionRequest,
-            output_datatype=ChatCompletionResponse
+            megaservice,
+            host,
+            port,
+            str(MegaServiceEndpoint.DOC_SUMMARY),
+            input_datatype=DocSumChatCompletionRequest,
+            output_datatype=ChatCompletionResponse,
         )
 
     async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
         data = await request.form()
         stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.model_validate(data)
-        
+
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
@@ -435,7 +435,7 @@ class DocSumGateway(Gateway):
             language=chat_request.language if chat_request.language else "auto",
         )
         result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={data['type']: prompt}, llm_parameters=parameters
+            initial_inputs={data["type"]: prompt}, llm_parameters=parameters
         )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.

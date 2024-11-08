@@ -37,7 +37,7 @@ from comps.cores.proto.docarray import (
     PIIRequestDoc,
     PIIResponseDoc,
     Audio2text,
-    DocSumDoc
+    DocSumDoc,
 )
 
 # Constants

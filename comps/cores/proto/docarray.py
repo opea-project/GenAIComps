@@ -18,9 +18,11 @@ class TopologyInfo:
 
 class TextDoc(BaseDoc, TopologyInfo):
     text: str = None
-    
+
+
 class Audio2text(BaseDoc, TopologyInfo):
     query: str = None
+
 
 class FactualityDoc(BaseDoc):
     reference: str
@@ -75,11 +77,12 @@ MultimodalDoc = Union[
 class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
+
 class DocSumDoc(BaseDoc):
     text: Optional[str] = None
     audio: Optional[str] = None
     video: Optional[str] = None
-    
+
 
 class DocPath(BaseDoc):
     path: str

@@ -3,6 +3,7 @@
 
 import json
 import os
+
 import requests
 
 from comps import CustomLogger
@@ -10,14 +11,8 @@ from comps import CustomLogger
 # Initialize custom logger
 logger = CustomLogger("multimedia2text")
 
-from comps import (
-    ServiceType,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    Audio2text,
-    DocSumDoc
-)
+from comps import Audio2text, DocSumDoc, ServiceType, opea_microservices, register_microservice, register_statistics
+
 
 # Register the microservice
 @register_microservice(
@@ -31,8 +26,7 @@ from comps import (
 )
 @register_statistics(names=["opea_service@multimedia2text"])
 async def audio_to_text(input: DocSumDoc):
-    """
-    Convert video or audio input to text using external services.
+    """Convert video or audio input to text using external services.
 
     Args:
         input (DocSumDoc): Input document containing video, audio, or text data.
@@ -74,7 +68,7 @@ async def audio_to_text(input: DocSumDoc):
         response_to_return = "No input"
     else:
         logger.info("Data Processing completeed")
-    
+
     return Audio2text(query=response_to_return)
 
 

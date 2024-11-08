@@ -7,7 +7,6 @@ This guide provides instructions on how to build and run various Docker services
 3. **Video to Audio Service**: Extracts audio from video files.
 4. **Multimedia2Text Service**: Transforms multimedia data to text data.
 
-
 ## Prerequisites
 
 1. **Docker**: Ensure you have Docker installed and running on your system. You can download and install Docker from the [official Docker website](https://www.docker.com/get-started).
@@ -107,7 +106,7 @@ After building and running the services, you can validate them using the provide
 Run the following command to validate the Whisper Service:
 
 ```bash
-python comps/asr/whisper/dependency/check_whisper_server.py 
+python comps/asr/whisper/dependency/check_whisper_server.py
 ```
 
 Expected output:
@@ -130,7 +129,7 @@ Expected output:
 Test passed successfully!
 ```
 
-*Note: The `id` value will be different.*
+_Note: The `id` value will be different._
 
 ### Video2Audio Service
 
@@ -153,25 +152,25 @@ comps/dataprep/multimedia2text/video2audio/converted_audio.wav
 Run the following command to validate the Multimedia2Text Service:
 
 ```bash
-python comps/dataprep/multimedia2text/check_multimedia2text.py 
+python comps/dataprep/multimedia2text/check_multimedia2text.py
 ```
 
 Expected output:
 
 ```
 Running test: Whisper service
->>> Whisper service Test Passed ... 
+>>> Whisper service Test Passed ...
 
 Running test: Audio2Text service
->>> Audio2Text service Test Passed ... 
+>>> Audio2Text service Test Passed ...
 
 Running test: Video2Text service
->>> Video2Text service Test Passed ... 
+>>> Video2Text service Test Passed ...
 
 Running test: Multimedia2text service
->>> Multimedia2text service test for text data type passed ... 
->>> Multimedia2text service test for audio data type passed ... 
->>> Multimedia2text service test for video data type passed ... 
+>>> Multimedia2text service test for text data type passed ...
+>>> Multimedia2text service test for audio data type passed ...
+>>> Multimedia2text service test for video data type passed ...
 ```
 
 ## How to Stop/Remove Services
@@ -191,6 +190,7 @@ To stop and remove the Docker containers and images associated with the multimed
    ```
 
    If you want to stop all running containers at once, you can use:
+
    ```bash
    docker stop $(docker ps -q)
    ```
@@ -204,7 +204,7 @@ To stop and remove the Docker containers and images associated with the multimed
    Optionally, you can remove the stopped containers to free up resources:
 
    ```bash
-   docker rm $(docker ps -a -q) 
+   docker rm $(docker ps -a -q)
    ```
 
 4. **Remove Images**: If you also want to remove the Docker images, use the `docker rmi` command followed by the image IDs or names.
