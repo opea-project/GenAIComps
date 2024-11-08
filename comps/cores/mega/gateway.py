@@ -26,6 +26,41 @@ from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
 
+def read_pdf(file):
+    from langchain.document_loaders import PyPDFLoader
+
+    loader = PyPDFLoader(file)
+    docs = loader.load_and_split()
+    return docs
+
+
+def read_text_from_file(file, save_file_name):
+    import docx2txt
+    from langchain.text_splitter import CharacterTextSplitter
+
+    # read text file
+    if file.headers["content-type"] == "text/plain":
+        file.file.seek(0)
+        content = file.file.read().decode("utf-8")
+        # Split text
+        text_splitter = CharacterTextSplitter()
+        texts = text_splitter.split_text(content)
+        # Create multiple documents
+        file_content = texts
+    # read pdf file
+    elif file.headers["content-type"] == "application/pdf":
+        documents = read_pdf(save_file_name)
+        file_content = [doc.page_content for doc in documents]
+    # read docx file
+    elif (
+        file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        or file.headers["content-type"] == "application/octet-stream"
+    ):
+        file_content = docx2txt.process(save_file_name)
+
+    return file_content
+
+
 class Gateway:
     def __init__(
         self,
@@ -73,8 +108,19 @@ class Gateway:
 
     def list_service(self):
         response = {}
-        for node in self.all_leaves():
-            response = {self.services[node].description: self.services[node].endpoint_path}
+        for node, service in self.megaservice.services.items():
+            # Check if the service has a 'description' attribute and it is not None
+            if hasattr(service, "description") and service.description:
+                response[node] = {"description": service.description}
+            # Check if the service has an 'endpoint' attribute and it is not None
+            if hasattr(service, "endpoint") and service.endpoint:
+                if node in response:
+                    response[node]["endpoint"] = service.endpoint
+                else:
+                    response[node] = {"endpoint": service.endpoint}
+            # If neither 'description' nor 'endpoint' is available, add an error message for the node
+            if node not in response:
+                response[node] = {"error": f"Service node {node} does not have 'description' or 'endpoint' attribute."}
         return response
 
     def list_parameter(self):
@@ -371,45 +417,37 @@ class DocSumGateway(Gateway):
             output_datatype=ChatCompletionResponse
         )
 
-    def read_pdf(self, file):
-        from langchain.document_loaders import PyPDFLoader
-
-        loader = PyPDFLoader(file)
-        docs = loader.load_and_split()
-        return docs
-
-    def read_text_from_file(self, file, save_file_name):
-        import docx2txt
-        from langchain.text_splitter import CharacterTextSplitter
-
-        # read text file
-        if file.headers["content-type"] == "text/plain":
-            file.file.seek(0)
-            content = file.file.read().decode("utf-8")
-            # Split text
-            text_splitter = CharacterTextSplitter()
-            texts = text_splitter.split_text(content)
-            # Create multiple documents
-            file_content = texts
-        # read pdf file
-        elif file.headers["content-type"] == "application/pdf":
-            documents = self.read_pdf(save_file_name)
-            file_content = [doc.page_content for doc in documents]
-        # read docx file
-        elif (
-            file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            or file.headers["content-type"] == "application/octet-stream"
-        ):
-            file_content = docx2txt.process(save_file_name)
-
-        return file_content
-
     async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
         data = await request.form()
         stream_opt = data.get("stream", True)
+<<<<<<< HEAD
         chat_request = ChatCompletionRequest.model_validate(data)
         
         prompt = self._handle_message(chat_request.messages)
+=======
+        chat_request = ChatCompletionRequest.parse_obj(data)
+        file_summaries = []
+        if files:
+            for file in files:
+                file_path = f"/tmp/{file.filename}"
+
+                import aiofiles
+
+                async with aiofiles.open(file_path, "wb") as f:
+                    await f.write(await file.read())
+                docs = read_text_from_file(file, file_path)
+                os.remove(file_path)
+                if isinstance(docs, list):
+                    file_summaries.extend(docs)
+                else:
+                    file_summaries.append(docs)
+
+        if file_summaries:
+            prompt = self._handle_message(chat_request.messages) + "\n".join(file_summaries)
+        else:
+            prompt = self._handle_message(chat_request.messages)
+
+>>>>>>> main
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
@@ -534,11 +572,31 @@ class FaqGenGateway(Gateway):
             megaservice, host, port, str(MegaServiceEndpoint.FAQ_GEN), ChatCompletionRequest, ChatCompletionResponse
         )
 
-    async def handle_request(self, request: Request):
-        data = await request.json()
+    async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
+        data = await request.form()
         stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.parse_obj(data)
-        prompt = self._handle_message(chat_request.messages)
+        file_summaries = []
+        if files:
+            for file in files:
+                file_path = f"/tmp/{file.filename}"
+
+                import aiofiles
+
+                async with aiofiles.open(file_path, "wb") as f:
+                    await f.write(await file.read())
+                docs = read_text_from_file(file, file_path)
+                os.remove(file_path)
+                if isinstance(docs, list):
+                    file_summaries.extend(docs)
+                else:
+                    file_summaries.append(docs)
+
+        if file_summaries:
+            prompt = self._handle_message(chat_request.messages) + "\n".join(file_summaries)
+        else:
+            prompt = self._handle_message(chat_request.messages)
+
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
