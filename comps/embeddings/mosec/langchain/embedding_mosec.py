@@ -43,8 +43,10 @@ class MosecEmbeddings(OpenAIEmbeddings):
                     average_embedded = average_embedded.model_dump()
                 _cached_empty_embedding = average_embedded["data"][0]["embedding"]
             return _cached_empty_embedding
+
         async def get_embedding(e: Optional[List[float]]) -> List[float]:
             return e if e is not None else await empty_embedding()
+
         embeddings = await asyncio.gather(*[get_embedding(e) for e in batched_embeddings])
         return embeddings
 
