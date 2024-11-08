@@ -29,7 +29,7 @@ from comps import (
     host="0.0.0.0",
     port=9099,
     input_datatype=Base64ByteStrDoc,
-    output_datatype=Audio2text, # TextDoc, 
+    output_datatype=Audio2text, 
 )
 
 @register_statistics(names=["opea_service@a2t"])

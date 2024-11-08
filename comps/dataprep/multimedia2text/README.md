@@ -56,9 +56,9 @@ docker build -t opea/a2t:latest --build-arg https_proxy=$https_proxy --build-arg
 #### Run
 
 ```bash
-ip_address=$(hostname -I | awk '{print $1}')
+host_ip=$(hostname -I | awk '{print $1}')
 
-docker run -d -p 9099:9099 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e A2T_ENDPOINT=http://$ip_address:7066 opea/a2t:latest
+docker run -d -p 9099:9099 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e A2T_ENDPOINT=http://$host_ip:7066 opea/a2t:latest
 ```
 
 ### Video to Audio Service
@@ -90,11 +90,11 @@ docker build -t opea/multimedia2text:latest --build-arg https_proxy=$https_proxy
 #### Run
 
 ```bash
-ip_address=$(hostname -I | awk '{print $1}')
+host_ip=$(hostname -I | awk '{print $1}')
 
 docker run -d -p 7079:7079 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
-    -e A2T_ENDPOINT=http://$ip_address:7066 \
-    -e V2A_ENDPOINT=http://$ip_address:7078 \
+    -e A2T_ENDPOINT=http://$host_ip:7066 \
+    -e V2A_ENDPOINT=http://$host_ip:7078 \
     opea/multimedia2text:latest
 ```
 

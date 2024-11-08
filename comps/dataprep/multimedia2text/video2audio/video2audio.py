@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import argparse
 from moviepy.editor import VideoFileClip
 from os import path, remove
