@@ -23,6 +23,7 @@ pytesseract
 python-bidi
 python-docx
 python-pptx
+pyjwt
 redis
 sentence_transformers
 shortuuid

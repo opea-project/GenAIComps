@@ -4,6 +4,7 @@ docarray
 docx2txt
 fastapi
 httpx
+pyjwt
 kubernetes
 langchain
 langchain-community
