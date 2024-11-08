@@ -15,10 +15,9 @@ services:
       context: vllm-openvino
       dockerfile: Dockerfile.openvino
     image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
-  vllm-openvino-arc:
+  vllm-openvino-intel-gpu:
     build:
-      context: vllm-openvino-arc
-      dockerfile: Dockerfile.openvino_arc
+      dockerfile: comps/llms/text-generation/vllm/langchain/dependency/Dockerfile.intel_gpu
     image: ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}
   llm-eval:
     build:

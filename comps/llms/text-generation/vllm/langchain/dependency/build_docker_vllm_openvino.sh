@@ -19,7 +19,7 @@ fi
 
 # Build the docker image for vLLM based on the hardware mode
 if [ "$hw_mode" = "gpu" ]; then
-    docker build -f Dockerfile.openvino_arc -t opea/vllm:arc . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+    docker build -f Dockerfile.intel_gpu -t opea/vllm:arc . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
 else
     BASEDIR="$( cd "$( dirname "$0" )" && pwd )"
     git clone https://github.com/vllm-project/vllm.git vllm
