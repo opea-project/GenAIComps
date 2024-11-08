@@ -25,7 +25,7 @@ services:
       tgi_service
     image: llamastack/distribution-tgi
     volumes:
-      - ./dependency/llama_stack_run.yaml:/root/my-run.yaml
+      - ./dependency/llama_stack_run.yaml:/root/run.yaml
     ports:
       - "5000:5000"
     environment:
@@ -33,7 +33,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       HF_TOKEN: ${HF_TOKEN}
-    command: --yaml_config /root/my-run.yaml
+    command: --yaml_config /root/run.yaml
   llm:
     image: opea/llm-tgi-llamastack:latest
     container_name: llm-tgi-llamastack-server
@@ -44,9 +44,9 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      LLAMA_STACK_ENDPOINT: ${LLAMA_STACK_ENDPOINT}
       HF_TOKEN: ${HF_TOKEN}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
+      LLAMA_STACK_ENDPOINT: ${LLAMA_STACK_ENDPOINT}
     restart: unless-stopped
 
 networks:

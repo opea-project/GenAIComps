@@ -17,54 +17,62 @@ pip install -r requirements.txt
 ```
 
 ### 1.2 Start TGI Service
-
+First we start a TGI endpoint for your LLM model.
 ```bash
 export HF_TOKEN=${your_hf_api_token}
-docker run -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${your_hf_llm_model}
+export LLM_MODEL_ID="meta-llama/Llama-3.1-8B-Instruct" # change to your model
+docker run \
+  -p 8008:80 \
+  -v ./data:/data \
+  --name tgi_service \
+  --shm-size 1g \
+  -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy \
+  ghcr.io/huggingface/text-generation-inference:2.1.0 \
+  --model-id ${LLM_MODEL_ID}
 ```
 
 ### 1.3 Start Llama Stack Server
-```bash
-export TGI_
-cd ./dependency
-## replace
-```
-
-### 1.3 Verify the TGI Service
+Then we stat the Llama Stack server based on TGI endpoint.
 
 ```bash
-curl http://${your_ip}:8008/generate \
-  -X POST \
-  -d '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}' \
-  -H 'Content-Type: application/json'
-```
-
-### 1.4 Start LLM Service with Python Script
-
-```bash
+## insert TGI_LLM_ENDPOINT to llama stack configuration
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
+sed -i "s/ENTER_YOUR_TGI_HOSTED_ENDPOINT/${TGI_LLM_ENDPOINT}/g" ./dependency/llama_stack_run.yaml
+
+# start llama stack server
+docker run \
+  --network host \
+  -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy \
+  -p 5000:5000 \
+  -v ./dependency/llama_stack_run.yaml:/root/run.yaml llamastack/distribution-tgi --yaml_config /root/run.yaml
+```
+
+### 1.4 Start Microservice with Python Script
+```bash
+export LLAMA_STACK_ENDPOINT="http://${your_ip}:5000"
 python llm.py
 ```
-
 ## 🚀2. Start Microservice with Docker (Option 2)
 
-If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start a TGI/vLLM service with docker.
+If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start TGI and Llama Stack service with docker.
 
 ### 2.1 Setup Environment Variables
 
-In order to start TGI and LLM services, you need to setup the following environment variables first.
+In order to start services, you need to setup the following environment variables first.
 
 ```bash
 export HF_TOKEN=${your_hf_api_token}
+export LLM_MODEL_ID="meta-llama/Llama-3.1-8B-Instruct" # change to your model
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
-export LLM_MODEL_ID=${your_hf_llm_model}
+export LLAMA_STACK_ENDPOINT="http://${your_ip}:5000"
+sed -i "s/ENTER_YOUR_TGI_HOSTED_ENDPOINT/${TGI_LLM_ENDPOINT}/g" ./dependency/llama_stack_run.yaml
 ```
 
 ### 2.2 Build Docker Image
 
 ```bash
 cd ../../../../
-docker build -t opea/llm-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/tgi/langchain/Dockerfile .
+docker build -t opea/llm-tgi-llamastack:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/tgi/llama_stack/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -77,13 +85,12 @@ You can choose one as needed.
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/llm-tgi:latest
+docker run -d --name="llm-tgi-llamastack-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e LLM_MODEL_ID=$LLM_MODEL_ID -e LLAMA_STACK_ENDPOINT=$LLAMA_STACK_ENDPOINT opea/llm-tgi-llamastack:latest
 ```
 
 ### 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd text-generation/tgi/langchain
 docker compose -f docker_compose_llm.yaml up -d
 ```
 
@@ -97,11 +104,32 @@ curl http://${your_ip}:9000/v1/health_check\
   -H 'Content-Type: application/json'
 ```
 
-### 3.2 Consume LLM Service
+### 3.2 Consume the Services
 
-You can set the following model parameters according to your actual needs, such as `max_tokens`, `streaming`.
 
-The `streaming` parameter determines the format of the data returned by the API. It will return text string with `streaming=false`, return text streaming flow with `streaming=true`.
+Verify the TGI Service
+```bash
+curl http://${your_ip}:8008/generate \
+  -X POST \
+  -d '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}' \
+  -H 'Content-Type: application/json'
+```
+
+Verify Llama Stack Service
+```bash
+curl http://${your_ip}:5000/inference/chat_completion \
+-H "Content-Type: application/json" \
+-d '{
+    "model": "Llama3.1-8B-Instruct",
+    "messages": [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Write me a 2 sentence poem about the moon"}
+    ],
+    "sampling_params": {"temperature": 0.7, "seed": 42, "max_tokens": 512}
+}'
+```
+
+Verify the LLM microservice.
 
 ```bash
 # non-streaming mode
@@ -115,33 +143,4 @@ curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
   -d '{"query":"What is Deep Learning?","max_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":true}' \
   -H 'Content-Type: application/json'
-
-# consume with SearchedDoc
-curl http://${your_ip}:9000/v1/chat/completions \
-  -X POST \
-  -d '{"initial_query":"What is Deep Learning?","retrieved_docs":[{"text":"Deep Learning is a ..."},{"text":"Deep Learning is b ..."}]}' \
-  -H 'Content-Type: application/json'
 ```
-
-For parameters in above modes, please refer to [HuggingFace InferenceClient API](https://huggingface.co/docs/huggingface_hub/package_reference/inference_client#huggingface_hub.InferenceClient.text_generation) (except we rename 'max_new_tokens' to 'max_tokens')
-
-```bash
-# custom chat template
-curl http://${your_ip}:9000/v1/chat/completions \
-  -X POST \
-  -d '{"query":"What is Deep Learning?","max_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"presence_penalty":1.03", frequency_penalty":0.0, "streaming":true, "chat_template":"### You are a helpful, respectful and honest assistant to help the user with questions.\n### Context: {context}\n### Question: {question}\n### Answer:"}' \
-  -H 'Content-Type: application/json'
-```
-
-For parameters in Chat mode, please refer to [OpenAI API](https://platform.openai.com/docs/api-reference/chat/create)
-
-### 4. Validated Model
-
-| Model                     | TGI |
-| ------------------------- | --- |
-| Intel/neural-chat-7b-v3-3 | ✓   |
-| Llama-2-7b-chat-hf        | ✓   |
-| Llama-2-70b-chat-hf       | ✓   |
-| Meta-Llama-3-8B-Instruct  | ✓   |
-| Meta-Llama-3-70B-Instruct | ✓   |
-| Phi-3                     | ✓   |
