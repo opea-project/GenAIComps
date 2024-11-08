@@ -15,4 +15,6 @@ if [[ "$1" == "CI" ]]; then
     echo "$ci_lists"
 elif [[ "$1" == "CD" ]]; then
     echo "$cd_lists"
+elif [[ "$1" == "CICD" ]]; then
+    echo "$cd_lists"
 fi
