@@ -1,0 +1,32 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Default values for tgi.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+accelDevice: "nvidia"
+
+image:
+  repository: ghcr.io/huggingface/text-generation-inference
+  tag: "2.2.0"
+
+resources:
+  limits:
+    nvidia.com/gpu: 1
+
+CUDA_GRAPHS: ""
+
+livenessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+startupProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 120

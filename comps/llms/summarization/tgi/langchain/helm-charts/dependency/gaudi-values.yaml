@@ -1,0 +1,34 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Default values for tgi.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+accelDevice: "gaudi"
+
+image:
+  repository: ghcr.io/huggingface/tgi-gaudi
+  tag: "2.0.5"
+
+MAX_INPUT_LENGTH: "1024"
+MAX_TOTAL_TOKENS: "2048"
+CUDA_GRAPHS: ""
+
+resources:
+  limits:
+    habana.ai/gaudi: 1
+
+livenessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+startupProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 120

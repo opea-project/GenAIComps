@@ -1,0 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: tgi
+description: The Helm chart for HuggingFace Text Generation Inference Server
+type: application
+version: 1.0.0
+# The HF TGI version
+appVersion: "2.1.0"
