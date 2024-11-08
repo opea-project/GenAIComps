@@ -54,17 +54,18 @@ jobs:
           if [ -f "$docker_compose_yml" ]; then
             echo "file_exists=true" >> $GITHUB_OUTPUT
           else
-            echo "The docker_compose_yml does not exist!"
+            echo "The $docker_compose_yml does not exist!"
             echo "file_exists=false" >> $GITHUB_OUTPUT
           fi
 
           cd ${{ github.workspace }}
           if [[ $(grep -c "vllm-openvino:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/vllm-project/vllm.git vllm-openvino
-              cd ./vllm-openvino && git checkout v0.6.1 && cd ../
+              cd ./vllm-openvino && git checkout v0.6.1 && git rev-parse HEAD && cd ../
           fi
           if [[ $(grep -c "vllm-hpu:" ${docker_compose_yml}) != 0 ]]; then
                git clone https://github.com/HabanaAI/vllm-fork.git vllm-fork
+               cd vllm-fork && git rev-parse HEAD && cd ../
           fi
       - name: Get build list
         id: get-build-list
