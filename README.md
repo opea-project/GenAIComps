@@ -1,4 +1,4 @@
-# Generative AI Components (GenAIComps)
+## Generative AI Components (GenAIComps)
 
 **Build Enterprise-grade Generative AI Applications with Microservice Architecture**
 
