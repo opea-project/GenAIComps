@@ -420,34 +420,9 @@ class DocSumGateway(Gateway):
     async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
         data = await request.form()
         stream_opt = data.get("stream", True)
-<<<<<<< HEAD
         chat_request = ChatCompletionRequest.model_validate(data)
         
         prompt = self._handle_message(chat_request.messages)
-=======
-        chat_request = ChatCompletionRequest.parse_obj(data)
-        file_summaries = []
-        if files:
-            for file in files:
-                file_path = f"/tmp/{file.filename}"
-
-                import aiofiles
-
-                async with aiofiles.open(file_path, "wb") as f:
-                    await f.write(await file.read())
-                docs = read_text_from_file(file, file_path)
-                os.remove(file_path)
-                if isinstance(docs, list):
-                    file_summaries.extend(docs)
-                else:
-                    file_summaries.append(docs)
-
-        if file_summaries:
-            prompt = self._handle_message(chat_request.messages) + "\n".join(file_summaries)
-        else:
-            prompt = self._handle_message(chat_request.messages)
-
->>>>>>> main
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
