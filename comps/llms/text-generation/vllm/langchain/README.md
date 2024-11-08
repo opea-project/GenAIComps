@@ -147,7 +147,6 @@ bash launch_vllm_service_openvino.sh -d gpu
 
 #### Performance tips
 
----
 
 vLLM OpenVINO backend environment variables
 
