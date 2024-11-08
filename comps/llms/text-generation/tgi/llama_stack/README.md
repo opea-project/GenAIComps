@@ -16,11 +16,15 @@ export LLM_MODEL_ID="meta-llama/Llama-3.1-8B-Instruct" # change to your llama mo
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 export LLAMA_STACK_ENDPOINT="http://${your_ip}:5000"
 ```
+
 Insert `TGI_LLM_ENDPOINT` to llama stack configuration yaml, you can use `envsubst` command, or just replace `${TGI_LLM_ENDPOINT}` with actual value manually.
+
 ```bash
 envsubst < ./dependency/llama_stack_run_template.yaml > ./dependency/llama_stack_run.yaml
 ```
+
 Make sure get a `llama_stack_run.yaml` file, in which the inference provider is pointing to the correct TGI server endpoint. E.g.
+
 ```bash
 inference:
   - provider_id: tgi0
@@ -40,9 +44,11 @@ pip install -r requirements.txt
 ```
 
 ### 2.2 Start TGI Service
+
 First we start a TGI endpoint for your LLM model on Gaudi.
+
 ```bash
-volume="./data" 
+volume="./data"
 docker run -p 8008:80 \
     --name tgi_service \
     -v $volume:/data \
@@ -63,7 +69,9 @@ docker run -p 8008:80 \
 ```
 
 ### 2.3 Start Llama Stack Server
+
 Then we start the Llama Stack server based on TGI endpoint.
+
 ```bash
 docker run \
   --name llamastack-service \
@@ -74,9 +82,11 @@ docker run \
 ```
 
 ### 2.4 Start Microservice with Python Script
+
 ```bash
 python llm.py
 ```
+
 ## 🚀3. Start Microservice with Docker (Option 2)
 
 If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start TGI and Llama Stack service with docker.
@@ -119,8 +129,8 @@ curl http://${your_ip}:9000/v1/health_check\
 
 ### 4.2 Consume the Services
 
-
 Verify the TGI Service
+
 ```bash
 curl http://${your_ip}:8008/generate \
   -X POST \
@@ -129,6 +139,7 @@ curl http://${your_ip}:8008/generate \
 ```
 
 Verify Llama Stack Service
+
 ```bash
 curl http://${your_ip}:5000/inference/chat_completion \
 -H "Content-Type: application/json" \

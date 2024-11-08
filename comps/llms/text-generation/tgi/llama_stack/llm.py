@@ -20,6 +20,7 @@ from comps import (
 logger = CustomLogger("llm_tgi_llama_stack")
 logflag = os.getenv("LOGFLAG", False)
 
+
 @register_microservice(
     name="opea_service@llm_tgi_llama_stack",
     service_type=ServiceType.LLM,

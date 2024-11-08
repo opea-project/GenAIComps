@@ -3,6 +3,8 @@ docarray[full]
 fastapi
 httpx
 huggingface_hub
+llama-stack
+llama-stack-client
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -10,5 +12,3 @@ prometheus-fastapi-instrumentator
 shortuuid
 transformers
 uvicorn
-llama-stack-client
-llama-stack
