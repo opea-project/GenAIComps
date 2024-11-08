@@ -53,7 +53,7 @@ if [ "$device" = "gpu" ]; then
   docker_args="-e VLLM_OPENVINO_DEVICE=GPU  --device /dev/dri -v /dev/dri/by-path:/dev/dri/by-path"
   vllm_args="--max_model_len=1024"
   model_name="meta-llama/Llama-3.2-3B-Instruct"
-  image="opea/vllm:arc"
+  image="opea/vllm-arc:latest"
 fi
 # Start the model server using Openvino as the backend inference engine.
 # Provide the container name that is unique and meaningful, typically one that includes the model name.
