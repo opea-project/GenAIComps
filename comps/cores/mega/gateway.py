@@ -409,19 +409,19 @@ class TranslationGateway(Gateway):
 class DocSumGateway(Gateway):
     def __init__(self, megaservice, host="0.0.0.0", port=8888):
         super().__init__(
-            megaservice,
-            host,
-            port,
-            str(MegaServiceEndpoint.DOC_SUMMARY),
-            input_datatype=DocSumChatCompletionRequest,
-            output_datatype=ChatCompletionResponse,
+            megaservice, 
+            host, 
+            port, 
+            str(MegaServiceEndpoint.DOC_SUMMARY), 
+            input_datatype= DocSumChatCompletionRequest,
+            output_datatype=ChatCompletionResponse
         )
 
-    async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
+    async def handle_request(self, request: Request):
         data = await request.json()
-        stream_opt = data.get("stream", True)        
+        stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.model_validate(data)
-
+        
         prompt = self._handle_message(chat_request.messages)
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
@@ -432,10 +432,9 @@ class DocSumGateway(Gateway):
             presence_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 0.0,
             repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
             streaming=stream_opt,
-            language=chat_request.language if chat_request.language else "auto",
         )
         result_dict, runtime_graph = await self.megaservice.schedule(
-            initial_inputs={data["type"]: prompt}, llm_parameters=parameters
+            initial_inputs={data['type']: prompt}, llm_parameters=parameters
         )
         for node, response in result_dict.items():
             # Here it suppose the last microservice in the megaservice is LLM.
@@ -457,6 +456,7 @@ class DocSumGateway(Gateway):
             )
         )
         return ChatCompletionResponse(model="docsum", choices=choices, usage=usage)
+
 
 
 class AudioQnAGateway(Gateway):
