@@ -418,8 +418,8 @@ class DocSumGateway(Gateway):
         )
 
     async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
-        data = await request.form()
-        stream_opt = data.get("stream", True)
+        data = await request.json()
+        stream_opt = data.get("stream", True)        
         chat_request = ChatCompletionRequest.model_validate(data)
 
         prompt = self._handle_message(chat_request.messages)
