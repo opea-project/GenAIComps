@@ -144,8 +144,8 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.managed import IsLastStep
 from langgraph.prebuilt import ToolNode
-
 from ...utils import setup_chat_model
+from ...persistence import AgentPersistence, PersistenceConfig
 
 
 class AgentState(TypedDict):
@@ -210,8 +210,8 @@ class ReActAgentNodeLlama:
 
 
 class ReActAgentLlama(BaseAgent):
-    def __init__(self, args, agent_config=None, **kwargs):
-        super().__init__(args, local_vars=globals(), agent_config=agent_config, **kwargs)
+    def __init__(self, args, with_memory=False, **kwargs):
+        super().__init__(args, local_vars=globals(), **kwargs)
         agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args)
         tool_node = ToolNode(self.tools_descriptions)
 
@@ -248,10 +248,21 @@ class ReActAgentLlama(BaseAgent):
         # This means that after `tools` is called, `agent` node is called next.
         workflow.add_edge("tools", "agent")
 
-        if with_memory:
-            self.app = workflow.compile(checkpointer=MemorySaver())
+        if args.with_memory:
+            self.persistence = AgentPersistence(
+                config=PersistenceConfig(
+                    checkpointer=args.with_memory,
+                    store=args.with_store
+                )
+            )
+            print(self.persistence.checkpointer)
+            self.app = workflow.compile(
+                checkpointer=self.persistence.checkpointer,
+                store=self.persistence.store
+            )
         else:
             self.app = workflow.compile()
+
 
     # Define the function that determines whether to continue or not
     def should_continue(self, state: AgentState):
@@ -265,26 +276,7 @@ class ReActAgentLlama(BaseAgent):
             return "continue"
 
     def prepare_initial_state(self, query):
-
-        session_info = await self.storage.get_session_info(request.session_id)
-        if session_info is None:
-            raise ValueError(f"Session {request.session_id} not found")
-
-        turns = await self.storage.get_session_turns(request.session_id)
-
-        messages = []
-        if len(turns) == 0 and self.agent_config.instructions != "":
-            messages.append(SystemMessage(content=self.agent_config.instructions))
-
-        for i, turn in enumerate(turns):
-            messages.extend(self.turn_to_messages(turn))
-
-        messages.extend(request.messages)
-
-        self.turn_id = str(uuid.uuid4())
-
-        # return {"messages": [HumanMessage(content=query)]}
-        return {"messages": messages}
+        return {"messages": [HumanMessage(content=query)]}
 
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
@@ -295,17 +287,6 @@ class ReActAgentLlama(BaseAgent):
                     for k, v in node_state.items():
                         if v is not None:
                             yield f"{k}: {v}\n"
-
-                turn = Turn(
-                    turn_id=turn_id,
-                    session_id=request.session_id,
-                    input_messages=request.messages,
-                    output_message=output_message,
-                    started_at=start_time,
-                    completed_at=datetime.now(),
-                    steps=steps,
-                )
-                await self.storage.add_turn_to_session(request.session_id, turn)
 
                 yield f"data: {repr(event)}\n\n"
             yield "data: [DONE]\n\n"
@@ -321,17 +302,6 @@ class ReActAgentLlama(BaseAgent):
                     print(message)
                 else:
                     message.pretty_print()
-
-                turn = Turn(
-                    turn_id=turn_id,
-                    session_id=request.session_id,
-                    input_messages=request.messages,
-                    output_message=output_message,
-                    started_at=start_time,
-                    completed_at=datetime.now(),
-                    steps=steps,
-                )
-                await self.storage.add_turn_to_session(request.session_id, turn)
 
             last_message = s["messages"][-1]
             print("******Response: ", last_message.content)

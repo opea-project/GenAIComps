@@ -1,7 +1,5 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-from comps.cores.proto.agents import AgentConfig
-
 from .utils import load_python_prompt
 
 
@@ -11,14 +9,6 @@ def instantiate_agent(args, strategy="react_langchain", with_memory=False):
         custom_prompt = load_python_prompt(args.custom_prompt)
     else:
         custom_prompt = None
-
-    agent_config = AgentConfig(
-        model = args.llm_engine,
-        with_memory = with_memory,
-        custom_prompt = custom_prompt,
-        tools = args.tools
-        enable_session_persistence=False,
-    )
 
     if strategy == "react_langchain":
         from .strategy.react import ReActAgentwithLangchain
@@ -32,7 +22,7 @@ def instantiate_agent(args, strategy="react_langchain", with_memory=False):
         print("Initializing ReAct Agent with LLAMA")
         from .strategy.react import ReActAgentLlama
 
-        return ReActAgentLlama(args, agent_config)
+        return ReActAgentLlama(args, with_memory, custom_prompt=custom_prompt)
     elif strategy == "plan_execute":
         from .strategy.planexec import PlanExecuteAgentWithLangGraph
 
