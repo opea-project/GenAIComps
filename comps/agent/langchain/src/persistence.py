@@ -42,10 +42,10 @@ class AgentPersistence:
 
     def save(
         self,
+        config: RunnableConfig,
         content: str,
         context: str,
         memory_id: Optional[str] = None,
-        config: RunnableConfig,
     ):
         """This function is only for long-term memory."""
         mem_id = memory_id or uuid.uuid4()
