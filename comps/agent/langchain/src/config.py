@@ -69,3 +69,6 @@ if os.environ.get("with_memory") is not None:
 
 if os.environ.get("with_store") is not None:
     env_config += ["--with_store", os.environ["with_store"]]
+
+if os.environ.get("timeout") is not None:
+    env_config += ["--timeout", os.environ["timeout"]]
