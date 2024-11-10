@@ -10,6 +10,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import StateGraph
 from langgraph.store.memory import InMemoryStore
 from pydantic import BaseModel
+from langchain_core.runnables import RunnableConfig
 
 
 class PersistenceConfig(BaseModel):
@@ -39,11 +40,29 @@ class AgentPersistence:
         if self.config.store:
             self.store = InMemoryStore()
 
-    def get_state_history(self, config, graph: StateGraph):
-        pass
+    def save(
+        self,
+        content: str,
+        context: str,
+        memory_id: Optional[str] = None,
+        config: RunnableConfig,
+    ):
+        """ this function is only for long-term memory"""
+        mem_id = memory_id or uuid.uuid4()
+        user_id = config["configurable"]["user_id"]
+        self.store.put(
+            ("memories", user_id),
+            key=str(mem_id),
+            value={"content": content, "context": context},
+        )
+        return f"Stored memory {content}"
 
-    def get_state(self, config, graph: StateGraph):
-        pass
+    def get(self, config: RunnableConfig):
+        """ this function is only for long-term memory"""
+        user_id = config["configurable"]["user_id"]
+        namespace = ("memories", user_id)
+        memories = self.store.search(namespace)
+        return memories
 
     def update_state(self, config, graph: StateGraph):
         pass
