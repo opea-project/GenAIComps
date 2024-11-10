@@ -6,11 +6,11 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
+from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import StateGraph
 from langgraph.store.memory import InMemoryStore
 from pydantic import BaseModel
-from langchain_core.runnables import RunnableConfig
 
 
 class PersistenceConfig(BaseModel):
@@ -47,7 +47,7 @@ class AgentPersistence:
         memory_id: Optional[str] = None,
         config: RunnableConfig,
     ):
-        """ this function is only for long-term memory"""
+        """This function is only for long-term memory."""
         mem_id = memory_id or uuid.uuid4()
         user_id = config["configurable"]["user_id"]
         self.store.put(
@@ -58,7 +58,7 @@ class AgentPersistence:
         return f"Stored memory {content}"
 
     def get(self, config: RunnableConfig):
-        """ this function is only for long-term memory"""
+        """This function is only for long-term memory."""
         user_id = config["configurable"]["user_id"]
         namespace = ("memories", user_id)
         memories = self.store.search(namespace)
