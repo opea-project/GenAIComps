@@ -57,11 +57,12 @@ def setup_chat_model(args):
     }
     if args.llm_engine == "vllm" or args.llm_engine == "tgi":
         openai_endpoint = f"{args.llm_endpoint_url}/v1"
-        llm = ChatOpenAI(openai_api_key="EMPTY",
+        llm = ChatOpenAI(
+            openai_api_key="EMPTY",
             openai_api_base=openai_endpoint,
-            model_name=args.model, 
+            model_name=args.model,
             request_timeout=args.timeout,
-            **params
+            **params,
         )
     elif args.llm_engine == "openai":
         llm = ChatOpenAI(model_name=args.model, request_timeout=args.timeout, **params)
