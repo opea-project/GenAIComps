@@ -144,8 +144,9 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.managed import IsLastStep
 from langgraph.prebuilt import ToolNode
-from ...utils import setup_chat_model
+
 from ...persistence import AgentPersistence, PersistenceConfig
+from ...utils import setup_chat_model
 
 
 class AgentState(TypedDict):
@@ -250,19 +251,12 @@ class ReActAgentLlama(BaseAgent):
 
         if args.with_memory:
             self.persistence = AgentPersistence(
-                config=PersistenceConfig(
-                    checkpointer=args.with_memory,
-                    store=args.with_store
-                )
+                config=PersistenceConfig(checkpointer=args.with_memory, store=args.with_store)
             )
             print(self.persistence.checkpointer)
-            self.app = workflow.compile(
-                checkpointer=self.persistence.checkpointer,
-                store=self.persistence.store
-            )
+            self.app = workflow.compile(checkpointer=self.persistence.checkpointer, store=self.persistence.store)
         else:
             self.app = workflow.compile()
-
 
     # Define the function that determines whether to continue or not
     def should_continue(self, state: AgentState):

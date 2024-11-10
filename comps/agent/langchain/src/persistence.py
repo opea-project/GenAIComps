@@ -1,20 +1,21 @@
-import json
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
+import json
 import uuid
 from datetime import datetime
-
 from typing import List, Optional
 
-from pydantic import BaseModel
-
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.store.memory import InMemoryStore
 from langgraph.graph import StateGraph
+from langgraph.store.memory import InMemoryStore
+from pydantic import BaseModel
 
 
 class PersistenceConfig(BaseModel):
     checkpointer: bool = False
     store: bool = False
+
 
 class PersistenceInfo(BaseModel):
     user_id: str = None

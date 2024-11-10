@@ -39,9 +39,11 @@ logger.info("========initiating agent============")
 logger.info(f"args: {args}")
 agent_inst = instantiate_agent(args, args.strategy, with_memory=args.with_memory)
 
+
 class AgentCompletionRequest(LLMParamsDoc):
     thread_id: str = "0"
     user_id: str = "0"
+
 
 @register_microservice(
     name="opea_service@comps-chat-agent",
@@ -50,9 +52,7 @@ class AgentCompletionRequest(LLMParamsDoc):
     host="0.0.0.0",
     port=args.port,
 )
-async def llm_generate(
-        input: Union[LLMParamsDoc, ChatCompletionRequest, AgentCompletionRequest]
-    ):
+async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, AgentCompletionRequest]):
     if logflag:
         logger.info(input)
 
