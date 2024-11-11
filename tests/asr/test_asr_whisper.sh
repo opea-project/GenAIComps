@@ -18,7 +18,9 @@ function build_docker_images() {
     else
         echo "opea/whisper built successful"
     fi
+
     docker build --no-cache -t opea/asr:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/Dockerfile .
+    
     if [ $? -ne 0 ]; then
         echo "opea/asr built fail"
         exit 1
@@ -31,7 +33,7 @@ function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-asr-whisper" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 7066:7066 --ipc=host opea/whisper:comps
     docker run -d --name="test-comps-asr" -e ASR_ENDPOINT=http://$ip_address:7066 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9089:9099 --ipc=host opea/asr:comps
-    sleep 3m
+    sleep 60s
 }
 
 function validate_microservice() {
