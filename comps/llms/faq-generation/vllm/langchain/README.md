@@ -1,10 +1,12 @@
 # vLLM FAQGen LLM Microservice
 
-This microservice interacts with the vLLM server to generate FAQs from Input Text.[Text Generation Inference](https://github.com/huggingface/text-generation-inference) (vLLM) is a toolkit for deploying and serving Large Language Models (LLMs). VLLM enables high-performance text generation for the most popular open-source LLMs, including Llama, Falcon, StarCoder, BLOOM, GPT-NeoX, and more.
+This microservice interacts with the vLLM server to generate FAQs from Input Text.[vLLM](https://github.com/vllm-project/vllm) is a fast and easy-to-use library for LLM inference and serving, it delivers state-of-the-art serving throughput with a set of advanced features such as PagedAttention, Continuous batching and etc.. Besides GPUs, vLLM already supported [Intel CPUs](https://www.intel.com/content/www/us/en/products/overview.html) and [Gaudi accelerators](https://habana.ai/products).
 
 ## 🚀1. Start Microservice with Docker
 
 If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start a VLLM service with docker.
+
+To setup or build the vLLM image follow the instructions provided in [vLLM Gaudi](https://github.com/opea-project/GenAIComps/tree/main/comps/llms/text-generation/vllm/langchain#22-vllm-on-gaudi) 
 
 ### 1.1 Setup Environment Variables
 
@@ -16,7 +18,7 @@ export vLLM_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL_ID=${your_hf_llm_model}
 ```
 
-### 1.2 Build Docker Image
+### 1.3 Build Docker Image
 
 ```bash
 cd ../../../../../
@@ -33,7 +35,7 @@ You can choose one as needed.
 ### 1.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d -p 8008:80 -v ./data:/data --name vllm_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${LLM_MODEL_ID}
+docker run -d -p 8008:80 -v ./data:/data --name vllm-service --shm-size 1g opea/vllm:hpu --model-id ${LLM_MODEL_ID}
 ```
 
 ```bash
