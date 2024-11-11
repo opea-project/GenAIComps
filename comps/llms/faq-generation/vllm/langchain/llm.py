@@ -21,6 +21,7 @@ TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
+
 def post_process_text(text: str):
     if text == " ":
         return "data: @#$\n\n"
@@ -42,14 +43,25 @@ def post_process_text(text: str):
 async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
-    access_token = get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    access_token = (
+        get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    )
     headers = {}
     if access_token:
         headers = {"Authorization": f"Bearer {access_token}"}
 
     model = input.model if input.model else os.getenv("LLM_MODEL_ID")
-    llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model, default_headers=headers, max_tokens=input.max_tokens, top_p=input.top_p, streaming=input.streaming, temperature=input.temperature)
-    
+    llm = VLLMOpenAI(
+        openai_api_key="EMPTY",
+        openai_api_base=llm_endpoint + "/v1",
+        model_name=model,
+        default_headers=headers,
+        max_tokens=input.max_tokens,
+        top_p=input.top_p,
+        streaming=input.streaming,
+        temperature=input.temperature,
+    )
+
     templ = """Create a concise FAQs (frequently asked questions and answers) for following text:
         TEXT: {text}
         Do not use any prefix or suffix to the FAQ.
