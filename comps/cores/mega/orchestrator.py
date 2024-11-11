@@ -95,7 +95,7 @@ class ServiceOrchestrator(DAG):
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
                 for done_task in done:
                     response, node = await done_task
-                    self.dump_outputs(node, response, result_dict)
+                    result_dict[node] = response
 
                     # traverse the current node's downstream nodes and execute if all one's predecessors are finished
                     downstreams = runtime_graph.downstream(node)
@@ -119,10 +119,8 @@ class ServiceOrchestrator(DAG):
                                     yield "data: b'" + text + "'\n\n"
                                     yield "data: [DONE]\n\n"
 
-                                self.dump_outputs(
-                                    node,
-                                    StreamingResponse(fake_stream(response["text"]), media_type="text/event-stream"),
-                                    result_dict,
+                                result_dict[node] = StreamingResponse(
+                                    fake_stream(response["text"]), media_type="text/event-stream"
                                 )
 
                     for d_node in downstreams:
@@ -273,9 +271,6 @@ class ServiceOrchestrator(DAG):
     def align_generator(self, gen, *args, **kwargs):
         """Override this method in megaservice definition."""
         return gen
-
-    def dump_outputs(self, node, response, result_dict):
-        result_dict[node] = response
 
     def get_all_final_outputs(self, result_dict, runtime_graph):
         final_output_dict = {}
