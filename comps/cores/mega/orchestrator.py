@@ -185,11 +185,12 @@ class ServiceOrchestrator(DAG):
         ) and llm_parameters.streaming:
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
+                logger.info(f"LLM inputs: {inputs}")
                 from transformers import AutoModelForCausalLM, AutoTokenizer
                 tokenizer = AutoTokenizer.from_pretrained("Intel/neural-chat-7b-v3-3")
-                tokens = tokenizer.encode(inputs)
+                tokens = tokenizer.encode(inputs["messages"][0]["content"])
                 num_tokens = len(tokens)
-                logger.info(f"LLM num_tokens: {num_tokens}, inputs: {inputs}")
+                logger.info(f"LLM num_tokens: {num_tokens}")
             response = requests.post(
                 url=endpoint,
                 data=json.dumps(inputs),
