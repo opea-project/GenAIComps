@@ -187,7 +187,7 @@ class ServiceOrchestrator(DAG):
             if LOGFLAG:
                 logger.info(f"LLM inputs: {inputs}")
                 from transformers import AutoModelForCausalLM, AutoTokenizer
-                tokenizer = AutoTokenizer.from_pretrained("Intel/neural-chat-7b-v3-3")
+                tokenizer = AutoTokenizer.from_pretrained(inputs["model"])
                 tokens = tokenizer.encode(inputs["messages"][0]["content"])
                 num_tokens = len(tokens)
                 logger.info(f"LLM num_tokens: {num_tokens}")
