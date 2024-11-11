@@ -20,7 +20,7 @@ function build_docker_images() {
     fi
 
     docker build --no-cache -t opea/asr:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/Dockerfile .
-    
+
     if [ $? -ne 0 ]; then
         echo "opea/asr built fail"
         exit 1

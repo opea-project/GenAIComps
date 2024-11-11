@@ -73,7 +73,7 @@ function start_services() {
         echo "opea/whisper start successful"
     fi
 
-    
+
     docker run -d -p 9099:9099 --name="test-comps-mm-a2t-service" --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e A2T_ENDPOINT=http://$host_ip:7066 opea/a2t:comps
     if [ $? -ne 0 ]; then
         echo "opea/a2t service fail to start"
@@ -88,7 +88,7 @@ function start_services() {
         exit 1
     else
         echo "opea/v2a start successful"
-    fi    
+    fi
 
 
     docker run -d -p 7079:7079 --name="test-comps-mm-multimedia2text-service" --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
@@ -101,7 +101,7 @@ function start_services() {
         exit 1
     else
         echo "opea/multimedia2text start successful"
-    fi   
+    fi
 
     sleep 60s
 
@@ -180,7 +180,7 @@ function validate_microservices() {
         "whisper-service" \
         "whisper-service" \
         "{\"audio\": \"$(input_data_for_test "audio")\"}"
-        
+
     # Audio2Text service
     validate_services \
         "${host_ip}:9099/v1/audio/transcriptions" \
