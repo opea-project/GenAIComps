@@ -20,13 +20,33 @@ from comps import (
     register_microservice,
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
+from comps.cores.mega.utils import load_model_configs, ConfigError
 
 logger = CustomLogger("llm_vllm")
 logflag = os.getenv("LOGFLAG", False)
 
-llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
-model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
-llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name)
+# Environment variables
+MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
+DEFAULT_ENDPOINT = os.getenv("vLLM_ENDPOINT", "http://localhost:8080")
+
+# Validate and Load the models config if MODEL_CONFIGS is not null
+configs_map = {}
+if MODEL_CONFIGS:
+    try:
+        configs_map = load_model_configs(MODEL_CONFIGS)
+    except ConfigError as e:
+        logger.error(f"Failed to load model configurations: {e}")
+        raise ConfigError(f"Failed to load model configurations: {e}")
+
+
+def get_llm_endpoint(model):
+    if not MODEL_CONFIGS:
+        return DEFAULT_ENDPOINT
+    try:
+        return configs_map.get(model).get("endpoint")
+    except ConfigError as e:
+        logger.error(f"Input model {model} not present in model_configs. Error {e}")
+        raise ConfigError(f"Input model {model} not present in model_configs")
 
 
 @opea_telemetry
@@ -53,6 +73,9 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
         logger.info(input)
 
     prompt_template = None
+    model_name = input.model if input.model else os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
+    llm_endpoint = get_llm_endpoint(model_name)
+    llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name)
 
     if not isinstance(input, SearchedDoc) and input.chat_template:
         prompt_template = PromptTemplate.from_template(input.chat_template)
@@ -69,7 +92,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             if logflag:
                 logger.info(f"[ SearchedDoc ] combined retrieved docs: {docs}")
 
-            prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs)
+            prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs, model_name)
 
         # use default llm parameter for inference
         new_input = LLMParamsDoc(query=prompt)
@@ -134,7 +157,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
         else:
             if input.documents:
                 # use rag default template
-                prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents)
+                prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents, model_name)
 
         if input.streaming:
 
