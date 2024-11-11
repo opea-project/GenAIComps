@@ -187,6 +187,7 @@ class ServiceOrchestrator(DAG):
             if LOGFLAG:
                 logger.info(f"LLM inputs: {inputs}")
                 from transformers import AutoModelForCausalLM, AutoTokenizer
+
                 tokenizer = AutoTokenizer.from_pretrained(inputs["model"])
                 tokens = tokenizer.encode(inputs["messages"][0]["content"])
                 num_tokens = len(tokens)
