@@ -19,8 +19,8 @@ from comps import (
     opea_telemetry,
     register_microservice,
 )
+from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 from comps.cores.proto.api_protocol import ChatCompletionRequest
-from comps.cores.mega.utils import get_access_token, load_model_configs, ConfigError
 
 logger = CustomLogger("llm_vllm")
 logflag = os.getenv("LOGFLAG", False)
@@ -76,13 +76,17 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
         logger.info(input)
 
     prompt_template = None
-    access_token = get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    access_token = (
+        get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    )
     headers = {}
     if access_token:
         headers = {"Authorization": f"Bearer {access_token}"}
     model_name = input.model if input.model else os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
     llm_endpoint = get_llm_endpoint(model_name)
-    llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name, default_headers=headers)
+    llm = VLLMOpenAI(
+        openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name, default_headers=headers
+    )
 
     if not isinstance(input, SearchedDoc) and input.chat_template:
         prompt_template = PromptTemplate.from_template(input.chat_template)
