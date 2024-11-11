@@ -30,6 +30,7 @@ templ_zh = """请简要概括以下内容:
 "{text}"
 概况:"""
 
+
 def post_process_text(text: str):
     if text == " ":
         return "data: @#$\n\n"
@@ -39,6 +40,7 @@ def post_process_text(text: str):
         return None
     new_text = text.replace(" ", "@#$")
     return f"data: {new_text}\n\n"
+
 
 @register_microservice(
     name="opea_service@llm_docsum",
@@ -62,20 +64,32 @@ async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info("After prompting:")
         logger.info(PROMPT)
-    
-    access_token = get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+
+    access_token = (
+        get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    )
     headers = {}
     if access_token:
         headers = {"Authorization": f"Bearer {access_token}"}
     llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8080")
     model = input.model if input.model else os.getenv("LLM_MODEL_ID")
-    llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model, default_headers=headers, max_tokens=input.max_tokens, top_p=input.top_p, streaming=input.streaming, temperature=input.temperature, presence_penalty=input.repetition_penalty)
+    llm = VLLMOpenAI(
+        openai_api_key="EMPTY",
+        openai_api_base=llm_endpoint + "/v1",
+        model_name=model,
+        default_headers=headers,
+        max_tokens=input.max_tokens,
+        top_p=input.top_p,
+        streaming=input.streaming,
+        temperature=input.temperature,
+        presence_penalty=input.repetition_penalty,
+    )
     llm_chain = load_summarize_chain(llm=llm, prompt=PROMPT)
     texts = text_splitter.split_text(input.query)
 
     # Create multiple documents
     docs = [Document(page_content=t) for t in texts]
-    
+
     if input.streaming:
 
         async def stream_generator():
