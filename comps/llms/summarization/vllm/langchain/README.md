@@ -1,7 +1,7 @@
 # Document Summary vLLM Microservice
 
-This microservice leverages LangChain to implement summarization strategies and facilitate LLM inference using Text Generation Inference on Intel Xeon and Gaudi2 processors.
-[Text Generation Inference](https://github.com/huggingface/text-generation-inference) (vLLM) is a toolkit for deploying and serving Large Language Models (LLMs). vLLM enables high-performance text generation for the most popular open-source LLMs, including Llama, Falcon, StarCoder, BLOOM, GPT-NeoX, and more.
+This microservice leverages LangChain to implement summarization strategies and facilitate LLM inference using vLLM.
+[vLLM](https://github.com/vllm-project/vllm) is a fast and easy-to-use library for LLM inference and serving, it delivers state-of-the-art serving throughput with a set of advanced features such as PagedAttention, Continuous batching and etc.. Besides GPUs, vLLM already supported [Intel CPUs](https://www.intel.com/content/www/us/en/products/overview.html) and [Gaudi accelerators](https://habana.ai/products).
 
 ## 🚀1. Start Microservice with Python 🐍 (Option 1)
 
@@ -17,16 +17,17 @@ pip install -r requirements.txt
 
 ```bash
 export HF_TOKEN=${your_hf_api_token}
-docker run -p 8008:80 -v ./data:/data --name llm-docsum-vllm --shm-size 1g ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${your_hf_llm_model}
+export LLM_MODEL_ID=${your_hf_llm_model}
+docker run -p 8008:80 -v ./data:/data --name llm-docsum-vllm --shm-size 1g opea/vllm:hpu --model-id ${LLM_MODEL_ID}
 ```
 
 ### 1.3 Verify the vLLM Service
 
 ```bash
-curl http://${your_ip}:8008/generate \
-  -X POST \
-  -d '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}' \
-  -H 'Content-Type: application/json'
+curl http://${your_ip}:8008/v1/chat/completions \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"model": "meta-llama/Meta-Llama-3-8B-Instruct", "messages": [{"role": "user", "content": "What is Deep Learning? "}]}'
 ```
 
 ### 1.4 Start LLM Service with Python Script
@@ -39,6 +40,8 @@ python llm.py
 ## 🚀2. Start Microservice with Docker 🐳 (Option 2)
 
 If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start a vLLM/vLLM service with docker.
+
+To setup or build the vLLM image follow the instructions provided in [vLLM Gaudi](https://github.com/opea-project/GenAIComps/tree/main/comps/llms/text-generation/vllm/langchain#22-vllm-on-gaudi) 
 
 ### 2.1 Setup Environment Variables
 

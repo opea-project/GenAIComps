@@ -4,17 +4,26 @@
 version: "3.8"
 
 services:
-  vllm_service:
-    image: ghcr.io/huggingface/text-generation-inference:2.1.0
-    container_name: vllm-service
+  vllm-service:
+    image: opea/vllm:hpu
+    container_name: vllm-gaudi-server
     ports:
       - "8008:80"
     volumes:
       - "./data:/data"
     environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
       HF_TOKEN: ${HF_TOKEN}
-    shm_size: 1g
-    command: --model-id ${LLM_MODEL_ID}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    ipc: host
+    command: --enforce-eager --model $LLM_MODEL_ID --tensor-parallel-size 1 --host 0.0.0.0 --port 80
   llm:
     image: opea/llm-docsum-vllm:latest
     container_name: llm-docsum-vllm-server
