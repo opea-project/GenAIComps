@@ -17,4 +17,5 @@ python-multipart
 pyyaml
 requests
 shortuuid
+transformers
 uvicorn
