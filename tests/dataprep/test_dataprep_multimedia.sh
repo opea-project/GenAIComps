@@ -103,7 +103,7 @@ function start_services() {
         echo "opea/multimedia2text start successful"
     fi
 
-    sleep 60s
+    sleep 120s
 
 }
 
