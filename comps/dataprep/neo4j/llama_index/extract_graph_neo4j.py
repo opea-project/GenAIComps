@@ -10,7 +10,6 @@ import os
 import re
 from collections import defaultdict
 from typing import Any, Callable, Dict, List, Optional, Union
-from transformers import AutoTokenizer
 
 import nest_asyncio
 import networkx as nx
@@ -41,6 +40,7 @@ from llama_index.llms.openai import OpenAI
 from llama_index.llms.text_generation_inference import TextGenerationInference
 from neo4j import GraphDatabase
 from openai import Client
+from transformers import AutoTokenizer
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
@@ -118,15 +118,14 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         community_hierarchical_clusters = hierarchical_leiden(nx_graph, max_cluster_size=self.max_cluster_size)
         logger.info(f"Number of clustered entities: {len(community_hierarchical_clusters)}")
         logger.info(f"Community hierarchical clusters: {community_hierarchical_clusters}")
-        n_clusters=set([hc.cluster for hc in community_hierarchical_clusters])
+        n_clusters = set([hc.cluster for hc in community_hierarchical_clusters])
         logger.info(f"number of communities/clusters: {len(n_clusters)}")
         self.entity_info, community_info = self._collect_community_info(nx_graph, community_hierarchical_clusters)
         # self._print_cluster_info(self.entity_info, community_info)
         self.save_entity_info(self.entity_info)
-        #entity_from_db = self.read_entity_info()  # to verify if the data is stored in db
+        # entity_from_db = self.read_entity_info()  # to verify if the data is stored in db
         self._summarize_communities(community_info)
-        #sum = self.read_all_community_summaries()  # to verify summaries are stored in db
-
+        # sum = self.read_all_community_summaries()  # to verify summaries are stored in db
 
     def _create_nx_graph(self):
         """Converts internal graph representation to NetworkX graph."""
@@ -169,26 +168,27 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
 
     def _print_cluster_info(self, entity_info, community_info):
         """Print detailed information about each community cluster.
+
         Args:
             entity_info (dict): Dictionary where keys are nodes and values are lists of cluster IDs the node belongs to.
             community_info (dict): Dictionary where keys are cluster IDs and values are lists of relationship details within the cluster.
         """
         print("Community Cluster Information:\n")
-        
+
         for cluster_id, details in community_info.items():
             print(f"Cluster ID: {cluster_id}")
             print("Nodes in this cluster:")
-            
+
             # Find nodes that belong to this cluster
             nodes_in_cluster = [node for node, clusters in entity_info.items() if cluster_id in clusters]
             for node in nodes_in_cluster:
                 print(f"  - Node: {node}")
-            
+
             print("Relationships in this cluster:")
             for detail in details:
                 print(f"  - {detail}")
-            
-            print("\n" + "-"*40 + "\n")
+
+            print("\n" + "-" * 40 + "\n")
 
     def save_entity_info(self, entity_info: dict) -> None:
         with self.driver.session() as session:
@@ -215,7 +215,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                         entity_name=entity_node.name,
                         cluster_id=cluster_node.id,
                         cluster_name=cluster_node.name,
-                        relationship_description=relation_metadata["relationship_description"]
+                        relationship_description=relation_metadata["relationship_description"],
                     )
 
     def read_entity_info(self) -> dict:
@@ -228,10 +228,10 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                 """
             )
             for record in result:
-                #entity_info[record['entity_id']] = record['cluster_ids']
-                entity_info[record['entity_id']] = [int(cluster_id) for cluster_id in record['cluster_ids']]
+                # entity_info[record['entity_id']] = record['cluster_ids']
+                entity_info[record["entity_id"]] = [int(cluster_id) for cluster_id in record["cluster_ids"]]
         return entity_info
-    
+
     def _summarize_communities(self, community_info):
         """Generate and store summaries for each community."""
         for community_id, details in community_info.items():
@@ -239,7 +239,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
             details_text = "\n".join(details) + "."  # Ensure it ends with a period
             self.community_summary[community_id] = self.generate_community_summary(details_text)
 
-            #To store summaries in neo4j
+            # To store summaries in neo4j
             summary = self.generate_community_summary(details_text)
             self.store_community_summary_in_neo4j(community_id, summary)
             # self.community_summary[
@@ -269,7 +269,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                 """
             )
             for record in result:
-                community_summaries[int(record['community_id'])] = record['summary']
+                community_summaries[int(record["community_id"])] = record["summary"]
         return community_summaries
 
     def query_schema(self):
@@ -458,6 +458,7 @@ def inspect_db():
     finally:
         self.driver.close()
 
+
 def parse_fn(response_str: str) -> Any:
     entities = re.findall(entity_pattern, response_str)
     relationships = re.findall(relationship_pattern, response_str)
@@ -486,6 +487,7 @@ def get_attribute_from_tgi_endpoint(url, attribute_name):
         logger.error(f"Request to {url} failed: {e}")
         return None
 
+
 def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
     """Trim the messages to fit within the token limit."""
     total_tokens = 0
@@ -506,6 +508,7 @@ def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
             trimmed_messages.append(message)
 
     return trimmed_messages
+
 
 logger = CustomLogger("prepare_doc_neo4j")
 logflag = os.getenv("LOGFLAG", False)
