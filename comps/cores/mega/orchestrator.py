@@ -167,20 +167,17 @@ class ServiceOrchestrator(DAG):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
         llm_parameters_dict = llm_parameters.dict()
-        if (
-            self.services[cur_node].service_type == ServiceType.LLM
-            or self.services[cur_node].service_type == ServiceType.LVM
-        ):
+
+        is_llm_vlm = self.services[cur_node].service_type in (ServiceType.LLM, ServiceType.LVM)
+
+        if is_llm_vlm:
             for field, value in llm_parameters_dict.items():
                 if inputs.get(field) != value:
                     inputs[field] = value
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
 
-        if (
-            self.services[cur_node].service_type == ServiceType.LLM
-            or self.services[cur_node].service_type == ServiceType.LVM
-        ) and llm_parameters.streaming:
+        if is_llm_vlm and llm_parameters.streaming:
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
