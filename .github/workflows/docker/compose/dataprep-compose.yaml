@@ -63,4 +63,3 @@ services:
     build:
       dockerfile: comps/dataprep/multimedia2text/video2audio/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-audio2text:${TAG:-latest}
-    
