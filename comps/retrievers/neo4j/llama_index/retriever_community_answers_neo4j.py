@@ -26,8 +26,8 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.text_generation_inference import TextGenerationInference
-from pydantic import BaseModel, PrivateAttr
 from neo4j import GraphDatabase
+from pydantic import BaseModel, PrivateAttr
 
 from comps import (
     CustomLogger,
@@ -50,6 +50,7 @@ from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, 
 
 logger = CustomLogger("retriever_neo4j")
 logflag = os.getenv("LOGFLAG", False)
+
 
 class GraphRAGQueryEngine(CustomQueryEngine):
     # https://github.com/run-llama/llama_index/blob/main/docs/docs/examples/cookbooks/GraphRAG_v2.ipynb
@@ -95,9 +96,9 @@ class GraphRAGQueryEngine(CustomQueryEngine):
             similarity_top_k=self._similarity_top_k,
             # similarity_score=0.6
         )
-        #nodes_retrieved = self._index.as_retriever(
+        # nodes_retrieved = self._index.as_retriever(
         #    sub_retrievers=[vecContext_retriever], similarity_top_k=self._similarity_top_k
-        #).retrieve(query_str)
+        # ).retrieve(query_str)
         # if subretriever not specified it will use LLMSynonymRetriever with Settings.llm model
         nodes_retrieved = self._index.as_retriever(similarity_top_k=self._similarity_top_k).retrieve(query_str)
         entities = set()
@@ -145,7 +146,7 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         dict: Dictionary where keys are community or cluster IDs and values are summaries.
         """
         community_summaries = {}
-        print(f"driver working? {self._graph_store.driver})")   
+        print(f"driver working? {self._graph_store.driver})")
 
         with self._graph_store.driver.session() as session:
             for entity in entities:
@@ -154,13 +155,12 @@ class GraphRAGQueryEngine(CustomQueryEngine):
                     MATCH (e:Entity {id: $entity_id})-[:BELONGS_TO]->(c:Cluster)
                     RETURN c.id AS cluster_id, c.summary AS summary
                     """,
-                    entity_id=entity
+                    entity_id=entity,
                 )
                 for record in result:
-                    community_summaries[record['cluster_id']] = record['summary']
+                    community_summaries[record["cluster_id"]] = record["summary"]
 
         return community_summaries
-
 
     def generate_answer_from_summary(self, community_summary, query):
         """Generate an answer from a community summary based on a given query using LLM."""
