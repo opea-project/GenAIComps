@@ -122,16 +122,6 @@ function validate_microservice() {
         "test-comps-dataprep-neo4j-server"
 
 }
-function kill_process_on_port() {
-    local port=$1
-    local pid=$(lsof -t -i:$port)
-    if [[ ! -z "$pid" ]]; then
-        echo "Killing process $pid on port $port"
-        kill -9 $pid
-    else
-        echo "No process found on port $port"
-    fi
-}
 
 function stop_docker() {
     cid_retrievers=$(docker ps -aq --filter "name=test-comps-dataprep-neo4j*")
@@ -145,7 +135,6 @@ function stop_docker() {
 }
 
 function main() {
-    kill_process_on_port 6006
 
     stop_docker
 
