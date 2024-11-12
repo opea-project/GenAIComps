@@ -435,29 +435,6 @@ output:"""
 entity_pattern = r'\("entity"\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\)'
 relationship_pattern = r'\("relationship"\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\$\$\$\$(.+?)\)'
 
-
-def inspect_db():
-    try:
-        with self.driver.session() as session:
-            # Check for property keys
-            result = session.run("CALL db.propertyKeys()")
-            property_keys = [record["propertyKey"] for record in result]
-            print("Property Keys:", property_keys)
-
-            # Check for node labels
-            result = session.run("CALL db.labels()")
-            labels = [record["label"] for record in result]
-            print("Node Labels:", labels)
-
-            # Check for relationship types
-            result = session.run("CALL db.relationshipTypes()")
-            relationship_types = [record["relationshipType"] for record in result]
-            print("Relationship Types:", relationship_types)
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        self.driver.close()
-
 def parse_fn(response_str: str) -> Any:
     entities = re.findall(entity_pattern, response_str)
     relationships = re.findall(relationship_pattern, response_str)
