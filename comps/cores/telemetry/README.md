@@ -9,9 +9,10 @@ OPEA Comps currently provides telemetry functionalities for metrics and tracing 
 OPEA microservice metrics are exported in Prometheus format under `/metrics` endpoint.
 
 They come in several categories:
-* HTTP request metrics are exposed by every OPEA microservice using the [prometheus-fastapi-instrumentator](https://github.com/trallnag/prometheus-fastapi-instrumentator)
-* Megaservices export additional metrics for application end-to-end load / performance
-* Inferencing microservices such as TGI, vLLM, TEI provide their own metrics
+
+- HTTP request metrics are exposed by every OPEA microservice using the [prometheus-fastapi-instrumentator](https://github.com/trallnag/prometheus-fastapi-instrumentator)
+- Megaservices export additional metrics for application end-to-end load / performance
+- Inferencing microservices such as TGI, vLLM, TEI provide their own metrics
 
 They can be fetched e.g. with `curl`:
 
@@ -43,14 +44,15 @@ Most of them are histogram metrics.
 ### Megaservice E2E metrics
 
 Applications' megaservice `ServiceOrchectrator` provides following metrics:
-* `megaservice_first_token_latency`: time to first token (TTFT)
-* `megaservice_inter_token_latency`: inter-token latency (ITL ~ TPOT)
-* `megaservice_request_latency`: whole request E2E latency = TTFT + ITL * tokens
-* `megaservice_request_pending`: how many LLM requests are still in progress
+
+- `megaservice_first_token_latency`: time to first token (TTFT)
+- `megaservice_inter_token_latency`: inter-token latency (ITL ~ TPOT)
+- `megaservice_request_latency`: whole request E2E latency = TTFT + ITL \* tokens
+- `megaservice_request_pending`: how many LLM requests are still in progress
 
 Latency ones are histogram metrics i.e. include count, total value and set of value buckets for each item.
 
-They are available only for _streaming_ requests using LLM.  Pending count accounts for all requests.
+They are available only for _streaming_ requests using LLM. Pending count accounts for all requests.
 
 ### Inferencing Metrics
 
