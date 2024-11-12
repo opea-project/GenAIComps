@@ -64,7 +64,9 @@ async def embedding(
             embed_vector = [embed_vector[i][: input.dimensions] for i in range(len(embed_vector))]
 
         # for standard openai embedding format
-        res = EmbeddingResponse(data=[EmbeddingResponseData(index=i, embedding=embed_vector[i]) for i in range(len(embed_vector))])
+        res = EmbeddingResponse(
+            data=[EmbeddingResponseData(index=i, embedding=embed_vector[i]) for i in range(len(embed_vector))]
+        )
 
         if isinstance(input, ChatCompletionRequest):
             input.embedding = res
@@ -77,9 +79,11 @@ async def embedding(
     return res
 
 
-async def aembed_query(text: Union[str, List[str]], async_client: AsyncInferenceClient, model_kwargs=None, task=None) -> List[List[float]]:
-    texts=[text] if isinstance(text, str) else text
-    response = (await aembed_documents(texts, async_client, model_kwargs=model_kwargs, task=task))
+async def aembed_query(
+    text: Union[str, List[str]], async_client: AsyncInferenceClient, model_kwargs=None, task=None
+) -> List[List[float]]:
+    texts = [text] if isinstance(text, str) else text
+    response = await aembed_documents(texts, async_client, model_kwargs=model_kwargs, task=task)
     return response
 
 

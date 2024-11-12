@@ -114,6 +114,7 @@ curl http://localhost:6000/v1/health_check\
 ### 3.2 Consume Embedding Service
 
 Basic API, query with single text.
+
 ```bash
 curl http://localhost:6000/v1/embeddings\
   -X POST \
@@ -122,6 +123,7 @@ curl http://localhost:6000/v1/embeddings\
 ```
 
 We are also compatible with [OpenAI API](https://platform.openai.com/docs/api-reference/embeddings).
+
 ```bash
 ## Input single text
 curl http://localhost:6000/v1/embeddings\
