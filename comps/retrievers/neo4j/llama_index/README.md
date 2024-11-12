@@ -1,11 +1,11 @@
 # Retriever Microservice with Neo4J
 
-This retrieval microservice is intended for use in GraphRAG pipeline and assumes a GraphRAGStore containing document graph, entity_info and Community Symmaries already exists. Please refer to the GenAIExamples/GraphRAG example. 
+This retrieval microservice is intended for use in GraphRAG pipeline and assumes a GraphRAGStore containing document graph, entity_info and Community Symmaries already exists. Please refer to the GenAIExamples/GraphRAG example.
 
 Retrieval follows these steps:
 
 - Uses similarty to find the relevant entities to the input query. Retrieval is done over the neo4j index that natively supports embeddings.
-- Uses Cypher queries to retrieve the community summaries for all the communities the entities belong to. 
+- Uses Cypher queries to retrieve the community summaries for all the communities the entities belong to.
 - Generates a partial answer to the query for each community summary. This will later be used as context to generate a final query response. Please refer to [GenAIExamples/GraphRAG](https://github.com/opea-project/GenAIExamples).
 
 ## 🚀Start Microservice with Docker
