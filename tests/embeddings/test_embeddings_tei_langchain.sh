@@ -30,11 +30,12 @@ function start_service() {
     sleep 3m
 }
 
-function validate_microservice() {
+function validate_service() {
+    local INPUT_DATA="$1"
     tei_service_port=5002
     result=$(http_proxy="" curl http://${ip_address}:$tei_service_port/v1/embeddings \
         -X POST \
-        -d '{"text":"What is Deep Learning?"}' \
+        -d "$INPUT_DATA" \
         -H 'Content-Type: application/json')
     if [[ $result == *"embedding"* ]]; then
         echo "Result correct."
@@ -44,6 +45,24 @@ function validate_microservice() {
         docker logs test-comps-embedding-tei-server
         exit 1
     fi
+}
+
+function validate_microservice() {
+    ## query with single text
+    validate_service \
+        '{"text":"What is Deep Learning?"}'
+    
+    ## query with multiple texts
+    validate_service \
+        '{"text":["What is Deep Learning?","How are you?"]}'
+    
+    ## Test OpenAI API, input single text
+    validate_service \
+        '{"input":"What is Deep Learning?"}'
+    
+    ## Test OpenAI API, input multiple texts with parameters
+    validate_service \
+        '{"input":["What is Deep Learning?","How are you?"], "dimensions":100}'
 }
 
 function validate_microservice_with_openai() {
