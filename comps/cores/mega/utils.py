@@ -224,6 +224,8 @@ def load_model_configs(model_configs: str) -> dict:
     except ConfigError as e:
         logger.error(str(e))
         raise
+
+
 def get_access_token(token_url: str, client_id: str, client_secret: str) -> str:
     """Get access token using OAuth client credentials flow."""
     logger = CustomLogger("tgi_or_tei_service_auth")

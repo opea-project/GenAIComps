@@ -22,7 +22,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.mega.utils import get_access_token, ConfigError, load_model_configs
+from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("llm_tgi")
@@ -44,6 +44,7 @@ if MODEL_CONFIGS:
         logger.error(f"Failed to load model configurations: {e}")
         raise ConfigError(f"Failed to load model configurations: {e}")
 
+
 def get_llm_endpoint(model):
     if not MODEL_CONFIGS:
         return DEFAULT_ENDPOINT
@@ -52,6 +53,7 @@ def get_llm_endpoint(model):
     except ConfigError as e:
         logger.error(f"Input model {model} not present in model_configs. Error {e}")
         raise ConfigError(f"Input model {model} not present in model_configs")
+
 
 @register_microservice(
     name="opea_service@llm_tgi",
