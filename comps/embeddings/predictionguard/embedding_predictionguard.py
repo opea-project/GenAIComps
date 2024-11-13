@@ -76,6 +76,7 @@ async def embedding(
 
 async def get_embeddings(text: Union[str, List[str]]) -> List[List[float]]:
     texts = [text] if isinstance(text, str) else text
+    texts = [{"text": texts[i]} for i in range(len(texts))]
     response = client.embeddings.create(model=pg_embedding_model_name, input=texts)["data"]
     embed_vector = [response[i]["embedding"] for i in range(len(response))]
     return embed_vector

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-import time
+import time,os
 from typing import List, Optional, Union
 from dateparser.search import search_dates
 from embeddings_clip import vCLIP
