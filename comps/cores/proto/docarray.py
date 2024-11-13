@@ -84,7 +84,7 @@ class DocPath(BaseDoc):
 
 class EmbedDoc(BaseDoc):
     text: Union[str, List[str]]
-    embedding: Union[conlist(float, min_length=0),List[conlist(float, min_length=0)]]
+    embedding: Union[conlist(float, min_length=0), List[conlist(float, min_length=0)]]
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
