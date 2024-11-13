@@ -93,13 +93,12 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 chat_response = ""
                 async for text in text_generation:
                     stream_gen_time.append(time.time() - start)
-                    if text in ["<|im_end|>", "<|endoftext|>"]:
-                        text = ""
-                    chat_response += text
-                    chunk_repr = repr(text.encode("utf-8"))
-                    if logflag:
-                        logger.info(f"[ SearchedDoc ] chunk:{chunk_repr}")
-                    yield f"data: {chunk_repr}\n\n"
+                    if text not in ["<|im_end|>", "<|endoftext|>"]:
+                        chat_response += text
+                        chunk_repr = repr(text.encode("utf-8"))
+                        if logflag:
+                            logger.info(f"[ SearchedDoc ] chunk:{chunk_repr}")
+                        yield f"data: {chunk_repr}\n\n"
                 if logflag:
                     logger.info(f"[ SearchedDoc ] stream response: {chat_response}")
                 statistics_dict["opea_service@llm_tgi"].append_latency(stream_gen_time[-1], stream_gen_time[0])
@@ -145,13 +144,12 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 chat_response = ""
                 async for text in text_generation:
                     stream_gen_time.append(time.time() - start)
-                    if text in ["<|im_end|>", "<|endoftext|>"]:
-                        text = ""
-                    chat_response += text
-                    chunk_repr = repr(text.encode("utf-8"))
-                    if logflag:
-                        logger.info(f"[ LLMParamsDoc ] chunk:{chunk_repr}")
-                    yield f"data: {chunk_repr}\n\n"
+                    if text not in ["<|im_end|>", "<|endoftext|>"]:
+                        chat_response += text
+                        chunk_repr = repr(text.encode("utf-8"))
+                        if logflag:
+                            logger.info(f"[ LLMParamsDoc ] chunk:{chunk_repr}")
+                        yield f"data: {chunk_repr}\n\n"
                 if logflag:
                     logger.info(f"[ LLMParamsDoc ] stream response: {chat_response}")
                 statistics_dict["opea_service@llm_tgi"].append_latency(stream_gen_time[-1], stream_gen_time[0])
@@ -257,9 +255,8 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                     if logflag:
                         logger.info(c)
                     chunk = c.model_dump_json()
-                    if chunk in ["<|im_end|>", "<|endoftext|>"]:
-                        chunk = ""
-                    yield f"data: {chunk}\n\n"
+                    if chunk not in ["<|im_end|>", "<|endoftext|>"]:
+                        yield f"data: {chunk}\n\n"
                 yield "data: [DONE]\n\n"
 
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
