@@ -6,11 +6,13 @@ import copy
 import json
 import os
 import re
+import time
 from typing import Dict, List
 
 import aiohttp
 import requests
 from fastapi.responses import StreamingResponse
+from prometheus_client import Gauge, Histogram
 from pydantic import BaseModel
 
 from ..proto.docarray import LLMParams
@@ -22,10 +24,43 @@ logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
 
 
+class OrchestratorMetrics:
+    # Because:
+    # - CI creates several orchestrator instances
+    # - Prometheus requires metrics to be singletons
+    # - Oorchestror instances are not provided their own names
+    # Metrics are class members with "megaservice" name prefix
+    first_token_latency = Histogram("megaservice_first_token_latency", "First token latency (histogram)")
+    inter_token_latency = Histogram("megaservice_inter_token_latency", "Inter-token latency (histogram)")
+    request_latency = Histogram("megaservice_request_latency", "Whole request/reply latency (histogram)")
+    request_pending = Gauge("megaservice_request_pending", "Count of currently pending requests (gauge)")
+
+    def __init__(self) -> None:
+        pass
+
+    def token_update(self, token_start: float, is_first: bool) -> float:
+        now = time.time()
+        if is_first:
+            self.first_token_latency.observe(now - token_start)
+        else:
+            self.inter_token_latency.observe(now - token_start)
+        return now
+
+    def request_update(self, req_start: float) -> None:
+        self.request_latency.observe(time.time() - req_start)
+
+    def pending_update(self, increase: bool) -> None:
+        if increase:
+            self.request_pending.inc()
+        else:
+            self.request_pending.dec()
+
+
 class ServiceOrchestrator(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
 
     def __init__(self) -> None:
+        self.metrics = OrchestratorMetrics()
         self.services = {}  # all services, id -> service
         super().__init__()
 
@@ -46,6 +81,9 @@ class ServiceOrchestrator(DAG):
             return False
 
     async def schedule(self, initial_inputs: Dict | BaseModel, llm_parameters: LLMParams = LLMParams(), **kwargs):
+        req_start = time.time()
+        self.metrics.pending_update(True)
+
         result_dict = {}
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)
@@ -56,7 +94,7 @@ class ServiceOrchestrator(DAG):
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
             pending = {
                 asyncio.create_task(
-                    self.execute(session, node, initial_inputs, runtime_graph, llm_parameters, **kwargs)
+                    self.execute(session, req_start, node, initial_inputs, runtime_graph, llm_parameters, **kwargs)
                 )
                 for node in self.ind_nodes()
             }
@@ -101,7 +139,9 @@ class ServiceOrchestrator(DAG):
                             inputs = self.process_outputs(runtime_graph.predecessors(d_node), result_dict)
                             pending.add(
                                 asyncio.create_task(
-                                    self.execute(session, d_node, inputs, runtime_graph, llm_parameters, **kwargs)
+                                    self.execute(
+                                        session, req_start, d_node, inputs, runtime_graph, llm_parameters, **kwargs
+                                    )
                                 )
                             )
         nodes_to_keep = []
@@ -114,6 +154,9 @@ class ServiceOrchestrator(DAG):
         for node in all_nodes:
             if node not in nodes_to_keep:
                 runtime_graph.delete_node_if_exists(node)
+
+        if not llm_parameters.streaming:
+            self.metrics.pending_update(False)
 
         return result_dict, runtime_graph
 
@@ -128,6 +171,7 @@ class ServiceOrchestrator(DAG):
     async def execute(
         self,
         session: aiohttp.client.ClientSession,
+        req_start: float,
         cur_node: str,
         inputs: Dict,
         runtime_graph: DAG,
@@ -144,7 +188,6 @@ class ServiceOrchestrator(DAG):
             for field, value in llm_parameters_dict.items():
                 if inputs.get(field) != value:
                     inputs[field] = value
-
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
 
@@ -171,8 +214,11 @@ class ServiceOrchestrator(DAG):
                 downstream_endpoint = self.services[downstream[0]].endpoint_path
 
             def generate():
+                token_start = req_start
                 if response:
+                    # response.elapsed = time until first headers received
                     buffered_chunk_str = ""
+                    is_first = True
                     for chunk in response.iter_content(chunk_size=None):
                         if chunk:
                             if downstream:
@@ -191,9 +237,16 @@ class ServiceOrchestrator(DAG):
                                     else:
                                         raise Exception("Other response types not supported yet!")
                                     buffered_chunk_str = ""  # clear
-                                    yield from self.token_generator(res_txt, is_last=is_last)
+                                    yield from self.token_generator(
+                                        res_txt, token_start, is_first=is_first, is_last=is_last
+                                    )
+                                    token_start = time.time()
                             else:
                                 yield chunk
+                                token_start = self.metrics.token_update(token_start, is_first)
+                            is_first = False
+                    self.metrics.request_update(req_start)
+                    self.metrics.pending_update(False)
 
             return (
                 StreamingResponse(self.align_generator(generate(), **kwargs), media_type="text/event-stream"),
@@ -256,11 +309,12 @@ class ServiceOrchestrator(DAG):
             chunk_str = chunk_str[: -len(suffix)]
         return chunk_str
 
-    def token_generator(self, sentence, is_last=False):
+    def token_generator(self, sentence: str, token_start: float, is_first: bool, is_last: bool) -> str:
         prefix = "data: "
         suffix = "\n\n"
         tokens = re.findall(r"\s?\S+\s?", sentence, re.UNICODE)
         for token in tokens:
             yield prefix + repr(token.replace("\\n", "\n").encode("utf-8")) + suffix
+            token_start = self.metrics.token_update(token_start, is_first)
         if is_last:
             yield "data: [DONE]\n\n"

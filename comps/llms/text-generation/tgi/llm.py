@@ -22,7 +22,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.mega.utils import ConfigError, load_model_configs
+from comps.cores.mega.utils import get_access_token, ConfigError, load_model_configs
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("llm_tgi")
@@ -31,6 +31,9 @@ logflag = os.getenv("LOGFLAG", False)
 # Environment variables
 MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
 DEFAULT_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+TOKEN_URL = os.getenv("TOKEN_URL")
+CLIENTID = os.getenv("CLIENTID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 # Validate and Load the models config if MODEL_CONFIGS is not null
 configs_map = {}
@@ -62,8 +65,14 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
     if logflag:
         logger.info(input)
 
+    access_token = (
+        get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    )
+    headers = {}
+    if access_token:
+        headers = {"Authorization": f"Bearer {access_token}"}
     llm_endpoint = get_llm_endpoint(input.model)
-    llm = AsyncInferenceClient(model=llm_endpoint, timeout=600)
+    llm = AsyncInferenceClient(model=llm_endpoint, timeout=600, headers=headers)
 
     prompt_template = None
     if not isinstance(input, SearchedDoc) and input.chat_template:

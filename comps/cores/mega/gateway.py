@@ -25,6 +25,41 @@ from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
 
+def read_pdf(file):
+    from langchain.document_loaders import PyPDFLoader
+
+    loader = PyPDFLoader(file)
+    docs = loader.load_and_split()
+    return docs
+
+
+def read_text_from_file(file, save_file_name):
+    import docx2txt
+    from langchain.text_splitter import CharacterTextSplitter
+
+    # read text file
+    if file.headers["content-type"] == "text/plain":
+        file.file.seek(0)
+        content = file.file.read().decode("utf-8")
+        # Split text
+        text_splitter = CharacterTextSplitter()
+        texts = text_splitter.split_text(content)
+        # Create multiple documents
+        file_content = texts
+    # read pdf file
+    elif file.headers["content-type"] == "application/pdf":
+        documents = read_pdf(save_file_name)
+        file_content = [doc.page_content for doc in documents]
+    # read docx file
+    elif (
+        file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        or file.headers["content-type"] == "application/octet-stream"
+    ):
+        file_content = docx2txt.process(save_file_name)
+
+    return file_content
+
+
 class Gateway:
     def __init__(
         self,
@@ -42,6 +77,7 @@ class Gateway:
         self.input_datatype = input_datatype
         self.output_datatype = output_datatype
         self.service = MicroService(
+            self.__class__.__name__,
             service_role=ServiceRoleType.MEGASERVICE,
             service_type=ServiceType.GATEWAY,
             host=self.host,
@@ -71,8 +107,19 @@ class Gateway:
 
     def list_service(self):
         response = {}
-        for node in self.all_leaves():
-            response = {self.services[node].description: self.services[node].endpoint_path}
+        for node, service in self.megaservice.services.items():
+            # Check if the service has a 'description' attribute and it is not None
+            if hasattr(service, "description") and service.description:
+                response[node] = {"description": service.description}
+            # Check if the service has an 'endpoint' attribute and it is not None
+            if hasattr(service, "endpoint") and service.endpoint:
+                if node in response:
+                    response[node]["endpoint"] = service.endpoint
+                else:
+                    response[node] = {"endpoint": service.endpoint}
+            # If neither 'description' nor 'endpoint' is available, add an error message for the node
+            if node not in response:
+                response[node] = {"error": f"Service node {node} does not have 'description' or 'endpoint' attribute."}
         return response
 
     def list_parameter(self):
@@ -156,9 +203,12 @@ class ChatQnAGateway(Gateway):
 
     async def handle_request(self, request: Request):
         data = await request.json()
+        print("data in handle request", data)
         stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.parse_obj(data)
+        print("chat request in handle request", chat_request)
         prompt = self._handle_message(chat_request.messages)
+        print("prompt in gateway", prompt)
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
@@ -225,6 +275,7 @@ class CodeGenGateway(Gateway):
             presence_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 0.0,
             repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.2,
             streaming=stream_opt,
+            model=chat_request.model if chat_request.model else None,
         )
         result_dict, runtime_graph = await self.megaservice.schedule(
             initial_inputs={"query": prompt}, llm_parameters=parameters
@@ -362,39 +413,6 @@ class DocSumGateway(Gateway):
             megaservice, host, port, str(MegaServiceEndpoint.DOC_SUMMARY), ChatCompletionRequest, ChatCompletionResponse
         )
 
-    def read_pdf(self, file):
-        from langchain.document_loaders import PyPDFLoader
-
-        loader = PyPDFLoader(file)
-        docs = loader.load_and_split()
-        return docs
-
-    def read_text_from_file(self, file, save_file_name):
-        import docx2txt
-        from langchain.text_splitter import CharacterTextSplitter
-
-        # read text file
-        if file.headers["content-type"] == "text/plain":
-            file.file.seek(0)
-            content = file.file.read().decode("utf-8")
-            # Split text
-            text_splitter = CharacterTextSplitter()
-            texts = text_splitter.split_text(content)
-            # Create multiple documents
-            file_content = texts
-        # read pdf file
-        elif file.headers["content-type"] == "application/pdf":
-            documents = self.read_pdf(save_file_name)
-            file_content = [doc.page_content for doc in documents]
-        # read docx file
-        elif (
-            file.headers["content-type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            or file.headers["content-type"] == "application/octet-stream"
-        ):
-            file_content = docx2txt.process(save_file_name)
-
-        return file_content
-
     async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
         data = await request.form()
         stream_opt = data.get("stream", True)
@@ -408,7 +426,7 @@ class DocSumGateway(Gateway):
 
                 async with aiofiles.open(file_path, "wb") as f:
                     await f.write(await file.read())
-                docs = self.read_text_from_file(file, file_path)
+                docs = read_text_from_file(file, file_path)
                 os.remove(file_path)
                 if isinstance(docs, list):
                     file_summaries.extend(docs)
@@ -544,11 +562,31 @@ class FaqGenGateway(Gateway):
             megaservice, host, port, str(MegaServiceEndpoint.FAQ_GEN), ChatCompletionRequest, ChatCompletionResponse
         )
 
-    async def handle_request(self, request: Request):
-        data = await request.json()
+    async def handle_request(self, request: Request, files: List[UploadFile] = File(default=None)):
+        data = await request.form()
         stream_opt = data.get("stream", True)
         chat_request = ChatCompletionRequest.parse_obj(data)
-        prompt = self._handle_message(chat_request.messages)
+        file_summaries = []
+        if files:
+            for file in files:
+                file_path = f"/tmp/{file.filename}"
+
+                import aiofiles
+
+                async with aiofiles.open(file_path, "wb") as f:
+                    await f.write(await file.read())
+                docs = read_text_from_file(file, file_path)
+                os.remove(file_path)
+                if isinstance(docs, list):
+                    file_summaries.extend(docs)
+                else:
+                    file_summaries.append(docs)
+
+        if file_summaries:
+            prompt = self._handle_message(chat_request.messages) + "\n".join(file_summaries)
+        else:
+            prompt = self._handle_message(chat_request.messages)
+
         parameters = LLMParams(
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
@@ -960,3 +998,75 @@ class AvatarChatbotGateway(Gateway):
         last_node = runtime_graph.all_leaves()[-1]
         response = result_dict[last_node]["video_path"]
         return response
+
+
+class GraphragGateway(Gateway):
+    def __init__(self, megaservice, host="0.0.0.0", port=8888):
+        super().__init__(
+            megaservice, host, port, str(MegaServiceEndpoint.GRAPH_RAG), ChatCompletionRequest, ChatCompletionResponse
+        )
+
+    async def handle_request(self, request: Request):
+        data = await request.json()
+        stream_opt = data.get("stream", True)
+        chat_request = ChatCompletionRequest.parse_obj(data)
+
+        def parser_input(data, TypeClass, key):
+            chat_request = None
+            try:
+                chat_request = TypeClass.parse_obj(data)
+                query = getattr(chat_request, key)
+            except:
+                query = None
+            return query, chat_request
+
+        query = None
+        for key, TypeClass in zip(["text", "input", "messages"], [TextDoc, EmbeddingRequest, ChatCompletionRequest]):
+            query, chat_request = parser_input(data, TypeClass, key)
+            if query is not None:
+                break
+        if query is None:
+            raise ValueError(f"Unknown request type: {data}")
+        if chat_request is None:
+            raise ValueError(f"Unknown request type: {data}")
+        prompt = self._handle_message(chat_request.messages)
+        parameters = LLMParams(
+            max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
+            top_k=chat_request.top_k if chat_request.top_k else 10,
+            top_p=chat_request.top_p if chat_request.top_p else 0.95,
+            temperature=chat_request.temperature if chat_request.temperature else 0.01,
+            frequency_penalty=chat_request.frequency_penalty if chat_request.frequency_penalty else 0.0,
+            presence_penalty=chat_request.presence_penalty if chat_request.presence_penalty else 0.0,
+            repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
+            streaming=stream_opt,
+            chat_template=chat_request.chat_template if chat_request.chat_template else None,
+        )
+        retriever_parameters = RetrieverParms(
+            search_type=chat_request.search_type if chat_request.search_type else "similarity",
+            k=chat_request.k if chat_request.k else 4,
+            distance_threshold=chat_request.distance_threshold if chat_request.distance_threshold else None,
+            fetch_k=chat_request.fetch_k if chat_request.fetch_k else 20,
+            lambda_mult=chat_request.lambda_mult if chat_request.lambda_mult else 0.5,
+            score_threshold=chat_request.score_threshold if chat_request.score_threshold else 0.2,
+        )
+        initial_inputs = chat_request
+        result_dict, runtime_graph = await self.megaservice.schedule(
+            initial_inputs=initial_inputs,
+            llm_parameters=parameters,
+            retriever_parameters=retriever_parameters,
+        )
+        for node, response in result_dict.items():
+            if isinstance(response, StreamingResponse):
+                return response
+        last_node = runtime_graph.all_leaves()[-1]
+        response = result_dict[last_node]["text"]
+        choices = []
+        usage = UsageInfo()
+        choices.append(
+            ChatCompletionResponseChoice(
+                index=0,
+                message=ChatMessage(role="assistant", content=response),
+                finish_reason="stop",
+            )
+        )
+        return ChatCompletionResponse(model="chatqna", choices=choices, usage=usage)
