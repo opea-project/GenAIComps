@@ -24,6 +24,7 @@ from comps.cores.proto.api_protocol import (
     EmbeddingResponse,
     EmbeddingResponseData,
 )
+
 logger = CustomLogger("embedding_mosec")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -81,7 +82,7 @@ async def embedding(
         embed_vector = await get_embeddings(input.input)
         if input.dimensions is not None:
             embed_vector = [embed_vector[i][: input.dimensions] for i in range(len(embed_vector))]
-        
+
         # for standard openai embedding format
         res = EmbeddingResponse(
             data=[EmbeddingResponseData(index=i, embedding=embed_vector[i]) for i in range(len(embed_vector))]
@@ -97,10 +98,12 @@ async def embedding(
         logger.info(res)
     return res
 
+
 async def get_embeddings(text: Union[str, List[str]]) -> List[List[float]]:
     texts = [text] if isinstance(text, str) else text
     embed_vector = await embeddings.aembed_documents(texts)
     return embed_vector
+
 
 if __name__ == "__main__":
     MOSEC_EMBEDDING_ENDPOINT = os.environ.get("MOSEC_EMBEDDING_ENDPOINT", "http://127.0.0.1:8080")
