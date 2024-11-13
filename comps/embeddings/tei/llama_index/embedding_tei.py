@@ -3,6 +3,7 @@
 
 import os
 from typing import List, Union
+
 from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 
 from comps import CustomLogger, EmbedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
@@ -39,7 +40,7 @@ async def embedding(
         embed_vector = await get_embeddings(input.input)
         if input.dimensions is not None:
             embed_vector = [embed_vector[i][: input.dimensions] for i in range(len(embed_vector))]
-        
+
         # for standard openai embedding format
         res = EmbeddingResponse(
             data=[EmbeddingResponseData(index=i, embedding=embed_vector[i]) for i in range(len(embed_vector))]
@@ -49,15 +50,17 @@ async def embedding(
             input.embedding = res
             # keep
             res = input
-    
+
     if logflag:
         logger.info(res)
     return res
+
 
 async def get_embeddings(text: Union[str, List[str]]) -> List[List[float]]:
     texts = [text] if isinstance(text, str) else text
     embed_vector = await embeddings._aget_text_embeddings(texts)
     return embed_vector
+
 
 if __name__ == "__main__":
     tei_embedding_model_name = os.getenv("TEI_EMBEDDING_MODEL_NAME", "BAAI/bge-base-en-v1.5")
