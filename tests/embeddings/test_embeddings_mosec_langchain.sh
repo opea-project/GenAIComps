@@ -57,6 +57,7 @@ function validate_service() {
         docker logs test-comps-embedding-langchain-mosec-server
         exit 1
     fi
+}
 
 function validate_microservice() {
     ## query with single text
