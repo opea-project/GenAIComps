@@ -596,6 +596,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
 
     return index
 
+
 def build_communities(index: PropertyGraphIndex):
     try:
         index.property_graph_store.build_communities()
@@ -604,6 +605,7 @@ def build_communities(index: PropertyGraphIndex):
     except Exception as e:
         logger.error(f"Error building communities: {e}")
     return True
+
 
 @register_microservice(
     name="opea_service@extract_graph_neo4j",
