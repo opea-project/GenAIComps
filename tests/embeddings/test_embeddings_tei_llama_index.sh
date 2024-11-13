@@ -59,15 +59,15 @@ function validate_microservice() {
     ## query with single text
     validate_service \
         '{"text":"What is Deep Learning?"}'
-    
+
     ## query with multiple texts
     validate_service \
         '{"text":["What is Deep Learning?","How are you?"]}'
-    
+
     ## Test OpenAI API, input single text
     validate_service \
         '{"input":"What is Deep Learning?"}'
-    
+
     ## Test OpenAI API, input multiple texts with parameters
     validate_service \
         '{"input":["What is Deep Learning?","How are you?"], "dimensions":100}'
