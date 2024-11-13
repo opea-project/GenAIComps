@@ -113,12 +113,19 @@ curl http://localhost:6000/v1/health_check\
 
 ### 3.2 Consume Embedding Service
 
-Basic API, query with single text.
+Use our basic API.
 
 ```bash
+## query with single text
 curl http://localhost:6000/v1/embeddings\
   -X POST \
   -d '{"text":"Hello, world!"}' \
+  -H 'Content-Type: application/json'
+
+## query with multiple texts
+curl http://localhost:6000/v1/embeddings\
+  -X POST \
+  -d '{"text":["Hello, world!","How are you?"]}' \
   -H 'Content-Type: application/json'
 ```
 

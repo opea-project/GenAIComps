@@ -57,7 +57,8 @@ async def embedding(
         logger.info(input)
     if isinstance(input, TextDoc):
         embed_vector = await aembed_query(input.text, async_client)
-        res = EmbedDoc(text=input.text, embedding=embed_vector[0])
+        embedding_res = embed_vector[0] if isinstance(input.text, str) else embed_vector
+        res = EmbedDoc(text=input.text, embedding=embedding_res)
     else:
         embed_vector = await aembed_query(input.input, async_client)
         if input.dimensions is not None:

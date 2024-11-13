@@ -17,7 +17,7 @@ class TopologyInfo:
 
 
 class TextDoc(BaseDoc, TopologyInfo):
-    text: str = None
+    text: Union[str, List[str]] = None
 
 
 class FactualityDoc(BaseDoc):
@@ -83,8 +83,8 @@ class DocPath(BaseDoc):
 
 
 class EmbedDoc(BaseDoc):
-    text: str
-    embedding: conlist(float, min_length=0)
+    text: Union[str, List[str]]
+    embedding: Union[conlist(float, min_length=0),List[conlist(float, min_length=0)]]
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
