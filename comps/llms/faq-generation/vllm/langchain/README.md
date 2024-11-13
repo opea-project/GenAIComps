@@ -6,7 +6,7 @@ This microservice interacts with the vLLM server to generate FAQs from Input Tex
 
 If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start a VLLM service with docker.
 
-To setup or build the vLLM image follow the instructions provided in [vLLM Gaudi](https://github.com/opea-project/GenAIComps/tree/main/comps/llms/text-generation/vllm/langchain#22-vllm-on-gaudi) 
+To setup or build the vLLM image follow the instructions provided in [vLLM Gaudi](https://github.com/opea-project/GenAIComps/tree/main/comps/llms/text-generation/vllm/langchain#22-vllm-on-gaudi)
 
 ### 1.1 Setup Environment Variables
 
