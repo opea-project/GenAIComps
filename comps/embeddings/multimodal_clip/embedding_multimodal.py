@@ -4,6 +4,7 @@
 import datetime
 import time,os
 from typing import List, Optional, Union
+
 from dateparser.search import search_dates
 from embeddings_clip import vCLIP
 
@@ -23,8 +24,10 @@ from comps.cores.proto.api_protocol import (
     EmbeddingResponse,
     EmbeddingResponseData,
 )
+
 logger = CustomLogger("embedding_multimodal")
 logflag = os.getenv("LOGFLAG", False)
+
 
 def filtler_dates(prompt):
 
@@ -108,10 +111,12 @@ async def embedding(
         logger.info(res)
     return res
 
+
 async def get_embeddings(text: Union[str, List[str]]) -> List[List[float]]:
     texts = [text] if isinstance(text, str) else text
     embed_vector = embeddings.embed_query(texts).tolist()
     return embed_vector
+
 
 if __name__ == "__main__":
     embeddings = vCLIP({"model_name": "openai/clip-vit-base-patch32", "num_frm": 4})
