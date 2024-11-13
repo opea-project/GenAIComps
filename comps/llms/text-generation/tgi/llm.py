@@ -257,8 +257,8 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                     if logflag:
                         logger.info(c)
                     chunk = c.model_dump_json()
-                    for token in ["<|im_end|>", "<|endoftext|>"]:
-                        chunk = chunk.replace(token, "")
+                    if chunk in ["<|im_end|>", "<|endoftext|>"]:
+                        chunk = ""
                     yield f"data: {chunk}\n\n"
                 yield "data: [DONE]\n\n"
 
