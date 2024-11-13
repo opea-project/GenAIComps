@@ -90,7 +90,6 @@ curl -X POST \
 Please note that clustering of extracted entities and summarization happens in this data preparation step. The consecuence of this is:
 
 - Large processing time for large dataset. An LLM call is done to summarize each cluster which may result in large volume of LLM calls
-- Dataprep microservice should be invoked with full corpus as single input. Clustering needs to happen for full dataset so if your dataset consists of many files it needs to be aggregated before passing to the microservice.
 - Need to clean graph GB entity_info and Cluster if dataprep is run multiple times since the resulting cluster numbering will differ between consecutive calls and will corrupt the results.
 
 We support table extraction from pdf documents. You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
