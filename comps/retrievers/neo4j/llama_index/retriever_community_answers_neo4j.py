@@ -192,7 +192,11 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
     if logflag:
         logger.info(input)
     start = time.time()
-    query = input.messages[0]["content"]
+
+    if isinstance(input.messages, str):
+        query = input.messages
+    else:
+        query = input.messages[0]["content"]
     logger.info(f"Query received in retriever: {query}")
 
     if OPENAI_API_KEY:
