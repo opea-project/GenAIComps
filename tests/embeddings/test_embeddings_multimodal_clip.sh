@@ -20,7 +20,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    docker run -d --name="test-embedding-multimodal-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5038:6000 --ipc=host  opea/embedding-multimodal:comps
+    docker run -d --name="test-embedding-multimodal-server" -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5038:6000 --ipc=host  opea/embedding-multimodal:comps
     sleep 3m
 }
 

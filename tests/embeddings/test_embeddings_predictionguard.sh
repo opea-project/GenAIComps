@@ -26,7 +26,7 @@ function start_service() {
     tei_service_port=6000
     unset http_proxy
     docker run -d --name=test-comps-embedding-pg-server \
-    -e http_proxy= -e https_proxy= \
+    -e LOGFLAG=True -e http_proxy= -e https_proxy= \
     -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
     -p 6000:6000 --ipc=host opea/embedding-pg:comps
     sleep 60  # Sleep for 1 minute to allow the service to start
