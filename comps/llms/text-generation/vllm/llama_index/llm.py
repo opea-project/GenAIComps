@@ -58,6 +58,8 @@ async def llm_generate(input: LLMParamsDoc):
 
         async def stream_generator():
             async for text in llm.astream_complete(input.query):
+                if text.text in ["<|im_end|>", "<|endoftext|>"]:
+                    text.text = ""
                 output = text.text
                 yield f"data: {output}\n\n"
             if logflag:

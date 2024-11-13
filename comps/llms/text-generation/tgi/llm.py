@@ -93,6 +93,8 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 chat_response = ""
                 async for text in text_generation:
                     stream_gen_time.append(time.time() - start)
+                    if text in ["<|im_end|>", "<|endoftext|>"]:
+                        text = ""
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -143,6 +145,8 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 chat_response = ""
                 async for text in text_generation:
                     stream_gen_time.append(time.time() - start)
+                    if text in ["<|im_end|>", "<|endoftext|>"]:
+                        text = ""
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -252,7 +256,10 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 for c in chat_completion:
                     if logflag:
                         logger.info(c)
-                    yield f"data: {c.model_dump_json()}\n\n"
+                    chunk = c.model_dump_json()
+                    for token in ["<|im_end|>", "<|endoftext|>"]:
+                        chunk = chunk.replace(token, "")
+                    yield f"data: {chunk}\n\n"
                 yield "data: [DONE]\n\n"
 
             return StreamingResponse(stream_generator(), media_type="text/event-stream")

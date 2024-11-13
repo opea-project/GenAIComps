@@ -90,6 +90,8 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             async def stream_generator():
                 chat_response = ""
                 async for text in llm.astream(new_input.query, **parameters):
+                    if text in ["<|im_end|>", "<|endoftext|>"]:
+                        text = ""
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -141,6 +143,8 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             async def stream_generator():
                 chat_response = ""
                 async for text in llm.astream(prompt, **parameters):
+                    if text in ["<|im_end|>", "<|endoftext|>"]:
+                        text = ""
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
