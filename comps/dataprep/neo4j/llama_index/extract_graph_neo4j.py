@@ -594,8 +594,16 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     if logflag:
         logger.info("Done building communities.")
 
-    return True
+    return index
 
+def build_communities(index: PropertyGraphIndex):
+    try:
+        index.property_graph_store.build_communities()
+        if logflag:
+            logger.info("Done building communities.")
+    except Exception as e:
+        logger.error(f"Error building communities: {e}")
+    return True
 
 @register_microservice(
     name="opea_service@extract_graph_neo4j",
@@ -625,7 +633,7 @@ async def ingest_documents(
             encode_file = encode_filename(file.filename)
             save_path = upload_folder + encode_file
             await save_content_to_local_disk(save_path, file)
-            ingest_data_to_neo4j(
+            index = ingest_data_to_neo4j(
                 DocPath(
                     path=save_path,
                     chunk_size=chunk_size,
@@ -637,10 +645,6 @@ async def ingest_documents(
             uploaded_files.append(save_path)
             if logflag:
                 logger.info(f"Successfully saved file {save_path}")
-        result = {"status": 200, "message": "Data preparation succeeded"}
-        if logflag:
-            logger.info(result)
-        return result
 
     if link_list:
         link_list = json.loads(link_list)  # Parse JSON string to list
@@ -652,7 +656,7 @@ async def ingest_documents(
             content = parse_html([link])[0][0]
             try:
                 await save_content_to_local_disk(save_path, content)
-                ingest_data_to_neo4j(
+                index = ingest_data_to_neo4j(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -662,17 +666,19 @@ async def ingest_documents(
                     )
                 )
             except json.JSONDecodeError:
-                raise HTTPException(status_code=500, detail="Fail to ingest data into qdrant.")
+                raise HTTPException(status_code=500, detail="Fail to ingest data")
 
             if logflag:
                 logger.info(f"Successfully saved link {link}")
 
+    if files or link_list:
+        build_communities(index)
         result = {"status": 200, "message": "Data preparation succeeded"}
         if logflag:
             logger.info(result)
         return result
-
-    raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
+    else:
+        raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
 
 if __name__ == "__main__":
