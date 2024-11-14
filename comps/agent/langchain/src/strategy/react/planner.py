@@ -147,7 +147,7 @@ from langgraph.prebuilt import ToolNode
 
 from ...persistence import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
-from .utils import assemble_history, convert_json_to_tool_call, assemble_memory
+from .utils import assemble_history, assemble_memory, convert_json_to_tool_call
 
 
 class AgentState(TypedDict):
