@@ -250,7 +250,7 @@ def extract_frames_and_generate_captions(
     # Set up location to store frames and annotations
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "frames"), exist_ok=True)
-    is_video = os.path.splitext(video_path)[-1] == '.mp4'
+    is_video = os.path.splitext(video_path)[-1] == ".mp4"
 
     # Load video and get fps
     vidcap = cv2.VideoCapture(video_path)
