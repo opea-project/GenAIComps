@@ -590,7 +590,6 @@ def ingest_data_to_neo4j(doc_path: DocPath):
         logger.info("The graph is built.")
         logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}")
 
-    index.property_graph_store.build_communities()
     if logflag:
         logger.info("Done building communities.")
 
