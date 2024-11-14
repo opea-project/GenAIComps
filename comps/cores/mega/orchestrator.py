@@ -12,7 +12,7 @@ from typing import Dict, List
 import aiohttp
 import requests
 from fastapi.responses import StreamingResponse
-from prometheus_client import Histogram
+from prometheus_client import Gauge, Histogram
 from pydantic import BaseModel
 
 from ..proto.docarray import LLMParams
@@ -33,6 +33,7 @@ class OrchestratorMetrics:
     first_token_latency = Histogram("megaservice_first_token_latency", "First token latency (histogram)")
     inter_token_latency = Histogram("megaservice_inter_token_latency", "Inter-token latency (histogram)")
     request_latency = Histogram("megaservice_request_latency", "Whole request/reply latency (histogram)")
+    request_pending = Gauge("megaservice_request_pending", "Count of currently pending requests (gauge)")
 
     def __init__(self) -> None:
         pass
@@ -47,6 +48,12 @@ class OrchestratorMetrics:
 
     def request_update(self, req_start: float) -> None:
         self.request_latency.observe(time.time() - req_start)
+
+    def pending_update(self, increase: bool) -> None:
+        if increase:
+            self.request_pending.inc()
+        else:
+            self.request_pending.dec()
 
 
 class ServiceOrchestrator(DAG):
@@ -74,13 +81,15 @@ class ServiceOrchestrator(DAG):
             return False
 
     async def schedule(self, initial_inputs: Dict | BaseModel, llm_parameters: LLMParams = LLMParams(), **kwargs):
+        req_start = time.time()
+        self.metrics.pending_update(True)
+
         result_dict = {}
         runtime_graph = DAG()
         runtime_graph.graph = copy.deepcopy(self.graph)
         if LOGFLAG:
             logger.info(initial_inputs)
 
-        req_start = time.time()
         timeout = aiohttp.ClientTimeout(total=1000)
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
             pending = {
@@ -95,7 +104,7 @@ class ServiceOrchestrator(DAG):
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
                 for done_task in done:
                     response, node = await done_task
-                    self.dump_outputs(node, response, result_dict)
+                    result_dict[node] = response
 
                     # traverse the current node's downstream nodes and execute if all one's predecessors are finished
                     downstreams = runtime_graph.downstream(node)
@@ -119,10 +128,8 @@ class ServiceOrchestrator(DAG):
                                     yield "data: b'" + text + "'\n\n"
                                     yield "data: [DONE]\n\n"
 
-                                self.dump_outputs(
-                                    node,
-                                    StreamingResponse(fake_stream(response["text"]), media_type="text/event-stream"),
-                                    result_dict,
+                                result_dict[node] = StreamingResponse(
+                                    fake_stream(response["text"]), media_type="text/event-stream"
                                 )
 
                     for d_node in downstreams:
@@ -145,6 +152,9 @@ class ServiceOrchestrator(DAG):
         for node in all_nodes:
             if node not in nodes_to_keep:
                 runtime_graph.delete_node_if_exists(node)
+
+        if not llm_parameters.streaming:
+            self.metrics.pending_update(False)
 
         return result_dict, runtime_graph
 
@@ -169,20 +179,17 @@ class ServiceOrchestrator(DAG):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
         llm_parameters_dict = llm_parameters.dict()
-        if (
-            self.services[cur_node].service_type == ServiceType.LLM
-            or self.services[cur_node].service_type == ServiceType.LVM
-        ):
+
+        is_llm_vlm = self.services[cur_node].service_type in (ServiceType.LLM, ServiceType.LVM)
+
+        if is_llm_vlm:
             for field, value in llm_parameters_dict.items():
                 if inputs.get(field) != value:
                     inputs[field] = value
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
 
-        if (
-            self.services[cur_node].service_type == ServiceType.LLM
-            or self.services[cur_node].service_type == ServiceType.LVM
-        ) and llm_parameters.streaming:
+        if is_llm_vlm and llm_parameters.streaming:
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
@@ -234,6 +241,7 @@ class ServiceOrchestrator(DAG):
                                 token_start = self.metrics.token_update(token_start, is_first)
                             is_first = False
                     self.metrics.request_update(req_start)
+                    self.metrics.pending_update(False)
 
             return (
                 StreamingResponse(self.align_generator(generate(), **kwargs), media_type="text/event-stream"),
@@ -273,9 +281,6 @@ class ServiceOrchestrator(DAG):
     def align_generator(self, gen, *args, **kwargs):
         """Override this method in megaservice definition."""
         return gen
-
-    def dump_outputs(self, node, response, result_dict):
-        result_dict[node] = response
 
     def get_all_final_outputs(self, result_dict, runtime_graph):
         final_output_dict = {}
