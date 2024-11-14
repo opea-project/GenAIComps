@@ -37,7 +37,7 @@ def read_pdf(file):
 def read_text_from_file(file, save_file_name):
     import docx2txt
     from langchain.text_splitter import CharacterTextSplitter
-    print("read_text_from_file:", file.headers["content-type"] )
+    
     # read text file
     if file.headers["content-type"] == "text/plain":
         file.file.seek(0)
