@@ -7,7 +7,7 @@ This Dataprep microservice performs:
 - Generates a community symmary for each community
 - Stores all of the above in Neo4j Graph DB
 
-This miroservice follows the graphRAG approached defined by Microsoft paper "From Local to Global: A Graph RAG Approach to Query-Focused Summarization" with some differences such as: 1) only level zero cluster summaries are leveraged, 2) The input context to the final answer generation is trimmed to fit maximum context length.
+This microservice follows the graphRAG approached defined by Microsoft paper ["From Local to Global: A Graph RAG Approach to Query-Focused Summarization"](https://www.microsoft.com/en-us/research/publication/from-local-to-global-a-graph-rag-approach-to-query-focused-summarization/) with some differences such as: 1) only level zero cluster summaries are leveraged, 2) The input context to the final answer generation is trimmed to fit maximum context length.
 
 This dataprep microservice ingests the input files and uses LLM (TGI or OpenAI model when OPENAI_API_KEY is set) to extract entities, relationships and descriptions of those to build a graph-based text index.
 
@@ -87,7 +87,7 @@ curl -X POST \
     http://${host_ip}:6004/v1/dataprep
 ```
 
-Please note that clustering of extracted entities and summarization happens in this data preparation step. The consecuence of this is:
+Please note that clustering of extracted entities and summarization happens in this data preparation step. The result of this is:
 
 - Large processing time for large dataset. An LLM call is done to summarize each cluster which may result in large volume of LLM calls
 - Need to clean graph GB entity_info and Cluster if dataprep is run multiple times since the resulting cluster numbering will differ between consecutive calls and will corrupt the results.
