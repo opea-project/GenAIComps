@@ -101,7 +101,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
             ChatMessage(role="user", content=text),
         ]
         # Trim the messages to fit within the token limit
-        # microsoft does more sophisticated content optimization
+        # Microsoft does more sophisticated content optimization
         trimmed_messages = trim_messages_to_token_limit(tokenizer, messages, max_input_length)
 
         if OPENAI_API_KEY:
@@ -557,7 +557,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
             model_url=TGI_LLM_ENDPOINT,
             model_name=llm_name,
             temperature=0.7,
-            max_tokens=1512,  # 512otherwise too shor
+            max_tokens=1512,
             timeout=600,  # timeout in seconds
         )
         emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")

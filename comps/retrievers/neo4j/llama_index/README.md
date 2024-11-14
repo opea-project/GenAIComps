@@ -1,6 +1,6 @@
 # Retriever Microservice with Neo4J
 
-This retrieval microservice is intended for use in GraphRAG pipeline and assumes a GraphRAGStore containing document graph, entity_info and Community Symmaries already exists. Please refer to the GenAIExamples/GraphRAG example.
+This retrieval microservice is intended for use in GraphRAG pipeline and assumes a GraphRAGStore containing document graph, entity_info and Community Symmaries already exist. Please refer to the GenAIExamples/GraphRAG example.
 
 Retrieval follows these steps:
 
