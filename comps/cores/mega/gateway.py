@@ -211,7 +211,6 @@ class ChatQnAGateway(Gateway):
         prompt = self._handle_message(chat_request.messages)
         print("prompt in gateway", prompt)
         parameters = LLMParams(
-            model = chat_request.model,
             max_tokens=chat_request.max_tokens if chat_request.max_tokens else 1024,
             top_k=chat_request.top_k if chat_request.top_k else 10,
             top_p=chat_request.top_p if chat_request.top_p else 0.95,
@@ -221,7 +220,7 @@ class ChatQnAGateway(Gateway):
             repetition_penalty=chat_request.repetition_penalty if chat_request.repetition_penalty else 1.03,
             streaming=stream_opt,
             chat_template=chat_request.chat_template if chat_request.chat_template else None,
-            model=chat_request.model if chat_request.model else None,
+            model=chat_request.model if chat_request.model else os.getenv("MODEL_ID") if os.getenv("MODEL_ID") else "Intel/neural-chat-7b-v3-3",
         )
         retriever_parameters = RetrieverParms(
             search_type=chat_request.search_type if chat_request.search_type else "similarity",
