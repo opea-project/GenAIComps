@@ -34,7 +34,9 @@ logflag = os.getenv("LOGFLAG", True)
 def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
     if logflag:
         logger.info(input)
-    print(input.query)
+    print(input.messages)
+    content = input.messages[0]['content']
+    print(content)
     kwargs = {
         "modelId": "us.anthropic.claude-3-5-haiku-20241022-v1:0",
         "contentType": "application/json",
@@ -48,7 +50,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
                     "content": [
                         {
                             "type": "text",
-                            "text": input.query
+                            "text": content
                         }
                     ]
                 }
@@ -56,28 +58,30 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
         })
     }
 
-    if input.streaming:
-        async def stream_generator():
-            response = bedrock_runtime.invoke_model_with_response_stream(
-                **kwargs)
+    if input.stream:
+        def stream_generator():
+            response = bedrock_runtime.invoke_model_with_response_stream(**kwargs)
             for event in response.get('body'):
-                chunk = json.loads(event['chunk']['bytes'])
+                chunk = json.loads(event['chunk']['bytes'])    
+                print(chunk)
                 if chunk['type'] == 'content_block_delta':
                     text_chunk = chunk['delta']['text']
+                    chunk_repr = repr(text_chunk.encode('utf-8'))
                     if logflag:
                         logger.info(
-                            f"[llm - chat_stream] chunk:{repr(text_chunk.encode('utf-8'))}")
-                    yield f"data: {text_chunk}\n\n"
-            yield "data: [DONE]\n\n"
-
+                            f"[llm - chat_stream] chunk:{chunk_repr}")
+                    yield f"data: {chunk_repr}\n\n"
+                yield "data: [DONE]\n\n"
+        
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         response = bedrock_runtime.invoke_model(**kwargs)
         response_body = json.loads(response.get('body').read())
-        generated_text = response_body.get('content')[0]['text']
+        generated_text = response_body.get('content')[0].get('text')
+        print(generated_text)
         if logflag:
             logger.info(generated_text)
-        return GeneratedDoc(text=generated_text, prompt=input.query)
+        return GeneratedDoc(text=generated_text,  prompt=content)
 
 
 if __name__ == "__main__":
