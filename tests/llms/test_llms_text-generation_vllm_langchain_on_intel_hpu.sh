@@ -35,7 +35,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export LLM_MODEL="facebook/opt-125m"
+    export LLM_MODEL="meta-llama/Meta-Llama-3-8B-Instruct"
     port_number=5025
     docker run -d --rm \
         --runtime=habana \
@@ -77,7 +77,7 @@ function validate_microservice() {
     result=$(http_proxy="" curl http://${ip_address}:5025/v1/completions \
         -H "Content-Type: application/json" \
         -d '{
-        "model": "facebook/opt-125m",
+        "model": "meta-llama/Meta-Llama-3-8B-Instruct",
         "prompt": "What is Deep Learning?",
         "max_tokens": 32,
         "temperature": 0
