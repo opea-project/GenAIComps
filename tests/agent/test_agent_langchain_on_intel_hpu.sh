@@ -51,6 +51,7 @@ function build_vllm_docker_images() {
         git clone https://github.com/HabanaAI/vllm-fork.git
     fi
     cd ./vllm-fork
+    git checkout v0.5.3.post1+Gaudi-1.18.0
     docker build -f Dockerfile.hpu -t opea/vllm-hpu:comps --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     if [ $? -ne 0 ]; then
         echo "opea/vllm-hpu:comps failed"
