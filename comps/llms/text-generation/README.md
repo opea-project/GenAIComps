@@ -257,12 +257,18 @@ docker compose -f docker_compose_llm.yaml up -d
 
 ## 🚀3. Consume LLM Service
 
-### 3.1 Check Service Status
+### 3.1 Check Service Status and its Version
 
 ```bash
 curl http://${your_ip}:9000/v1/health_check\
   -X GET \
   -H 'Content-Type: application/json'
+```
+
+Users should get output like below example if MicroService works correctly.
+
+```bash
+{"Service Title":"ChatQnAGateway/MicroService","Version":"1.0","Service Description":"OPEA Microservice Infrastructure"}
 ```
 
 ### 3.2 Verify the LLM Service
