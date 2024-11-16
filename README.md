@@ -123,6 +123,26 @@ class ExampleService:
         self.megaservice.flow_to(embedding, llm)
 ```
 
+self.gateway = ChatQnAGateway(megaservice=self.megaservice, host="0.0.0.0", port=self.port)
+
+````
+
+## Check Mega/Micro Service health status and version number
+
+Use below command to check Mega/Micro Service status.
+
+```bash
+curl http://${your_ip}:${service_port}/v1/health_check\
+  -X GET \
+  -H 'Content-Type: application/json'
+````
+
+Users should get output like below example if Mega/Micro Service works correctly.
+
+```bash
+{"Service Title":"ChatQnAGateway/MicroService","Version":"1.0","Service Description":"OPEA Microservice Infrastructure"}
+```
+
 ## Contributing to OPEA
 
 Welcome to the OPEA open-source community! We are thrilled to have you here and excited about the potential contributions you can bring to the OPEA platform. Whether you are fixing bugs, adding new GenAI components, improving documentation, or sharing your unique use cases, your contributions are invaluable.
