@@ -12,12 +12,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libgl1-mesa-glx
 
 # Install Python packages globally
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir \
-    fastapi==0.104.1 \
-    uvicorn==0.24.0 \
-    python-arango==7.9.1 \
-    pydantic==2.5.2
+
 
 # Create user
 RUN useradd -m -s /bin/bash user && \
@@ -26,8 +21,16 @@ RUN useradd -m -s /bin/bash user && \
 
 USER user
 
-ENV PYTHONPATH=/home/user/comps
+COPY comps /home/user/comps
+COPY requirements.txt /home/user/
+
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install --no-cache-dir -r /home/user/comps/chathistory/arangodb/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/requirements.txt   
+
+ENV PYTHONPATH=/home/user/
 
 WORKDIR /home/user/comps/chathistory/arangodb
+RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python", "chathistory_arango.py"]
+ENTRYPOINT ["python", "chathistory_arango_no_async.py"]

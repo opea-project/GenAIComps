@@ -2,7 +2,7 @@
 
 This README provides setup guides and all the necessary information about the Chat History microservice with MongoDB database.
 
---- 
+---
 
 ## Setup Environment Variables
 
@@ -75,25 +75,25 @@ The Chat History microservice exposes the following API endpoints:
 
   ```bash
   curl -X 'POST' \
-    http://${host_ip}:6012/v1/chathistory/get \
+    http://localhost:6012/v1/chathistory/get \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
-    "user": "test", "id":"668620173180b591e1e0cd74"}'
+    "user": "test", "id":"673255bad3e51a6fdef12b5e"}'
   ```
 
 - Update the conversation by id.
 
   ```bash
   curl -X 'POST' \
-    http://${host_ip}:6012/v1/chathistory/create \
+    http://localhost:6012/v1/chathistory/create \
     -H 'accept: application/json' \
     -H 'Content-Type: application/json' \
     -d '{
     "data": {
       "messages": "test Messages Update", "user": "test"
     },
-    "id":"668620173180b591e1e0cd74"
+    "id":"673255bad3e51a6fdef12b5e"
   }'
   ```
 

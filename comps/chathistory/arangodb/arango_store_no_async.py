@@ -2,8 +2,8 @@
 # # SPDX-License-Identifier: Apache-2.0
 
 
-import bson.errors as BsonError
-from bson.objectid import ObjectId
+# import bson.errors as BsonError
+# from bson.objectid import ObjectId
 from config import COLLECTION_NAME
 from arango_conn import ArangoClient
 from pydantic import BaseModel
@@ -34,9 +34,9 @@ class DocumentStore:
             
         except Exception as e:
             print(f"Failed to initialize storage: {e}")
-            raise Exception(f"Storage initialization failed: {e}, collection: {COLLECTION_NAME}")
+            raise Exception(f"Storage initialization failed: {e}")
 
-    async def save_document(self, document: BaseModel) -> str:
+    def save_document(self, document: BaseModel) -> str:
         """Stores a new document into the storage.
 
         Args:
@@ -59,7 +59,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
             
-    async def update_document(self, document_id, updated_data, first_query) -> str:
+    def update_document(self, document_id, updated_data, first_query) -> str:
         """Updates a document in the collection with the given document_id.
 
         Args:
@@ -76,7 +76,7 @@ class DocumentStore:
         """
         try:
             update_result = self.collection.update(
-                {"_key": document_id, "data.user": self.user},
+                {"_key": document_id, "user": self.user},
                 {"data": updated_data.model_dump(by_alias=True, mode="json"), "first_query": first_query}
             )
             if update_result:
@@ -88,7 +88,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
 
-    async def get_all_documents_of_user(self) -> list[dict]:
+    def get_all_documents_of_user(self) -> list[dict]:
         """Retrieves all documents of a specific user from the collection.
 
         Returns:
@@ -98,9 +98,15 @@ class DocumentStore:
         """
         conversation_list: list = []
         try:
-            cursor = self.collection.find({"data.user": self.user}, {"data": 0})
+            all_docs = [doc for doc in self.collection.all()]
+            print(f"All documents: {all_docs}")
+            cursor = self.collection.find({"data.user": "test"})
+
+            print(f"Found documents: {[doc for doc in cursor]}")
+
             for document in cursor:
                 document["id"] = document["_key"]
+                del document["_key"]
                 conversation_list.append(document)
             return conversation_list
 
@@ -108,7 +114,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
 
-    async def get_user_documents_by_id(self, document_id) -> dict | None:
+    def get_user_documents_by_id(self, document_id) -> dict | None:
         """Retrieves a user document from the collection based on the given document ID.
 
         Args:
@@ -119,9 +125,7 @@ class DocumentStore:
         """
         try:
             response = self.collection.get(document_id)
-            print(response)
-            breakpoint()
-            if response and response["user"] == self.user:
+            if response and response['data']["user"] == self.user:
                 response.pop("_id", None)
                 return response
             return None
@@ -130,7 +134,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
 
-    async def delete_document(self, document_id) -> str:
+    def delete_document(self, document_id) -> str:
         """Deletes a document from the collection based on the provided document ID.
 
         Args:
@@ -145,7 +149,7 @@ class DocumentStore:
         """
         try:
             doc = self.collection.get(document_id)
-            if doc and doc["user"] == self.user:
+            if doc and doc['data']["user"] == self.user:
                 self.collection.delete(document_id)
                 return "Deleted document : {}".format(document_id)
             else:
@@ -170,6 +174,11 @@ if __name__ == "__main__":
         messages="test message",
         user="test_user"
     )
+    test_doc_2 = TestDocument(
+        messages="test message 2",
+        user="test_user"
+    )
+        
         
     # Test save document
     def test_save():
@@ -190,7 +199,7 @@ if __name__ == "__main__":
         
     #test update document
     def test_update(doc_id):
-        result = store.update_document(doc_id, test_doc, "test query")
+        result = store.update_document(doc_id, test_doc_2, "Na Na Na Na")
         print(f"Update result: {result}")
         return result
     
