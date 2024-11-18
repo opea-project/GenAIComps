@@ -20,12 +20,6 @@ cd langchain
 pip install -r requirements.txt
 ```
 
-<!-- - option 2: Install multi-process version (for >10 files processing)
-
-```bash
-cd langchain_ray; pip install -r requirements_ray.txt
-``` -->
-
 ### 1.2 Start OpenSearch Stack Server
 
 Please refer to this [readme](../../vectorstores/opensearch/README.md).
@@ -74,13 +68,6 @@ cd langchain
 python prepare_doc_opensearch.py
 ```
 
-<!-- - option 2: Start multi-process version (for >10 files processing)
-
-```bash
-cd langchain_ray
-python prepare_doc_opensearch_on_ray.py
-``` -->
-
 ## 🚀2. Start Microservice with Docker (Option 2)
 
 ### 2.1 Start OpenSearch Stack Server
@@ -108,13 +95,6 @@ cd ../../
 docker build -t opea/dataprep-opensearch:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/opensearch/langchain/Dockerfile .
 ```
 
-<!-- - option 2: Start multi-process version (for >10 files processing)
-
-```bash
-cd ../../../
-docker build -t opea/dataprep-on-ray-opensearch:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/opensearch/langchain_ray/Dockerfile .
-``` -->
-
 ### 2.4 Run Docker with CLI (Option A)
 
 - option 1: Start single-process version (for 1-10 files processing)
@@ -122,12 +102,6 @@ docker build -t opea/dataprep-on-ray-opensearch:latest --build-arg https_proxy=$
 ```bash
 docker run -d --name="dataprep-opensearch-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e OPENSEARCH_URL=$OPENSEARCH_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep-opensearch:latest
 ```
-
-<!-- - option 2: Start multi-process version (for >10 files processing)
-
-```bash
-docker run -d --name="dataprep-opensearch-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e OPENSEARCH_URL=$OPENSEARCH_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-opensearch:latest
-``` -->
 
 ### 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
