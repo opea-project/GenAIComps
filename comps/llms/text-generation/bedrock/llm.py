@@ -37,9 +37,7 @@ logflag = os.getenv("LOGFLAG", True)
 def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
     if logflag:
         logger.info(input)
-    print(input.messages)
     content = input.messages[0]["content"]
-    print(content)
     kwargs = {
         "modelId": "us.anthropic.claude-3-5-haiku-20241022-v1:0",
         "contentType": "application/json",
