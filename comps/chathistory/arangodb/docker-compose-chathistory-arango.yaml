@@ -1,0 +1,34 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3"
+services:
+  arangodb:
+    image: arango:3.12.1
+    container_name: arangodb
+    ports:
+      - 8529:8529
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+    command: arango --quiet --logpath /dev/null
+
+  chathistory-arango:
+    image: opea/chathistory-arango-server:latest
+    container_name: chathistory-arango-server
+    ports:
+      - "6012:6012"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      no_proxy: ${no_proxy}
+      https_proxy: ${https_proxy}
+      ARANGODB_HOST: ${ARANGODB_HOST}
+      ARANGODB_PORT: ${ARANGODB_PORT}
+      COLLECTION_NAME: ${COLLECTION_NAME}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
