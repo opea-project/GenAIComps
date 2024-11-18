@@ -28,6 +28,8 @@ services:
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
 networks:
   default:
