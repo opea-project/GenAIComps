@@ -23,12 +23,12 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 bedrock_runtime = boto3.client(service_name="bedrock-runtime", region_name="us-east-1")
 
-logger = CustomLogger("llm_bedrock_anthropic")
+logger = CustomLogger("llm_bedrock")
 logflag = os.getenv("LOGFLAG", True)
 
 
 @register_microservice(
-    name="opea_service@llm_bedrock_anthropic",
+    name="opea_service@llm_bedrock",
     service_type=ServiceType.LLM,
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
@@ -78,4 +78,4 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@llm_bedrock_anthropic"].start()
+    opea_microservices["opea_service@llm_bedrock"].start()
