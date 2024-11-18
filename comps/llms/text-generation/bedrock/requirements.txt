@@ -1,10 +1,10 @@
-boto3
-fastapi
-numpy
-docarray[full]
 aiohttp
+boto3
+docarray[full]
+fastapi
 httpx
 huggingface_hub
+numpy
 openai==1.35.13
 opentelemetry-api
 opentelemetry-exporter-otlp
