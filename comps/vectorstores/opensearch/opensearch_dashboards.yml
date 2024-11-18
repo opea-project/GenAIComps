@@ -196,7 +196,7 @@
 # Set the value of this setting to true to enable the experimental ml commons dashboards
 ml_commons_dashboards.enabled: true
 
-opensearch.hosts: [https://localhost:9200]
+opensearch.hosts: ["https://localhost:9200"]
 opensearch.ssl.verificationMode: none
 opensearch.username: kibanaserver
 opensearch.password: kibanaserver

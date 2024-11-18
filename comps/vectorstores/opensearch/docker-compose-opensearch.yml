@@ -28,6 +28,8 @@ services:
       - 9600:9600 # required for Performance Analyzer
     networks:
       - opensearch-net
+    security_opt:
+      - no-new-privileges:true
   opensearch-node2:
     image: opensearchproject/opensearch:latest
     container_name: opensearch-node2
@@ -50,6 +52,8 @@ services:
       - ./opensearch-data2:/var/lib/opensearch/data
     networks:
       - opensearch-net
+    security_opt:
+      - no-new-privileges:true
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:latest
     volumes:
@@ -63,6 +67,8 @@ services:
       OPENSEARCH_HOSTS: '["https://opensearch-node1:9200","https://opensearch-node2:9200"]' # must be a string with no spaces when specified as an environment variable
     networks:
       - opensearch-net
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       - opensearch-node1
       - opensearch-node2
