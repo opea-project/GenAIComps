@@ -4,6 +4,7 @@ docarray[full]
 docx2txt
 easyocr
 fastapi
+html2text
 huggingface_hub
 langchain
 langchain-community
@@ -28,4 +29,3 @@ sentence_transformers
 shortuuid
 unstructured[all-docs]
 uvicorn
-html2text
