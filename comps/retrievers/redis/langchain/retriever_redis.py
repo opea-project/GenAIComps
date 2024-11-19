@@ -23,10 +23,10 @@ from comps import (
 )
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
+    EmbeddingResponse,
     RetrievalRequest,
     RetrievalResponse,
     RetrievalResponseData,
-    EmbeddingResponse,
 )
 
 logger = CustomLogger("retriever_redis")
@@ -60,7 +60,7 @@ async def retrieve(
             # for RetrievalRequest, ChatCompletionRequest
             query = input.input
             if isinstance(input.embedding, EmbeddingResponse):
-                embeddings= input.embedding.data
+                embeddings = input.embedding.data
                 embedding_data_input = []
                 for emb in embeddings:
                     # each emb is EmbeddingResponseData
