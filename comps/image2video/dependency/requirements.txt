@@ -1,7 +1,7 @@
-accelerate
-diffusers
-fastapi
-opencv-python
-torch
-transformers
-uvicorn
+accelerate==1.1.1
+diffusers==0.31.0
+fastapi==0.115.5
+opencv-python==4.10.0.84
+torch==2.5.1
+transformers==4.46.3
+uvicorn==0.32.0

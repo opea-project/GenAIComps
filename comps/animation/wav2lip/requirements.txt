@@ -1,11 +1,11 @@
 aiohttp==3.10.10
 basicsr==1.4.2
-docarray[full]
+docarray[full]==0.40.0
 facexlib==0.3.0
 fastapi==0.115.2
 ffmpeg-python==0.2.0
 gradio==4.38.1
-gradio_client==1.1.0
+gradio-client==1.1.0
 grpcio==1.64.1
 huggingface-hub==0.24.0
 librosa==0.10.2

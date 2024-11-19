@@ -1,4 +1,4 @@
-langchain_openai
-pathway[xpack-llm] >= 0.14.1
-sentence-transformers
-unstructured[all-docs] >= 0.10.28,<0.15
+langchain-openai==0.0.8
+pathway[xpack-llm]==0.15.4
+sentence-transformers==3.3.1
+unstructured[all-docs]==0.14.10
