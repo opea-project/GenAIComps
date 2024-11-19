@@ -621,9 +621,10 @@ def parse_html(input):
 
 
 def load_html_content(links, chunk_size=1500, chunk_overlap=50):
+    from langchain.text_splitter import RecursiveCharacterTextSplitter
     from langchain_community.document_loaders import AsyncHtmlLoader
     from langchain_community.document_transformers import Html2TextTransformer
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
+
     loader = AsyncHtmlLoader(links, ignore_load_errors=True, trust_env=True)
     docs = loader.load()
     html2text = Html2TextTransformer()
