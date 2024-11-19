@@ -28,3 +28,4 @@ shortuuid
 unstructured[all-docs]==0.15.7
 uvicorn
 virtualenv
+html2text
