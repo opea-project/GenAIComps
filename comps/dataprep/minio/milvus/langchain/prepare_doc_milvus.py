@@ -1,28 +1,38 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (c) 2015-2024 MinIO, Inc.
 # SPDX-License-Identifier: Apache-2.0
-
+import io
 import json
 import os
+import tempfile
 from pathlib import Path
 from typing import List, Optional, Union
 
+import msgpack
 from config import (
     COLLECTION_NAME,
     LOCAL_EMBEDDING_MODEL,
     MILVUS_HOST,
     MILVUS_PORT,
+    MINIO_ACCESS_KEY,
+    MINIO_DOCUMENT_BUCKET,
+    MINIO_ENDPOINT,
+    MINIO_SECRET_KEY,
+    MINIO_SECURE,
     MOSEC_EMBEDDING_ENDPOINT,
     MOSEC_EMBEDDING_MODEL,
     TEI_EMBEDDING_ENDPOINT,
 )
-from fastapi import Body, File, Form, HTTPException, UploadFile
+from fastapi import Body, File, Form, HTTPException, Request, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
+from minio import Minio, S3Error
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
+from comps.dataprep.minio.milvus.langchain.config import MINIO_WAREHOUSE_BUCKET
+from comps.dataprep.minio.minio_schema import MinioEventNotification
 from comps.dataprep.utils import (
     create_upload_folder,
     decode_filename,
@@ -32,17 +42,19 @@ from comps.dataprep.utils import (
     get_tables_result,
     parse_html,
     remove_folder_with_ignore,
-    save_content_to_local_disk,
 )
 
-logger = CustomLogger("prepare_doc_milvus")
-logflag = os.getenv("LOGFLAG", False)
+logger = CustomLogger("prepare_doc_minio_milvus")
+logflag = os.getenv("LOGFLAG", True)
 
 # workaround notes: cp comps/dataprep/utils.py ./milvus/utils.py
 # from utils import document_loader, get_tables_result, parse_html
-index_params = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
-partition_field_name = "filename"
-upload_folder = "./uploaded_files/"
+INDEX_PARAMS = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
+PARTITION_FIELD_NAME = "filename"
+
+minio_client = Minio(
+    endpoint=MINIO_ENDPOINT, access_key=MINIO_ACCESS_KEY, secret_key=MINIO_SECRET_KEY, secure=MINIO_SECURE
+)
 
 
 class MosecEmbeddings(OpenAIEmbeddings):
@@ -77,7 +89,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
     # insert documents to Milvus
     insert_docs = []
     for chunk in chunks:
-        insert_docs.append(Document(page_content=chunk, metadata={partition_field_name: file_name}))
+        insert_docs.append(Document(page_content=chunk, metadata={PARTITION_FIELD_NAME: file_name}))
 
     # Batch size
     batch_size = 32
@@ -89,12 +101,13 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
         batch_docs = insert_docs[i : i + batch_size]
 
         try:
+            logger.info(f"MILVUS HOST IS: {MILVUS_HOST}")
             _ = Milvus.from_documents(
                 batch_docs,
                 embeddings,
                 collection_name=COLLECTION_NAME,
                 connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
-                partition_key_field=partition_field_name,
+                partition_key_field=PARTITION_FIELD_NAME,
             )
         except Exception as e:
             if logflag:
@@ -107,7 +120,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
     return True
 
 
-def ingest_data_to_milvus(doc_path: DocPath):
+def ingest_data_to_minio(doc_path: DocPath):
     """Ingest document to Milvus."""
     path = doc_path.path
     file_name = path.split("/")[-1]
@@ -148,14 +161,14 @@ def ingest_data_to_milvus(doc_path: DocPath):
     if logflag:
         logger.info(f"[ ingest data ] Done preprocessing. Created {len(chunks)} chunks of the original file.")
 
-    return ingest_chunks_to_milvus(file_name, chunks)
+    return chunks
 
 
 def search_by_file(collection, file_name):
-    query = f"{partition_field_name} == '{file_name}'"
+    query = f"{PARTITION_FIELD_NAME} == '{file_name}'"
     results = collection.query(
         expr=query,
-        output_fields=[partition_field_name, "pk"],
+        output_fields=[PARTITION_FIELD_NAME, "pk"],
     )
     if logflag:
         logger.info(f"[ search by file ] searched by {file_name}")
@@ -164,25 +177,39 @@ def search_by_file(collection, file_name):
 
 
 def search_all(collection):
-    results = collection.query(expr="pk >= 0", output_fields=[partition_field_name, "pk"])
+    results = collection.query(expr="pk >= 0", output_fields=[PARTITION_FIELD_NAME, "pk"])
     if logflag:
         logger.info(f"[ search all ] {len(results)} results: {results}")
     return results
 
 
-def delete_all_data(my_milvus):
+def delete_all_data():
     if logflag:
         logger.info("[ delete all ] deleting all data in milvus")
-    if my_milvus.col:
-        my_milvus.col.drop()
-    if logflag:
-        logger.info("[ delete all ] delete success: all data")
+    # List and delete all objects
+    try:
+        # Generate a list of all objects in the bucket
+        objects = minio_client.list_objects(MINIO_DOCUMENT_BUCKET, recursive=True)
+
+        # Delete each object
+        for obj in objects:
+            minio_client.remove_object(MINIO_DOCUMENT_BUCKET, obj.object_name)
+            print(f"Deleted {obj.object_name}")
+
+        print("All objects have been deleted from the bucket.")
+
+    except S3Error as e:
+        print("Error:", e)
+    # if my_milvus.col:
+    #     my_milvus.col.drop()
+    # if logflag:
+    #     logger.info("[ delete all ] delete success: all data")
 
 
 def delete_by_partition_field(my_milvus, partition_field):
     if logflag:
-        logger.info(f"[ delete partition ] deleting {partition_field_name} {partition_field}")
-    pks = my_milvus.get_pks(f'{partition_field_name} == "{partition_field}"')
+        logger.info(f"[ delete partition ] deleting {PARTITION_FIELD_NAME} {partition_field}")
+    pks = my_milvus.get_pks(f'{PARTITION_FIELD_NAME} == "{partition_field}"')
     if logflag:
         logger.info(f"[ delete partition ] target pks: {pks}")
     res = my_milvus.delete(pks)
@@ -191,7 +218,7 @@ def delete_by_partition_field(my_milvus, partition_field):
         logger.info(f"[ delete partition ] delete success: {res}")
 
 
-@register_microservice(name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6010)
+@register_microservice(name="opea_service@prepare_doc_minio_milvus", endpoint="/v1/dataprep", host="0.0.0.0", port=6010)
 async def ingest_documents(
     files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
     link_list: Optional[str] = Form(None),
@@ -207,15 +234,6 @@ async def ingest_documents(
     if files and link_list:
         raise HTTPException(status_code=400, detail="Provide either a file or a string list, not both.")
 
-    # define Milvus obj
-    my_milvus = Milvus(
-        embedding_function=embeddings,
-        collection_name=COLLECTION_NAME,
-        connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
-        index_params=index_params,
-        auto_id=True,
-    )
-
     if files:
         if not isinstance(files, list):
             files = [files]
@@ -223,72 +241,32 @@ async def ingest_documents(
 
         for file in files:
             encode_file = encode_filename(file.filename)
-            save_path = upload_folder + encode_file
+            save_path = f"s3://{MINIO_DOCUMENT_BUCKET}/{encode_file}"
             if logflag:
                 logger.info(f"[ upload ] processing file {save_path}")
 
-            if my_milvus.col:
-                # check whether the file is already uploaded
-                try:
-                    search_res = search_by_file(my_milvus.col, encode_file)
-                except Exception as e:
-                    raise HTTPException(
-                        status_code=500, detail=f"Failed when searching in Milvus db for file {file.filename}."
-                    )
-                if len(search_res) > 0:
-                    if logflag:
-                        logger.info(f"[ upload ] File {file.filename} already exists.")
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Uploaded file {file.filename} already exists. Please change file name.",
-                    )
+            content = await file.read()
+            file_size = len(content)
+            file_data = io.BytesIO(content)
 
-            await save_content_to_local_disk(save_path, file)
-            ingest_data_to_milvus(
-                DocPath(
-                    path=save_path,
-                    chunk_size=chunk_size,
-                    chunk_overlap=chunk_overlap,
-                    process_table=process_table,
-                    table_strategy=table_strategy,
-                ),
+            minio_client.put_object(
+                bucket_name=MINIO_DOCUMENT_BUCKET,
+                object_name=encode_file,
+                data=file_data,
+                length=file_size,
+                content_type=file.content_type,
+                metadata={
+                    "chunk_size": chunk_size,
+                    "chunk_overlap": chunk_overlap,
+                    "process_table": process_table,
+                    "table_strategy": table_strategy,
+                },
             )
+
             uploaded_files.append(save_path)
             if logflag:
-                logger.info(f"Saved file {save_path} into local disk.")
+                logger.info(f"Saved file {save_path} into MinIO")
 
-        # def process_files_wrapper(files):
-        #     if not isinstance(files, list):
-        #         files = [files]
-        #     for file in files:
-        #         encode_file = encode_filename(file.filename)
-        #         save_path = upload_folder + encode_file
-        #         ingest_data_to_milvus(
-        #             DocPath(
-        #                 path=save_path,
-        #                 chunk_size=chunk_size,
-        #                 chunk_overlap=chunk_overlap,
-        #                 process_table=process_table,
-        #                 table_strategy=table_strategy,
-        #             ),
-        #         )
-
-        # try:
-        #     # Create a SparkContext
-        #     conf = SparkConf().setAppName("Parallel-dataprep").setMaster("local[*]")
-        #     sc = SparkContext(conf=conf)
-        #     # Create an RDD with parallel processing
-        #     parallel_num = min(len(uploaded_files), os.cpu_count())
-        #     rdd = sc.parallelize(uploaded_files, parallel_num)
-        #     print(uploaded_files)
-        #     # Perform a parallel operation
-        #     rdd_trans = rdd.map(process_files_wrapper)
-        #     rdd_trans.collect()
-        #     # Stop the SparkContext
-        #     sc.stop()
-        # except:
-        #     # Stop the SparkContext
-        #     sc.stop()
         results = {"status": 200, "message": "Data preparation succeeded"}
         if logflag:
             logger.info(results)
@@ -301,34 +279,28 @@ async def ingest_documents(
 
         for link in link_list:
             encoded_link = encode_filename(link)
+
             if logflag:
                 logger.info(f"[ upload ] processing link {encoded_link}")
 
-            # check whether the link file already exists
-            if my_milvus.col:
-                try:
-                    search_res = search_by_file(my_milvus.col, encoded_link + ".txt")
-                except Exception as e:
-                    raise HTTPException(status_code=500, detail=f"Failed when searching in Milvus db for link {link}.")
-                if len(search_res) > 0:
-                    if logflag:
-                        logger.info(f"[ upload ] Link {link} already exists.")
-                    raise HTTPException(
-                        status_code=400, detail=f"Uploaded link {link} already exists. Please change link."
-                    )
-
-            save_path = upload_folder + encoded_link + ".txt"
+            encode_file = f"{encoded_link}.txt"
             content = parse_html([link])[0][0]
-            await save_content_to_local_disk(save_path, content)
-            ingest_data_to_milvus(
-                DocPath(
-                    path=save_path,
-                    chunk_size=chunk_size,
-                    chunk_overlap=chunk_overlap,
-                    process_table=process_table,
-                    table_strategy=table_strategy,
-                ),
+            file_size = len(content)
+            file_data = io.BytesIO(content)
+
+            minio_client.put_object(
+                bucket_name=MINIO_DOCUMENT_BUCKET,
+                object_name=encode_file,
+                data=file_data,
+                length=file_size,
+                metadata={
+                    "chunk_size": chunk_size,
+                    "chunk_overlap": chunk_overlap,
+                    "process_table": process_table,
+                    "table_strategy": table_strategy,
+                },
             )
+
         if logflag:
             logger.info(f"[ upload ] Successfully saved link list {link_list}")
         return {"status": 200, "message": "Data preparation succeeded"}
@@ -337,7 +309,91 @@ async def ingest_documents(
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6010
+    name="opea_service@prepare_doc_minio_milvus", endpoint="/v1/minio/document/notification", host="0.0.0.0", port=6010
+)
+async def process_documents(event: MinioEventNotification):
+    # json_data = await request.json()
+    # print(json.dumps(json_data, indent=2))
+    print(event)
+    if event.EventName == "s3:ObjectCreated:Put":
+        for record in event.Records:
+            bucket_name = record.s3.bucket.name
+            object_name = record.s3.object.key
+            _, file_extension = os.path.splitext(object_name)
+            with tempfile.NamedTemporaryFile(delete=True, suffix=file_extension) as temp_file:
+                temp_file_path = temp_file.name
+                minio_client.fget_object(bucket_name, object_name, temp_file_path)
+                chunks = ingest_data_to_minio(
+                    DocPath(
+                        path=temp_file_path,
+                        chunk_size=record.s3.object.userMetadata.chunk_size,
+                        chunk_overlap=record.s3.object.userMetadata.chunk_overlap,
+                        process_table=record.s3.object.userMetadata.process_table,
+                        table_strategy=record.s3.object.userMetadata.table_strategy,
+                    )
+                )
+                msgpack_data = msgpack.packb(chunks)
+                buffer = io.BytesIO(msgpack_data)
+                buffer_size = buffer.getbuffer().nbytes
+                minio_client.put_object(
+                    MINIO_WAREHOUSE_BUCKET,
+                    object_name=f"metadata/{object_name}.msgpack",
+                    data=buffer,
+                    length=buffer_size,
+                    content_type="application/x-msgpack",
+                )
+    if event.EventName == "s3:ObjectRemoved:Delete":
+        for record in event.Records:
+            object_name = record.s3.object.key
+            minio_client.remove_object(MINIO_WAREHOUSE_BUCKET, object_name=f"metadata/{object_name}.msgpack")
+    return {"status": 200, "message": "Document processed successfully"}
+
+
+@register_microservice(
+    name="opea_service@prepare_doc_minio_milvus", endpoint="/v1/minio/metadata/notification", host="0.0.0.0", port=6010
+)
+async def process_metadata(event: MinioEventNotification):
+    # json_data = await request.json()
+    # print(json.dumps(json_data, indent=2))
+    if event.EventName == "s3:ObjectCreated:Put":
+        for record in event.Records:
+            bucket_name = record.s3.bucket.name
+            object_name = record.s3.object.key
+            response = minio_client.get_object(bucket_name, object_name)
+            msgpack_data = response.read()
+            response.close()
+            response.release_conn()
+
+            # Deserialize the MsgPack data back into a list
+            chunk_list = msgpack.unpackb(msgpack_data)
+            print(f"Total Chunks are {len(chunk_list)}")
+            file_name = object_name.split(".msgpack")[0].split("metadata/")[1]
+            ingest_chunks_to_milvus(file_name, chunk_list)
+    elif event.EventName == "s3:ObjectRemoved:Delete":
+        # define Milvus obj
+        my_milvus = Milvus(
+            embedding_function=embeddings,
+            collection_name=COLLECTION_NAME,
+            connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
+            index_params=INDEX_PARAMS,
+            auto_id=True,
+        )
+        for record in event.Records:
+            object_name = record.s3.object.key
+            file_name = object_name.split(".msgpack")[0].split("metadata/")[1]
+            encode_file_name = encode_filename(file_name)
+            try:
+                delete_by_partition_field(my_milvus, encode_file_name)
+            except Exception as e:
+                if logflag:
+                    logger.info(f"[delete] fail to delete file {file_name}: {e}")
+                return {"status": False}
+
+    return {"status": 200, "message": "Metadata processed successfully"}
+
+
+@register_microservice(
+    name="opea_service@prepare_doc_minio_milvus", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6010
 )
 async def rag_get_file_structure():
     if logflag:
@@ -348,7 +404,7 @@ async def rag_get_file_structure():
         embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
         connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
-        index_params=index_params,
+        index_params=INDEX_PARAMS,
         auto_id=True,
     )
 
@@ -389,7 +445,7 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_milvus", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6010
+    name="opea_service@prepare_doc_minio_milvus", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6010
 )
 async def delete_single_file(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
@@ -401,92 +457,55 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     if logflag:
         logger.info(file_path)
 
-    # define Milvus obj
-    my_milvus = Milvus(
-        embedding_function=embeddings,
-        collection_name=COLLECTION_NAME,
-        connection_args={"uri": f"{MILVUS_HOST}:{MILVUS_PORT}"},
-        index_params=index_params,
-        auto_id=True,
-    )
-
     # delete all uploaded files
     if file_path == "all":
         if logflag:
             logger.info("[ delete ] deleting all files")
 
-        delete_all_data(my_milvus)
-
-        # delete files on local disk
-        try:
-            remove_folder_with_ignore(upload_folder)
-        except Exception as e:
-            if logflag:
-                logger.info(f"[ delete ] {e}. Fail to delete {upload_folder}.")
-            raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}.")
+        delete_all_data()
 
         if logflag:
             logger.info("[ delete ] successfully delete all files.")
 
-        create_upload_folder(upload_folder)
-        if logflag:
-            logger.info("[ delete ] new upload folder created.")
         return {"status": True}
 
     encode_file_name = encode_filename(file_path)
-    delete_path = Path(upload_folder + "/" + encode_file_name)
+
     if logflag:
-        logger.info(f"[delete] delete_path: {delete_path}")
-
-    # partially delete files
-    if delete_path.exists():
-
-        # TODO: check existence before delete
-
-        # delete file
-        if delete_path.is_file():
-            if logflag:
-                logger.info(f"[delete] deleting file {encode_file_name}")
-            try:
-                delete_by_partition_field(my_milvus, encode_file_name)
-            except Exception as e:
-                if logflag:
-                    logger.info(f"[delete] fail to delete file {delete_path}: {e}")
-                return {"status": False}
-            delete_path.unlink()
-            if logflag:
-                logger.info(f"[delete] file {file_path} deleted")
-            return {"status": True}
-
-        # delete folder
-        else:
-            if logflag:
-                logger.info(f"[delete] delete folder {file_path} is not supported for now.")
-            raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
-    else:
-        raise HTTPException(status_code=404, detail="File/folder not found. Please check del_path.")
+        logger.info(f"[delete] deleting file {encode_file_name}")
+    try:
+        minio_client.remove_object(MINIO_DOCUMENT_BUCKET, encode_file_name)
+    except Exception as e:
+        if logflag:
+            logger.info(f"[delete] fail to delete file {encode_file_name}: {e}")
+        return {"status": False}
+    if logflag:
+        logger.info(f"[delete] file {file_path} deleted")
+    return {"status": True}
 
 
 if __name__ == "__main__":
-    create_upload_folder(upload_folder)
 
     # Create vectorstore
     if MOSEC_EMBEDDING_ENDPOINT:
         # create embeddings using MOSEC endpoint service
         if logflag:
             logger.info(
-                f"[ prepare_doc_milvus ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
+                f"[ prepare_doc_minio_milvus ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
             )
         embeddings = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
     elif TEI_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service
         if logflag:
-            logger.info(f"[ prepare_doc_milvus ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
+            logger.info(f"[ prepare_doc_minio_milvus ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
         embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
     else:
         # create embeddings using local embedding model
         if logflag:
-            logger.info(f"[ prepare_doc_milvus ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
-        embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+            logger.info(f"[ prepare_doc_minio_milvus ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
+        embeddings = HuggingFaceBgeEmbeddings(
+            model_name=LOCAL_EMBEDDING_MODEL, model_kwargs={"device": "cpu", "trust_remote_code": True}
+        )
 
-    opea_microservices["opea_service@prepare_doc_milvus"].start()
+    opea_microservices["opea_service@prepare_doc_minio_milvus"].start()
+    print("DOCPREP Server Started")

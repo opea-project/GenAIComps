@@ -1,0 +1,83 @@
+# Copyright (c) 2015-2024 MinIO, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+version: '3.5'
+
+services:
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "5044:9001"
+      - "5043:9000"
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-setup:
+    container_name: minio-mc
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+      dataprep-minio-lancedb-service:
+        condition: service_started
+
+    environment:
+      MINIO_URL: ${MINIO_URL:-http://minio:9000}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      DOCUMENT_WEBHOOK_URL: ${DOCUMENT_WEBHOOK_URL:-http://dataprep-minio-lancedb-service:6010/v1/minio/document/notification}
+      METADATA_WEBHOOK_URL: ${METADATA_WEBHOOK_URL:-http://dataprep-minio-lancedb-service:6010/v1/minio/metadata/notification}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -x;
+        mc alias set myminio $${MINIO_URL} $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+
+        # Create buckets
+        mc mb --ignore-existing myminio/document;
+        mc mb --ignore-existing myminio/warehouse;
+        echo 'Created Buckets';
+        # Configure webhooks
+        mc admin config set myminio notify_webhook:document_notify endpoint=\"$${DOCUMENT_WEBHOOK_URL}\";
+        mc admin config set myminio notify_webhook:metadata_notify endpoint=\"$${METADATA_WEBHOOK_URL}\";
+        echo 'Webhooks setup successfully';
+
+        # Restart MinIO to apply webhook configurations
+        mc admin service restart myminio --quiet --json;
+        echo 'MinIO Service Restarted'
+        # Wait for MinIO to come back up
+        sleep 10;
+
+        # Configure event notifications
+        mc event add myminio/document arn:minio:sqs::document_notify:webhook --event put,delete;
+        mc event add myminio/warehouse --prefix metadata --suffix .msgpack arn:minio:sqs::metadata_notify:webhook --event put,delete;
+
+        echo 'MinIO setup completed successfully!';
+
+  dataprep-minio-lancedb-service:
+    image: opea/dataprep-minio-lancedb:latest
+    container_name: dataprep-lancedb-server
+    depends_on:
+      - minio
+    ports:
+      - "6010:6010"
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      MINIO_ENDPOINT: minio:9000
+      COLLECTION_NAME: ${INDEX_NAME:-lance_db}
+
+networks:
+  default:
+    name: lancedb
