@@ -1,17 +1,9 @@
 # # Copyright (C) 2024 Intel Corporation
 # # SPDX-License-Identifier: Apache-2.0
 
-
-import bson.errors as BsonError
-from bson.objectid import ObjectId
 from config import COLLECTION_NAME
 from arango_conn import ArangoClient
 from pydantic import BaseModel
-import asyncio
-
-class TestDocument(BaseModel):
-    messages: str
-    user: str
 
 class DocumentStore:
 
@@ -25,18 +17,21 @@ class DocumentStore:
         try:
             self.db_client = ArangoClient.get_db_client()
             # Create collection if it doesn't exist
+            print(COLLECTION_NAME)
             if not self.db_client.has_collection(COLLECTION_NAME):
+                print("Creating collection")
                 self.collection = self.db_client.create_collection(COLLECTION_NAME)
             else:
+                print("Collection already exists")
                 self.collection = self.db_client.collection(COLLECTION_NAME)
             
             print(f"Successfully initialized storage with collection: {COLLECTION_NAME}")
             
         except Exception as e:
-            print(f"Failed to initialize storage: {e}")
-            raise Exception(f"Storage initialization failed: {e}, collection: {COLLECTION_NAME}")
+            print(f"Failed to initialize storage: {e}, url: {ArangoClient.conn_url}, collection: {COLLECTION_NAME}")
+            raise Exception(f"Storage initialization failed: {e}, url: {ArangoClient.conn_url}, collection: {COLLECTION_NAME}")
 
-    async def save_document(self, document: BaseModel) -> str:
+    def save_document(self, document: BaseModel) -> str:
         """Stores a new document into the storage.
 
         Args:
@@ -59,7 +54,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
             
-    async def update_document(self, document_id, updated_data, first_query) -> str:
+    def update_document(self, document_id, updated_data, first_query) -> str:
         """Updates a document in the collection with the given document_id.
 
         Args:
@@ -75,20 +70,22 @@ class DocumentStore:
             Exception: If an error occurs during the update process.
         """
         try:
-            update_result = self.collection.update(
-                {"_key": document_id, "data.user": self.user},
-                {"data": updated_data.model_dump(by_alias=True, mode="json"), "first_query": first_query}
+            cursor = self.db_client.aql.execute(f"""
+                FOR doc IN @@collection
+                    FILTER doc._key == @document_id AND doc.data.user == @user
+                    LIMIT 1
+                    UPDATE doc WITH @body IN @@collection
+                    OPTIONS {{ keepNull: @keep_none, mergeObjects: @merge }}
+            """,
+                bind_vars={"@collection": self.collection.name, "document_id": document_id, "user": self.user, "body": {"data": updated_data.model_dump(by_alias=True, mode="json"), "first_query": first_query}, "keep_none": True, "merge": True}
             )
-            if update_result:
-                return "Updated document : {}".format(document_id)
-            else:
-                raise Exception("Not able to Update the Document")
+            return "Updated document : {}".format(document_id)
 
         except Exception as e:
             print(e)
             raise Exception(e)
 
-    async def get_all_documents_of_user(self) -> list[dict]:
+    def get_all_documents_of_user(self) -> list[dict]:
         """Retrieves all documents of a specific user from the collection.
 
         Returns:
@@ -98,9 +95,19 @@ class DocumentStore:
         """
         conversation_list: list = []
         try:
-            cursor = self.collection.find({"data.user": self.user}, {"data": 0})
+            cursor = self.db_client.aql.execute("""
+                FOR doc IN @@collection
+                    FILTER doc.data.user == @user
+                    RETURN doc
+            """,
+                bind_vars={"@collection": self.collection.name, "user": self.user}
+            )
             for document in cursor:
                 document["id"] = document["_key"]
+                del document["_key"]
+                del document["_id"]
+                del document["_rev"]
+                del document["data"]
                 conversation_list.append(document)
             return conversation_list
 
@@ -108,7 +115,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
 
-    async def get_user_documents_by_id(self, document_id) -> dict | None:
+    def get_user_documents_by_id(self, document_id) -> dict | None:
         """Retrieves a user document from the collection based on the given document ID.
 
         Args:
@@ -119,9 +126,7 @@ class DocumentStore:
         """
         try:
             response = self.collection.get(document_id)
-            print(response)
-            breakpoint()
-            if response and response["user"] == self.user:
+            if response and response['data']["user"] == self.user:
                 response.pop("_id", None)
                 return response
             return None
@@ -130,7 +135,7 @@ class DocumentStore:
             print(e)
             raise Exception(e)
 
-    async def delete_document(self, document_id) -> str:
+    def delete_document(self, document_id) -> str:
         """Deletes a document from the collection based on the provided document ID.
 
         Args:
@@ -145,7 +150,7 @@ class DocumentStore:
         """
         try:
             doc = self.collection.get(document_id)
-            if doc and doc["user"] == self.user:
+            if doc and doc['data']["user"] == self.user:
                 self.collection.delete(document_id)
                 return "Deleted document : {}".format(document_id)
             else:
@@ -154,57 +159,3 @@ class DocumentStore:
         except Exception as e:
             print(e)
             raise Exception(e)
-
-if __name__ == "__main__":
-    import bson.errors as BsonError
-    from bson.objectid import ObjectId
-    from config import COLLECTION_NAME
-    from arango_conn import ArangoClient
-    from pydantic import BaseModel
-    import asyncio
-    print("Starting tests...")
-    store = DocumentStore("test_user")
-    store.initialize_storage()
-    breakpoint()
-    test_doc = TestDocument(
-        messages="test message",
-        user="test_user"
-    )
-        
-    # Test save document
-    def test_save():
-        doc_id = store.save_document(test_doc)
-        print(f"Saved document ID: {doc_id}")
-        return doc_id
-        
-    # Test get document
-    def test_get(doc_id):
-        doc = store.get_user_documents_by_id(doc_id)
-        print(f"Retrieved document: {doc}")
-        return doc
-        
-    # # Test delete document  
-    # def test_delete(doc_id):
-    #     result = store.delete_document(doc_id)
-    #     print(f"Delete result: {result}")
-        
-    #test update document
-    def test_update(doc_id):
-        result = store.update_document(doc_id, test_doc, "test query")
-        print(f"Update result: {result}")
-        return result
-    
-    def run_tests():
-        # Run save test
-        doc_id = test_save()
-        breakpoint()
-        
-        # Run get test
-        print(test_get(doc_id))
-        breakpoint()
-        # Run delete test
-        # print(test_delete(doc_id))
-        print(test_update(doc_id))
-        breakpoint()
-    run_tests()
- 

@@ -4,7 +4,7 @@ import os
 from typing import Optional
 
 from fastapi import HTTPException
-from arango_store_no_async import DocumentStore
+from arango_store import DocumentStore
 from pydantic import BaseModel
 
 from comps import CustomLogger
@@ -76,13 +76,13 @@ def create_documents(document: ChatMessage):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# @register_microservice(
-#     name="opea_service@chathistory_arango",
-#     endpoint="/v1/chathistory/get",
-#     host="0.0.0.0",
-#     input_datatype=ChatId,
-#     port=6012,
-# )
+@register_microservice(
+    name="opea_service@chathistory_arango",
+    endpoint="/v1/chathistory/get",
+    host="0.0.0.0",
+    input_datatype=ChatId,
+    port=6012,
+)
 def get_documents(document: ChatId):
     """Retrieves documents from the document store based on the provided ChatId.
 
@@ -110,13 +110,13 @@ def get_documents(document: ChatId):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# @register_microservice(
-#     name="opea_service@chathistory_arango",
-#     endpoint="/v1/chathistory/delete",
-#     host="0.0.0.0",
-#     input_datatype=ChatId,
-#     port=6012,
-# )
+@register_microservice(
+    name="opea_service@chathistory_arango",
+    endpoint="/v1/chathistory/delete",
+    host="0.0.0.0",
+    input_datatype=ChatId,
+    port=6012,
+)
 def delete_documents(document: ChatId):
     """Deletes a document from the document store based on the provided ChatId.
 
@@ -146,21 +146,3 @@ def delete_documents(document: ChatId):
 
 if __name__ == "__main__":
     opea_microservices["opea_service@chathistory_arango"].start()
-
-    # doc_id = create_documents(ChatMessage(data=ChatCompletionRequest(user="test", messages="test Messages"), first_query=None))
-    # breakpoint()
-    # doc_id_2 = create_documents(ChatMessage(data=ChatCompletionRequest(user="test", messages="test Messages 2"), first_query=None))
-    # breakpoint()
-    # # test get document by id
-    # print(f"Getting document with id: {doc_id_2}")
-    # print(get_documents(ChatId(user="test", id=doc_id_2)))
-    # # # test get all documents
-    # print(f"Getting all documents for user: test")
-    # breakpoint()
-    # print(get_documents(ChatId(user="test", id=None)))
-
-   
-    # breakpoint()
-    # # test delete document
-    # delete_documents(ChatId(user="test", id=doc_id_2))
-    # print(f"Deleted document with id: {doc_id_2}")

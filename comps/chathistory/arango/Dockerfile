@@ -16,7 +16,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
 
 # Create user
 RUN useradd -m -s /bin/bash user && \
-    mkdir -p /home/user/comps/chathistory/arangodb && \
+    mkdir -p /home/user/comps/chathistory/arango && \
     chown -R user /home/user
 
 USER user
@@ -25,12 +25,12 @@ COPY comps /home/user/comps
 COPY requirements.txt /home/user/
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/chathistory/arangodb/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/comps/chathistory/arango/requirements.txt && \
     pip install --no-cache-dir -r /home/user/requirements.txt   
 
 ENV PYTHONPATH=/home/user/
 
-WORKDIR /home/user/comps/chathistory/arangodb
+WORKDIR /home/user/comps/chathistory/arango
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python", "chathistory_arango_no_async.py"]
+ENTRYPOINT ["python", "chathistory_arango.py"]

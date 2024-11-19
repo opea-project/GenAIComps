@@ -1,5 +1,0 @@
-fastapi
-numpy
-pydantic
-python-arango
-arango

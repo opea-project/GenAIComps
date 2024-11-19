@@ -12,6 +12,7 @@ class ArangoClient:
     def get_db_client():
         try:
             # Create client
+            print(f"Connecting to database: {ArangoClient.conn_url}, username: {ARANGODB_USERNAME}, password: {ARANGODB_PASSWORD}, db: {DB_NAME}")
             client = PythonArangoClient(hosts=ArangoClient.conn_url)
             
             # First connect to _system database
@@ -33,12 +34,12 @@ class ArangoClient:
                 DB_NAME,
                 username=ARANGODB_USERNAME,
                 password=ARANGODB_PASSWORD,
-                verify=True
+                verify=True    
             )
             print(f"Connected to database {DB_NAME}")
             
             return db
 
         except Exception as e:
-            print(f"Failed to connect to database: {str(e)}")
-            raise
+            print(f"Failed to connect to database: {str(e)}, url: {ArangoClient.conn_url}, username: {ARANGODB_USERNAME}, password: {ARANGODB_PASSWORD}, db: {DB_NAME}")
+            raise e
