@@ -6,6 +6,7 @@ docx2txt
 easyocr
 einops
 fastapi
+html2text
 huggingface_hub
 langchain
 langchain-community
@@ -36,4 +37,3 @@ tzlocal
 unstructured[all-docs]==0.11.5
 uvicorn
 vdms
-html2text

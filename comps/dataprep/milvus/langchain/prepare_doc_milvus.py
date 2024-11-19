@@ -399,7 +399,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     """
     if logflag:
         logger.info(file_path)
-    
+
     # define Milvus obj
     my_milvus = Milvus(
         embedding_function=embeddings,

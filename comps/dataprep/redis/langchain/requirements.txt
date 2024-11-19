@@ -29,4 +29,3 @@ sentence_transformers
 shortuuid
 unstructured[all-docs]
 uvicorn
-html2text
