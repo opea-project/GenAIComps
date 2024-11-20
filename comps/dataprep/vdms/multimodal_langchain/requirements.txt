@@ -6,6 +6,7 @@ docx2txt
 easyocr
 einops
 fastapi
+grpcio==1.59.3
 huggingface_hub
 langchain
 langchain-community
@@ -21,6 +22,7 @@ opentelemetry-sdk
 pandas
 Pillow
 prometheus-fastapi-instrumentator
+protobuf==4.24.2
 pymupdf
 pyspark
 python-bidi==0.4.2
@@ -34,4 +36,4 @@ typing
 tzlocal
 unstructured[all-docs]==0.11.5
 uvicorn
-vdms
+vdms>=0.0.20
