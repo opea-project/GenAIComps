@@ -1,12 +1,10 @@
 beautifulsoup4
 cairosvg
 decord
+docarray[full]
 easyocr
 einops
 fastapi
-vdms==0.0.21
-opentelemetry-proto==1.23.0
-docarray[full]
 huggingface_hub
 langchain
 langchain-community
@@ -18,6 +16,7 @@ numpy
 opencv-python
 opentelemetry-api
 opentelemetry-exporter-otlp
+opentelemetry-proto==1.23.0
 opentelemetry-sdk
 pandas
 Pillow
@@ -26,8 +25,8 @@ pymupdf
 pyspark
 python-bidi
 python-docx
-python-pptx
 python-multipart
+python-pptx
 PyYAML
 sentence_transformers
 shortuuid
@@ -35,4 +34,5 @@ tqdm
 typing
 tzlocal
 uvicorn
+vdms==0.0.21
 
