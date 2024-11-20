@@ -23,4 +23,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/llms/text-generation/bedrock
 
-ENTRYPOINT ["bash", "entrypoint.sh"]
+ENTRYPOINT ["python", "llm.py"]
