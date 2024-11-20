@@ -11,6 +11,7 @@ langchain-text-splitters
 langchain_huggingface
 markdown
 numpy
+opensearch-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -27,5 +28,4 @@ sentence_transformers
 shortuuid
 unstructured[all-docs]
 uvicorn
-opensearch-py
 

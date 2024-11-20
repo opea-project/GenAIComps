@@ -2,7 +2,6 @@
 
 For dataprep microservice for text input, we provide here the `Langchain` framework.
 
-
 ## 🚀1. Start Microservice with Python（Option 1）
 
 ### 1.1 Install Requirements
@@ -254,4 +253,3 @@ curl -X POST \
     -d '{"file_path": "all"}' \
     http://localhost:6007/v1/dataprep/delete_file
 ```
-

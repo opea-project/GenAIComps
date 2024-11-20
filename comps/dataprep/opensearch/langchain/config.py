@@ -59,4 +59,3 @@ KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
 
 SEARCH_BATCH_SIZE = int(os.getenv("SEARCH_BATCH_SIZE", 10))
-

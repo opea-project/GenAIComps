@@ -68,4 +68,3 @@ INDEX_NAME = os.getenv("INDEX_NAME", "rag-opensearch")
 
 current_file_path = os.path.abspath(__file__)
 parent_dir = os.path.dirname(current_file_path)
-
