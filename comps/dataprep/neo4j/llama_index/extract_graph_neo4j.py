@@ -250,9 +250,9 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         """Store the community summary in Neo4j."""
         with self.driver.session() as session:
             session.run(
-                """
-                MERGE (c:Cluster {id: $community_id})
-                SET c.summary = $summary
+            """
+            MATCH (c:Cluster {id: $community_id})
+            SET c.summary = $summary
             """,
                 community_id=int(community_id),
                 summary=summary,
@@ -469,19 +469,26 @@ def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
     """Trim the messages to fit within the token limit."""
     total_tokens = 0
     trimmed_messages = []
+    buffer=100
+    effective_max_tokens = max_tokens - buffer
 
     for message in messages:
         tokens = tokenizer.tokenize(message.content)
-        total_tokens += len(tokens)
-        if total_tokens > max_tokens:
+        message_token_count = len(tokens)
+        #total_tokens += len(tokens)
+        if  total_tokens + message_token_count > effective_max_tokens:
             # Trim the message to fit within the remaining token limit
-            logger.info(f"Trimming messages: {total_tokens} > {max_tokens}")
-            remaining_tokens = max_tokens - (total_tokens - len(tokens))
+            logger.info(f"Trimming messages: {total_tokens + message_token_count} > {effective_max_tokens}")
+            logger.info(f"message_token_count: {message_token_count}")    
+            #remaining_tokens = max_tokens - buffer - (total_tokens - len(tokens))
+            remaining_tokens = effective_max_tokens - total_tokens
+            logger.info(f"remaining_tokens: {remaining_tokens}")
             tokens = tokens[:remaining_tokens]
             message.content = tokenizer.convert_tokens_to_string(tokens)
             trimmed_messages.append(message)
             break
         else:
+            total_tokens += message_token_count
             trimmed_messages.append(message)
 
     return trimmed_messages
@@ -493,9 +500,61 @@ logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
 client = OpenAI()
 
+# Global variables to store the initialized objects
+llm = None
+embed_model = None
+graph_store = None
+kg_extractor = None
+initialized = False
+
+def initialize_graph_store_and_models():
+    global llm, embed_model, graph_store, kg_extractor, initialized
+
+    if OPENAI_API_KEY:
+        logger.info("OpenAI API Key is set. Verifying its validity...")
+        openai.api_key = OPENAI_API_KEY
+        try:
+            llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
+            embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
+            logger.info("OpenAI API Key is valid.")
+        except openai.AuthenticationError:
+            logger.info("OpenAI API Key is invalid.")
+        except Exception as e:
+            logger.info(f"An error occurred while verifying the API Key: {e}")
+    else:
+        logger.info("NO OpenAI API Key. TGI/TEI endpoints will be used.")
+        llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
+        llm = TextGenerationInference(
+            model_url=TGI_LLM_ENDPOINT,
+            model_name=llm_name,
+            temperature=0.7,
+            max_tokens=1512,  # 512otherwise too shor
+            timeout=600,  # timeout in seconds
+        )
+        emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
+        embed_model = TextEmbeddingsInference(
+            base_url=TEI_EMBEDDING_ENDPOINT,
+            model_name=emb_name,
+            timeout=600,  # timeout in seconds
+            embed_batch_size=10,  # batch size for embedding
+        )
+    Settings.embed_model = embed_model
+    Settings.llm = llm
+    kg_extractor = GraphRAGExtractor(
+        llm=llm,
+        extract_prompt=KG_TRIPLET_EXTRACT_TMPL,
+        max_paths_per_chunk=2,
+        parse_fn=parse_fn,
+    )
+    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
+    initialized = True
 
 def ingest_data_to_neo4j(doc_path: DocPath):
     """Ingest document to Neo4J."""
+    global initialized
+    if not initialized:
+        initialize_graph_store_and_models()
+    
     path = doc_path.path
     if logflag:
         logger.info(f"Parsing document {path}.")
@@ -539,44 +598,6 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     if logflag:
         logger.info(f"Done preprocessing. Created  {len(nodes)} chunks of the original file.")
 
-    if OPENAI_API_KEY:
-        logger.info("OpenAI API Key is set. Verifying its validity...")
-        openai.api_key = OPENAI_API_KEY
-        try:
-            llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
-            embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
-            logger.info("OpenAI API Key is valid.")
-        except openai.AuthenticationError:
-            logger.info("OpenAI API Key is invalid.")
-        except Exception as e:
-            logger.info(f"An error occurred while verifying the API Key: {e}")
-    else:
-        logger.info("NO OpenAI API Key. TGI/TEI endpoints will be used.")
-        llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
-        llm = TextGenerationInference(
-            model_url=TGI_LLM_ENDPOINT,
-            model_name=llm_name,
-            temperature=0.7,
-            max_tokens=1512,
-            timeout=600,  # timeout in seconds
-        )
-        emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
-        embed_model = TextEmbeddingsInference(
-            base_url=TEI_EMBEDDING_ENDPOINT,
-            model_name=emb_name,
-            timeout=600,  # timeout in seconds
-            embed_batch_size=10,  # batch size for embedding
-        )
-    Settings.embed_model = embed_model
-    Settings.llm = llm
-    kg_extractor = GraphRAGExtractor(
-        llm=llm,
-        extract_prompt=KG_TRIPLET_EXTRACT_TMPL,
-        max_paths_per_chunk=2,
-        parse_fn=parse_fn,
-    )
-    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
-
     # nodes are the chunked docs to insert
     index = PropertyGraphIndex(
         nodes=nodes,
@@ -588,7 +609,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     )
     if logflag:
         logger.info("The graph is built.")
-        logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}")
+        # logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}") 
 
     if logflag:
         logger.info("Done building communities.")

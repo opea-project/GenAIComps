@@ -71,8 +71,8 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         """Process all community summaries to generate answers to a specific query."""
 
         entities = self.get_entities(query_str, self._similarity_top_k)
-        entity_info = self._graph_store.read_entity_info()
-        community_ids = self.retrieve_entity_communities(entity_info, entities)
+        # entity_info = self._graph_store.read_entity_info()  
+        # community_ids = self.retrieve_entity_communities(entity_info, entities)  
         community_summaries = self.retrieve_community_summaries_cypher(entities)
         community_ids = list(community_summaries.keys())
         if logflag:
@@ -104,7 +104,7 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         entities = set()
         pattern = r"(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)"
         if logflag:
-            logger.info(f" len of triplets {len(self._index.property_graph_store.get_triplets())}")
+            # logger.info(f" len of triplets {len(self._index.property_graph_store.get_triplets())}")
             logger.info(f"number of nodes retrieved {len(nodes_retrieved), nodes_retrieved}")
         for node in nodes_retrieved:
             matches = re.findall(pattern, node.text, re.DOTALL)
@@ -179,26 +179,14 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         cleaned_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return cleaned_response
 
+# Global variables to store the graph_store and index
+graph_store = None
+query_engine = None
+index = None
+initialized = False
 
-@register_microservice(
-    name="opea_service@retriever_community_answers_neo4j",
-    service_type=ServiceType.RETRIEVER,
-    endpoint="/v1/retrieval",
-    host="0.0.0.0",
-    port=6009,
-)
-@register_statistics(names=["opea_service@retriever_community_answers_neo4j"])
-async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionRequest]:
-    if logflag:
-        logger.info(input)
-    start = time.time()
-
-    if isinstance(input.messages, str):
-        query = input.messages
-    else:
-        query = input.messages[0]["content"]
-    logger.info(f"Query received in retriever: {query}")
-
+async def initialize_graph_store_and_index():
+    global graph_store, index, initialized, query_engine
     if OPENAI_API_KEY:
         logger.info("OpenAI API Key is set. Verifying its validity...")
         openai.api_key = OPENAI_API_KEY
@@ -228,14 +216,21 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
         )
     Settings.embed_model = embed_model
     Settings.llm = llm
+
+    logger.info("Creating graph store from existing...")
+    starttime = time.time()
     # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
     graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
+    logger.info(f"Time to create graph store: {time.time() - starttime:.2f} seconds")
 
+    logger.info("Creating index from existing...")
+    starttime = time.time()
     index = PropertyGraphIndex.from_existing(
         property_graph_store=graph_store,
         embed_model=embed_model or Settings.embed_model,
         embed_kg_nodes=True,
     )
+    logger.info(f"Time to create index: {time.time() - starttime:.2f} seconds")
 
     query_engine = GraphRAGQueryEngine(
         graph_store=index.property_graph_store,
@@ -243,6 +238,28 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
         index=index,
         similarity_top_k=3,
     )
+    initialized = True
+
+@register_microservice(
+    name="opea_service@retriever_community_answers_neo4j",
+    service_type=ServiceType.RETRIEVER,
+    endpoint="/v1/retrieval",
+    host="0.0.0.0",
+    port=6009,
+)
+@register_statistics(names=["opea_service@retriever_community_answers_neo4j"])
+async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionRequest]:
+    if logflag:
+        logger.info(input)
+    start = time.time()
+
+    if isinstance(input.messages, str):
+        query = input.messages
+    else:
+        query = input.messages[0]["content"]
+    logger.info(f"Query received in retriever: {query}")
+    if not initialized:
+        await initialize_graph_store_and_index()
 
     # these are the answers from the community summaries
     answers_by_community = query_engine.query(query)
