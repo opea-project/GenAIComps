@@ -250,7 +250,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         """Store the community summary in Neo4j."""
         with self.driver.session() as session:
             session.run(
-            """
+                """
             MATCH (c:Cluster {id: $community_id})
             SET c.summary = $summary
             """,
@@ -469,18 +469,18 @@ def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
     """Trim the messages to fit within the token limit."""
     total_tokens = 0
     trimmed_messages = []
-    buffer=100
+    buffer = 100
     effective_max_tokens = max_tokens - buffer
 
     for message in messages:
         tokens = tokenizer.tokenize(message.content)
         message_token_count = len(tokens)
-        #total_tokens += len(tokens)
-        if  total_tokens + message_token_count > effective_max_tokens:
+        # total_tokens += len(tokens)
+        if total_tokens + message_token_count > effective_max_tokens:
             # Trim the message to fit within the remaining token limit
             logger.info(f"Trimming messages: {total_tokens + message_token_count} > {effective_max_tokens}")
-            logger.info(f"message_token_count: {message_token_count}")    
-            #remaining_tokens = max_tokens - buffer - (total_tokens - len(tokens))
+            logger.info(f"message_token_count: {message_token_count}")
+            # remaining_tokens = max_tokens - buffer - (total_tokens - len(tokens))
             remaining_tokens = effective_max_tokens - total_tokens
             logger.info(f"remaining_tokens: {remaining_tokens}")
             tokens = tokens[:remaining_tokens]
@@ -506,6 +506,7 @@ embed_model = None
 graph_store = None
 kg_extractor = None
 initialized = False
+
 
 def initialize_graph_store_and_models():
     global llm, embed_model, graph_store, kg_extractor, initialized
@@ -549,12 +550,13 @@ def initialize_graph_store_and_models():
     graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
     initialized = True
 
+
 def ingest_data_to_neo4j(doc_path: DocPath):
     """Ingest document to Neo4J."""
     global initialized
     if not initialized:
         initialize_graph_store_and_models()
-    
+
     path = doc_path.path
     if logflag:
         logger.info(f"Parsing document {path}.")
@@ -609,7 +611,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     )
     if logflag:
         logger.info("The graph is built.")
-        # logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}") 
+        # logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}")
 
     if logflag:
         logger.info("Done building communities.")

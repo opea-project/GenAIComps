@@ -71,8 +71,8 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         """Process all community summaries to generate answers to a specific query."""
 
         entities = self.get_entities(query_str, self._similarity_top_k)
-        # entity_info = self._graph_store.read_entity_info()  
-        # community_ids = self.retrieve_entity_communities(entity_info, entities)  
+        # entity_info = self._graph_store.read_entity_info()
+        # community_ids = self.retrieve_entity_communities(entity_info, entities)
         community_summaries = self.retrieve_community_summaries_cypher(entities)
         community_ids = list(community_summaries.keys())
         if logflag:
@@ -179,11 +179,13 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         cleaned_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return cleaned_response
 
+
 # Global variables to store the graph_store and index
 graph_store = None
 query_engine = None
 index = None
 initialized = False
+
 
 async def initialize_graph_store_and_index():
     global graph_store, index, initialized, query_engine
@@ -239,6 +241,7 @@ async def initialize_graph_store_and_index():
         similarity_top_k=3,
     )
     initialized = True
+
 
 @register_microservice(
     name="opea_service@retriever_community_answers_neo4j",
