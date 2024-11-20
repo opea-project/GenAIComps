@@ -34,4 +34,6 @@ ENV USECLIP 0
 
 WORKDIR /home/user/comps/retrievers/vdms/langchain
 
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+
 ENTRYPOINT ["python", "retriever_vdms.py"]
