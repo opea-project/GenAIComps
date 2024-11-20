@@ -6,15 +6,23 @@ import os
 from pathlib import Path
 from typing import List, Optional, Union
 
-# from pyspark import SparkConf, SparkContext
-from opensearchpy import OpenSearch, helpers
-from config import EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, OPENSEARCH_URL, OPENSEARCH_INITIAL_ADMIN_PASSWORD, SEARCH_BATCH_SIZE
+from config import (
+    EMBED_MODEL,
+    INDEX_NAME,
+    KEY_INDEX_NAME,
+    OPENSEARCH_INITIAL_ADMIN_PASSWORD,
+    OPENSEARCH_URL,
+    SEARCH_BATCH_SIZE,
+)
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import OpenSearchVectorSearch
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
+
+# from pyspark import SparkConf, SparkContext
+from opensearchpy import OpenSearch, helpers
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
@@ -40,7 +48,7 @@ if tei_embedding_endpoint:
 else:
     # create embeddings using local embedding model
     embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
-auth = ('admin', OPENSEARCH_INITIAL_ADMIN_PASSWORD)
+auth = ("admin", OPENSEARCH_INITIAL_ADMIN_PASSWORD)
 opensearch_client = OpenSearchVectorSearch(
     opensearch_url=OPENSEARCH_URL,
     index_name=INDEX_NAME,
@@ -49,7 +57,7 @@ opensearch_client = OpenSearchVectorSearch(
     use_ssl=True,
     verify_certs=False,
     ssl_assert_hostname=False,
-    ssl_show_warn=False
+    ssl_show_warn=False,
 )
 
 
@@ -64,7 +72,7 @@ def check_index_existence(client, index_name):
                 logger.info(f"[ check index existence ] index of client exists: {client}")
         else:
             if logflag:
-                logger.info(f"[ check index existence ] index does not exist")
+                logger.info("[ check index existence ] index does not exist")
         return exists
     except Exception as e:
         if logflag:
@@ -96,15 +104,13 @@ def create_index(client, index_name: str = KEY_INDEX_NAME):
             logger.info(f"[ create index ] fail to create index {index_name}: {e}")
         return False
 
+
 def store_by_id(client, key, value):
     if logflag:
         logger.info(f"[ store by id ] storing ids of {key}")
     try:
         client.client.index(
-            index=KEY_INDEX_NAME,
-            body={"file_name": f"file:${key}", "key_ids:": value},
-            id="file:" + key,
-            refresh=True
+            index=KEY_INDEX_NAME, body={"file_name": f"file:${key}", "key_ids:": value}, id="file:" + key, refresh=True
         )
         if logflag:
             logger.info(f"[ store by id ] store document success. id: file:{key}")
@@ -120,7 +126,7 @@ def search_by_id(client, doc_id):
         logger.info(f"[ search by id ] searching docs of {doc_id}")
     try:
         result = client.client.get(index=KEY_INDEX_NAME, id=doc_id)
-        if result['found']:
+        if result["found"]:
             if logflag:
                 logger.info(f"[ search by id ] search success of {doc_id}: {result}")
             return result
@@ -147,8 +153,8 @@ def drop_index(client, index_name):
 
 def delete_by_id(client, doc_id):
     try:
-        reponse = client.client.delete(index=KEY_INDEX_NAME, id=doc_id)
-        if reponse['result'] == 'deleted':
+        response = client.client.delete(index=KEY_INDEX_NAME, id=doc_id)
+        if response["result"] == "deleted":
             if logflag:
                 logger.info(f"[ delete by id ] delete id success: {doc_id}")
             return True
@@ -176,10 +182,7 @@ def ingest_chunks_to_opensearch(file_name: str, chunks: List):
             logger.info(f"[ ingest chunks ] Current batch: {i}")
         batch_chunks = chunks[i : i + batch_size]
 
-        keys = opensearch_client.add_texts(
-            texts=batch_chunks,
-            metadatas=[{"source": file_name} for _ in batch_chunks]
-        )
+        keys = opensearch_client.add_texts(texts=batch_chunks, metadatas=[{"source": file_name} for _ in batch_chunks])
         if logflag:
             logger.info(f"[ ingest chunks ] keys: {keys}")
         file_ids.extend(keys)
@@ -248,23 +251,18 @@ def search_all_documents(index_name, offset, search_batch_size):
         response = opensearch_client.client.search(
             index=index_name,
             body={
-                "query": {
-                    "match_all": {}
-                },
+                "query": {"match_all": {}},
                 "from": offset,  # Starting position
-                "size": search_batch_size  # Number of results to return
-            }
+                "size": search_batch_size,  # Number of results to return
+            },
         )
         # Get total number of matching documents
-        total_hits = response['hits']['total']['value']
+        total_hits = response["hits"]["total"]["value"]
         # Get the documents from the current batch
-        documents = response['hits']['hits']
-        
-        return {
-            'total_hits': total_hits,
-            'documents': documents
-        }
-        
+        documents = response["hits"]["hits"]
+
+        return {"total_hits": total_hits, "documents": documents}
+
     except Exception as e:
         print(f"Error performing search: {e}")
         return None
@@ -301,7 +299,7 @@ async def ingest_documents(
                 if document:
                     if logflag:
                         logger.info(f"[ upload ] File {file.filename} already exists.")
-                    key_ids = document['_id']
+                    key_ids = document["_id"]
             except Exception as e:
                 logger.info(f"[ upload ] File {file.filename} does not exist.")
             if key_ids:
@@ -346,7 +344,7 @@ async def ingest_documents(
                 if document:
                     if logflag:
                         logger.info(f"[ upload ] Link {link} already exists.")
-                    key_ids = document['_id']
+                    key_ids = document["_id"]
             except Exception as e:
                 logger.info(f"[ upload ] Link {link} does not exist. Keep storing.")
             if key_ids:
@@ -395,10 +393,12 @@ async def rag_get_file_structure():
         # no doc retrieved
         if len(response) < 2:
             break
+
         def format_opensearch_results(response, file_list):
-            for document in response['documents']:
-                file_id = document['_id']
+            for document in response["documents"]:
+                file_id = document["_id"]
                 file_list.append({"name": file_id, "id": file_id, "type": "File", "parent": ""})
+
         file_list = format_opensearch_results(response, file_list)
         offset += SEARCH_BATCH_SIZE
         # last batch
@@ -469,4 +469,3 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
     opea_microservices["opea_service@prepare_doc_opensearch"].start()
-
