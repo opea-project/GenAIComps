@@ -7,6 +7,7 @@ from typing import Union
 
 import boto3
 from fastapi.responses import StreamingResponse
+from langchain_aws import BedrockLLM, ChatBedrock
 
 from comps import (
     CustomLogger,
@@ -23,6 +24,12 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 bedrock_runtime = boto3.client(service_name="bedrock-runtime", region_name="us-east-1")
 
+model_id = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+model_kwargs = {
+    "anthropic_version": "bedrock-2023-05-31",
+    "max_tokens": 1000,
+}
+
 logger = CustomLogger("llm_bedrock")
 logflag = os.getenv("LOGFLAG", True)
 
@@ -38,43 +45,36 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
     if logflag:
         logger.info(input)
     content = input.messages[0]["content"]
-    kwargs = {
-        "modelId": "us.anthropic.claude-3-5-haiku-20241022-v1:0",
-        "contentType": "application/json",
-        "accept": "application/json",
-        "body": json.dumps(
-            {
-                "anthropic_version": "bedrock-2023-05-31",
-                "max_tokens": 1000,
-                "messages": [{"role": "user", "content": [{"type": "text", "text": content}]}],
-            }
-        ),
-    }
+    llm = ChatBedrock(client=bedrock_runtime, model_id=model_id, model_kwargs=model_kwargs, streaming=input.stream)
 
     if input.stream:
 
-        def stream_generator():
-            response = bedrock_runtime.invoke_model_with_response_stream(**kwargs)
-            for event in response.get("body"):
-                chunk = json.loads(event["chunk"]["bytes"])
-                print(chunk)
-                if chunk["type"] == "content_block_delta":
-                    text_chunk = chunk["delta"]["text"]
-                    chunk_repr = repr(text_chunk.encode("utf-8"))
-                    if logflag:
-                        logger.info(f"[llm - chat_stream] chunk:{chunk_repr}")
-                    yield f"data: {chunk_repr}\n\n"
+        async def stream_generator():
+            chat_response = ""
+            async for text in llm.astream(content):
+                chat_response += text.content
+                chunk_repr = repr(text.content.encode("utf-8"))
+                response = chunk_repr[2:-1].replace("\\n", "\n")
+                if logflag:
+                    logger.info(f"[llm - chat_stream] chunk:{chunk_repr}")
+
+                # Need to yield data structure similar to TGI for sake of UI
+                tgi_format_out = {
+                    "choices": [
+                        {"index": 0, "delta": {"role": "assistant", "content": response}, "finish_reason": None}
+                    ]
+                }
+                yield f"data: {json.dumps(tgi_format_out)}\n\n"
+            if logflag:
+                logger.info(f"[llm - chat_stream] stream response: {chat_response}")
             yield "data: [DONE]\n\n"
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = bedrock_runtime.invoke_model(**kwargs)
-        response_body = json.loads(response.get("body").read())
-        generated_text = response_body.get("content")[0].get("text")
-        print(generated_text)
+        response = llm.invoke(content)
         if logflag:
-            logger.info(generated_text)
-        return GeneratedDoc(text=generated_text, prompt=content)
+            logger.info(response.content)
+        return GeneratedDoc(text=response.content, prompt=content)
 
 
 if __name__ == "__main__":
