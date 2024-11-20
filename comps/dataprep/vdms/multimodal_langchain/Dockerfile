@@ -21,8 +21,8 @@ USER user
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
+RUN pip install --no-cache-dir --upgrade pip setuptools  && \
+    if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch==2.4.0 torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
     pip install --no-cache-dir -r /home/user/comps/dataprep/vdms/multimodal_langchain/requirements.txt
 
 ENV PYTHONPATH=/home/user
@@ -34,5 +34,7 @@ RUN mkdir -p /home/user/comps/dataprep/vdms/multimodal_langchain/uploaded_files 
 USER user
 
 WORKDIR /home/user/comps/dataprep/vdms/multimodal_langchain
+
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 
 ENTRYPOINT ["python", "ingest_videos.py"]
