@@ -8,7 +8,7 @@ from typing import Union
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import OpenSearchVectorSearch
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
-from opensearch_config import EMBED_MODEL, INDEX_NAME, OPENSEARCH_URL, OPENSEARCH_INITIAL_ADMIN_PASSWORD
+from opensearch_config import EMBED_MODEL, INDEX_NAME, OPENSEARCH_INITIAL_ADMIN_PASSWORD, OPENSEARCH_URL
 
 from comps import (
     CustomLogger,
@@ -54,7 +54,7 @@ async def retrieve(
 
     index_exists = vector_db.client.indices.exists(index=INDEX_NAME)
     if index_exists:
-        doc_count = vector_db.client.count(index=INDEX_NAME)['count']
+        doc_count = vector_db.client.count(index=INDEX_NAME)["count"]
     if (not index_exists) or doc_count == 0:
         search_res = []
     else:
@@ -114,8 +114,8 @@ if __name__ == "__main__":
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
-    
-    auth = ('admin', OPENSEARCH_INITIAL_ADMIN_PASSWORD)
+
+    auth = ("admin", OPENSEARCH_INITIAL_ADMIN_PASSWORD)
     vector_db = OpenSearchVectorSearch(
         opensearch_url=OPENSEARCH_URL,
         index_name=INDEX_NAME,
@@ -124,7 +124,6 @@ if __name__ == "__main__":
         use_ssl=True,
         verify_certs=False,
         ssl_assert_hostname=False,
-        ssl_show_warn=False
+        ssl_show_warn=False,
     )
     opea_microservices["opea_service@retriever_opensearch"].start()
-

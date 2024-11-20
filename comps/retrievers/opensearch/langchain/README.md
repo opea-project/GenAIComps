@@ -142,4 +142,3 @@ curl http://localhost:7000/v1/retrieval \
   -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding},\"search_type\":\"mmr\", \"k\":4, \"fetch_k\":20, \"lambda_mult\":0.5}" \
   -H 'Content-Type: application/json'
 ```
-
