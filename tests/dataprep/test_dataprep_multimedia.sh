@@ -74,7 +74,7 @@ function start_services() {
     fi
 
 
-    docker run -d -p 9099:9099 --name="test-comps-mm-a2t-service" --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e A2T_ENDPOINT=http://$host_ip:7066 opea/a2t:comps
+    docker run -d -p 9199:9099 --name="test-comps-mm-a2t-service" --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e A2T_ENDPOINT=http://$host_ip:7066 opea/a2t:comps
     if [ $? -ne 0 ]; then
         echo "opea/a2t service fail to start"
         exit 1
@@ -183,7 +183,7 @@ function validate_microservices() {
 
     # Audio2Text service
     validate_services \
-        "${host_ip}:9099/v1/audio/transcriptions" \
+        "${host_ip}:9199/v1/audio/transcriptions" \
         '"query":"well"' \
         "a2t" \
         "a2t-service" \
