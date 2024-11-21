@@ -11,3 +11,4 @@ shortuuid
 transformers
 uvicorn
 zhconv
+python-multipart
