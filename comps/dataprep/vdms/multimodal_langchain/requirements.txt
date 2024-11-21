@@ -6,7 +6,6 @@ docx2txt
 easyocr
 einops
 fastapi
-grpcio==1.59.3
 huggingface_hub
 langchain
 langchain-community
@@ -18,6 +17,7 @@ numpy
 opencv-python
 opentelemetry-api
 opentelemetry-exporter-otlp
+opentelemetry-proto==1.23.0
 opentelemetry-sdk
 pandas
 Pillow

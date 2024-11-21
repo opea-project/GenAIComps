@@ -2,12 +2,12 @@ docarray[full]
 easyocr
 einops
 fastapi
-grpcio==1.59.3
 langchain-community
 langchain-core
 langchain-huggingface
 opentelemetry-api
 opentelemetry-exporter-otlp
+opentelemetry-proto==1.23.0
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
 protobuf==4.24.2
