@@ -35,6 +35,7 @@ jobs:
       - name: Set Matrix
         id: get-matrix
         run: |
+          set -x
           image_list=[]
           if [[ ! -z "${{ inputs.services }}" ]]; then
               pip install yq
