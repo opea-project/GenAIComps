@@ -11,8 +11,9 @@ from fastapi import FastAPI, Request
 from fastapi.responses import Response, StreamingResponse
 from speecht5_model import SpeechT5Model
 from starlette.middleware.cors import CORSMiddleware
-from comps.cores.proto.api_protocol import AudioSpeechRequest
+
 from comps import CustomLogger
+from comps.cores.proto.api_protocol import AudioSpeechRequest
 
 logger = CustomLogger("speecht5")
 logflag = os.getenv("LOGFLAG", False)
@@ -45,12 +46,13 @@ async def text_to_speech(request: Request):
 
     return {"tts_result": b64_str}
 
+
 @app.post("/v1/audio/speech")
 async def audio_speech(request: AudioSpeechRequest):
     logger.info("SpeechT5 generation begin.")
     # validate the request parameters
     if request.model != tts.model_name_or_path:
-        raise Exception(f"TTS model mismatch! Currently only support model: microsoft/speecht5_tts")
+        raise Exception("TTS model mismatch! Currently only support model: microsoft/speecht5_tts")
     if request.voice not in ["default", "male"] or request.speed != 1.0:
         logger.warning("Currently parameter 'speed' can only be 1.0 and 'voice' can only be default or male!")
 
@@ -62,6 +64,7 @@ async def audio_speech(request: AudioSpeechRequest):
     def audio_gen():
         with open(tmp_path, "rb") as f:
             yield from f
+
     return StreamingResponse(audio_gen(), media_type=f"audio/{request.response_format}")
 
 

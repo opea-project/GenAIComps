@@ -36,8 +36,7 @@ class SpeechT5Model:
                         "curl",
                         "-O",
                         "https://raw.githubusercontent.com/intel/intel-extension-for-transformers/main/"
-                        "intel_extension_for_transformers/neural_chat/assets/speaker_embeddings/"
-                        + spk_embed,
+                        "intel_extension_for_transformers/neural_chat/assets/speaker_embeddings/" + spk_embed,
                     ]
                 )
 
