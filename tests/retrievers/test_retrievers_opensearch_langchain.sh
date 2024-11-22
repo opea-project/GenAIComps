@@ -37,7 +37,7 @@ function start_service() {
         -p 9200:9200 \
         -p 9600:9600 \
         opensearchproject/opensearch:latest
-    
+
     # tei endpoint
     tei_endpoint=6060
     model="BAAI/bge-base-en-v1.5"
@@ -109,4 +109,3 @@ function main() {
 }
 
 main
-
