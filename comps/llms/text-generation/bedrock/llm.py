@@ -45,7 +45,12 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
     if logflag:
         logger.info(input)
     content = input.messages[0]["content"]
-    llm = ChatBedrock(client=bedrock_runtime, model_id=model_id, model_kwargs=model_kwargs, streaming=input.stream)
+    llm = ChatBedrock(
+        client=bedrock_runtime,
+        model_id=input.model if input.model else model_id,
+        model_kwargs=model_kwargs,
+        streaming=input.stream,
+    )
 
     if input.stream:
 
