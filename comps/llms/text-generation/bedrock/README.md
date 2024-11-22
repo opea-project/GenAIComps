@@ -31,11 +31,11 @@ docker run -d --name bedrock -p  9009:9000 --ipc=host -e http_proxy=$http_proxy 
 ```bash
 curl http://${host_ip}:9009/v1/chat/completions \
   -X POST \
-  -d '{"messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17}' \
+  -d '{"model": "us.anthropic.claude-3-5-haiku-20241022-v1:0", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17}' \
   -H 'Content-Type: application/json'
 
 curl http://${host_ip}:9009/v1/chat/completions \
-  -X POST \
-  -d '{"messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream": "true"}' \
-  -H 'Content-Type: application/json'
+ -X POST \
+ -d '{"model": "us.anthropic.claude-3-5-haiku-20241022-v1:0", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream": "true"}' \
+ -H 'Content-Type: application/json'
 ```

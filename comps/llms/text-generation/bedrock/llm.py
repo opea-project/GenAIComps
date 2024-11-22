@@ -24,7 +24,6 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 bedrock_runtime = boto3.client(service_name="bedrock-runtime", region_name="us-east-1")
 
-model_id = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 model_kwargs = {
     "anthropic_version": "bedrock-2023-05-31",
     "max_tokens": 1000,
@@ -83,4 +82,5 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
 
 
 if __name__ == "__main__":
+    model_id = os.getenv("BEDRCOK_MODEL", "us.anthropic.claude-3-5-haiku-20241022-v1:0")
     opea_microservices["opea_service@llm_bedrock"].start()
