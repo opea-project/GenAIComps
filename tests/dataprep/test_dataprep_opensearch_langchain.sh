@@ -38,7 +38,7 @@ function start_service() {
         -p 9200:9200 \
         -p 9600:9600 \
         opensearchproject/opensearch:latest
-    
+
     # Start OpenSearch dataprep container
     OPENSEARCH_URL="http://${ip_address}:9200"
     echo $(OPENSEARCH_URL)
@@ -52,7 +52,7 @@ function start_service() {
         -e OPENSEARCH_URL=$OPENSEARCH_URL \
         -e INDEX_NAME=$INDEX_NAME \
         opea/dataprep-opensearch:latest
-    
+
     sleep 2m
 }
 
@@ -172,4 +172,3 @@ function main() {
 }
 
 main
-
