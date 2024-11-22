@@ -17,7 +17,11 @@ class TopologyInfo:
 
 
 class TextDoc(BaseDoc, TopologyInfo):
-    text: str = None
+    text: Union[str, List[str]] = None
+
+
+class Audio2text(BaseDoc, TopologyInfo):
+    query: str = None
 
 
 class FactualityDoc(BaseDoc):
@@ -74,6 +78,12 @@ class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
 
+class DocSumDoc(BaseDoc):
+    text: Optional[str] = None
+    audio: Optional[str] = None
+    video: Optional[str] = None
+
+
 class DocPath(BaseDoc):
     path: str
     chunk_size: int = 1500
@@ -83,15 +93,15 @@ class DocPath(BaseDoc):
 
 
 class EmbedDoc(BaseDoc):
-    text: str
-    embedding: conlist(float, min_length=0)
+    text: Union[str, List[str]]
+    embedding: Union[conlist(float, min_length=0), List[conlist(float, min_length=0)]]
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
-    constraints: Optional[Union[Dict[str, Any], None]] = None
+    constraints: Optional[Union[Dict[str, Any], List[Dict[str, Any]], None]] = None
 
 
 class EmbedMultimodalDoc(EmbedDoc):
@@ -203,6 +213,7 @@ class LLMParamsDoc(BaseDoc):
 
 
 class LLMParams(BaseDoc):
+    model: Optional[str] = None
     max_tokens: int = 1024
     max_new_tokens: int = 1024
     top_k: int = 10

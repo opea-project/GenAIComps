@@ -145,7 +145,9 @@ from langgraph.graph.message import add_messages
 from langgraph.managed import IsLastStep
 from langgraph.prebuilt import ToolNode
 
+from ...persistence import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
+from .utils import assemble_history, assemble_memory, convert_json_to_tool_call
 
 
 class AgentState(TypedDict):
@@ -173,16 +175,20 @@ class ReActAgentNodeLlama:
         llm = setup_chat_model(args)
         self.tools = tools
         self.chain = prompt | llm | output_parser
+        self.with_memory = args.with_memory
 
     def __call__(self, state):
-        from .utils import assemble_history, convert_json_to_tool_call
 
         print("---CALL Agent node---")
         messages = state["messages"]
 
         # assemble a prompt from messages
-        query = messages[0].content
-        history = assemble_history(messages)
+        if self.with_memory:
+            query, history = assemble_memory(messages)
+            print("@@@ Query: ", history)
+        else:
+            query = messages[0].content
+            history = assemble_history(messages)
         print("@@@ History: ", history)
 
         tools_descriptions = tool_renderer(self.tools)
@@ -248,8 +254,12 @@ class ReActAgentLlama(BaseAgent):
         # This means that after `tools` is called, `agent` node is called next.
         workflow.add_edge("tools", "agent")
 
-        if with_memory:
-            self.app = workflow.compile(checkpointer=MemorySaver())
+        if args.with_memory:
+            self.persistence = AgentPersistence(
+                config=PersistenceConfig(checkpointer=args.with_memory, store=args.with_store)
+            )
+            print(self.persistence.checkpointer)
+            self.app = workflow.compile(checkpointer=self.persistence.checkpointer, store=self.persistence.store)
         else:
             self.app = workflow.compile()
 

@@ -155,7 +155,7 @@ class ChatCompletionRequest(BaseModel):
         List[Dict[str, str]],
         List[Dict[str, Union[str, List[Dict[str, Union[str, Dict[str, str]]]]]]],
     ]
-    model: Optional[str] = "Intel/neural-chat-7b-v3-3"
+    model: Optional[str] = None
     frequency_penalty: Optional[float] = 0.0
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[bool] = False
@@ -267,6 +267,14 @@ class ChatCompletionRequest(BaseModel):
 
     # define
     request_type: Literal["chat"] = "chat"
+
+
+class DocSumChatCompletionRequest(BaseModel):
+    llm_params: Optional[ChatCompletionRequest] = None
+    text: Optional[str] = None
+    audio: Optional[str] = None
+    video: Optional[str] = None
+    type: Optional[str] = None
 
 
 class AudioChatCompletionRequest(BaseModel):
