@@ -32,15 +32,17 @@ class LoadConfig(BaseModel):
 class LoraConfig(BaseModel):
     task_type: str = "CAUSAL_LM"
     r: int = 8
-    lora_alpha: int = 32
+    lora_alpha: int = 16
     lora_dropout: float = 0.1
     target_modules: Optional[List[str]] = None
 
 
-class SQFTNLSConfig(LoraConfig):
+class SQFTLoRAConfig(LoraConfig):
     neural_lora_search: bool = False
     target_module_groups: Optional[List[List[str]]] = None
     search_space: Optional[List[str]] = None
+    sparse_adapter: bool = False
+    nncf_config: Optional[str] = None
 
     @root_validator(pre=True)
     def set_target_modules(cls, values):
@@ -63,7 +65,7 @@ class GeneralConfig(BaseModel):
     resume_from_checkpoint: Optional[str] = None
     save_strategy: str = "no"
     config: LoadConfig = LoadConfig()
-    lora_config: Optional[Union[LoraConfig, SQFTNLSConfig]] = LoraConfig()
+    lora_config: Optional[Union[LoraConfig, SQFTLoRAConfig]] = LoraConfig()
     enable_gradient_checkpointing: bool = False
     task: str = "instruction_tuning"
 
@@ -74,7 +76,7 @@ class GeneralConfig(BaseModel):
 
     @validator("task")
     def check_task(cls, v: str):
-        assert v in ["instruction_tuning", "pretraining", "dpo", "rerank", "embedding"]
+        assert v in ["instruction_tuning"]
         return v
 
 
@@ -87,13 +89,11 @@ class DatasetConfig(BaseModel):
     block_size: int = 512
     shuffle: bool = False
     max_source_length: int = 384
-    max_prompt_length: int = 512
     padding_side: str = "right"
     truncation_side: str = "right"
     max_seq_length: int = 512
     truncation: bool = True
     padding: Union[bool, str] = True
-    pad_to_max: bool = False
     mask_input: bool = True
     mask_response: bool = True
     data_preprocess_type: str = "neural_chat"
@@ -124,14 +124,6 @@ class RayResourceConfig(BaseModel):
     HPU: int = 0
 
 
-class EmbeddingTrainingConfig(BaseModel):
-    negatives_cross_device: bool = Field(default=False, description="share negatives across devices")
-    temperature: Optional[float] = Field(default=0.02)
-    sentence_pooling_method: str = Field(default="cls", description="the pooling method, should be cls or mean")
-    normalized: bool = Field(default=True)
-    use_inbatch_neg: bool = Field(default=True, description="use passages in the same batch as negatives")
-
-
 class TrainingConfig(BaseModel):
     optimizer: str = "adamw_torch"
     batch_size: int = 2
@@ -149,8 +141,6 @@ class TrainingConfig(BaseModel):
     gradient_accumulation_steps: int = 1
     logging_steps: int = 10
     deepspeed_config_file: str = ""
-    embedding_training_config: Optional[EmbeddingTrainingConfig] = EmbeddingTrainingConfig()
-    dpo_beta: float = Field(default=0.1, description="the beta parameter for DPO loss")
 
     @validator("device")
     def check_device(cls, v: str):
@@ -217,8 +207,8 @@ class FineTuningParams(FineTuningJobsRequest):
     Dataset: DatasetConfig = DatasetConfig()
     Training: TrainingConfig = TrainingConfig()
 
-class ExtractSubAdapterParams(FineTuningJobIDRequest):
-    adapter_version: str = "heuristic"
+class ExtractAdapterParams(FineTuningJobIDRequest):
+    sub_adapter_version: str = "heuristic"
     custom_config: Optional[List[int]] = None
 
 class MergeAdapterParams(FineTuningJobIDRequest):

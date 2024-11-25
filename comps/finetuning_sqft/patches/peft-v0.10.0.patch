@@ -1,0 +1,220 @@
+diff --git a/src/peft/tuners/lora/config.py b/src/peft/tuners/lora/config.py
+index cc5c60a..fa1422e 100644
+--- a/src/peft/tuners/lora/config.py
++++ b/src/peft/tuners/lora/config.py
+@@ -268,6 +268,31 @@ class LoraConfig(PeftConfig):
+             )
+         },
+     )
++    sparse_adapter: bool = field(
++        default=False,
++        metadata={
++            "help": (
++                "Enable 'SparsePEFT'. This strategy is designed for fine-tuning sparse models using adapters. "
++                "It sparsifies the adapter's parameter matrix (BA) such that the sparsity pattern of BA aligns "
++                "with that of the base model's weights (W). This alignment allows for the merging of the adapter "
++                "with the base model without disrupting its sparsity. It is derived from SQFT() and is used in the "
++                "pipelines SQFT + SparsePEFT and SQFT + QA-SparsePEFT."
++            )
++        }
++    )
++    quantization_aware: bool = field(
++        default=False,
++        metadata={
++            "help": (
++                "Enable quantization-aware training. This strategy is designed for fine-tuning GPTQ quantized models "
++                "using adapters. It activates the `SQFTQuantAwareLinear` from SQFT in place of `QuantLinear`, enabling "
++                "quantization-aware training for adapters. This helps optimize model accuracy and allows the adapter "
++                "to be merged with the base quantized model, improving performance and deployment efficiency during "
++                "inference. This strategy, when used in conjunction with `sparse_adapter`, corresponds to the "
++                "SQFT + QA-SparsePEFT method described in the SQFT paper."
++            )
++        }
++    )
+ 
+     def __post_init__(self):
+         self.peft_type = PeftType.LORA
+diff --git a/src/peft/tuners/lora/gptq.py b/src/peft/tuners/lora/gptq.py
+index 333dfa6..7272824 100644
+--- a/src/peft/tuners/lora/gptq.py
++++ b/src/peft/tuners/lora/gptq.py
+@@ -108,7 +108,17 @@ def dispatch_gptq(
+     AutoGPTQQuantLinear = get_auto_gptq_quant_linear(gptq_quantization_config)
+ 
+     if AutoGPTQQuantLinear is not None and isinstance(target_base_layer, AutoGPTQQuantLinear):
+-        new_module = QuantLinear(target, adapter_name, **kwargs)
++        quantization_aware = kwargs.get("quantization_aware", False)
++        if quantization_aware:
++            # Attempt to import the `SQFTQuantAwareLinear` module
++            # from https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/blob/main/SQFT/modules/sqft_linear.py
++            try:
++                from modules.sqft_linear import SQFTQuantAwareLinear
++            except ImportError:
++                raise ImportError("The module 'SQFTQuantAwareLinear' could not be imported.")
++            new_module = SQFTQuantAwareLinear(target, adapter_name, **kwargs)
++        else:
++            new_module = QuantLinear(target, adapter_name, **kwargs)
+         target.qweight = target_base_layer.qweight
+ 
+     return new_module
+diff --git a/src/peft/tuners/lora/layer.py b/src/peft/tuners/lora/layer.py
+index 829b7bd..9d83967 100644
+--- a/src/peft/tuners/lora/layer.py
++++ b/src/peft/tuners/lora/layer.py
+@@ -28,6 +28,10 @@ from peft.utils.other import transpose
+ 
+ from .config import LoraConfig
+ 
++try:
++    from nncf.torch.layers import NNCFLinear
++except ImportError:
++    NNCFLinear = None
+ 
+ class LoraLayer(BaseTunerLayer):
+     # All names of layers that may contain (trainable) adapter weights
+@@ -346,6 +350,7 @@ class Linear(nn.Module, LoraLayer):
+         init_lora_weights: Union[bool, str] = True,
+         use_rslora: bool = False,
+         use_dora: bool = False,
++        sparse_adapter: bool = False,  # Set this to True if enabling 'SparsePEFT' for fine-tuning sparse models
+         **kwargs,
+     ) -> None:
+         super().__init__()
+@@ -363,6 +368,7 @@ class Linear(nn.Module, LoraLayer):
+             use_dora=use_dora,
+         )
+         self.is_target_conv_1d_layer = is_target_conv_1d_layer
++        self.sparse_adapter = sparse_adapter
+ 
+     def merge(self, safe_merge: bool = False, adapter_names: Optional[list[str]] = None) -> None:
+         """
+@@ -471,6 +477,10 @@ class Linear(nn.Module, LoraLayer):
+             weight_B = weight_B.float()
+ 
+         output_tensor = transpose(weight_B @ weight_A, self.fan_in_fan_out) * self.scaling[adapter]
++        if self.sparse_adapter:
++            # Apply the sparse mask to BA (`output_tensor`).
++            mask = (self.base_layer.weight != 0)
++            output_tensor = output_tensor * mask
+ 
+         if cast_to_fp32:
+             output_tensor = output_tensor.to(dtype=dtype)
+@@ -506,7 +516,26 @@ class Linear(nn.Module, LoraLayer):
+                 x = x.to(lora_A.weight.dtype)
+ 
+                 if not self.use_dora[active_adapter]:
+-                    result = result + lora_B(lora_A(dropout(x))) * scaling
++                    if not self.sparse_adapter:
++                        result = result + lora_B(lora_A(dropout(x))) * scaling
++                    else:
++                        # Since 'sparse_adapter' is enabled, we need to multiply the parameter matrices of `lora_B` and
++                        # `lora_A` here instead of calling the forward methods of `lora_B` and `lora_A`. This results
++                        # in the NNCF graph not recognizing lora A and lora B nodes when using NLS strategy. Therefore,
++                        # we execute `lora_B(lora_A(x))` solely to include these two NNCFLinear nodes in the NNCF graph.
++                        if NNCFLinear is not None and not self.training:
++                            lora_B(lora_A(x))
++                        if NNCFLinear is not None and isinstance(lora_A, NNCFLinear):
++                            adapter_weight = torch.matmul(
++                                lora_B.get_proxy_module(x).weight,
++                                lora_A.get_proxy_module(x).weight
++                            ) * scaling
++                        else:
++                            adapter_weight = torch.matmul(lora_B.weight, lora_A.weight) * scaling
++                        # Apply the sparse mask to BA (`adapter_weight`).
++                        mask = (self.base_layer.weight != 0).detach()
++                        adapter_weight = adapter_weight * mask
++                        result = result + nn.functional.linear(dropout(x), adapter_weight)
+                 else:
+                     x = dropout(x)
+                     result = result + self._apply_dora(x, lora_A, lora_B, scaling, active_adapter)
+diff --git a/src/peft/tuners/lora/model.py b/src/peft/tuners/lora/model.py
+index 3f381ef..3e696ca 100644
+--- a/src/peft/tuners/lora/model.py
++++ b/src/peft/tuners/lora/model.py
+@@ -193,6 +193,8 @@ class LoraModel(BaseTuner):
+             "init_lora_weights": lora_config.init_lora_weights,
+             "use_rslora": lora_config.use_rslora,
+             "use_dora": lora_config.use_dora,
++            "quantization_aware": lora_config.quantization_aware,
++            "sparse_adapter": lora_config.sparse_adapter,
+             "loaded_in_8bit": getattr(self.model, "is_loaded_in_8bit", False),
+             "loaded_in_4bit": getattr(self.model, "is_loaded_in_4bit", False),
+         }
+@@ -233,7 +235,10 @@ class LoraModel(BaseTuner):
+             child = child.base_layer
+ 
+         if not hasattr(new_module, "base_layer"):
+-            new_module.weight = child.weight
++            if hasattr(child, "qweight"):
++                new_module.qweight = child.qweight
++            else:
++                new_module.weight = child.weight
+             if hasattr(child, "bias"):
+                 new_module.bias = child.bias
+ 
+@@ -401,7 +406,11 @@ class LoraModel(BaseTuner):
+         Currently gptq quantization and replicated layers do not support merging.
+         """
+         if getattr(self.model, "quantization_method", None) == "gptq":
+-            raise ValueError("Cannot merge LORA layers when the model is gptq quantized")
++            peft_config = self.get_peft_config_as_dict()
++            # Check if the 'quantization_aware' flag is set to False in the PEFT configuration
++            # Raise an error if the model is GPTQ quantized and 'quantization_aware' is not enabled
++            if not peft_config.get("quantization_aware", False):
++                raise ValueError("Cannot merge LORA layers when the model is gptq quantized")
+         if self.peft_config.get("layer_replication"):
+             raise ValueError("Cannot merge LORA layers when base model layers are replicated")
+ 
+diff --git a/src/peft/utils/save_and_load.py b/src/peft/utils/save_and_load.py
+index 5ac1264..acb5d27 100644
+--- a/src/peft/utils/save_and_load.py
++++ b/src/peft/utils/save_and_load.py
+@@ -246,6 +246,48 @@ def set_peft_model_state_dict(model, peft_model_state_dict, adapter_name="defaul
+     else:
+         raise NotImplementedError
+ 
++    def module_reshape(state_dict):
++        """Reshape the linear module to match the state dict.
++
++        Args:
++            state_dict (dict): The state dict containing the parameters.
++        """
++        for param_name, param in state_dict.items():
++            tensor_name = param_name
++            splits = tensor_name.split(".")
++
++            # If the parameter name has multiple parts, navigate through the module hierarchy
++            if len(splits) > 1:
++                module = model
++                parent = None
++
++                # Traverse the module hierarchy to find the target module
++                for split in splits[:-1]:
++                    new_module = getattr(module, split, None)
++                    if new_module is None:
++                        raise ValueError(f"{module} has no attribute {split}.")
++                    parent = module
++                    module = new_module
++
++                tensor_name = splits[-1]
++                old_value = getattr(module, tensor_name)
++
++                # Check if the shape of the original module differs from the shape of the loaded parameter
++                if old_value.shape != param.shape and isinstance(module, torch.nn.Linear):
++                    # Create a new Linear module with the new shape
++                    new_module = torch.nn.Linear(
++                        param.shape[1],
++                        param.shape[0],
++                        bias=module.bias is not None,
++                        dtype=module.weight.dtype,
++                        device=module.weight.device
++                    )
++                    # Replace the old module with the new one in the parent module
++                    setattr(parent, splits[-2], new_module)
++
++    # Reshape the modules in the peft model to match the state dict
++    module_reshape(peft_model_state_dict)
++
+     load_result = model.load_state_dict(peft_model_state_dict, strict=False)
+     if config.is_prompt_learning:
+         model.prompt_encoder[adapter_name].embedding.load_state_dict(

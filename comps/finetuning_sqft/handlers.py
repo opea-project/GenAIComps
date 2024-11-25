@@ -23,8 +23,8 @@ from comps.cores.proto.api_protocol import (
     FineTuningJobList,
     UploadFileRequest,
 )
-from comps.finetuning.finetune_config import (
-    ExtractSubAdapterParams,
+from comps.finetuning_sqft.finetune_sqft_config import (
+    ExtractAdapterParams,
     FinetuneConfig,
     FineTuningParams,
     MergeAdapterParams,
@@ -139,7 +139,7 @@ def handle_create_finetuning_jobs(request: FineTuningParams, background_tasks: B
     return job
 
 
-def handle_extract_sub_adapter(request: ExtractSubAdapterParams):
+def handle_extract_sub_adapter(request: ExtractAdapterParams):
     fine_tuning_job_id = request.fine_tuning_job_id
     finetune_config_file = f"{JOBS_PATH}/{fine_tuning_job_id}.yaml"
     finetune_config = parse_yaml_file_as(FinetuneConfig, finetune_config_file)
@@ -175,11 +175,11 @@ def handle_extract_sub_adapter(request: ExtractSubAdapterParams):
             detail=f"The NNCF config file does not exist in the fine-tuning job '{fine_tuning_job_id}!"
         )
 
-    from comps.finetuning.utils.extract_sub_adapter import main as extract_sub_adapter_main
+    from comps.finetuning_sqft.utils.extract_sub_adapter import main as extract_sub_adapter_main
     extract_sub_adapter_main(
         adapter_model_path=finetuned_model_path,
         nncf_config=nncf_config_path,
-        adapter_version=request.adapter_version,
+        sub_adapter_version=request.sub_adapter_version,
         custom_config=request.custom_config
     )
 
@@ -220,7 +220,7 @@ def handle_merge_adapter(request: MergeAdapterParams):
                 detail=f"The fine-tuning job '{fine_tuning_job_id}' does not have a '{adapter_version}' adapter!"
             )
 
-    from comps.finetuning.utils.merge_adapter import main as merge_adapter_main
+    from comps.finetuning_sqft.utils.merge import main as merge_adapter_main
     merge_adapter_main(
         base_model_path=finetune_config.General.base_model,
         adapter_model_path=adapter_path,

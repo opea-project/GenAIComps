@@ -114,7 +114,42 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   }'
 ```
 
-#### 3.2.2 Reranking Model Training
+#### 3.2.2 Instruction Tuning with SQFT's Neural Low-Rank Adapter Search (NLS) 
+
+In addition to traditional fine-tuning, you can use SQFT's NLS to fine-tune your model. 
+More details about SQFT can be found in [this paper](https://aclanthology.org/2024.findings-emnlp.749.pdf).
+Please follow the additional installation requirements [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#-start-nls-microservice-with-python).
+Use the following command to launch a finetuning job with the NLS algorithm:
+
+```bash
+# create a fine-tuning job with NLS
+# Max LoRA rank: 16
+#   LoRA target modules            -> Low-rank search space
+#   ["q_proj", "k_proj", "v_proj"] -> [16,12,8]
+#   ["up_proj"]                    -> [16,12,8]
+#   ["down_proj"]                  -> [16,12,8]
+curl http://${your_ip}:8015/v1/fine_tuning/jobs \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "training_file": "alpaca_data.json",
+    "model": "meta-llama/Llama-2-7b-chat-hf",
+    "General": {
+      "lora_config": {
+        "r": 16,
+        "neural_lora_search": true,
+        "target_module_groups": [["q_proj", "k_proj", "v_proj"], ["up_proj"], ["down_proj"]],
+        "search_space": ["16,12,8", "16,12,8", "16,12,8"]
+      }
+    }
+  }'
+```
+
+Detailed explanations for the parameters can be found [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#create-nls-fine-tuning-job).
+Additional use-cases and benefits of SQFT are available [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea).
+Instructions to extracting the desired sub-adapter and merging it with the base model can be found [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#leverage-fine-tuned-super-adapter).
+
+#### 3.2.3 Reranking Model Training
 
 Use the following command to launch a finetuning job for reranking model finetuning, such as `BAAI/bge-reranker-large`:
 
@@ -133,7 +168,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   }'
 ```
 
-#### 3.2.3 Embedding Model Training
+#### 3.2.4 Embedding Model Training
 
 Use the following command to launch a finetuning job for embedding model finetuning, such as `BAAI/bge-base-en-v1.5`:
 
@@ -173,7 +208,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
 
 ```
 
-#### 3.2.4 LLM Pretraining
+#### 3.2.5 LLM Pretraining
 
 Use the following command to launch a job for LLM pretraining, such as `meta-llama/Llama-2-7b-hf`:
 
@@ -199,7 +234,7 @@ Below is an example for the format of the pretraining dataset:
 {"text": "A boy with a blue tank top sitting watching three dogs."}
 ```
 
-#### 3.2.5 Direct Preference Optimization (DPO)
+#### 3.2.6 Direct Preference Optimization (DPO)
 
 Use the following command to launch a job for LLM Direct Preference Optimization, such as `meta-llama/Llama-2-7b-hf`:
 

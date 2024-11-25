@@ -23,11 +23,9 @@ from ray.train.torch import TorchTrainer
 from transformers import Trainer, TrainingArguments
 
 from comps import CustomLogger
-from comps.finetuning.finetune_config import FinetuneConfig
-from comps.finetuning.llm_on_ray import common
-from comps.finetuning.llm_on_ray.finetune.data_process import (
-    DPOCollator,
-    DPODataProcessor,
+from comps.finetuning_sqft.finetune_sqft_config import FinetuneConfig
+from comps.finetuning_sqft.llm_on_ray import common
+from comps.finetuning_sqft.llm_on_ray.finetune.data_process import (
     EmbedCollator,
     GroupCollator,
     InstructionDataProcessor,
@@ -35,12 +33,12 @@ from comps.finetuning.llm_on_ray.finetune.data_process import (
     TrainDatasetForCE,
     TrainDatasetForEmbedding,
 )
-from comps.finetuning.llm_on_ray.finetune.modeling import BiEncoderModel, CrossEncoder
+from comps.finetuning_sqft.llm_on_ray.finetune.modeling import BiEncoderModel, CrossEncoder
 
 logger = CustomLogger("llm_on_ray/finetune")
 
 try:
-    from comps.finetuning.utils.create_sqft_nncf_config import create_sqft_nncf_config
+    from comps.finetuning_sqft.utils.nncf_config_process import load_nncf_config
     from nncf.experimental.torch.nas.bootstrapNAS.training.model_creator_helpers import (
         create_compressed_model_from_algo_names,
     )
@@ -48,6 +46,7 @@ try:
     is_nncf_available = True
 except ImportError:
     is_nncf_available = False
+    logger.info("NNCF is not installed. Please install it if necessary.")
 
 
 def adapt_transformers_to_device(config: Dict):
@@ -114,6 +113,7 @@ def convert_to_training_args(cls, config: Dict):
             args.update({"use_cpu": True})
         if hasattr(cls, "no_cuda"):
             args.update({"no_cuda": True})
+        # To be tested: whether it works when enabling Neural Lora Search (using NNCF)
         args.update({"use_ipex": True})
 
     # set attr 'deepspeed'
@@ -299,18 +299,6 @@ def tokenize_dataset(config: Dict, tokenizer, dataset):
             )
 
         return tokenized_dataset
-    elif task == "dpo":
-        tokenizer.pad_token = tokenizer.eos_token if not tokenizer.pad_token else tokenizer.pad_token
-        processor = DPODataProcessor(config, tokenizer)
-        column_names = dataset["train"].column_names
-        tokenized_dataset = dataset.map(
-            processor.tokenize,
-            remove_columns=column_names,
-            batched=True,
-            load_from_cache_file=False,
-            desc="Tokenize dataset",
-        )
-        return tokenized_dataset
     elif task == "rerank":
         dataset["train"] = TrainDatasetForCE(dataset["train"], config["Dataset"], tokenizer)
         return dataset
@@ -327,8 +315,6 @@ def prepare_data_collator(config: Dict, tokenizer):
         return transformers.DataCollatorForLanguageModeling(
             tokenizer=tokenizer, mlm=False, return_tensors="pt", pad_to_multiple_of=8
         )
-    elif task == "dpo":
-        return DPOCollator(tokenizer)
     elif task == "rerank":
         return GroupCollator(tokenizer)
     elif task == "embedding":
@@ -347,35 +333,36 @@ def load_model(config: Dict):
     model_dtype = convert_dtype(config["Training"].get("mixed_precision", "no"))
     model_config = config["General"].get("config", {})
     task = config["General"].get("task", "instruction_tuning")
-    ref_model = None
-    nls_controller = None
-    if task in ["instruction_tuning", "pretraining", "dpo"]:
+    compression_ctrl = None
+    if task == "instruction_tuning" or task == "pretraining":
         model = transformers.AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=model_dtype, **model_config)
-        if task == "dpo":
-            ref_model = transformers.AutoModelForCausalLM.from_pretrained(
-                model_name, torch_dtype=model_dtype, **model_config
-            )
         lora_config = config["General"].get("lora_config", None)
-        if lora_config and task == "instruction_tuning":
+        if lora_config and task != "pretraining":
             neural_lora_search = lora_config.pop("neural_lora_search", False)
             target_module_groups = lora_config.pop("target_module_groups", None)
             search_space = lora_config.pop("search_space", None)
+            nncf_config = lora_config.pop("nncf_config", None)
+            if not lora_config.get("sparse_adapter", False):
+                # To avoid the error in the following case:
+                # not using SparsePEFT and not having the peft library that supports SparsePEFT installed.
+                lora_config.pop("sparse_adapter", False)
             peft_config = LoraConfig(**lora_config)
             model = get_peft_model(model, peft_config)
 
             # Neural LoRA Search (NLS)
             if neural_lora_search:
                 if not is_nncf_available:
-                    raise NotImplementedError("NNCF is not installed. Please install it for enabling NLS algorithm.")
-                nncf_config = create_sqft_nncf_config(
+                    raise ImportError("NNCF is not installed. Please install it.")
+                nncf_config = load_nncf_config(
                     config=config,
                     model=model,
                     target_module_groups=target_module_groups,
-                    search_space=search_space
+                    search_space=search_space,
+                    nncf_config=nncf_config
                 )
                 model = create_nncf_network(model, nncf_config)
-                nls_controller, model = create_compressed_model_from_algo_names(
-                    model, nncf_config, algo_names=["nls"]
+                compression_ctrl, model = create_compressed_model_from_algo_names(
+                    model, nncf_config, algo_names=["progressive_shrinking"]
                 )
     elif task == "rerank":
         model = CrossEncoder.from_pretrained(
@@ -412,95 +399,51 @@ def load_model(config: Dict):
 
     model.to(dtype=model_dtype, device=torch.device(config["Training"]["device"]))
 
-    return model, ref_model, nls_controller
+    return model, compression_ctrl
 
-def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, data_collator, nls_controller=None):
+def get_trainer(config: Dict, model, tokenizer, tokenized_dataset, data_collator, compression_ctrl=None):
     device = config["Training"]["device"]
-    task = config["General"].get("task", "instruction_tuning")
     if device in ["cpu", "gpu", "cuda"]:
         training_args = convert_to_training_args(TrainingArguments, config)
-        if task == "dpo":
-            lora_config = config["General"].get("lora_config", None)
-            peft_config = LoraConfig(**lora_config)
-            from comps.finetuning.llm_on_ray.finetune.dpo_trainer import DPOTrainer
+        trainer_args = {
+            "model": model,
+            "args": training_args,
+            "train_dataset": tokenized_dataset["train"],
+            "eval_dataset": tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
+            "tokenizer": tokenizer,
+            "data_collator": data_collator,
+        }
+        if compression_ctrl is not None:
+            trainer_args["compression_ctrl"] = compression_ctrl
 
-            trainer = DPOTrainer(
-                model,
-                ref_model,
-                args=training_args,
-                data_collator=data_collator,
-                beta=config["Training"].get("dpo_beta", 0.1),
-                train_dataset=tokenized_dataset["train"],
-                eval_dataset=(
-                    tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
-                ),
-                tokenizer=tokenizer,
-                peft_config=peft_config,
-                max_length=config["Dataset"].get("max_length", 1024),
-            )
-        else:
-            trainer_args = {
-                "model": model,
-                "args": training_args,
-                "train_dataset": tokenized_dataset["train"],
-                "eval_dataset": tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
-                "tokenizer": tokenizer,
-                "data_collator": data_collator,
-            }
-            if nls_controller is not None:
-                trainer_args["compression_ctrl"] = nls_controller
-            trainer = Trainer(**trainer_args)
+        trainer = Trainer(**trainer_args)
         return training_args, trainer
     elif device in ["hpu"]:
-        if nls_controller is not None:
-            raise NotImplementedError(f"NLS algorithm is not supported on HPU now.")
+        assert compression_ctrl is None
         from optimum.habana import GaudiConfig
         from optimum.habana.transformers import GaudiTrainer, GaudiTrainingArguments
 
-        training_args = convert_to_training_args(GaudiTrainingArguments, config)
-
-        if task == "dpo":
-            lora_config = config["General"].get("lora_config", None)
-            peft_config = LoraConfig(**lora_config)
-            from comps.finetuning.llm_on_ray.finetune.dpo_trainer import GaudiDPOTrainer
-
-            trainer = GaudiDPOTrainer(
-                model,
-                ref_model,
-                args=training_args,
-                data_collator=data_collator,
-                beta=config["Training"].get("dpo_beta", 0.1),
-                train_dataset=tokenized_dataset["train"],
-                eval_dataset=(
-                    tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
-                ),
-                tokenizer=tokenizer,
-                peft_config=peft_config,
-                max_length=config["Dataset"].get("max_length", 1024),
-            )
+        # If gaudi_config_name is provided, load gaudi_config from huggingface model hub(https://huggingface.co/Habana), otherwise use default gaudi_config
+        gaudi_config_name = config["General"].get("gaudi_config_name", None)
+        if gaudi_config_name is not None:
+            gaudi_config = GaudiConfig.from_pretrained(gaudi_config_name)
         else:
-            # If gaudi_config_name is provided, load gaudi_config from huggingface model hub(https://huggingface.co/Habana), otherwise use default gaudi_config
-            gaudi_config_name = config["General"].get("gaudi_config_name", None)
-            if gaudi_config_name is not None:
-                gaudi_config = GaudiConfig.from_pretrained(gaudi_config_name)
-            else:
-                gaudi_config = GaudiConfig()
-                gaudi_config.use_fused_adam = True
-                gaudi_config.use_fused_clip_norm = True
+            gaudi_config = GaudiConfig()
+            gaudi_config.use_fused_adam = True
+            gaudi_config.use_fused_clip_norm = True
 
-            trainer = GaudiTrainer(
-                model=model,
-                args=training_args,
-                gaudi_config=gaudi_config,
-                train_dataset=tokenized_dataset["train"],
-                eval_dataset=(
-                    tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
-                ),
-                tokenizer=tokenizer,
-                data_collator=data_collator,
-            )
+        training_args = convert_to_training_args(GaudiTrainingArguments, config)
+        trainer = GaudiTrainer(
+            model=model,
+            args=training_args,
+            gaudi_config=gaudi_config,
+            train_dataset=tokenized_dataset["train"],
+            eval_dataset=tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+        )
         return training_args, trainer
-    return None, None
+    return None
 
 
 def train_func(config: Dict[str, Any]):
@@ -526,11 +469,9 @@ def train_func(config: Dict[str, Any]):
 
     data_collator = prepare_data_collator(config, tokenizer)
 
-    model, ref_model, nls_controller = load_model(config)
+    model, compression_ctrl = load_model(config)
 
-    training_args, trainer = get_trainer(
-        config, model, ref_model, tokenizer, tokenized_dataset, data_collator, nls_controller=nls_controller
-    )
+    training_args, trainer = get_trainer(config, model, tokenizer, tokenized_dataset, data_collator, compression_ctrl=compression_ctrl)
 
     logger.info("train start")
     trainer.train(resume_from_checkpoint=training_args.resume_from_checkpoint)
@@ -619,16 +560,17 @@ def main(external_config=None):
         if is_xpu_available():
             device = "xpu"
 
-    if config.get("torch_config", None) is None:
-        backend = None
-        if device == "cpu" or device == "xpu" or device == "gpu":
-            backend = "ccl"
-        elif device == "hpu":
-            backend = "hccl"
-        torch_config = common.TorchConfig(backend=backend, device=device)
-    else:
-        customer_torch_config = config.get("torch_config")
-        torch_config = common.TorchConfig(**customer_torch_config, device=device)
+    # Jinjie: commented out the code from line 572 to 581 to temporarily disable CCL for debugging purposes.
+    # if config.get("torch_config", None) is None:
+    #     backend = None
+    #     if device == "cpu" or device == "xpu" or device == "gpu":
+    #         backend = "ccl"
+    #     elif device == "hpu":
+    #         backend = "hccl"
+    #     torch_config = common.TorchConfig(backend=backend, device=device)
+    # else:
+    #     customer_torch_config = config.get("torch_config")
+    #     torch_config = common.TorchConfig(**customer_torch_config, device=device)
 
     if config.get("failure_config", None) is None:
         failure_config = FailureConfig()
@@ -648,7 +590,7 @@ def main(external_config=None):
         train_func,
         train_loop_config=config,
         scaling_config=scaling_config,
-        torch_config=torch_config,
+        # torch_config=torch_config,    # Jinjie: check line 571.
         run_config=run_config,
     )
     results = trainer.fit()

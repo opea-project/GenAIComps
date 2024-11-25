@@ -1,0 +1,171 @@
+diff --git a/src/transformers/trainer.py b/src/transformers/trainer.py
+index 68ba7babf..6b54a3987 100755
+--- a/src/transformers/trainer.py
++++ b/src/transformers/trainer.py
+@@ -155,6 +155,7 @@ from .utils import (
+     is_in_notebook,
+     is_ipex_available,
+     is_lomo_available,
++    is_nncf_available,
+     is_peft_available,
+     is_safetensors_available,
+     is_sagemaker_dp_enabled,
+@@ -245,6 +246,11 @@ if is_accelerate_available():
+ if is_accelerate_available("0.28.0"):
+     from accelerate.utils import DataLoaderConfiguration
+ 
++if is_nncf_available():
++    from nncf.torch.compression_method_api import PTCompressionAlgorithmController
++else:
++    PTCompressionAlgorithmController = None
++
+ 
+ def _is_peft_model(model):
+     if is_peft_available():
+@@ -352,6 +358,8 @@ class Trainer:
+             by this function will be reflected in the predictions received by `compute_metrics`.
+ 
+             Note that the labels (second parameter) will be `None` if the dataset does not have them.
++        compression_ctrl ([`PTCompressionAlgorithmController`], *optional*): A compression controller to use. Note that
++            this script only supports `ProgressiveShrinkingController` of NNCF (https://github.com/openvinotoolkit/nncf).
+ 
+     Important attributes:
+ 
+@@ -387,6 +395,7 @@ class Trainer:
+         callbacks: Optional[List[TrainerCallback]] = None,
+         optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = (None, None),
+         preprocess_logits_for_metrics: Optional[Callable[[torch.Tensor, torch.Tensor], torch.Tensor]] = None,
++        compression_ctrl: PTCompressionAlgorithmController = None
+     ):
+         if args is None:
+             output_dir = "tmp_trainer"
+@@ -400,6 +409,7 @@ class Trainer:
+                     " summary statistics should be returned by the function."
+                 )
+         self.args = args
++        self.compression_ctrl = compression_ctrl
+         # Seed must be set before instantiating the model when using model
+         enable_full_determinism(self.args.seed) if self.args.full_determinism else set_seed(self.args.seed)
+         self.hp_name = None
+@@ -1040,7 +1050,10 @@ class Trainer:
+             optimizer = self.optimizer.optimizer
+         else:
+             optimizer = self.optimizer
+-        self.create_scheduler(num_training_steps=num_training_steps, optimizer=optimizer)
++        # If compression_ctrl (`ProgressiveShrinkingController`) is not used, create a scheduler.
++        # If compression_ctrl is used (not None), it will use its own learning rate scheduler.
++        if self.compression_ctrl is None:
++            self.create_scheduler(num_training_steps=num_training_steps, optimizer=optimizer)
+ 
+     def get_decay_parameter_names(self, model) -> List[str]:
+         """
+@@ -1569,7 +1582,9 @@ class Trainer:
+             self.state.stateful_callbacks["TrainerControl"] = self.control.state()
+             self.state.save_to_json(os.path.join(output_dir, TRAINER_STATE_NAME))
+             torch.save(self.optimizer.state_dict(), os.path.join(output_dir, OPTIMIZER_NAME))
+-            torch.save(self.lr_scheduler.state_dict(), os.path.join(output_dir, SCHEDULER_NAME))
++            # Save the learning rate scheduler state if compression_ctrl is not used.
++            if self.compression_ctrl is None:
++                torch.save(self.lr_scheduler.state_dict(), os.path.join(output_dir, SCHEDULER_NAME))
+ 
+     def call_model_init(self, trial=None):
+         model_init_argcount = number_of_arguments(self.model_init)
+@@ -2204,8 +2219,16 @@ class Trainer:
+         if args.eval_on_start:
+             self._evaluate(trial, ignore_keys_for_eval, skip_scheduler=True)
+ 
++        # Initialize the learning rate scheduler if compression_ctrl is used.
++        if self.compression_ctrl is not None:
++            train_iters = len(train_dataloader)
++            self.compression_ctrl.set_training_lr_scheduler_args(self.optimizer, train_iters)
++
+         total_batched_samples = 0
+         for epoch in range(epochs_trained, num_train_epochs):
++            # Perform an epoch step for the compression controller's scheduler if it is used.
++            if self.compression_ctrl is not None:
++                self.compression_ctrl.scheduler.epoch_step()
+             epoch_iterator = train_dataloader
+             if hasattr(epoch_iterator, "set_epoch"):
+                 epoch_iterator.set_epoch(epoch)
+@@ -2234,6 +2257,10 @@ class Trainer:
+ 
+             step = -1
+             for step, inputs in enumerate(epoch_iterator):
++                # Perform a step for the compression controller's scheduler if it is used.
++                # Include actions such as activating the subnetwork or updating the learning rate.
++                if self.compression_ctrl is not None:
++                    self.compression_ctrl.scheduler.step()
+                 total_batched_samples += 1
+ 
+                 if self.args.include_num_input_tokens_seen:
+@@ -2345,7 +2372,10 @@ class Trainer:
+                     optimizer_was_run = not self.accelerator.optimizer_step_was_skipped
+                     if optimizer_was_run:
+                         # Delay optimizer scheduling until metrics are generated
+-                        if not isinstance(self.lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
++                        if (
++                            not isinstance(self.lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau)
++                            and self.compression_ctrl is None
++                        ):
+                             self.lr_scheduler.step()
+ 
+                     model.zero_grad()
+@@ -2791,7 +2821,11 @@ class Trainer:
+             logs["loss"] = round(tr_loss_scalar / (self.state.global_step - self._globalstep_last_logged), 4)
+             if grad_norm is not None:
+                 logs["grad_norm"] = grad_norm.detach().item() if isinstance(grad_norm, torch.Tensor) else grad_norm
+-            logs["learning_rate"] = self._get_learning_rate()
++            # Retrieve the current learning rate from the compression controller if available, otherwise use the default method
++            if self.compression_ctrl is not None:
++                logs["learning_rate"] = self.compression_ctrl.scheduler.lr_scheduler.get_last_lr()[0]
++            else:
++                logs["learning_rate"] = self._get_learning_rate()
+ 
+             self._total_loss_scalar += tr_loss_scalar
+             self._globalstep_last_logged = self.state.global_step
+@@ -3015,7 +3049,9 @@ class Trainer:
+             and not is_torch_xla_available()
+         ):
+             with warnings.catch_warnings(record=True) as caught_warnings:
+-                torch.save(self.lr_scheduler.state_dict(), os.path.join(output_dir, SCHEDULER_NAME))
++                # Save the learning rate scheduler state if compression_ctrl is not used.
++                if self.compression_ctrl is None:
++                    torch.save(self.lr_scheduler.state_dict(), os.path.join(output_dir, SCHEDULER_NAME))
+             reissue_pt_warnings(caught_warnings)
+ 
+     def _load_optimizer_and_scheduler(self, checkpoint):
+diff --git a/src/transformers/utils/__init__.py b/src/transformers/utils/__init__.py
+index efe473a6c..1040a75f4 100755
+--- a/src/transformers/utils/__init__.py
++++ b/src/transformers/utils/__init__.py
+@@ -152,6 +152,7 @@ from .import_utils import (
+     is_natten_available,
+     is_ninja_available,
+     is_nltk_available,
++    is_nncf_available,
+     is_onnx_available,
+     is_openai_available,
+     is_optimum_available,
+diff --git a/src/transformers/utils/import_utils.py b/src/transformers/utils/import_utils.py
+index 3b0abd334..823e8919f 100755
+--- a/src/transformers/utils/import_utils.py
++++ b/src/transformers/utils/import_utils.py
+@@ -131,6 +131,7 @@ _levenshtein_available = _is_package_available("Levenshtein")
+ _librosa_available = _is_package_available("librosa")
+ _natten_available = _is_package_available("natten")
+ _nltk_available = _is_package_available("nltk")
++_nncf_available = _is_package_available("nncf")
+ _onnx_available = _is_package_available("onnx")
+ _openai_available = _is_package_available("openai")
+ _optimum_available = _is_package_available("optimum")
+@@ -1056,6 +1057,10 @@ def is_nltk_available():
+     return _nltk_available
+ 
+ 
++def is_nncf_available():
++    return _nncf_available
++
++
+ def is_torchaudio_available():
+     return _torchaudio_available
+ 
