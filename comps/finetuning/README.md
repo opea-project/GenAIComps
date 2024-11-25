@@ -114,9 +114,9 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   }'
 ```
 
-#### 3.2.2 Instruction Tuning with SQFT's Neural Low-Rank Adapter Search (NLS) 
+#### 3.2.2 Instruction Tuning with SQFT's Neural Low-Rank Adapter Search (NLS)
 
-In addition to traditional fine-tuning, you can use SQFT's NLS to fine-tune your model. 
+In addition to traditional fine-tuning, you can use SQFT's NLS to fine-tune your model.
 More details about SQFT can be found in [this paper](https://aclanthology.org/2024.findings-emnlp.749.pdf).
 Please follow the additional installation requirements [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#-start-nls-microservice-with-python).
 Use the following command to launch a finetuning job with the NLS algorithm:

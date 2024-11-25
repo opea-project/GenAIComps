@@ -12,6 +12,7 @@ python -m pip install intel-extension-for-pytorch
 python -m pip install oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/us/
 pip install -r requirements.txt
 ```
+
 To enable elastic adapter fine-tuning (Neural Low-Rank Adapter Search) or SparsePEFT from [SQFT](https://arxiv.org/abs/2410.03750), please perform this additional installation:
 
 ```bash
@@ -94,7 +95,6 @@ Download a training file, such as `alpaca_data.json` for instruction tuning and 
 curl http://${your_ip}:8015/v1/files -X POST -H "Content-Type: multipart/form-data" -F "file=@./alpaca_data.json" -F purpose="fine-tune"
 ```
 
-
 ### 3.2 Create fine-tuning job
 
 #### 3.2.1 Instruction Tuning
@@ -110,7 +110,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
     "training_file": "alpaca_data.json",
     "model": "meta-llama/Llama-2-7b-chat-hf"
   }'
- 
+
 # create a finetuning job (with SparsePEFT)
 curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   -X POST \
@@ -124,7 +124,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
       }
     }
   }'
-  
+
 # create a fine-tuning job (with Neural Low-rank adapter Search)
 # Max LoRA rank: 16
 #   LoRA target modules            -> Low-rank search space
@@ -151,8 +151,8 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
 Below are some explanations for the parameters related to the Neural Low-rank adapter Search algorithm:
 
 - `target_module_groups` specifies the target module groups, which means that the adapters within the same group will share the same activated low-rank value.
-- `search_space` specifies the search space for each target module (adapter) group. 
-Here, it is `["16,12,8", "16,12,8", "16,12,8"]`, meaning that the search space for each group is [16, 12, 8].
+- `search_space` specifies the search space for each target module (adapter) group.
+  Here, it is `["16,12,8", "16,12,8", "16,12,8"]`, meaning that the search space for each group is [16, 12, 8].
 
 Note that the number of groups should be equal to the number of search spaces (one-to-one correspondence).
 Feel free to try your favorite group design and search spaces.
@@ -179,7 +179,7 @@ curl http://${your_ip}:8015/v1/finetune/list_checkpoints -X POST -H "Content-Typ
 
 #### 3.4.1 Extract the sub-adapter
 
-After completing the super-adapter fine-tuning (the checkpoints of the fine-tuning job), 
+After completing the super-adapter fine-tuning (the checkpoints of the fine-tuning job),
 the following command demonstrates how to extract the heuristic sub-adapter.
 Additionally, more powerful sub-adapters can be obtained through other advanced search algorithms.
 
@@ -211,10 +211,10 @@ curl http://${your_ip}:8015/v1/finetune/extract_adapter \
   }'
 ```
 
-In the fine-tuning job with Neural Low-rank adapter Search algorithm,  the `nncf_config.json` file (which includes the elastic adapter information) will be saved in the output directory.
+In the fine-tuning job with Neural Low-rank adapter Search algorithm, the `nncf_config.json` file (which includes the elastic adapter information) will be saved in the output directory.
 The `custom_config` must correspond with the `overwrite_groups` (adapter modules) or `overwrite_groups_widths`
-(search space for the rank of adapter modules) in `nncf_config.json`. 
-The above command corresponds to the example in [example_nncf_config/nncf_config.json](./example_nncf_config/nncf_config.json), 
+(search space for the rank of adapter modules) in `nncf_config.json`.
+The above command corresponds to the example in [example_nncf_config/nncf_config.json](./example_nncf_config/nncf_config.json),
 and it will save the sub-adapter to `<path to output directory> / custom`.
 
 </details>

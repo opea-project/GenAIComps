@@ -169,7 +169,7 @@ diff --git a/src/peft/utils/save_and_load.py b/src/peft/utils/save_and_load.py
 index 5ac1264..acb5d27 100644
 --- a/src/peft/utils/save_and_load.py
 +++ b/src/peft/utils/save_and_load.py
-@@ -246,6 +246,48 @@ def set_peft_model_state_dict(model, peft_model_state_dict, adapter_name="defaul
+@@ -246,6 +246,48 @@ def set_peft_model_state_dict(model, peft_model_state_dict, adapter_name="default
      else:
          raise NotImplementedError
  

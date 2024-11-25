@@ -152,7 +152,7 @@ def handle_extract_sub_adapter(request: ExtractAdapterParams):
     if not os.path.exists(finetuned_model_path):
         raise HTTPException(
             status_code=404,
-            detail=f"The fine-tuned model saved by the fine-tuning job '{fine_tuning_job_id}' was not found!"
+            detail=f"The fine-tuned model saved by the fine-tuning job '{fine_tuning_job_id}' was not found!",
         )
     if job.status != "succeeded":
         raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' has not completed!")
@@ -160,27 +160,27 @@ def handle_extract_sub_adapter(request: ExtractAdapterParams):
     if finetune_config.General.lora_config is None:
         raise HTTPException(
             status_code=404,
-            detail=f"The fine-tuning job '{fine_tuning_job_id}' does not enable LoRA adapter fine-tuning!"
+            detail=f"The fine-tuning job '{fine_tuning_job_id}' does not enable LoRA adapter fine-tuning!",
         )
     if not finetune_config.General.lora_config.neural_lora_search:
         raise HTTPException(
             status_code=404,
             detail=f"The fine-tuning job '{fine_tuning_job_id}' did not enable NLS algorithm, "
-                   f"there is no need to extract sub-adapters!"
+            f"there is no need to extract sub-adapters!",
         )
     nncf_config_path = os.path.join(finetune_config.General.output_dir, "nncf_config.json")
     if not os.path.exists(nncf_config_path):
         raise HTTPException(
-            status_code=404,
-            detail=f"The NNCF config file does not exist in the fine-tuning job '{fine_tuning_job_id}!"
+            status_code=404, detail=f"The NNCF config file does not exist in the fine-tuning job '{fine_tuning_job_id}!"
         )
 
     from comps.finetuning_sqft.utils.extract_sub_adapter import main as extract_sub_adapter_main
+
     extract_sub_adapter_main(
         adapter_model_path=finetuned_model_path,
         nncf_config=nncf_config_path,
         sub_adapter_version=request.sub_adapter_version,
-        custom_config=request.custom_config
+        custom_config=request.custom_config,
     )
 
     return fine_tuning_job_id
@@ -199,7 +199,7 @@ def handle_merge_adapter(request: MergeAdapterParams):
     if not os.path.exists(finetuned_model_path):
         raise HTTPException(
             status_code=404,
-            detail=f"The fine-tuned model saved by the fine-tuning job '{fine_tuning_job_id}' was not found!"
+            detail=f"The fine-tuned model saved by the fine-tuning job '{fine_tuning_job_id}' was not found!",
         )
     if job.status != "succeeded":
         raise HTTPException(status_code=404, detail=f"Fine-tuning job '{fine_tuning_job_id}' has not completed!")
@@ -207,7 +207,7 @@ def handle_merge_adapter(request: MergeAdapterParams):
     if finetune_config.General.lora_config is None:
         raise HTTPException(
             status_code=404,
-            detail=f"The fine-tuning job '{fine_tuning_job_id}' does not enable LoRA adapter fine-tuning!"
+            detail=f"The fine-tuning job '{fine_tuning_job_id}' does not enable LoRA adapter fine-tuning!",
         )
 
     adapter_path = finetuned_model_path
@@ -217,14 +217,15 @@ def handle_merge_adapter(request: MergeAdapterParams):
         if not os.path.exists(adapter_path):
             raise HTTPException(
                 status_code=404,
-                detail=f"The fine-tuning job '{fine_tuning_job_id}' does not have a '{adapter_version}' adapter!"
+                detail=f"The fine-tuning job '{fine_tuning_job_id}' does not have a '{adapter_version}' adapter!",
             )
 
     from comps.finetuning_sqft.utils.merge import main as merge_adapter_main
+
     merge_adapter_main(
         base_model_path=finetune_config.General.base_model,
         adapter_model_path=adapter_path,
-        output_path=os.path.join(adapter_path, "merged_model")
+        output_path=os.path.join(adapter_path, "merged_model"),
     )
 
     return fine_tuning_job_id

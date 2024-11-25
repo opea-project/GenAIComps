@@ -1,17 +1,19 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import argparse
 import os
 import re
 
 import torch
 from nncf import NNCFConfig
-from peft.utils import CONFIG_NAME, WEIGHTS_NAME, SAFETENSORS_WEIGHTS_NAME
+from peft.utils import CONFIG_NAME, SAFETENSORS_WEIGHTS_NAME, WEIGHTS_NAME
 
 PATTERN = re.compile(r"[[](.*?)[]]", re.S)
 
 
 def get_width_for_query_prefix(torch_module_to_width, query_module, length=5):
-    """
-    Get the width for a given query module prefix.
+    """Get the width for a given query module prefix.
 
     Args:
         torch_module_to_width (dict): Mapping from torch module to width.
@@ -75,6 +77,7 @@ def main(adapter_model_path, nncf_config, sub_adapter_version, custom_config=Non
         super_adapter_weights = torch.load(os.path.join(adapter_model_path, WEIGHTS_NAME))
     except:
         from safetensors.torch import load_file
+
         super_adapter_weights = load_file(os.path.join(adapter_model_path, SAFETENSORS_WEIGHTS_NAME))
     sub_adapter_weights = {}
     for weight_key, weight_tensor in super_adapter_weights.items():
@@ -93,9 +96,9 @@ def main(adapter_model_path, nncf_config, sub_adapter_version, custom_config=Non
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Merge base model and adapter model with additional configurations")
-    parser.add_argument('--adapter_model_path', type=str, required=True, help="Path to the adapter model")
-    parser.add_argument('--nncf_config', type=str, required=True, help="Path to the NNCF configuration")
-    parser.add_argument('--sub_adapter_version', type=str, required=True, help="Sub adapter version")
-    parser.add_argument('--custom_config', type=str, default=None, help="Path to custom configuration (optional)")
+    parser.add_argument("--adapter_model_path", type=str, required=True, help="Path to the adapter model")
+    parser.add_argument("--nncf_config", type=str, required=True, help="Path to the NNCF configuration")
+    parser.add_argument("--sub_adapter_version", type=str, required=True, help="Sub adapter version")
+    parser.add_argument("--custom_config", type=str, default=None, help="Path to custom configuration (optional)")
     args = parser.parse_args()
     main(args.adapter_model_path, args.nncf_config, args.sub_adapter_version, args.custom_config)

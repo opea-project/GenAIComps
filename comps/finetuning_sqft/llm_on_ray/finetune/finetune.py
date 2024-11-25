@@ -38,11 +38,13 @@ from comps.finetuning_sqft.llm_on_ray.finetune.modeling import BiEncoderModel, C
 logger = CustomLogger("llm_on_ray/finetune")
 
 try:
-    from comps.finetuning_sqft.utils.nncf_config_process import load_nncf_config
     from nncf.experimental.torch.nas.bootstrapNAS.training.model_creator_helpers import (
         create_compressed_model_from_algo_names,
     )
     from nncf.torch.model_creation import create_nncf_network
+
+    from comps.finetuning_sqft.utils.nncf_config_process import load_nncf_config
+
     is_nncf_available = True
 except ImportError:
     is_nncf_available = False
@@ -358,7 +360,7 @@ def load_model(config: Dict):
                     model=model,
                     target_module_groups=target_module_groups,
                     search_space=search_space,
-                    nncf_config=nncf_config
+                    nncf_config=nncf_config,
                 )
                 model = create_nncf_network(model, nncf_config)
                 compression_ctrl, model = create_compressed_model_from_algo_names(
@@ -401,6 +403,7 @@ def load_model(config: Dict):
 
     return model, compression_ctrl
 
+
 def get_trainer(config: Dict, model, tokenizer, tokenized_dataset, data_collator, compression_ctrl=None):
     device = config["Training"]["device"]
     if device in ["cpu", "gpu", "cuda"]:
@@ -409,7 +412,9 @@ def get_trainer(config: Dict, model, tokenizer, tokenized_dataset, data_collator
             "model": model,
             "args": training_args,
             "train_dataset": tokenized_dataset["train"],
-            "eval_dataset": tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
+            "eval_dataset": (
+                tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
+            ),
             "tokenizer": tokenizer,
             "data_collator": data_collator,
         }
@@ -471,7 +476,9 @@ def train_func(config: Dict[str, Any]):
 
     model, compression_ctrl = load_model(config)
 
-    training_args, trainer = get_trainer(config, model, tokenizer, tokenized_dataset, data_collator, compression_ctrl=compression_ctrl)
+    training_args, trainer = get_trainer(
+        config, model, tokenizer, tokenized_dataset, data_collator, compression_ctrl=compression_ctrl
+    )
 
     logger.info("train start")
     trainer.train(resume_from_checkpoint=training_args.resume_from_checkpoint)

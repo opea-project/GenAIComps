@@ -40,11 +40,13 @@ from comps.finetuning.llm_on_ray.finetune.modeling import BiEncoderModel, CrossE
 logger = CustomLogger("llm_on_ray/finetune")
 
 try:
-    from comps.finetuning.utils.create_sqft_nncf_config import create_sqft_nncf_config
     from nncf.experimental.torch.nas.bootstrapNAS.training.model_creator_helpers import (
         create_compressed_model_from_algo_names,
     )
     from nncf.torch.model_creation import create_nncf_network
+
+    from comps.finetuning.utils.create_sqft_nncf_config import create_sqft_nncf_config
+
     is_nncf_available = True
 except ImportError:
     is_nncf_available = False
@@ -368,15 +370,10 @@ def load_model(config: Dict):
                 if not is_nncf_available:
                     raise NotImplementedError("NNCF is not installed. Please install it for enabling NLS algorithm.")
                 nncf_config = create_sqft_nncf_config(
-                    config=config,
-                    model=model,
-                    target_module_groups=target_module_groups,
-                    search_space=search_space
+                    config=config, model=model, target_module_groups=target_module_groups, search_space=search_space
                 )
                 model = create_nncf_network(model, nncf_config)
-                nls_controller, model = create_compressed_model_from_algo_names(
-                    model, nncf_config, algo_names=["nls"]
-                )
+                nls_controller, model = create_compressed_model_from_algo_names(model, nncf_config, algo_names=["nls"])
     elif task == "rerank":
         model = CrossEncoder.from_pretrained(
             config["Dataset"].get("train_group_size", 8),
@@ -414,6 +411,7 @@ def load_model(config: Dict):
 
     return model, ref_model, nls_controller
 
+
 def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, data_collator, nls_controller=None):
     device = config["Training"]["device"]
     task = config["General"].get("task", "instruction_tuning")
@@ -443,7 +441,9 @@ def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, da
                 "model": model,
                 "args": training_args,
                 "train_dataset": tokenized_dataset["train"],
-                "eval_dataset": tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None,
+                "eval_dataset": (
+                    tokenized_dataset["validation"] if tokenized_dataset.get("validation") is not None else None
+                ),
                 "tokenizer": tokenizer,
                 "data_collator": data_collator,
             }
@@ -453,7 +453,7 @@ def get_trainer(config: Dict, model, ref_model, tokenizer, tokenized_dataset, da
         return training_args, trainer
     elif device in ["hpu"]:
         if nls_controller is not None:
-            raise NotImplementedError(f"NLS algorithm is not supported on HPU now.")
+            raise NotImplementedError("NLS algorithm is not supported on HPU now.")
         from optimum.habana import GaudiConfig
         from optimum.habana.transformers import GaudiTrainer, GaudiTrainingArguments
 

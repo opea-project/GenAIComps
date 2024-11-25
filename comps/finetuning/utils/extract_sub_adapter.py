@@ -1,12 +1,15 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import re
 
 import torch
-
-from peft.utils import CONFIG_NAME, WEIGHTS_NAME, SAFETENSORS_WEIGHTS_NAME
+from peft.utils import CONFIG_NAME, SAFETENSORS_WEIGHTS_NAME, WEIGHTS_NAME
 
 try:
     from nncf import NNCFConfig
+
     is_nncf_available = True
 except ImportError:
     is_nncf_available = False
@@ -16,8 +19,7 @@ PATTERN = re.compile(r"[[](.*?)[]]", re.S)
 
 
 def get_width_for_query_prefix(torch_module_to_width, query_module, length=5):
-    """
-    Get the width for a given query module prefix.
+    """Get the width for a given query module prefix.
 
     Args:
         torch_module_to_width (dict): Mapping from torch module to width.
@@ -81,6 +83,7 @@ def main(adapter_model_path, nncf_config, adapter_version, custom_config=None):
         super_adapter_weights = torch.load(os.path.join(adapter_model_path, WEIGHTS_NAME))
     except:
         from safetensors.torch import load_file
+
         super_adapter_weights = load_file(os.path.join(adapter_model_path, SAFETENSORS_WEIGHTS_NAME))
     sub_adapter_weights = {}
     for weight_key, weight_tensor in super_adapter_weights.items():

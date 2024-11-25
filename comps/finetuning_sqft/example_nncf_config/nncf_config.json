@@ -1,630 +1,354 @@
 {
-    "input_info": [
-        {
-            "sample_size": [
-                1,
-                256
-            ],
-            "type": "long",
-            "keyword": "input_ids"
-        },
-        {
-            "sample_size": [
-                1,
-                256
-            ],
-            "type": "long",
-            "keyword": "attention_mask"
-        }
-    ],
-    "bootstrapNAS": {
-        "training": {
-            "algorithm": "progressive_shrinking",
-            "frozen_layers_allowed": true,
-            "progressivity_of_elasticity": [
-                "width"
-            ],
-            "batchnorm_adaptation": {
-                "num_bn_adaptation_samples": 0
-            },
-            "schedule": {
-                "list_stage_descriptions": [
-                    {
-                        "train_dims": [
-                            "width"
-                        ],
-                        "epochs": 3,
-                        "depth_indicator": 1,
-                        "width_indicator": 8,
-                        "init_lr": 0.0003,
-                        "epochs_lr": 3,
-                        "sample_rate": 1
-                    }
-                ]
-            },
-            "elasticity": {
-                "available_elasticity_dims": [
-                    "width"
-                ],
-                "width": {
-                    "overwrite_groups": [
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ],
-                        [
-                            "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
-                        ]
-                    ],
-                    "overwrite_groups_widths": [
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ],
-                        [
-                            16,
-                            12,
-                            8
-                        ]
-                    ]
-                }
-            }
-        }
+  "input_info": [
+    {
+      "sample_size": [1, 256],
+      "type": "long",
+      "keyword": "input_ids"
+    },
+    {
+      "sample_size": [1, 256],
+      "type": "long",
+      "keyword": "attention_mask"
     }
+  ],
+  "bootstrapNAS": {
+    "training": {
+      "algorithm": "progressive_shrinking",
+      "frozen_layers_allowed": true,
+      "progressivity_of_elasticity": ["width"],
+      "batchnorm_adaptation": {
+        "num_bn_adaptation_samples": 0
+      },
+      "schedule": {
+        "list_stage_descriptions": [
+          {
+            "train_dims": ["width"],
+            "epochs": 3,
+            "depth_indicator": 1,
+            "width_indicator": 8,
+            "init_lr": 0.0003,
+            "epochs_lr": 3,
+            "sample_rate": 1
+          }
+        ]
+      },
+      "elasticity": {
+        "available_elasticity_dims": ["width"],
+        "width": {
+          "overwrite_groups": [
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaSdpaAttention[self_attn]/Linear[q_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaSdpaAttention[self_attn]/Linear[k_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0",
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaSdpaAttention[self_attn]/Linear[v_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaMLP[mlp]/Linear[up_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[0]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[1]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[2]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[3]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[4]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[5]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[6]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[7]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[8]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[9]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[10]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[11]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[12]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[13]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[14]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[15]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[16]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[17]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[18]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[19]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[20]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ],
+            [
+              "PeftModelForCausalLM/LoraModel[base_model]/LlamaForCausalLM[model]/LlamaModel[model]/ModuleList[layers]/LlamaDecoderLayer[21]/LlamaMLP[mlp]/Linear[down_proj]/ModuleDict[lora_A]/NNCFLinear[default]/linear_0"
+            ]
+          ],
+          "overwrite_groups_widths": [
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8],
+            [16, 12, 8]
+          ]
+        }
+      }
+    }
+  }
 }

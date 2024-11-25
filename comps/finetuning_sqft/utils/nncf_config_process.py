@@ -1,43 +1,41 @@
-import os
-import json
-from nncf import NNCFConfig
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
+import json
+import os
+
+from nncf import NNCFConfig
 
 NNCF_CONFIG_TEMPLATE = {
     "input_info": [
-        {
-            "sample_size": [1, 256],
-            "type": "long",
-            "keyword": "input_ids"
-        },
-        {
-            "sample_size": [1, 256],
-            "type": "long",
-            "keyword": "attention_mask"
-        }
+        {"sample_size": [1, 256], "type": "long", "keyword": "input_ids"},
+        {"sample_size": [1, 256], "type": "long", "keyword": "attention_mask"},
     ],
     "bootstrapNAS": {
         "training": {
             "algorithm": "progressive_shrinking",
             "frozen_layers_allowed": True,
             "progressivity_of_elasticity": ["width"],
-            "batchnorm_adaptation": {
-                "num_bn_adaptation_samples": 0
-            },
+            "batchnorm_adaptation": {"num_bn_adaptation_samples": 0},
             "schedule": {
                 "list_stage_descriptions": [
-                    {"train_dims": ["width"], "epochs": -1, "depth_indicator": 1, "width_indicator": 8, "init_lr": -1, "epochs_lr": -1, "sample_rate": 1}
+                    {
+                        "train_dims": ["width"],
+                        "epochs": -1,
+                        "depth_indicator": 1,
+                        "width_indicator": 8,
+                        "init_lr": -1,
+                        "epochs_lr": -1,
+                        "sample_rate": 1,
+                    }
                 ]
             },
             "elasticity": {
                 "available_elasticity_dims": ["width"],
-                "width": {
-                    "overwrite_groups": [],
-                    "overwrite_groups_widths": []
-                }
-            }
+                "width": {"overwrite_groups": [], "overwrite_groups_widths": []},
+            },
         }
-    }
+    },
 }
 
 
@@ -63,8 +61,7 @@ def add_lr_epochs(nncf_config, learning_rate=3e-4, num_epochs=3):
 
 
 def get_model_paths(model, target_module_name):
-    """
-    Find all paths to the target layer in the model.
+    """Find all paths to the target layer in the model.
 
     Args:
         model (torch.nn.Module): The model to search.
@@ -73,6 +70,7 @@ def get_model_paths(model, target_module_name):
     Returns:
         list: A list of paths to the target layer.
     """
+
     def find_layers(module, target_module_name, path, paths):
         for name, sub_module in module.named_children():
             new_path = f"{path}/{sub_module.__class__.__name__}[{name}]"
@@ -88,13 +86,8 @@ def get_model_paths(model, target_module_name):
     find_layers(model, target_module_name, base_path, paths)
     return paths
 
-def load_nncf_config(
-    config,
-    model,
-    target_module_groups=None,
-    search_space=None,
-    nncf_config=None
-):
+
+def load_nncf_config(config, model, target_module_groups=None, search_space=None, nncf_config=None):
     """Load and preprocess the NNCF configuration file.
 
     Returns:
@@ -105,7 +98,9 @@ def load_nncf_config(
         nncf_config = NNCFConfig.from_json(nncf_config)
     else:
         if search_space is None and target_module_groups:
-            raise ValueError("Neural LoRA search is enabled, `search_space` and `target_module_groups` must be provided.")
+            raise ValueError(
+                "Neural LoRA search is enabled, `search_space` and `target_module_groups` must be provided."
+            )
         # The NNCF Config will be automatically generated based on `target_module_groups` and `search_space`.
         num_hidden_layers = model.config.num_hidden_layers
         nncf_config_dict = NNCF_CONFIG_TEMPLATE
@@ -126,12 +121,12 @@ def load_nncf_config(
         for space in search_space:
             space = [int(width) for width in space.split(",")]
             overwrite_groups_widths.extend([space] * num_hidden_layers)
-        nncf_config_dict["bootstrapNAS"]["training"]["elasticity"]["width"]["overwrite_groups_widths"] = overwrite_groups_widths
+        nncf_config_dict["bootstrapNAS"]["training"]["elasticity"]["width"][
+            "overwrite_groups_widths"
+        ] = overwrite_groups_widths
         assert len(overwrite_groups) == len(overwrite_groups_widths)
         nncf_config_dict = add_lr_epochs(
-            nncf_config_dict,
-            learning_rate=config["Training"]["learning_rate"],
-            num_epochs=config["Training"]["epochs"]
+            nncf_config_dict, learning_rate=config["Training"]["learning_rate"], num_epochs=config["Training"]["epochs"]
         )
         nncf_config = NNCFConfig.from_dict(nncf_config_dict)
 
@@ -142,15 +137,18 @@ def load_nncf_config(
     return nncf_config
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import transformers
     from peft import LoraConfig, get_peft_model
+
     model = transformers.AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
     lora_config = {
         "task_type": "CAUSAL_LM",
         "r": 16,
-        "target_modules": ["q_proj", "k_proj", "v_proj", "up_proj", "down_proj"]
+        "target_modules": ["q_proj", "k_proj", "v_proj", "up_proj", "down_proj"],
     }
     peft_config = LoraConfig(**lora_config)
     model = get_peft_model(model, peft_config)
-    load_nncf_config(None, model, [["q_proj", "k_proj", "v_proj"], ["up_proj"], ["down_proj"]], ["16,12,8", "16", "16,12"])
+    load_nncf_config(
+        None, model, [["q_proj", "k_proj", "v_proj"], ["up_proj"], ["down_proj"]], ["16,12,8", "16", "16,12"]
+    )

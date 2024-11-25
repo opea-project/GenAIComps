@@ -1,9 +1,13 @@
-import os
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
+import os
 
 try:
     from nncf import NNCFConfig
     from nncf.experimental.torch import sqft
+
     is_nncf_available = True
 except ImportError:
     is_nncf_available = False
@@ -11,29 +15,18 @@ except ImportError:
 
 NNCF_CONFIG_TEMPLATE = {
     "input_info": [
-        {
-            "sample_size": [1, 256],
-            "type": "long",
-            "keyword": "input_ids"
-        },
-        {
-            "sample_size": [1, 256],
-            "type": "long",
-            "keyword": "attention_mask"
-        }
+        {"sample_size": [1, 256], "type": "long", "keyword": "input_ids"},
+        {"sample_size": [1, 256], "type": "long", "keyword": "attention_mask"},
     ],
     "SQFT": {
         "training": {
             "algorithm": "nls",
             "elasticity": {
                 "available_elasticity_dims": ["width"],
-                "width": {
-                    "overwrite_groups": [],
-                    "overwrite_groups_widths": []
-                }
-            }
+                "width": {"overwrite_groups": [], "overwrite_groups_widths": []},
+            },
         }
-    }
+    },
 }
 
 
@@ -65,8 +58,7 @@ def add_lr_epochs(nncf_config, learning_rate=3e-4, num_train_epochs=3):
 
 
 def get_model_paths(model, target_module_name):
-    """
-    Find all paths to the target layer in the model.
+    """Find all paths to the target layer in the model.
 
     Args:
         model (torch.nn.Module): The model to search.
@@ -75,6 +67,7 @@ def get_model_paths(model, target_module_name):
     Returns:
         list: A list of paths to the target layer.
     """
+
     def find_layers(module, target_module_name, path, paths):
         for name, sub_module in module.named_children():
             new_path = f"{path}/{sub_module.__class__.__name__}[{name}]"
@@ -91,12 +84,7 @@ def get_model_paths(model, target_module_name):
     return paths
 
 
-def create_sqft_nncf_config(
-    config,
-    model,
-    target_module_groups=None,
-    search_space=None
-):
+def create_sqft_nncf_config(config, model, target_module_groups=None, search_space=None):
     """Load and preprocess the NNCF configuration file.
 
     Returns:
@@ -131,7 +119,7 @@ def create_sqft_nncf_config(
     nncf_config_dict = add_lr_epochs(
         nncf_config_dict,
         learning_rate=config["Training"]["learning_rate"],
-        num_train_epochs=config["Training"]["epochs"]
+        num_train_epochs=config["Training"]["epochs"],
     )
     nncf_config = NNCFConfig.from_dict(nncf_config_dict)
 

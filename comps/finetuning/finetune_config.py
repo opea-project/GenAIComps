@@ -5,7 +5,7 @@
 
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest
 
@@ -44,10 +44,10 @@ class SQFTNLSConfig(LoraConfig):
 
     @root_validator(pre=True)
     def set_target_modules(cls, values):
-        target_module_groups = values.get('target_module_groups')
+        target_module_groups = values.get("target_module_groups")
         if target_module_groups is not None:
-            values['target_modules'] = [item for sublist in target_module_groups for item in sublist]
-        search_space = values.get('search_space')
+            values["target_modules"] = [item for sublist in target_module_groups for item in sublist]
+        search_space = values.get("search_space")
         if search_space is not None:
             assert len(search_space) == len(target_module_groups)
         return values
@@ -217,9 +217,11 @@ class FineTuningParams(FineTuningJobsRequest):
     Dataset: DatasetConfig = DatasetConfig()
     Training: TrainingConfig = TrainingConfig()
 
+
 class ExtractSubAdapterParams(FineTuningJobIDRequest):
     adapter_version: str = "heuristic"
     custom_config: Optional[List[int]] = None
+
 
 class MergeAdapterParams(FineTuningJobIDRequest):
     adapter_version: Optional[str] = None
