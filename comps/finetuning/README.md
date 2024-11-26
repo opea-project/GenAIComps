@@ -118,7 +118,7 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
 
 In addition to traditional fine-tuning, you can use SQFT's NLS to fine-tune your model.
 More details about SQFT can be found in [this paper](https://aclanthology.org/2024.findings-emnlp.749.pdf).
-Please follow the additional installation requirements [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#-start-nls-microservice-with-python).
+Please follow the additional installation requirements [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#-start-the-nls-microservice-with-python).
 Use the following command to launch a finetuning job with the NLS algorithm:
 
 ```bash
@@ -145,9 +145,9 @@ curl http://${your_ip}:8015/v1/fine_tuning/jobs \
   }'
 ```
 
-Detailed explanations for the parameters can be found [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#create-nls-fine-tuning-job).
+Detailed explanations for the parameters can be found [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#create-an-nls-fine-tuning-job).
 Additional use-cases and benefits of SQFT are available [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea).
-Instructions to extracting the desired sub-adapter and merging it with the base model can be found [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#leverage-fine-tuned-super-adapter).
+Instructions to extracting the desired sub-adapter and merging it with the base model can be found [here](https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/tree/main/SQFT/opea#leverage-the-fine-tuned-super-adapter).
 
 #### 3.2.3 Reranking Model Training
 
