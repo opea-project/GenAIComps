@@ -44,12 +44,14 @@ class SQFTNLSConfig(LoraConfig):
 
     @root_validator(pre=True)
     def set_target_modules(cls, values):
-        target_module_groups = values.get("target_module_groups")
-        if target_module_groups is not None:
-            values["target_modules"] = [item for sublist in target_module_groups for item in sublist]
-        search_space = values.get("search_space")
-        if search_space is not None:
-            assert len(search_space) == len(target_module_groups)
+        if values.get("neural_lora_search"):
+            target_module_groups = values.get("target_module_groups")
+            search_space = values.get("search_space")
+            if target_module_groups is None or search_space is None:
+                raise ValueError("Please specified `target_module_groups` and `search_space` when using NLS strategy.")
+            if len(search_space) != len(target_module_groups):
+                raise ValueError("The length of `search_space` must be equal to the length of `target_module_groups`.")
+            values["target_modules"] = [module for groups in target_module_groups for module in groups]
         return values
 
 
