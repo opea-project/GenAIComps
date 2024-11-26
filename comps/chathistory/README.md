@@ -24,3 +24,7 @@ The Chat History microservice able to support various database backends for stor
 ### Chat History with MongoDB
 
 For more detail, please refer to this [README](./mongo/README.md)
+
+### Chat History with ArangoDB
+
+For more detail, please refer to this [README](./arango/README.md)
