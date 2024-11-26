@@ -6,7 +6,7 @@ import os
 # ArangoDB configuration
 ARANGO_URL = os.getenv("ARANGO_URI", "http://localhost:8529")
 ARANGO_USERNAME = os.getenv("ARANGO_USERNAME", "root")
-ARANGO_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
+ARANGO_PASSWORD = os.getenv("ARANGO_PASSWORD", "test")
 DB_NAME = os.getenv("DB_NAME", "_system")
 
 # LLM/Embedding endpoints
