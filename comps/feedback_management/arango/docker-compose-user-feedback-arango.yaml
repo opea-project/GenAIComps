@@ -28,11 +28,10 @@ services:
       ARANGO_PORT: ${ARANGO_PORT}
       ARANGO_USERNAME: ${ARANGO_USERNAME}
       ARANGO_PASSWORD: ${ARANGO_PASSWORD}
-      PROTOCOL: ${PROTOCOL}
       DB_NAME: ${DB_NAME}
       COLLECTION_NAME: ${COLLECTION_NAME}
     restart: unless-stopped
 
 networks:
-  feedback_network:
+  default:
     driver: bridge

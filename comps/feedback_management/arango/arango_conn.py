@@ -3,11 +3,11 @@
 
 from arango import ArangoClient as PythonArangoClient
 from arango.database import StandardDatabase
-from config import ARANGO_HOST, ARANGO_PASSWORD, ARANGO_PORT, ARANGO_USERNAME, DB_NAME, PROTOCOL
+from config import ARANGO_HOST, ARANGO_PASSWORD, ARANGO_PORT, ARANGO_USERNAME, DB_NAME
 
 
 class ArangoClient:
-    conn_url = f"{PROTOCOL}://{ARANGO_HOST}:{ARANGO_PORT}/"
+    conn_url = f"arangodb://{ARANGO_HOST}:{ARANGO_PORT}/"
 
     @staticmethod
     def get_db_client() -> StandardDatabase:

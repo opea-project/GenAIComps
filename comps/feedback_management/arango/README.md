@@ -13,7 +13,6 @@ export ARANGO_USERNAME=${ARANGO_USERNAME}
 export ARANGO_PASSWORD=${ARANGO_PASSWORD}
 export DB_NAME=${DB_NAME}
 export COLLECTION_NAME=${COLLECTION_NAME}
-export PROTOCOL=${PROTOCOL}
 export PYTHONPATH={Path to base of directory}
 ```
 
@@ -49,7 +48,6 @@ docker build -t opea/feedbackmanagement-arango-server:latest --build-arg https_p
   -e ARANGO_USERNAME=${ARANGO_USERNAME} \
   -e ARANGO_PASSWORD=${ARANGO_PASSWORD} \
   -e DB_NAME=${DB_NAME} \
-  -e PROTOCOL=${PROTOCOL} \
   -e COLLECTION_NAME=${COLLECTION_NAME} \
   opea/feedbackmanagement-arango-server:latest
 
