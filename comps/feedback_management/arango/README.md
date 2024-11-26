@@ -6,9 +6,12 @@ This README provides setup guides and all the necessary information about the Fe
 
 ## Setup Environment Variables
 
+See `config.py` for default values.
+
 ```bash
 export ARANGO_HOST=${ARANGO_HOST}
 export ARANGO_PORT=${ARANGO_PORT}
+export ARANGO_PROTOCOL=${ARANGO_PROTOCOL}
 export ARANGO_USERNAME=${ARANGO_USERNAME}
 export ARANGO_PASSWORD=${ARANGO_PASSWORD}
 export DB_NAME=${DB_NAME}
@@ -45,6 +48,7 @@ docker build -t opea/feedbackmanagement-arango-server:latest --build-arg https_p
   -e no_proxy=$no_proxy \
   -e ARANGO_HOST=${ARANGO_HOST} \
   -e ARANGO_PORT=${ARANGO_PORT} \
+  -e ARANGO_PROTOCOL=${ARANGO_PROTOCOL} \
   -e ARANGO_USERNAME=${ARANGO_USERNAME} \
   -e ARANGO_PASSWORD=${ARANGO_PASSWORD} \
   -e DB_NAME=${DB_NAME} \

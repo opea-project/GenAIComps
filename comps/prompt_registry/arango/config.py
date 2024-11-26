@@ -4,10 +4,10 @@
 import os
 
 # ARANGO configuration
-ARANGO_HOST = os.getenv("ARANGO_HOST", "localhost")
+ARANGO_HOST = os.getenv("ARANGODB_HOST", "localhost")
 ARANGO_PORT = os.getenv("ARANGO_PORT", 8529)
 ARANGO_PROTOCOL = os.getenv("ARANGO_PROTOCOL", "http")
 ARANGO_USERNAME = os.getenv("ARANGO_USERNAME", "root")
 ARANGO_PASSWORD = os.getenv("ARANGO_PASSWORD", "test")
 DB_NAME = os.getenv("DB_NAME", "OPEA")
-COLLECTION_NAME = os.getenv("COLLECTION_NAME", "Feedback")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "Prompt")

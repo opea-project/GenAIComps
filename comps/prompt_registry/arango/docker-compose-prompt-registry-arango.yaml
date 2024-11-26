@@ -14,11 +14,11 @@ services:
       no_proxy: ${no_proxy}
       ARANGO_ROOT_PASSWORD: ${ARANGO_ROOT_PASSWORD}
 
-  feedbackmanagement-arango:
-    image: opea/feedbackmanagement-arango:latest
-    container_name: feedbackmanagement-arango-server
+  promptregistry-arango:
+    image: opea/promptregistry-arango:latest
+    container_name: promptregistry-arango-server
     ports:
-      - "6016:6016"
+      - "6018:6018"
     ipc: host
     environment:
       http_proxy: ${http_proxy}
