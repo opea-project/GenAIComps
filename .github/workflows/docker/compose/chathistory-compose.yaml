@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/chathistory/mongo/Dockerfile
     image: ${REGISTRY:-opea}/chathistory-mongo-server:${TAG:-latest}
+  chathistory-arango-server:
+    build:
+      dockerfile: comps/chathistory/arango/Dockerfile
+    image: ${REGISTRY:-opea}/chathistory-arango-server:${TAG:-latest}

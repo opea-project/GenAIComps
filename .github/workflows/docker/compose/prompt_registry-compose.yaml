@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/prompt_registry/mongo/Dockerfile
     image: ${REGISTRY:-opea}/promptregistry-mongo-server:${TAG:-latest}
+  promptregistry-arango-server:
+    build:
+      dockerfile: comps/prompt_registry/arango/Dockerfile
+    image: ${REGISTRY:-opea}/promptregistry-arango-server:${TAG:-latest}
