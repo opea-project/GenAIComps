@@ -145,6 +145,18 @@ function validate_microservice() {
 
 
     ##########################
+    #    sqft test   #
+    ##########################
+    # test /v1/fine_tuning/jobs
+    validate_finetune \
+        "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
+        "sqft - finetuning" \
+        "test-comps-finetuning-server" \
+        '{"id":"ft-job' \
+        '{"training_file": "test_data.json","model": "facebook/opt-125m", "General": {"lora_config": {"r": 8, "neural_lora_search": true, "target_module_groups": [["q_proj"]], "search_space": ["8,6,4"]}}}'
+
+
+    ##########################
     #    rerank test         #
     ##########################
     # test /v1/dataprep upload file
