@@ -1,0 +1,48 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3"
+services:
+  arango-vector-db:
+    image: arangodb/arangodb:latest
+    container_name: arango-graph-db
+    ports:
+      - "8529:8529"
+  tgi_gaudi_service:
+    image: ghcr.io/huggingface/tgi-gaudi:2.0.5
+    container_name: tgi-service
+    ports:
+      - "8088:80"
+    volumes:
+      - "./data:/data"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HF_TOKEN: ${HF_TOKEN}
+    command: --model-id ${LLM_MODEL_ID} --auto-truncate --max-input-tokens 1024 --max-total-tokens 2048
+  dataprep-arango:
+    image: opea/gen-ai-comps:dataprep-arango-xeon-server
+    container_name: dataprep-arango-server
+    depends_on:
+      - arango-vector-db
+      - tgi_gaudi_service
+    ports:
+      - "6007:6007"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      ARANGO_URL: ${ARANGO_URL}
+      ARANGO_USERNAME: ${ARANGO_USERNAME}
+      ARANGO_PASSWORD: ${ARANGO_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      TGI_LLM_ENDPOINT: ${TEI_ENDPOINT}
+      OPENAI_KEY: ${OPENAI_API_KEY}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
