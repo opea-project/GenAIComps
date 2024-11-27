@@ -9,7 +9,6 @@ on:
     paths:
       - comps/**
       - "!**.md"
-      - "!**.txt"
       - .github/workflows/push-image-build.yml
 
 concurrency:
