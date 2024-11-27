@@ -288,3 +288,32 @@ jobs:
             echo "All hyperlinks are valid."
           fi
         shell: bash
+
+  check-image-and-service-names-in-compose-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean Up Working Directory
+        run: sudo rm -rf ${{github.workspace}}/*
+
+      - name: Checkout Repo GenAIExamples
+        uses: actions/checkout@v4
+
+      - name: Check name agreement in compose.yaml
+        run: |
+          pip install ruamel.yaml
+          cd ${{github.workspace}}
+          consistency="TRUE"
+          build_yamls=$(find .github/workflows/docker/compose/ -name '*-compose.yaml')
+          for build_yaml in $yamls; do
+            message=$(python3 .github/workflows/scripts/check-name-agreement.py "$build_yaml")
+            if [[ "$message" != *"consistent"* ]]; then
+              consistency="FALSE"
+              echo "Inconsistent service name and image name found in file $build_yaml."
+              echo "$message"
+            fi
+          done
+          if [[ "$consistency" == "FALSE" ]]; then
+            echo "Please ensure that the service and image names are consistent in build.yaml, otherwise we cannot guarantee that your image will be published correctly."
+            exit 1
+          fi
+        shell: bash
