@@ -13,10 +13,10 @@ function build_docker_images() {
     docker build --no-cache -t opea/whisper-gaudi:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/dependency/Dockerfile.intel_hpu .
 
     if [ $? -ne 0 ]; then
-        echo "opea/whisper built fail"
+        echo "opea/whisper-gaudi built fail"
         exit 1
     else
-        echo "opea/whisper built successful"
+        echo "opea/whisper-gaudi built successful"
     fi
 
     docker build --no-cache -t opea/asr:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/Dockerfile .

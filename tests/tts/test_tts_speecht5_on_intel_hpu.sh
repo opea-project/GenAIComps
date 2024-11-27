@@ -12,10 +12,10 @@ function build_docker_images() {
     echo $(pwd)
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/speecht5-gaudi:comps -f comps/tts/speecht5/dependency/Dockerfile.intel_hpu .
     if [ $? -ne 0 ]; then
-        echo "opea/speecht5 built fail"
+        echo "opea/speecht5-gaudi built fail"
         exit 1
     else
-        echo "opea/speecht5 built successful"
+        echo "opea/speecht5-gaudi built successful"
     fi
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/tts:comps -f comps/tts/speecht5/Dockerfile .
     if [ $? -ne 0 ]; then
