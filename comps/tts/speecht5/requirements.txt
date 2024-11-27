@@ -10,3 +10,4 @@ shortuuid
 soundfile
 transformers
 uvicorn
+pydantic==2.7.2
