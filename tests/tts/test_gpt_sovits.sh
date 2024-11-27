@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/gpt-sovits:comps -f comps/tts/gpt-sovits/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/gpt-sovits:comps -f comps/tts/gpt-sovits/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/gpt-sovits built fail"
         exit 1
@@ -22,7 +22,7 @@ function build_docker_images() {
 function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-gpt-sovits" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9880:9880 --ipc=host opea/gpt-sovits:comps
-    sleep 3m
+    sleep 2m
 }
 
 function validate_microservice() {
