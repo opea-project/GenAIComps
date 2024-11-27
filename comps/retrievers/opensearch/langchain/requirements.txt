@@ -12,3 +12,5 @@ pymupdf
 sentence_transformers
 shortuuid
 uvicorn
+pydantic
+numpy
