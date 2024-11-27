@@ -303,7 +303,7 @@ jobs:
           pip install ruamel.yaml
           cd ${{github.workspace}}
           consistency="TRUE"
-          build_yamls=$(find .github/workflows/docker/compose/ -name '*-compose.yaml')
+          yamls=$(find .github/workflows/docker/compose/ -name '*-compose.yaml')
           for build_yaml in $yamls; do
             message=$(python3 .github/workflows/scripts/check-name-agreement.py "$build_yaml")
             if [[ "$message" != *"consistent"* ]]; then
