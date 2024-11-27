@@ -4,7 +4,6 @@
 import os
 
 # Embedding model
-
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 
 # OpenSearch Connection Information
