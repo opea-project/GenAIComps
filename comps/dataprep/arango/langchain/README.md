@@ -14,8 +14,12 @@ apt-get install poppler-utils -y
 
 To launch ArangoDB locally, first ensure you have docker installed. Then, you can launch the database with the following docker command.
 
-```bash
+<!-- ```bash
 docker run -d --name arangodb -p 8529:8529 -e ARANGO_ROOT_PASSWORD=password arangodb/arangodb:latest
+``` -->
+
+```bash
+docker run -d --name arangodb -p 8529:8529 -e ARANGO_ROOT_PASSWORD=password jbajic/arango-preview:vector-index-preview --experimental-vector-index=true
 ```
 
 ### Setup Environment Variables
