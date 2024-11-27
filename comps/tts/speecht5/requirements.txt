@@ -5,9 +5,9 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
+pydantic==2.7.2
 sentencepiece
 shortuuid
 soundfile
 transformers
 uvicorn
-pydantic==2.7.2
