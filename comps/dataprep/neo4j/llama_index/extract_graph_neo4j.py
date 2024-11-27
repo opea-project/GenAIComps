@@ -54,6 +54,8 @@ from comps.dataprep.utils import (
 
 nest_asyncio.apply()
 
+import time
+
 from llama_index.core.async_utils import run_jobs
 from llama_index.core.bridge.pydantic import BaseModel, Field
 from llama_index.core.graph_stores.types import KG_NODES_KEY, KG_RELATIONS_KEY, EntityNode, Relation
@@ -62,7 +64,6 @@ from llama_index.core.llms.llm import LLM
 from llama_index.core.prompts import PromptTemplate
 from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_PROMPT
 from llama_index.core.schema import BaseNode, TransformComponent
-import time
 
 
 class GraphRAGStore(Neo4jPropertyGraphStore):
@@ -252,7 +253,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         logger.info(f"Community_id: {community_id} type: {type(community_id)}")
         with self.driver.session() as session:
             session.run(
-            """
+                """
             MATCH (c:Cluster {id: $community_id, name: $community_name})
             SET c.summary = $summary
             """,
@@ -350,7 +351,7 @@ class GraphRAGExtractor(TransformComponent):
     async def _aextract(self, node: BaseNode) -> BaseNode:
         """Extract triples from a node."""
         assert hasattr(node, "text")
-        starttime=time.time()
+        starttime = time.time()
         text = node.get_content(metadata_mode="llm")
         try:
             llm_response = await self.llm.apredict(
@@ -484,7 +485,7 @@ def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
         if total_tokens + message_token_count > effective_max_tokens:
             # Trim the message to fit within the remaining token limit
             logger.info(f"Trimming messages: {total_tokens + message_token_count} > {effective_max_tokens}")
-            logger.info(f"message_token_count: {message_token_count}")    
+            logger.info(f"message_token_count: {message_token_count}")
             remaining_tokens = effective_max_tokens - total_tokens
             logger.info(f"remaining_tokens: {remaining_tokens}")
             tokens = tokens[:remaining_tokens]
@@ -554,6 +555,7 @@ def initialize_graph_store_and_models():
     graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
     initialized = True
 
+
 def ingest_data_to_neo4j(doc_path: DocPath):
     """Ingest document to Neo4J."""
     global initialized
@@ -561,7 +563,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
         starttime = time.time()
         initialize_graph_store_and_models()
         logger.info(f"Time taken to initialize: {time.time() - starttime}")
-    
+
     path = doc_path.path
     if logflag:
         logger.info(f"Parsing document {path}.")
@@ -618,7 +620,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     if logflag:
         logger.info("The graph is built.")
         logger.info(f"Time taken to update PropertyGraphIndex: {time.time() - starttime}")
-        # logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}") 
+        # logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}")
 
     if logflag:
         logger.info("Done building communities.")
@@ -657,14 +659,14 @@ async def ingest_documents(
         logger.info(f"files:{files}")
         logger.info(f"link_list:{link_list}")
         logger.info(f"skip_ingestion:{skip_ingestion}")
-    
+
     if skip_ingestion:
         initialize_graph_store_and_models()
         index = PropertyGraphIndex.from_existing(
             property_graph_store=graph_store,
             embed_model=embed_model or Settings.embed_model,
             embed_kg_nodes=True,
-    )
+        )
     else:
         if files:
             if not isinstance(files, list):
@@ -715,7 +717,7 @@ async def ingest_documents(
                     logger.info(f"Successfully saved link {link}")
 
     if files or link_list or skip_ingestion:
-        build_communities(index) # TEMPORAIRLY DISABLED
+        build_communities(index)  # TEMPORAIRLY DISABLED
         result = {"status": 200, "message": "Data preparation succeeded"}
         if logflag:
             logger.info(result)
