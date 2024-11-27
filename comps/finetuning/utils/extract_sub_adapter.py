@@ -3,6 +3,7 @@
 
 import os
 import re
+import shutil
 
 import torch
 from peft.utils import CONFIG_NAME, SAFETENSORS_WEIGHTS_NAME, WEIGHTS_NAME
@@ -97,4 +98,4 @@ def main(adapter_model_path, nncf_config, adapter_version, custom_config=None):
     os.makedirs(output_dir, exist_ok=True)
     torch.save(sub_adapter_weights, os.path.join(output_dir, WEIGHTS_NAME))
     config_path = os.path.join(adapter_model_path, CONFIG_NAME)
-    os.system(f"cp {config_path} {output_dir}")
+    shutil.copy(config_path, output_dir)
