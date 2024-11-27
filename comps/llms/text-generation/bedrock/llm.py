@@ -22,7 +22,7 @@ from comps import (
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
-region = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+region = os.getenv("AWS_DEFAULT_REGION", os.getenv("AWS_REGION", "us-west-2"))
 bedrock_runtime = boto3.client(service_name="bedrock-runtime", region_name=region)
 
 model_kwargs = {
@@ -83,5 +83,5 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
 
 
 if __name__ == "__main__":
-    model_id = os.getenv("MODEL_ID", "us.anthropic.claude-3-5-haiku-20241022-v1:0")
+    model_id = os.getenv("MODEL_ID", "anthropic.claude-3-5-haiku-20241022-v1:0")
     opea_microservices["opea_service@llm_bedrock"].start()
