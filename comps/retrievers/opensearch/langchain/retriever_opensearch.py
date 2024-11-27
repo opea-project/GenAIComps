@@ -3,9 +3,9 @@
 
 import os
 import time
-import numpy as np
-from typing import Union, List, Callable
+from typing import Callable, List, Union
 
+import numpy as np
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import OpenSearchVectorSearch
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
@@ -37,11 +37,8 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT", None)
 
 
 async def search_all_embeddings_vectors(
-    embeddings: Union[conlist(float, min_length=0), List[conlist(float, min_length=0)]],
-    func: Callable,
-    *args,
-    **kwargs
-    ):
+    embeddings: Union[conlist(float, min_length=0), List[conlist(float, min_length=0)]], func: Callable, *args, **kwargs
+):
     try:
         if not isinstance(embeddings, np.ndarray):
             embeddings = np.array(embeddings)

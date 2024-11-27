@@ -3,14 +3,14 @@ easyocr
 fastapi
 langchain_community
 langchain_huggingface
+numpy
 opensearch-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
+pydantic
 pymupdf
 sentence_transformers
 shortuuid
 uvicorn
-pydantic
-numpy
