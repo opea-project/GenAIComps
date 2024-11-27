@@ -62,6 +62,7 @@ from llama_index.core.llms.llm import LLM
 from llama_index.core.prompts import PromptTemplate
 from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_PROMPT
 from llama_index.core.schema import BaseNode, TransformComponent
+import time
 
 
 class GraphRAGStore(Neo4jPropertyGraphStore):
@@ -71,7 +72,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     max_cluster_size = 100
 
     def __init__(self, username: str, password: str, url: str, llm: LLM):
-        super().__init__(username=username, password=password, url=url)
+        super().__init__(username=username, password=password, url=url, refresh_schema=False)
         self.llm = llm
         self.driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 
@@ -248,13 +249,15 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
 
     def store_community_summary_in_neo4j(self, community_id, summary):
         """Store the community summary in Neo4j."""
+        logger.info(f"Community_id: {community_id} type: {type(community_id)}")
         with self.driver.session() as session:
             session.run(
-                """
-            MATCH (c:Cluster {id: $community_id})
+            """
+            MATCH (c:Cluster {id: $community_id, name: $community_name})
             SET c.summary = $summary
             """,
-                community_id=int(community_id),
+                community_id=str(community_id),
+                community_name=str(community_id),
                 summary=summary,
             )
 
@@ -347,7 +350,7 @@ class GraphRAGExtractor(TransformComponent):
     async def _aextract(self, node: BaseNode) -> BaseNode:
         """Extract triples from a node."""
         assert hasattr(node, "text")
-
+        starttime=time.time()
         text = node.get_content(metadata_mode="llm")
         try:
             llm_response = await self.llm.apredict(
@@ -359,7 +362,9 @@ class GraphRAGExtractor(TransformComponent):
         except ValueError:
             entities = []
             entities_relationship = []
+        logger.info(f"Time taken to LLM and parse: {time.time() - starttime}")
 
+        starttime = time.time()
         existing_nodes = node.metadata.pop(KG_NODES_KEY, [])
         existing_relations = node.metadata.pop(KG_RELATIONS_KEY, [])
         entity_metadata = node.metadata.copy()
@@ -383,6 +388,7 @@ class GraphRAGExtractor(TransformComponent):
 
         node.metadata[KG_NODES_KEY] = existing_nodes
         node.metadata[KG_RELATIONS_KEY] = existing_relations
+        logger.info(f"Time taken to process entities and relations: {time.time() - starttime}")
         logger.info(f"number of extracted nodes {len(existing_nodes), existing_nodes}")
         logger.info(f"number of extracted relations {len(existing_relations), existing_relations}")
         return node
@@ -475,12 +481,10 @@ def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
     for message in messages:
         tokens = tokenizer.tokenize(message.content)
         message_token_count = len(tokens)
-        # total_tokens += len(tokens)
         if total_tokens + message_token_count > effective_max_tokens:
             # Trim the message to fit within the remaining token limit
             logger.info(f"Trimming messages: {total_tokens + message_token_count} > {effective_max_tokens}")
-            logger.info(f"message_token_count: {message_token_count}")
-            # remaining_tokens = max_tokens - buffer - (total_tokens - len(tokens))
+            logger.info(f"message_token_count: {message_token_count}")    
             remaining_tokens = effective_max_tokens - total_tokens
             logger.info(f"remaining_tokens: {remaining_tokens}")
             tokens = tokens[:remaining_tokens]
@@ -550,13 +554,14 @@ def initialize_graph_store_and_models():
     graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
     initialized = True
 
-
 def ingest_data_to_neo4j(doc_path: DocPath):
     """Ingest document to Neo4J."""
     global initialized
     if not initialized:
+        starttime = time.time()
         initialize_graph_store_and_models()
-
+        logger.info(f"Time taken to initialize: {time.time() - starttime}")
+    
     path = doc_path.path
     if logflag:
         logger.info(f"Parsing document {path}.")
@@ -600,6 +605,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     if logflag:
         logger.info(f"Done preprocessing. Created  {len(nodes)} chunks of the original file.")
 
+    starttime = time.time()
     # nodes are the chunked docs to insert
     index = PropertyGraphIndex(
         nodes=nodes,
@@ -611,7 +617,8 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     )
     if logflag:
         logger.info("The graph is built.")
-        # logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}")
+        logger.info(f"Time taken to update PropertyGraphIndex: {time.time() - starttime}")
+        # logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}") 
 
     if logflag:
         logger.info("Done building communities.")
@@ -644,42 +651,30 @@ async def ingest_documents(
     chunk_overlap: int = Form(100),
     process_table: bool = Form(False),
     table_strategy: str = Form("fast"),
+    skip_ingestion: bool = Form(False),
 ):
     if logflag:
         logger.info(f"files:{files}")
         logger.info(f"link_list:{link_list}")
-
-    if files:
-        if not isinstance(files, list):
-            files = [files]
-        uploaded_files = []
-        for file in files:
-            encode_file = encode_filename(file.filename)
-            save_path = upload_folder + encode_file
-            await save_content_to_local_disk(save_path, file)
-            index = ingest_data_to_neo4j(
-                DocPath(
-                    path=save_path,
-                    chunk_size=chunk_size,
-                    chunk_overlap=chunk_overlap,
-                    process_table=process_table,
-                    table_strategy=table_strategy,
-                )
-            )
-            uploaded_files.append(save_path)
-            if logflag:
-                logger.info(f"Successfully saved file {save_path}")
-
-    if link_list:
-        link_list = json.loads(link_list)  # Parse JSON string to list
-        if not isinstance(link_list, list):
-            raise HTTPException(status_code=400, detail="link_list should be a list.")
-        for link in link_list:
-            encoded_link = encode_filename(link)
-            save_path = upload_folder + encoded_link + ".txt"
-            content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-            try:
-                await save_content_to_local_disk(save_path, content)
+        logger.info(f"skip_ingestion:{skip_ingestion}")
+    
+    if skip_ingestion:
+        initialize_graph_store_and_models()
+        index = PropertyGraphIndex.from_existing(
+            property_graph_store=graph_store,
+            embed_model=embed_model or Settings.embed_model,
+            embed_kg_nodes=True,
+    )
+    else:
+        if files:
+            if not isinstance(files, list):
+                files = [files]
+            uploaded_files = []
+            for file in files:
+                encode_file = encode_filename(file.filename)
+                save_path = upload_folder + encode_file
+                await save_content_to_local_disk(save_path, file)
+                starttime = time.time()
                 index = ingest_data_to_neo4j(
                     DocPath(
                         path=save_path,
@@ -689,14 +684,38 @@ async def ingest_documents(
                         table_strategy=table_strategy,
                     )
                 )
-            except json.JSONDecodeError:
-                raise HTTPException(status_code=500, detail="Fail to ingest data")
+                logger.info(f"Time taken to ingest file:{encode_file} {time.time() - starttime}")
+                uploaded_files.append(save_path)
+                if logflag:
+                    logger.info(f"Successfully saved file {save_path}")
 
-            if logflag:
-                logger.info(f"Successfully saved link {link}")
+        if link_list:
+            link_list = json.loads(link_list)  # Parse JSON string to list
+            if not isinstance(link_list, list):
+                raise HTTPException(status_code=400, detail="link_list should be a list.")
+            for link in link_list:
+                encoded_link = encode_filename(link)
+                save_path = upload_folder + encoded_link + ".txt"
+                content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+                try:
+                    await save_content_to_local_disk(save_path, content)
+                    index = ingest_data_to_neo4j(
+                        DocPath(
+                            path=save_path,
+                            chunk_size=chunk_size,
+                            chunk_overlap=chunk_overlap,
+                            process_table=process_table,
+                            table_strategy=table_strategy,
+                        )
+                    )
+                except json.JSONDecodeError:
+                    raise HTTPException(status_code=500, detail="Fail to ingest data")
 
-    if files or link_list:
-        build_communities(index)
+                if logflag:
+                    logger.info(f"Successfully saved link {link}")
+
+    if files or link_list or skip_ingestion:
+        build_communities(index) # TEMPORAIRLY DISABLED
         result = {"status": 200, "message": "Data preparation succeeded"}
         if logflag:
             logger.info(result)
