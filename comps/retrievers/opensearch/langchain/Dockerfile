@@ -26,4 +26,3 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 WORKDIR /home/user/comps/retrievers/opensearch/langchain
 
 ENTRYPOINT ["python", "retriever_opensearch.py"]
-

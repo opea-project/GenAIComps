@@ -6,14 +6,11 @@ For dataprep microservice for text input, we provide here the `Langchain` framew
 
 ### 1.1 Install Requirements
 
-- option 1: Install Single-process version (for 1-10 files processing)
+- option 1: Install Single-process version (for processing up to 10 files)
 
 ```bash
 apt update
-apt install default-jre
-apt-get install tesseract-ocr -y
-apt-get install libtesseract-dev -y
-apt-get install poppler-utils -y
+apt install default-jre tesseract-ocr libtesseract-dev poppler-utils -y
 # for langchain
 cd langchain
 pip install -r requirements.txt
@@ -26,6 +23,7 @@ Please refer to this [readme](../../vectorstores/opensearch/README.md).
 ### 1.3 Setup Environment Variables
 
 ```bash
+export your_ip=$(hostname -I | awk '{print $1}')
 export OPENSEARCH_URL="http://${your_ip}:9200"
 export INDEX_NAME=${your_index_name}
 export PYTHONPATH=${path_to_comps}
@@ -60,7 +58,7 @@ export TEI_ENDPOINT="http://localhost:$your_port"
 
 Start document preparation microservice for OpenSearch with below command.
 
-- option 1: Start single-process version (for 1-10 files processing)
+- option 1: Start single-process version (for processing up to 10 files)
 
 ```bash
 cd langchain
@@ -87,7 +85,7 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 - Build docker image with langchain
 
-- option 1: Start single-process version (for 1-10 files processing)
+- option 1: Start single-process version (for processing up to 10 files)
 
 ```bash
 cd ../../
@@ -96,7 +94,7 @@ docker build -t opea/dataprep-opensearch:latest --build-arg https_proxy=$https_p
 
 ### 2.4 Run Docker with CLI (Option A)
 
-- option 1: Start single-process version (for 1-10 files processing)
+- option 1: Start single-process version (for processing up to 10 files)
 
 ```bash
 docker run -d --name="dataprep-opensearch-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e OPENSEARCH_URL=$OPENSEARCH_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep-opensearch:latest
