@@ -38,7 +38,7 @@ jobs:
         uses: opea-project/validation/actions/check-cmd@main
         with:
           work_dir: ${{ github.workspace }}
-          
+
       - name: Get test matrix
         id: get-test-matrix
         run: |

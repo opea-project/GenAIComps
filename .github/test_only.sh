@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 #This is for test only
 docker images
 docker stop $(docker ps -a -q) # this is the dangerous cmd
