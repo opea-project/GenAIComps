@@ -24,6 +24,7 @@ function build_docker_images() {
 
 function start_service() {
     # Start OpenSearch vector db container
+    sudo sysctl -w vm.max_map_count=262144
     docker run -d \
         --name test-comps-dataprep-opensearch-langchain \
         -e cluster.name=opensearch-cluster \
