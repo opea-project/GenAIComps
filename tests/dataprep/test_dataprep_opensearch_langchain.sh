@@ -61,6 +61,9 @@ function start_service() {
 function validate_microservice() {
     cd $LOG_PATH
 
+    # test OpenSearch cluster health endpoint
+   curl -X GET "https://localhost:9200/_cluster/health?pretty" -ku admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+
     # test /v1/dataprep upload file
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
