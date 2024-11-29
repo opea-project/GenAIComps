@@ -6,8 +6,7 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
-# ip_address=$(hostname -I | awk '{print $1}')
-ip_address="127.0.0.1"
+ip_address=$(hostname -I | awk '{print $1}')
 retriever_port="7000"
 OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
 
