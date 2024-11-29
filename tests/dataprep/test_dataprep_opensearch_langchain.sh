@@ -37,6 +37,7 @@ function start_service() {
         --ulimit nofile=65536:65536 \
         -p 9200:9200 \
         -p 9600:9600 \
+	--ipc=host \
         opensearchproject/opensearch:latest
 
     # Start OpenSearch dataprep container
@@ -51,6 +52,7 @@ function start_service() {
         -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=$OPENSEARCH_INITIAL_ADMIN_PASSWORD \
         -e OPENSEARCH_URL=$OPENSEARCH_URL \
         -e INDEX_NAME=$INDEX_NAME \
+	--ipc=host \
         opea/dataprep-opensearch:latest
 
     sleep 2m

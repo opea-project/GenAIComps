@@ -36,12 +36,13 @@ function start_service() {
         --ulimit nofile=65536:65536 \
         -p 9200:9200 \
         -p 9600:9600 \
+	--ipc=host \
         opensearchproject/opensearch:latest
 
     # tei endpoint
     tei_endpoint=6060
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-opensearch-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+    docker run -d --name="test-comps-retriever-opensearch-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model --ipc=host
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
 
@@ -57,6 +58,7 @@ function start_service() {
         -e OPENSEARCH_URL=$OPENSEARCH_URL \
         -e INDEX_NAME=$INDEX_NAME \
         -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} \
+	--ipc=host \
         opea/retriever-opensearch:latest
 
     sleep 2m
