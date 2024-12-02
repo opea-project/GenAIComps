@@ -22,6 +22,19 @@ function build_docker_images() {
     fi
 }
 
+function build_sqft_docker_images() {
+    cd $WORKPATH
+    echo $(pwd)
+    # TODO: get the Dockerfile from the SQFT source repository instead of comps/finetuning/Dockerfile.sqft.
+    docker build -t opea/finetuning:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/Dockerfile.sqft .
+    if [ $? -ne 0 ]; then
+        echo "opea/finetuning (sqft) built fail"
+        exit 1
+    else
+        echo "opea/finetuning (sqft) built successful"
+    fi
+}
+
 function start_service() {
     export no_proxy="localhost,127.0.0.1,"${ip_address}
     docker run -d --name="test-comps-finetuning-server" -p $finetuning_service_port:$finetuning_service_port -p $ray_port:$ray_port --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy opea/finetuning:comps
@@ -225,6 +238,44 @@ EOF
 
 }
 
+function validate_sqft_microservice() {
+    cd $LOG_PATH
+    export no_proxy="localhost,127.0.0.1,"${ip_address}
+
+    ##########################
+    #    general test         #
+    ##########################
+    # test /v1/dataprep upload file
+    echo '[{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."},{"instruction": "Give three tips for staying healthy.", "input": "", "output": "1.Eat a balanced diet and make sure to include plenty of fruits and vegetables. \n2. Exercise regularly to keep your body active and strong. \n3. Get enough sleep and maintain a consistent sleep schedule."}]' > $LOG_PATH/test_data.json
+    validate_upload \
+        "http://${ip_address}:$finetuning_service_port/v1/files" \
+        "general - upload" \
+        "test-comps-finetuning-server" \
+        "fine-tune" \
+        "test_data.json"
+
+    # test /v1/fine_tuning/jobs
+    validate_finetune \
+        "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
+        "general - finetuning" \
+        "test-comps-finetuning-server" \
+        '{"id":"ft-job' \
+        '{"training_file": "test_data.json","model": "facebook/opt-125m"}'
+
+
+    ##########################
+    #    sqft test   #
+    ##########################
+    # test /v1/fine_tuning/jobs
+    validate_finetune \
+        "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
+        "sqft - finetuning" \
+        "test-comps-finetuning-server" \
+        '{"id":"ft-job' \
+        '{"training_file": "test_data.json","model": "facebook/opt-125m", "General": {"lora_config": {"r": 8, "neural_lora_search": true, "target_module_groups": [["q_proj"]], "search_space": ["8,6,4"]}}}'
+
+}
+
 function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-finetuning-server*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
@@ -233,11 +284,15 @@ function stop_docker() {
 function main() {
 
     stop_docker
-
     build_docker_images
     start_service
-
     validate_microservice
+
+    # test sqft
+    stop_docker
+    build_sqft_docker_images
+    start_service
+    validate_sqft_microservice
 
     stop_docker
     echo y | docker system prune
