@@ -1,0 +1,15 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: reranking-usvc
+description: The Helm chart for deploying reranking as microservice
+type: application
+version: 0-latest
+# The reranking microservice server version
+appVersion: "v1.0"
+dependencies:
+  - name: teirerank
+    version: 0-latest
+    repository: file://../teirerank
+    condition: teirerank.enabled

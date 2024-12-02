@@ -1,0 +1,96 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Default values for guardrails-usvc.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+tgi-guardrails:
+  enabled: false
+  LLM_MODEL_ID: "meta-llama/Meta-Llama-Guard-2-8B"
+
+replicaCount: 1
+
+# TGI service endpoint
+SAFETY_GUARD_ENDPOINT: ""
+# Guard Model Id
+SAFETY_GUARD_MODEL_ID: "meta-llama/Meta-Llama-Guard-2-8B"
+# Set it as a non-null string, such as true, if you want to enable logging facility,
+# otherwise, keep it as "" to disable it.
+LOGFLAG: ""
+
+image:
+  repository: opea/guardrails-tgi
+  # Uncomment the following line to set desired image pull policy if needed, as one of Always, IfNotPresent, Never.
+  # pullPolicy: ""
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  type: ClusterIP
+  port: 9090
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: v1/health_check
+    port: guardrails-usvc
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 24
+readinessProbe:
+  httpGet:
+    path: v1/health_check
+    port: guardrails-usvc
+  initialDelaySeconds: 5
+  periodSeconds: 5
+startupProbe:
+  httpGet:
+    path: v1/health_check
+    port: guardrails-usvc
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 120
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+global:
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
+  HUGGINGFACEHUB_API_TOKEN: "insert-your-huggingface-token-here"

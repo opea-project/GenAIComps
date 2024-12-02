@@ -1,0 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+image:
+  repository: opea/faqgen-ui
+  tag: "latest"
+
+containerPort: 5173
+
+BACKEND_SERVICE_ENDPOINT: "/v1/faqgen"

@@ -1,0 +1,30 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "prompt-usvc.fullname" . }}-config
+  labels:
+    {{- include "prompt-usvc.labels" . | nindent 4 }}
+data:
+  {{- if .Values.MONGO_HOST }}
+  MONGO_HOST: {{ .Values.MONGO_HOST | quote}}
+  {{- else }}
+  MONGO_HOST: "{{ .Release.Name }}-mongodb"
+  {{- end }}
+  {{- if .Values.MONGO_PORT }}
+  MONGO_PORT: {{ .Values.MONGO_PORT | quote }}
+  {{- else }}
+  MONGO_PORT: "27017"
+  {{- end }}
+  DB_NAME: {{ .Values.DB_NAME | quote }}
+  COLLECTION_NAME: {{ .Values.COLLECTION_NAME | quote }}
+  http_proxy: {{ .Values.global.http_proxy | quote }}
+  https_proxy: {{ .Values.global.https_proxy | quote }}
+  {{- if and (not .Values.MONGO_HOST) (or .Values.global.http_proxy .Values.global.https_proxy) }}
+  no_proxy: "{{ .Release.Name }}-mongodb,{{ .Values.global.no_proxy }}"
+  {{- else }}
+  no_proxy: {{ .Values.global.no_proxy | quote }}
+  {{- end }}
+  LOGFLAG: {{ .Values.LOGFLAG | quote }}

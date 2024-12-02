@@ -1,0 +1,96 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Default values for whisper.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+ASR_MODEL_PATH: "openai/whisper-small"
+
+image:
+  repository: opea/whisper
+  # Uncomment the following line to set desired image pull policy if needed, as one of Always, IfNotPresent, Never.
+  # pullPolicy: ""
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  type: ClusterIP
+  # The default port for whisper service is 7066
+  port: 7066
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: /v1/health
+    port: whisper
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 24
+readinessProbe:
+  httpGet:
+    path: /v1/health
+    port: whisper
+  initialDelaySeconds: 5
+  periodSeconds: 5
+startupProbe:
+  httpGet:
+    path: /v1/health
+    port: whisper
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 120
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+global:
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
+
+  # Choose where to save your downloaded models
+  # Set modelUseHostPath for local directory, this is good for one node test. Example:
+  # modelUseHostPath: /mnt/opea-models
+  # Set modelUsePVC for PersistentVolumeClaim(PVC), which is suitable for multinode deployment. Example:
+  # modelUsePVC: model-volume
+  # You can only set one of the following var, the behavior is not defined is both are set.
+  # By default, both var are set to empty, the model will be downloaded and saved to a tmp volume.
+  modelUseHostPath: ""
+  modelUsePVC: ""

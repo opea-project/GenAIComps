@@ -1,0 +1,49 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "retriever-usvc.fullname" . }}-config
+  labels:
+    {{- include "retriever-usvc.labels" . | nindent 4 }}
+data:
+  {{- if .Values.MOSEC_EMBEDDING_ENDPOINT }}
+  MOSEC_EMBEDDING_ENDPOINT: {{ .Values.MOSEC_EMBEDDING_ENDPOINT | quote}}
+  MOSEC_EMBEDDING_MODEL: {{ .Values.MOSEC_EMBEDDING_MODEL | quote}}
+  {{- else if .Values.TEI_EMBEDDING_ENDPOINT }}
+  TEI_EMBEDDING_ENDPOINT: {{ .Values.TEI_EMBEDDING_ENDPOINT | quote }}
+  {{- else if not .Values.LOCAL_EMBEDDING_MODEL }}
+  TEI_EMBEDDING_ENDPOINT: "http://{{ .Release.Name }}-tei"
+  {{- end }}
+  {{- if .Values.LOCAL_EMBEDDING_MODEL }}
+  EMBED_MODEL: {{ .Values.LOCAL_EMBEDDING_MODEL | quote }}
+  LOCAL_EMBEDDING_MODEL: {{ .Values.LOCAL_EMBEDDING_MODEL | quote }}
+  {{- end }}
+  {{- if .Values.REDIS_URL }}
+  REDIS_URL: {{ .Values.REDIS_URL | quote}}
+  {{- else }}
+  REDIS_URL: "redis://{{ .Release.Name }}-redis-vector-db:6379"
+  {{- end }}
+  INDEX_NAME: {{ .Values.INDEX_NAME | quote }}
+  {{- if .Values.MILVUS_HOST }}
+  MILVUS_HOST: {{ .Values.MILVUS_HOST | quote }}
+  {{- else }}
+  MILVUS_HOST: "{{ .Release.Name }}-milvus"
+  {{- end }}
+  MILVUS: {{ .Values.MILVUS_HOST | quote }}
+  MILVUS_PORT: {{ .Values.MILVUS_PORT | quote }}
+  {{- if .Values.COLLECTION_NAME }}
+  COLLECTION_NAME: {{ .Values.COLLECTION_NAME | quote }}
+  {{- end }}
+  EASYOCR_MODULE_PATH: "/tmp/.EasyOCR"
+  http_proxy: {{ .Values.global.http_proxy | quote }}
+  https_proxy: {{ .Values.global.https_proxy | quote }}
+  {{- if and (not .Values.REDIS_URL) (and (not .Values.TEI_EMBEDDING_ENDPOINT) (or .Values.global.http_proxy .Values.global.https_proxy)) }}
+  no_proxy: "{{ .Release.Name }}-tei,{{ .Release.Name }}-redis-vector-db,{{ .Values.global.no_proxy }}"
+  {{- else }}
+  no_proxy: {{ .Values.global.no_proxy | quote }}
+  {{- end }}
+  HF_HOME: "/tmp/.cache/huggingface"
+  HUGGINGFACEHUB_API_TOKEN: {{ .Values.global.HUGGINGFACEHUB_API_TOKEN | quote}}
+  LOGFLAG: {{ .Values.LOGFLAG | quote }}

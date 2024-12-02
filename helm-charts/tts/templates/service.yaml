@@ -1,0 +1,18 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "tts.fullname" . }}
+  labels:
+    {{- include "tts.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 9088
+      protocol: TCP
+      name: tts
+  selector:
+    {{- include "tts.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,42 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ui.fullname" . }}-config
+  labels:
+    {{- include "ui.labels" . | nindent 4 }}
+data:
+  {{- if contains "codegen-react-ui" .Values.image.repository }}
+  VITE_CODE_GEN_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else if contains "codegen-ui" .Values.image.repository }}
+  BASIC_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else if contains "codetrans-ui" .Values.image.repository }}
+  BASE_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else if (contains "docsum-ui" .Values.image.repository) }}
+  DOC_BASE_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  BACKEND_SERVICE_ENDPOINT: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else if (contains "docsum-react-ui" .Values.image.repository) }}
+  VITE_DOC_SUM_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else if contains "chatqna-ui" .Values.image.repository }}
+  CHAT_BASE_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  UPLOAD_FILE_BASE_URL: {{ .Values.DATAPREP_SERVICE_ENDPOINT | quote }}
+  GET_FILE: {{ .Values.DATAPREP_GET_FILE_ENDPOINT | quote }}
+  DELETE_FILE: {{ .Values.DATAPREP_DELETE_FILE_ENDPOINT | quote }}
+  {{- else if contains "chatqna-conversation-ui" .Values.image.repository}}
+  APP_BACKEND_SERVICE_ENDPOINT: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  APP_DATA_PREP_SERVICE_URL: {{ .Values.DATAPREP_SERVICE_ENDPOINT | quote }}
+  APP_DATA_PREP_GET_FILE_URL: {{ .Values.DATAPREP_GET_FILE_ENDPOINT | quote }}
+  APP_DATA_PREP_DELETE_FILE_URL: {{ .Values.DATAPREP_DELETE_FILE_ENDPOINT | quote }}
+  {{- else if contains "visualqna-ui" .Values.image.repository }}
+  BACKEND_BASE_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else if contains "audioqna-ui" .Values.image.repository }}
+  CHAT_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else if contains "faqgen-react-ui" .Values.image.repository }}
+  VITE_FAQ_GEN_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else if contains "faqgen-ui" .Values.image.repository }}
+  FAQ_BASE_URL: {{ .Values.BACKEND_SERVICE_ENDPOINT | quote }}
+  {{- else }}
+    {{- fail "Unsupported ui image: " .Values.image.repository }}
+  {{- end }}

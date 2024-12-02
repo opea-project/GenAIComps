@@ -1,0 +1,147 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Default values for tgi.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+# Enabling HPA will:
+# - Ignore above replica count, as it will be controlled by HPA
+# - Add example HPA scaling rules with thresholds suitable for Xeon deployments
+# - Require custom metrics ConfigMap available in the main application chart
+autoscaling:
+  maxReplicas: 4
+  enabled: false
+
+port: 2080
+shmSize: 1Gi
+
+# Set extraCmdArgs if you need to pass additional parameters to TGI for performance
+# Refer to https://huggingface.co/docs/text-generation-inference/en/reference/launcher for more options.
+# extraCmdArgs: ["--dtype","bfloat16"]
+
+image:
+  repository: ghcr.io/huggingface/text-generation-inference
+  # Uncomment the following line to set desired image pull policy if needed, as one of Always, IfNotPresent, Never.
+  # pullPolicy: ""
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "2.4.0-intel-cpu"
+
+# empty for CPU
+accelDevice: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  type: ClusterIP
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Use TCP probe instead of HTTP due to bug #483
+# https://github.com/opea-project/GenAIExamples/issues/483
+livenessProbe:
+  tcpSocket:
+    port: http
+  initialDelaySeconds: 8
+  periodSeconds: 8
+  timeoutSeconds: 4
+  failureThreshold: 24
+readinessProbe:
+  tcpSocket:
+    port: http
+  initialDelaySeconds: 16
+  periodSeconds: 8
+  timeoutSeconds: 4
+startupProbe:
+  tcpSocket:
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  failureThreshold: 180
+  timeoutSeconds: 2
+# livenessProbe:
+#   httpGet:
+#     path: /health
+#     port: http
+#   initialDelaySeconds: 5
+#   periodSeconds: 5
+#   failureThreshold: 24
+# readinessProbe:
+#   httpGet:
+#     path: /health
+#     port: http
+#   initialDelaySeconds: 5
+#   periodSeconds: 5
+# startupProbe:
+#   httpGet:
+#     path: /health
+#     port: http
+#   initialDelaySeconds: 5
+#   periodSeconds: 5
+#   failureThreshold: 120
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+LLM_MODEL_ID: Intel/neural-chat-7b-v3-3
+
+MAX_INPUT_LENGTH: ""
+MAX_TOTAL_TOKENS: ""
+CUDA_GRAPHS: "0"
+HF_HUB_DISABLE_PROGRESS_BARS: "1"
+HF_HUB_ENABLE_HF_TRANSFER: "0"
+
+global:
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
+  HUGGINGFACEHUB_API_TOKEN: "insert-your-huggingface-token-here"
+
+  # Choose where to save your downloaded models
+  # Set modelUseHostPath for local directory, this is good for one node test. Example:
+  # modelUseHostPath: /mnt/opea-models
+  # Set modelUsePVC for PersistentVolumeClaim(PVC), which is suitable for multinode deployment. Example:
+  # modelUsePVC: model-volume
+  # You can only set one of the following var, the behavior is not defined is both are set.
+  # By default, both var are set to empty, the model will be downloaded and saved to a tmp volume.
+  modelUseHostPath: ""
+  modelUsePVC: ""
+
+  # Install Prometheus serviceMonitor for service
+  monitoring: false
+
+  # Prometheus Helm install release name for serviceMonitor
+  prometheusRelease: prometheus-stack

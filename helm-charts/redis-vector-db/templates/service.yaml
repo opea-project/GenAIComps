@@ -1,0 +1,20 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "redis-vector-db.fullname" . }}
+  labels:
+    {{- include "redis-vector-db.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+      {{- range .Values.service.ports }}
+      - port: {{ .port }}
+        targetPort: {{ .targetPort }}
+        protocol: {{ .protocol }}
+        name: {{ .name }}
+      {{- end }}
+  selector:
+    {{- include "redis-vector-db.selectorLabels" . | nindent 4 }}
