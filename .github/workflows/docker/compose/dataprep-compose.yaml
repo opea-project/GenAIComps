@@ -7,6 +7,10 @@ services:
     build:
       dockerfile: comps/dataprep/redis/langchain/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-redis:${TAG:-latest}
+  dataprep-opensearch:
+    build:
+      dockerfile: comps/dataprep/opensearch/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/dataprep-opensearch:${TAG:-latest}
   dataprep-qdrant:
     build:
       dockerfile: comps/dataprep/qdrant/langchain/Dockerfile

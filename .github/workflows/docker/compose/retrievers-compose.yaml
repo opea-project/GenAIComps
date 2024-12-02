@@ -7,6 +7,10 @@ services:
     build:
       dockerfile: comps/retrievers/redis/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-redis:${TAG:-latest}
+  retriever-opensearch:
+    build:
+      dockerfile: comps/retrievers/opensearch/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/retriever-opensearch:${TAG:-latest}
   retriever-qdrant:
     build:
       dockerfile: comps/retrievers/qdrant/haystack/Dockerfile
