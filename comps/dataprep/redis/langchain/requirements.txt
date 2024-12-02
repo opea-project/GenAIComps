@@ -18,6 +18,7 @@ opentelemetry-sdk
 pandas
 Pillow
 prometheus-fastapi-instrumentator
+pyjwt
 pymupdf
 pyspark
 pytesseract

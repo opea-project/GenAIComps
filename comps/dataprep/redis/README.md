@@ -102,6 +102,18 @@ export INDEX_NAME=${your_index_name}
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
 
+if Authorization is needed with keycloak
+
+```bash
+realm_name=productivitysuite
+export JWT_AUTH=True
+export REALM_URL="http://${your_ip}/realms/$realm_name"
+export ADMIN_ROLE="admin"
+export USER_ROLE="user"
+```
+
+If JWT_AUTH is enabled make sure to follow [keycloak setup guide](https://github.com/opea-project/GenAIExamples/blob/main/ProductivitySuite/docker_compose/intel/cpu/xeon/keycloak_setup_guide.md)
+
 ### 2.3 Build Docker Image
 
 - Build docker image with langchain

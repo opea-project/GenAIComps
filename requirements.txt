@@ -12,6 +12,7 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 Pillow
 prometheus-fastapi-instrumentator
+pyjwt
 pypdf
 python-multipart
 pyyaml
