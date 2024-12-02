@@ -7,8 +7,9 @@ from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain.prompts import PromptTemplate
-from langchain.text_splitter import CharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
 from langchain_community.llms import VLLMOpenAI
+from pathlib import Path as p
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 from comps.cores.mega.utils import get_access_token
@@ -84,8 +85,13 @@ async def llm_generate(input: LLMParamsDoc):
         temperature=input.temperature,
         presence_penalty=input.repetition_penalty,
     )
-    llm_chain = load_summarize_chain(llm=llm, prompt=PROMPT)
+    # llm_chain = load_summarize_chain(llm=llm, prompt=PROMPT)
+    llm_chain = load_summarize_chain(llm=llm, chain_type="map_reduce",return_intermediate_steps=True)
     texts = text_splitter.split_text(input.query)
+    print("111111111122222222222222222")
+    print(type(texts))
+    print(len(texts))
+    print("111111111122222222222222222")
 
     # Create multiple documents
     docs = [Document(page_content=t) for t in texts]
@@ -114,5 +120,6 @@ async def llm_generate(input: LLMParamsDoc):
 
 if __name__ == "__main__":
     # Split text
-    text_splitter = CharacterTextSplitter()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=8000, chunk_overlap=200)
+    # text_splitter = CharacterTextSplitter()
     opea_microservices["opea_service@llm_docsum"].start()
