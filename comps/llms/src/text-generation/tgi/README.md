@@ -12,23 +12,11 @@ To start the LLM microservice, you need to install python packages first.
 pip install -r requirements.txt
 ```
 
-### 1.2 Start LLM Service
+### 1.2 Start 3rd-party TGI Service
 
-```bash
-export HF_TOKEN=${your_hf_api_token}
-docker run -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${your_hf_llm_model}
-```
+Please refer to [3rd-party TGI](../../../../3rd_parties/tgi/docker/README.md) to start a LLM endpoint and verify.
 
-### 1.3 Verify the TGI Service
-
-```bash
-curl http://${your_ip}:8008/v1/chat/completions \
-     -X POST \
-     -d '{"model": ${your_hf_llm_model}, "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17}' \
-     -H 'Content-Type: application/json'
-```
-
-### 1.4 Start LLM Service with Python Script
+### 1.3 Start LLM Service with Python Script
 
 ```bash
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
@@ -72,8 +60,8 @@ docker run -d --name="llm-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$htt
 ### 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd text-generation/tgi
-docker compose -f docker_compose_llm.yaml up -d
+cd comps/llms/deployment/docker_compose/
+docker compose -f text-generation_tgi.yaml up -d
 ```
 
 ## 🚀3. Consume LLM Service
