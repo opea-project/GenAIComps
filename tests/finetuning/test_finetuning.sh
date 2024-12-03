@@ -26,7 +26,7 @@ function build_sqft_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     curl -o comps/finetuning/Dockerfile.sqft https://raw.githubusercontent.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning/main/SQFT/opea/Dockerfile
-    docker build -t opea/finetuning:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/Dockerfile.sqft .
+    docker build --no-cache -t opea/finetuning:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/Dockerfile.sqft .
     if [ $? -ne 0 ]; then
         echo "opea/finetuning (sqft) built fail"
         exit 1
