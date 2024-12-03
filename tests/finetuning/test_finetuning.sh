@@ -145,6 +145,7 @@ function validate_merge_or_extract_adapter() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs $DOCKER_NAME >> ${LOG_PATH}/finetuning-server_merge_or_extract_adapter.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -153,6 +154,7 @@ function validate_merge_or_extract_adapter() {
     # Check if the parsed values match the expected values
     if [[ "$RESPONSE_BODY" != *"$EXPECTED_DATA"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs $DOCKER_NAME >> ${LOG_PATH}/finetuning-server_merge_or_extract_adapter.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
