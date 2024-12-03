@@ -99,9 +99,19 @@ def ingest_data_to_arango(doc_path: DocPath):
     doc_list = [Document(page_content=text) for text in chunks]
     graph_doc = llm_transformer.convert_to_graph_documents(doc_list)
 
-    db = ArangoClient(hosts=ARANGO_URL).db(
+    client = ArangoClient(hosts=ARANGO_URL)
+
+    sys_db = client.db(
+        name="_system", username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True
+    )
+
+    if not sys_db.has_database(DB_NAME):
+        sys_db.create_database(DB_NAME)
+
+    db = client.db(
         name=DB_NAME, username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True
     )
+
     graph = ArangoGraph(db=db, include_examples=True)
 
     graph.add_graph_documents(
