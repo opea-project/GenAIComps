@@ -314,7 +314,7 @@ function validate_sqft_microservice() {
     # test extracting heuristic sub-adapter
     validate_merge_or_extract_adapter \
         "http://${ip_address}:$finetuning_service_port/v1/finetune/extract_sub_adapter" \
-        "extract sub-adapter" \
+        "extract heuristic sub-adapter" \
         "test-comps-finetuning-server" \
         "${FINTUNING_ID}" \
         "{\"fine_tuning_job_id\": \"${FINTUNING_ID}\", \"adapter_version\": \"heuristic\"}"
@@ -322,10 +322,26 @@ function validate_sqft_microservice() {
     # test merging the heuristic sub-adapter into the base model
     validate_merge_or_extract_adapter \
         "http://${ip_address}:$finetuning_service_port/v1/finetune/merge_adapter" \
-        "adapter merge" \
+        "merge heuristic sub-adapter" \
         "test-comps-finetuning-server" \
         "${FINTUNING_ID}" \
         "{\"fine_tuning_job_id\": \"${FINTUNING_ID}\", \"adapter_version\": \"heuristic\"}"
+
+    # test extracting sub-adapter with custom configuration
+    validate_merge_or_extract_adapter \
+        "http://${ip_address}:$finetuning_service_port/v1/finetune/extract_sub_adapter" \
+        "extract custom sub-adapter" \
+        "test-comps-finetuning-server" \
+        "${FINTUNING_ID}" \
+        "{\"fine_tuning_job_id\": \"${FINTUNING_ID}\", \"adapter_version\": \"custom\", \"custom_config\": [8, 6, 4, 4, 8, 6, 8, 8, 8, 8, 4, 8]}"
+
+    # test merging the custom sub-adapter into the base model
+    validate_merge_or_extract_adapter \
+        "http://${ip_address}:$finetuning_service_port/v1/finetune/merge_adapter" \
+        "merge custom sub-adapter" \
+        "test-comps-finetuning-server" \
+        "${FINTUNING_ID}" \
+        "{\"fine_tuning_job_id\": \"${FINTUNING_ID}\", \"adapter_version\": \"custom\"}"
 
 }
 
