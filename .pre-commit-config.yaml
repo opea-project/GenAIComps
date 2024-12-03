@@ -14,6 +14,7 @@ repos:
       - id: check-json
       - id: check-yaml
         args: [--allow-multiple-documents]
+        exclude: (dev/helm-chart-starter/.*)$
       - id: debug-statements
       - id: mixed-line-ending
         args: [--fix=lf]
