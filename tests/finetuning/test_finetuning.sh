@@ -130,8 +130,6 @@ function validate_finetune() {
 	fi
 	sleep 1m
     done
-
-  echo "$FINTUNING_ID"
 }
 
 function validate_merge_or_extract_adapter() {
@@ -284,12 +282,12 @@ function validate_sqft_microservice() {
         "test_data.json"
 
     # test /v1/fine_tuning/jobs (LoRA)
-    FINTUNING_ID=$(validate_finetune \
+    validate_finetune \
         "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
         "general - finetuning" \
         "test-comps-finetuning-server" \
         '{"id":"ft-job' \
-        '{"training_file": "test_data.json","model": "facebook/opt-125m", "General": {"lora_config": {"r": 8, "target_modules": ["q_proj"]}}}')
+        '{"training_file": "test_data.json","model": "facebook/opt-125m", "General": {"lora_config": {"r": 8, "target_modules": ["q_proj"]}}}'
 
     # test merging the LoRA adapter into the base model
     validate_merge_or_extract_adapter \
@@ -304,12 +302,12 @@ function validate_sqft_microservice() {
     #        sqft test       #
     ##########################
     # test /v1/fine_tuning/jobs (SQFT-NLS)
-    FINTUNING_ID=$(validate_finetune \
+    validate_finetune \
         "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
         "sqft - finetuning" \
         "test-comps-finetuning-server" \
         '{"id":"ft-job' \
-        '{"training_file": "test_data.json","model": "facebook/opt-125m", "General": {"lora_config": {"r": 8, "neural_lora_search": true, "target_module_groups": [["q_proj"]], "search_space": ["8,6,4"]}}}')
+        '{"training_file": "test_data.json","model": "facebook/opt-125m", "General": {"lora_config": {"r": 8, "neural_lora_search": true, "target_module_groups": [["q_proj"]], "search_space": ["8,6,4"]}}}'
 
     # test extracting heuristic sub-adapter
     validate_merge_or_extract_adapter \
