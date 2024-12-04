@@ -32,7 +32,7 @@ logflag = os.getenv("LOGFLAG", False)
 
 class MosecEmbeddings(OpenAIEmbeddings):
     async def _aget_len_safe_embeddings(
-            self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
+        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
     ) -> List[List[float]]:
         _chunk_size = chunk_size or self.chunk_size
         batched_embeddings: List[List[float]] = []
@@ -59,7 +59,7 @@ class MosecEmbeddings(OpenAIEmbeddings):
         return embeddings
 
     def _get_len_safe_embeddings(
-            self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
+        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
     ) -> List[List[float]]:
         _chunk_size = chunk_size or self.chunk_size
         batched_embeddings: List[List[float]] = []
@@ -80,7 +80,6 @@ class MosecEmbeddings(OpenAIEmbeddings):
             return _cached_empty_embedding
 
         return [e if e is not None else empty_embedding() for e in batched_embeddings]
-
 
 
 @register_microservice(
