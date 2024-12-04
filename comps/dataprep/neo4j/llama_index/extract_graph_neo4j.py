@@ -535,13 +535,13 @@ def initialize_graph_store_and_models():
             model_name=llm_name,
             temperature=0.7,
             max_tokens=1512,  # 512otherwise too shor
-            timeout=600,  # timeout in seconds
+            timeout=1200,  # timeout in seconds
         )
         emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
         embed_model = TextEmbeddingsInference(
             base_url=TEI_EMBEDDING_ENDPOINT,
             model_name=emb_name,
-            timeout=600,  # timeout in seconds
+            timeout=1200,  # timeout in seconds
             embed_batch_size=10,  # batch size for embedding
         )
     Settings.embed_model = embed_model

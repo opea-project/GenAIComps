@@ -206,6 +206,7 @@ async def initialize_graph_store_and_index():
         llm = TextGenerationInference(
             model_url=TGI_LLM_ENDPOINT,
             model_name=llm_name,
+            timeout=600,
             temperature=0.7,
             max_tokens=1512,  # 512otherwise too shor
         )
@@ -213,7 +214,7 @@ async def initialize_graph_store_and_index():
         embed_model = TextEmbeddingsInference(
             base_url=TEI_EMBEDDING_ENDPOINT,
             model_name=emb_name,
-            timeout=60,  # timeout in seconds
+            timeout=1200,  # timeout in seconds
             embed_batch_size=10,  # batch size for embedding
         )
     Settings.embed_model = embed_model
