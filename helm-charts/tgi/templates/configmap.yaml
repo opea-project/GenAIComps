@@ -1,0 +1,58 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "tgi.fullname" . }}-config
+  labels:
+    {{- include "tgi.labels" . | nindent 4 }}
+data:
+  MODEL_ID: {{ .Values.LLM_MODEL_ID | quote }}
+  PORT: {{ .Values.port | quote }}
+  HF_TOKEN: {{ .Values.global.HUGGINGFACEHUB_API_TOKEN | quote}}
+  {{- if .Values.global.HF_ENDPOINT }}
+  HF_ENDPOINT: {{ .Values.global.HF_ENDPOINT | quote}}
+  {{- end }}
+  http_proxy: {{ .Values.global.http_proxy | quote }}
+  https_proxy: {{ .Values.global.https_proxy | quote }}
+  no_proxy: {{ .Values.global.no_proxy | quote }}
+  {{- if contains "tgi-gaudi" .Values.image.repository }}
+  HABANA_LOGS: "/tmp/habana_logs"
+  {{- end }}
+  NUMBA_CACHE_DIR: "/tmp"
+  HF_HOME: "/tmp/.cache/huggingface"
+  {{- if .Values.MAX_INPUT_LENGTH }}
+  MAX_INPUT_LENGTH: {{ .Values.MAX_INPUT_LENGTH | quote }}
+  {{- end }}
+  {{- if .Values.MAX_TOTAL_TOKENS }}
+  MAX_TOTAL_TOKENS: {{ .Values.MAX_TOTAL_TOKENS | quote }}
+  {{- end }}
+  {{- if .Values.CUDA_GRAPHS }}
+  CUDA_GRAPHS: {{ .Values.CUDA_GRAPHS | quote }}
+  {{- end }}
+  {{- if .Values.HF_HUB_DISABLE_PROGRESS_BARS }}
+  HF_HUB_DISABLE_PROGRESS_BARS: {{ .Values.HF_HUB_DISABLE_PROGRESS_BARS | quote }}
+  {{- end }}
+  {{- if .Values.HF_HUB_ENABLE_HF_TRANSFER }}
+  HF_HUB_ENABLE_HF_TRANSFER: {{ .Values.HF_HUB_ENABLE_HF_TRANSFER | quote }}
+  {{- end }}
+  # More options for HPU
+  {{- if .Values.OMPI_MCA_btl_vader_single_copy_mechanism }}
+  OMPI_MCA_btl_vader_single_copy_mechanism: {{ .Values.OMPI_MCA_btl_vader_single_copy_mechanism | quote }}
+  {{- end }}
+  {{- if .Values.PT_HPU_ENABLE_LAZY_COLLECTIVES }}
+  PT_HPU_ENABLE_LAZY_COLLECTIVES: {{ .Values.PT_HPU_ENABLE_LAZY_COLLECTIVES | quote }}
+  {{- end }}
+  {{- if .Values.ENABLE_HPU_GRAPH }}
+  ENABLE_HPU_GRAPH: {{ .Values.ENABLE_HPU_GRAPH | quote }}
+  {{- end }}
+  {{- if .Values.LIMIT_HPU_GRAPH }}
+  LIMIT_HPU_GRAPH: {{ .Values.LIMIT_HPU_GRAPH | quote }}
+  {{- end }}
+  {{- if .Values.USE_FLASH_ATTENTION }}
+  USE_FLASH_ATTENTION: {{ .Values.USE_FLASH_ATTENTION | quote }}
+  {{- end }}
+  {{- if .Values.FLASH_ATTENTION_RECOMPUTE }}
+  FLASH_ATTENTION_RECOMPUTE: {{ .Values.FLASH_ATTENTION_RECOMPUTE | quote }}
+  {{- end }}

@@ -1,0 +1,66 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "agent.fullname" . }}-config
+  labels:
+    {{- include "agent.labels" . | nindent 4 }}
+data:
+  {{- if .Values.tools }}
+  tools: {{ .Values.tools | quote }}
+  {{- end }}
+  {{- if .Values.llm_endpoint_url }}
+  llm_endpoint_url: {{ .Values.llm_endpoint_url | quote }}
+  {{- else }}
+  llm_endpoint_url: "http://{{ .Release.Name }}-tgi"
+  {{- end }}
+  # {{- if .Values.port }}
+  # port: {{ .Values.port | quote }}
+  # {{- end }}
+  {{- if .Values.model }}
+  model: {{ .Values.model | quote }}
+  {{- end }}
+  {{- if .Values.streaming }}
+  streaming: {{ .Values.streaming | quote }}
+  {{- end }}
+  {{- if .Values.temperature }}
+  temperature: {{ .Values.temperature | quote }}
+  {{- end }}
+  {{- if .Values.RETRIEVAL_TOOL_URL }}
+  RETRIEVAL_TOOL_URL: {{ .Values.RETRIEVAL_TOOL_URL | quote }}
+  {{- else }}
+  RETRIEVAL_TOOL_URL: "http://{{ .Release.Name }}-docretriever:8889/v1/retrievaltool"
+  {{- end }}
+  {{- if .Values.CRAG_SERVER }}
+  CRAG_SERVER: {{ .Values.CRAG_SERVER | quote }}
+  {{- else }}
+  CRAG_SERVER: "http://{{ .Release.Name }}-crag:8080"
+  {{- end }}
+  {{- if .Values.WORKER_AGENT_URL }}
+  WORKER_AGENT_URL: {{ .Values.WORKER_AGENT_URL | quote }}
+  {{- else }}
+  WORKER_AGENT_URL: "http://{{ .Release.Name }}-worker:9095/v1/chat/completions"
+  {{- end }}
+  require_human_feedback: {{ .Values.require_human_feedback | quote }}
+  recursion_limit: {{ .Values.recursion_limit | quote }}
+  llm_engine: {{ .Values.llm_engine | quote }}
+  strategy: {{ .Values.strategy | quote }}
+  max_new_tokens: {{ .Values.max_new_tokens | quote }}
+  {{- if .Values.OPENAI_API_KEY }}
+  OPENAI_API_KEY: {{ .Values.OPENAI_API_KEY | quote }}
+  {{- end }}
+  HUGGINGFACEHUB_API_TOKEN: {{ .Values.global.HUGGINGFACEHUB_API_TOKEN | quote }}
+  HF_HOME: "/tmp/.cache/huggingface"
+  {{- if .Values.global.HF_ENDPOINT }}
+  HF_ENDPOINT: {{ .Values.global.HF_ENDPOINT | quote }}
+  {{- end }}
+  http_proxy: {{ .Values.global.http_proxy | quote }}
+  https_proxy: {{ .Values.global.https_proxy | quote }}
+  {{- if and (not .Values.TGI_LLM_ENDPOINT) (or .Values.global.http_proxy .Values.global.https_proxy) }}
+  no_proxy: "{{ .Release.Name }}-tgi,{{ .Values.global.no_proxy }}"
+  {{- else }}
+  no_proxy: {{ .Values.global.no_proxy | quote }}
+  {{- end }}
+  LOGFLAG: {{ .Values.LOGFLAG | quote }}

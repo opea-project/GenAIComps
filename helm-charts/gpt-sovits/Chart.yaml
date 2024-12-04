@@ -1,0 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: gpt-sovits
+description: The Helm chart for deploying gpt-sovits as microservice
+type: application
+version: 0-latest
+# The gpt-sovits microservice server version
+appVersion: "1.0"
