@@ -1,0 +1,68 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "<CHARTNAME>.fullname" . }}
+  labels:
+    {{- include "<CHARTNAME>.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "<CHARTNAME>.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+  {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+  {{- end }}
+  {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+  {{- end }}
+  {{- if .Values.global.monitoring }}
+  - type: Object
+    object:
+      describedObject:
+        apiVersion: v1
+        # get metric for named object of given type (in same namespace)
+        kind: Service
+        name: {{ include "<CHARTNAME>.fullname" . }}
+      target:
+        type: AverageValue
+        averageValue: 15
+      metric:
+        name: {{ include "<CHARTNAME>.metricPrefix" . }}_dummy_queue_size
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 180
+      policies:
+      - type: Percent
+        value: 25
+        periodSeconds: 90
+    scaleUp:
+      selectPolicy: Max
+      stabilizationWindowSeconds: 0
+      policies:
+      # Slow linear rampup in case additional CPU pods go to same node
+      # (i.e. interfere with each other)
+      - type: Pods
+        value: 1
+        periodSeconds: 90
+      #- type: Percent
+      #  value: 25
+      #  periodSeconds: 90
+  {{- end }}
+{{- end }}
