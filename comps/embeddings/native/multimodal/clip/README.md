@@ -21,7 +21,7 @@ Users are albe to configure and build embedding-related services according to th
 #### Build Langchain Docker
 
 ```bash
-cd ../../..
+cd ../../../../../
 docker build -t opea/embedding-multimodal-clip:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/clip/Dockerfile .
 ```
 
