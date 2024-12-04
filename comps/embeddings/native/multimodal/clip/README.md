@@ -1,4 +1,4 @@
-# Multimodal CLIP Embeddings Microservice
+# Multimodal Embeddings Microservice with CLIP
 
 The Multimodal CLIP Embedding Microservice is designed to efficiently convert textual strings and images into vectorized embeddings, facilitating seamless integration into various machine learning and data processing workflows. This service utilizes advanced algorithms to generate high-quality embeddings that capture the semantic essence of the input text and images, making it ideal for applications in multi-modal data processing, information retrieval, and similar fields.
 
@@ -22,13 +22,13 @@ Users are albe to configure and build embedding-related services according to th
 
 ```bash
 cd ../../..
-docker build -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal_clip/Dockerfile .
+docker build -t opea/embedding-multimodal-clip:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/clip/Dockerfile .
 ```
 
 ### 1.2 Run Docker with Docker Compose
 
 ```bash
-cd comps/embeddings/multimodal_clip
+cd comps/embeddings/native/multimodal/clip
 docker compose -f docker_compose_embedding.yaml up -d
 ```
 

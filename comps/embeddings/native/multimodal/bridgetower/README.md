@@ -1,4 +1,4 @@
-# Multimodal Embeddings Microservice
+# Multimodal Embeddings Microservice with BridgePower
 
 The Multimodal Embedding Microservice is designed to efficiently convert pairs of textual string and image into vectorized embeddings, facilitating seamless integration into various machine learning and data processing workflows. This service utilizes advanced algorithms to generate high-quality embeddings that capture the joint semantic essence of the input text-and-image pairs, making it ideal for applications in multi-modal data processing, information retrieval, and similar fields.
 
@@ -26,8 +26,8 @@ For both of the implementations, you need to install requirements first.
 ### 1.1 Install Requirements
 
 ```bash
-# run with langchain
-pip install -r multimodal_langchain/requirements.txt
+# install the dependencies
+pip install -r wrapper/requirements.txt
 ```
 
 ### 1.2 Start Embedding Service
@@ -51,19 +51,19 @@ Currently, we employ [**BridgeTower**](https://huggingface.co/BridgeTower/bridge
 - Gaudi2 HPU
 
 ```bash
-cd ../../..
-docker build -t opea/embedding-multimodal-bridgetower:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal/bridgetower/Dockerfile.intel_hpu .
-cd comps/embeddings/multimodal/bridgetower/
-docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
+cd ../../../../../../
+docker build -t opea/embedding-multimodal-bridgetower-hpu:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/bridgetower/dependency/Dockerfile.intel_hpu .
+cd comps/embeddings/native/multimodal/bridgetower/dependency/
+docker compose -f docker_compose_bridgetower_embedding_intel_hpu.yaml up -d
 ```
 
 - Xeon CPU
 
 ```bash
-cd ../../..
-docker build -t opea/embedding-multimodal-bridgetower:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal/bridgetower/Dockerfile .
-cd comps/embeddings/multimodal/bridgetower/
-docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
+cd ../../../../../../
+docker build -t opea/embedding-multimodal-bridgetower:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/bridgetower/dependency/Dockerfile .
+cd comps/embeddings/native/multimodal/bridgetower/dependency
+docker compose -f docker_compose_bridgetower_embedding_intel_cpu.yaml up -d
 ```
 
 Then you need to test your MMEI service using the following commands:
@@ -78,8 +78,8 @@ curl http://localhost:$your_mmei_port/v1/encode \
 Start the embedding service with MMEI_EMBEDDING_ENDPOINT.
 
 ```bash
-# run with langchain
-cd multimodal_langchain
+# run with wrapper microservice
+cd ../wrapper/
 export MMEI_EMBEDDING_ENDPOINT="http://localhost:$your_mmei_port/v1/encode"
 export your_embedding_port_microservice=6600
 export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
@@ -89,8 +89,8 @@ python mm_embedding_mmei.py
 **Start Embedding Service with Local Model**
 
 ```bash
-# run with langchain
-cd multimodal_langchain
+# run with wrapper microservice
+cd ../wrapper/
 export your_embedding_port_microservice=6600
 export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 python local_mm_embedding.py
@@ -115,19 +115,19 @@ Currently, we employ [**BridgeTower**](https://huggingface.co/BridgeTower/bridge
 - Gaudi2 HPU
 
 ```bash
-cd ../../..
-docker build -t opea/embedding-multimodal-bridgetower:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal/bridgetower/Dockerfile.intel_hpu .
-cd comps/embeddings/multimodal/bridgetower/
-docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
+cd ../../../../../../
+docker build -t opea/embedding-multimodal-bridgetower-hpu:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/bridgetower/dependency/Dockerfile.intel_hpu .
+cd comps/embeddings/native/multimodal/bridgetower/dependency/
+docker compose -f docker_compose_bridgetower_embedding_intel_hpu.yaml up -d
 ```
 
 - Xeon CPU
 
 ```bash
-cd ../../..
-docker build -t opea/embedding-multimodal-bridgetower:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal/bridgetower/Dockerfile .
-cd comps/embeddings/multimodal/bridgetower/
-docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
+cd ../../../../../../
+docker build -t opea/embedding-multimodal-bridgetower:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/bridgetower/dependency/Dockerfile .
+cd comps/embeddings/native/multimodal/bridgetower/dependency
+docker compose -f docker_compose_bridgetower_embedding_intel_cpu.yaml up -d
 ```
 
 Then you need to test your MMEI service using the following commands:
@@ -151,14 +151,14 @@ export MMEI_EMBEDDING_ENDPOINT="http://$ip_address:$your_mmei_port/v1/encode"
 #### Build Langchain Docker
 
 ```bash
-cd ../../..
-docker build -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal/multimodal_langchain/Dockerfile .
+cd ../../../../../../
+docker build -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/bridgetower/wrapper/Dockerfile .
 ```
 
 ### 2.3 Run Docker with Docker Compose
 
 ```bash
-cd multimodal_langchain
+cd comps/embeddings/native/multimodal/bridgetower/wrapper/
 export your_embedding_port_microservice=6600
 export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 docker compose -f docker_compose_multimodal_embedding.yaml up -d

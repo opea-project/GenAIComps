@@ -16,10 +16,10 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/embeddings/multimodal/multimodal_langchain/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/embeddings/native/multimodal/bridgetower/wrapper/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/embeddings/multimodal/multimodal_langchain
+WORKDIR /home/user/comps/embeddings/native/multimodal/bridgetower/wrapper
 
 ENTRYPOINT ["python", "mm_embedding_mmei.py"]
