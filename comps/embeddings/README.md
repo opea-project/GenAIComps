@@ -24,13 +24,13 @@ For details, please refer to [langchain readme](tei/langchain/README.md) or [lla
 
 For details, please refer to this [readme](mosec/langchain/README.md).
 
-## Embeddings Microservice with Multimodal
+## Embeddings Microservice with Multimodal BridgePower
 
-For details, please refer to this [readme](multimodal/README.md).
+For details, please refer to this [readme](native/multimodal/bridgetower/README.md).
 
 ## Embeddings Microservice with Multimodal Clip
 
-For details, please refer to this [readme](multimodal_clip/README.md).
+For details, please refer to this [readme](native/multimodal/clip/README.md).
 
 ## Embeddings Microservice with Prediction Guard
 
