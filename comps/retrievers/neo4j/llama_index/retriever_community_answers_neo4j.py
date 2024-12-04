@@ -71,8 +71,8 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         """Process all community summaries to generate answers to a specific query."""
 
         entities = self.get_entities(query_str, self._similarity_top_k)
-        entity_info = self._graph_store.read_entity_info()
-        community_ids = self.retrieve_entity_communities(entity_info, entities)
+        # entity_info = self._graph_store.read_entity_info()
+        # community_ids = self.retrieve_entity_communities(entity_info, entities)
         community_summaries = self.retrieve_community_summaries_cypher(entities)
         community_ids = list(community_summaries.keys())
         if logflag:
@@ -104,7 +104,7 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         entities = set()
         pattern = r"(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)"
         if logflag:
-            logger.info(f" len of triplets {len(self._index.property_graph_store.get_triplets())}")
+            # logger.info(f" len of triplets {len(self._index.property_graph_store.get_triplets())}")
             logger.info(f"number of nodes retrieved {len(nodes_retrieved), nodes_retrieved}")
         for node in nodes_retrieved:
             matches = re.findall(pattern, node.text, re.DOTALL)
@@ -180,6 +180,70 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         return cleaned_response
 
 
+# Global variables to store the graph_store and index
+graph_store = None
+query_engine = None
+index = None
+initialized = False
+
+
+async def initialize_graph_store_and_index():
+    global graph_store, index, initialized, query_engine
+    if OPENAI_API_KEY:
+        logger.info("OpenAI API Key is set. Verifying its validity...")
+        openai.api_key = OPENAI_API_KEY
+        try:
+            llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
+            embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
+            logger.info("OpenAI API Key is valid.")
+        except openai.AuthenticationError:
+            logger.info("OpenAI API Key is invalid.")
+        except Exception as e:
+            logger.info(f"An error occurred while verifying the API Key: {e}")
+    else:
+        logger.info("No OpenAI API KEY provided. Will use TGI and TEI endpoints")
+        llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
+        llm = TextGenerationInference(
+            model_url=TGI_LLM_ENDPOINT,
+            model_name=llm_name,
+            timeout=600,
+            temperature=0.7,
+            max_tokens=1512,  # 512otherwise too shor
+        )
+        emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
+        embed_model = TextEmbeddingsInference(
+            base_url=TEI_EMBEDDING_ENDPOINT,
+            model_name=emb_name,
+            timeout=1200,  # timeout in seconds
+            embed_batch_size=10,  # batch size for embedding
+        )
+    Settings.embed_model = embed_model
+    Settings.llm = llm
+
+    logger.info("Creating graph store from existing...")
+    starttime = time.time()
+    # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
+    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
+    logger.info(f"Time to create graph store: {time.time() - starttime:.2f} seconds")
+
+    logger.info("Creating index from existing...")
+    starttime = time.time()
+    index = PropertyGraphIndex.from_existing(
+        property_graph_store=graph_store,
+        embed_model=embed_model or Settings.embed_model,
+        embed_kg_nodes=True,
+    )
+    logger.info(f"Time to create index: {time.time() - starttime:.2f} seconds")
+
+    query_engine = GraphRAGQueryEngine(
+        graph_store=index.property_graph_store,
+        llm=llm,
+        index=index,
+        similarity_top_k=3,
+    )
+    initialized = True
+
+
 @register_microservice(
     name="opea_service@retriever_community_answers_neo4j",
     service_type=ServiceType.RETRIEVER,
@@ -198,51 +262,8 @@ async def retrieve(input: Union[ChatCompletionRequest]) -> Union[ChatCompletionR
     else:
         query = input.messages[0]["content"]
     logger.info(f"Query received in retriever: {query}")
-
-    if OPENAI_API_KEY:
-        logger.info("OpenAI API Key is set. Verifying its validity...")
-        openai.api_key = OPENAI_API_KEY
-        try:
-            llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
-            embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
-            logger.info("OpenAI API Key is valid.")
-        except openai.AuthenticationError:
-            logger.info("OpenAI API Key is invalid.")
-        except Exception as e:
-            logger.info(f"An error occurred while verifying the API Key: {e}")
-    else:
-        logger.info("No OpenAI API KEY provided. Will use TGI and TEI endpoints")
-        llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
-        llm = TextGenerationInference(
-            model_url=TGI_LLM_ENDPOINT,
-            model_name=llm_name,
-            temperature=0.7,
-            max_tokens=1512,  # 512otherwise too shor
-        )
-        emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
-        embed_model = TextEmbeddingsInference(
-            base_url=TEI_EMBEDDING_ENDPOINT,
-            model_name=emb_name,
-            timeout=60,  # timeout in seconds
-            embed_batch_size=10,  # batch size for embedding
-        )
-    Settings.embed_model = embed_model
-    Settings.llm = llm
-    # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
-    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
-
-    index = PropertyGraphIndex.from_existing(
-        property_graph_store=graph_store,
-        embed_model=embed_model or Settings.embed_model,
-        embed_kg_nodes=True,
-    )
-
-    query_engine = GraphRAGQueryEngine(
-        graph_store=index.property_graph_store,
-        llm=llm,
-        index=index,
-        similarity_top_k=3,
-    )
+    if not initialized:
+        await initialize_graph_store_and_index()
 
     # these are the answers from the community summaries
     answers_by_community = query_engine.query(query)
