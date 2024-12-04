@@ -1,6 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import time
 from typing import Union
 
+from config import EMBED_MODEL, ES_CONNECTION_STRING, INDEX_NAME, LOG_FLAG, TEI_ENDPOINT
 from elasticsearch import Elasticsearch
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_elasticsearch import ElasticsearchStore
@@ -17,7 +21,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from config import EMBED_MODEL, TEI_ENDPOINT, INDEX_NAME, ES_CONNECTION_STRING, LOG_FLAG
 
 logger = CustomLogger(__name__)
 
@@ -28,7 +31,7 @@ def create_index() -> None:
 
 
 def get_embedder() -> Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]:
-    """Obtain required Embedder"""
+    """Obtain required Embedder."""
 
     if TEI_ENDPOINT:
         return HuggingFaceEndpointEmbeddings(model=TEI_ENDPOINT)
@@ -37,7 +40,7 @@ def get_embedder() -> Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddi
 
 
 def get_elastic_store(embedder: Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]) -> ElasticsearchStore:
-    """Get Elasticsearch vector store"""
+    """Get Elasticsearch vector store."""
 
     return ElasticsearchStore(index_name=INDEX_NAME, embedding=embedder, es_connection=es_client)
 
@@ -51,7 +54,7 @@ def get_elastic_store(embedder: Union[HuggingFaceEndpointEmbeddings, HuggingFace
 )
 @register_statistics(names=["opea_service@retriever_elasticsearch"])
 async def retrieve(input: EmbedDoc) -> list:
-    """Retrieve documents based on similarity search type"""
+    """Retrieve documents based on similarity search type."""
     if LOG_FLAG:
         logger.info(input)
     start = time.time()

@@ -9,8 +9,8 @@ huggingface_hub
 langchain
 langchain-community
 langchain-elasticsearch
-langchain-text-splitters
 langchain-huggingface
+langchain-text-splitters
 markdown
 numpy
 opentelemetry-api

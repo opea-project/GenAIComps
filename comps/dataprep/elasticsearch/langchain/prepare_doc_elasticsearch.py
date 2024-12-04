@@ -1,7 +1,28 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 import os
 from pathlib import Path
 from typing import List, Optional, Union
+
+from config import (
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    EMBED_MODEL,
+    ES_CONNECTION_STRING,
+    INDEX_NAME,
+    LOG_FLAG,
+    TEI_ENDPOINT,
+    UPLOADED_FILES_PATH,
+)
+from elasticsearch import Elasticsearch
+from fastapi import Body, File, Form, HTTPException, UploadFile
+from langchain.text_splitter import HTMLHeaderTextSplitter, RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_core.documents import Document
+from langchain_elasticsearch import ElasticsearchStore
+from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
 from comps.dataprep.utils import (
@@ -15,24 +36,6 @@ from comps.dataprep.utils import (
     remove_folder_with_ignore,
     save_content_to_local_disk,
 )
-from elasticsearch import Elasticsearch
-from fastapi import Body, File, Form, HTTPException, UploadFile
-from langchain.text_splitter import HTMLHeaderTextSplitter, RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
-from langchain_core.documents import Document
-from langchain_elasticsearch import ElasticsearchStore
-from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
-
-from config import (
-    CHUNK_OVERLAP,
-    CHUNK_SIZE,
-    EMBED_MODEL,
-    ES_CONNECTION_STRING,
-    INDEX_NAME,
-    LOG_FLAG,
-    TEI_ENDPOINT,
-    UPLOADED_FILES_PATH,
-)
 
 logger = CustomLogger(__name__)
 
@@ -43,7 +46,7 @@ def create_index() -> None:
 
 
 def get_embedder() -> Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]:
-    """Obtain required Embedder"""
+    """Obtain required Embedder."""
 
     if TEI_ENDPOINT:
         return HuggingFaceEndpointEmbeddings(model=TEI_ENDPOINT)
@@ -52,7 +55,7 @@ def get_embedder() -> Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddi
 
 
 def get_elastic_store(embedder: Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]) -> ElasticsearchStore:
-    """Get Elasticsearch vector store"""
+    """Get Elasticsearch vector store."""
 
     return ElasticsearchStore(index_name=INDEX_NAME, embedding=embedder, es_connection=es_client)
 
@@ -63,7 +66,7 @@ def delete_embeddings(doc_name: str) -> bool:
     try:
         if doc_name == "all":
             if LOG_FLAG:
-                logger.info(f"Deleting all documents from vectorstore")
+                logger.info("Deleting all documents from vectorstore")
 
             query = {"query": {"match_all": {}}}
         else:
@@ -97,7 +100,7 @@ def search_by_filename(file_name: str) -> bool:
 
 
 def ingest_doc_to_elastic(doc_path: DocPath) -> None:
-    """Ingest documents to Elasticsearch"""
+    """Ingest documents to Elasticsearch."""
 
     path = doc_path.path
     file_name = path.split("/")[-1]
@@ -152,7 +155,7 @@ def ingest_doc_to_elastic(doc_path: DocPath) -> None:
 
 
 async def ingest_link_to_elastic(link_list: List[str]) -> None:
-    """Ingest data scraped from website links into Elasticsearch"""
+    """Ingest data scraped from website links into Elasticsearch."""
 
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
@@ -201,7 +204,7 @@ async def ingest_documents(
     process_table: bool = Form(False),
     table_strategy: str = Form("fast"),
 ):
-    """Ingest documents for RAG"""
+    """Ingest documents for RAG."""
 
     if LOG_FLAG:
         logger.info(f"files:{files}")
@@ -289,7 +292,7 @@ async def ingest_documents(
     port=6011,
 )
 async def rag_get_file_structure():
-    """Obtain uploaded file list"""
+    """Obtain uploaded file list."""
 
     if LOG_FLAG:
         logger.info("[ dataprep - get file ] start to get file structure")
