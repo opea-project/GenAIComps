@@ -903,7 +903,7 @@ class MultimodalQnAGateway(Gateway):
 
             if system_prompt:
                 prompt = system_prompt + "\n"
-            for i, messages_dict in enumerate(messages_dicts):    
+            for i, messages_dict in enumerate(messages_dicts):
                 for (role, message) in messages_dict.items():
                     if isinstance(message, tuple):
                         text, decoded_audio_input, image_list = message
