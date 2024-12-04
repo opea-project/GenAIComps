@@ -7,6 +7,7 @@ import time
 from typing import List, Optional, Union
 
 from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings.openai import async_embed_with_retry
 
 from comps import (
     CustomLogger,
