@@ -33,7 +33,7 @@ curl -X POST http://localhost:9000/v1/chat/completions \
         "temperature": 0.7,
         "top_p": 0.9,
         "top_k": 50,
-        "stream": false
+        "streaming": "false"
     }'
 ```
 
@@ -49,6 +49,6 @@ curl -N -X POST http://localhost:9000/v1/chat/completions \
         "temperature": 0.7,
         "top_p": 0.9,
         "top_k": 50,
-        "stream": true
+        "streaming": "true"
     }'
 ```
