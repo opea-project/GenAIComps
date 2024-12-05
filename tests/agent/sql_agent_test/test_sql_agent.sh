@@ -12,6 +12,9 @@ LOG_PATH="$WORKPATH/tests"
 WORKDIR=$(dirname "$WORKPATH")
 echo $WORKDIR
 
+export agent_image="opea/agent-langchain:comps"
+export agent_container_name="test-comps-agent-endpoint"
+
 export ip_address=$(hostname -I | awk '{print $1}')
 tgi_port=8085
 tgi_volume=$WORKPATH/data
@@ -44,13 +47,26 @@ function prepare_data() {
     echo "Data preparation done!"
 }
 
+function build_docker_images() {
+    echo "Building the docker images"
+    cd $WORKPATH
+    echo $WORKPATH
+    docker build --no-cache -t $agent_image --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/agent/langchain/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/agent-langchain built fail"
+        exit 1
+    else
+        echo "opea/agent-langchain built successful"
+    fi
+}
+
 # launch tgi-gaudi
 function start_tgi_service() {
     echo "token is ${HF_TOKEN}"
 
     #multi cards
     echo "start tgi gaudi service"
-    docker run -d --runtime=habana --name "test-comps-tgi-gaudi-service" -p $tgi_port:80 -v $tgi_volume:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=0,1,2,3 -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --max-input-tokens 4096 --max-total-tokens 8192 --sharded true --num-shard 4
+    docker run -d --runtime=habana --name "test-comps-tgi-gaudi-service" -p $tgi_port:80 -v $tgi_volume:/data -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=0,1,2,3 -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --max-input-tokens 8192 --max-total-tokens 16384 --sharded true --num-shard 4
     sleep 5s
     echo "Waiting tgi gaudi ready"
     n=0
@@ -82,5 +98,15 @@ function run_test() {
     python3 test.py --test-sql-agent
 }
 
+echo "Building docker image...."
+build_docker_images
 
+echo "Lauching TGI-gaudi...."
+start_tgi_service
+
+echo "launching sql_agent_llama service...."
+start_sql_agent_llama_service
+
+echo "Running test...."
+run_test
 
