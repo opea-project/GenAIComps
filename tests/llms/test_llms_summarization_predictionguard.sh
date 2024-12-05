@@ -29,14 +29,14 @@ function start_service() {
         -e http_proxy= -e https_proxy= \
         -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
         -p 9000:9000 --ipc=host opea/llm-pg:comps
-    sleep 60  # Sleep for 1 minute to allow the service to start
+    sleep 60  # Sleep for 5 seconds to allow the service to start
 }
 
 function validate_microservice() {
     llm_service_port=9000
     result=$(http_proxy="" curl http://${ip_address}:${llm_service_port}/v1/chat/docsum \
         -X POST \
-        -d '{"model": "Hermes-2-Pro-Llama-3-8B", "query": "What is AI?", "streaming": false, "max_tokens": 100, "temperature": 0.7, "top_p": 1.0, "top_k": 50}' \
+        -d '{"model": "Hermes-3-Llama-3.1-8B", "query": "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data.", "streaming": false, "max_tokens": 100, "temperature": 0.7, "top_p": 1.0, "top_k": 50}' \
         -H 'Content-Type: application/json')
 
     if [[ $result == *"text"* ]]; then
