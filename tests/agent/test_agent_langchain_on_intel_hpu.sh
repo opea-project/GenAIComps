@@ -298,6 +298,22 @@ function stop_docker() {
     stop_agent_docker
 }
 
+
+function validate_sql_agent(){
+    cd $WORKPATH/tests/
+    local CONTENT=$(bash agent/sql_agent_test/test_sql_agent.sh)
+    local EXIT_CODE=$(validate "$CONTENT" "173" "test-sql-agent")
+    echo "$EXIT_CODE"
+    local EXIT_CODE="${EXIT_CODE:0-1}"
+    echo "return value is $EXIT_CODE"
+    if [ "$EXIT_CODE" == "1" ]; then
+        echo "==================SQL Agent logs ======================"
+        docker logs test-comps-agent-endpoint
+        exit 1
+    fi
+}
+
+
 function main() {
     stop_agent_docker
     stop_docker
@@ -399,6 +415,12 @@ function main() {
     # stop_agent_docker
 
     stop_docker
+
+    # test sql agent
+    validate_sql_agent
+
+    stop_docker
+    
     echo y | docker system prune 2>&1 > /dev/null
 }
 

@@ -2,32 +2,6 @@ import pandas as pd
 import os
 import glob
 
-def generate_column_descriptions(db_name):
-    output = []
-    decriptions_only = []
-    working_dir = os.getenv("WORKDIR")
-    assert working_dir is not None, "WORKDIR environment variable is not set."
-    DESCRIPTION_FOLDER=os.path.join(working_dir, f"TAG-Bench/dev_folder/dev_databases/{db_name}/database_description/")
-    table_files = glob.glob(os.path.join(DESCRIPTION_FOLDER, "*.csv"))
-    for table_file in table_files:
-        table_name = os.path.basename(table_file).split(".")[0]
-        print("Table name: ", table_name)
-        df = pd.read_csv(table_file)
-        for _, row in df.iterrows():
-            col_name = row["original_column_name"]
-            if not pd.isnull(row["value_description"]):
-                description = str(row["value_description"]) 
-                if description.lower() in col_name.lower():
-                    print("Description {} is same as column name {}".format(description, col_name))
-                    pass
-                else:            
-                    description = description.replace("\n", " ")
-                    description = " ".join(description.split())
-                    output.append(f"{table_name}.{col_name}: {description}")
-                    # decriptions_only.append(description)
-                    decriptions_only.append(f"{col_name}: {description}")
-    return output, decriptions_only
-
 def read_hints(hints_file):
     """
     hints_file: csv with columns: table_name, column_name, description    

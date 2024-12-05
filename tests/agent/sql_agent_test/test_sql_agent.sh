@@ -21,14 +21,14 @@ export agent_container_name="test-comps-agent-endpoint"
 export ip_address=$(hostname -I | awk '{print $1}')
 
 vllm_port=8085
-vllm_volume=${HF_CACHE_DIR} #$WORKPATH/data
+vllm_volume=${HF_CACHE_DIR} #$WORKPATH/data # change back to workpath/data
 export model=meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-70B-Instruct"
-export LLM_ENDPOINT_URL="http://${ip_address}:${tgi_port}"
+export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 export temperature=0.01
 export max_new_tokens=4096
-export TOOLSET_PATH=$WORKPATH/tests/agent/sql_agent_test/
+export TOOLSET_PATH=$WORKPATH/tests/agent/sql_agent_test/ # change back to custom tools
 echo "TOOLSET_PATH=${TOOLSET_PATH}"
 export recursion_limit=15
 export db_name=california_schools
@@ -54,6 +54,12 @@ function prepare_data() {
     bash run_data_split.sh
 
     echo "Data preparation done!"
+}
+
+function generate_hints_for_benchmark() {
+    echo "Generating hints for benchmark..."
+    cd $WORKPATH/tests/agent/sql_agent_test
+    python3 generate_hints_file.py
 }
 
 function build_docker_images() {
@@ -131,24 +137,30 @@ function run_test() {
 function run_benchmark() {
     echo "Running benchmark..."
     cd $WORKPATH/tests/agent/sql_agent_test
-    query_file=$$WORKDIR/TAG-Bench/query_by_db/query_california_schools.csv
+    query_file=${WORKDIR}/TAG-Bench/query_by_db/query_california_schools.csv
     outdir=$WORKDIR/sql_agent_output
-    outfile=california_school_agent_test_result.csv
-    python3 test_tag_bench.py --query_file
+    outfile=california_school_agent_test_result_with_hints.csv
+    python3 test_tag_bench.py --query_file $query_file --output_dir $outdir --output_file $outfile
 }
 
 # echo "Building docker image...."
 # build_docker_images
 
-echo "Building vllm docker image...."
-build_vllm_docker_images
+# echo "Building vllm docker image...."
+# build_vllm_docker_images
 
-echo "Launching vllm service...."
-start_vllm_service
+# echo "Launching vllm service...."
+# start_vllm_service
+
+echo "Generating hints_file..."
+generate_hints_for_benchmark
 
 echo "launching sql_agent_llama service...."
 start_sql_agent_llama_service
 
 echo "Running test...."
 run_test
+
+echo "Running benchmark...."
+run_benchmark
 

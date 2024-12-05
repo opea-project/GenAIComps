@@ -45,8 +45,8 @@ if __name__ == "__main__":
         print("******Query:\n", query)
         res = generate_answer_agent_api(url, query)
         print("******Answer:\n", res)
-        json_lines.append({"query": query,"answer":ref_answer, "agent_answer": res})
-        save_json_lines(json_lines, args)
+        # json_lines.append({"query": query,"answer":ref_answer, "agent_answer": res})
+        # save_json_lines(json_lines, args)
         print("="*20)
 
     df.to_csv(os.path.join(args.output_dir, args.output_file), index=False)

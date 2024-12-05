@@ -54,6 +54,7 @@ if __name__ == "__main__":
         prompt = "How many schools have the average score in Math over 560 in the SAT test?"
     else:
         prompt = "What is OPEA?"
+
     if args.stream:
         process_request(url, prompt, is_stream=True)
     else:
