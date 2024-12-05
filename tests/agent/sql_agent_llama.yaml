@@ -6,9 +6,9 @@ services:
     image: ${agent_image}
     container_name: test-comps-agent-endpoint
     volumes:
-      - ${TOOLSET_PATH}:/home/user/tools/
+      - ${TOOLSET_PATH}:/home/user/tools/ # tools
       - ${WORKDIR}/GenAIComps/comps:/home/user/comps
-      - ${WORKDIR}/TAG-Bench/:/home/user/TAG-Bench
+      - ${WORKDIR}/TAG-Bench/:/home/user/TAG-Bench # SQL database
     ports:
       - "9095:9095"
     ipc: host
@@ -19,7 +19,7 @@ services:
       db_path: ${db_path}
       use_hints: false
       recursion_limit: ${recursion_limit}
-      llm_engine: tgi
+      llm_engine: vllm
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
       llm_endpoint_url: ${LLM_ENDPOINT_URL}
       model: ${LLM_MODEL_ID}
@@ -32,3 +32,5 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       port: 9095
+      GOOGLE_CSE_ID: ${GOOGLE_CSE_ID}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}

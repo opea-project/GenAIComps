@@ -2,7 +2,7 @@
 docarray[full]
 
 #used by tools
-duckduckgo-search
+langchain-google-community
 fastapi
 huggingface_hub
 langchain
