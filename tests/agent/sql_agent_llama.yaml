@@ -7,7 +7,8 @@ services:
     container_name: test-comps-agent-endpoint
     volumes:
       - ${TOOLSET_PATH}:/home/user/tools/
-      - ${WORKDIR}/GenAIComps/comps:/home/user/GenAIComps/comps
+      - ${WORKDIR}/GenAIComps/comps:/home/user/comps
+      - ${WORKDIR}/TAG-Bench/:/home/user/TAG-Bench
     ports:
       - "9095:9095"
     ipc: host

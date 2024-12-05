@@ -56,6 +56,7 @@ class BaseAgent:
 
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
+        print("@@@ Initial State: ", initial_state)
         try:
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
                 message = s["messages"][-1]

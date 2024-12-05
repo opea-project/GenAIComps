@@ -2,7 +2,7 @@ import uuid
 import json
 from langchain_core.messages.tool import ToolCall
 from langchain_core.messages import AIMessage, ToolMessage
-from prompt import ANSWER_PARSER_PROMPT, SQL_QUERY_FIXER_PROMPT, SQL_QUERY_FIXER_PROMPT_with_result
+from .prompt import ANSWER_PARSER_PROMPT, SQL_QUERY_FIXER_PROMPT, SQL_QUERY_FIXER_PROMPT_with_result
 
 
 def parse_answer_with_llm(text, history, chat_model):

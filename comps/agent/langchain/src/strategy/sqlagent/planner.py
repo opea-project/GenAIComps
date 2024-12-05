@@ -58,6 +58,8 @@ class AgentNodeLlama:
             else:
                 hints = state["hint"]
             print("@@@ Hints: ", hints)
+        else:
+            hints = ""
 
         history = assemble_history(state["messages"])
         print("@@@ History: ", history)
@@ -111,9 +113,12 @@ class SQLAgentLlama(BaseAgent):
         super().__init__(args, local_vars=globals(), **kwargs)
         # note: here tools only include user defined tools
         # we need to add the sql query tool as well
+        print("@@@@ user defined tools: ", self.tools_descriptions)
         agent = AgentNodeLlama(args, self.tools_descriptions)
-
-        tools = self.tools_descriptions.append(get_sql_query_tool(args.db_path))
+        sql_tool = get_sql_query_tool(args.db_path)
+        print("@@@@ SQL Tool: ", sql_tool)
+        tools = self.tools_descriptions+[sql_tool]
+        print("@@@@ ALL Tools: ", tools)
         tool_node = ToolNode(tools)
 
         workflow = StateGraph(AgentState)
