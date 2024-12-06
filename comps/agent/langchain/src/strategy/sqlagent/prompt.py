@@ -163,7 +163,7 @@ If you cannot do better than the original query, just say the query is correct.
 ## Prompt templates for SQL agent using OpenAI models
 ##########################################
 AGENT_SYSM = """\
-You are an SQL expert tasked with answering questions about schools in California. 
+You are an SQL expert tasked with answering questions about schools in California.
 You can access a database that has {num_tables} tables. The schema of the tables is as follows. Read the schema carefully.
 {tables_schema}
 ****************
@@ -180,7 +180,7 @@ When querying the database, remember the following:
 4. DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
 
 IMPORTANT:
-* Divide the question into sub-questions and conquer sub-questions one by one. 
+* Divide the question into sub-questions and conquer sub-questions one by one.
 * You may need to combine information from multiple tables to answer the question.
 * If database does not have all the information needed to answer the question, use the web search tool or your own knowledge.
 * If you did not get the answer at first, do not give up. Reflect on the steps that you have taken and try a different way. Think out of the box. You hard work will be rewarded.
@@ -189,7 +189,7 @@ Now take a deep breath and think step by step to solve the problem.
 """
 
 QUERYFIXER_PROMPT = """\
-You are an SQL database expert tasked with reviewing a SQL query. 
+You are an SQL database expert tasked with reviewing a SQL query.
 **Procedure:**
 1. Review Database Schema:
 - Examine the table creation statements to understand the database structure.
