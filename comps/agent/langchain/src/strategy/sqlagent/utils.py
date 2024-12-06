@@ -1,7 +1,12 @@
-import uuid
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
-from langchain_core.messages.tool import ToolCall
+import uuid
+
 from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages.tool import ToolCall
+
 from .prompt import ANSWER_PARSER_PROMPT, SQL_QUERY_FIXER_PROMPT, SQL_QUERY_FIXER_PROMPT_with_result
 
 
@@ -25,10 +30,9 @@ def parse_answer_with_llm(text, history, chat_model):
     else:
         return None
 
+
 def get_tool_calls_other_than_sql(text):
-    """
-    get the tool calls other than sql_db_query
-    """
+    """Get the tool calls other than sql_db_query."""
     tool_calls = []
     text = text.replace("assistant", "")
     json_lines = text.split("\n")
@@ -47,10 +51,11 @@ def get_tool_calls_other_than_sql(text):
                     if isinstance(parsed_line, dict):
                         if "tool" in parsed_line:
                             tool_calls.append(parsed_line)
-                
+
                 except:
                     pass
     return tool_calls
+
 
 def get_all_sql_queries(text):
     queries = []
@@ -64,13 +69,15 @@ def get_all_sql_queries(text):
 
     return queries
 
+
 def get_the_last_sql_query(text):
     queries = get_all_sql_queries(text)
     if queries:
         return queries[-1]
     else:
         return None
-    
+
+
 def check_query_if_executed_and_result(query, messages):
     # get previous sql_db_query tool calls
     previous_tool_calls = []
@@ -82,7 +89,7 @@ def check_query_if_executed_and_result(query, messages):
     for tc in previous_tool_calls:
         if query == tc["args"]["query"]:
             return get_tool_output(messages, tc["id"])
-        
+
     return None
 
 
@@ -94,10 +101,14 @@ def parse_and_fix_sql_query_v2(text, chat_model, db_schema, hint, question, mess
         # if not, pass only the query to the fixer
         result = check_query_if_executed_and_result(chosen_query, messages)
         if result:
-            prompt = SQL_QUERY_FIXER_PROMPT_with_result.format(DATABASE_SCHEMA=db_schema, HINT=hint, QUERY=chosen_query, QUESTION=question, RESULT=result)
+            prompt = SQL_QUERY_FIXER_PROMPT_with_result.format(
+                DATABASE_SCHEMA=db_schema, HINT=hint, QUERY=chosen_query, QUESTION=question, RESULT=result
+            )
         else:
-            prompt = SQL_QUERY_FIXER_PROMPT.format(DATABASE_SCHEMA=db_schema, HINT=hint, QUERY=chosen_query, QUESTION=question)
-        
+            prompt = SQL_QUERY_FIXER_PROMPT.format(
+                DATABASE_SCHEMA=db_schema, HINT=hint, QUERY=chosen_query, QUESTION=question
+            )
+
         response = chat_model.invoke(prompt).content
         print("@@@ SQL query fixer response: ", response)
         if "query is correct" in response.lower():
@@ -105,10 +116,11 @@ def parse_and_fix_sql_query_v2(text, chat_model, db_schema, hint, question, mess
         else:
             # parse the fixed query
             fixed_query = get_the_last_sql_query(response)
-            return fixed_query           
+            return fixed_query
     else:
         return None
-    
+
+
 class LlamaOutputParserAndQueryFixer:
     def __init__(self, chat_model):
         self.chat_model = chat_model
@@ -129,12 +141,12 @@ class LlamaOutputParserAndQueryFixer:
                 return tool_calls
             else:
                 return text
-            
+
 
 def convert_json_to_tool_call(json_str):
     tool_name = json_str["tool"]
     tool_args = json_str["args"]
-    tcid = str(uuid.uuid4()) 
+    tcid = str(uuid.uuid4())
     tool_call = ToolCall(name=tool_name, args=tool_args, id=tcid)
     return tool_call
 
@@ -145,7 +157,7 @@ def get_tool_output(messages, id):
         if isinstance(msg, ToolMessage):
             if msg.tool_call_id == id:
                 tool_output = msg.content
-                tool_output = tool_output[:1000] # limit to 1000 characters
+                tool_output = tool_output[:1000]  # limit to 1000 characters
                 break
     return tool_output
 
@@ -168,9 +180,13 @@ def assemble_history(messages):
                     tool_output = get_tool_output(messages, id)
                     if tool == "sql_db_query":
                         sql_query = tc_args["query"]
-                        query_history += f"Step {n}. Executed SQL query: {sql_query}\nQuery Result: {tool_output}\n{breaker}\n"
+                        query_history += (
+                            f"Step {n}. Executed SQL query: {sql_query}\nQuery Result: {tool_output}\n{breaker}\n"
+                        )
                     else:
-                        query_history += f"Step {n}. Called tool: {tool} - {tc_args}\nTool Output: {tool_output}\n{breaker}\n"
+                        query_history += (
+                            f"Step {n}. Called tool: {tool} - {tc_args}\nTool Output: {tool_output}\n{breaker}\n"
+                        )
                     n += 1
             elif m.content == "Repeated previous steps.":  # repeated steps
                 query_history += f"Step {n}. Repeated tool calls from previous steps.\n{breaker}\n"
@@ -178,13 +194,13 @@ def assemble_history(messages):
             else:
                 # did not make tool calls
                 query_history += f"Assistant Output: {m.content}\n"
-        
+
     return query_history
 
 
 def remove_repeated_tool_calls(tool_calls, messages):
-    """
-    Remove repeated tool calls in the messages.
+    """Remove repeated tool calls in the messages.
+
     tool_calls: list of tool calls: ToolCall(name=tool_name, args=tool_args, id=tcid)
     messages: list of messages: AIMessage, ToolMessage, HumanMessage
     """
@@ -194,7 +210,7 @@ def remove_repeated_tool_calls(tool_calls, messages):
         if isinstance(m, AIMessage) and m.tool_calls and m.content != "Repeated previous steps.":
             for tc in m.tool_calls:
                 previous_tool_calls.append({"tool": tc["name"], "args": tc["args"]})
-    
+
     unique_tool_calls = []
     for tc in tool_calls:
         if {"tool": tc["name"], "args": tc["args"]} not in previous_tool_calls:

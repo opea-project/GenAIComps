@@ -420,7 +420,7 @@ function main() {
     validate_sql_agent
 
     stop_docker
-    
+
     echo y | docker system prune 2>&1 > /dev/null
 }
 

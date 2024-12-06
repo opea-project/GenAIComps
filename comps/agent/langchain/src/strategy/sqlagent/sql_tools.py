@@ -1,11 +1,15 @@
-from langchain_community.utilities import SQLDatabase
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
+from langchain_community.utilities import SQLDatabase
 
 
 def connect_to_db(db_path):
-    uri= "sqlite:///{path}".format(path=db_path)
+    uri = "sqlite:///{path}".format(path=db_path)
     db = SQLDatabase.from_uri(uri)
     return db
+
 
 def get_table_schema(db_path):
     db = connect_to_db(db_path)
@@ -18,11 +22,10 @@ def get_table_schema(db_path):
 def get_sql_query_tool(db_path):
     db = connect_to_db(db_path)
     query_sql_database_tool_description = (
-                "Input to this tool is a detailed and correct SQL query, output is a "
-                "result from the database. If the query is not correct, an error message "
-                "will be returned. If an error is returned, rewrite the query, check the "
-                "query, and try again. "
-            )
+        "Input to this tool is a detailed and correct SQL query, output is a "
+        "result from the database. If the query is not correct, an error message "
+        "will be returned. If an error is returned, rewrite the query, check the "
+        "query, and try again. "
+    )
     db_query_tool = QuerySQLDataBaseTool(db=db, description=query_sql_database_tool_description)
     return db_query_tool
-
