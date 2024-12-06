@@ -11,14 +11,6 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    # langchain mosec embedding image
-    docker build --no-cache -t opea/langchain-mosec:comps --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
-    if [ $? -ne 0 ]; then
-        echo "opea/langchain-mosec built fail"
-        exit 1
-    else
-        echo "opea/langchain-mosec built successful"
-    fi
     # dataprep milvus image
     docker build --no-cache -t opea/dataprep-milvus:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/milvus/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
@@ -27,27 +19,24 @@ function build_docker_images() {
     else
         echo "opea/dataprep-milvus built successful"
     fi
+    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
 }
 
 function start_service() {
     # start milvus vector db
     cd $WORKPATH/comps/dataprep/milvus/langchain/
+    # export no_proxy=tei-embedding-service
+    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:80"
+    export MILVUS_HOST=${ip_address}
+    export MILVUS_PORT=19530
     # wget https://raw.githubusercontent.com/milvus-io/milvus/v2.4.9/configs/milvus.yaml
     # wget https://github.com/milvus-io/milvus/releases/download/v2.4.9/milvus-standalone-docker-compose.yml -O docker-compose.yml
     # sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
+    # start dataprep and TEI embedding service by compose
     docker compose up -d
 
-    # set service ports
-    mosec_embedding_port=5021
-    dataprep_service_port=5022
-
-    # start mosec embedding service
-    docker run -d --name="test-comps-dataprep-milvus-mosec-server" -p $mosec_embedding_port:8000 -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/langchain-mosec:comps
-
-    # start dataprep service
-    MOSEC_EMBEDDING_ENDPOINT="http://${ip_address}:${mosec_embedding_port}"
-    MILVUS_HOST=${ip_address}
-    docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:6010 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e LOGFLAG=true --ipc=host opea/dataprep-milvus:comps
+    #docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:6007 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e  TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e LOGFLAG=true --ipc=host opea/dataprep-milvus:comps
     sleep 1m
 }
 
@@ -99,7 +88,7 @@ function validate_service() {
 
 function validate_microservice() {
     cd $LOG_PATH
-    dataprep_service_port=5022
+    dataprep_service_port=6010
 
     # test /v1/dataprep/delete_file
     validate_service \
