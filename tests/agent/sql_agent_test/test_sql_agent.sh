@@ -12,7 +12,7 @@ echo $WORKPATH
 LOG_PATH="$WORKPATH/tests"
 
 # WORKDIR is one level up from GenAIComps
-WORKDIR=$(dirname "$WORKPATH")
+export WORKDIR=$(dirname "$WORKPATH")
 echo $WORKDIR
 
 export agent_image="opea/agent-langchain:comps"
@@ -28,7 +28,7 @@ export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-70B-Instruct"
 export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 export temperature=0.01
 export max_new_tokens=4096
-export TOOLSET_PATH=$WORKPATH/tests/agent/sql_agent_test/ # change back to custom tools
+export TOOLSET_PATH=$WORKPATH/comps/agent/langchain/tools/ #$WORKPATH/tests/agent/sql_agent_test/ # change back to custom tools
 echo "TOOLSET_PATH=${TOOLSET_PATH}"
 export recursion_limit=15
 export db_name=california_schools
@@ -55,6 +55,14 @@ function prepare_data() {
 
     echo "Data preparation done!"
 }
+
+function remove_data() {
+    echo "Removing data..."
+    cd $WORKDIR
+    rm -rf TAG-Bench
+    echo "Data removed!"
+}
+
 
 function generate_hints_for_benchmark() {
     echo "Generating hints for benchmark..."
@@ -123,6 +131,8 @@ function start_sql_agent_llama_service() {
     echo "Starting sql_agent_llama agent microservice"
     docker compose -f $WORKPATH/tests/agent/sql_agent_llama.yaml up -d
     sleep 5s
+    # need to wait longer if need to use hints
+    # sleep 3m
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -139,7 +149,7 @@ function run_benchmark() {
     cd $WORKPATH/tests/agent/sql_agent_test
     query_file=${WORKDIR}/TAG-Bench/query_by_db/query_california_schools.csv
     outdir=$WORKDIR/sql_agent_output
-    outfile=california_school_agent_test_result_with_hints.csv
+    outfile=california_school_agent_test_result.csv
     python3 test_tag_bench.py --query_file $query_file --output_dir $outdir --output_file $outfile
 }
 
@@ -149,11 +159,11 @@ function run_benchmark() {
 # echo "Building vllm docker image...."
 # build_vllm_docker_images
 
-# echo "Launching vllm service...."
-# start_vllm_service
+echo "Launching vllm service...."
+start_vllm_service
 
-echo "Generating hints_file..."
-generate_hints_for_benchmark
+# echo "Generating hints_file..."
+# generate_hints_for_benchmark
 
 echo "launching sql_agent_llama service...."
 start_sql_agent_llama_service
@@ -161,6 +171,8 @@ start_sql_agent_llama_service
 echo "Running test...."
 run_test
 
-echo "Running benchmark...."
-run_benchmark
+# echo "Running benchmark...."
+# run_benchmark
 
+echo "Removing data...."
+remove_data

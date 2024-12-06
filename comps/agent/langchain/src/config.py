@@ -84,4 +84,4 @@ if os.environ.get("use_hints") is not None:
     env_config += ["--use_hints", os.environ["use_hints"]]
 
 if os.environ.get("hints_file") is not None:
-    env_config += ["--hints_file", os.environ["hint_file"]]
+    env_config += ["--hints_file", os.environ["hints_file"]]
