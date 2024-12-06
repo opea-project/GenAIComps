@@ -211,10 +211,12 @@ class LLMParamsDoc(BaseDoc):
     def chat_template_must_contain_variables(cls, v):
         return v
 
+
 class DocSumLLMParams(LLMParamsDoc):
     summary_type: str = "stuff"  # can be "truncate", "map_reduce", "refine"
     chunk_size: int = 0
     chunk_overlap: int = 0
+
 
 class LLMParams(BaseDoc):
     model: Optional[str] = None

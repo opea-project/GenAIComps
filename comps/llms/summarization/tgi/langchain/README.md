@@ -89,15 +89,19 @@ curl http://${your_ip}:9000/v1/health_check\
 ```
 
 ### 3.2 Consume LLM Service
+
 In DocSum microservice, except for basic LLM parameters, we also support several optimization parameters setting.
+
 - "language": specify the language, can be "auto", "en", "zh", default is "auto"
 
 If you want to deal with long context, can select suitable summary type, details in section 3.2.2.
+
 - "summary_type": can be "stuff", "truncate", "map_reduce", "refine", default is "stuff"
 - "chunk_size": default is equal to min( MAX_INPUT_TOKENS, MAX_TOTAL_TOKENS - max_tokens)
-- "chunk_overlap": default is 0.1*chunk_size
+- "chunk_overlap": default is 0.1\*chunk_size
 
 #### 3.2.1 Basic usage
+
 ```bash
 # Enable streaming to receive a streaming response. By default, this is set to True.
 curl http://${your_ip}:9000/v1/chat/docsum \
@@ -119,11 +123,13 @@ curl http://${your_ip}:9000/v1/chat/docsum \
 ```
 
 #### 3.2.2 Long context summarization with "summary_type"
-"summary_type" is set to be "stuff" by default, which will let LLM generate summary based on complete input tex. In this case it may exceed LLM context limit and raise error when meet long context. 
+
+"summary_type" is set to be "stuff" by default, which will let LLM generate summary based on complete input tex. In this case it may exceed LLM context limit and raise error when meet long context.
 
 When deal with long context, you can set "summary_type" to one of "truncate", "map_reduce" and "refine" for better performance.
 
 Set "summary_type" to "truncate", which will truncate the input text and keep only one chunk.
+
 ```bash
 curl http://${your_ip}:9000/v1/chat/docsum \
   -X POST \
@@ -131,7 +137,8 @@ curl http://${your_ip}:9000/v1/chat/docsum \
   -H 'Content-Type: application/json'
 ```
 
-Set "summary_type" to "map_reduce", which will split the inputs into multiple chunks,  map each document to an individual summary, then consolidate those summaries into a single global summary. In this mode, `streaming=True` is not allowed.
+Set "summary_type" to "map_reduce", which will split the inputs into multiple chunks, map each document to an individual summary, then consolidate those summaries into a single global summary. In this mode, `streaming=True` is not allowed.
+
 ```bash
 curl http://${your_ip}:9000/v1/chat/docsum \
   -X POST \
@@ -139,7 +146,8 @@ curl http://${your_ip}:9000/v1/chat/docsum \
   -H 'Content-Type: application/json'
 ```
 
-Set "summary_type" to "refine", which will ssplit the inputs into multiple chunks, generate summary for the first one, then combine with the second, loops over every remaining chunks to get the final summary. 
+Set "summary_type" to "refine", which will ssplit the inputs into multiple chunks, generate summary for the first one, then combine with the second, loops over every remaining chunks to get the final summary.
+
 ```bash
 curl http://${your_ip}:9000/v1/chat/docsum \
   -X POST \
