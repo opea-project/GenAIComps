@@ -1,9 +1,13 @@
 # SQL Agents
+We currently have two types of SQL agents:
+1. `sql_agent_llama`: for using with open-source LLMs, especially `meta-llama/Llama-3.1-70B-Instruct` model.
+2. `sql_agent`: for using with OpenAI models, we developed and validated with GPT-4o-mini.
+
 ## Overview of sql_agent_llama
 The architecture of `sql_agent_llama` is shown in the figure below.
 The agent node takes user question, hints (optional) and history (when available), and thinks step by step to solve the problem. 
 
-![SQL Agent Architecture](../../../assets/sql_agent_llama.png)
+![SQL Agent Llama Architecture](../../../assets/sql_agent_llama.png)
 
 ### Database schema: 
 We use langchain's [SQLDatabase](https://python.langchain.com/api_reference/community/utilities/langchain_community.utilities.sql_database.SQLDatabase.html#langchain_community.utilities.sql_database.SQLDatabase) API to get table names and schemas from the SQL database. User just need to specify `db_path` and `db_name`. The table schemas are incorporated into the prompts for the agent.
@@ -17,9 +21,15 @@ Due to the current limitations of open source LLMs and serving frameworks (tgi a
 2. Pick out tool calls from raw agent output. And check if the agent has made same tool calls before. If yes, remove the repeated tool calls.
 3. Parse and review SQL query, and fix SQL query if there are errors. This proved to improve SQL agent performance since the initial query may contain errors and having a "second pair of eyes" can often spot the errors while the agent node itself may not be able to identify the errors in subsequent execution steps.
 
+## Overview of sql_agent
+The architecture of `sql_agent` is shown in the figure below.
+The agent node takes user question, hints (optional) and history (when available), and thinks step by step to solve the problem. The basic idea is the same as `sql_agent_llama`. However, since OpenAI APIs produce well-structured tool call objects, we don't need a special output parser. Instead, we only keep the query fixer.
 
-### Limitations of sql_agent_llama
-1. Agent connects to local SQL databases with uri.
+![SQL Agent Architecture](../../../assets/sql_agent.png)
+
+
+## Limitations
+1. Agent connects to local SQLite databases with uri.
 2. Agent is only allowed to issue "SELECT" commands to databases, i.e., agent can only query databases but cannot update databases.
 3. We currently does not support "streaming" agent outputs on the fly for `sql_agent_llama`.
 

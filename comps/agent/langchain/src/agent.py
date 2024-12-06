@@ -38,5 +38,10 @@ def instantiate_agent(args, strategy="react_langchain", with_memory=False):
         from .strategy.sqlagent import SQLAgentLlama
 
         return SQLAgentLlama(args, with_memory, custom_prompt=custom_prompt)
+    elif strategy == "sql_agent":
+        print("Initializing SQL Agent")
+        from .strategy.sqlagent import SQLAgent
+
+        return SQLAgent(args, with_memory, custom_prompt=custom_prompt)
     else:
         raise ValueError(f"Agent strategy: {strategy} not supported!")
