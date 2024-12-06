@@ -48,6 +48,8 @@ In order to start TGI and LLM services, you need to setup the following environm
 export HF_TOKEN=${your_hf_api_token}
 export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL_ID=${your_hf_llm_model}
+export MAX_INPUT_TOKENS=2048
+export MAX_TOTAL_TOKENS=4096
 ```
 
 ### 2.2 Build Docker Image
@@ -67,7 +69,7 @@ You can choose one as needed.
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="llm-docsum-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/llm-docsum-tgi:latest
+docker run -d --name="llm-docsum-tgi-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e MAX_INPUT_TOKENS=${MAX_INPUT_TOKENS} -e MAX_TOTAL_TOKENS=${MAX_TOTAL_TOKENS} opea/llm-docsum-tgi:latest
 ```
 
 ### 2.4 Run Docker with Docker Compose (Option B)

@@ -32,17 +32,6 @@ templ_zh = """请简要概括以下内容:
 概况:"""
 
 
-def post_process_text(text: str):
-    if text == " ":
-        return "data: @#$\n\n"
-    if text == "\n":
-        return "data: <br/>\n\n"
-    if text.isspace():
-        return None
-    new_text = text.replace(" ", "@#$")
-    return f"data: {new_text}\n\n"
-
-
 @register_microservice(
     name="opea_service@llm_docsum",
     service_type=ServiceType.LLM,
@@ -88,10 +77,6 @@ async def llm_generate(input: LLMParamsDoc):
     # llm_chain = load_summarize_chain(llm=llm, prompt=PROMPT)
     llm_chain = load_summarize_chain(llm=llm, chain_type="map_reduce",return_intermediate_steps=True)
     texts = text_splitter.split_text(input.query)
-    print("111111111122222222222222222")
-    print(type(texts))
-    print(len(texts))
-    print("111111111122222222222222222")
 
     # Create multiple documents
     docs = [Document(page_content=t) for t in texts]
