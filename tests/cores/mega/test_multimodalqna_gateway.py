@@ -79,7 +79,7 @@ async def lvm_add(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
 async def asr_add(request: Base64ByteStrDoc) -> LLMParamsDoc:
     req = request.model_dump_json()
     res = {}
-    res['query'] = 'you'
+    res["query"] = "you"
     return res
 
 
@@ -198,25 +198,14 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
 
     def test_handle_message_with_audio(self):
         messages = [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": "hello, "
-                    }
-                ]
-            },
+            {"role": "user", "content": [{"type": "text", "text": "hello, "}]},
             {"role": "assistant", "content": "opea project! "},
             {
                 "role": "user",
                 "content": [
-                    {
-                        "type": "audio",
-                        "audio": "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"
-                    }
-                ]
-            }
+                    {"type": "audio", "audio": "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"}
+                ],
+            },
         ]
         prompt, b64_types = self.gateway._handle_message(messages)
         self.assertEqual(prompt, "hello, \nASSISTANT: opea project! \nUSER: you\n")
