@@ -1,5 +1,9 @@
-def search_web(query: str)->str:
-    '''Search the web for information not contained in databases.'''
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+
+def search_web(query: str) -> str:
+    """Search the web for information not contained in databases."""
     from langchain_core.tools import Tool
     from langchain_google_community import GoogleSearchAPIWrapper
 

@@ -142,7 +142,7 @@ def get_args():
     # for sql agent
     parser.add_argument("--db_path", type=str, help="database path")
     parser.add_argument("--db_name", type=str, help="database name")
-    parser.add_argument("--use_hints", type=str, default = "false", help="If this agent uses hints")
+    parser.add_argument("--use_hints", type=str, default="false", help="If this agent uses hints")
     parser.add_argument("--hints_file", type=str, help="path to the hints file")
 
     sys_args, unknown_args = parser.parse_known_args()
@@ -157,7 +157,7 @@ def get_args():
         sys_args.streaming = True
     else:
         sys_args.streaming = False
-    
+
     if sys_args.use_hints == "true":
         print("SQL agent will use hints")
         sys_args.use_hints = True

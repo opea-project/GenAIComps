@@ -1,12 +1,19 @@
-import pandas as pd
-import os
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import glob
+import os
+
+import pandas as pd
+
 
 def generate_column_descriptions(db_name):
     decriptions = []
     working_dir = os.getenv("WORKDIR")
     assert working_dir is not None, "WORKDIR environment variable is not set."
-    DESCRIPTION_FOLDER=os.path.join(working_dir, f"TAG-Bench/dev_folder/dev_databases/{db_name}/database_description/")
+    DESCRIPTION_FOLDER = os.path.join(
+        working_dir, f"TAG-Bench/dev_folder/dev_databases/{db_name}/database_description/"
+    )
     table_files = glob.glob(os.path.join(DESCRIPTION_FOLDER, "*.csv"))
     table_name_col = []
     col_name_col = []
@@ -17,11 +24,11 @@ def generate_column_descriptions(db_name):
         for _, row in df.iterrows():
             col_name = row["original_column_name"]
             if not pd.isnull(row["value_description"]):
-                description = str(row["value_description"]) 
+                description = str(row["value_description"])
                 if description.lower() in col_name.lower():
                     print("Description {} is same as column name {}".format(description, col_name))
                     pass
-                else:            
+                else:
                     description = description.replace("\n", " ")
                     description = " ".join(description.split())
                     # decriptions_only.append(description)
@@ -37,7 +44,3 @@ def generate_column_descriptions(db_name):
 
 if __name__ == "__main__":
     generate_column_descriptions("california_schools")
-        
-        
-
- 

@@ -1,5 +1,8 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 AGENT_NODE_TEMPLATE = """\
-You are an SQL expert tasked with answering questions about {domain}. 
+You are an SQL expert tasked with answering questions about {domain}.
 In addition to the database, you have the following tools to gather information:
 {tools}
 
@@ -32,7 +35,7 @@ You have done the following steps so far:
 
 **IMPORTANT:**
 * Review your previous steps carefully and utilize them to answer the question. Do not repeat your previous steps.
-* The database may not have all the information needed to answer the question. Use the additional tools provided if necessary. 
+* The database may not have all the information needed to answer the question. Use the additional tools provided if necessary.
 * If you did not get the answer at first, do not give up. Reflect on the steps that you have taken and try a different way. Think out of the box.
 
 Now take a deep breath and think step by step to answeer the following question.
@@ -42,7 +45,7 @@ Question:
 
 
 ANSWER_PARSER_PROMPT = """\
-Review the output from an SQL agent and determine if a correct answer has been provided and grounded on real data. 
+Review the output from an SQL agent and determine if a correct answer has been provided and grounded on real data.
 
 Say "yes" when all the following conditions are met:
 1. The answer is complete and does not require additional steps to be taken.
@@ -65,7 +68,7 @@ Has a final answer been provided based on real data? Analyze the agent output an
 
 
 SQL_QUERY_FIXER_PROMPT = """\
-You are an SQL database expert tasked with reviewing a SQL query written by an agent. 
+You are an SQL database expert tasked with reviewing a SQL query written by an agent.
 **Procedure:**
 1. Review Database Schema:
 - Examine the table creation statements to understand the database structure.
@@ -93,12 +96,12 @@ User question:
 {QUESTION}
 **************************
 
-Now analyze the SQL query step by step. Present your reasonings. 
+Now analyze the SQL query step by step. Present your reasonings.
 
 If you identified issues in the original query, write down the corrected SQL query in the format below:
 ```sql
 SELECT column1, column2, ...
-``` 
+```
 
 If the original SQL query is correct, just say the query is correct.
 
@@ -108,7 +111,7 @@ If you cannot do better than the original query, just say the query is correct.
 """
 
 SQL_QUERY_FIXER_PROMPT_with_result = """\
-You are an SQL database expert tasked with reviewing a SQL query. 
+You are an SQL database expert tasked with reviewing a SQL query.
 **Procedure:**
 1. Review Database Schema:
 - Examine the table creation statements to understand the database structure.
@@ -117,7 +120,7 @@ You are an SQL database expert tasked with reviewing a SQL query.
 3. Analyze Query Requirements:
 - User Question: Consider what information the query is supposed to retrieve. Decide if aggregation like COUNT or SUM is needed.
 - Executed SQL Query: Review the SQL query that was previously executed.
-- Execution Result: Analyze the outcome of the executed query. Think carefully if the result makes sense. 
+- Execution Result: Analyze the outcome of the executed query. Think carefully if the result makes sense.
 4. Check against the following common errors:
 - Failure to exclude null values, ranking or filtering columns have nulls, syntax errors, incorrect table references, incorrect column references, logical mistakes.
 5. Correct the Query only when Necessary:
@@ -141,12 +144,12 @@ The execution result:
 {RESULT}
 **************************
 
-Now analyze the SQL query step by step. Present your reasonings. 
+Now analyze the SQL query step by step. Present your reasonings.
 
 If you identified issues in the original query, write down the corrected SQL query in the format below:
 ```sql
 SELECT column1, column2, ...
-``` 
+```
 
 If the original SQL query is correct, just say the query is correct.
 

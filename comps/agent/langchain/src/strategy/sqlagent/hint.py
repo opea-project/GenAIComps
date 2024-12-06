@@ -1,10 +1,15 @@
-import pandas as pd
-import os
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import glob
+import os
+
+import pandas as pd
+
 
 def read_hints(hints_file):
     """
-    hints_file: csv with columns: table_name, column_name, description    
+    hints_file: csv with columns: table_name, column_name, description
     """
     hints_df = pd.read_csv(hints_file)
     cols_descriptions = []
@@ -21,9 +26,11 @@ def read_hints(hints_file):
 
 def sort_list(list1, list2):
     import numpy as np
+
     # Use numpy's argsort function to get the indices that would sort the second list
-    idx = np.argsort(list2)# ascending order
-    return np.array(list1)[idx].tolist()[::-1], np.array(list2)[idx].tolist()[::-1]# descending order
+    idx = np.argsort(list2)  # ascending order
+    return np.array(list1)[idx].tolist()[::-1], np.array(list2)[idx].tolist()[::-1]  # descending order
+
 
 def get_topk_cols(topk, cols_descriptions, similarities):
     sorted_cols, similarities = sort_list(cols_descriptions, similarities)
@@ -31,7 +38,7 @@ def get_topk_cols(topk, cols_descriptions, similarities):
     output = []
     for col, sim in zip(top_k_cols, similarities[:topk]):
         # print(f"{col}: {sim}")
-        if sim > 0.5: 
+        if sim > 0.5:
             output.append(col)
     return output
 
@@ -45,5 +52,5 @@ def pick_hints(query, model, column_embeddings, complete_descriptions, topk=5):
 
     hint = ""
     for col in topk_cols_descriptions:
-        hint += (col +'\n')
+        hint += col + "\n"
     return hint

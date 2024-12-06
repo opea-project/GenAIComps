@@ -38,7 +38,7 @@ class BaseAgent:
 
     def prepare_initial_state(self, query):
         raise NotImplementedError
-    
+
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
