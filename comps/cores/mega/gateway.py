@@ -9,10 +9,7 @@ import requests
 from fastapi import Request
 from PIL import Image
 
-from ..proto.api_protocol import (
-    ChatCompletionRequest,
-    ChatCompletionResponse,
-)
+from ..proto.api_protocol import ChatCompletionRequest, ChatCompletionResponse
 from .constants import MegaServiceEndpoint, ServiceRoleType, ServiceType
 from .micro_service import MicroService
 
@@ -185,4 +182,3 @@ class Gateway:
             return prompt, images
         else:
             return prompt
-
