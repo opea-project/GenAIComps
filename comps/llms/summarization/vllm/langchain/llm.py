@@ -11,7 +11,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTe
 from langchain_community.llms import VLLMOpenAI
 from pathlib import Path as p
 
-from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, DocSumLLMParams, ServiceType, opea_microservices, register_microservice
 from comps.cores.mega.utils import get_access_token
 
 logger = CustomLogger("llm_docsum")
@@ -22,6 +22,8 @@ TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 MODEL_ID = os.getenv("LLM_MODEL_ID", None)
+MAX_INPUT_TOKENS = os.getenv("MAX_INPUT_TOKENS")
+MAX_TOTAL_TOKENS = os.getenv("MAX_TOTAL_TOKENS")
 
 templ_en = """Write a concise summary of the following:
 "{text}"
@@ -60,7 +62,7 @@ templ_refine_zh = """\
     host="0.0.0.0",
     port=9000,
 )
-async def llm_generate(input: LLMParamsDoc):
+async def llm_generate(input: DocSumLLMParams):
     if logflag:
         logger.info(input)
     if input.language in ["en", "auto"]:

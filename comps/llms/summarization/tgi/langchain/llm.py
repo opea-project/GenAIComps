@@ -10,7 +10,7 @@ from langchain.prompts import PromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
 from langchain_community.llms import HuggingFaceEndpoint
 
-from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, GeneratedDoc, DocSumLLMParams, ServiceType, opea_microservices, register_microservice
 from comps.cores.mega.utils import get_access_token
 
 logger = CustomLogger("llm_docsum")
