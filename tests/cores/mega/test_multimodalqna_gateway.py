@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import os
 import unittest
 from typing import Union
 
@@ -9,8 +10,10 @@ import requests
 from fastapi import Request
 
 from comps import (
+    Base64ByteStrDoc,
     EmbedDoc,
     EmbedMultimodalDoc,
+    LLMParamsDoc,
     LVMDoc,
     LVMSearchedMultimodalDoc,
     MultimodalDoc,
@@ -72,15 +75,25 @@ async def lvm_add(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
     return res
 
 
+@register_microservice(name="asr", host="0.0.0.0", port=8086, endpoint="/v1/audio/transcriptions")
+async def asr_add(request: Base64ByteStrDoc) -> LLMParamsDoc:
+    req = request.model_dump_json()
+    res = {}
+    res['query'] = 'you'
+    return res
+
+
 class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
         cls.mm_embedding = opea_microservices["mm_embedding"]
         cls.mm_retriever = opea_microservices["mm_retriever"]
         cls.lvm = opea_microservices["lvm"]
+        cls.asr = opea_microservices["asr"]
         cls.mm_embedding.start()
         cls.mm_retriever.start()
         cls.lvm.start()
+        cls.asr.start()
 
         cls.service_builder = ServiceOrchestrator()
 
@@ -93,6 +106,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         cls.follow_up_query_service_builder = ServiceOrchestrator()
         cls.follow_up_query_service_builder.add(cls.lvm)
 
+        os.environ["ASR_SERVICE_PORT"] = "8086"
         cls.gateway = MultimodalQnAGateway(cls.service_builder, cls.follow_up_query_service_builder, port=9898)
 
     @classmethod
@@ -100,6 +114,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         cls.mm_embedding.stop()
         cls.mm_retriever.stop()
         cls.lvm.stop()
+        cls.asr.stop()
         cls.gateway.stop()
 
     async def test_service_builder_schedule(self):
@@ -180,6 +195,32 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         ]
         prompt, images = self.gateway._handle_message(messages)
         self.assertEqual(prompt, "System Prompt\nhello, \nASSISTANT: opea project! \nUSER: chao, \n")
+
+    def test_handle_message_with_audio(self):
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "hello, "
+                    }
+                ]
+            },
+            {"role": "assistant", "content": "opea project! "},
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "audio",
+                        "audio": "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"
+                    }
+                ]
+            }
+        ]
+        prompt, b64_types = self.gateway._handle_message(messages)
+        self.assertEqual(prompt, "hello, \nASSISTANT: opea project! \nUSER: you\n")
+        self.assertEqual(b64_types, {"audio": "you"})
 
     async def test_handle_request(self):
         json_data = {
