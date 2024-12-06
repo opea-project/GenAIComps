@@ -257,7 +257,7 @@ class QueryFixerNode:
 class SQLAgent(BaseAgent):
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
-        
+
         sql_tool = get_sql_query_tool(args.db_path)
         tools = self.tools_descriptions + [sql_tool]
         print("@@@@ ALL Tools: ", tools)
