@@ -8,7 +8,7 @@ You can start retriever Microservice either by Python script or docker composer.
 
 ```bash
 git clone https://github.com/opea-project/GenAIComps.git
-cd GenAIComps/comps/retrievers/milvus/langchain 
+cd GenAIComps/comps/retrievers/milvus/langchain
 pip install -r requirements.txt
 ```
 
@@ -22,6 +22,7 @@ Please refer to this [readme](../../../vectorstores/milvus/README.md).
 export HUGGINGFACEHUB_API_TOKEN="YOUR_HUGGINGFACEHUB_API_TOKEN"
 #source set_env.sh
 ```
+
 ### Start Retriever Service
 
 ```bash
@@ -35,7 +36,7 @@ python retriever_redis.py
 
 ```bash
 git clone https://github.com/opea-project/GenAIComps.git
-cd GenAIComps/comps/retrievers/milvus/langchain 
+cd GenAIComps/comps/retrievers/milvus/langchain
 # build dataprep milvus docker image
 docker compose build --no-cache
 ```

@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 export host_ip=$(hostname -i)
 export DOCKER_VOLUME_DIRECTORY="../../../vectorstores/milvus"
 export no_proxy=${no_proxy},tei-embedding-service
@@ -6,4 +9,3 @@ export MILVUS_HOST=${host_ip}
 export MILVUS_PORT=19530
 # Optional COLLECTION_NAME
 export COLLECTION_NAME=${your_collection_name}
-

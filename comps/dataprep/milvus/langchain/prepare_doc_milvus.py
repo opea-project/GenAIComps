@@ -93,7 +93,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
                 batch_docs,
                 embeddings,
                 collection_name=COLLECTION_NAME,
-                connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri":url},
+                connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri": url},
                 partition_key_field=partition_field_name,
             )
         except Exception as e:
@@ -212,7 +212,7 @@ async def ingest_documents(
     my_milvus = Milvus(
         embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri":url},
+        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri": url},
         index_params=index_params,
         auto_id=True,
     )
@@ -408,7 +408,7 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     my_milvus = Milvus(
         embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri":url},
+        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri": url},
         index_params=index_params,
         auto_id=True,
     )

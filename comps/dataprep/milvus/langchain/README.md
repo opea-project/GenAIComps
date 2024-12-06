@@ -66,6 +66,7 @@ Update Knowledge Base via Local File nke-10k-2023.pdf. Get the file on a termina
 ```
 wget https://raw.githubusercontent.com/opea-project/GenAIComps/main/comps/retrievers/redis/data/nke-10k-2023.pdf
 ```
+
 - Single file upload
 
 ```bash
