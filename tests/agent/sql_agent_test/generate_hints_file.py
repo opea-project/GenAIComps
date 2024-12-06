@@ -3,7 +3,7 @@ import os
 import glob
 
 def generate_column_descriptions(db_name):
-    decriptions = []
+    descriptions = []
     working_dir = os.getenv("WORKDIR")
     assert working_dir is not None, "WORKDIR environment variable is not set."
     DESCRIPTION_FOLDER=os.path.join(working_dir, f"TAG-Bench/dev_folder/dev_databases/{db_name}/database_description/")
@@ -24,11 +24,10 @@ def generate_column_descriptions(db_name):
                 else:            
                     description = description.replace("\n", " ")
                     description = " ".join(description.split())
-                    # decriptions_only.append(description)
-                    decriptions.append(description)
+                    descriptions.append(description)
                     table_name_col.append(table_name)
                     col_name_col.append(col_name)
-    hints_df = pd.DataFrame({"table_name": table_name_col, "column_name": col_name_col, "description": decriptions})
+    hints_df = pd.DataFrame({"table_name": table_name_col, "column_name": col_name_col, "description": descriptions})
     tag_bench_dir = os.path.join(working_dir, "TAG-Bench")
     output_file = os.path.join(tag_bench_dir, f"{db_name}_hints.csv")
     hints_df.to_csv(output_file, index=False)

@@ -21,7 +21,7 @@ export agent_container_name="test-comps-agent-endpoint"
 export ip_address=$(hostname -I | awk '{print $1}')
 
 vllm_port=8085
-vllm_volume=${HF_CACHE_DIR} #$WORKPATH/data # change back to workpath/data
+vllm_volume=$WORKPATH/data # change back to workpath/data
 export model=meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-70B-Instruct"
