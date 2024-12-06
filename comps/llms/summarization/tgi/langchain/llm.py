@@ -7,8 +7,8 @@ from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain.prompts import PromptTemplate
-from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
 from langchain_community.llms import HuggingFaceEndpoint
+from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 
 from comps import CustomLogger, GeneratedDoc, DocSumLLMParams, ServiceType, opea_microservices, register_microservice
 from comps.cores.mega.utils import get_access_token
@@ -49,7 +49,7 @@ We have the opportunity to refine the existing summary (only if needed) with som
 ------------
 Given the new context, refine the original summary.
 If the context isn't useful, return the original summary.\
-""" 
+"""
 
 templ_refine_zh = """\
 你的任务是生成一个最终摘要。
@@ -60,7 +60,8 @@ templ_refine_zh = """\
 ------------
 根据新上下文，完善原始摘要。
 如果上下文无用，则返回原始摘要。\
-""" 
+"""
+
 
 @register_microservice(
     name="opea_service@llm_docsum",
@@ -94,7 +95,7 @@ async def llm_generate(input: DocSumLLMParams):
     ## Split text
     max_input_tokens = min(MAX_TOTAL_TOKENS - input.max_tokens, MAX_INPUT_TOKENS)
     chunk_size = input.chunk_size if input.chunk_size > 0 else max_input_tokens
-    chunk_overlap = input.chunk_overlap if input.chunk_overlap > 0 else int(0.1*chunk_size)
+    chunk_overlap = input.chunk_overlap if input.chunk_overlap > 0 else int(0.1 * chunk_size)
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=input.chunk_overlap)
     texts = text_splitter.split_text(input.query)
     docs = [Document(page_content=t) for t in texts]
@@ -106,7 +107,7 @@ async def llm_generate(input: DocSumLLMParams):
     server_kwargs = {}
     if access_token:
         server_kwargs["headers"] = {"Authorization": f"Bearer {access_token}"}
-    
+
     ## LLM
     if input.streaming and input.summary_type == "map_reduce":
         logger.info("Map Reduce mode don't support streaming=True, set to streaming=False")
@@ -132,9 +133,17 @@ async def llm_generate(input: DocSumLLMParams):
         docs = [docs[0]]
         llm_chain = load_summarize_chain(llm=llm, prompt=PROMPT)
     elif summary_type == "map_reduce":
-        llm_chain = load_summarize_chain(llm=llm, map_prompt=PROMPT, combine_prompt=PROMPT, chain_type="map_reduce",return_intermediate_steps=True)
+        llm_chain = load_summarize_chain(
+            llm=llm, map_prompt=PROMPT, combine_prompt=PROMPT, chain_type="map_reduce", return_intermediate_steps=True
+        )
     elif summary_type == "refine":
-        llm_chain = load_summarize_chain(llm=llm, question_prompt=PROMPT, refine_prompt=PROMPT_REFINE, chain_type="refine",return_intermediate_steps=True)
+        llm_chain = load_summarize_chain(
+            llm=llm,
+            question_prompt=PROMPT,
+            refine_prompt=PROMPT_REFINE,
+            chain_type="refine",
+            return_intermediate_steps=True,
+        )
     else:
         raise NotImplementedError('Please specify the summary_type in "stuff", "truncate", "map_reduce", "refine"')
 
