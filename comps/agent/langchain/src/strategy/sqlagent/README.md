@@ -1,5 +1,7 @@
 # SQL Agents
+
 We currently have two types of SQL agents:
+
 1. `sql_agent_llama`: for using with open-source LLMs, especially `meta-llama/Llama-3.1-70B-Instruct` model.
 2. `sql_agent`: for using with OpenAI models, we developed and validated with GPT-4o-mini.
 
@@ -27,13 +29,14 @@ Due to the current limitations of open source LLMs and serving frameworks (tgi a
 3. Parse and review SQL query, and fix SQL query if there are errors. This proved to improve SQL agent performance since the initial query may contain errors and having a "second pair of eyes" can often spot the errors while the agent node itself may not be able to identify the errors in subsequent execution steps.
 
 ## Overview of sql_agent
+
 The architecture of `sql_agent` is shown in the figure below.
 The agent node takes user question, hints (optional) and history (when available), and thinks step by step to solve the problem. The basic idea is the same as `sql_agent_llama`. However, since OpenAI APIs produce well-structured tool call objects, we don't need a special output parser. Instead, we only keep the query fixer.
 
 ![SQL Agent Architecture](../../../assets/sql_agent.png)
 
-
 ## Limitations
+
 1. Agent connects to local SQLite databases with uri.
 2. Agent is only allowed to issue "SELECT" commands to databases, i.e., agent can only query databases but cannot update databases.
 3. We currently does not support "streaming" agent outputs on the fly for `sql_agent_llama`.

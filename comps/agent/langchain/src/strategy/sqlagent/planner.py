@@ -181,6 +181,7 @@ class AgentNode:
         self.args = args
         if args.use_hints:
             from sentence_transformers import SentenceTransformer
+
             self.cols_descriptions, self.values_descriptions = read_hints(args.hints_file)
             self.embed_model = SentenceTransformer("BAAI/bge-large-en-v1.5")
             self.column_embeddings = self.embed_model.encode(self.values_descriptions)
@@ -197,7 +198,7 @@ class AgentNode:
         else:
             hints = ""
 
-        sysm = AGENT_SYSM.format(num_tables=num_tables,tables_schema=table_schema, question=question, hints=hints)
+        sysm = AGENT_SYSM.format(num_tables=num_tables, tables_schema=table_schema, question=question, hints=hints)
         _system_message = SystemMessage(content=sysm)
         state_modifier_runnable = RunnableLambda(
             lambda state: [_system_message] + state["messages"],
@@ -218,7 +219,7 @@ class QueryFixerNode:
         )
         self.chain = prompt | llm
         self.args = args
-    
+
     def get_sql_query_and_result(self, state):
         messages = state["messages"]
         assert isinstance(messages[-1], ToolMessage), "The last message should be a tool message"
@@ -252,10 +253,11 @@ class QueryFixerNode:
         # print("@@@@@ Query fixer output:\n", response.content)
         return {"messages": [response]}
 
+
 class SQLAgent(BaseAgent):
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
-        
+
         agent = AgentNode(args, self.llm, self.tools_descriptions)
         query_fixer = QueryFixerNode(args, self.llm)
         sql_tool = get_sql_query_tool(args.db_path)
@@ -286,15 +288,11 @@ class SQLAgent(BaseAgent):
         workflow.add_conditional_edges(
             "tools",
             self.should_go_to_query_fixer,
-            {
-                "true": "query_fixer",
-                "false": "agent"
-            },
+            {"true": "query_fixer", "false": "agent"},
         )
         workflow.add_edge("query_fixer", "agent")
 
         self.app = workflow.compile()
-        
 
     # Define the function that determines whether to continue or not
     def should_continue(self, state: AgentState):
@@ -306,7 +304,6 @@ class SQLAgent(BaseAgent):
         # Otherwise if there is, we continue
         else:
             return "continue"
-        
 
     def should_go_to_query_fixer(self, state: AgentState):
         messages = state["messages"]
@@ -319,6 +316,6 @@ class SQLAgent(BaseAgent):
         else:
             print("@@@@ Going back to Agent")
             return "false"
-    
+
     def prepare_initial_state(self, query):
         return {"messages": [HumanMessage(content=query)], "is_last_step": IsLastStep(False), "hint": ""}
