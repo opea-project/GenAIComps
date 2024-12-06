@@ -27,5 +27,6 @@ def get_sql_query_tool(db_path):
         "will be returned. If an error is returned, rewrite the query, check the "
         "query, and try again. "
     )
-    db_query_tool = QuerySQLDataBaseTool(db=db, description=query_sql_database_tool_description)
+    db_query_tool = QuerySQLDataBaseTool(db=db, name= "sql_db_query", description=query_sql_database_tool_description)
+    print("SQL Query Tool Created: ", db_query_tool)
     return db_query_tool

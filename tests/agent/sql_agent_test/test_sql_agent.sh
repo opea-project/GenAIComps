@@ -20,7 +20,7 @@ export agent_container_name="test-comps-agent-endpoint"
 
 export ip_address=$(hostname -I | awk '{print $1}')
 
-vllm_port=8085
+vllm_port=8084
 vllm_volume=$WORKPATH/data # change back to workpath/data
 export model=meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
@@ -28,7 +28,7 @@ export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-70B-Instruct"
 export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 export temperature=0.01
 export max_new_tokens=4096
-export TOOLSET_PATH=$WORKPATH/comps/agent/langchain/tools/ #$WORKPATH/tests/agent/sql_agent_test/ # change back to custom tools
+export TOOLSET_PATH=$WORKPATH/comps/agent/langchain/tools/ # change back to custom tools $WORKPATH/tests/agent/sql_agent_test/ #
 echo "TOOLSET_PATH=${TOOLSET_PATH}"
 export recursion_limit=15
 export db_name=california_schools
@@ -137,6 +137,18 @@ function start_sql_agent_llama_service() {
     echo "Service started successfully"
 }
 
+
+function start_sql_agent_openai_service() {
+    export OPENAI_API_KEY=${OPENAI_API_KEY}
+    echo "Starting sql_agent_openai agent microservice"
+    docker compose -f $WORKPATH/tests/agent/sql_agent_openai.yaml up -d
+    sleep 5s
+    # need to wait longer if need to use hints
+    # sleep 3m
+    docker logs test-comps-agent-endpoint
+    echo "Service started successfully"
+}
+
 # run the test
 function run_test() {
     echo "Running test..."
@@ -153,11 +165,14 @@ function run_benchmark() {
     python3 test_tag_bench.py --query_file $query_file --output_dir $outdir --output_file $outfile
 }
 
-# echo "Building docker image...."
-# build_docker_images
+echo "Building docker image...."
+build_docker_images
 
-# echo "Building vllm docker image...."
-# build_vllm_docker_images
+echo "Preparing data...."
+prepare_data
+
+echo "Building vllm docker image...."
+build_vllm_docker_images
 
 echo "Launching vllm service...."
 start_vllm_service
@@ -167,6 +182,9 @@ start_vllm_service
 
 echo "launching sql_agent_llama service...."
 start_sql_agent_llama_service
+
+# echo "launching sql_agent_openai service...."
+# start_sql_agent_openai_service
 
 echo "Running test...."
 run_test
