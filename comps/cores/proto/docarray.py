@@ -212,6 +212,12 @@ class LLMParamsDoc(BaseDoc):
         return v
 
 
+class DocSumLLMParams(LLMParamsDoc):
+    summary_type: str = "stuff"  # can be "truncate", "map_reduce", "refine"
+    chunk_size: int = 0
+    chunk_overlap: int = 0
+
+
 class LLMParams(BaseDoc):
     model: Optional[str] = None
     max_tokens: int = 1024
