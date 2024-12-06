@@ -9,6 +9,8 @@ from typing import Union
 import requests
 from fastapi import Request
 
+os.environ["ASR_SERVICE_PORT"] = "8086"
+
 from comps import (
     Base64ByteStrDoc,
     EmbedDoc,
@@ -106,7 +108,6 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         cls.follow_up_query_service_builder = ServiceOrchestrator()
         cls.follow_up_query_service_builder.add(cls.lvm)
 
-        os.environ["ASR_SERVICE_PORT"] = "8086"
         cls.gateway = MultimodalQnAGateway(cls.service_builder, cls.follow_up_query_service_builder, port=9898)
 
     @classmethod
