@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import os
 import unittest
 from typing import Union
 
@@ -74,7 +75,7 @@ async def lvm_add(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> TextDoc:
     return res
 
 
-@register_microservice(name="asr", host="0.0.0.0", port=3001, endpoint="/v1/audio/transcriptions")
+@register_microservice(name="asr", host="0.0.0.0", port=8086, endpoint="/v1/audio/transcriptions")
 async def asr_add(request: Base64ByteStrDoc) -> LLMParamsDoc:
     req = request.model_dump_json()
     res = {}
@@ -97,13 +98,14 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         cls.service_builder = ServiceOrchestrator()
 
         cls.service_builder.add(opea_microservices["mm_embedding"]).add(opea_microservices["mm_retriever"]).add(
-            opea_microservices["lvm"]).add(opea_microservices["asr"])
+            opea_microservices["lvm"])
         cls.service_builder.flow_to(cls.mm_embedding, cls.mm_retriever)
         cls.service_builder.flow_to(cls.mm_retriever, cls.lvm)
 
         cls.follow_up_query_service_builder = ServiceOrchestrator()
         cls.follow_up_query_service_builder.add(cls.lvm)
 
+        os.environ["ASR_SERVICE_PORT"] = "8086"
         cls.gateway = MultimodalQnAGateway(cls.service_builder, cls.follow_up_query_service_builder, port=9898)
 
     @classmethod
@@ -215,8 +217,9 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
                 ]
             }
         ]
-        prompt, images = self.gateway._handle_message(messages)
+        prompt, b64_types = self.gateway._handle_message(messages)
         self.assertEqual(prompt, "hello, \nASSISTANT: opea project! \nUSER: you\n")
+        self.assertEqual(b64_types, {"audio": "you"})
 
     async def test_handle_request(self):
         json_data = {
