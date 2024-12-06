@@ -98,7 +98,8 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         cls.service_builder = ServiceOrchestrator()
 
         cls.service_builder.add(opea_microservices["mm_embedding"]).add(opea_microservices["mm_retriever"]).add(
-            opea_microservices["lvm"])
+            opea_microservices["lvm"]
+        )
         cls.service_builder.flow_to(cls.mm_embedding, cls.mm_retriever)
         cls.service_builder.flow_to(cls.mm_retriever, cls.lvm)
 
