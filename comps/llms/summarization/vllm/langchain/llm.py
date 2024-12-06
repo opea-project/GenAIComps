@@ -11,7 +11,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.llms import VLLMOpenAI
 from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 
-from comps import CustomLogger, GeneratedDoc, DocSumLLMParams, ServiceType, opea_microservices, register_microservice
+from comps import CustomLogger, DocSumLLMParams, GeneratedDoc, ServiceType, opea_microservices, register_microservice
 from comps.cores.mega.utils import get_access_token
 
 logger = CustomLogger("llm_docsum")
