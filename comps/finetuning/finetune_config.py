@@ -5,9 +5,9 @@
 
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator, validator
 
-from comps.cores.proto.api_protocol import FineTuningJobsRequest
+from comps.cores.proto.api_protocol import FineTuningJobIDRequest, FineTuningJobsRequest
 
 PRECISION_BF16 = "bf16"
 PRECISION_FP16 = "fp16"
@@ -37,6 +37,24 @@ class LoraConfig(BaseModel):
     target_modules: Optional[List[str]] = None
 
 
+class SQFTNLSConfig(LoraConfig):
+    neural_lora_search: bool = False
+    target_module_groups: Optional[List[List[str]]] = None
+    search_space: Optional[List[str]] = None
+
+    @root_validator(pre=True)
+    def set_target_modules(cls, values):
+        if values.get("neural_lora_search"):
+            target_module_groups = values.get("target_module_groups")
+            search_space = values.get("search_space")
+            if target_module_groups is None or search_space is None:
+                raise ValueError("Please specified `target_module_groups` and `search_space` when using NLS strategy.")
+            if len(search_space) != len(target_module_groups):
+                raise ValueError("The length of `search_space` must be equal to the length of `target_module_groups`.")
+            values["target_modules"] = [module for groups in target_module_groups for module in groups]
+        return values
+
+
 class GeneralConfig(BaseModel):
     base_model: str = None
     tokenizer_name: Optional[str] = None
@@ -47,7 +65,7 @@ class GeneralConfig(BaseModel):
     resume_from_checkpoint: Optional[str] = None
     save_strategy: str = "no"
     config: LoadConfig = LoadConfig()
-    lora_config: Optional[LoraConfig] = LoraConfig()
+    lora_config: Optional[Union[LoraConfig, SQFTNLSConfig]] = LoraConfig()
     enable_gradient_checkpointing: bool = False
     task: str = "instruction_tuning"
 
@@ -200,3 +218,12 @@ class FineTuningParams(FineTuningJobsRequest):
     General: GeneralConfig = GeneralConfig()
     Dataset: DatasetConfig = DatasetConfig()
     Training: TrainingConfig = TrainingConfig()
+
+
+class ExtractSubAdapterParams(FineTuningJobIDRequest):
+    adapter_version: str = "heuristic"
+    custom_config: Optional[List[int]] = None
+
+
+class MergeAdapterParams(FineTuningJobIDRequest):
+    adapter_version: Optional[str] = None

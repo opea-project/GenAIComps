@@ -4,12 +4,14 @@ from fastapi import BackgroundTasks, Depends
 
 from comps import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, UploadFileRequest
-from comps.finetuning.finetune_config import FineTuningParams
+from comps.finetuning.finetune_config import ExtractSubAdapterParams, FineTuningParams, MergeAdapterParams
 from comps.finetuning.handlers import (
     handle_cancel_finetuning_job,
     handle_create_finetuning_jobs,
+    handle_extract_sub_adapter,
     handle_list_finetuning_checkpoints,
     handle_list_finetuning_jobs,
+    handle_merge_adapter,
     handle_retrieve_finetuning_job,
     handle_upload_training_files,
     upload_file,
@@ -61,6 +63,18 @@ async def upload_training_files(request: UploadFileRequest = Depends(upload_file
 def list_checkpoints(request: FineTuningJobIDRequest):
     checkpoints = handle_list_finetuning_checkpoints(request)
     return checkpoints
+
+
+@register_microservice(
+    name="opea_service@finetuning", endpoint="/v1/finetune/extract_sub_adapter", host="0.0.0.0", port=8015
+)
+def extract_sub_adapter(request: ExtractSubAdapterParams):
+    return handle_extract_sub_adapter(request)
+
+
+@register_microservice(name="opea_service@finetuning", endpoint="/v1/finetune/merge_adapter", host="0.0.0.0", port=8015)
+def merge_adapter(request: MergeAdapterParams):
+    return handle_merge_adapter(request)
 
 
 if __name__ == "__main__":
