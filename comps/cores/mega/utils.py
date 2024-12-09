@@ -1,16 +1,17 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
 import ipaddress
 import json
 import multiprocessing
 import os
 import random
+from io import BytesIO
 from socket import AF_INET, SOCK_STREAM, socket
 from typing import List, Optional, Union
+
 import requests
-import base64
-from io import BytesIO
 from PIL import Image
 
 from .logger import CustomLogger
