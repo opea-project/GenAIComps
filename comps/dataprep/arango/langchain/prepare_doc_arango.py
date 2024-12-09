@@ -78,13 +78,14 @@ def ingest_data_to_arango(doc_path: DocPath, embeddings: Embeddings | None) -> b
         openai.api_key = OPENAI_API_KEY
 
         try:
-            response = openai.Engine.list()
+            openai.models.list()
             logger.info("OpenAI API Key is valid.")
             llm = ChatOpenAI(temperature=0, model_name="gpt-4o")
         except openai.error.AuthenticationError:
             logger.info("OpenAI API Key is invalid.")
         except Exception as e:
             logger.info(f"An error occurred while verifying the API Key: {e}")
+
     elif TGI_LLM_ENDPOINT:
         llm = HuggingFaceEndpoint(
             endpoint_url=TGI_LLM_ENDPOINT,
