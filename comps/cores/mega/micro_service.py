@@ -198,6 +198,9 @@ class MicroService:
     def endpoint_path(self):
         return f"{self.protocol}://{self.host}:{self.port}{self.endpoint}"
 
+    def add_route(self, endpoint, handler, methods=["POST"]):
+        self.app.router.add_api_route(endpoint, handler, methods=methods)
+
 
 def register_microservice(
     name: str,
