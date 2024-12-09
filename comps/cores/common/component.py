@@ -16,8 +16,7 @@ class OpeaComponent(ABC):
     """
 
     def __init__(self, name: str, type: str, description: str, config: dict = None):
-        """
-        Initializes an OpeaComponent instance with the provided attributes.
+        """Initializes an OpeaComponent instance with the provided attributes.
 
         Args:
             name (str): The name of the component.
@@ -31,8 +30,7 @@ class OpeaComponent(ABC):
         self.config = config if config is not None else {}
 
     def get_meta(self) -> dict:
-        """
-        Retrieves metadata about the component, including its name, type, description, and configuration.
+        """Retrieves metadata about the component, including its name, type, description, and configuration.
 
         Returns:
             dict: A dictionary containing the component's metadata.
@@ -45,8 +43,7 @@ class OpeaComponent(ABC):
         }
 
     def update_config(self, key: str, value):
-        """
-        Updates a configuration parameter for the component.
+        """Updates a configuration parameter for the component.
 
         Args:
             key (str): The configuration parameter's key.
@@ -79,14 +76,12 @@ class OpeaComponent(ABC):
         pass
 
     def __repr__(self):
-        """
-        Provides a string representation of the component for debugging and logging purposes.
+        """Provides a string representation of the component for debugging and logging purposes.
 
         Returns:
             str: A string representation of the OpeaComponent instance.
         """
         return f"OpeaComponent(name={self.name}, type={self.type}, description={self.description})"
-
 
 
 class OpeaComponentController(ABC):
@@ -166,3 +161,4 @@ class OpeaComponentController(ABC):
             str: A string representation of the OpeaComponentController instance.
         """
         return f"OpeaComponentController(registered_components={self.list_components()})"
+
