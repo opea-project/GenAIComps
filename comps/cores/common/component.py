@@ -1,9 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+
 class OpeaComponent:
-    """
-    The OpeaComponent class serves as the base class for all components in the GenAIComps.
+    """The OpeaComponent class serves as the base class for all components in the GenAIComps.
     It provides a unified interface and foundational attributes that every derived component inherits and extends.
 
     Attributes:
@@ -14,8 +14,7 @@ class OpeaComponent:
     """
 
     def __init__(self, name: str, type: str, description: str, config: dict = None):
-        """
-        Initializes an OpeaComponent instance with the provided attributes.
+        """Initializes an OpeaComponent instance with the provided attributes.
 
         Args:
             name (str): The name of the component.
@@ -29,8 +28,7 @@ class OpeaComponent:
         self.config = config if config is not None else {}
 
     def get_meta(self) -> dict:
-        """
-        Retrieves metadata about the component, including its name, type, description, and configuration.
+        """Retrieves metadata about the component, including its name, type, description, and configuration.
 
         Returns:
             dict: A dictionary containing the component's metadata.
@@ -43,8 +41,7 @@ class OpeaComponent:
         }
 
     def update_config(self, key: str, value):
-        """
-        Updates a configuration parameter for the component.
+        """Updates a configuration parameter for the component.
 
         Args:
             key (str): The configuration parameter's key.
@@ -53,11 +50,9 @@ class OpeaComponent:
         self.config[key] = value
 
     def __repr__(self):
-        """
-        Provides a string representation of the component for debugging and logging purposes.
+        """Provides a string representation of the component for debugging and logging purposes.
 
         Returns:
             str: A string representation of the OpeaComponent instance.
         """
         return f"OpeaComponent(name={self.name}, type={self.type}, description={self.description})"
-
