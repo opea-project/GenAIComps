@@ -88,7 +88,7 @@ function start_vllm_service() {
     #single card
     echo "start vllm gaudi service"
     echo "**************model is $model**************"
-    docker run -d --runtime=habana --rm --name "test-comps-vllm-gaudi-service" -e HABANA_VISIBLE_DEVICES=all -p $vllm_port:80 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm-gaudi:comps --model ${model} --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs  4096 --max-seq-len-to-capture 8192
+    docker run -d --runtime=habana --rm --name "test-comps-vllm-gaudi-service" -e HABANA_VISIBLE_DEVICES=all -p $vllm_port:80 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm-gaudi:comps --model ${model} --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs  4096 --max-seq-len-to-capture 8192
     sleep 5s
     echo "Waiting vllm gaudi ready"
     n=0
@@ -115,7 +115,7 @@ function start_vllm_auto_tool_choice_service() {
     #single card
     echo "start vllm gaudi service"
     echo "**************auto_tool model is $model**************"
-    docker run -d --runtime=habana --rm --name "test-comps-vllm-gaudi-service" -e HABANA_VISIBLE_DEVICES=all -p $vllm_port:80 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm-gaudi:comps --model ${model} --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs  4096 --max-seq-len-to-capture 8192 --enable-auto-tool-choice --tool-call-parser ${model_parser}
+    docker run -d --runtime=habana --rm --name "test-comps-vllm-gaudi-service" -e HABANA_VISIBLE_DEVICES=all -p $vllm_port:80 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm-gaudi:comps --model ${model} --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs  4096 --max-seq-len-to-capture 8192 --enable-auto-tool-choice --tool-call-parser ${model_parser}
     sleep 5s
     echo "Waiting vllm gaudi ready"
     n=0
@@ -172,7 +172,7 @@ function start_react_langgraph_agent_service_vllm() {
 function start_planexec_agent_service_vllm() {
     echo "Starting planexec agent microservice"
     docker compose -f $WORKPATH/tests/agent/planexec_vllm.yaml up -d
-    sleep 5s
+    sleep 60s
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -355,7 +355,7 @@ function main() {
     export model_parser=mistral
     export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 
-    # test react with vllm - Mistral
+    test react with vllm - Mistral
     start_vllm_auto_tool_choice_service
     start_react_langgraph_agent_service_vllm
     echo "===========Testing ReAct Langgraph VLLM Mistral ============="
@@ -365,35 +365,26 @@ function main() {
     echo "============================================="
 
     # test plan execute with vllm - Mistral
-    start_vllm_service
-    start_planexec_agent_service_vllm
-    echo "===========Testing Plan Execute VLLM Mistral ============="
-    validate_microservice
-    stop_agent_docker
-    stop_vllm_docker
-    echo "============================================="
-
-    export model=meta-llama/Llama-3.1-8B-Instruct
-    export LLM_MODEL_ID=${model}
-    export model_parser=llama3_json
-
-    # test react with vllm - llama3 support has not been synced to vllm-gaudi yet
-    # start_vllm_auto_tool_choice_service
-    # start_react_langgraph_agent_service_vllm
-    # echo "===========Testing ReAct VLLM ============="
+    # start_vllm_service
+    # start_planexec_agent_service_vllm
+    # echo "===========Testing Plan Execute VLLM Mistral ============="
     # validate_microservice
     # stop_agent_docker
     # stop_vllm_docker
     # echo "============================================="
 
-    # test plan execute with vllm - llama3.1
-    start_vllm_service
-    start_planexec_agent_service_vllm
-    echo "===========Testing Plan Execute VLLM Llama3.1 ============="
-    validate_microservice
-    stop_agent_docker
-    stop_vllm_docker
-    echo "============================================="
+    # export model=meta-llama/Llama-3.1-8B-Instruct
+    # export LLM_MODEL_ID=${model}
+    # export model_parser=llama3_json
+
+    # # test plan execute with vllm - llama3.1
+    # start_vllm_service
+    # start_planexec_agent_service_vllm
+    # echo "===========Testing Plan Execute VLLM Llama3.1 ============="
+    # validate_microservice
+    # stop_agent_docker
+    # stop_vllm_docker
+    # echo "============================================="
 
 
     # # ==================== OpenAI tests ====================
