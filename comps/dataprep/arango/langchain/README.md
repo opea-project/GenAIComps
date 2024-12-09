@@ -24,10 +24,10 @@ docker run -d --name arangodb -p 8529:8529 -e ARANGO_ROOT_PASSWORD=password aran
 export no_proxy=${your_no_proxy}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export ARANGO_URI=${your_arango_url}
+export ARANGO_URL=${your_arango_url}
 export ARANGO_USERNAME=${your_arango_username}
 export ARANGO_PASSWORD=${your_arango_password}
-export DB_NAME=${your_db_name}
+export ARANGO_DB_NAME=${your_db_name}
 export PYTHONPATH=${path_to_comps}
 ```
 
@@ -60,10 +60,10 @@ docker run -d --name="dataprep-arango-server" -p 6007:6007 --ipc=host -e http_pr
 export no_proxy=${your_no_proxy}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export ARANGO_URI=${your_arango_url}
+export ARANGO_URL=${your_arango_url}
 export ARANGO_USERNAME=${your_arango_username}
 export ARANGO_PASSWORD=${your_arango_password}
-export DB_NAME=${your_db_name}
+export ARANGO_DB_NAME=${your_db_name}
 ```
 
 ### Run Docker with Docker Compose

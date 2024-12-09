@@ -4,10 +4,10 @@
 import os
 
 # ArangoDB configuration
-ARANGO_URL = os.getenv("ARANGO_URI", "http://localhost:8529")
+ARANGO_URL = os.getenv("ARANGO_URL", "http://localhost:8529")
 ARANGO_USERNAME = os.getenv("ARANGO_USERNAME", "root")
 ARANGO_PASSWORD = os.getenv("ARANGO_PASSWORD", "test")
-DB_NAME = os.getenv("DB_NAME", "_system")
+ARANGO_DB_NAME = os.getenv("ARANGO_DB_NAME", "_system")
 
 # Text Generation Inference configuration
 TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
