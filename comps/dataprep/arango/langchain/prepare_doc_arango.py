@@ -7,12 +7,23 @@ from typing import List, Optional, Union
 
 import openai
 from arango import ArangoClient
-from config import ARANGO_PASSWORD, ARANGO_URL, ARANGO_USERNAME, DB_NAME, OPENAI_KEY, TGI_LLM_ENDPOINT
+from config import (
+    ARANGO_PASSWORD,
+    ARANGO_URL,
+    ARANGO_USERNAME,
+    DB_NAME,
+    OPENAI_KEY,
+    TEI_EMBED_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
+    TGI_LLM_ENDPOINT,
+)
 from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.graphs.arangodb_graph import ArangoGraph
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from langchain_experimental.graph_transformers import LLMGraphTransformer
 from langchain_openai import ChatOpenAI
 from langchain_text_splitters import HTMLHeaderTextSplitter
@@ -33,7 +44,7 @@ logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
 
 
-def ingest_data_to_arango(doc_path: DocPath):
+def ingest_data_to_arango(doc_path: DocPath, embeddings: Embeddings | None) -> bool:
     """Ingest document to ArangoDB."""
     path = doc_path.path
     if logflag:
@@ -114,14 +125,15 @@ def ingest_data_to_arango(doc_path: DocPath):
     # Option A: Batch insert #
     ##########################
 
+    generate_chunk_embeddings = embeddings is not None
+
     for text in chunks:
         document = Document(page_content=text)
-
-        # TODO:
-        # if generate_chunk_embeddings:
-        # document.metadata["embeddings"] = llm.generate_embeddings(text)
-
         graph_docs = llm_transformer.convert_to_graph_documents([document])
+
+        if generate_chunk_embeddings:
+            source = graph_docs[0].source
+            source.metadata["embeddings"] = embeddings.embed_documents([source.page_content])[0]
 
         graph.add_graph_documents(
             graph_documents=graph_docs,
@@ -140,9 +152,9 @@ def ingest_data_to_arango(doc_path: DocPath):
     # for text in chunks:
     #     doc = Document(page_content=text)
 
-    #     # TODO:
-    #     # if generate_chunk_embeddings:
-    #         # doc.metadata["embeddings"] = llm.generate_embeddings(text)
+    #     if generate_chunk_embeddings:
+    #         source = graph_docs[0].source
+    #         doc.metadata["embeddings"] = embeddings.embed_documents([text])[0]
 
     #     doc_list.append(doc)
 
@@ -183,6 +195,16 @@ async def ingest_documents(
         logger.info(f"files:{files}")
         logger.info(f"link_list:{link_list}")
 
+    if TEI_EMBEDDING_ENDPOINT:
+        # create embeddings using TEI endpoint service
+        hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+        embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT, huggingfacehub_api_token=hf_token)
+    elif TEI_EMBED_MODEL:
+        # create embeddings using local embedding model
+        embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)
+    else:
+        embeddings = None
+
     if files:
         if not isinstance(files, list):
             files = [files]
@@ -192,13 +214,14 @@ async def ingest_documents(
             save_path = upload_folder + encode_file
             await save_content_to_local_disk(save_path, file)
             ingest_data_to_arango(
-                DocPath(
+                doc_path=DocPath(
                     path=save_path,
                     chunk_size=chunk_size,
                     chunk_overlap=chunk_overlap,
                     process_table=process_table,
                     table_strategy=table_strategy,
-                )
+                ),
+                embeddings=embeddings,
             )
             uploaded_files.append(save_path)
             if logflag:
@@ -219,13 +242,14 @@ async def ingest_documents(
             try:
                 await save_content_to_local_disk(save_path, content)
                 ingest_data_to_arango(
-                    DocPath(
+                    doc_path=DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    )
+                    ),
+                    embeddings=embeddings,
                 )
             except json.JSONDecodeError:
                 raise HTTPException(status_code=500, detail="Fail to ingest data into qdrant.")
