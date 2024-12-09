@@ -13,6 +13,7 @@ langchain-text-splitters
 langchain_huggingface
 markdown
 python-arango
+cityhash
 numpy
 openai
 opentelemetry-api
