@@ -21,14 +21,14 @@ export agent_container_name="test-comps-agent-endpoint"
 export ip_address=$(hostname -I | awk '{print $1}')
 
 vllm_port=8084
-vllm_volume=$WORKPATH/data # change back to workpath/data
+vllm_volume=$WORKPATH/data #${HF_CACHE_DIR}
 export model=meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-70B-Instruct"
 export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 export temperature=0.01
 export max_new_tokens=4096
-export TOOLSET_PATH=$WORKPATH/comps/agent/langchain/tools/ # change back to custom tools $WORKPATH/tests/agent/sql_agent_test/ #
+export TOOLSET_PATH=$WORKPATH/comps/agent/langchain/tools/ # $WORKPATH/tests/agent/sql_agent_test/
 echo "TOOLSET_PATH=${TOOLSET_PATH}"
 export recursion_limit=15
 export db_name=california_schools
@@ -107,7 +107,7 @@ function start_vllm_service() {
     #single card
     echo "start vllm gaudi service"
     echo "**************model is $model**************"
-    docker run -d --runtime=habana --rm --name "test-comps-vllm-gaudi-service" -e HABANA_VISIBLE_DEVICES=0,1,2,3 -p $vllm_port:80 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm-gaudi:comps --model ${model} --host 0.0.0.0 --port 80 --block-size 128 --max-seq-len-to-capture 16384 --tensor-parallel-size 4
+    docker run -d --runtime=habana --rm --name "test-comps-vllm-gaudi-service" -e HABANA_VISIBLE_DEVICES=0,1,2,3 -p $vllm_port:80 -v $vllm_volume:/data -e HF_TOKEN=$HF_TOKEN -e HF_HOME=/data -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e PT_HPU_ENABLE_LAZY_COLLECTIVES=true -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e VLLM_SKIP_WARMUP=true --cap-add=sys_nice --ipc=host opea/vllm-gaudi:comps --model ${model} --host 0.0.0.0 --port 80 --block-size 128 --max-seq-len-to-capture 16384 --tensor-parallel-size 4
     sleep 5s
     echo "Waiting vllm gaudi ready"
     n=0
@@ -130,9 +130,7 @@ function start_vllm_service() {
 function start_sql_agent_llama_service() {
     echo "Starting sql_agent_llama agent microservice"
     docker compose -f $WORKPATH/tests/agent/sql_agent_llama.yaml up -d
-    sleep 5s
-    # need to wait longer if need to use hints
-    # sleep 3m
+    sleep 3m
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -142,9 +140,7 @@ function start_sql_agent_openai_service() {
     export OPENAI_API_KEY=${OPENAI_API_KEY}
     echo "Starting sql_agent_openai agent microservice"
     docker compose -f $WORKPATH/tests/agent/sql_agent_openai.yaml up -d
-    sleep 5s
-    # need to wait longer if need to use hints
-    # sleep 3m
+    sleep 3m
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
