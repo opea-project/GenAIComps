@@ -309,6 +309,8 @@ function validate_sql_agent(){
     if [ "$EXIT_CODE" == "1" ]; then
         echo "==================SQL Agent logs ======================"
         docker logs test-comps-agent-endpoint
+        echo "================== vllm gaudi service logs ======================"
+        docker logs test-comps-vllm-gaudi-service
         exit 1
     fi
 }
@@ -406,10 +408,10 @@ function main() {
     # stop_agent_docker
 
     stop_docker
-
+    mv $WORKPATH/data $WORKPATH/hub 
     # test sql agent
     validate_sql_agent
-
+    mv $WORKPATH/hub $WORKPATH/data
     stop_docker
 
     echo y | docker system prune 2>&1 > /dev/null

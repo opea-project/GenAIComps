@@ -21,7 +21,10 @@ export agent_container_name="test-comps-agent-endpoint"
 export ip_address=$(hostname -I | awk '{print $1}')
 
 vllm_port=8084
-vllm_volume=$WORKPATH/data #${HF_CACHE_DIR}
+vllm_volume=$WORKPATH #${HF_CACHE_DIR}
+echo "vllm volume: $vllm_volume"
+ls $vllm_volume
+
 export model=meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-70B-Instruct"
@@ -161,14 +164,14 @@ function run_benchmark() {
     python3 test_tag_bench.py --query_file $query_file --output_dir $outdir --output_file $outfile
 }
 
-echo "Building docker image...."
-build_docker_images
+# echo "Building docker image...."
+# build_docker_images
 
 echo "Preparing data...."
 prepare_data
 
-echo "Building vllm docker image...."
-build_vllm_docker_images
+# echo "Building vllm docker image...."
+# build_vllm_docker_images
 
 echo "Launching vllm service...."
 start_vllm_service
