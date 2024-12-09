@@ -92,34 +92,70 @@ def ingest_data_to_arango(doc_path: DocPath):
             timeout=600,
         )
 
-    llm_transformer = LLMGraphTransformer(
-        llm=llm, node_properties=["description"], relationship_properties=["description"]
-    )
-
-    doc_list = [Document(page_content=text) for text in chunks]
-    graph_doc = llm_transformer.convert_to_graph_documents(doc_list)
-
     client = ArangoClient(hosts=ARANGO_URL)
-
-    sys_db = client.db(
-        name="_system", username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True
-    )
+    sys_db = client.db(name="_system", username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
 
     if not sys_db.has_database(DB_NAME):
         sys_db.create_database(DB_NAME)
 
-    db = client.db(
-        name=DB_NAME, username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True
+    db = client.db(name=DB_NAME, username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
+
+    graph = ArangoGraph(
+        db=db,
+        include_examples=False,
+        generate_schema_on_init=False,
     )
 
-    graph = ArangoGraph(db=db, include_examples=True)
-
-    graph.add_graph_documents(
-        graph_doc,
-        # baseEntityLabel=True, # <<< TODO: Figure out if this is required in ArangoGraph
-        include_source=True,  # <<< TODO: Make this customizable for the user to set somehow
-        graph_name="NewGraph",  # <<< TODO: Make this customizable for the user to set somehow
+    llm_transformer = LLMGraphTransformer(
+        llm=llm, node_properties=["description"], relationship_properties=["description"]
     )
+
+    ##########################
+    # Option A: Batch insert #
+    ##########################
+
+    for text in chunks:
+        document = Document(page_content=text)
+
+        # TODO:
+        # if generate_chunk_embeddings:
+        # document.metadata["embeddings"] = llm.generate_embeddings(text)
+
+        graph_docs = llm_transformer.convert_to_graph_documents([document])
+
+        graph.add_graph_documents(
+            graph_documents=graph_docs,
+            include_source=True,  # TODO: Parameterize
+            graph_name="NewGraph",  # TODO: Parameterize
+            batch_size=1000,  # TODO: Parameterize
+            use_one_entity_collection=True,  # TODO: Parameterize
+            insert_async=False,  # TODO: Parameterize
+        )
+
+    # #########################
+    # # Option B: Bulk insert #
+    # #########################
+
+    # doc_list = []
+    # for text in chunks:
+    #     doc = Document(page_content=text)
+
+    #     # TODO:
+    #     # if generate_chunk_embeddings:
+    #         # doc.metadata["embeddings"] = llm.generate_embeddings(text)
+
+    #     doc_list.append(doc)
+
+    # graph_docs = llm_transformer.convert_to_graph_documents(doc_list)
+
+    # graph.add_graph_documents(
+    #     graph_documents=graph_docs,
+    #     include_source=True,  # TODO: Parameterize
+    #     graph_name="NewGraph",  # TODO: Parameterize
+    #     batch_size=1000, # TODO: Parameterize
+    #     use_one_entity_collection=True, # TODO: Parameterize
+    #     insert_async=False, # TODO: Parameterize
+    # )
 
     if logflag:
         logger.info("The graph is built.")
