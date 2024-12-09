@@ -1,7 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-class OpeaComponent:
+from abc import ABC, abstractmethod
+
+class OpeaComponent(ABC):
     """
     The OpeaComponent class serves as the base class for all components in the GenAIComps.
     It provides a unified interface and foundational attributes that every derived component inherits and extends.
@@ -52,6 +54,30 @@ class OpeaComponent:
         """
         self.config[key] = value
 
+    @abstractmethod
+    def check_health(self) -> bool:
+        """
+        Checks the health of the component.
+
+        Returns:
+            bool: True if the component is healthy, False otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def invoke(self, *args, **kwargs):
+        """
+        invoke service accessing using the component.
+
+        Args:
+            *args: Positional arguments.
+            **kwargs: Keyword arguments.
+
+        Returns:
+            Any: The result of the service accessing.
+        """
+        pass
+
     def __repr__(self):
         """
         Provides a string representation of the component for debugging and logging purposes.
@@ -61,3 +87,82 @@ class OpeaComponent:
         """
         return f"OpeaComponent(name={self.name}, type={self.type}, description={self.description})"
 
+
+
+class OpeaComponentController(ABC):
+    """
+    The OpeaComponentController class serves as the base class for managing and orchestrating multiple
+    instances of components of the same type. It provides a unified interface for routing tasks, 
+    registering components, and dynamically discovering available components.
+
+    Attributes:
+        components (dict): A dictionary to store registered components by their unique identifiers.
+    """
+
+    def __init__(self):
+        """
+        Initializes the OpeaComponentController instance with an empty component registry.
+        """
+        self.components = {}
+
+    def register(self, component):
+        """
+        Registers an OpeaComponent instance to the controller.
+
+        Args:
+            component (OpeaComponent): An instance of a subclass of OpeaComponent to be managed.
+
+        Raises:
+            ValueError: If the component is already registered.
+        """
+        if component.name in self.components:
+            raise ValueError(f"Component '{component.name}' is already registered.")
+        self.components[component.name] = component
+
+    def discover_and_activate(self):
+        """
+        Discovers healthy components and activates one.
+        If multiple components are healthy, it prioritizes the first registered component.
+        """
+        for component in self.components:
+            if component.check_health():
+                self.active_component = component
+                print(f"Activated component: {component.name}")
+                return
+        raise RuntimeError("No healthy components available.")
+
+    def invoke(self, *args, **kwargs):
+        """
+        Invokes service accessing using the active component.
+
+        Args:
+            *args: Positional arguments.
+            **kwargs: Keyword arguments.
+
+        Returns:
+            Any: The result of the service accessing.
+
+        Raises:
+            RuntimeError: If no active component is set.
+        """
+        if not self.active_component:
+            raise RuntimeError("No active component. Call 'discover_and_activate' first.")
+        return self.active_component.invoke(*args, **kwargs)
+
+    def list_components(self):
+        """
+        Lists all registered components.
+
+        Returns:
+            list: A list of component IDs that are currently registered.
+        """
+        return [component.name for component in self.components]
+
+    def __repr__(self):
+        """
+        Provides a string representation of the controller and its registered components.
+
+        Returns:
+            str: A string representation of the OpeaComponentController instance.
+        """
+        return f"OpeaComponentController(registered_components={self.list_components()})"
