@@ -12,6 +12,7 @@ from config import (
     ARANGO_URL,
     ARANGO_USERNAME,
     DB_NAME,
+    HUGGINGFACEHUB_API_TOKEN,
     OPENAI_KEY,
     TEI_EMBED_MODEL,
     TEI_EMBEDDING_ENDPOINT,
@@ -25,7 +26,7 @@ from langchain_community.llms import HuggingFaceEndpoint
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_experimental.graph_transformers import LLMGraphTransformer
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
@@ -49,6 +50,86 @@ def ingest_data_to_arango(doc_path: DocPath, embeddings: Embeddings | None) -> b
     path = doc_path.path
     if logflag:
         logger.info(f"Parsing document {path}.")
+
+    ############
+    # ArangoDB #
+    ############
+
+    client = ArangoClient(hosts=ARANGO_URL)
+    sys_db = client.db(name="_system", username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
+
+    if not sys_db.has_database(DB_NAME):
+        sys_db.create_database(DB_NAME)
+
+    db = client.db(name=DB_NAME, username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
+
+    graph = ArangoGraph(
+        db=db,
+        include_examples=False,
+        generate_schema_on_init=False,
+    )
+
+    #############################
+    # Text Generation Inference #
+    #############################
+
+    if OPENAI_KEY:
+        logger.info("OpenAI API Key is set. Verifying its validity...")
+        openai.api_key = OPENAI_KEY
+
+        try:
+            response = openai.Engine.list()
+            logger.info("OpenAI API Key is valid.")
+            llm = ChatOpenAI(temperature=0, model_name="gpt-4o")
+        except openai.error.AuthenticationError:
+            logger.info("OpenAI API Key is invalid.")
+        except Exception as e:
+            logger.info(f"An error occurred while verifying the API Key: {e}")
+    elif TGI_LLM_ENDPOINT:
+        llm = HuggingFaceEndpoint(
+            endpoint_url=TGI_LLM_ENDPOINT,
+            max_new_tokens=512,
+            top_k=40,
+            top_p=0.9,
+            temperature=0.8,
+            timeout=600,
+        )
+    else:
+        raise ValueError("No text generation inference endpoint is set.")
+
+    llm_transformer = LLMGraphTransformer(
+        llm=llm,
+        # prompt=..., # TODO: Parameterize
+        # allowed_nodes=..., # TODO: Parameterize
+        # allowed_relationships=..., # TODO: Parameterize
+    )
+
+    ########################################
+    # Text Embeddings Inference (optional) #
+    ########################################
+
+    if OPENAI_KEY:
+        # Use OpenAI embeddings
+        embeddings = OpenAIEmbeddings(
+            model="text-embedding-3-small",  # TODO: Parameterize
+            dimensions=512,  # TODO: Parameterize
+        )
+
+    if TEI_EMBEDDING_ENDPOINT and HUGGINGFACEHUB_API_TOKEN:
+        # Use TEI endpoint service
+        embeddings = HuggingFaceHubEmbeddings(
+            model=TEI_EMBEDDING_ENDPOINT,
+            huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
+        )
+    elif TEI_EMBED_MODEL:
+        # Use local embedding model
+        embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)
+    else:
+        embeddings = None
+
+    ############
+    # Chunking #
+    ############
 
     if path.endswith(".html"):
         headers_to_split_on = [
@@ -81,49 +162,9 @@ def ingest_data_to_arango(doc_path: DocPath, embeddings: Embeddings | None) -> b
     if logflag:
         logger.info("Done preprocessing. Created ", len(chunks), " chunks of the original file.")
 
-    if OPENAI_KEY:
-        logger.info("OpenAI API Key is set. Verifying its validity...")
-        openai.api_key = OPENAI_KEY
-
-        try:
-            response = openai.Engine.list()
-            logger.info("OpenAI API Key is valid.")
-            llm = ChatOpenAI(temperature=0, model_name="gpt-4o")
-        except openai.error.AuthenticationError:
-            logger.info("OpenAI API Key is invalid.")
-        except Exception as e:
-            logger.info(f"An error occurred while verifying the API Key: {e}")
-    else:
-        llm = HuggingFaceEndpoint(
-            endpoint_url=TGI_LLM_ENDPOINT,
-            max_new_tokens=512,
-            top_k=40,
-            top_p=0.9,
-            temperature=0.8,
-            timeout=600,
-        )
-
-    client = ArangoClient(hosts=ARANGO_URL)
-    sys_db = client.db(name="_system", username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
-
-    if not sys_db.has_database(DB_NAME):
-        sys_db.create_database(DB_NAME)
-
-    db = client.db(name=DB_NAME, username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
-
-    graph = ArangoGraph(
-        db=db,
-        include_examples=False,
-        generate_schema_on_init=False,
-    )
-
-    llm_transformer = LLMGraphTransformer(
-        llm=llm, node_properties=["description"], relationship_properties=["description"]
-    )
-
-    ##########################
-    # Option A: Batch insert #
-    ##########################
+    ################################
+    # Graph generation & insertion #
+    ################################
 
     generate_chunk_embeddings = embeddings is not None
 
@@ -139,35 +180,11 @@ def ingest_data_to_arango(doc_path: DocPath, embeddings: Embeddings | None) -> b
             graph_documents=graph_docs,
             include_source=True,  # TODO: Parameterize
             graph_name="NewGraph",  # TODO: Parameterize
+            update_graph_definition_if_exists=False,  # TODO: Set as reverse of `use_one_entity_collection`
             batch_size=1000,  # TODO: Parameterize
             use_one_entity_collection=True,  # TODO: Parameterize
             insert_async=False,  # TODO: Parameterize
         )
-
-    # #########################
-    # # Option B: Bulk insert #
-    # #########################
-
-    # doc_list = []
-    # for text in chunks:
-    #     doc = Document(page_content=text)
-
-    #     if generate_chunk_embeddings:
-    #         source = graph_docs[0].source
-    #         doc.metadata["embeddings"] = embeddings.embed_documents([text])[0]
-
-    #     doc_list.append(doc)
-
-    # graph_docs = llm_transformer.convert_to_graph_documents(doc_list)
-
-    # graph.add_graph_documents(
-    #     graph_documents=graph_docs,
-    #     include_source=True,  # TODO: Parameterize
-    #     graph_name="NewGraph",  # TODO: Parameterize
-    #     batch_size=1000, # TODO: Parameterize
-    #     use_one_entity_collection=True, # TODO: Parameterize
-    #     insert_async=False, # TODO: Parameterize
-    # )
 
     if logflag:
         logger.info("The graph is built.")
@@ -195,16 +212,6 @@ async def ingest_documents(
         logger.info(f"files:{files}")
         logger.info(f"link_list:{link_list}")
 
-    if TEI_EMBEDDING_ENDPOINT:
-        # create embeddings using TEI endpoint service
-        hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-        embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT, huggingfacehub_api_token=hf_token)
-    elif TEI_EMBED_MODEL:
-        # create embeddings using local embedding model
-        embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)
-    else:
-        embeddings = None
-
     if files:
         if not isinstance(files, list):
             files = [files]
@@ -214,14 +221,13 @@ async def ingest_documents(
             save_path = upload_folder + encode_file
             await save_content_to_local_disk(save_path, file)
             ingest_data_to_arango(
-                doc_path=DocPath(
+                DocPath(
                     path=save_path,
                     chunk_size=chunk_size,
                     chunk_overlap=chunk_overlap,
                     process_table=process_table,
                     table_strategy=table_strategy,
-                ),
-                embeddings=embeddings,
+                )
             )
             uploaded_files.append(save_path)
             if logflag:
@@ -242,14 +248,13 @@ async def ingest_documents(
             try:
                 await save_content_to_local_disk(save_path, content)
                 ingest_data_to_arango(
-                    doc_path=DocPath(
+                    DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    ),
-                    embeddings=embeddings,
+                    )
                 )
             except json.JSONDecodeError:
                 raise HTTPException(status_code=500, detail="Fail to ingest data into qdrant.")
