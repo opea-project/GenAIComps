@@ -11,6 +11,8 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
 
 from comps import (
+    EmbedMultimodalDoc,
+    SearchedMultimodalDoc,
     CustomLogger,
     EmbedDoc,
     SearchedDoc,
@@ -64,10 +66,7 @@ async def retrieve(
                 embedding_data_input = []
                 for emb in embeddings:
                     # each emb is EmbeddingResponseData
-                    # print("Embedding data: ", emb.embedding)
-                    # print("Embedding data length: ",len(emb.embedding))
                     embedding_data_input.append(emb.embedding)
-                # print("All Embedding data length: ",len(embedding_data_input))
             else:
                 embedding_data_input = input.embedding
 
@@ -98,6 +97,13 @@ async def retrieve(
         for r in search_res:
             retrieved_docs.append(TextDoc(text=r.page_content))
         result = SearchedDoc(retrieved_docs=retrieved_docs, initial_query=input.text)
+    elif isinstance(input, EmbedMultimodalDoc):
+        metadata_list = []
+        for r in search_res:
+            metadata_list.append(r.metadata)
+            retrieved_docs.append(TextDoc(text=r.page_content))
+        result = SearchedMultimodalDoc(retrieved_docs=retrieved_docs, initial_query=input.text, metadata=metadata_list)
+    
     else:
         for r in search_res:
             retrieved_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
