@@ -53,7 +53,7 @@ def get_elastic_store(embedder: Union[HuggingFaceEndpointEmbeddings, HuggingFace
     port=7000,
 )
 @register_statistics(names=["opea_service@retriever_elasticsearch"])
-async def retrieve(input: EmbedDoc) -> list:
+async def retrieve(input: EmbedDoc) -> SearchedDoc:
     """Retrieve documents based on similarity search type."""
     if LOG_FLAG:
         logger.info(input)

@@ -17,7 +17,7 @@ export INDEX_NAME=${your_index_name}
 
 ### 1.3 Start Elasticsearch
 
-Please refer to this [readme](../../../vectorstores/Elasticsearch/README.md).
+Please refer to this [readme](../../../vectorstores/elasticsearch/README.md).
 
 ### 1.4 Start Document Preparation Microservice for Elasticsearch with Python Script
 
