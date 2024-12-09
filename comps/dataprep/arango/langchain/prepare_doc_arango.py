@@ -8,12 +8,12 @@ from typing import List, Optional, Union
 import openai
 from arango import ArangoClient
 from config import (
+    ARANGO_DB_NAME,
     ARANGO_PASSWORD,
     ARANGO_URL,
     ARANGO_USERNAME,
-    DB_NAME,
     HUGGINGFACEHUB_API_TOKEN,
-    OPENAI_KEY,
+    OPENAI_API_KEY,
     TEI_EMBED_MODEL,
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
@@ -58,10 +58,10 @@ def ingest_data_to_arango(doc_path: DocPath, embeddings: Embeddings | None) -> b
     client = ArangoClient(hosts=ARANGO_URL)
     sys_db = client.db(name="_system", username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
 
-    if not sys_db.has_database(DB_NAME):
-        sys_db.create_database(DB_NAME)
+    if not sys_db.has_database(ARANGO_DB_NAME):
+        sys_db.create_database(ARANGO_DB_NAME)
 
-    db = client.db(name=DB_NAME, username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
+    db = client.db(name=ARANGO_DB_NAME, username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
 
     graph = ArangoGraph(
         db=db,
@@ -73,9 +73,9 @@ def ingest_data_to_arango(doc_path: DocPath, embeddings: Embeddings | None) -> b
     # Text Generation Inference #
     #############################
 
-    if OPENAI_KEY:
+    if OPENAI_API_KEY:
         logger.info("OpenAI API Key is set. Verifying its validity...")
-        openai.api_key = OPENAI_KEY
+        openai.api_key = OPENAI_API_KEY
 
         try:
             response = openai.Engine.list()
@@ -108,7 +108,7 @@ def ingest_data_to_arango(doc_path: DocPath, embeddings: Embeddings | None) -> b
     # Text Embeddings Inference (optional) #
     ########################################
 
-    if OPENAI_KEY:
+    if OPENAI_API_KEY:
         # Use OpenAI embeddings
         embeddings = OpenAIEmbeddings(
             model="text-embedding-3-small",  # TODO: Parameterize
