@@ -360,8 +360,8 @@ function main() {
     start_react_langgraph_agent_service_vllm
     echo "===========Testing ReAct Langgraph VLLM Mistral ============="
     validate_microservice
-    # stop_agent_docker
-    # stop_vllm_docker
+    stop_agent_docker
+    stop_vllm_docker
     echo "============================================="
 
     # test plan execute with vllm - Mistral
