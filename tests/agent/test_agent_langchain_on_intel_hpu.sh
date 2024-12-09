@@ -408,7 +408,7 @@ function main() {
     # stop_agent_docker
 
     stop_docker
-    mv $WORKPATH/data $WORKPATH/hub 
+    mv $WORKPATH/data $WORKPATH/hub
     # test sql agent
     validate_sql_agent
     mv $WORKPATH/hub $WORKPATH/data
