@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 
 from comps import OpeaComponent, OpeaComponentController
 
+
 class TestOpeaComponent(unittest.TestCase):
     class MockOpeaComponent(OpeaComponent):
         def check_health(self) -> bool:
@@ -16,26 +17,27 @@ class TestOpeaComponent(unittest.TestCase):
 
     def test_initialization(self):
         component = self.MockOpeaComponent("TestComponent", "embedding", "Test description")
-        
+
         self.assertEqual(component.name, "TestComponent")
         self.assertEqual(component.type, "embedding")
         self.assertEqual(component.description, "Test description")
         self.assertEqual(component.config, {})
-        
+
     def test_get_meta(self):
         component = self.MockOpeaComponent("TestComponent", "embedding", "Test description", {"key": "value"})
         meta = component.get_meta()
-        
+
         self.assertEqual(meta["name"], "TestComponent")
         self.assertEqual(meta["type"], "embedding")
         self.assertEqual(meta["description"], "Test description")
         self.assertEqual(meta["config"], {"key": "value"})
-    
+
     def test_update_config(self):
         component = self.MockOpeaComponent("TestComponent", "embedding", "Test description")
         component.update_config("key", "new_value")
-        
+
         self.assertEqual(component.config["key"], "new_value")
+
 
 class TestOpeaComponentController(unittest.TestCase):
     def test_register_component(self):
@@ -100,9 +102,7 @@ class TestOpeaComponentController(unittest.TestCase):
         component.invoke.assert_called_with("arg1", key="value")
 
     def test_discover_then_invoke(self):
-        """
-        Ensures that `discover_and_activate` and `invoke` work correctly when called sequentially.
-        """
+        """Ensures that `discover_and_activate` and `invoke` work correctly when called sequentially."""
         controller = OpeaComponentController()
 
         # Mock a healthy component
@@ -144,6 +144,5 @@ class TestOpeaComponentController(unittest.TestCase):
         self.assertIn("Component2", components_list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
-
