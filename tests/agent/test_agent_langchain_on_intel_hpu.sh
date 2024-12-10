@@ -18,7 +18,7 @@ echo "========================="
 if [ -d "$WORKPATH/hub" ]; then
     ls "$WORKPATH/hub"
 fi
-vllm_port=8085
+vllm_port=8086
 export vllm_volume=$WORKPATH
 
 export WORKPATH=$WORKPATH
