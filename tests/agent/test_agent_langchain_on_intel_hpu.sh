@@ -352,6 +352,7 @@ function validate_sql_agent(){
 
 
 function main() {
+    docker rm $(docker ps -a -q)
     stop_agent_docker
     stop_docker
     build_docker_images
