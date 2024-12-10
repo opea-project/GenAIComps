@@ -12,14 +12,11 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 tgi_port=8085
 tgi_volume=$WORKPATH/data
-echo "tgi volume: "
-ls $tgi_volume
-echo "========================="
-if [ -d "$WORKPATH/hub" ]; then
-    ls "$WORKPATH/hub"
-fi
+
 vllm_port=8086
-export vllm_volume=$WORKPATH
+export vllm_volume=$WORKPATH/data
+echo "vllm_volume:"
+ls $vllm_volume
 
 export WORKPATH=$WORKPATH
 
@@ -310,7 +307,12 @@ function stop_tgi_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-tgi-gaudi-service")
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
-    echo "Docker containers stopped successfully"
+    echo "TGI Docker containers stopped successfully"
+    
+    cid=$(docker ps -aq --filter "name=tgi-server")
+    echo "Stopping the docker containers "${cid}
+    if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
+    echo "TGI Docker containers stopped successfully"
 }
 
 function stop_vllm_docker() {
@@ -352,7 +354,6 @@ function validate_sql_agent(){
 
 
 function main() {
-    docker rm $(docker ps -a -q)
     stop_agent_docker
     stop_docker
     build_docker_images
