@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import multiprocessing
 import os
 from collections import defaultdict, deque
 from enum import Enum
@@ -12,6 +11,7 @@ from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
 from .logger import CustomLogger
 from .utils import check_ports_availability
+from .http_service import HTTPService
 
 opea_microservices = {}
 
@@ -19,7 +19,7 @@ logger = CustomLogger("micro_service")
 logflag = os.getenv("LOGFLAG", False)
 
 
-class MicroService:
+class MicroService(HTTPService):
     """MicroService class to create a microservice."""
 
     def __init__(
@@ -67,24 +67,32 @@ class MicroService:
             self.uvicorn_kwargs["ssl_certfile"] = ssl_certfile
 
         if not use_remote_service:
+
+            if self.protocol.lower() == "http":
+                if not (check_ports_availability(self.host, self.port)):
+                    raise RuntimeError(f"port:{self.port}")
+
             self.provider = provider
             self.provider_endpoint = provider_endpoint
             self.endpoints = []
 
-            self.server = self._get_server()
-            self.app = self.server.app
+            runtime_args = {
+                "protocol": self.protocol,
+                "host": self.host,
+                "port": self.port,
+                "title": self.name,
+                "description": "OPEA Microservice Infrastructure",
+            }
+
+            super().__init__(uvicorn_kwargs=self.uvicorn_kwargs, runtime_args=runtime_args)
+
             # create a batch request processor loop if using dynamic batching
             if self.dynamic_batching:
                 self.buffer_lock = asyncio.Lock()
                 self.request_buffer = defaultdict(deque)
+                self.add_startup_event(self._dynamic_batch_processor())
 
-                @self.app.on_event("startup")
-                async def startup_event():
-                    asyncio.create_task(self._dynamic_batch_processor())
-
-            self.event_loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(self.event_loop)
-            self.event_loop.run_until_complete(self._async_setup())
+            self._async_setup()
 
     async def _dynamic_batch_processor(self):
         if logflag:
@@ -125,81 +133,9 @@ class MicroService:
                 "set use_remote_service to False if you want to use a local micro service!"
             )
 
-    def _get_server(self):
-        """Get the server instance based on the protocol.
-
-        This method currently only supports HTTP services. It creates an instance of the HTTPService class with the
-        necessary arguments.
-        In the future, it will also support gRPC services.
-        """
-        self._validate_env()
-        from .http_service import HTTPService
-
-        runtime_args = {
-            "protocol": self.protocol,
-            "host": self.host,
-            "port": self.port,
-            "title": self.name,
-            "description": "OPEA Microservice Infrastructure",
-        }
-
-        return HTTPService(uvicorn_kwargs=self.uvicorn_kwargs, runtime_args=runtime_args)
-
-    async def _async_setup(self):
-        """The async method setup the runtime.
-
-        This method is responsible for setting up the server. It first checks if the port is available, then it gets
-        the server instance and initializes it.
-        """
-        self._validate_env()
-        if self.protocol.lower() == "http":
-            if not (check_ports_availability(self.host, self.port)):
-                raise RuntimeError(f"port:{self.port}")
-
-            await self.server.initialize_server()
-
-    async def _async_run_forever(self):
-        """Running method of the server."""
-        self._validate_env()
-        await self.server.execute_server()
-
-    def run(self):
-        """Running method to block the main thread.
-
-        This method runs the event loop until a Future is done. It is designed to be called in the main thread to keep it busy.
-        """
-        self._validate_env()
-        self.event_loop.run_until_complete(self._async_run_forever())
-
-    def start(self, in_single_process=False):
-        self._validate_env()
-        if in_single_process:
-            # Resolve HPU segmentation fault and potential tokenizer issues by limiting to same process
-            self.run()
-        else:
-            self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
-            self.process.start()
-
-    async def _async_teardown(self):
-        """Shutdown the server."""
-        self._validate_env()
-        await self.server.terminate_server()
-
-    def stop(self):
-        self._validate_env()
-        self.event_loop.run_until_complete(self._async_teardown())
-        self.event_loop.stop()
-        self.event_loop.close()
-        self.server.logger.close()
-        if self.process.is_alive():
-            self.process.terminate()
-
     @property
     def endpoint_path(self):
         return f"{self.protocol}://{self.host}:{self.port}{self.endpoint}"
-
-    def add_route(self, endpoint, handler, methods=["POST"]):
-        self.app.router.add_api_route(endpoint, handler, methods=methods)
 
 
 def register_microservice(
