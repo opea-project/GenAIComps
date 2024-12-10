@@ -16,13 +16,13 @@ unset http_proxy
 function build_mmei_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding-multimodal-bridgetower-hpu:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/bridgetower/dependency/Dockerfile.intel_hpu .
+    docker build --no-cache -t opea/embedding-multimodal-bridgetower-gaudi:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/native/multimodal/bridgetower/dependency/Dockerfile.intel_hpu .
 
     if [ $? -ne 0 ]; then
-        echo "opea/embedding-multimodal-bridgetower-hpu built fail"
+        echo "opea/embedding-multimodal-bridgetower-gaudi built fail"
         exit 1
     else
-        echo "opea/embedding-multimodal-bridgetower-hpu built successful"
+        echo "opea/embedding-multimodal-bridgetower-gaudi built successful"
     fi
 }
 
