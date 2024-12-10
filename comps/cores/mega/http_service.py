@@ -1,15 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import logging
+import multiprocessing
 import re
 from typing import Optional
 
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from uvicorn import Config, Server
-import asyncio
-import multiprocessing
 
 from .base_service import BaseService
 from .base_statistics import collect_all_statistics

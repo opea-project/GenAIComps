@@ -9,9 +9,9 @@ from typing import Any, List, Optional, Type
 
 from ..proto.docarray import TextDoc
 from .constants import ServiceRoleType, ServiceType
+from .http_service import HTTPService
 from .logger import CustomLogger
 from .utils import check_ports_availability
-from .http_service import HTTPService
 
 opea_microservices = {}
 
