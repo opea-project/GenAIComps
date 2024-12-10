@@ -29,7 +29,7 @@ function start_service() {
         -e http_proxy= -e https_proxy= \
         -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
         -p 9000:9000 --ipc=host opea/llm-pg:comps
-    sleep 60  # Sleep for 5 seconds to allow the service to start
+    sleep 5 # Sleep for 5 seconds to allow the service to start
 }
 
 function validate_microservice() {
