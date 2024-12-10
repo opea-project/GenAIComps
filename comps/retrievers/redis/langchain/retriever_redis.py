@@ -8,7 +8,7 @@ from typing import Union
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import Redis
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
-from redis_config import EMBED_MODEL, INDEX_NAME, REDIS_URL
+from redis_config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 
 from comps import (
     EmbedMultimodalDoc,
@@ -124,12 +124,14 @@ if __name__ == "__main__":
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
         embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
+        vector_db = Redis(embedding=embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
     elif bridge_tower_embedding:
         # create embeddings using BridgeTower service
         embeddings = BridgeTowerEmbedding()
+        vector_db = Redis(embedding=embeddings, index_name=INDEX_NAME, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL)
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+        vector_db = Redis(embedding=embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
 
-    vector_db = Redis(embedding=embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
     opea_microservices["opea_service@retriever_redis"].start()
