@@ -20,10 +20,10 @@ export agent_container_name="test-comps-agent-endpoint"
 
 export ip_address=$(hostname -I | awk '{print $1}')
 
-vllm_port=8084
-vllm_volume=$WORKPATH #${HF_CACHE_DIR}
-echo "vllm volume: $vllm_volume"
-ls $vllm_volume
+vllm_port=8085
+vllm_volume=${HF_CACHE_DIR} #$WORKPATH #${HF_CACHE_DIR}
+# echo "vllm volume: $vllm_volume"
+# ls $vllm_volume/hub
 
 export model=meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
@@ -173,8 +173,8 @@ prepare_data
 # echo "Building vllm docker image...."
 # build_vllm_docker_images
 
-echo "Launching vllm service...."
-start_vllm_service
+# echo "Launching vllm service...."
+# start_vllm_service
 
 # echo "Generating hints_file..."
 # generate_hints_for_benchmark
