@@ -4,16 +4,17 @@
 
 # Getting Started
 
-## 🚀1. Start Microservice with Docker 🐳 
+## 🚀1. Start Microservice with Docker 🐳
 
 ### 1.1 Set up Prediction Guard API Key
 
 You can get your API key from the [Prediction Guard Discord channel](https://discord.gg/TFHgnhAFKd).
+
 ```bash
 export PREDICTIONGUARD_API_KEY=<your_api_key>
 ```
 
-###  1.2 Build Docker Image
+### 1.2 Build Docker Image
 
 ```bash
 docker build -t opea/llm-docsum-predictionguard:latest -f comps/llms/summarization/predictionguard/Dockerfile .
