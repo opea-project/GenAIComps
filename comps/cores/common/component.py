@@ -3,9 +3,9 @@
 
 from abc import ABC, abstractmethod
 
+
 class OpeaComponent(ABC):
-    """
-    The OpeaComponent class serves as the base class for all components in the GenAIComps.
+    """The OpeaComponent class serves as the base class for all components in the GenAIComps.
     It provides a unified interface and foundational attributes that every derived component inherits and extends.
 
     Attributes:
@@ -53,8 +53,7 @@ class OpeaComponent(ABC):
 
     @abstractmethod
     def check_health(self) -> bool:
-        """
-        Checks the health of the component.
+        """Checks the health of the component.
 
         Returns:
             bool: True if the component is healthy, False otherwise.
@@ -63,8 +62,7 @@ class OpeaComponent(ABC):
 
     @abstractmethod
     def invoke(self, *args, **kwargs):
-        """
-        invoke service accessing using the component.
+        """Invoke service accessing using the component.
 
         Args:
             *args: Positional arguments.
@@ -85,9 +83,8 @@ class OpeaComponent(ABC):
 
 
 class OpeaComponentController(ABC):
-    """
-    The OpeaComponentController class serves as the base class for managing and orchestrating multiple
-    instances of components of the same type. It provides a unified interface for routing tasks, 
+    """The OpeaComponentController class serves as the base class for managing and orchestrating multiple
+    instances of components of the same type. It provides a unified interface for routing tasks,
     registering components, and dynamically discovering available components.
 
     Attributes:
@@ -95,15 +92,12 @@ class OpeaComponentController(ABC):
     """
 
     def __init__(self):
-        """
-        Initializes the OpeaComponentController instance with an empty component registry.
-        """
+        """Initializes the OpeaComponentController instance with an empty component registry."""
         self.components = {}
         self.active_component = None
 
     def register(self, component):
-        """
-        Registers an OpeaComponent instance to the controller.
+        """Registers an OpeaComponent instance to the controller.
 
         Args:
             component (OpeaComponent): An instance of a subclass of OpeaComponent to be managed.
@@ -116,8 +110,8 @@ class OpeaComponentController(ABC):
         self.components[component.name] = component
 
     def discover_and_activate(self):
-        """
-        Discovers healthy components and activates one.
+        """Discovers healthy components and activates one.
+
         If multiple components are healthy, it prioritizes the first registered component.
         """
         for component in self.components.values():
@@ -128,8 +122,7 @@ class OpeaComponentController(ABC):
         raise RuntimeError("No healthy components available.")
 
     def invoke(self, *args, **kwargs):
-        """
-        Invokes service accessing using the active component.
+        """Invokes service accessing using the active component.
 
         Args:
             *args: Positional arguments.
@@ -146,8 +139,7 @@ class OpeaComponentController(ABC):
         return self.active_component.invoke(*args, **kwargs)
 
     def list_components(self):
-        """
-        Lists all registered components.
+        """Lists all registered components.
 
         Returns:
             list: A list of component names that are currently registered.
@@ -155,11 +147,9 @@ class OpeaComponentController(ABC):
         return self.components.keys()
 
     def __repr__(self):
-        """
-        Provides a string representation of the controller and its registered components.
+        """Provides a string representation of the controller and its registered components.
 
         Returns:
             str: A string representation of the OpeaComponentController instance.
         """
         return f"OpeaComponentController(registered_components={self.list_components()})"
-
