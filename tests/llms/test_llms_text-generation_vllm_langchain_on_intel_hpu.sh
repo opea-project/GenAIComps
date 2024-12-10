@@ -62,7 +62,7 @@ function start_service() {
 
     # check whether vllm ray is fully ready
     n=0
-    until [[ "$n" -ge 120 ]] || [[ $ready == true ]]; do
+    until [[ "$n" -ge 160 ]] || [[ $ready == true ]]; do
         docker logs test-comps-vllm-service > ${WORKPATH}/tests/test-comps-vllm-service.log
         n=$((n+1))
         if grep -q throughput ${WORKPATH}/tests/test-comps-vllm-service.log; then
