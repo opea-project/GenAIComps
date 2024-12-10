@@ -1,5 +1,5 @@
 [HumanMessage(content="what's the most recent album from the founder of ysl records?", id='cfde4aba-0464-4ad9-bd1c-d3fc40bbb46e'), AIMessage(content='', addi
-tional_kwargs={'tool_calls': [ChatCompletionOutputToolCall(function=ChatCompletionOutputFunctionDefinition(arguments={'query': 'founder of YSL Records'}, nam
+tional_kwargs={'tool_calls': [ChatCompletionOutputToolCall(function=ChatCompletionOutputFunctionDefinition(arguments={'query': 'founder of YSL Records'}, name
 e='duckduckgo_search', description=None), id='142bd66e-7ec6-4381-bcb6-2d0bd4fcecd3', type='function')]}, id='6430421d-2238-452b-9fbe-4d6cc8bc0cd8', tool_call
 s=[{'name': 'duckduckgo_search', 'args': {'query': 'founder of YSL Records'}, 'id': '142bd66e-7ec6-4381-bcb6-2d0bd4fcecd3', 'type': 'tool_call'}]), ToolMessa
 ge(content='Prosecutors allege the chart-topping artist\'s label Young Stoner Life Records also stands for Young Slime ... a YSL co-founder who reached a ple
@@ -17,7 +17,7 @@ e='function')]}, id='50a644af-3117-4513-be56-5fb4b16d0481', tool_calls=[{'name':
 ropel close friends and family members to industry success. The Birth Of YSL Records And Its Impact On The Music Industry In 2016, Young Thug founded YSL Rec
 ords, with its full name, "Young Stoner Life," perfectly representing the enigmatic persona of ... Young Thug, who runs the Young Stoner Life label, has been
  accused of co-founding the Young Slime Life Atlanta gang and violating the RICO act, among other charges. Here\'s what to know about the ... The rapper foun
-ded the record label Young Stoner Life in 2016 as an imprint of 300 Entertainment. YSL Records calls its roster of artists the "Slime Family." One of the YSL
+dead the record label Young Stoner Life in 2016 as an imprint of 300 Entertainment. YSL Records calls its roster of artists the "Slime Family." One of the YSL
  Records founder\'s charges includes conspiracy to violate the Racketeer Influenced and Corrupt Organizations Act (RICO).', name='duckduckgo_search', id='afc
 cee2f-f36f-4d86-8abd-8d05d733649d', tool_call_id='6d073578-5bf1-449e-8d32-4f3b5f999a06'), HumanMessage(content='Retrieved document is not sufficient or relev
 ant to answer the query. Reformulate the query to search knowledge base again.', id='22af0af8-92d0-4876-ad4e-16457c37f1f3'), AIMessage(content='', additional

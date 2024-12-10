@@ -19,7 +19,7 @@ if [ -d "$WORKPATH/hub" ]; then
     ls "$WORKPATH/hub"
 fi
 vllm_port=8085
-export vllm_volume=$WORKPATH 
+export vllm_volume=$WORKPATH
 
 export WORKPATH=$WORKPATH
 
