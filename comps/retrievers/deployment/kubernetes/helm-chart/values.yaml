@@ -1,0 +1,131 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Default values for retriever-usvc.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+tei:
+  enabled: false
+milvus:
+  enabled: false
+redis-vector-db:
+  enabled: false
+
+replicaCount: 1
+
+# Set it as a non-null string, such as true, if you want to enable logging facility,
+# otherwise, keep it as "" to disable it.
+LOGFLAG: ""
+
+TEI_EMBEDDING_ENDPOINT: ""
+LOCAL_EMBEDDING_MODEL: ""
+
+REDIS_URL: ""
+INDEX_NAME: "rag-redis"
+
+image:
+  repository: opea/retriever-redis
+  # Uncomment the following line to set desired image pull policy if needed, as one of Always, IfNotPresent, Never.
+  # pullPolicy: ""
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+    - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+port: 7000
+service:
+  type: ClusterIP
+  # The default port for retriever service is 7000
+  port: 7000
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: v1/health_check
+    port: retriever-usvc
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 24
+readinessProbe:
+  httpGet:
+    path: v1/health_check
+    port: retriever-usvc
+  initialDelaySeconds: 5
+  periodSeconds: 5
+startupProbe:
+  httpGet:
+    path: v1/health_check
+    port: retriever-usvc
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 120
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# milvus DB configurations
+MILVUS_HOST: ""
+MILVUS_PORT: ""
+COLLECTION_NAME: ""
+MOSEC_EMBEDDING_ENDPOINT: ""
+MOSEC_EMBEDDING_MODEL: ""
+
+global:
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""
+  HUGGINGFACEHUB_API_TOKEN: "insert-your-huggingface-token-here"
+  # service account name to be shared with all parent/child charts.
+  # If set, it will overwrite serviceAccount.name.
+  # If set, and serviceAccount.create is false, it will assume this service account is already created by others.
+  sharedSAName: ""
+
+  # Install Prometheus serviceMonitor for service
+  monitoring: false
+
+  # Prometheus Helm install release name for serviceMonitor
+  prometheusRelease: prometheus-stack

@@ -1,0 +1,28 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "lvm-uservice.fullname" . }}-config
+  labels:
+    {{- include "lvm-uservice.labels" . | nindent 4 }}
+data:
+  {{- if .Values.LVM_ENDPOINT }}
+  LVM_ENDPOINT: {{ .Values.LVM_ENDPOINT | quote}}
+  {{- else }}
+  LVM_ENDPOINT: "http://{{ .Release.Name }}-tgi"
+  {{- end }}
+  HUGGINGFACEHUB_API_TOKEN: {{ .Values.global.HUGGINGFACEHUB_API_TOKEN | quote}}
+  HF_HOME: "/tmp/.cache/huggingface"
+  {{- if .Values.global.HF_ENDPOINT }}
+  HF_ENDPOINT: {{ .Values.global.HF_ENDPOINT | quote}}
+  {{- end }}
+  http_proxy: {{ .Values.global.http_proxy | quote }}
+  https_proxy: {{ .Values.global.https_proxy | quote }}
+  {{- if and (not .Values.LVM_ENDPOINT) (or .Values.global.http_proxy .Values.global.https_proxy) }}
+  no_proxy: "{{ .Release.Name }}-tgi,{{ .Values.global.no_proxy }}"
+  {{- else }}
+  no_proxy: {{ .Values.global.no_proxy | quote }}
+  {{- end }}
+  LOGFLAG: {{ .Values.LOGFLAG | quote }}

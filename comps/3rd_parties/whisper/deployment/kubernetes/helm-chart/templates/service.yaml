@@ -1,0 +1,18 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "whisper.fullname" . }}
+  labels:
+    {{- include "whisper.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 7066
+      protocol: TCP
+      name: whisper
+  selector:
+    {{- include "whisper.selectorLabels" . | nindent 4 }}

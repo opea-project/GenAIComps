@@ -1,0 +1,25 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "redis-vector-db.fullname" . }}-testpod
+  labels:
+    {{- include "redis-vector-db.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    #"helm.sh/hook-delete-policy": "hook-succeeded, hook-failure"
+spec:
+  containers:
+    - name: curl
+      image: redis:7.2-alpine
+      command: ['sh', '-c']
+      args:
+        - |
+          redis-cli -h {{ include "redis-vector-db.fullname" . }} \
+                    {{- with (first .Values.service.ports) }}
+                    -p {{ .port }} \
+                    {{- end }}
+                    ping
+  restartPolicy: Never

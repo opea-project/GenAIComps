@@ -1,0 +1,16 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: tts
+description: The Helm chart for deploying tts as microservice
+type: application
+version: 0-latest
+# The tts microservice server version
+appVersion: "v1.0"
+
+dependencies:
+  - name: speecht5
+    version: 0-latest
+    repository: file://../speecht5
+    condition: speecht5.enabled

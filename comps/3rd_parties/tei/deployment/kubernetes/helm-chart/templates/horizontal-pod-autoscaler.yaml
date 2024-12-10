@@ -1,0 +1,60 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if and .Values.global.monitoring .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "tei.fullname" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "tei.fullname" . }}
+  minReplicas: 1
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+  - type: Object
+    object:
+      describedObject:
+        apiVersion: v1
+        # get metric for named object of given type (in same namespace)
+        kind: Service
+        name: {{ include "tei.fullname" . }}
+      target:
+{{- if .Values.accelDevice }}
+        # Metric is sum from all pods. "AverageValue" divides value returned from
+        # the custom metrics API by the number of Pods before comparing to the target:
+        #  https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#algorithm-details
+        #  https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+        type: AverageValue
+        averageValue: 15
+      metric:
+        name: {{ include "tei.metricPrefix" . }}_queue_size_sum
+{{- else }}
+        # Metric is average for all the pods. To avoid replica fluctuation when pod
+        # startup + request processing takes longer than HPA evaluation period, this uses
+        # "Value" (replicas = metric.value / target.value), instead of "AverageValue" type.
+        type: Value
+        value: 4 # seconds
+      metric:
+        name: {{ include "tei.metricPrefix" . }}_request_latency
+{{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 180
+      policies:
+      - type: Percent
+        value: 25
+        periodSeconds: 15
+    scaleUp:
+      selectPolicy: Max
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 15
+      - type: Pods
+        value: 2
+        periodSeconds: 15
+{{- end }}

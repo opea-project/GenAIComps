@@ -1,0 +1,19 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: agent
+description: The Helm chart for deploying agent microservice
+type: application
+version: 0-latest
+# The llm microservice server version
+appVersion: "v1.0"
+dependencies:
+  - name: tgi
+    version: 0-latest
+    repository: file://../tgi
+    condition: tgi.enabled
+  - name: vllm
+    version: 0-latest
+    repository: file://../vllm
+    condition: vllm.enabled

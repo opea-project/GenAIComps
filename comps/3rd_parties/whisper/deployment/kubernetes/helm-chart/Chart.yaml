@@ -1,0 +1,10 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: whisper
+description: The Helm chart for deploying whisper as microservice
+type: application
+version: 0-latest
+# The whisper microservice server version
+appVersion: "v1.0"
