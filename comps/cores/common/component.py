@@ -99,6 +99,7 @@ class OpeaComponentController(ABC):
         Initializes the OpeaComponentController instance with an empty component registry.
         """
         self.components = {}
+        self.active_component = None
 
     def register(self, component):
         """
@@ -119,7 +120,7 @@ class OpeaComponentController(ABC):
         Discovers healthy components and activates one.
         If multiple components are healthy, it prioritizes the first registered component.
         """
-        for component in self.components:
+        for component in self.components.values():
             if component.check_health():
                 self.active_component = component
                 print(f"Activated component: {component.name}")
@@ -149,9 +150,9 @@ class OpeaComponentController(ABC):
         Lists all registered components.
 
         Returns:
-            list: A list of component IDs that are currently registered.
+            list: A list of component names that are currently registered.
         """
-        return [component.name for component in self.components]
+        return self.components.keys()
 
     def __repr__(self):
         """
