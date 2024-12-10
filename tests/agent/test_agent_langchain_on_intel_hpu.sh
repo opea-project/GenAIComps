@@ -308,7 +308,7 @@ function stop_tgi_docker() {
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
     echo "TGI Docker containers stopped successfully"
-    
+
     cid=$(docker ps -aq --filter "name=tgi-server")
     echo "Stopping the docker containers "${cid}
     if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
