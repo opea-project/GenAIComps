@@ -30,11 +30,13 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponse,
     RetrievalResponseData,
 )
+from comps.embeddings.multimodal.bridgetower import BridgeTowerEmbedding
 
 logger = CustomLogger("retriever_redis")
 logflag = os.getenv("LOGFLAG", False)
 
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
+bridge_tower_embedding = os.getenv("BRIDGE_TOWER_EMBEDDING")
 
 
 @register_microservice(
@@ -46,8 +48,8 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 )
 @register_statistics(names=["opea_service@retriever_redis"])
 async def retrieve(
-    input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
-) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
+    input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
+) -> Union[SearchedDoc, SearchedMultimodalDoc, RetrievalResponse, ChatCompletionRequest]:
     if logflag:
         logger.info(input)
     start = time.time()
@@ -55,12 +57,10 @@ async def retrieve(
     if vector_db.client.keys() == []:
         search_res = []
     else:
-        if isinstance(input, EmbedDoc):
-            query = input.text
+        if isinstance(input, EmbedDoc) or isinstance(input, EmbedMultimodalDoc):
             embedding_data_input = input.embedding
         else:
             # for RetrievalRequest, ChatCompletionRequest
-            query = input.input
             if isinstance(input.embedding, EmbeddingResponse):
                 embeddings = input.embedding.data
                 embedding_data_input = []
@@ -103,7 +103,6 @@ async def retrieve(
             metadata_list.append(r.metadata)
             retrieved_docs.append(TextDoc(text=r.page_content))
         result = SearchedMultimodalDoc(retrieved_docs=retrieved_docs, initial_query=input.text, metadata=metadata_list)
-    
     else:
         for r in search_res:
             retrieved_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
@@ -125,6 +124,9 @@ if __name__ == "__main__":
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
         embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
+    elif bridge_tower_embedding:
+        # create embeddings using BridgeTower service
+        embeddings = BridgeTowerEmbedding()
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
