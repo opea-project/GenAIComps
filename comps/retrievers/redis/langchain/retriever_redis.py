@@ -11,11 +11,11 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from redis_config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL
 
 from comps import (
-    EmbedMultimodalDoc,
-    SearchedMultimodalDoc,
     CustomLogger,
     EmbedDoc,
+    EmbedMultimodalDoc,
     SearchedDoc,
+    SearchedMultimodalDoc,
     ServiceType,
     TextDoc,
     opea_microservices,

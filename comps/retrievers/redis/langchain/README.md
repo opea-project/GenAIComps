@@ -130,6 +130,7 @@ export your_embedding=$(python -c "import random; embedding = [random.uniform(-1
 ```
 
 Default validation.
+
 ```bash
 curl http://${your_ip}:7000/v1/retrieval \
   -X POST \
