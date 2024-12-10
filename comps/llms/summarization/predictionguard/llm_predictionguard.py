@@ -7,7 +7,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from predictionguard import PredictionGuard
 
-
 from comps import (
     GeneratedDoc,
     LLMParamsDoc,
@@ -74,12 +73,7 @@ def llm_generate(input: LLMParamsDoc):
                 top_k=input.top_k,
             )
 
-            print(json.dumps(
-                response,
-                sort_keys=True,
-                indent=4,
-                separators=(',', ': ')
-            ))
+            print(json.dumps(response, sort_keys=True, indent=4, separators=(",", ": ")))
 
             response_text = response["choices"][0]["message"]["content"]
         except Exception as e:
