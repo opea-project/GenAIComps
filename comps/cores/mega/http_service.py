@@ -155,7 +155,6 @@ class HTTPService(BaseService):
         self.event_loop.run_until_complete(self.execute_server())
 
     def start(self, in_single_process=False):
-        print(in_single_process)
         if in_single_process:
             # Resolve HPU segmentation fault and potential tokenizer issues by limiting to same process
             self.run()
