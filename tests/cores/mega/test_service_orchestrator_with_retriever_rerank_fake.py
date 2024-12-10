@@ -4,7 +4,7 @@
 import json
 import unittest
 
-from comps import EmbedDoc, Gateway, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
+from comps import EmbedDoc, ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
 from comps.cores.mega.constants import ServiceType
 from comps.cores.proto.docarray import RerankerParms, RetrieverParms
 
@@ -54,12 +54,10 @@ class TestServiceOrchestratorParams(unittest.IsolatedAsyncioTestCase):
 
         self.service_builder.add(opea_microservices["s1"]).add(opea_microservices["s2"])
         self.service_builder.flow_to(self.s1, self.s2)
-        self.gateway = Gateway(self.service_builder, port=9898)
 
     def tearDown(self):
         self.s1.stop()
         self.s2.stop()
-        self.gateway.stop()
 
     async def test_retriever_schedule(self):
         result_dict, _ = await self.service_builder.schedule(
