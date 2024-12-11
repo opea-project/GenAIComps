@@ -29,4 +29,3 @@ For details, please refer to this [readme](qdrant/haystack/README.md)
 ## Retriever Microservice with VDMS
 
 For details, please refer to this [readme](vdms/langchain/README.md)
-
