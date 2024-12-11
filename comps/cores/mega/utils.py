@@ -263,7 +263,7 @@ class SafeContextManager:
             self.context_to_manage.__exit__(exc_type, exc_val, exc_tb)
 
 
-def _handle_message(messages):
+def handle_message(messages):
     images = []
     if isinstance(messages, str):
         prompt = messages
