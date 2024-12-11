@@ -1,0 +1,9 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: ui
+description: Common Helm chart for the UI for various opea workload
+type: application
+version: 0-latest
+appVersion: "v1.0"

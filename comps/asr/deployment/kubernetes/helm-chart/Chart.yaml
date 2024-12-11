@@ -1,0 +1,15 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: asr
+description: The Helm chart for deploying asr as microservice
+type: application
+version: 0-latest
+# The asr microservice server version
+appVersion: "v1.0"
+dependencies:
+  - name: whisper
+    version: 0-latest
+    repository: file://../whisper
+    condition: whisper.enabled

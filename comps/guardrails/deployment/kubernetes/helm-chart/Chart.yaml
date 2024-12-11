@@ -1,0 +1,15 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: guardrails-usvc
+description: The Helm chart for deploying guardrails-usvc as microservice
+type: application
+version: 0-latest
+appVersion: "v1.0"
+dependencies:
+  - name: tgi
+    version: 0-latest
+    alias: tgi-guardrails
+    repository: file://../tgi
+    condition: tgi-guardrails.enabled

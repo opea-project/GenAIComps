@@ -1,0 +1,18 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "reranking-usvc.fullname" . }}
+  labels:
+    {{- include "reranking-usvc.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8000
+      protocol: TCP
+      name: reranking-usvc
+  selector:
+    {{- include "reranking-usvc.selectorLabels" . | nindent 4 }}

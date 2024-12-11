@@ -1,0 +1,18 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chathistory-usvc.fullname" . }}
+  labels:
+    {{- include "chathistory-usvc.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 6012
+      protocol: TCP
+      name: port
+  selector:
+    {{- include "chathistory-usvc.selectorLabels" . | nindent 4 }}

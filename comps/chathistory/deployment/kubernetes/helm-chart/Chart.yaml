@@ -1,0 +1,15 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: chathistory-usvc
+description: The Helm chart for deploying chat history as microservice
+type: application
+version: 0-latest
+# The chat history microservice server version
+appVersion: "v1.0"
+dependencies:
+  - name: mongodb
+    version: 0-latest
+    repository: file://../mongodb
+    condition: mongodb.enabled

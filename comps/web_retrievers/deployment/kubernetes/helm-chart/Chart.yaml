@@ -1,0 +1,15 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: web-retriever
+description: The Helm chart for deploying web retriever as microservice
+type: application
+version: 0-latest
+# The web retriever microservice server version
+appVersion: "v1.0"
+dependencies:
+  - name: tei
+    version: 0-latest
+    repository: file://../tei
+    condition: tei.enabled

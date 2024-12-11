@@ -1,0 +1,22 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "mongodb.fullname" . }}-testpod
+  labels:
+    {{- include "mongodb.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    #"helm.sh/hook-delete-policy": "hook-succeeded, hook-failure"
+spec:
+  containers:
+    - name: mongoclient
+      image: mongoclient/mongoclient:latest
+      command: ['sh', '-c']
+      args:
+        - |
+          set -x
+          mongo --eval 'db.runCommand("ping").ok' {{ include "mongodb.fullname" . }}:{{ .Values.service.port }}/test --quiet
+  restartPolicy: Never

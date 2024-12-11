@@ -1,0 +1,31 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "retriever-usvc.fullname" . }}-testpod"
+  labels:
+    {{- include "retriever-usvc.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    #"helm.sh/hook-delete-policy": "hook-succeeded, hook-failure"
+spec:
+  containers:
+    - name: curl
+      image: python:3.10.14
+      command: ['bash', '-c']
+      args:
+        - |
+          your_embedding=$(python3 -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)");
+          max_retry=20;
+          for ((i=1; i<=max_retry; i++)); do
+            curl http://{{ include "retriever-usvc.fullname" . }}:{{ .Values.service.port }}/v1/retrieval  -sS --fail-with-body \
+            -X POST \
+            -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding}}" \
+            -H 'Content-Type: application/json' && break;
+            curlcode=$?
+            if [[ $curlcode -eq 7 ]]; then sleep 10; else echo "curl failed with code $curlcode"; exit 1; fi;
+          done;
+          if [ $i -gt $max_retry ]; then echo "test failed with maximum retry"; exit 1; fi
+  restartPolicy: Never
