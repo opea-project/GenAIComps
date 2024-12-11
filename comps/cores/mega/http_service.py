@@ -147,20 +147,12 @@ class HTTPService(BaseService):
         asyncio.set_event_loop(self.event_loop)
         self.event_loop.run_until_complete(self.initialize_server())
 
-    def run(self):
+    def start(self):
         """Running method to block the main thread.
 
         This method runs the event loop until a Future is done. It is designed to be called in the main thread to keep it busy.
         """
         self.event_loop.run_until_complete(self.execute_server())
-
-    def start(self, in_single_process=False):
-        if in_single_process:
-            # Resolve HPU segmentation fault and potential tokenizer issues by limiting to same process
-            self.run()
-        else:
-            self.process = multiprocessing.Process(target=self.run, daemon=False, name=self.name)
-            self.process.start()
 
     def stop(self):
         self.event_loop.run_until_complete(self.terminate_server())
