@@ -3,7 +3,7 @@
 
 import json
 import unittest
-
+import multiprocessing
 from comps import ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
 
 
@@ -30,8 +30,10 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
     def setUpClass(cls):
         cls.s1 = opea_microservices["s1"]
         cls.s2 = opea_microservices["s2"]
-        cls.s1.start()
-        cls.s2.start()
+        cls.process1 = multiprocessing.Process(target=cls.s1.start, daemon=False, name="s1")
+        cls.process2 = multiprocessing.Process(target=cls.s2.start, daemon=False, name="s2")
+        cls.process1.start()
+        cls.process2.start()
 
         cls.service_builder = ServiceOrchestrator()
 
