@@ -2,9 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-from typing import List, Union
+from typing import Union
 
-from comps import OpeaComponent, CustomLogger, ServiceType
+import aiohttp
+
+from comps import (
+    CustomLogger,
+    LLMParamsDoc,
+    SearchedDoc,
+    ServiceType,
+    OpeaComponent,
+)
 from comps.cores.mega.utils import get_access_token
 
 logger = CustomLogger("opea_reranking")
@@ -19,10 +27,6 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 class OpeaReranking(OpeaComponent):
     """
     A specialized reranking component derived from OpeaComponent for TEI reranking services.
-
-    Attributes:
-        client (AsyncInferenceClient): An instance of the async client for reranking.
-        model_name (str): The name of the reranking model used.
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
@@ -34,20 +38,43 @@ class OpeaReranking(OpeaComponent):
         access_token = get_access_token(
             TOKEN_URL, CLIENTID, CLIENT_SECRET
         )
+        data = {"query": query, "texts": docs}
         headers = {"Content-Type": "application/json"}
         if access_token:
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
-        return AsyncInferenceClient(
-            model=os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8080"),
-            headers=headers,
-        )
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data=json.dumps(data), headers=headers) as response:
+                response_data = await response.json()
 
-    async def invoke(self, input: Union[str, List[str]]) -> List[List[float]]:
+        for best_response in response_data[: input.top_n]:
+            reranking_results.append(
+                {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]}
+
+    async def invoke(self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]]:
         """
         Invokes the reranking service to reorder the retrieved docs.
         """
+        if isinstance(input, SearchedDoc):
+            result = [doc["text"] for doc in reranking_results]
+            if logflag:
+                logger.info(result)
+            return LLMParamsDoc(query=input.initial_query, documents=result)
+        else:
+            reranking_docs = []
+            for doc in reranking_results:
+                reranking_docs.append(RerankingResponseData(text=doc["text"], score=doc["score"]))
+            if isinstance(input, RerankingRequest):
+                result = RerankingResponse(reranked_docs=reranking_docs)
+                if logflag:
+                    logger.info(result)
+                return result
 
-        return reranking_results
+            if isinstance(input, ChatCompletionRequest):
+                input.reranked_docs = reranking_docs
+                input.documents = [doc["text"] for doc in reranking_results]
+                if logflag:
+                    logger.info(input)
+                return input
 
     def check_health(self) -> bool:
         """

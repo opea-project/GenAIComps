@@ -78,53 +78,19 @@ except Exception as e:
 async def reranking(
     input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
 ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
+    start = time.time()
+    # Log the input if logging is enabled
     if logflag:
         logger.info(input)
-    start = time.time()
-    reranking_results = []
 
     try:
         # Use the controller to invoke the active component
         response = controller.invoke(input)
 
-        if input.retrieved_docs:
-            docs = [doc.text for doc in input.retrieved_docs]
-            url = tei_reranking_endpoint + "/rerank"
-            if isinstance(input, SearchedDoc):
-                query = input.initial_query
-            else:
-                # for RerankingRequest, ChatCompletionRequest
-                query = input.input
-            data = {"query": query, "texts": docs}
-            headers = {"Content-Type": "application/json"}
-
-            for best_response in response_data[: input.top_n]:
-                reranking_results.append(
-                    {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]}
-                )
-
+        # Record statistics
         statistics_dict["opea_service@reranking"].append_latency(time.time() - start, None)
-        if isinstance(input, SearchedDoc):
-            result = [doc["text"] for doc in reranking_results]
-            if logflag:
-                logger.info(result)
-            return LLMParamsDoc(query=input.initial_query, documents=result)
-        else:
-            reranking_docs = []
-            for doc in reranking_results:
-                reranking_docs.append(RerankingResponseData(text=doc["text"], score=doc["score"]))
-            if isinstance(input, RerankingRequest):
-                result = RerankingResponse(reranked_docs=reranking_docs)
-                if logflag:
-                    logger.info(result)
-                return result
-
-            if isinstance(input, ChatCompletionRequest):
-                input.reranked_docs = reranking_docs
-                input.documents = [doc["text"] for doc in reranking_results]
-                if logflag:
-                    logger.info(input)
-                return input
+        
+        return response
 
     except Exception as e:
         logger.error(f"Error during reranking invocation: {e}")
