@@ -10,6 +10,8 @@ If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file
 
 In order to start Native LLM service, you need to setup the following environment variables first.
 
+For LLM model, both `Qwen` and `Falcon3` models are supported. Users can set different models by changing the `LLM_NATIVE_MODEL` below.
+
 ```bash
 export LLM_NATIVE_MODEL="Qwen/Qwen2-7B-Instruct"
 export HUGGINGFACEHUB_API_TOKEN="your_huggingface_token"
