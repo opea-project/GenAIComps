@@ -12,9 +12,9 @@ langchain-community
 llama-index-core
 llama-index-embeddings-openai
 llama-index-embeddings-text-embeddings-inference
+llama-index-graph-stores-neo4j
 llama-index-llms-openai
 llama-index-llms-text-generation-inference
-llama_index_graph_stores_neo4j==0.3.3
 neo4j
 numpy
 opencv-python
