@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
+
 sys.path.append("/lkk/move_gateway/GenAIComps/")
 
 import json
@@ -9,6 +10,7 @@ import unittest
 from typing import Union
 
 from comps.cores.mega.utils import handle_message
+
 
 class TestHandleMessage(unittest.IsolatedAsyncioTestCase):
 
