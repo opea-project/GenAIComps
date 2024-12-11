@@ -24,7 +24,7 @@ class MicroService(HTTPService):
 
     def __init__(
         self,
-        name: str,
+        name: str = "",
         service_role: ServiceRoleType = ServiceRoleType.MICROSERVICE,
         service_type: ServiceType = ServiceType.LLM,
         protocol: str = "http",
@@ -44,7 +44,6 @@ class MicroService(HTTPService):
         dynamic_batching_max_batch_size: int = 32,
     ):
         """Init the microservice."""
-        self.name = f"{name}/{self.__class__.__name__}" if name else self.__class__.__name__
         self.service_role = service_role
         self.service_type = service_type
         self.protocol = protocol
@@ -80,7 +79,7 @@ class MicroService(HTTPService):
                 "protocol": self.protocol,
                 "host": self.host,
                 "port": self.port,
-                "title": self.name,
+                "title": name,
                 "description": "OPEA Microservice Infrastructure",
             }
 
@@ -93,6 +92,9 @@ class MicroService(HTTPService):
                 self.add_startup_event(self._dynamic_batch_processor())
 
             self._async_setup()
+
+        # overwrite name
+        self.name = f"{name}/{self.__class__.__name__}" if name else self.__class__.__name__
 
     async def _dynamic_batch_processor(self):
         if logflag:
