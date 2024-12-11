@@ -69,7 +69,7 @@ except Exception as e:
 
 @register_microservice(
     name="opea_service@reranking",
-    service_type=ServiceType.RERANK,
+    service_type=ServiceType.RERANKING,
     endpoint="/v1/reranking",
     host="0.0.0.0",
     port=8000,
