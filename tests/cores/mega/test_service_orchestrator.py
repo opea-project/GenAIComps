@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-import unittest
 import multiprocessing
+import unittest
+
 from comps import ServiceOrchestrator, TextDoc, opea_microservices, register_microservice
 
 
