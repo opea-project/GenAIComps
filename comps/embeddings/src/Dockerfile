@@ -6,11 +6,10 @@ FROM python:3.11-slim
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/comps/embeddings/predictionguard/requirements.txt
+    pip install --no-cache-dir -r /home/comps/embeddings/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/comps/embeddings/predictionguard
+WORKDIR /home/comps/embeddings/src/
 
-ENTRYPOINT ["python", "embedding_predictionguard.py"]
-
+ENTRYPOINT ["python", "opea_embedding_microservice.py"]
