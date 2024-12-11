@@ -74,10 +74,10 @@ def generate(
 
     # Tokenization
     input_tokens = tokenizer.batch_encode_plus(
-        input_query, 
-        return_tensors="pt", 
+        input_query,
+        return_tensors="pt",
         padding=True,
-        return_token_type_ids=False  # token_type_ids is not needed for falcon-three model
+        return_token_type_ids=False,  # token_type_ids is not needed for falcon-three model
     )
     encode_duration = time.perf_counter() - encode_t0
     logger.info(f"[llm - generate] input tokenized: {input_tokens}")
