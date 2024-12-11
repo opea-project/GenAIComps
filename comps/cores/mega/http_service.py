@@ -166,7 +166,7 @@ class HTTPService(BaseService):
         self.event_loop.run_until_complete(self.terminate_server())
         self.event_loop.stop()
         self.event_loop.close()
-        self.server.logger.close()
+        self.logger.close()
         if self.process.is_alive():
             self.process.terminate()
 
