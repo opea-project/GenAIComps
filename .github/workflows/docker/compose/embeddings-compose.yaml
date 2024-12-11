@@ -9,15 +9,15 @@ services:
     image: ${REGISTRY:-opea}/embedding-tei:${TAG:-latest}
   embedding-multimodal-clip:
     build:
-      dockerfile: comps/embeddings/multimodal_clip/Dockerfile
+      dockerfile: comps/embeddings/native/multimodal/clip/Dockerfile
     image: ${REGISTRY:-opea}/embedding-multimodal-clip:${TAG:-latest}
   embedding-multimodal-bridgetower:
     build:
-      dockerfile: comps/embeddings/multimodal/bridgetower/Dockerfile
+      dockerfile: comps/embeddings/native/multimodal/bridgetower/dependency/Dockerfile
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
   embedding-multimodal:
     build:
-      dockerfile: comps/embeddings/multimodal/multimodal_langchain/Dockerfile
+      dockerfile: comps/embeddings/native/multimodal/bridgetower/wrapper/Dockerfile
     image: ${REGISTRY:-opea}/embedding-multimodal:${TAG:-latest}
   embedding-langchain-mosec-endpoint:
     build:
@@ -33,7 +33,7 @@ services:
     image: ${REGISTRY:-opea}/embedding-tei-llama-index:${TAG:-latest}
   embedding-multimodal-bridgetower-gaudi:
     build:
-      dockerfile: comps/embeddings/multimodal/bridgetower/Dockerfile.intel_hpu
+      dockerfile: comps/embeddings/native/multimodal/bridgetower/dependency/Dockerfile.intel_hpu
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-gaudi:${TAG:-latest}
   embedding-predictionguard:
     build:
