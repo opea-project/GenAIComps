@@ -159,8 +159,6 @@ class HTTPService(BaseService):
         self.event_loop.stop()
         self.event_loop.close()
         self.logger.close()
-        if self.process.is_alive():
-            self.process.terminate()
 
     @staticmethod
     def check_server_readiness(ctrl_address: str, timeout: float = 1.0, logger=None, **kwargs) -> bool:

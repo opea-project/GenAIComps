@@ -45,6 +45,8 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
     def tearDownClass(cls):
         cls.s1.stop()
         cls.s2.stop()
+        cls.process1.terminate()
+        cls.process2.terminate()
 
     async def test_schedule(self):
         result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
