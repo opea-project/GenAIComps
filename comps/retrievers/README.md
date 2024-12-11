@@ -30,6 +30,3 @@ For details, please refer to this [readme](qdrant/haystack/README.md)
 
 For details, please refer to this [readme](vdms/langchain/README.md)
 
-## Retriever Microservice with Multimodal
-
-For details, please refer to this [readme](multimodal/redis/langchain/README.md)
