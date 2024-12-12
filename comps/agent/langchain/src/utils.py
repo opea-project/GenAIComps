@@ -120,7 +120,7 @@ def get_args():
     parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
     parser.add_argument("--strategy", type=str, default="react_langchain")
     parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
-    parser.add_argument("--tools", type=str, default="tools/custom_tools.yaml")
+    parser.add_argument("--tools", type=str, default=None, help="path to the tools file")
     parser.add_argument("--recursion_limit", type=int, default=5)
     parser.add_argument("--require_human_feedback", action="store_true", help="If this agent requires human feedback")
     parser.add_argument("--debug", action="store_true", help="Test with endpoint mode")

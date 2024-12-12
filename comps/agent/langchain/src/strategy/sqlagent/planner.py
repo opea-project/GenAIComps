@@ -51,15 +51,16 @@ class AgentNodeLlama:
 
         if args.use_hints:
             from sentence_transformers import SentenceTransformer
-
             self.cols_descriptions, self.values_descriptions = read_hints(args.hints_file)
             self.embed_model = SentenceTransformer("BAAI/bge-large-en-v1.5")
             self.column_embeddings = self.embed_model.encode(self.values_descriptions)
+            print("Done embedding column descriptions")
 
     def __call__(self, state):
         print("----------Call Agent Node----------")
         question = state["messages"][0].content
         table_schema, num_tables = get_table_schema(self.args.db_path)
+        print("@@@@ Table Schema: ", table_schema)
         if self.args.use_hints:
             if not state["hint"]:
                 hints = pick_hints(question, self.embed_model, self.column_embeddings, self.cols_descriptions)

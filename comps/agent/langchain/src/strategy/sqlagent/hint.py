@@ -44,11 +44,13 @@ def get_topk_cols(topk, cols_descriptions, similarities):
 
 
 def pick_hints(query, model, column_embeddings, complete_descriptions, topk=5):
-    # use similarity to get the topk columns
-    query_embedding = model.encode(query, convert_to_tensor=True)
-    similarities = model.similarity(query_embedding, column_embeddings).flatten()
-
-    topk_cols_descriptions = get_topk_cols(topk, complete_descriptions, similarities)
+    if len(complete_descriptions) < topk:
+        topk_cols_descriptions = complete_descriptions
+    else:
+        # use similarity to get the topk columns
+        query_embedding = model.encode(query, convert_to_tensor=True)
+        similarities = model.similarity(query_embedding, column_embeddings).flatten()
+        topk_cols_descriptions = get_topk_cols(topk, complete_descriptions, similarities)
 
     hint = ""
     for col in topk_cols_descriptions:
