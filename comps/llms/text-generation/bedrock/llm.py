@@ -3,11 +3,11 @@
 
 import json
 import os
+import time
 from typing import Union
 
 import boto3
 from fastapi.responses import StreamingResponse
-from langchain_aws import BedrockLLM, ChatBedrock
 
 from comps import (
     CustomLogger,
@@ -33,6 +33,12 @@ model_kwargs = {
     "max_tokens": 1000,
 }
 
+sse_headers = {
+    'x-accel-buffering': 'no',
+    'cache-control': 'no-cache',
+    'content-type': 'text/event-stream'
+}
+
 
 @register_microservice(
     name="opea_service@llm_bedrock",
@@ -44,42 +50,96 @@ model_kwargs = {
 def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
     if logflag:
         logger.info(input)
-    content = input.messages[0]["content"]
-    llm = ChatBedrock(
-        client=bedrock_runtime,
-        model_id=input.model if input.model else model_id,
-        model_kwargs=model_kwargs,
-        streaming=input.stream,
-    )
+
+    # Parse out arguments for Bedrock converse API
+    model_id = input.model if input.model else model_id
+    if logflag:
+        logger.info(f'[llm - chat] Using model {model_id}')
+
+    bedrock_args = {
+        'modelId': model_id
+    }
+
+    inference_config = {}
+    if input.max_tokens:
+        inference_config['maxTokens'] = input.max_tokens
+
+    if input.stop:
+        inference_config['stopSequences'] = input.stop
+    
+    if input.temperature:
+        inference_config['temperature'] = input.temperature
+
+    if input.top_p:
+        inference_config['topP'] = input.top_p
+
+    if len(inference_config) > 0:
+        bedrock_args['inferenceConfig'] = inference_config
+
+    if logflag and len(inference_config) > 0:
+        logger.info(f'[llm - chat] inference_config: {inference_config}')
+
+    # Parse messages from HuggingFace TGI format to bedrock messages format
+    # tgi: [{role: "system" | "user", content: "text"}]
+    # bedrock: [role: "assistant" | "user", content: {text: "content"}]
+    messages = [
+        {
+            'role': 'assistant' if i.get('role') == 'system' else 'user',
+            'content': [{
+                'text': i.get('content', '')
+            }]
+        } for i in input.messages
+    ]
+
+    # Bedrock requires that conversations start with a user prompt
+    # TGI allows the first message to be an assistant prompt, defining assistant behavior
+    # If the message list starts with an assistant prompt, move that message to the bedrock system prompt
+    if len(messages) > 0 and messages[0]['role'] == 'assistant':
+        system_prompt = messages[0]['content'][0]['text']
+        bedrock_args['system'] = [
+            {
+                'text': system_prompt
+            }
+        ]
+        messages.pop(0)
+    
+    bedrock_args['messages'] = messages
+
+    if logflag:
+        logger.info(f'[llm - chat] Bedrock args: {bedrock_args}')
 
     if input.stream:
+        response = bedrock_runtime.converse_stream(**bedrock_args)
 
-        async def stream_generator():
+        def stream_generator():
             chat_response = ""
-            async for text in llm.astream(content):
-                chat_response += text.content
-                chunk_repr = repr(text.content.encode("utf-8"))
-                response = chunk_repr[2:-1].replace("\\n", "\n")
-                if logflag:
-                    logger.info(f"[llm - chat_stream] chunk:{chunk_repr}")
+            for chunk in response['stream']:
+                if 'contentBlockDelta' in chunk:
+                    text = chunk.get('contentBlockDelta', {}).get('delta', {}).get('text', "")
+                    if logflag:
+                        logger.info(f"[llm - chat_stream] chunk:{text}")
 
-                # Need to yield data structure similar to TGI for sake of UI
-                tgi_format_out = {
-                    "choices": [
-                        {"index": 0, "delta": {"role": "assistant", "content": response}, "finish_reason": None}
-                    ]
-                }
-                yield f"data: {json.dumps(tgi_format_out)}\n\n"
+                    tgi_format_out = {
+                        "object": "chat.completion.chunk",
+                        "model": model_id,
+                        "created": int(time.time()),
+                        "choices": [
+                            {"index": 0, "delta": {"role": "assistant", "content": text}, "finish_reason": None}
+                        ]
+                    }
+                    yield f"data: {json.dumps(tgi_format_out)}\n\n"
             if logflag:
                 logger.info(f"[llm - chat_stream] stream response: {chat_response}")
             yield "data: [DONE]\n\n"
 
-        return StreamingResponse(stream_generator(), media_type="text/event-stream")
-    else:
-        response = llm.invoke(content)
-        if logflag:
-            logger.info(response.content)
-        return GeneratedDoc(text=response.content, prompt=content)
+        return StreamingResponse(stream_generator(), headers=sse_headers)
+    
+    response = bedrock_runtime.converse(**bedrock_args)
+    output_content = response.get('output', {}).get('message', {}).get('content', [])
+    output_text = output_content[0].get('text', '') if len(output_content) > 0 else ''
+    prompt = messages[-1].get('content', [{'text': ''}])[0].get('text', '')
+
+    return GeneratedDoc(text=output_text, prompt=prompt)
 
 
 if __name__ == "__main__":
