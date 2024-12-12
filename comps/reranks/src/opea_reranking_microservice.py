@@ -91,7 +91,6 @@ async def reranking(
     reranking_results = []
     if input.retrieved_docs:
         docs = [doc.text for doc in input.retrieved_docs]
-        #url = tei_reranking_endpoint + "/rerank"
         if isinstance(input, SearchedDoc):
             query = input.initial_query
         else:
@@ -99,13 +98,10 @@ async def reranking(
             query = input.input
 
         data = {"query": query, "texts": docs}
-        print("data type", type(data), data)
 
         try:
             # Use the controller to invoke the active component
             response_data = await controller.invoke(data)
-            # Record statistics
-            statistics_dict["opea_service@reranking"].append_latency(time.time() - start, None)
 
             response_data = json.loads(response_data.decode('utf-8'))
 
@@ -117,6 +113,7 @@ async def reranking(
             logger.error(f"Error during reranking invocation: {e}")
             raise
 
+    # Record statistics
     statistics_dict["opea_service@reranking"].append_latency(time.time() - start, None)
 
     if isinstance(input, SearchedDoc):
