@@ -18,7 +18,7 @@ from comps import (
 )
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
-from integrations.tgi_llm import TGILLM
+from integrations.openai_llm import OpenAILLM
 
 logger = CustomLogger("llm")
 logflag = os.getenv("LOGFLAG", False)
@@ -28,13 +28,13 @@ controller = OpeaComponentController()
 
 # Register components
 try:
-    tgi_llm = TGILLM(
-        name="TGILLM",
-        description="TGI LLM Service",
+    openai_llm = OpenAILLM(
+        name="OpenAILLM",
+        description="OpenAI LLM Service",
     )
 
     # Register components with the controller
-    controller.register(tgi_llm)
+    controller.register(openai_llm)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
