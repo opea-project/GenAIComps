@@ -6,8 +6,7 @@ from langchain_community.utilities import SQLDatabase
 
 
 def connect_to_db(db_path):
-    uri = "sqlite:///{path}".format(path=db_path)
-    db = SQLDatabase.from_uri(uri)
+    db = SQLDatabase.from_uri(db_path)
     return db
 
 

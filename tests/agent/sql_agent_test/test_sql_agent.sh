@@ -33,7 +33,7 @@ export TOOLSET_PATH=$WORKPATH/comps/agent/langchain/tools/ # $WORKPATH/tests/age
 echo "TOOLSET_PATH=${TOOLSET_PATH}"
 export recursion_limit=15
 export db_name=california_schools
-export db_path=/home/user/TAG-Bench/dev_folder/dev_databases/${db_name}/${db_name}.sqlite
+export db_path="sqlite:////home/user/TAG-Bench/dev_folder/dev_databases/${db_name}/${db_name}.sqlite"
 
 # for using Google search API
 export GOOGLE_CSE_ID=${GOOGLE_CSE_ID}
