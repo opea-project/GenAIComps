@@ -16,13 +16,13 @@ Then we could send the `top_n` videos to the downstream LVM.
 
 ```bash
 cd GenAIComps
-docker build --no-cache -t opea/reranking-videoqna:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/reranks/videoqna/Dockerfile .
+docker build --no-cache -t opea/reranking-videoqna:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/native/src/video/Dockerfile .
 ```
 
 ### 1.2 Start Rerank Service
 
 ```bash
-docker compose -f comps/reranks/videoqna/docker_compose_reranking.yaml up -d
+docker compose -f comps/native/deployment/docker_compose/video.yaml up -d
 # wait until ready
 until docker logs reranking-videoqna-server 2>&1 | grep -q "Uvicorn running on"; do
     sleep 2

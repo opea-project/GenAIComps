@@ -9,7 +9,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/reranking-videoqna:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/reranks/videoqna/Dockerfile .
+    docker build --no-cache -t opea/reranking-videoqna:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/native/src/video/Dockerfile .
 }
 
 function start_service() {
