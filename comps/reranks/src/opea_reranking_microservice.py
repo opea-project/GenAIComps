@@ -26,9 +26,9 @@ from comps.cores.proto.api_protocol import (
 )
 
 from integrations.opea_reranking import OpeaReranking
-from integrations.fastrag_reranking import FastragReranking
-from integrations.mosec_reranking import MosecReranking
-from integrations.videoqna_reranking import VideoqnaReranking
+#from integrations.fastrag_reranking import FastragReranking
+#from integrations.mosec_reranking import MosecReranking
+#from integrations.videoqna_reranking import VideoqnaReranking
 
 logger = CustomLogger("opea_reranking_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -43,6 +43,7 @@ try:
         name="OpeaReranking",
         description="OPEA Reranking Service",
     )
+    '''
     fastrag_reranking = FastragReranking(
         name="FastragReranking",
         description="fastRAG Reranking Service",
@@ -55,12 +56,15 @@ try:
         name="VideoqnaReranking",
         description="VideoQnA Reranking Service",
     )
+    '''
 
     # Register components with the controller
     controller.register(opea_reranking)
+    '''
     controller.register(fastrag_reranking)
     controller.register(mosec_reranking)
     controller.register(videoqna_reranking)
+    '''
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
@@ -69,7 +73,7 @@ except Exception as e:
 
 @register_microservice(
     name="opea_service@reranking",
-    service_type=ServiceType.RERANKING,
+    service_type=ServiceType.RERANK,
     endpoint="/v1/reranking",
     host="0.0.0.0",
     port=8000,
@@ -79,14 +83,14 @@ async def reranking(
     input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
 ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
     start = time.time()
+
     # Log the input if logging is enabled
     if logflag:
         logger.info(input)
 
     try:
         # Use the controller to invoke the active component
-        response = controller.invoke(input)
-
+        response = await controller.invoke(input)
         # Record statistics
         statistics_dict["opea_service@reranking"].append_latency(time.time() - start, None)
         

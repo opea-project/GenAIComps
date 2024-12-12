@@ -4,6 +4,8 @@
 import os
 from typing import Union
 
+import json
+import time
 import aiohttp
 
 from comps import (
@@ -65,25 +67,49 @@ class OpeaReranking(OpeaComponent):
                 {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]})
         """
         return AsyncInferenceClient(
-            #model=os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8808/rerank"),
             model=os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8808"),
             token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
 
-    async def invoke(self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]):
+    async def invoke(self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
+    ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
         """
         Invokes the reranking service to reorder the retrieved docs.
         """
-        import pdb
-        pdb.set_trace()
+        if logflag:
+            logger.info(input)
+        start = time.time()
+        reranking_results = []
+        access_token = (
+            get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+        )
+        if input.retrieved_docs:
+            docs = [doc.text for doc in input.retrieved_docs]
+            #url = tei_reranking_endpoint + "/rerank"
+            if isinstance(input, SearchedDoc):
+                query = input.initial_query
+            else:
+                # for RerankingRequest, ChatCompletionRequest
+                query = input.input
 
-        query = "What is Deep Learning?"
-        texts = ["Deep Learning is not...", "Deep learning is..."]
+            data = {"query": query, "texts": docs}
+            headers = {"Content-Type": "application/json"}
 
-        reranking_results = await self.client.post(json={"query": query, "texts": texts}, task="text-reranking")
-        #reranking = json.loads(response.decode())
-        
+            if access_token:
+                headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
+
+            #response_data = await self.client.post(json={"query": query, "texts": texts}, task="text-reranking")
+            response_data = await self.client.post(json=data, task="text-reranking")
+
+            response_data = json.loads(response_data.decode('utf-8'))
+
+            for best_response in response_data[: input.top_n]:
+                reranking_results.append(
+                    {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]}
+                )
+
+        #statistics_dict["opea_service@reranking"].append_latency(time.time() - start, None)
         if isinstance(input, SearchedDoc):
             result = [doc["text"] for doc in reranking_results]
             if logflag:
@@ -105,6 +131,7 @@ class OpeaReranking(OpeaComponent):
                 if logflag:
                     logger.info(input)
                 return input
+
 
     def check_health(self) -> bool:
         """
