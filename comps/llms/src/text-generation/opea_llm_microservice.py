@@ -49,7 +49,7 @@ except Exception as e:
     port=9000,
 )
 @register_statistics(names=["opea_service@llm"])
-def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
+async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
     start = time.time()
 
     # Log the input if logging is enabled
@@ -58,7 +58,7 @@ def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc])
 
     try:
         # Use the controller to invoke the active component
-        response = controller.invoke(input)
+        response = await controller.invoke(input)
         # Record statistics
         statistics_dict["opea_service@llm"].append_latency(time.time() - start, None)
         return response
