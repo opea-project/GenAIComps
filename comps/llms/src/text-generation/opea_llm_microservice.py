@@ -5,10 +5,12 @@ import os
 import time
 from typing import Union
 
+from integrations.openai_llm import OpenAILLM
+
 from comps import (
     CustomLogger,
-    OpeaComponentController,
     LLMParamsDoc,
+    OpeaComponentController,
     SearchedDoc,
     ServiceType,
     opea_microservices,
@@ -16,9 +18,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.proto.api_protocol import ChatCompletionRequest
-from integrations.openai_llm import OpenAILLM
 
 logger = CustomLogger("llm")
 logflag = os.getenv("LOGFLAG", False)
@@ -40,6 +40,7 @@ try:
     controller.discover_and_activate()
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
+
 
 @register_microservice(
     name="opea_service@llm",
@@ -67,7 +68,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
         logger.error(f"Error during LLM invocation: {e}")
         raise
 
+
 if __name__ == "__main__":
     logger.info("OPEA LLM Microservice is starting...")
     opea_microservices["opea_service@llm"].start()
-

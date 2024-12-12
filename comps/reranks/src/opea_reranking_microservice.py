@@ -6,26 +6,25 @@ import os
 import time
 from typing import Union
 
+from integrations.opea_reranking import OpeaReranking
+
 from comps import (
     CustomLogger,
     LLMParamsDoc,
+    OpeaComponentController,
     SearchedDoc,
     ServiceType,
-    OpeaComponentController,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
     RerankingRequest,
     RerankingResponse,
     RerankingResponseData,
 )
-
-from integrations.opea_reranking import OpeaReranking
 
 logger = CustomLogger("opea_reranking_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -48,6 +47,7 @@ try:
     controller.discover_and_activate()
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
+
 
 @register_microservice(
     name="opea_service@reranking",
@@ -81,7 +81,7 @@ async def reranking(
             # Use the controller to invoke the active component
             response_data = await controller.invoke(data)
 
-            response_data = json.loads(response_data.decode('utf-8'))
+            response_data = json.loads(response_data.decode("utf-8"))
 
             for best_response in response_data[: input.top_n]:
                 reranking_results.append(
@@ -115,6 +115,7 @@ async def reranking(
             if logflag:
                 logger.info(input)
             return input
+
 
 if __name__ == "__main__":
     logger.info("OPEA Reranking Microservice is starting...")

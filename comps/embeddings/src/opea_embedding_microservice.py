@@ -3,7 +3,10 @@
 
 import os
 import time
-from typing import  Union
+from typing import Union
+
+from integrations.opea_embedding import OpeaEmbedding
+from integrations.predictionguard_embedding import PredictionguardEmbedding
 
 from comps import (
     CustomLogger,
@@ -16,15 +19,12 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
     EmbeddingRequest,
     EmbeddingResponse,
     EmbeddingResponseData,
 )
-from integrations.opea_embedding import OpeaEmbedding
-from integrations.predictionguard_embedding import PredictionguardEmbedding
 
 logger = CustomLogger("opea_embedding_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -52,6 +52,7 @@ try:
     controller.discover_and_activate()
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
+
 
 @register_microservice(
     name="opea_service@embedding",
@@ -99,7 +100,7 @@ async def embedding(
         logger.error(f"Error during embedding invocation: {e}")
         raise
 
+
 if __name__ == "__main__":
     logger.info("OPEA Embedding Microservice is starting...")
     opea_microservices["opea_service@embedding"].start()
-
