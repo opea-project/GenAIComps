@@ -26,9 +26,6 @@ from comps.cores.proto.api_protocol import (
 )
 
 from integrations.opea_reranking import OpeaReranking
-#from integrations.fastrag_reranking import FastragReranking
-#from integrations.mosec_reranking import MosecReranking
-#from integrations.videoqna_reranking import VideoqnaReranking
 
 logger = CustomLogger("opea_reranking_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -43,28 +40,9 @@ try:
         name="OpeaReranking",
         description="OPEA Reranking Service",
     )
-    '''
-    fastrag_reranking = FastragReranking(
-        name="FastragReranking",
-        description="fastRAG Reranking Service",
-    )
-    mosec_reranking = MosecReranking(
-        name="MosecReranking",
-        description="Mosec Reranking Service",
-    )
-    videoqna_reranking = VideoqnaReranking(
-        name="VideoqnaReranking",
-        description="VideoQnA Reranking Service",
-    )
-    '''
 
     # Register components with the controller
     controller.register(opea_reranking)
-    '''
-    controller.register(fastrag_reranking)
-    controller.register(mosec_reranking)
-    controller.register(videoqna_reranking)
-    '''
 
     # Discover and activate a healthy component
     controller.discover_and_activate()

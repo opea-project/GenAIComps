@@ -6,7 +6,6 @@ from typing import Union
 
 import json
 import time
-import aiohttp
 
 import asyncio
 
@@ -57,7 +56,7 @@ class OpeaReranking(OpeaComponent):
 
         # Return the initialized AsyncInferenceClient
         return AsyncInferenceClient(
-            model=os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8808"),
+            model=os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8000"),
             token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
