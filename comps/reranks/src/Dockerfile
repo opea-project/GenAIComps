@@ -3,6 +3,10 @@
 
 FROM python:3.11-slim
 
+ENV LANG=C.UTF-8
+
+ARG ARCH="cpu"
+
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libgl1-mesa-glx \
     libjemalloc-dev
@@ -16,10 +20,11 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/reranks/mosec/langchain/requirements.txt
+    if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; fi && \
+    pip install --no-cache-dir -r /home/user/comps/reranks/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/reranks/mosec/langchain
+WORKDIR /home/user/comps/reranks/src
 
-ENTRYPOINT ["python", "reranking_mosec_xeon.py"]
+ENTRYPOINT ["python", "opea_reranks_microservice.py"]

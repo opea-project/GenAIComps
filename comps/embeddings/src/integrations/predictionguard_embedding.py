@@ -3,19 +3,18 @@
 
 
 import os
-
 from typing import List, Union
 
 from predictionguard import PredictionGuard
-from comps import OpeaComponent, CustomLogger, ServiceType
+
+from comps import CustomLogger, OpeaComponent, ServiceType
 
 logger = CustomLogger("predictionguard_embedding")
 logflag = os.getenv("LOGFLAG", False)
 
 
 class PredictionguardEmbedding(OpeaComponent):
-    """
-    A specialized embedding component derived from OpeaComponent for interacting with Prediction Guard services.
+    """A specialized embedding component derived from OpeaComponent for interacting with Prediction Guard services.
 
     Attributes:
         client (PredictionGuard): An instance of the PredictionGuard client for embedding generation.
@@ -28,8 +27,7 @@ class PredictionguardEmbedding(OpeaComponent):
         self.model_name = config.get("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
 
     def check_health(self) -> bool:
-        """
-        Checks the health of the Prediction Guard embedding service.
+        """Checks the health of the Prediction Guard embedding service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
@@ -43,8 +41,7 @@ class PredictionguardEmbedding(OpeaComponent):
             return False
 
     async def invoke(self, input: Union[str, List[str]]) -> List[List[float]]:
-        """
-        Invokes the Prediction Guard embedding service to generate embeddings for the provided input.
+        """Invokes the Prediction Guard embedding service to generate embeddings for the provided input.
 
         Args:
             input (Union[str, List[str]]): The input text(s) for which embeddings are to be generated.
@@ -64,4 +61,3 @@ class PredictionguardEmbedding(OpeaComponent):
         except Exception as e:
             logger.error(f"Failed to generate embeddings: {e}")
             raise
-

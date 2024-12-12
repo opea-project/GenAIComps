@@ -1,22 +1,19 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
+import asyncio
 import os
 from typing import Union
-import asyncio
-from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
+
 from fastapi.responses import StreamingResponse
 from langchain_core.prompts import PromptTemplate
-from .template import ChatTemplate
 from openai import AsyncOpenAI
-from comps import (
-    CustomLogger,
-    OpeaComponent,
-    LLMParamsDoc,
-    SearchedDoc,
-    ServiceType,
-)
+
+from comps import CustomLogger, LLMParamsDoc, OpeaComponent, SearchedDoc, ServiceType
+from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 from comps.cores.proto.api_protocol import ChatCompletionRequest
+
+from .template import ChatTemplate
 
 logger = CustomLogger("openai_llm")
 logflag = os.getenv("LOGFLAG", False)
@@ -38,6 +35,7 @@ if MODEL_CONFIGS:
         logger.error(f"Failed to load model configurations: {e}")
         raise ConfigError(f"Failed to load model configurations: {e}")
 
+
 def get_llm_endpoint():
     if not MODEL_CONFIGS:
         return DEFAULT_ENDPOINT
@@ -49,8 +47,7 @@ def get_llm_endpoint():
 
 
 class OpenAILLM(OpeaComponent):
-    """
-    A specialized LLM component derived from OpeaComponent for interacting with TGI/vLLM services based on OpenAI API.
+    """A specialized LLM component derived from OpeaComponent for interacting with TGI/vLLM services based on OpenAI API.
 
     Attributes:
         client (TGI/vLLM): An instance of the TGI/vLLM client for text generation.
@@ -59,7 +56,7 @@ class OpenAILLM(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
         self.client = self._initialize_client()
-    
+
     def _initialize_client(self) -> AsyncOpenAI:
         """Initializes the AsyncOpenAI."""
         access_token = (
@@ -69,37 +66,30 @@ class OpenAILLM(OpeaComponent):
         if access_token:
             headers = {"Authorization": f"Bearer {access_token}"}
         llm_endpoint = get_llm_endpoint()
-        return AsyncOpenAI(
-            api_key="EMPTY",
-            base_url=llm_endpoint + "/v1",
-            timeout=600,
-            default_headers = headers
-        )
+        return AsyncOpenAI(api_key="EMPTY", base_url=llm_endpoint + "/v1", timeout=600, default_headers=headers)
 
     def check_health(self) -> bool:
-        """
-        Checks the health of the TGI/vLLM LLM service.
+        """Checks the health of the TGI/vLLM LLM service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
 
         try:
+
             async def send_simple_request():
-                response = await self.client.completions.create(
-                    model=MODEL_NAME,
-                    prompt="How are you?",
-                    max_tokens=4
-                )
+                response = await self.client.completions.create(model=MODEL_NAME, prompt="How are you?", max_tokens=4)
                 return response
-            
+
             response = asyncio.run(send_simple_request())
             return response is not None
         except Exception as e:
-            logger.error(f"Health check failed")
+            logger.error("Health check failed")
             return False
 
-    def align_input(self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc], prompt_template, input_variables):
+    def align_input(
+        self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc], prompt_template, input_variables
+    ):
         if isinstance(input, SearchedDoc):
             if logflag:
                 logger.info("[ SearchedDoc ] input from retriever microservice")
@@ -115,7 +105,7 @@ class OpenAILLM(OpeaComponent):
 
             if logflag:
                 logger.info(f"[ SearchedDoc ] final input: {new_input}")
-            
+
             return prompt, new_input
 
         elif isinstance(input, LLMParamsDoc):
@@ -135,7 +125,7 @@ class OpenAILLM(OpeaComponent):
                 if input.documents:
                     # use rag default template
                     prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents, input.model)
-            
+
             # convert to unified OpenAI /v1/chat/completions format
             new_input = ChatCompletionRequest(
                 messages=prompt,
@@ -143,7 +133,7 @@ class OpenAILLM(OpeaComponent):
                 top_p=input.top_p,
                 stream=input.streaming,
                 frequency_penalty=input.frequency_penalty,
-                temperature=input.temperature
+                temperature=input.temperature,
             )
 
             return prompt, new_input
@@ -151,7 +141,7 @@ class OpenAILLM(OpeaComponent):
         else:
             if logflag:
                 logger.info("[ ChatCompletionRequest ] input in opea format")
-            
+
             prompt = input.messages
             if prompt_template:
                 if sorted(input_variables) == ["context", "question"]:
@@ -166,12 +156,11 @@ class OpenAILLM(OpeaComponent):
                 if input.documents:
                     # use rag default template
                     prompt = ChatTemplate.generate_rag_prompt(input.messages, input.documents, input.model)
-            
+
             return prompt, input
 
     async def invoke(self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
-        """
-        Invokes the TGI/vLLM LLM service to generate output for the provided input.
+        """Invokes the TGI/vLLM LLM service to generate output for the provided input.
 
         Args:
             input (Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]): The input text(s).
@@ -267,4 +256,3 @@ class OpenAILLM(OpeaComponent):
             if logflag:
                 logger.info(chat_completion)
             return chat_completion
-        

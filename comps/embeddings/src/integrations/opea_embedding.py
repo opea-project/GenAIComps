@@ -1,21 +1,21 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
-from typing import List, Union
-import os
 import json
+import os
+from typing import List, Union
+
 from huggingface_hub import AsyncInferenceClient
 
+from comps import CustomLogger, OpeaComponent, ServiceType
 from comps.cores.mega.utils import get_access_token
-from comps import OpeaComponent, CustomLogger, ServiceType
 
 logger = CustomLogger("opea_embedding")
 logflag = os.getenv("LOGFLAG", False)
 
 
 class OpeaEmbedding(OpeaComponent):
-    """
-    A specialized embedding component derived from OpeaComponent for TEI Gaudi embedding services.
+    """A specialized embedding component derived from OpeaComponent for TEI Gaudi embedding services.
 
     Attributes:
         client (AsyncInferenceClient): An instance of the async client for embedding generation.
@@ -28,9 +28,7 @@ class OpeaEmbedding(OpeaComponent):
 
     def _initialize_client(self) -> AsyncInferenceClient:
         """Initializes the AsyncInferenceClient."""
-        access_token = get_access_token(
-            os.getenv("TOKEN_URL"), os.getenv("CLIENTID"), os.getenv("CLIENT_SECRET")
-        )
+        access_token = get_access_token(os.getenv("TOKEN_URL"), os.getenv("CLIENTID"), os.getenv("CLIENT_SECRET"))
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
             model=os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080"),
@@ -39,8 +37,7 @@ class OpeaEmbedding(OpeaComponent):
         )
 
     async def invoke(self, input: Union[str, List[str]]) -> List[List[float]]:
-        """
-        Invokes the embedding service to generate embeddings for the provided input.
+        """Invokes the embedding service to generate embeddings for the provided input.
 
         Args:
             input (Union[str, List[str]]): The input text(s) for which embeddings are to be generated.
@@ -55,8 +52,7 @@ class OpeaEmbedding(OpeaComponent):
         return embeddings
 
     def check_health(self) -> bool:
-        """
-        Checks the health of the embedding service.
+        """Checks the health of the embedding service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
