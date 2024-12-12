@@ -3,11 +3,12 @@
 
 import os
 from typing import Union
+import asyncio
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 from fastapi.responses import StreamingResponse
 from langchain_core.prompts import PromptTemplate
 from .template import ChatTemplate
-from openai import OpenAI
+from openai import AsyncOpenAI
 from comps import (
     CustomLogger,
     OpeaComponent,
@@ -17,13 +18,13 @@ from comps import (
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
-logger = CustomLogger("tgi_llm")
+logger = CustomLogger("openai_llm")
 logflag = os.getenv("LOGFLAG", False)
 
 # Environment variables
 MODEL_NAME = os.getenv("LLM_MODEL_ID")
 MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
-DEFAULT_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+DEFAULT_ENDPOINT = os.getenv("LLM_ENDPOINT", "http://localhost:8080")
 TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
@@ -47,20 +48,20 @@ def get_llm_endpoint():
         raise ConfigError(f"Input model {model} not present in model_configs")
 
 
-class TGILLM(OpeaComponent):
+class OpenAILLM(OpeaComponent):
     """
-    A specialized LLM component derived from OpeaComponent for interacting with TGI services.
+    A specialized LLM component derived from OpeaComponent for interacting with TGI/vLLM services based on OpenAI API.
 
     Attributes:
-        client (TGI): An instance of the TGI client for text generation.
+        client (TGI/vLLM): An instance of the TGI/vLLM client for text generation.
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
         self.client = self._initialize_client()
     
-    def _initialize_client(self) -> OpenAI:
-        """Initializes the OpenAI."""
+    def _initialize_client(self) -> AsyncOpenAI:
+        """Initializes the AsyncOpenAI."""
         access_token = (
             get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
         )
@@ -68,26 +69,31 @@ class TGILLM(OpeaComponent):
         if access_token:
             headers = {"Authorization": f"Bearer {access_token}"}
         llm_endpoint = get_llm_endpoint()
-        ### TODO add headers
-        return OpenAI(
+        return AsyncOpenAI(
             api_key="EMPTY",
             base_url=llm_endpoint + "/v1",
+            timeout=600,
+            default_headers = headers
         )
 
     def check_health(self) -> bool:
         """
-        Checks the health of the TGI LLM service.
+        Checks the health of the TGI/vLLM LLM service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-        ### TODO fix health problem
+
         try:
-            response = self.client.completions.create(
-                model="tgi",
-                prompt="How are you?",
-                max_tokens=4
-            )
+            async def send_simple_request():
+                response = await self.client.completions.create(
+                    model=MODEL_NAME,
+                    prompt="How are you?",
+                    max_tokens=4
+                )
+                return response
+            
+            response = asyncio.run(send_simple_request())
             return response is not None
         except Exception as e:
             logger.error(f"Health check failed")
@@ -163,9 +169,9 @@ class TGILLM(OpeaComponent):
             
             return prompt, input
 
-    def invoke(self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
+    async def invoke(self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
         """
-        Invokes the TGI LLM service to generate output for the provided input.
+        Invokes the TGI/vLLM LLM service to generate output for the provided input.
 
         Args:
             input (Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]): The input text(s).
@@ -199,8 +205,8 @@ class TGILLM(OpeaComponent):
 
                     input.messages.insert(0, {"role": "system", "content": system_prompt})
 
-            chat_completion = self.client.chat.completions.create(
-                model="tgi",
+            chat_completion = await self.client.chat.completions.create(
+                model=MODEL_NAME,
                 messages=input.messages,
                 frequency_penalty=input.frequency_penalty,
                 logit_bias=input.logit_bias,
@@ -225,8 +231,8 @@ class TGILLM(OpeaComponent):
         else:
             prompt, input = self.align_input(input, prompt_template, input_variables)
 
-            chat_completion = self.client.completions.create(
-                model="tgi",
+            chat_completion = await self.client.completions.create(
+                model=MODEL_NAME,
                 prompt=prompt,
                 best_of=input.best_of,
                 echo=input.echo,
@@ -247,8 +253,8 @@ class TGILLM(OpeaComponent):
 
         if input.stream:
 
-            def stream_generator():
-                for c in chat_completion:
+            async def stream_generator():
+                async for c in chat_completion:
                     if logflag:
                         logger.info(c)
                     chunk = c.model_dump_json()
