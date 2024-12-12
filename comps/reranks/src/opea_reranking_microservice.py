@@ -88,17 +88,58 @@ async def reranking(
     if logflag:
         logger.info(input)
 
-    try:
-        # Use the controller to invoke the active component
-        response = await controller.invoke(input)
-        # Record statistics
-        statistics_dict["opea_service@reranking"].append_latency(time.time() - start, None)
-        
-        return response
+    reranking_results = []
+    if input.retrieved_docs:
+        docs = [doc.text for doc in input.retrieved_docs]
+        #url = tei_reranking_endpoint + "/rerank"
+        if isinstance(input, SearchedDoc):
+            query = input.initial_query
+        else:
+            # for RerankingRequest, ChatCompletionRequest
+            query = input.input
 
-    except Exception as e:
-        logger.error(f"Error during reranking invocation: {e}")
-        raise
+        data = {"query": query, "texts": docs}
+        print("data type", type(data), data)
+
+        try:
+            # Use the controller to invoke the active component
+            response_data = await controller.invoke(data)
+            # Record statistics
+            statistics_dict["opea_service@reranking"].append_latency(time.time() - start, None)
+
+            response_data = json.loads(response_data.decode('utf-8'))
+
+            for best_response in response_data[: input.top_n]:
+                reranking_results.append(
+                    {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]}
+                )
+        except Exception as e:
+            logger.error(f"Error during reranking invocation: {e}")
+            raise
+
+    statistics_dict["opea_service@reranking"].append_latency(time.time() - start, None)
+
+    if isinstance(input, SearchedDoc):
+        result = [doc["text"] for doc in reranking_results]
+        if logflag:
+            logger.info(result)
+        return LLMParamsDoc(query=input.initial_query, documents=result)
+    else:
+        reranking_docs = []
+        for doc in reranking_results:
+            reranking_docs.append(RerankingResponseData(text=doc["text"], score=doc["score"]))
+        if isinstance(input, RerankingRequest):
+            result = RerankingResponse(reranked_docs=reranking_docs)
+            if logflag:
+                logger.info(result)
+            return result
+
+        if isinstance(input, ChatCompletionRequest):
+            input.reranked_docs = reranking_docs
+            input.documents = [doc["text"] for doc in reranking_results]
+            if logflag:
+                logger.info(input)
+            return input
 
 if __name__ == "__main__":
     logger.info("OPEA Reranking Microservice is starting...")

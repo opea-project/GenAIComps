@@ -74,13 +74,34 @@ class OpeaReranking(OpeaComponent):
             headers=headers,
         )
 
-    async def invoke(self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
+    async def invoke(self, input):
+        if logflag:
+            logger.info(input)
+
+        start = time.time()
+        reranking_results = []
+        access_token = (
+            get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+        )
+
+        headers = {"Content-Type": "application/json"}
+
+        if access_token:
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
+
+        #response_data = await self.client.post(json={"query": query, "texts": texts}, task="text-reranking")
+        response_data = await self.client.post(json=input, task="text-reranking")
+
+        return response_data
+
+    async def invoke_orignal(self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
     ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
         """
         Invokes the reranking service to reorder the retrieved docs.
         """
         if logflag:
             logger.info(input)
+
         start = time.time()
         reranking_results = []
         access_token = (
@@ -96,6 +117,7 @@ class OpeaReranking(OpeaComponent):
                 query = input.input
 
             data = {"query": query, "texts": docs}
+
             headers = {"Content-Type": "application/json"}
 
             if access_token:
