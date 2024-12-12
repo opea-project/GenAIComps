@@ -8,6 +8,8 @@ import json
 import time
 import aiohttp
 
+import asyncio
+
 from comps import (
     CustomLogger,
     LLMParamsDoc,
@@ -141,9 +143,15 @@ class OpeaReranking(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            return True
-            response = self.client.get("/health")  # Assuming /health endpoint exists
-            return response.status_code == 200 and response.json().get("status", "") == "healthy"
+            #response = self.client.get("/health")  # Assuming /health endpoint exists
+            response = asyncio.run(self.client.post(json={"query": "hi", "texts": ["Hello", "Fine"]}, task="text-reranking"))
+            response = json.loads(response.decode('utf-8'))
+
+            if (response[0]["index"] is not None and response[0]["score"] is not None):
+                return True
+            else:
+                return False
+
         except Exception as e:
             logger.error(f"Health check failed: {e}")
             return False
