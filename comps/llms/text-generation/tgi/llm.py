@@ -26,7 +26,7 @@ from comps.cores.mega.utils import ConfigError, get_access_token, load_model_con
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("llm_tgi")
-logflag = os.getenv("LOGFLAG", False)
+logflag = os.getenv("LOGFLAG", "False") == "True"
 
 # Environment variables
 MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
