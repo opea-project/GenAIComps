@@ -234,7 +234,7 @@ curl http://${your_ip}:9000/v1/chat/completions \
     -d '{"model": "${model_name}", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17}' \
     -H 'Content-Type: application/json'
 
-#Non-stream mode 
+#Non-stream mode
 curl http://${your_ip}:9000/v1/chat/completions \
     -X POST \
     -d '{"model": "${model_name}", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}' \
