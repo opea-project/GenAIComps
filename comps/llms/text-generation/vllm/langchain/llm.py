@@ -222,11 +222,8 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             chat_completion = client.completions.create(
                 model=model_name,
                 prompt=prompt,
-                best_of=input.best_of,
                 echo=input.echo,
                 frequency_penalty=input.frequency_penalty,
-                logit_bias=input.logit_bias,
-                logprobs=input.logprobs,
                 max_tokens=input.max_tokens,
                 n=input.n,
                 presence_penalty=input.presence_penalty,
@@ -261,9 +258,6 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 model=model_name,
                 messages=input.messages,
                 frequency_penalty=input.frequency_penalty,
-                logit_bias=input.logit_bias,
-                logprobs=input.logprobs,
-                top_logprobs=input.top_logprobs,
                 max_tokens=input.max_tokens,
                 n=input.n,
                 presence_penalty=input.presence_penalty,
@@ -275,8 +269,6 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 stream_options=input.stream_options,
                 temperature=input.temperature,
                 top_p=input.top_p,
-                tools=input.tools,
-                parallel_tool_calls=input.parallel_tool_calls,
                 user=input.user,
             )
 
