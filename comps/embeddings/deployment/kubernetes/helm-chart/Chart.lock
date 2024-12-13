@@ -1,0 +1,6 @@
+dependencies:
+- name: tei
+  repository: file://../../../../3rd_parties/tei/deployment/kubernetes/helm-chart
+  version: 0-latest
+digest: sha256:e0b62252021ceb0548dd541ec8528adf6e6fa6143459a986ee5d3aa5170efd83
+generated: "2024-12-13T13:46:53.349376028Z"
