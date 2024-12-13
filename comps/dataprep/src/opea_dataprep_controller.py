@@ -3,11 +3,10 @@
 
 
 import os
-import asyncio
-from comps import OpeaDataprepInterface, CustomLogger, OpeaComponentController
+from comps import CustomLogger, OpeaComponentController
 
 
-logger = CustomLogger("OpeaDataprepController")
+logger = CustomLogger("opea_dataprep_controller")
 logflag = os.getenv("LOGFLAG", False)
 
 
@@ -19,11 +18,17 @@ class OpeaDataprepController(OpeaComponentController):
         pass
 
     async def ingest_files(self, *args, **kwargs):
-        return self.active_component.ingest_files(*args, **kwargs)
+        if logflag:
+            logger.info(f"[ dataprep controller ] ingest files")
+        return await self.active_component.ingest_files(*args, **kwargs)
     
     async def get_files(self, *args, **kwargs):
-        return self.active_component.get_files(*args, **kwargs)
+        if logflag:
+            logger.info(f"[ dataprep controller ] get files")
+        return await self.active_component.get_files(*args, **kwargs)
     
     async def delete_files(self, *args, **kwargs):
-        return self.active_component.delete_files(*args, **kwargs)
+        if logflag:
+            logger.info(f"[ dataprep controller ] delete files")
+        return await self.active_component.delete_files(*args, **kwargs)
 

@@ -26,7 +26,7 @@ services:
     image: opea/dataprep-redis:latest
     container_name: dataprep-redis-server
     ports:
-      - "6007:6007"
+      - "5000:5000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -34,7 +34,8 @@ services:
       https_proxy: ${https_proxy}
       REDIS_URL: ${REDIS_URL}
       INDEX_NAME: ${INDEX_NAME}
-      TEI_ENDPOINT: ${TEI_ENDPOINT}
+      TEI_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      LOGFLAG: ${LOGFLAG}
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
     restart: unless-stopped
 

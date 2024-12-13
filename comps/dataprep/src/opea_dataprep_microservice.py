@@ -5,8 +5,9 @@
 import os
 import time
 from typing import List, Optional, Union
-from fastapi import File, Form, UploadFile
+from fastapi import Body, File, Form, UploadFile
 from integrations.redis_dataprep import OpeaRedisDataprep
+from integrations.milvus_dataprep import OpeaMilvusDataprep
 from opea_dataprep_controller import OpeaDataprepController
 from comps import (
     CustomLogger,
@@ -16,10 +17,12 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.dataprep.src.utils import create_upload_folder
 
 
-logger = CustomLogger("prepare_doc_redis")
+logger = CustomLogger("opea_dataprep_microservice")
 logflag = os.getenv("LOGFLAG", False)
+upload_folder = "./uploaded_files/"
 # Initialize Controller
 controller = OpeaDataprepController()
 
@@ -27,12 +30,18 @@ controller = OpeaDataprepController()
 # Register components
 try:
     # Instantiate OpeaEmbedding and PredictionguardEmbedding components
-    opea_embedding = OpeaRedisDataprep(
+    redis_embedding = OpeaRedisDataprep(
         name="OpeaRedisDataprep",
         description="OPEA Redis Dataprep Service",
     )
+    milvus_embedding = OpeaMilvusDataprep(
+        name="OpeaMilvusDataprep",
+        description="OPEA Milvus Dataprep Service",
+    )
     # Register components with the controller
-    controller.register(opea_embedding)
+    controller.register(redis_embedding)
+    controller.register(milvus_embedding)
+
     # Discover and activate a healthy component
     controller.discover_and_activate()
 except Exception as e:
@@ -63,7 +72,7 @@ async def ingest_files(
 
     try:
         # Use the controller to invoke the active component
-        response = controller.ingest_files(
+        response = await controller.ingest_files(
             files, link_list, chunk_size, chunk_overlap, process_table, table_strategy
         )
         # Log the result if logging is enabled
@@ -93,7 +102,7 @@ async def get_files():
 
     try:
         # Use the controller to invoke the active component
-        response = controller.get_files()
+        response = await controller.get_files()
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ get ] ingested files: {response}")
@@ -113,7 +122,7 @@ async def get_files():
     port=5000,
 )
 @register_statistics(names=["opea_service@dataprep"])
-async def get_files():
+async def delete_files(file_path: str = Body(..., embed=True)):
     start = time.time()
 
     if logflag:
@@ -121,7 +130,7 @@ async def get_files():
 
     try:
         # Use the controller to invoke the active component
-        response = controller.delete_files()
+        response = await controller.delete_files(file_path)
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ delete ] deleted result: {response}")
@@ -135,4 +144,5 @@ async def get_files():
 
 if __name__ == "__main__":
     logger.info("OPEA Dataprep Microservice is starting...")
+    create_upload_folder(upload_folder)
     opea_microservices["opea_service@dataprep"].start()

@@ -34,9 +34,11 @@ def get_boolean_env_var(var_name, default_value=False):
 
 # Embedding model
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+# TEI Embedding endpoints
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 
 # Vector Index Configuration
-INDEX_NAME = os.getenv("INDEX_NAME", "rag-redis")
+INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
 KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
 SEARCH_BATCH_SIZE = int(os.getenv("SEARCH_BATCH_SIZE", 10))
@@ -69,3 +71,20 @@ def format_redis_conn_from_env():
 REDIS_URL = format_redis_conn_from_env()
 
 
+
+#######################################################
+#                     Milvus                          #
+#######################################################
+# Local Embedding model
+LOCAL_EMBEDDING_MODEL = os.getenv("LOCAL_EMBEDDING_MODEL", "maidalun1020/bce-embedding-base_v1")
+# MOSEC configuration
+MOSEC_EMBEDDING_MODEL = os.environ.get("MOSEC_EMBEDDING_MODEL", "/home/user/bge-large-zh-v1.5")
+MOSEC_EMBEDDING_ENDPOINT = os.environ.get("MOSEC_EMBEDDING_ENDPOINT", "")
+os.environ["OPENAI_API_BASE"] = MOSEC_EMBEDDING_ENDPOINT
+os.environ["OPENAI_API_KEY"] = "Dummy key"
+# MILVUS configuration
+MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
+MILVUS_PORT = int(os.getenv("MILVUS_PORT", 19530))
+MILVUS_URI = f"http://{MILVUS_HOST}:{MILVUS_PORT}"
+INDEX_PARAMS = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag_milvus")

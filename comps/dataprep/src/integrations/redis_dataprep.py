@@ -8,7 +8,10 @@ import redis
 from pathlib import Path
 from typing import List, Optional, Union
 from fastapi import Body, File, Form, UploadFile, HTTPException
-from config import EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE
+from .config import (
+    EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, INDEX_NAME, 
+    KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE
+)
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import Redis
@@ -30,9 +33,8 @@ from comps.dataprep.src.utils import (
 )
 
 
-logger = CustomLogger("prepare_doc_redis")
+logger = CustomLogger("redis_dataprep")
 logflag = os.getenv("LOGFLAG", False)
-tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
 upload_folder = "./uploaded_files/"
 redis_pool = redis.ConnectionPool.from_url(REDIS_URL)
 
@@ -122,11 +124,11 @@ def delete_by_id(client, id):
 
 def ingest_chunks_to_redis(file_name: str, chunks: List):
     if logflag:
-        logger.info(f"[ ingest chunks ] file name: {file_name}")
+        logger.info(f"[ redis ingest chunks ] file name: {file_name}")
     # Create vectorstore
-    if tei_embedding_endpoint:
+    if TEI_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service
-        embedder = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
+        embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
     else:
         # create embeddings using local embedding model
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
@@ -138,7 +140,7 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
     file_ids = []
     for i in range(0, num_chunks, batch_size):
         if logflag:
-            logger.info(f"[ ingest chunks ] Current batch: {i}")
+            logger.info(f"[ redis ingest chunks ] Current batch: {i}")
         batch_chunks = chunks[i : i + batch_size]
         batch_texts = batch_chunks
 
@@ -149,10 +151,10 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
             redis_url=REDIS_URL,
         )
         if logflag:
-            logger.info(f"[ ingest chunks ] keys: {keys}")
+            logger.info(f"[ redis ingest chunks ] keys: {keys}")
         file_ids.extend(keys)
         if logflag:
-            logger.info(f"[ ingest chunks ] Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
+            logger.info(f"[ redis ingest chunks ] Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
     # store file_ids into index file-keys
     r = redis.Redis(connection_pool=redis_pool)
@@ -164,7 +166,7 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
         assert store_by_id(client, key=file_name, value="#".join(file_ids))
     except Exception as e:
         if logflag:
-            logger.info(f"[ ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
+            logger.info(f"[ redis ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
         raise HTTPException(status_code=500, detail=f"Fail to store chunks of file {file_name}.")
     return True
 
@@ -173,7 +175,7 @@ def ingest_data_to_redis(doc_path: DocPath):
     """Ingest document to Redis."""
     path = doc_path.path
     if logflag:
-        logger.info(f"[ ingest data ] Parsing document {path}.")
+        logger.info(f"[ redis ingest data ] Parsing document {path}.")
 
     if path.endswith(".html"):
         headers_to_split_on = [
@@ -192,7 +194,7 @@ def ingest_data_to_redis(doc_path: DocPath):
 
     content = document_loader(path)
     if logflag:
-        logger.info("[ ingest data ] file content loaded")
+        logger.info("[ redis ingest data ] file content loaded")
 
     structured_types = [".xlsx", ".csv", ".json", "jsonl"]
     _, ext = os.path.splitext(path)
@@ -207,7 +209,7 @@ def ingest_data_to_redis(doc_path: DocPath):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
         chunks = chunks + table_chunks
     if logflag:
-        logger.info(f"[ ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
+        logger.info(f"[ redis ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
 
     file_name = doc_path.path.split("/")[-1]
     return ingest_chunks_to_redis(file_name, chunks)
@@ -241,10 +243,14 @@ class OpeaRedisDataprep(OpeaComponent):
             logger.info(f"[ health check ] start to check health of redis")
         try:
             if self.client.ping():
-                logger.info("Successfully connected to Redis!")
+                logger.info("[ health check ] Successfully connected to Redis!")
+                return True
         except redis.ConnectionError as e:
-            logger.info(f"Failed to connect to Redis: {e}")
-            raise HTTPException(status_code=500, detail="Failed to connect to Redis.")
+            logger.info(f"[ health check ] Failed to connect to Redis: {e}")
+        return False
+
+    def invoke(self, *args, **kwargs):
+        pass
 
     async def ingest_files(
         self,
@@ -268,8 +274,8 @@ class OpeaRedisDataprep(OpeaComponent):
             table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
         """
         if logflag:
-            logger.info(f"[ ingest ] files:{files}")
-            logger.info(f"[ ingest ] link_list:{link_list}")
+            logger.info(f"[ redis ingest ] files:{files}")
+            logger.info(f"[ redis ingest ] link_list:{link_list}")
 
         if files:
             if not isinstance(files, list):
@@ -280,16 +286,16 @@ class OpeaRedisDataprep(OpeaComponent):
                 encode_file = encode_filename(file.filename)
                 doc_id = "file:" + encode_file
                 if logflag:
-                    logger.info(f"[ ingest ] processing file {doc_id}")
+                    logger.info(f"[ redis ingest ] processing file {doc_id}")
 
                 # check whether the file already exists
                 key_ids = None
                 try:
                     key_ids = search_by_id(self.key_index_client, doc_id).key_ids
                     if logflag:
-                        logger.info(f"[ ingest] File {file.filename} already exists.")
+                        logger.info(f"[ redis ingest] File {file.filename} already exists.")
                 except Exception as e:
-                    logger.info(f"[ ingest] File {file.filename} does not exist.")
+                    logger.info(f"[ redis ingest] File {file.filename} does not exist.")
                 if key_ids:
                     raise HTTPException(
                         status_code=400, detail=f"Uploaded file {file.filename} already exists. Please change file name."
@@ -308,7 +314,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 )
                 uploaded_files.append(save_path)
                 if logflag:
-                    logger.info(f"[ ingest] Successfully saved file {save_path}")
+                    logger.info(f"[ redis ingest] Successfully saved file {save_path}")
 
             result = {"status": 200, "message": "Data preparation succeeded"}
             if logflag:
@@ -323,16 +329,16 @@ class OpeaRedisDataprep(OpeaComponent):
                 encoded_link = encode_filename(link)
                 doc_id = "file:" + encoded_link + ".txt"
                 if logflag:
-                    logger.info(f"[ ingest] processing link {doc_id}")
+                    logger.info(f"[ redis ingest] processing link {doc_id}")
 
                 # check whether the link file already exists
                 key_ids = None
                 try:
                     key_ids = search_by_id(self.key_index_client, doc_id).key_ids
                     if logflag:
-                        logger.info(f"[ ingest] Link {link} already exists.")
+                        logger.info(f"[ redis ingest] Link {link} already exists.")
                 except Exception as e:
-                    logger.info(f"[ ingest] Link {link} does not exist. Keep storing.")
+                    logger.info(f"[ redis ingest] Link {link} does not exist. Keep storing.")
                 if key_ids:
                     raise HTTPException(
                         status_code=400, detail=f"Uploaded link {link} already exists. Please change another link."
@@ -351,7 +357,7 @@ class OpeaRedisDataprep(OpeaComponent):
                     )
                 )
             if logflag:
-                logger.info(f"[ ingest] Successfully saved link list {link_list}")
+                logger.info(f"[ redis ingest] Successfully saved link list {link_list}")
             return {"status": 200, "message": "Data preparation succeeded"}
 
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
@@ -368,7 +374,7 @@ class OpeaRedisDataprep(OpeaComponent):
         """
 
         if logflag:
-            logger.info("[ get ] start to get file structure")
+            logger.info("[ redis get ] start to get file structure")
 
         offset = 0
         file_list = []
@@ -377,7 +383,7 @@ class OpeaRedisDataprep(OpeaComponent):
         res = check_index_existance(self.key_index_client)
         if not res:
             if logflag:
-                logger.info(f"[ get ] index {KEY_INDEX_NAME} does not exist")
+                logger.info(f"[ redis get ] index {KEY_INDEX_NAME} does not exist")
             return file_list
 
         while True:
@@ -401,10 +407,13 @@ class OpeaRedisDataprep(OpeaComponent):
             - specific file path (e.g. /path/to/file.txt)
             - "all": delete all files uploaded
         """
+        if logflag:
+            logger.info(f"[ redis delete ] delete files: {file_path}")
+
         # delete all uploaded files
         if file_path == "all":
             if logflag:
-                logger.info("[ delete ] delete all files")
+                logger.info("[ redis delete ] delete all files")
 
             # drop index KEY_INDEX_NAME
             if check_index_existance(self.key_index_client):
@@ -412,10 +421,10 @@ class OpeaRedisDataprep(OpeaComponent):
                     assert drop_index(index_name=KEY_INDEX_NAME)
                 except Exception as e:
                     if logflag:
-                        logger.info(f"[ delete ] {e}. Fail to drop index {KEY_INDEX_NAME}.")
+                        logger.info(f"[ redis delete ] {e}. Fail to drop index {KEY_INDEX_NAME}.")
                     raise HTTPException(status_code=500, detail=f"Fail to drop index {KEY_INDEX_NAME}.")
             else:
-                logger.info(f"[ delete ] Index {KEY_INDEX_NAME} does not exits.")
+                logger.info(f"[ redis delete ] Index {KEY_INDEX_NAME} does not exits.")
 
             # drop index INDEX_NAME
             if check_index_existance(self.data_index_client):
@@ -423,22 +432,22 @@ class OpeaRedisDataprep(OpeaComponent):
                     assert drop_index(index_name=INDEX_NAME)
                 except Exception as e:
                     if logflag:
-                        logger.info(f"[ delete ] {e}. Fail to drop index {INDEX_NAME}.")
+                        logger.info(f"[ redis delete ] {e}. Fail to drop index {INDEX_NAME}.")
                     raise HTTPException(status_code=500, detail=f"Fail to drop index {INDEX_NAME}.")
             else:
                 if logflag:
-                    logger.info(f"[ delete ] Index {INDEX_NAME} does not exits.")
+                    logger.info(f"[ redis delete ] Index {INDEX_NAME} does not exits.")
 
             # delete files on local disk
             try:
                 remove_folder_with_ignore(upload_folder)
             except Exception as e:
                 if logflag:
-                    logger.info(f"[ delete ] {e}. Fail to delete {upload_folder}.")
+                    logger.info(f"[ redis delete ] {e}. Fail to delete {upload_folder}.")
                 raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}.")
 
             if logflag:
-                logger.info("[ delete ] successfully delete all files.")
+                logger.info("[ redis delete ] successfully delete all files.")
             create_upload_folder(upload_folder)
             if logflag:
                 logger.info({"status": True})
@@ -446,18 +455,18 @@ class OpeaRedisDataprep(OpeaComponent):
 
         delete_path = Path(upload_folder + "/" + encode_filename(file_path))
         if logflag:
-            logger.info(f"[ delete ] delete_path: {delete_path}")
+            logger.info(f"[ redis delete ] delete_path: {delete_path}")
 
         # partially delete files
         doc_id = "file:" + encode_filename(file_path)
-        logger.info(f"[ delete ] doc id: {doc_id}")
+        logger.info(f"[ redis delete ] doc id: {doc_id}")
 
         # determine whether this file exists in db KEY_INDEX_NAME
         try:
             key_ids = search_by_id(self.key_index_client, doc_id).key_ids
         except Exception as e:
             if logflag:
-                logger.info(f"[ delete ] {e}, File {file_path} does not exists.")
+                logger.info(f"[ redis delete ] {e}, File {file_path} does not exists.")
             raise HTTPException(status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path.")
         file_ids = key_ids.split("#")
 
@@ -466,7 +475,7 @@ class OpeaRedisDataprep(OpeaComponent):
             assert delete_by_id(self.key_index_client, doc_id)
         except Exception as e:
             if logflag:
-                logger.info(f"[ delete ] {e}. File {file_path} delete failed for db {KEY_INDEX_NAME}.")
+                logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {KEY_INDEX_NAME}.")
             raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for key index.")
 
         # delete file content in db INDEX_NAME
@@ -476,7 +485,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 search_by_id(self.data_index_client, file_id)
             except Exception as e:
                 if logflag:
-                    logger.info(f"[ delete ] {e}. File {file_path} does not exists.")
+                    logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
                 raise HTTPException(status_code=404, detail=f"File not found in db {INDEX_NAME}. Please check file_path.")
 
             # delete file content
@@ -484,13 +493,13 @@ class OpeaRedisDataprep(OpeaComponent):
                 assert delete_by_id(self.data_index_client, file_id)
             except Exception as e:
                 if logflag:
-                    logger.info(f"[ delete ] {e}. File {file_path} delete failed for db {INDEX_NAME}")
+                    logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {INDEX_NAME}")
                 raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for index.")
 
         # local file does not exist (restarted docker container)
         if not delete_path.exists():
             if logflag:
-                logger.info(f"[ delete ] File {file_path} not saved locally.")
+                logger.info(f"[ redis delete ] File {file_path} not saved locally.")
             return {"status": True}
 
         # delete local file
@@ -498,11 +507,11 @@ class OpeaRedisDataprep(OpeaComponent):
             # delete file on local disk
             delete_path.unlink()
             if logflag:
-                logger.info(f"[ delete ] File {file_path} deleted successfully.")
+                logger.info(f"[ redis delete ] File {file_path} deleted successfully.")
             return {"status": True}
 
         # delete folder
         else:
             if logflag:
-                logger.info(f"[ delete ] Delete folder {file_path} is not supported for now.")
+                logger.info(f"[ redis delete ] Delete folder {file_path} is not supported for now.")
             raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
