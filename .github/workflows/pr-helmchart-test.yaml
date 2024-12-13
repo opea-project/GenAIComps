@@ -1,0 +1,80 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+name: Helm chart test for components
+
+on:
+  pull_request:
+    branches: ["main", "*rc", "refactor_comps"]
+    types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
+    paths:
+      - '**/helm-chart/**'
+      - '**/docker_compose/*.yaml'
+      - "!**.md"
+      - .github/workflows/pr-helmchart-test.yml
+
+# If there is a new commit, the previous jobs will be canceled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  job1:
+    name: get-test-matrix
+    runs-on: ubuntu-latest
+    outputs:
+      run_matrix: ${{ steps.get-test-matrix.outputs.run_matrix }}
+    if: ${{ !github.event.pull_request.draft }}
+    steps:
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+        with:
+          ref: "refs/pull/${{ github.event.number }}/merge"
+          fetch-depth: 0
+      - name: Get test matrix
+        id: get-test-matrix
+        run: |
+          set -x
+          base_commit=${{ github.event.pull_request.base.sha }}
+          merged_commit=$(git log -1 --format='%H')
+          # Trigger by helm chart changes
+          charts_changed=$(git diff --name-only ${base_commit} ${merged_commit} | \
+            grep helm-chart | sed 's/helm-chart.*$/helm-chart\/Chart.yaml/' |sort -u)
+          # Trigger by docker compose changes to verify the compatibility
+          compose_changed=$(git diff --name-only ${base_commit} ${merged_commit} | \
+            grep docker_compose | sed 's/docker_compose.*$/kubernetes\/helm-chart\/Chart.yaml/' |sort -u)
+          # TBD workflow file changes, test one helm chart for sanity check
+          workflow_changed=$(git diff --name-only ${base_commit} ${merged_commit} | \
+            grep pr-helmchart-test.yaml)
+          e2e_charts=$(echo $charts_changed $compose_changed |tr ' ' '\n'|sort -u)
+          run_matrix="{\"include\":["
+          for chart in ${e2e_charts}; do
+            chart_dir=$(dirname $chart)
+            for file in "$chart_dir"/*values.yaml; do
+              if [ -f "$file" ]; then
+                if [[ "$file" == *"nv-values.yaml" ]] || [[ "$file" == *"hpa-values.yaml" ]] || [[ "$file" == *"cpu-values.yaml" ]]; then
+                  continue
+                fi
+                filename=$(basename "$file" .yaml)
+                if [[ "$filename" == *"gaudi"* ]]; then
+                  run_matrix="${run_matrix}{\"workload\":\"${chart_dir}\",\"hardware\":\"gaudi\", \"valuefile\":\"${filename}\"},"
+                else
+                  run_matrix="${run_matrix}{\"workload\":\"${chart_dir}\",\"hardware\":\"xeon\", \"valuefile\":\"${filename}\"},"
+                fi
+              fi
+            done
+          done
+          run_matrix=$run_matrix"]}"
+          echo "run_matrix=${run_matrix}"
+          echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
+  Chart-test:
+    needs: [job1]
+    if: always() && ${{ needs.job1.outputs.run_matrix.workload.length }} > 0
+    uses: ./.github/workflows/_helm-test.yaml
+    strategy:
+      matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
+    with:
+      workload: ${{ matrix.workload }}
+      hardware: ${{ matrix.hardware }}
+      valuefile: ${{ matrix.valuefile }}
+    secrets: inherit
