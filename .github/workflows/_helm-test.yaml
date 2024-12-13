@@ -68,7 +68,7 @@ jobs:
         env:
           workload_path: ${{ inputs.workload }}
         run: |
-          CHART_NAME=$(echo ${workload_path}/Chart.yaml |grep "^name" |cut -d ' ' -f 2)
+          CHART_NAME=$(cat ${workload_path}/Chart.yaml |grep "^name" |cut -d ' ' -f 2)
           USER_ID=$(whoami)
           MODELPATH=/home/$USER_ID/.cache/huggingface/hub
           echo "CHART_NAME=$CHART_NAME" >> $GITHUB_ENV
