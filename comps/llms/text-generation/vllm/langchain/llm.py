@@ -276,7 +276,6 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 temperature=input.temperature,
                 top_p=input.top_p,
                 tools=input.tools,
-                tool_choice=input.tool_choice,
                 parallel_tool_calls=input.parallel_tool_calls,
                 user=input.user,
             )
