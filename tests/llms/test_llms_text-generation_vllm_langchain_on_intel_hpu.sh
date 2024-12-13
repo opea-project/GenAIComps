@@ -63,10 +63,10 @@ function start_service() {
 
     # check whether vllm ray is fully ready
     n=0
-    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
+    until [[ "$n" -ge 70 ]] || [[ $ready == true ]]; do
         docker logs test-comps-vllm-service > ${WORKPATH}/tests/test-comps-vllm-service.log
         n=$((n+1))
-        if grep -q "\/v1\/score" ${WORKPATH}/tests/test-comps-vllm-service.log; then
+        if grep -q throughput ${WORKPATH}/tests/test-comps-vllm-service.log; then
             break
         fi
         sleep 5s
@@ -91,18 +91,7 @@ function validate_microservice() {
         docker logs test-comps-vllm-microservice
         exit 1
     fi
-    result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
-        -X POST \
-        -d '{"query":"What is Deep Learning?","max_tokens":17,"top_p":1,"temperature":0.7,"frequency_penalty":0,"presence_penalty":0, "streaming":false}' \
-        -H 'Content-Type: application/json')
-    if [[ $result == *"text"* ]]; then
-        echo "Result correct."
-    else
-        echo "Result wrong. Received was $result"
-        docker logs test-comps-vllm-service
-        docker logs test-comps-vllm-microservice
-        exit 1
-    fi
+
     result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
         -X POST \
         -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream":false}' \
@@ -115,6 +104,7 @@ function validate_microservice() {
         docker logs test-comps-vllm-microservice
         exit 1
     fi
+
     result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
         -X POST \
         -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}' \

@@ -263,7 +263,6 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
                 presence_penalty=input.presence_penalty,
                 response_format=input.response_format,
                 seed=input.seed,
-                service_tier=input.service_tier,
                 stop=input.stop,
                 stream=input.stream,
                 stream_options=input.stream_options,
