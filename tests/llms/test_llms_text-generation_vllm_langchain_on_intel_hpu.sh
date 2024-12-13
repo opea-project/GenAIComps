@@ -44,6 +44,7 @@ function start_service() {
         -p $port_number:80 \
         -e HABANA_VISIBLE_DEVICES=all \
         -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
+        -e VLLM_SKIP_WARMUP=true \
         --cap-add=sys_nice \
         --ipc=host \
         -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
@@ -62,10 +63,10 @@ function start_service() {
 
     # check whether vllm ray is fully ready
     n=0
-    until [[ "$n" -ge 160 ]] || [[ $ready == true ]]; do
+    until [[ "$n" -ge 15 ]] || [[ $ready == true ]]; do
         docker logs test-comps-vllm-service > ${WORKPATH}/tests/test-comps-vllm-service.log
         n=$((n+1))
-        if grep -q throughput ${WORKPATH}/tests/test-comps-vllm-service.log; then
+        if grep -q "\/v1\/score" ${WORKPATH}/tests/test-comps-vllm-service.log; then
             break
         fi
         sleep 5s
@@ -118,7 +119,7 @@ function validate_microservice() {
         -X POST \
         -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}' \
         -H 'Content-Type: application/json')
-    if [[ $result == *"content"* ]]; then
+    if [[ $result == *"text"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
