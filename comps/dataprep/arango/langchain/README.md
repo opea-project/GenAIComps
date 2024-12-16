@@ -89,7 +89,7 @@ curl -X POST \
     http://localhost:6007/v1/dataprep
 ```
 
-Additional options that can be specified from the config.py file are as follows:
+Additional options that can be specified from the environment variables are as follows (default values are in the config.py file):
 
 OpenAI Configuration:
 - `OPENAI_EMBED_MODEL`: The embedding model to use for the OpenAI service.
