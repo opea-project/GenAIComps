@@ -109,17 +109,21 @@ def ingest_data_to_arango(doc_path: DocPath, graph_name: str, create_embeddings:
     #############################
 
     if OPENAI_API_KEY:
-        logger.info("OpenAI API Key is set. Verifying its validity...")
+        if logflag:
+            logger.info("OpenAI API Key is set. Verifying its validity...")
         openai.api_key = OPENAI_API_KEY
 
         try:
             openai.models.list()
-            logger.info("OpenAI API Key is valid.")
+            if logflag:
+                logger.info("OpenAI API Key is valid.")
             llm = ChatOpenAI(temperature=0, model_name="gpt-4o")
         except openai.error.AuthenticationError:
-            logger.info("OpenAI API Key is invalid.")
+            if logflag:
+                logger.info("OpenAI API Key is invalid.")
         except Exception as e:
-            logger.info(f"An error occurred while verifying the API Key: {e}")
+            if logflag:
+                logger.info(f"An error occurred while verifying the API Key: {e}")
 
     elif TGI_LLM_ENDPOINT:
         llm = HuggingFaceEndpoint(
@@ -151,12 +155,14 @@ def ingest_data_to_arango(doc_path: DocPath, graph_name: str, create_embeddings:
                 allowed_relationships=ALLOWED_RELATIONSHIPS,
             )
     except (TypeError, ValueError) as e:
-        logger.warning(f"Advanced LLMGraphTransformer failed: {e}")
+        if logflag:
+            logger.warning(f"Advanced LLMGraphTransformer failed: {e}")
         # Fall back to basic config
         try:
             llm_transformer = LLMGraphTransformer(llm=llm)
         except (TypeError, ValueError) as e:
-            logger.error(f"Failed to initialize LLMGraphTransformer: {e}")
+            if logflag:
+                logger.error(f"Failed to initialize LLMGraphTransformer: {e}")
             raise
 
     ########################################
@@ -181,7 +187,8 @@ def ingest_data_to_arango(doc_path: DocPath, graph_name: str, create_embeddings:
             # Use local embedding model
             embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)
         else:
-            logger.error("No text embeddings inference endpoint is set.")
+            if logflag:
+                logger.error("No text embeddings inference endpoint is set.")
             embeddings = None
     else:
         embeddings = None
