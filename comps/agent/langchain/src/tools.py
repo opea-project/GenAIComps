@@ -141,4 +141,3 @@ def get_tools_descriptions(file_dir_path: str):
             else:
                 pass
     return tools
-    

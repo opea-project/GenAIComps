@@ -33,4 +33,3 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       port: 9095
-

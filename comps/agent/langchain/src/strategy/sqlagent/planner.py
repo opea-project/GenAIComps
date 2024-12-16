@@ -51,6 +51,7 @@ class AgentNodeLlama:
 
         if args.use_hints:
             from sentence_transformers import SentenceTransformer
+
             self.cols_descriptions, self.values_descriptions = read_hints(args.hints_file)
             self.embed_model = SentenceTransformer("BAAI/bge-large-en-v1.5")
             self.column_embeddings = self.embed_model.encode(self.values_descriptions)
