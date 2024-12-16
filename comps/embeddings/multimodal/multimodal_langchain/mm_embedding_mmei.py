@@ -7,6 +7,7 @@ import time
 
 import requests
 from fastapi.responses import JSONResponse
+from typing import Union
 
 from comps import (
     CustomLogger,
@@ -38,7 +39,7 @@ headers = {"Content-Type": "application/json"}
     output_datatype=EmbedMultimodalDoc,
 )
 @register_statistics(names=["opea_service@multimodal_embedding_mmei_langchain"])
-def embedding(input: MultimodalDoc) -> EmbedDoc:
+def embedding(input: MultimodalDoc) -> Union[EmbedDoc, EmbedMultimodalDoc]:
     start = time.time()
     if logflag:
         logger.info(input)
@@ -48,9 +49,15 @@ def embedding(input: MultimodalDoc) -> EmbedDoc:
         json["text"] = input.text
     elif isinstance(input, TextImageDoc):
         json["text"] = input.text.text
-        img_bytes = input.image.url.load_bytes()
-        base64_img = base64.b64encode(img_bytes).decode("utf-8")
-        json["img_b64_str"] = base64_img
+        base64_img = ""
+        if input.image.url:
+            img_bytes = input.image.url.load_bytes()
+            base64_img = base64.b64encode(img_bytes).decode("utf-8")
+        elif input.image.base64_image:
+            base64_img = input.image.base64_image
+
+        if base64_img:
+            json["img_b64_str"] = base64_img
     else:
         return JSONResponse(status_code=400, content={"message": "Bad request!"})
 
@@ -66,6 +73,9 @@ def embedding(input: MultimodalDoc) -> EmbedDoc:
             res = EmbedDoc(text=input.text, embedding=embed_vector)
         elif isinstance(input, TextImageDoc):
             res = EmbedMultimodalDoc(text=input.text.text, url=input.image.url, embedding=embed_vector)
+
+            if base64_img:
+                res.base64_image = base64_img
     except requests.exceptions.ConnectionError:
         res = JSONResponse(status_code=503, content={"message": "Multimodal embedding endpoint not started!"})
     statistics_dict["opea_service@multimodal_embedding_mmei_langchain"].append_latency(time.time() - start, None)

@@ -28,6 +28,9 @@ from comps import (
 logger = CustomLogger("lvm")
 logflag = os.getenv("LOGFLAG", False)
 
+# The maximum number of images that should be sent to the LVM
+max_images = int(os.getenv("MAX_IMAGES", 1))
+
 
 @register_microservice(
     name="opea_service@lvm",
@@ -76,6 +79,17 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc
         prompt = request.prompt
         max_new_tokens = request.max_new_tokens
 
+    # Limit the number of images being sent to the LVM
+    if isinstance(img_b64_str, list) and len(img_b64_str) > max_images:
+        img_b64_str=img_b64_str[-max_images:]
+
+        # Adjust the number of images tags in the prompt
+        image_tag = "<image>\n"
+        num_tags_in_prompt = prompt.count(image_tag)
+
+        if len(img_b64_str) < num_tags_in_prompt:
+            prompt = prompt.replace(image_tag, "", num_tags_in_prompt - len(img_b64_str))
+
     inputs = {"img_b64_str": img_b64_str, "prompt": prompt, "max_new_tokens": max_new_tokens}
     # forward to the LLaVA server
     response = requests.post(url=f"{lvm_endpoint}/generate", data=json.dumps(inputs), proxies={"http": None})
@@ -98,6 +112,9 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc
 
 if __name__ == "__main__":
     lvm_endpoint = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
+
+    if logflag:
+        logger.info(f"MAX_IMAGES: {max_images}")
 
     logger.info("[LVM] LVM initialized.")
     opea_microservices["opea_service@lvm"].start()

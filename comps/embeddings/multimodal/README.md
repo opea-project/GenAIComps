@@ -170,10 +170,17 @@ docker compose -f docker_compose_multimodal_embedding.yaml up -d
 
 **Compute a joint embedding of an image-text pair**
 
+The image can be passed as a URL:
 ```bash
 curl -X POST http://0.0.0.0:6600/v1/embeddings \
      -H "Content-Type: application/json" \
      -d '{"text": {"text" : "This is some sample text."}, "image" : {"url": "https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true"}}'
+```
+Or as a base64 encoded string:
+```bash
+curl -X POST http://0.0.0.0:6600/v1/embeddings \
+     -H "Content-Type: application/json" \
+     -d '{"text": {"text" : "This is some sample text."}, "image" : {"base64_image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC"}}'
 ```
 
 **Compute an embedding of a text**

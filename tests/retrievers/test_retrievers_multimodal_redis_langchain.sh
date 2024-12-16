@@ -58,6 +58,32 @@ function validate_microservice() {
         docker logs test-comps-retriever-multimodal-redis >> ${LOG_PATH}/retriever.log
         exit 1
     fi
+
+    # Test the retriever with a b64 image that should be passed through
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding},\"img_b64_str\":\"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC\"}" -H 'Content-Type: application/json' "$URL")
+    if [ "$HTTP_STATUS" -eq 200 ]; then
+        echo "[ retriever ] HTTP status is 200. Checking content..."
+        local CONTENT=$(curl -s -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
+
+        if echo "$CONTENT" | grep -q "retrieved_docs"; then
+            echo "[ retriever ] Content has retrieved_docs as expected."
+            if echo "$CONTENT" | grep -q "b64_img_str"; then
+                echo "[ retriever ] Content has b64_img_str as expected."
+            else
+                echo "[ retriever ] Content does not include the b64_img_str: $CONTENT"
+                docker logs test-comps-retriever-multimodal-redis >> ${LOG_PATH}/retriever.log
+                exit 1
+            fi
+        else
+            echo "[ retriever ] Content does not match the expected result: $CONTENT"
+            docker logs test-comps-retriever-multimodal-redis >> ${LOG_PATH}/retriever.log
+            exit 1
+        fi
+    else
+        echo "[ retriever ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-retriever-multimodal-redis >> ${LOG_PATH}/retriever.log
+        exit 1
+    fi
 }
 
 function stop_docker() {
