@@ -128,9 +128,9 @@ async def llm_generate(input: DocSumLLMParams):
     access_token = (
         get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
     )
-    server_kwargs = {}
+    headers = {}
     if access_token:
-        server_kwargs["headers"] = {"Authorization": f"Bearer {access_token}"}
+        headers = {"Authorization": f"Bearer {access_token}"}
 
     ## LLM
     if input.streaming and input.summary_type == "map_reduce":
