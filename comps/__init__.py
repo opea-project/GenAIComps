@@ -38,7 +38,7 @@ from comps.cores.proto.docarray import (
     PIIResponseDoc,
     Audio2text,
     DocSumDoc,
-    DocSumLLMParams
+    DocSumLLMParams,
 )
 
 # Constants

@@ -77,7 +77,7 @@ function validate_services() {
 function validate_microservices() {
     sum_port=5076
     URL="http://${ip_address}:$sum_port/v1/chat/docsum"
-    
+
     validate_services \
         "$URL" \
         'text' \

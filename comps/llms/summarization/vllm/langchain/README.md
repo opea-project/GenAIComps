@@ -124,6 +124,7 @@ curl http://${your_ip}:9000/v1/chat/docsum \
 ```
 
 #### 3.2.2 Long context summarization with "summary_type"
+
 "summary_type" is set to be "stuff" by default, which will let LLM generate summary based on complete input text. In this case please carefully set `MAX_INPUT_TOKENS` and `MAX_TOTAL_TOKENS` according to your model and device memory, otherwise it may exceed LLM context limit and raise error when meet long context.
 
 When deal with long context, you can set "summary_type" to one of "truncate", "map_reduce" and "refine" for better performance.
@@ -164,4 +165,3 @@ curl http://${your_ip}:9000/v1/chat/docsum \
   -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000}' \
   -H 'Content-Type: application/json'
 ```
-
