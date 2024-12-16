@@ -162,20 +162,9 @@ function run_benchmark() {
     python3 test_tag_bench.py --query_file $query_file --output_dir $outdir --output_file $outfile
 }
 
-# echo "Building docker image...."
-# build_docker_images
 
 echo "Preparing data...."
 prepare_data
-
-# echo "Building vllm docker image...."
-# build_vllm_docker_images
-
-# echo "Launching vllm service...."
-# start_vllm_service
-
-# echo "Generating hints_file..."
-# generate_hints_for_benchmark
 
 echo "launching sql_agent_llama service...."
 start_sql_agent_llama_service
@@ -185,9 +174,6 @@ start_sql_agent_llama_service
 
 echo "Running test...."
 run_test
-
-# echo "Running benchmark...."
-# run_benchmark
 
 echo "Removing data...."
 remove_data

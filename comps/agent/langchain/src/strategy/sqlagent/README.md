@@ -37,8 +37,8 @@ The agent node takes user question, hints (optional) and history (when available
 
 ## Limitations
 
-1. Agent connects to local SQLite databases with uri.
-2. Agent is only allowed to issue "SELECT" commands to databases, i.e., agent can only query databases but cannot update databases.
-3. We currently does not support "streaming" agent outputs on the fly for `sql_agent_llama`.
+1. Agent is only allowed to issue "SELECT" commands to databases, i.e., agent can only query databases but cannot update databases.
+2. We currently does not support "streaming" agent outputs on the fly for `sql_agent_llama`.
+3. Users need to pass the SQL database URI to the agent with the `db_path` environment variable. We have only validated SQLite database connected in such way.
 
 Please submit issues if you want new features to be added. We also welcome community contributions!
