@@ -51,6 +51,7 @@ export LLM_MODEL_ID=${your_hf_llm_model}
 export MAX_INPUT_TOKENS=2048
 export MAX_TOTAL_TOKENS=4096
 ```
+Please make sure MAX_TOTAL_TOKENS should be larger than (MAX_INPUT_TOKENS + max_new_tokens + 50), 50 is reserved prompt length.
 
 ### 2.2 Build Docker Image
 
@@ -97,8 +98,8 @@ In DocSum microservice, except for basic LLM parameters, we also support several
 If you want to deal with long context, can select suitable summary type, details in section 3.2.2.
 
 - "summary_type": can be "stuff", "truncate", "map_reduce", "refine", default is "stuff"
-- "chunk_size": default is equal to min( MAX_INPUT_TOKENS, MAX_TOTAL_TOKENS - max_tokens)
-- "chunk_overlap": default is 0.1\*chunk_size
+- "chunk_size": max token length for each chunk. Set to be different default value according to "summary_type".
+- "chunk_overlap": overlap token length between each chunk, default is 0.1\*chunk_size
 
 #### 3.2.1 Basic usage
 
@@ -123,34 +124,43 @@ curl http://${your_ip}:9000/v1/chat/docsum \
 ```
 
 #### 3.2.2 Long context summarization with "summary_type"
-
-"summary_type" is set to be "stuff" by default, which will let LLM generate summary based on complete input tex. In this case it may exceed LLM context limit and raise error when meet long context.
+"summary_type" is set to be "stuff" by default, which will let LLM generate summary based on complete input text. In this case please carefully set `MAX_INPUT_TOKENS` and `MAX_TOTAL_TOKENS` according to your model and device memory, otherwise it may exceed LLM context limit and raise error when meet long context.
 
 When deal with long context, you can set "summary_type" to one of "truncate", "map_reduce" and "refine" for better performance.
 
-Set "summary_type" to "truncate", which will truncate the input text and keep only one chunk.
+**summary_type=truncate**
+
+Truncate mode will truncate the input text and keep only the first chunk, whose length is equal to `min(MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS)`
 
 ```bash
 curl http://${your_ip}:9000/v1/chat/docsum \
   -X POST \
-  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "truncate", "chunk_size": 5000}' \
+  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "truncate", "chunk_size": 2000}' \
   -H 'Content-Type: application/json'
 ```
 
-Set "summary_type" to "map_reduce", which will split the inputs into multiple chunks, map each document to an individual summary, then consolidate those summaries into a single global summary. In this mode, `streaming=True` is not allowed.
+**summary_type=map_reduce**
+
+Map_reduce mode will split the inputs into multiple chunks, map each document to an individual summary, then consolidate those summaries into a single global summary. `streaming=True` is not allowed here.
+
+In this mode, default `chunk_size` is set to be `min(MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS)`
 
 ```bash
 curl http://${your_ip}:9000/v1/chat/docsum \
   -X POST \
-  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 5000, "streaming":false}' \
+  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "streaming":false}' \
   -H 'Content-Type: application/json'
 ```
 
-Set "summary_type" to "refine", which will ssplit the inputs into multiple chunks, generate summary for the first one, then combine with the second, loops over every remaining chunks to get the final summary.
+**summary_type=refine**
+
+Refin mode will split the inputs into multiple chunks, generate summary for the first one, then combine with the second, loops over every remaining chunks to get the final summary.
+
+In this mode, default `chunk_size` is set to be `min(MAX_TOTAL_TOKENS - 2 * input.max_tokens - 128, MAX_INPUT_TOKENS)`.
 
 ```bash
 curl http://${your_ip}:9000/v1/chat/docsum \
   -X POST \
-  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 5000}' \
+  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000}' \
   -H 'Content-Type: application/json'
 ```

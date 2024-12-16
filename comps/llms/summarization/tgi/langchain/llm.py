@@ -9,7 +9,7 @@ from langchain.docstore.document import Document
 from langchain.prompts import PromptTemplate
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
-
+from transformers import AutoTokenizer
 from comps import CustomLogger, DocSumLLMParams, GeneratedDoc, ServiceType, opea_microservices, register_microservice
 from comps.cores.mega.utils import get_access_token
 
@@ -20,8 +20,9 @@ logflag = os.getenv("LOGFLAG", False)
 TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-MAX_INPUT_TOKENS = os.getenv("MAX_INPUT_TOKENS")
-MAX_TOTAL_TOKENS = os.getenv("MAX_TOTAL_TOKENS")
+MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS"))
+MAX_TOTAL_TOKENS = int(os.getenv("MAX_TOTAL_TOKENS"))
+LLM_MODEL_ID = os.getenv("LLM_MODEL_ID")
 
 templ_en = """Write a concise summary of the following:
 
@@ -73,6 +74,7 @@ templ_refine_zh = """\
 async def llm_generate(input: DocSumLLMParams):
     if logflag:
         logger.info(input)
+
     if input.language in ["en", "auto"]:
         templ = templ_en
         templ_refine = templ_refine_en
@@ -93,12 +95,33 @@ async def llm_generate(input: DocSumLLMParams):
             logger.info(PROMPT_REFINE)
 
     ## Split text
-    max_input_tokens = min(MAX_TOTAL_TOKENS - input.max_tokens, MAX_INPUT_TOKENS)
-    chunk_size = input.chunk_size if input.chunk_size > 0 else max_input_tokens
-    chunk_overlap = input.chunk_overlap if input.chunk_overlap > 0 else int(0.1 * chunk_size)
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=input.chunk_overlap)
+    if input.summary_type == "stuff":
+        text_splitter = CharacterTextSplitter()
+    elif input.summary_type in ["truncate", "map_reduce", "refine"]:
+        if input.summary_type == "refine":
+            if MAX_TOTAL_TOKENS <= 2 * input.max_tokens + 128:
+                raise RuntimeError('In Refine mode, Please set MAX_TOTAL_TOKENS larger than (max_tokens * 2 + 128)')
+            max_input_tokens = min(MAX_TOTAL_TOKENS - 2 * input.max_tokens - 128, MAX_INPUT_TOKENS) # 128 is reserved token length for prompt
+        else:
+            if MAX_TOTAL_TOKENS <= input.max_tokens + 50:
+                raise RuntimeError('Please set MAX_TOTAL_TOKENS larger than max_tokens + 50)')
+            max_input_tokens = min(MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS)  # 50 is reserved token length for prompt
+        chunk_size = min(input.chunk_size, max_input_tokens) if input.chunk_size > 0 else max_input_tokens        
+        chunk_overlap = input.chunk_overlap if input.chunk_overlap > 0 else int(0.1 * chunk_size)
+        text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
+            tokenizer=tokenizer,
+            chunk_size=chunk_size, 
+            chunk_overlap=chunk_overlap)
+        if logflag:
+            logger.info(f"set chunk size to: {chunk_size}")
+            logger.info(f"set chunk overlap to: {chunk_overlap}")
+    else:
+        raise NotImplementedError('Please specify the summary_type in "stuff", "truncate", "map_reduce", "refine"')
     texts = text_splitter.split_text(input.query)
     docs = [Document(page_content=t) for t in texts]
+    if logflag:
+        logger.info(f"Split input query into {len(docs)} chunks")
+        logger.info(f"The character length of the first chunk is {len(texts[0])}")
 
     ## Access auth
     access_token = (
@@ -163,11 +186,21 @@ async def llm_generate(input: DocSumLLMParams):
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
         response = await llm_chain.ainvoke(docs)
-        response = response["output_text"]
+
+        if input.summary_type in ["map_reduce", "refine"]:
+            intermediate_steps = response["intermediate_steps"]
+            if logflag:
+                logger.info("intermediate_steps:")
+                logger.info(intermediate_steps)
+
+        output_text = response["output_text"]
         if logflag:
-            logger.info(response)
-        return GeneratedDoc(text=response, prompt=input.query)
+            logger.info("\n\noutput_text:")
+            logger.info(output_text)
+        
+        return GeneratedDoc(text=output_text, prompt=input.query)
 
 
 if __name__ == "__main__":
+    tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL_ID)
     opea_microservices["opea_service@llm_docsum"].start()

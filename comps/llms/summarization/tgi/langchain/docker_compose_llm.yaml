@@ -29,6 +29,7 @@ services:
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS}
       MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
     restart: unless-stopped
 
 networks:
