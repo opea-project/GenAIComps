@@ -25,6 +25,9 @@ from config import (
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
     host_ip,
+    LLM_MODEL_ID,
+    MAX_INPUT_LEN,
+    MAX_OUTPUT_TOKENS,
 )
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
@@ -38,6 +41,7 @@ from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInfer
 from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.text_generation_inference import TextGenerationInference
+from llama_index.llms.openai_like import OpenAILike
 from neo4j import GraphDatabase
 from openai import Client
 from transformers import AutoTokenizer
@@ -55,6 +59,7 @@ from comps.dataprep.utils import (
 nest_asyncio.apply()
 
 import time
+import traceback
 
 from llama_index.core.async_utils import run_jobs
 from llama_index.core.bridge.pydantic import BaseModel, Field
@@ -77,15 +82,13 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         self.llm = llm
         self.driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 
-    def generate_community_summary(self, text):
+    async def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM."""
-        # Get model information from the TGI endpoint
-        model_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
-        max_input_length = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "max_input_length")
+        model_name = LLM_MODEL_ID
+        max_input_length=int(MAX_INPUT_LEN)
         if not model_name or not max_input_length:
             raise ValueError(f"Could not retrieve model information from TGI endpoint: {TGI_LLM_ENDPOINT}")
 
-        # Get the tokenizer
         tokenizer = AutoTokenizer.from_pretrained(model_name)
 
         messages = [
@@ -107,14 +110,15 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         trimmed_messages = trim_messages_to_token_limit(tokenizer, messages, max_input_length)
 
         if OPENAI_API_KEY:
-            response = OpenAI().chat(messages)
+            response = OpenAI().achat(messages)
         else:
-            response = self.llm.chat(trimmed_messages)
+            response = self.llm.achat(trimmed_messages)
 
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
+        
 
-    def build_communities(self):
+    async def build_communities(self):
         """Builds communities from the graph and summarizes them."""
         nx_graph = self._create_nx_graph()
         community_hierarchical_clusters = hierarchical_leiden(nx_graph, max_cluster_size=self.max_cluster_size)
@@ -126,7 +130,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         # self._print_cluster_info(self.entity_info, community_info)
         self.save_entity_info(self.entity_info)
         # entity_from_db = self.read_entity_info()  # to verify if the data is stored in db
-        self._summarize_communities(community_info)
+        await self._summarize_communities(community_info)
         # sum = self.read_all_community_summaries()  # to verify summaries are stored in db
 
     def _create_nx_graph(self):
@@ -234,20 +238,26 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                 entity_info[record["entity_id"]] = [int(cluster_id) for cluster_id in record["cluster_ids"]]
         return entity_info
 
-    def _summarize_communities(self, community_info):
+    async def _summarize_communities(self, community_info, num_workers=5):
         """Generate and store summaries for each community."""
+        # Run tasks concurrently with a limited number of workers
+        tasks=[]
         for community_id, details in community_info.items():
             logger.info(f"Summarizing community {community_id}")
             details_text = "\n".join(details) + "."  # Ensure it ends with a period
-            self.community_summary[community_id] = self.generate_community_summary(details_text)
-
-            # To store summaries in neo4j
-            summary = self.generate_community_summary(details_text)
-            self.store_community_summary_in_neo4j(community_id, summary)
-            # self.community_summary[
-            #     community_id
-            # ] = self.store_community_summary_in_neo4j(community_id, summary)
-
+            tasks.append(self._process_community(community_id, details_text))
+        await run_jobs(
+            tasks,
+            workers=num_workers,
+            show_progress=True,
+            desc="Summarize communities",
+        )
+    async def _process_community(self, community_id, details_text):
+        """Process a single community and store the summary."""
+        summary = await self.generate_community_summary(details_text)
+        self.community_summary[community_id] = summary
+        self.store_community_summary_in_neo4j(community_id, summary)
+    
     def store_community_summary_in_neo4j(self, community_id, summary):
         """Store the community summary in Neo4j."""
         logger.info(f"Community_id: {community_id} type: {type(community_id)}")
@@ -528,14 +538,15 @@ def initialize_graph_store_and_models():
         except Exception as e:
             logger.info(f"An error occurred while verifying the API Key: {e}")
     else:
-        logger.info("NO OpenAI API Key. TGI/TEI endpoints will be used.")
-        llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
-        llm = TextGenerationInference(
-            model_url=TGI_LLM_ENDPOINT,
-            model_name=llm_name,
+        logger.info("NO OpenAI API Key. TGI/VLLM/TEI endpoints will be used.")
+        #works with TGI and VLLM endpoints
+        llm = OpenAILike(
+            model=LLM_MODEL_ID, 
+            api_base=TGI_LLM_ENDPOINT+"/v1",
+            api_key="fake",
             temperature=0.7,
-            max_tokens=1512,  # 512otherwise too shor
-            timeout=1200,  # timeout in seconds
+            max_tokens=MAX_OUTPUT_TOKENS,   # 1512 
+            timeout=1200,  # timeout in seconds)
         )
         emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
         embed_model = TextEmbeddingsInference(
@@ -628,13 +639,15 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     return index
 
 
-def build_communities(index: PropertyGraphIndex):
+async def build_communities(index: PropertyGraphIndex):
     try:
-        index.property_graph_store.build_communities()
+        await index.property_graph_store.build_communities()
         if logflag:
             logger.info("Done building communities.")
     except Exception as e:
         logger.error(f"Error building communities: {e}")
+        error_trace = traceback.format_exc()
+        logger.error(f"Error building communities: {e}\n{error_trace}")
     return True
 
 
@@ -717,7 +730,7 @@ async def ingest_documents(
                     logger.info(f"Successfully saved link {link}")
 
     if files or link_list or skip_ingestion:
-        build_communities(index)  # TEMPORAIRLY DISABLED
+        await build_communities(index) 
         result = {"status": 200, "message": "Data preparation succeeded"}
         if logflag:
             logger.info(result)
