@@ -94,12 +94,24 @@ Additional options that can be specified from the environment variables are as f
 OpenAI Configuration:
 - `OPENAI_EMBED_MODEL`: The embedding model to use for the OpenAI service.
 - `OPENAI_EMBED_DIMENSIONS`: The dimensions for the OpenAI service.
+- `OPENAI_CHAT_MODEL`: The chat model to use for the OpenAI service.
+- `OPENAI_CHAT_TEMPERATURE`: The temperature for the OpenAI service.
 
 ArangoDB Configuration:
+- `YOUR_GRAPH_NAME`: The name of the graph to create. Must be passed in the curl command.
 - `USE_ONE_ENTITY_COLLECTION`: If set to True, the microservice will use a single entity collection for all nodes. If set to False, the microservice will use a separate collection for each node type.
 - `INSERT_ASYNC`: If set to True, the microservice will insert the data asynchronously.
 - `ARANGO_BATCH_SIZE`: The batch size for the microservice to insert the data.
 - `INCLUDE_SOURCE`: If set to True, the microservice will include the source in the data.
+
+Graph Configuration:
+- `ALLOWED_NODES`: The nodes to allow in the graph.
+- `ALLOWED_RELATIONSHIPS`: The relationships to allow in the graph.
+- `NODE_PROPERTIES`: The properties to allow in the nodes.
+- `RELATIONSHIP_PROPERTIES`: The properties to allow in the relationships.
+
+Prompt Configuration:
+- `SYSTEM_PROMPT_PATH`: The path to the system prompt text file. This can be used to specify the specific system prompt for the entity extraction and graph generation steps.
 
 We support table extraction from pdf documents. You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
 
