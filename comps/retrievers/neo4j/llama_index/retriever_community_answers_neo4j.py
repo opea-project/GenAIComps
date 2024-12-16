@@ -9,6 +9,8 @@ from typing import List, Union
 
 import openai
 from config import (
+    LLM_MODEL_ID,
+    MAX_OUTPUT_TOKENS,
     NEO4J_PASSWORD,
     NEO4J_URL,
     NEO4J_USERNAME,
@@ -17,8 +19,6 @@ from config import (
     OPENAI_LLM_MODEL,
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
-    LLM_MODEL_ID,
-    MAX_OUTPUT_TOKENS,
 )
 from llama_index.core import PropertyGraphIndex, Settings
 from llama_index.core.indices.property_graph.sub_retrievers.vector import VectorContextRetriever
@@ -81,7 +81,7 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         # Process community summaries in batches
         community_answers = []
         for i in range(0, len(community_ids), batch_size):
-            batch_ids = community_ids[i:i + batch_size]
+            batch_ids = community_ids[i : i + batch_size]
             batch_summaries = {community_id: community_summaries[community_id] for community_id in batch_ids}
             batch_answers = self.generate_batch_answers_from_summaries(batch_summaries, query_str)
             community_answers.extend(batch_answers)
@@ -181,14 +181,13 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         response = self._llm.chat(messages)
         cleaned_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return cleaned_response
-    
+
     def generate_batch_answers_from_summaries(self, batch_summaries, query):
         """Generate answers from a batch of community summaries based on a given query using LLM."""
         batch_prompts = []
         for community_id, summary in batch_summaries.items():
             prompt = (
-                f"Given the community summary: {summary}, "
-                f"how would you answer the following query? Query: {query}"
+                f"Given the community summary: {summary}, " f"how would you answer the following query? Query: {query}"
             )
             messages = [
                 ChatMessage(role="system", content=prompt),
@@ -202,7 +201,7 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         # Generate answers for the batch
         answers = self.generate_batch_responses(batch_prompts)
         return answers
-    
+
     def generate_batch_responses(self, batch_prompts):
         """Generate responses for a batch of prompts using LLM."""
         responses = {}
@@ -243,11 +242,11 @@ async def initialize_graph_store_and_index():
             logger.info(f"An error occurred while verifying the API Key: {e}")
     else:
         logger.info("No OpenAI API KEY provided. Will use TGI/VLLM and TEI endpoints")
-        #llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
-        #works w VLLM too
+        # llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
+        # works w VLLM too
         llm = OpenAILike(
             model=LLM_MODEL_ID,
-            api_base=TGI_LLM_ENDPOINT+"/v1",
+            api_base=TGI_LLM_ENDPOINT + "/v1",
             api_key="fake",
             timeout=600,
             temperature=0.7,

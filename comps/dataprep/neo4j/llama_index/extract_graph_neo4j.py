@@ -16,6 +16,9 @@ import networkx as nx
 import openai
 import requests
 from config import (
+    LLM_MODEL_ID,
+    MAX_INPUT_LEN,
+    MAX_OUTPUT_TOKENS,
     NEO4J_PASSWORD,
     NEO4J_URL,
     NEO4J_USERNAME,
@@ -25,9 +28,6 @@ from config import (
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
     host_ip,
-    LLM_MODEL_ID,
-    MAX_INPUT_LEN,
-    MAX_OUTPUT_TOKENS,
 )
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
@@ -40,8 +40,8 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
 from llama_index.llms.openai import OpenAI
-from llama_index.llms.text_generation_inference import TextGenerationInference
 from llama_index.llms.openai_like import OpenAILike
+from llama_index.llms.text_generation_inference import TextGenerationInference
 from neo4j import GraphDatabase
 from openai import Client
 from transformers import AutoTokenizer
@@ -85,7 +85,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     async def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM."""
         model_name = LLM_MODEL_ID
-        max_input_length=int(MAX_INPUT_LEN)
+        max_input_length = int(MAX_INPUT_LEN)
         if not model_name or not max_input_length:
             raise ValueError(f"Could not retrieve model information from TGI endpoint: {TGI_LLM_ENDPOINT}")
 
@@ -116,7 +116,6 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
 
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
-        
 
     async def build_communities(self):
         """Builds communities from the graph and summarizes them."""
@@ -241,7 +240,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     async def _summarize_communities(self, community_info, num_workers=5):
         """Generate and store summaries for each community."""
         # Run tasks concurrently with a limited number of workers
-        tasks=[]
+        tasks = []
         for community_id, details in community_info.items():
             logger.info(f"Summarizing community {community_id}")
             details_text = "\n".join(details) + "."  # Ensure it ends with a period
@@ -252,12 +251,13 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
             show_progress=True,
             desc="Summarize communities",
         )
+
     async def _process_community(self, community_id, details_text):
         """Process a single community and store the summary."""
         summary = await self.generate_community_summary(details_text)
         self.community_summary[community_id] = summary
         self.store_community_summary_in_neo4j(community_id, summary)
-    
+
     def store_community_summary_in_neo4j(self, community_id, summary):
         """Store the community summary in Neo4j."""
         logger.info(f"Community_id: {community_id} type: {type(community_id)}")
@@ -539,13 +539,13 @@ def initialize_graph_store_and_models():
             logger.info(f"An error occurred while verifying the API Key: {e}")
     else:
         logger.info("NO OpenAI API Key. TGI/VLLM/TEI endpoints will be used.")
-        #works with TGI and VLLM endpoints
+        # works with TGI and VLLM endpoints
         llm = OpenAILike(
-            model=LLM_MODEL_ID, 
-            api_base=TGI_LLM_ENDPOINT+"/v1",
+            model=LLM_MODEL_ID,
+            api_base=TGI_LLM_ENDPOINT + "/v1",
             api_key="fake",
             temperature=0.7,
-            max_tokens=MAX_OUTPUT_TOKENS,   # 1512 
+            max_tokens=MAX_OUTPUT_TOKENS,  # 1512
             timeout=1200,  # timeout in seconds)
         )
         emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
@@ -730,7 +730,7 @@ async def ingest_documents(
                     logger.info(f"Successfully saved link {link}")
 
     if files or link_list or skip_ingestion:
-        await build_communities(index) 
+        await build_communities(index)
         result = {"status": 200, "message": "Data preparation succeeded"}
         if logflag:
             logger.info(result)
