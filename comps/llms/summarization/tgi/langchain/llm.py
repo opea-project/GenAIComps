@@ -10,6 +10,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from transformers import AutoTokenizer
+
 from comps import CustomLogger, DocSumLLMParams, GeneratedDoc, ServiceType, opea_microservices, register_microservice
 from comps.cores.mega.utils import get_access_token
 
@@ -100,18 +101,21 @@ async def llm_generate(input: DocSumLLMParams):
     elif input.summary_type in ["truncate", "map_reduce", "refine"]:
         if input.summary_type == "refine":
             if MAX_TOTAL_TOKENS <= 2 * input.max_tokens + 128:
-                raise RuntimeError('In Refine mode, Please set MAX_TOTAL_TOKENS larger than (max_tokens * 2 + 128)')
-            max_input_tokens = min(MAX_TOTAL_TOKENS - 2 * input.max_tokens - 128, MAX_INPUT_TOKENS) # 128 is reserved token length for prompt
+                raise RuntimeError("In Refine mode, Please set MAX_TOTAL_TOKENS larger than (max_tokens * 2 + 128)")
+            max_input_tokens = min(
+                MAX_TOTAL_TOKENS - 2 * input.max_tokens - 128, MAX_INPUT_TOKENS
+            )  # 128 is reserved token length for prompt
         else:
             if MAX_TOTAL_TOKENS <= input.max_tokens + 50:
-                raise RuntimeError('Please set MAX_TOTAL_TOKENS larger than max_tokens + 50)')
-            max_input_tokens = min(MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS)  # 50 is reserved token length for prompt
-        chunk_size = min(input.chunk_size, max_input_tokens) if input.chunk_size > 0 else max_input_tokens        
+                raise RuntimeError("Please set MAX_TOTAL_TOKENS larger than max_tokens + 50)")
+            max_input_tokens = min(
+                MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS
+            )  # 50 is reserved token length for prompt
+        chunk_size = min(input.chunk_size, max_input_tokens) if input.chunk_size > 0 else max_input_tokens
         chunk_overlap = input.chunk_overlap if input.chunk_overlap > 0 else int(0.1 * chunk_size)
         text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
-            tokenizer=tokenizer,
-            chunk_size=chunk_size, 
-            chunk_overlap=chunk_overlap)
+            tokenizer=tokenizer, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+        )
         if logflag:
             logger.info(f"set chunk size to: {chunk_size}")
             logger.info(f"set chunk overlap to: {chunk_overlap}")
@@ -197,7 +201,7 @@ async def llm_generate(input: DocSumLLMParams):
         if logflag:
             logger.info("\n\noutput_text:")
             logger.info(output_text)
-        
+
         return GeneratedDoc(text=output_text, prompt=input.query)
 
 
