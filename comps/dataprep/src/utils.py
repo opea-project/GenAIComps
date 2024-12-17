@@ -813,6 +813,19 @@ def format_search_results(response, file_list: list):
     return file_list
 
 
+def format_file_list(file_list: list):
+    res_list = []
+    for file_name in file_list:
+        file_dict = {
+            "name": decode_filename(file_name),
+            "id": decode_filename(file_name),
+            "type": "File",
+            "parent": "",
+        }
+        res_list.append(file_dict)
+    return res_list
+
+
 def remove_folder_with_ignore(folder_path: str, except_patterns: List = []):
     """Remove the specific folder, and ignore some files/folders.
 

@@ -13,7 +13,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.proto.api_protocol import (
     EmbeddingRequest,
     EmbeddingResponse,
@@ -60,6 +59,7 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
 
+
 @register_microservice(
     name="opea_service@embedding",
     service_type=ServiceType.EMBEDDING,
@@ -91,7 +91,7 @@ async def embedding(input: EmbeddingRequest) -> EmbeddingResponse:
         logger.error(f"Error during embedding invocation: {e}")
         raise
 
+
 if __name__ == "__main__":
     logger.info("OPEA Embedding Microservice is starting...")
     opea_microservices["opea_service@embedding"].start()
-

@@ -17,8 +17,7 @@ logflag = os.getenv("LOGFLAG", False)
 
 
 class PredictionguardEmbedding(OpeaComponent):
-    """
-    A specialized embedding component derived from OpeaComponent for interacting with Prediction Guard services.
+    """A specialized embedding component derived from OpeaComponent for interacting with Prediction Guard services.
 
     Attributes:
         client (PredictionGuard): An instance of the PredictionGuard client for embedding generation.
@@ -31,8 +30,7 @@ class PredictionguardEmbedding(OpeaComponent):
         self.model_name = config.get("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
 
     def check_health(self) -> bool:
-        """
-        Checks the health of the Prediction Guard embedding service.
+        """Checks the health of the Prediction Guard embedding service.
 
         This function sends a request to fetch the list of embedding models
         to determine if the service is reachable and operational.
