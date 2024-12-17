@@ -81,28 +81,28 @@ function validate_microservices() {
     validate_services \
         "$URL" \
         'text' \
-        "llm - summarization" \
+        "llm_summarization" \
         "test-comps-llm-sum-tgi-server" \
         '{"query": "What is Deep Learning?"}'
 
     validate_services \
         "$URL" \
         'text' \
-        "llm - summarization" \
+        "llm_summarization" \
         "test-comps-llm-sum-tgi-server" \
         '{"query": "What is Deep Learning?", "summary_type": "truncate"}'
 
     validate_services \
         "$URL" \
         'text' \
-        "llm - summarization" \
+        "llm_summarization" \
         "test-comps-llm-sum-tgi-server" \
         '{"query": "What is Deep Learning?", "summary_type": "map_reduce"}'
 
     validate_services \
         "$URL" \
         'text' \
-        "llm - summarization" \
+        "llm_summarization" \
         "test-comps-llm-sum-tgi-server" \
         '{"query": "What is Deep Learning?", "summary_type": "refine"}'
 }
