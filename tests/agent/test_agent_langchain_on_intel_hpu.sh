@@ -368,44 +368,44 @@ function main() {
     stop_agent_docker
     echo "============================================="
 
-    # # # # test react_llama
-    # start_react_llama_agent_service
-    # echo "===========Testing ReAct Llama ============="
-    # validate_microservice
-    # stop_agent_docker
-    # echo "============================================="
+    # # # test react_llama
+    start_react_llama_agent_service
+    echo "===========Testing ReAct Llama ============="
+    validate_microservice
+    stop_agent_docker
+    echo "============================================="
 
 
-    # # # # test react_langchain
-    # start_react_langchain_agent_service
-    # echo "=============Testing ReAct Langchain============="
-    # validate_microservice_streaming
-    # validate_assistant_api
-    # stop_agent_docker
-    # echo "============================================="
+    # # # test react_langchain
+    start_react_langchain_agent_service
+    echo "=============Testing ReAct Langchain============="
+    validate_microservice_streaming
+    validate_assistant_api
+    stop_agent_docker
+    echo "============================================="
 
-    # # # test sql agent
-    # echo "=============Testing SQL llama============="
-    # validate_sql_agent
-    # stop_docker
-    # echo "============================================="
+    # # test sql agent
+    echo "=============Testing SQL llama============="
+    validate_sql_agent
+    stop_docker
+    echo "============================================="
 
-    # echo "===========Testing Plan Execute VLLM Llama3.1 ============="
-    # start_vllm_service
-    # start_planexec_agent_service_vllm
-    # validate_microservice
-    # stop_agent_docker
-    # stop_vllm_docker
-    # echo "============================================="
+    echo "===========Testing Plan Execute VLLM Llama3.1 ============="
+    start_vllm_service
+    start_planexec_agent_service_vllm
+    validate_microservice
+    stop_agent_docker
+    stop_vllm_docker
+    echo "============================================="
 
-    # echo "===========Testing ReAct Langgraph VLLM llama3.1 ============="
-    # export model_parser=llama3_json
-    # start_vllm_auto_tool_choice_service
-    # start_react_langgraph_agent_service_vllm
-    # validate_microservice
-    # stop_agent_docker
-    # stop_vllm_docker
-    # echo "============================================="
+    echo "===========Testing ReAct Langgraph VLLM llama3.1 ============="
+    export model_parser=llama3_json
+    start_vllm_auto_tool_choice_service
+    start_react_langgraph_agent_service_vllm
+    validate_microservice
+    stop_agent_docker
+    stop_vllm_docker
+    echo "============================================="
 
     # # ==================== OpenAI tests ====================
     # start_ragagent_agent_service_openai
@@ -425,9 +425,9 @@ function main() {
     # validate_microservice
     # stop_agent_docker
 
-    # stop_docker
+    stop_docker
 
-    # echo y | docker system prune 2>&1 > /dev/null
+    echo y | docker system prune 2>&1 > /dev/null
 }
 
 main
