@@ -13,12 +13,12 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding-pg:comps -f comps/embeddings/predictionguard/Dockerfile .
+    docker build --no-cache -t opea/embedding:comps -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/embedding-pg built fail"
+        echo "opea/embedding built fail"
         exit 1
     else
-        echo "opea/embedding-pg built successfully"
+        echo "opea/embedding built successfully"
     fi
 }
 
@@ -28,7 +28,7 @@ function start_service() {
     docker run -d --name=test-comps-embedding-pg-server \
     -e LOGFLAG=True -e http_proxy= -e https_proxy= \
     -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
-    -p 6000:6000 --ipc=host opea/embedding-pg:comps
+    -p 6000:6000 --ipc=host opea/embedding:comps
     sleep 60  # Sleep for 1 minute to allow the service to start
 }
 

@@ -10,17 +10,17 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding-multimodal:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/embeddings/multimodal_clip/Dockerfile .
+    docker build --no-cache -t opea/embedding:comps -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/embedding-multimodal built fail"
+        echo "opea/embedding built fail"
         exit 1
     else
-        echo "opea/embedding-multimodal built successful"
+        echo "opea/embedding built successfully"
     fi
 }
 
 function start_service() {
-    docker run -d --name="test-embedding-multimodal-server" -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5038:6000 --ipc=host  opea/embedding-multimodal:comps
+    docker run -d --name="test-embedding-multimodal-server" -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5038:6000 --ipc=host  opea/embedding:comps
     sleep 3m
 }
 

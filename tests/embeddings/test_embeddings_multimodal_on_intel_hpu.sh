@@ -13,16 +13,15 @@ export your_embedding_port_microservice=6608
 export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 unset http_proxy
 
-function build_mmei_docker_images() {
+function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding-multimodal-bridgetower:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal/bridgetower/Dockerfile.intel_hpu .
-
+    docker build --no-cache -t opea/embedding:comps -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/embedding-multimodal-bridgetower built fail"
+        echo "opea/embedding built fail"
         exit 1
     else
-        echo "opea/embedding-multimodal-bridgetower built successful"
+        echo "opea/embedding built successfully"
     fi
 }
 

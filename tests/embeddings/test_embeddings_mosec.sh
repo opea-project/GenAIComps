@@ -10,24 +10,24 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_mosec_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy --no-cache -t opea/embedding-langchain-mosec-endpoint:comps -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
+    docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy --no-cache -t opea/embedding-mosec-serve:comps -f comps/3rd_parties/mosec/deployment/docker/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/embedding-langchain-mosec-endpoint built fail"
+        echo "opea/embedding-mosec-serve built fail"
         exit 1
     else
-        echo "opea/embedding-langchain-mosec-endpoint built successful"
+        echo "opea/embedding-mosec-serve built successful"
     fi
 }
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy --no-cache -t opea/embedding-langchain-mosec:comps -f comps/embeddings/mosec/langchain/Dockerfile .
+    docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy --no-cache -t opea/embedding:comps -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/embedding-langchain-mosec built fail"
+        echo "opea/embedding built fail"
         exit 1
     else
-        echo "opea/embedding-langchain-mosec built successful"
+        echo "opea/embedding built successful"
     fi
 }
 
@@ -35,10 +35,10 @@ function start_service() {
     mosec_endpoint=5001
     model="BAAI/bge-base-en-v1.5"
     unset http_proxy
-    docker run -d --name="test-comps-embedding-langchain-mosec-endpoint" -p $mosec_endpoint:8000  opea/embedding-langchain-mosec-endpoint:comps
+    docker run -d --name="test-comps-embedding-mosec-serve" -p $mosec_endpoint:8000  opea/embedding-mosec-serve:comps
     export MOSEC_EMBEDDING_ENDPOINT="http://${ip_address}:${mosec_endpoint}"
     mosec_service_port=5002
-    docker run -d --name="test-comps-embedding-langchain-mosec-server" -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${mosec_service_port}:6000 --ipc=host -e MOSEC_EMBEDDING_ENDPOINT=$MOSEC_EMBEDDING_ENDPOINT  opea/embedding-langchain-mosec:comps
+    docker run -d --name="test-comps-embedding-mosec-server" -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${mosec_service_port}:6000 --ipc=host -e MOSEC_EMBEDDING_ENDPOINT=$MOSEC_EMBEDDING_ENDPOINT  opea/embedding:comps
     sleep 3m
 }
 
@@ -78,7 +78,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-embedding-langchain-mosec-*")
+    cid=$(docker ps -aq --filter "test-comps-embedding-mosec-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

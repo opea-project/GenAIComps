@@ -13,23 +13,22 @@ export your_embedding_port_microservice=6609
 export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 unset http_proxy
 
-function build_mmei_docker_images() {
+function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding-multimodal-bridgetower:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal/bridgetower/Dockerfile .
-
+    docker build --no-cache -t opea/embedding:comps -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/embedding-multimodal-bridgetower built fail"
+        echo "opea/embedding built fail"
         exit 1
     else
-        echo "opea/embedding-multimodal-bridgetower built successful"
+        echo "opea/embedding built successfully"
     fi
 }
 
 function build_embedding_service_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/multimodal/multimodal_langchain/Dockerfile .
+    docker build --no-cache -t opea/embedding-multimodal:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/src/integrations/dependency/bridgetower/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/embedding-multimodal built fail"
@@ -46,10 +45,10 @@ function build_docker_images() {
 
 function start_service() {
     cd $WORKPATH
-    cd comps/embeddings/multimodal/bridgetower/
+    cd comps/embeddings/deployment/docker_compose/
     docker compose -f docker_compose_bridgetower_embedding_endpoint.yaml up -d
     cd $WORKPATH
-    cd comps/embeddings/multimodal/multimodal_langchain/
+    cd comps/embeddings/deployment/docker_compose/
     docker compose -f docker_compose_multimodal_embedding.yaml up -d
     sleep 2m
 }
