@@ -21,14 +21,16 @@ function build_docker_images() {
 
 function start_service() {
     tgi_endpoint_port=5075
-    export your_hf_llm_model="Intel/neural-chat-7b-v3-3"
+    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export MAX_INPUT_TOKENS=2048
+    export MAX_TOTAL_TOKENS=4096
     # Remember to set HF_TOKEN before invoking this test!
     export HF_TOKEN=${HF_TOKEN}
-    docker run -d --name="test-comps-llm-sum-tgi-endpoint" -p $tgi_endpoint_port:80 -v ./data:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${your_hf_llm_model}
+    docker run -d --name="test-comps-llm-sum-tgi-endpoint" -p $tgi_endpoint_port:80 -v ./data:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${LLM_MODEL_ID} --max-input-length ${MAX_INPUT_TOKENS} --max-total-tokens ${MAX_TOTAL_TOKENS}
     export TGI_LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
 
     sum_port=5076
-    docker run -d --name="test-comps-llm-sum-tgi-server" -p ${sum_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm-sum-tgi:comps
+    docker run -d --name="test-comps-llm-sum-tgi-server" -p ${sum_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e LLM_MODEL_ID=$LLM_MODEL_ID -e MAX_INPUT_TOKENS=$MAX_INPUT_TOKENS -e MAX_TOTAL_TOKENS=$MAX_TOTAL_TOKENS -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm-sum-tgi:comps
 
     # check whether tgi is fully ready
     n=0
