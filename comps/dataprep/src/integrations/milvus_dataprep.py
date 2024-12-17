@@ -108,7 +108,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
                 batch_docs,
                 embeddings,
                 collection_name=COLLECTION_NAME,
-                connection_args={"uri": milvus_uri},
+                connection_args={"uri": MILVUS_URI},
                 partition_key_field=partition_field_name,
             )
         except Exception as e:

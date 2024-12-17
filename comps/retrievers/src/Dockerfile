@@ -19,10 +19,10 @@ USER user
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/multimodal/redis/langchain/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/multimodal/redis/langchain
+WORKDIR /home/user/comps/retrievers/src
 
-ENTRYPOINT ["python", "retriever_redis.py"]
+ENTRYPOINT ["python", "opea_retrievers_microservice.py"]

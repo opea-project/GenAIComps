@@ -3,10 +3,10 @@
 
 import os
 
-current_file_path = os.path.abspath(__file__)
-parent_dir = os.path.dirname(current_file_path)
 
-
+#######################################################
+#                Common Functions                     #
+#######################################################
 def get_boolean_env_var(var_name, default_value=False):
     """Retrieve the boolean value of an environment variable.
 
@@ -14,6 +14,7 @@ def get_boolean_env_var(var_name, default_value=False):
     var_name (str): The name of the environment variable to retrieve.
     default_value (bool): The default value to return if the variable
     is not found.
+
     Returns:
     bool: The value of the environment variable, interpreted as a boolean.
     """
@@ -32,27 +33,31 @@ def get_boolean_env_var(var_name, default_value=False):
         return default_value
 
 
-# Check for openai API key
-# if "OPENAI_API_KEY" not in os.environ:
-#    raise Exception("Must provide an OPENAI_API_KEY as an env var.")
-
-
 # Whether or not to enable langchain debugging
 DEBUG = get_boolean_env_var("DEBUG", False)
 # Set DEBUG env var to "true" if you wish to enable LC debugging module
 if DEBUG:
     import langchain
-
     langchain.debug = True
 
-
 # Embedding model
-EMBED_MODEL = os.getenv("EMBED_MODEL", "BridgeTower/bridgetower-large-itm-mlm-itc")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
-# Redis Connection Information
+# Vector Index Configuration
+INDEX_NAME = os.getenv("INDEX_NAME", "rag-redis")
+
+# Directory pathss
+current_file_path = os.path.abspath(__file__)
+parent_dir = os.path.dirname(current_file_path)
+
+
+
+#######################################################
+#                     Redis                           #
+#######################################################
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
-
 
 def format_redis_conn_from_env():
     redis_url = os.getenv("REDIS_URL", None)
@@ -70,14 +75,4 @@ def format_redis_conn_from_env():
 
         return start + f"{REDIS_HOST}:{REDIS_PORT}"
 
-
 REDIS_URL = format_redis_conn_from_env()
-
-# Vector Index Configuration
-INDEX_NAME = os.getenv("INDEX_NAME", "test-index")
-
-current_file_path = os.path.abspath(__file__)
-parent_dir = os.path.dirname(current_file_path)
-REDIS_SCHEMA = os.getenv("REDIS_SCHEMA", "schema.yml")
-schema_path = os.path.join(parent_dir, REDIS_SCHEMA)
-INDEX_SCHEMA = schema_path
