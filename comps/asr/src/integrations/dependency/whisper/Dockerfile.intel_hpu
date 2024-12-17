@@ -28,6 +28,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/users
 
-WORKDIR /home/user/comps/asr/src/integations/dependency/whisper
+WORKDIR /home/user/comps/asr/src/integrations/dependency/whisper
 
 ENTRYPOINT ["python", "whisper_server.py", "--device", "hpu"]

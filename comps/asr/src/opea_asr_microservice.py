@@ -6,25 +6,20 @@ import time
 from typing import List
 
 from fastapi import File, Form, UploadFile
+from integrations.opea_whisper_asr import OpeaWhisperAsr
 
 from comps import (
-    CustomLogger,
-    OpeaComponentController,
     Base64ByteStrDoc,
+    CustomLogger,
     LLMParamsDoc,
+    OpeaComponentController,
     ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
-
-from comps.cores.proto.api_protocol import (
-    AudioTranscriptionResponse,
-)
-
-
-from integrations.opea_whisper_asr import OpeaWhisperAsr
+from comps.cores.proto.api_protocol import AudioTranscriptionResponse
 
 logger = CustomLogger("opea_asr_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -47,6 +42,7 @@ try:
     controller.discover_and_activate()
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
+
 
 @register_microservice(
     name="opea_service@asr",
@@ -91,7 +87,6 @@ async def audio_to_text(
     except Exception as e:
         logger.error(f"Error during asr invocation: {e}")
         raise
-
 
 
 if __name__ == "__main__":
