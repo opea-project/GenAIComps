@@ -42,7 +42,7 @@ services:
     image: milvusdb/milvus:v2.4.9
     command: ["milvus", "run", "standalone"]
     security_opt:
-    - seccomp:unconfined
+      - seccomp:unconfined
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
@@ -62,28 +62,30 @@ services:
       - "etcd"
       - "minio"
 
-  dataprep-redis-service:
-    image: ${REGISTRY:-opea}/dataprep-milvus:${TAG:-latest}
+  retriever-server:
+    image: opea/retriever-milvus:latest
     build:
       context: ../../../..
-      dockerfile: ./comps/dataprep/milvus/langchain/Dockerfile
+      dockerfile: ./comps/retrievers/milvus/langchain/Dockerfile
       args:
         http_proxy: ${http_proxy}
         https_proxy: ${https_proxy}
-    container_name: test-comps-dataprep-milvus-server
+    container_name: retriever-milvus-server
     ports:
-      - "6007:6007"
-    depends_on:
-      - standalone
-      - tei-embedding-service
+      - "7000:7000"
+    ipc: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      MILVUS_HOST: ${MILVUS_HOST}
+      MILVUS_HOST: ${host_ip}
       MILVUS_PORT: ${MILVUS_PORT}
       TEI_EMBEDDING_ENDPOINT: http://tei-embedding-service:80
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+    depends_on:
+      - tei-embedding-service
+      - standalone
+    restart: unless-stopped
 
   tei-embedding-service:
     image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5

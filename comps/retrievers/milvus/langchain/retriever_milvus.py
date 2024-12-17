@@ -69,9 +69,10 @@ class MosecEmbeddings(OpenAIEmbeddings):
 async def retrieve(input: EmbedDoc) -> SearchedDoc:
     if logflag:
         logger.info(input)
+    url = "http://" + str(MILVUS_HOST) + ":" + str(MILVUS_PORT)
     vector_db = Milvus(
         embeddings,
-        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT, "uri": url},
         collection_name=COLLECTION_NAME,
     )
     start = time.time()
@@ -114,6 +115,7 @@ if __name__ == "__main__":
         if logflag:
             logger.info(f"[ retriever_milvus ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
         embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+        print("embeddings info:", embeddings)
     else:
         # create embeddings using local embedding model
         if logflag:
