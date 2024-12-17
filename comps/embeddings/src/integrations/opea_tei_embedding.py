@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import aiohttp
+import requests
 from typing import List, Union
 import os
 import json
@@ -16,7 +16,9 @@ from comps.cores.proto.api_protocol import (
 
 logger = CustomLogger("opea_tei_embedding")
 logflag = os.getenv("LOGFLAG", False)
-
+TOKEN_URL = os.getenv("TOKEN_URL")
+CLIENTID = os.getenv("CLIENTID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 class OpeaTEIEmbedding(OpeaComponent):
     """
@@ -29,17 +31,16 @@ class OpeaTEIEmbedding(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.EMBEDDING.name.lower(), description, config)
+        self.access_url = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080/v1/embeddings")
+        self.base_url = self.access_url.removesuffix("/v1/embeddings")
         self.client = self._initialize_client()
-        self.base_url = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080/v1/embeddings")
 
     def _initialize_client(self) -> AsyncInferenceClient:
         """Initializes the AsyncInferenceClient."""
-        access_token = get_access_token(
-            os.getenv("TOKEN_URL"), os.getenv("CLIENTID"), os.getenv("CLIENT_SECRET")
-        )
+        access_token = (get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None)
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
-            model=self.base_url,
+            model=self.access_url,
             token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
@@ -69,7 +70,7 @@ class OpeaTEIEmbedding(OpeaComponent):
         embeddings = json.loads(response.decode())
         return EmbeddingResponse(**embeddings)
 
-    async def check_health(self) -> bool:
+    def check_health(self) -> bool:
         """
         Checks the health of the embedding service.
 
@@ -77,12 +78,12 @@ class OpeaTEIEmbedding(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(f"{self.base_url}/health") as response:
-                    # If status is 200, the service is considered alive
-                    if response.status == 200:
-                        return True
-        except aiohttp.ClientError as e:
+            response = requests.get(f"{self.base_url}/health")
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception as e:
             # Handle connection errors, timeouts, etc.
             print(f"Health check failed: {e}")
         return False

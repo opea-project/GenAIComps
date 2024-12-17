@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import aiohttp
+import requests
 import os
 from openai import Client
 
@@ -57,7 +57,7 @@ class OpeaMosecEmbedding(OpeaComponent):
         )
         return embeddings
 
-    async def check_health(self) -> bool:
+    def check_health(self) -> bool:
         """
         Checks the health of the embedding service.
 
@@ -65,13 +65,13 @@ class OpeaMosecEmbedding(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            async with aiohttp.ClientSession() as client:
-                # There is no '/health' endpoint in MOSEC, use '/metrics' as replacement
-                async with client.get(f"{self.base_url}/metrics") as response:
-                    # If status is 200, the service is considered alive
-                    if response.status == 200:
-                        return True
-        except aiohttp.ClientError as e:
+            response = requests.get(f"{self.base_url}/metrics")
+            # If status is 200, the service is considered alive
+            if response.status_cide == 200:
+                return True
+            else:
+                return False
+        except Exception as e:
             # Handle connection errors, timeouts, etc.
             print(f"Health check failed: {e}")
         return False

@@ -52,7 +52,7 @@ class OpeaComponent(ABC):
         self.config[key] = value
 
     @abstractmethod
-    async def check_health(self) -> bool:
+    def check_health(self) -> bool:
         """Checks the health of the component.
 
         Returns:

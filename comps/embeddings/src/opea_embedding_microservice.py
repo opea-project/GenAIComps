@@ -77,7 +77,7 @@ async def embedding(input: EmbeddingRequest) -> EmbeddingResponse:
 
     try:
         # Use the controller to invoke the active component
-        embedding_response = controller.invoke(input)
+        embedding_response = await controller.invoke(input)
 
         # Log the result if logging is enabled
         if logflag:
@@ -93,5 +93,5 @@ async def embedding(input: EmbeddingRequest) -> EmbeddingResponse:
 
 
 if __name__ == "__main__":
-    logger.info("OPEA Embedding Microservice is starting...")
     opea_microservices["opea_service@embedding"].start()
+    logger.info("OPEA Embedding Microservice is up and running successfully...")

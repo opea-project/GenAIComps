@@ -32,7 +32,7 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.EMBEDDING.name.lower(), description, config)
-        self.url = os.getenv("MMEI_EMBEDDING_HOST_ENDPOINT", "http://0.0.0.0")
+        self.url = os.getenv("MMEI_EMBEDDING_HOST_ENDPOINT", "http://127.0.0.1")
         self.port = os.getenv("MMEI_EMBEDDING_PORT_ENDPOINT", "8080")
         self.endpoint = os.getenv("MMEI_EMBEDDING_PATH_ENDPOINT", "/v1/encode")
 
@@ -72,14 +72,14 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
             res = JSONResponse(status_code=503, content={"message": "Multimodal embedding endpoint not started!"})
         return res
 
-    async def check_health(self) -> bool:
+    def check_health(self) -> bool:
         """Check the health of the microservice by making a GET request to /v1/health_check."""
         try:
-            response = requests.get(f"http://{self.url}:{self.port}/v1/health_check")
+            response = requests.get(f"{self.url}:{self.port}/v1/health_check")
             if response.status_code == 200:
                 return True
-            self.logger.error("Health check failed with status code: {response.status_code}")
+            logger.info("Health check failed with status code: {response.status_code}")
             return False
         except requests.exceptions.RequestException as e:
-            self.logger.error(f"Health check exception: {e}")
+            logger.info(f"Health check exception: {e}")
             return False

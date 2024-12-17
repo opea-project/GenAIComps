@@ -14,7 +14,7 @@ from comps.cores.proto.api_protocol import (
 
 logger = CustomLogger("predictionguard_embedding")
 logflag = os.getenv("LOGFLAG", False)
-
+api_key = os.getenv("PREDICTIONGUARD_API_KEY", "")
 
 class PredictionguardEmbedding(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for interacting with Prediction Guard services.
@@ -26,8 +26,13 @@ class PredictionguardEmbedding(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.EMBEDDING.name.lower(), description, config)
-        self.client = PredictionGuard()
-        self.model_name = config.get("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
+        api_key = os.getenv("PREDICTIONGUARD_API_KEY")
+        self.client = None
+        if api_key:
+            self.client = PredictionGuard(api_key=api_key)
+        else:
+            logger.info("No PredictionGuard API KEY provided, client not instantiated")
+        self.model_name = os.getenv("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
 
     def check_health(self) -> bool:
         """Checks the health of the Prediction Guard embedding service.
@@ -39,9 +44,11 @@ class PredictionguardEmbedding(OpeaComponent):
             bool: True if the service returns a valid model list, False otherwise.
         """
         try:
+            if not self.client:
+                return False
             # Send a request to retrieve the list of models
             model_list = self.client.embeddings.create()
-            
+
             # Check if the response (model list) is not empty
             if model_list and isinstance(model_list, list):
                 logger.info("Prediction Guard embedding service is healthy. Model list retrieved.")
@@ -84,4 +91,3 @@ class PredictionguardEmbedding(OpeaComponent):
             data=[EmbeddingResponseData(index=i, embedding=embed_vector[i]) for i in range(len(embed_vector))]
         )
         return res
-
