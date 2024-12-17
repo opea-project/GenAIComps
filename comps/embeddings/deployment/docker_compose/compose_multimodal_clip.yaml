@@ -5,8 +5,8 @@ version: "3.8"
 
 services:
   embedding:
-    image: opea/embedding-multimodal:latest
-    container_name: embedding-multimodal-server
+    image: opea/embedding:latest
+    container_name: embedding-multimodal-clip-server
     ports:
       - "6000:6000"
     ipc: host
@@ -14,7 +14,6 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
     restart: unless-stopped
 
 networks:

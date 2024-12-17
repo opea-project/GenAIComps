@@ -3,8 +3,8 @@
 
 services:
   embedding-multimodal:
-    image: opea/embedding-multimodal:latest
-    container_name: embedding-multimodal
+    image: opea/embedding:latest
+    container_name: embedding-multimodal-bridgetower
     ports:
       - ${MM_EMBEDDING_PORT_MICROSERVICE}:${MM_EMBEDDING_PORT_MICROSERVICE}
     ipc: host

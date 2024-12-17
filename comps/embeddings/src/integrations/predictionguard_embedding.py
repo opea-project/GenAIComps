@@ -3,11 +3,14 @@
 
 
 import os
-from typing import List, Union
 
 from predictionguard import PredictionGuard
-
-from comps import CustomLogger, OpeaComponent, ServiceType
+from comps import OpeaComponent, CustomLogger, ServiceType
+from comps.cores.proto.api_protocol import (
+    EmbeddingRequest,
+    EmbeddingResponse,
+    EmbeddingResponseData
+)
 
 logger = CustomLogger("predictionguard_embedding")
 logflag = os.getenv("LOGFLAG", False)
@@ -29,35 +32,56 @@ class PredictionguardEmbedding(OpeaComponent):
     def check_health(self) -> bool:
         """Checks the health of the Prediction Guard embedding service.
 
+        This function sends a request to fetch the list of embedding models
+        to determine if the service is reachable and operational.
+
         Returns:
-            bool: True if the service is reachable and healthy, False otherwise.
+            bool: True if the service returns a valid model list, False otherwise.
         """
         try:
-            # Simulating a health check request to Prediction Guard
-            response = self.client.health_check()
-            return response.get("status", "") == "healthy"
+            # Send a request to retrieve the list of models
+            model_list = self.client.embeddings.create()
+            
+            # Check if the response (model list) is not empty
+            if model_list and isinstance(model_list, list):
+                logger.info("Prediction Guard embedding service is healthy. Model list retrieved.")
+                return True
+            else:
+                # Log a warning if the model list is empty or invalid
+                logger.warning(f"Health check failed. Invalid or empty model list: {model_list}")
+                return False
+
         except Exception as e:
-            logger.error(f"Health check failed: {e}")
+            # Handle exceptions such as network errors or unexpected failures
+            logger.error(f"Health check failed due to an exception: {e}")
             return False
 
-    async def invoke(self, input: Union[str, List[str]]) -> List[List[float]]:
-        """Invokes the Prediction Guard embedding service to generate embeddings for the provided input.
+
+    async def invoke(self, input: EmbeddingRequest) -> EmbeddingResponse:
+        """
+        Invokes the embedding service to generate embeddings for the provided input.
 
         Args:
-            input (Union[str, List[str]]): The input text(s) for which embeddings are to be generated.
+            input (EmbeddingRequest): The input in OpenAI embedding format, including text(s) and optional parameters like model.
 
         Returns:
-            List[List[float]]: A list of embedding vectors for the input text(s).
+            EmbeddingResponse: The response in OpenAI embedding format, including embeddings, model, and usage information.
         """
-        try:
-            texts = [input] if isinstance(input, str) else input
-            request_payload = [{"text": text} for text in texts]
+        # Parse input according to the EmbeddingRequest format
+        if isinstance(input.input, str):
+            texts = [input.input.replace("\n", " ")]
+        elif isinstance(input.input, list):
+            if all(isinstance(item, str) for item in input.input):
+                texts = [text.replace("\n", " ") for text in input.input]
+            else:
+                raise ValueError("Invalid input format: Only string or list of strings are supported.")
+        else:
+            raise TypeError("Unsupported input type: input must be a string or list of strings.")
+        response = await self.client.embeddings.create(model=self.model_name, input=texts)["data"]
+        embed_vector = [response[i]["embedding"] for i in range(len(response))]
+        # for standard openai embedding format
+        res = EmbeddingResponse(
+            data=[EmbeddingResponseData(index=i, embedding=embed_vector[i]) for i in range(len(embed_vector))]
+        )
+        return res
 
-            response = self.client.embeddings.create(model=self.model_name, input=request_payload)["data"]
-            embeddings = [item["embedding"] for item in response]
-
-            logger.info(f"Generated embeddings for input: {input}")
-            return embeddings
-        except Exception as e:
-            logger.error(f"Failed to generate embeddings: {e}")
-            raise
