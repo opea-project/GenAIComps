@@ -52,7 +52,7 @@ class OpeaComponent(ABC):
         self.config[key] = value
 
     @abstractmethod
-    def check_health(self) -> bool:
+    async def check_health(self) -> bool:
         """Checks the health of the component.
 
         Returns:
@@ -61,7 +61,7 @@ class OpeaComponent(ABC):
         pass
 
     @abstractmethod
-    def invoke(self, *args, **kwargs):
+    async def invoke(self, *args, **kwargs):
         """Invoke service accessing using the component.
 
         Args:
@@ -121,7 +121,7 @@ class OpeaComponentController(ABC):
                 return
         raise RuntimeError("No healthy components available.")
 
-    def invoke(self, *args, **kwargs):
+    async def invoke(self, *args, **kwargs):
         """Invokes service accessing using the active component.
 
         Args:
@@ -136,7 +136,7 @@ class OpeaComponentController(ABC):
         """
         if not self.active_component:
             raise RuntimeError("No active component. Call 'discover_and_activate' first.")
-        return self.active_component.invoke(*args, **kwargs)
+        return await self.active_component.invoke(*args, **kwargs)
 
     def list_components(self):
         """Lists all registered components.
