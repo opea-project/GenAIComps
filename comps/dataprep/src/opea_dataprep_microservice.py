@@ -30,17 +30,17 @@ controller = OpeaDataprepController()
 # Register components
 try:
     # Instantiate OpeaEmbedding and PredictionguardEmbedding components
-    redis_embedding = OpeaRedisDataprep(
+    redis_dataprep = OpeaRedisDataprep(
         name="OpeaRedisDataprep",
         description="OPEA Redis Dataprep Service",
     )
-    milvus_embedding = OpeaMilvusDataprep(
+    milvus_dataprep = OpeaMilvusDataprep(
         name="OpeaMilvusDataprep",
         description="OPEA Milvus Dataprep Service",
     )
     # Register components with the controller
-    controller.register(redis_embedding)
-    controller.register(milvus_embedding)
+    controller.register(redis_dataprep)
+    controller.register(milvus_dataprep)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
