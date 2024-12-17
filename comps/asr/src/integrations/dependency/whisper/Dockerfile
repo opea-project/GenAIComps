@@ -20,16 +20,16 @@ COPY --chown=user:user comps /home/user/comps
 USER user
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/asr/whisper/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
     if [ "${ARCH}" = "cpu" ]; then \
         pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/asr/whisper/requirements.txt ; \
+        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/asr/src/requirements.txt ; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/asr/whisper/requirements.txt ; \
+        pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt ; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/asr/whisper/dependency
+WORKDIR /home/user/comps/asr/src/integations/dependency/whisper
 
 ENTRYPOINT ["python", "whisper_server.py", "--device", "cpu"]

@@ -20,11 +20,24 @@ urllib.request.urlretrieve(
     file_name,
 )
 
-with open(file_name, "rb") as f:
-    test_audio_base64_str = base64.b64encode(f.read()).decode("utf-8")
-os.remove(file_name)
-
 endpoint = "http://localhost:9099/v1/audio/transcriptions"
-inputs = {"byte_str": test_audio_base64_str}
-response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None})
-print(response.json())
+headers = {"accept": "application/json"}
+
+# Prepare the data and files
+data = {
+    "model": "openai/whisper-small",
+    "language": "english",
+}
+
+try:
+    with open(file_name, "rb") as audio_file:
+        files = {"file": (file_name, audio_file)}
+        response = requests.post(endpoint, headers=headers, data=data, files=files)
+        if response.status_code != 200:
+            print(f"Failure with {response.reason}!")
+        else:
+            print(response.json())
+except Exception as e:
+    print(f"Failure with {e}!")
+
+os.remove(file_name)

@@ -17,7 +17,7 @@ pip install -r requirements.txt
 - Xeon CPU
 
 ```bash
-cd dependency/
+cd integrations/dependency/whisper
 nohup python whisper_server.py --device=cpu &
 python check_whisper_server.py
 ```
@@ -51,15 +51,15 @@ curl http://localhost:7066/v1/audio/transcriptions \
 ### 1.3 Start ASR Service/Test
 
 ```bash
-cd ../
-python asr.py
+cd ../../..
+python opea_asr_microservice.py
 python check_asr_server.py
 ```
 
 While the Whisper service is running, you can start the ASR service. If the ASR service is running properly, you should see the output similar to the following:
 
 ```bash
-{'id': '0e686efd33175ce0ebcf7e0ed7431673', 'text': 'who is pat gelsinger'}
+{'text': 'who is pat gelsinger'}
 ```
 
 ## 🚀2. Start Microservice with Docker (Option 2)
@@ -74,20 +74,20 @@ Alternatively, you can also start the ASR microservice with Docker.
 
 ```bash
 cd ../..
-docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/dependency/Dockerfile .
+docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
 cd ../..
-docker build -t opea/whisper-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/dependency/Dockerfile.intel_hpu .
+docker build -t opea/whisper-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/Dockerfile.intel_hpu .
 ```
 
 #### 2.1.2 ASR Service Image
 
 ```bash
-docker build -t opea/asr:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/Dockerfile .
+docker build -t opea/asr:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/Dockerfile .
 ```
 
 ### 2.2 Start Whisper and ASR Service
@@ -97,13 +97,13 @@ docker build -t opea/asr:latest --build-arg https_proxy=$https_proxy --build-arg
 - Xeon
 
 ```bash
-docker run -p 7066:7066 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/whisper:latest
+docker run -p 7066:7066 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy opea/whisper:latest
 ```
 
 - Gaudi2 HPU
 
 ```bash
-docker run -p 7066:7066 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/whisper-gaudi:latest
+docker run -p 7066:7066 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy opea/whisper-gaudi:latest
 ```
 
 #### 2.2.2 Start ASR service
@@ -111,7 +111,7 @@ docker run -p 7066:7066 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_M
 ```bash
 ip_address=$(hostname -I | awk '{print $1}')
 
-docker run -d -p 9099:9099 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ASR_ENDPOINT=http://$ip_address:7066 opea/asr:latest
+docker run -d -p 9099:9099 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e ASR_ENDPOINT=http://$ip_address:7066 opea/asr:latest
 ```
 
 #### 2.2.3 Test
@@ -120,8 +120,11 @@ docker run -d -p 9099:9099 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$
 # Use curl or python
 
 # curl
-http_proxy="" curl http://localhost:9099/v1/audio/transcriptions -XPOST -d '{"byte_str": "UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"}' -H 'Content-Type: application/json'
-
+wget https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav
+curl http://localhost:9099/v1/audio/transcriptions \
+  -H "Content-Type: multipart/form-data" \
+  -F file="@./sample.wav" \
+  -F model="openai/whisper-small"
 
 # python
 python check_asr_server.py

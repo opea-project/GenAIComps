@@ -5,8 +5,7 @@ import argparse
 import base64
 import os
 import uuid
-from typing import List, Optional, Union
-
+from typing import List
 import uvicorn
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import Response
