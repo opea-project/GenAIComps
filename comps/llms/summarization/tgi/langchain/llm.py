@@ -21,9 +21,9 @@ logflag = os.getenv("LOGFLAG", False)
 TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS"))
-MAX_TOTAL_TOKENS = int(os.getenv("MAX_TOTAL_TOKENS"))
-LLM_MODEL_ID = os.getenv("LLM_MODEL_ID")
+MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS", 2048))
+MAX_TOTAL_TOKENS = int(os.getenv("MAX_TOTAL_TOKENS", 4096))
+LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "Intel/neural-chat-7b-v3-3")
 
 templ_en = """Write a concise summary of the following:
 
