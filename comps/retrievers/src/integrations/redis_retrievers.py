@@ -48,8 +48,12 @@ class OpeaRedisRetriever(OpeaComponent):
 
     def _initialize_client(self) -> Redis:
         """Initializes the redis client."""
-        client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
-        return client
+        try: 
+            client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
+            return client
+        except Exception as e:
+            logger.error(f"fail to initialize redis client: {e}")
+            return None
     
     def check_health(self) -> bool:
         """
@@ -65,7 +69,7 @@ class OpeaRedisRetriever(OpeaComponent):
                 return True
         except Exception as e:
             logger.info(f"[ health check ] Failed to connect to Redis: {e}")
-        return False
+            return False
 
     async def invoke(self, 
                input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]

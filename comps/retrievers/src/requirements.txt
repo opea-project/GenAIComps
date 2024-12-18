@@ -3,6 +3,7 @@ easyocr
 fastapi
 langchain_community
 langchain_huggingface
+langchain_milvus
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

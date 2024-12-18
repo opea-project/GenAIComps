@@ -6,6 +6,7 @@ import os
 import time
 from typing import Union
 from integrations.redis_retrievers import OpeaRedisRetriever
+from integrations.milvus_retrievers import OpeaMilvusRetriever
 from comps import (
     CustomLogger,
     ServiceType,
@@ -34,13 +35,18 @@ controller = OpeaComponentController()
 
 # Register components
 try:
-    # Instantiate OpeaRedisRetriever component
+    # Instantiate OpeaRedisRetriever and OpeaMilvusRetriever components
     redis_retriever = OpeaRedisRetriever(
         name="OpeaRedisRetriever",
         description="OPEA Redis Retriever Service",
     )
+    milvus_retriever = OpeaMilvusRetriever(
+        name="OpeaMilvusRetriever",
+        description="OPEA Milvus Retriever Service",
+    )
     # Register components with the controller
     controller.register(redis_retriever)
+    controller.register(milvus_retriever)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
@@ -87,7 +93,6 @@ async def ingest_files(
         # Record statistics
         statistics_dict["opea_service@retrievers"].append_latency(time.time() - start, None)
 
-        # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ retrieval ] Output generated: {response}")
         
