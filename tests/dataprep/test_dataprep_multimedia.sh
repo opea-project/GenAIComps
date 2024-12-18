@@ -38,7 +38,7 @@ function build_docker_images() {
 
     # Array of Docker build configurations
     declare -A docker_builds=(
-        ["opea/whisper:comps"]="comps/asr/whisper/dependency/Dockerfile"
+        ["opea/whisper:comps"]="comps/asr/src/integrations/dependency/whisper/Dockerfile"
         ["opea/a2t:comps"]="comps/dataprep/multimedia2text/audio2text/Dockerfile"
         ["opea/v2a:comps"]="comps/dataprep/multimedia2text/video2audio/Dockerfile"
         ["opea/multimedia2text:comps"]="comps/dataprep/multimedia2text/Dockerfile"
