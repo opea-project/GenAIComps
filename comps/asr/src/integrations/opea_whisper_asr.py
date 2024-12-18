@@ -4,7 +4,7 @@
 import os
 from typing import List
 
-import aiohttp
+import time
 import requests
 from fastapi import File, Form, UploadFile
 
@@ -24,7 +24,7 @@ class OpeaWhisperAsr(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.ASR.name.lower(), description, config)
-        self.base_url = os.getenv("ASR_ENDPOINT", "http://localhost:7066/v1/audio/transcriptions")
+        self.base_url = os.getenv("ASR_ENDPOINT", "http://localhost:7066")
 
     async def invoke(
         self,
@@ -54,23 +54,25 @@ class OpeaWhisperAsr(OpeaComponent):
         }
 
         # Send the file and model to the server
-        response = requests.post(self.base_url, files=files, data=data)
+        response = requests.post(f"{self.base_url}/v1/audio/transcriptions", files=files, data=data)
         res = response.json()["text"]
         return AudioTranscriptionResponse(text=res)
 
-    async def check_health(self) -> bool:
-        """Checks the health of the embedding service.
+    def check_health(self, num_trials=3, timeout=10) -> bool:
+        """Checks the health of the asr service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-        try:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(f"{self.base_url}/health") as response:
-                    # If status is 200, the service is considered alive
-                    if response.status == 200:
-                        return True
-        except aiohttp.ClientError as e:
-            # Handle connection errors, timeouts, etc.
-            print(f"Health check failed: {e}")
+        while num_trials > 0:
+            try:
+                response = requests.get(f"{self.base_url}/health")
+                # If status is 200, the service is considered alive
+                if response.status_code == 200:
+                    return True
+            except requests.RequestException as e:
+                # Handle connection errors, timeouts, etc.
+                print(f"Health check failed: {e}")
+            num_trials -= 1
+            time.sleep(timeout)
         return False

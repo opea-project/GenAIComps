@@ -39,7 +39,7 @@ try:
     controller.register(opea_whisper_asr)
 
     # Discover and activate a healthy component
-    controller.discover_and_activate()
+    controller.discover_and_activate(num_trials=10, timeout=10)
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
 

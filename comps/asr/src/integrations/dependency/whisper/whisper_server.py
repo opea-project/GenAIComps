@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 
-@app.get("/v1/health")
+@app.get("/health")
 async def health() -> Response:
     """Health check."""
     return Response(status_code=200)
