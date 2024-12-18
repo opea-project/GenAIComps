@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import time
 from typing import List
 
-import time
 import requests
 from fastapi import File, Form, UploadFile
 
