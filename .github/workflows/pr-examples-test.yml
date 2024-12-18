@@ -4,8 +4,8 @@
 name: Example-test
 
 on:
-  pull_request_target:
-    branches: [main]
+  pull_request:
+    branches: [main, refactor_comps]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
       - .github/workflows/pr-examples-test.yml
