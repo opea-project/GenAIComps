@@ -1,0 +1,151 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tei.fullname" . }}
+  labels:
+    {{- include "tei.labels" . | nindent 4 }}
+spec:
+  {{- if ne (int .Values.replicaCount) 1 }}
+  # remove if replica count should not be reset on pod update with HPA
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "tei.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "tei.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "tei.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if not (hasPrefix "/data/" .Values.EMBEDDING_MODEL_ID) }}
+      initContainers:
+        - name: model-downloader
+          envFrom:
+            - configMapRef:
+                name: {{ include "tei.fullname" . }}-config
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            {{- if hasKey .Values.securityContext "runAsGroup" }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            {{- end }}
+            capabilities:
+              drop:
+              - ALL
+              add:
+              - DAC_OVERRIDE
+              # To be able to make data model directory group writable for
+              # previously downloaded model by old versions of helm chart
+              - FOWNER
+            seccompProfile:
+              type: RuntimeDefault
+          image: huggingface/downloader:0.17.3
+          command: ['sh', '-c']
+          args:
+            - |
+              huggingface-cli download --cache-dir /data --token $(HF_TOKEN) $(MODEL_ID);
+              chmod -R g+w /data/models--{{ replace "/" "--" .Values.EMBEDDING_MODEL_ID }}
+          volumeMounts:
+            - mountPath: /data
+              name: model-volume
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "tei.fullname" . }}-config
+            {{- if .Values.global.extraEnvConfig }}
+            - configMapRef:
+                name: {{ .Values.global.extraEnvConfig }}
+                optional: true
+            {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- if .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- end }}
+          args:
+            - "--auto-truncate"
+          volumeMounts:
+            - mountPath: /data
+              name: model-volume
+            - mountPath: /dev/shm
+              name: shm
+            - mountPath: /tmp
+              name: tmp
+          ports:
+            - name: http
+              containerPort: {{ .Values.port }}
+              protocol: TCP
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: model-volume
+          {{- if .Values.global.modelUsePVC }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.modelUsePVC }}
+          {{- else if .Values.global.modelUseHostPath }}
+          hostPath:
+            path: {{ .Values.global.modelUseHostPath }}
+            type: Directory
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.shmSize }}
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if not .Values.accelDevice }}
+      # extra time to finish processing buffered requests on CPU before pod is forcibly terminated
+      terminationGracePeriodSeconds: 60
+      {{- end }}
+      {{- if .Values.evenly_distributed }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "tei.selectorLabels" . | nindent 14 }}
+      {{- end }}
