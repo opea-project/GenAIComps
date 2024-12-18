@@ -92,11 +92,7 @@ class OpeaRedisRetriever(OpeaComponent):
                     embeddings = input.embedding.data
                     embedding_data_input = []
                     for emb in embeddings:
-                        # each emb is EmbeddingResponseData
-                        # print("Embedding data: ", emb.embedding)
-                        # print("Embedding data length: ",len(emb.embedding))
                         embedding_data_input.append(emb.embedding)
-                    # print("All Embedding data length: ",len(embedding_data_input))
                 else:
                     embedding_data_input = input.embedding
 
