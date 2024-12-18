@@ -21,7 +21,6 @@ docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  
 
 See the [Prediction Guard docs](https://docs.predictionguard.com/) for available model options.
 
-
 ```bash
 curl -N -X POST http://localhost:9000/v1/reranking \
     -H "Content-Type: application/json" \
@@ -30,4 +29,3 @@ curl -N -X POST http://localhost:9000/v1/reranking \
         "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]
         }'
 ```
-
