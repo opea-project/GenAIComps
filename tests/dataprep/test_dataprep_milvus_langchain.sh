@@ -12,7 +12,7 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     # langchain mosec embedding image
-    docker build --no-cache -t opea/langchain-mosec:comps --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/3rd_parties/mosec/deployment/docker/Dockerfile .
+    docker build --no-cache -t opea/langchain-mosec:comps --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/langchain-mosec built fail"
         exit 1
@@ -20,7 +20,7 @@ function build_docker_images() {
         echo "opea/langchain-mosec built successful"
     fi
     # dataprep milvus image
-    docker build --no-cache -t opea/dataprep-milvus:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep-milvus:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/milvus/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-milvus built fail"
         exit 1

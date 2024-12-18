@@ -66,7 +66,7 @@ async def ingest_files(
 
     try:
         # Use the controller to invoke the active component
-        response = controller.invoke(input)
+        response = await controller.invoke(input)
 
         # return different response format
         retrieved_docs = []
