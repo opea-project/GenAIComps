@@ -1,0 +1,9 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: <CHARTNAME>
+description: A Helm chart for deploying <CHARTNAME> as microservice
+type: application
+version: 0-latest
+appVersion: "1.0"
