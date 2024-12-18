@@ -41,6 +41,29 @@ function validate_microservice() {
     cd $LOG_PATH
     export dataprep_service_port=5013
 
+    # test /v1/dataprep/delete
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "all"}' -H 'Content-Type: application/json' "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    SERVICE_NAME="dataprep - del"
+
+    if [ "$HTTP_STATUS" -ne "200" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+    fi
+    # check response body
+    if [[ "$RESPONSE_BODY" != *'{"status":true}'* ]]; then
+        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] Content is as expected."
+    fi
+
     # test /v1/dataprep/ingest upload file
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
@@ -109,29 +132,6 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test /v1/dataprep/delete
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
-    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
-    SERVICE_NAME="dataprep - del"
-
-    # check response status
-    if [ "$HTTP_STATUS" -ne "200" ]; then
-        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
-    fi
-    # check response body
-    if [[ "$RESPONSE_BODY" != *'{"status":true}'* ]]; then
-        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-dataprep-redis-langchain-server >> ${LOG_PATH}/dataprep_del.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] Content is as expected."
-    fi
 }
 
 function stop_docker() {
