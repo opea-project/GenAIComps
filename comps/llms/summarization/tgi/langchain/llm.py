@@ -93,6 +93,20 @@ async def llm_generate(input: DocSumLLMParams):
     if logflag:
         logger.info(input)
 
+    ### check summary type
+    if input.summary_type not in ["auto", "stuff", "truncate", "map_reduce", "refine"]:
+        raise NotImplementedError('Please specify the summary_type in "auto", "stuff", "truncate", "map_reduce", "refine"')
+    if input.summary_type == "auto": ### Check input token length in auto mode
+        token_len = tokenizer.encode(input.query)
+        if token_len > MAX_INPUT_TOKENS + 50:
+            input.summary_type = "refine"
+            if logflag:
+                logger.info(f"Input token length {token_len} exceed MAX_INPUT_TOKENS + 50 {MAX_INPUT_TOKENS+50}, auto switch to 'refine' mode.")
+        else:
+            input.summary_type = "stuff"
+            if logflag:
+                logger.info(f"Input token length {token_len} not exceed MAX_INPUT_TOKENS + 50 {MAX_INPUT_TOKENS+50}, auto switch to 'stuff' mode.")
+
     if input.language in ["en", "auto"]:
         templ = templ_en
         templ_refine = templ_refine_en
@@ -137,7 +151,7 @@ async def llm_generate(input: DocSumLLMParams):
             logger.info(f"set chunk size to: {chunk_size}")
             logger.info(f"set chunk overlap to: {chunk_overlap}")
     else:
-        raise NotImplementedError('Please specify the summary_type in "stuff", "truncate", "map_reduce", "refine"')
+        
     texts = text_splitter.split_text(input.query)
     docs = [Document(page_content=t) for t in texts]
     if logflag:
