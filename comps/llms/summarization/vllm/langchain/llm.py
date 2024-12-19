@@ -130,7 +130,7 @@ async def llm_generate(input: DocSumLLMParams):
     ## Split text
     if input.summary_type == "stuff":
         text_splitter = CharacterTextSplitter()
-    elif input.summary_type in ["truncate", "map_reduce", "refine"]:
+    else:
         if input.summary_type == "refine":
             if MAX_TOTAL_TOKENS <= 2 * input.max_tokens + 128:
                 raise RuntimeError("In Refine mode, Please set MAX_TOTAL_TOKENS larger than (max_tokens * 2 + 128)")
@@ -151,8 +151,7 @@ async def llm_generate(input: DocSumLLMParams):
         if logflag:
             logger.info(f"set chunk size to: {chunk_size}")
             logger.info(f"set chunk overlap to: {chunk_overlap}")
-    else:
-        raise NotImplementedError('Please specify the summary_type in "stuff", "truncate", "map_reduce", "refine"')
+
     texts = text_splitter.split_text(input.query)
     docs = [Document(page_content=t) for t in texts]
     if logflag:
