@@ -5,5 +5,5 @@
 services:
   web-retriever-chroma:
     build:
-      dockerfile: comps/web_retrievers/chroma/langchain/Dockerfile
+      dockerfile: comps/web_retrievers/src/chroma/langchain/Dockerfile
     image: ${REGISTRY:-opea}/web-retriever-chroma:${TAG:-latest}
