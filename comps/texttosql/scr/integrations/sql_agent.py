@@ -1,6 +1,3 @@
-﻿# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
-
 from __future__ import annotations
 
 import os
@@ -8,50 +5,34 @@ from typing import Any, Dict, List, Optional, Sequence, Type, Union
 
 from langchain.agents import create_react_agent
 from langchain.agents.agent import AgentExecutor, RunnableAgent
-from langchain.agents.agent_types import AgentType
 from langchain.agents.mrkl import prompt as react_prompt
-from langchain.chains.llm import LLMChain
 from langchain_community.agent_toolkits.sql.prompt import SQL_PREFIX, SQL_SUFFIX
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
-from langchain_community.tools.sql_database.prompt import QUERY_CHECKER
 from langchain_community.tools.sql_database.tool import InfoSQLDatabaseTool, ListSQLDatabaseTool
 from langchain_community.utilities.sql_database import SQLDatabase
-from langchain_core.callbacks import AsyncCallbackManagerForToolRun, BaseCallbackManager, CallbackManagerForToolRun
+from langchain.chains.llm import LLMChain
+from langchain_core.pydantic_v1 import BaseModel, Field, root_validator
+
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts import BasePromptTemplate, PromptTemplate
-from langchain_core.pydantic_v1 import BaseModel, Field, root_validator
 from langchain_core.tools import BaseTool
-from langchain_huggingface import HuggingFaceEndpoint
 from sqlalchemy.engine import Result
-
 from comps import CustomLogger
+from langchain_core.callbacks import AsyncCallbackManagerForToolRun, BaseCallbackManager, CallbackManagerForToolRun
 
-generation_params = {
-    "max_new_tokens": 1024,
-    "top_k": 10,
-    "top_p": 0.95,
-    "temperature": 0.01,
-    "repetition_penalty": 1.03,
-    "streaming": True,
-}
-
-
-TGI_LLM_ENDPOINT = os.environ.get("TGI_LLM_ENDPOINT")
-
-llm = HuggingFaceEndpoint(
-    endpoint_url=TGI_LLM_ENDPOINT,
-    task="text-generation",
-    **generation_params,
-)
-
-sql_params = {
-    "max_string_length": 3600,
-}
+from langchain_community.tools.sql_database.prompt import QUERY_CHECKER
 
 logger = CustomLogger("comps-texttosql")
 logflag = os.getenv("LOGFLAG", False)
 
-# https://github.com/langchain-ai/langchain/issues/23585
+
+def remove_quotes(s):
+    if s.startswith('"') and s.endswith('"'):
+        return s[1:-1]
+    elif s.startswith("'") and s.endswith("'"):
+        return s[1:-1]
+    else:
+        return s
 
 
 class BaseSQLDatabaseTool(BaseModel):
@@ -79,15 +60,20 @@ class CustomQuerySQLDataBaseTool(BaseSQLDatabaseTool, BaseTool):
     args_schema: Type[BaseModel] = _QuerySQLDataBaseToolInput
 
     def _run(
-        self,
-        query: str,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
+            self,
+            query: str,
+            run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> Union[str, Sequence[Dict[str, Any]], Result]:
         """Execute the query, return the results or an error message."""
         logger.info("query: {}".format(query))
         query = query.replace("\nObservation", "")
+        query = remove_quotes(query)
         result = self.db.run_no_throw(query)
         return result
+
+
+class _ListSQLDataBaseToolInput(BaseModel):
+    tool_input: str = Field("", description="An empty string")
 
 
 class _InfoSQLDatabaseToolInput(BaseModel):
@@ -108,17 +94,13 @@ class CustomInfoSQLDatabaseTool(BaseSQLDatabaseTool, BaseTool):
     args_schema: Type[BaseModel] = _InfoSQLDatabaseToolInput
 
     def _run(
-        self,
-        table_names: str,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
+            self,
+            table_names: str,
+            run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Get the schema for tables in a comma-separated list."""
         table_names = table_names.replace("\nObservation", "")  # this changed
         return self.db.get_table_info_no_throw([t.strip() for t in table_names.split(",")])
-
-
-class _ListSQLDataBaseToolInput(BaseModel):
-    tool_input: str = Field("", description="An empty string")
 
 
 class CustomListSQLDatabaseTool(BaseSQLDatabaseTool, BaseTool):
@@ -129,9 +111,9 @@ class CustomListSQLDatabaseTool(BaseSQLDatabaseTool, BaseTool):
     args_schema: Type[BaseModel] = _ListSQLDataBaseToolInput
 
     def _run(
-        self,
-        tool_input: str = "",
-        run_manager: Optional[CallbackManagerForToolRun] = None,
+            self,
+            tool_input: str = "",
+            run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Get a comma-separated list of table names."""
         return ", ".join(self.db.get_usable_table_names())
@@ -173,9 +155,9 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
         return values
 
     def _run(
-        self,
-        query: str,
-        run_manager: Optional[CallbackManagerForToolRun] = None,
+            self,
+            query: str,
+            run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Use the LLM to check the query."""
         return self.llm_chain.predict(
@@ -185,9 +167,9 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
         )
 
     async def _arun(
-        self,
-        query: str,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
+            self,
+            query: str,
+            run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ) -> str:
         return await self.llm_chain.apredict(
             query=query,
@@ -238,22 +220,22 @@ class CustomSQLDatabaseToolkit(SQLDatabaseToolkit):
 
 
 def custom_create_sql_agent(
-    llm: BaseLanguageModel,
-    toolkit: Optional[SQLDatabaseToolkit] = None,
-    callback_manager: Optional[BaseCallbackManager] = None,
-    prefix: Optional[str] = None,
-    suffix: Optional[str] = None,
-    format_instructions: Optional[str] = None,
-    top_k: int = 3,
-    max_iterations: Optional[int] = 15,
-    max_execution_time: Optional[float] = None,
-    early_stopping_method: str = "force",
-    verbose: bool = False,
-    agent_executor_kwargs: Optional[Dict[str, Any]] = None,
-    *,
-    db: Optional[SQLDatabase] = None,
-    prompt: Optional[BasePromptTemplate] = None,
-    **kwargs: Any,
+        llm: BaseLanguageModel,
+        toolkit: Optional[SQLDatabaseToolkit] = None,
+        callback_manager: Optional[BaseCallbackManager] = None,
+        prefix: Optional[str] = None,
+        suffix: Optional[str] = None,
+        format_instructions: Optional[str] = None,
+        top_k: int = 3,
+        max_iterations: Optional[int] = 15,
+        max_execution_time: Optional[float] = None,
+        early_stopping_method: str = "force",
+        verbose: bool = False,
+        agent_executor_kwargs: Optional[Dict[str, Any]] = None,
+        *,
+        db: Optional[SQLDatabase] = None,
+        prompt: Optional[BasePromptTemplate] = None,
+        **kwargs: Any,
 ) -> AgentExecutor:
     """Creates a SQL agent with specified parameters."""
 
@@ -306,33 +288,3 @@ def custom_create_sql_agent(
         handle_parsing_errors=True,
         **(agent_executor_kwargs or {}),
     )
-
-
-def execute(input, url):
-    """Execute a SQL query using the custom SQL agent.
-
-    Args:
-        input (str): The user's input.
-        url (str): The URL of the database to connect to.
-
-    Returns:
-        dict: The result of the SQL execution.
-    """
-    db = SQLDatabase.from_uri(url, **sql_params)
-    logger.info("Starting Agent")
-    agent_executor = custom_create_sql_agent(
-        llm=llm,
-        verbose=True,
-        toolkit=CustomSQLDatabaseToolkit(llm=llm, db=db),
-        agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        agent_executor_kwargs={"return_intermediate_steps": True},
-    )
-
-    result = agent_executor.invoke(input)
-
-    query = []
-    for log, _ in result["intermediate_steps"]:
-        if log.tool == "sql_db_query":
-            query.append(log.tool_input)
-    result["sql"] = query[0].replace("Observation", "")
-    return result

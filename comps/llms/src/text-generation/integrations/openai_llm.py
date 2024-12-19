@@ -42,8 +42,8 @@ def get_llm_endpoint():
     try:
         return configs_map.get(MODEL_NAME).get("endpoint")
     except ConfigError as e:
-        logger.error(f"Input model {model} not present in model_configs. Error {e}")
-        raise ConfigError(f"Input model {model} not present in model_configs")
+        logger.error(f"Input model {MODEL_NAME} not present in model_configs. Error {e}")
+        raise ConfigError(f"Input model {MODEL_NAME} not present in model_configs")
 
 
 class OpenAILLM(OpeaComponent):
