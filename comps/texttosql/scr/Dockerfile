@@ -21,13 +21,13 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/texttosql/langchain/requirements.txt; \
+        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/texttosql/src/requirements.txt; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/texttosql/langchain/requirements.txt; \
+        pip install --no-cache-dir -r /home/user/comps/texttosql/src/requirements.txt; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/texttosql/langchain/
+WORKDIR /home/user/comps/texttosql/src/
 
-ENTRYPOINT ["python", "main.py"]
+ENTRYPOINT ["python", "texttosql_microservice.py"]
