@@ -5,7 +5,6 @@ import os
 import time
 
 from fastapi.responses import StreamingResponse
-
 from integrations.opea_gptsovits_tts import OpeaGptsovitsTts
 from integrations.opea_speecht5_tts import OpeaSpeecht5Tts
 
@@ -37,7 +36,6 @@ try:
     opea_gptsovits_tts = OpeaGptsovitsTts(
         name="OpeaGptsovitsTts",
         description="OPEA GPTSoVITS TTS Service",
-
     )
 
     # Register components with the controller
@@ -49,10 +47,12 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
 
+
 async def stream_forwarder(response):
     """Forward the stream chunks to the client using iter_content."""
     for chunk in response.iter_content(chunk_size=1024):
         yield chunk
+
 
 @register_microservice(
     name="opea_service@tts",
