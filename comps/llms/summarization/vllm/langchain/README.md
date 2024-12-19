@@ -97,7 +97,7 @@ In DocSum microservice, except for basic LLM parameters, we also support several
 
 If you want to deal with long context, can select suitable summary type, details in section 3.2.2.
 
-- "summary_type": can be "auto", "stuff", "truncate", "map_reduce", "refine", default is "stuff"
+- "summary_type": can be "auto", "stuff", "truncate", "map_reduce", "refine", default is "auto"
 - "chunk_size": max token length for each chunk. Set to be different default value according to "summary_type".
 - "chunk_overlap": overlap token length between each chunk, default is 0.1\*chunk_size
 
