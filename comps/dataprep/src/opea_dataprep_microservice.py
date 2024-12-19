@@ -29,7 +29,7 @@ controller = OpeaDataprepController()
 
 # Register components
 try:
-    # Instantiate OpeaEmbedding and PredictionguardEmbedding components
+    # Instantiate OpeaRedisDataprep and OpeaMilvusDataprep components
     redis_dataprep = OpeaRedisDataprep(
         name="OpeaRedisDataprep",
         description="OPEA Redis Dataprep Service",

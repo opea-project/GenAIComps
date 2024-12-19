@@ -229,9 +229,16 @@ class OpeaRedisDataprep(OpeaComponent):
         self.key_index_client = self.client.ft(KEY_INDEX_NAME)
 
     def _initialize_client(self) -> redis.Redis:
+        if logflag:
+            logger.info(f"[ initialize client ] initializing redis client...")
+
         """Initializes the redis client."""
-        client = redis.Redis(connection_pool=redis_pool)
-        return client
+        try: 
+            client = redis.Redis(connection_pool=redis_pool)
+            return client
+        except Exception as e:
+            logger.error(f"fail to initialize redis client: {e}")
+            return None
     
     def check_health(self) -> bool:
         """
@@ -247,7 +254,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 return True
         except redis.ConnectionError as e:
             logger.info(f"[ health check ] Failed to connect to Redis: {e}")
-        return False
+            return False
 
     def invoke(self, *args, **kwargs):
         pass

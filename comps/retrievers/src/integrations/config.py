@@ -42,10 +42,8 @@ if DEBUG:
 
 # Embedding model
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+LOCAL_EMBEDDING_MODEL = os.getenv("LOCAL_EMBEDDING_MODEL", "maidalun1020/bce-embedding-base_v1")
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT")
-
-# Vector Index Configuration
-INDEX_NAME = os.getenv("INDEX_NAME", "rag-redis")
 
 # Directory pathss
 current_file_path = os.path.abspath(__file__)
@@ -56,6 +54,7 @@ parent_dir = os.path.dirname(current_file_path)
 #######################################################
 #                     Redis                           #
 #######################################################
+INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 
@@ -76,3 +75,19 @@ def format_redis_conn_from_env():
         return start + f"{REDIS_HOST}:{REDIS_PORT}"
 
 REDIS_URL = format_redis_conn_from_env()
+
+
+
+#######################################################
+#                     Milvus                          #
+#######################################################
+MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
+MILVUS_PORT = int(os.getenv("MILVUS_PORT", 19530))
+MILVUS_URI = f"http://{MILVUS_HOST}:{MILVUS_PORT}"
+INDEX_PARAMS = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag_milvus")
+# MOSEC configuration
+MOSEC_EMBEDDING_MODEL = os.environ.get("MOSEC_EMBEDDING_MODEL", "/home/user/bce-embedding-base_v1")
+MOSEC_EMBEDDING_ENDPOINT = os.environ.get("MOSEC_EMBEDDING_ENDPOINT", "")
+os.environ["OPENAI_API_BASE"] = MOSEC_EMBEDDING_ENDPOINT
+os.environ["OPENAI_API_KEY"] = "Dummy key"
