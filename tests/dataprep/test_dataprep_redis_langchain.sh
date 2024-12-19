@@ -23,7 +23,7 @@ function build_docker_images() {
 function start_service() {
     REDIS_PORT=6380
     docker run -d --name="test-comps-dataprep-redis-langchain" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $REDIS_PORT:6379 -p 8002:8001 --ipc=host redis/redis-stack:7.2.0-v9
-    
+
     embed_port=5439
     embed_model="BAAI/bge-base-en-v1.5"
     docker run -d -p $embed_port:80 -v ./data:/data --name test-comps-dataprep-redis-langchain-tei-server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $embed_model

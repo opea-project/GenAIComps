@@ -4,26 +4,21 @@
 
 import os
 from typing import List, Optional
+
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
+from langchain_milvus.vectorstores import Milvus
+
+from comps import CustomLogger, EmbedDoc, OpeaComponent, SearchedDoc, ServiceType, TextDoc
+
 from .config import (
     COLLECTION_NAME,
+    INDEX_PARAMS,
     LOCAL_EMBEDDING_MODEL,
     MILVUS_URI,
-    INDEX_PARAMS,
     MOSEC_EMBEDDING_ENDPOINT,
     MOSEC_EMBEDDING_MODEL,
     TEI_EMBEDDING_ENDPOINT,
 )
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
-from langchain_milvus.vectorstores import Milvus
-from comps import (
-    OpeaComponent,
-    CustomLogger,
-    EmbedDoc,
-    SearchedDoc,
-    ServiceType,
-    TextDoc,
-)
-
 
 logger = CustomLogger("milvus_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -55,8 +50,8 @@ class MosecEmbeddings(OpenAIEmbeddings):
 
 
 class OpeaMilvusRetriever(OpeaComponent):
-    """
-    A specialized retriever component derived from OpeaComponent for milvus retriever services.
+    """A specialized retriever component derived from OpeaComponent for milvus retriever services.
+
     Attributes:
         client (Milvus): An instance of the milvus client for vector database operations.
     """
@@ -99,15 +94,15 @@ class OpeaMilvusRetriever(OpeaComponent):
         except Exception as e:
             logger.error(f"fail to initialize milvus client: {e}")
             return None
-    
+
     def check_health(self) -> bool:
-        """
-        Checks the health of the retriever service.
+        """Checks the health of the retriever service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         if logflag:
-            logger.info(f"[ check health ] start to check health of milvus")
+            logger.info("[ check health ] start to check health of milvus")
         try:
             _ = self.client.client.list_collections()
             logger.info("[ check health ] Successfully connected to Milvus!")
@@ -117,8 +112,8 @@ class OpeaMilvusRetriever(OpeaComponent):
             return False
 
     async def invoke(self, input: EmbedDoc) -> SearchedDoc:
-        """
-        Search the Milvus index for the most similar documents to the input query.
+        """Search the Milvus index for the most similar documents to the input query.
+
         Args:
             input (EmbedDoc): The input query to search for.
         Output:

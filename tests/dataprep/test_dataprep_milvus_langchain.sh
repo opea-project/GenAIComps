@@ -70,7 +70,7 @@ function validate_service() {
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        
+
         if [[ $SERVICE_NAME == *"dataprep_upload_link"* ]]; then
             docker logs test-comps-dataprep-milvus-mosec-server >> ${LOG_PATH}/mosec-embedding.log
         fi

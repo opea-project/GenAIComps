@@ -5,14 +5,16 @@
 import os
 import time
 from typing import Union
-from integrations.redis_retrievers import OpeaRedisRetriever
+
 from integrations.milvus_retrievers import OpeaMilvusRetriever
+from integrations.redis_retrievers import OpeaRedisRetriever
+
 from comps import (
     CustomLogger,
-    ServiceType,
-    OpeaComponentController,
     EmbedDoc,
+    OpeaComponentController,
     SearchedDoc,
+    ServiceType,
     TextDoc,
     opea_microservices,
     register_microservice,
@@ -25,7 +27,6 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponse,
     RetrievalResponseData,
 )
-
 
 logger = CustomLogger("opea_retrievers_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -64,7 +65,7 @@ except Exception as e:
 @register_statistics(names=["opea_service@retrievers"])
 async def ingest_files(
     input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
-    ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
+) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
     start = time.time()
 
     if logflag:
@@ -95,9 +96,9 @@ async def ingest_files(
 
         if logflag:
             logger.info(f"[ retrieval ] Output generated: {response}")
-        
+
         return result
-    
+
     except Exception as e:
         logger.error(f"[ retrieval ] Error during retrieval invocation: {e}")
         raise

@@ -5,15 +5,13 @@ import asyncio
 import os
 
 from predictionguard import PredictionGuard
-from comps import OpeaComponent, CustomLogger, ServiceType
-from comps.cores.proto.api_protocol import (
-    EmbeddingRequest,
-    EmbeddingResponse,
-    EmbeddingResponseData
-)
+
+from comps import CustomLogger, OpeaComponent, ServiceType
+from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, EmbeddingResponseData
 
 logger = CustomLogger("predictionguard_embedding")
 logflag = os.getenv("LOGFLAG", False)
+
 
 class PredictionguardEmbedding(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for interacting with Prediction Guard services.
@@ -49,9 +47,9 @@ class PredictionguardEmbedding(OpeaComponent):
             response = self.client.embeddings.create(model="bridgetower-large-itm-mlm-itc", input=[{"text": "hello"}])
 
             # Check if the response is a valid dictionary and contains the expected 'model' key
-            if isinstance(response, dict) and 'model' in response:
+            if isinstance(response, dict) and "model" in response:
                 # Check if the model matches the expected model name
-                if response['model'] == self.model_name:
+                if response["model"] == self.model_name:
                     return True
                 else:
                     return False
@@ -64,10 +62,8 @@ class PredictionguardEmbedding(OpeaComponent):
             logger.error(f"Health check failed due to an exception: {e}")
             return False
 
-
     async def invoke(self, input: EmbeddingRequest) -> EmbeddingResponse:
-        """
-        Invokes the embedding service to generate embeddings for the provided input.
+        """Invokes the embedding service to generate embeddings for the provided input.
 
         Args:
             input (EmbeddingRequest): The input in OpenAI embedding format, including text(s) and optional parameters like model.

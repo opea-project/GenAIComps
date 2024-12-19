@@ -4,8 +4,12 @@
 import os
 import time
 
+from integrations.opea_multimodal_embedding_bridgetower import OpeaMultimodalEmbeddingBrigeTower
+
 from comps import (
     CustomLogger,
+    EmbedMultimodalDoc,
+    MultimodalDoc,
     OpeaComponentController,
     ServiceType,
     opea_microservices,
@@ -13,13 +17,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps import (
-    EmbedMultimodalDoc,
-    MultimodalDoc,
-)
-
-from integrations.opea_multimodal_embedding_bridgetower import  OpeaMultimodalEmbeddingBrigeTower
-
 
 logger = CustomLogger("opea_multimodal_embedding_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -43,6 +40,7 @@ except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
 
 port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6000))
+
 
 @register_microservice(
     name="opea_service@multimodal_embedding",
