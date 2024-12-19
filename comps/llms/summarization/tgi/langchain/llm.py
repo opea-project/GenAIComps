@@ -47,7 +47,7 @@ We have provided an existing summary up to a certain point, then we will provide
 You need to refine the existing summary (only if needed) with new context and generate a final summary.
 
 
-Existing Summary: 
+Existing Summary:
 "{existing_answer}"
 
 
@@ -67,7 +67,7 @@ templ_refine_zh = """\
 你需要根据新提供的文本，结合初始摘要，生成一个最终摘要。
 
 
-初始摘要: 
+初始摘要:
 "{existing_answer}"
 
 
@@ -95,17 +95,23 @@ async def llm_generate(input: DocSumLLMParams):
 
     ### check summary type
     if input.summary_type not in ["auto", "stuff", "truncate", "map_reduce", "refine"]:
-        raise NotImplementedError('Please specify the summary_type in "auto", "stuff", "truncate", "map_reduce", "refine"')
-    if input.summary_type == "auto": ### Check input token length in auto mode
+        raise NotImplementedError(
+            'Please specify the summary_type in "auto", "stuff", "truncate", "map_reduce", "refine"'
+        )
+    if input.summary_type == "auto":  ### Check input token length in auto mode
         token_len = len(tokenizer.encode(input.query))
         if token_len > MAX_INPUT_TOKENS + 50:
             input.summary_type = "refine"
             if logflag:
-                logger.info(f"Input token length {token_len} exceed MAX_INPUT_TOKENS + 50 {MAX_INPUT_TOKENS+50}, auto switch to 'refine' mode.")
+                logger.info(
+                    f"Input token length {token_len} exceed MAX_INPUT_TOKENS + 50 {MAX_INPUT_TOKENS+50}, auto switch to 'refine' mode."
+                )
         else:
             input.summary_type = "stuff"
             if logflag:
-                logger.info(f"Input token length {token_len} not exceed MAX_INPUT_TOKENS + 50 {MAX_INPUT_TOKENS+50}, auto switch to 'stuff' mode.")
+                logger.info(
+                    f"Input token length {token_len} not exceed MAX_INPUT_TOKENS + 50 {MAX_INPUT_TOKENS+50}, auto switch to 'stuff' mode."
+                )
 
     if input.language in ["en", "auto"]:
         templ = templ_en
@@ -150,7 +156,7 @@ async def llm_generate(input: DocSumLLMParams):
         if logflag:
             logger.info(f"set chunk size to: {chunk_size}")
             logger.info(f"set chunk overlap to: {chunk_overlap}")
-        
+
     texts = text_splitter.split_text(input.query)
     docs = [Document(page_content=t) for t in texts]
     if logflag:
