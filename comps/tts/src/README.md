@@ -7,7 +7,7 @@ TTS (Text-To-Speech) microservice helps users convert text to speech. When build
 - Xeon CPU
 
 ```bash
-cd dependency/
+cd integrations/dependency/speecht5
 nohup python speecht5_server.py --device=cpu &
 curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
 ```
@@ -17,7 +17,7 @@ curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Conte
 ```bash
 pip install optimum[habana]
 
-cd dependency/
+cd integrations/dependency/speecht5
 nohup python speecht5_server.py --device=hpu &
 curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
 ```
@@ -25,9 +25,9 @@ curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Conte
 ## 1.3 Start TTS Service/Test
 
 ```bash
-python tts.py
+python opea_tts_microservice.py
 
-curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
+curl http://localhost:9088/v1/audio/speech -XPOST -d '{"input": "Who are you?"}' -H 'Content-Type: application/json' --output speech.mp3
 ```
 
 ## 🚀2. Start Microservice with Docker (Option 2)
@@ -42,20 +42,20 @@ Alternatively, you can start the TTS microservice with Docker.
 
 ```bash
 cd ../../../
-docker build -t opea/speecht5:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/speecht5/dependency/Dockerfile .
+docker build -t opea/speecht5:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/src/integrations/dependency/speecht5/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
 cd ../../../
-docker build -t opea/speecht5-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/speecht5/dependency/Dockerfile.intel_hpu .
+docker build -t opea/speecht5-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/src/integrations/dependency/speecht5/Dockerfile.intel_hpu .
 ```
 
 #### 2.1.2 TTS Service Image
 
 ```bash
-docker build -t opea/tts:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/speecht5/Dockerfile .
+docker build -t opea/tts:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/src/Dockerfile .
 ```
 
 ### 2.2 Start SpeechT5 and TTS Service
@@ -89,7 +89,5 @@ curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Conte
 
 # openai protocol compatible
 # voice can be 'male' or 'default'
-curl http://localhost:7055/v1/audio/speech -XPOST -d '{"input":"Who are you?", "voice": "male"}' -H 'Content-Type: application/json' --output speech.wav
-
-curl http://localhost:9088/v1/audio/speech -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
+curl http://localhost:9088/v1/audio/speech -XPOST -d '{"input":"Who are you?", "voice": "male"}' -H 'Content-Type: application/json' --output speech.wav
 ```

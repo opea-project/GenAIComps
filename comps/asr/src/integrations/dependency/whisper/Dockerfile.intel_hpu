@@ -3,10 +3,10 @@
 
 # HABANA environment
 FROM vault.habana.ai/gaudi-docker/1.18.0/ubuntu22.04/habanalabs/pytorch-installer-2.4.0 AS hpu
+
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
-RUN rm -rf /etc/ssh/ssh_host*
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
@@ -15,8 +15,7 @@ ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y ffmpeg \
-    && apt-get install -y curl
+    && apt-get install -y ffmpeg
 
 COPY --chown=user:user comps /home/user/comps
 
@@ -24,11 +23,11 @@ USER user
 
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/tts/speecht5/requirements.txt && \
+    pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
     pip install --no-cache-dir optimum[habana]
 
-ENV PYTHONPATH=$PYTHONPATH:/home/user
+ENV PYTHONPATH=$PYTHONPATH:/home/users
 
-WORKDIR /home/user/comps/tts/speecht5/dependency
+WORKDIR /home/user/comps/asr/src/integrations/dependency/whisper
 
-ENTRYPOINT ["python", "speecht5_server.py", "--device", "hpu"]
+ENTRYPOINT ["python", "whisper_server.py", "--device", "hpu"]

@@ -33,7 +33,7 @@ The Whisper Service converts audio files to text. Follow these steps to build an
 #### Build
 
 ```bash
-docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/whisper/dependency/Dockerfile .
+docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/whisper/Dockerfile .
 ```
 
 #### Run
@@ -106,7 +106,7 @@ After building and running the services, you can validate them using the provide
 Run the following command to validate the Whisper Service:
 
 ```bash
-python comps/asr/whisper/dependency/check_whisper_server.py
+python comps/asr/src/integrations/dependency/whisper/check_whisper_server.py
 ```
 
 Expected output:

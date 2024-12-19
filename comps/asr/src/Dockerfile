@@ -16,13 +16,13 @@ COPY comps /home/user/comps
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ "${ARCH}" = "cpu" ]; then \
         pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
-        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/asr/whisper/requirements.txt ; \
+        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/asr/src/requirements.txt ; \
     else \
-        pip install --no-cache-dir -r /home/user/comps/asr/whisper/requirements.txt ; \
+        pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt ; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/asr/whisper
+WORKDIR /home/user/comps/asr/src
 
-ENTRYPOINT ["python", "asr.py"]
+ENTRYPOINT ["python", "opea_asr_microservice.py"]

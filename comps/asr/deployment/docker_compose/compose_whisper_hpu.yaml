@@ -1,0 +1,32 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  whisper-service:
+    image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}
+    container_name: whisper-service
+    ports:
+      - "7066:7066"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    restart: unless-stopped
+  asr:
+    image: ${REGISTRY:-opea}/asr:${TAG:-latest}
+    container_name: asr-service
+    ports:
+      - "3001:9099"
+    ipc: host
+    environment:
+      ASR_ENDPOINT: ${ASR_ENDPOINT}
+
+networks:
+  default:
+    driver: bridge

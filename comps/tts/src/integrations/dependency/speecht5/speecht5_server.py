@@ -26,7 +26,7 @@ app.add_middleware(
 )
 
 
-@app.get("/v1/health")
+@app.get("/health")
 async def health() -> Response:
     """Health check."""
     return Response(status_code=200)
@@ -48,13 +48,8 @@ async def text_to_speech(request: Request):
 
 
 @app.post("/v1/audio/speech")
-async def audio_speech(request: AudioSpeechRequest):
+async def audio_speech(request: AudioSpeechRequest) -> StreamingResponse:
     logger.info("SpeechT5 generation begin.")
-    # validate the request parameters
-    if request.model != tts.model_name_or_path:
-        raise Exception("TTS model mismatch! Currently only support model: microsoft/speecht5_tts")
-    if request.voice not in ["default", "male"] or request.speed != 1.0:
-        logger.warning("Currently parameter 'speed' can only be 1.0 and 'voice' can only be default or male!")
 
     speech = tts.t2s(request.input, voice=request.voice)
 

@@ -5,7 +5,7 @@ import argparse
 import base64
 import os
 import uuid
-from typing import List, Optional, Union
+from typing import List
 
 import uvicorn
 from fastapi import FastAPI, File, Form, Request, UploadFile
@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 
-@app.get("/v1/health")
+@app.get("/health")
 async def health() -> Response:
     """Health check."""
     return Response(status_code=200)
