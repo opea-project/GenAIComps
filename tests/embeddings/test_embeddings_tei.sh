@@ -24,10 +24,11 @@ function start_service() {
     model="BAAI/bge-base-en-v1.5"
     unset http_proxy
     docker run -d --name="test-comps-embedding-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+    sleep 3m
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}/v1/embeddings"
     tei_service_port=5002
     docker run -d --name="test-comps-embedding-tei-server" -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${tei_service_port}:6000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT  opea/embedding:comps
-    sleep 3m
+    sleep 15
 }
 
 function validate_service() {
@@ -48,14 +49,6 @@ function validate_service() {
 }
 
 function validate_microservice() {
-    ## query with single text
-    validate_service \
-        '{"text":"What is Deep Learning?"}'
-
-    ## query with multiple texts
-    validate_service \
-        '{"text":["What is Deep Learning?","How are you?"]}'
-
     ## Test OpenAI API, input single text
     validate_service \
         '{"input":"What is Deep Learning?"}'
@@ -88,7 +81,6 @@ function main() {
     start_service
 
     validate_microservice
-    pip install -no-cache-dir openai
     validate_microservice_with_openai
 
     stop_docker

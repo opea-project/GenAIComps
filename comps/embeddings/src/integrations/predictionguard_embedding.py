@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
-
+import asyncio
 import os
 
 from predictionguard import PredictionGuard
@@ -14,7 +14,6 @@ from comps.cores.proto.api_protocol import (
 
 logger = CustomLogger("predictionguard_embedding")
 logflag = os.getenv("LOGFLAG", False)
-api_key = os.getenv("PREDICTIONGUARD_API_KEY", "")
 
 class PredictionguardEmbedding(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for interacting with Prediction Guard services.
@@ -47,15 +46,17 @@ class PredictionguardEmbedding(OpeaComponent):
             if not self.client:
                 return False
             # Send a request to retrieve the list of models
-            model_list = self.client.embeddings.create()
+            response = self.client.embeddings.create(model="bridgetower-large-itm-mlm-itc", input=[{"text": "hello"}])
 
-            # Check if the response (model list) is not empty
-            if model_list and isinstance(model_list, list):
-                logger.info("Prediction Guard embedding service is healthy. Model list retrieved.")
-                return True
+            # Check if the response is a valid dictionary and contains the expected 'model' key
+            if isinstance(response, dict) and 'model' in response:
+                # Check if the model matches the expected model name
+                if response['model'] == self.model_name:
+                    return True
+                else:
+                    return False
             else:
-                # Log a warning if the model list is empty or invalid
-                logger.warning(f"Health check failed. Invalid or empty model list: {model_list}")
+                # Handle the case where the response does not have the expected structure
                 return False
 
         except Exception as e:
@@ -84,8 +85,11 @@ class PredictionguardEmbedding(OpeaComponent):
                 raise ValueError("Invalid input format: Only string or list of strings are supported.")
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
-        response = await self.client.embeddings.create(model=self.model_name, input=texts)["data"]
-        embed_vector = [response[i]["embedding"] for i in range(len(response))]
+        texts = [{"text": texts[i]} for i in range(len(texts))]
+        # Run the synchronous `create` method in a separate thread
+        response = await asyncio.to_thread(self.client.embeddings.create, model=self.model_name, input=texts)
+        response_data = response["data"]
+        embed_vector = [response_data[i]["embedding"] for i in range(len(response_data))]
         # for standard openai embedding format
         res = EmbeddingResponse(
             data=[EmbeddingResponseData(index=i, embedding=embed_vector[i]) for i in range(len(embed_vector))]

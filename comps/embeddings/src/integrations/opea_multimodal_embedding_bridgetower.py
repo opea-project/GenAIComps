@@ -1,16 +1,15 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import base64
 import os
 import requests
-from fastapi.responses import JSONResponse
 
 from comps import OpeaComponent, CustomLogger, ServiceType
 
 from comps import (
     CustomLogger,
-    EmbedDoc,
     EmbedMultimodalDoc,
     MultimodalDoc,
     ServiceType,
@@ -32,13 +31,9 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.EMBEDDING.name.lower(), description, config)
-        self.url = os.getenv("MMEI_EMBEDDING_HOST_ENDPOINT", "http://127.0.0.1")
-        self.port = os.getenv("MMEI_EMBEDDING_PORT_ENDPOINT", "8080")
-        self.endpoint = os.getenv("MMEI_EMBEDDING_PATH_ENDPOINT", "/v1/encode")
+        self.base_url = os.getenv("MMEI_EMBEDDING_ENDPOINT", "http://localhost:8080")
 
-        self.mmei_embedding_endpoint = os.getenv("MMEI_EMBEDDING_ENDPOINT", f"{self.url}:{self.port}{self.endpoint}")
-
-    async def invoke(self, input: MultimodalDoc) -> EmbedDoc:
+    async def invoke(self, input: MultimodalDoc) -> EmbedMultimodalDoc:
         """
         Invokes the embedding service to generate embeddings for the provided input.
 
@@ -56,29 +51,29 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
             img_bytes = input.image.url.load_bytes()
             base64_img = base64.b64encode(img_bytes).decode("utf-8")
             json["img_b64_str"] = base64_img
-        # call multimodal embedding endpoint
-        try:
-            response = requests.post(self.mmei_embedding_endpoint, headers={"Content-Type": "application/json"}, json=json)
-            if response.status_code != 200:
-                return JSONResponse(status_code=503, content={"message": "Multimodal embedding endpoint failed!"})
+        else:
+            raise TypeError(
+                f"Unsupported input type: {type(input)}. "
+                "Input must be an instance of 'TextDoc' or 'TextImageDoc'. "
+                "Please verify the input type and try again."
+            )
 
-            response_json = response.json()
-            embed_vector = response_json["embedding"]
-            if isinstance(input, TextDoc):
-                res = EmbedDoc(text=input.text, embedding=embed_vector)
-            elif isinstance(input, TextImageDoc):
-                res = EmbedMultimodalDoc(text=input.text.text, url=input.image.url, embedding=embed_vector)
-        except requests.exceptions.ConnectionError:
-            res = JSONResponse(status_code=503, content={"message": "Multimodal embedding endpoint not started!"})
+        response = await asyncio.to_thread(requests.post, f"{self.base_url}/v1/encode", headers={"Content-Type": "application/json"}, json=json)
+        response_json = response.json()
+        embed_vector = response_json["embedding"]
+        if isinstance(input, TextDoc):
+            res = EmbedMultimodalDoc(text=input.text, embedding=embed_vector)
+        elif isinstance(input, TextImageDoc):
+            res = EmbedMultimodalDoc(text=input.text.text, url=input.image.url, embedding=embed_vector)
+
         return res
 
     def check_health(self) -> bool:
         """Check the health of the microservice by making a GET request to /v1/health_check."""
         try:
-            response = requests.get(f"{self.url}:{self.port}/v1/health_check")
+            response = requests.get(f"{self.base_url}/v1/health_check")
             if response.status_code == 200:
                 return True
-            logger.info("Health check failed with status code: {response.status_code}")
             return False
         except requests.exceptions.RequestException as e:
             logger.info(f"Health check exception: {e}")

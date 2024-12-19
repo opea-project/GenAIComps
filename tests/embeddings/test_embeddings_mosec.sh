@@ -36,10 +36,11 @@ function start_service() {
     model="BAAI/bge-base-en-v1.5"
     unset http_proxy
     docker run -d --name="test-comps-embedding-mosec-serve" -p $mosec_endpoint:8000  opea/embedding-mosec-serve:comps
+    sleep 3m
     export MOSEC_EMBEDDING_ENDPOINT="http://${ip_address}:${mosec_endpoint}"
     mosec_service_port=5002
     docker run -d --name="test-comps-embedding-mosec-server" -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${mosec_service_port}:6000 --ipc=host -e MOSEC_EMBEDDING_ENDPOINT=$MOSEC_EMBEDDING_ENDPOINT  opea/embedding:comps
-    sleep 3m
+    sleep 15
 }
 
 function validate_service() {
@@ -60,14 +61,6 @@ function validate_service() {
 }
 
 function validate_microservice() {
-    ## query with single text
-    validate_service \
-        '{"text":"What is Deep Learning?"}'
-
-    ## query with multiple texts
-    validate_service \
-        '{"text":["What is Deep Learning?","How are you?"]}'
-
     ## Test OpenAI API, input single text
     validate_service \
         '{"input":"What is Deep Learning?"}'
@@ -78,7 +71,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "test-comps-embedding-mosec-*")
+    cid=$(docker ps -aq --filter "name=test-comps-embedding-mosec-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

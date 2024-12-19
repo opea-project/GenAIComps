@@ -3,7 +3,7 @@
 
 services:
   embedding-multimodal-bridgetower:
-    image: opea/embedding-multimodal-bridgetower:latest
+    image: opea/embedding-multimodal-bridgetower-hpu:latest
     container_name: embedding-multimodal-bridgetower
     ports:
       - ${EMBEDDER_PORT}:${EMBEDDER_PORT}
@@ -13,6 +13,10 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       PORT: ${EMBEDDER_PORT}
+      HABANA_VISIBLE_DEVICES: all
+    runtime: habana
+    cap_add:
+      - SYS_NICE
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "http_proxy='' curl -f http://localhost:${EMBEDDER_PORT}/v1/health_check"]

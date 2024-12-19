@@ -19,7 +19,6 @@ from comps.cores.proto.api_protocol import (
 )
 from integrations.opea_tei_embedding import OpeaTEIEmbedding
 from integrations.predictionguard_embedding import PredictionguardEmbedding
-from integrations.opea_multimodal_embedding_bridgetower import  OpeaMultimodalEmbeddingBrigeTower
 from integrations.opea_mosec_embedding import OpeaMosecEmbedding
 
 logger = CustomLogger("opea_embedding_microservice")
@@ -30,29 +29,25 @@ controller = OpeaComponentController()
 
 # Register components
 try:
-    # Instantiate Embedding components
-    opea_tei_embedding = OpeaTEIEmbedding(
-        name="OpeaTEIEmbedding",
-        description="OPEA TEI Embedding Service",
-    )
-    opea_mosec_embedding = OpeaMosecEmbedding(
-        name="OpeaMosecEmbedding",
-        description="OPEA MOSEC Embedding Service",
-    )
-    predictionguard_embedding = PredictionguardEmbedding(
-        name="PredictionGuardEmbedding",
-        description="Prediction Guard Embedding Service",
-    )
-    bridgetower_embedding = OpeaMultimodalEmbeddingBrigeTower(
-        name="OpeaMultimodalEmbeddingBrigeTower",
-        description="OPEA BredgeTower Multimodal Embedding Service",
-    )
-
-    # Register components with the controller
-    controller.register(opea_tei_embedding)
-    controller.register(opea_mosec_embedding)
-    controller.register(predictionguard_embedding)
-    controller.register(bridgetower_embedding)
+    # Instantiate Embedding components and register it to controller
+    if os.getenv("TEI_EMBEDDING_ENDPOINT"):
+        opea_tei_embedding = OpeaTEIEmbedding(
+            name="OpeaTEIEmbedding",
+            description="OPEA TEI Embedding Service",
+        )
+        controller.register(opea_tei_embedding)
+    if os.getenv("MOSEC_EMBEDDING_ENDPOINT"):
+        opea_mosec_embedding = OpeaMosecEmbedding(
+            name="OpeaMosecEmbedding",
+            description="OPEA MOSEC Embedding Service",
+        )
+        controller.register(opea_mosec_embedding)
+    if os.getenv("PREDICTIONGUARD_API_KEY"):
+        predictionguard_embedding = PredictionguardEmbedding(
+            name="PredictionGuardEmbedding",
+            description="Prediction Guard Embedding Service",
+        )
+        controller.register(predictionguard_embedding)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()

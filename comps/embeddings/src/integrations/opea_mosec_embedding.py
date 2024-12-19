@@ -3,7 +3,7 @@
 
 import requests
 import os
-from openai import Client
+from openai import AsyncClient
 
 from comps import OpeaComponent, CustomLogger, ServiceType
 from comps.cores.proto.api_protocol import (
@@ -28,7 +28,7 @@ class OpeaMosecEmbedding(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.EMBEDDING.name.lower(), description, config)
         self.base_url = os.getenv("MOSEC_EMBEDDING_ENDPOINT", "http://127.0.0.1:8080/")
-        self.client = Client(api_key="fake", base_url=self.base_url)
+        self.client = AsyncClient(api_key="fake", base_url=self.base_url)
 
     async def invoke(self, input: EmbeddingRequest) -> EmbeddingResponse:
         """
@@ -51,7 +51,7 @@ class OpeaMosecEmbedding(OpeaComponent):
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
 
-        embeddings = self.client.embeddings.create(
+        embeddings = await self.client.embeddings.create(
             model=input.model or os.environ.get("EMB_MODEL", DEFAULT_MODEL),
             input=texts,
         )
@@ -67,11 +67,11 @@ class OpeaMosecEmbedding(OpeaComponent):
         try:
             response = requests.get(f"{self.base_url}/metrics")
             # If status is 200, the service is considered alive
-            if response.status_cide == 200:
+            if response.status_code == 200:
                 return True
             else:
                 return False
         except Exception as e:
             # Handle connection errors, timeouts, etc.
-            print(f"Health check failed: {e}")
+            logger.error(f"Health check failed: {e}")
         return False

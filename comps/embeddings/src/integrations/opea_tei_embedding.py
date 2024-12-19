@@ -31,8 +31,7 @@ class OpeaTEIEmbedding(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.EMBEDDING.name.lower(), description, config)
-        self.access_url = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080/v1/embeddings")
-        self.base_url = self.access_url.removesuffix("/v1/embeddings")
+        self.base_url = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080")
         self.client = self._initialize_client()
 
     def _initialize_client(self) -> AsyncInferenceClient:
@@ -40,7 +39,7 @@ class OpeaTEIEmbedding(OpeaComponent):
         access_token = (get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None)
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
-            model=self.access_url,
+            model=f"{self.base_url}/v1/embeddings",
             token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
@@ -85,5 +84,5 @@ class OpeaTEIEmbedding(OpeaComponent):
                 return False
         except Exception as e:
             # Handle connection errors, timeouts, etc.
-            print(f"Health check failed: {e}")
+            logger.error(f"Health check failed: {e}")
         return False
