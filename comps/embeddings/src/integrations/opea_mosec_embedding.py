@@ -1,24 +1,22 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import requests
 import os
+
+import requests
 from openai import AsyncClient
 
-from comps import OpeaComponent, CustomLogger, ServiceType
-from comps.cores.proto.api_protocol import (
-    EmbeddingRequest,
-    EmbeddingResponse,
-)
+from comps import CustomLogger, OpeaComponent, ServiceType
+from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
 
 logger = CustomLogger("opea_mosec_embedding")
 logflag = os.getenv("LOGFLAG", False)
 
 DEFAULT_MODEL = "/home/user/bge-large-zh-v1.5/"
 
+
 class OpeaMosecEmbedding(OpeaComponent):
-    """
-    A specialized embedding component derived from OpeaComponent for TEI embedding services.
+    """A specialized embedding component derived from OpeaComponent for TEI embedding services.
 
     Attributes:
         client (AsyncInferenceClient): An instance of the async client for embedding generation.
@@ -31,8 +29,7 @@ class OpeaMosecEmbedding(OpeaComponent):
         self.client = AsyncClient(api_key="fake", base_url=self.base_url)
 
     async def invoke(self, input: EmbeddingRequest) -> EmbeddingResponse:
-        """
-        Invokes the embedding service to generate embeddings for the provided input.
+        """Invokes the embedding service to generate embeddings for the provided input.
 
         Args:
             input (EmbeddingRequest): The input in OpenAI embedding format, including text(s) and optional parameters like model.
@@ -58,8 +55,7 @@ class OpeaMosecEmbedding(OpeaComponent):
         return embeddings
 
     def check_health(self) -> bool:
-        """
-        Checks the health of the embedding service.
+        """Checks the health of the embedding service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.

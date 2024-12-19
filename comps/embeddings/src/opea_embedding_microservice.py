@@ -4,6 +4,10 @@
 import os
 import time
 
+from integrations.opea_mosec_embedding import OpeaMosecEmbedding
+from integrations.opea_tei_embedding import OpeaTEIEmbedding
+from integrations.predictionguard_embedding import PredictionguardEmbedding
+
 from comps import (
     CustomLogger,
     OpeaComponentController,
@@ -13,13 +17,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.proto.api_protocol import (
-    EmbeddingRequest,
-    EmbeddingResponse,
-)
-from integrations.opea_tei_embedding import OpeaTEIEmbedding
-from integrations.predictionguard_embedding import PredictionguardEmbedding
-from integrations.opea_mosec_embedding import OpeaMosecEmbedding
+from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
 
 logger = CustomLogger("opea_embedding_microservice")
 logflag = os.getenv("LOGFLAG", False)

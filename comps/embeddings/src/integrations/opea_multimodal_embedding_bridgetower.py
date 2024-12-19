@@ -4,26 +4,17 @@
 import asyncio
 import base64
 import os
+
 import requests
 
-from comps import OpeaComponent, CustomLogger, ServiceType
-
-from comps import (
-    CustomLogger,
-    EmbedMultimodalDoc,
-    MultimodalDoc,
-    ServiceType,
-    TextDoc,
-    TextImageDoc,
-)
+from comps import CustomLogger, EmbedMultimodalDoc, MultimodalDoc, OpeaComponent, ServiceType, TextDoc, TextImageDoc
 
 logger = CustomLogger("opea_multimodal_embedding_bridgetower")
 logflag = os.getenv("LOGFLAG", False)
 
 
 class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
-    """
-    A specialized embedding component derived from OpeaComponent for local deployed BrigeTower multimodal embedding services.
+    """A specialized embedding component derived from OpeaComponent for local deployed BrigeTower multimodal embedding services.
 
     Attributes:
         model_name (str): The name of the embedding model used.
@@ -34,8 +25,7 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
         self.base_url = os.getenv("MMEI_EMBEDDING_ENDPOINT", "http://localhost:8080")
 
     async def invoke(self, input: MultimodalDoc) -> EmbedMultimodalDoc:
-        """
-        Invokes the embedding service to generate embeddings for the provided input.
+        """Invokes the embedding service to generate embeddings for the provided input.
 
         Args:
             input (Union[str, List[str]]): The input text(s) for which embeddings are to be generated.
@@ -58,7 +48,9 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
                 "Please verify the input type and try again."
             )
 
-        response = await asyncio.to_thread(requests.post, f"{self.base_url}/v1/encode", headers={"Content-Type": "application/json"}, json=json)
+        response = await asyncio.to_thread(
+            requests.post, f"{self.base_url}/v1/encode", headers={"Content-Type": "application/json"}, json=json
+        )
         response_json = response.json()
         embed_vector = response_json["embedding"]
         if isinstance(input, TextDoc):

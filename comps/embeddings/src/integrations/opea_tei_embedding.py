@@ -1,18 +1,16 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import requests
-from typing import List, Union
-import os
 import json
+import os
+from typing import List, Union
+
+import requests
 from huggingface_hub import AsyncInferenceClient
 
+from comps import CustomLogger, OpeaComponent, ServiceType
 from comps.cores.mega.utils import get_access_token
-from comps import OpeaComponent, CustomLogger, ServiceType
-from comps.cores.proto.api_protocol import (
-    EmbeddingRequest,
-    EmbeddingResponse,
-)
+from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
 
 logger = CustomLogger("opea_tei_embedding")
 logflag = os.getenv("LOGFLAG", False)
@@ -20,9 +18,9 @@ TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
+
 class OpeaTEIEmbedding(OpeaComponent):
-    """
-    A specialized embedding component derived from OpeaComponent for TEI embedding services.
+    """A specialized embedding component derived from OpeaComponent for TEI embedding services.
 
     Attributes:
         client (AsyncInferenceClient): An instance of the async client for embedding generation.
@@ -36,7 +34,9 @@ class OpeaTEIEmbedding(OpeaComponent):
 
     def _initialize_client(self) -> AsyncInferenceClient:
         """Initializes the AsyncInferenceClient."""
-        access_token = (get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None)
+        access_token = (
+            get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+        )
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
             model=f"{self.base_url}/v1/embeddings",
@@ -45,8 +45,7 @@ class OpeaTEIEmbedding(OpeaComponent):
         )
 
     async def invoke(self, input: EmbeddingRequest) -> EmbeddingResponse:
-        """
-        Invokes the embedding service to generate embeddings for the provided input.
+        """Invokes the embedding service to generate embeddings for the provided input.
 
         Args:
             input (EmbeddingRequest): The input in OpenAI embedding format, including text(s) and optional parameters like model.
@@ -64,14 +63,15 @@ class OpeaTEIEmbedding(OpeaComponent):
                 raise ValueError("Invalid input format: Only string or list of strings are supported.")
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
-        response = await self.client.post(json={"input": texts, "encoding_format": input.encoding_format, "model": input.model, "user": input.user},
-                                          task="text-embedding")
+        response = await self.client.post(
+            json={"input": texts, "encoding_format": input.encoding_format, "model": input.model, "user": input.user},
+            task="text-embedding",
+        )
         embeddings = json.loads(response.decode())
         return EmbeddingResponse(**embeddings)
 
     def check_health(self) -> bool:
-        """
-        Checks the health of the embedding service.
+        """Checks the health of the embedding service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.

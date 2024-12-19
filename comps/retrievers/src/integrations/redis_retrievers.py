@@ -4,32 +4,23 @@
 
 import os
 from typing import Union
-from .config import EMBED_MODEL, INDEX_NAME, REDIS_URL, TEI_EMBEDDING_ENDPOINT
+
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import Redis
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
-from comps import (
-    OpeaComponent,
-    CustomLogger,
-    EmbedDoc,
-    SearchedDoc,
-    ServiceType,
-)
-from comps.cores.proto.api_protocol import (
-    ChatCompletionRequest,
-    EmbeddingResponse,
-    RetrievalRequest,
-    RetrievalResponse,
-)
 
+from comps import CustomLogger, EmbedDoc, OpeaComponent, SearchedDoc, ServiceType
+from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest, RetrievalResponse
+
+from .config import EMBED_MODEL, INDEX_NAME, REDIS_URL, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("redis_retrievers")
 logflag = os.getenv("LOGFLAG", False)
 
 
 class OpeaRedisRetriever(OpeaComponent):
-    """
-    A specialized retriever component derived from OpeaComponent for redis retriever services.
+    """A specialized retriever component derived from OpeaComponent for redis retriever services.
+
     Attributes:
         client (redis.Redis): An instance of the redis client for vector database operations.
     """
@@ -48,21 +39,21 @@ class OpeaRedisRetriever(OpeaComponent):
 
     def _initialize_client(self) -> Redis:
         """Initializes the redis client."""
-        try: 
+        try:
             client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
             return client
         except Exception as e:
             logger.error(f"fail to initialize redis client: {e}")
             return None
-    
+
     def check_health(self) -> bool:
-        """
-        Checks the health of the retriever service.
+        """Checks the health of the retriever service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         if logflag:
-            logger.info(f"[ health check ] start to check health of redis")
+            logger.info("[ health check ] start to check health of redis")
         try:
             if self.client.client.ping():
                 logger.info("[ health check ] Successfully connected to Redis!")
@@ -71,11 +62,11 @@ class OpeaRedisRetriever(OpeaComponent):
             logger.info(f"[ health check ] Failed to connect to Redis: {e}")
             return False
 
-    async def invoke(self, 
-               input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
-               ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
-        """
-        Search the Redis index for the most similar documents to the input query.
+    async def invoke(
+        self, input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
+    ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
+        """Search the Redis index for the most similar documents to the input query.
+
         Args:
             input (Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]): The input query to search for.
         Output:
@@ -105,7 +96,9 @@ class OpeaRedisRetriever(OpeaComponent):
                 search_res = await self.client.asimilarity_search_by_vector(embedding=embedding_data_input, k=input.k)
             elif input.search_type == "similarity_distance_threshold":
                 if input.distance_threshold is None:
-                    raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
+                    raise ValueError(
+                        "distance_threshold must be provided for " + "similarity_distance_threshold retriever"
+                    )
                 search_res = await self.client.asimilarity_search_by_vector(
                     embedding=input.embedding, k=input.k, distance_threshold=input.distance_threshold
                 )

@@ -2,26 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import os
 import json
+import os
 from pathlib import Path
 from typing import List, Optional, Union
-from fastapi import Body, File, Form, UploadFile, HTTPException
-from .config import (
-    COLLECTION_NAME,
-    LOCAL_EMBEDDING_MODEL,
-    MILVUS_URI,
-    INDEX_PARAMS,
-    MOSEC_EMBEDDING_ENDPOINT,
-    MOSEC_EMBEDDING_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-)
+
+from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
-from comps import OpeaComponent, CustomLogger, DocPath, ServiceType
+
+from comps import CustomLogger, DocPath, OpeaComponent, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -34,6 +27,15 @@ from comps.dataprep.src.utils import (
     save_content_to_local_disk,
 )
 
+from .config import (
+    COLLECTION_NAME,
+    INDEX_PARAMS,
+    LOCAL_EMBEDDING_MODEL,
+    MILVUS_URI,
+    MOSEC_EMBEDDING_ENDPOINT,
+    MOSEC_EMBEDDING_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
+)
 
 logger = CustomLogger("milvus_dataprep")
 logflag = os.getenv("LOGFLAG", False)
@@ -187,8 +189,8 @@ def delete_by_partition_field(my_milvus, partition_field):
 
 
 class OpeaMilvusDataprep(OpeaComponent):
-    """
-    A specialized dataprep component derived from OpeaComponent for milvus dataprep services.
+    """A specialized dataprep component derived from OpeaComponent for milvus dataprep services.
+
     Attributes:
         client (Milvus): An instance of the milvus client for vector database operations.
     """
@@ -199,7 +201,7 @@ class OpeaMilvusDataprep(OpeaComponent):
 
     def _initialize_embedder(self):
         if logflag:
-            logger.info(f"[ initialize embedder ] initializing milvus embedder...")
+            logger.info("[ initialize embedder ] initializing milvus embedder...")
         # Define embeddings according to server type (TEI, MOSEC, or local)
         if MOSEC_EMBEDDING_ENDPOINT:
             # create embeddings using MOSEC endpoint service
@@ -219,15 +221,15 @@ class OpeaMilvusDataprep(OpeaComponent):
                 logger.info(f"[ milvus embedding ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
             embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
         return embeddings
-    
+
     def check_health(self) -> bool:
-        """
-        Checks the health of the dataprep service.
+        """Checks the health of the dataprep service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         if logflag:
-            logger.info(f"[ health check ] start to check health of milvus")
+            logger.info("[ health check ] start to check health of milvus")
         try:
             client = Milvus(
                 embedding_function=self.embedder,
@@ -255,8 +257,8 @@ class OpeaMilvusDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
     ):
-        """
-        Ingest files/links content into milvus database.
+        """Ingest files/links content into milvus database.
+
         Save in the format of vector[], the vector length depends on the emedding model type.
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
@@ -315,7 +317,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                         process_table=process_table,
                         table_strategy=table_strategy,
                     ),
-                    self.embedder
+                    self.embedder,
                 )
                 uploaded_files.append(save_path)
                 if logflag:
@@ -340,7 +342,9 @@ class OpeaMilvusDataprep(OpeaComponent):
                     try:
                         search_res = search_by_file(my_milvus.col, encoded_link + ".txt")
                     except Exception as e:
-                        raise HTTPException(status_code=500, detail=f"Failed when searching in Milvus db for link {link}.")
+                        raise HTTPException(
+                            status_code=500, detail=f"Failed when searching in Milvus db for link {link}."
+                        )
                     if len(search_res) > 0:
                         if logflag:
                             logger.info(f"[ milvus ingest ] Link {link} already exists.")
@@ -359,7 +363,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                         process_table=process_table,
                         table_strategy=table_strategy,
                     ),
-                    self.embedder
+                    self.embedder,
                 )
             if logflag:
                 logger.info(f"[ milvus ingest] Successfully saved link list {link_list}")
@@ -368,15 +372,13 @@ class OpeaMilvusDataprep(OpeaComponent):
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
     async def get_files(self):
-        """
-        Get file structure from milvus database in the format of 
-            {
-                "name": "File Name",
-                "id": "File Name",
-                "type": "File",
-                "parent": "",
-            }
-        """
+        """Get file structure from milvus database in the format of
+        {
+            "name": "File Name",
+            "id": "File Name",
+            "type": "File",
+            "parent": "",
+        }"""
 
         if logflag:
             logger.info("[ milvus get ] start to get file structure")

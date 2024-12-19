@@ -49,4 +49,3 @@ class vCLIP(nn.Module):
             video_embeddings = video_embeddings / video_embeddings.norm(dim=-1, keepdim=True)
             vid_embs.append(video_embeddings)
         return torch.cat(vid_embs, dim=0)
-

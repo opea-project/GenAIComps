@@ -29,7 +29,6 @@ docker compose -f compose_intel_hpu.yaml up -d
 
 ## 🚀2. Start MMEI on Xeon CPU
 
-
 - Xeon CPU
 
 ```bash

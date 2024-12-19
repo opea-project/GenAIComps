@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
+
 from ..mega.logger import CustomLogger
 
 logger = CustomLogger("OpeaComponent")
+
 
 class OpeaComponent(ABC):
     """The OpeaComponent class serves as the base class for all components in the GenAIComps.

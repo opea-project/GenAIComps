@@ -38,6 +38,7 @@ DEBUG = get_boolean_env_var("DEBUG", False)
 # Set DEBUG env var to "true" if you wish to enable LC debugging module
 if DEBUG:
     import langchain
+
     langchain.debug = True
 
 # Embedding model
@@ -50,13 +51,13 @@ current_file_path = os.path.abspath(__file__)
 parent_dir = os.path.dirname(current_file_path)
 
 
-
 #######################################################
 #                     Redis                           #
 #######################################################
 INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+
 
 def format_redis_conn_from_env():
     redis_url = os.getenv("REDIS_URL", None)
@@ -74,8 +75,8 @@ def format_redis_conn_from_env():
 
         return start + f"{REDIS_HOST}:{REDIS_PORT}"
 
-REDIS_URL = format_redis_conn_from_env()
 
+REDIS_URL = format_redis_conn_from_env()
 
 
 #######################################################
