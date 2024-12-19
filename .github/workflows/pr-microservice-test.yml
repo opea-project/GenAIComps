@@ -4,8 +4,8 @@
 name: MicroService-test
 
 on:
-  pull_request_target:
-    branches: ["main", "*rc"]
+  pull_request:
+    branches: ["main", "*rc", "refactor_comps"]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
       - comps/**
@@ -52,9 +52,8 @@ jobs:
           hardware: ${{ matrix.hardware }}
         run: |
           cd tests
-          echo "log_name=${service}_${hardware}" >> $GITHUB_ENV
-          if [ ${hardware} = "intel_cpu" ]; then on_hw=""; else on_hw="_on_${hardware}"; fi
-          timeout 60m bash $(find . -type f -name test_${service}${on_hw}.sh)
+          echo "log_name=${service}" >> $GITHUB_ENV
+          timeout 60m bash $(find . -type f -name test_${service}.sh)
 
       - name: Clean up container
         if: cancelled() || failure()
