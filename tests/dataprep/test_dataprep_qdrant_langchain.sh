@@ -12,7 +12,7 @@ function build_docker_images() {
     cd $WORKPATH
 
     # dataprep qdrant image
-    docker build --no-cache -t opea/dataprep-qdrant:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/qdrant/langchain/Dockerfile .
+    docker build --no-cache -t opea/dataprep-qdrant:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/qdrant/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-qdrant built fail"
         exit 1
