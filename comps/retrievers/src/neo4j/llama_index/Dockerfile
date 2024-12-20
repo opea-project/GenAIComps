@@ -26,10 +26,10 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/neo4j/llama_index/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/src/neo4j/llama_index/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/neo4j/llama_index
+WORKDIR /home/user/comps/retrievers/src/neo4j/llama_index
 
 ENTRYPOINT ["python", "retriever_community_answers_neo4j.py"]

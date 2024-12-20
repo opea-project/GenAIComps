@@ -24,19 +24,19 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then \
-      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/dataprep/pinecone/langchain/requirements.txt; \
+      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/dataprep/src/pinecone/langchain/requirements.txt; \
     else \
-      pip install --no-cache-dir -r /home/user/comps/dataprep/pinecone/langchain/requirements.txt; \
+      pip install --no-cache-dir -r /home/user/comps/dataprep/src/pinecone/langchain/requirements.txt; \
     fi;
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER root
 
-RUN mkdir -p /home/user/comps/dataprep/pinecone/langchain/uploaded_files && chown -R user /home/user/comps/dataprep/pinecone/langchain/uploaded_files
+RUN mkdir -p /home/user/comps/dataprep/src/pinecone/langchain/uploaded_files && chown -R user /home/user/comps/dataprep/src/pinecone/langchain/uploaded_files
 
 USER user
 
-WORKDIR /home/user/comps/dataprep/pinecone/langchain
+WORKDIR /home/user/comps/dataprep/src/pinecone/langchain
 
 ENTRYPOINT ["python", "prepare_doc_pinecone.py"]

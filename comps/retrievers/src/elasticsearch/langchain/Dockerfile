@@ -19,10 +19,10 @@ USER user
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/elasticsearch/langchain/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/src/elasticsearch/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/elasticsearch/langchain
+WORKDIR /home/user/comps/retrievers/src/elasticsearch/langchain
 
 ENTRYPOINT ["python", "retriever_elasticsearch.py"]
