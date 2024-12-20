@@ -96,9 +96,7 @@ async def llm_generate(input: DocSumLLMParams):
     ### check summary type
     summary_types = ["auto", "stuff", "truncate", "map_reduce", "refine"]
     if input.summary_type not in summary_types:
-        raise NotImplementedError(
-            f'Please specify the summary_type in {summary_types}'
-        )
+        raise NotImplementedError(f"Please specify the summary_type in {summary_types}")
     if input.summary_type == "auto":  ### Check input token length in auto mode
         token_len = len(tokenizer.encode(input.query))
         if token_len > MAX_INPUT_TOKENS + 50:
