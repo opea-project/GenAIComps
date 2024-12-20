@@ -24,13 +24,13 @@ function build_docker_images() {
     ## Build OPEA microservice docker
     cd $WORKPATH
     docker build  \
-        --no-cache -t opea/llm-vllm-llamaindex:comps \
-        -f comps/llms/text-generation/vllm/llama_index/Dockerfile .
+        --no-cache -t opea/llm:comps \
+        -f comps/llms/src/text-generation/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/llm-vllm-llamaindex built fail"
+        echo "opea/llm built fail"
         exit 1
     else
-        echo "opea/llm-vllm-llamaindex built successful"
+        echo "opea/llm built successful"
     fi
 }
 
@@ -44,25 +44,27 @@ function start_service() {
         -p $port_number:80 \
         -e HABANA_VISIBLE_DEVICES=all \
         -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
+        -e VLLM_SKIP_WARMUP=true \
         --cap-add=sys_nice \
         --ipc=host \
         -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
         opea/vllm-gaudi:comps \
         --model $LLM_MODEL  --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256 --max-seq_len-to-capture 2048
 
-    export vLLM_ENDPOINT="http://${ip_address}:${port_number}"
+    export LLM_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm \
         --name="test-comps-vllm-microservice" \
         -p 5030:9000 \
         --ipc=host \
-        -e vLLM_ENDPOINT=$vLLM_ENDPOINT \
+        -e LLM_ENDPOINT=$LLM_ENDPOINT \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
-        -e LLM_MODEL=$LLM_MODEL \
-        opea/llm-vllm-llamaindex:comps
+        -e LLM_MODEL_ID=$LLM_MODEL_ID \
+        -e LOGFLAG=True \
+        opea/llm:comps
 
     # check whether vllm ray is fully ready
     n=0
-    until [[ "$n" -ge 160 ]] || [[ $ready == true ]]; do
+    until [[ "$n" -ge 70 ]] || [[ $ready == true ]]; do
         docker logs test-comps-vllm-service > ${WORKPATH}/tests/test-comps-vllm-service.log
         n=$((n+1))
         if grep -q throughput ${WORKPATH}/tests/test-comps-vllm-service.log; then
@@ -90,9 +92,23 @@ function validate_microservice() {
         docker logs test-comps-vllm-microservice
         exit 1
     fi
+
     result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
         -X POST \
-        -d '{"query":"What is Deep Learning?","max_tokens":17,"top_p":0.95,"temperature":0.01,"streaming":false}' \
+        -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream":false}' \
+        -H 'Content-Type: application/json')
+    if [[ $result == *"content"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs test-comps-vllm-service
+        docker logs test-comps-vllm-microservice
+        exit 1
+    fi
+
+    result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
+        -X POST \
+        -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}' \
         -H 'Content-Type: application/json')
     if [[ $result == *"text"* ]]; then
         echo "Result correct."
