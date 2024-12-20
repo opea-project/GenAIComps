@@ -16,7 +16,7 @@ function build_docker_images() {
     docker pull docker.elastic.co/elasticsearch/elasticsearch:8.16.0
 
     # build dataprep image for elasticsearch
-    docker build --no-cache -t opea/dataprep-elasticsearch:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/elasticsearch/langchain/Dockerfile .
+    docker build --no-cache -t opea/dataprep-elasticsearch:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/elasticsearch/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-elasticsearch built fail"
         exit 1
