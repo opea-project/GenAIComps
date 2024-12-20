@@ -16,7 +16,7 @@ function build_docker_images() {
         --build-arg https_proxy=$https_proxy \
         --build-arg http_proxy=$http_proxy \
         --build-arg huggingfacehub_api_token=$hf_token\
-        -f comps/retrievers/vdms/langchain/Dockerfile .
+        -f comps/retrievers/src/vdms/langchain/Dockerfile .
 
 }
 
