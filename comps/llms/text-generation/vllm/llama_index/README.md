@@ -56,12 +56,6 @@ bash ./build_docker_vllm.sh hpu
 
 Set `hw_mode` to `hpu`.
 
-Note: If you want to enable tensor parallel, please set `setuptools==69.5.1` in Dockerfile.hpu before build docker with following command.
-
-```
-sed -i "s/RUN pip install setuptools/RUN pip install setuptools==69.5.1/g" docker/Dockerfile.hpu
-```
-
 #### Launch vLLM service on single node
 
 For small model, we can just use single node.
@@ -113,7 +107,7 @@ To build the docker image, run the command
 bash ./build_docker_vllm_openvino.sh
 ```
 
-Once it successfully builds, you will have the `vllm:openvino` image. It can be used to spawn a serving container with OpenAI API endpoint or you can work with it interactively via bash shell.
+Once it successfully builds, you will have the `vllm-openvino` image. It can be used to spawn a serving container with OpenAI API endpoint or you can work with it interactively via bash shell.
 
 #### Launch vLLM service
 
@@ -153,14 +147,10 @@ OpenVINO best known configuration is:
 And then you can make requests like below to check the service status:
 
 ```bash
-curl http://${your_ip}:8008/v1/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-  "model": "meta-llama/Meta-Llama-3-8B-Instruct",
-  "prompt": "What is Deep Learning?",
-  "max_tokens": 32,
-  "temperature": 0
-  }'
+curl http://${host_ip}:8008/v1/chat/completions \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"model": "meta-llama/Meta-Llama-3-8B-Instruct", "messages": [{"role": "user", "content": "What is Deep Learning?"}]}'
 ```
 
 ## 🚀3. Set up LLM microservice

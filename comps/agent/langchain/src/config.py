@@ -63,3 +63,25 @@ if os.environ.get("return_full_text") is not None:
 
 if os.environ.get("custom_prompt") is not None:
     env_config += ["--custom_prompt", os.environ["custom_prompt"]]
+
+if os.environ.get("with_memory") is not None:
+    env_config += ["--with_memory", os.environ["with_memory"]]
+
+if os.environ.get("with_store") is not None:
+    env_config += ["--with_store", os.environ["with_store"]]
+
+if os.environ.get("timeout") is not None:
+    env_config += ["--timeout", os.environ["timeout"]]
+
+# for sql agent
+if os.environ.get("db_path") is not None:
+    env_config += ["--db_path", os.environ["db_path"]]
+
+if os.environ.get("db_name") is not None:
+    env_config += ["--db_name", os.environ["db_name"]]
+
+if os.environ.get("use_hints") is not None:
+    env_config += ["--use_hints", os.environ["use_hints"]]
+
+if os.environ.get("hints_file") is not None:
+    env_config += ["--hints_file", os.environ["hints_file"]]

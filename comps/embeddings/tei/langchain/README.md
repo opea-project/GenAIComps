@@ -33,9 +33,9 @@ docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$htt
 Then you need to test your TEI service using the following commands:
 
 ```bash
-curl localhost:$your_port/embed \
+curl localhost:$your_port/v1/embeddings \
     -X POST \
-    -d '{"inputs":"What is Deep Learning?"}' \
+    -d '{"input":"What is Deep Learning?"}' \
     -H 'Content-Type: application/json'
 ```
 
@@ -45,12 +45,6 @@ Start the embedding service with the TEI_EMBEDDING_ENDPOINT.
 export TEI_EMBEDDING_ENDPOINT="http://localhost:$yourport"
 export TEI_EMBEDDING_MODEL_NAME="BAAI/bge-large-en-v1.5"
 python embedding_tei.py
-```
-
-#### Start Embedding Service with Local Model
-
-```bash
-python local_embedding.py
 ```
 
 ## 🚀2. Start Microservice with Docker (Optional 2)
@@ -68,9 +62,9 @@ docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$htt
 Then you need to test your TEI service using the following commands:
 
 ```bash
-curl localhost:$your_port/embed \
+curl localhost:$your_port/embed/v1/embeddings \
     -X POST \
-    -d '{"inputs":"What is Deep Learning?"}' \
+    -d '{"input":"What is Deep Learning?"}' \
     -H 'Content-Type: application/json'
 ```
 
@@ -113,9 +107,18 @@ curl http://localhost:6000/v1/health_check\
 
 ### 3.2 Consume Embedding Service
 
+The input/output follows [OpenAI API Embeddings](https://platform.openai.com/docs/api-reference/embeddings) format.
+
 ```bash
+## Input single text
 curl http://localhost:6000/v1/embeddings\
   -X POST \
-  -d '{"text":"Hello, world!"}' \
+  -d '{"input":"Hello, world!"}' \
+  -H 'Content-Type: application/json'
+
+## Input multiple texts with parameters
+curl http://localhost:6000/v1/embeddings\
+  -X POST \
+  -d '{"input":["Hello, world!","How are you?"], "encoding_format":"base64"}' \
   -H 'Content-Type: application/json'
 ```
