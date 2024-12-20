@@ -42,6 +42,7 @@ function start_service() {
     llm_port=5005
     unset http_proxy
     docker run -d --name="test-comps-llm-tgi-server" -p ${llm_port}:9000 --ipc=host -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLM_ENDPOINT=$LLM_ENDPOINT -e LLM_MODEL_ID=$hf_llm_model -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm:comps
+    sleep 20s
 }
 
 function validate_microservice() {
