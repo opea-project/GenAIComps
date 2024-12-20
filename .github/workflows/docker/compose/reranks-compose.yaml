@@ -5,21 +5,21 @@
 services:
   reranking-tei:
     build:
-      dockerfile: comps/reranks/src//Dockerfile
+      dockerfile: comps/reranks/src/Dockerfile
     image: ${REGISTRY:-opea}/reranking-tei:${TAG:-latest}
   reranking-videoqna:
     build:
-      dockerfile: comps/reranks/src//Dockerfile # TODO. need to update
+      dockerfile: comps/reranks/src/Dockerfile # TODO. need to update
     image: ${REGISTRY:-opea}/reranking-videoqna:${TAG:-latest}
   reranking-fastrag:
     build:
-      dockerfile: comps/reranks/src//Dockerfile # TODO. need to update
+      dockerfile: comps/reranks/src/Dockerfile # TODO. need to update
     image: ${REGISTRY:-opea}/reranking-fastrag:${TAG:-latest}
   reranking-langchain-mosec-endpoint:
     build:
       dockerfile: comps/reranks/src//Dockerfile # TODO. need to update
-    image: ${REGISTRY:-opea}/reranking-mosec-serving:${TAG:-latest}
+    image: ${REGISTRY:-opea}/reranking-langchain-mosec-endpoint:${TAG:-latest}
   reranking-langchain-mosec:
     build:
       dockerfile: comps/reranks/src/Dockerfile
-    image: ${REGISTRY:-opea}/reranking-mosec:${TAG:-latest}
+    image: ${REGISTRY:-opea}/reranking-langchain-mosec:${TAG:-latest}
