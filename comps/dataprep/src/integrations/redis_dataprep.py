@@ -2,16 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import os
 import json
-import redis
+import os
 from pathlib import Path
 from typing import List, Optional, Union
-from fastapi import Body, File, Form, UploadFile, HTTPException
-from .config import (
-    EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, INDEX_NAME, 
-    KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE
-)
+
+import redis
+from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import Redis
@@ -19,7 +16,8 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
-from comps import OpeaComponent, CustomLogger, DocPath, ServiceType
+
+from comps import CustomLogger, DocPath, OpeaComponent, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -32,6 +30,7 @@ from comps.dataprep.src.utils import (
     save_content_to_local_disk,
 )
 
+from .config import EMBED_MODEL, INDEX_NAME, KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("redis_dataprep")
 logflag = os.getenv("LOGFLAG", False)
@@ -216,8 +215,8 @@ def ingest_data_to_redis(doc_path: DocPath):
 
 
 class OpeaRedisDataprep(OpeaComponent):
-    """
-    A specialized dataprep component derived from OpeaComponent for redis dataprep services.
+    """A specialized dataprep component derived from OpeaComponent for redis dataprep services.
+
     Attributes:
         client (redis.Redis): An instance of the redis client for vector database operations.
     """
@@ -229,25 +228,32 @@ class OpeaRedisDataprep(OpeaComponent):
         self.key_index_client = self.client.ft(KEY_INDEX_NAME)
 
     def _initialize_client(self) -> redis.Redis:
+        if logflag:
+            logger.info("[ initialize client ] initializing redis client...")
+
         """Initializes the redis client."""
-        client = redis.Redis(connection_pool=redis_pool)
-        return client
-    
+        try:
+            client = redis.Redis(connection_pool=redis_pool)
+            return client
+        except Exception as e:
+            logger.error(f"fail to initialize redis client: {e}")
+            return None
+
     def check_health(self) -> bool:
-        """
-        Checks the health of the dataprep service.
+        """Checks the health of the dataprep service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         if logflag:
-            logger.info(f"[ health check ] start to check health of redis")
+            logger.info("[ health check ] start to check health of redis")
         try:
             if self.client.ping():
                 logger.info("[ health check ] Successfully connected to Redis!")
                 return True
         except redis.ConnectionError as e:
             logger.info(f"[ health check ] Failed to connect to Redis: {e}")
-        return False
+            return False
 
     def invoke(self, *args, **kwargs):
         pass
@@ -261,8 +267,8 @@ class OpeaRedisDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
     ):
-        """
-        Ingest files/links content into redis database.
+        """Ingest files/links content into redis database.
+
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
@@ -298,7 +304,8 @@ class OpeaRedisDataprep(OpeaComponent):
                     logger.info(f"[ redis ingest] File {file.filename} does not exist.")
                 if key_ids:
                     raise HTTPException(
-                        status_code=400, detail=f"Uploaded file {file.filename} already exists. Please change file name."
+                        status_code=400,
+                        detail=f"Uploaded file {file.filename} already exists. Please change file name.",
                     )
 
                 save_path = upload_folder + encode_file
@@ -363,15 +370,13 @@ class OpeaRedisDataprep(OpeaComponent):
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
     async def get_files(self):
-        """
-        Get file structure from redis database in the format of 
-            {
-                "name": "File Name",
-                "id": "File Name",
-                "type": "File",
-                "parent": "",
-            }
-        """
+        """Get file structure from redis database in the format of
+        {
+            "name": "File Name",
+            "id": "File Name",
+            "type": "File",
+            "parent": "",
+        }"""
 
         if logflag:
             logger.info("[ redis get ] start to get file structure")
@@ -387,7 +392,9 @@ class OpeaRedisDataprep(OpeaComponent):
             return file_list
 
         while True:
-            response = self.client.execute_command("FT.SEARCH", KEY_INDEX_NAME, "*", "LIMIT", offset, offset + SEARCH_BATCH_SIZE)
+            response = self.client.execute_command(
+                "FT.SEARCH", KEY_INDEX_NAME, "*", "LIMIT", offset, offset + SEARCH_BATCH_SIZE
+            )
             # no doc retrieved
             if len(response) < 2:
                 break
@@ -467,7 +474,9 @@ class OpeaRedisDataprep(OpeaComponent):
         except Exception as e:
             if logflag:
                 logger.info(f"[ redis delete ] {e}, File {file_path} does not exists.")
-            raise HTTPException(status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path.")
+            raise HTTPException(
+                status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path."
+            )
         file_ids = key_ids.split("#")
 
         # delete file keys id in db KEY_INDEX_NAME
@@ -486,7 +495,9 @@ class OpeaRedisDataprep(OpeaComponent):
             except Exception as e:
                 if logflag:
                     logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
-                raise HTTPException(status_code=404, detail=f"File not found in db {INDEX_NAME}. Please check file_path.")
+                raise HTTPException(
+                    status_code=404, detail=f"File not found in db {INDEX_NAME}. Please check file_path."
+                )
 
             # delete file content
             try:

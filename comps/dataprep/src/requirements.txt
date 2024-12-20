@@ -19,7 +19,7 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
 Pillow
-prometheus-fastapi-instrumentatorsac
+prometheus-fastapi-instrumentator
 pymupdf
 pyspark
 pytesseract

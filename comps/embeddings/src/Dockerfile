@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Prediction Guard, Inc
+# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 FROM python:3.11-slim
@@ -12,4 +12,7 @@ ENV PYTHONPATH=$PYTHONPATH:/home
 
 WORKDIR /home/comps/embeddings/src/
 
-ENTRYPOINT ["python", "opea_embedding_microservice.py"]
+ENV MULTIMODAL_EMBEDDING="false"
+
+ENTRYPOINT ["sh", "-c", "python $( [ \"$MULTIMODAL_EMBEDDING\" = \"true\" ] && echo 'opea_multimodal_embedding_microservice.py' || echo 'opea_embedding_microservice.py')"]
+
