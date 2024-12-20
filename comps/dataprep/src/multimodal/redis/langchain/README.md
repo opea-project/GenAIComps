@@ -87,7 +87,7 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/multimodal/redis/langchain/Dockerfile .
+docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/multimodal/redis/langchain/Dockerfile .
 ```
 
 ### 2.5 Run Docker with CLI (Option A)
@@ -99,7 +99,7 @@ docker run -d --name="dataprep-multimodal-redis" -p 6007:6007 --runtime=runc --i
 ### 2.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
 ```bash
-cd comps/dataprep/multimodal/redis/langchain
+cd comps/dataprep/src/multimodal/redis/langchain
 docker compose -f docker-compose-dataprep-redis.yaml up -d
 ```
 

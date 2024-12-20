@@ -110,21 +110,21 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ```bash
 cd ../../
-docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain/Dockerfile .
+docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/redis/langchain/Dockerfile .
 ```
 
 - Build docker image with llama_index
 
 ```bash
 cd ../../
-docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/llama_index/Dockerfile .
+docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/redis/llama_index/Dockerfile .
 ```
 
 - option 2: Start multi-process version (for >10 files processing)
 
 ```bash
 cd ../../../
-docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain_ray/Dockerfile .
+docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/redis/langchain_ray/Dockerfile .
 ```
 
 ### 2.4 Run Docker with CLI (Option A)
@@ -145,11 +145,11 @@ docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=h
 
 ```bash
 # for langchain
-cd comps/dataprep/redis/langchain
+cd comps/dataprep/src/redis/langchain
 # for langchain_ray
-cd comps/dataprep/redis/langchain_ray
+cd comps/dataprep/src/redis/langchain_ray
 # for llama_index
-cd comps/dataprep/redis/llama_index
+cd comps/dataprep/src/redis/llama_index
 # common command
 docker compose -f docker-compose-dataprep-redis.yaml up -d
 ```

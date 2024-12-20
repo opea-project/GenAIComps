@@ -44,7 +44,7 @@ export INDEX_NAME=${your_index_name}
 
 ```bash
 cd GenAIComps
-docker build -t opea/dataprep-elasticsearch:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/elasticsearch/langchain/Dockerfile .
+docker build -t opea/dataprep-elasticsearch:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/elasticsearch/langchain/Dockerfile .
 ```
 
 ### 2.4 Run Docker with CLI (Option A)
@@ -56,7 +56,7 @@ docker run  --name="dataprep-elasticsearch" -p 6011:6011 --ipc=host -e http_prox
 ### 2.5 Run with Docker Compose (Option B)
 
 ```bash
-cd comps/dataprep/elasticsearch/langchain
+cd comps/dataprep/src/elasticsearch/langchain
 docker compose -f docker-compose-dataprep-elastic.yaml up -d
 ```
 

@@ -19,7 +19,7 @@ function build_docker_images() {
         echo "opea/retriever-neo4j-llamaindex built successful"
     fi
 
-    docker build --no-cache -t opea/dataprep-neo4j-llamaindex:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/neo4j/llama_index/Dockerfile .
+    docker build --no-cache -t opea/dataprep-neo4j-llamaindex:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/neo4j/llama_index/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-neo4j-llamaindex built fail"
         exit 1
