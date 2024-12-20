@@ -7,11 +7,3 @@ either a dense embedding model or a sparse lexical search index is often employe
 However, a reranking model can further refine this process by rearranging potential candidates into a final, optimized order.
 
 ![Flow Chart](./assets/img/reranking_flow.png)
-
----
-
-## 🛠️ Features
-
-- **rerank on retrieved documents**: Perform reranking on the given documents using reranking models together with query.
-
----

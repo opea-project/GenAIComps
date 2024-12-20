@@ -9,45 +9,45 @@ services:
     image: ${REGISTRY:-opea}/retriever:${TAG:-latest}
   retriever-redis:
     build:
-      dockerfile: comps/retrievers/src/redis/langchain/Dockerfile
+      dockerfile: comps/retrievers/redis/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-redis:${TAG:-latest}
   retriever-qdrant:
     build:
-      dockerfile: comps/retrievers/src/qdrant/haystack/Dockerfile
+      dockerfile: comps/retrievers/qdrant/haystack/Dockerfile
     image: ${REGISTRY:-opea}/retriever-qdrant:${TAG:-latest}
   retriever-vdms:
     build:
-      dockerfile: comps/retrievers/src/vdms/langchain/Dockerfile
+      dockerfile: comps/retrievers/vdms/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-vdms:${TAG:-latest}
   retriever-pgvector:
     build:
-      dockerfile: comps/retrievers/src/pgvector/langchain/Dockerfile
+      dockerfile: comps/retrievers/pgvector/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-pgvector:${TAG:-latest}
   retriever-pinecone:
     build:
-      dockerfile: comps/retrievers/src/pinecone/langchain/Dockerfile
+      dockerfile: comps/retrievers/pinecone/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-pinecone:${TAG:-latest}
   retriever-milvus:
     build:
-      dockerfile: comps/retrievers/src/milvus/langchain/Dockerfile
+      dockerfile: comps/retrievers/milvus/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-milvus:${TAG:-latest}
   retriever-redis-llamaindex:
     build:
-      dockerfile: comps/retrievers/src/redis/llama_index/Dockerfile
+      dockerfile: comps/retrievers/redis/llama_index/Dockerfile
     image: ${REGISTRY:-opea}/retriever-redis-llamaindex:${TAG:-latest}
   retriever-pathway:
     build:
-      dockerfile: comps/retrievers/src/pathway/langchain/Dockerfile
+      dockerfile: comps/retrievers/pathway/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-pathway:${TAG:-latest}
   retriever-neo4j:
     build:
-      dockerfile: comps/retrievers/src/neo4j/langchain/Dockerfile
+      dockerfile: comps/retrievers/neo4j/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-neo4j:${TAG:-latest}
   retriever-neo4j-llamaindex:
     build:
-      dockerfile: comps/retrievers/src/neo4j/llama_index/Dockerfile
+      dockerfile: comps/retrievers/neo4j/llama_index/Dockerfile
     image: ${REGISTRY:-opea}/retriever-neo4j-llamaindex:${TAG:-latest}
   retriever-elasticsearch:
     build:
-      dockerfile: comps/retrievers/src/elasticsearch/langchain/Dockerfile
+      dockerfile: comps/retrievers/elasticsearch/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-elasticsearch:${TAG:-latest}
