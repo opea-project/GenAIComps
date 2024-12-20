@@ -7,7 +7,7 @@ This microservice is validated on Xeon/CUDA. HPU support is under development.
 ## Build the Image
 
 ```bash
-docker build -t opea/gpt-sovits:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/tts/gpt-sovits/Dockerfile .
+docker build -t opea/gpt-sovits:latest --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/tts/src/integrations/dependency/gpt-sovits/Dockerfile .
 ```
 
 ## Start the Service

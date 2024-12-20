@@ -31,8 +31,8 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-asr-whisper-gaudi" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p 7066:7066 --ipc=host opea/whisper-gaudi:comps
-    docker run -d --name="test-comps-asr" -e ASR_ENDPOINT=http://$ip_address:7066 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p 9089:9099 --ipc=host opea/asr:comps
+    docker run -d --name="test-comps-asr-whisper-gaudi" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p 7067:7066 --ipc=host opea/whisper-gaudi:comps
+    docker run -d --name="test-comps-asr" -e ASR_ENDPOINT=http://$ip_address:7067 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p 9089:9099 --ipc=host opea/asr:comps
     sleep 2m
 }
 
@@ -43,7 +43,7 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-asr-whisper
+        docker logs test-comps-asr-whisper-gaudi
         docker logs test-comps-asr
         exit 1
     fi
