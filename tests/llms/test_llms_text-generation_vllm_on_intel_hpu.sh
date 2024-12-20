@@ -35,7 +35,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export LLM_MODEL="Intel/neural-chat-7b-v3-3"
+    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     port_number=5025
     docker run -d --rm \
         --runtime=habana \
@@ -49,7 +49,7 @@ function start_service() {
         --ipc=host \
         -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
         opea/vllm-gaudi:comps \
-        --model $LLM_MODEL  --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256 --max-seq_len-to-capture 2048
+        --model $LLM_MODEL_ID  --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256 --max-seq_len-to-capture 2048
 
     export LLM_ENDPOINT="http://${ip_address}:${port_number}"
 
@@ -74,6 +74,7 @@ function start_service() {
         -e LLM_MODEL_ID=$LLM_MODEL_ID \
         -e LOGFLAG=True \
         opea/llm:comps
+    sleep 20s
 }
 
 function validate_microservice() {

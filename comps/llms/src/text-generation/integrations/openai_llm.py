@@ -199,36 +199,33 @@ class OpenAILLM(OpeaComponent):
                 model=MODEL_NAME,
                 messages=input.messages,
                 frequency_penalty=input.frequency_penalty,
-                logit_bias=input.logit_bias,
-                logprobs=input.logprobs,
-                top_logprobs=input.top_logprobs,
                 max_tokens=input.max_tokens,
                 n=input.n,
                 presence_penalty=input.presence_penalty,
                 response_format=input.response_format,
                 seed=input.seed,
-                service_tier=input.service_tier,
                 stop=input.stop,
                 stream=input.stream,
                 stream_options=input.stream_options,
                 temperature=input.temperature,
                 top_p=input.top_p,
-                tools=input.tools,
-                tool_choice=input.tool_choice,
-                parallel_tool_calls=input.parallel_tool_calls,
                 user=input.user,
             )
+            """TODO need validate following parameters for vllm
+                logit_bias=input.logit_bias,
+                logprobs=input.logprobs,
+                top_logprobs=input.top_logprobs,
+                service_tier=input.service_tier,
+                tools=input.tools,
+                tool_choice=input.tool_choice,
+                parallel_tool_calls=input.parallel_tool_calls,"""
         else:
             prompt, input = self.align_input(input, prompt_template, input_variables)
-
             chat_completion = await self.client.completions.create(
                 model=MODEL_NAME,
                 prompt=prompt,
-                best_of=input.best_of,
                 echo=input.echo,
                 frequency_penalty=input.frequency_penalty,
-                logit_bias=input.logit_bias,
-                logprobs=input.logprobs,
                 max_tokens=input.max_tokens,
                 n=input.n,
                 presence_penalty=input.presence_penalty,
@@ -240,6 +237,10 @@ class OpenAILLM(OpeaComponent):
                 top_p=input.top_p,
                 user=input.user,
             )
+            """TODO need validate following parameters for vllm
+                best_of=input.best_of,
+                logit_bias=input.logit_bias,
+                logprobs=input.logprobs,"""
 
         if input.stream:
 
