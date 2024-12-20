@@ -5,5 +5,5 @@
 services:
   intent-detection-tgi:
     build:
-      dockerfile: comps/intent_detection/src/langchain/Dockerfile
+      dockerfile: comps/intent_detection/langchain/Dockerfile
     image: ${REGISTRY:-opea}/intent-detection-tgi:${TAG:-latest}
