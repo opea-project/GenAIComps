@@ -58,21 +58,21 @@ class OpeaWhisperAsr(OpeaComponent):
         res = response.json()["text"]
         return AudioTranscriptionResponse(text=res)
 
-    def check_health(self, num_trials=3, timeout=10) -> bool:
+    def check_health(self, retries=3, interval=10, timeout=5) -> bool:
         """Checks the health of the asr service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-        while num_trials > 0:
+        while retries > 0:
             try:
-                response = requests.get(f"{self.base_url}/health")
+                response = requests.get(f"{self.base_url}/health", timeout=timeout)
                 # If status is 200, the service is considered alive
                 if response.status_code == 200:
                     return True
             except requests.RequestException as e:
                 # Handle connection errors, timeouts, etc.
                 print(f"Health check failed: {e}")
-            num_trials -= 1
-            time.sleep(timeout)
+            retries -= 1
+            time.sleep(interval)
         return False
