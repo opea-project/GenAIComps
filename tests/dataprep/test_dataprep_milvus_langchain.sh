@@ -11,16 +11,8 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    # langchain mosec embedding image
-    docker build --no-cache -t opea/langchain-mosec:comps --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
-    if [ $? -ne 0 ]; then
-        echo "opea/langchain-mosec built fail"
-        exit 1
-    else
-        echo "opea/langchain-mosec built successful"
-    fi
     # dataprep milvus image
-    docker build --no-cache -t opea/dataprep-milvus:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/milvus/langchain/Dockerfile .
+    docker build --no-cache -t opea/dataprep-milvus:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-milvus built fail"
         exit 1
@@ -37,17 +29,17 @@ function start_service() {
     # sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
     docker compose up -d
 
-    # set service ports
-    mosec_embedding_port=5021
-    dataprep_service_port=5022
-
-    # start mosec embedding service
-    docker run -d --name="test-comps-dataprep-milvus-mosec-server" -p $mosec_embedding_port:8000 -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/langchain-mosec:comps
+    # start embedding service
+    embed_port=5021
+    embed_model="BAAI/bge-base-en-v1.5"
+    docker run -d -p $embed_port:80 -v ./data:/data --name test-comps-dataprep-milvus-tei-server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $embed_model
+    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${embed_port}"
 
     # start dataprep service
-    MOSEC_EMBEDDING_ENDPOINT="http://${ip_address}:${mosec_embedding_port}"
     MILVUS_HOST=${ip_address}
-    docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:6010 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MOSEC_EMBEDDING_ENDPOINT=${MOSEC_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e LOGFLAG=true --ipc=host opea/dataprep-milvus:comps
+    dataprep_service_port=5022
+    HF_TOKEN=${HF_TOKEN}
+    docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:5000 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} -e LOGFLAG=true --ipc=host opea/dataprep-milvus:comps
     sleep 1m
 }
 
@@ -62,7 +54,7 @@ function validate_service() {
         cd $LOG_PATH
         HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
     elif [[ $SERVICE_NAME == *"dataprep_upload_link"* ]]; then
-        HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'link_list=["https://www.ces.tech/"]' -F "chunk_size=500" "$URL")
+        HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'link_list=["https://www.ces.tech/"]' -F 'chunk_size=400' "$URL")
     elif [[ $SERVICE_NAME == *"dataprep_get"* ]]; then
         HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H 'Content-Type: application/json' "$URL")
     elif [[ $SERVICE_NAME == *"dataprep_del"* ]]; then
@@ -78,7 +70,7 @@ function validate_service() {
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        #####################
+
         if [[ $SERVICE_NAME == *"dataprep_upload_link"* ]]; then
             docker logs test-comps-dataprep-milvus-mosec-server >> ${LOG_PATH}/mosec-embedding.log
         fi
@@ -101,9 +93,9 @@ function validate_microservice() {
     cd $LOG_PATH
     dataprep_service_port=5022
 
-    # test /v1/dataprep/delete_file
+    # test /v1/dataprep/delete
     validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/delete_file" \
+        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/delete" \
         '{"status":true}' \
         "dataprep_del" \
         "test-comps-dataprep-milvus-server"
@@ -111,21 +103,21 @@ function validate_microservice() {
     # test /v1/dataprep upload file
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
     validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep" \
+        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/ingest" \
         "Data preparation succeeded" \
         "dataprep_upload_file" \
         "test-comps-dataprep-milvus-server"
 
     # test /v1/dataprep upload link
     validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep" \
+        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/ingest" \
         "Data preparation succeeded" \
         "dataprep_upload_link" \
         "test-comps-dataprep-milvus-server"
 
     # test /v1/dataprep/get_file
     validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/get_file" \
+        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/get" \
         '{"name":' \
         "dataprep_get" \
         "test-comps-dataprep-milvus-server"

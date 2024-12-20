@@ -6,8 +6,8 @@ import os
 import time
 from typing import List, Union
 
-from dateparser.search import search_dates
 from clip_embedding import vCLIP
+from dateparser.search import search_dates
 
 from comps import (
     CustomLogger,
@@ -122,4 +122,3 @@ async def get_embeddings(text: Union[str, List[str]]) -> List[List[float]]:
 if __name__ == "__main__":
     embeddings = vCLIP({"model_name": "openai/clip-vit-base-patch32", "num_frm": 4})
     opea_microservices["opea_service@embedding_multimodal_clip"].start()
-

@@ -3,6 +3,10 @@
 
 from abc import ABC, abstractmethod
 
+from ..mega.logger import CustomLogger
+
+logger = CustomLogger("OpeaComponent")
+
 
 class OpeaComponent(ABC):
     """The OpeaComponent class serves as the base class for all components in the GenAIComps.
@@ -52,7 +56,7 @@ class OpeaComponent(ABC):
         self.config[key] = value
 
     @abstractmethod
-    async def check_health(self) -> bool:
+    def check_health(self) -> bool:
         """Checks the health of the component.
 
         Returns:
@@ -107,6 +111,7 @@ class OpeaComponentController(ABC):
         """
         if component.name in self.components:
             raise ValueError(f"Component '{component.name}' is already registered.")
+        logger.info(f"Registered component: {component.name}")
         self.components[component.name] = component
 
     def discover_and_activate(self):
@@ -117,7 +122,7 @@ class OpeaComponentController(ABC):
         for component in self.components.values():
             if component.check_health():
                 self.active_component = component
-                print(f"Activated component: {component.name}")
+                logger.info(f"Activated component: {component.name}")
                 return
         raise RuntimeError("No healthy components available.")
 

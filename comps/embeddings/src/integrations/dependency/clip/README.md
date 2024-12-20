@@ -75,4 +75,3 @@ curl http://localhost:6990/v1/embeddings\
   -d '{"input":["Hello, world!","How are you?"], "dimensions":100}' \
   -H 'Content-Type: application/json'
 ```
-

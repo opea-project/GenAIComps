@@ -2,26 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import os
 import json
+import os
 from pathlib import Path
 from typing import List, Optional, Union
-from fastapi import Body, File, Form, UploadFile, HTTPException
-from .config import (
-    COLLECTION_NAME,
-    LOCAL_EMBEDDING_MODEL,
-    MILVUS_URI,
-    INDEX_PARAMS,
-    MOSEC_EMBEDDING_ENDPOINT,
-    MOSEC_EMBEDDING_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-)
+
+from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
-from comps import OpeaComponent, CustomLogger, DocPath, ServiceType
+
+from comps import CustomLogger, DocPath, OpeaComponent, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -34,6 +27,15 @@ from comps.dataprep.src.utils import (
     save_content_to_local_disk,
 )
 
+from .config import (
+    COLLECTION_NAME,
+    INDEX_PARAMS,
+    LOCAL_EMBEDDING_MODEL,
+    MILVUS_URI,
+    MOSEC_EMBEDDING_ENDPOINT,
+    MOSEC_EMBEDDING_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
+)
 
 logger = CustomLogger("milvus_dataprep")
 logflag = os.getenv("LOGFLAG", False)
@@ -65,27 +67,7 @@ class MosecEmbeddings(OpenAIEmbeddings):
         return [e if e is not None else empty_embedding() for e in batched_embeddings]
 
 
-# Define embeddings according to server type (TEI, MOSEC, or local)
-if MOSEC_EMBEDDING_ENDPOINT:
-    # create embeddings using MOSEC endpoint service
-    if logflag:
-        logger.info(
-            f"[ milvus embedding ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
-        )
-    embeddings = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
-elif TEI_EMBEDDING_ENDPOINT:
-    # create embeddings using TEI endpoint service
-    if logflag:
-        logger.info(f"[ milvus embedding ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-    embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
-else:
-    # create embeddings using local embedding model
-    if logflag:
-        logger.info(f"[ milvus embedding ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
-    embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
-
-
-def ingest_chunks_to_milvus(file_name: str, chunks: List):
+def ingest_chunks_to_milvus(embeddings, file_name: str, chunks: List):
     if logflag:
         logger.info(f"[ ingest chunks ] file name: {file_name}")
 
@@ -108,7 +90,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
                 batch_docs,
                 embeddings,
                 collection_name=COLLECTION_NAME,
-                connection_args={"uri": milvus_uri},
+                connection_args={"uri": MILVUS_URI},
                 partition_key_field=partition_field_name,
             )
         except Exception as e:
@@ -122,7 +104,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List):
     return True
 
 
-def ingest_data_to_milvus(doc_path: DocPath):
+def ingest_data_to_milvus(doc_path: DocPath, embeddings):
     """Ingest document to Milvus."""
     path = doc_path.path
     file_name = path.split("/")[-1]
@@ -163,7 +145,7 @@ def ingest_data_to_milvus(doc_path: DocPath):
     if logflag:
         logger.info(f"[ ingest data ] Done preprocessing. Created {len(chunks)} chunks of the original file.")
 
-    return ingest_chunks_to_milvus(file_name, chunks)
+    return ingest_chunks_to_milvus(embeddings, file_name, chunks)
 
 
 def search_by_file(collection, file_name):
@@ -190,8 +172,8 @@ def delete_all_data(my_milvus):
         logger.info("[ delete all ] deleting all data in milvus")
     if my_milvus.col:
         my_milvus.col.drop()
-    if logflag:
-        logger.info("[ delete all ] delete success: all data")
+        if logflag:
+            logger.info("[ delete all ] delete success: all data")
 
 
 def delete_by_partition_field(my_milvus, partition_field):
@@ -207,42 +189,61 @@ def delete_by_partition_field(my_milvus, partition_field):
 
 
 class OpeaMilvusDataprep(OpeaComponent):
-    """
-    A specialized dataprep component derived from OpeaComponent for milvus dataprep services.
+    """A specialized dataprep component derived from OpeaComponent for milvus dataprep services.
+
     Attributes:
         client (Milvus): An instance of the milvus client for vector database operations.
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
-        self.client = self._initialize_client()
+        self.embedder = self._initialize_embedder()
 
-    def _initialize_client(self) -> Milvus:
-        """Initializes the milvus client."""
-        client = Milvus(
-            embedding_function=embeddings,
-            collection_name=COLLECTION_NAME,
-            connection_args={"uri": MILVUS_URI},
-            index_params=INDEX_PARAMS,
-            auto_id=True,
-        )
-        return client
-    
+    def _initialize_embedder(self):
+        if logflag:
+            logger.info("[ initialize embedder ] initializing milvus embedder...")
+        # Define embeddings according to server type (TEI, MOSEC, or local)
+        if MOSEC_EMBEDDING_ENDPOINT:
+            # create embeddings using MOSEC endpoint service
+            if logflag:
+                logger.info(
+                    f"[ milvus embedding ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
+                )
+            embeddings = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
+        elif TEI_EMBEDDING_ENDPOINT:
+            # create embeddings using TEI endpoint service
+            if logflag:
+                logger.info(f"[ milvus embedding ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
+            embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+        else:
+            # create embeddings using local embedding model
+            if logflag:
+                logger.info(f"[ milvus embedding ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
+            embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+        return embeddings
+
     def check_health(self) -> bool:
-        """
-        Checks the health of the dataprep service.
+        """Checks the health of the dataprep service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         if logflag:
-            logger.info(f"[ health check ] start to check health of milvus")
+            logger.info("[ health check ] start to check health of milvus")
         try:
-            _ = self.client.client.list_collections()
+            client = Milvus(
+                embedding_function=self.embedder,
+                collection_name=COLLECTION_NAME,
+                connection_args={"uri": MILVUS_URI},
+                index_params=INDEX_PARAMS,
+                auto_id=True,
+            )
+            _ = client.client.list_collections()
             logger.info("[ health check ] Successfully connected to Milvus!")
             return True
         except Exception as e:
             logger.info(f"[ health check ] Failed to connect to Milvus: {e}")
-        return False
+            return False
 
     def invoke(self, *args, **kwargs):
         pass
@@ -256,8 +257,8 @@ class OpeaMilvusDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
     ):
-        """
-        Ingest files/links content into milvus database.
+        """Ingest files/links content into milvus database.
+
         Save in the format of vector[], the vector length depends on the emedding model type.
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
@@ -272,6 +273,14 @@ class OpeaMilvusDataprep(OpeaComponent):
             logger.info(f"[ milvus ingest ] files:{files}")
             logger.info(f"[ milvus ingest ] link_list:{link_list}")
 
+        my_milvus = Milvus(
+            embedding_function=self.embedder,
+            collection_name=COLLECTION_NAME,
+            connection_args={"uri": MILVUS_URI},
+            index_params=INDEX_PARAMS,
+            auto_id=True,
+        )
+
         if files:
             if not isinstance(files, list):
                 files = [files]
@@ -280,24 +289,24 @@ class OpeaMilvusDataprep(OpeaComponent):
             for file in files:
                 encode_file = encode_filename(file.filename)
                 save_path = upload_folder + encode_file
-            if logflag:
-                logger.info(f"[ upload ] processing file {save_path}")
+                if logflag:
+                    logger.info(f"[ upload ] processing file {save_path}")
 
-            if self.client.col:
-                # check whether the file is already uploaded
-                try:
-                    search_res = search_by_file(self.client.col, encode_file)
-                except Exception as e:
-                    raise HTTPException(
-                        status_code=500, detail=f"Failed when searching in Milvus db for file {file.filename}."
-                    )
-                if len(search_res) > 0:
-                    if logflag:
-                        logger.info(f"[ upload ] File {file.filename} already exists.")
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Uploaded file {file.filename} already exists. Please change file name.",
-                    )
+                if my_milvus.col:
+                    # check whether the file is already uploaded
+                    try:
+                        search_res = search_by_file(my_milvus.col, encode_file)
+                    except Exception as e:
+                        raise HTTPException(
+                            status_code=500, detail=f"Failed when searching in Milvus db for file {file.filename}."
+                        )
+                    if len(search_res) > 0:
+                        if logflag:
+                            logger.info(f"[ upload ] File {file.filename} already exists.")
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"Uploaded file {file.filename} already exists. Please change file name.",
+                        )
 
                 await save_content_to_local_disk(save_path, file)
                 ingest_data_to_milvus(
@@ -307,7 +316,8 @@ class OpeaMilvusDataprep(OpeaComponent):
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    )
+                    ),
+                    self.embedder,
                 )
                 uploaded_files.append(save_path)
                 if logflag:
@@ -328,11 +338,13 @@ class OpeaMilvusDataprep(OpeaComponent):
                     logger.info(f"[ milvus ingest] processing link {encoded_link}")
 
                 # check whether the link file already exists
-                if self.client.col:
+                if my_milvus.col:
                     try:
-                        search_res = search_by_file(self.client.col, encoded_link + ".txt")
+                        search_res = search_by_file(my_milvus.col, encoded_link + ".txt")
                     except Exception as e:
-                        raise HTTPException(status_code=500, detail=f"Failed when searching in Milvus db for link {link}.")
+                        raise HTTPException(
+                            status_code=500, detail=f"Failed when searching in Milvus db for link {link}."
+                        )
                     if len(search_res) > 0:
                         if logflag:
                             logger.info(f"[ milvus ingest ] Link {link} already exists.")
@@ -350,7 +362,8 @@ class OpeaMilvusDataprep(OpeaComponent):
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    )
+                    ),
+                    self.embedder,
                 )
             if logflag:
                 logger.info(f"[ milvus ingest] Successfully saved link list {link_list}")
@@ -359,26 +372,32 @@ class OpeaMilvusDataprep(OpeaComponent):
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
     async def get_files(self):
-        """
-        Get file structure from milvus database in the format of 
-            {
-                "name": "File Name",
-                "id": "File Name",
-                "type": "File",
-                "parent": "",
-            }
-        """
+        """Get file structure from milvus database in the format of
+        {
+            "name": "File Name",
+            "id": "File Name",
+            "type": "File",
+            "parent": "",
+        }"""
 
         if logflag:
             logger.info("[ milvus get ] start to get file structure")
 
-        if not self.client.col:
+        my_milvus = Milvus(
+            embedding_function=self.embedder,
+            collection_name=COLLECTION_NAME,
+            connection_args={"uri": MILVUS_URI},
+            index_params=INDEX_PARAMS,
+            auto_id=True,
+        )
+
+        if not my_milvus.col:
             logger.info(f"[ milvus get ] collection {COLLECTION_NAME} does not exist.")
             return []
 
         # get all files from db
         try:
-            all_data = search_all(self.client.col)
+            all_data = search_all(my_milvus.col)
         except Exception as e:
             raise HTTPException(status_code=500, detail="Failed when searching in Milvus db for all files.")
 
@@ -408,12 +427,18 @@ class OpeaMilvusDataprep(OpeaComponent):
         if logflag:
             logger.info(f"[ milvus delete ] delete files: {file_path}")
 
+        my_milvus = Milvus(
+            embedding_function=self.embedder,
+            collection_name=COLLECTION_NAME,
+            connection_args={"uri": MILVUS_URI},
+            index_params=INDEX_PARAMS,
+            auto_id=True,
+        )
+
         # delete all uploaded files
         if file_path == "all":
-            if logflag:
-                logger.info("[ milvus delete ] delete all files")
 
-            delete_all_data(self.client)
+            delete_all_data(my_milvus)
 
             # delete files on local disk
             try:
@@ -446,7 +471,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                 if logflag:
                     logger.info(f"[ milvus delete ] deleting file {encode_file_name}")
                 try:
-                    delete_by_partition_field(self.client, encode_file_name)
+                    delete_by_partition_field(my_milvus, encode_file_name)
                 except Exception as e:
                     if logflag:
                         logger.info(f"[ milvus delete ] fail to delete file {delete_path}: {e}")

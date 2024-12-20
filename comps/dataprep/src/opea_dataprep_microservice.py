@@ -5,10 +5,12 @@
 import os
 import time
 from typing import List, Optional, Union
+
 from fastapi import Body, File, Form, UploadFile
-from integrations.redis_dataprep import OpeaRedisDataprep
 from integrations.milvus_dataprep import OpeaMilvusDataprep
+from integrations.redis_dataprep import OpeaRedisDataprep
 from opea_dataprep_controller import OpeaDataprepController
+
 from comps import (
     CustomLogger,
     ServiceType,
@@ -19,7 +21,6 @@ from comps import (
 )
 from comps.dataprep.src.utils import create_upload_folder
 
-
 logger = CustomLogger("opea_dataprep_microservice")
 logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
@@ -29,18 +30,18 @@ controller = OpeaDataprepController()
 
 # Register components
 try:
-    # Instantiate OpeaEmbedding and PredictionguardEmbedding components
-    redis_embedding = OpeaRedisDataprep(
+    # Instantiate OpeaRedisDataprep and OpeaMilvusDataprep components
+    redis_dataprep = OpeaRedisDataprep(
         name="OpeaRedisDataprep",
         description="OPEA Redis Dataprep Service",
     )
-    milvus_embedding = OpeaMilvusDataprep(
+    milvus_dataprep = OpeaMilvusDataprep(
         name="OpeaMilvusDataprep",
         description="OPEA Milvus Dataprep Service",
     )
     # Register components with the controller
-    controller.register(redis_embedding)
-    controller.register(milvus_embedding)
+    controller.register(redis_dataprep)
+    controller.register(milvus_dataprep)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
@@ -98,7 +99,7 @@ async def get_files():
     start = time.time()
 
     if logflag:
-        logger.info(f"[ get ] start to get ingested files")
+        logger.info("[ get ] start to get ingested files")
 
     try:
         # Use the controller to invoke the active component
@@ -126,7 +127,7 @@ async def delete_files(file_path: str = Body(..., embed=True)):
     start = time.time()
 
     if logflag:
-        logger.info(f"[ delete ] start to delete ingested files")
+        logger.info("[ delete ] start to delete ingested files")
 
     try:
         # Use the controller to invoke the active component
