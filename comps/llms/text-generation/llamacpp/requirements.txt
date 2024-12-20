@@ -2,6 +2,7 @@ aiohttp
 docarray[full]
 fastapi
 huggingface_hub
+openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -9,5 +10,4 @@ prometheus-fastapi-instrumentator
 shortuuid
 transformers
 uvicorn
-openai
 

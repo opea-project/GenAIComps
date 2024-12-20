@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Get script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+echo "Script directory: $SCRIPT_DIR"
+cd $SCRIPT_DIR
+
 # Set default values
 default_hw_mode="cpu"
 
@@ -30,11 +35,16 @@ fi
 
 # Build the docker image for vLLM based on the hardware mode
 if [ "$hw_mode" = "hpu" ]; then
-    docker build -f Dockerfile.intel_hpu -t opea/vllm:hpu --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+    git clone https://github.com/HabanaAI/vllm-fork.git
+    cd ./vllm-fork/
+    git checkout 3c39626
+    docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+    cd ..
+    rm -rf vllm-fork
 else
     git clone https://github.com/vllm-project/vllm.git
     cd ./vllm/
-    docker build -f Dockerfile.cpu -t opea/vllm:cpu --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+    docker build -f Dockerfile.cpu -t opea/vllm-cpu:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     cd ..
     rm -rf vllm
 fi

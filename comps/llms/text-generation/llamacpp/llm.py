@@ -6,15 +6,12 @@ import os
 import openai
 from fastapi.responses import StreamingResponse
 
-from comps import (
-    CustomLogger, opea_microservices,
-    LLMParamsDoc,
-    ServiceType,
-    register_microservice, )
+from comps import CustomLogger, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
 
 logger = CustomLogger("llm_llamacpp")
 logflag = os.getenv("LOGFLAG", False)
 llamacpp_endpoint = os.getenv("LLAMACPP_ENDPOINT", "http://localhost:8080/")
+
 
 # OPEA microservice wrapper of llama.cpp
 # llama.cpp server uses openai API format: https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
@@ -31,8 +28,7 @@ async def llm_generate(input: LLMParamsDoc):
         logger.info(llamacpp_endpoint)
 
     client = openai.OpenAI(
-        base_url=llamacpp_endpoint,  # "http://<Your api-server IP>:port"
-        api_key="sk-no-key-required"
+        base_url=llamacpp_endpoint, api_key="sk-no-key-required"  # "http://<Your api-server IP>:port"
     )
 
     # Llama.cpp works with openai API format
@@ -46,10 +42,11 @@ async def llm_generate(input: LLMParamsDoc):
         top_p=input.top_p,
         frequency_penalty=input.frequency_penalty,
         presence_penalty=input.presence_penalty,
-        stream=input.streaming
+        stream=input.streaming,
     )
 
     if input.streaming:
+
         def stream_generator():
             for c in chat_completion:
                 if logflag:

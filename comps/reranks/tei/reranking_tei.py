@@ -18,6 +18,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.utils import get_access_token
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
     RerankingRequest,
@@ -28,6 +29,11 @@ from comps.cores.proto.api_protocol import (
 logger = CustomLogger("reranking_tei")
 logflag = os.getenv("LOGFLAG", False)
 
+# Environment variables
+TOKEN_URL = os.getenv("TOKEN_URL")
+CLIENTID = os.getenv("CLIENTID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
 
 @register_microservice(
     name="opea_service@reranking_tei",
@@ -35,8 +41,8 @@ logflag = os.getenv("LOGFLAG", False)
     endpoint="/v1/reranking",
     host="0.0.0.0",
     port=8000,
-    input_datatype=SearchedDoc,
-    output_datatype=LLMParamsDoc,
+    input_datatype=Union[SearchedDoc, RerankingRequest, ChatCompletionRequest],
+    output_datatype=Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest],
 )
 @register_statistics(names=["opea_service@reranking_tei"])
 async def reranking(
@@ -46,6 +52,9 @@ async def reranking(
         logger.info(input)
     start = time.time()
     reranking_results = []
+    access_token = (
+        get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+    )
     if input.retrieved_docs:
         docs = [doc.text for doc in input.retrieved_docs]
         url = tei_reranking_endpoint + "/rerank"
@@ -56,6 +65,8 @@ async def reranking(
             query = input.input
         data = {"query": query, "texts": docs}
         headers = {"Content-Type": "application/json"}
+        if access_token:
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=json.dumps(data), headers=headers) as response:
                 response_data = await response.json()

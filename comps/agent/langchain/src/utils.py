@@ -7,16 +7,6 @@ import importlib
 from .config import env_config
 
 
-def wrap_chat(llm_endpoint, model_id):
-    from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-
-    if isinstance(llm_endpoint, HuggingFaceEndpoint):
-        llm = ChatHuggingFace(llm=llm_endpoint, model_id=model_id)
-    else:
-        llm = llm_endpoint
-    return llm
-
-
 def format_date(date):
     # input m/dd/yyyy hr:min
     # output yyyy-mm-dd
@@ -49,54 +39,36 @@ def setup_hf_tgi_client(args):
     }
 
     llm = HuggingFaceEndpoint(
-        endpoint_url=args.llm_endpoint_url,  ## endpoint_url = "localhost:8080",
+        endpoint_url=args.llm_endpoint_url,
         task="text-generation",
         **generation_params,
     )
     return llm
 
 
-def setup_vllm_client(args):
-    from langchain_openai import ChatOpenAI
-
-    openai_endpoint = f"{args.llm_endpoint_url}/v1"
-    params = {
-        "temperature": args.temperature,
-        "max_tokens": args.max_new_tokens,
-        "streaming": args.streaming,
-    }
-    llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)
-    return llm
-
-
-def setup_openai_client(args):
-    """Lower values for temperature result in more consistent outputs (e.g. 0.2),
-    while higher values generate more diverse and creative results (e.g. 1.0).
-
-    Select a temperature value based on the desired trade-off between coherence
-    and creativity for your specific application. The temperature can range is from 0 to 2.
-    """
+def setup_chat_model(args):
     from langchain_openai import ChatOpenAI
 
     params = {
         "temperature": args.temperature,
         "max_tokens": args.max_new_tokens,
+        "top_p": args.top_p,
         "streaming": args.streaming,
     }
-    llm = ChatOpenAI(model_name=args.model, **params)
-    return llm
-
-
-def setup_llm(args):
-    if args.llm_engine == "vllm":
-        model = setup_vllm_client(args)
-    elif args.llm_engine == "tgi":
-        model = setup_hf_tgi_client(args)
+    if args.llm_engine == "vllm" or args.llm_engine == "tgi":
+        openai_endpoint = f"{args.llm_endpoint_url}/v1"
+        llm = ChatOpenAI(
+            openai_api_key="EMPTY",
+            openai_api_base=openai_endpoint,
+            model_name=args.model,
+            request_timeout=args.timeout,
+            **params,
+        )
     elif args.llm_engine == "openai":
-        model = setup_openai_client(args)
+        llm = ChatOpenAI(model_name=args.model, request_timeout=args.timeout, **params)
     else:
-        raise ValueError("Only supports vllm or hf_tgi mode for now")
-    return model
+        raise ValueError("llm_engine must be vllm, tgi or openai")
+    return llm
 
 
 def tool_renderer(tools):
@@ -148,7 +120,7 @@ def get_args():
     parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
     parser.add_argument("--strategy", type=str, default="react_langchain")
     parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
-    parser.add_argument("--tools", type=str, default="tools/custom_tools.yaml")
+    parser.add_argument("--tools", type=str, default=None, help="path to the tools file")
     parser.add_argument("--recursion_limit", type=int, default=5)
     parser.add_argument("--require_human_feedback", action="store_true", help="If this agent requires human feedback")
     parser.add_argument("--debug", action="store_true", help="Test with endpoint mode")
@@ -163,9 +135,18 @@ def get_args():
     parser.add_argument("--repetition_penalty", type=float, default=1.03)
     parser.add_argument("--return_full_text", type=bool, default=False)
     parser.add_argument("--custom_prompt", type=str, default=None)
+    parser.add_argument("--with_memory", type=bool, default=False)
+    parser.add_argument("--with_store", type=bool, default=False)
+    parser.add_argument("--timeout", type=int, default=60)
+
+    # for sql agent
+    parser.add_argument("--db_path", type=str, help="database path")
+    parser.add_argument("--db_name", type=str, help="database name")
+    parser.add_argument("--use_hints", type=str, default="false", help="If this agent uses hints")
+    parser.add_argument("--hints_file", type=str, help="path to the hints file")
 
     sys_args, unknown_args = parser.parse_known_args()
-    # print("env_config: ", env_config)
+    print("env_config: ", env_config)
     if env_config != []:
         env_args, env_unknown_args = parser.parse_known_args(env_config)
         unknown_args += env_unknown_args
@@ -176,5 +157,12 @@ def get_args():
         sys_args.streaming = True
     else:
         sys_args.streaming = False
+
+    if sys_args.use_hints == "true":
+        print("SQL agent will use hints")
+        sys_args.use_hints = True
+    else:
+        sys_args.use_hints = False
+
     print("==========sys_args==========:\n", sys_args)
     return sys_args, unknown_args

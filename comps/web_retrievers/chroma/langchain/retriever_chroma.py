@@ -52,7 +52,9 @@ def parse_htmls(docs):
 
 
 def dump_docs(docs):
-    vector_db.add_documents(docs)
+    batch_size = 32
+    for i in range(0, len(docs), batch_size):
+        vector_db.add_documents(docs[i : i + batch_size])
 
 
 @register_microservice(
@@ -71,7 +73,7 @@ async def web_retrieve(input: EmbedDoc) -> SearchedDoc:
     embedding = input.embedding
 
     # Google Search the results, parse the htmls
-    search_results = get_urls(query)
+    search_results = get_urls(query=query, num_search_result=input.k)
     urls_to_look = []
     for res in search_results:
         if res.get("link", None):
@@ -92,7 +94,7 @@ async def web_retrieve(input: EmbedDoc) -> SearchedDoc:
     dump_docs(unique_documents)
 
     # Do the retrieval
-    search_res = await vector_db.asimilarity_search_by_vector(embedding=embedding)
+    search_res = await vector_db.asimilarity_search_by_vector(embedding=embedding, k=input.k)
 
     searched_docs = []
 
