@@ -5,5 +5,5 @@
 services:
   texttosql:
     build:
-      dockerfile: comps/texttosql/src/langchain/Dockerfile
+      dockerfile: comps/texttosql/langchain/Dockerfile
     image: ${REGISTRY:-opea}/texttosql:${TAG:-latest}
