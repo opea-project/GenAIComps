@@ -84,6 +84,7 @@ class OpenAILLM(OpeaComponent):
             response = asyncio.run(send_simple_request())
             return response is not None
         except Exception as e:
+            logger.error(e)
             logger.error("Health check failed")
             return False
 

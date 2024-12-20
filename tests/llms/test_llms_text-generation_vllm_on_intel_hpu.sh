@@ -52,15 +52,7 @@ function start_service() {
         --model $LLM_MODEL  --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256 --max-seq_len-to-capture 2048
 
     export LLM_ENDPOINT="http://${ip_address}:${port_number}"
-    docker run -d --rm \
-        --name="test-comps-vllm-microservice" \
-        -p 5030:9000 \
-        --ipc=host \
-        -e LLM_ENDPOINT=$LLM_ENDPOINT \
-        -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
-        -e LLM_MODEL_ID=$LLM_MODEL_ID \
-        opea/llm:comps
-
+    
     # check whether vllm ray is fully ready
     n=0
     until [[ "$n" -ge 70 ]] || [[ $ready == true ]]; do
@@ -72,6 +64,16 @@ function start_service() {
         sleep 5s
     done
     sleep 5s
+
+    docker run -d --rm \
+        --name="test-comps-vllm-microservice" \
+        -p 5030:9000 \
+        --ipc=host \
+        -e LLM_ENDPOINT=$LLM_ENDPOINT \
+        -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
+        -e LLM_MODEL_ID=$LLM_MODEL_ID \
+        -e LOGFLAG=True \
+        opea/llm:comps
 }
 
 function validate_microservice() {

@@ -27,21 +27,21 @@ function start_service() {
     docker run -d --name="test-comps-llm-tgi-endpoint" -p $tgi_endpoint_port:80 -v ~/.cache/huggingface/hub:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${hf_llm_model} --max-input-tokens 1024 --max-total-tokens 2048
     export LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
 
-    llm_port=5005
-    unset http_proxy
-    docker run -d --name="test-comps-llm-tgi-server" -p ${llm_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLM_ENDPOINT=$LLM_ENDPOINT -e LLM_MODEL_ID=$hf_llm_model -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm:comps
-
     # check whether tgi is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/${hf_llm_model}-llm-tgi.log
+        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/test-comps-vllm-service.log
         n=$((n+1))
-        if grep -q Connected ${LOG_PATH}/${hf_llm_model}-llm-tgi.log; then
+        if grep -q Connected ${LOG_PATH}/test-comps-vllm-service.log; then
             break
         fi
         sleep 5s
     done
     sleep 5s
+
+    llm_port=5005
+    unset http_proxy
+    docker run -d --name="test-comps-llm-tgi-server" -p ${llm_port}:9000 --ipc=host -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLM_ENDPOINT=$LLM_ENDPOINT -e LLM_MODEL_ID=$hf_llm_model -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm:comps
 }
 
 function validate_microservice() {
