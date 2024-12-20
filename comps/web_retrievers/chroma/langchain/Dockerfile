@@ -19,13 +19,13 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then \
-      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/web_retrievers/src/chroma/langchain/requirements.txt; \
+      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/web_retrievers/chroma/langchain/requirements.txt; \
     else \
       pip install --no-cache-dir -r /home/user/comps/web_retrievers/chroma/langchain/requirements.txt; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/web_retrievers/src/chroma/langchain
+WORKDIR /home/user/comps/web_retrievers/chroma/langchain
 
 ENTRYPOINT ["python", "retriever_chroma.py"]
