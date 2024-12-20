@@ -41,7 +41,7 @@ curl 127.0.0.1:6060/rerank \
 #### Start Retriever Service
 
 Retriever service queries the Pathway vector store on incoming requests.
-Make sure that Pathway vector store is already running, [see Pathway vector store here](../../../vectorstores/pathway/README.md).
+Make sure that Pathway vector store is already running, [see Pathway vector store here](../../../../vectorstores/src/pathway/README.md).
 
 Retriever service expects the Pathway host and port variables to connect to the vector DB. Set the Pathway vector store environment variables.
 

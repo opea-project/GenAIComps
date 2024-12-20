@@ -16,20 +16,3 @@ However, a reranking model can further refine this process by rearranging potent
 
 ---
 
-## ⚙️ Implementation
-
-### Utilizing Reranking with fastRAG
-
-For additional information, please refer to this [README](./fastrag/README.md)
-
-### Utilizing Reranking with Mosec
-
-For additional information, please refer to this [README](./mosec/langchain/README.md)
-
-### Utilizing Reranking with TEI
-
-For additional information, please refer to this [README](./tei/README.md)
-
-### Utilizing Reranking with VideoQnA
-
-For additional information, please refer to this [README](./videoqna/README.md)

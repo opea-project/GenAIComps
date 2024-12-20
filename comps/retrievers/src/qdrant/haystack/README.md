@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ### 1.2 Start Qdrant Server
 
-Please refer to this [readme](../../../vectorstores/qdrant/README.md).
+Please refer to this [readme](../../../../vectorstores/src/qdrant/README.md).
 
 ### 1.3 Setup Environment Variables
 

@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ### Start Milvus Server
 
-Please refer to this [readme](../../../vectorstores/milvus/README.md).
+Please refer to this [readme](../../../../vectorstores/src/milvus/README.md).
 
 ### Setup Environment Variables
 
