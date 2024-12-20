@@ -2,7 +2,7 @@
 
 [llama.cpp](https://github.com/ggerganov/llama.cpp) provides inference in pure C/C++, and enables "LLM inference with minimal setup and state-of-the-art performance on a wide range of hardware - locally and in the cloud".
 
-This OPEA component wraps llama.cpp server so that it can interface with other OPEA components, or for creating OPEA Megaservices. 
+This OPEA component wraps llama.cpp server so that it can interface with other OPEA components, or for creating OPEA Megaservices.
 
 ## TLDR
 
@@ -15,19 +15,18 @@ Please note it's instructive to run and validate each the llama.cpp server and O
 
 ## 1. Run the llama.cpp server
 
-
 ```bash
 cd GenAIComps
 docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml up llamacpp-server --force-recreate
 ```
+
 Notes:
 
 i) If you prefer to run above in the background without screen output use `up -d` . The `--force-recreate` clears cache.
 
-ii) To tear down the llama.cpp server and remove the container: 
+ii) To tear down the llama.cpp server and remove the container:
 
 `docker compose -f comps/llms/text-generation/llamacpp/langchain/docker_compose_llm.yaml llamacpp-server down`
-
 
 iii) For [llama.cpp settings](https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md) please specify them in the docker_compose_llm.yaml file.
 
@@ -42,7 +41,7 @@ curl --request POST \
 
 ## 2. Run the llama.cpp OPEA Service
 
-This is essentially a wrapper component of Llama.cpp server. OPEA nicely standardizes and verifies LLM inputs  with LLMParamsDoc class (see llm.py).
+This is essentially a wrapper component of Llama.cpp server. OPEA nicely standardizes and verifies LLM inputs with LLMParamsDoc class (see llm.py).
 
 ### 2.1 Build the llama.cpp OPEA image:
 
@@ -60,7 +59,7 @@ docker build --no-cache -t opea/llm-llamacpp:latest \
   -f comps/llms/text-generation/llamacpp/Dockerfile .
 ```
 
-And run: 
+And run:
 
 ```bash
 docker run --network host -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
@@ -82,4 +81,4 @@ Tearing down services and removing containers:
 ```bash
 cd GenAIComps/comps/llms/text-generation/llamacpp/
 docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml down
-````
+```
