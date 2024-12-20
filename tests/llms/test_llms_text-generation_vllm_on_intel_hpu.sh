@@ -52,7 +52,7 @@ function start_service() {
         --model $LLM_MODEL  --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256 --max-seq_len-to-capture 2048
 
     export LLM_ENDPOINT="http://${ip_address}:${port_number}"
-    
+
     # check whether vllm ray is fully ready
     n=0
     until [[ "$n" -ge 70 ]] || [[ $ready == true ]]; do
