@@ -7,9 +7,8 @@ import sys
 
 from fastapi.exceptions import HTTPException
 
-from comps.texttosql.scr.integrations.texttosql import TextToSQL, Input
-
-from comps import opea_microservices, register_microservice, CustomLogger, OpeaComponentController
+from comps import CustomLogger, OpeaComponentController, opea_microservices, register_microservice
+from comps.texttosql.scr.integrations.texttosql import Input, TextToSQL
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")

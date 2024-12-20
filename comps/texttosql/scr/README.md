@@ -18,8 +18,6 @@ The text-to-sql microservice able to implement with various framework and suppor
 
 ### 🔗 Utilizing Text-to-SQL with Langchain framework
 
-
-
 The follow guide provides set-up instructions and comprehensive details regarding the Text-to-SQL microservices via LangChain. In this configuration, we will employ PostgresDB as our example database to showcase this microservice.
 
 ---

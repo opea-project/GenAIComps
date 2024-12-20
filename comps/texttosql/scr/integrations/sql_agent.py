@@ -1,3 +1,6 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import os
@@ -6,21 +9,20 @@ from typing import Any, Dict, List, Optional, Sequence, Type, Union
 from langchain.agents import create_react_agent
 from langchain.agents.agent import AgentExecutor, RunnableAgent
 from langchain.agents.mrkl import prompt as react_prompt
+from langchain.chains.llm import LLMChain
 from langchain_community.agent_toolkits.sql.prompt import SQL_PREFIX, SQL_SUFFIX
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
+from langchain_community.tools.sql_database.prompt import QUERY_CHECKER
 from langchain_community.tools.sql_database.tool import InfoSQLDatabaseTool, ListSQLDatabaseTool
 from langchain_community.utilities.sql_database import SQLDatabase
-from langchain.chains.llm import LLMChain
-from langchain_core.pydantic_v1 import BaseModel, Field, root_validator
-
+from langchain_core.callbacks import AsyncCallbackManagerForToolRun, BaseCallbackManager, CallbackManagerForToolRun
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts import BasePromptTemplate, PromptTemplate
+from langchain_core.pydantic_v1 import BaseModel, Field, root_validator
 from langchain_core.tools import BaseTool
 from sqlalchemy.engine import Result
-from comps import CustomLogger
-from langchain_core.callbacks import AsyncCallbackManagerForToolRun, BaseCallbackManager, CallbackManagerForToolRun
 
-from langchain_community.tools.sql_database.prompt import QUERY_CHECKER
+from comps import CustomLogger
 
 logger = CustomLogger("comps-texttosql")
 logflag = os.getenv("LOGFLAG", False)
@@ -60,9 +62,9 @@ class CustomQuerySQLDataBaseTool(BaseSQLDatabaseTool, BaseTool):
     args_schema: Type[BaseModel] = _QuerySQLDataBaseToolInput
 
     def _run(
-            self,
-            query: str,
-            run_manager: Optional[CallbackManagerForToolRun] = None,
+        self,
+        query: str,
+        run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> Union[str, Sequence[Dict[str, Any]], Result]:
         """Execute the query, return the results or an error message."""
         logger.info("query: {}".format(query))
@@ -94,9 +96,9 @@ class CustomInfoSQLDatabaseTool(BaseSQLDatabaseTool, BaseTool):
     args_schema: Type[BaseModel] = _InfoSQLDatabaseToolInput
 
     def _run(
-            self,
-            table_names: str,
-            run_manager: Optional[CallbackManagerForToolRun] = None,
+        self,
+        table_names: str,
+        run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Get the schema for tables in a comma-separated list."""
         table_names = table_names.replace("\nObservation", "")  # this changed
@@ -111,9 +113,9 @@ class CustomListSQLDatabaseTool(BaseSQLDatabaseTool, BaseTool):
     args_schema: Type[BaseModel] = _ListSQLDataBaseToolInput
 
     def _run(
-            self,
-            tool_input: str = "",
-            run_manager: Optional[CallbackManagerForToolRun] = None,
+        self,
+        tool_input: str = "",
+        run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Get a comma-separated list of table names."""
         return ", ".join(self.db.get_usable_table_names())
@@ -155,9 +157,9 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
         return values
 
     def _run(
-            self,
-            query: str,
-            run_manager: Optional[CallbackManagerForToolRun] = None,
+        self,
+        query: str,
+        run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         """Use the LLM to check the query."""
         return self.llm_chain.predict(
@@ -167,9 +169,9 @@ class CustomQuerySQLCheckerTool(BaseSQLDatabaseTool, BaseTool):
         )
 
     async def _arun(
-            self,
-            query: str,
-            run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
+        self,
+        query: str,
+        run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ) -> str:
         return await self.llm_chain.apredict(
             query=query,
@@ -220,22 +222,22 @@ class CustomSQLDatabaseToolkit(SQLDatabaseToolkit):
 
 
 def custom_create_sql_agent(
-        llm: BaseLanguageModel,
-        toolkit: Optional[SQLDatabaseToolkit] = None,
-        callback_manager: Optional[BaseCallbackManager] = None,
-        prefix: Optional[str] = None,
-        suffix: Optional[str] = None,
-        format_instructions: Optional[str] = None,
-        top_k: int = 3,
-        max_iterations: Optional[int] = 15,
-        max_execution_time: Optional[float] = None,
-        early_stopping_method: str = "force",
-        verbose: bool = False,
-        agent_executor_kwargs: Optional[Dict[str, Any]] = None,
-        *,
-        db: Optional[SQLDatabase] = None,
-        prompt: Optional[BasePromptTemplate] = None,
-        **kwargs: Any,
+    llm: BaseLanguageModel,
+    toolkit: Optional[SQLDatabaseToolkit] = None,
+    callback_manager: Optional[BaseCallbackManager] = None,
+    prefix: Optional[str] = None,
+    suffix: Optional[str] = None,
+    format_instructions: Optional[str] = None,
+    top_k: int = 3,
+    max_iterations: Optional[int] = 15,
+    max_execution_time: Optional[float] = None,
+    early_stopping_method: str = "force",
+    verbose: bool = False,
+    agent_executor_kwargs: Optional[Dict[str, Any]] = None,
+    *,
+    db: Optional[SQLDatabase] = None,
+    prompt: Optional[BasePromptTemplate] = None,
+    **kwargs: Any,
 ) -> AgentExecutor:
     """Creates a SQL agent with specified parameters."""
 

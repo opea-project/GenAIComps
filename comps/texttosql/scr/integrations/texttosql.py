@@ -1,23 +1,20 @@
-from __future__ import annotations
-from comps import OpeaComponent, ServiceType
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
-from typing import Annotated
+from __future__ import annotations
+
+import os
+from typing import Annotated, Optional
+
+from langchain.agents.agent_types import AgentType
+from langchain_community.utilities.sql_database import SQLDatabase
+from langchain_huggingface import HuggingFaceEndpoint
+from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
-
-
-import os
-from typing import Optional
-
-from langchain.agents.agent_types import AgentType
-
-from langchain_community.utilities.sql_database import SQLDatabase
-from pydantic import BaseModel, Field
-from langchain_huggingface import HuggingFaceEndpoint
-
-from comps.texttosql.scr.integrations.sql_agent import custom_create_sql_agent, CustomSQLDatabaseToolkit
-from comps import CustomLogger
+from comps import CustomLogger, OpeaComponent, ServiceType
+from comps.texttosql.scr.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
 
 logger = CustomLogger("comps-texttosql")
 logflag = os.getenv("LOGFLAG", False)
