@@ -13,4 +13,3 @@ Key Features:
 **Customizable**: Supports configuration and customization to meet specific use case requirements, including different embedding models and preprocessing techniques.
 
 Users are albe to configure and build embedding-related services according to their actual needs.
-

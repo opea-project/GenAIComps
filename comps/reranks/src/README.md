@@ -15,4 +15,3 @@ However, a reranking model can further refine this process by rearranging potent
 - **rerank on retrieved documents**: Perform reranking on the given documents using reranking models together with query.
 
 ---
-
