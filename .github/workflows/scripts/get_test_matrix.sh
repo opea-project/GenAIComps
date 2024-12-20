@@ -55,15 +55,17 @@ function find_test_1() {
 function find_test_2() {
     test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "*.sh") || true
     for test_file in ${test_files}; do
-        _service=$(echo $test_file | cut -d'/' -f3 | cut -d'.' -f1 | cut -c6-)
-        if [ $(echo ${_service} | grep -c "_on_") == 0 ]; then
-            service=${_service}
-            hardware="intel_cpu"
-        else
-            hardware=${_service#*_on_}
-        fi
-        if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
-            run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
+        if [ -f $test_file ]; then
+            _service=$(echo $test_file | cut -d'/' -f3 | cut -d'.' -f1 | cut -c6-)
+            if [ $(echo ${_service} | grep -c "_on_") == 0 ]; then
+                service=${_service}
+                hardware="intel_cpu"
+            else
+                hardware=${_service#*_on_}
+            fi
+            if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
+                run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
+            fi
         fi
     done
 }
