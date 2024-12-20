@@ -46,7 +46,7 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponse,
     RetrievalResponseData,
 )
-from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, get_attribute_from_tgi_endpoint
+from comps.dataprep.src.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, get_attribute_from_tgi_endpoint
 
 logger = CustomLogger("retriever_neo4j")
 logflag = os.getenv("LOGFLAG", False)
