@@ -36,7 +36,7 @@ function start_service() {
 }
 
 function validate_microservice() {
-    http_proxy="" curl localhost:9088/v1/audio/speech -XPOST -d '{"input":"Hello, who are you? 你好。"}' -H 'Content-Type: application/json' --output speech.mp3
+    http_proxy="" curl localhost:5016/v1/audio/speech -XPOST -d '{"input":"Hello, who are you? 你好。"}' -H 'Content-Type: application/json' --output speech.mp3
 
     if [[ $(file speech.mp3) == *"RIFF"* ]]; then
         echo "Result correct."

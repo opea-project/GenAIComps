@@ -2,25 +2,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  whisper-service:
-    image: ${REGISTRY:-opea}/whisper:${TAG:-latest}
-    container_name: whisper-service
+  speecht5-service:
+    image: ${REGISTRY:-opea}/speecht5:${TAG:-latest}
+    container_name: speecht5-service
     ports:
-      - "7066:7066"
+      - "7055:7055"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
     restart: unless-stopped
-  asr:
-    image: ${REGISTRY:-opea}/asr:${TAG:-latest}
-    container_name: asr-service
+  tts:
+    image: ${REGISTRY:-opea}/tts:${TAG:-latest}
+    container_name: tts-service
     ports:
-      - "9099:9099"
+      - "3002:9088"
     ipc: host
     environment:
-      ASR_ENDPOINT: ${ASR_ENDPOINT}
+      TTS_ENDPOINT: ${TTS_ENDPOINT}
 
 networks:
   default:
