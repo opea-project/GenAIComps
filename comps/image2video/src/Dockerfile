@@ -9,10 +9,10 @@ ENV LANG=en_US.UTF-8
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/comps/image2video/requirements.txt
+    pip install --no-cache-dir -r /home/comps/image2video/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/comps/image2video
+WORKDIR /home/comps/image2video/src/
 
 ENTRYPOINT ["python", "image2video.py"]
