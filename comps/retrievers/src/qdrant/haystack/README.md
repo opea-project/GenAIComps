@@ -42,7 +42,7 @@ export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
 
 ```bash
 cd ../../../../
-docker build -t opea/retriever-qdrant:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/qdrant/haystack/Dockerfile .
+docker build -t opea/retriever-qdrant:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/qdrant/haystack/Dockerfile .
 ```
 
 ### 2.3 Run Docker with CLI

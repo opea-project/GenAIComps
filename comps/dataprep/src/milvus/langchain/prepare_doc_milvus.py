@@ -38,7 +38,7 @@ from comps.dataprep.src.utils import (
 logger = CustomLogger("prepare_doc_milvus")
 logflag = os.getenv("LOGFLAG", False)
 
-# workaround notes: cp comps/dataprep/utils.py ./milvus/utils.py
+# workaround notes: cp comps/dataprep/src/utils.py ./milvus/utils.py
 index_params = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
 partition_field_name = "filename"
 upload_folder = "./uploaded_files/"
