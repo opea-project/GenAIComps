@@ -51,7 +51,7 @@ python prepare_doc_neo4j.py
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-neo4j:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/neo4j/langchain/Dockerfile .
+docker build -t opea/dataprep-neo4j:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/neo4j/langchain/Dockerfile .
 ```
 
 ### Run Docker with CLI
@@ -74,7 +74,7 @@ export NEO4J_PASSWORD=${your_neo4j_password}
 ### Run Docker with Docker Compose
 
 ```bash
-cd comps/dataprep/neo4j/langchain
+cd comps/dataprep/src/neo4j/langchain
 docker compose -f docker-compose-dataprep-neo4j.yaml up -d
 ```
 

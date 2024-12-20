@@ -46,7 +46,7 @@ python retriever_neo4j.py
 
 ```bash
 cd ../../
-docker build -t opea/retriever-neo4j:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/langchain/Dockerfile .
+docker build -t opea/retriever-neo4j:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/neo4j/langchain/Dockerfile .
 ```
 
 ### Run Docker with CLI

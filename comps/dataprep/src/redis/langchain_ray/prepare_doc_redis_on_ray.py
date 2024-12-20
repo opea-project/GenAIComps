@@ -41,7 +41,7 @@ from ray.data.datasource import FileBasedDatasource
 from tqdm import tqdm
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import (
+from comps.dataprep.src.utils import (
     Timer,
     create_upload_folder,
     document_loader,

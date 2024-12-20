@@ -13,7 +13,7 @@ apt-get install poppler-utils -y
 
 ### Start Qdrant Server
 
-Please refer to this [readme](../../../vectorstores/qdrant/README.md).
+Please refer to this [readme](../../../../vectorstores/src/qdrant/README.md).
 
 ### Setup Environment Variables
 
@@ -41,7 +41,7 @@ python prepare_doc_qdrant.py
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-qdrant:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/qdrant/langchain/Dockerfile .
+docker build -t opea/dataprep-qdrant:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/qdrant/langchain/Dockerfile .
 ```
 
 ### Run Docker with CLI
@@ -63,7 +63,7 @@ export COLLECTION_NAME=${your_collection_name}
 ### Run Docker with Docker Compose
 
 ```bash
-cd comps/dataprep/qdrant/langchain
+cd comps/dataprep/src/qdrant/langchain
 docker compose -f docker-compose-dataprep-qdrant.yaml up -d
 ```
 

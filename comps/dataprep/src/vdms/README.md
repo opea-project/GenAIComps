@@ -27,7 +27,7 @@ cd langchain_ray; pip install -r requirements_ray.txt
 
 ### 1.2 Start VDMS Server
 
-Refer to this [readme](../../vectorstores/vdms/README.md).
+Refer to this [readme](../../../vectorstores/src/vdms/README.md).
 
 ### 1.3 Setup Environment Variables
 
@@ -60,7 +60,7 @@ python prepare_doc_redis_on_ray.py
 
 ### 2.1 Start VDMS Server
 
-Refer to this [readme](../../vectorstores/vdms/README.md).
+Refer to this [readme](../../../vectorstores/src/vdms/README.md).
 
 ### 2.2 Setup Environment Variables
 
@@ -84,14 +84,14 @@ export PYTHONPATH=${path_to_comps}
 
   ```bash
   cd ../../../
-  docker build -t opea/dataprep-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/langchain/Dockerfile .
+  docker build -t opea/dataprep-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/vdms/langchain/Dockerfile .
   ```
 
 <!-- - option 2: Start multi-process version (for >10 files processing)
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-on-ray-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/vdms/langchain_ray/Dockerfile . -->
+docker build -t opea/dataprep-on-ray-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/vdms/langchain_ray/Dockerfile . -->
 
 ### 2.4 Run Docker with CLI
 

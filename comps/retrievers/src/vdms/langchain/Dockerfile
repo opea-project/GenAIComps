@@ -19,7 +19,7 @@ COPY comps /home/user/comps
 USER user
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/vdms/langchain/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/src/vdms/langchain/requirements.txt
 
 RUN pip install --no-cache-dir -U \
     huggingface-hub \
@@ -32,6 +32,6 @@ ENV HUGGINGFACEHUB_API_TOKEN=dummy
 
 ENV USECLIP 0
 
-WORKDIR /home/user/comps/retrievers/vdms/langchain
+WORKDIR /home/user/comps/retrievers/src/vdms/langchain
 
 ENTRYPOINT ["python", "retriever_vdms.py"]

@@ -35,7 +35,7 @@ source ./set_env.sh
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-neo4j-llamaindex:latest --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/neo4j/llama_index/Dockerfile .
+docker build -t opea/dataprep-neo4j-llamaindex:latest --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/neo4j/llama_index/Dockerfile .
 ```
 
 ### 2. Setup Environment Variables
@@ -61,7 +61,7 @@ source ./set_env.sh
 Docker compose will start 4 microservices: dataprep-neo4j-llamaindex, neo4j-apoc, tgi-gaudi-service and tei-embedding-service. The reason TGI and TEI are needed is because dataprep relies on LLM to extract entities and relationships from text to build the graph and Neo4j Property Graph Index. Neo4j database supports embeddings natively so we do not need a separate vector store. Checkout the blog [Introducing the Property Graph Index: A Powerful New Way to Build Knowledge Graphs with LLMs](https://www.llamaindex.ai/blog/introducing-the-property-graph-index-a-powerful-new-way-to-build-knowledge-graphs-with-llms) for a better understanding of Property Graph Store and Index.
 
 ```bash
-cd comps/dataprep/neo4j/llama_index
+cd comps/dataprep/src/neo4j/llama_index
 docker compose -f compose.yaml up -d
 ```
 

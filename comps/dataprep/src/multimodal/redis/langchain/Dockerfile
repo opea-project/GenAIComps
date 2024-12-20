@@ -26,10 +26,10 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/multimodal/redis/langchain/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/dataprep/src/multimodal/redis/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/dataprep/multimodal/redis/langchain
+WORKDIR /home/user/comps/dataprep/src/multimodal/redis/langchain
 
 ENTRYPOINT ["python", "prepare_videodoc_redis.py"]

@@ -75,8 +75,8 @@ export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
 ### 2.2 Build Docker Image
 
 ```bash
-cd comps/retrievers/elasticsearch/langchain
-docker build -t opea/retriever-elasticsearch:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/elasticsearch/langchain/Dockerfile .
+cd ../../../../../
+docker build -t opea/retriever-elasticsearch:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/elasticsearch/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:
@@ -95,7 +95,7 @@ docker run -d --name="retriever-elasticsearch" -p 7000:7000 --ipc=host -e http_p
 ### 2.4 Run Docker with Docker Compose (Option B)
 
 ```bash
-cd comps/retrievers/elasticsearch/langchain
+cd comps/retrievers/src/elasticsearch/langchain
 docker compose -f docker_compose_retriever.yaml up -d
 ```
 

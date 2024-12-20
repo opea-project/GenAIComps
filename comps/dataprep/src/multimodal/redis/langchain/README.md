@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ### 1.2 Start Redis Stack Server
 
-Please refer to this [readme](../../../../vectorstores/redis/README.md).
+Please refer to this [readme](../../../../../vectorstores/src/redis/README.md).
 
 ### 1.3 Setup Environment Variables
 
@@ -38,7 +38,7 @@ export PYTHONPATH=${path_to_comps}
 
 This is required only if you are going to consume the _generate_captions_ API of this microservice as in [Section 4.3](#43-consume-generate_captions-api).
 
-Please refer to this [readme](../../../../lvms/llava/README.md) to start the LVM microservice.
+Please refer to this [readme](../../../../../lvms/src/llava/README.md) to start the LVM microservice.
 After LVM is up, set up environment variables.
 
 ```bash
@@ -58,13 +58,13 @@ python prepare_videodoc_redis.py
 
 ### 2.1 Start Redis Stack Server
 
-Please refer to this [readme](../../../../vectorstores/redis/README.md).
+Please refer to this [readme](../../../../../vectorstores/src/redis/README.md).
 
 ### 2.2 Start LVM Microservice (Optional)
 
 This is required only if you are going to consume the _generate_captions_ API of this microservice as described [here](#43-consume-generate_captions-api).
 
-Please refer to this [readme](../../../../lvms/llava/README.md) to start the LVM microservice.
+Please refer to this [readme](../../../../../lvms/src/llava/README.md) to start the LVM microservice.
 After LVM is up, set up environment variables.
 
 ```bash
@@ -87,7 +87,7 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/multimodal/redis/langchain/Dockerfile .
+docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/multimodal/redis/langchain/Dockerfile .
 ```
 
 ### 2.5 Run Docker with CLI (Option A)
@@ -99,7 +99,7 @@ docker run -d --name="dataprep-multimodal-redis" -p 6007:6007 --runtime=runc --i
 ### 2.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
 ```bash
-cd comps/dataprep/multimodal/redis/langchain
+cd comps/dataprep/src/multimodal/redis/langchain
 docker compose -f docker-compose-dataprep-redis.yaml up -d
 ```
 

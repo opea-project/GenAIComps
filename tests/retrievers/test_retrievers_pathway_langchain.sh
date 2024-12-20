@@ -10,11 +10,11 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
 
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/vectorstore-pathway:comps -f comps/vectorstores/pathway/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/vectorstore-pathway:comps -f comps/vectorstores/src/pathway/Dockerfile .
 
     cd $WORKPATH
 
-    docker build --no-cache -t opea/retriever-pathway:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/pathway/langchain/Dockerfile .
+    docker build --no-cache -t opea/retriever-pathway:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/pathway/langchain/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/retriever-pathway built fail"
         exit 1
@@ -46,7 +46,7 @@ function start_service() {
     export PATHWAY_HOST="0.0.0.0"
     export PATHWAY_PORT=5433
 
-    docker run -d --name="test-comps-retriever-pathway-vectorstore" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v $WORKPATH/comps/vectorstores/pathway/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" opea/vectorstore-pathway:comps
+    docker run -d --name="test-comps-retriever-pathway-vectorstore" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v $WORKPATH/comps/vectorstores/src/pathway/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" opea/vectorstore-pathway:comps
 
     sleep 45s
 

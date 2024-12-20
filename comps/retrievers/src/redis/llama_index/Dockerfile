@@ -23,13 +23,13 @@ USER user
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then \
-      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/retrievers/redis/llama_index/requirements.txt; \
+      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/retrievers/src/redis/llama_index/requirements.txt; \
     else \
-      pip install --no-cache-dir -r /home/user/comps/retrievers/redis/llama_index/requirements.txt; \
+      pip install --no-cache-dir -r /home/user/comps/retrievers/src/redis/llama_index/requirements.txt; \
     fi;
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/redis/llama_index
+WORKDIR /home/user/comps/retrievers/src/redis/llama_index
 
 ENTRYPOINT ["python", "retriever_redis.py"]

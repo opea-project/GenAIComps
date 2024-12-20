@@ -84,7 +84,7 @@ export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
 
 ```bash
 cd ../../../../
-docker build -t opea/retriever-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/vdms/langchain/Dockerfile .
+docker build -t opea/retriever-vdms:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/vdms/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:

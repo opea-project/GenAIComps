@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ### Start Milvus Server
 
-Please refer to this [readme](../../../vectorstores/milvus/README.md).
+Please refer to this [readme](../../../../vectorstores/src/milvus/README.md).
 
 ### Setup Environment Variables
 
@@ -37,7 +37,7 @@ python retriever_redis.py
 
 ```bash
 cd ../../
-docker build -t opea/retriever-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/milvus/langchain/Dockerfile .
+docker build -t opea/retriever-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/milvus/langchain/Dockerfile .
 ```
 
 ### Run Docker with CLI
