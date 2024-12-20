@@ -23,7 +23,7 @@ from comps.cores.proto.api_protocol import (
     FineTuningJobList,
     UploadFileRequest,
 )
-from comps.finetuning.finetune_config import FinetuneConfig, FineTuningParams
+from comps.finetuning.src.finetune_config import FinetuneConfig, FineTuningParams
 
 logger = CustomLogger("finetuning_handlers")
 

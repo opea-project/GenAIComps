@@ -23,9 +23,9 @@ from ray.train.torch import TorchTrainer
 from transformers import Trainer, TrainingArguments
 
 from comps import CustomLogger
-from comps.finetuning.finetune_config import FinetuneConfig
-from comps.finetuning.llm_on_ray import common
-from comps.finetuning.llm_on_ray.finetune.data_process import (
+from comps.finetuning.src.finetune_config import FinetuneConfig
+from comps.finetuning.src.llm_on_ray import common
+from comps.finetuning.src.llm_on_ray.finetune.data_process import (
     DPOCollator,
     DPODataProcessor,
     EmbedCollator,
@@ -35,7 +35,7 @@ from comps.finetuning.llm_on_ray.finetune.data_process import (
     TrainDatasetForCE,
     TrainDatasetForEmbedding,
 )
-from comps.finetuning.llm_on_ray.finetune.modeling import BiEncoderModel, CrossEncoder
+from comps.finetuning.src.llm_on_ray.finetune.modeling import BiEncoderModel, CrossEncoder
 
 logger = CustomLogger("llm_on_ray/finetune")
 

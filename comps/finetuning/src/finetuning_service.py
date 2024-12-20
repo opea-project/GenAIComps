@@ -4,8 +4,8 @@ from fastapi import BackgroundTasks, Depends
 
 from comps import opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, UploadFileRequest
-from comps.finetuning.finetune_config import FineTuningParams
-from comps.finetuning.handlers import (
+from comps.finetuning.src.finetune_config import FineTuningParams
+from comps.finetuning.src.handlers import (
     handle_cancel_finetuning_job,
     handle_create_finetuning_jobs,
     handle_list_finetuning_checkpoints,
