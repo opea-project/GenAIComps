@@ -4,9 +4,11 @@
 import argparse
 import time
 
+from integrations import OpeaText2image
+
 from comps import (
-    OpeaComponentController,
     CustomLogger,
+    OpeaComponentController,
     SDInputs,
     SDOutputs,
     ServiceType,
@@ -15,7 +17,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from integrations import OpeaText2image
 
 logger = CustomLogger("opea_text2image_microservice")
 
@@ -60,9 +61,7 @@ if __name__ == "__main__":
     try:
         # Instantiate Embedding components
         opea_text2image = OpeaText2image(
-            name="OpeaText2image",
-            description="OPEA Text2image Service",
-            config=args.__dict__
+            name="OpeaText2image", description="OPEA Text2image Service", config=args.__dict__
         )
 
         # Register components with the controller

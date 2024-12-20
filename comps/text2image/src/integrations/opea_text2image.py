@@ -5,22 +5,15 @@ import base64
 import os
 
 import torch
-
 from diffusers import DiffusionPipeline
 
-from comps import (
-    OpeaComponent,
-    CustomLogger,
-    SDInputs,
-    SDOutputs,
-    ServiceType,
-)
+from comps import CustomLogger, OpeaComponent, SDInputs, SDOutputs, ServiceType
 
 logger = CustomLogger("opea_text2image")
 
+
 class OpeaText2image(OpeaComponent):
-    """
-    A specialized text2image component derived from OpeaComponent for text2image services.
+    """A specialized text2image component derived from OpeaComponent for text2image services.
 
     Attributes:
         client (AsyncInferenceClient): An instance of the async client for embedding generation.
@@ -76,8 +69,7 @@ class OpeaText2image(OpeaComponent):
         logger.info("Stable Diffusion model initialized.")
 
     async def invoke(self, input: SDInputs) -> SDOutputs:
-        """
-        Invokes the text2image service to generate image(s) for the provided input.
+        """Invokes the text2image service to generate image(s) for the provided input.
 
         Args:
             input (SDInputs): The input for text2image service, including prompt and optional parameters like num_images_per_prompt.
