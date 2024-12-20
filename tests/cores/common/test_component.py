@@ -3,7 +3,7 @@
 
 import asyncio
 import unittest
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 from comps import OpeaComponent, OpeaComponentController
 
@@ -110,7 +110,7 @@ class TestOpeaComponentController(unittest.TestCase):
         component1 = MagicMock()
         component1.name = "Component1"
         component1.check_health.return_value = True
-        component1.invoke = AsyncMock(return_value="Result from Component1") 
+        component1.invoke = AsyncMock(return_value="Result from Component1")
 
         # Register the component
         controller.register(component1)
