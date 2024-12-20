@@ -10,12 +10,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/llm-tgi:comps -f comps/llms/text-generation/tgi/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/llm:comps -f comps/llms/src/text-generation/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/llm-tgi built fail"
+        echo "opea/llm built fail"
         exit 1
     else
-        echo "opea/llm-tgi built successful"
+        echo "opea/llm built successful"
     fi
 }
 
@@ -25,11 +25,11 @@ function start_service() {
     # Remember to set HF_TOKEN before invoking this test!
     export HF_TOKEN=${HF_TOKEN}
     docker run -d --name="test-comps-llm-tgi-endpoint" -p $tgi_endpoint_port:80 -v ~/.cache/huggingface/hub:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${hf_llm_model} --max-input-tokens 1024 --max-total-tokens 2048
-    export TGI_LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
+    export LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
 
     llm_port=5005
     unset http_proxy
-    docker run -d --name="test-comps-llm-tgi-server" -p ${llm_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm-tgi:comps
+    docker run -d --name="test-comps-llm-tgi-server" -p ${llm_port}:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLM_ENDPOINT=$LLM_ENDPOINT -e LLM_MODEL_ID=$hf_llm_model -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm:comps
 
     # check whether tgi is fully ready
     n=0
@@ -56,7 +56,7 @@ function validate_microservice() {
     else
         echo "Result wrong. Received was $result"
         docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
-        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm-tgi-server.log
+        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm-server.log
         exit 1
     fi
 }
@@ -66,7 +66,7 @@ function validate_microservice_with_openai() {
     python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py "$ip_address" "$llm_service_port" "llm"
     if [ $? -ne 0 ]; then
         docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
-        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm-tgi-server.log
+        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm-server.log
         exit 1
     fi
 }
