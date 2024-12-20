@@ -1,0 +1,39 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  llamacpp-server:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    ports:
+      - 8080:8080
+    environment:
+      # Refer to settings here: https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md
+      # Llama.cpp is based on .gguf format, and Hugging Face offers many .gguf format models.
+      LLAMA_ARG_MODEL_URL: https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf
+      LLAMA_ARG_CTX_SIZE: 4096
+      LLAMA_ARG_N_PARALLEL: 2
+      LLAMA_ARG_ENDPOINT_METRICS: 1
+      LLAMA_ARG_PORT: 8080
+
+  llamacpp-opea-llm:
+    image: opea/llm-llamacpp:latest
+    build:
+        # Set this to allow COPY comps in the Dockerfile.
+        # When using docker compose with -f, the comps context is 4 levels down from docker_compose_llm.yaml.
+        context: ../../../../
+        dockerfile: ./comps/llms/text-generation/llamacpp/Dockerfile
+    depends_on:
+      - llamacpp-server
+    ports:
+      - "9000:9000"
+    network_mode: "host" # equivalent to: docker run --network host ...
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      # LLAMACPP_ENDPOINT: ${LLAMACPP_ENDPOINT}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
