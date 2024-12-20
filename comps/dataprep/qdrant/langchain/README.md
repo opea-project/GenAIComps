@@ -13,7 +13,7 @@ apt-get install poppler-utils -y
 
 ### Start Qdrant Server
 
-Please refer to this [readme](../../../../vectorstores/qdrant/README.md).
+Please refer to this [readme](../../../vectorstores/qdrant/README.md).
 
 ### Setup Environment Variables
 

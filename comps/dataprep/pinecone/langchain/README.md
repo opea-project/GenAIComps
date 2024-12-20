@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ### Start Pinecone Server
 
-Please refer to this [readme](../../../../vectorstores/pinecone/README.md).
+Please refer to this [readme](../../../vectorstores/pinecone/README.md).
 
 ### Setup Environment Variables
 

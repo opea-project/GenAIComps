@@ -10,14 +10,14 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/svd:latest -f comps/image2video/dependency/Dockerfile .
+    docker build --no-cache -t opea/svd:latest -f comps/image2video/src/dependency/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/svd built fail"
         exit 1
     else
         echo "opea/svd built successful"
     fi
-    docker build --no-cache -t opea/image2video:latest -f comps/image2video/Dockerfile .
+    docker build --no-cache -t opea/image2video:latest -f comps/image2video/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/image2video built fail"
         exit 1

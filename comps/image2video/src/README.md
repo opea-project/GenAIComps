@@ -37,20 +37,20 @@ Build SVD server image on Xeon with below command:
 
 ```bash
 cd ../..
-docker build -t opea/svd:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/dependency/Dockerfile .
+docker build -t opea/svd:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/src/dependency/Dockerfile .
 ```
 
 Build SVD server image on Gaudi with below command:
 
 ```bash
 cd ../..
-docker build -t opea/svd-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/dependency/Dockerfile.intel_hpu .
+docker build -t opea/svd-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/src/dependency/Dockerfile.intel_hpu .
 ```
 
 ### 2.1.2 Image-to-Video Service Image
 
 ```bash
-docker build -t opea/image2video:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/Dockerfile .
+docker build -t opea/image2video:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2video/src/Dockerfile .
 ```
 
 ## 2.2 Start SVD and Image-to-Video Service
