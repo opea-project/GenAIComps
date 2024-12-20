@@ -211,15 +211,14 @@ class OpenAILLM(OpeaComponent):
                 top_p=input.top_p,
                 user=input.user,
             )
-            ''' TODO need validate following paramters for vllm
+            """TODO need validate following parameters for vllm
                 logit_bias=input.logit_bias,
                 logprobs=input.logprobs,
                 top_logprobs=input.top_logprobs,
                 service_tier=input.service_tier,
                 tools=input.tools,
                 tool_choice=input.tool_choice,
-                parallel_tool_calls=input.parallel_tool_calls,
-            '''
+                parallel_tool_calls=input.parallel_tool_calls,"""
         else:
             prompt, input = self.align_input(input, prompt_template, input_variables)
             chat_completion = await self.client.completions.create(
@@ -238,11 +237,10 @@ class OpenAILLM(OpeaComponent):
                 top_p=input.top_p,
                 user=input.user,
             )
-            ''' TODO need validate following paramters for vllm
+            """TODO need validate following parameters for vllm
                 best_of=input.best_of,
                 logit_bias=input.logit_bias,
-                logprobs=input.logprobs,
-            '''
+                logprobs=input.logprobs,"""
 
         if input.stream:
 
