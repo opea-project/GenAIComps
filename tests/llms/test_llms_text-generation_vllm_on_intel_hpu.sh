@@ -74,6 +74,7 @@ function start_service() {
         -e LLM_MODEL_ID=$LLM_MODEL_ID \
         -e LOGFLAG=True \
         opea/llm:comps
+    sleep 20s
 }
 
 function validate_microservice() {
