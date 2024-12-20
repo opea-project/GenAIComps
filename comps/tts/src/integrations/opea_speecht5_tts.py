@@ -54,6 +54,6 @@ class OpeaSpeecht5Tts(OpeaComponent):
             except requests.RequestException as e:
                 # Handle connection errors, timeouts, etc.
                 print(f"Health check failed: {e}")
-            num_trials -= 1
+            retries -= 1
             time.sleep(interval)
         return False
