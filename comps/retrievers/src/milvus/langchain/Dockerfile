@@ -22,10 +22,10 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/retrievers/milvus/langchain/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/retrievers/src/milvus/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrievers/milvus/langchain
+WORKDIR /home/user/comps/retrievers/src/milvus/langchain
 
 ENTRYPOINT ["python", "retriever_milvus.py"]

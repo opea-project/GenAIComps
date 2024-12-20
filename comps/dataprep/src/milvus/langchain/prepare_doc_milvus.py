@@ -23,7 +23,7 @@ from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import (
+from comps.dataprep.src.utils import (
     create_upload_folder,
     decode_filename,
     document_loader,
@@ -38,7 +38,7 @@ from comps.dataprep.utils import (
 logger = CustomLogger("prepare_doc_milvus")
 logflag = os.getenv("LOGFLAG", False)
 
-# workaround notes: cp comps/dataprep/utils.py ./milvus/utils.py
+# workaround notes: cp comps/dataprep/src/utils.py ./milvus/utils.py
 index_params = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
 partition_field_name = "filename"
 upload_folder = "./uploaded_files/"

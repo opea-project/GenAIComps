@@ -33,7 +33,7 @@ First, you need to build a mosec embedding serving docker image.
 
 ```bash
 cd ../../..
-docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
+docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-mosec-endpoint:latest -f comps/embeddings/src/mosec/langchain/dependency/Dockerfile .
 ```
 
 Then start the mosec embedding server.
@@ -69,9 +69,9 @@ Please refer to this [readme](../../../../vectorstores/src/milvus/README.md).
 ```bash
 cd ../../..
 # build mosec embedding docker image
-docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec-endpoint:latest -f comps/embeddings/mosec/langchain/dependency/Dockerfile .
+docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy -t opea/embedding-langchain-mosec-endpoint:latest -f comps/embeddings/src/mosec/langchain/dependency/Dockerfile .
 # build dataprep milvus docker image
-docker build -t opea/dataprep-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/milvus/langchain/Dockerfile .
+docker build -t opea/dataprep-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/src/milvus/langchain/Dockerfile .
 ```
 
 ### 2.3 Setup Environment Variables

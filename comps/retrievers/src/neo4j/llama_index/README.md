@@ -14,7 +14,7 @@ Retrieval follows these steps:
 
 ```bash
 cd ../../
-docker build -t opea/retriever-community-answers-neo4j:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/neo4j/llama_index/Dockerfile .
+docker build -t opea/retriever-community-answers-neo4j:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/neo4j/llama_index/Dockerfile .
 ```
 
 ### 2. Setup Environment Variables
@@ -40,7 +40,7 @@ source ./set_env.sh
 Docker compose will start 5 microservices: retriever-neo4j-llamaindex, dataprep-neo4j-llamaindex, neo4j-apoc, tgi-gaudi-service and tei-embedding-service. Neo4j database supports embeddings natively so we do not need a separate vector store. Checkout the blog [Introducing the Property Graph Index: A Powerful New Way to Build Knowledge Graphs with LLMs](https://www.llamaindex.ai/blog/introducing-the-property-graph-index-a-powerful-new-way-to-build-knowledge-graphs-with-llms) for a better understanding of Property Graph Store and Index.
 
 ```bash
-cd comps/retrievers/neo4j/llama_index
+cd comps/retrievers/src/neo4j/llama_index
 docker compose -f compose.yaml up -d
 ```
 

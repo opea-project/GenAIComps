@@ -37,7 +37,7 @@ python retriever_redis.py
 
 ```bash
 cd ../../
-docker build -t opea/retriever-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/milvus/langchain/Dockerfile .
+docker build -t opea/retriever-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/milvus/langchain/Dockerfile .
 ```
 
 ### Run Docker with CLI

@@ -81,7 +81,7 @@ export BRIDGE_TOWER_EMBEDDING=true
 
 ```bash
 cd ../../../../
-docker build -t opea/retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/redis/langchain/Dockerfile .
+docker build -t opea/retriever-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/redis/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:

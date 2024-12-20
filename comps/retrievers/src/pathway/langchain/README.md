@@ -52,7 +52,7 @@ export PATHWAY_PORT=8666
 
 ```bash
 # make sure you are in the root folder of the repo
-docker build -t opea/retriever-pathway:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/pathway/langchain/Dockerfile .
+docker build -t opea/retriever-pathway:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/pathway/langchain/Dockerfile .
 
 docker run -p 7000:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy --network="host" opea/retriever-pathway:latest
 ```
@@ -78,7 +78,7 @@ Note that following docker compose sets the `network_mode: host` in retriever im
 This will start the both the embedding and retriever services:
 
 ```bash
-cd comps/retrievers/pathway/langchain
+cd comps/retrievers/src/pathway/langchain
 
 docker compose -f docker_compose_retriever.yaml build
 docker compose -f docker_compose_retriever.yaml up

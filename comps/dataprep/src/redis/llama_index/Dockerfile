@@ -25,16 +25,16 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/redis/llama_index/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/dataprep/src/redis/llama_index/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER root
 
-RUN mkdir -p /home/user/comps/dataprep/redis/llama_index/uploaded_files && chown -R user /home/user/comps/dataprep/redis/llama_index/uploaded_files
+RUN mkdir -p /home/user/comps/dataprep/src/redis/llama_index/uploaded_files && chown -R user /home/user/comps/dataprep/src/redis/llama_index/uploaded_files
 
 USER user
 
-WORKDIR /home/user/comps/dataprep/redis/llama_index
+WORKDIR /home/user/comps/dataprep/src/redis/llama_index
 
 ENTRYPOINT ["python", "prepare_doc_redis.py"]

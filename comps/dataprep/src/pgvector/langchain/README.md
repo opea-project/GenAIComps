@@ -44,7 +44,7 @@ export INDEX_NAME=${your_index_name}
 
 ```bash
 cd GenAIComps
-docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/pgvector/langchain/Dockerfile .
+docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/pgvector/langchain/Dockerfile .
 ```
 
 ### 2.4 Run Docker with CLI (Option A)
@@ -56,7 +56,7 @@ docker run  --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$ht
 ### 2.5 Run with Docker Compose (Option B)
 
 ```bash
-cd comps/dataprep/pgvector/langchain
+cd comps/dataprep/src/pgvector/langchain
 docker compose -f docker-compose-dataprep-pgvector.yaml up -d
 ```
 

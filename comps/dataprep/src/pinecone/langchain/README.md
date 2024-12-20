@@ -35,7 +35,7 @@ python prepare_doc_pinecone.py
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-pinecone:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/pinecone/langchain/Dockerfile .
+docker build -t opea/dataprep-pinecone:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/pinecone/langchain/Dockerfile .
 ```
 
 ### Run Docker with CLI
@@ -56,7 +56,7 @@ export PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME}
 ### Run Docker with Docker Compose
 
 ```bash
-cd comps/dataprep/pinecone/langchain
+cd comps/dataprep/src/pinecone/langchain
 docker compose -f docker-compose-dataprep-pinecone.yaml up -d
 ```
 

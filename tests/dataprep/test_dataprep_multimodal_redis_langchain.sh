@@ -24,7 +24,7 @@ caption_fn="${tmp_dir}/${image_name}.txt"
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep-multimodal-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/multimodal/redis/langchain/Dockerfile .
+    docker build --no-cache -t opea/dataprep-multimodal-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/multimodal/redis/langchain/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-multimodal-redis built fail"
@@ -37,14 +37,14 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/lvm-llava:comps -f comps/lvms/llava/dependency/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava:comps -f comps/lvms/src/llava/dependency/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava built fail"
         exit 1
     else
         echo "opea/lvm-llava built successful"
     fi
-    docker build --no-cache -t opea/lvm-llava-svc:comps -f comps/lvms/llava/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava-svc:comps -f comps/lvms/src/llava/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava-svc built fail"
         exit 1

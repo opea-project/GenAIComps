@@ -17,7 +17,7 @@ from langchain_text_splitters import HTMLHeaderTextSplitter
 from pinecone import Pinecone, ServerlessSpec
 
 from comps import CustomLogger, DocPath, opea_microservices, opea_telemetry, register_microservice
-from comps.dataprep.utils import (
+from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
     encode_filename,
