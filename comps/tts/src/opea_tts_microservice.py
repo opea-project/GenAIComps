@@ -64,7 +64,7 @@ async def stream_forwarder(response):
     output_datatype=StreamingResponse,
 )
 @register_statistics(names=["opea_service@tts"])
-async def audio_to_text(request: AudioSpeechRequest) -> StreamingResponse:
+async def text_to_speech(request: AudioSpeechRequest) -> StreamingResponse:
     start = time.time()
 
     if logflag:
