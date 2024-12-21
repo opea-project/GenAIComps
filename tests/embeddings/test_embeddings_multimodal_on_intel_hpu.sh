@@ -47,7 +47,7 @@ function start_service() {
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
     docker compose -f compose_multimodal_bridgetower_intel_hpu.yaml up -d
-    sleep 10
+    sleep 30
 }
 
 function validate_microservice_text_embedding() {
@@ -61,7 +61,7 @@ function validate_microservice_text_embedding() {
     else
         echo "Result wrong. Received was $result"
         docker logs embedding-multimodal-bridgetower
-        docker logs embedding-multimodal
+        docker logs embedding-multimodal-bridgetower-server
         exit 1
     fi
 }
@@ -77,7 +77,7 @@ function validate_microservice_image_text_pair_embedding() {
     else
         echo "Result wrong. Received was $result"
         docker logs embedding-multimodal-bridgetower
-        docker logs embedding-multimodal
+        docker logs embedding-multimodal-bridgetower-server
         exit 1
     fi
 }
