@@ -64,21 +64,6 @@ services:
       - "etcd"
       - "minio"
 
-  dataprep-milvus:
-    image: opea/dataprep-milvus:latest
-    container_name: dataprep-milvus-server
-    ports:
-      - "5000:5000"
-    ipc: host
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      MILVUS_HOST: ${MILVUS_HOST}
-      MOSEC_EMBEDDING_ENDPOINT: ${MOSEC_EMBEDDING_ENDPOINT}
-      LOGFLAG: ${LOGFLAG}
-    restart: unless-stopped
-
 networks:
   default:
     name: milvus
