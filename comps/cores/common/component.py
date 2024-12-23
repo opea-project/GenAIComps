@@ -62,7 +62,7 @@ class OpeaComponent(ABC):
         Returns:
             bool: True if the component is healthy, False otherwise.
         """
-        pass
+        raise NotImplementedError("The 'check_health' method must be implemented by subclasses.")
 
     @abstractmethod
     async def invoke(self, *args, **kwargs):
@@ -75,7 +75,7 @@ class OpeaComponent(ABC):
         Returns:
             Any: The result of the service accessing.
         """
-        pass
+        raise NotImplementedError("The 'invoke' method must be implemented by subclasses.")
 
     def __repr__(self):
         """Provides a string representation of the component for debugging and logging purposes.
