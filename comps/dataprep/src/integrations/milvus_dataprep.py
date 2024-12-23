@@ -239,7 +239,8 @@ class OpeaMilvusDataprep(OpeaComponent):
                 auto_id=True,
             )
             _ = client.client.list_collections()
-            logger.info("[ health check ] Successfully connected to Milvus!")
+            if logflag:
+                logger.info("[ health check ] Successfully connected to Milvus!")
             return True
         except Exception as e:
             logger.info(f"[ health check ] Failed to connect to Milvus: {e}")

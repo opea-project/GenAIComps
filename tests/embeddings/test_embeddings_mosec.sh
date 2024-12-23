@@ -10,12 +10,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_mosec_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy --no-cache -t opea/embedding-mosec-serve:comps -f comps/3rd_parties/mosec/deployment/docker/Dockerfile .
+    docker build --build-arg http_proxy=$http_proxy --build-arg https_proxy=$https_proxy --no-cache -t opea/embedding-mosec:comps -f comps/3rd_parties/mosec/deployment/docker/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/embedding-mosec-serve built fail"
+        echo "opea/embedding-mosec built fail"
         exit 1
     else
-        echo "opea/embedding-mosec-serve built successful"
+        echo "opea/embedding-mosec built successful"
     fi
 }
 
@@ -35,7 +35,7 @@ function start_service() {
     mosec_endpoint=5001
     model="BAAI/bge-base-en-v1.5"
     unset http_proxy
-    docker run -d --name="test-comps-embedding-mosec-serve" -p $mosec_endpoint:8000  opea/embedding-mosec-serve:comps
+    docker run -d --name="test-comps-embedding-mosec-serve" -p $mosec_endpoint:8000  opea/embedding-mosec:comps
     sleep 3m
     export MOSEC_EMBEDDING_ENDPOINT="http://${ip_address}:${mosec_endpoint}"
     mosec_service_port=5002

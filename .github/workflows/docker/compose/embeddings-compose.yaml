@@ -19,10 +19,6 @@ services:
     build:
       dockerfile: comps/embeddings/src/Dockerfile
     image: ${REGISTRY:-opea}/embedding-multimodal:${TAG:-latest}
-  embedding-langchain-mosec-endpoint:
-    build:
-      dockerfile: comps/3rd_parties/mosec/deployment/docker/Dockerfile
-    image: ${REGISTRY:-opea}/embedding-langchain-mosec-endpoint:${TAG:-latest}
   embedding-langchain-mosec:
     build:
       dockerfile: comps/embeddings/src/Dockerfile
