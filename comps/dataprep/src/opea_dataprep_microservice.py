@@ -7,8 +7,8 @@ import time
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, UploadFile
-from integrations.milvus_dataprep import OpeaMilvusDataprep
-from integrations.redis_dataprep import OpeaRedisDataprep
+from integrations.milvus import OpeaMilvusDataprep
+from integrations.redis import OpeaRedisDataprep
 from opea_dataprep_controller import OpeaDataprepController
 
 from comps import (
