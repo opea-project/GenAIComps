@@ -2,10 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  vllm-arc:
-    build:
-      dockerfile: comps/3rd_parties/vllm/deployment/docker/Dockerfile.intel_gpu
-    image: ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}
   embedding-mosec:
     build:
       dockerfile: comps/3rd_parties/mosec/deployment/docker/Dockerfile
