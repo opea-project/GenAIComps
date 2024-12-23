@@ -30,24 +30,26 @@ from comps.cores.proto.api_protocol import (
 
 logger = CustomLogger("opea_retrievers_microservice")
 logflag = os.getenv("LOGFLAG", False)
+retriever_type = os.getenv("RETRIEVER_TYPE", False)
 # Initialize Controller
 controller = OpeaComponentController()
 
 
 # Register components
 try:
-    # Instantiate OpeaRedisRetriever and OpeaMilvusRetriever components
-    redis_retriever = OpeaRedisRetriever(
-        name="OpeaRedisRetriever",
-        description="OPEA Redis Retriever Service",
-    )
-    milvus_retriever = OpeaMilvusRetriever(
-        name="OpeaMilvusRetriever",
-        description="OPEA Milvus Retriever Service",
-    )
-    # Register components with the controller
-    controller.register(redis_retriever)
-    controller.register(milvus_retriever)
+    # Instantiate Retrievers components and register it to controller
+    if retriever_type == "redis":
+        redis_retriever = OpeaRedisRetriever(
+            name="OpeaRedisRetriever",
+            description="OPEA Redis Retriever Service",
+        )
+        controller.register(redis_retriever)
+    elif retriever_type == "milvus":
+        milvus_retriever = OpeaMilvusRetriever(
+            name="OpeaMilvusRetriever",
+            description="OPEA Milvus Retriever Service",
+        )
+        controller.register(milvus_retriever)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()

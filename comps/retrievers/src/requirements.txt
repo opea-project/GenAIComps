@@ -1,9 +1,9 @@
 docarray[full]
 easyocr
 fastapi
-langchain_community
-langchain_huggingface
-langchain_milvus
+langchain_community --extra-index-url https://download.pytorch.org/whl/cpu
+langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
+langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

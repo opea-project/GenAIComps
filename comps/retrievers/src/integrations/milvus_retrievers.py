@@ -105,7 +105,8 @@ class OpeaMilvusRetriever(OpeaComponent):
             logger.info("[ check health ] start to check health of milvus")
         try:
             _ = self.client.client.list_collections()
-            logger.info("[ check health ] Successfully connected to Milvus!")
+            if logflag:
+                logger.info("[ check health ] Successfully connected to Milvus!")
             return True
         except Exception as e:
             logger.info(f"[ check health ] Failed to connect to Milvus: {e}")

@@ -37,7 +37,7 @@ function start_service() {
     export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
     retriever_port=5435
     # unset http_proxy
-    docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME opea/retriever-redis:comps
+    docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LOGFLAG=true -e RETRIEVER_TYPE="redis" opea/retriever-redis:comps
 
     sleep 3m
 }
@@ -52,7 +52,7 @@ function start_multimodal_service() {
     export INDEX_NAME="rag-redis"
     retriever_port=5435
     unset http_proxy
-    docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e BRIDGE_TOWER_EMBEDDING=true opea/retriever-redis:comps
+    docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e BRIDGE_TOWER_EMBEDDING=true -e LOGFLAG=true -e RETRIEVER_TYPE="redis" opea/retriever-redis:comps
 
     sleep 2m
 }

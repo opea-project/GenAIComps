@@ -23,6 +23,7 @@ from comps.dataprep.src.utils import create_upload_folder
 
 logger = CustomLogger("opea_dataprep_microservice")
 logflag = os.getenv("LOGFLAG", False)
+dataprep_type = os.getenv("DATAPREP_TYPE", False)
 upload_folder = "./uploaded_files/"
 # Initialize Controller
 controller = OpeaDataprepController()
@@ -30,18 +31,19 @@ controller = OpeaDataprepController()
 
 # Register components
 try:
-    # Instantiate OpeaRedisDataprep and OpeaMilvusDataprep components
-    redis_dataprep = OpeaRedisDataprep(
-        name="OpeaRedisDataprep",
-        description="OPEA Redis Dataprep Service",
-    )
-    milvus_dataprep = OpeaMilvusDataprep(
-        name="OpeaMilvusDataprep",
-        description="OPEA Milvus Dataprep Service",
-    )
-    # Register components with the controller
-    controller.register(redis_dataprep)
-    controller.register(milvus_dataprep)
+    # Instantiate Dataprep components and register it to controller
+    if dataprep_type == "redis":
+        redis_dataprep = OpeaRedisDataprep(
+            name="OpeaRedisDataprep",
+            description="OPEA Redis Dataprep Service",
+        )
+        controller.register(redis_dataprep)
+    elif dataprep_type == "milvus":
+        milvus_dataprep = OpeaMilvusDataprep(
+            name="OpeaMilvusDataprep",
+            description="OPEA Milvus Dataprep Service",
+        )
+        controller.register(milvus_dataprep)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()

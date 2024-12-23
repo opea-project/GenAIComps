@@ -6,11 +6,11 @@ easyocr
 fastapi
 html2text
 huggingface_hub
-langchain
-langchain-community
-langchain-text-splitters
-langchain_huggingface
-langchain_milvus
+langchain --extra-index-url https://download.pytorch.org/whl/cpu
+langchain-community --extra-index-url https://download.pytorch.org/whl/cpu
+langchain-text-splitters --extra-index-url https://download.pytorch.org/whl/cpu
+langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
+langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
 markdown
 numpy
 openai
