@@ -3,9 +3,7 @@
 
 import os
 import time
-from typing import Union, List
-
-from fastapi import File, Form, UploadFile
+from typing import Union
 from fastapi.responses import StreamingResponse
 from integrations.opea_llava_lvm import OpeaLlavaLvm
 from integrations.opea_tgi_llava_lvm import OpeaTgiLlavaLvm
@@ -72,11 +70,15 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
 
-async def stream_forwarder(response):
+async def stream_forwarder(response, time_start):
     """Forward the stream chunks to the client using iter_content."""
+    first_token_latency = None
     for chunk in response.iter_content(chunk_size=8192):
         if chunk:
+            if not first_token_latency:
+                first_token_latency = time.time() - time_start
             yield chunk
+    statistics_dict["opea_service@lvm"].append_latency(time.time() - time_start, first_token_latency)
 
 @register_microservice(
     name="opea_service@lvm",
@@ -94,11 +96,10 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc, LVMVideoDoc]) -> 
         lvm_response = await controller.invoke(request)
         if logflag:
             logger.info(lvm_response)
+
+        if controller.active_component.name in ['OpeaVideoLlamaLvm'] or (controller.active_component.name in ['OpeaTgiLlavaLvm'] and request.streaming):
+            return StreamingResponse(stream_forwarder(lvm_response, start))
         statistics_dict["opea_service@lvm"].append_latency(time.time() - start, None)
-
-        if controller.active_component.name in ['OpeaVideoLlamaLvm']:
-            return StreamingResponse(stream_forwarder(lvm_response))
-
         return lvm_response
 
     except Exception as e:
