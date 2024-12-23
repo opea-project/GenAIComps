@@ -42,6 +42,7 @@ def initialize():
             if not args.token:
                 args.token = os.getenv("HF_TOKEN")
             if args.device == "hpu":
+
                 kwargs.update(
                     {
                         "use_habana": True,

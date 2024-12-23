@@ -14,7 +14,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
 from comps import CustomLogger, OpeaComponent, ServiceType
-from comps.texttosql.scr.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
+from comps.texttosql.src.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
 
 logger = CustomLogger("comps-texttosql")
 logflag = os.getenv("LOGFLAG", False)
@@ -70,7 +70,7 @@ class Input(BaseModel):
     conn_str: Optional[PostgresConnection] = None
 
 
-class TextToSQL(OpeaComponent):
+class OpeaTextToSQL(OpeaComponent):
     """A specialized text to sql component derived from OpeaComponent for interacting with TGI services and Database.
 
     Attributes:

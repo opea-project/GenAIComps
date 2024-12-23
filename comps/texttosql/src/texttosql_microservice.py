@@ -8,7 +8,7 @@ import sys
 from fastapi.exceptions import HTTPException
 
 from comps import CustomLogger, OpeaComponentController, opea_microservices, register_microservice
-from comps.texttosql.scr.integrations.texttosql import Input, TextToSQL
+from comps.texttosql.src.integrations.opeatexttosql import Input, OpeaTextToSQL
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
@@ -22,7 +22,7 @@ try:
     controller = OpeaComponentController()
 
     # Register components
-    texttosql_agent = TextToSQL(
+    texttosql_agent = OpeaTextToSQL(
         name="TextToSQL",
         description="TextToSQL Service",
     )
