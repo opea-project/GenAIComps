@@ -56,7 +56,8 @@ class OpeaRedisRetriever(OpeaComponent):
             logger.info("[ health check ] start to check health of redis")
         try:
             if self.client.client.ping():
-                logger.info("[ health check ] Successfully connected to Redis!")
+                if logflag:
+                    logger.info("[ health check ] Successfully connected to Redis!")
                 return True
         except Exception as e:
             logger.info(f"[ health check ] Failed to connect to Redis: {e}")
