@@ -1,16 +1,16 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import json
+import os
 import time
-
-import requests
 from typing import Union
 
-from comps import CustomLogger, OpeaComponent, ServiceType, LVMDoc, LVMSearchedMultimodalDoc, TextDoc, MetadataTextDoc
+import requests
 from fastapi import HTTPException
 from langchain_core.prompts import PromptTemplate
+
+from comps import CustomLogger, LVMDoc, LVMSearchedMultimodalDoc, MetadataTextDoc, OpeaComponent, ServiceType, TextDoc
 
 logger = CustomLogger("opea_llava_lvm")
 logflag = os.getenv("LOGFLAG", False)
@@ -73,7 +73,9 @@ class OpeaLlavaLvm(OpeaComponent):
                     )
             max_new_tokens = request.max_new_tokens
             if logflag:
-                logger.info(f"prompt generated for [LVMSearchedMultimodalDoc ] input from retriever microservice: {prompt}")
+                logger.info(
+                    f"prompt generated for [LVMSearchedMultimodalDoc ] input from retriever microservice: {prompt}"
+                )
 
         else:
             img_b64_str = request.image
@@ -100,6 +102,7 @@ class OpeaLlavaLvm(OpeaComponent):
 
     def check_health(self, retries=3, interval=10, timeout=5) -> bool:
         """Checks the health of the LVM service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """

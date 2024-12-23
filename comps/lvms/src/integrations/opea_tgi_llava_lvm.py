@@ -3,16 +3,15 @@
 
 import os
 import time
-
-import requests
 from typing import Union
 
-from comps import CustomLogger, OpeaComponent, ServiceType, LVMDoc, LVMSearchedMultimodalDoc, TextDoc, MetadataTextDoc
+import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
-
 from langchain_core.prompts import PromptTemplate
+
+from comps import CustomLogger, LVMDoc, LVMSearchedMultimodalDoc, MetadataTextDoc, OpeaComponent, ServiceType, TextDoc
 
 logger = CustomLogger("opea_tgi_llava_lvm")
 logflag = os.getenv("LOGFLAG", False)
@@ -81,7 +80,9 @@ class OpeaTgiLlavaLvm(OpeaComponent):
             top_k = request.top_k
             top_p = request.top_p
             if logflag:
-                logger.info(f"prompt generated for [LVMSearchedMultimodalDoc ] input from retriever microservice: {prompt}")
+                logger.info(
+                    f"prompt generated for [LVMSearchedMultimodalDoc ] input from retriever microservice: {prompt}"
+                )
 
         else:
             img_b64_str = request.image
@@ -149,9 +150,9 @@ class OpeaTgiLlavaLvm(OpeaComponent):
             else:
                 return TextDoc(text=generated_str)
 
-
     def check_health(self, retries=3, interval=10, timeout=5) -> bool:
         """Checks the health of the LVM service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """

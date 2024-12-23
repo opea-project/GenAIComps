@@ -4,29 +4,28 @@
 import os
 import time
 from typing import Union
+
 from fastapi.responses import StreamingResponse
-from integrations.opea_llava_lvm import OpeaLlavaLvm
-from integrations.opea_tgi_llava_lvm import OpeaTgiLlavaLvm
 from integrations.opea_llama_vision_lvm import OpeaLlamaVisionLvm
+from integrations.opea_llava_lvm import OpeaLlavaLvm
 from integrations.opea_predictionguard_lvm import OpeaPredictionguardLvm
+from integrations.opea_tgi_llava_lvm import OpeaTgiLlavaLvm
 from integrations.opea_video_llama_lvm import OpeaVideoLlamaLvm
 
-
 from comps import (
+    CustomLogger,
     LVMDoc,
     LVMSearchedMultimodalDoc,
     LVMVideoDoc,
-    TextDoc,
-    CustomLogger,
     MetadataTextDoc,
     OpeaComponentController,
     ServiceType,
+    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
-
 
 logger = CustomLogger("opea_lvm_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -70,6 +69,7 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
 
+
 async def stream_forwarder(response, time_start):
     """Forward the stream chunks to the client using iter_content."""
     first_token_latency = None
@@ -80,6 +80,7 @@ async def stream_forwarder(response, time_start):
             yield chunk
     statistics_dict["opea_service@lvm"].append_latency(time.time() - time_start, first_token_latency)
 
+
 @register_microservice(
     name="opea_service@lvm",
     service_type=ServiceType.LVM,
@@ -88,7 +89,9 @@ async def stream_forwarder(response, time_start):
     port=9399,
 )
 @register_statistics(names=["opea_service@lvm"])
-async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc, LVMVideoDoc]) -> Union[TextDoc, MetadataTextDoc, StreamingResponse]:
+async def lvm(
+    request: Union[LVMDoc, LVMSearchedMultimodalDoc, LVMVideoDoc]
+) -> Union[TextDoc, MetadataTextDoc, StreamingResponse]:
     start = time.time()
 
     try:
@@ -97,7 +100,9 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc, LVMVideoDoc]) -> 
         if logflag:
             logger.info(lvm_response)
 
-        if controller.active_component.name in ['OpeaVideoLlamaLvm'] or (controller.active_component.name in ['OpeaTgiLlavaLvm'] and request.streaming):
+        if controller.active_component.name in ["OpeaVideoLlamaLvm"] or (
+            controller.active_component.name in ["OpeaTgiLlavaLvm"] and request.streaming
+        ):
             return StreamingResponse(stream_forwarder(lvm_response, start))
         statistics_dict["opea_service@lvm"].append_latency(time.time() - start, None)
         return lvm_response

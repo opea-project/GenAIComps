@@ -35,7 +35,6 @@ nohup python llava_server.py &
 python check_llava_server.py
 ```
 
-
 ## 🚀2. Start Microservice with Docker (Option 2)
 
 ### 2.1 Build Images
@@ -55,7 +54,6 @@ docker build -t opea/lvm-llava:latest --build-arg https_proxy=$https_proxy --bui
 cd ../../../
 docker build -t opea/lvm-llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llava/Dockerfile.intel_hpu .
 ```
-
 
 ### 2.2 Start LLaVA and LVM Service
 

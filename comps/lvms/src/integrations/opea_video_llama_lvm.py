@@ -3,12 +3,12 @@
 
 import os
 import time
-
-import requests
 from typing import Union
 
+import requests
 from fastapi.responses import StreamingResponse
-from comps import CustomLogger, OpeaComponent, ServiceType, LVMVideoDoc
+
+from comps import CustomLogger, LVMVideoDoc, OpeaComponent, ServiceType
 
 logger = CustomLogger("opea_video_llama_lvm")
 logflag = os.getenv("LOGFLAG", False)
@@ -71,10 +71,9 @@ class OpeaVideoLlamaLvm(OpeaComponent):
             logger.error(f"[lvm] Error: {response.text}")
             raise logger(status_code=500, detail="The upstream API responded with an error.")
 
-
-
     def check_health(self, retries=3, interval=10, timeout=5) -> bool:
         """Checks the health of the LVM service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """

@@ -1,14 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import json
+import os
 import time
-
-import requests
 from typing import Union
 
-from comps import CustomLogger, OpeaComponent, ServiceType, LVMDoc, TextDoc
+import requests
+
+from comps import CustomLogger, LVMDoc, OpeaComponent, ServiceType, TextDoc
 
 logger = CustomLogger("opea_llama_vision_lvm")
 logflag = os.getenv("LOGFLAG", False)
@@ -41,6 +41,7 @@ class OpeaLlamaVisionLvm(OpeaComponent):
 
     def check_health(self, retries=3, interval=10, timeout=5) -> bool:
         """Checks the health of the LVM service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
