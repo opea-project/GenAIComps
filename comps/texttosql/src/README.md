@@ -100,7 +100,7 @@ export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
 
 ```bash
 cd GenAIComps/
-docker build -t opea/texttosql:latest -f comps/texttosql/langchain/Dockerfile .
+docker build -t opea/texttosql:latest -f comps/texttosql/src/Dockerfile .
 ```
 
 #### Run Docker with CLI (Option A)
