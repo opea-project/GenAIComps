@@ -74,15 +74,25 @@ function fill_in_matrix() {
     find_test=$1
     for test in ${find_test}; do
         _service=$(echo $test | cut -d'/' -f4 | cut -d'.' -f1 | cut -c6-)
+        _fill_in_matrix $_service
+    done
+}
+
+function _fill_in_matrix() {
+    _service=$1
+    if [ $(echo ${_service} | grep -c "_on_") == 0 ]; then
+        service=${_service}
+        hardware="intel_cpu"
+    else
         hardware=${_service#*_on_}
-        if [ -z "$hardware" ]; then
-            hardware="intel_cpu"
-        fi
-        echo "service=${_service}, hardware=${hardware}"
+    fi
+    echo "service=${_service}, hardware=${hardware}"
+    if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
         run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
         echo "run_matrix=${run_matrix}"
-        sleep 1s
-    done
+    fi
+    echo "------------------ add one service ------------------"
+    sleep 1s
 }
 
 # add test case when test scripts code change
@@ -91,15 +101,7 @@ function find_test_2() {
     for test_file in ${test_files}; do
         if [ -f $test_file ]; then
             _service=$(echo $test_file | cut -d'/' -f3 | cut -d'.' -f1 | cut -c6-)
-            if [ $(echo ${_service} | grep -c "_on_") == 0 ]; then
-                service=${_service}
-                hardware="intel_cpu"
-            else
-                hardware=${_service#*_on_}
-            fi
-            if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
-                run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
-            fi
+            _fill_in_matrix $_service
         fi
     done
 }
