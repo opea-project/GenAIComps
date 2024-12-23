@@ -30,7 +30,7 @@ controller = OpeaComponentController()
 try:
     opea_llm = OPEALLM(
         name="OPEALLM",
-        description="OPEA LLM Service, compatiable with OpenAI API",
+        description="OPEA LLM Service, compatible with OpenAI API",
     )
 
     # Register components with the controller
