@@ -89,9 +89,8 @@ function _fill_in_matrix() {
     echo "service=${_service}, hardware=${hardware}"
     if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
         run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
-        echo "run_matrix=${run_matrix}"
+        echo "------------------ add one service ------------------"
     fi
-    echo "------------------ add one service ------------------"
     sleep 1s
 }
 
@@ -108,18 +107,23 @@ function find_test_2() {
 
 function main() {
 
-    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '*.md|comps/cores|comps/3rd_parties|deployment') || true
+    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '*.md|comps/cores|comps/3rd_parties|deployment|*.yaml') || true
+    echo "===========start find_test_1============"
+    echo "changed_files=${changed_files}"
     find_test_1 "comps" 2 false
     sleep 1s
+    echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_1============"
 
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'tests/' | grep -vE '*.md|*.txt|tests/cores') || true
+    echo "===========start find_test_2============"
+    echo "changed_files=${changed_files}"
     find_test_2
     sleep 1s
+    echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_2============"
 
     run_matrix=$run_matrix"]}"
-    echo "run_matrix=${run_matrix}"
     echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
 }
 
