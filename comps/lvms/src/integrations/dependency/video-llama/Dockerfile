@@ -17,10 +17,10 @@ RUN mkdir /home/user/model && chown user:user -R /home/user/model
 USER user
 
 COPY --chown=user:user comps /home/user/comps
-WORKDIR /home/user/comps/lvms/video-llama/dependency
+WORKDIR /home/user/comps/lvms/src/integrations/dependency/video-llama/
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /home/user/comps/lvms/video-llama/dependency/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/lvms/src/integrations/dependency/video-llama/requirements.txt
 
 ARG VIDEO_LLAMA_REPO=https://github.com/DAMO-NLP-SG/Video-LLaMA.git
 ARG VIDEO_LLAMA_COMMIT=0adb19e

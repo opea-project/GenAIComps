@@ -9,10 +9,10 @@ ENV LANG=en_US.UTF-8
 COPY comps /home/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/comps/lvms/predictionguard/requirements.txt
+    pip install --no-cache-dir -r /home/comps/lvms/src/integrations/dependency/predictionguard/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/comps/lvms/predictionguard
+WORKDIR /home/comps/lvms/src/integrations/dependency/predictionguard
 
 ENTRYPOINT ["python", "lvm.py"]

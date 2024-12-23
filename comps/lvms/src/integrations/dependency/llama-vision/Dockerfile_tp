@@ -22,13 +22,13 @@ COPY comps /home/user/comps
 RUN pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.17.1
 RUN pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana@v1.13.2
 
-RUN cd /home/user/comps/lvms/llama-vision/  \
+RUN cd /home/user/comps/lvms/src/integrations/dependency/llama-vision/  \
     pip install --no-cache-dir --upgrade pip && \
     bash update && \
-    pip install --no-cache-dir -r /home/user/comps/lvms/llama-vision/requirements_tp.txt
+    pip install --no-cache-dir -r /home/user/comps/lvms/src/integrations/dependency/llama-vision/requirements_tp.txt
 
 ENV PYTHONPATH=/root:/home/user
 
-WORKDIR /home/user/comps/lvms/llama-vision/
+WORKDIR /home/user/comps/lvms/src/integrations/dependency/llama-vision/
 
 ENTRYPOINT ["bash", "run_tp.sh"]

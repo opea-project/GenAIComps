@@ -10,7 +10,7 @@ Visual Question and Answering is one of the multimodal tasks empowered by LVMs (
 
 ```bash
 cd ../../../
-docker build -t opea/lvm-llama-vision:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile .
+docker build -t opea/lvm-llama-vision:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile .
 ```
 
 #### Build Llama Vision Model with deepspeed
@@ -18,14 +18,14 @@ docker build -t opea/lvm-llama-vision:latest --build-arg https_proxy=$https_prox
 If you need to build the image for 90B models, use the following command:
 
 ```bash
-docker build -t opea/lvm-llama-vision-tp:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile_tp .
+docker build -t opea/lvm-llama-vision-tp:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile_tp .
 ```
 
 #### Build Llama Vision Guard Model
 
 ```bash
 cd ../../../
-docker build -t opea/lvm-llama-vision-guard:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/llama-vision/Dockerfile_guard .
+docker build -t opea/lvm-llama-vision-guard:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile_guard .
 ```
 
 ### Start Llama LVM Service

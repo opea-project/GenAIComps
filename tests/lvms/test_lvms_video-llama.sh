@@ -11,14 +11,14 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/video-llama-lvm-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/video-llama/dependency/Dockerfile .
+    docker build --no-cache -t opea/video-llama-lvm-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/video-llama/Dockerfile .
     if $? ; then
         echo "opea/video-llama-lvm-server built fail"
         exit 1
     else
         echo "opea/video-llama-lvm-server built successful"
     fi
-    docker build --no-cache -t opea/lvm-video-llama:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/video-llama/Dockerfile .
+    docker build --no-cache -t opea/lvm-video-llama:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/Dockerfile .
     if $? ; then
         echo "opea/lvm-video-llama built fail"
         exit 1
