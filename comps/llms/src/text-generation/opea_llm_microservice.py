@@ -5,7 +5,7 @@ import os
 import time
 from typing import Union
 
-from integrations.openai_llm import OpenAILLM
+from integrations.opea_llm import OPEALLM
 
 from comps import (
     CustomLogger,
@@ -28,13 +28,13 @@ controller = OpeaComponentController()
 
 # Register components
 try:
-    openai_llm = OpenAILLM(
-        name="OpenAILLM",
-        description="OpenAI LLM Service",
+    opea_llm = OPEALLM(
+        name="OPEALLM",
+        description="OPEA LLM Service, compatible with OpenAI API",
     )
 
     # Register components with the controller
-    controller.register(openai_llm)
+    controller.register(opea_llm)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()

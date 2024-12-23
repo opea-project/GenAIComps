@@ -15,16 +15,17 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 from .template import ChatTemplate
 
-logger = CustomLogger("openai_llm")
+logger = CustomLogger("opea_llm")
 logflag = os.getenv("LOGFLAG", False)
 
 # Environment variables
 MODEL_NAME = os.getenv("LLM_MODEL_ID")
 MODEL_CONFIGS = os.getenv("MODEL_CONFIGS")
-DEFAULT_ENDPOINT = os.getenv("LLM_ENDPOINT", "http://localhost:8080")
+DEFAULT_ENDPOINT = os.getenv("LLM_ENDPOINT")
 TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "EMPTY")
 
 # Validate and Load the models config if MODEL_CONFIGS is not null
 configs_map = {}
@@ -46,8 +47,8 @@ def get_llm_endpoint():
         raise ConfigError(f"Input model {MODEL_NAME} not present in model_configs")
 
 
-class OpenAILLM(OpeaComponent):
-    """A specialized LLM component derived from OpeaComponent for interacting with TGI/vLLM services based on OpenAI API.
+class OPEALLM(OpeaComponent):
+    """A specialized OPEA LLM component derived from OpeaComponent for interacting with TGI/vLLM services based on OpenAI API.
 
     Attributes:
         client (TGI/vLLM): An instance of the TGI/vLLM client for text generation.
@@ -66,7 +67,7 @@ class OpenAILLM(OpeaComponent):
         if access_token:
             headers = {"Authorization": f"Bearer {access_token}"}
         llm_endpoint = get_llm_endpoint()
-        return AsyncOpenAI(api_key="EMPTY", base_url=llm_endpoint + "/v1", timeout=600, default_headers=headers)
+        return AsyncOpenAI(api_key=OPENAI_API_KEY, base_url=llm_endpoint + "/v1", timeout=600, default_headers=headers)
 
     def check_health(self) -> bool:
         """Checks the health of the TGI/vLLM LLM service.
