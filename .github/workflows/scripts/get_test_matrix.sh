@@ -5,7 +5,7 @@
 # service: service path name, like 'agent_langchain', 'asr_whisper'
 # hardware: 'intel_cpu', 'intel_hpu', ...
 
-set -xe
+set -e
 cd $WORKSPACE
 changed_files_full=$changed_files_full
 run_matrix="{\"include\":["
@@ -15,11 +15,6 @@ function find_test_1() {
     local pre_service_path=$1
     local n=$2
     local all_service=$3
-
-    if [ $n -eq 3 ]; then
-        pre_service_path=$pre_service_path/src
-        n=$((n+1))
-    fi
 
     common_file_change=$(printf '%s\n' "${changed_files[@]}"| grep ${pre_service_path} | cut -d'/' -f$n | grep -E '*.py' | grep -vE '__init__.py|version.py' | sort -u) || true
     if [ "$common_file_change" ] || [ "$all_service" = "true" ]; then
@@ -34,20 +29,59 @@ function find_test_1() {
     for service in ${services}; do
         service_path=$pre_service_path/$service
         if [[ $(ls ${service_path} | grep -E "Dockerfile*") ]]; then
-            service_name=$(echo $service_path | sed 's:/src/:/:' | tr '/' '_' | cut -c7-) # comps/retrievers/src/redis/langchain -> retrievers_redis_langchain
-            default_service_script_path=$(find ./tests -type f -name test_${service_name}.sh) || true
-            if [ "$default_service_script_path" ]; then
-                run_matrix="${run_matrix}{\"service\":\"${service_name}\",\"hardware\":\"intel_cpu\"},"
+            if [[ $(ls ${service_path} | grep "integrations") ]]; then
+                # new org with `src` and `integrations` folder
+                run_all_interation="false"
+                service_name=$(echo $service_path | sed 's:/src::' | tr '/' '_' | cut -c7-) # comps/retrievers/src/redis/langchain -> retrievers_redis_langchain
+                common_file_change_insight=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -vE 'integrations' | sort -u) || true
+                if [ "$common_file_change_insight" ]; then
+                    # if common file changed, run all integrations
+                    run_all_interation="true"
+                fi
+                if [ "$run_all_interation" = "false" ]; then
+                    changed_integrations=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -E 'integrations' | grep -E '*.py' | cut -d'/' -f$((n+2)) | cut -d'.' -f1 | sort -u)  || true
+                    for integration in ${changed_integrations}; do
+                        find_test=$(find ./tests -type f -name test_${service_name}_${integration}*.sh) || true
+                        if [ "$find_test" ]; then
+                            fill_in_matrix "$find_test"
+                        else
+                            run_all_interation="true"
+                            break
+                        fi
+                    done
+                fi
+                if [ "$run_all_interation" = "true" ]; then
+                    find_test=$(find ./tests -type f -name test_${service_name}*.sh) || true
+                    if [ "$find_test" ]; then
+                        fill_in_matrix "$find_test"
+                    fi
+                fi
+            else
+                # old org without 'src' folder
+                service_name=$(echo $service_path | tr '/' '_' | cut -c7-) # comps/retrievers/redis/langchain -> retrievers_redis_langchain
+                find_test=$(find ./tests -type f -name test_${service_name}*.sh) || true
+                if [ "$find_test" ]; then
+                    fill_in_matrix "$find_test"
+                fi
             fi
-            other_service_script_path=$(find ./tests -type f -name test_${service_name}_on_*.sh) || true
-            for script in ${other_service_script_path}; do
-                _service=$(echo $script | cut -d'/' -f4 | cut -d'.' -f1 | cut -c6-)
-                hardware=${_service#*_on_}
-                run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
-            done
         else
             find_test_1 $service_path $((n+1)) $all_service
         fi
+    done
+}
+
+function fill_in_matrix() {
+    find_test=$1
+    for test in ${find_test}; do
+        _service=$(echo $test | cut -d'/' -f4 | cut -d'.' -f1 | cut -c6-)
+        hardware=${_service#*_on_}
+        if [ -z "$hardware" ]; then
+            hardware="intel_cpu"
+        fi
+        echo "service=${_service}, hardware=${hardware}"
+        run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
+        echo "run_matrix=${run_matrix}"
+        sleep 1s
     done
 }
 
@@ -72,7 +106,7 @@ function find_test_2() {
 
 function main() {
 
-    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/.*/src/.*' | grep -vE '*.md|comps/cores|comps/3rd_parties') || true
+    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '*.md|comps/cores|comps/3rd_parties|deployment') || true
     find_test_1 "comps" 2 false
     sleep 1s
     echo "===========finish find_test_1============"
