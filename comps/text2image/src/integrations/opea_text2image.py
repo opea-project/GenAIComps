@@ -13,12 +13,7 @@ logger = CustomLogger("opea_text2image")
 
 
 class OpeaText2image(OpeaComponent):
-    """A specialized text2image component derived from OpeaComponent for text2image services.
-
-    Attributes:
-        client (AsyncInferenceClient): An instance of the async client for embedding generation.
-        model_name (str): The name of the embedding model used.
-    """
+    """A specialized text2image component derived from OpeaComponent for text2image services."""
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TEXT2IMAGE.name.lower(), description, config)
