@@ -5,7 +5,7 @@ import os
 import time
 from typing import Union
 
-from integrations.opea_llm import OPEALLM
+from integrations.opea import OPEALLM
 
 from comps import (
     CustomLogger,
