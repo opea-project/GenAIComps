@@ -21,7 +21,7 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-text2image-gaudi" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e MODEL=stabilityai/stable-diffusion-xl-base-1.0 -p 9379:9379 --ipc=host opea/text2image-gaudi:latest
+    docker run -d -p 9379:9379 --name="test-comps-text2image-gaudi" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=stabilityai/stable-diffusion-xl-base-1.0 opea/text2image-gaudi:latest
     sleep 30s
 }
 
