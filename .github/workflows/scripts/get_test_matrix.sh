@@ -41,7 +41,10 @@ function find_test_1() {
                 if [ "$run_all_interation" = "false" ]; then
                     changed_integrations=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -E 'integrations' | cut -d'/' -f$((n+2)) | cut -d'.' -f1 | sort -u)  || true
                     for integration in ${changed_integrations}; do
-                        find_test=$(find ./tests -type f \( -name test_${service_name}_${integration}.sh -o -name test_${service_name}_${integration}_on_*.sh \)) || true
+                        # Accurate matching test scripts
+                        # find_test=$(find ./tests -type f \( -name test_${service_name}_${integration}.sh -o -name test_${service_name}_${integration}_on_*.sh \)) || true
+                        # Fuzzy matching test scripts, for example, llms/src/text-generation/integrations/opea.py match several tests.
+                        find_test=$(find ./tests -type f -name test_${service_name}_${integration}*.sh) || true
                         if [ "$find_test" ]; then
                             fill_in_matrix "$find_test"
                         else
