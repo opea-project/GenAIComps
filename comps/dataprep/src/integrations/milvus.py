@@ -28,13 +28,7 @@ from comps.dataprep.src.utils import (
     save_content_to_local_disk,
 )
 
-from .config import (
-    COLLECTION_NAME,
-    INDEX_PARAMS,
-    LOCAL_EMBEDDING_MODEL,
-    MILVUS_URI,
-    TEI_EMBEDDING_ENDPOINT,
-)
+from .config import COLLECTION_NAME, INDEX_PARAMS, LOCAL_EMBEDDING_MODEL, MILVUS_URI, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("milvus_dataprep")
 logflag = os.getenv("LOGFLAG", False)

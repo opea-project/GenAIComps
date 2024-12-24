@@ -10,16 +10,11 @@ from langchain_milvus.vectorstores import Milvus
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, SearchedDoc, ServiceType, TextDoc
 
-from .config import (
-    COLLECTION_NAME,
-    INDEX_PARAMS,
-    LOCAL_EMBEDDING_MODEL,
-    MILVUS_URI,
-    TEI_EMBEDDING_ENDPOINT,
-)
+from .config import COLLECTION_NAME, INDEX_PARAMS, LOCAL_EMBEDDING_MODEL, MILVUS_URI, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("milvus_retrievers")
 logflag = os.getenv("LOGFLAG", False)
+
 
 class OpeaMilvusRetriever(OpeaComponent):
     """A specialized retriever component derived from OpeaComponent for milvus retriever services.

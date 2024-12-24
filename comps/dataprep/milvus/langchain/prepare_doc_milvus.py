@@ -13,7 +13,6 @@ from config import (
     MILVUS_PORT,
     TEI_EMBEDDING_ENDPOINT,
     TEI_EMBEDDING_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
 )
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
