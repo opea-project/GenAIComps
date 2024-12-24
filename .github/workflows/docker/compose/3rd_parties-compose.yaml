@@ -8,5 +8,5 @@ services:
     image: ${REGISTRY:-opea}/embedding-mosec:${TAG:-latest}
   nginx:
     build:
-      dockerfile: comps/3rd_parties/nginx/deployment/docker/Dockerfile
+      dockerfile: comps/3rd_parties/nginx/src/Dockerfile
     image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
