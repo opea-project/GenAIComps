@@ -31,7 +31,6 @@ function find_test_1() {
         if [[ $(ls ${service_path} | grep -E "Dockerfile*") ]]; then
             if [[ $(ls ${service_path} | grep "integrations") ]]; then
                 # new org with `src` and `integrations` folder
-                set -x # Print commands and their arguments as they are executed
                 run_all_interation="false"
                 service_name=$(echo $service_path | sed 's:/src::' | tr '/' '_' | cut -c7-) # comps/retrievers/src/redis/langchain -> retrievers_redis_langchain
                 common_file_change_insight=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -vE 'integrations' | sort -u) || true
@@ -40,8 +39,11 @@ function find_test_1() {
                     run_all_interation="true"
                 fi
                 if [ "$run_all_interation" = "false" ]; then
-                    changed_integrations=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -E 'integrations' | grep -E '*.py' | cut -d'/' -f$((n+2)) | cut -d'.' -f1 | sort -u)  || true
+                    changed_integrations=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -E 'integrations' | cut -d'/' -f$((n+2)) | cut -d'.' -f1 | sort -u)  || true
                     for integration in ${changed_integrations}; do
+                        # Accurate matching test scripts
+                        # find_test=$(find ./tests -type f \( -name test_${service_name}_${integration}.sh -o -name test_${service_name}_${integration}_on_*.sh \)) || true
+                        # Fuzzy matching test scripts, for example, llms/src/text-generation/integrations/opea.py match several tests.
                         find_test=$(find ./tests -type f -name test_${service_name}_${integration}*.sh) || true
                         if [ "$find_test" ]; then
                             fill_in_matrix "$find_test"
@@ -57,7 +59,6 @@ function find_test_1() {
                         fill_in_matrix "$find_test"
                     fi
                 fi
-                set +x
             else
                 # old org without 'src' folder
                 service_name=$(echo $service_path | tr '/' '_' | cut -c7-) # comps/retrievers/redis/langchain -> retrievers_redis_langchain
