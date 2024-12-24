@@ -23,6 +23,6 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/retrieverss/pinecone/langchain
+WORKDIR /home/user/comps/retrievers/pinecone/langchain
 
 ENTRYPOINT ["python", "retriever_pinecone.py"]
