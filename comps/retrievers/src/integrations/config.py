@@ -87,8 +87,8 @@ MILVUS_PORT = int(os.getenv("MILVUS_PORT", 19530))
 MILVUS_URI = f"http://{MILVUS_HOST}:{MILVUS_PORT}"
 INDEX_PARAMS = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag_milvus")
-# MOSEC configuration
-MOSEC_EMBEDDING_MODEL = os.environ.get("MOSEC_EMBEDDING_MODEL", "/home/user/bce-embedding-base_v1")
-MOSEC_EMBEDDING_ENDPOINT = os.environ.get("MOSEC_EMBEDDING_ENDPOINT", "")
-os.environ["OPENAI_API_BASE"] = MOSEC_EMBEDDING_ENDPOINT
+# TEI configuration
+TEI_EMBEDDING_MODEL = os.environ.get("TEI_EMBEDDING_MODEL", "/home/user/bce-embedding-base_v1")
+TEI_EMBEDDING_ENDPOINT = os.environ.get("TEI_EMBEDDING_ENDPOINT", "")
+os.environ["OPENAI_API_BASE"] = TEI_EMBEDDING_ENDPOINT
 os.environ["OPENAI_API_KEY"] = "Dummy key"

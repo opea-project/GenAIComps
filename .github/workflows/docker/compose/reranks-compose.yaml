@@ -15,11 +15,3 @@ services:
     build:
       dockerfile: comps/reranks/src/Dockerfile # TODO. need to update
     image: ${REGISTRY:-opea}/reranking-fastrag:${TAG:-latest}
-  reranking-langchain-mosec-endpoint:
-    build:
-      dockerfile: comps/reranks/src//Dockerfile # TODO. need to update
-    image: ${REGISTRY:-opea}/reranking-langchain-mosec-endpoint:${TAG:-latest}
-  reranking-langchain-mosec:
-    build:
-      dockerfile: comps/reranks/src/Dockerfile
-    image: ${REGISTRY:-opea}/reranking-langchain-mosec:${TAG:-latest}
