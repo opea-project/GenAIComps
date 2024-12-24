@@ -4,7 +4,6 @@
 import os
 import time
 
-from integrations.opea_mosec_embedding import OpeaMosecEmbedding
 from integrations.opea_tei_embedding import OpeaTEIEmbedding
 from integrations.predictionguard_embedding import PredictionguardEmbedding
 
@@ -34,12 +33,6 @@ try:
             description="OPEA TEI Embedding Service",
         )
         controller.register(opea_tei_embedding)
-    if os.getenv("MOSEC_EMBEDDING_ENDPOINT"):
-        opea_mosec_embedding = OpeaMosecEmbedding(
-            name="OpeaMosecEmbedding",
-            description="OPEA MOSEC Embedding Service",
-        )
-        controller.register(opea_mosec_embedding)
     if os.getenv("PREDICTIONGUARD_API_KEY"):
         predictionguard_embedding = PredictionguardEmbedding(
             name="PredictionGuardEmbedding",
