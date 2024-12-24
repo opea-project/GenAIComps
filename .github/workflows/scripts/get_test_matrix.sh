@@ -31,7 +31,6 @@ function find_test_1() {
         if [[ $(ls ${service_path} | grep -E "Dockerfile*") ]]; then
             if [[ $(ls ${service_path} | grep "integrations") ]]; then
                 # new org with `src` and `integrations` folder
-                set -x # Print commands and their arguments as they are executed
                 run_all_interation="false"
                 service_name=$(echo $service_path | sed 's:/src::' | tr '/' '_' | cut -c7-) # comps/retrievers/src/redis/langchain -> retrievers_redis_langchain
                 common_file_change_insight=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -vE 'integrations' | sort -u) || true
@@ -57,7 +56,6 @@ function find_test_1() {
                         fill_in_matrix "$find_test"
                     fi
                 fi
-                set +x
             else
                 # old org without 'src' folder
                 service_name=$(echo $service_path | tr '/' '_' | cut -c7-) # comps/retrievers/redis/langchain -> retrievers_redis_langchain
