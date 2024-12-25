@@ -8,7 +8,6 @@ import json
 import os
 import time
 
-
 # GenAIComps
 from comps import CustomLogger, OpeaComponentController
 from comps.animation.src.integration.opea_animation import OpeaAnimation

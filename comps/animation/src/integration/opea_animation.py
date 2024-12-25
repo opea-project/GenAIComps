@@ -11,12 +11,8 @@ logger = CustomLogger("opea_animation")
 logflag = os.getenv("LOGFLAG", False)
 
 
-
-
 class OpeaAnimation(OpeaComponent):
-    """A specialized animation component derived from OpeaComponent.
-
-     """
+    """A specialized animation component derived from OpeaComponent."""
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.ANIMATION.name.lower(), description, config)
@@ -27,7 +23,6 @@ class OpeaAnimation(OpeaComponent):
 
         Args:
             input (Audio Byte Str)
-
         """
         inputs = {"audio": input}
 
