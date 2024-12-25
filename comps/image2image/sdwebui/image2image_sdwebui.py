@@ -105,17 +105,6 @@ def image2image(input: SDImg2ImgInputs):
     width = input.width
     strength = input.strength
 
-    images = pipe(
-        prompt,
-        height=height,
-        width=width,
-        num_inference_steps=num_inference_steps,
-        guidance_scale=guidance_scale,
-        generator=generator,
-        negative_prompt=negative_prompt,
-        num_images_per_prompt=num_images_per_prompt,
-    ).images
-
     generator = torch.manual_seed(seed)
     images = pipe(
         image=image,
