@@ -7,7 +7,7 @@ import threading
 import requests
 from openai import AsyncClient
 
-from comps import CustomLogger, OpeaComponent, ServiceType, SDImg2ImgInputs
+from comps import CustomLogger, OpeaComponent, SDImg2ImgInputs, ServiceType
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
 
 logger = CustomLogger("opea_imagetoimage")
@@ -23,8 +23,13 @@ initialization_lock = threading.Lock()
 initialized = False
 
 
-def initialize(model_name_or_path="stabilityai/stable-diffusion-xl-refiner-1.0", device="cpu", token=None, bf16=True,
-               use_hpu_graphs=False):
+def initialize(
+    model_name_or_path="stabilityai/stable-diffusion-xl-refiner-1.0",
+    device="cpu",
+    token=None,
+    bf16=True,
+    use_hpu_graphs=False,
+):
     global pipe, args, initialized
     with initialization_lock:
         if not initialized:
@@ -75,12 +80,22 @@ class OpeaImageToImage(OpeaComponent):
         use_hpu_graphs(bool): Is use hpu_graphs.
     """
 
-    def __init__(self, name: str, description: str, config: dict = None,  seed=42,
-                 model_name_or_path="stabilityai/stable-diffusion-xl-refiner-1.0", device="cpu", token=None, bf16=True,
-                 use_hpu_graphs=False):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        config: dict = None,
+        seed=42,
+        model_name_or_path="stabilityai/stable-diffusion-xl-refiner-1.0",
+        device="cpu",
+        token=None,
+        bf16=True,
+        use_hpu_graphs=False,
+    ):
         super().__init__(name, ServiceType.IMAGE2IMAGE.name.lower(), description, config)
-        initialize(model_name_or_path=model_name_or_path, device=device, token=token, bf16=bf16,
-                   use_hpu_graphs=use_hpu_graphs)
+        initialize(
+            model_name_or_path=model_name_or_path, device=device, token=token, bf16=bf16, use_hpu_graphs=use_hpu_graphs
+        )
         self.pipe = pipe
         self.seed = seed
 
@@ -89,15 +104,15 @@ class OpeaImageToImage(OpeaComponent):
 
         Args:
             input (SDImg2ImgInputs): The input in SD images  format.
-
         """
         image = load_image(input.image).convert("RGB")
         prompt = input.prompt
         num_images_per_prompt = input.num_images_per_prompt
 
         generator = torch.manual_seed(self.seed)
-        images = pipe(image=image, prompt=prompt, generator=generator,
-                      num_images_per_prompt=num_images_per_prompt).images
+        images = pipe(
+            image=image, prompt=prompt, generator=generator, num_images_per_prompt=num_images_per_prompt
+        ).images
         image_path = os.path.join(os.getcwd(), prompt.strip().replace(" ", "_").replace("/", ""))
         os.makedirs(image_path, exist_ok=True)
         results = []

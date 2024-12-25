@@ -6,18 +6,19 @@ import base64
 import os
 import time
 
-
 from comps import (
     CustomLogger,
+    OpeaComponentController,
     SDImg2ImgInputs,
     SDOutputs,
     ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
-    statistics_dict, OpeaComponentController,
+    statistics_dict,
 )
 from comps.image2image.src.integration.OpeaImageToImage import OpeaImageToImage
+
 args = None
 
 logger = CustomLogger("image2image")
@@ -69,7 +70,8 @@ if __name__ == "__main__":
         device=args.device,
         token=args.token,
         bf16=args.bf16,
-        use_hpu_graphs=args.use_hpu_graphs)
+        use_hpu_graphs=args.use_hpu_graphs,
+    )
 
     controller.register(opea_imagetoimage)
 
