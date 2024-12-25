@@ -23,9 +23,9 @@ from comps.cores.proto.api_protocol import (
     FineTuningJobList,
     UploadFileRequest,
 )
-from comps.finetuning.finetune_config import FinetuneConfig, FineTuningParams
+from comps.finetuning.src.integrations.finetune_config import FinetuneConfig, FineTuningParams
 
-logger = CustomLogger("finetuning_handlers")
+logger = CustomLogger("opea_finetuning")
 
 DATASET_BASE_PATH = "datasets"
 JOBS_PATH = "jobs"
