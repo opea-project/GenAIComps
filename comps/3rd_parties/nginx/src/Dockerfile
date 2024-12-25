@@ -16,7 +16,7 @@ ENV BACKEND_SERVICE_PORT=8888
 ENV DATAPREP_SERVICE_IP=localhost
 ENV DATAPREP_SERVICE_PORT=6007
 
-COPY comps/nginx/start-nginx.sh /usr/local/bin/start-nginx.sh
+COPY comps/3rd_parties/nginx/deployment/docker_compose/start-nginx.sh /usr/local/bin/start-nginx.sh
 RUN chmod +x /usr/local/bin/start-nginx.sh
 
 CMD ["/usr/local/bin/start-nginx.sh"]
