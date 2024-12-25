@@ -9,7 +9,7 @@ import sys
 import yaml
 
 images = {}
-
+dockerfiles = {}
 
 def check_docker_compose_build_definition(file_path):
     with open(file_path, "r") as f:
@@ -41,6 +41,16 @@ def check_docker_compose_build_definition(file_path):
                 else:
                     # print(f"Add Image: {image} Dockerfile: {dockerfile}")
                     images[image] = item
+                
+                if dockerfile in dockerfiles and image != dockerfiles[dockerfile]["image"]:
+                    print("WARNING: Different images using the same Dockerfile")
+                    print(f"Dockerfile: {dockerfile}, Image: {image}, defined in Service: {service}, File: {file_path}")
+                    print(
+                        f"Dockerfile: {dockerfile}, Image: {dockerfiles[dockerfile]['image']}, defined in Service: {dockerfiles[dockerfile]['service']}, File: {dockerfiles[dockerfile]['file_path']}"
+                    )
+                    sys.exit(1)
+                else:
+                    dockerfiles[dockerfile] = item
 
 
 def parse_arg():
