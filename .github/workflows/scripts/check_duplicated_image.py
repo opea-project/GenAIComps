@@ -31,7 +31,7 @@ def check_docker_compose_build_definition(file_path):
                 if not os.path.exists(dockerfile):
                     # dockerfile not exists in the current repo context, assume it's in 3rd party context
                     dockerfile = os.path.normpath(os.path.join(context, build.get("dockerfile", "")))
-                item = {"file_path": file_path, "service": service, "dockerfile": dockerfile}
+                item = {"file_path": file_path, "service": service, "dockerfile": dockerfile, "image": image}
                 if image in images and dockerfile != images[image]["dockerfile"]:
                     print("ERROR: !!! Found Conflicts !!!")
                     print(f"Image: {image}, Dockerfile: {dockerfile}, defined in Service: {service}, File: {file_path}")
