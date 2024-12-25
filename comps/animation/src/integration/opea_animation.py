@@ -16,8 +16,6 @@ logflag = os.getenv("LOGFLAG", False)
 class OpeaAnimation(OpeaComponent):
     """A specialized animation component derived from OpeaComponent.
 
-     Attributes:
-         client (AsyncInferenceClient): An instance of the async client for animation generation.
      """
 
     def __init__(self, name: str, description: str, config: dict = None):

@@ -54,10 +54,10 @@ except Exception as e:
     output_datatype=VideoPath,
 )
 @register_statistics(names=["opea_service@animation"])
-async def animate(audio: Base64ByteStrDoc):
+def animate(audio: Base64ByteStrDoc):
     start = time.time()
 
-    outfile = await opea_animation.invoke(audio.byte_str)
+    outfile = opea_animation.invoke(audio.byte_str)
     if logflag:
         logger.info(f"Video generated successfully, check {outfile} for the result.")
 
