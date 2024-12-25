@@ -47,7 +47,7 @@ class OpeaImage2video(OpeaComponent):
         """Invokes the image2video service to generate video(s) for the provided input.
 
         Args:
-            input (ImagesPath): The input for image2video service, including image pathes.
+            input (ImagesPath): The input for image2video service, including image paths.
         Returns:
             VideoPath: The response is path to the generated video.
         """
