@@ -11,6 +11,7 @@ import yaml
 images = {}
 dockerfiles = {}
 
+
 def check_docker_compose_build_definition(file_path):
     with open(file_path, "r") as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
@@ -41,7 +42,7 @@ def check_docker_compose_build_definition(file_path):
                 else:
                     # print(f"Add Image: {image} Dockerfile: {dockerfile}")
                     images[image] = item
-                
+
                 if dockerfile in dockerfiles and image != dockerfiles[dockerfile]["image"]:
                     print("WARNING: Different images using the same Dockerfile")
                     print(f"Dockerfile: {dockerfile}, Image: {image}, defined in Service: {service}, File: {file_path}")
