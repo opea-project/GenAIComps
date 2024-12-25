@@ -15,7 +15,3 @@ services:
     build:
       dockerfile: comps/asr/whisper/dependency/Dockerfile.intel_hpu
     image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}
-  whisper-test:
-    build:
-      dockerfile: comps/asr/whisper/dependency/Dockerfile.intel_hpu
-    image: ${REGISTRY:-opea}/whisper-test:${TAG:-latest}
