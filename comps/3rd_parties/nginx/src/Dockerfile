@@ -6,7 +6,7 @@ FROM nginx:alpine
 
 RUN apk add --no-cache gettext
 
-COPY comps/nginx/nginx.conf.template /etc/nginx/nginx.conf.template
+COPY comps/3rd_parties/nginx/src/nginx.conf.template /etc/nginx/nginx.conf.template
 
 ENV FRONTEND_SERVICE_IP=localhost
 ENV FRONTEND_SERVICE_PORT=5173
