@@ -21,6 +21,8 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from io import BytesIO
+from PIL import Image
 
 logger = CustomLogger("image2image_sdwebui")
 pipe = None
@@ -82,7 +84,10 @@ def initialize():
 def image2image(input: SDImg2ImgInputs):
     initialize()
     start = time.time()
-    image = load_image(input.image).convert("RGB")
+    image_byte = base64.b64decode(input.image)
+    image_io = BytesIO(image_byte)
+    image = Image.open(image_io)
+    image = load_image(image).convert("RGB")
     prompt = input.prompt
     num_inference_steps = input.num_inference_steps
     guidance_scale = input.guidance_scale
