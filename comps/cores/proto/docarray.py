@@ -305,13 +305,26 @@ class LVMVideoDoc(BaseDoc):
 
 class SDInputs(BaseDoc):
     prompt: str
+    num_inference_steps: int = 50
+    guidance_scale: float = 7.5
     num_images_per_prompt: int = 1
+    seed: int = 42
+    negative_prompt: Optional[Union[str, List[str]]] = None
+    height: Optional[int] = None
+    width: Optional[int] = None
 
 
 class SDImg2ImgInputs(BaseDoc):
     image: str
-    prompt: str = ""
+    prompt: Union[str, List[str]] = None,
+    height: Optional[int] = None,
+    width: Optional[int] = None,
+    strength: float = 0.8,
+    num_inference_steps: Optional[int] = 50,
+    guidance_scale: Optional[float] = 7.5,
+    negative_prompt: Optional[Union[str, List[str]]] = None,
     num_images_per_prompt: int = 1
+    seed: int = 42
 
 
 class SDOutputs(BaseDoc):
