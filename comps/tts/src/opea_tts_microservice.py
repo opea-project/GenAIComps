@@ -5,8 +5,8 @@ import os
 import time
 
 from fastapi.responses import StreamingResponse
-from integrations.opea_gptsovits_tts import OpeaGptsovitsTts
-from integrations.opea_speecht5_tts import OpeaSpeecht5Tts
+from integrations.opea_gptsovits import OpeaGptsovitsTts
+from integrations.opea_speecht5 import OpeaSpeecht5Tts
 
 from comps import (
     CustomLogger,
@@ -28,19 +28,19 @@ controller = OpeaComponentController()
 # Register components
 try:
     # Instantiate TTS components
-    opea_speecht5_tts = OpeaSpeecht5Tts(
+    opea_speecht5 = OpeaSpeecht5Tts(
         name="OpeaSpeecht5Tts",
         description="OPEA SpeechT5 TTS Service",
     )
 
-    opea_gptsovits_tts = OpeaGptsovitsTts(
+    opea_gptsovits = OpeaGptsovitsTts(
         name="OpeaGptsovitsTts",
         description="OPEA GPTSoVITS TTS Service",
     )
 
     # Register components with the controller
-    controller.register(opea_speecht5_tts)
-    controller.register(opea_gptsovits_tts)
+    controller.register(opea_speecht5)
+    controller.register(opea_gptsovits)
 
     # Discover and activate a healthy component
     controller.discover_and_activate(retries=10, interval=10, timeout=5)

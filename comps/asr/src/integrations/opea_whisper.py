@@ -11,7 +11,7 @@ from fastapi import File, Form, UploadFile
 from comps import CustomLogger, OpeaComponent, ServiceType
 from comps.cores.proto.api_protocol import AudioTranscriptionResponse
 
-logger = CustomLogger("opea_whisper_asr")
+logger = CustomLogger("opea_whisper")
 logflag = os.getenv("LOGFLAG", False)
 
 

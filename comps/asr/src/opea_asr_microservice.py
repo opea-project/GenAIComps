@@ -6,7 +6,7 @@ import time
 from typing import List
 
 from fastapi import File, Form, UploadFile
-from integrations.opea_whisper_asr import OpeaWhisperAsr
+from integrations.opea_whisper import OpeaWhisperAsr
 
 from comps import (
     Base64ByteStrDoc,
@@ -30,13 +30,13 @@ controller = OpeaComponentController()
 # Register components
 try:
     # Instantiate ASR components
-    opea_whisper_asr = OpeaWhisperAsr(
+    opea_whisper = OpeaWhisperAsr(
         name="OpeaWhisperAsr",
         description="OPEA Whisper ASR Service",
     )
 
     # Register components with the controller
-    controller.register(opea_whisper_asr)
+    controller.register(opea_whisper)
 
     # Discover and activate a healthy component
     controller.discover_and_activate(retries=10, interval=10, timeout=5)

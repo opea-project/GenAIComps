@@ -10,12 +10,12 @@ from fastapi.responses import StreamingResponse
 from comps import CustomLogger, OpeaComponent, ServiceType
 from comps.cores.proto.api_protocol import AudioSpeechRequest
 
-logger = CustomLogger("opea_speecht5_tts")
+logger = CustomLogger("opea_gptsovits")
 logflag = os.getenv("LOGFLAG", False)
 
 
-class OpeaSpeecht5Tts(OpeaComponent):
-    """A specialized TTS (Text To Speech) component derived from OpeaComponent for SpeechT5 TTS services.
+class OpeaGptsovitsTts(OpeaComponent):
+    """A specialized TTS (Text To Speech) component derived from OpeaComponent for GPTSoVITS TTS services.
 
     Attributes:
         model_name (str): The name of the TTS model used.
@@ -23,18 +23,16 @@ class OpeaSpeecht5Tts(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TTS.name.lower(), description, config)
-        self.base_url = os.getenv("TTS_ENDPOINT", "http://localhost:7055")
+        self.base_url = os.getenv("TTS_ENDPOINT", "http://localhost:9880")
 
-    def invoke(
+    async def invoke(
         self,
         request: AudioSpeechRequest,
     ) -> requests.models.Response:
         """Involve the TTS service to generate speech for the provided input."""
-        # validate the request parameters
-        if request.model not in ["microsoft/speecht5_tts"]:
-            raise Exception("TTS model mismatch! Currently only support model: microsoft/speecht5_tts")
-        if request.voice not in ["default", "male"] or request.speed != 1.0:
-            logger.warning("Currently parameter 'speed' can only be 1.0 and 'voice' can only be default or male!")
+        # see https://github.com/Spycsh/GPT-SoVITS/blob/openai_compat/api.py#L948 for usage
+        # make sure you change the refer_wav_path locally
+        request.voice = None
 
         response = requests.post(f"{self.base_url}/v1/audio/speech", data=request.json())
         return response
