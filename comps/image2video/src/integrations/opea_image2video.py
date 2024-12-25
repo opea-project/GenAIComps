@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import torch
 
+import torch
 from diffusers import StableVideoDiffusionPipeline
 from diffusers.utils import export_to_video, load_image
 
-from comps import CustomLogger, OpeaComponent, ImagesPath, VideoPath, ServiceType
+from comps import CustomLogger, ImagesPath, OpeaComponent, ServiceType, VideoPath
 
 logger = CustomLogger("opea_image2video")
 
@@ -45,6 +45,7 @@ class OpeaImage2video(OpeaComponent):
 
     async def invoke(self, input: ImagesPath) -> VideoPath:
         """Invokes the image2video service to generate video(s) for the provided input.
+
         Args:
             input (ImagesPath): The input for image2video service, including image pathes.
         Returns:
