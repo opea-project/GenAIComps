@@ -24,35 +24,35 @@ from comps.reranks.src.integrations.opea_video_native_reranking import OPEAVideo
 
 logger = CustomLogger("opea_reranking_microservice")
 logflag = os.getenv("LOGFLAG", False)
-
+rerank_type = os.getenv("RERANK_TYPE", False)
 # Initialize OpeaComponentController
 controller = OpeaComponentController()
 
 # Register components
 try:
     # Instantiate reranking components
-    if os.getenv("EMBED_MODEL"):
+    if rerank_type == "fastrag":
         opea_fastrag_reranking = OpeaFastRAGReranking(
             name="OpeaFastRAGReranking",
             description="OPEA Fast Rag Service",
         )
         # Register components with the controller
         controller.register(opea_fastrag_reranking)
-    if os.getenv("MOSEC_RERANKING_ENDPOINT"):
+    elif rerank_type == "mosec":
         opea_mosec_reranking = OPEAMosecReranking(
             name="OPEAMosecReranking",
             description="OPEA Mosec Reranking Service",
         )
         # Register components with the controller
         controller.register(opea_mosec_reranking)
-    if os.getenv("TEI_EMBEDDING_ENDPOINT"):
+    elif rerank_type == "tei":
         opea_tei_reranking = OPEATEIReranking(
             name="OPEATEIReranking",
             description="OPEA TEI Reranking Service",
         )
         # Register components with the controller
         controller.register(opea_tei_reranking)
-    if os.getenv("CHUNK_DURATION"):
+    elif rerank_type == "video":
         opea_video_native_reranking = OPEAVideoNativeReranking(
             name="OPEAVideoNativeReranking",
             description="OPEA Video Native Reranking Service",

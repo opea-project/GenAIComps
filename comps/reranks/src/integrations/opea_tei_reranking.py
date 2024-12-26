@@ -3,7 +3,7 @@
 
 import json
 import os
-import time
+import requests
 from typing import Union
 
 import aiohttp
@@ -90,10 +90,18 @@ class OPEATEIReranking(OpeaComponent):
                 return input
 
     def check_health(self) -> bool:
-        """Checks the health of the reranking service.
+        """Checks the health of the embedding service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-
-        return True
+        try:
+            response = requests.get(f"{self.tei_reranking_endpoint}/health")
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception as e:
+            # Handle connection errors, timeouts, etc.
+            logger.error(f"Health check failed: {e}")
+        return False
