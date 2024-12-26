@@ -27,4 +27,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/reranks/src
 
-ENTRYPOINT ["python", "opea_reranks_microservice.py"]
+ENTRYPOINT ["python", "opea_reranking_microservice.py"]
