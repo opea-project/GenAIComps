@@ -32,7 +32,7 @@ services:
       HF_TOKEN: ${HF_TOKEN}
     depends_on:
       tei_reranking_service:
-        condition: service_healthy      
+        condition: service_healthy
     restart: unless-stopped
 
 networks:
