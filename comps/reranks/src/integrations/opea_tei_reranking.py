@@ -32,7 +32,6 @@ class OPEATEIReranking(OpeaComponent):
 
     Attributes:
         client (AsyncInferenceClient): An instance of the client for reranking generation.
-        
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
