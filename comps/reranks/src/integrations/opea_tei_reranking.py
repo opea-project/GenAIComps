@@ -32,7 +32,7 @@ class OPEATEIReranking(OpeaComponent):
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
-        super().__init__(name, ServiceType.reranking.name.lower(), description, config)
+        super().__init__(name, ServiceType.RERANK.name.lower(), description, config)
         self.base_url = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8808")
         self.client = self._initialize_client()        
 
@@ -62,10 +62,7 @@ class OPEATEIReranking(OpeaComponent):
                 # for RerankingRequest, ChatCompletionRequest
                 query = input.input
 
-            response = await self.client.post(
-             json={"query": query, "texts": docs},
-                task="text-embedding",
-            )
+            response = await self.client.post(json={"query": query, "texts": docs})
             for best_response in response.json()[: input.top_n]:
                 reranking_results.append(
                     {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]}
@@ -100,7 +97,7 @@ class OPEATEIReranking(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            response = requests.get(f"{self.tei_reranking_endpoint}/health")
+            response = requests.get(f"{self.base_url}/health")
             if response.status_code == 200:
                 return True
             else:

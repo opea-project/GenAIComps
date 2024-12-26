@@ -8,6 +8,7 @@ from typing import Union
 from integrations.opea_fastrag_reranking import OpeaFastRAGReranking
 from integrations.opea_mosec_reranking import OPEAMosecReranking
 from integrations.opea_tei_reranking import OPEATEIReranking
+from integrations.opea_video_native_reranking import OPEAVideoNativeReranking
 
 from comps import (
     CustomLogger,
@@ -20,7 +21,6 @@ from comps import (
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest, RerankingRequest, RerankingResponse
 from comps.cores.proto.docarray import LLMParamsDoc, LVMVideoDoc, RerankedDoc, SearchedDoc, SearchedMultimodalDoc
-from comps.reranks.src.integrations.opea_video_native_reranking import OPEAVideoNativeReranking
 
 logger = CustomLogger("opea_reranking_microservice")
 logflag = os.getenv("LOGFLAG", False)
