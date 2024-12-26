@@ -4,11 +4,8 @@ import base64
 import os
 import threading
 
-import requests
-from openai import AsyncClient
 
 from comps import CustomLogger, OpeaComponent, SDImg2ImgInputs, ServiceType
-from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
 
 logger = CustomLogger("opea_imagetoimage")
 logflag = os.getenv("LOGFLAG", False)
