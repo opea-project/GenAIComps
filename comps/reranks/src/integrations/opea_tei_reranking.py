@@ -33,7 +33,7 @@ class OPEATEIReranking(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.reranking.name.lower(), description, config)
-        self.base_url = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8080")
+        self.base_url = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8808")
         self.client = self._initialize_client()        
 
     def _initialize_client(self) -> AsyncInferenceClient:
