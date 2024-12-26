@@ -146,7 +146,7 @@ class OpeaFinetuning(OpeaComponent):
 
         ray_job_id = ray_client.submit_job(
             # Entrypoint shell command to execute
-            entrypoint=f"python finetune_runner.py --config_file {finetune_config_file}",
+            entrypoint=f"python integrations/finetune_runner.py --config_file {finetune_config_file}",
         )
 
         logger.info(f"Submitted Ray job: {ray_job_id} ...")
@@ -241,3 +241,14 @@ class OpeaFinetuning(OpeaComponent):
         )
 
         return fileInfo
+
+    def invoke(self, *args, **kwargs):
+        pass
+
+    def check_health(self) -> bool:
+        """Checks the health of the component.
+
+        Returns:
+            bool: True if the component is healthy, False otherwise.
+        """
+        return True
