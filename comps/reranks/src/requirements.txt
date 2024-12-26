@@ -11,3 +11,8 @@ shortuuid
 uvicorn
 haystack-ai
 langchain
+langchain_community
+openai
+datasets
+Pillow
+pydub

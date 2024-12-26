@@ -5,10 +5,10 @@ import os
 import time
 from typing import Union
 
-from integrations.opea_fastrag_reranking import OpeaFastRAGReranking
-from integrations.opea_mosec_reranking import OPEAMosecReranking
+# from integrations.opea_fastrag_reranking import OpeaFastRAGReranking
+# from integrations.opea_mosec_reranking import OPEAMosecReranking
 from integrations.opea_tei_reranking import OPEATEIReranking
-from integrations.opea_video_native_reranking import OPEAVideoNativeReranking
+# from integrations.opea_video_native_reranking import OPEAVideoNativeReranking
 
 from comps import (
     CustomLogger,
@@ -31,34 +31,35 @@ controller = OpeaComponentController()
 # Register components
 try:
     # Instantiate reranking components
-    if rerank_type == "fastrag":
-        opea_fastrag_reranking = OpeaFastRAGReranking(
-            name="OpeaFastRAGReranking",
-            description="OPEA Fast Rag Service",
-        )
-        # Register components with the controller
-        controller.register(opea_fastrag_reranking)
-    elif rerank_type == "mosec":
-        opea_mosec_reranking = OPEAMosecReranking(
-            name="OPEAMosecReranking",
-            description="OPEA Mosec Reranking Service",
-        )
-        # Register components with the controller
-        controller.register(opea_mosec_reranking)
-    elif rerank_type == "tei":
+    # if rerank_type == "fastrag":
+    #     opea_fastrag_reranking = OpeaFastRAGReranking(
+    #         name="OpeaFastRAGReranking",
+    #         description="OPEA Fast Rag Service",
+    #     )
+    #     # Register components with the controller
+    #     controller.register(opea_fastrag_reranking)
+    # elif rerank_type == "mosec":
+    #     opea_mosec_reranking = OPEAMosecReranking(
+    #         name="OPEAMosecReranking",
+    #         description="OPEA Mosec Reranking Service",
+    #     )
+    #     # Register components with the controller
+    #     controller.register(opea_mosec_reranking)
+    # el
+    if rerank_type == "tei":
         opea_tei_reranking = OPEATEIReranking(
             name="OPEATEIReranking",
             description="OPEA TEI Reranking Service",
         )
         # Register components with the controller
         controller.register(opea_tei_reranking)
-    elif rerank_type == "video":
-        opea_video_native_reranking = OPEAVideoNativeReranking(
-            name="OPEAVideoNativeReranking",
-            description="OPEA Video Native Reranking Service",
-        )
-        # Register components with the controller
-        controller.register(opea_video_native_reranking)
+    # elif rerank_type == "video":
+    #     opea_video_native_reranking = OPEAVideoNativeReranking(
+    #         name="OPEAVideoNativeReranking",
+    #         description="OPEA Video Native Reranking Service",
+    #     )
+    #     # Register components with the controller
+    #     controller.register(opea_video_native_reranking)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()

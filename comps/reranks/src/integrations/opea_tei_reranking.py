@@ -62,8 +62,12 @@ class OPEATEIReranking(OpeaComponent):
                 # for RerankingRequest, ChatCompletionRequest
                 query = input.input
 
-            response = await self.client.post(json={"query": query, "texts": docs})
-            for best_response in response.json()[: input.top_n]:
+            response = await self.client.post(
+                json={"query": query, "texts": docs},
+                task="text-reranking",
+            )
+
+            for best_response in json.loads(response.decode())[: input.top_n]:
                 reranking_results.append(
                     {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]}
                 )

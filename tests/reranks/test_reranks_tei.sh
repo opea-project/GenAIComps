@@ -27,11 +27,12 @@ function start_service() {
     revision=refs/pr/4
     volume=$PWD/data
     docker run -d --name="test-comps-reranking-tei-endpoint" -p $tei_endpoint:80 -v $volume:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+    sleep 3m
     export TEI_RERANKING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
     tei_service_port=5007
     unset http_proxy
     docker run -d --name="test-comps-reranking-tei-server" -e LOGFLAG=True  -p ${tei_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e RERANK_TYPE="tei" opea/reranking:comps
-    sleep 3m
+    sleep 15
 }
 
 function validate_microservice() {
