@@ -33,7 +33,6 @@ generation_params = {
 }
 
 TGI_LLM_ENDPOINT = os.environ.get("TGI_LLM_ENDPOINT")
-TGI_LLM_ENDPOINT = "http://10.0.0.121:8008"
 
 llm = HuggingFaceEndpoint(
     endpoint_url=TGI_LLM_ENDPOINT,
