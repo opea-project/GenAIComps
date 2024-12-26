@@ -3,9 +3,11 @@
 
 import json
 import os
-import requests
 from typing import Union
+
+import requests
 from huggingface_hub import AsyncInferenceClient
+
 from comps import CustomLogger, LLMParamsDoc, SearchedDoc, ServiceType
 from comps.cores.common.component import OpeaComponent
 from comps.cores.mega.utils import get_access_token
@@ -24,6 +26,7 @@ TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
+
 class OPEATEIReranking(OpeaComponent):
     """A specialized reranking component derived from OpeaComponent for TEI reranking services.
 
@@ -35,7 +38,7 @@ class OPEATEIReranking(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RERANK.name.lower(), description, config)
         self.base_url = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8808")
-        self.client = self._initialize_client()        
+        self.client = self._initialize_client()
 
     def _initialize_client(self) -> AsyncInferenceClient:
         """Initializes the AsyncInferenceClient."""
@@ -48,7 +51,7 @@ class OPEATEIReranking(OpeaComponent):
             token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
-    
+
     async def invoke(
         self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
     ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:

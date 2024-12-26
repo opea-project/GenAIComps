@@ -34,7 +34,7 @@ try:
         )
         # Register components with the controller
         controller.register(opea_tei_reranking)
-        
+
     # Discover and activate a healthy component
     controller.discover_and_activate()
 except Exception as e:
