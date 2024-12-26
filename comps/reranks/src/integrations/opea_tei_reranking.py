@@ -43,7 +43,7 @@ class OPEATEIReranking(OpeaComponent):
         )
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
-            model=f"{self.base_url}/v1/rerank",
+            model=f"{self.base_url}/rerank",
             token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
