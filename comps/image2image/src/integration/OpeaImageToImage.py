@@ -4,7 +4,6 @@ import base64
 import os
 import threading
 
-
 from comps import CustomLogger, OpeaComponent, SDImg2ImgInputs, ServiceType
 
 logger = CustomLogger("opea_imagetoimage")
