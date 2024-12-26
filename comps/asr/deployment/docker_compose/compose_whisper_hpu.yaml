@@ -18,6 +18,11 @@ services:
     cap_add:
       - SYS_NICE
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7066/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
   asr:
     image: ${REGISTRY:-opea}/asr:${TAG:-latest}
     container_name: asr-service
@@ -26,6 +31,9 @@ services:
     ipc: host
     environment:
       ASR_ENDPOINT: ${ASR_ENDPOINT}
+    dependes_on:
+      speecht5-service:
+      condition: service_healthy
 
 networks:
   default:

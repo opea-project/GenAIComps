@@ -13,6 +13,11 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9880/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
   tts:
     image: ${REGISTRY:-opea}/tts:${TAG:-latest}
     container_name: tts-service
@@ -21,6 +26,9 @@ services:
     ipc: host
     environment:
       TTS_ENDPOINT: ${TTS_ENDPOINT}
+    dependes_on:
+      speecht5-service:
+      condition: service_healthy
 
 networks:
   default:

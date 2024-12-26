@@ -18,6 +18,11 @@ services:
     cap_add:
       - SYS_NICE
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7055/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
   tts:
     image: ${REGISTRY:-opea}/tts:${TAG:-latest}
     container_name: tts-service
@@ -26,6 +31,9 @@ services:
     ipc: host
     environment:
       TTS_ENDPOINT: ${TTS_ENDPOINT}
+    dependes_on:
+      speecht5-service:
+      condition: service_healthy
 
 networks:
   default:

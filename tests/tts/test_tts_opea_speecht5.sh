@@ -29,8 +29,9 @@ function build_docker_images() {
 function start_service() {
     unset http_proxy
     docker run -d --name="test-comps-tts-speecht5" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5017:7055 --ipc=host opea/speecht5:comps
+    sleep 2m
     docker run -d --name="test-comps-tts" -e TTS_ENDPOINT=http://$ip_address:5017 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5016:9088 --ipc=host opea/tts:comps
-    sleep 1m
+    sleep 15
 }
 
 function validate_microservice() {
