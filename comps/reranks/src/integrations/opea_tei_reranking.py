@@ -5,9 +5,7 @@ import json
 import os
 import requests
 from typing import Union
-
-import aiohttp
-
+from huggingface_hub import AsyncInferenceClient
 from comps import CustomLogger, LLMParamsDoc, SearchedDoc, ServiceType
 from comps.cores.common.component import OpeaComponent
 from comps.cores.mega.utils import get_access_token
@@ -26,43 +24,49 @@ TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
-
 class OPEATEIReranking(OpeaComponent):
     """A specialized reranking component derived from OpeaComponent for TEI reranking services.
 
     Attributes:
-        client: An instance of the client for reranking generation.
+        client (AsyncInferenceClient): An instance of the client for reranking generation.
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.reranking.name.lower(), description, config)
-        self.tei_reranking_endpoint = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8080")
+        self.base_url = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8080")
+        self.client = self._initialize_client()        
 
+    def _initialize_client(self) -> AsyncInferenceClient:
+        """Initializes the AsyncInferenceClient."""
+        access_token = (
+            get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
+        )
+        headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
+        return AsyncInferenceClient(
+            model=f"{self.base_url}/v1/rerank",
+            token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+            headers=headers,
+        )
+    
     async def invoke(
         self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
     ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
         """Invokes the reranking service to generate rerankings for the provided input."""
         reranking_results = []
-        access_token = (
-            get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
-        )
+
         if input.retrieved_docs:
             docs = [doc.text for doc in input.retrieved_docs]
-            url = self.tei_reranking_endpoint + "/rerank"
             if isinstance(input, SearchedDoc):
                 query = input.initial_query
             else:
                 # for RerankingRequest, ChatCompletionRequest
                 query = input.input
-            data = {"query": query, "texts": docs}
-            headers = {"Content-Type": "application/json"}
-            if access_token:
-                headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
-            async with aiohttp.ClientSession() as session:
-                async with session.post(url, data=json.dumps(data), headers=headers) as response:
-                    response_data = await response.json()
 
-            for best_response in response_data[: input.top_n]:
+            response = await self.client.post(
+             json={"query": query, "texts": docs},
+                task="text-embedding",
+            )
+            for best_response in response.json()[: input.top_n]:
                 reranking_results.append(
                     {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["score"]}
                 )
