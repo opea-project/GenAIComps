@@ -8,12 +8,7 @@ from typing import Union
 
 import aiohttp
 
-from comps import (
-    CustomLogger,
-    LLMParamsDoc,
-    SearchedDoc,
-    ServiceType,
-)
+from comps import CustomLogger, LLMParamsDoc, SearchedDoc, ServiceType
 from comps.cores.common.component import OpeaComponent
 from comps.cores.mega.utils import get_access_token
 from comps.cores.proto.api_protocol import (
@@ -43,11 +38,10 @@ class OPEATEIReranking(OpeaComponent):
         super().__init__(name, ServiceType.reranking.name.lower(), description, config)
         self.tei_reranking_endpoint = os.getenv("TEI_RERANKING_ENDPOINT", "http://localhost:8080")
 
-
-    async def invoke(self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
-                     ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
-        """Invokes the reranking service to generate rerankings for the provided input.
-        """
+    async def invoke(
+        self, input: Union[SearchedDoc, RerankingRequest, ChatCompletionRequest]
+    ) -> Union[LLMParamsDoc, RerankingResponse, ChatCompletionRequest]:
+        """Invokes the reranking service to generate rerankings for the provided input."""
         reranking_results = []
         access_token = (
             get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None

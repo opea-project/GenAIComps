@@ -20,28 +20,21 @@ import os
 import re
 
 import requests
-from comps.cores.common.component import OpeaComponent
 from langchain_core.prompts import ChatPromptTemplate
 
-from comps import (
-    CustomLogger,
-    LLMParamsDoc,
-    SearchedDoc,
-    ServiceType,
-)
+from comps import CustomLogger, LLMParamsDoc, SearchedDoc, ServiceType
+from comps.cores.common.component import OpeaComponent
 
 logger = CustomLogger("reranking_mosec_xeon")
 logflag = os.getenv("LOGFLAG", False)
 
 
 class OPEAMosecReranking(OpeaComponent):
-    """A specialized reranking component derived from OpeaComponent for mosec reranking services.
-    """
+    """A specialized reranking component derived from OpeaComponent for mosec reranking services."""
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RERANK.name.lower(), description, config)
         self.mosec_reranking_endpoint = os.getenv("MOSEC_RERANKING_ENDPOINT", "http://localhost:8080")
-
 
     async def invoke(self, input: SearchedDoc) -> LLMParamsDoc:
         """Invokes the reranking service to generate reranking for the provided input.
@@ -78,7 +71,6 @@ class OPEAMosecReranking(OpeaComponent):
             if logflag:
                 logger.info(input.initial_query)
             return LLMParamsDoc(query=input.initial_query)
-
 
     def check_health(self) -> bool:
         """Checks the health of the reranking service.

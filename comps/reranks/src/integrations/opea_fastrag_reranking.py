@@ -3,11 +3,11 @@
 
 import os
 
-from comps.cores.common.component import OpeaComponent
 from fastrag.rankers import IPEXBiEncoderSimilarityRanker
 from haystack import Document
 
 from comps import CustomLogger
+from comps.cores.common.component import OpeaComponent
 from comps.cores.mega.micro_service import ServiceType
 from comps.cores.proto.docarray import RerankedDoc, SearchedDoc, TextDoc
 
@@ -15,16 +15,14 @@ logger = CustomLogger("local_reranking")
 logflag = os.getenv("LOGFLAG", False)
 RANKER_MODEL = os.getenv("RANKER_MODEL")
 
-class OpeaFastRAGReranking(OpeaComponent):
-    """A specialized reranking component derived from OpeaComponent for fastRAG reranking services.
 
-    """
+class OpeaFastRAGReranking(OpeaComponent):
+    """A specialized reranking component derived from OpeaComponent for fastRAG reranking services."""
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RERANK.name.lower(), description, config)
         self.reranker_model = IPEXBiEncoderSimilarityRanker(RANKER_MODEL)
         self.reranker_model.warm_up()
-
 
     async def invoke(self, input: SearchedDoc) -> RerankedDoc:
         """Invokes the reranking service to generate reranking for the provided input.

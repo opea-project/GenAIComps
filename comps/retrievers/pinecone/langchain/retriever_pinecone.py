@@ -31,7 +31,6 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 @register_microservice(
     name="opea_service@retriever_pinecone",
     service_type=ServiceType.RETRIEVER,
-    
     host="0.0.0.0",
     port=7000,
 )

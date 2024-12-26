@@ -6,14 +6,10 @@ import os
 import re
 import time
 
-from comps.cores.common.component import OpeaComponent
 from fastapi import HTTPException
 
-from comps import (
-    LVMVideoDoc,
-    SearchedMultimodalDoc,
-    ServiceType,
-)
+from comps import LVMVideoDoc, SearchedMultimodalDoc, ServiceType
+from comps.cores.common.component import OpeaComponent
 
 chunk_duration = os.getenv("CHUNK_DURATION", "10") or "10"
 chunk_duration = float(chunk_duration) if chunk_duration.isdigit() else 10.0
@@ -72,13 +68,10 @@ def format_video_name(video_name):
 
 
 class OPEAVideoNativeReranking(OpeaComponent):
-    """A specialized reranking component derived from OpeaComponent for OPEA Video native reranking services.
-
-    """
+    """A specialized reranking component derived from OpeaComponent for OPEA Video native reranking services."""
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RERANK.name.lower(), description, config)
-
 
     async def invoke(self, input: SearchedMultimodalDoc) -> LVMVideoDoc:
         """Invokes the reranking service to generate reranking for the provided input.

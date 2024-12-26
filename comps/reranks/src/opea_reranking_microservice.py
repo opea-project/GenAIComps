@@ -5,11 +5,9 @@ import os
 import time
 from typing import Union
 
-from comps.cores.proto.docarray import LLMParamsDoc, LVMVideoDoc, RerankedDoc, SearchedDoc, SearchedMultimodalDoc
 from integrations.opea_fastrag_reranking import OpeaFastRAGReranking
 from integrations.opea_mosec_reranking import OPEAMosecReranking
 from integrations.opea_tei_reranking import OPEATEIReranking
-from comps.reranks.src.integrations.opea_video_native_reranking import OPEAVideoNativeReranking
 
 from comps import (
     CustomLogger,
@@ -21,7 +19,8 @@ from comps import (
     statistics_dict,
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest, RerankingRequest, RerankingResponse
-
+from comps.cores.proto.docarray import LLMParamsDoc, LVMVideoDoc, RerankedDoc, SearchedDoc, SearchedMultimodalDoc
+from comps.reranks.src.integrations.opea_video_native_reranking import OPEAVideoNativeReranking
 
 logger = CustomLogger("opea_reranking_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -43,23 +42,23 @@ try:
         opea_mosec_reranking = OPEAMosecReranking(
             name="OPEAMosecReranking",
             description="OPEA Mosec Reranking Service",
-        )  
+        )
         # Register components with the controller
-        controller.register(opea_mosec_reranking)        
+        controller.register(opea_mosec_reranking)
     if os.getenv("TEI_EMBEDDING_ENDPOINT"):
         opea_tei_reranking = OPEATEIReranking(
             name="OPEATEIReranking",
             description="OPEA TEI Reranking Service",
-        ) 
+        )
         # Register components with the controller
-        controller.register(opea_tei_reranking)        
+        controller.register(opea_tei_reranking)
     if os.getenv("CHUNK_DURATION"):
         opea_video_native_reranking = OPEAVideoNativeReranking(
             name="OPEAVideoNativeReranking",
             description="OPEA Video Native Reranking Service",
-        )  
+        )
         # Register components with the controller
-        controller.register(opea_video_native_reranking)                             
+        controller.register(opea_video_native_reranking)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
@@ -75,8 +74,9 @@ except Exception as e:
     port=8000,
 )
 @register_statistics(names=["opea_service@reranking"])
-async def reranking(input:  Union[SearchedMultimodalDoc, SearchedDoc, RerankingRequest, ChatCompletionRequest]
-                    ) -> Union[RerankedDoc, LLMParamsDoc, RerankingResponse, ChatCompletionRequest, LVMVideoDoc]:
+async def reranking(
+    input: Union[SearchedMultimodalDoc, SearchedDoc, RerankingRequest, ChatCompletionRequest]
+) -> Union[RerankedDoc, LLMParamsDoc, RerankingResponse, ChatCompletionRequest, LVMVideoDoc]:
     start = time.time()
 
     # Log the input if logging is enabled
