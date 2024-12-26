@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     # Register components
     try:
-        # Instantiate Embedding components
+        # Instantiate Image2video components
         opea_image2video = OpeaImage2video(
             name="OpeaImage2video", description="OPEA Image2video Service", config=args.__dict__
         )
