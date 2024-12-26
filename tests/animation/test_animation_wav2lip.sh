@@ -35,10 +35,10 @@ function start_service() {
     export ANIMATION_PORT=9066
     export INFERENCE_MODE='wav2lip+gfpgan'
     export CHECKPOINT_PATH='/usr/local/lib/python3.11/site-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
-    export FACE="assets/img/avatar1.jpg"
+    export FACE="/home/user/comps/animation/src/assets/img/avatar1.jpg"
     export AUDIO='None'
     export FACESIZE=96
-    export OUTFILE="assets/outputs/result.mp4"
+    export OUTFILE="/home/user/comps/animation/src/assets/outputs/result.mp4"
     export GFPGAN_MODEL_VERSION=1.4 # latest version, can roll back to v1.3 if needed
     export UPSCALE_FACTOR=1
     export FPS=10
