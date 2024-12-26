@@ -2,15 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 from fastapi import BackgroundTasks, Depends
 
-from comps import opea_microservices, register_microservice, CustomLogger
+from comps import CustomLogger, opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, UploadFileRequest
 from comps.finetuning.src.integrations.finetune_config import FineTuningParams
+from comps.finetuning.src.integrations.opea_finetuning import OpeaFinetuning, upload_file
 from comps.finetuning.src.opea_finetuning_controller import OpeaFinetuningController
-from comps.finetuning.src.integrations.opea_finetuning import (
-    OpeaFinetuning,
-    upload_file,
-)
-
 
 logger = CustomLogger("opea_finetuning_microservice")
 
@@ -28,6 +24,7 @@ try:
     controller.discover_and_activate()
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
+
 
 @register_microservice(name="opea_service@finetuning", endpoint="/v1/fine_tuning/jobs", host="0.0.0.0", port=8015)
 def create_finetuning_jobs(request: FineTuningParams, background_tasks: BackgroundTasks):
