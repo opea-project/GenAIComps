@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -xe
+set -x
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -21,6 +21,34 @@ function build_docker_images() {
     docker build --no-cache -t opea/texttosql:comps -f comps/texttosql/src/Dockerfile .
 }
 
+
+check_tgi_connection() {
+  url=$1
+  timeout=1200
+  interval=10
+
+  local start_time=$(date +%s)
+
+  while true; do
+    if curl --silent --head --fail "$url" > /dev/null; then
+      echo "Success"
+      return 0
+    fi
+    echo
+    local current_time=$(date +%s)
+
+    local elapsed_time=$((current_time - start_time))
+
+    if [ "$elapsed_time" -ge "$timeout" ]; then
+      echo "Timeout,$((timeout / 60))min can't connect $url"
+      return 1
+    fi
+    echo "Waiting for service for $elapsed_time seconds"
+    sleep "$interval"
+  done
+}
+
+
 function start_service() {
 
     docker run --name test-texttosql-postgres --ipc=host -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p 5442:5432 -d -v $WORKPATH/comps/texttosql/src/chinook.sql:/docker-entrypoint-initdb.d/chinook.sql postgres:latest
@@ -33,16 +61,7 @@ function start_service() {
     docker run -d --name="test-texttosql-server" --ipc=host -p ${texttosql_port}:8080 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT opea/texttosql:comps
 
     # check whether tgi is fully ready
-    n=0
-    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-texttosql-tgi-endpoint > ${LOG_PATH}/tgi.log
-        n=$((n+1))
-        if grep -q Connected ${LOG_PATH}/tgi.log; then
-            break
-        fi
-        sleep 5s
-    done
-    sleep 5s
+    check_tgi_connection "${TGI_LLM_ENDPOINT}/health"
 }
 
 function validate_microservice() {
