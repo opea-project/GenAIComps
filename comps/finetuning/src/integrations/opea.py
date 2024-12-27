@@ -25,7 +25,7 @@ from comps.cores.proto.api_protocol import (
 )
 from comps.finetuning.src.integrations.finetune_config import FinetuneConfig, FineTuningParams
 
-logger = CustomLogger("opea_finetuning")
+logger = CustomLogger("opea")
 
 DATASET_BASE_PATH = "datasets"
 JOBS_PATH = "jobs"

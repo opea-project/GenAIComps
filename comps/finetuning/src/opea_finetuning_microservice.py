@@ -5,7 +5,7 @@ from fastapi import BackgroundTasks, Depends
 from comps import CustomLogger, opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, UploadFileRequest
 from comps.finetuning.src.integrations.finetune_config import FineTuningParams
-from comps.finetuning.src.integrations.opea_finetuning import OpeaFinetuning, upload_file
+from comps.finetuning.src.integrations.opea import OpeaFinetuning, upload_file
 from comps.finetuning.src.opea_finetuning_controller import OpeaFinetuningController
 
 logger = CustomLogger("opea_finetuning_microservice")
