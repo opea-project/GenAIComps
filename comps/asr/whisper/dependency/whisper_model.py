@@ -14,7 +14,14 @@ from pydub import AudioSegment
 class WhisperModel:
     """Convert audio to text."""
 
-    def __init__(self, model_name_or_path="openai/whisper-small", language="english", device="cpu", hpu_max_len=8192):
+    def __init__(
+        self,
+        model_name_or_path="openai/whisper-small",
+        language="english",
+        device="cpu",
+        hpu_max_len=8192,
+        return_timestamps=False,
+    ):
         if device == "hpu":
             # Explicitly link HPU with Torch
             from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
@@ -23,14 +30,15 @@ class WhisperModel:
         from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
         self.device = device
-        asr_model_name_or_path = os.environ.get("ASR_MODEL_PATH", model_name_or_path)
-        print("Downloading model: {}".format(asr_model_name_or_path))
-        self.model = WhisperForConditionalGeneration.from_pretrained(asr_model_name_or_path).to(self.device)
-        self.processor = WhisperProcessor.from_pretrained(asr_model_name_or_path)
+        self.asr_model_name_or_path = os.environ.get("ASR_MODEL_PATH", model_name_or_path)
+        print("Downloading model: {}".format(self.asr_model_name_or_path))
+        self.model = WhisperForConditionalGeneration.from_pretrained(self.asr_model_name_or_path).to(self.device)
+        self.processor = WhisperProcessor.from_pretrained(self.asr_model_name_or_path)
         self.model.eval()
 
         self.language = language
         self.hpu_max_len = hpu_max_len
+        self.return_timestamps = return_timestamps
 
         if device == "hpu":
             self._warmup_whisper_hpu_graph("https://github.com/Spycsh/assets/raw/main/ljspeech_60s_audio.wav")
@@ -104,7 +112,7 @@ class WhisperModel:
                 )
             ),
             language=self.language,
-            return_timestamps=True,
+            return_timestamps=self.return_timestamps,
         )
 
     def audio2text(self, audio_path):
@@ -167,7 +175,7 @@ class WhisperModel:
                 )
             ),
             language=self.language,
-            return_timestamps=True,
+            return_timestamps=self.return_timestamps,
         )
         # pylint: disable=E1101
         result = self.processor.tokenizer.batch_decode(predicted_ids, skip_special_tokens=True, normalize=True)[0]
@@ -180,7 +188,9 @@ class WhisperModel:
 
 
 if __name__ == "__main__":
-    asr = WhisperModel(model_name_or_path="openai/whisper-small", language="english", device="cpu")
+    asr = WhisperModel(
+        model_name_or_path="openai/whisper-small", language="english", device="cpu", return_timestamps=True
+    )
 
     # Test multilanguage asr
     asr.language = "chinese"

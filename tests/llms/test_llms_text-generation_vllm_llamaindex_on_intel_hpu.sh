@@ -12,12 +12,13 @@ function build_docker_images() {
     cd $WORKPATH
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
-    docker build --no-cache -f Dockerfile.hpu -t opea/vllm-hpu:comps --shm-size=128g .
+    git checkout 3c39626
+    docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g .
     if [ $? -ne 0 ]; then
-        echo "opea/vllm-hpu built fail"
+        echo "opea/vllm-gaudi built fail"
         exit 1
     else
-        echo "opea/vllm-hpu built successful"
+        echo "opea/vllm-gaudi built successful"
     fi
 
     ## Build OPEA microservice docker
@@ -34,7 +35,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export LLM_MODEL="facebook/opt-125m"
+    export LLM_MODEL="Intel/neural-chat-7b-v3-3"
     port_number=5025
     docker run -d --rm \
         --runtime=habana \
@@ -46,8 +47,8 @@ function start_service() {
         --cap-add=sys_nice \
         --ipc=host \
         -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
-        opea/vllm-hpu:comps \
-        --enforce-eager --model $LLM_MODEL  --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256 --max-seq_len-to-capture 2048
+        opea/vllm-gaudi:comps \
+        --model $LLM_MODEL  --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256 --max-seq_len-to-capture 2048
 
     export vLLM_ENDPOINT="http://${ip_address}:${port_number}"
     docker run -d --rm \
@@ -61,7 +62,7 @@ function start_service() {
 
     # check whether vllm ray is fully ready
     n=0
-    until [[ "$n" -ge 120 ]] || [[ $ready == true ]]; do
+    until [[ "$n" -ge 160 ]] || [[ $ready == true ]]; do
         docker logs test-comps-vllm-service > ${WORKPATH}/tests/test-comps-vllm-service.log
         n=$((n+1))
         if grep -q throughput ${WORKPATH}/tests/test-comps-vllm-service.log; then
@@ -76,7 +77,7 @@ function validate_microservice() {
     result=$(http_proxy="" curl http://${ip_address}:5025/v1/completions \
         -H "Content-Type: application/json" \
         -d '{
-        "model": "facebook/opt-125m",
+        "model": "Intel/neural-chat-7b-v3-3",
         "prompt": "What is Deep Learning?",
         "max_tokens": 32,
         "temperature": 0

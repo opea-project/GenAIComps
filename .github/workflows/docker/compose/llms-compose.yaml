@@ -36,12 +36,12 @@ services:
       context: vllm-openvino
       dockerfile: Dockerfile.openvino
     image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
-  vllm-hpu:
+  vllm-gaudi:
     build:
       context: vllm-fork
       dockerfile: Dockerfile.hpu
     shm_size: '128g'
-    image: ${REGISTRY:-opea}/vllm-hpu:${TAG:-latest}
+    image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
   vllm-arc:
     build:
       dockerfile: comps/llms/text-generation/vllm/langchain/dependency/Dockerfile.intel_gpu
@@ -54,7 +54,15 @@ services:
     build:
       dockerfile: comps/llms/text-generation/vllm/llama_index/Dockerfile
     image: ${REGISTRY:-opea}/llm-vllm-llamaindex:${TAG:-latest}
-  llm-predictionguard:
+  llm-textgen-predictionguard:
     build:
       dockerfile: comps/llms/text-generation/predictionguard/Dockerfile
     image: ${REGISTRY:-opea}/llm-textgen-predictionguard:${TAG:-latest}
+  llm-docsum-vllm:
+    build:
+      dockerfile: comps/llms/summarization/vllm/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/llm-docsum-vllm:${TAG:-latest}
+  llm-faqgen-vllm:
+    build:
+      dockerfile: comps/llms/faq-generation/vllm/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/llm-faqgen-vllm:${TAG:-latest}

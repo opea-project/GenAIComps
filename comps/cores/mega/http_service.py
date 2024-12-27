@@ -1,7 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import logging
+import multiprocessing
 import re
 from typing import Optional
 
@@ -35,18 +37,7 @@ class HTTPService(BaseService):
         self.uvicorn_kwargs = uvicorn_kwargs or {}
         self.cors = cors
         self._app = self._create_app()
-
-        # remove part before '@', used by register_microservice() callers, and
-        # part after '/', added by MicroService(), to get real service name, and
-        # convert invalid characters to '_'
-        suffix = re.sub(r"[^a-zA-Z0-9]", "_", self.title.split("/")[0].split("@")[-1].lower())
-
-        instrumentator = Instrumentator(
-            inprogress_name=f"http_requests_inprogress_{suffix}",
-            should_instrument_requests_inprogress=True,
-            inprogress_labels=True,
-        )
-        instrumentator.instrument(self._app).expose(self._app)
+        Instrumentator().instrument(self._app).expose(self._app)
 
     @property
     def app(self):
@@ -94,6 +85,11 @@ class HTTPService(BaseService):
 
         return app
 
+    def add_startup_event(self, func):
+        @self.app.on_event("startup")
+        async def startup_event():
+            asyncio.create_task(func)
+
     async def initialize_server(self):
         """Initialize and return HTTP server."""
         self.logger.info("Setting up HTTP server")
@@ -121,11 +117,9 @@ class HTTPService(BaseService):
                 """
                 await self.main_loop()
 
-        app = self.app
-
         self.server = UviServer(
             config=Config(
-                app=app,
+                app=self.app,
                 host=self.host_address,
                 port=self.primary_port,
                 log_level="info",
@@ -147,6 +141,24 @@ class HTTPService(BaseService):
         self.server.should_exit = True
         await self.server.shutdown()
         self.logger.info("Server termination completed")
+
+    def _async_setup(self):
+        self.event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.event_loop)
+        self.event_loop.run_until_complete(self.initialize_server())
+
+    def start(self):
+        """Running method to block the main thread.
+
+        This method runs the event loop until a Future is done. It is designed to be called in the main thread to keep it busy.
+        """
+        self.event_loop.run_until_complete(self.execute_server())
+
+    def stop(self):
+        self.event_loop.run_until_complete(self.terminate_server())
+        self.event_loop.stop()
+        self.event_loop.close()
+        self.logger.close()
 
     @staticmethod
     def check_server_readiness(ctrl_address: str, timeout: float = 1.0, logger=None, **kwargs) -> bool:
@@ -181,3 +193,6 @@ class HTTPService(BaseService):
         :return: True if status is ready else False.
         """
         return HTTPService.check_server_readiness(ctrl_address, timeout, logger=logger)
+
+    def add_route(self, endpoint, handler, methods=["POST"]):
+        self.app.router.add_api_route(endpoint, handler, methods=methods)

@@ -57,9 +57,15 @@ def setup_chat_model(args):
     }
     if args.llm_engine == "vllm" or args.llm_engine == "tgi":
         openai_endpoint = f"{args.llm_endpoint_url}/v1"
-        llm = ChatOpenAI(openai_api_key="EMPTY", openai_api_base=openai_endpoint, model_name=args.model, **params)
+        llm = ChatOpenAI(
+            openai_api_key="EMPTY",
+            openai_api_base=openai_endpoint,
+            model_name=args.model,
+            request_timeout=args.timeout,
+            **params,
+        )
     elif args.llm_engine == "openai":
-        llm = ChatOpenAI(model_name=args.model, **params)
+        llm = ChatOpenAI(model_name=args.model, request_timeout=args.timeout, **params)
     else:
         raise ValueError("llm_engine must be vllm, tgi or openai")
     return llm
@@ -114,7 +120,7 @@ def get_args():
     parser.add_argument("--agent_name", type=str, default="OPEA_Default_Agent")
     parser.add_argument("--strategy", type=str, default="react_langchain")
     parser.add_argument("--role_description", type=str, default="LLM enhanced agent")
-    parser.add_argument("--tools", type=str, default="tools/custom_tools.yaml")
+    parser.add_argument("--tools", type=str, default=None, help="path to the tools file")
     parser.add_argument("--recursion_limit", type=int, default=5)
     parser.add_argument("--require_human_feedback", action="store_true", help="If this agent requires human feedback")
     parser.add_argument("--debug", action="store_true", help="Test with endpoint mode")
@@ -129,9 +135,18 @@ def get_args():
     parser.add_argument("--repetition_penalty", type=float, default=1.03)
     parser.add_argument("--return_full_text", type=bool, default=False)
     parser.add_argument("--custom_prompt", type=str, default=None)
+    parser.add_argument("--with_memory", type=bool, default=False)
+    parser.add_argument("--with_store", type=bool, default=False)
+    parser.add_argument("--timeout", type=int, default=60)
+
+    # for sql agent
+    parser.add_argument("--db_path", type=str, help="database path")
+    parser.add_argument("--db_name", type=str, help="database name")
+    parser.add_argument("--use_hints", type=str, default="false", help="If this agent uses hints")
+    parser.add_argument("--hints_file", type=str, help="path to the hints file")
 
     sys_args, unknown_args = parser.parse_known_args()
-    # print("env_config: ", env_config)
+    print("env_config: ", env_config)
     if env_config != []:
         env_args, env_unknown_args = parser.parse_known_args(env_config)
         unknown_args += env_unknown_args
@@ -142,5 +157,12 @@ def get_args():
         sys_args.streaming = True
     else:
         sys_args.streaming = False
+
+    if sys_args.use_hints == "true":
+        print("SQL agent will use hints")
+        sys_args.use_hints = True
+    else:
+        sys_args.use_hints = False
+
     print("==========sys_args==========:\n", sys_args)
     return sys_args, unknown_args

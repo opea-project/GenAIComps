@@ -155,7 +155,7 @@ class ChatCompletionRequest(BaseModel):
         List[Dict[str, str]],
         List[Dict[str, Union[str, List[Dict[str, Union[str, Dict[str, str]]]]]]],
     ]
-    model: Optional[str] = "Intel/neural-chat-7b-v3-3"
+    model: Optional[str] = None
     frequency_penalty: Optional[float] = 0.0
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[bool] = False
@@ -269,6 +269,14 @@ class ChatCompletionRequest(BaseModel):
     request_type: Literal["chat"] = "chat"
 
 
+class DocSumChatCompletionRequest(BaseModel):
+    llm_params: Optional[ChatCompletionRequest] = None
+    text: Optional[str] = None
+    audio: Optional[str] = None
+    video: Optional[str] = None
+    type: Optional[str] = None
+
+
 class AudioChatCompletionRequest(BaseModel):
     audio: str
     messages: Optional[
@@ -290,6 +298,38 @@ class AudioChatCompletionRequest(BaseModel):
     frequency_penalty: Optional[float] = 0.0
     repetition_penalty: Optional[float] = 1.03
     user: Optional[str] = None
+
+
+# Pydantic does not support UploadFile directly
+# class AudioTranscriptionRequest(BaseModel):
+#     # Ordered by official OpenAI API documentation
+#     # default values are same with
+#     # https://platform.openai.com/docs/api-reference/audio/createTranscription
+#     file: UploadFile = File(...)
+#     model: Optional[str] = "openai/whisper-small"
+#     language: Optional[str] = "english"
+#     prompt: Optional[str] = None
+#     response_format: Optional[str] = "json"
+#     temperature: Optional[str] = 0
+#     timestamp_granularities: Optional[List] = None
+
+
+class AudioTranscriptionResponse(BaseModel):
+    # Ordered by official OpenAI API documentation
+    # default values are same with
+    # https://platform.openai.com/docs/api-reference/audio/json-object
+    text: str
+
+
+class AudioSpeechRequest(BaseModel):
+    # Ordered by official OpenAI API documentation
+    # default values are same with
+    # https://platform.openai.com/docs/api-reference/audio/createSpeech
+    input: str
+    model: Optional[str] = "microsoft/speecht5_tts"
+    voice: Optional[str] = "default"
+    response_format: Optional[str] = "mp3"
+    speed: Optional[float] = 1.0
 
 
 class ChatMessage(BaseModel):
