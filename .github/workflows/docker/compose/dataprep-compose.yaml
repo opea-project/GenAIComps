@@ -67,4 +67,3 @@ services:
         build:
             dockerfile: comps/dataprep/minio/milvus/langchain/Dockerfile
         image: ${REGISTRY:-opea}/dataprep-minio-milvus:${TAG:-latest}
-        

@@ -55,4 +55,3 @@ services:
     build:
       dockerfile: comps/retrievers/minio/lancedb/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-minio-lancedb:${TAG:-latest}
-    
