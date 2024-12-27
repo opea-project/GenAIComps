@@ -30,4 +30,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/text2sql/src/
 
-ENTRYPOINT ["python", "text2sql_microservice.py"]
+ENTRYPOINT ["python", "opea_text2sql_microservice.py"]
