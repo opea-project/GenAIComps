@@ -37,8 +37,9 @@ async def text_to_speech(request: Request):
     logger.info("SpeechT5 generation begin.")
     request_dict = await request.json()
     text = request_dict.pop("text")
+    voice = request_dict.pop("voice", "default")
 
-    speech = tts.t2s(text)
+    speech = tts.t2s(text, voice)
     sf.write("tmp.wav", speech, samplerate=16000)
     with open("tmp.wav", "rb") as f:
         bytes = f.read()
