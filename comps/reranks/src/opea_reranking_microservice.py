@@ -5,7 +5,7 @@ import os
 import time
 from typing import Union
 
-from integrations.opea_tei_reranking import OPEATEIReranking
+from integrations.opea_tei import OPEATEIReranking
 
 from comps import (
     CustomLogger,
