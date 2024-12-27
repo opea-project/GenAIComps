@@ -24,7 +24,7 @@ from sqlalchemy.engine import Result
 
 from comps import CustomLogger
 
-logger = CustomLogger("comps-texttosql")
+logger = CustomLogger("comps-text2sql")
 logflag = os.getenv("LOGFLAG", False)
 
 

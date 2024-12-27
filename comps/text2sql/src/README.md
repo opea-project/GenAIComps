@@ -39,7 +39,7 @@ export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=testpwd
 export POSTGRES_DB=chinook
 
-cd comps/texttosql
+cd comps/text2sql
 
 docker run --name postgres-db --ipc=host -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p 5442:5432 -d -v ./chinook.sql:/docker-entrypoint-initdb.d/chinook.sql postgres:latest
 ```
@@ -51,7 +51,7 @@ export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export TGI_PORT=8008
 
-docker run -d --name="texttosql-tgi-endpoint" --ipc=host -p $TGI_PORT:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${LLM_MODEL_ID} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id $LLM_MODEL_ID
+docker run -d --name="text2sql-tgi-endpoint" --ipc=host -p $TGI_PORT:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${LLM_MODEL_ID} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id $LLM_MODEL_ID
 ```
 
 #### Verify the TGI Service
@@ -100,7 +100,7 @@ export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
 
 ```bash
 cd GenAIComps/
-docker build -t opea/texttosql:latest -f comps/texttosql/src/Dockerfile .
+docker build -t opea/text2sql:latest -f comps/text2sql/src/Dockerfile .
 ```
 
 #### Run Docker with CLI (Option A)
@@ -108,7 +108,7 @@ docker build -t opea/texttosql:latest -f comps/texttosql/src/Dockerfile .
 ```bash
 export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
 
-docker run  --runtime=runc --name="comps-langchain-texttosql"  -p 9090:8080 --ipc=host -e llm_endpoint_url=${TGI_LLM_ENDPOINT} opea/texttosql:latest
+docker run  --runtime=runc --name="comps-langchain-text2sql"  -p 9090:8080 --ipc=host -e llm_endpoint_url=${TGI_LLM_ENDPOINT} opea/text2sql:latest
 ```
 
 #### Run via docker compose (Option B)
@@ -127,7 +127,7 @@ docker run  --runtime=runc --name="comps-langchain-texttosql"  -p 9090:8080 --ip
 - Start the services.
 
   ```bash
-  docker compose -f docker_compose_texttosql.yaml up
+  docker compose -f docker_compose_text2sql.yaml up
   ```
 
 ---
@@ -147,7 +147,7 @@ The Text-to-SQL microservice exposes the following API endpoints:
 - Execute SQL Query from input text
 
   ```bash
-  curl http://${your_ip}:9090/v1/texttosql\
+  curl http://${your_ip}:9090/v1/text2sql\
           -X POST \
           -d '{"input_text": "Find the total number of Albums.","conn_str": {"user": "'${POSTGRES_USER}'","password": "'${POSTGRES_PASSWORD}'","host": "'${your_ip}'", "port": "5442", "database": "'${POSTGRES_DB}'"}}' \
           -H 'Content-Type: application/json'
