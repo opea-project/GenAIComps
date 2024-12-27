@@ -24,6 +24,7 @@ class SpeechT5Model:
         self.processor = SpeechT5Processor.from_pretrained(self.model_name_or_path, normalize=True)
         self.vocoder = SpeechT5HifiGan.from_pretrained(vocoder_model_name_or_path).to(device)
         self.vocoder.eval()
+        self.voice = "default"
 
         # fetch default speaker embedding
         try:
@@ -89,8 +90,13 @@ class SpeechT5Model:
         )
 
     def t2s(self, text, voice="default"):
-        if voice == "male":
-            self.default_speaker_embedding = torch.load("spk_embed_male.pt")
+        if self.voice != voice:
+            try:
+                print(f"Loading spk embedding with voice: {voice}.")
+                self.default_speaker_embedding = torch.load("spk_embed_{voice}.pt")
+                self.voice = voice
+            except Exception as e:
+                print(e)
         if self.device == "hpu":
             # See https://github.com/huggingface/optimum-habana/pull/824
             from optimum.habana.utils import set_seed
