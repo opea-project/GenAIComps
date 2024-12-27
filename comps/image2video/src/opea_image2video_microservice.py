@@ -4,7 +4,7 @@
 import argparse
 import time
 
-from integrations.opea_image2video import OpeaImage2video
+from integrations.opea import OpeaImage2video
 
 from comps import (
     CustomLogger,

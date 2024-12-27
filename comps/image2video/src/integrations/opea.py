@@ -9,7 +9,7 @@ from diffusers.utils import export_to_video, load_image
 
 from comps import CustomLogger, ImagesPath, OpeaComponent, ServiceType, VideoPath
 
-logger = CustomLogger("opea_image2video")
+logger = CustomLogger("opea")
 
 
 class OpeaImage2video(OpeaComponent):
