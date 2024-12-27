@@ -6,14 +6,15 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/reranking-tei:comps -f comps/reranks/tei/Dockerfile .
+    docker build --no-cache -t opea/reranking:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/reranking-tei built fail"
+        echo "opea/reranking built fail"
         exit 1
     else
-        echo "opea/reranking-tei built successful"
+        echo "opea/reranking built successful"
     fi
 }
 
@@ -24,13 +25,13 @@ function start_service() {
     model=BAAI/bge-reranker-base
     revision=refs/pr/4
     volume=$PWD/data
-    docker run -d --name="test-comps-reranking-tei-endpoint" -p $tei_endpoint:80 -v $volume:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
-
+    docker run -d --name="test-comps-reranking-tei-endpoint" -p $tei_endpoint:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+    sleep 3m
     export TEI_RERANKING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
     tei_service_port=5007
     unset http_proxy
-    docker run -d --name="test-comps-reranking-tei-server" -p ${tei_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN opea/reranking-tei:comps
-    sleep 3m
+    docker run -d --name="test-comps-reranking-tei-server" -e LOGFLAG=True  -p ${tei_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e RERANK_TYPE="tei" opea/reranking:comps
+    sleep 15
 }
 
 function validate_microservice() {
@@ -69,4 +70,4 @@ function main() {
 
 }
 
-# main
+main
