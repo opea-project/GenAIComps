@@ -75,7 +75,7 @@ export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
 Start Text-to-SQL microservice with below command.
 
 ```bash
-python3 texttosql_microservice.py
+python3 opea_text2sql_microservice.py
 ```
 
 ---
