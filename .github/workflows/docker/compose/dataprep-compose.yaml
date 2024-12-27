@@ -3,67 +3,68 @@
 
 # this file should be run in the root of the repo
 services:
-  dataprep-redis:
-    build:
-      dockerfile: comps/dataprep/redis/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-redis:${TAG:-latest}
-  dataprep-qdrant:
-    build:
-      dockerfile: comps/dataprep/qdrant/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-qdrant:${TAG:-latest}
-  dataprep-on-ray-redis:
-    build:
-      dockerfile: comps/dataprep/redis/langchain_ray/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-on-ray-redis:${TAG:-latest}
-  dataprep-multimodal-vdms:
-    build:
-      dockerfile: comps/dataprep/vdms/multimodal_langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-multimodal-vdms:${TAG:-latest}
-  dataprep-multimodal-redis:
-    build:
-      dockerfile: comps/dataprep/multimodal/redis/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-multimodal-redis:${TAG:-latest}
-  dataprep-redis-llama-index:
-    build:
-      dockerfile: comps/dataprep/redis/llama_index/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-redis-llama-index:${TAG:-latest}
-  dataprep-milvus:
-    build:
-      dockerfile: comps/dataprep/milvus/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-milvus:${TAG:-latest}
-  dataprep-pgvector:
-    build:
-      dockerfile: comps/dataprep/pgvector/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-pgvector:${TAG:-latest}
-  dataprep-pinecone:
-    build:
-      dockerfile: comps/dataprep/pinecone/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-pinecone:${TAG:-latest}
-  dataprep-vdms:
-    build:
-      dockerfile: comps/dataprep/vdms/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-vdms:${TAG:-latest}
-  dataprep-neo4j:
-    build:
-      dockerfile: comps/dataprep/neo4j/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-neo4j:${TAG:-latest}
-  dataprep-neo4j-llamaindex:
-    build:
-      dockerfile: comps/dataprep/neo4j/llama_index/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-neo4j-llamaindex:${TAG:-latest}
-  dataprep-elasticsearch:
-    build:
-      dockerfile: comps/dataprep/elasticsearch/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-elasticsearch:${TAG:-latest}
-  dataprep-opensearch:
-    build:
-      dockerfile: comps/dataprep/opensearch/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-opensearch:${TAG:-latest}
-  dataprep-minio-lancedb:
-    build:
-      dockerfile: comps/dataprep/minio/lancedb/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-minio-lancedb:${TAG:-latest}
-  dataprep-minio-milvus:
-    build:
-      dockerfile: comps/dataprep/minio/milvus/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/dataprep-minio-milvus:${TAG:-latest}
+    dataprep-redis:
+        build:
+            dockerfile: comps/dataprep/redis/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-redis:${TAG:-latest}
+    dataprep-qdrant:
+        build:
+            dockerfile: comps/dataprep/qdrant/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-qdrant:${TAG:-latest}
+    dataprep-on-ray-redis:
+        build:
+            dockerfile: comps/dataprep/redis/langchain_ray/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-on-ray-redis:${TAG:-latest}
+    dataprep-multimodal-vdms:
+        build:
+            dockerfile: comps/dataprep/vdms/multimodal_langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-multimodal-vdms:${TAG:-latest}
+    dataprep-multimodal-redis:
+        build:
+            dockerfile: comps/dataprep/multimodal/redis/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-multimodal-redis:${TAG:-latest}
+    dataprep-redis-llama-index:
+        build:
+            dockerfile: comps/dataprep/redis/llama_index/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-redis-llama-index:${TAG:-latest}
+    dataprep-milvus:
+        build:
+            dockerfile: comps/dataprep/milvus/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-milvus:${TAG:-latest}
+    dataprep-pgvector:
+        build:
+            dockerfile: comps/dataprep/pgvector/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-pgvector:${TAG:-latest}
+    dataprep-pinecone:
+        build:
+            dockerfile: comps/dataprep/pinecone/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-pinecone:${TAG:-latest}
+    dataprep-vdms:
+        build:
+            dockerfile: comps/dataprep/vdms/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-vdms:${TAG:-latest}
+    dataprep-neo4j:
+        build:
+            dockerfile: comps/dataprep/neo4j/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-neo4j:${TAG:-latest}
+    dataprep-neo4j-llamaindex:
+        build:
+            dockerfile: comps/dataprep/neo4j/llama_index/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-neo4j-llamaindex:${TAG:-latest}
+    dataprep-elasticsearch:
+        build:
+            dockerfile: comps/dataprep/elasticsearch/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-elasticsearch:${TAG:-latest}
+    dataprep-opensearch:
+        build:
+            dockerfile: comps/dataprep/opensearch/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-opensearch:${TAG:-latest}
+    dataprep-minio-lancedb:
+        build:
+            dockerfile: comps/dataprep/minio/lancedb/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-minio-lancedb:${TAG:-latest}
+    dataprep-minio-milvus:
+        build:
+            dockerfile: comps/dataprep/minio/milvus/langchain/Dockerfile
+        image: ${REGISTRY:-opea}/dataprep-minio-milvus:${TAG:-latest}
+        
