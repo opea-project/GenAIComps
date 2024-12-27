@@ -2,7 +2,6 @@
 # SPDX-License-Identified: Apache-2.0
 
 import os, requests
-from abc import abstractmethod
 from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
@@ -151,5 +150,6 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
             streaming=input.streaming,
             server_kwargs=server_kwargs,
         )
+        result = await self.generate(input, self.client)
 
-        return self.generate(input, self.client)
+        return result
