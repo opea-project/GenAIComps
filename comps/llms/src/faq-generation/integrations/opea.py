@@ -12,7 +12,7 @@ from langchain_community.llms import HuggingFaceEndpoint
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, OpeaComponent, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 
-logger = CustomLogger("opea_faq")
+logger = CustomLogger("opea_faqgen")
 logflag = os.getenv("LOGFLAG", False)
 
 templ = """Create a concise FAQs (frequently asked questions and answers) for following text:
@@ -54,8 +54,8 @@ def get_llm_endpoint():
         logger.error(f"Input model {MODEL_NAME} not present in model_configs. Error {e}")
         raise ConfigError(f"Input model {MODEL_NAME} not present in model_configs")
 
-class OPEAFAQ(OpeaComponent):
-    """A specialized OPEA FaqGen component derived from OpeaComponent for interacting with TGI/vLLM services based on HuggingFace API.
+class OPEAFAQGen(OpeaComponent):
+    """A specialized OPEA FAQGen component derived from OpeaComponent for interacting with TGI/vLLM services based on HuggingFace API.
 
     Attributes:
         client (TGI/vLLM): An instance of the TGI/vLLM client for text generation.

@@ -5,4 +5,4 @@
 
 pip --no-cache-dir install -r requirements-runtime.txt
 
-python opea_faq_microservice.py
+python opea_faqgen_microservice.py

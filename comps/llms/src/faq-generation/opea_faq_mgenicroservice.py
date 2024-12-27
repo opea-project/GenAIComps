@@ -3,7 +3,7 @@
 
 import os
 import time
-from integrations.opea import OPEAFAQ
+from integrations.opea import OPEAFAQGen
 
 from comps import (
     CustomLogger,
@@ -24,13 +24,13 @@ controller = OpeaComponentController()
 
 # Register components
 try:
-    opea_faq = OPEAFAQ(
-        name="OPEAFAQ",
+    opea_faqgen = OPEAFAQGen(
+        name="OPEAFAQGen",
         description="OPEA FAQGen Service",
     )
 
     # Register components with the controller
-    controller.register(opea_faq)
+    controller.register(opea_faqgen)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
@@ -66,5 +66,5 @@ async def llm_generate(input: LLMParamsDoc):
 
 
 if __name__ == "__main__":
-    logger.info("OPEA FAQ Microservice is starting...")
+    logger.info("OPEA FAQGen Microservice is starting...")
     opea_microservices["opea_service@llm_faqgen"].start()
