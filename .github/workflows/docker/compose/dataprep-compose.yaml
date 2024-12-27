@@ -59,3 +59,11 @@ services:
     build:
       dockerfile: comps/dataprep/opensearch/langchain/Dockerfile
     image: ${REGISTRY:-opea}/dataprep-opensearch:${TAG:-latest}
+  dataprep-minio-lancedb:
+    build:
+      dockerfile: comps/dataprep/minio/lancedb/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/dataprep-minio-lancedb:${TAG:-latest}
+  dataprep-minio-milvus:
+    build:
+      dockerfile: comps/dataprep/minio/milvus/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/dataprep-minio-milvus:${TAG:-latest}
