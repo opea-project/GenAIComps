@@ -1,7 +1,8 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
-import os
+import os, requests
+from abc import abstractmethod
 from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
@@ -55,7 +56,7 @@ def get_llm_endpoint():
         raise ConfigError(f"Input model {MODEL_NAME} not present in model_configs")
 
 class OPEAFAQGen(OpeaComponent):
-    """A specialized OPEA FAQGen component derived from OpeaComponent for interacting with TGI/vLLM services based on HuggingFace API.
+    """A specialized OPEA FAQGen component derived from OpeaComponent
 
     Attributes:
         client (TGI/vLLM): An instance of the TGI/vLLM client for text generation.
@@ -63,55 +64,21 @@ class OPEAFAQGen(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
-        self.client = self._initialize_client()
-
-    def _initialize_client(self):
-        """Initializes the client"""
-        access_token = (
+        self.access_token = (
             get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
         )
-        self.server_kwargs = {}
-        if access_token:
-            self.server_kwargs["headers"] = {"Authorization": f"Bearer {access_token}"}
-        self.llm_endpoint = get_llm_endpoint()
         self.text_splitter = CharacterTextSplitter()
-        # TODO
-        return self.llm_endpoint
-
-    def check_health(self) -> bool:
-        """Checks the health of the TGI/vLLM LLM service.
-
-        Returns:
-            bool: True if the service is reachable and healthy, False otherwise.
-        """
-
-        try: 
-            return True # TODO
-        except Exception as e:
-            logger.error(e)
-            logger.error("Health check failed")
-            return False
-    
-    async def invoke(self, input: LLMParamsDoc):
+        self.llm_endpoint = get_llm_endpoint()
+ 
+    async def generate(self, input: LLMParamsDoc, client):
         """Invokes the TGI/vLLM LLM service to generate FAQ output for the provided input.
 
         Args:
             input (LLMParamsDoc): The input text(s).
+            client: TGI/vLLM based client
         """       
-        llm = HuggingFaceEndpoint(
-            endpoint_url=self.llm_endpoint,
-            max_new_tokens=input.max_tokens,
-            top_k=input.top_k,
-            top_p=input.top_p,
-            typical_p=input.typical_p,
-            temperature=input.temperature,
-            repetition_penalty=input.repetition_penalty,
-            streaming=input.streaming,
-            server_kwargs=self.server_kwargs,
-        )
-
         PROMPT = PromptTemplate.from_template(templ)
-        llm_chain = load_summarize_chain(llm=llm, prompt=PROMPT)
+        llm_chain = load_summarize_chain(llm=client, prompt=PROMPT)
         texts = self.text_splitter.split_text(input.query)
 
         # Create multiple documents
@@ -137,3 +104,52 @@ class OPEAFAQGen(OpeaComponent):
             if logflag:
                 logger.info(response)
             return GeneratedDoc(text=response, prompt=input.query)
+        
+class OPEAFAQGen_TGI(OPEAFAQGen):
+    """A specialized OPEA FAQGen TGI component derived from OPEAFAQGen for interacting with TGI services based on HuggingFaceEndpoint API.
+
+    Attributes:
+        client (TGI): An instance of the TGI client for text generation.
+    """
+
+    def check_health(self) -> bool:
+        """Checks the health of the TGI LLM service.
+
+        Returns:
+            bool: True if the service is reachable and healthy, False otherwise.
+        """
+
+        try: 
+            response = requests.get(f"{self.llm_endpoint}/health")
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.error(e)
+            logger.error("Health check failed")
+            return False
+    
+    async def invoke(self, input: LLMParamsDoc):
+        """Invokes the TGI LLM service to generate FAQ output for the provided input.
+
+        Args:
+            input (LLMParamsDoc): The input text(s).
+        """       
+        server_kwargs = {}
+        if self.access_token:
+            server_kwargs["headers"] = {"Authorization": f"Bearer {self.access_token}"}
+
+        self.client = HuggingFaceEndpoint(
+            endpoint_url=self.llm_endpoint,
+            max_new_tokens=input.max_tokens,
+            top_k=input.top_k,
+            top_p=input.top_p,
+            typical_p=input.typical_p,
+            temperature=input.temperature,
+            repetition_penalty=input.repetition_penalty,
+            streaming=input.streaming,
+            server_kwargs=server_kwargs,
+        )
+
+        return self.generate(input, self.client)

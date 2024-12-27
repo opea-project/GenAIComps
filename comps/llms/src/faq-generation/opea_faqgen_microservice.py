@@ -3,7 +3,7 @@
 
 import os
 import time
-from integrations.opea import OPEAFAQGen
+from integrations.opea import OPEAFAQGen_TGI
 
 from comps import (
     CustomLogger,
@@ -24,13 +24,12 @@ controller = OpeaComponentController()
 
 # Register components
 try:
-    opea_faqgen = OPEAFAQGen(
-        name="OPEAFAQGen",
+    opea_faqgen_tgi = OPEAFAQGen_TGI(
+        name="OPEAFAQGen_TGI",
         description="OPEA FAQGen Service",
     )
-
     # Register components with the controller
-    controller.register(opea_faqgen)
+    controller.register(opea_faqgen_tgi)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
