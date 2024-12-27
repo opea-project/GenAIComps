@@ -71,7 +71,7 @@ class OpeaImageToImage(OpeaComponent):
 
     Attributes:
         model_name_or_path (str): The name of the Stable Diffusion model used.
-        device (str): which device to ues.
+        device (str): which device to use.
         token(str): Huggingface Token.
         bf16(bool): Is use bf16.
         use_hpu_graphs(bool): Is use hpu_graphs.

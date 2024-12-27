@@ -17,7 +17,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.image2image.src.integration.OpeaImageToImage import OpeaImageToImage
+from comps.image2image.src.integration.opea_image2image_native import OpeaImageToImage
 
 args = None
 
