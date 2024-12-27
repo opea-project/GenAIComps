@@ -6,10 +6,12 @@ import base64
 import os
 import threading
 import time
+from io import BytesIO
 
 import torch
 from diffusers import AutoPipelineForImage2Image
 from diffusers.utils import load_image
+from PIL import Image
 
 from comps import (
     CustomLogger,
@@ -21,8 +23,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from io import BytesIO
-from PIL import Image
 
 logger = CustomLogger("image2image_sdwebui")
 pipe = None
