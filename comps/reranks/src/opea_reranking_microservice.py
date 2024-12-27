@@ -8,7 +8,7 @@ from typing import Union
 # from integrations.opea_fastrag_reranking import OpeaFastRAGReranking
 # from integrations.opea_mosec_reranking import OPEAMosecReranking
 from integrations.opea_tei_reranking import OPEATEIReranking
-# from integrations.opea_video_native_reranking import OPEAVideoNativeReranking
+from integrations.opea_video_reranking import OPEAVideoNativeReranking
 
 from comps import (
     CustomLogger,
@@ -53,13 +53,13 @@ try:
         )
         # Register components with the controller
         controller.register(opea_tei_reranking)
-    # elif rerank_type == "video":
-    #     opea_video_native_reranking = OPEAVideoNativeReranking(
-    #         name="OPEAVideoNativeReranking",
-    #         description="OPEA Video Native Reranking Service",
-    #     )
-    #     # Register components with the controller
-    #     controller.register(opea_video_native_reranking)
+    elif rerank_type == "video":
+        opea_video_native_reranking = OPEAVideoNativeReranking(
+            name="OPEAVideoNativeReranking",
+            description="OPEA Video Native Reranking Service",
+        )
+        # Register components with the controller
+        controller.register(opea_video_native_reranking)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
