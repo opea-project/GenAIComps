@@ -9,11 +9,16 @@ from diffusers import DiffusionPipeline
 
 from comps import CustomLogger, OpeaComponent, SDInputs, SDOutputs, ServiceType
 
-logger = CustomLogger("opea_text2image")
+logger = CustomLogger("opea")
 
 
 class OpeaText2image(OpeaComponent):
-    """A specialized text2image component derived from OpeaComponent for text2image services."""
+    """A specialized text2image component derived from OpeaComponent for text2image services.
+
+    Attributes:
+        client (AsyncInferenceClient): An instance of the async client for embedding generation.
+        model_name (str): The name of the embedding model used.
+    """
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TEXT2IMAGE.name.lower(), description, config)

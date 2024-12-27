@@ -4,7 +4,7 @@
 import argparse
 import time
 
-from integrations import OpeaText2image
+from integrations.opea import OpeaText2image
 
 from comps import (
     CustomLogger,
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     # Register components
     try:
-        # Instantiate Text2image components
+        # Instantiate Embedding components
         opea_text2image = OpeaText2image(
             name="OpeaText2image", description="OPEA Text2image Service", config=args.__dict__
         )
