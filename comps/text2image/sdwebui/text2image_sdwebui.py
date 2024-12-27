@@ -26,6 +26,7 @@ pipe = None
 args = None
 initialization_lock = threading.Lock()
 initialized = False
+lora_weight_name_or_path = None
 
 
 def initialize():
@@ -97,6 +98,13 @@ def text2image(input: SDInputs):
     negative_prompt = input.negative_prompt
     height = input.height
     width = input.width
+    global lora_weight_name_or_path
+    if input.lora_weight_name_or_path != lora_weight_name_or_path:
+        if lora_weight_name_or_path:
+            pipe.unload_lora_weights()
+        lora_weight_name_or_path = input.lora_weight_name_or_path
+        if lora_weight_name_or_path:
+            pipe.load_lora_weights(lora_weight_name_or_path)
 
     generator = torch.manual_seed(seed)
     images = pipe(
