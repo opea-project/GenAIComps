@@ -1,0 +1,39 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3.8"
+
+services:
+  reranking-mosec:
+    image: opea/reranking-langchain-mosec-endpoint:comps
+    container_name: mosec-reranking-server
+    ports:
+      - "5006:8000"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+    restart: unless-stopped
+
+  reranking:
+    image: opea/reranking-langchain-mosec:comps
+    container_name: reranking-micro-sercie
+    ports:
+      - "5007:8000"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+      RERANK_TYPE: mosec
+      MOSEC_RERANKING_ENDPOINT: ${MOSEC_RERANKING_ENDPOINT}
+      #MOSEC_RERANKING_ENDPOINT: http://${host_ip}:5006
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+    restart: unless-stopped
+    depends_on:
+      - reranking-mosec
+
+networks:
+  default:
+    driver: bridge

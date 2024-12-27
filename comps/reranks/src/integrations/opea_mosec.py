@@ -35,6 +35,8 @@ class OPEAMosecReranking(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RERANK.name.lower(), description, config)
         self.mosec_reranking_endpoint = os.getenv("MOSEC_RERANKING_ENDPOINT", "http://localhost:8080")
+        self.url = self.mosec_reranking_endpoint + "/inference"
+        self.headers = {"Content-Type": "application/json"}
 
     async def invoke(self, input: SearchedDoc) -> LLMParamsDoc:
         """Invokes the reranking service to generate reranking for the provided input.
@@ -47,10 +49,8 @@ class OPEAMosecReranking(OpeaComponent):
         """
         if input.retrieved_docs:
             docs = [doc.text for doc in input.retrieved_docs]
-            url = self.mosec_reranking_endpoint + "/inference"
             data = {"query": input.initial_query, "texts": docs}
-            headers = {"Content-Type": "application/json"}
-            response = requests.post(url, data=json.dumps(data), headers=headers)
+            response = requests.post(self.url, data=json.dumps(data), headers=self.headers)
             response_data = response.json()
             best_response = max(response_data, key=lambda response: response["score"])
             doc = input.retrieved_docs[best_response["index"]]
@@ -59,8 +59,8 @@ class OPEAMosecReranking(OpeaComponent):
                 template = "仅基于以下背景回答问题:\n{context}\n问题: {question}"
             else:
                 template = """Answer the question based only on the following context:
-        {context}
-        Question: {question}
+                            {context}
+                            Question: {question}
                 """
             prompt = ChatPromptTemplate.from_template(template)
             final_prompt = prompt.format(context=doc.text, question=input.initial_query)
