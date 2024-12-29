@@ -6,6 +6,7 @@ import time
 from typing import Union
 
 from integrations.opea_tei import OPEATEIReranking
+from integrations.opea_fastrag import OpeaFastRAGReranking
 
 from comps import (
     CustomLogger,
@@ -27,7 +28,14 @@ controller = OpeaComponentController()
 # Register components
 try:
     # Instantiate reranking components
-    if rerank_type == "tei":
+    if rerank_type == "fastrag":
+        opea_fastrag_reranking = OpeaFastRAGReranking(
+            name="OpeaFastRAGReranking",
+            description="OPEA Fast Rag Service",
+        )
+        # Register components with the controller
+        controller.register(opea_fastrag_reranking)
+    elif rerank_type == "tei":
         opea_tei_reranking = OPEATEIReranking(
             name="OPEATEIReranking",
             description="OPEA TEI Reranking Service",

@@ -9,3 +9,6 @@ prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
 uvicorn
+haystack-ai
+langchain
+git+https://github.com/IntelLabs/fastRAG.git#egg=fastRAG[intel]
