@@ -35,7 +35,7 @@ class OpeaRedisRetriever(OpeaComponent):
         elif BRIDGE_TOWER_EMBEDDING:
             logger.info("use bridge tower embedding")
             from comps.embeddings.src.integrations.dependency.bridgetower import BridgeTowerEmbedding
-            
+
             self.embeddings = BridgeTowerEmbedding()
         else:
             # create embeddings using local embedding model
