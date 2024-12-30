@@ -22,13 +22,13 @@ from comps.dataprep.src.utils import (
     format_file_list,
     get_separators,
     get_tables_result,
+    load_file_to_chunks,
     parse_html_new,
     remove_folder_with_ignore,
     save_content_to_local_disk,
-    load_file_to_chunks
 )
-from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 from comps.vectorstores.src.integrations.milvus import OpeaMilvusVectorstores
+from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 
 from .config import (
     COLLECTION_NAME,
@@ -229,9 +229,7 @@ class OpeaMilvusDataprep(OpeaComponent):
     def _initialize_db_controller(self) -> OpeaVectorstoresController:
         controller = OpeaVectorstoresController()
         milvus_db = OpeaMilvusVectorstores(
-            embedder=self.embedder,
-            name="OpeaMilvusVectorstore",
-            description="OPEA Milvus Vectorstore Service"
+            embedder=self.embedder, name="OpeaMilvusVectorstore", description="OPEA Milvus Vectorstore Service"
         )
         controller.register(milvus_db)
         controller.discover_and_activate()
@@ -305,22 +303,22 @@ class OpeaMilvusDataprep(OpeaComponent):
                 await save_content_to_local_disk(save_path, file)
 
                 # load file contents to chunks
-                chunks = load_file_to_chunks(DocPath(
+                chunks = load_file_to_chunks(
+                    DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    ))
+                    )
+                )
 
                 # ingest chunks into db
                 res = await self.db_controller.ingest_chunks(file_name=encode_filename(file.filename), chunks=chunks)
                 if not res:
                     if logflag:
                         logger.info(f"[ milvus ingest] Fail to ingest file {file.filename}")
-                    raise HTTPException(
-                        status_code=400, detail=f"Fail to ingest {file.filename}. File already exists."
-                    )
+                    raise HTTPException(status_code=400, detail=f"Fail to ingest {file.filename}. File already exists.")
 
                 if logflag:
                     logger.info(f"[ milvus ingest] Successfully saved file {save_path}")
@@ -333,7 +331,7 @@ class OpeaMilvusDataprep(OpeaComponent):
             if not isinstance(link_list, list):
                 raise HTTPException(status_code=400, detail=f"Link_list {link_list} should be a list.")
             for link in link_list:
-                res = await self.db_controller.check_file_existance(link+".txt")
+                res = await self.db_controller.check_file_existance(link + ".txt")
                 if res:
                     if logflag:
                         logger.info(f"[ redis ingest] Link {link} already exist.")
@@ -341,26 +339,26 @@ class OpeaMilvusDataprep(OpeaComponent):
                         status_code=400,
                         detail=f"Uploaded link {link} already exists. Please change another link.",
                     )
-                
+
                 save_path = upload_folder + encode_filename(link) + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 await save_content_to_local_disk(save_path, content)
-                
-                chunks = load_file_to_chunks(DocPath(
+
+                chunks = load_file_to_chunks(
+                    DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    ))
-                res = await self.db_controller.ingest_chunks(file_name=encode_filename(link)+".txt", chunks=chunks)
+                    )
+                )
+                res = await self.db_controller.ingest_chunks(file_name=encode_filename(link) + ".txt", chunks=chunks)
                 if not res:
                     if logflag:
                         logger.info(f"[ milvus ingest] Fail to ingest link {link}")
-                    raise HTTPException(
-                        status_code=400, detail=f"Fail to ingest {link}. Link already exists."
-                    )
-                
+                    raise HTTPException(status_code=400, detail=f"Fail to ingest {link}. Link already exists.")
+
             if logflag:
                 logger.info(f"[ milvus ingest] Successfully saved link list {link_list}")
             return {"status": 200, "message": "Data preparation succeeded"}
@@ -400,8 +398,8 @@ class OpeaMilvusDataprep(OpeaComponent):
             res = await self.db_controller.delete_all_files()
             if not res:
                 if logflag:
-                    logger.info(f"[ milvus delete ] Fail to delete all files.")
-                raise HTTPException(status_code=500, detail=f"Fail to delete all files.")
+                    logger.info("[ milvus delete ] Fail to delete all files.")
+                raise HTTPException(status_code=500, detail="Fail to delete all files.")
 
             # delete files on local disk
             try:
@@ -425,7 +423,7 @@ class OpeaMilvusDataprep(OpeaComponent):
             if logflag:
                 logger.info(f"[ milvus delete ] Fail to delete {file_path}.")
             raise HTTPException(status_code=404, detail=f"Fail to delete {file_path}.")
-        
+
         delete_path = Path(upload_folder + "/" + encode_filename(file_path))
         if not delete_path.exists():
             if logflag:

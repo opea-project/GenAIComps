@@ -34,7 +34,6 @@ import yaml
 from bs4 import BeautifulSoup
 from langchain import LLMChain, PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_text_splitters import HTMLHeaderTextSplitter
 from langchain_community.document_loaders import (
     UnstructuredHTMLLoader,
     UnstructuredImageLoader,
@@ -42,6 +41,7 @@ from langchain_community.document_loaders import (
     UnstructuredXMLLoader,
 )
 from langchain_community.llms import HuggingFaceEndpoint
+from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath
 

@@ -8,15 +8,10 @@ from typing import List, Optional
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, SearchedDoc, ServiceType
-from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 from comps.vectorstores.src.integrations.milvus import OpeaMilvusVectorstores
+from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 
-from .config import (
-    LOCAL_EMBEDDING_MODEL,
-    MOSEC_EMBEDDING_ENDPOINT,
-    MOSEC_EMBEDDING_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-)
+from .config import LOCAL_EMBEDDING_MODEL, MOSEC_EMBEDDING_ENDPOINT, MOSEC_EMBEDDING_MODEL, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("milvus_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -80,9 +75,7 @@ class OpeaMilvusRetriever(OpeaComponent):
     def _initialize_db_controller(self) -> OpeaVectorstoresController:
         controller = OpeaVectorstoresController()
         milvus_db = OpeaMilvusVectorstores(
-            embedder=self.embedder,
-            name="OpeaMilvusVectorstore",
-            description="OPEA Milvus Vectorstore Service"
+            embedder=self.embedder, name="OpeaMilvusVectorstore", description="OPEA Milvus Vectorstore Service"
         )
         controller.register(milvus_db)
         controller.discover_and_activate()
@@ -126,7 +119,7 @@ class OpeaMilvusRetriever(OpeaComponent):
                 k=input.k,
                 distance_threshold=input.distance_threshold,
                 score_threshold=input.score_threshold,
-                lambda_mult=input.lambda_mult
+                lambda_mult=input.lambda_mult,
             )
 
         if logflag:
