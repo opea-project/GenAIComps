@@ -3,6 +3,7 @@
 
 import os
 import time
+
 from integrations.opea import OPEAFAQGen_TGI, OPEAFAQGen_vLLM
 
 from comps import (
@@ -22,11 +23,8 @@ logflag = os.getenv("LOGFLAG", False)
 llm_backend = os.getenv("LLM_BACKEND", "").lower()
 if logflag:
     logger.info(f"LLM BACKEND: {llm_backend}")
-    
-comps_name = {
-    "tgi": "OPEAFAQGen_TGI",
-    "vllm": "OPEAFAQGen_vLLM"
-}
+
+comps_name = {"tgi": "OPEAFAQGen_TGI", "vllm": "OPEAFAQGen_vLLM"}
 active_comps_name = comps_name[llm_backend] if llm_backend != "" else ""
 
 

@@ -19,7 +19,7 @@ function build_docker_images() {
     else
         echo "opea/vllm built successful"
     fi
-    
+
     cd $WORKPATH
     docker build --no-cache -t opea/llm-faqgen:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/faq-generation/Dockerfile .
     if [ $? -ne 0 ]; then
@@ -77,15 +77,15 @@ function validate_services() {
 }
 
 function validate_backend_microservices() {
-    # vllm 
+    # vllm
     validate_services \
         "${host_ip}:${LLM_ENDPOINT_PORT}/generate" \
         "generated_text" \
         "vllm" \
         "vllm-server" \
         '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
-    
-    # faq 
+
+    # faq
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
