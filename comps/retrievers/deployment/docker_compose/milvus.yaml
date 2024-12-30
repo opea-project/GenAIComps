@@ -79,16 +79,16 @@ services:
       interval: 10s
       timeout: 10s
       retries: 60
-  dataprep-milvus:
-    image: opea/dataprep-milvus:latest
-    container_name: dataprep-milvus-server
+  retriever-milvus:
+    image: opea/retriever-milvus:latest
+    container_name: retriever-milvus-server
     depends_on:
       milvus-standalone:
         condition: service_started
       tei-embedding-service:
         condition: service_healthy
     ports:
-      - "5000:5000"
+      - "6007:5000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -97,7 +97,7 @@ services:
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       MILVUS_HOST: ${MILVUS_HOST}
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
-      DATAPREP_TYPE: ${DATAPREP_TYPE:-milvus}
+      RETRIEVER_TYPE: ${DATAPREP_TYPE:-milvus}
       LOGFLAG: ${LOGFLAG:-true}
     restart: unless-stopped
 
