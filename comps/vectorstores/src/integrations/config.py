@@ -32,6 +32,7 @@ def get_boolean_env_var(var_name, default_value=False):
     else:
         return default_value
 
+
 # Embedding model
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 # Embedding endpoints
@@ -44,6 +45,7 @@ EMBEDDING_ENDPOINT = os.getenv("EMBEDDING_ENDPOINT", "")
 # Connection Information
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+
 
 def format_redis_conn_from_env():
     redis_url = os.getenv("REDIS_URL", None)
@@ -60,6 +62,7 @@ def format_redis_conn_from_env():
             start += f"{username}:{password}@"
 
         return start + f"{REDIS_HOST}:{REDIS_PORT}"
+
 
 REDIS_URL = format_redis_conn_from_env()
 
@@ -99,4 +102,3 @@ os.environ["OPENAI_API_KEY"] = "Dummy key"
 NEO4J_URL = os.getenv("NEO4J_URL", "bolt://localhost:7687")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
-

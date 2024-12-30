@@ -9,15 +9,20 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
 from comps import (
-    CustomLogger, EmbedDoc, OpeaComponent, SearchedDoc, ServiceType,
-    EmbedMultimodalDoc, SearchedMultimodalDoc,
+    CustomLogger,
+    EmbedDoc,
+    EmbedMultimodalDoc,
+    OpeaComponent,
+    SearchedDoc,
+    SearchedMultimodalDoc,
+    ServiceType,
 )
-from comps.embeddings.src.integrations.dependency.bridgetower import BridgeTowerEmbedding
 from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest, RetrievalResponse
-from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
+from comps.embeddings.src.integrations.dependency.bridgetower import BridgeTowerEmbedding
 from comps.vectorstores.src.integrations.redis import OpeaRedisVectorstores
+from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 
-from .config import EMBED_MODEL,TEI_EMBEDDING_ENDPOINT, BRIDGE_TOWER_EMBEDDING
+from .config import BRIDGE_TOWER_EMBEDDING, EMBED_MODEL, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("redis_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -38,20 +43,20 @@ class OpeaRedisRetriever(OpeaComponent):
             # create embeddings using TEI endpoint service
             self.embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
         elif BRIDGE_TOWER_EMBEDDING:
-            logger.info(f"use bridge tower embedding")
+            logger.info("use bridge tower embedding")
             self.embedder = BridgeTowerEmbedding()
         else:
             # create embeddings using local embedding model
             self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
         self.db_controller = self._initialize_db_controller()
-        
+
     def _initialize_db_controller(self) -> OpeaVectorstoresController:
         controller = OpeaVectorstoresController()
         redis_db = OpeaRedisVectorstores(
             embedder=self.embedder,
             name="OpeaRedisVectorstore",
             description="OPEA Redis Vectorstore Service",
-            is_multimodal=BRIDGE_TOWER_EMBEDDING
+            is_multimodal=BRIDGE_TOWER_EMBEDDING,
         )
         controller.register(redis_db)
         controller.discover_and_activate()
@@ -74,10 +79,7 @@ class OpeaRedisRetriever(OpeaComponent):
             logger.info(f"[ health check ] Failed to connect to Redis: {e}")
             return False
 
-    async def invoke(
-            self, 
-            input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
-    ):
+    async def invoke(self, input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]):
         """Search the Redis index for the most similar documents to the input query.
 
         Args:
@@ -111,7 +113,7 @@ class OpeaRedisRetriever(OpeaComponent):
                 k=input.k,
                 distance_threshold=input.distance_threshold,
                 score_threshold=input.score_threshold,
-                lambda_mult=input.lambda_mult
+                lambda_mult=input.lambda_mult,
             )
 
         if logflag:
