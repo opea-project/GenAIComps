@@ -20,8 +20,8 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export LLM_ENDPOINT_PORT=5060
-    export FAQ_PORT=5061
+    export LLM_ENDPOINT_PORT=5062
+    export FAQ_PORT=5063
     export host_ip=${host_ip}
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
@@ -29,7 +29,7 @@ function start_service() {
     export LLM_BACKEND="tgi"
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f faq-generation_tgi.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
+    docker compose -f faq-generation_tgi_on_intel_hpu.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 30s
 }
@@ -71,7 +71,7 @@ function validate_backend_microservices() {
         "${host_ip}:${LLM_ENDPOINT_PORT}/generate" \
         "generated_text" \
         "tgi" \
-        "tgi-server" \
+        "tgi-gaudi-server" \
         '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
     
     # faq 
@@ -98,7 +98,7 @@ function stop_docker() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f faq-generation_tgi.yaml down
+    docker compose -f faq-generation_tgi_on_intel_hpu.yaml down
 }
 
 function main() {

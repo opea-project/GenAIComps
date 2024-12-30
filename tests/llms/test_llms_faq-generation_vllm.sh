@@ -10,6 +10,17 @@ LOG_PATH="$WORKPATH/tests"
 
 function build_docker_images() {
     cd $WORKPATH
+    git clone https://github.com/vllm-project/vllm.git
+    cd ./vllm/
+    docker build -f Dockerfile.cpu -t opea/vllm:latest --shm-size=128g --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy .
+    if [ $? -ne 0 ]; then
+        echo "opea/vllm built fail"
+        exit 1
+    else
+        echo "opea/vllm built successful"
+    fi
+    
+    cd $WORKPATH
     docker build --no-cache -t opea/llm-faqgen:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/faq-generation/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llm-faqgen built fail"
@@ -20,16 +31,16 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export LLM_ENDPOINT_PORT=5060
-    export FAQ_PORT=5061
+    export LLM_ENDPOINT_PORT=5064
+    export FAQ_PORT=5065
     export host_ip=${host_ip}
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
-    export LLM_BACKEND="tgi"
+    export LLM_BACKEND="vllm"
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f faq-generation_tgi.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
+    docker compose -f faq-generation_vllm.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 30s
 }
@@ -66,12 +77,12 @@ function validate_services() {
 }
 
 function validate_backend_microservices() {
-    # tgi 
+    # vllm 
     validate_services \
         "${host_ip}:${LLM_ENDPOINT_PORT}/generate" \
         "generated_text" \
-        "tgi" \
-        "tgi-server" \
+        "vllm" \
+        "vllm-server" \
         '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
     
     # faq 
@@ -98,7 +109,7 @@ function stop_docker() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f faq-generation_tgi.yaml down
+    docker compose -f faq-generation_vllm.yaml down
 }
 
 function main() {
