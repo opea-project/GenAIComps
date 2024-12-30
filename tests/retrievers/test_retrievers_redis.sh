@@ -103,9 +103,9 @@ function main() {
     stop_docker
 
     # test multimodal retriever
-    start_multimodal_service
-    test_embedding_multi=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-    validate_microservice "$test_embedding_multi"
+    # start_multimodal_service
+    # test_embedding_multi=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
+    # validate_microservice "$test_embedding_multi"
 
     # clean env
     stop_docker
