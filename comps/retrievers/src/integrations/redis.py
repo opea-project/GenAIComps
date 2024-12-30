@@ -5,13 +5,7 @@
 import os
 from typing import Union
 
-from comps import (
-    CustomLogger,
-    EmbedDoc,
-    EmbedMultimodalDoc,
-    OpeaComponent,
-    ServiceType,
-)
+from comps import CustomLogger, EmbedDoc, EmbedMultimodalDoc, OpeaComponent, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest
 from comps.vectorstores.src.integrations.redis import OpeaRedisVectorstores
 from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
@@ -36,14 +30,17 @@ class OpeaRedisRetriever(OpeaComponent):
         if TEI_EMBEDDING_ENDPOINT:
             # create embeddings using TEI endpoint service
             from langchain_huggingface import HuggingFaceEndpointEmbeddings
+
             self.embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
         elif BRIDGE_TOWER_EMBEDDING:
             logger.info("use bridge tower embedding")
             from comps.embeddings.src.integrations.dependency.bridgetower import BridgeTowerEmbedding
+
             self.embedder = BridgeTowerEmbedding()
         else:
             # create embeddings using local embedding model
             from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+
             self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
         self.db_controller = self._initialize_db_controller()
 
