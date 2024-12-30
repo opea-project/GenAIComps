@@ -1,13 +1,15 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
-import os, requests
+import os
+
+import requests
 from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
-from langchain_core.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.llms import HuggingFaceEndpoint, VLLMOpenAI 
+from langchain_community.llms import HuggingFaceEndpoint, VLLMOpenAI
+from langchain_core.prompts import PromptTemplate
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, OpeaComponent, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
@@ -45,6 +47,7 @@ if MODEL_CONFIGS:
         logger.error(f"Failed to load model configurations: {e}")
         raise ConfigError(f"Failed to load model configurations: {e}")
 
+
 def get_llm_endpoint():
     if not MODEL_CONFIGS:
         return DEFAULT_ENDPOINT
@@ -54,8 +57,9 @@ def get_llm_endpoint():
         logger.error(f"Input model {MODEL_NAME} not present in model_configs. Error {e}")
         raise ConfigError(f"Input model {MODEL_NAME} not present in model_configs")
 
+
 class OPEAFAQGen(OpeaComponent):
-    """A specialized OPEA FAQGen component derived from OpeaComponent
+    """A specialized OPEA FAQGen component derived from OpeaComponent.
 
     Attributes:
         client (TGI/vLLM): An instance of the TGI/vLLM client for text generation.
@@ -68,14 +72,14 @@ class OPEAFAQGen(OpeaComponent):
         )
         self.text_splitter = CharacterTextSplitter()
         self.llm_endpoint = get_llm_endpoint()
- 
+
     async def generate(self, input: LLMParamsDoc, client):
         """Invokes the TGI/vLLM LLM service to generate FAQ output for the provided input.
 
         Args:
             input (LLMParamsDoc): The input text(s).
             client: TGI/vLLM based client
-        """       
+        """
         PROMPT = PromptTemplate.from_template(templ)
         llm_chain = load_summarize_chain(llm=client, prompt=PROMPT)
         texts = self.text_splitter.split_text(input.query)
@@ -103,7 +107,8 @@ class OPEAFAQGen(OpeaComponent):
             if logflag:
                 logger.info(response)
             return GeneratedDoc(text=response, prompt=input.query)
-        
+
+
 class OPEAFAQGen_TGI(OPEAFAQGen):
     """A specialized OPEA FAQGen TGI component derived from OPEAFAQGen for interacting with TGI services based on Lanchain HuggingFaceEndpoint API.
 
@@ -118,12 +123,12 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
             bool: True if the service is reachable and healthy, False otherwise.
         """
 
-        try: 
-            # response = requests.get(f"{self.llm_endpoint}/health") 
+        try:
+            # response = requests.get(f"{self.llm_endpoint}/health")
 
             # Will remove after TGI gaudi fix health bug
             url = f"{self.llm_endpoint}/generate"
-            data = {"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17}}
+            data = {"inputs": "What is Deep Learning?", "parameters": {"max_new_tokens": 17}}
             headers = {"Content-Type": "application/json"}
             response = requests.post(url=url, json=data, headers=headers)
 
@@ -135,13 +140,13 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
             logger.error(e)
             logger.error("Health check failed")
             return False
-    
+
     async def invoke(self, input: LLMParamsDoc):
         """Invokes the TGI LLM service to generate FAQ output for the provided input.
 
         Args:
             input (LLMParamsDoc): The input text(s).
-        """       
+        """
         server_kwargs = {}
         if self.access_token:
             server_kwargs["headers"] = {"Authorization": f"Bearer {self.access_token}"}
@@ -161,6 +166,7 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
 
         return result
 
+
 class OPEAFAQGen_vLLM(OPEAFAQGen):
     """A specialized OPEA FAQGen vLLM component derived from OPEAFAQGen for interacting with vLLM services based on Lanchain VLLMOpenAI API.
 
@@ -175,7 +181,7 @@ class OPEAFAQGen_vLLM(OPEAFAQGen):
             bool: True if the service is reachable and healthy, False otherwise.
         """
 
-        try: 
+        try:
             response = requests.get(f"{self.llm_endpoint}/health")
             if response.status_code == 200:
                 return True
@@ -185,13 +191,13 @@ class OPEAFAQGen_vLLM(OPEAFAQGen):
             logger.error(e)
             logger.error("Health check failed")
             return False
-    
+
     async def invoke(self, input: LLMParamsDoc):
         """Invokes the vLLM LLM service to generate FAQ output for the provided input.
 
         Args:
             input (LLMParamsDoc): The input text(s).
-        """       
+        """
         headers = {}
         if self.access_token:
             headers = {"Authorization": f"Bearer {self.access_token}"}

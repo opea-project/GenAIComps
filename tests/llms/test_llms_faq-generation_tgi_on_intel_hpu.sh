@@ -66,15 +66,15 @@ function validate_services() {
 }
 
 function validate_backend_microservices() {
-    # tgi 
+    # tgi
     validate_services \
         "${host_ip}:${LLM_ENDPOINT_PORT}/generate" \
         "generated_text" \
         "tgi" \
         "tgi-gaudi-server" \
         '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
-    
-    # faq 
+
+    # faq
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \

@@ -22,17 +22,19 @@ export LLM_BACKEND="tgi" # or "vllm"
 
 Step 1: Prepare backend LLM docker image.
 
-If you want to use vLLM backend, refer to [vLLM](../../../3rd_parties/vllm/src) to build vLLM docker images first. 
+If you want to use vLLM backend, refer to [vLLM](../../../3rd_parties/vllm/src) to build vLLM docker images first.
 
 No need for TGI.
 
 Step 2: Build FaqGen docker image.
+
 ```bash
 cd ../../../../
 docker build -t opea/llm-faqgen:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/faq-generation/Dockerfile .
 ```
 
 ### 1.3 Run Docker
+
 To start a docker container, you have two options:
 
 - A. Run Docker with CLI
@@ -43,9 +45,10 @@ You can choose one as needed.
 #### 1.3.1 Run Docker with CLI (Option A)
 
 Step 1: Start the backend LLM service
-Please refer to [TGI](../../../3rd_parties/tgi/deployment/docker_compose/) or [vLLM]((../../../3rd_parties/vllm/deployment/docker_compose/)) guideline to start a backend LLM service.
+Please refer to [TGI](../../../3rd_parties/tgi/deployment/docker_compose/) or [vLLM](<(../../../3rd_parties/vllm/deployment/docker_compose/)>) guideline to start a backend LLM service.
 
 Step 2: Start the FaqGen microservices
+
 ```bash
 docker run -d \
     --name="llm-faqgen-server" \
