@@ -106,7 +106,7 @@ async def audio_transcriptions(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=7066)
+    parser.add_argument("--port", type=int, default=os.getenv("WHISPER_PORT", 7066))
     parser.add_argument("--model_name_or_path", type=str, default="openai/whisper-small")
     parser.add_argument("--language", type=str, default="english")
     parser.add_argument("--device", type=str, default="cpu")

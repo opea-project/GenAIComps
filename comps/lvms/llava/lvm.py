@@ -37,7 +37,7 @@ max_images = int(os.getenv("MAX_IMAGES", 1))
     service_type=ServiceType.LVM,
     endpoint="/v1/lvm",
     host="0.0.0.0",
-    port=9399,
+    port=int(os.getenv("LVM_PORT", 9399)),
 )
 @register_statistics(names=["opea_service@lvm"])
 async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc, MetadataTextDoc]:

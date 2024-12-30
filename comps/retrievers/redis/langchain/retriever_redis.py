@@ -44,7 +44,7 @@ bridge_tower_embedding = os.getenv("BRIDGE_TOWER_EMBEDDING")
     service_type=ServiceType.RETRIEVER,
     endpoint="/v1/retrieval",
     host="0.0.0.0",
-    port=7000,
+    port=int(os.getenv("REDIS_RETRIEVER_PORT", 7000)),
 )
 @register_statistics(names=["opea_service@retriever_redis"])
 async def retrieve(

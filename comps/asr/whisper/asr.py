@@ -28,7 +28,7 @@ from comps import (
     service_type=ServiceType.ASR,
     endpoint="/v1/audio/transcriptions",
     host="0.0.0.0",
-    port=9099,
+    port=int(os.getenv("ASR_PORT", 9099)),
     input_datatype=Base64ByteStrDoc,
     output_datatype=LLMParamsDoc,
 )
@@ -48,6 +48,7 @@ async def audio_to_text(audio: Base64ByteStrDoc):
 
 
 if __name__ == "__main__":
-    asr_endpoint = os.getenv("ASR_ENDPOINT", "http://localhost:7066")
+    whisper_port = int(os.getenv("WHISPER_PORT", 7066))
+    asr_endpoint = os.getenv("ASR_ENDPOINT", f"http://localhost:{whisper_port}")
     logger.info("[asr - router] ASR initialized.")
     opea_microservices["opea_service@asr"].start()

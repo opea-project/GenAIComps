@@ -36,7 +36,7 @@ max_images = int(os.getenv("MAX_IMAGES", 1))
     service_type=ServiceType.LVM,
     endpoint="/v1/lvm",
     host="0.0.0.0",
-    port=9399,
+    port=int(os.getenv("LVM_PORT", 9399)),
     input_datatype=LVMDoc,
     output_datatype=TextDoc,
 )

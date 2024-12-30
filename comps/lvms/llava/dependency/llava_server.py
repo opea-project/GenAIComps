@@ -6,6 +6,7 @@ import argparse
 import base64
 import time
 from io import BytesIO
+import os
 
 import PIL.Image
 import requests
@@ -201,7 +202,7 @@ async def generate(request: Request) -> Response:  # FIXME batch_size=1 for now
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=8399)
+    parser.add_argument("--port", type=int, default=os.getenv("LLAVA_SERVER_PORT", 8399))
     parser.add_argument("--model_name_or_path", type=str, default="llava-hf/llava-1.5-7b-hf")
     parser.add_argument("--use_hpu_graphs", default=False, action="store_true")
     parser.add_argument("--warmup", type=int, default=1, help="Number of warmup iterations for benchmarking.")

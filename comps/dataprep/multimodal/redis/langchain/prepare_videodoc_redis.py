@@ -335,7 +335,7 @@ def drop_index(index_name, redis_url=REDIS_URL):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_transcripts", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_transcripts", host="0.0.0.0", port=int(os.getenv("DATAPREP_MMR_PORT", 6007))
 )
 async def ingest_generate_transcripts(files: List[UploadFile] = File(None)):
     """Upload videos or audio files with speech, generate transcripts using whisper and ingest into redis."""
@@ -444,7 +444,7 @@ async def ingest_generate_transcripts(files: List[UploadFile] = File(None)):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_captions", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_captions", host="0.0.0.0", port=int(os.getenv("DATAPREP_MMR_PORT", 6007))
 )
 async def ingest_generate_caption(files: List[UploadFile] = File(None)):
     """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
@@ -506,7 +506,7 @@ async def ingest_generate_caption(files: List[UploadFile] = File(None)):
     name="opea_service@prepare_videodoc_redis",
     endpoint="/v1/ingest_with_text",
     host="0.0.0.0",
-    port=6007,
+    port=int(os.getenv("DATAPREP_MMR_PORT", 6007)),
 )
 async def ingest_with_text(files: List[UploadFile] = File(None)):
     if files:
@@ -602,7 +602,7 @@ async def ingest_with_text(files: List[UploadFile] = File(None)):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/get_files", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/get_files", host="0.0.0.0", port=int(os.getenv("DATAPREP_MMR_PORT", 6007))
 )
 async def rag_get_file_structure():
     """Returns list of names of uploaded videos saved on the server."""
@@ -616,7 +616,7 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/delete_files", host="0.0.0.0", port=6007
+    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/delete_files", host="0.0.0.0", port=int(os.getenv("DATAPREP_MMR_PORT", 6007))
 )
 async def delete_files():
     """Delete all uploaded files along with redis index."""

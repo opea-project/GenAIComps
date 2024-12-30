@@ -25,7 +25,7 @@ from comps import (
 
 logger = CustomLogger("multimodal_embedding_mmei_langchain")
 logflag = os.getenv("LOGFLAG", False)
-port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6600))
+port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6000))
 headers = {"Content-Type": "application/json"}
 
 
@@ -86,7 +86,7 @@ def embedding(input: MultimodalDoc) -> Union[EmbedDoc, EmbedMultimodalDoc]:
 
 if __name__ == "__main__":
     url_endpoint = os.getenv("MMEI_EMBEDDING_HOST_ENDPOINT", "http://0.0.0.0")
-    port_endpoint = os.getenv("MMEI_EMBEDDING_PORT_ENDPOINT", "8080")
+    port_endpoint = os.getenv("MMEI_EMBEDDING_PORT_ENDPOINT", "6006")
     path_endpoint = os.getenv("MMEI_EMBEDDING_PATH_ENDPOINT", "/v1/encode")
 
     mmei_embedding_endpoint = os.getenv("MMEI_EMBEDDING_ENDPOINT", f"{url_endpoint}:{port_endpoint}{path_endpoint}")
