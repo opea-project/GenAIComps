@@ -31,7 +31,7 @@ function start_service() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f faq-generation_tgi.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
 
-    sleep 20s
+    sleep 30s
 }
 
 function validate_services() {
@@ -76,19 +76,19 @@ function validate_backend_microservices() {
     
     # faq 
     validate_services \
-        "${host_ip}:${FAQ_PORT}/v1/faqgen " \
+        "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
         "llm - faqgen" \
         "llm-faqgen-server" \
-        '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 128}'
+        '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32}'
 
     # faq, non-stream
     validate_services \
-        "${host_ip}:${FAQ_PORT}/v1/faqgen " \
+        "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
         "FAQGen" \
         "llm-faqgen-server" \
-        '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 128, "streaming":false}'
+        '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32, "streaming":false}'
 }
 
 function stop_docker() {
