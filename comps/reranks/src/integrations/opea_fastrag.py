@@ -44,20 +44,18 @@ class OpeaFastRAGReranking(OpeaComponent):
         return res
 
     def check_health(self) -> bool:
-        return True
-        # """Checks the health of the embedding service.
+        """Checks the health of the rerank service.
 
-        # Returns:
-        #     bool: True if the service is reachable and healthy, False otherwise.
-        # """
-        # try:
-        #     response = requests.get(f"{self.base_url}/health")
-        #     if response.status_code == 200:
-        #         return True
-        #     else:
-        #         return False
-        # except Exception as e:
-        #     # Handle connection errors, timeouts, etc.
-        #     logger.error(f"Health check failed: {e}")
-        # return False
-
+        Returns:
+            bool: True if the service is reachable and healthy, False otherwise.
+        """
+        if logflag:
+            logger.info("[ check health ] start to check health of fastRAG")
+        try:
+            _ = self.client.client.list_collections()
+            if logflag:
+                logger.info("[ check health ] Successfully connected to fastRAG!")
+            return True
+        except Exception as e:
+            logger.info(f"[ check health ] Failed to connect to fastRAG: {e}")
+            return False

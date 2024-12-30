@@ -6,14 +6,21 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/reranking-fastrag:comps -f comps/reranks/fastrag/Dockerfile .
+    docker build --no-cache \
+        --build-arg https_proxy=$https_proxy \
+        --build-arg http_proxy=$http_proxy \
+        --build-arg SERVICE=fastRAG \
+        -t opea/reranking:comps \
+        -f comps/reranks/src/Dockerfile .
+
     if [ $? -ne 0 ]; then
-        echo "opea/reranking-fastrag built fail"
+        echo "opea/reranking built fail"
         exit 1
     else
-        echo "opea/reranking-fastrag built successful"
+        echo "opea/reranking built successful"
     fi
 }
 
@@ -21,8 +28,8 @@ function start_service() {
     export EMBED_MODEL="Intel/bge-small-en-v1.5-rag-int8-static"
     fastrag_service_port=5020
     unset http_proxy
-    docker run -d --name="test-comps-reranking-fastrag-server" -p ${fastrag_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e EMBED_MODEL=$EMBED_MODEL opea/reranking-fastrag:comps
-    sleep 3m
+    docker run -d --name="test-comps-reranking-fastrag-server" -e LOGFLAG=True -p ${fastrag_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e EMBED_MODEL=$EMBED_MODEL -e RERANK_TYPE="fastrag" opea/reranking:comps
+    sleep 2m
 }
 
 function validate_microservice() {
