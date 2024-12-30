@@ -119,7 +119,14 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
         """
 
         try: 
-            response = requests.get(f"{self.llm_endpoint}/health")
+            # response = requests.get(f"{self.llm_endpoint}/health") 
+
+            # Will remove after TGI gaudi fix health bug
+            url = f"{self.llm_endpoint}/generate"
+            data = {"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17}}
+            headers = {"Content-Type": "application/json"}
+            response = requests.post(url=url, json=data, headers=headers)
+
             if response.status_code == 200:
                 return True
             else:
