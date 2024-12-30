@@ -91,7 +91,7 @@ async def stream_forwarder(response, time_start):
 @register_statistics(names=["opea_service@lvm"])
 async def lvm(
     request: Union[LVMDoc, LVMSearchedMultimodalDoc, LVMVideoDoc]
-) -> Union[TextDoc, MetadataTextDoc]:   # can also return a StreamingResponse but omit it in annotation for FastAPI
+) -> Union[TextDoc, MetadataTextDoc]:  # can also return a StreamingResponse but omit it in annotation for FastAPI
     start = time.time()
 
     try:
