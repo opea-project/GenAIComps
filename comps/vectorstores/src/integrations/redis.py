@@ -3,14 +3,17 @@
 
 
 import os
-import redis
 from typing import List, Optional
-from .config import INDEX_NAME, KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE, INDEX_SCHEMA
+
+import redis
 from langchain_community.vectorstores import Redis
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
-from comps import OpeaComponent, CustomLogger, ServiceType
+
+from comps import CustomLogger, OpeaComponent, ServiceType
 from comps.vectorstores.src.utils import encode_filename, format_search_results
+
+from .config import INDEX_NAME, INDEX_SCHEMA, KEY_INDEX_NAME, REDIS_URL, SEARCH_BATCH_SIZE
 
 logger = CustomLogger("redis_vectorstores")
 logflag = os.getenv("LOGFLAG", False)
@@ -19,17 +22,17 @@ logflag = os.getenv("LOGFLAG", False)
 class OpeaRedisVectorstores(OpeaComponent):
 
     def __init__(
-            self,
-            embedder,
-            name: str, 
-            description: str, 
-            config: dict = None, 
-            redis_url: str=REDIS_URL,
-            index_name: str=INDEX_NAME,
-            key_index_name: str=KEY_INDEX_NAME,
-            search_batch_size: int=SEARCH_BATCH_SIZE,
-            is_multimodal: bool=False
-            ):
+        self,
+        embedder,
+        name: str,
+        description: str,
+        config: dict = None,
+        redis_url: str = REDIS_URL,
+        index_name: str = INDEX_NAME,
+        key_index_name: str = KEY_INDEX_NAME,
+        search_batch_size: int = SEARCH_BATCH_SIZE,
+        is_multimodal: bool = False,
+    ):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.embedder = embedder
         self.redis_url = redis_url
@@ -47,9 +50,9 @@ class OpeaRedisVectorstores(OpeaComponent):
     def _initialize_client(self) -> redis.Redis:
         """Initializes the redis client."""
         if logflag:
-            logger.info(f"[ initialize client ] initializing redis client...")
+            logger.info("[ initialize client ] initializing redis client...")
 
-        try: 
+        try:
             logger.info(f"redis pool: {self.redis_pool}")
             client = redis.Redis(connection_pool=self.redis_pool)
             return client
@@ -58,22 +61,27 @@ class OpeaRedisVectorstores(OpeaComponent):
             return None
 
     def _initialize_vector_db(self) -> Redis:
-        """"Initialize the redis vector db client."""
+        """ "Initialize the redis vector db client."""
         if self.is_multimodal:
-            logger.info(f"[ initialize vectordb ] multimodal")
-            vectordb = Redis(embedding=self.embedder, index_name=self.data_index_name, index_schema=INDEX_SCHEMA, redis_url=self.redis_url)
+            logger.info("[ initialize vectordb ] multimodal")
+            vectordb = Redis(
+                embedding=self.embedder,
+                index_name=self.data_index_name,
+                index_schema=INDEX_SCHEMA,
+                redis_url=self.redis_url,
+            )
         else:
             vectordb = Redis(embedding=self.embedder, index_name=self.data_index_name, redis_url=self.redis_url)
         return vectordb
-    
+
     def check_health(self) -> bool:
-        """
-        Checks the health of the dataprep service.
+        """Checks the health of the dataprep service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         if logflag:
-            logger.info(f"[ check health ] start to check health of redis")
+            logger.info("[ check health ] start to check health of redis")
         try:
             if self.client.ping():
                 logger.info("[ check health ] Successfully connected to Redis!")
@@ -86,8 +94,8 @@ class OpeaRedisVectorstores(OpeaComponent):
         pass
 
     def is_empty(self):
-        """
-        Check whether the redis db is empty.
+        """Check whether the redis db is empty.
+
         Returns:
             True if redis is empty, False otherwise.
         """
@@ -96,14 +104,9 @@ class OpeaRedisVectorstores(OpeaComponent):
             logger.info(f"[ is empty ] redis db size: {dbsize}")
         return dbsize == 0
 
-    async def ingest_chunks(
-            self, 
-            file_name: str, 
-            chunks: List,
-            batch_size: int=32
-        ) -> bool:
-        """
-        Ingest string chunks into redis database.
+    async def ingest_chunks(self, file_name: str, chunks: List, batch_size: int = 32) -> bool:
+        """Ingest string chunks into redis database.
+
         Args:
             file_name (str): The name of the file.
             chunks (List): The list of string chunks.
@@ -150,32 +153,32 @@ class OpeaRedisVectorstores(OpeaComponent):
         return True
 
     async def check_file_existance(self, file_path: str) -> bool:
-        """
-        Check whether the file exists in redis database.
+        """Check whether the file exists in redis database.
+
         Args:
             file_path (str): The path of the file.
         Returns:
             bool: True if the file exists, False otherwise.
         """
         if logflag:
-            logger.info(f"[ check file existance ] file path: {file_path}")
-        
+            logger.info(f"[ check file existence ] file path: {file_path}")
+
         doc_id = "file:" + encode_filename(file_path)
         try:
             key_ids = self.search_by_id(self.key_index_client, doc_id).key_ids
         except Exception as e:
             if logflag:
-                logger.info(f"[ check file existance ] {e}. File {file_path} does not exists.")
+                logger.info(f"[ check file existence ] {e}. File {file_path} does not exists.")
             return False
         if key_ids:
             if logflag:
-                logger.info(f"[ check file existance ] File {file_path} already exists.")
+                logger.info(f"[ check file existence ] File {file_path} already exists.")
             return True
         return False
 
     async def get_file_list(self) -> List[dict]:
-        """
-        Get all ingested file list from redis database.
+        """Get all ingested file list from redis database.
+
         Returns:
             List[dict]: The list of file dictionaries.
             [{
@@ -198,7 +201,9 @@ class OpeaRedisVectorstores(OpeaComponent):
         offset = 0
         file_list = []
         while True:
-            response = self.client.execute_command("FT.SEARCH", self.key_index_name, "*", "LIMIT", offset, offset + self.search_batch_size)
+            response = self.client.execute_command(
+                "FT.SEARCH", self.key_index_name, "*", "LIMIT", offset, offset + self.search_batch_size
+            )
             # no doc retrieved
             if len(response) < 2:
                 break
@@ -212,8 +217,8 @@ class OpeaRedisVectorstores(OpeaComponent):
         return file_list
 
     async def get_file_content(self, file_name: str) -> List[dict]:
-        """
-        Get file content from redis database.
+        """Get file content from redis database.
+
         Args:
             file_name (str): The name of the file.
         Returns:
@@ -247,14 +252,14 @@ class OpeaRedisVectorstores(OpeaComponent):
             return []
 
     async def delete_all_files(self) -> bool:
-        """
-        Delete all files in redis database.
+        """Delete all files in redis database.
+
         Returns:
             bool: True if all files are deleted successfully, False otherwise.
         """
         if logflag:
             logger.info("[ delete all files ] delete all files")
-        
+
         # drop index KEY_INDEX_NAME
         if self.check_index_existance(self.key_index_client):
             try:
@@ -283,8 +288,8 @@ class OpeaRedisVectorstores(OpeaComponent):
         return True
 
     async def delete_single_file(self, file_name: str) -> bool:
-        """
-        Delete single file in redis database.
+        """Delete single file in redis database.
+
         Args:
             file_name (str): The name of the file.
         Returns:
@@ -333,24 +338,24 @@ class OpeaRedisVectorstores(OpeaComponent):
 
         return True
 
-    async def similarity_search(self, 
-                                input: str, 
-                                embedding: list, 
-                                search_type: str="similarity", 
-                                k: int=4,
-                                distance_threshold: Optional[float]=None,
-                                score_threshold: Optional[float]=None, 
-                                lambda_mult: float=0.2):
+    async def similarity_search(
+        self,
+        input: str,
+        embedding: list,
+        search_type: str = "similarity",
+        k: int = 4,
+        distance_threshold: Optional[float] = None,
+        score_threshold: Optional[float] = None,
+        lambda_mult: float = 0.2,
+    ):
         if logflag:
             logger.info(f"[ similarity search ] search type: {search_type}, input: {input}")
-        
+
         if search_type == "similarity":
             search_res = await self.vector_db.asimilarity_search_by_vector(embedding=embedding, k=k)
         elif search_type == "similarity_distance_threshold":
             if distance_threshold is None:
-                raise ValueError(
-                    "distance_threshold must be provided for " + "similarity_distance_threshold retriever"
-                )
+                raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
             search_res = await self.vector_db.asimilarity_search_by_vector(
                 embedding=embedding, k=k, distance_threshold=distance_threshold
             )
@@ -403,9 +408,7 @@ class OpeaRedisVectorstores(OpeaComponent):
         return True
 
     def search_by_id(self, client, doc_id):
-        """
-        search document by id in redis database.
-        """
+        """Search document by id in redis database."""
         if logflag:
             logger.info(f"[ search by id ] searching docs of {doc_id}")
         try:

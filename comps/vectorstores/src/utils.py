@@ -21,11 +21,13 @@ def _format_file_dict(file_name):
     }
     return file_dict
 
+
 def format_search_results(response, file_list: list):
     for i in range(1, len(response), 2):
         file_name = response[i].decode()[5:]
         file_list.append(_format_file_dict(file_name))
     return file_list
+
 
 def format_search_results_from_list(file_list: list):
     result_list = []

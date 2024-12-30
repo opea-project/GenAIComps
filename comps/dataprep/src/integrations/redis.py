@@ -15,14 +15,14 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from comps import CustomLogger, DocPath, OpeaComponent, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
-    remove_folder_with_ignore,
     encode_filename,
+    load_file_to_chunks,
     parse_html_new,
+    remove_folder_with_ignore,
     save_content_to_local_disk,
-    load_file_to_chunks
 )
-from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 from comps.vectorstores.src.integrations.redis import OpeaRedisVectorstores
+from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 
 from .config import EMBED_MODEL, REDIS_URL, TEI_EMBEDDING_ENDPOINT
 
@@ -52,9 +52,7 @@ class OpeaRedisDataprep(OpeaComponent):
             # create embeddings using local embedding model
             embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
         redis_db = OpeaRedisVectorstores(
-            embedder=embedder,
-            name="OpeaRedisVectorstore",
-            description="OPEA Redis Vectorstore Service"
+            embedder=embedder, name="OpeaRedisVectorstore", description="OPEA Redis Vectorstore Service"
         )
         controller.register(redis_db)
         controller.discover_and_activate()
@@ -119,29 +117,29 @@ class OpeaRedisDataprep(OpeaComponent):
                         status_code=400,
                         detail=f"Uploaded file {file.filename} already exists. Please change file name.",
                     )
-                
+
                 # save file to local path
                 save_path = upload_folder + encode_filename(file.filename)
                 await save_content_to_local_disk(save_path, file)
 
                 # load file contents to chunks
-                chunks = load_file_to_chunks(DocPath(
+                chunks = load_file_to_chunks(
+                    DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    ))
-                
+                    )
+                )
+
                 # ingest chunks into db
                 res = await self.db_controller.ingest_chunks(file_name=encode_filename(file.filename), chunks=chunks)
                 if not res:
                     if logflag:
                         logger.info(f"[ redis ingest] Fail to ingest file {file.filename}")
-                    raise HTTPException(
-                        status_code=400, detail=f"Fail to ingest {file.filename}. File already exists."
-                    )
-                
+                    raise HTTPException(status_code=400, detail=f"Fail to ingest {file.filename}. File already exists.")
+
                 if logflag:
                     logger.info(f"[ redis ingest] Successfully saved file {save_path}")
 
@@ -153,7 +151,7 @@ class OpeaRedisDataprep(OpeaComponent):
             if not isinstance(link_list, list):
                 raise HTTPException(status_code=400, detail=f"Link_list {link_list} should be a list.")
             for link in link_list:
-                res = await self.db_controller.check_file_existance(link+".txt")
+                res = await self.db_controller.check_file_existance(link + ".txt")
                 if res:
                     if logflag:
                         logger.info(f"[ redis ingest] Link {link} already exist.")
@@ -161,25 +159,25 @@ class OpeaRedisDataprep(OpeaComponent):
                         status_code=400,
                         detail=f"Uploaded link {link} already exists. Please change another link.",
                     )
-                
+
                 save_path = upload_folder + encode_filename(link) + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 await save_content_to_local_disk(save_path, content)
 
-                chunks = load_file_to_chunks(DocPath(
+                chunks = load_file_to_chunks(
+                    DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    ))
-                res = await self.db_controller.ingest_chunks(file_name=encode_filename(link)+".txt", chunks=chunks)
+                    )
+                )
+                res = await self.db_controller.ingest_chunks(file_name=encode_filename(link) + ".txt", chunks=chunks)
                 if not res:
                     if logflag:
                         logger.info(f"[ redis ingest] Fail to ingest link {link}")
-                    raise HTTPException(
-                        status_code=400, detail=f"Fail to ingest {link}. Link already exists."
-                    )
+                    raise HTTPException(status_code=400, detail=f"Fail to ingest {link}. Link already exists.")
 
             if logflag:
                 logger.info(f"[ redis ingest] Successfully saved link list {link_list}")
@@ -220,9 +218,9 @@ class OpeaRedisDataprep(OpeaComponent):
             res = await self.db_controller.delete_all_files()
             if not res:
                 if logflag:
-                    logger.info(f"[ redis delete ] Fail to delete all files.")
-                raise HTTPException(status_code=500, detail=f"Fail to delete all files.")
-            
+                    logger.info("[ redis delete ] Fail to delete all files.")
+                raise HTTPException(status_code=500, detail="Fail to delete all files.")
+
             # delete files on local disk
             try:
                 remove_folder_with_ignore(upload_folder)
@@ -237,7 +235,7 @@ class OpeaRedisDataprep(OpeaComponent):
             create_upload_folder(upload_folder)
             if logflag:
                 logger.info("[ redis delete ] new upload folder created.")
-            
+
             return {"status": True}
 
         # delete single file
@@ -246,13 +244,13 @@ class OpeaRedisDataprep(OpeaComponent):
             if logflag:
                 logger.info(f"[ redis delete ] Fail to delete {file_path}.")
             raise HTTPException(status_code=404, detail=f"Fail to delete {file_path}.")
-        
+
         delete_path = Path(upload_folder + "/" + encode_filename(file_path))
         if not delete_path.exists():
             if logflag:
                 logger.info(f"[ redis delete ] File {file_path} not saved locally.")
             return {"status": True}
-        
+
         if delete_path.is_file():
             # delete file on local disk
             delete_path.unlink()
