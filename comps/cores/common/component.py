@@ -109,17 +109,26 @@ class OpeaComponentController(ABC):
             raise ValueError(f"Component '{component.name}' is already registered.")
         self.components[component.name] = component
 
-    def discover_and_activate(self):
+    def discover_and_activate(self, active_comp_name=""):
         """Discovers healthy components and activates one.
 
-        If multiple components are healthy, it prioritizes the first registered component.
+        Attributes:
+        active_comp_name: Specify the component name to be tested first, if not set, it prioritizes the first registered component if multiple components are healthy.
         """
-        for component in self.components.values():
+        if active_comp_name != "" and active_comp_name in self.components.keys():
+            component = self.components[active_comp_name]
             if component.check_health():
                 self.active_component = component
-                print(f"Activated component: {component.name}")
-                return
-        raise RuntimeError("No healthy components available.")
+        else:
+            for component in self.components.values():
+                if component.check_health():
+                    self.active_component = component
+
+        if self.active_component:
+            print(f"Activated component: {self.active_component.name}")
+            return
+        else:
+            raise RuntimeError("No healthy components available.")
 
     def invoke(self, *args, **kwargs):
         """Invokes service accessing using the active component.
