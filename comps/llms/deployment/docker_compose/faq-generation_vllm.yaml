@@ -21,6 +21,7 @@ services:
       VLLM_TORCH_PROFILER_DIR: "/mnt"
       host_ip: ${host_ip}
       LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
+      VLLM_SKIP_WARMUP: ${VLLM_SKIP_WARMUP:-false}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1"]
       interval: 10s
