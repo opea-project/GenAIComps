@@ -6,7 +6,7 @@ version: "3.8"
 services:
   tgi-service:
     image: ghcr.io/huggingface/text-generation-inference:2.4.0-intel-cpu
-    container_name: tgi-service
+    container_name: tgi-server
     ports:
       - ${LLM_ENDPOINT_PORT:-8008}:80
     volumes:
