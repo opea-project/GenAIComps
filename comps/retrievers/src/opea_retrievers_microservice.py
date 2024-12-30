@@ -86,7 +86,9 @@ async def ingest_files(
             for r in response:
                 metadata_list.append(r.metadata)
                 retrieved_docs.append(TextDoc(text=r.page_content))
-            result = SearchedMultimodalDoc(retrieved_docs=retrieved_docs, initial_query=input.text, metadata=metadata_list)
+            result = SearchedMultimodalDoc(
+                retrieved_docs=retrieved_docs, initial_query=input.text, metadata=metadata_list
+            )
 
         else:
             for r in response:
