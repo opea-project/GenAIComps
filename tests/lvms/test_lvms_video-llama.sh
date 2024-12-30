@@ -11,14 +11,14 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/video-llama-lvm-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/video-llama/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/video-llama-lvm-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/video-llama/Dockerfile .
     if $? ; then
         echo "opea/video-llama-lvm-server built fail"
         exit 1
     else
         echo "opea/video-llama-lvm-server built successful"
     fi
-    docker build --no-cache -t opea/lvm-video-llama:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/lvm-video-llama:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/Dockerfile .
     if $? ; then
         echo "opea/lvm-video-llama built fail"
         exit 1
@@ -43,16 +43,6 @@ function start_service() {
         -e llm_download="True" \
         opea/video-llama-lvm-server:comps
 
-    docker run -d --name="test-comps-lvm-video-llama" -p $server_port:9000 \
-        --ipc=host \
-        -e http_proxy=$http_proxy \
-        -e https_proxy=$https_proxy \
-        -e no_proxy=$no_proxy \
-        -e LVM_ENDPOINT=$LVM_ENDPOINT \
-        opea/lvm-video-llama:comps
-
-    echo "Waiting for the LVM service to start"
-
     # check whether lvm dependency is fully ready
     n=0
     until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
@@ -64,6 +54,16 @@ function start_service() {
         sleep 5s
     done
     sleep 5s
+
+    docker run -d --name="test-comps-lvm-video-llama" -p $server_port:9000 \
+        --ipc=host \
+        -e http_proxy=$http_proxy \
+        -e https_proxy=$https_proxy \
+        -e no_proxy=$no_proxy \
+        -e LVM_ENDPOINT=$LVM_ENDPOINT \
+        opea/lvm-video-llama:comps
+
+    echo "Waiting for the LVM service to start"
 
     # check whether lvm service is fully ready
     n=0
