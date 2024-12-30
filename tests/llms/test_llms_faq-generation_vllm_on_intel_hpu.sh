@@ -40,6 +40,7 @@ function start_service() {
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export LLM_BACKEND="vllm"
+    export VLLM_SKIP_WARMUP=true
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f faq-generation_vllm_on_intel_hpu.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
@@ -81,11 +82,11 @@ function validate_services() {
 function validate_backend_microservices() {
     # vllm
     validate_services \
-        "${host_ip}:${LLM_ENDPOINT_PORT}/generate" \
-        "generated_text" \
+        "${host_ip}:${LLM_ENDPOINT_PORT}/v1/completions" \
+        "text" \
         "vllm" \
         "vllm-gaudi-server" \
-        '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
+        '{"model": "Intel/neural-chat-7b-v3-3", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
 
     # faq
     validate_services \

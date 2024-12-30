@@ -22,6 +22,7 @@ services:
       VLLM_TORCH_PROFILER_DIR: "/mnt"
       host_ip: ${host_ip}
       LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
+      VLLM_SKIP_WARMUP: ${VLLM_SKIP_WARMUP:-false}
     runtime: habana
     cap_add:
       - SYS_NICE
