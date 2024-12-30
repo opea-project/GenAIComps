@@ -56,7 +56,7 @@ except Exception as e:
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/ingest",
     host="0.0.0.0",
-    port=7000,
+    port=5000,
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def ingest_files(
