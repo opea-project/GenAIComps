@@ -7,7 +7,7 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
 from langchain_core.prompts import PromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.llms import HuggingFaceEndpoint 
+from langchain_community.llms import HuggingFaceEndpoint, VLLMOpenAI 
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, OpeaComponent, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
@@ -105,7 +105,7 @@ class OPEAFAQGen(OpeaComponent):
             return GeneratedDoc(text=response, prompt=input.query)
         
 class OPEAFAQGen_TGI(OPEAFAQGen):
-    """A specialized OPEA FAQGen TGI component derived from OPEAFAQGen for interacting with TGI services based on HuggingFaceEndpoint API.
+    """A specialized OPEA FAQGen TGI component derived from OPEAFAQGen for interacting with TGI services based on Lanchain HuggingFaceEndpoint API.
 
     Attributes:
         client (TGI): An instance of the TGI client for text generation.
@@ -149,6 +149,55 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
             repetition_penalty=input.repetition_penalty,
             streaming=input.streaming,
             server_kwargs=server_kwargs,
+        )
+        result = await self.generate(input, self.client)
+
+        return result
+
+class OPEAFAQGen_vLLM(OPEAFAQGen):
+    """A specialized OPEA FAQGen vLLM component derived from OPEAFAQGen for interacting with vLLM services based on Lanchain VLLMOpenAI API.
+
+    Attributes:
+        client (vLLM): An instance of the vLLM client for text generation.
+    """
+
+    def check_health(self) -> bool:
+        """Checks the health of the vLLM LLM service.
+
+        Returns:
+            bool: True if the service is reachable and healthy, False otherwise.
+        """
+
+        try: 
+            response = requests.get(f"{self.llm_endpoint}/health")
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.error(e)
+            logger.error("Health check failed")
+            return False
+    
+    async def invoke(self, input: LLMParamsDoc):
+        """Invokes the vLLM LLM service to generate FAQ output for the provided input.
+
+        Args:
+            input (LLMParamsDoc): The input text(s).
+        """       
+        headers = {}
+        if self.access_token:
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+
+        self.client = VLLMOpenAI(
+            openai_api_key="EMPTY",
+            openai_api_base=self.llm_endpoint + "/v1",
+            model_name=MODEL_NAME,
+            default_headers=headers,
+            max_tokens=input.max_tokens,
+            top_p=input.top_p,
+            streaming=input.streaming,
+            temperature=input.temperature,
         )
         result = await self.generate(input, self.client)
 
