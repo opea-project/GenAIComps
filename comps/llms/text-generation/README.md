@@ -235,7 +235,7 @@ docker run \
   -e no_proxy=${no_proxy} \
   -e vLLM_LLM_ENDPOINT=$vLLM_LLM_ENDPOINT \
   -e HF_TOKEN=$HF_TOKEN \
-  -e LLM_MODEL=$LLM_MODEL \
+  -e LLM_MODEL_ID=$LLM_MODEL \
   opea/llm-vllm:latest
 ```
 

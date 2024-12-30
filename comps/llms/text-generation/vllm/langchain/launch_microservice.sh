@@ -9,6 +9,6 @@ docker run -d --rm \
     -e https_proxy=$https_proxy \
     -e vLLM_ENDPOINT=$vLLM_ENDPOINT \
     -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
-    -e LLM_MODEL=$LLM_MODEL \
+    -e LLM_MODEL_ID=$LLM_MODEL \
     -e LOGFLAG=$LOGFLAG \
     opea/llm-vllm:latest

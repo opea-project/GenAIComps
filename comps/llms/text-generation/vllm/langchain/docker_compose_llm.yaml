@@ -38,7 +38,7 @@ services:
       https_proxy: ${https_proxy}
       vLLM_ENDPOINT: ${vLLM_ENDPOINT}
       HF_TOKEN: ${HF_TOKEN}
-      LLM_MODEL: ${LLM_MODEL}
+      LLM_MODEL_ID: ${LLM_MODEL}
     restart: unless-stopped
 
 networks:

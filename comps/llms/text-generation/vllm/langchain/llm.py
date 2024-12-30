@@ -83,7 +83,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
     headers = {}
     if access_token:
         headers = {"Authorization": f"Bearer {access_token}"}
-    model_name = input.model if input.model else os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
+    model_name = input.model if input.model else os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3-8B-Instruct")
     llm_endpoint = get_llm_endpoint(model_name)
     llm = VLLMOpenAI(
         openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name, default_headers=headers

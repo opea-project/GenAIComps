@@ -43,7 +43,7 @@ async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
     llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
-    model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
+    model_name = os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3-8B-Instruct")
     llm = OpenAILike(
         api_key="fake",
         api_base=llm_endpoint + "/v1",
