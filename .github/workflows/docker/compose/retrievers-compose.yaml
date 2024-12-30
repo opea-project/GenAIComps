@@ -5,7 +5,7 @@
 services:
   retriever:
     build:
-      dockerfile: comps/retriever/src/Dockerfile
+      dockerfile: comps/retrievers/src/Dockerfile
     image: ${REGISTRY:-opea}/retriever:${TAG:-latest}
   retriever-redis:
     build:
