@@ -20,12 +20,14 @@ services:
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       VLLM_TORCH_PROFILER_DIR: "/mnt"
+      host_ip: ${host_ip}
+      LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
     runtime: habana
     cap_add:
       - SYS_NICE
     ipc: host
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://$host_ip:8008/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 100
