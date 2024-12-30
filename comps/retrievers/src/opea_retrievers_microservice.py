@@ -6,8 +6,8 @@ import os
 import time
 from typing import Union
 
-from integrations.milvus_retrievers import OpeaMilvusRetriever
-from integrations.redis_retrievers import OpeaRedisRetriever
+from integrations.milvus import OpeaMilvusRetriever
+from integrations.redis import OpeaRedisRetriever
 
 from comps import (
     CustomLogger,
