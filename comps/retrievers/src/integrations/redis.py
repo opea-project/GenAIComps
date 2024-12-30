@@ -5,14 +5,12 @@
 import os
 from typing import Union
 
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_community.vectorstores import Redis
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
-from comps import CustomLogger, EmbedDoc, OpeaComponent, SearchedDoc, ServiceType
+from comps import CustomLogger, EmbedDoc, EmbedMultimodalDoc, OpeaComponent, SearchedDoc, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest, RetrievalResponse
 
-from .config import EMBED_MODEL, INDEX_NAME, REDIS_URL, TEI_EMBEDDING_ENDPOINT
+from .config import BRIDGE_TOWER_EMBEDDING, EMBED_MODEL, INDEX_NAME, REDIS_URL, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("redis_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -31,9 +29,18 @@ class OpeaRedisRetriever(OpeaComponent):
         # Create embeddings
         if TEI_EMBEDDING_ENDPOINT:
             # create embeddings using TEI endpoint service
+            from langchain_huggingface import HuggingFaceEndpointEmbeddings
+
             self.embeddings = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+        elif BRIDGE_TOWER_EMBEDDING:
+            logger.info("use bridge tower embedding")
+            from comps.embeddings.src.integrations.dependency.bridgetower import BridgeTowerEmbedding
+            
+            self.embeddings = BridgeTowerEmbedding()
         else:
             # create embeddings using local embedding model
+            from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+
             self.embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
         self.client = self._initialize_client()
 
@@ -64,7 +71,7 @@ class OpeaRedisRetriever(OpeaComponent):
             return False
 
     async def invoke(
-        self, input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
+        self, input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
     ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
         """Search the Redis index for the most similar documents to the input query.
 
@@ -80,7 +87,7 @@ class OpeaRedisRetriever(OpeaComponent):
         if self.client.client.keys() == []:
             search_res = []
         else:
-            if isinstance(input, EmbedDoc):
+            if isinstance(input, EmbedDoc) or isinstance(input, EmbedMultimodalDoc):
                 embedding_data_input = input.embedding
             else:
                 # for RetrievalRequest, ChatCompletionRequest
