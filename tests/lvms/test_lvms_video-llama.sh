@@ -33,7 +33,7 @@ function start_service() {
     unset http_proxy
     dependency_port=5051
     server_port=5052
-    export LVM_ENDPOINT=http://$ip_address:$dependency_port
+    export VIDEO_LLAMA_LVM_ENDPOINT=http://$ip_address:$dependency_port
 
     docker run -d --name="test-comps-lvm-video-llama-dependency" -p $dependency_port:9009 \
         --ipc=host \
@@ -55,12 +55,12 @@ function start_service() {
     done
     sleep 5s
 
-    docker run -d --name="test-comps-lvm-video-llama" -p $server_port:9000 \
+    docker run -d --name="test-comps-lvm-video-llama" -p $server_port:9399 \
         --ipc=host \
         -e http_proxy=$http_proxy \
         -e https_proxy=$https_proxy \
         -e no_proxy=$no_proxy \
-        -e LVM_ENDPOINT=$LVM_ENDPOINT \
+        -e VIDEO_LLAMA_LVM_ENDPOINT=$VIDEO_LLAMA_LVM_ENDPOINT \
         opea/lvm-video-llama:comps
 
     echo "Waiting for the LVM service to start"
@@ -96,7 +96,9 @@ function validate_microservice() {
 function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-lvm-video-llama*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-    if docker volume ls | grep -q video-llama-model; then docker volume rm video-llama-model; fi
+    if docker volume ls | grep -q video-llama-model; then
+        docker volume rm video-llama-model || echo "Volume video-llama-model does not exist.";
+    fi
 
 }
 

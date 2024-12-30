@@ -35,7 +35,7 @@ class OpeaLlavaLvm(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LVM.name.lower(), description, config)
-        self.base_url = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
+        self.base_url = os.getenv("LLAVA_LVM_ENDPOINT", "http://localhost:8399")
 
     async def invoke(
         self,

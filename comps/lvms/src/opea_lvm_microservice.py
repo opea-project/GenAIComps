@@ -36,33 +36,40 @@ controller = OpeaComponentController()
 # Register components
 try:
     # Instantiate LVM components
-    opea_llava_lvm = OpeaLlavaLvm(
-        name="OpeaLlavaLvm",
-        description="OPEA LLaVA LVM Service",
-    )
-    opea_tgi_llava_lvm = OpeaTgiLlavaLvm(
-        name="OpeaTgiLlavaLvm",
-        description="OPEA TGI LLaVA LVM Service",
-    )
-    opea_llama_vision_lvm = OpeaLlamaVisionLvm(
-        name="OpeaLlamaVisionLvm",
-        description="OPEA LLaMA Vison LVM Service",
-    )
-    opea_predictionguard_lvm = OpeaPredictionguardLvm(
-        name="OpeaPredictionguardLvm",
-        description="OPEA PredictionGuard LVM Service",
-    )
-    opea_video_llama_lvm = OpeaVideoLlamaLvm(
-        name="OpeaVideoLlamaLvm",
-        description="OPEA Video LLaMA LVM Service",
-    )
+    if os.getenv("LLAVA_LVM_ENDPOINT"):
+        opea_llava_lvm = OpeaLlavaLvm(
+            name="OpeaLlavaLvm",
+            description="OPEA LLaVA LVM Service",
+        )
+        controller.register(opea_llava_lvm)
 
-    # Register components with the controller
-    controller.register(opea_llava_lvm)
-    controller.register(opea_tgi_llava_lvm)
-    controller.register(opea_llama_vision_lvm)
-    controller.register(opea_predictionguard_lvm)
-    controller.register(opea_video_llama_lvm)
+    elif os.getenv("TGI_LLAVA_LVM_ENDPOINT"):
+        opea_tgi_llava_lvm = OpeaTgiLlavaLvm(
+            name="OpeaTgiLlavaLvm",
+            description="OPEA TGI LLaVA LVM Service",
+        )
+        controller.register(opea_tgi_llava_lvm)
+
+    elif os.getenv("LLAMA_VISION_LVM_ENDPOINT"):
+        opea_llama_vision_lvm = OpeaLlamaVisionLvm(
+            name="OpeaLlamaVisionLvm",
+            description="OPEA LLaMA Vison LVM Service",
+        )
+        controller.register(opea_llama_vision_lvm)
+
+    elif os.getenv("PREDICTIONGUARD_LVM_ENDPOINT"):
+        opea_predictionguard_lvm = OpeaPredictionguardLvm(
+            name="OpeaPredictionguardLvm",
+            description="OPEA PredictionGuard LVM Service",
+        )
+        controller.register(opea_predictionguard_lvm)
+
+    elif os.getenv("VIDEO_LLAMA_LVM_ENDPOINT"):
+        opea_video_llama_lvm = OpeaVideoLlamaLvm(
+            name="OpeaVideoLlamaLvm",
+            description="OPEA Video LLaMA LVM Service",
+        )
+        controller.register(opea_video_llama_lvm)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
