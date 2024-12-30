@@ -1,28 +1,38 @@
-# TGI FAQGen LLM Microservice
+# FAQGen LLM Microservice
 
-This microservice interacts with the TGI LLM server to generate FAQs from Input Text.[Text Generation Inference](https://github.com/huggingface/text-generation-inference) (TGI) is a toolkit for deploying and serving Large Language Models (LLMs). TGI enables high-performance text generation for the most popular open-source LLMs, including Llama, Falcon, StarCoder, BLOOM, GPT-NeoX, and more.
+This microservice interacts with the TGI/vLLM LLM server to generate FAQs(frequently asked questions and answers) from Input Text. You can set backend service either [TGI](../../../3rd_parties/tgi) or [vLLM](../../../3rd_parties/vllm).
 
 ## 🚀1. Start Microservice with Docker
 
-If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file will automatically start a TGI service with docker.
-
 ### 1.1 Setup Environment Variables
 
-In order to start TGI and LLM services, you need to setup the following environment variables first.
+In order to start FaqGen microservices, you need to setup the following environment variables first.
 
 ```bash
-export HF_TOKEN=${your_hf_api_token}
-export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
+export host_ip=${your_host_ip}
+export LLM_ENDPOINT_PORT=8008
+export FAQ_PORT=9000
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID=${your_hf_llm_model}
+export LLM_BACKEND="tgi" # or "vllm"
 ```
 
 ### 1.2 Build Docker Image
 
+Step 1: Prepare backend LLM docker image.
+
+If you want to use vLLM backend, refer to [vLLM](../../../3rd_parties/vllm/src) to build vLLM docker images first. 
+
+No need for TGI.
+
+Step 2: Build FaqGen docker image.
 ```bash
-cd ../../../../../
-docker build -t opea/llm-faqgen-tgi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/faq-generation/tgi/langchain/Dockerfile .
+cd ../../../../
+docker build -t opea/llm-faqgen:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/faq-generation/Dockerfile .
 ```
 
+### 1.3 Run Docker
 To start a docker container, you have two options:
 
 - A. Run Docker with CLI
@@ -30,46 +40,68 @@ To start a docker container, you have two options:
 
 You can choose one as needed.
 
-### 1.3 Run Docker with CLI (Option A)
+#### 1.3.1 Run Docker with CLI (Option A)
 
+Step 1: Start the backend LLM service
+Please refer to [TGI](../../../3rd_parties/tgi/deployment/docker_compose/) or [vLLM]((../../../3rd_parties/vllm/deployment/docker_compose/)) guideline to start a backend LLM service.
+
+Step 2: Start the FaqGen microservices
 ```bash
-docker run -d -p 8008:80 -v ./data:/data --name tgi_service --shm-size 1g ghcr.io/huggingface/text-generation-inference:1.4 --model-id ${LLM_MODEL_ID}
+docker run -d \
+    --name="llm-faqgen-server" \
+    -p 9000:9000 \
+    --ipc=host \
+    -e http_proxy=$http_proxy \
+    -e https_proxy=$https_proxy \
+    -e LLM_MODEL_ID=$LLM_MODEL_ID \
+    -e LLM_ENDPOINT=$LLM_ENDPOINT \
+    -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
+    -e LLM_BACKEND=$LLM_BACKEND \
+    opea/llm-faqgen:latest
 ```
 
+#### 1.3.1 Run Docker with Docker Compose (Option B)
+
 ```bash
-docker run -d --name="llm-faqgen-server" -p 9000:9000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm-faqgen-tgi:latest
+cd ../../deployment/docker_compose/
+
+# Backend is TGI on xeon
+docker compose -f faq-generation_tgi.yaml up -d
+
+# Backend is TGI on gaudi
+# docker compose -f faq-generation_tgi_on_intel_hpu.yaml up -d
+
+# Backend is vLLM on xeon
+# docker compose -f faq-generation_vllm.yaml up -d
+
+# Backend is vLLM on gaudi
+# docker compose -f faq-generation_vllm_on_intel_hpu.yaml up -d
 ```
 
-### 1.4 Run Docker with Docker Compose (Option B)
+## 🚀2. Consume LLM Service
+
+### 2.1 Check Service Status
 
 ```bash
-docker compose -f docker_compose_llm.yaml up -d
-```
-
-## 🚀3. Consume LLM Service
-
-### 3.1 Check Service Status
-
-```bash
-curl http://${your_ip}:9000/v1/health_check\
+curl http://${host_ip}:${FAQ_PORT}/v1/health_check\
   -X GET \
   -H 'Content-Type: application/json'
 ```
 
-### 3.2 Consume FAQGen LLM Service
+### 2.2 Consume FAQGen LLM Service
 
 ```bash
 # Streaming Response
 # Set streaming to True. Default will be True.
-curl http://${your_ip}:9000/v1/faqgen \
+curl http://${host_ip}:${FAQ_PORT}/v1/faqgen \
   -X POST \
-  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5."}' \
+  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 128}' \
   -H 'Content-Type: application/json'
 
 # Non-Streaming Response
 # Set streaming to False.
-curl http://${your_ip}:9000/v1/faqgen \
+curl http://${host_ip}:${FAQ_PORT}/v1/faqgen \
   -X POST \
-  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "streaming":false}' \
+  -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 128, "streaming":false}' \
   -H 'Content-Type: application/json'
 ```
