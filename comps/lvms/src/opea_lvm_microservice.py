@@ -65,7 +65,7 @@ try:
     controller.register(opea_video_llama_lvm)
 
     # Discover and activate a healthy component
-    controller.discover_and_activate(retries=10, interval=10, timeout=5)
+    controller.discover_and_activate()
 except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
 

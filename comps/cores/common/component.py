@@ -109,13 +109,13 @@ class OpeaComponentController(ABC):
             raise ValueError(f"Component '{component.name}' is already registered.")
         self.components[component.name] = component
 
-    def discover_and_activate(self, retries=3, interval=10, timeout=5):
+    def discover_and_activate(self):
         """Discovers healthy components and activates one.
 
         If multiple components are healthy, it prioritizes the first registered component.
         """
         for component in self.components.values():
-            if component.check_health(retries=retries, interval=interval, timeout=timeout):
+            if component.check_health():
                 self.active_component = component
                 print(f"Activated component: {component.name}")
                 return

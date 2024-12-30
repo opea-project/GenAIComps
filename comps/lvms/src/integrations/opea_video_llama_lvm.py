@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import time
 from typing import Union
 
 import requests
@@ -71,21 +70,19 @@ class OpeaVideoLlamaLvm(OpeaComponent):
             logger.error(f"[lvm] Error: {response.text}")
             raise logger(status_code=500, detail="The upstream API responded with an error.")
 
-    def check_health(self, retries=3, interval=10, timeout=5) -> bool:
-        """Checks the health of the LVM service.
+    def check_health(self) -> bool:
+        """Checks the health of the embedding service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-        while retries > 0:
-            try:
-                response = requests.get(f"{self.base_url}/health", timeout=timeout)
-                # If status is 200, the service is considered alive
-                if response.status_code == 200:
-                    return True
-            except requests.RequestException as e:
-                # Handle connection errors, timeouts, etc.
-                print(f"Health check failed: {e}")
-            retries -= 1
-            time.sleep(interval)
+        try:
+            response = requests.get(f"{self.base_url}/health")
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except Exception as e:
+            # Handle connection errors, timeouts, etc.
+            logger.error(f"Health check failed: {e}")
         return False
