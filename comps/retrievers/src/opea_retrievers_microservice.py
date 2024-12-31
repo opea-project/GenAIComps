@@ -7,8 +7,8 @@ import time
 from typing import Union
 
 from integrations.milvus import OpeaMilvusRetriever
-from integrations.redis import OpeaRedisRetriever
 from integrations.pinecone import OpeaPineconeRetriever
+from integrations.redis import OpeaRedisRetriever
 
 from comps import (
     CustomLogger,

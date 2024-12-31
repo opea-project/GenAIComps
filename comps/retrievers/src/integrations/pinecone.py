@@ -46,9 +46,7 @@ class OpeaPineconeRetriever(OpeaComponent):
     def _initialize_db_controller(self) -> OpeaVectorstoresController:
         controller = OpeaVectorstoresController()
         milvus_db = OpeaPineconeVectorstores(
-            embedder=self.embedder,
-            name="OpeaPineconeVectorstore",
-            description="OPEA Pinecone Vectorstore Service"
+            embedder=self.embedder, name="OpeaPineconeVectorstore", description="OPEA Pinecone Vectorstore Service"
         )
         controller.register(milvus_db)
         controller.discover_and_activate()

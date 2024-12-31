@@ -5,11 +5,14 @@
 import os
 import time
 from typing import List, Optional
+
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
+
 from comps import CustomLogger, OpeaComponent, ServiceType
 
 from .config import PINECONE_API_KEY, PINECONE_INDEX_NAME
+
 logger = CustomLogger("pinecone_vectorstores")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -22,8 +25,8 @@ class OpeaPineconeVectorstores(OpeaComponent):
         name: str,
         description: str,
         config: dict = None,
-        pinecone_api_key: str=PINECONE_API_KEY,
-        pinecone_index: str=PINECONE_INDEX_NAME
+        pinecone_api_key: str = PINECONE_API_KEY,
+        pinecone_index: str = PINECONE_INDEX_NAME,
     ):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.embedder = embedder
@@ -85,7 +88,7 @@ class OpeaPineconeVectorstores(OpeaComponent):
         if logflag:
             logger.info(f"[ is empty ] total count: {total_count}")
         return total_count == 0
-    
+
     async def similarity_search(
         self,
         input: str,
@@ -101,7 +104,9 @@ class OpeaPineconeVectorstores(OpeaComponent):
             logger.info(f"[ similarity search ] search type: {search_type}, input: {input}")
 
         if search_type == "similarity":
-            docs_and_similarities = await self.vector_db.similarity_search_by_vector_with_score(embedding=embedding, k=k)
+            docs_and_similarities = await self.vector_db.similarity_search_by_vector_with_score(
+                embedding=embedding, k=k
+            )
             search_res = [doc for doc, _ in docs_and_similarities]
         elif search_type == "similarity_distance_threshold":
             if distance_threshold is None:

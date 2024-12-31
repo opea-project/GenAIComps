@@ -113,4 +113,3 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
 # Pinecone configuration
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "xxx_xxx")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "langchain-test")
-
