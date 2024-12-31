@@ -24,14 +24,7 @@ COPY comps /home/user/comps
 RUN if [ ${ARCH} = "cpu" ]; then \
     pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; \
 fi && \
-if [ ${SERVICE} = "fastRAG" ]; then \
-    git clone https://github.com/IntelLabs/fastRAG.git /home/user/fastRAG && \
-    cd /home/user/fastRAG && \
-    pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir . && \
-    pip install --no-cache-dir .[intel] && \
-    pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_fastRAG.txt; \
-elif [ ${SERVICE} = "videoqna" ]; then \
+if [ ${SERVICE} = "videoqna" ]; then \
     pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_videoqna.txt; \
 elif [ ${SERVICE} = "all" ]; then \
@@ -40,7 +33,6 @@ elif [ ${SERVICE} = "all" ]; then \
     pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir . && \
     pip install --no-cache-dir .[intel] && \
-    pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_fastRAG.txt && \
     pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_videoqna.txt; \
 fi && \
 pip install --no-cache-dir --upgrade pip setuptools && \
