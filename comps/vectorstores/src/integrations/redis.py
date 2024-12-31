@@ -93,11 +93,11 @@ class OpeaRedisVectorstores(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         """Check whether the redis db is empty.
 
         Returns:
-            True if redis is empty, False otherwise.
+            bool: True if redis is empty, False otherwise.
         """
         dbsize = self.client.dbsize()
         if logflag:

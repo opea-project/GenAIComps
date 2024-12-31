@@ -8,6 +8,7 @@ from typing import Union
 
 from integrations.milvus import OpeaMilvusRetriever
 from integrations.redis import OpeaRedisRetriever
+from integrations.pinecone import OpeaPineconeRetriever
 
 from comps import (
     CustomLogger,
@@ -32,7 +33,7 @@ from comps.cores.proto.api_protocol import (
 
 logger = CustomLogger("opea_retrievers_microservice")
 logflag = os.getenv("LOGFLAG", False)
-retriever_type = os.getenv("RETRIEVER_TYPE", False)
+retriever_type = os.getenv("RETRIEVER_TYPE", "redis")
 # Initialize Controller
 controller = OpeaComponentController()
 
@@ -52,6 +53,12 @@ try:
             description="OPEA Milvus Retriever Service",
         )
         controller.register(milvus_retriever)
+    elif retriever_type == "pinecone":
+        pinecone_retriever = OpeaPineconeRetriever(
+            name="OpeaPineconeRetriever",
+            description="OPEA Pinecone Retriever Service",
+        )
+        controller.register(pinecone_retriever)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
