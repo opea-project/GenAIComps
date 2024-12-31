@@ -35,8 +35,11 @@ def get_boolean_env_var(var_name, default_value=False):
 
 # Embedding model
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-# Embedding endpoints
+# Embedding endpoint
 EMBEDDING_ENDPOINT = os.getenv("EMBEDDING_ENDPOINT", "")
+# LLM endpoint
+LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
+LLM_ENDPOINT_NO_RAG = os.getenv("TGI_LLM_ENDPOINT_NO_RAG", "http://localhost:8081")
 
 
 #######################################################
@@ -102,3 +105,12 @@ os.environ["OPENAI_API_KEY"] = "Dummy key"
 NEO4J_URL = os.getenv("NEO4J_URL", "bolt://localhost:7687")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
+
+
+#######################################################
+#                     Pinecone                        #
+#######################################################
+# Pinecone configuration
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "xxx_xxx")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "langchain-test")
+

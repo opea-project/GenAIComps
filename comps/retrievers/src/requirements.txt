@@ -4,9 +4,11 @@ fastapi
 langchain_community --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
+langchain-pinecone --extra-index-url https://download.pytorch.org/whl/cpu
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pinecone-client
 prometheus-fastapi-instrumentator
 pymupdf
 redis
