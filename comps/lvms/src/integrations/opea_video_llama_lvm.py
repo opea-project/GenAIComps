@@ -24,10 +24,10 @@ class OpeaVideoLlamaLvm(OpeaComponent):
         self,
         request: Union[LVMVideoDoc],
     ) -> Union[StreamingResponse]:
-        """Involve the LVM service to generate answer for the provided input.
+        """Involve the LVM service to generate answer for the provided request.
 
         Parameters:
-        input (LVMVideoDoc): The input containing the video URL, start time, duration, prompt, and maximum new tokens.
+        request (LVMVideoDoc): The request containing the video URL, start time, duration, prompt, and maximum new tokens.
 
         Returns:
         StreamingResponse: A streaming response containing the generated text in text/event-stream format, or a JSON error response if the upstream API responds with an error.
@@ -36,11 +36,11 @@ class OpeaVideoLlamaLvm(OpeaComponent):
             logger.info("[lvm] Received input")
             logger.info(request)
 
-        video_url = input.video_url
-        chunk_start = input.chunk_start
-        chunk_duration = input.chunk_duration
-        prompt = input.prompt
-        max_new_tokens = input.max_new_tokens
+        video_url = request.video_url
+        chunk_start = request.chunk_start
+        chunk_duration = request.chunk_duration
+        prompt = request.prompt
+        max_new_tokens = request.max_new_tokens
 
         params = {
             "video_url": video_url,
