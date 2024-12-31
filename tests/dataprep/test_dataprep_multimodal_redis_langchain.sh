@@ -56,7 +56,7 @@ function build_lvm_docker_images() {
 function start_lvm_service() {
     unset http_proxy
     docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5029:8399 --ipc=host opea/lvm-llava:comps
-    sleep 5m
+    sleep 8m
     docker run -d --name="test-comps-lvm-llava-svc" -e LLAVA_LVM_ENDPOINT=http://$ip_address:5029 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${LVM_PORT}:9399 --ipc=host opea/lvm-llava-svc:comps
     sleep 1m
 }
@@ -65,7 +65,7 @@ function start_lvm() {
     cd $WORKPATH
     echo $(pwd)
     echo "Building LVM Docker Images"
-    build_lvm_docker_images
+    # build_lvm_docker_images
     echo "Starting LVM Services"
     start_lvm_service
 
@@ -237,7 +237,7 @@ function validate_microservice() {
     echo "Testing ingest_with_text API with invalid input (.png and .vtt)"
     URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$caption_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -372,9 +372,10 @@ function main() {
 
     stop_docker
     build_docker_images
+    prepare_data
+
     start_lvm
     start_service
-    prepare_data
 
     validate_microservice
     delete_data
