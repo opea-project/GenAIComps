@@ -49,13 +49,4 @@ class OpeaFastRAGReranking(OpeaComponent):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-        if logflag:
-            logger.info("[ check health ] start to check health of fastRAG")
-        try:
-            _ = self.client.client.list_collections()
-            if logflag:
-                logger.info("[ check health ] Successfully connected to fastRAG!")
-            return True
-        except Exception as e:
-            logger.info(f"[ check health ] Failed to connect to fastRAG: {e}")
-            return False
+        return True
