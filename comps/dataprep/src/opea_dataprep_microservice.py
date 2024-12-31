@@ -7,7 +7,6 @@ import time
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, UploadFile
-
 from opea_dataprep_controller import OpeaDataprepController
 
 from comps import (
@@ -33,6 +32,7 @@ try:
     # Instantiate Dataprep components and register it to controller
     if dataprep_type == "redis":
         from integrations.redis import OpeaRedisDataprep
+
         redis_dataprep = OpeaRedisDataprep(
             name="OpeaRedisDataprep",
             description="OPEA Redis Dataprep Service",
@@ -40,6 +40,7 @@ try:
         controller.register(redis_dataprep)
     elif dataprep_type == "milvus":
         from integrations.milvus import OpeaMilvusDataprep
+
         milvus_dataprep = OpeaMilvusDataprep(
             name="OpeaMilvusDataprep",
             description="OPEA Milvus Dataprep Service",
@@ -47,6 +48,7 @@ try:
         controller.register(milvus_dataprep)
     elif dataprep_type == "pinecone":
         from integrations.pinecone import OpeaPineconeDataprep
+
         pinecone_dataprep = OpeaPineconeDataprep(
             name="OpeaPineconeDataprep",
             description="OPEA Pinecone Dataprep Service",

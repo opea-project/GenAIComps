@@ -22,12 +22,7 @@ from comps.dataprep.src.utils import (
 from comps.vectorstores.src.integrations.milvus import OpeaMilvusVectorstores
 from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 
-from .config import (
-    LOCAL_EMBEDDING_MODEL,
-    MOSEC_EMBEDDING_ENDPOINT,
-    MOSEC_EMBEDDING_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-)
+from .config import LOCAL_EMBEDDING_MODEL, MOSEC_EMBEDDING_ENDPOINT, MOSEC_EMBEDDING_MODEL, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("milvus_dataprep")
 logflag = os.getenv("LOGFLAG", False)

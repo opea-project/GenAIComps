@@ -13,8 +13,8 @@ from comps import CustomLogger, DocPath, OpeaComponent, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     encode_filename,
-    load_file_to_chunks,
     get_file_structure,
+    load_file_to_chunks,
     parse_html_new,
     remove_folder_with_ignore,
     save_content_to_local_disk,
@@ -22,10 +22,7 @@ from comps.dataprep.src.utils import (
 from comps.vectorstores.src.integrations.pinecone import OpeaPineconeVectorstores
 from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 
-from .config import (
-    EMBED_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-)
+from .config import EMBED_MODEL, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("prepare_doc_pinecone")
 logflag = os.getenv("LOGFLAG", False)
@@ -59,13 +56,11 @@ class OpeaPineconeDataprep(OpeaComponent):
                 logger.info(f"[ Pinecone embedding ] EMBED_MODEL:{EMBED_MODEL}")
             embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
         return embeddings
-    
+
     def _initialize_db_controller(self) -> OpeaVectorstoresController:
         controller = OpeaVectorstoresController()
         pinecone_db = OpeaPineconeVectorstores(
-            embedder=self.embedder,
-            name="OpeaPineconeVectorstore",
-            description="OPEA Pinecone Vectorstore Service"
+            embedder=self.embedder, name="OpeaPineconeVectorstore", description="OPEA Pinecone Vectorstore Service"
         )
         controller.register(pinecone_db)
         controller.discover_and_activate()
@@ -235,6 +230,6 @@ class OpeaPineconeDataprep(OpeaComponent):
             if logflag:
                 logger.info("[ pinecone delete ] new upload folder created.")
             return {"status": True}
-        
+
         else:
             raise HTTPException(status_code=404, detail="Single file deletion is not implemented yet")

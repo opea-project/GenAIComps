@@ -123,7 +123,9 @@ class OpeaPineconeVectorstores(OpeaComponent):
                     index_name=self.pinecone_index,
                 )
                 if logflag:
-                    logger.info(f"[ ingest chunks ] Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
+                    logger.info(
+                        f"[ ingest chunks ] Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}"
+                    )
             except Exception as e:
                 if logflag:
                     logger.error(f"[ ingest chunks ] fail to ingest chunks into Pinecone. error: {e}")
@@ -193,7 +195,7 @@ class OpeaPineconeVectorstores(OpeaComponent):
     ###############################
     def check_index_existance(self) -> bool:
         if logflag:
-            logger.info(f"[ check index existence ] checking {self.pinecone_index} index existance")
+            logger.info(f"[ check index existence ] checking {self.pinecone_index} index existence")
         existing_indexes = [index_info["name"] for index_info in self.pc.list_indexes()]
         if self.pinecone_index not in existing_indexes:
             if logflag:
@@ -201,7 +203,7 @@ class OpeaPineconeVectorstores(OpeaComponent):
             return False
         else:
             return True
-    
+
     def create_index(self) -> bool:
         if logflag:
             logger.info(f"[ create index ] creating index {self.pinecone_index}")
@@ -219,4 +221,3 @@ class OpeaPineconeVectorstores(OpeaComponent):
                 logger.info(f"[ create index ] fail to create index {self.pinecone_index}: {e}")
             return False
         return True
-    
