@@ -28,7 +28,7 @@ export HF_TOKEN=<your huggingface token>
 Start the OPEA Microservice:
 
 ```bash
-python image2image.py --bf16 --model_name_or_path $MODEL --token $HF_TOKEN
+python opea_image2image_microservice.py --bf16 --model_name_or_path $MODEL --token $HF_TOKEN
 ```
 
 # 🚀2. Start Microservice with Docker (Option 2)

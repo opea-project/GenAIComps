@@ -16,8 +16,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR /home/comps/image2image/src/
+WORKDIR /home/comps/image2image/src
 
-RUN echo python image2image.py --bf16 >> run.sh
+RUN echo python opea_image2image_microservice.py --bf16 >> run.sh
 
 CMD bash run.sh

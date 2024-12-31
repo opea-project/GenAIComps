@@ -12,8 +12,10 @@ from integrations.redis import OpeaRedisRetriever
 from comps import (
     CustomLogger,
     EmbedDoc,
+    EmbedMultimodalDoc,
     OpeaComponentController,
     SearchedDoc,
+    SearchedMultimodalDoc,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -66,8 +68,8 @@ except Exception as e:
 )
 @register_statistics(names=["opea_service@retrievers"])
 async def ingest_files(
-    input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
-) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
+    input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
+) -> Union[SearchedDoc, SearchedMultimodalDoc, RetrievalResponse, ChatCompletionRequest]:
     start = time.time()
 
     if logflag:
@@ -79,10 +81,14 @@ async def ingest_files(
 
         # return different response format
         retrieved_docs = []
-        if isinstance(input, EmbedDoc):
+        if isinstance(input, EmbedDoc) or isinstance(input, EmbedMultimodalDoc):
+            metadata_list = []
             for r in response:
+                metadata_list.append(r.metadata)
                 retrieved_docs.append(TextDoc(text=r.page_content))
-            result = SearchedDoc(retrieved_docs=retrieved_docs, initial_query=input.text)
+            result = SearchedMultimodalDoc(
+                retrieved_docs=retrieved_docs, initial_query=input.text, metadata=metadata_list
+            )
         else:
             for r in response:
                 retrieved_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
