@@ -5,9 +5,6 @@ import os
 import time
 from typing import Union
 
-from integrations.opea_tei import OPEATEIReranking
-from integrations.opea_fastrag import OpeaFastRAGReranking
-from integrations.opea_videoqna import OPEAVideoQnaReranking
 
 
 from comps import (
@@ -31,6 +28,8 @@ controller = OpeaComponentController()
 try:
     # Instantiate reranking components
     if rerank_type == "fastrag":
+        from integrations.opea_fastrag import OpeaFastRAGReranking
+
         opea_fastrag_reranking = OpeaFastRAGReranking(
             name="OpeaFastRAGReranking",
             description="OPEA Fast Rag Service",
@@ -38,13 +37,17 @@ try:
         # Register components with the controller
         controller.register(opea_fastrag_reranking)
     elif rerank_type == "tei":
+        from integrations.opea_tei import OPEATEIReranking
+
         opea_tei_reranking = OPEATEIReranking(
             name="OPEATEIReranking",
             description="OPEA TEI Reranking Service",
         )
         # Register components with the controller
         controller.register(opea_tei_reranking)
-    elif rerank_type == "video":
+    elif rerank_type == "videoqna":
+        from integrations.opea_videoqna import OPEAVideoQnaReranking
+
         opea_video_native_reranking = OPEAVideoQnaReranking(
             name="OPEAVideoNativeReranking",
             description="OPEA Video Native Reranking Service",

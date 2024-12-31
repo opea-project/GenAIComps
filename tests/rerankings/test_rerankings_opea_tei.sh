@@ -9,7 +9,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/reranking:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/rerankings/src/Dockerfile .
+    docker build --no-cache \
+          -t opea/reranking:latest \
+          --build-arg https_proxy=$https_proxy \
+          --build-arg http_proxy=$http_proxy \
+          --build-arg SERVICE=tei \
+          -f comps/rerankings/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/reranking built fail"
         exit 1
