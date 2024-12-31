@@ -56,16 +56,16 @@ function build_lvm_docker_images() {
 function start_lvm_service() {
     unset http_proxy
     docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5029:8399 --ipc=host opea/lvm-llava:comps
-    sleep 8m
+    sleep 10m
     docker run -d --name="test-comps-lvm-llava-svc" -e LLAVA_LVM_ENDPOINT=http://$ip_address:5029 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${LVM_PORT}:9399 --ipc=host opea/lvm-llava-svc:comps
-    sleep 1m
+    sleep 2m
 }
 
 function start_lvm() {
     cd $WORKPATH
     echo $(pwd)
     echo "Building LVM Docker Images"
-    # build_lvm_docker_images
+    build_lvm_docker_images
     echo "Starting LVM Services"
     start_lvm_service
 
