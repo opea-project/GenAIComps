@@ -7,8 +7,7 @@ import time
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, UploadFile
-from integrations.milvus import OpeaMilvusDataprep
-from integrations.redis import OpeaRedisDataprep
+
 from opea_dataprep_controller import OpeaDataprepController
 
 from comps import (
@@ -23,7 +22,7 @@ from comps.dataprep.src.utils import create_upload_folder
 
 logger = CustomLogger("opea_dataprep_microservice")
 logflag = os.getenv("LOGFLAG", False)
-dataprep_type = os.getenv("DATAPREP_TYPE", False)
+dataprep_type = os.getenv("DATAPREP_TYPE", "redis")
 upload_folder = "./uploaded_files/"
 # Initialize Controller
 controller = OpeaDataprepController()
@@ -33,17 +32,26 @@ controller = OpeaDataprepController()
 try:
     # Instantiate Dataprep components and register it to controller
     if dataprep_type == "redis":
+        from integrations.redis import OpeaRedisDataprep
         redis_dataprep = OpeaRedisDataprep(
             name="OpeaRedisDataprep",
             description="OPEA Redis Dataprep Service",
         )
         controller.register(redis_dataprep)
     elif dataprep_type == "milvus":
+        from integrations.milvus import OpeaMilvusDataprep
         milvus_dataprep = OpeaMilvusDataprep(
             name="OpeaMilvusDataprep",
             description="OPEA Milvus Dataprep Service",
         )
         controller.register(milvus_dataprep)
+    elif dataprep_type == "pinecone":
+        from integrations.pinecone import OpeaPineconeDataprep
+        pinecone_dataprep = OpeaPineconeDataprep(
+            name="OpeaPineconeDataprep",
+            description="OPEA Pinecone Dataprep Service",
+        )
+        controller.register(pinecone_dataprep)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
