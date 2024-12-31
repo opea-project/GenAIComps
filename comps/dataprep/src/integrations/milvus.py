@@ -19,7 +19,6 @@ from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
     encode_filename,
-    format_file_list,
     get_separators,
     get_tables_result,
     load_file_to_chunks,
@@ -32,7 +31,6 @@ from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstores
 
 from .config import (
     COLLECTION_NAME,
-    INDEX_PARAMS,
     LOCAL_EMBEDDING_MODEL,
     MILVUS_URI,
     MOSEC_EMBEDDING_ENDPOINT,
@@ -68,127 +66,6 @@ class MosecEmbeddings(OpenAIEmbeddings):
             return _cached_empty_embedding
 
         return [e if e is not None else empty_embedding() for e in batched_embeddings]
-
-
-def ingest_chunks_to_milvus(embeddings, file_name: str, chunks: List):
-    if logflag:
-        logger.info(f"[ ingest chunks ] file name: {file_name}")
-
-    # insert documents to Milvus
-    insert_docs = []
-    for chunk in chunks:
-        insert_docs.append(Document(page_content=chunk, metadata={partition_field_name: file_name}))
-
-    # Batch size
-    batch_size = 32
-    num_chunks = len(chunks)
-
-    for i in range(0, num_chunks, batch_size):
-        if logflag:
-            logger.info(f"[ ingest chunks ] Current batch: {i}")
-        batch_docs = insert_docs[i : i + batch_size]
-
-        try:
-            _ = Milvus.from_documents(
-                batch_docs,
-                embeddings,
-                collection_name=COLLECTION_NAME,
-                connection_args={"uri": MILVUS_URI},
-                partition_key_field=partition_field_name,
-            )
-        except Exception as e:
-            if logflag:
-                logger.info(f"[ ingest chunks ] fail to ingest chunks into Milvus. error: {e}")
-            raise HTTPException(status_code=500, detail=f"Fail to store chunks of file {file_name}.")
-
-    if logflag:
-        logger.info(f"[ ingest chunks ] Docs ingested file {file_name} to Milvus collection {COLLECTION_NAME}.")
-
-    return True
-
-
-def ingest_data_to_milvus(doc_path: DocPath, embeddings):
-    """Ingest document to Milvus."""
-    path = doc_path.path
-    file_name = path.split("/")[-1]
-    if logflag:
-        logger.info(f"[ ingest data ] Parsing document {path}, file name: {file_name}.")
-
-    if path.endswith(".html"):
-        headers_to_split_on = [
-            ("h1", "Header 1"),
-            ("h2", "Header 2"),
-            ("h3", "Header 3"),
-        ]
-        text_splitter = HTMLHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
-    else:
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=doc_path.chunk_size,
-            chunk_overlap=doc_path.chunk_overlap,
-            add_start_index=True,
-            separators=get_separators(),
-        )
-
-    content = document_loader(path)
-
-    if logflag:
-        logger.info("[ ingest data ] file content loaded")
-
-    structured_types = [".xlsx", ".csv", ".json", "jsonl"]
-    _, ext = os.path.splitext(path)
-
-    if ext in structured_types:
-        chunks = content
-    else:
-        chunks = text_splitter.split_text(content)
-
-    if doc_path.process_table and path.endswith(".pdf"):
-        table_chunks = get_tables_result(path, doc_path.table_strategy)
-        chunks = chunks + table_chunks
-    if logflag:
-        logger.info(f"[ ingest data ] Done preprocessing. Created {len(chunks)} chunks of the original file.")
-
-    return ingest_chunks_to_milvus(embeddings, file_name, chunks)
-
-
-def search_by_file(collection, file_name):
-    query = f"{partition_field_name} == '{file_name}'"
-    results = collection.query(
-        expr=query,
-        output_fields=[partition_field_name, "pk"],
-    )
-    if logflag:
-        logger.info(f"[ search by file ] searched by {file_name}")
-        logger.info(f"[ search by file ] {len(results)} results: {results}")
-    return results
-
-
-def search_all(collection):
-    results = collection.query(expr="pk >= 0", output_fields=[partition_field_name, "pk"])
-    if logflag:
-        logger.info(f"[ search all ] {len(results)} results: {results}")
-    return results
-
-
-def delete_all_data(my_milvus):
-    if logflag:
-        logger.info("[ delete all ] deleting all data in milvus")
-    if my_milvus.col:
-        my_milvus.col.drop()
-        if logflag:
-            logger.info("[ delete all ] delete success: all data")
-
-
-def delete_by_partition_field(my_milvus, partition_field):
-    if logflag:
-        logger.info(f"[ delete partition ] deleting {partition_field_name} {partition_field}")
-    pks = my_milvus.get_pks(f'{partition_field_name} == "{partition_field}"')
-    if logflag:
-        logger.info(f"[ delete partition ] target pks: {pks}")
-    res = my_milvus.delete(pks)
-    my_milvus.col.flush()
-    if logflag:
-        logger.info(f"[ delete partition ] delete success: {res}")
 
 
 class OpeaMilvusDataprep(OpeaComponent):
