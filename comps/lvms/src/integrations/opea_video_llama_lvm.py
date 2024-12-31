@@ -6,8 +6,8 @@ import time
 from typing import Union
 
 import requests
-from fastapi.responses import StreamingResponse
 from fastapi import HTTPException
+from fastapi.responses import StreamingResponse
 
 from comps import CustomLogger, LVMVideoDoc, OpeaComponent, ServiceType, statistics_dict
 
@@ -72,6 +72,7 @@ class OpeaVideoLlamaLvm(OpeaComponent):
                     logger.info(f"[lvm - chat_stream] Streaming chunk of size {len(chunk)}")
                 logger.info("[lvm - chat_stream] stream response finished")
                 statistics_dict["opea_service@lvm"].append_latency(time.time() - time_start, first_token_latency)
+
             return StreamingResponse(streamer(t_start), media_type="text/event-stream")
         else:
             logger.error(f"[lvm] Error: {response.text}")

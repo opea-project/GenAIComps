@@ -2,16 +2,25 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import time
 from typing import Union
 
 import requests
-import time
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
 from langchain_core.prompts import PromptTemplate
 
-from comps import CustomLogger, LVMDoc, LVMSearchedMultimodalDoc, MetadataTextDoc, OpeaComponent, ServiceType, TextDoc, statistics_dict
+from comps import (
+    CustomLogger,
+    LVMDoc,
+    LVMSearchedMultimodalDoc,
+    MetadataTextDoc,
+    OpeaComponent,
+    ServiceType,
+    TextDoc,
+    statistics_dict,
+)
 
 logger = CustomLogger("opea_tgi_llava_lvm")
 logflag = os.getenv("LOGFLAG", False)
