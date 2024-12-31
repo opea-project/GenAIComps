@@ -13,8 +13,8 @@ function build_docker_images() {
         --build-arg https_proxy=$https_proxy \
         --build-arg http_proxy=$http_proxy \
         --build-arg SERVICE=fastRAG \
-        -t opea/reranking:comps \
-        -f comps/reranks/src/Dockerfile .
+        -t opea/reranking:latest \
+        -f comps/rerankings/src/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/reranking built fail"
@@ -28,7 +28,7 @@ function start_service() {
     export EMBED_MODEL="Intel/bge-small-en-v1.5-rag-int8-static"
     fastrag_service_port=5020
     unset http_proxy
-    docker run -d --name="test-comps-reranking-fastrag-server" -e LOGFLAG=True -p ${fastrag_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e EMBED_MODEL=$EMBED_MODEL -e RERANK_TYPE="fastrag" opea/reranking:comps
+    docker run -d --name="test-comps-reranking-fastrag-server" -e LOGFLAG=True -p ${fastrag_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e EMBED_MODEL=$EMBED_MODEL -e RERANK_TYPE="fastrag" opea/reranking:latest
     sleep 2m
 }
 
