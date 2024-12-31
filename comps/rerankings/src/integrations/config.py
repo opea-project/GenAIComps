@@ -9,4 +9,4 @@ import os
 #######################################################
 
 # Embedding model
-EMBED_MODEL = os.getenv("EMBED_MODEL", "Intel/bge-small-en-v1.5-rag-int8-static")
+RANKER_MODEL = os.getenv("RANKER_MODEL", "Intel/bge-small-en-v1.5-rag-int8-static")
