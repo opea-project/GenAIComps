@@ -11,11 +11,12 @@ from comps import CustomLogger
 from comps.cores.common.component import OpeaComponent
 from comps.cores.mega.micro_service import ServiceType
 from comps.cores.proto.docarray import RerankedDoc, SearchedDoc, TextDoc
+from config import (
+    RANKER_MODEL
+)
 
 logger = CustomLogger("local_reranking")
 logflag = os.getenv("LOGFLAG", False)
-RANKER_MODEL = os.getenv("RANKER_MODEL")
-
 
 class OpeaFastRAGReranking(OpeaComponent):
     """A specialized reranking component derived from OpeaComponent for fastRAG reranking services."""
