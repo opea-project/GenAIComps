@@ -46,7 +46,7 @@ class OpeaPineconeVectorstores(OpeaComponent):
 
         pc.create_index(
             self.pinecone_index,
-            dimension=1024,  # Based on TEI Embedding service using BAAI/bge-large-en-v1.5
+            dimension=768,
             deletion_protection="disabled",
             spec=spec,
         )
@@ -89,6 +89,67 @@ class OpeaPineconeVectorstores(OpeaComponent):
             logger.info(f"[ is empty ] total count: {total_count}")
         return total_count == 0
 
+    async def ingest_chunks(self, file_name: str, chunks: List, batch_size: int = 32) -> bool:
+        """Ingest string chunks into pinecone database.
+
+        Args:
+            file_name (str): The name of the file.
+            chunks (List): The list of string chunks.
+            batch_size (int): The batch size for ingesting chunks into db.
+        Returns:
+            bool: True if the chunks are ingested successfully, False otherwise.
+        """
+        if logflag:
+            logger.info(f"[ ingest chunks ] file name:{file_name}")
+
+        # Checking Index existence
+        if not self.check_index_existance():
+            # Creating the index
+            self.create_index()
+            if logflag:
+                logger.info(f"[ ingest chunks ] Successfully created the index {self.pinecone_index}")
+
+        # Ingesting chunks
+        num_chunks = len(chunks)
+
+        for i in range(0, num_chunks, batch_size):
+            batch_chunks = chunks[i : i + batch_size]
+            batch_texts = batch_chunks
+
+            try:
+                _ = PineconeVectorStore.from_texts(
+                    texts=batch_texts,
+                    embedding=self.embedder,
+                    index_name=self.pinecone_index,
+                )
+                if logflag:
+                    logger.info(f"[ ingest chunks ] Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
+            except Exception as e:
+                if logflag:
+                    logger.error(f"[ ingest chunks ] fail to ingest chunks into Pinecone. error: {e}")
+                return False
+
+        return True
+
+    async def delete_all_files(self) -> bool:
+        """Delete all files in pinecone database.
+
+        Returns:
+            bool: True if all files are deleted successfully, False otherwise.
+        """
+        if logflag:
+            logger.info("[ delete all files ] delete all files")
+
+        try:
+            self.pc.delete_index(self.pinecone_index)
+            if logflag:
+                logger.info(f"[ drop index ] index {self.pinecone_index} deleted")
+        except Exception as e:
+            if logflag:
+                logger.info(f"[ drop index ] index {self.pinecone_index} delete failed: {e}")
+            return False
+        return True
+
     async def similarity_search(
         self,
         input: str,
@@ -126,3 +187,36 @@ class OpeaPineconeVectorstores(OpeaComponent):
         if logflag:
             logger.info(f"[ similarity search ] search result: {search_res}")
         return search_res
+
+    ###############################
+    # Pinecone specific functions #
+    ###############################
+    def check_index_existance(self) -> bool:
+        if logflag:
+            logger.info(f"[ check index existence ] checking {self.pinecone_index} index existance")
+        existing_indexes = [index_info["name"] for index_info in self.pc.list_indexes()]
+        if self.pinecone_index not in existing_indexes:
+            if logflag:
+                logger.info("[ check index existence ] index does not exist")
+            return False
+        else:
+            return True
+    
+    def create_index(self) -> bool:
+        if logflag:
+            logger.info(f"[ create index ] creating index {self.pinecone_index}")
+        try:
+            self.pc.create_index(
+                name=self.pinecone_index,
+                dimension=768,
+                metric="cosine",
+                spec=ServerlessSpec(cloud="aws", region="us-east-1"),
+            )
+            if logflag:
+                logger.info(f"[ create index ] index {self.pinecone_index} successfully created")
+        except Exception as e:
+            if logflag:
+                logger.info(f"[ create index ] fail to create index {self.pinecone_index}: {e}")
+            return False
+        return True
+    
