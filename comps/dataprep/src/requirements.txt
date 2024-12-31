@@ -19,8 +19,8 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
-pinecone-client
 Pillow
+pinecone-client
 prometheus-fastapi-instrumentator
 pymupdf
 pyspark
