@@ -5,12 +5,13 @@ import os
 from typing import Union
 
 import requests
+import time
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from huggingface_hub import AsyncInferenceClient
 from langchain_core.prompts import PromptTemplate
 
-from comps import CustomLogger, LVMDoc, LVMSearchedMultimodalDoc, MetadataTextDoc, OpeaComponent, ServiceType, TextDoc
+from comps import CustomLogger, LVMDoc, LVMSearchedMultimodalDoc, MetadataTextDoc, OpeaComponent, ServiceType, TextDoc, statistics_dict
 
 logger = CustomLogger("opea_tgi_llava_lvm")
 logflag = os.getenv("LOGFLAG", False)
@@ -104,8 +105,10 @@ class OpeaTgiLlavaLvm(OpeaComponent):
         image_prompt = f"![]({image})\n{prompt}\nASSISTANT:"
 
         if streaming:
+            t_start = time.time()
 
-            async def stream_generator():
+            async def stream_generator(time_start):
+                first_token_latency = None
                 chat_response = ""
                 text_generation = await self.lvm_client.text_generation(
                     prompt=image_prompt,
@@ -117,6 +120,8 @@ class OpeaTgiLlavaLvm(OpeaComponent):
                     top_p=top_p,
                 )
                 async for text in text_generation:
+                    if first_token_latency is None:
+                        first_token_latency = time.time() - time_start
                     chat_response += text
                     chunk_repr = repr(text.encode("utf-8"))
                     if logflag:
@@ -124,9 +129,10 @@ class OpeaTgiLlavaLvm(OpeaComponent):
                     yield f"data: {chunk_repr}\n\n"
                 if logflag:
                     logger.info(f"[llm - chat_stream] stream response: {chat_response}")
+                statistics_dict["opea_service@lvm"].append_latency(time.time() - time_start, first_token_latency)
                 yield "data: [DONE]\n\n"
 
-            return StreamingResponse(stream_generator(), media_type="text/event-stream")
+            return StreamingResponse(stream_generator(t_start), media_type="text/event-stream")
         else:
             generated_str = await self.lvm_client.text_generation(
                 image_prompt,

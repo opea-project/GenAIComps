@@ -77,17 +77,6 @@ except Exception as e:
     logger.error(f"Failed to initialize components: {e}")
 
 
-async def stream_forwarder(response, time_start):
-    """Forward the stream chunks to the client using iter_content."""
-    first_token_latency = None
-    for chunk in response.iter_content(chunk_size=8192):
-        if chunk:
-            if not first_token_latency:
-                first_token_latency = time.time() - time_start
-            yield chunk
-    statistics_dict["opea_service@lvm"].append_latency(time.time() - time_start, first_token_latency)
-
-
 @register_microservice(
     name="opea_service@lvm",
     service_type=ServiceType.LVM,
@@ -110,7 +99,9 @@ async def lvm(
         if controller.active_component.name in ["OpeaVideoLlamaLvm"] or (
             controller.active_component.name in ["OpeaTgiLlavaLvm"] and request.streaming
         ):
-            return StreamingResponse(stream_forwarder(lvm_response, start))
+            # statistics for StreamingResponse are handled inside the integrations
+            # here directly return the response
+            return lvm_response
         statistics_dict["opea_service@lvm"].append_latency(time.time() - start, None)
         return lvm_response
 
