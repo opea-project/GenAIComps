@@ -9,6 +9,7 @@ ARG ARCH="cpu"
 ARG SERVICE="all"
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+    git \
     libgl1-mesa-glx \
     libjemalloc-dev
 
