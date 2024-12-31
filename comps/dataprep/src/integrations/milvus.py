@@ -8,19 +8,12 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, HTTPException, UploadFile
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
-from langchain_core.documents import Document
-from langchain_milvus.vectorstores import Milvus
-from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath, OpeaComponent, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
-    document_loader,
     encode_filename,
-    get_separators,
-    get_tables_result,
     load_file_to_chunks,
     parse_html_new,
     remove_folder_with_ignore,
@@ -30,9 +23,7 @@ from comps.vectorstores.src.integrations.milvus import OpeaMilvusVectorstores
 from comps.vectorstores.src.opea_vectorstores_controller import OpeaVectorstoresController
 
 from .config import (
-    COLLECTION_NAME,
     LOCAL_EMBEDDING_MODEL,
-    MILVUS_URI,
     MOSEC_EMBEDDING_ENDPOINT,
     MOSEC_EMBEDDING_MODEL,
     TEI_EMBEDDING_ENDPOINT,
