@@ -3,13 +3,14 @@
 
 import os
 import time
+
 from integrations.opea_google_search import OpeaGoogleSearch
 
 from comps import (
-    EmbedDoc,
     CustomLogger,
-    SearchedDoc,
+    EmbedDoc,
     OpeaComponentController,
+    SearchedDoc,
     ServiceType,
     opea_microservices,
     register_microservice,
