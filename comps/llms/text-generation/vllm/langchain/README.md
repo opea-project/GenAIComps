@@ -220,7 +220,7 @@ curl http://${your_ip}:9000/v1/health_check\
 User can set the following model parameters according to needs:
 
 - max_tokens: Total output token
-- streaming(true/false): return text response in streaming mode or non-streaming mode
+- stream(true/false): return text response in stream mode or non-stream mode
 
 ```bash
 # stream mode
