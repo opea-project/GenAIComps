@@ -27,6 +27,7 @@ function start_service() {
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export LLM_BACKEND="tgi"
+    export LOGFLAG=True
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f faq-generation_tgi.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
