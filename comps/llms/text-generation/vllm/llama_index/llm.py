@@ -51,10 +51,10 @@ async def llm_generate(input: LLMParamsDoc):
         model=model_name,
         top_p=input.top_p,
         temperature=input.temperature,
-        streaming=input.streaming,
+        streaming=input.stream,
     )
 
-    if input.streaming:
+    if input.stream:
 
         async def stream_generator():
             async for text in llm.astream_complete(input.query):

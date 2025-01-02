@@ -99,14 +99,14 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             logger.info(f"[ SearchedDoc ] final input: {new_input}")
         text_generation = await llm.text_generation(
             prompt=prompt,
-            stream=new_input.streaming,
+            stream=new_input.stream,
             max_new_tokens=new_input.max_tokens,
             repetition_penalty=new_input.repetition_penalty,
             temperature=new_input.temperature,
             top_k=new_input.top_k,
             top_p=new_input.top_p,
         )
-        if new_input.streaming:
+        if new_input.stream:
 
             async def stream_generator():
                 chat_response = ""
@@ -150,14 +150,14 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
 
         text_generation = await llm.text_generation(
             prompt=prompt,
-            stream=input.streaming,
+            stream=input.stream,
             max_new_tokens=input.max_tokens,
             repetition_penalty=input.repetition_penalty,
             temperature=input.temperature,
             top_k=input.top_k,
             top_p=input.top_p,
         )
-        if input.streaming:
+        if input.stream:
 
             async def stream_generator():
                 chat_response = ""
