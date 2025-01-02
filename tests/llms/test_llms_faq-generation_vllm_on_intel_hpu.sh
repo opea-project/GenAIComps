@@ -106,11 +106,6 @@ function validate_backend_microservices() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-llm-faq*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-}
-
-function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f faq-generation_vllm_on_intel_hpu.yaml down
 }

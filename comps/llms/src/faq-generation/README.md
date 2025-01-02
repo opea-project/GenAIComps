@@ -63,7 +63,7 @@ docker run -d \
     opea/llm-faqgen:latest
 ```
 
-#### 1.3.1 Run Docker with Docker Compose (Option B)
+#### 1.3.2 Run Docker with Docker Compose (Option B)
 
 ```bash
 cd ../../deployment/docker_compose/
