@@ -4,7 +4,7 @@
 version: "3.8"
 
 services:
-    tgi-service:
+  tgi-service:
     image: ghcr.io/huggingface/text-generation-inference:2.4.0-intel-cpu
     container_name: tgi-server
     ports:
