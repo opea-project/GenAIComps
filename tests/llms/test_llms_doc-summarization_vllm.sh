@@ -117,7 +117,7 @@ function validate_microservices() {
         "llm_summarization" \
         "llm-docsum-server" \
         '{"query":"2024年9月26日，北京——今日，英特尔正式发布英特尔® 至强® 6性能核处理器（代号Granite Rapids），为AI、数据分析、科学计算等计算密集型业务提供卓越性能。", "max_tokens":32, "language":"zh", "streaming":false}'
-       
+
     echo "Validate truncate mode..."
     validate_services \
         "$URL" \

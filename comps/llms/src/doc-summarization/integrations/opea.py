@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+
 import requests
 from fastapi.responses import StreamingResponse
 from langchain.chains.summarize import load_summarize_chain
@@ -10,10 +11,11 @@ from langchain.text_splitter import CharacterTextSplitter, RecursiveCharacterTex
 from langchain_community.llms import HuggingFaceEndpoint, VLLMOpenAI
 from langchain_core.prompts import PromptTemplate
 from transformers import AutoTokenizer
-from .template import templ_en, templ_zh, templ_refine_en, templ_refine_zh
 
-from comps import CustomLogger, GeneratedDoc, DocSumLLMParams, OpeaComponent, ServiceType
+from comps import CustomLogger, DocSumLLMParams, GeneratedDoc, OpeaComponent, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
+
+from .template import templ_en, templ_refine_en, templ_refine_zh, templ_zh
 
 logger = CustomLogger("llm_docsum")
 logflag = os.getenv("LOGFLAG", False)
@@ -54,6 +56,7 @@ def get_llm_endpoint():
     except ConfigError as e:
         logger.error(f"Input model {MODEL_NAME} not present in model_configs. Error {e}")
         raise ConfigError(f"Input model {MODEL_NAME} not present in model_configs")
+
 
 class OPEADocSum(OpeaComponent):
     """A specialized OPEA DocSum component derived from OpeaComponent.
@@ -121,17 +124,13 @@ class OPEADocSum(OpeaComponent):
             text_splitter = CharacterTextSplitter()
         else:
             if input.summary_type == "refine":
-                if MAX_TOTAL_TOKENS <= 2 * input.max_tokens + 128: ## 128 is reserved prompt lenght
+                if MAX_TOTAL_TOKENS <= 2 * input.max_tokens + 128:  ## 128 is reserved prompt length
                     raise RuntimeError("In Refine mode, Please set MAX_TOTAL_TOKENS larger than (max_tokens * 2 + 128)")
-                max_input_tokens = min(
-                    MAX_TOTAL_TOKENS - 2 * input.max_tokens - 128, MAX_INPUT_TOKENS
-                ) 
+                max_input_tokens = min(MAX_TOTAL_TOKENS - 2 * input.max_tokens - 128, MAX_INPUT_TOKENS)
             else:
-                if MAX_TOTAL_TOKENS <= input.max_tokens + 50: # 50 is reserved token length for prompt
+                if MAX_TOTAL_TOKENS <= input.max_tokens + 50:  # 50 is reserved token length for prompt
                     raise RuntimeError("Please set MAX_TOTAL_TOKENS larger than max_tokens + 50)")
-                max_input_tokens = min(
-                    MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS
-                )  
+                max_input_tokens = min(MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS)
             chunk_size = min(input.chunk_size, max_input_tokens) if input.chunk_size > 0 else max_input_tokens
             chunk_overlap = input.chunk_overlap if input.chunk_overlap > 0 else int(0.1 * chunk_size)
             text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
@@ -156,7 +155,11 @@ class OPEADocSum(OpeaComponent):
             llm_chain = load_summarize_chain(llm=client, prompt=PROMPT)
         elif summary_type == "map_reduce":
             llm_chain = load_summarize_chain(
-                llm=client, map_prompt=PROMPT, combine_prompt=PROMPT, chain_type="map_reduce", return_intermediate_steps=True
+                llm=client,
+                map_prompt=PROMPT,
+                combine_prompt=PROMPT,
+                chain_type="map_reduce",
+                return_intermediate_steps=True,
             )
         elif summary_type == "refine":
             llm_chain = load_summarize_chain(
@@ -167,7 +170,7 @@ class OPEADocSum(OpeaComponent):
                 return_intermediate_steps=True,
             )
         else:
-            raise NotImplementedError(f'Please specify the summary_type in {summary_types}')
+            raise NotImplementedError(f"Please specify the summary_type in {summary_types}")
 
         if input.streaming:
 
@@ -198,6 +201,7 @@ class OPEADocSum(OpeaComponent):
                 logger.info(output_text)
 
             return GeneratedDoc(text=output_text, prompt=input.query)
+
 
 class OPEADocSum_TGI(OPEADocSum):
     """A specialized OPEA DocSum TGI component derived from OPEADocSum for interacting with TGI services based on Lanchain HuggingFaceEndpoint API.
@@ -307,7 +311,7 @@ class OPEADocSum_vLLM(OPEADocSum):
             top_p=input.top_p,
             streaming=input.streaming,
             temperature=input.temperature,
-            presence_penalty=input.repetition_penalty
+            presence_penalty=input.repetition_penalty,
         )
         result = await self.generate(input, self.client)
 
