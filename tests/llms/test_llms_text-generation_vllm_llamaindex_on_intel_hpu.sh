@@ -57,7 +57,7 @@ function start_service() {
         --ipc=host \
         -e vLLM_ENDPOINT=$vLLM_ENDPOINT \
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
-        -e LLM_MODEL=$LLM_MODEL \
+        -e LLM_MODEL_ID=$LLM_MODEL \
         opea/llm-vllm-llamaindex:comps
 
     # check whether vllm ray is fully ready
