@@ -8,7 +8,7 @@ The Web Retriever Microservice is designed to efficiently search web pages relev
 
 ```bash
 cd ../../../../
-docker build -t opea/web-retriever-chroma:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/web_retrievers/chroma/langchain/Dockerfile .
+docker build -t opea/web-retriever-chroma:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/web_retrievers/src/Dockerfile .
 ```
 
 ### Start TEI Service
