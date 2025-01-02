@@ -23,7 +23,7 @@ export COLLECTION_NAME=${COLLECTION_NAME}
 
 ```bash
 cd ~/GenAIComps
-docker build -t opea/promptregistry-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/prompt_registry/mongo/Dockerfile .
+docker build -t opea/promptregistry-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/prompt_registry/src/Dockerfile .
 ```
 
 ### Run Docker with CLI
