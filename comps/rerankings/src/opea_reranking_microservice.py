@@ -42,7 +42,7 @@ try:
             description="OPEA Video Native Reranking Service",
         )
         # Register components with the controller
-        controller.register(opea_video_native_reranking)        
+        controller.register(opea_video_native_reranking)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
