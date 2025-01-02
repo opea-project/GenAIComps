@@ -11,7 +11,7 @@ In order to start DocSum services, you need to setup the following environment v
 ```bash
 export host_ip=${your_host_ip}
 export LLM_ENDPOINT_PORT=8008
-export FAQ_PORT=9000
+export DOCSUM_PORT=9000
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID=${your_hf_llm_model}

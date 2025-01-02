@@ -55,6 +55,7 @@ services:
       LLM_ENDPOINT: ${LLM_ENDPOINT}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       LLM_BACKEND: ${LLM_BACKEND}
+      LOGFLAG: ${LOGFLAG:-False}
     restart: unless-stopped
 
 networks:
