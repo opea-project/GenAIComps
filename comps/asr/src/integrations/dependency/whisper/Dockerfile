@@ -17,8 +17,6 @@ RUN apt-get update \
 
 COPY --chown=user:user comps /home/user/comps
 
-USER user
-
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
     if [ "${ARCH}" = "cpu" ]; then \
@@ -29,6 +27,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/asr/src/integrations/dependency/whisper
 

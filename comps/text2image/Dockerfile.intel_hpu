@@ -12,7 +12,7 @@ COPY comps /home/user/comps
 RUN chown -R user /home/user/comps/text2image
 
 RUN rm -rf /etc/ssh/ssh_host*
-USER user
+
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/home/user/optimum-habana
@@ -21,7 +21,7 @@ ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/home/user/optimum-habana
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/text2image/requirements.txt && \
     pip install --no-cache-dir optimum[habana]
-
+USER user
 WORKDIR /home/user/comps/text2image
 
 RUN echo python text2image.py --device hpu --use_hpu_graphs --bf16 >> run.sh

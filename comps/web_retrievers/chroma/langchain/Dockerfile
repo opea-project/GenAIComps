@@ -13,8 +13,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libgl1-mesa-glx \
     libjemalloc-dev
 
-USER user
-
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
@@ -25,6 +23,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/web_retrievers/chroma/langchain
 

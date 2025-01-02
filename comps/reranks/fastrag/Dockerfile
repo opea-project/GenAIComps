@@ -16,8 +16,6 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-USER user
-
 COPY comps /home/user/comps
 
 RUN git clone https://github.com/IntelLabs/fastRAG.git /home/user/fastRAG && \
@@ -34,6 +32,8 @@ RUN git clone https://github.com/IntelLabs/fastRAG.git /home/user/fastRAG && \
     fi
 
 ENV PYTHONPATH=$PYTHONPH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/reranks/fastrag
 

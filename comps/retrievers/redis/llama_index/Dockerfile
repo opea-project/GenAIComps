@@ -19,8 +19,6 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps /home/user/comps
 
-USER user
-
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then \
       pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/retrievers/redis/llama_index/requirements.txt; \
@@ -29,6 +27,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi;
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/retrievers/redis/llama_index
 

@@ -16,8 +16,6 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-USER user
-
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
@@ -28,8 +26,6 @@ if [ ${ARCH} = "cpu" ]; then \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
-
-USER root
 
 RUN mkdir -p /home/user/comps/guardrails/pii_detection/uploaded_files && chown -R user /home/user/comps/guardrails/pii_detection/uploaded_files
 RUN mkdir -p /home/user/comps/guardrails/pii_detection/status && chown -R user /home/user/comps/guardrails/pii_detection/status

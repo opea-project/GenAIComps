@@ -15,8 +15,6 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-USER user
-
 RUN git lfs install
 
 COPY comps /home/user/comps
@@ -26,6 +24,8 @@ RUN cd /home/user/comps/lvms/llama-vision/ && \
     pip install --no-cache-dir --upgrade Pillow
 
 ENV PYTHONPATH=/root:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/lvms/llama-vision/
 

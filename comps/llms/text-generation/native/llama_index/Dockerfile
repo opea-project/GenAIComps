@@ -17,8 +17,6 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-USER user
-
 RUN git lfs install
 
 COPY comps /home/user/comps
@@ -33,6 +31,8 @@ RUN git clone ${REPO} /home/user/optimum-habana && \
     pip install --no-cache-dir --upgrade --force-reinstall pydantic
 
 ENV PYTHONPATH=/root:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/llms/text-generation/native/llama_index
 

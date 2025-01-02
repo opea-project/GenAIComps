@@ -12,14 +12,14 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-USER user
-
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/llms/text-generation/ollama/langchain/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/llms/text-generation/ollama/langchain
 

@@ -18,8 +18,6 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-USER user
-
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
@@ -30,8 +28,6 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi;
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
-
-USER root
 
 RUN mkdir -p /home/user/comps/dataprep/pinecone/langchain/uploaded_files && chown -R user /home/user/comps/dataprep/pinecone/langchain/uploaded_files
 
