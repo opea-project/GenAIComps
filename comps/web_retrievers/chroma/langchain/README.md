@@ -16,7 +16,7 @@ docker build -t opea/web-retriever-chroma:latest --build-arg https_proxy=$https_
 ```bash
 model=BAAI/bge-base-en-v1.5
 volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model --auto-truncate
 ```
 
 ### Start Web Retriever Service
@@ -44,6 +44,6 @@ your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) fo
 
 http_proxy= curl http://${your_ip}:7077/v1/web_retrieval \
   -X POST \
-  -d "{\"text\":\"What is black myth wukong?\",\"embedding\":${your_embedding}}" \
+  -d "{\"text\":\"What is The Game of the Year 2024?\",\"embedding\":${your_embedding},\"k\":4}" \
   -H 'Content-Type: application/json'
 ```
