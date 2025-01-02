@@ -3,7 +3,7 @@
 
 services:
   reranking:
-    image: opea/reranking:latest
+    image: opea/reranking:comps
     container_name: reranking-videoqna-server
     ports:
       - "8000:8000"

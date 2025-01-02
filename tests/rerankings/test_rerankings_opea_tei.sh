@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache \
-          -t opea/reranking:latest \
+          -t opea/reranking:comps \
           --build-arg https_proxy=$https_proxy \
           --build-arg http_proxy=$http_proxy \
           --build-arg SERVICE=tei \
@@ -35,7 +35,7 @@ function start_service() {
     export TEI_RERANKING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
     tei_service_port=5007
     unset http_proxy
-    docker run -d --name="test-comps-reranking-tei-server" -e LOGFLAG=True  -p ${tei_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e RERANK_TYPE="tei" opea/reranking:latest
+    docker run -d --name="test-comps-reranking-tei-server" -e LOGFLAG=True  -p ${tei_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e RERANK_TYPE="tei" opea/reranking:comps
     sleep 15
 }
 
