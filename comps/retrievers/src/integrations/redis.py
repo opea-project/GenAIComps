@@ -7,7 +7,15 @@ from typing import Union
 
 from langchain_community.vectorstores import Redis
 
-from comps import CustomLogger, EmbedDoc, EmbedMultimodalDoc, OpeaComponent, SearchedDoc, ServiceType, OpeaComponentRegistry
+from comps import (
+    CustomLogger,
+    EmbedDoc,
+    EmbedMultimodalDoc,
+    OpeaComponent,
+    OpeaComponentRegistry,
+    SearchedDoc,
+    ServiceType,
+)
 from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest, RetrievalResponse
 
 from .config import BRIDGE_TOWER_EMBEDDING, EMBED_MODEL, INDEX_NAME, REDIS_URL, TEI_EMBEDDING_ENDPOINT

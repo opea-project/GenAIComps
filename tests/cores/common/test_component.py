@@ -3,14 +3,15 @@
 
 import asyncio
 import unittest
-from comps import OpeaComponent, OpeaComponentRegistry, OpeaComponentLoader
+
+from comps import OpeaComponent, OpeaComponentLoader, OpeaComponentRegistry
 
 
 class TestOpeaComponent(unittest.TestCase):
     class MockOpeaComponent(OpeaComponent):
         def __init__(self, name, type, description, config=None):
             super().__init__(name, type, description, config)
-        
+
         def check_health(self) -> bool:
             return True
 
@@ -96,7 +97,9 @@ class TestOpeaComponentLoader(unittest.TestCase):
         OpeaComponentRegistry.register("MockComponent")(MockComponent)
 
         # Create loader for the component
-        loader = OpeaComponentLoader("MockComponent", name="MockComponent", type="embedding", description="Test component")
+        loader = OpeaComponentLoader(
+            "MockComponent", name="MockComponent", type="embedding", description="Test component"
+        )
 
         # Invoke the component
         result = asyncio.run(loader.invoke("arg1", key="value"))
@@ -112,5 +115,3 @@ class TestOpeaComponentLoader(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

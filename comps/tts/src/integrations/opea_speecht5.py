@@ -7,7 +7,7 @@ import time
 import requests
 from fastapi.responses import StreamingResponse
 
-from comps import CustomLogger, OpeaComponent, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import AudioSpeechRequest
 
 logger = CustomLogger("opea_speecht5")

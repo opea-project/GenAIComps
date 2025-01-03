@@ -4,7 +4,7 @@ import base64
 import os
 import threading
 
-from comps import CustomLogger, OpeaComponent, SDImg2ImgInputs, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, SDImg2ImgInputs, ServiceType
 
 logger = CustomLogger("opea_imagetoimage")
 logflag = os.getenv("LOGFLAG", False)
@@ -63,6 +63,7 @@ def initialize(
                 raise NotImplementedError(f"Only support cpu and hpu device now, device {device} not supported.")
             logger.info("Stable Diffusion model initialized.")
             initialized = True
+
 
 @OpeaComponentRegistry.register("OPEA_IMAGE2IMAGE")
 class OpeaImageToImage(OpeaComponent):

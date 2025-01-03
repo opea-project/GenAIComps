@@ -8,11 +8,12 @@ from typing import List
 import requests
 from fastapi import File, Form, UploadFile
 
-from comps import CustomLogger, OpeaComponent, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import AudioTranscriptionResponse
 
 logger = CustomLogger("opea_whisper")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_WHISPER_ASR")
 class OpeaWhisperAsr(OpeaComponent):

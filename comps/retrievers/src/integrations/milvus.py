@@ -8,12 +8,13 @@ from typing import List, Optional
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
 from langchain_milvus.vectorstores import Milvus
 
-from comps import CustomLogger, EmbedDoc, OpeaComponent, SearchedDoc, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
 
 from .config import COLLECTION_NAME, INDEX_PARAMS, LOCAL_EMBEDDING_MODEL, MILVUS_URI, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("milvus_retrievers")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_MILVUS")
 class OpeaMilvusRetriever(OpeaComponent):

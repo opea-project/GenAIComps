@@ -85,9 +85,10 @@ class OpeaComponent(ABC):
         """
         return f"OpeaComponent(name={self.name}, type={self.type}, description={self.description})"
 
+
 class OpeaComponentRegistry:
-    """
-    Registry class to manage component instances.
+    """Registry class to manage component instances.
+
     This registry allows storing, retrieving, and managing component instances by their names.
     """
 
@@ -95,23 +96,23 @@ class OpeaComponentRegistry:
 
     @classmethod
     def register(cls, name):
-        """
-        Decorator to register a component class with a specified name.
+        """Decorator to register a component class with a specified name.
 
         :param name: The name to associate with the component class
         :return: Decorator function
         """
+
         def decorator(component_class):
             if name in cls._registry:
                 raise ValueError(f"A component with the name '{name}' is already registered.")
             cls._registry[name] = component_class
             return component_class
+
         return decorator
 
     @classmethod
     def get(cls, name):
-        """
-        Retrieve a component class by its name.
+        """Retrieve a component class by its name.
 
         :param name: The name of the component class to retrieve
         :return: The component class
@@ -122,8 +123,7 @@ class OpeaComponentRegistry:
 
     @classmethod
     def unregister(cls, name):
-        """
-        Remove a component class from the registry by its name.
+        """Remove a component class from the registry by its name.
 
         :param name: The name of the component class to remove
         """
@@ -132,32 +132,30 @@ class OpeaComponentRegistry:
 
 
 class OpeaComponentLoader:
-    """
-    Loader class to dynamically load and invoke components.
+    """Loader class to dynamically load and invoke components.
+
     This loader retrieves components from the registry and invokes their functionality.
     """
 
     def __init__(self, component_name, **kwargs):
-        """
-        Initialize the loader with a component retrieved from the registry and instantiate it.
+        """Initialize the loader with a component retrieved from the registry and instantiate it.
 
         :param component_name: The name of the component to load
         :param kwargs: Additional parameters for the component's initialization
         """
         # Retrieve the component class from the registry
         component_class = OpeaComponentRegistry.get(component_name)
-        
+
         # Instantiate the component with the given arguments
         self.component = component_class(**kwargs)
 
     async def invoke(self, *args, **kwargs):
-        """
-        Invoke the loaded component's execute method.
+        """Invoke the loaded component's execute method.
 
         :param args: Positional arguments for the invoke method
         :param kwargs: Keyword arguments for the invoke method
         :return: The result of the component's invoke method
         """
-        if not hasattr(self.component, 'invoke'):
+        if not hasattr(self.component, "invoke"):
             raise AttributeError(f"The component '{self.component}' does not have an 'invoke' method.")
         return await self.component.invoke(*args, **kwargs)

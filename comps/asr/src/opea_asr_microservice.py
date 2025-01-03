@@ -26,9 +26,9 @@ logflag = os.getenv("LOGFLAG", False)
 
 asr_component_name = os.getenv("ASR_COMPONENT_NAME", "OPEA_WHISPER_ASR")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(asr_component_name,
-                             name=asr_component_name,
-                             description=f"OPEA ASR Component: {asr_component_name}")
+loader = OpeaComponentLoader(
+    asr_component_name, name=asr_component_name, description=f"OPEA ASR Component: {asr_component_name}"
+)
 
 
 @register_microservice(

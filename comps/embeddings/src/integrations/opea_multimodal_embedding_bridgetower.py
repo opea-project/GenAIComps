@@ -7,8 +7,16 @@ import os
 
 import requests
 
-from comps import CustomLogger, EmbedMultimodalDoc, MultimodalDoc, OpeaComponent, ServiceType, TextDoc, TextImageDoc
-from comps import OpeaComponentRegistry
+from comps import (
+    CustomLogger,
+    EmbedMultimodalDoc,
+    MultimodalDoc,
+    OpeaComponent,
+    OpeaComponentRegistry,
+    ServiceType,
+    TextDoc,
+    TextImageDoc,
+)
 
 logger = CustomLogger("opea_multimodal_embedding_bridgetower")
 logflag = os.getenv("LOGFLAG", False)

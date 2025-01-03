@@ -18,7 +18,7 @@ from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
-from comps import CustomLogger, DocPath, OpeaComponent, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -213,6 +213,7 @@ def ingest_data_to_redis(doc_path: DocPath):
 
     file_name = doc_path.path.split("/")[-1]
     return ingest_chunks_to_redis(file_name, chunks)
+
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_REDIS")
 class OpeaRedisDataprep(OpeaComponent):

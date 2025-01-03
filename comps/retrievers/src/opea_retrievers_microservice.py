@@ -35,9 +35,11 @@ logflag = os.getenv("LOGFLAG", False)
 
 retriever_component_name = os.getenv("RETRIEVER_COMPONENT_NAME", "OPEA_RETRIEVER_REDIS")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(retriever_component_name,
-                             name=retriever_component_name,
-                             description=f"OPEA RETRIEVER Component: {retriever_component_name}")
+loader = OpeaComponentLoader(
+    retriever_component_name,
+    name=retriever_component_name,
+    description=f"OPEA RETRIEVER Component: {retriever_component_name}",
+)
 
 
 @register_microservice(

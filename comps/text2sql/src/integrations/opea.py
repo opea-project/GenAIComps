@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
-from comps import CustomLogger, OpeaComponent, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.text2sql.src.integrations.sql_agent import CustomSQLDatabaseToolkit, custom_create_sql_agent
 
 logger = CustomLogger("comps-text2sql")

@@ -7,9 +7,10 @@ import torch
 from diffusers import StableVideoDiffusionPipeline
 from diffusers.utils import export_to_video, load_image
 
-from comps import CustomLogger, ImagesPath, OpeaComponent, ServiceType, VideoPath, OpeaComponentRegistry
+from comps import CustomLogger, ImagesPath, OpeaComponent, OpeaComponentRegistry, ServiceType, VideoPath
 
 logger = CustomLogger("opea")
+
 
 @OpeaComponentRegistry.register("OPEA_IMAGE2VIDEO")
 class OpeaImage2video(OpeaComponent):

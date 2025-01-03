@@ -10,12 +10,12 @@ from comps import (
     CustomLogger,
     EmbedMultimodalDoc,
     MultimodalDoc,
+    OpeaComponentLoader,
     ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
-    OpeaComponentLoader
 )
 
 logger = CustomLogger("opea_multimodal_embedding_microservice")
@@ -23,9 +23,11 @@ logflag = os.getenv("LOGFLAG", False)
 
 embedding_component_name = os.getenv("EMBEDDING_COMPONENT_NAME", "OPEA_MULTIMODAL_EMBEDDING_BRIDGETOWER")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(embedding_component_name,
-                             name=embedding_component_name,
-                             description=f"OPEA Embedding Component: {embedding_component_name}")
+loader = OpeaComponentLoader(
+    embedding_component_name,
+    name=embedding_component_name,
+    description=f"OPEA Embedding Component: {embedding_component_name}",
+)
 
 port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6000))
 

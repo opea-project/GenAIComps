@@ -8,7 +8,7 @@ from typing import Union
 import requests
 from huggingface_hub import AsyncInferenceClient
 
-from comps import CustomLogger, LLMParamsDoc, SearchedDoc, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, LLMParamsDoc, OpeaComponentRegistry, SearchedDoc, ServiceType
 from comps.cores.common.component import OpeaComponent
 from comps.cores.mega.utils import get_access_token
 from comps.cores.proto.api_protocol import (
@@ -25,6 +25,7 @@ logflag = os.getenv("LOGFLAG", False)
 TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
 
 @OpeaComponentRegistry.register("OPEA_RERANK_TEI")
 class OPEATEIReranking(OpeaComponent):

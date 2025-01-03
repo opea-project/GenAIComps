@@ -9,12 +9,12 @@ from integrations.predictionguard_embedding import PredictionguardEmbedding
 
 from comps import (
     CustomLogger,
+    OpeaComponentLoader,
     ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
-    OpeaComponentLoader
 )
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
 
@@ -23,9 +23,12 @@ logflag = os.getenv("LOGFLAG", False)
 
 embedding_component_name = os.getenv("EMBEDDING_COMPONENT_NAME", "OPEA_TEI_EMBEDDING")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(embedding_component_name,
-                             name=embedding_component_name,
-                             description=f"OPEA Embedding Component: {embedding_component_name}")
+loader = OpeaComponentLoader(
+    embedding_component_name,
+    name=embedding_component_name,
+    description=f"OPEA Embedding Component: {embedding_component_name}",
+)
+
 
 @register_microservice(
     name="opea_service@embedding",

@@ -15,7 +15,7 @@ from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
-from comps import CustomLogger, DocPath, OpeaComponent, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,

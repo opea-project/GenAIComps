@@ -10,13 +10,13 @@ from integrations.opea import OPEALLM
 from comps import (
     CustomLogger,
     LLMParamsDoc,
+    OpeaComponentLoader,
     SearchedDoc,
     ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
-    OpeaComponentLoader
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
@@ -26,9 +26,9 @@ logflag = os.getenv("LOGFLAG", False)
 
 llm_component_name = os.getenv("LLM_COMPONENT_NAME", "OPEA_LLM")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(llm_component_name,
-                             name=llm_component_name,
-                             description=f"OPEA LLM Component: {llm_component_name}")
+loader = OpeaComponentLoader(
+    llm_component_name, name=llm_component_name, description=f"OPEA LLM Component: {llm_component_name}"
+)
 
 
 @register_microservice(

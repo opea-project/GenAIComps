@@ -23,9 +23,11 @@ logger = CustomLogger("opea_image2video_microservice")
 
 image2video_component_name = os.getenv("IMAGE2VIDEO_COMPONENT_NAME", "OPEA_IMAGE2VIDEO")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(image2video_component_name,
-                             name=image2video_component_name,
-                             description=f"OPEA RERANK Component: {image2video_component_name}")
+loader = OpeaComponentLoader(
+    image2video_component_name,
+    name=image2video_component_name,
+    description=f"OPEA RERANK Component: {image2video_component_name}",
+)
 
 
 @register_microservice(

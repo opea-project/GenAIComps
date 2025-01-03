@@ -8,10 +8,9 @@ from typing import List, Union
 import requests
 from huggingface_hub import AsyncInferenceClient
 
-from comps import CustomLogger, OpeaComponent, ServiceType
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.mega.utils import get_access_token
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
-from comps import OpeaComponentRegistry
 
 logger = CustomLogger("opea_tei_embedding")
 logflag = os.getenv("LOGFLAG", False)
@@ -37,7 +36,6 @@ class OpeaTEIEmbedding(OpeaComponent):
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaTEIEmbedding health check failed.")
-
 
     def _initialize_client(self) -> AsyncInferenceClient:
         """Initializes the AsyncInferenceClient."""

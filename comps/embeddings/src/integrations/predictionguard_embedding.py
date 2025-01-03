@@ -6,9 +6,8 @@ import os
 
 from predictionguard import PredictionGuard
 
-from comps import CustomLogger, OpeaComponent, ServiceType
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, EmbeddingResponseData
-from comps import OpeaComponentRegistry
 
 logger = CustomLogger("predictionguard_embedding")
 logflag = os.getenv("LOGFLAG", False)

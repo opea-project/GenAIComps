@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from langchain_core.prompts import PromptTemplate
 from openai import AsyncOpenAI
 
-from comps import CustomLogger, LLMParamsDoc, OpeaComponent, SearchedDoc, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, LLMParamsDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 

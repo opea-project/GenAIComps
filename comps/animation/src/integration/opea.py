@@ -5,7 +5,7 @@ import os
 
 import requests
 
-from comps import CustomLogger, OpeaComponent, ServiceType, OpeaComponentRegistry
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 logger = CustomLogger("opea_animation")
 logflag = os.getenv("LOGFLAG", False)

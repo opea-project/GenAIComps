@@ -27,9 +27,11 @@ upload_folder = "./uploaded_files/"
 
 dataprep_component_name = os.getenv("DATAPREP_COMPONENT_NAME", "OPEA_DATAPREP_REDIS")
 # Initialize OpeaComponentLoader
-loader = OpeaDataprepLoader(dataprep_component_name,
-                             name=dataprep_component_name,
-                             description=f"OPEA DATAPREP Component: {dataprep_component_name}")
+loader = OpeaDataprepLoader(
+    dataprep_component_name,
+    name=dataprep_component_name,
+    description=f"OPEA DATAPREP Component: {dataprep_component_name}",
+)
 
 
 @register_microservice(
@@ -56,9 +58,7 @@ async def ingest_files(
 
     try:
         # Use the loader to invoke the component
-        response = await loader.ingest_files(
-            files, link_list, chunk_size, chunk_overlap, process_table, table_strategy
-        )
+        response = await loader.ingest_files(files, link_list, chunk_size, chunk_overlap, process_table, table_strategy)
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ ingest ] Output generated: {response}")

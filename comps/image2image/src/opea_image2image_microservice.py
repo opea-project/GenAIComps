@@ -26,9 +26,11 @@ logger = CustomLogger("image2image")
 
 image2image_component_name = os.getenv("IMAGE2IMAGE_COMPONENT_NAME", "OPEA_IMAGE2IMAGE")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(image2image_component_name,
-                             name=image2image_component_name,
-                             description=f"OPEA IMAGE2IMAGE Component: {image2image_component_name}")
+loader = OpeaComponentLoader(
+    image2image_component_name,
+    name=image2image_component_name,
+    description=f"OPEA IMAGE2IMAGE Component: {image2image_component_name}",
+)
 
 
 @register_microservice(
