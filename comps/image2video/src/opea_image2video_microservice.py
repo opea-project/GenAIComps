@@ -21,14 +21,7 @@ from comps import (
 
 logger = CustomLogger("opea_image2video_microservice")
 
-image2video_component_name = os.getenv("IMAGE2VIDEO_COMPONENT_NAME", "OPEA_IMAGE2VIDEO")
-# Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(
-    image2video_component_name,
-    name=image2video_component_name,
-    description=f"OPEA RERANK Component: {image2video_component_name}",
-)
-
+component_loader = None
 
 @register_microservice(
     name="opea_service@image2video",
@@ -44,7 +37,7 @@ async def image2video(input: ImagesPath):
     start = time.time()
     try:
         # Use the loader to invoke the component
-        results = await loader.invoke(input)
+        results = await component_loader.invoke(input)
         statistics_dict["opea_service@image2video"].append_latency(time.time() - start, None)
         return results
     except Exception as e:
@@ -62,6 +55,19 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=42)
 
     args = parser.parse_args()
+    image2video_component_name = os.getenv("IMAGE2VIDEO_COMPONENT_NAME", "OPEA_IMAGE2VIDEO")
+    # Register components
+    try:
+        # Initialize OpeaComponentLoader
+        component_loader = OpeaComponentLoader(
+            image2video_component_name,
+            name=image2video_component_name,
+            description=f"OPEA IMAGE2VIDEO Component: {image2video_component_name}",
+            config=args.__dict__
+        )
+    except Exception as e:
+        logger.error(f"Failed to initialize components: {e}")
+        exit(1)
 
     logger.info("Image2video server started.")
     opea_microservices["opea_service@image2video"].start()

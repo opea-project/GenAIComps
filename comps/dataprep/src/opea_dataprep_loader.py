@@ -20,14 +20,14 @@ class OpeaDataprepLoader(OpeaComponentLoader):
     async def ingest_files(self, *args, **kwargs):
         if logflag:
             logger.info("[ dataprep loader ] ingest files")
-        return await self.active_component.ingest_files(*args, **kwargs)
+        return await self.component.ingest_files(*args, **kwargs)
 
     async def get_files(self, *args, **kwargs):
         if logflag:
             logger.info("[ dataprep loader ] get files")
-        return await self.active_component.get_files(*args, **kwargs)
+        return await self.component.get_files(*args, **kwargs)
 
     async def delete_files(self, *args, **kwargs):
         if logflag:
             logger.info("[ dataprep loader ] delete files")
-        return await self.active_component.delete_files(*args, **kwargs)
+        return await self.component.delete_files(*args, **kwargs)

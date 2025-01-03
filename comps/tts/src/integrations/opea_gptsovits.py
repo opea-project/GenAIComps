@@ -4,7 +4,7 @@
 import os
 import time
 
-import requests
+import requests, httpx
 from fastapi.responses import StreamingResponse
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -32,13 +32,14 @@ class OpeaGptsovitsTts(OpeaComponent):
     async def invoke(
         self,
         request: AudioSpeechRequest,
-    ) -> requests.models.Response:
+    ) -> httpx.Response:
         """Involve the TTS service to generate speech for the provided input."""
         # see https://github.com/Spycsh/GPT-SoVITS/blob/openai_compat/api.py#L948 for usage
         # make sure you change the refer_wav_path locally
         request.voice = None
 
-        response = requests.post(f"{self.base_url}/v1/audio/speech", data=request.json())
+        async with httpx.AsyncClient() as client:
+            response = await client.post(f"{self.base_url}/v1/audio/speech", json=request.dict())
         return response
 
     def check_health(self) -> bool:

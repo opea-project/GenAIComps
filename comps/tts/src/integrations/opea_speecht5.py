@@ -4,7 +4,7 @@
 import os
 import time
 
-import requests
+import requests, httpx
 from fastapi.responses import StreamingResponse
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -29,10 +29,10 @@ class OpeaSpeecht5Tts(OpeaComponent):
         if not health_status:
             logger.error("OpeaSpeecht5Tts health check failed.")
 
-    def invoke(
+    async def invoke(
         self,
         request: AudioSpeechRequest,
-    ) -> requests.models.Response:
+    ) -> httpx.Response:
         """Involve the TTS service to generate speech for the provided input."""
         # validate the request parameters
         if request.model not in ["microsoft/speecht5_tts"]:
@@ -40,7 +40,8 @@ class OpeaSpeecht5Tts(OpeaComponent):
         if request.voice not in ["default", "male"] or request.speed != 1.0:
             logger.warning("Currently parameter 'speed' can only be 1.0 and 'voice' can only be default or male!")
 
-        response = requests.post(f"{self.base_url}/v1/audio/speech", data=request.json())
+        async with httpx.AsyncClient() as client:
+            response = await client.post(f"{self.base_url}/v1/audio/speech", json=request.dict())
         return response
 
     def check_health(self) -> bool:
