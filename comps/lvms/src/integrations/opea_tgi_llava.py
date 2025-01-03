@@ -22,7 +22,7 @@ from comps import (
     statistics_dict,
 )
 
-logger = CustomLogger("opea_tgi_llava_lvm")
+logger = CustomLogger("opea_tgi_llava")
 logflag = os.getenv("LOGFLAG", False)
 
 

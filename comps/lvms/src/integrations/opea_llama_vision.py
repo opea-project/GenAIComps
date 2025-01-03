@@ -9,7 +9,7 @@ import requests
 
 from comps import CustomLogger, LVMDoc, OpeaComponent, ServiceType, TextDoc
 
-logger = CustomLogger("opea_llama_vision_lvm")
+logger = CustomLogger("opea_llama_vision")
 logflag = os.getenv("LOGFLAG", False)
 
 

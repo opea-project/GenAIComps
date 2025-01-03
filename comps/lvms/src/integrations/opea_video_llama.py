@@ -11,7 +11,7 @@ from fastapi.responses import StreamingResponse
 
 from comps import CustomLogger, LVMVideoDoc, OpeaComponent, ServiceType, statistics_dict
 
-logger = CustomLogger("opea_video_llama_lvm")
+logger = CustomLogger("opea_video_llama")
 logflag = os.getenv("LOGFLAG", False)
 
 

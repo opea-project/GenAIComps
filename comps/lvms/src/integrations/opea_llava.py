@@ -11,7 +11,7 @@ from langchain_core.prompts import PromptTemplate
 
 from comps import CustomLogger, LVMDoc, LVMSearchedMultimodalDoc, MetadataTextDoc, OpeaComponent, ServiceType, TextDoc
 
-logger = CustomLogger("opea_llava_lvm")
+logger = CustomLogger("opea_llava")
 logflag = os.getenv("LOGFLAG", False)
 
 
