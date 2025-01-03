@@ -30,6 +30,7 @@ services:
       https_proxy: ${https_proxy}
       TEI_RERANKING_ENDPOINT: ${TEI_RERANKING_ENDPOINT}
       HF_TOKEN: ${HF_TOKEN}
+      RERANK_TYPE: tei
     depends_on:
       tei_reranking_service:
         condition: service_healthy
