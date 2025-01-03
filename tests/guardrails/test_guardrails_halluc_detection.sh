@@ -48,7 +48,7 @@ function start_service() {
         --trust-remote-code
     until curl -s http://localhost:$port_number/health > /dev/null; do
         echo "Waiting for vllm serving to start..."
-        sleep 5m 
+        sleep 5m
     done
     echo "vllm serving started"
 
@@ -64,13 +64,13 @@ function start_service() {
         -e LLM_MODEL=$LLM_MODEL \
         -e LOGFLAG=$LOGFLAG \
         opea/guardrails-halluc-detection:comps
-    sleep 10 
+    sleep 10
     echo "Microservice started"
 }
 
 function validate_microservice() {
     echo "Validate microservice started"
-    DATA='{"messages":[{"role": "user", "content": "Given the following QUESTION, DOCUMENT and ANSWER you must analyze the provided answer and determine whehter it is faithful to the contents of the DOCUMENT. The ANSWER must not offer new information beyond the context provided in the DOCUMENT. The ANSWER also must not contradict information provided in the DOCUMENT. Output your final verdict by strictly following this format: \"PASS\" is the answer is faithful to the DOCUMENT and \"FAIL\" if the answer is not faithful to the DOCUMENT. Show your reasoning.\n\n--\nQUESTION (THIS DOES NOT COUNT AS BACKGROUND INFORMATION):\n{question}\n\n--\nDOCUMENT:\n{document}\n\n--\nANSWER:\n{answer}\n\n--\n\n Your output should be in JSON FORMAT with the keys \"REASONING\" and \"SCORE\":\n{{\"REASONING\": <your reasoning as bullet points>, \"SCORE\": <your final score>}}"}], "max_tokens":600,"model": "PatronusAI/Llama-3-Patronus-Lynx-8B-Instruct" }'
+    DATA='{"messages":[{"role": "user", "content": "Given the following QUESTION, DOCUMENT and ANSWER you must analyze the provided answer and determine whether it is faithful to the contents of the DOCUMENT. The ANSWER must not offer new information beyond the context provided in the DOCUMENT. The ANSWER also must not contradict information provided in the DOCUMENT. Output your final verdict by strictly following this format: \"PASS\" is the answer is faithful to the DOCUMENT and \"FAIL\" if the answer is not faithful to the DOCUMENT. Show your reasoning.\n\n--\nQUESTION (THIS DOES NOT COUNT AS BACKGROUND INFORMATION):\n{question}\n\n--\nDOCUMENT:\n{document}\n\n--\nANSWER:\n{answer}\n\n--\n\n Your output should be in JSON FORMAT with the keys \"REASONING\" and \"SCORE\":\n{{\"REASONING\": <your reasoning as bullet points>, \"SCORE\": <your final score>}}"}], "max_tokens":600,"model": "PatronusAI/Llama-3-Patronus-Lynx-8B-Instruct" }'
 
     echo "test 1 - Case with Hallucination (Invalid or Inconsistent Output)"
     DOCUMENT="750 Seventh Avenue is a 615 ft (187m) tall Class-A office skyscraper in New York City. 101 Park Avenue is a 629 ft tall skyscraper in New York City, New York."

@@ -4,12 +4,12 @@
 import os
 from typing import Union
 
-from fastapi.responses import StreamingResponse
-from langchain_community.llms import VLLMOpenAI
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
-from langchain.schema import HumanMessage, SystemMessage
-from template import ChatTemplate
 import requests
+from fastapi.responses import StreamingResponse
+from langchain.schema import HumanMessage, SystemMessage
+from langchain_community.llms import VLLMOpenAI
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from template import ChatTemplate
 
 from comps import (
     CustomLogger,
@@ -170,14 +170,14 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
         payload["messages"] = input.messages
         payload["max_tokens"] = input.max_tokens
         payload["model"] = input.model
-        response = requests.post(llm_endpoint+"/v1/chat/completions", json=payload, headers=headers)
+        response = requests.post(llm_endpoint + "/v1/chat/completions", json=payload, headers=headers)
 
         if logflag:
             logger.info(response.text)
 
-        return GeneratedDoc(text=response.json()['choices'][0]['message']['content'], prompt='')
-        
-    else: 
+        return GeneratedDoc(text=response.json()["choices"][0]["message"]["content"], prompt="")
+
+    else:
         if logflag:
             logger.info("[ UNKNOWN ] input from user")
 
