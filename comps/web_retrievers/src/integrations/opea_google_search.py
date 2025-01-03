@@ -11,23 +11,14 @@ from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
-from comps import (
-    CustomLogger,
-    EmbedDoc,
-    OpeaComponent,
-    SearchedDoc,
-    ServiceType,
-    TextDoc,
-    statistics_dict,
-)
+from comps import CustomLogger, EmbedDoc, OpeaComponent, SearchedDoc, ServiceType, TextDoc, statistics_dict
 
 logger = CustomLogger("opea_google_search")
 logflag = os.getenv("LOGFLAG", False)
 
 
 class OpeaGoogleSearch(OpeaComponent):
-    """A specialized Web Retrieval component derived from OpeaComponent for Google web retriever services.
-    """
+    """A specialized Web Retrieval component derived from OpeaComponent for Google web retriever services."""
 
     def __init__(self, name: str, description: str, config: dict = None):
         self.google_api_key = os.environ.get("GOOGLE_API_KEY")
@@ -122,7 +113,9 @@ class OpeaGoogleSearch(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            self.search = GoogleSearchAPIWrapper(google_api_key=self.google_api_key, google_cse_id=self.google_cse_id, k=10)
+            self.search = GoogleSearchAPIWrapper(
+                google_api_key=self.google_api_key, google_cse_id=self.google_cse_id, k=10
+            )
             # vectordb_persistent_directory = os.getenv("VECTORDB_PERSISTENT_DIR", "/home/user/chroma_db_oai")
             self.vector_db = Chroma(
                 embedding_function=HuggingFaceEndpointEmbeddings(model=self.tei_embedding_endpoint),
