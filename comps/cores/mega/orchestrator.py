@@ -25,20 +25,34 @@ LOGFLAG = os.getenv("LOGFLAG", False)
 
 
 class OrchestratorMetrics:
-    # Because:
+    # Metrics use "megaservice_" name prefix, and are class variables because:
     # - CI creates several orchestrator instances
     # - Prometheus requires metrics to be singletons
-    # - Oorchestror instances are not provided their own names
-    # Metrics are class members with "megaservice" name prefix
-    first_token_latency = Histogram("megaservice_first_token_latency", "First token latency (histogram)")
-    inter_token_latency = Histogram("megaservice_inter_token_latency", "Inter-token latency (histogram)")
-    request_latency = Histogram("megaservice_request_latency", "Whole request/reply latency (histogram)")
+    # - Orchestror instances do not have their own names
     request_pending = Gauge("megaservice_request_pending", "Count of currently pending requests (gauge)")
+    # Metrics related to token processing are created on demand,
+    # to avoid bogus ones for services that never handle tokens.
+    first_token_latency = None
+    inter_token_latency = None
+    request_latency = None
 
     def __init__(self) -> None:
-        pass
+        # initially directed to metric creation
+        self.token_update = self._token_update_create
+        self.request_update = self._request_update_create
 
-    def token_update(self, token_start: float, is_first: bool) -> float:
+    def _token_update_create(self, token_start: float, is_first: bool) -> float:
+        self.first_token_latency = Histogram("megaservice_first_token_latency", "First token latency (histogram)")
+        self.inter_token_latency = Histogram("megaservice_inter_token_latency", "Inter-token latency (histogram)")
+        self.token_update = self._token_update_real
+        return self.token_update(token_start, is_first)
+
+    def _request_update_create(self, req_start: float) -> None:
+        self.request_latency = Histogram("megaservice_request_latency", "Whole LLM request/reply latency (histogram)")
+        self.request_update = self._request_update_real
+        self.request_update(req_start)
+
+    def _token_update_real(self, token_start: float, is_first: bool) -> float:
         now = time.time()
         if is_first:
             self.first_token_latency.observe(now - token_start)
@@ -46,7 +60,7 @@ class OrchestratorMetrics:
             self.inter_token_latency.observe(now - token_start)
         return now
 
-    def request_update(self, req_start: float) -> None:
+    def _request_update_real(self, req_start: float) -> None:
         self.request_latency.observe(time.time() - req_start)
 
     def pending_update(self, increase: bool) -> None:
