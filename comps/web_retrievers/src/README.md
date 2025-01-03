@@ -8,7 +8,7 @@ The Web Retriever Microservice is designed to efficiently search web pages relev
 
 ```bash
 cd ../../../../
-docker build -t opea/web-retriever-chroma:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/web_retrievers/src/Dockerfile .
+docker build -t opea/web-retriever:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/web_retrievers/src/Dockerfile .
 ```
 
 ### Start TEI Service
@@ -31,7 +31,7 @@ export GOOGLE_CSE_ID=xxx
 ```
 
 ```bash
-docker run -d --name="web-retriever-chroma-server" -p 7077:7077 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e GOOGLE_API_KEY=$GOOGLE_API_KEY -e GOOGLE_CSE_ID=$GOOGLE_CSE_ID opea/web-retriever-chroma:latest
+docker run -d --name="web-retriever-server" -p 7077:7077 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e GOOGLE_API_KEY=$GOOGLE_API_KEY -e GOOGLE_CSE_ID=$GOOGLE_CSE_ID opea/web-retriever:latest
 ```
 
 ### Consume Web Retriever Service
