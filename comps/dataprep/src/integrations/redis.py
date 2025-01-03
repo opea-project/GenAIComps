@@ -18,7 +18,7 @@ from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
-from comps import CustomLogger, DocPath, OpeaComponent, ServiceType
+from comps import CustomLogger, DocPath, OpeaComponent, ServiceType, OpeaComponentRegistry
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -214,7 +214,7 @@ def ingest_data_to_redis(doc_path: DocPath):
     file_name = doc_path.path.split("/")[-1]
     return ingest_chunks_to_redis(file_name, chunks)
 
-
+@OpeaComponentRegistry.register("OPEA_DATAPREP_REDIS")
 class OpeaRedisDataprep(OpeaComponent):
     """A specialized dataprep component derived from OpeaComponent for redis dataprep services.
 
@@ -227,6 +227,9 @@ class OpeaRedisDataprep(OpeaComponent):
         self.client = self._initialize_client()
         self.data_index_client = self.client.ft(INDEX_NAME)
         self.key_index_client = self.client.ft(KEY_INDEX_NAME)
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("OpeaRedisDataprep health check failed.")
 
     def _initialize_client(self) -> redis.Redis:
         if logflag:

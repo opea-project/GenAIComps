@@ -7,13 +7,15 @@ import time
 import requests
 from fastapi.responses import StreamingResponse
 
-from comps import CustomLogger, OpeaComponent, ServiceType
+
+from comps import CustomLogger, OpeaComponent, ServiceType, OpeaComponentRegistry
 from comps.cores.proto.api_protocol import AudioSpeechRequest
 
 logger = CustomLogger("opea_gptsovits")
 logflag = os.getenv("LOGFLAG", False)
 
 
+@OpeaComponentRegistry.register("OPEA_GPTSOVITS_TTS")
 class OpeaGptsovitsTts(OpeaComponent):
     """A specialized TTS (Text To Speech) component derived from OpeaComponent for GPTSoVITS TTS services.
 
@@ -24,6 +26,9 @@ class OpeaGptsovitsTts(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TTS.name.lower(), description, config)
         self.base_url = os.getenv("TTS_ENDPOINT", "http://localhost:9880")
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("OpeaGptsovitsTts health check failed.")
 
     async def invoke(
         self,

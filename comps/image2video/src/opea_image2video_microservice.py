@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import os
 import time
 
 from integrations.opea import OpeaImage2video
@@ -9,7 +10,7 @@ from integrations.opea import OpeaImage2video
 from comps import (
     CustomLogger,
     ImagesPath,
-    OpeaComponentController,
+    OpeaComponentLoader,
     ServiceType,
     VideoPath,
     opea_microservices,
@@ -20,8 +21,11 @@ from comps import (
 
 logger = CustomLogger("opea_image2video_microservice")
 
-# Initialize OpeaComponentController
-controller = OpeaComponentController()
+image2video_component_name = os.getenv("IMAGE2VIDEO_COMPONENT_NAME", "OPEA_IMAGE2VIDEO")
+# Initialize OpeaComponentLoader
+loader = OpeaComponentLoader(image2video_component_name,
+                             name=image2video_component_name,
+                             description=f"OPEA RERANK Component: {image2video_component_name}")
 
 
 @register_microservice(
@@ -37,8 +41,8 @@ controller = OpeaComponentController()
 async def image2video(input: ImagesPath):
     start = time.time()
     try:
-        # Use the controller to invoke the active component
-        results = await controller.invoke(input)
+        # Use the loader to invoke the component
+        results = await loader.invoke(input)
         statistics_dict["opea_service@image2video"].append_latency(time.time() - start, None)
         return results
     except Exception as e:
@@ -56,21 +60,6 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=42)
 
     args = parser.parse_args()
-
-    # Register components
-    try:
-        # Instantiate Image2video components
-        opea_image2video = OpeaImage2video(
-            name="OpeaImage2video", description="OPEA Image2video Service", config=args.__dict__
-        )
-
-        # Register components with the controller
-        controller.register(opea_image2video)
-
-        # Discover and activate a healthy component
-        controller.discover_and_activate()
-    except Exception as e:
-        logger.error(f"Failed to initialize components: {e}")
 
     logger.info("Image2video server started.")
     opea_microservices["opea_service@image2video"].start()

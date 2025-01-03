@@ -7,13 +7,14 @@ import time
 import requests
 from fastapi.responses import StreamingResponse
 
-from comps import CustomLogger, OpeaComponent, ServiceType
+from comps import CustomLogger, OpeaComponent, ServiceType, OpeaComponentRegistry
 from comps.cores.proto.api_protocol import AudioSpeechRequest
 
 logger = CustomLogger("opea_speecht5")
 logflag = os.getenv("LOGFLAG", False)
 
 
+@OpeaComponentRegistry.register("OPEA_SPEECHT5_TTS")
 class OpeaSpeecht5Tts(OpeaComponent):
     """A specialized TTS (Text To Speech) component derived from OpeaComponent for SpeechT5 TTS services.
 
@@ -24,6 +25,9 @@ class OpeaSpeecht5Tts(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TTS.name.lower(), description, config)
         self.base_url = os.getenv("TTS_ENDPOINT", "http://localhost:7055")
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("OpeaSpeecht5Tts health check failed.")
 
     def invoke(
         self,

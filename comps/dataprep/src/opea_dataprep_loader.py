@@ -4,13 +4,13 @@
 
 import os
 
-from comps import CustomLogger, OpeaComponentController
+from comps import CustomLogger, OpeaComponentLoader
 
-logger = CustomLogger("opea_dataprep_controller")
+logger = CustomLogger("opea_dataprep_loader")
 logflag = os.getenv("LOGFLAG", False)
 
 
-class OpeaDataprepController(OpeaComponentController):
+class OpeaDataprepLoader(OpeaComponentLoader):
     def __init__(self):
         super().__init__()
 
@@ -19,15 +19,15 @@ class OpeaDataprepController(OpeaComponentController):
 
     async def ingest_files(self, *args, **kwargs):
         if logflag:
-            logger.info("[ dataprep controller ] ingest files")
+            logger.info("[ dataprep loader ] ingest files")
         return await self.active_component.ingest_files(*args, **kwargs)
 
     async def get_files(self, *args, **kwargs):
         if logflag:
-            logger.info("[ dataprep controller ] get files")
+            logger.info("[ dataprep loader ] get files")
         return await self.active_component.get_files(*args, **kwargs)
 
     async def delete_files(self, *args, **kwargs):
         if logflag:
-            logger.info("[ dataprep controller ] delete files")
+            logger.info("[ dataprep loader ] delete files")
         return await self.active_component.delete_files(*args, **kwargs)
