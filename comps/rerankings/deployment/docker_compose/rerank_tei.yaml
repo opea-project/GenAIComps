@@ -19,7 +19,7 @@ services:
       retries: 18
     command: --model-id ${RERANK_MODEL_ID} --hf-api-token ${HF_TOKEN}
   reranking:
-    image: opea/reranking:comps
+    image: opea/reranking:latest
     container_name: reranking-tei-server
     ports:
       - "8000:8000"
