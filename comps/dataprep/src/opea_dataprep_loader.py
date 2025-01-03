@@ -11,8 +11,8 @@ logflag = os.getenv("LOGFLAG", False)
 
 
 class OpeaDataprepLoader(OpeaComponentLoader):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, component_name, **kwargs):
+        super().__init__(component_name=component_name, **kwargs)
 
     def invoke(self, *args, **kwargs):
         pass
