@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # this file should be run in the root of the repo
-# Deprecated opea/lvm-tgi, opea/lvm-llava-svc, opea/lvm-video-llama
+# Deprecated original wrappers opea/lvm-tgi, opea/lvm-llava-svc, opea/lvm-video-llama
 # and merged functionalities in opea/lvm
 services:
   lvm:
     build:
       dockerfile: comps/lvms/src/Dockerfile
     image: ${REGISTRY:-opea}/lvm:${TAG:-latest}
-  video-llama-lvm-server:
+  lvm-video-llama:
     build:
       dockerfile: comps/lvms/src/integrations/dependency/video-llama/Dockerfile
-    image: ${REGISTRY:-opea}/video-llama-lvm-server:${TAG:-latest}
+    image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
   lvm-llava:
     build:
       dockerfile: comps/lvms/src/integrations/dependency/llava/Dockerfile

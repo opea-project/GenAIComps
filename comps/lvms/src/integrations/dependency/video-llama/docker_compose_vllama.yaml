@@ -4,8 +4,8 @@
 version: "3"
 services:
   lvm-video-llama:
-    image: opea/video-llama-lvm-server:latest
-    container_name: video-llama-lvm-server
+    image: opea/lvm-video-llama:latest
+    container_name: lvm-video-llama
     ports:
       - "9009:9009"
     ipc: host

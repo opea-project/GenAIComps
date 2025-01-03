@@ -9,9 +9,9 @@ This is a Docker-based microservice that runs Video-Llama as a Large Vision Mode
 ```bash
 cd GenAIComps
 # Video-Llama Server Image
-docker build --no-cache -t opea/video-llama-lvm-server:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/video-llama/Dockerfile .
+docker build --no-cache -t opea/lvm-video-llama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/video-llama/Dockerfile .
 # LVM Service Image
-docker build --no-cache -t opea/lvm-video-llama:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/integrations/dependency/video-llama/Dockerfile .
+docker build --no-cache -t opea/lvm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/integrations/dependency/video-llama/Dockerfile .
 ```
 
 ### 1.2 Start Video-Llama and LVM Services
@@ -26,7 +26,7 @@ export LVM_ENDPOINT=http://${ip_address}:9009
 # Start service
 docker compose -f comps/lvms/src/integrations/dependency/video-llama/docker_compose.yaml up -d
 # it should take about 1.5 hours for the model to download in the video-llama server, assuming a maximum download speed of 100 Mbps
-until docker logs video-llama-lvm-server 2>&1 | grep -q "Uvicorn running on"; do
+until docker logs lvm-video-llama 2>&1 | grep -q "Uvicorn running on"; do
     sleep 5m
 done
 ```

@@ -18,12 +18,12 @@ function build_docker_images() {
     else
         echo "opea/lvm-llava built successful"
     fi
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/lvm-llava-svc:comps -f comps/lvms/src/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/lvm:comps -f comps/lvms/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/lvm-llava-svc built fail"
+        echo "opea/lvm built fail"
         exit 1
     else
-        echo "opea/lvm-llava-svc built successful"
+        echo "opea/lvm built successful"
     fi
 }
 
@@ -32,7 +32,7 @@ function start_service() {
     lvm_port=5051
     docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5028:8399 --ipc=host opea/lvm-llava:comps
     sleep 8m
-    docker run -d --name="test-comps-lvm-llava-svc" -e LLAVA_LVM_ENDPOINT=http://$ip_address:5028 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $lvm_port:9399 --ipc=host opea/lvm-llava-svc:comps
+    docker run -d --name="test-comps-lvm-llava-svc" -e LLAVA_LVM_ENDPOINT=http://$ip_address:5028 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $lvm_port:9399 --ipc=host opea/lvm:comps
     sleep 30s
 }
 

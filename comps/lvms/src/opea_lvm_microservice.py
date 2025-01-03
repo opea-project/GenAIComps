@@ -5,11 +5,11 @@ import os
 import time
 from typing import Union
 
-from GenAIComps.comps.lvms.src.integrations.opea_llama_vision import OpeaLlamaVisionLvm
-from GenAIComps.comps.lvms.src.integrations.opea_llava import OpeaLlavaLvm
-from GenAIComps.comps.lvms.src.integrations.opea_predictionguard import OpeaPredictionguardLvm
-from GenAIComps.comps.lvms.src.integrations.opea_tgi_llava import OpeaTgiLlavaLvm
-from GenAIComps.comps.lvms.src.integrations.opea_video_llama import OpeaVideoLlamaLvm
+from integrations.opea_llama_vision import OpeaLlamaVisionLvm
+from integrations.opea_llava import OpeaLlavaLvm
+from integrations.opea_predictionguard import OpeaPredictionguardLvm
+from integrations.opea_tgi_llava import OpeaTgiLlavaLvm
+from integrations.opea_video_llama import OpeaVideoLlamaLvm
 
 from comps import (
     CustomLogger,
