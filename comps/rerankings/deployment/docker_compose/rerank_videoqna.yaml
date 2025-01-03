@@ -2,29 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-<<<<<<<< HEAD:comps/rerankings/deployment/docker_compose/rerank_videoqna.yaml
   reranking:
     image: opea/reranking:comps
     container_name: reranking-videoqna-server
-========
-  embedding-multimodal-bridgetower:
-    image: opea/embedding-multimodal-bridgetower-hpu:latest
-    container_name: embedding-multimodal-bridgetower
->>>>>>>> main:comps/embeddings/src/integrations/dependency/bridgetower/compose_intel_hpu.yaml
     ports:
-      - ${EMBEDDER_PORT}:${EMBEDDER_PORT}
+      - "8000:8000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-<<<<<<<< HEAD:comps/rerankings/deployment/docker_compose/rerank_videoqna.yaml
       CHUNK_DURATION: ${CHUNK_DURATION}
       FILE_SERVER_ENDPOINT: ${FILE_SERVER_ENDPOINT}
       RERANK_TYPE: video
-========
-      PORT: ${EMBEDDER_PORT}
->>>>>>>> main:comps/embeddings/src/integrations/dependency/bridgetower/compose_intel_hpu.yaml
     restart: unless-stopped
 
 networks:

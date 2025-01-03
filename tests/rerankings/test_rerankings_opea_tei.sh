@@ -9,16 +9,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     cd $WORKPATH
-<<<<<<<< HEAD:tests/rerankings/test_rerankings_opea_tei.sh
     docker build --no-cache \
           -t opea/reranking:comps \
           --build-arg https_proxy=$https_proxy \
           --build-arg http_proxy=$http_proxy \
           --build-arg SERVICE=tei \
           -f comps/rerankings/src/Dockerfile .
-========
-    docker build --no-cache -t opea/reranking:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/reranks/src/Dockerfile .
->>>>>>>> main:tests/rerankings/test_reranks_opea_tei.sh
     if [ $? -ne 0 ]; then
         echo "opea/reranking built fail"
         exit 1
@@ -61,7 +57,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-rerank*")
+    cid=$(docker ps -aq --filter "name=test-comps-reranking*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

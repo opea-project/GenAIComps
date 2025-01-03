@@ -19,11 +19,7 @@ services:
       retries: 18
     command: --model-id ${RERANK_MODEL_ID} --hf-api-token ${HF_TOKEN}
   reranking:
-<<<<<<<< HEAD:comps/rerankings/deployment/docker_compose/rerank_tei.yaml
     image: opea/reranking:comps
-========
-    image: opea/reranking:latest
->>>>>>>> main:comps/reranks/deployment/docker_compose/rerank_tei.yaml
     container_name: reranking-tei-server
     ports:
       - "8000:8000"
@@ -34,10 +30,7 @@ services:
       https_proxy: ${https_proxy}
       TEI_RERANKING_ENDPOINT: ${TEI_RERANKING_ENDPOINT}
       HF_TOKEN: ${HF_TOKEN}
-<<<<<<<< HEAD:comps/rerankings/deployment/docker_compose/rerank_tei.yaml
       RERANK_TYPE: tei
-========
->>>>>>>> main:comps/reranks/deployment/docker_compose/rerank_tei.yaml
     depends_on:
       tei_reranking_service:
         condition: service_healthy
