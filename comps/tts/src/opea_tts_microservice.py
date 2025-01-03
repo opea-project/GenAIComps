@@ -53,7 +53,7 @@ async def text_to_speech(request: AudioSpeechRequest) -> StreamingResponse:
 
     try:
         # Use the loader to invoke the component
-        tts_response = loader.invoke(request)
+        tts_response = await loader.invoke(request)
         if logflag:
             logger.info(tts_response)
         statistics_dict["opea_service@tts"].append_latency(time.time() - start, None)
