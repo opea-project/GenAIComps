@@ -55,7 +55,3 @@ services:
     build:
       dockerfile: comps/retrievers/opensearch/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-opensearch:${TAG:-latest}
-  retriever-opensearchcc:
-    build:
-      dockerfile: comps/retrievers/opensearch/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/retriever-opensearchcc:${TAG:-latest}
