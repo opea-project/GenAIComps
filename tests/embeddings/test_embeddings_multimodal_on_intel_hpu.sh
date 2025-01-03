@@ -46,7 +46,6 @@ function build_docker_images() {
 function start_service() {
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
-    export EMBEDDING_COMPONENT_NAME="OPEA_MULTIMODAL_EMBEDDING_BRIDGETOWER"
     docker compose -f compose_multimodal_bridgetower_intel_hpu.yaml up -d
     sleep 30
 }
