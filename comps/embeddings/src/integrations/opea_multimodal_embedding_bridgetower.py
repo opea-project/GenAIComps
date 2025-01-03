@@ -8,11 +8,13 @@ import os
 import requests
 
 from comps import CustomLogger, EmbedMultimodalDoc, MultimodalDoc, OpeaComponent, ServiceType, TextDoc, TextImageDoc
+from comps import OpeaComponentRegistry
 
 logger = CustomLogger("opea_multimodal_embedding_bridgetower")
 logflag = os.getenv("LOGFLAG", False)
 
 
+@OpeaComponentRegistry.register("OPEA_MULTIMODAL_EMBEDDING_BRIDGETOWER")
 class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for local deployed BrigeTower multimodal embedding services.
 

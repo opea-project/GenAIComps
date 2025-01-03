@@ -25,6 +25,7 @@ function build_docker_images() {
 function start_service() {
     pg_service_port=5124
     unset http_proxy
+    export EMBEDDING_COMPONENT_NAME="OPEA_PREDICTIONGUARD_EMBEDDING"
     docker run -d --name=test-comps-embedding-pg-server \
     -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
     -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \

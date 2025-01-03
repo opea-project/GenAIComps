@@ -8,11 +8,13 @@ from predictionguard import PredictionGuard
 
 from comps import CustomLogger, OpeaComponent, ServiceType
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, EmbeddingResponseData
+from comps import OpeaComponentRegistry
 
 logger = CustomLogger("predictionguard_embedding")
 logflag = os.getenv("LOGFLAG", False)
 
 
+@OpeaComponentRegistry.register("OPEA_PREDICTIONGUARD_EMBEDDING")
 class PredictionguardEmbedding(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for interacting with Prediction Guard services.
 

@@ -11,6 +11,7 @@ from huggingface_hub import AsyncInferenceClient
 from comps import CustomLogger, OpeaComponent, ServiceType
 from comps.cores.mega.utils import get_access_token
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
+from comps import OpeaComponentRegistry
 
 logger = CustomLogger("opea_tei_embedding")
 logflag = os.getenv("LOGFLAG", False)
@@ -19,6 +20,7 @@ CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
+@OpeaComponentRegistry.register("OPEA_TEI_EMBEDDING")
 class OpeaTEIEmbedding(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for TEI embedding services.
 
