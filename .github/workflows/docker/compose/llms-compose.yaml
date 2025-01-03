@@ -6,7 +6,7 @@ services:
   llm-textgen:
     build:
       dockerfile: comps/llms/src/text-generation/Dockerfile
-    image: ${REGISTRY:-opea}/llm-textgen${TAG:-latest}
+    image: ${REGISTRY:-opea}/llm-textgen:${TAG:-latest}
   llm-ollama:
     build:
       dockerfile: comps/llms/text-generation/ollama/langchain/Dockerfile

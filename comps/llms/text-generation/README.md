@@ -194,7 +194,7 @@ docker run -d \
   -e https_proxy=$https_proxy \
   -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
   -e HF_TOKEN=$HF_TOKEN \
-  opea/llm-textgenlatest
+  opea/llm-textgen:latest
 ```
 
 #### 2.3.2 vLLM
