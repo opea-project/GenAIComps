@@ -4,6 +4,8 @@
 # this file should be run in the root of the repo
 # Deprecated original wrappers opea/lvm-tgi, opea/lvm-llava-svc, opea/lvm-video-llama
 # and merged functionalities in opea/lvm
+# Original video-llama-lvm-server renamed as lvm-video-llama
+
 services:
   lvm:
     build:
