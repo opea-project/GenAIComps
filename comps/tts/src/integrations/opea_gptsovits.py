@@ -4,7 +4,8 @@
 import os
 import time
 
-import requests, httpx
+import httpx
+import requests
 from fastapi.responses import StreamingResponse
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
