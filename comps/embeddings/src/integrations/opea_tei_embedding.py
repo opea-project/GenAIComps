@@ -34,6 +34,11 @@ class OpeaTEIEmbedding(OpeaComponent):
         self.base_url = os.getenv("TEI_EMBEDDING_ENDPOINT", "http://localhost:8080")
         self.client = self._initialize_client()
 
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("OpeaTEIEmbedding health check failed.")
+
+
     def _initialize_client(self) -> AsyncInferenceClient:
         """Initializes the AsyncInferenceClient."""
         access_token = (

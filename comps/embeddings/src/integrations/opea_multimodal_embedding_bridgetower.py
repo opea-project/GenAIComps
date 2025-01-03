@@ -25,6 +25,9 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.EMBEDDING.name.lower(), description, config)
         self.base_url = os.getenv("MMEI_EMBEDDING_ENDPOINT", "http://localhost:8080")
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("OpeaMultimodalEmbeddingBrigeTower health check failed.")
 
     async def invoke(self, input: MultimodalDoc) -> EmbedMultimodalDoc:
         """Invokes the embedding service to generate embeddings for the provided input.

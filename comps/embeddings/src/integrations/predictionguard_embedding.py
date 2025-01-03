@@ -32,6 +32,9 @@ class PredictionguardEmbedding(OpeaComponent):
         else:
             logger.info("No PredictionGuard API KEY provided, client not instantiated")
         self.model_name = os.getenv("PG_EMBEDDING_MODEL_NAME", "bridgetower-large-itm-mlm-itc")
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("PredictionguardEmbedding health check failed.")
 
     def check_health(self) -> bool:
         """Checks the health of the Prediction Guard embedding service.
