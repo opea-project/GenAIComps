@@ -1,10 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import os
 import time
 
-import requests, asyncio
+import requests
 from fastapi.responses import StreamingResponse
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
