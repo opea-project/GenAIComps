@@ -23,6 +23,7 @@ logger = CustomLogger("opea_image2video_microservice")
 
 component_loader = None
 
+
 @register_microservice(
     name="opea_service@image2video",
     service_type=ServiceType.IMAGE2VIDEO,
@@ -63,7 +64,7 @@ if __name__ == "__main__":
             image2video_component_name,
             name=image2video_component_name,
             description=f"OPEA IMAGE2VIDEO Component: {image2video_component_name}",
-            config=args.__dict__
+            config=args.__dict__,
         )
     except Exception as e:
         logger.error(f"Failed to initialize components: {e}")
