@@ -25,6 +25,7 @@ logger = CustomLogger("image2image")
 
 component_loader = None
 
+
 @register_microservice(
     name="opea_service@image2image",
     service_type=ServiceType.IMAGE2IMAGE,
@@ -60,7 +61,7 @@ if __name__ == "__main__":
             image2image_component_name,
             description=f"OPEA IMAGE2IMAGE Component: {image2image_component_name}",
             config=args.__dict__,
-       )
+        )
     except Exception as e:
         logger.error(f"Failed to initialize components: {e}")
         exit(1)

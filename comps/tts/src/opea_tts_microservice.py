@@ -24,9 +24,7 @@ logflag = os.getenv("LOGFLAG", False)
 
 tts_component_name = os.getenv("TTS_COMPONENT_NAME", "OPEA_SPEECHT5_TTS")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(
-    tts_component_name, description=f"OPEA TTS Component: {tts_component_name}"
-)
+loader = OpeaComponentLoader(tts_component_name, description=f"OPEA TTS Component: {tts_component_name}")
 
 
 async def stream_forwarder(response):
