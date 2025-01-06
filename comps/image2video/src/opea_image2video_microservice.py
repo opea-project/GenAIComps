@@ -62,7 +62,6 @@ if __name__ == "__main__":
         # Initialize OpeaComponentLoader
         component_loader = OpeaComponentLoader(
             image2video_component_name,
-            name=image2video_component_name,
             description=f"OPEA IMAGE2VIDEO Component: {image2video_component_name}",
             config=args.__dict__,
         )

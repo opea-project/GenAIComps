@@ -37,7 +37,6 @@ retriever_component_name = os.getenv("RETRIEVER_COMPONENT_NAME", "OPEA_RETRIEVER
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     retriever_component_name,
-    name=retriever_component_name,
     description=f"OPEA RETRIEVER Component: {retriever_component_name}",
 )
 

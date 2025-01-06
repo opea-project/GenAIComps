@@ -29,7 +29,6 @@ dataprep_component_name = os.getenv("DATAPREP_COMPONENT_NAME", "OPEA_DATAPREP_RE
 # Initialize OpeaComponentLoader
 loader = OpeaDataprepLoader(
     dataprep_component_name,
-    name=dataprep_component_name,
     description=f"OPEA DATAPREP Component: {dataprep_component_name}",
 )
 

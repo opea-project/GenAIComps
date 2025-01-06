@@ -25,7 +25,7 @@ logflag = os.getenv("LOGFLAG", False)
 rerank_component_name = os.getenv("RERANK_COMPONENT_NAME", "OPEA_RERANK_TEI")
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
-    rerank_component_name, name=rerank_component_name, description=f"OPEA RERANK Component: {rerank_component_name}"
+    rerank_component_name, description=f"OPEA RERANK Component: {rerank_component_name}"
 )
 
 

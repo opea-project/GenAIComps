@@ -23,15 +23,7 @@ args = None
 
 logger = CustomLogger("image2image")
 
-
-image2image_component_name = os.getenv("IMAGE2IMAGE_COMPONENT_NAME", "OPEA_IMAGE2IMAGE")
-# Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(
-    image2image_component_name,
-    name=image2image_component_name,
-    description=f"OPEA IMAGE2IMAGE Component: {image2image_component_name}",
-)
-
+component_loader = None
 
 @register_microservice(
     name="opea_service@image2image",
@@ -45,7 +37,7 @@ loader = OpeaComponentLoader(
 @register_statistics(names=["opea_service@image2image"])
 def image2image(input: SDImg2ImgInputs):
     start = time.time()
-    results = loader.invoke(input)
+    results = component_loader.invoke(input)
     statistics_dict["opea_service@image2image"].append_latency(time.time() - start, None)
     return SDOutputs(images=results)
 
@@ -60,6 +52,18 @@ if __name__ == "__main__":
     parser.add_argument("--bf16", action="store_true")
 
     args = parser.parse_args()
+    image2image_component_name = os.getenv("IMAGE2IMAGE_COMPONENT_NAME", "OPEA_IMAGE2IMAGE")
+    # Register components
+    try:
+        # Initialize OpeaComponentLoader
+        component_loader = OpeaComponentLoader(
+            image2image_component_name,
+            description=f"OPEA IMAGE2IMAGE Component: {image2image_component_name}",
+            config=args.__dict__,
+       )
+    except Exception as e:
+        logger.error(f"Failed to initialize components: {e}")
+        exit(1)
 
     logger.info("Image2image server started.")
     opea_microservices["opea_service@image2image"].start()

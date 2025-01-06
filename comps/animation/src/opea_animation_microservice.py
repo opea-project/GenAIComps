@@ -28,7 +28,6 @@ animation_component_name = os.getenv("ANIMATION_COMPONENT_NAME", "OPEA_ANIMATION
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     animation_component_name,
-    name=animation_component_name,
     description=f"OPEA ANIMATION Component: {animation_component_name}",
 )
 

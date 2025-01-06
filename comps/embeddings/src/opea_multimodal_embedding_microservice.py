@@ -25,7 +25,6 @@ embedding_component_name = os.getenv("EMBEDDING_COMPONENT_NAME", "OPEA_MULTIMODA
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     embedding_component_name,
-    name=embedding_component_name,
     description=f"OPEA Embedding Component: {embedding_component_name}",
 )
 

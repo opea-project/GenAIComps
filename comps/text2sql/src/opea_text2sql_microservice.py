@@ -21,7 +21,6 @@ text2sql_component_name = os.getenv("TEXT2SQL_COMPONENT_NAME", "OPEA_TEXT2SQL")
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     text2sql_component_name,
-    name=text2sql_component_name,
     description=f"OPEA RERANK Component: {text2sql_component_name}",
 )
 

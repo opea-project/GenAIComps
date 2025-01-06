@@ -27,7 +27,7 @@ logflag = os.getenv("LOGFLAG", False)
 llm_component_name = os.getenv("LLM_COMPONENT_NAME", "OPEA_LLM")
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
-    llm_component_name, name=llm_component_name, description=f"OPEA LLM Component: {llm_component_name}"
+    llm_component_name, description=f"OPEA LLM Component: {llm_component_name}"
 )
 
 

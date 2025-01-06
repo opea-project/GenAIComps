@@ -143,6 +143,8 @@ class OpeaComponentLoader:
         :param component_name: The name of the component to load
         :param kwargs: Additional parameters for the component's initialization
         """
+        kwargs['name'] = component_name
+
         # Retrieve the component class from the registry
         component_class = OpeaComponentRegistry.get(component_name)
 
