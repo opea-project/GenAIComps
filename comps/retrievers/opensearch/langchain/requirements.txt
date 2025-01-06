@@ -1,16 +1,16 @@
 docarray[full]
+easyocr
 fastapi
-httpx==0.27.2
-huggingface_hub
-langchain #==0.1.12
-langchain-huggingface
-langchain-openai
 langchain_community
-langchainhub
+langchain_huggingface
+numpy
+opensearch-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
+pydantic
+pymupdf
+sentence_transformers
 shortuuid
-transformers
 uvicorn
