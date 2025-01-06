@@ -8,7 +8,7 @@ This OPEA component wraps llama.cpp server so that it can interface with other O
 
 ```bash
 cd GenAIComps/
-docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yml up
+docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml up
 ```
 
 Please note it's instructive to run and validate each the llama.cpp server and OPEA component below.
