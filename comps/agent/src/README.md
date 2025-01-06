@@ -11,7 +11,7 @@ We currently support the following types of agents. Please refer to the example 
 1. ReAct: use `react_langchain` or `react_langgraph` or `react_llama` as strategy. First introduced in this seminal [paper](https://arxiv.org/abs/2210.03629). The ReAct agent engages in "reason-act-observe" cycles to solve problems. Please refer to this [doc](https://python.langchain.com/v0.2/docs/how_to/migrate_agent/) to understand the differences between the langchain and langgraph versions of react agents. See table below to understand the validated LLMs for each react strategy.
 2. RAG agent: use `rag_agent` or `rag_agent_llama` strategy. This agent is specifically designed for improving RAG performance. It has the capability to rephrase query, check relevancy of retrieved context, and iterate if context is not relevant. See table below to understand the validated LLMs for each rag agent strategy.
 3. Plan and execute: `plan_execute` strategy. This type of agent first makes a step-by-step plan given a user request, and then execute the plan sequentially (or in parallel, to be implemented in future). If the execution results can solve the problem, then the agent will output an answer; otherwise, it will replan and execute again.
-4. SQL agent: use `sql_agent_llama` or `sql_agent` strategy. This agent is specifically designed and optimized for answering questions aabout data in SQL databases. Users need to specify `db_name` and `db_path` for the agent to access the SQL database. For more technical details read descriptions [here](src/strategy/sqlagent/README.md).
+4. SQL agent: use `sql_agent_llama` or `sql_agent` strategy. This agent is specifically designed and optimized for answering questions aabout data in SQL databases. Users need to specify `db_name` and `db_path` for the agent to access the SQL database. For more technical details read descriptions [here](integrations/strategy/sqlagent/README.md).
 
 **Note**:
 
@@ -205,5 +205,5 @@ data: [DONE]
 
 ## 5. Customize agent strategy
 
-For advanced developers who want to implement their own agent strategies, you can add a separate folder in `src\strategy`, implement your agent by inherit the `BaseAgent` class, and add your strategy into the `src\agent.py`. The architecture of this agent microservice is shown in the diagram below as a reference.
+For advanced developers who want to implement their own agent strategies, you can add a separate folder in `integrations\strategy`, implement your agent by inherit the `BaseAgent` class, and add your strategy into the `integrations\agent.py`. The architecture of this agent microservice is shown in the diagram below as a reference.
 ![Architecture Overview](agent_arch.jpg)
