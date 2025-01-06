@@ -166,7 +166,7 @@ function start_vllm_service_70B() {
 
 function start_react_agent_service() {
     echo "Starting react agent microservice"
-    docker compose -f $WORKPATH/tests/agent/react.yaml up -d
+    docker compose -f $WORKPATH/tests/agent/react_langchain.yaml up -d
     sleep 120s
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
