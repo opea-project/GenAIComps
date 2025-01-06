@@ -3,7 +3,6 @@
 
 services:
   llamacpp-server:
-    # image: ghcr.io/ggerganov/llama.cpp:server
     image: ghcr.io/ggerganov/llama.cpp:server-b4419
     ports:
       - 8080:8080
