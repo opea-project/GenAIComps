@@ -4,6 +4,10 @@
 
 This OPEA component wraps llama.cpp server so that it can interface with other OPEA components, or for creating OPEA Megaservices.
 
+llama.cpp supports this [hardware](https://github.com/ggerganov/llama.cpp?tab=readme-ov-file#supported-backends), and has only been tested on CPU.
+
+To use a CUDA server please refer to [this llama.cpp reference](https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md#docker) and modify docker_compose_llm.yaml accordingly.
+
 ## TLDR
 
 ```bash
@@ -47,7 +51,7 @@ This is essentially a wrapper component of Llama.cpp server. OPEA nicely standar
 
 ```bash
 cd GenAIComps/
-docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yml up llama-opea-llm
+docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml up llama-opea-llm
 ```
 
 Equivalently, the above can be achieved with `build` and `run` from the Dockerfile. Build:
