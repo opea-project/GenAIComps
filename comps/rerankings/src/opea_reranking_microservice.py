@@ -5,8 +5,6 @@ import os
 import time
 from typing import Union
 
-from integrations.opea_tei import OPEATEIReranking
-
 from comps import (
     CustomLogger,
     OpeaComponentController,
@@ -28,12 +26,23 @@ controller = OpeaComponentController()
 try:
     # Instantiate reranking components
     if rerank_type == "tei":
+        from integrations.opea_tei import OPEATEIReranking
+
         opea_tei_reranking = OPEATEIReranking(
             name="OPEATEIReranking",
             description="OPEA TEI Reranking Service",
         )
         # Register components with the controller
         controller.register(opea_tei_reranking)
+    elif rerank_type == "videoqna":
+        from integrations.opea_videoqna import OPEAVideoQnaReranking
+
+        opea_video_native_reranking = OPEAVideoQnaReranking(
+            name="OPEAVideoNativeReranking",
+            description="OPEA Video Native Reranking Service",
+        )
+        # Register components with the controller
+        controller.register(opea_video_native_reranking)
 
     # Discover and activate a healthy component
     controller.discover_and_activate()
