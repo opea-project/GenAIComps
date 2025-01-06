@@ -60,7 +60,7 @@ Examples of how to register tools can be found in [Section 4](#-4-provide-your-o
 
 ```bash
 cd GenAIComps/ # back to GenAIComps/ folder
-docker build -t opea/agent-langchain:latest -f comps/agent/langchain/Dockerfile . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+docker build -t opea/agent:latest -f comps/agent/src/Dockerfile . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
 ```
 
 #### 2.2.1 Start Agent microservices with TGI
@@ -78,7 +78,7 @@ docker run -d --runtime=habana --name "comps-tgi-gaudi-service" -p 8080:80 -v ./
 docker logs comps-tgi-gaudi-service
 
 # Agent: react_llama strategy
-docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent-langchain:latest
+docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent:latest
 
 # check status
 docker logs comps-langchain-agent-endpoint
@@ -105,7 +105,7 @@ docker run -d --runtime=habana --rm --name "comps-vllm-gaudi-service" -p 8080:80
 docker logs comps-vllm-gaudi-service
 
 # Agent
-docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent-langchain:latest
+docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v $WORKPATH/comps/agent/langchain/tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent:latest
 
 # check status
 docker logs comps-langchain-agent-endpoint
@@ -114,7 +114,7 @@ docker logs comps-langchain-agent-endpoint
 > debug mode
 >
 > ```bash
-> docker run --rm --runtime=runc --name="comps-langchain-agent-endpoint" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent-langchain:latest
+> docker run --rm --runtime=runc --name="comps-langchain-agent-endpoint" -v ./comps/agent/langchain/:/home/user/comps/agent/langchain/ -p 9090:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=vllm -e recursion_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent:latest
 > ```
 
 ## 🚀 3. Validate Microservice
@@ -189,7 +189,7 @@ def opea_rag_query(query):
 
 ```bash
 # Agent
-docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v my_tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursive_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent-langchain:latest
+docker run -d --runtime=runc --name="comps-langchain-agent-endpoint" -v my_tools:/home/user/comps/agent/langchain/tools -p 9090:9090 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${model} -e ip_address=${ip_address} -e strategy=react_llama -e llm_endpoint_url=http://${ip_address}:8080 -e llm_engine=tgi -e recursive_limit=15 -e require_human_feedback=false -e tools=/home/user/comps/agent/langchain/tools/custom_tools.yaml opea/agent:latest
 ```
 
 - validate with my_tools
