@@ -10,12 +10,12 @@ from comps import (
     CustomLogger,
     OpeaComponentLoader,
     ServiceType,
+    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
-from comps import TextDoc
 
 logger = CustomLogger("opea_bias_detection_microservice")
 logflag = os.getenv("LOGFLAG", False)

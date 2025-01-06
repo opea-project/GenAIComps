@@ -5,7 +5,8 @@ import asyncio
 import os
 
 from predictionguard import PredictionGuard
-from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, TextDoc, ScoreDoc, ServiceType
+
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ScoreDoc, ServiceType, TextDoc
 
 logger = CustomLogger("opea_toxicity_detection_predictionguard")
 logflag = os.getenv("LOGFLAG", False)

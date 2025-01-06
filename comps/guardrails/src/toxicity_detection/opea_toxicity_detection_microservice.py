@@ -9,9 +9,9 @@ from integrations.predictionguard import OpeaToxicityDetectionPredictionGuard
 from comps import (
     CustomLogger,
     OpeaComponentLoader,
-    TextDoc,
     ScoreDoc,
     ServiceType,
+    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,

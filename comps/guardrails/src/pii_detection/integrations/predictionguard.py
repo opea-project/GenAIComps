@@ -6,6 +6,7 @@ import json
 import os
 
 from predictionguard import PredictionGuard
+
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, PIIRequestDoc, PIIResponseDoc, ServiceType
 
 logger = CustomLogger("opea_pii_detection_predictionguard")
@@ -24,15 +25,14 @@ class OpeaPiiDetectionPredictionGuard(OpeaComponent):
             logger.error("OpeaPiiDetectionPredictionGuard health check failed.")
 
     async def invoke(self, input: PIIRequestDoc):
-        """
-        Asynchronously invokes PII (Personally Identifiable Information) detection for the given input.
+        """Asynchronously invokes PII (Personally Identifiable Information) detection for the given input.
 
         This function sends a request to detect PII content in the provided input. It processes
         the result to determine if PII was detected or if a sanitized version of the input text
         is available.
 
         Args:
-            input (PIIRequestDoc): 
+            input (PIIRequestDoc):
                 - Contains the `prompt` to be analyzed for PII detection.
                 - Includes `replace` and `replace_method` options to handle potential PII.
 
@@ -42,10 +42,9 @@ class OpeaPiiDetectionPredictionGuard(OpeaComponent):
                 - If PII types and positions are detected, a detailed report (`detected_pii`) is returned.
                 - Otherwise, the response format depends on the PII detection service output.
         """
-        result = await asyncio.to_thread(self.client.pii.check,
-                                         prompt=input.prompt,
-                                         replace=input.replace,
-                                         replace_method = input.replace_method)
+        result = await asyncio.to_thread(
+            self.client.pii.check, prompt=input.prompt, replace=input.replace, replace_method=input.replace_method
+        )
         if "new_prompt" in result["checks"][0].keys():
             return PIIResponseDoc(new_prompt=result["checks"][0]["new_prompt"])
         elif "pii_types_and_positions" in result["checks"][0].keys():

@@ -9,9 +9,9 @@ from integrations.predictionguard import OpeaPromptInjectionPredictionGuard
 from comps import (
     CustomLogger,
     OpeaComponentLoader,
-    TextDoc,
     ScoreDoc,
     ServiceType,
+    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,

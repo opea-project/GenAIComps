@@ -10,14 +10,15 @@ from integrations.wildguard import OpeaGuardrailsWildGuard
 
 from comps import (
     CustomLogger,
+    GeneratedDoc,
     OpeaComponentLoader,
     ServiceType,
+    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
 )
-from comps import GeneratedDoc,TextDoc
 
 logger = CustomLogger("opea_embedding_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -29,6 +30,7 @@ loader = OpeaComponentLoader(
     name=guardrails_component_name,
     description=f"OPEA Guardrails Component: {guardrails_component_name}",
 )
+
 
 @register_microservice(
     name="opea_service@guardrails",
