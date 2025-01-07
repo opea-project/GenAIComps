@@ -4,7 +4,7 @@
 import os
 import time
 
-from integrations.opea_google_search import OpeaGoogleSearch
+from integrations.google_search import OpeaGoogleSearch
 
 from comps import (
     CustomLogger,
