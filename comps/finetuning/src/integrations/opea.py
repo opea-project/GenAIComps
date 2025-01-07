@@ -14,7 +14,7 @@ from fastapi import BackgroundTasks, File, Form, HTTPException, UploadFile
 from pydantic_yaml import to_yaml_file
 from ray.job_submission import JobSubmissionClient
 
-from comps import CustomLogger, OpeaComponent
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry
 from comps.cores.proto.api_protocol import (
     FileObject,
     FineTuningJob,
@@ -85,6 +85,7 @@ async def upload_file(purpose: str = Form(...), file: UploadFile = File(...)):
     return UploadFileRequest(purpose=purpose, file=file)
 
 
+@OpeaComponentRegistry.register("OPEA_FINETUNING")
 class OpeaFinetuning(OpeaComponent):
     """A specialized finetuning component derived from OpeaComponent for finetuning services."""
 
