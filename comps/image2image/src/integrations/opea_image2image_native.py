@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import base64
 import os
-import threading
 import tempfile
+import threading
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, SDImg2ImgInputs, ServiceType
 
