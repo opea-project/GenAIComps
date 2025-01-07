@@ -31,6 +31,7 @@ function start_service() {
         -e http_proxy=${http_proxy} \
         -e https_proxy=${https_proxy} \
         -e CHUNK_DURATION=${CHUNK_DURATION} \
+        -e RERANK_COMPONENT_NAME="OPEA_VIDEO_RERANKING" \
         -e FILE_SERVER_ENDPOINT=${FILE_SERVER_ENDPOINT} \
         opea/reranking:comps
 

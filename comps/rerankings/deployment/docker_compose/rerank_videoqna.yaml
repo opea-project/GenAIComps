@@ -14,6 +14,7 @@ services:
       https_proxy: ${https_proxy}
       CHUNK_DURATION: ${CHUNK_DURATION}
       FILE_SERVER_ENDPOINT: ${FILE_SERVER_ENDPOINT}
+      RERANK_COMPONENT_NAME: "OPEA_VIDEO_RERANKING" 
     restart: unless-stopped
 
 networks:
