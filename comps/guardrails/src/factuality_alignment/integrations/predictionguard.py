@@ -5,7 +5,8 @@ import asyncio
 import os
 
 from predictionguard import PredictionGuard
-from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, FactualityDoc, ScoreDoc, ServiceType
+
+from comps import CustomLogger, FactualityDoc, OpeaComponent, OpeaComponentRegistry, ScoreDoc, ServiceType
 
 logger = CustomLogger("opea_factulity_predictionguard")
 logflag = os.getenv("LOGFLAG", False)
@@ -46,7 +47,7 @@ class OpeaFactualityPredictionGuard(OpeaComponent):
             if not self.client:
                 return False
             # Send a request to do factuality check
-            response = self.client.factuality.check(reference="The sky is blue.",text="The sky is green.")
+            response = self.client.factuality.check(reference="The sky is blue.", text="The sky is green.")
 
             # Check if the response is a valid dictionary and contains the expected 'checks' key
             if isinstance(response, dict) and "checks" in response:

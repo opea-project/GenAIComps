@@ -3,9 +3,10 @@
 
 import asyncio
 import os
+
 from transformers import pipeline
 
-from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, TextDoc, ServiceType
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType, TextDoc
 
 logger = CustomLogger("opea_bias_native")
 logflag = os.getenv("LOGFLAG", False)

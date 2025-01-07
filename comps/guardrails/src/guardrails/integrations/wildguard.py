@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-
 import os
 from typing import Union
 
@@ -10,7 +9,7 @@ from langchain_community.utilities.requests import JsonRequestsWrapper
 from langchain_huggingface import ChatHuggingFace
 from langchain_huggingface.llms import HuggingFaceEndpoint
 
-from comps import OpeaComponent, CustomLogger, GeneratedDoc, ServiceType, TextDoc, OpeaComponentRegistry
+from comps import CustomLogger, GeneratedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType, TextDoc
 
 logger = CustomLogger("opea_wild_guard")
 logflag = os.getenv("LOGFLAG", False)
@@ -30,6 +29,7 @@ AI assistant:
 Answers: [/INST]
 <|assistant|>
 """
+
 
 @OpeaComponentRegistry.register("OPEA_WILD_GUARD")
 class OpeaGuardrailsWildGuard(OpeaComponent):
@@ -55,23 +55,22 @@ class OpeaGuardrailsWildGuard(OpeaComponent):
             logger.error("OpeaGuardrailsWildGuard health check failed.")
 
     async def invoke(self, input: Union[GeneratedDoc, TextDoc]):
-        """
-        Asynchronously invokes guardrails checks for the input.
+        """Asynchronously invokes guardrails checks for the input.
 
         This function sends the input to the LLM engine for guardrails validation
-        to check if the content adheres to defined policies. If violations are 
-        detected, the function returns a `TextDoc` object with details of the violated 
+        to check if the content adheres to defined policies. If violations are
+        detected, the function returns a `TextDoc` object with details of the violated
         policies; otherwise, it returns the original input.
 
         Args:
-            input (Union[GeneratedDoc, TextDoc]): 
+            input (Union[GeneratedDoc, TextDoc]):
                 - `GeneratedDoc`: Contains both a `prompt` and `text` to be validated.
                 - `TextDoc`: Contains a single `text` input to be validated.
 
         Returns:
             TextDoc:
                 - If the input passes the policy checks, the original `text` is returned.
-                - If the input violates policies, a message indicating the violated policies 
+                - If the input violates policies, a message indicating the violated policies
                 and a downstream blacklist (`downstream_black_list`) are included.
         """
         if isinstance(input, GeneratedDoc):
@@ -91,17 +90,15 @@ class OpeaGuardrailsWildGuard(OpeaComponent):
             logger.info(res)
         return res
 
-
     def check_health(self) -> bool:
-        """
-        Checks the health of the Wild Guard service.
+        """Checks the health of the Wild Guard service.
 
-        This function verifies if the Wild Guard service is operational by 
-        sending a guardrails check request to the LLM engine. It evaluates the 
+        This function verifies if the Wild Guard service is operational by
+        sending a guardrails check request to the LLM engine. It evaluates the
         service's response to determine its health.
 
         Returns:
-            bool: 
+            bool:
                 - True if the service is reachable and responds with a valid "safe" keyword.
                 - False if the service is unreachable, the response is invalid, or an exception occurs.
         """
@@ -121,4 +118,3 @@ class OpeaGuardrailsWildGuard(OpeaComponent):
             # Handle exceptions such as network errors or unexpected failures
             logger.error(f"Health check failed due to an exception: {e}")
             return False
-
