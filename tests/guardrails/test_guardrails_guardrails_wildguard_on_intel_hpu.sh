@@ -28,7 +28,7 @@ function start_service() {
 
     docker run -d --name="test-comps-guardrails-tgi-server" -p 5035:80 --runtime=habana -e HF_TOKEN=$HF_TOKEN -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy ghcr.io/huggingface/tgi-gaudi:2.0.1 --model-id $model_id --max-input-length 1024 --max-total-tokens 2048
     sleep 4m
-    docker run -d --name="test-comps-guardrails-service" -p 5036:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e SAFETY_GUARD_MODEL_ID=$SAFETY_GUARD_MODEL_ID -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} -e HF_TOKEN=${HF_TOKEN} opea/guardrails-wildguard:comps
+    docker run -d --name="test-comps-guardrails-service" -p 5036:9090 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e SAFETY_GUARD_MODEL_ID=$SAFETY_GUARD_MODEL_ID -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} -e HF_TOKEN=${HF_TOKEN} -e GUARDRAILS_COMPONENT_NAME="OPEA_WILD_GUARD" opea/guardrails-wildguard:comps
     sleep 10s
     echo "Microservice started"
 }

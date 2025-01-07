@@ -39,7 +39,7 @@ class OpeaGuardrailsWildGuard(OpeaComponent):
         super().__init__(name, ServiceType.GUARDRAIL.name.lower(), description, config)
         safety_guard_endpoint = os.getenv("SAFETY_GUARD_ENDPOINT", "http://localhost:8080")
         safety_guard_model = os.getenv("SAFETY_GUARD_MODEL_ID", DEFAULT_MODEL)
-        llm_guard = HuggingFaceEndpoint(
+        self.llm_guard = HuggingFaceEndpoint(
             endpoint_url=safety_guard_endpoint,
             max_new_tokens=100,
             top_k=1,
@@ -49,7 +49,6 @@ class OpeaGuardrailsWildGuard(OpeaComponent):
             repetition_penalty=1.03,
         )
         # chat engine for server-side prompt templating
-        self.llm_engine_hf = ChatHuggingFace(llm=llm_guard, model_id=safety_guard_model)
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaGuardrailsWildGuard health check failed.")
@@ -77,8 +76,7 @@ class OpeaGuardrailsWildGuard(OpeaComponent):
             messages = INSTRUCTION_FORMAT.format(prompt=input.prompt, response=input.text)
         else:
             messages = INSTRUCTION_FORMAT.format(prompt=input.text, response="")
-        response = await asyncio.to_thread(self.llm_engine_hf.invoke, messages)
-        response_input_guard = response.content
+        response_input_guard = await asyncio.to_thread(self.llm_guard.invoke, messages)
 
         if "Harmful request: yes" in response_input_guard or "Harmful response: yes" in response_input_guard:
 
@@ -104,11 +102,11 @@ class OpeaGuardrailsWildGuard(OpeaComponent):
                 - False if the service is unreachable, the response is invalid, or an exception occurs.
         """
         try:
-            if not self.llm_engine_hf:
+            if not self.llm_guard:
                 return False
 
             # Send a request to do guardrails check
-            response = self.llm_engine_hf.invoke({"role": "user", "content": "The sky is blue."}).content
+            response = self.llm_guard.invoke("The sky is blue.")
 
             if "safe" in response:
                 return True

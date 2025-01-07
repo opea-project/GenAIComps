@@ -20,7 +20,7 @@ from comps import (
     statistics_dict,
 )
 
-logger = CustomLogger("opea_embedding_microservice")
+logger = CustomLogger("opea_guardrails_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
 guardrails_component_name = os.getenv("GUARDRAILS_COMPONENT_NAME", "OPEA_LLAMA_GUARD")
