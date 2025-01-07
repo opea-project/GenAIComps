@@ -6,6 +6,7 @@ import base64
 import os
 import threading
 import time
+import uuid
 
 import torch
 from diffusers import AutoPipelineForImage2Image
@@ -88,7 +89,7 @@ def image2image(input: SDImg2ImgInputs):
 
     generator = torch.manual_seed(args.seed)
     images = pipe(image=image, prompt=prompt, generator=generator, num_images_per_prompt=num_images_per_prompt).images
-    image_path = os.path.join(os.getcwd(), prompt.strip().replace(" ", "_").replace("/", ""))
+    image_path = os.path.join(os.getcwd(), uuid.uuid3(uuid.NAMESPACE_X500, prompt).hex)
     os.makedirs(image_path, exist_ok=True)
     results = []
     for i, image in enumerate(images):
