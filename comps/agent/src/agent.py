@@ -14,10 +14,10 @@ comps_path = os.path.join(cur_path, "../../../")
 sys.path.append(comps_path)
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, register_microservice
-from comps.agent.langchain.src.agent import instantiate_agent
-from comps.agent.langchain.src.global_var import assistants_global_kv, threads_global_kv
-from comps.agent.langchain.src.thread import instantiate_thread_memory, thread_completion_callback
-from comps.agent.langchain.src.utils import get_args
+from comps.agent.src.integrations.agent import instantiate_agent
+from comps.agent.src.integrations.global_var import assistants_global_kv, threads_global_kv
+from comps.agent.src.integrations.thread import instantiate_thread_memory, thread_completion_callback
+from comps.agent.src.integrations.utils import get_args
 from comps.cores.proto.api_protocol import (
     AssistantsObject,
     ChatCompletionRequest,
@@ -56,7 +56,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, AgentCo
     if logflag:
         logger.info(input)
 
-    input.streaming = args.streaming
+    input.stream = args.stream
     config = {"recursion_limit": args.recursion_limit}
 
     if args.with_memory:
@@ -79,7 +79,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, AgentCo
             input_query = input.messages[-1]["content"]
 
     # 2. prepare the input for the agent
-    if input.streaming:
+    if input.stream:
         logger.info("-----------STREAMING-------------")
         return StreamingResponse(agent_inst.stream_generator(input_query, config), media_type="text/event-stream")
 
