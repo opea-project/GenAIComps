@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import os
 import time
 
 from integrations.opea import OpeaText2image
 
 from comps import (
     CustomLogger,
-    OpeaComponentController,
+    OpeaComponentLoader,
     SDInputs,
     SDOutputs,
     ServiceType,
@@ -19,9 +20,6 @@ from comps import (
 )
 
 logger = CustomLogger("opea_text2image_microservice")
-
-# Initialize OpeaComponentController
-controller = OpeaComponentController()
 
 
 @register_microservice(
@@ -37,8 +35,8 @@ controller = OpeaComponentController()
 async def text2image(input: SDInputs):
     start = time.time()
     try:
-        # Use the controller to invoke the active component
-        results = await controller.invoke(input)
+        # Use the loader to invoke the active component
+        results = await loader.invoke(input)
         statistics_dict["opea_service@text2image"].append_latency(time.time() - start, None)
         return results
     except Exception as e:
@@ -57,20 +55,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Register components
-    try:
-        # Instantiate Embedding components
-        opea_text2image = OpeaText2image(
-            name="OpeaText2image", description="OPEA Text2image Service", config=args.__dict__
-        )
-
-        # Register components with the controller
-        controller.register(opea_text2image)
-
-        # Discover and activate a healthy component
-        controller.discover_and_activate()
-    except Exception as e:
-        logger.error(f"Failed to initialize components: {e}")
+    text2image_component_name = os.getenv("TEXT2IMAGE_COMPONENT_NAME", "OPEA_TEXT2IMAGE")
+    # Initialize OpeaComponentLoader
+    loader = OpeaComponentLoader(
+        text2image_component_name,
+        description=f"OPEA TEXT2IMAGE Component: {text2image_component_name}",
+        config=args.__dict__,
+    )
 
     logger.info("Text2image server started.")
     opea_microservices["opea_service@text2image"].start()

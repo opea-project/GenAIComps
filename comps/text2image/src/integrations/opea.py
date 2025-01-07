@@ -3,15 +3,17 @@
 
 import base64
 import os
+import tempfile
 
 import torch
 from diffusers import DiffusionPipeline
 
-from comps import CustomLogger, OpeaComponent, SDInputs, SDOutputs, ServiceType
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, SDInputs, SDOutputs, ServiceType
 
 logger = CustomLogger("opea")
 
 
+@OpeaComponentRegistry.register("OPEA_TEXT2IMAGE")
 class OpeaText2image(OpeaComponent):
     """A specialized text2image component derived from OpeaComponent for text2image services.
 
@@ -82,16 +84,15 @@ class OpeaText2image(OpeaComponent):
 
         generator = torch.manual_seed(self.seed)
         images = self.pipe(prompt, generator=generator, num_images_per_prompt=num_images_per_prompt).images
-        image_path = os.path.join(os.getcwd(), prompt.strip().replace(" ", "_").replace("/", ""))
-        os.makedirs(image_path, exist_ok=True)
-        results = []
-        for i, image in enumerate(images):
-            save_path = os.path.join(image_path, f"image_{i+1}.png")
-            image.save(save_path)
-            with open(save_path, "rb") as f:
-                bytes = f.read()
-            b64_str = base64.b64encode(bytes).decode()
-            results.append(b64_str)
+        with tempfile.TemporaryDirectory() as image_path:
+            results = []
+            for i, image in enumerate(images):
+                save_path = os.path.join(image_path, f"image_{i+1}.png")
+                image.save(save_path)
+                with open(save_path, "rb") as f:
+                    bytes = f.read()
+                b64_str = base64.b64encode(bytes).decode()
+                results.append(b64_str)
         return SDOutputs(images=results)
 
     def check_health(self) -> bool:
