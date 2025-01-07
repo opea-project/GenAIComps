@@ -95,7 +95,7 @@ class OpeaImageToImage(OpeaComponent):
         self.pipe = pipe
         self.seed = seed
 
-    def invoke(self, input: SDImg2ImgInputs):
+    async def invoke(self, input: SDImg2ImgInputs):
         """Invokes the ImageToImage service to generate Images for the provided input.
 
         Args:
