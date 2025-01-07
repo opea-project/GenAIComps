@@ -94,7 +94,7 @@ bash ./launch_vllm_service.sh 8008 meta-llama/Meta-Llama-3-70b hpu 8
 
 ### 2.3 vLLM with OpenVINO (on Intel GPU and CPU)
 
-vLLM powered by OpenVINO supports all LLM models from [vLLM supported models list](https://github.com/vllm-project/vllm/blob/main/docs/source/models/supported_models.rst) and can perform optimal model serving on Intel GPU and all x86-64 CPUs with, at least, AVX2 support, as well as on both integrated and discrete Intel® GPUs (starting from Intel® UHD Graphics generation). OpenVINO vLLM backend supports the following advanced vLLM features:
+vLLM powered by OpenVINO supports all LLM models from [vLLM supported models list](https://github.com/vllm-project/vllm/blob/main/docs/source/models/supported_models.md) and can perform optimal model serving on Intel GPU and all x86-64 CPUs with, at least, AVX2 support, as well as on both integrated and discrete Intel® GPUs (starting from Intel® UHD Graphics generation). OpenVINO vLLM backend supports the following advanced vLLM features:
 
 - Prefix caching (`--enable-prefix-caching`)
 - Chunked prefill (`--enable-chunked-prefill`)
@@ -220,32 +220,24 @@ curl http://${your_ip}:9000/v1/health_check\
 User can set the following model parameters according to needs:
 
 - max_tokens: Total output token
-- streaming(true/false): return text response in streaming mode or non-streaming mode
+- stream(true/false): return text response in stream mode or non-stream mode
 
 ```bash
-# 1. Non-streaming mode
+# stream mode
 curl http://${your_ip}:9000/v1/chat/completions \
-  -X POST \
-  -d '{"query":"What is Deep Learning?","max_tokens":17,"top_p":1,"temperature":0.7,"frequency_penalty":0,"presence_penalty":0, "streaming":false}' \
-  -H 'Content-Type: application/json'
+    -X POST \
+    -d '{"model": "${model_name}", "messages": "What is Deep Learning?", "max_tokens":17}' \
+    -H 'Content-Type: application/json'
 
-# 2. Streaming mode
 curl http://${your_ip}:9000/v1/chat/completions \
-  -X POST \
-  -d '{"query":"What is Deep Learning?","max_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":true}' \
-  -H 'Content-Type: application/json'
+    -X POST \
+    -d '{"model": "${model_name}", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17}' \
+    -H 'Content-Type: application/json'
 
-# 3. Custom chat template with streaming mode
+#Non-stream mode
 curl http://${your_ip}:9000/v1/chat/completions \
-  -X POST \
-  -d '{"query":"What is Deep Learning?","max_tokens":17,"top_k":10,"top_p":0.95,"typical_p":0.95,"temperature":0.01,"repetition_penalty":1.03,"streaming":true, "chat_template":"### You are a helpful, respectful and honest assistant to help the user with questions.\n### Context: {context}\n### Question: {question}\n### Answer:"}' \
-  -H 'Content-Type: application/json'
+    -X POST \
+    -d '{"model": "${model_name}", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}' \
+    -H 'Content-Type: application/json'
 
-4. #  Chat with SearchedDoc (Retrieval context)
-curl http://${your_ip}:9000/v1/chat/completions \
-  -X POST \
-  -d '{"initial_query":"What is Deep Learning?","retrieved_docs":[{"text":"Deep Learning is a ..."},{"text":"Deep Learning is b ..."}]}' \
-  -H 'Content-Type: application/json'
 ```
-
-For parameters, can refer to [LangChain VLLMOpenAI API](https://api.python.langchain.com/en/latest/llms/langchain_community.llms.vllm.VLLMOpenAI.html)

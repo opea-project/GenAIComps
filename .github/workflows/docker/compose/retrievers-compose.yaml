@@ -3,6 +3,10 @@
 
 # this file should be run in the root of the repo
 services:
+  retriever:
+    build:
+      dockerfile: comps/retrievers/src/Dockerfile
+    image: ${REGISTRY:-opea}/retriever:${TAG:-latest}
   retriever-redis:
     build:
       dockerfile: comps/retrievers/redis/langchain/Dockerfile
@@ -15,10 +19,6 @@ services:
     build:
       dockerfile: comps/retrievers/vdms/langchain/Dockerfile
     image: ${REGISTRY:-opea}/retriever-vdms:${TAG:-latest}
-  retriever-multimodal-redis:
-    build:
-      dockerfile: comps/retrievers/multimodal/redis/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/retriever-multimodal-redis:${TAG:-latest}
   retriever-pgvector:
     build:
       dockerfile: comps/retrievers/pgvector/langchain/Dockerfile
@@ -47,3 +47,11 @@ services:
     build:
       dockerfile: comps/retrievers/neo4j/llama_index/Dockerfile
     image: ${REGISTRY:-opea}/retriever-neo4j-llamaindex:${TAG:-latest}
+  retriever-elasticsearch:
+    build:
+      dockerfile: comps/retrievers/elasticsearch/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/retriever-elasticsearch:${TAG:-latest}
+  retriever-opensearch:
+    build:
+      dockerfile: comps/retrievers/opensearch/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/retriever-opensearch:${TAG:-latest}

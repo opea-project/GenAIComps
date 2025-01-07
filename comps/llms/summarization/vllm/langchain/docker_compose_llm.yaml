@@ -23,7 +23,7 @@ services:
     cap_add:
       - SYS_NICE
     ipc: host
-    command: --enforce-eager --model $LLM_MODEL_ID --tensor-parallel-size 1 --host 0.0.0.0 --port 80
+    command: --model $LLM_MODEL_ID --tensor-parallel-size 1 --host 0.0.0.0 --port 80
   llm:
     image: opea/llm-docsum-vllm:latest
     container_name: llm-docsum-vllm-server
@@ -37,6 +37,8 @@ services:
       vLLM_ENDPOINT: ${vLLM_ENDPOINT}
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
+      MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS}
+      MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS}
     restart: unless-stopped
 
 networks:

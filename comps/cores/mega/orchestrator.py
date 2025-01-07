@@ -121,7 +121,7 @@ class ServiceOrchestrator(DAG):
                                         downstreams.remove(downstream)
                                 except re.error as e:
                                     logger.error("Pattern invalid! Operation cancelled.")
-                            if len(downstreams) == 0 and llm_parameters.streaming:
+                            if len(downstreams) == 0 and llm_parameters.stream:
                                 # turn the response to a StreamingResponse
                                 # to make the response uniform to UI
                                 def fake_stream(text):
@@ -153,7 +153,7 @@ class ServiceOrchestrator(DAG):
             if node not in nodes_to_keep:
                 runtime_graph.delete_node_if_exists(node)
 
-        if not llm_parameters.streaming:
+        if not llm_parameters.stream:
             self.metrics.pending_update(False)
 
         return result_dict, runtime_graph
@@ -189,7 +189,7 @@ class ServiceOrchestrator(DAG):
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
 
-        if is_llm_vlm and llm_parameters.streaming:
+        if is_llm_vlm and llm_parameters.stream:
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
@@ -203,7 +203,7 @@ class ServiceOrchestrator(DAG):
             )
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
-                assert len(downstream) == 1, "Not supported multiple streaming downstreams yet!"
+                assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
                 cur_node = downstream[0]
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
                 downstream_endpoint = self.services[downstream[0]].endpoint_path
@@ -237,8 +237,8 @@ class ServiceOrchestrator(DAG):
                                     )
                                     token_start = time.time()
                             else:
-                                yield chunk
                                 token_start = self.metrics.token_update(token_start, is_first)
+                                yield chunk
                             is_first = False
                     self.metrics.request_update(req_start)
                     self.metrics.pending_update(False)
@@ -306,7 +306,7 @@ class ServiceOrchestrator(DAG):
         suffix = "\n\n"
         tokens = re.findall(r"\s?\S+\s?", sentence, re.UNICODE)
         for token in tokens:
-            yield prefix + repr(token.replace("\\n", "\n").encode("utf-8")) + suffix
             token_start = self.metrics.token_update(token_start, is_first)
+            yield prefix + repr(token.replace("\\n", "\n").encode("utf-8")) + suffix
         if is_last:
             yield "data: [DONE]\n\n"
