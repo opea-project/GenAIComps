@@ -83,7 +83,7 @@ class OpeaTgiLlavaLvm(OpeaComponent):
                         f"[ LVMSearchedMultimodalDoc ] {prompt_template} not used, we only support 2 input variables ['question', 'context']"
                     )
             max_new_tokens = request.max_new_tokens
-            streaming = request.streaming
+            stream = request.stream
             repetition_penalty = request.repetition_penalty
             temperature = request.temperature
             top_k = request.top_k
@@ -97,7 +97,7 @@ class OpeaTgiLlavaLvm(OpeaComponent):
             img_b64_str = request.image
             prompt = request.prompt
             max_new_tokens = request.max_new_tokens
-            streaming = request.streaming
+            stream = request.stream
             repetition_penalty = request.repetition_penalty
             temperature = request.temperature
             top_k = request.top_k
@@ -113,7 +113,7 @@ class OpeaTgiLlavaLvm(OpeaComponent):
         image = f"data:image/png;base64,{img_b64_str}"
         image_prompt = f"![]({image})\n{prompt}\nASSISTANT:"
 
-        if streaming:
+        if stream:
             t_start = time.time()
 
             async def stream_generator(time_start):
@@ -121,7 +121,7 @@ class OpeaTgiLlavaLvm(OpeaComponent):
                 chat_response = ""
                 text_generation = await self.lvm_client.text_generation(
                     prompt=image_prompt,
-                    stream=streaming,
+                    stream=stream,
                     max_new_tokens=max_new_tokens,
                     repetition_penalty=repetition_penalty,
                     temperature=temperature,
