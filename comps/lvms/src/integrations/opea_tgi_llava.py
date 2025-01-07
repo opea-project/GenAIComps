@@ -13,11 +13,11 @@ from langchain_core.prompts import PromptTemplate
 
 from comps import (
     CustomLogger,
-    OpeaComponentRegistry,
     LVMDoc,
     LVMSearchedMultimodalDoc,
     MetadataTextDoc,
     OpeaComponent,
+    OpeaComponentRegistry,
     ServiceType,
     TextDoc,
     statistics_dict,
@@ -40,6 +40,7 @@ class ChatTemplate:
             )
 
         return template.format(context=context, question=question)
+
 
 @OpeaComponentRegistry.register("OPEA_TGI_LLAVA_LVM")
 class OpeaTgiLlavaLvm(OpeaComponent):

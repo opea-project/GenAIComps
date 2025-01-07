@@ -7,7 +7,7 @@ from typing import Union
 
 import requests
 
-from comps import CustomLogger, OpeaComponentRegistry, LVMDoc, OpeaComponent, ServiceType, TextDoc
+from comps import CustomLogger, LVMDoc, OpeaComponent, OpeaComponentRegistry, ServiceType, TextDoc
 
 logger = CustomLogger("opea_predictionguard")
 logflag = os.getenv("LOGFLAG", False)

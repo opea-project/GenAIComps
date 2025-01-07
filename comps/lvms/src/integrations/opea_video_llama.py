@@ -9,7 +9,7 @@ import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 
-from comps import CustomLogger, OpeaComponentRegistry, LVMVideoDoc, OpeaComponent, ServiceType, statistics_dict
+from comps import CustomLogger, LVMVideoDoc, OpeaComponent, OpeaComponentRegistry, ServiceType, statistics_dict
 
 logger = CustomLogger("opea_video_llama")
 logflag = os.getenv("LOGFLAG", False)
