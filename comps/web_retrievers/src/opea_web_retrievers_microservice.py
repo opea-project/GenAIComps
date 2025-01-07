@@ -9,8 +9,8 @@ from integrations.google_search import OpeaGoogleSearch
 from comps import (
     CustomLogger,
     EmbedDoc,
-    OpeaComponentController,
     SearchedDoc,
+    OpeaComponentLoader,
     ServiceType,
     opea_microservices,
     register_microservice,
@@ -21,24 +21,9 @@ from comps import (
 logger = CustomLogger("opea_web_retriever_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
-# Initialize OpeaComponentController
-controller = OpeaComponentController()
-
-# Register components
-try:
-    # Instantiate google search retriever component
-    opea_google_search = OpeaGoogleSearch(
-        name="OpeaGoogleSearch",
-        description="OPEA Google Search Service",
-    )
-
-    # Register components with the controller
-    controller.register(opea_google_search)
-
-    # Discover and activate a healthy component
-    controller.discover_and_activate()
-except Exception as e:
-    logger.error(f"Failed to initialize components: {e}")
+web_retriever_component_name = os.getenv("WEB_RETRIEVER_NAME", "OPEA_GOOGLE_SEARCH")
+# Initialize OpeaComponentLoader
+loader = OpeaComponentLoader(web_retriever_component_name, description=f"OPEA WEB RETRIEVER Component: {web_retriever_component_name}")
 
 
 @register_microservice(
@@ -55,8 +40,8 @@ async def web_retriever(input: EmbedDoc) -> SearchedDoc:
     start = time.time()
 
     try:
-        # Use the controller to invoke the active component
-        res = await controller.invoke(input)
+        # Use the loader to invoke the active component
+        res = await loader.invoke(input)
         if logflag:
             logger.info(res)
         statistics_dict["opea_service@web_retriever"].append_latency(time.time() - start, None)
