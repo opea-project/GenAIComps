@@ -18,7 +18,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../../../../
-docker build -t opea/guardrails-injection-predictionguard:latest -f comps/guardrails/prompt_injection/predictionguard/Dockerfile .
+docker build -t opea/guardrails-injection-predictionguard:latest -f comps/guardrails/src/prompt_injection/Dockerfile .
 ```
 
 ## Start Service
