@@ -9,8 +9,8 @@ from integrations.google_search import OpeaGoogleSearch
 from comps import (
     CustomLogger,
     EmbedDoc,
-    SearchedDoc,
     OpeaComponentLoader,
+    SearchedDoc,
     ServiceType,
     opea_microservices,
     register_microservice,
@@ -23,7 +23,9 @@ logflag = os.getenv("LOGFLAG", False)
 
 web_retriever_component_name = os.getenv("WEB_RETRIEVER_NAME", "OPEA_GOOGLE_SEARCH")
 # Initialize OpeaComponentLoader
-loader = OpeaComponentLoader(web_retriever_component_name, description=f"OPEA WEB RETRIEVER Component: {web_retriever_component_name}")
+loader = OpeaComponentLoader(
+    web_retriever_component_name, description=f"OPEA WEB RETRIEVER Component: {web_retriever_component_name}"
+)
 
 
 @register_microservice(

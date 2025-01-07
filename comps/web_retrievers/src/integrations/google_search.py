@@ -11,10 +11,20 @@ from langchain_community.utilities import GoogleSearchAPIWrapper
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
-from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType, TextDoc, statistics_dict
+from comps import (
+    CustomLogger,
+    EmbedDoc,
+    OpeaComponent,
+    OpeaComponentRegistry,
+    SearchedDoc,
+    ServiceType,
+    TextDoc,
+    statistics_dict,
+)
 
 logger = CustomLogger("opea_google_search")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_GOOGLE_SEARCH")
 class OpeaGoogleSearch(OpeaComponent):
