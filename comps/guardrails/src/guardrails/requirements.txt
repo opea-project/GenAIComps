@@ -8,5 +8,6 @@ opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
+sentencepiece
 shortuuid
 uvicorn
