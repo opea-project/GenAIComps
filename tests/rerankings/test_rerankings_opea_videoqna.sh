@@ -30,7 +30,6 @@ function start_service() {
         -e no_proxy=${no_proxy} \
         -e http_proxy=${http_proxy} \
         -e https_proxy=${https_proxy} \
-        -e RERANK_TYPE=videoqna \
         -e CHUNK_DURATION=${CHUNK_DURATION} \
         -e FILE_SERVER_ENDPOINT=${FILE_SERVER_ENDPOINT} \
         opea/reranking:comps
