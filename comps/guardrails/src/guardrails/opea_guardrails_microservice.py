@@ -3,7 +3,7 @@
 
 import os
 import time
-from types import Union
+from typing import Union
 
 from integrations.llamaguard import OpeaGuardrailsLlamaGuard
 from integrations.wildguard import OpeaGuardrailsWildGuard

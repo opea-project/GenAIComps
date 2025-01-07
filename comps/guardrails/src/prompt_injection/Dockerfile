@@ -13,4 +13,4 @@ ENV PYTHONPATH=$PYTHONPATH:/home
 
 WORKDIR /home/comps/guardrails/src/prompt_injection/
 
-ENTRYPOINT ["python", "opea_prompt_injection_microservice.py.py" ]
+ENTRYPOINT ["python", "opea_prompt_injection_microservice.py" ]
