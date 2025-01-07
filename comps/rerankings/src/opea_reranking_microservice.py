@@ -5,8 +5,8 @@ import os
 import time
 from typing import Union
 
-from integrations.opea_tei import OPEATEIReranking
-from integrations.opea_videoqna import OPEAVideoReranking
+from integrations.tei import OpeaTEIReranking
+from integrations.videoqna import OpeaVideoReranking
 
 from comps import (
     CustomLogger,

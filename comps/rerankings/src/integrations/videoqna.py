@@ -70,7 +70,7 @@ def format_video_name(video_name):
 
 
 @OpeaComponentRegistry.register("OPEA_VIDEO_RERANKING")
-class OPEAVideoReranking(OpeaComponent):
+class OpeaVideoReranking(OpeaComponent):
     """A specialized reranking component derived from OpeaComponent for OPEA Video native reranking services."""
 
     def __init__(self, name: str, description: str, config: dict = None):

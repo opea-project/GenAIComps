@@ -28,7 +28,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
 @OpeaComponentRegistry.register("OPEA_TEI_RERANKING")
-class OPEATEIReranking(OpeaComponent):
+class OpeaTEIReranking(OpeaComponent):
     """A specialized reranking component derived from OpeaComponent for TEI reranking services.
 
     Attributes:
