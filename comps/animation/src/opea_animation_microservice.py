@@ -43,10 +43,10 @@ loader = OpeaComponentLoader(
     output_datatype=VideoPath,
 )
 @register_statistics(names=["opea_service@animation"])
-def animate(audio: Base64ByteStrDoc):
+async def animate(audio: Base64ByteStrDoc):
     start = time.time()
 
-    outfile = loader.invoke(audio.byte_str)
+    outfile = await loader.invoke(audio.byte_str)
     if logflag:
         logger.info(f"Video generated successfully, check {outfile} for the result.")
 
