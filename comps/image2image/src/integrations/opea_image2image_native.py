@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import base64
 import os
+import tempfile
 import threading
 
 from comps import CustomLogger, OpeaComponent, SDImg2ImgInputs, ServiceType
@@ -109,16 +110,15 @@ class OpeaImageToImage(OpeaComponent):
         images = pipe(
             image=image, prompt=prompt, generator=generator, num_images_per_prompt=num_images_per_prompt
         ).images
-        image_path = os.path.join(os.getcwd(), prompt.strip().replace(" ", "_").replace("/", ""))
-        os.makedirs(image_path, exist_ok=True)
         results = []
-        for i, image in enumerate(images):
-            save_path = os.path.join(image_path, f"image_{i + 1}.png")
-            image.save(save_path)
-            with open(save_path, "rb") as f:
-                bytes = f.read()
-            b64_str = base64.b64encode(bytes).decode()
-            results.append(b64_str)
+        with tempfile.TemporaryDirectory() as image_path:
+            for i, image in enumerate(images):
+                save_path = os.path.join(image_path, f"image_{i + 1}.png")
+                image.save(save_path)
+                with open(save_path, "rb") as f:
+                    bytes = f.read()
+                b64_str = base64.b64encode(bytes).decode()
+                results.append(b64_str)
 
         return results
 
