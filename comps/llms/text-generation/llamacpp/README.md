@@ -28,9 +28,9 @@ Notes:
 
 i) If you prefer to run above in the background without screen output use `up -d` . The `--force-recreate` clears cache.
 
-ii) To tear down the llama.cpp server and remove the container:
+ii) To stop the llama.cpp server:
 
-`docker compose -f comps/llms/text-generation/llamacpp/langchain/docker_compose_llm.yaml llamacpp-server down`
+`docker compose -f comps/llms/text-generation/llamacpp/langchain/docker_compose_llm.yaml llamacpp-server stop`
 
 iii) For [llama.cpp settings](https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md) please specify them in the docker_compose_llm.yaml file.
 
@@ -80,9 +80,11 @@ curl http://127.0.0.1:9000/v1/chat/completions  -X POST \
 
 ### Notes
 
-Tearing down services and removing containers:
+Stopping services:
 
 ```bash
 cd GenAIComps/comps/llms/text-generation/llamacpp/
-docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml down
+docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml stop
 ```
+
+`down` may be used instead of 'stop' if you'd like to stop and delete the containers.
