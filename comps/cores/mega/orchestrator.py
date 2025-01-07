@@ -16,6 +16,7 @@ from prometheus_client import Gauge, Histogram
 from pydantic import BaseModel
 
 from ..proto.docarray import LLMParams
+from ..telemetry.opea_telemetry import opea_telemetry
 from .constants import ServiceType
 from .dag import DAG
 from .logger import CustomLogger
@@ -80,6 +81,7 @@ class ServiceOrchestrator(DAG):
             logger.error(e)
             return False
 
+    @opea_telemetry
     async def schedule(self, initial_inputs: Dict | BaseModel, llm_parameters: LLMParams = LLMParams(), **kwargs):
         req_start = time.time()
         self.metrics.pending_update(True)
@@ -166,6 +168,7 @@ class ServiceOrchestrator(DAG):
             all_outputs.update(result_dict[prev_node])
         return all_outputs
 
+    @opea_telemetry
     async def execute(
         self,
         session: aiohttp.client.ClientSession,
@@ -208,6 +211,7 @@ class ServiceOrchestrator(DAG):
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
                 downstream_endpoint = self.services[downstream[0]].endpoint_path
 
+            @opea_telemetry
             def generate():
                 token_start = req_start
                 if response:
@@ -301,6 +305,7 @@ class ServiceOrchestrator(DAG):
             chunk_str = chunk_str[: -len(suffix)]
         return chunk_str
 
+    @opea_telemetry
     def token_generator(self, sentence: str, token_start: float, is_first: bool, is_last: bool) -> str:
         prefix = "data: "
         suffix = "\n\n"
