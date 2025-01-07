@@ -104,7 +104,8 @@ class OpeaGuardrailsLlamaGuard(OpeaComponent):
             messages = [{"role": "user", "content": input.prompt}, {"role": "assistant", "content": input.text}]
         else:
             messages = [{"role": "user", "content": input.text}]
-        response_input_guard = await self.llm_engine_hf.ainvoke(messages).content
+        response = await asyncio.to_thread(self.llm_engine_hf.invoke, messages)
+        response_input_guard = response.content
 
         if "unsafe" in response_input_guard:
             unsafe_dict = get_unsafe_dict(self.llm_engine_hf.model_id)

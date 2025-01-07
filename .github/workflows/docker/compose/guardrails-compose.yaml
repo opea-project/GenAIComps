@@ -3,18 +3,14 @@
 
 # this file should be run in the root of the repo
 services:
-  guardrails-llamaguard:
+  guardrails:
     build:
       dockerfile: comps/guardrails/src/guardrails/Dockerfile
-    image: ${REGISTRY:-opea}/guardrails-llamaguard:${TAG:-latest}
+    image: ${REGISTRY:-opea}/guardrails:${TAG:-latest}
   guardrails-bias-detection:
     build:
       dockerfile: comps/guardrails/src/bias_detection/Dockerfile
     image: ${REGISTRY:-opea}/guardrails-bias-detection:${TAG:-latest}
-  guardrails-wildguard:
-    build:
-      dockerfile: comps/guardrails/src/guardrails/Dockerfile
-    image: ${REGISTRY:-opea}/guardrails-wildguard:${TAG:-latest}
   guardrails-pii-predictionguard:
     build:
       dockerfile: comps/guardrails/src/pii_detection/Dockerfile

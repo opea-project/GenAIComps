@@ -22,7 +22,7 @@ function build_docker_images() {
 function start_service() {
     echo "Starting microservice"
     docker run -d --runtime=runc --name="test-comps-guardrails-bias-detection-endpoint" -p 9092:9092 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-bias-detection:comps
-    sleep 5
+    sleep 30
     echo "Microservice started"
 }
 

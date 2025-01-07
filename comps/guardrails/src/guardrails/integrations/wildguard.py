@@ -77,7 +77,8 @@ class OpeaGuardrailsWildGuard(OpeaComponent):
             messages = INSTRUCTION_FORMAT.format(prompt=input.prompt, response=input.text)
         else:
             messages = INSTRUCTION_FORMAT.format(prompt=input.text, response="")
-        response_input_guard = await self.llm_engine_hf.ainvoke(messages).content
+        response = await asyncio.to_thread(self.llm_engine_hf.invoke, messages)
+        response_input_guard = response.content
 
         if "Harmful request: yes" in response_input_guard or "Harmful response: yes" in response_input_guard:
 

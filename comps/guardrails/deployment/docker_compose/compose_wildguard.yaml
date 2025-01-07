@@ -16,7 +16,7 @@ services:
     shm_size: 1g
     command: --model-id ${LLM_MODEL_ID} --max-input-tokens 1024 --max-total-tokens 2048
   guardrails:
-    image: opea/guardrails-wildguard:latest
+    image: opea/guardrails:latest
     container_name: guardrails-wildguard-gaudi-server
     ports:
       - "9090:9090"
