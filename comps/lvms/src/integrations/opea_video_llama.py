@@ -9,12 +9,13 @@ import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 
-from comps import CustomLogger, LVMVideoDoc, OpeaComponent, ServiceType, statistics_dict
+from comps import CustomLogger, OpeaComponentRegistry, LVMVideoDoc, OpeaComponent, ServiceType, statistics_dict
 
 logger = CustomLogger("opea_video_llama")
 logflag = os.getenv("LOGFLAG", False)
 
 
+@OpeaComponentRegistry.register("OPEA_VIDEO_LLAMA_LVM")
 class OpeaVideoLlamaLvm(OpeaComponent):
     """A specialized LVM component derived from OpeaComponent for Video-LLaMA services."""
 

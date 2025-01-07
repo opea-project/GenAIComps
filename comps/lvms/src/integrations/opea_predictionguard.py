@@ -7,12 +7,13 @@ from typing import Union
 
 import requests
 
-from comps import CustomLogger, LVMDoc, OpeaComponent, ServiceType, TextDoc
+from comps import CustomLogger, OpeaComponentRegistry, LVMDoc, OpeaComponent, ServiceType, TextDoc
 
 logger = CustomLogger("opea_predictionguard")
 logflag = os.getenv("LOGFLAG", False)
 
 
+@OpeaComponentRegistry.register("OPEA_PREDICTION_GUARD_LVM")
 class OpeaPredictionguardLvm(OpeaComponent):
     """A specialized LVM component derived from OpeaComponent for Predictionguard services."""
 

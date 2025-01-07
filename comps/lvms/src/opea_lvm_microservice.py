@@ -17,7 +17,7 @@ from comps import (
     LVMSearchedMultimodalDoc,
     LVMVideoDoc,
     MetadataTextDoc,
-    OpeaComponentController,
+    OpeaComponentLoader,
     ServiceType,
     TextDoc,
     opea_microservices,
@@ -29,51 +29,9 @@ from comps import (
 logger = CustomLogger("opea_lvm_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
+lvm_component_name = os.getenv("LVM_COMPONENT_NAME", "OPEA_LLAVA_LVM")
 # Initialize OpeaComponentController
-controller = OpeaComponentController()
-
-# Register components
-try:
-    # Instantiate LVM components
-    if os.getenv("LLAVA_LVM_ENDPOINT"):
-        opea_llava_lvm = OpeaLlavaLvm(
-            name="OpeaLlavaLvm",
-            description="OPEA LLaVA LVM Service",
-        )
-        controller.register(opea_llava_lvm)
-
-    elif os.getenv("TGI_LLAVA_LVM_ENDPOINT"):
-        opea_tgi_llava_lvm = OpeaTgiLlavaLvm(
-            name="OpeaTgiLlavaLvm",
-            description="OPEA TGI LLaVA LVM Service",
-        )
-        controller.register(opea_tgi_llava_lvm)
-
-    elif os.getenv("LLAMA_VISION_LVM_ENDPOINT"):
-        opea_llama_vision_lvm = OpeaLlamaVisionLvm(
-            name="OpeaLlamaVisionLvm",
-            description="OPEA LLaMA Vison LVM Service",
-        )
-        controller.register(opea_llama_vision_lvm)
-
-    elif os.getenv("PREDICTIONGUARD_LVM_ENDPOINT"):
-        opea_predictionguard_lvm = OpeaPredictionguardLvm(
-            name="OpeaPredictionguardLvm",
-            description="OPEA PredictionGuard LVM Service",
-        )
-        controller.register(opea_predictionguard_lvm)
-
-    elif os.getenv("VIDEO_LLAMA_LVM_ENDPOINT"):
-        opea_video_llama_lvm = OpeaVideoLlamaLvm(
-            name="OpeaVideoLlamaLvm",
-            description="OPEA Video LLaMA LVM Service",
-        )
-        controller.register(opea_video_llama_lvm)
-
-    # Discover and activate a healthy component
-    controller.discover_and_activate()
-except Exception as e:
-    logger.error(f"Failed to initialize components: {e}")
+loader = OpeaComponentLoader(lvm_component_name, description=f"OPEA LVM Component: {lvm_component_name}")
 
 
 @register_microservice(
@@ -91,12 +49,12 @@ async def lvm(
 
     try:
         # Use the controller to invoke the active component
-        lvm_response = await controller.invoke(request)
+        lvm_response = await loader.invoke(request)
         if logflag:
             logger.info(lvm_response)
 
-        if controller.active_component.name in ["OpeaVideoLlamaLvm"] or (
-            controller.active_component.name in ["OpeaTgiLlavaLvm"] and request.streaming
+        if loader.component.name in ["OpeaVideoLlamaLvm"] or (
+            loader.component.name in ["OpeaTgiLlavaLvm"] and request.streaming
         ):
             # statistics for StreamingResponse are handled inside the integrations
             # here directly return the response

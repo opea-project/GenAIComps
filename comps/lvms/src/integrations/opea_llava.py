@@ -9,7 +9,7 @@ import requests
 from fastapi import HTTPException
 from langchain_core.prompts import PromptTemplate
 
-from comps import CustomLogger, LVMDoc, LVMSearchedMultimodalDoc, MetadataTextDoc, OpeaComponent, ServiceType, TextDoc
+from comps import CustomLogger, OpeaComponentRegistry, LVMDoc, LVMSearchedMultimodalDoc, MetadataTextDoc, OpeaComponent, ServiceType, TextDoc
 
 logger = CustomLogger("opea_llava")
 logflag = os.getenv("LOGFLAG", False)
@@ -29,7 +29,7 @@ class ChatTemplate:
 
         return template.format(context=context, question=question)
 
-
+@OpeaComponentRegistry.register("OPEA_LLAVA_LVM")
 class OpeaLlavaLvm(OpeaComponent):
     """A specialized LVM component derived from OpeaComponent for LLaVA LVM services."""
 
