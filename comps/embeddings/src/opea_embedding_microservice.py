@@ -4,8 +4,8 @@
 import os
 import time
 
-from integrations.tei import OpeaTEIEmbedding
 from integrations.predictionguard import PredictionguardEmbedding
+from integrations.tei import OpeaTEIEmbedding
 
 from comps import (
     CustomLogger,
