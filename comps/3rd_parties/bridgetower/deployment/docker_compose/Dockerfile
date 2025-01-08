@@ -22,6 +22,6 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 ARG EMBEDDER_PORT=8080
 ENV PORT=$EMBEDDER_PORT
 
-WORKDIR /home/user/comps/comps/3rd_parties/bridgetower/deployment/docker_compose/
+WORKDIR /home/user/comps/3rd_parties/bridgetower/deployment/docker_compose/
 
 ENTRYPOINT ["python", "bridgetower_server.py", "--device", "cpu"]
