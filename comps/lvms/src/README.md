@@ -8,8 +8,8 @@ Before this, you have to start the [dependency](./integrations/dependency/) serv
 
 ```bash
 docker build --no-cache -t opea/lvm:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/Dockerfile .
-# Change LLAVA_LVM_ENDPOINT to you dependency service endpoint
-docker run -d --name="test-comps-lvm" -e LLAVA_LVM_ENDPOINT=http://localhost:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm:comps
+# Change LVM_ENDPOINT to you dependency service endpoint
+docker run -d --name="test-comps-lvm" -e LVM_ENDPOINT=http://localhost:8399 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9399:9399 --ipc=host opea/lvm:comps
 ```
 
 ## Test

@@ -48,7 +48,7 @@ class OpeaTgiLlavaLvm(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LVM.name.lower(), description, config)
-        self.base_url = os.getenv("TGI_LLAVA_LVM_ENDPOINT", "http://localhost:8399")
+        self.base_url = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
         self.lvm_client = AsyncInferenceClient(self.base_url)
         health_status = self.check_health()
         if not health_status:

@@ -19,7 +19,7 @@ class OpeaLlamaVisionLvm(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LVM.name.lower(), description, config)
-        self.base_url = os.getenv("LLAVA_VISION_LVM_ENDPOINT", "http://localhost:9399")
+        self.base_url = os.getenv("LVM_ENDPOINT", "http://localhost:9399")
         health_status = self.check_health()
         if not health_status:
             logger.error("specialized health check failed.")

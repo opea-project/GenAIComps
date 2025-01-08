@@ -21,7 +21,7 @@ class OpeaVideoLlamaLvm(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LVM.name.lower(), description, config)
-        self.base_url = os.getenv("VIDEO_LLAMA_LVM_ENDPOINT", "http://localhost:9099")
+        self.base_url = os.getenv("LVM_ENDPOINT", "http://localhost:9099")
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaVideoLlamaLvm health check failed.")

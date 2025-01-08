@@ -33,7 +33,7 @@ function start_service() {
     unset http_proxy
     dependency_port=5051
     server_port=5052
-    export VIDEO_LLAMA_LVM_ENDPOINT=http://$ip_address:$dependency_port
+    export LVM_ENDPOINT=http://$ip_address:$dependency_port
 
     docker run -d --name="test-comps-lvm-video-llama-dependency" -p $dependency_port:9009 \
         --ipc=host \
@@ -60,7 +60,7 @@ function start_service() {
         -e http_proxy=$http_proxy \
         -e https_proxy=$https_proxy \
         -e no_proxy=$no_proxy \
-        -e VIDEO_LLAMA_LVM_ENDPOINT=$VIDEO_LLAMA_LVM_ENDPOINT \
+        -e LVM_ENDPOINT=$LVM_ENDPOINT \
         opea/lvm:comps
 
     echo "Waiting for the LVM service to start"

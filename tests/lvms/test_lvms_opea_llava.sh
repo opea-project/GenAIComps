@@ -32,7 +32,7 @@ function start_service() {
     lvm_port=5051
     docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5028:8399 --ipc=host opea/lvm-llava:comps
     sleep 8m
-    docker run -d --name="test-comps-lvm-llava-svc" -e LVM_COMPONENT_NAME="OPEA_LLAVA_LVM" -e LLAVA_LVM_ENDPOINT=http://$ip_address:5028 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $lvm_port:9399 --ipc=host opea/lvm:comps
+    docker run -d --name="test-comps-lvm-llava-svc" -e LVM_COMPONENT_NAME="OPEA_LLAVA_LVM" -e LVM_ENDPOINT=http://$ip_address:5028 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $lvm_port:9399 --ipc=host opea/lvm:comps
     sleep 30s
 }
 
