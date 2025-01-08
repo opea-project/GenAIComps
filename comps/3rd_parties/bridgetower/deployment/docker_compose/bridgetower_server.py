@@ -17,7 +17,7 @@ from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 from utils import build_logger
 
-from .bridgetower_embedding import BridgeTowerEmbedding
+from bridgetower_embedding import BridgeTowerEmbedding
 
 worker_id = str(uuid.uuid4())[:6]
 print(f"worker_id: {worker_id}")
