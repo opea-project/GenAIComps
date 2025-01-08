@@ -55,7 +55,7 @@ function start_service() {
     done
     sleep 5s
 
-    docker run -d --name="test-comps-lvm-video-llama" -p $server_port:9399 \
+    docker run -d --name="test-comps-lvm-video-llama" -e LVM_COMPONENT_NAME="OPEA_VIDEO_LLAMA_LVM" -p $server_port:9399 \
         --ipc=host \
         -e http_proxy=$http_proxy \
         -e https_proxy=$https_proxy \
