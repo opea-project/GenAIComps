@@ -3,6 +3,10 @@
 
 from abc import ABC, abstractmethod
 
+from ..mega.logger import CustomLogger
+
+logger = CustomLogger("OpeaComponent")
+
 
 class OpeaComponent(ABC):
     """The OpeaComponent class serves as the base class for all components in the GenAIComps.
@@ -58,10 +62,10 @@ class OpeaComponent(ABC):
         Returns:
             bool: True if the component is healthy, False otherwise.
         """
-        pass
+        raise NotImplementedError("The 'check_health' method must be implemented by subclasses.")
 
     @abstractmethod
-    def invoke(self, *args, **kwargs):
+    async def invoke(self, *args, **kwargs):
         """Invoke service accessing using the component.
 
         Args:
@@ -71,7 +75,7 @@ class OpeaComponent(ABC):
         Returns:
             Any: The result of the service accessing.
         """
-        pass
+        raise NotImplementedError("The 'invoke' method must be implemented by subclasses.")
 
     def __repr__(self):
         """Provides a string representation of the component for debugging and logging purposes.
@@ -82,74 +86,78 @@ class OpeaComponent(ABC):
         return f"OpeaComponent(name={self.name}, type={self.type}, description={self.description})"
 
 
-class OpeaComponentController(ABC):
-    """The OpeaComponentController class serves as the base class for managing and orchestrating multiple
-    instances of components of the same type. It provides a unified interface for routing tasks,
-    registering components, and dynamically discovering available components.
+class OpeaComponentRegistry:
+    """Registry class to manage component instances.
 
-    Attributes:
-        components (dict): A dictionary to store registered components by their unique identifiers.
+    This registry allows storing, retrieving, and managing component instances by their names.
     """
 
-    def __init__(self):
-        """Initializes the OpeaComponentController instance with an empty component registry."""
-        self.components = {}
-        self.active_component = None
+    _registry = {}
 
-    def register(self, component):
-        """Registers an OpeaComponent instance to the controller.
+    @classmethod
+    def register(cls, name):
+        """Decorator to register a component class with a specified name.
 
-        Args:
-            component (OpeaComponent): An instance of a subclass of OpeaComponent to be managed.
-
-        Raises:
-            ValueError: If the component is already registered.
+        :param name: The name to associate with the component class
+        :return: Decorator function
         """
-        if component.name in self.components:
-            raise ValueError(f"Component '{component.name}' is already registered.")
-        self.components[component.name] = component
 
-    def discover_and_activate(self):
-        """Discovers healthy components and activates one.
+        def decorator(component_class):
+            if name in cls._registry:
+                raise ValueError(f"A component with the name '{name}' is already registered.")
+            cls._registry[name] = component_class
+            return component_class
 
-        If multiple components are healthy, it prioritizes the first registered component.
+        return decorator
+
+    @classmethod
+    def get(cls, name):
+        """Retrieve a component class by its name.
+
+        :param name: The name of the component class to retrieve
+        :return: The component class
         """
-        for component in self.components.values():
-            if component.check_health():
-                self.active_component = component
-                print(f"Activated component: {component.name}")
-                return
-        raise RuntimeError("No healthy components available.")
+        if name not in cls._registry:
+            raise KeyError(f"No component found with the name '{name}'.")
+        return cls._registry[name]
 
-    def invoke(self, *args, **kwargs):
-        """Invokes service accessing using the active component.
+    @classmethod
+    def unregister(cls, name):
+        """Remove a component class from the registry by its name.
 
-        Args:
-            *args: Positional arguments.
-            **kwargs: Keyword arguments.
-
-        Returns:
-            Any: The result of the service accessing.
-
-        Raises:
-            RuntimeError: If no active component is set.
+        :param name: The name of the component class to remove
         """
-        if not self.active_component:
-            raise RuntimeError("No active component. Call 'discover_and_activate' first.")
-        return self.active_component.invoke(*args, **kwargs)
+        if name in cls._registry:
+            del cls._registry[name]
 
-    def list_components(self):
-        """Lists all registered components.
 
-        Returns:
-            list: A list of component names that are currently registered.
+class OpeaComponentLoader:
+    """Loader class to dynamically load and invoke components.
+
+    This loader retrieves components from the registry and invokes their functionality.
+    """
+
+    def __init__(self, component_name, **kwargs):
+        """Initialize the loader with a component retrieved from the registry and instantiate it.
+
+        :param component_name: The name of the component to load
+        :param kwargs: Additional parameters for the component's initialization
         """
-        return self.components.keys()
+        kwargs["name"] = component_name
 
-    def __repr__(self):
-        """Provides a string representation of the controller and its registered components.
+        # Retrieve the component class from the registry
+        component_class = OpeaComponentRegistry.get(component_name)
 
-        Returns:
-            str: A string representation of the OpeaComponentController instance.
+        # Instantiate the component with the given arguments
+        self.component = component_class(**kwargs)
+
+    async def invoke(self, *args, **kwargs):
+        """Invoke the loaded component's execute method.
+
+        :param args: Positional arguments for the invoke method
+        :param kwargs: Keyword arguments for the invoke method
+        :return: The result of the component's invoke method
         """
-        return f"OpeaComponentController(registered_components={self.list_components()})"
+        if not hasattr(self.component, "invoke"):
+            raise AttributeError(f"The component '{self.component}' does not have an 'invoke' method.")
+        return await self.component.invoke(*args, **kwargs)
