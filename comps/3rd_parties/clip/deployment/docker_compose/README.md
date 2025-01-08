@@ -22,7 +22,7 @@ Users are albe to configure and build embedding-related services according to th
 
 ```bash
 cd GenAIComps/
-docker build -t opea/embedding-multimodal-clip:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/src/integrations/dependency/clip/Dockerfile .
+docker build -t opea/embedding-multimodal-clip:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/3rd_parties/clip/deployment/docker_compose/Dockerfile .
 ```
 
 ### 1.2 Run Docker with Docker Compose
