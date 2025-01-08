@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/wav2lip:comps -f comps/animation/src/integrations/dependency/Dockerfile .
+    docker build -t opea/wav2lip:comps -f comps/3rd_parties/wav2lip/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/wav2lip built fail"
         exit 1
@@ -50,7 +50,7 @@ function start_service() {
 
 function validate_microservice() {
     cd $WORKPATH
-    python3 comps/animation/src/integrations/dependency/check_wav2lip_server.py
+    python3 comps/3rd_parties/wav2lip/check_wav2lip_server.py
 
     result=$(http_proxy="" curl http://localhost:9066/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/src/assets/audio/sample_question.json)
     if [[ $result == *"result.mp4"* ]]; then

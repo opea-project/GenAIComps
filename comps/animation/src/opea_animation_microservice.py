@@ -10,7 +10,7 @@ import time
 
 # GenAIComps
 from comps import CustomLogger, OpeaComponentLoader
-from comps.animation.src.integrations.opea import OpeaAnimation
+from comps.animation.src.integrations.wav2lip import OpeaAnimation
 
 logger = CustomLogger("opea_animation")
 logflag = os.getenv("LOGFLAG", False)
