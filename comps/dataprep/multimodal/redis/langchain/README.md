@@ -5,6 +5,7 @@ This `dataprep` microservice accepts the following from the user and ingests the
 - Videos (mp4 files) and their transcripts (optional)
 - Images (gif, jpg, jpeg, and png files) and their captions (optional)
 - Audio (wav files)
+- PDFs (with text and images)
 
 ## 🚀1. Start Microservice with Python（Option 1）
 
@@ -111,18 +112,19 @@ docker container logs -f dataprep-multimodal-redis
 
 ## 🚀4. Consume Microservice
 
-Once this dataprep microservice is started, user can use the below commands to invoke the microservice to convert images and videos and their transcripts (optional) to embeddings and save to the Redis vector store.
+Once this dataprep microservice is started, user can use the below commands to invoke the microservice to convert images, videos, text, and PDF files to embeddings and save to the Redis vector store.
 
 This microservice provides 3 different ways for users to ingest files into Redis vector store corresponding to the 3 use cases.
 
 ### 4.1 Consume _ingest_with_text_ API
 
-**Use case:** This API is used when videos are accompanied by transcript files (`.vtt` format) or images are accompanied by text caption files (`.txt` format).
+**Use case:** This API is used for videos accompanied by transcript files (`.vtt` format), images accompanied by text caption files (`.txt` format), and PDF files containing a mix of text and images.
 
 **Important notes:**
 
 - Make sure the file paths after `files=@` are correct.
 - Every transcript or caption file's name must be identical to its corresponding video or image file's name (except their extension - .vtt goes with .mp4 and .txt goes with .jpg, .jpeg, .png, or .gif). For example, `video1.mp4` and `video1.vtt`. Otherwise, if `video1.vtt` is not included correctly in the API call, the microservice will return an error `No captions file video1.vtt found for video1.mp4`.
+- It is assumed that PDFs will contain at least one image. Each image in the file will be embedded along with the text that appears on the same page as the image.
 
 #### Single video-transcript pair upload
 
@@ -157,6 +159,7 @@ curl -X POST \
     -F "files=@./image1.txt" \
     -F "files=@./image2.jpg" \
     -F "files=@./image2.txt" \
+    -F "files=@./example.pdf" \
     http://localhost:6007/v1/ingest_with_text
 ```
 
