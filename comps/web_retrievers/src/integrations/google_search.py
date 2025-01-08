@@ -36,6 +36,9 @@ class OpeaGoogleSearch(OpeaComponent):
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=50)
         # Create vectorstore
         self.tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("OpeaGoogleSearch health check failed.")
 
         super().__init__(name, ServiceType.WEB_RETRIEVER.name.lower(), description, config)
 
