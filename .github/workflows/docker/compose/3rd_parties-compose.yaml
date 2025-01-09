@@ -6,3 +6,8 @@ services:
     build:
       dockerfile: comps/3rd_parties/nginx/src/Dockerfile
     image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
+
+  wav2lip:
+    build:
+      dockerfile: comps/3rd_parties/wav2lip/Dockerfile
+    image: ${REGISTRY:-opea}/wav2lip:${TAG:-latest}
