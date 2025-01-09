@@ -175,7 +175,7 @@ class OPEADocSum(OpeaComponent):
         else:
             raise NotImplementedError(f"Please specify the summary_type in {summary_types}")
 
-        if input.streaming:
+        if input.stream:
 
             async def stream_generator():
                 from langserve.serialization import WellKnownLCSerializer
@@ -248,9 +248,9 @@ class OPEADocSum_TGI(OPEADocSum):
         if self.access_token:
             server_kwargs["headers"] = {"Authorization": f"Bearer {self.access_token}"}
 
-        if input.streaming and input.summary_type == "map_reduce":
-            logger.info("Map Reduce mode don't support streaming=True, set to streaming=False")
-            input.streaming = False
+        if input.stream and input.summary_type == "map_reduce":
+            logger.info("Map Reduce mode don't support stream=True, set to stream=False")
+            input.stream = False
         self.client = HuggingFaceEndpoint(
             endpoint_url=self.llm_endpoint,
             max_new_tokens=input.max_tokens,
@@ -259,7 +259,7 @@ class OPEADocSum_TGI(OPEADocSum):
             typical_p=input.typical_p,
             temperature=input.temperature,
             repetition_penalty=input.repetition_penalty,
-            streaming=input.streaming,
+            streaming=input.stream,
             server_kwargs=server_kwargs,
         )
         result = await self.generate(input, self.client)
@@ -302,9 +302,9 @@ class OPEADocSum_vLLM(OPEADocSum):
         if self.access_token:
             headers = {"Authorization": f"Bearer {self.access_token}"}
 
-        if input.streaming and input.summary_type == "map_reduce":
-            logger.info("Map Reduce mode don't support streaming=True, set to streaming=False")
-            input.streaming = False
+        if input.stream and input.summary_type == "map_reduce":
+            logger.info("Map Reduce mode don't support stream=True, set to stream=False")
+            input.stream = False
         self.client = VLLMOpenAI(
             openai_api_key="EMPTY",
             openai_api_base=self.llm_endpoint + "/v1",
@@ -312,7 +312,7 @@ class OPEADocSum_vLLM(OPEADocSum):
             default_headers=headers,
             max_tokens=input.max_tokens,
             top_p=input.top_p,
-            streaming=input.streaming,
+            streaming=input.stream,
             temperature=input.temperature,
             presence_penalty=input.repetition_penalty,
         )
