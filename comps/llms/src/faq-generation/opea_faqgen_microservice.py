@@ -4,12 +4,10 @@
 import os
 import time
 
-from integrations.opea import OPEAFAQGen_TGI, OPEAFAQGen_vLLM
-
 from comps import (
     CustomLogger,
     LLMParamsDoc,
-    OpeaComponentController,
+    OpeaComponentLoader,
     ServiceType,
     opea_microservices,
     register_microservice,
@@ -20,38 +18,9 @@ from comps import (
 logger = CustomLogger("llm_faqgen")
 logflag = os.getenv("LOGFLAG", False)
 
-llm_backend = os.getenv("LLM_BACKEND", "").lower()
-if logflag:
-    logger.info(f"LLM BACKEND: {llm_backend}")
-
-comps_name = {"tgi": "OPEAFAQGen_TGI", "vllm": "OPEAFAQGen_vLLM"}
-active_comps_name = comps_name[llm_backend] if llm_backend != "" else ""
-
-
-# Initialize OpeaComponentController
-controller = OpeaComponentController()
-
-# Register components
-try:
-    opea_faqgen_tgi = OPEAFAQGen_TGI(
-        name=comps_name["tgi"],
-        description="OPEA FAQGen Service",
-    )
-    # Register components with the controller
-    controller.register(opea_faqgen_tgi)
-
-    opea_faqgen_vllm = OPEAFAQGen_vLLM(
-        name=comps_name["vllm"],
-        description="OPEA FAQGen Service",
-    )
-    # Register components with the controller
-    controller.register(opea_faqgen_vllm)
-
-    # Discover and activate a healthy component
-    controller.discover_and_activate(active_comps_name)
-except Exception as e:
-    logger.error(f"Failed to initialize components: {e}")
-
+llm_component_name = os.getenv("FAQGen_COMPONENT_NAME", "OPEAFAQGen_TGI")
+# Initialize OpeaComponentLoader
+loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM FAQGen Component: {llm_component_name}")
 
 @register_microservice(
     name="opea_service@llm_faqgen",
@@ -70,7 +39,7 @@ async def llm_generate(input: LLMParamsDoc):
 
     try:
         # Use the controller to invoke the active component
-        response = await controller.invoke(input)
+        response = await loader.invoke(input)
         # Record statistics
         statistics_dict["opea_service@llm_faqgen"].append_latency(time.time() - start, None)
         return response

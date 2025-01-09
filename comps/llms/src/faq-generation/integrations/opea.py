@@ -11,7 +11,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.llms import HuggingFaceEndpoint, VLLMOpenAI
 from langchain_core.prompts import PromptTemplate
 
-from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, OpeaComponent, ServiceType
+from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 
 logger = CustomLogger("opea_faqgen")
@@ -72,6 +72,9 @@ class OPEAFAQGen(OpeaComponent):
         )
         self.text_splitter = CharacterTextSplitter()
         self.llm_endpoint = get_llm_endpoint()
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("OPEAFAQGen health check failed.")
 
     async def generate(self, input: LLMParamsDoc, client):
         """Invokes the TGI/vLLM LLM service to generate FAQ output for the provided input.
@@ -108,7 +111,7 @@ class OPEAFAQGen(OpeaComponent):
                 logger.info(response)
             return GeneratedDoc(text=response, prompt=input.query)
 
-
+@OpeaComponentRegistry.register("OPEAFAQGen_TGI")
 class OPEAFAQGen_TGI(OPEAFAQGen):
     """A specialized OPEA FAQGen TGI component derived from OPEAFAQGen for interacting with TGI services based on Lanchain HuggingFaceEndpoint API.
 
@@ -166,7 +169,7 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
 
         return result
 
-
+@OpeaComponentRegistry.register("OPEAFAQGen_vLLM")
 class OPEAFAQGen_vLLM(OPEAFAQGen):
     """A specialized OPEA FAQGen vLLM component derived from OPEAFAQGen for interacting with vLLM services based on Lanchain VLLMOpenAI API.
 
