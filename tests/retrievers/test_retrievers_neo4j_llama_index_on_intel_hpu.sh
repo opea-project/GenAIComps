@@ -26,7 +26,8 @@ function build_docker_images() {
     else
         echo "opea/dataprep-neo4j-llamaindex built successful"
     fi
-    docker pull ghcr.io/huggingface/tgi-gaudi:2.0.5
+
+    docker pull ghcr.io/huggingface/tgi-gaudi:2.3.1
     docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
 }
 
@@ -42,25 +43,31 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:6006"
 
     # tgi gaudi endpoint
-    # Meta-Llama-3-8B-Instruct IS NOT GOOD ENOUGH FOR EXTRACTING HIGH QUALITY GRAPH BUT OK FOR CI TESTING
-    model="meta-llama/Meta-Llama-3-8B-Instruct"
+    # "Meta-Llama-3.1-8B-Instruct" used for CI testing. Might not be good enough to extract high quality graph
+    model="meta-llama/Meta-Llama-3.1-8B-Instruct"
     docker run -d --name="test-comps-retrievers-neo4j-llama-index-tgi" -p 6005:80 -v ./data:/data --runtime=habana -e HABANA_VISIBLE_DEVICES=all \
-        -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e HF_TOKEN=$HF_TOKEN -e ENABLE_HPU_GRAPH=true -e LIMIT_HPU_GRAPH=true \
+        -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e HF_TOKEN=$HF_TOKEN -e ENABLE_HPU_GRAPH=true -e LIMIT_HPU_GRAPH=true -e TEXT_GENERATION_SERVER_IGNORE_EOS_TOKEN=false \
         -e USE_FLASH_ATTENTION=true -e FLASH_ATTENTION_RECOMPUTE=true --cap-add=sys_nice -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
-        --ipc=host --pull always ghcr.io/huggingface/tgi-gaudi:2.0.5 --model-id $model --max-input-tokens 1024 --max-total-tokens 3000
+        --ipc=host --pull always ghcr.io/huggingface/tgi-gaudi:2.3.1 --model-id $model --max-input-tokens 1024 --max-total-tokens 3000
     # extra time to load large model
     echo "Waiting for tgi gaudi ready"
     n=0
+    ready=false
     until [[ "$n" -ge 300 ]] || [[ $ready == true ]]; do
         docker logs test-comps-retrievers-neo4j-llama-index-tgi &> ${LOG_PATH}/tgi-gaudi-service.log
         n=$((n+1))
         if grep -q Connected ${LOG_PATH}/tgi-gaudi-service.log; then
+            ready=true
             break
         fi
         sleep 5s
     done
-    sleep 5s
-    echo "Service started successfully"
+    if [[ "$ready" == true ]]; then
+        echo "Service started successfully"
+    else
+        echo "Service failed to start within the expected time frame"
+        exit 1
+    fi
     export TGI_LLM_ENDPOINT="http://${ip_address}:6005"
 
     # dataprep neo4j
