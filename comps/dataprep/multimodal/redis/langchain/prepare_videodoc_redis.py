@@ -35,7 +35,7 @@ from PIL import Image
 import pymupdf
 
 from comps import opea_microservices, register_microservice
-from comps.embeddings.multimodal.bridgetower.bridgetower_embedding import BridgeTowerEmbedding
+from comps.embeddings.src.integrations.dependency.bridgetower.bridgetower_embedding import BridgeTowerEmbedding
 
 device = "cpu"
 upload_folder = "./uploaded_files/"
