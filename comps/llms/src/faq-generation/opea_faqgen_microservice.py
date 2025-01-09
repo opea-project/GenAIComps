@@ -22,6 +22,7 @@ llm_component_name = os.getenv("FAQGen_COMPONENT_NAME", "OPEAFAQGen_TGI")
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM FAQGen Component: {llm_component_name}")
 
+
 @register_microservice(
     name="opea_service@llm_faqgen",
     service_type=ServiceType.LLM,

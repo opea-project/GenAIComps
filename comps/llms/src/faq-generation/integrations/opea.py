@@ -111,6 +111,7 @@ class OPEAFAQGen(OpeaComponent):
                 logger.info(response)
             return GeneratedDoc(text=response, prompt=input.query)
 
+
 @OpeaComponentRegistry.register("OPEAFAQGen_TGI")
 class OPEAFAQGen_TGI(OPEAFAQGen):
     """A specialized OPEA FAQGen TGI component derived from OPEAFAQGen for interacting with TGI services based on Lanchain HuggingFaceEndpoint API.
@@ -168,6 +169,7 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
         result = await self.generate(input, self.client)
 
         return result
+
 
 @OpeaComponentRegistry.register("OPEAFAQGen_vLLM")
 class OPEAFAQGen_vLLM(OPEAFAQGen):
