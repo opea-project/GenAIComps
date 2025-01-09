@@ -4,7 +4,7 @@
 from typing import Any, List
 
 import torch
-from bridgetower_custom import BridgeTowerForITC, BridgeTowerTextFeatureExtractor
+from comps.third_parties.bridgetower.src.bridgetower_custom import BridgeTowerForITC, BridgeTowerTextFeatureExtractor
 from langchain_core.embeddings import Embeddings
 from langchain_core.pydantic_v1 import BaseModel, Extra
 from PIL import Image

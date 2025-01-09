@@ -16,7 +16,7 @@ unset http_proxy
 function build_mm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding:latest -f comps/embeddings/src/Dockerfile .
+    docker build --no-cache -t opea/embedding:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/embedding built fail"
         exit 1

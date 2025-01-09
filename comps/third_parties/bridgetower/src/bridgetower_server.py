@@ -13,7 +13,7 @@ import PIL
 import PIL.Image
 import requests
 import uvicorn
-from bridgetower_embedding import BridgeTowerEmbedding
+from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 from utils import build_logger
