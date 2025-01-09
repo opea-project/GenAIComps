@@ -22,6 +22,7 @@ llm_component_name = os.getenv("DocSum_COMPONENT_NAME", "OPEADocSum_TGI")
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM DocSum Component: {llm_component_name}")
 
+
 @register_microservice(
     name="opea_service@llm_docsum",
     service_type=ServiceType.LLM,

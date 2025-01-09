@@ -205,6 +205,7 @@ class OPEADocSum(OpeaComponent):
 
             return GeneratedDoc(text=output_text, prompt=input.query)
 
+
 @OpeaComponentRegistry.register("OPEADocSum_TGI")
 class OPEADocSum_TGI(OPEADocSum):
     """A specialized OPEA DocSum TGI component derived from OPEADocSum for interacting with TGI services based on Lanchain HuggingFaceEndpoint API.
@@ -265,6 +266,7 @@ class OPEADocSum_TGI(OPEADocSum):
         result = await self.generate(input, self.client)
 
         return result
+
 
 @OpeaComponentRegistry.register("OPEADocSum_vLLM")
 class OPEADocSum_vLLM(OPEADocSum):
