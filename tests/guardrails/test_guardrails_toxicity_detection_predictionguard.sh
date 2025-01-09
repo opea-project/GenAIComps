@@ -13,7 +13,7 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/toxicity-pg:comps -f comps/guardrails/toxicity_detection/predictionguard/Dockerfile .
+    docker build --no-cache -t opea/toxicity-pg:comps -f comps/guardrails/src/toxicity_detection/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/toxicity-pg build failed"
         exit 1
