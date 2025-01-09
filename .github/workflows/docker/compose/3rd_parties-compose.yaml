@@ -11,3 +11,7 @@ services:
     build:
       dockerfile: comps/3rd_parties/wav2lip/Dockerfile
     image: ${REGISTRY:-opea}/wav2lip:${TAG:-latest}
+  wav2lip-gaudi:
+    build:
+      dockerfile: comps/3rd_parties/wav2lip/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/wav2lip-gaudi:${TAG:-latest}
