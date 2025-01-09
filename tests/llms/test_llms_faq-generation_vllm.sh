@@ -101,7 +101,7 @@ function validate_backend_microservices() {
         "text" \
         "FAQGen" \
         "llm-faqgen-server" \
-        '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32, "streaming":false}'
+        '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32, "stream":false}'
 }
 
 function stop_docker() {

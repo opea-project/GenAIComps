@@ -90,7 +90,7 @@ class OPEAFAQGen(OpeaComponent):
         # Create multiple documents
         docs = [Document(page_content=t) for t in texts]
 
-        if input.streaming:
+        if input.stream:
 
             async def stream_generator():
                 from langserve.serialization import WellKnownLCSerializer
@@ -162,7 +162,7 @@ class OPEAFAQGen_TGI(OPEAFAQGen):
             typical_p=input.typical_p,
             temperature=input.temperature,
             repetition_penalty=input.repetition_penalty,
-            streaming=input.streaming,
+            streaming=input.stream,
             server_kwargs=server_kwargs,
         )
         result = await self.generate(input, self.client)
@@ -212,7 +212,7 @@ class OPEAFAQGen_vLLM(OPEAFAQGen):
             default_headers=headers,
             max_tokens=input.max_tokens,
             top_p=input.top_p,
-            streaming=input.streaming,
+            streaming=input.stream,
             temperature=input.temperature,
         )
         result = await self.generate(input, self.client)
