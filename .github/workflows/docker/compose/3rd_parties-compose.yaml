@@ -4,17 +4,17 @@
 services:
   nginx:
     build:
-      dockerfile: comps/3rd_parties/nginx/src/Dockerfile
+      dockerfile: comps/third_parties/nginx/src/Dockerfile
     image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
   embedding-multimodal-clip:
     build:
-      dockerfile: comps/3rd_parties/clip/src/Dockerfile
+      dockerfile: comps/third_parties/clip/src/Dockerfile
     image: ${REGISTRY:-opea}/embedding-multimodal-clip:${TAG:-latest}
   embedding-multimodal-bridgetower:
     build:
-      dockerfile: comps/3rd_parties/bridgetower/src/Dockerfile
+      dockerfile: comps/third_parties/bridgetower/src/Dockerfile
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
   embedding-multimodal-bridgetower-gaudi:
     build:
-      dockerfile: comps/3rd_parties/bridgetower/src/Dockerfile.intel_hpu
+      dockerfile: comps/third_parties/bridgetower/src/Dockerfile.intel_hpu
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-gaudi:${TAG:-latest}
