@@ -17,7 +17,7 @@ export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID=${your_hf_llm_model}
 export MAX_INPUT_TOKENS=2048
 export MAX_TOTAL_TOKENS=4096
-export LLM_BACKEND="tgi" # or "vllm"
+export DocSum_COMPONENT_NAME="OPEADocSum_TGI" # or "OPEADocSum_vLLM"
 ```
 
 Please make sure MAX_TOTAL_TOKENS should be larger than (MAX_INPUT_TOKENS + max_new_tokens + 50), 50 is reserved prompt length.
@@ -63,7 +63,7 @@ docker run -d \
     -e LLM_MODEL_ID=$LLM_MODEL_ID \
     -e LLM_ENDPOINT=$LLM_ENDPOINT \
     -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
-    -e LLM_BACKEND=$LLM_BACKEND \
+    -e DocSum_COMPONENT_NAME=$DocSum_COMPONENT_NAME \
     -e MAX_INPUT_TOKENS=${MAX_INPUT_TOKENS} \
     -e MAX_TOTAL_TOKENS=${MAX_TOTAL_TOKENS} \
     opea/llm-docsum:latest

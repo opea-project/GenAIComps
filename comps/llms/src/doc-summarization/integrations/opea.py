@@ -12,7 +12,7 @@ from langchain_community.llms import HuggingFaceEndpoint, VLLMOpenAI
 from langchain_core.prompts import PromptTemplate
 from transformers import AutoTokenizer
 
-from comps import CustomLogger, DocSumLLMParams, GeneratedDoc, OpeaComponent, ServiceType
+from comps import CustomLogger, DocSumLLMParams, GeneratedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 
 from .template import templ_en, templ_refine_en, templ_refine_zh, templ_zh
@@ -72,6 +72,9 @@ class OPEADocSum(OpeaComponent):
         )
         self.llm_endpoint = get_llm_endpoint()
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("OPEADocSum health check failed.")
 
     async def generate(self, input: DocSumLLMParams, client):
         """Invokes the TGI/vLLM LLM service to generate summarization for the provided input.
@@ -202,7 +205,7 @@ class OPEADocSum(OpeaComponent):
 
             return GeneratedDoc(text=output_text, prompt=input.query)
 
-
+@OpeaComponentRegistry.register("OPEADocSum_TGI")
 class OPEADocSum_TGI(OPEADocSum):
     """A specialized OPEA DocSum TGI component derived from OPEADocSum for interacting with TGI services based on Lanchain HuggingFaceEndpoint API.
 
@@ -263,7 +266,7 @@ class OPEADocSum_TGI(OPEADocSum):
 
         return result
 
-
+@OpeaComponentRegistry.register("OPEADocSum_vLLM")
 class OPEADocSum_vLLM(OPEADocSum):
     """A specialized OPEA DocSum vLLM component derived from OPEADocSum for interacting with vLLM services based on Lanchain VLLMOpenAI API.
 

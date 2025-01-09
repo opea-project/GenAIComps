@@ -4,12 +4,10 @@
 import os
 import time
 
-from integrations.opea import OPEADocSum_TGI, OPEADocSum_vLLM
-
 from comps import (
     CustomLogger,
     DocSumLLMParams,
-    OpeaComponentController,
+    OpeaComponentLoader,
     ServiceType,
     opea_microservices,
     register_microservice,
@@ -20,37 +18,9 @@ from comps import (
 logger = CustomLogger("llm_docsum")
 logflag = os.getenv("LOGFLAG", False)
 
-llm_backend = os.getenv("LLM_BACKEND", "").lower()
-if logflag:
-    logger.info(f"LLM BACKEND: {llm_backend}")
-
-comps_name = {"tgi": "OPEADocSum_TGI", "vllm": "OPEADocSum_vLLM"}
-active_comps_name = comps_name[llm_backend] if llm_backend != "" else ""
-
-# Initialize OpeaComponentController
-controller = OpeaComponentController()
-
-# Register components
-try:
-    opea_docsum_tgi = OPEADocSum_TGI(
-        name=comps_name["tgi"],
-        description="OPEA DocSum Service",
-    )
-    # Register components with the controller
-    controller.register(opea_docsum_tgi)
-
-    opea_docsum_vllm = OPEADocSum_vLLM(
-        name=comps_name["vllm"],
-        description="OPEA DocSum Service",
-    )
-    # Register components with the controller
-    controller.register(opea_docsum_vllm)
-
-    # Discover and activate a healthy component
-    controller.discover_and_activate(active_comps_name)
-except Exception as e:
-    logger.error(f"Failed to initialize components: {e}")
-
+llm_component_name = os.getenv("DocSum_COMPONENT_NAME", "OPEADocSum_TGI")
+# Initialize OpeaComponentLoader
+loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM DocSum Component: {llm_component_name}")
 
 @register_microservice(
     name="opea_service@llm_docsum",
@@ -69,7 +39,7 @@ async def llm_generate(input: DocSumLLMParams):
 
     try:
         # Use the controller to invoke the active component
-        response = await controller.invoke(input)
+        response = await loader.invoke(input)
         # Record statistics
         statistics_dict["opea_service@llm_docsum"].append_latency(time.time() - start, None)
         return response
