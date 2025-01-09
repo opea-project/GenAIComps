@@ -41,9 +41,7 @@ from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInfer
 from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.openai_like import OpenAILike
-from llama_index.llms.text_generation_inference import TextGenerationInference
 from neo4j import GraphDatabase
-from openai import Client
 from transformers import AutoTokenizer
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice

@@ -18,7 +18,6 @@ llama-index-embeddings-text-embeddings-inference
 llama-index-graph-stores-neo4j
 llama-index-llms-openai
 llama-index-llms-openai-like
-llama-index-llms-text-generation-inference
 markdown
 neo4j
 numpy

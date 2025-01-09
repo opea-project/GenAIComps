@@ -28,7 +28,6 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.openai_like import OpenAILike
-from llama_index.llms.text_generation_inference import TextGenerationInference
 from neo4j import GraphDatabase
 from pydantic import BaseModel, PrivateAttr
 
