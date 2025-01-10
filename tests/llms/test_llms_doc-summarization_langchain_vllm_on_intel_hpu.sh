@@ -84,7 +84,6 @@ function validate_services() {
 }
 
 function validate_microservices() {
-    DOCSUM_PORT=5076
     URL="http://${host_ip}:$DOCSUM_PORT/v1/chat/docsum"
 
     echo "Validate vllm..."
