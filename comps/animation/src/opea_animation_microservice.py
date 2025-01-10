@@ -9,8 +9,8 @@ import os
 import time
 
 # GenAIComps
-from comps import CustomLogger, OpeaComponentController
-from comps.animation.src.integration.opea import OpeaAnimation
+from comps import CustomLogger, OpeaComponentLoader
+from comps.animation.src.integrations.wav2lip import OpeaAnimation
 
 logger = CustomLogger("opea_animation")
 logflag = os.getenv("LOGFLAG", False)
@@ -24,22 +24,12 @@ from comps import (
     statistics_dict,
 )
 
-# Initialize OpeaComponentController
-controller = OpeaComponentController()
-
-# Register components
-try:
-    # Instantiate Animation component and register it to controller
-    opea_animation = OpeaAnimation(
-        name="OpeaAnimation",
-        description="OPEA Animation Service",
-    )
-    controller.register(opea_animation)
-
-    # Discover and activate a healthy component
-    controller.discover_and_activate()
-except Exception as e:
-    logger.error(f"Failed to initialize components: {e}")
+animation_component_name = os.getenv("ANIMATION_COMPONENT_NAME", "OPEA_ANIMATION")
+# Initialize OpeaComponentLoader
+loader = OpeaComponentLoader(
+    animation_component_name,
+    description=f"OPEA ANIMATION Component: {animation_component_name}",
+)
 
 
 # Register the microservice
@@ -53,10 +43,10 @@ except Exception as e:
     output_datatype=VideoPath,
 )
 @register_statistics(names=["opea_service@animation"])
-def animate(audio: Base64ByteStrDoc):
+async def animate(audio: Base64ByteStrDoc):
     start = time.time()
 
-    outfile = opea_animation.invoke(audio.byte_str)
+    outfile = await loader.invoke(audio.byte_str)
     if logflag:
         logger.info(f"Video generated successfully, check {outfile} for the result.")
 
