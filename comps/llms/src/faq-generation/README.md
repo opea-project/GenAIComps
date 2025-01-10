@@ -1,6 +1,6 @@
 # FAQGen LLM Microservice
 
-This microservice interacts with the TGI/vLLM LLM server to generate FAQs(frequently asked questions and answers) from Input Text. You can set backend service either [TGI](../../../3rd_parties/tgi) or [vLLM](../../../3rd_parties/vllm).
+This microservice interacts with the TGI/vLLM LLM server to generate FAQs(frequently asked questions and answers) from Input Text. You can set backend service either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
 
 ## 🚀1. Start Microservice with Docker
 
@@ -22,7 +22,7 @@ export FAQGen_COMPONENT_NAME="OPEAFAQGen_TGI" # or "vllm"
 
 Step 1: Prepare backend LLM docker image.
 
-If you want to use vLLM backend, refer to [vLLM](../../../3rd_parties/vllm/src) to build vLLM docker images first.
+If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/src) to build vLLM docker images first.
 
 No need for TGI.
 
@@ -45,7 +45,7 @@ You can choose one as needed.
 #### 1.3.1 Run Docker with CLI (Option A)
 
 Step 1: Start the backend LLM service
-Please refer to [TGI](../../../3rd_parties/tgi/deployment/docker_compose/) or [vLLM](<(../../../3rd_parties/vllm/deployment/docker_compose/)>) guideline to start a backend LLM service.
+Please refer to [TGI](../../../third_parties/tgi/deployment/docker_compose/) or [vLLM](<(../../../third_parties/vllm/deployment/docker_compose/)>) guideline to start a backend LLM service.
 
 Step 2: Start the FaqGen microservices
 
