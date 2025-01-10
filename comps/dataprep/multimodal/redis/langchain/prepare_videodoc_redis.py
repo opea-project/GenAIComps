@@ -10,6 +10,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Type, Union
 
+import pymupdf
 from config import EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, LVM_ENDPOINT, REDIS_URL, WHISPER_MODEL
 from fastapi import File, HTTPException, UploadFile
 from langchain_community.utilities.redis import _array_to_buffer
@@ -32,7 +33,6 @@ from multimodal_utils import (
     write_vtt,
 )
 from PIL import Image
-import pymupdf
 
 from comps import opea_microservices, register_microservice
 from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
@@ -306,7 +306,7 @@ def prepare_data_and_metadata_from_annotation(
 
 def prepare_pdf_data_from_annotation(annotation, path_to_frames, title):
     """PDF data processing has some key differences from videos and images.
-    
+
     1. Neighboring frames' transcripts are not currently considered relevant.
        We are only taking the text located on the same page as the image.
     2. The images/frames are indexed differently, by page and image-within-page
@@ -362,7 +362,9 @@ def ingest_multimodal(filename, data_folder, embeddings, is_pdf=False):
     if is_pdf:
         text_list, image_list, metadatas = prepare_pdf_data_from_annotation(annotation, path_to_frames, filename)
     else:
-        text_list, image_list, metadatas = prepare_data_and_metadata_from_annotation(annotation, path_to_frames, filename)
+        text_list, image_list, metadatas = prepare_data_and_metadata_from_annotation(
+            annotation, path_to_frames, filename
+        )
 
     MultimodalRedis.from_text_image_pairs_return_keys(
         texts=[f"From {filename}. " + text for text in text_list],
@@ -387,7 +389,10 @@ def drop_index(index_name, redis_url=REDIS_URL):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_transcripts", host="0.0.0.0", port=int(os.getenv("DATAPREP_MMR_PORT", 6007))
+    name="opea_service@prepare_videodoc_redis",
+    endpoint="/v1/generate_transcripts",
+    host="0.0.0.0",
+    port=int(os.getenv("DATAPREP_MMR_PORT", 6007)),
 )
 async def ingest_generate_transcripts(files: List[UploadFile] = File(None)):
     """Upload videos or audio files with speech, generate transcripts using whisper and ingest into redis."""
@@ -496,7 +501,10 @@ async def ingest_generate_transcripts(files: List[UploadFile] = File(None)):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/generate_captions", host="0.0.0.0", port=int(os.getenv("DATAPREP_MMR_PORT", 6007))
+    name="opea_service@prepare_videodoc_redis",
+    endpoint="/v1/generate_captions",
+    host="0.0.0.0",
+    port=int(os.getenv("DATAPREP_MMR_PORT", 6007)),
 )
 async def ingest_generate_caption(files: List[UploadFile] = File(None)):
     """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
@@ -639,7 +647,7 @@ async def ingest_with_text(files: List[UploadFile] = File(None)):
                         pix = None
 
                         # Convert image to base64 encoded string
-                        with open(img_fpath, "rb") as image2str: 
+                        with open(img_fpath, "rb") as image2str:
                             encoded_string = base64.b64encode(image2str.read())  # png to bytes
 
                         decoded_string = encoded_string.decode()  # bytes to string
@@ -701,7 +709,10 @@ async def ingest_with_text(files: List[UploadFile] = File(None)):
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/get_files", host="0.0.0.0", port=int(os.getenv("DATAPREP_MMR_PORT", 6007))
+    name="opea_service@prepare_videodoc_redis",
+    endpoint="/v1/dataprep/get_files",
+    host="0.0.0.0",
+    port=int(os.getenv("DATAPREP_MMR_PORT", 6007)),
 )
 async def rag_get_file_structure():
     """Returns list of names of uploaded videos saved on the server."""
@@ -715,7 +726,10 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_videodoc_redis", endpoint="/v1/dataprep/delete_files", host="0.0.0.0", port=int(os.getenv("DATAPREP_MMR_PORT", 6007))
+    name="opea_service@prepare_videodoc_redis",
+    endpoint="/v1/dataprep/delete_files",
+    host="0.0.0.0",
+    port=int(os.getenv("DATAPREP_MMR_PORT", 6007)),
 )
 async def delete_files():
     """Delete all uploaded files along with redis index."""

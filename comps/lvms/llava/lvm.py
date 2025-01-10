@@ -81,7 +81,7 @@ async def lvm(request: Union[LVMDoc, LVMSearchedMultimodalDoc]) -> Union[TextDoc
 
     # Limit the number of images being sent to the LVM
     if isinstance(img_b64_str, list) and len(img_b64_str) > max_images:
-        img_b64_str=img_b64_str[-max_images:]
+        img_b64_str = img_b64_str[-max_images:]
 
         # Adjust the number of images tags in the prompt
         image_tag = "<image>\n"

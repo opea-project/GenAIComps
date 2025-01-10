@@ -4,9 +4,9 @@
 
 import argparse
 import base64
+import os
 import time
 from io import BytesIO
-import os
 
 import PIL.Image
 import requests
@@ -14,8 +14,7 @@ import torch
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
-from transformers import AutoProcessor
-from transformers import pipeline
+from transformers import AutoProcessor, pipeline
 from transformers.image_utils import load_image
 
 model_name_or_path = None
@@ -263,7 +262,7 @@ if __name__ == "__main__":
             "content": [
                 {"type": "image"},
                 {"type": "text", "text": "What's the content of the image?"},
-                ],
+            ],
         },
     ]
     text_prompt = processor.apply_chat_template(conversation)
