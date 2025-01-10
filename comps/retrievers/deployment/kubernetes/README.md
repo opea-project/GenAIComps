@@ -9,6 +9,7 @@
 export HFTOKEN="insert-your-huggingface-token-here"
 helm install retriever-usvc oci://ghcr.io/opea-project/charts/retriever-usvc --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f redis-values.yaml
 ```
+
 ## Deploy on Kubernetes with milvus vector DB
 
 ```
