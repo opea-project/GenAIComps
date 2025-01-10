@@ -21,12 +21,12 @@ Please note it's instructive to run and validate each the llama.cpp server and O
 
 ```bash
 cd GenAIComps
-docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml up llamacpp-server --force-recreate
+docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml up llamacpp-server
 ```
 
 Notes:
 
-i) If you prefer to run above in the background without screen output use `up -d` . The `--force-recreate` clears cache.
+i) If you prefer to run above in the background without screen output use `up -d`.
 
 ii) To stop the llama.cpp server:
 
@@ -51,7 +51,7 @@ This is essentially a wrapper component of Llama.cpp server. OPEA nicely standar
 
 ```bash
 cd GenAIComps/
-docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml up llama-opea-llm
+docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml up llamacpp-opea-llm --force-recreate
 ```
 
 Equivalently, the above can be achieved with `build` and `run` from the Dockerfile. Build:
@@ -87,4 +87,4 @@ cd GenAIComps/comps/llms/text-generation/llamacpp/
 docker compose -f comps/llms/text-generation/llamacpp/docker_compose_llm.yaml stop
 ```
 
-`down` may be used instead of 'stop' if you'd like to stop and delete the containers.
+`down` may be used instead of 'stop' if you'd like to stop, and delete the containers and networks.

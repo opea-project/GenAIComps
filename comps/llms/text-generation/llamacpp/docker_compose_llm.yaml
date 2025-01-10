@@ -18,7 +18,7 @@ services:
   llamacpp-opea-llm:
     image: opea/llm-llamacpp:latest
     build:
-        # Set this to allow COPY comps in the Dockerfile.
+        # This context is to allow the 'COPY comps' command in the Dockerfile.
         # When using docker compose with -f, the comps context is 4 levels down from docker_compose_llm.yaml.
         context: ../../../../
         dockerfile: ./comps/llms/text-generation/llamacpp/Dockerfile
@@ -31,7 +31,6 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      # LLAMACPP_ENDPOINT: ${LLAMACPP_ENDPOINT}
     restart: unless-stopped
 
 networks:
