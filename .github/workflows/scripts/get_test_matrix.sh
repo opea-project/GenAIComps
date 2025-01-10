@@ -42,7 +42,7 @@ function find_test_1() {
                     changed_integrations=$(printf '%s\n' "${changed_files[@]}"| grep ${service_path} | grep -E 'integrations' | cut -d'/' -f$((n+2)) | cut -d'.' -f1 | sort -u)  || true
                     for integration in ${changed_integrations}; do
                         # Accurate matching test scripts
-                        # find_test=$(find ./tests -type f \( -name test_${service_name}_${integration}.sh -o -name test_${service_name}_${integration}_on_*.sh \)) || true
+                        # find_test=$(find ./tests -type f \( -name test_${service_name}_${integrations}.sh -o -name test_${service_name}_${integrations}_on_*.sh \)) || true
                         # Fuzzy matching test scripts, for example, llms/src/text-generation/integrations/opea.py match several tests.
                         find_test=$(find ./tests -type f -name test_${service_name}_${integration}*.sh) || true
                         if [ "$find_test" ]; then
@@ -110,7 +110,7 @@ function find_test_2() {
 
 function main() {
 
-    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|comps/3rd_parties|deployment|\.yaml') || true
+    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|comps/third_parties|deployment|\.yaml') || true
     echo "===========start find_test_1============"
     echo "changed_files=${changed_files}"
     find_test_1 "comps" 2 false
