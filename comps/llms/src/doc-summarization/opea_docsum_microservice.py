@@ -4,6 +4,8 @@
 import os
 import time
 
+from integrations.opea import OPEADocSum_TGI, OPEADocSum_vLLM
+
 from comps import (
     CustomLogger,
     DocSumLLMParams,
