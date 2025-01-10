@@ -4,7 +4,7 @@
 import os
 import time
 
-from integrations.opea import OPEAFAQGen_TGI, OPEAFAQGen_vLLM
+from integrations.langchain import OPEAFAQGen_TGI, OPEAFAQGen_vLLM
 
 from comps import (
     CustomLogger,
