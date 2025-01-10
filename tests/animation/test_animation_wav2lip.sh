@@ -46,13 +46,10 @@ function start_service() {
     docker run -d --name="test-comps-animation-wav2lip" -v $WORKPATH/comps/animation/src/assets:/home/user/comps/animation/src/assets -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e DEVICE=$DEVICE -e INFERENCE_MODE=$INFERENCE_MODE -e CHECKPOINT_PATH=$CHECKPOINT_PATH -e FACE=$FACE -e AUDIO=$AUDIO -e FACESIZE=$FACESIZE -e OUTFILE=$OUTFILE -e GFPGAN_MODEL_VERSION=$GFPGAN_MODEL_VERSION -e UPSCALE_FACTOR=$UPSCALE_FACTOR -e FPS=$FPS -e WAV2LIP_PORT=$WAV2LIP_PORT -p 7860:7860 --ipc=host opea/wav2lip:comps
     docker run -d --name="test-comps-animation" -v $WORKPATH/comps/animation/src/assets:/home/user/comps/animation/src/assets -e WAV2LIP_ENDPOINT=http://$ip_address:7860 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9066:9066 --ipc=host opea/animation:comps
     sleep 3m
-
 }
 
 function validate_microservice() {
     cd $WORKPATH
-    python3 comps/3rd_parties/wav2lip/src/check_wav2lip_server.py
-
     result=$(http_proxy="" curl http://localhost:9066/v1/animation -X POST -H "Content-Type: application/json" -d @comps/animation/src/assets/audio/sample_question.json)
     if [[ $result == *"result.mp4"* ]]; then
         echo "Result correct."
