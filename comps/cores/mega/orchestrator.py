@@ -7,6 +7,7 @@ import copy
 import json
 import os
 import re
+import threading
 import time
 from typing import Dict, List
 
@@ -42,27 +43,40 @@ class OrchestratorMetrics:
 
         self.request_pending = Gauge(f"{self._prefix}_request_pending", "Count of currently pending requests (gauge)")
 
+        # locking for latency metric creation / method change
+        self._lock = threading.Lock()
+
         # Metrics related to token processing are created on demand,
         # to avoid bogus ones for services that never handle tokens
         self.first_token_latency = None
         self.inter_token_latency = None
         self.request_latency = None
 
-        # initial methods create the metric
+        # initial methods to create the metrics
         self.token_update = self._token_update_create
         self.request_update = self._request_update_create
 
     def _token_update_create(self, token_start: float, is_first: bool) -> float:
-        self.first_token_latency = Histogram(f"{self._prefix}_first_token_latency", "First token latency (histogram)")
-        self.inter_token_latency = Histogram(f"{self._prefix}_inter_token_latency", "Inter-token latency (histogram)")
-        self.token_update = self._token_update_real
+        with self._lock:
+            # in case another thread already got here
+            if self.token_update == self._token_update_create:
+                self.first_token_latency = Histogram(
+                    f"{self._prefix}_first_token_latency", "First token latency (histogram)"
+                )
+                self.inter_token_latency = Histogram(
+                    f"{self._prefix}_inter_token_latency", "Inter-token latency (histogram)"
+                )
+                self.token_update = self._token_update_real
         return self.token_update(token_start, is_first)
 
     def _request_update_create(self, req_start: float) -> None:
-        self.request_latency = Histogram(
-            f"{self._prefix}_request_latency", "Whole LLM request/reply latency (histogram)"
-        )
-        self.request_update = self._request_update_real
+        with self._lock:
+            # in case another thread already got here
+            if self.request_update == self._request_update_create:
+                self.request_latency = Histogram(
+                    f"{self._prefix}_request_latency", "Whole LLM request/reply latency (histogram)"
+                )
+                self.request_update = self._request_update_real
         self.request_update(req_start)
 
     def _token_update_real(self, token_start: float, is_first: bool) -> float:
