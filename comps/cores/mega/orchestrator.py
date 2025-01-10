@@ -14,9 +14,10 @@ import requests
 from fastapi.responses import StreamingResponse
 from prometheus_client import Gauge, Histogram
 from pydantic import BaseModel
+import contextlib
 
 from ..proto.docarray import LLMParams
-from ..telemetry.opea_telemetry import opea_telemetry
+from ..telemetry.opea_telemetry import opea_telemetry, tracer
 from .constants import ServiceType
 from .dag import DAG
 from .logger import CustomLogger
@@ -168,6 +169,21 @@ class ServiceOrchestrator(DAG):
             all_outputs.update(result_dict[prev_node])
         return all_outputs
 
+    def wrap_iterable(self, iterable, is_first=True):
+
+        with tracer.start_as_current_span(f"llm_generate_stream"):
+            while True:
+                with tracer.start_as_current_span(f"llm_generate_stream_first_token") if is_first else contextlib.nullcontext(): #  else tracer.start_as_current_span(f"llm_generate_stream_next_token")
+                    try:
+                        token = next(iterable)
+                        yield token
+                        is_first = False
+                    except StopIteration:
+                        # Exiting the iterable loop cleanly
+                        break
+                    except Exception as e:
+                        raise e
+
     @opea_telemetry
     async def execute(
         self,
@@ -211,14 +227,15 @@ class ServiceOrchestrator(DAG):
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
                 downstream_endpoint = self.services[downstream[0]].endpoint_path
 
-            @opea_telemetry
             def generate():
                 token_start = req_start
                 if response:
                     # response.elapsed = time until first headers received
                     buffered_chunk_str = ""
                     is_first = True
-                    for chunk in response.iter_content(chunk_size=None):
+
+                    for chunk in self.wrap_iterable(response.iter_content(chunk_size=None)):
+
                         if chunk:
                             if downstream:
                                 chunk = chunk.decode("utf-8")
@@ -244,6 +261,7 @@ class ServiceOrchestrator(DAG):
                                 token_start = self.metrics.token_update(token_start, is_first)
                                 yield chunk
                             is_first = False
+
                     self.metrics.request_update(req_start)
                     self.metrics.pending_update(False)
 
@@ -260,19 +278,20 @@ class ServiceOrchestrator(DAG):
                 input_data = {k: v for k, v in input_data.items() if v is not None}
             else:
                 input_data = inputs
-            async with session.post(endpoint, json=input_data) as response:
-                if response.content_type == "audio/wav":
-                    audio_data = await response.read()
-                    data = self.align_outputs(
-                        audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs
-                    )
-                else:
-                    # Parse as JSON
-                    data = await response.json()
-                    # post process
-                    data = self.align_outputs(data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)
+            with tracer.start_as_current_span(f"{cur_node}_generate"):
+                response = await session.post(endpoint, json=input_data)
+            if response.content_type == "audio/wav":
+                audio_data = await response.read()
+                data = self.align_outputs(
+                    audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs
+                )
+            else:
+                # Parse as JSON
+                data = await response.json()
+                # post process
+                data = self.align_outputs(data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)
 
-                return data, cur_node
+            return data, cur_node
 
     def align_inputs(self, inputs, *args, **kwargs):
         """Override this method in megaservice definition."""
@@ -305,7 +324,6 @@ class ServiceOrchestrator(DAG):
             chunk_str = chunk_str[: -len(suffix)]
         return chunk_str
 
-    @opea_telemetry
     def token_generator(self, sentence: str, token_start: float, is_first: bool, is_last: bool) -> str:
         prefix = "data: "
         suffix = "\n\n"
