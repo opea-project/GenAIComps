@@ -15,10 +15,6 @@ services:
     build:
       dockerfile: comps/guardrails/src/hallucination_detection/Dockerfile
     image: ${REGISTRY:-opea}/guardrails-hallucination-detection:${TAG:-latest}
-  guardrails-wildguard:
-    build:
-      dockerfile: comps/guardrails/src/wildguard/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/guardrails-wildguard:${TAG:-latest}
   guardrails-pii-predictionguard:
     build:
       dockerfile: comps/guardrails/src/pii_detection/Dockerfile
