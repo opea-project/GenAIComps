@@ -21,7 +21,7 @@ while [[ "$current_dir" != "/" ]]; do
 done
 
 docker build --no-cache \
-    -t opea/guardrails-halluc:latest \
+    -t opea/guardrails-hallucination-detection:latest \
     --build-arg https_proxy=$https_proxy \
     --build-arg http_proxy=$http_proxy \
     -f $proj_folder/Dockerfile .

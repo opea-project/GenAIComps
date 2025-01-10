@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Hallucination in AI, particularly in large language models (LLMs), spans a wide range of issues that can impact reliability, trustworthiness, and utility of AI-generated content. The content could be plausible-sounding and factually incorrect, irrelevant, or entirely fabricated. This phenomenon occurs when the model generates outputs that are not grounded in the input context, training data, or real-world knowledge. While LLMs excel at generating coherent responses, hallucinations pose a critical challenge for applications that demand accuracy, reliability, and trustworthiness.
+Hallucination in AI, particularly in large language models (LLMs), spans a wide range of issues that can impact reliability, trustworthiness, and utility of AI-generated content. The content could be plausible-sounding but factually incorrect, irrelevant, or entirely fabricated. This phenomenon occurs when the model generates outputs that are not grounded in the input context, training data, or real-world knowledge. While LLMs excel at generating coherent responses, hallucinations pose a critical challenge for applications that demand accuracy, reliability, and trustworthiness.
 
 ### Forms of Hallucination
 

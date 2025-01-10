@@ -10,12 +10,12 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     echo "Start building docker images for microservice"
     cd $WORKPATH
-    docker build --no-cache -t opea/guardrails-halluc-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/hallucination_detection/Dockerfile .
+    docker build --no-cache -t opea/guardrails-hallucination-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/hallucination_detection/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/guardrails-halluc-detection built fail"
+        echo "opea/guardrails-hallucination-detection built fail"
         exit 1
     else
-        echo "opea/guardrails-halluc-detection built successful"
+        echo "opea/guardrails-hallucination-detection built successful"
     fi
 }
 
@@ -27,7 +27,7 @@ function start_service() {
 
     echo "Starting vllm serving"
     docker run -d --runtime=habana \
-        --name="test-comps-guardrails-halluc-detection-vllm-service" \
+        --name="test-comps-guardrails-hallucination-detection-vllm-service" \
         -v $PWD/data:/data \
         -p $port_number:80 \
         -e HABANA_VISIBLE_DEVICES=all \
@@ -54,7 +54,7 @@ function start_service() {
 
     echo "Starting microservice"
     docker run -d --runtime=runc \
-        --name="test-comps-guardrails-halluc-detection-uservice" \
+        --name="test-comps-guardrails-hallucination-detection-uservice" \
         -p 9080:9000 \
         --ipc=host \
         -e http_proxy=$http_proxy \
@@ -63,7 +63,7 @@ function start_service() {
         -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
         -e LLM_MODEL=$LLM_MODEL \
         -e LOGFLAG=$LOGFLAG \
-        opea/guardrails-halluc-detection:comps
+        opea/guardrails-hallucination-detection:comps
     sleep 10
     echo "Microservice started"
 }
@@ -80,11 +80,11 @@ function validate_microservice() {
     DATA1=$(echo $DATA | sed "s/{question}/$QUESTION/g; s/{document}/$DOCUMENT/g; s/{answer}/$ANSWER/g")
     printf "$DATA1\n"
 
-    result=$(curl localhost:9080/v1/halluc_detection -X POST -d "$DATA1" -H 'Content-Type: application/json')
+    result=$(curl localhost:9080/v1/hallucination_detection -X POST -d "$DATA1" -H 'Content-Type: application/json')
     if [[ $result == *"FAIL"* ]]; then
         echo "Result correct."
     else
-        docker logs test-comps-guardrails-halluc-detection-uservice
+        docker logs test-comps-guardrails-hallucination-detection-uservice
         exit 1
     fi
 
@@ -96,19 +96,19 @@ function validate_microservice() {
     DATA2=$(echo $DATA | sed "s/{question}/$QUESTION/g; s/{document}/$DOCUMENT/g; s/{answer}/$ANSWER/g")
     printf "$DATA2\n"
 
-    result=$(curl localhost:9080/v1/halluc_detection -X POST -d "$DATA2" -H 'Content-Type: application/json')
+    result=$(curl localhost:9080/v1/hallucination_detection -X POST -d "$DATA2" -H 'Content-Type: application/json')
     if [[ $result == *"PASS"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-guardrails-halluc-detection-uservice
+        docker logs test-comps-guardrails-hallucination-detection-uservice
         exit 1
     fi
     echo "Validate microservice completed"
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-guardrails-halluc-detection*")
+    cid=$(docker ps -aq --filter "name=test-comps-guardrails-hallucination-detection*")
     echo "Shutdown legacy containers "$cid
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }

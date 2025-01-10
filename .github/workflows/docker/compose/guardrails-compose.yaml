@@ -19,6 +19,10 @@ services:
     build:
       dockerfile: comps/guardrails/toxicity_detection/Dockerfile
     image: ${REGISTRY:-opea}/guardrails-toxicity-detection:${TAG:-latest}
+  guardrails-hallucination-detection:
+    build:
+      dockerfile: comps/guardrails/hallucination_detection/Dockerfile
+    image: ${REGISTRY:-opea}/guardrails-hallucination-detection:${TAG:-latest}
   guardrails-wildguard:
     build:
       dockerfile: comps/guardrails/wildguard/langchain/Dockerfile

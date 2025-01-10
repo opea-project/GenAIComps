@@ -44,9 +44,9 @@ def post_process_text(text: str):
 
 
 @register_microservice(
-    name="opea_service@halluc_detection",
+    name="opea_service@hallucination_detection",
     service_type=ServiceType.LLM,
-    endpoint="/v1/halluc_detection",
+    endpoint="/v1/hallucination_detection",
     host="0.0.0.0",
     port=9000,
 )
@@ -183,4 +183,4 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
 
 
 if __name__ == "__main__":
-    opea_microservices["opea_service@halluc_detection"].start()
+    opea_microservices["opea_service@hallucination_detection"].start()
