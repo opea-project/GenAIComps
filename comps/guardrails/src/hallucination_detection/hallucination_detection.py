@@ -23,7 +23,7 @@ from comps import (
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
-logger = CustomLogger("halluc_detection")
+logger = CustomLogger("hallucination_detection")
 logflag = os.getenv("LOGFLAG", False)
 
 llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")

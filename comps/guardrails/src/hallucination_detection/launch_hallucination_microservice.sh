@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 docker run -d --rm \
-    --name="halluc-detection" \
+    --name="hallucination-detection" \
     -p 9080:9000 \
     --ipc=host \
     -e http_proxy=$http_proxy \

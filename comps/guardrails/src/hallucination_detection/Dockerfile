@@ -19,13 +19,13 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip && \
     if [ ${ARCH} = "cpu" ]; then \
-      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/guardrails/hallucination_detection/requirements.txt; \
+      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/guardrails/src/hallucination_detection/requirements.txt; \
     else \
-      pip install --no-cache-dir -r /home/user/comps/guardrails/hallucination_detection/requirements.txt; \
+      pip install --no-cache-dir -r /home/user/comps/guardrails/src/hallucination_detection/requirements.txt; \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
-WORKDIR /home/user/comps/guardrails/hallucination_detection
+WORKDIR /home/user/comps/guardrails/src/hallucination_detection
 
 ENTRYPOINT ["bash", "entrypoint.sh"]

@@ -72,7 +72,7 @@ bash launch_hallucination_microservice.sh
 ## 🚀3. Get Status of Hallucination Microservice
 
 ```bash
-docker container logs -f halluc-detection
+docker container logs -f hallucination-detection
 ```
 
 ## 🚀4. Consume Guardrail Micorservice Post-LLM
@@ -96,7 +96,7 @@ DATA=$(echo $DATA | sed "s/{question}/$QUESTION/g; s/{document}/$DOCUMENT/g; s/{
 
 printf "$DATA"
 
-curl http://localhost:9080/v1/halluc_detection \
+curl http://localhost:9080/v1/hallucination_detection \
     -H 'Content-Type: application/json' \
     -d "$DATA"
 ```
@@ -122,7 +122,7 @@ DATA=$(echo $DATA | sed "s/{question}/$QUESTION/g; s/{document}/$DOCUMENT/g; s/{
 
 printf "$DATA"
 
-curl http://localhost:9080/v1/halluc_detection \
+curl http://localhost:9080/v1/hallucination_detection \
     -H 'Content-Type: application/json' \
     -d "$DATA"
 
@@ -141,7 +141,7 @@ import requests
 import json
 
 proxies = {"http": ""}
-url = "http://localhost:9080/v1/halluc_detection"
+url = "http://localhost:9080/v1/hallucination_detection"
 data = {
     "messages": [
         {
