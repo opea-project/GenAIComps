@@ -71,7 +71,7 @@ function validate_services() {
 }
 
 function validate_microservices() {
-    URL="http://${host_ip}:$DOCSUM_PORT/v1/chat/docsum"
+    URL="http://${host_ip}:$DOCSUM_PORT/v1/docsum"
 
     echo "Validate tgi..."
     validate_services \

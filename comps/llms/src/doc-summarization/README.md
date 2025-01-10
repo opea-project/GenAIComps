@@ -113,19 +113,19 @@ If you want to deal with long context, can select suitable summary type, details
 
 ```bash
 # Enable stream to receive a stream response. By default, this is set to True.
-curl http://${your_ip}:9000/v1/chat/docsum \
+curl http://${your_ip}:9000/v1/docsum \
   -X POST \
   -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en"}' \
   -H 'Content-Type: application/json'
 
 # Disable stream to receive a non-stream response.
-curl http://${your_ip}:9000/v1/chat/docsum \
+curl http://${your_ip}:9000/v1/docsum \
   -X POST \
   -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "stream":false}' \
   -H 'Content-Type: application/json'
 
 # Use Chinese mode
-curl http://${your_ip}:9000/v1/chat/docsum \
+curl http://${your_ip}:9000/v1/docsum \
   -X POST \
   -d '{"query":"2024年9月26日，北京——今日，英特尔正式发布英特尔® 至强® 6性能核处理器（代号Granite Rapids），为AI、数据分析、科学计算等计算密集型业务提供卓越性能。", "max_tokens":32, "language":"zh", "stream":false}' \
   -H 'Content-Type: application/json'
@@ -146,7 +146,7 @@ In this mode LLM generate summary based on complete input text. In this case ple
 Truncate mode will truncate the input text and keep only the first chunk, whose length is equal to `min(MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS)`
 
 ```bash
-curl http://${your_ip}:9000/v1/chat/docsum \
+curl http://${your_ip}:9000/v1/docsum \
   -X POST \
   -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "truncate", "chunk_size": 2000}' \
   -H 'Content-Type: application/json'
@@ -159,7 +159,7 @@ Map_reduce mode will split the inputs into multiple chunks, map each document to
 In this mode, default `chunk_size` is set to be `min(MAX_TOTAL_TOKENS - input.max_tokens - 50, MAX_INPUT_TOKENS)`
 
 ```bash
-curl http://${your_ip}:9000/v1/chat/docsum \
+curl http://${your_ip}:9000/v1/docsum \
   -X POST \
   -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "stream":false}' \
   -H 'Content-Type: application/json'
@@ -172,7 +172,7 @@ Refin mode will split the inputs into multiple chunks, generate summary for the 
 In this mode, default `chunk_size` is set to be `min(MAX_TOTAL_TOKENS - 2 * input.max_tokens - 128, MAX_INPUT_TOKENS)`.
 
 ```bash
-curl http://${your_ip}:9000/v1/chat/docsum \
+curl http://${your_ip}:9000/v1/docsum \
   -X POST \
   -d '{"query":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000}' \
   -H 'Content-Type: application/json'
