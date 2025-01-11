@@ -38,24 +38,22 @@ elif os.getenv("vLLM_ENDPOINT") is not None:
 else:
     DEFAULT_ENDPOINT = "http://localhost:8080"
 
-# Validate and Load the models config if MODEL_CONFIGS is not null
-configs_map = {}
-if MODEL_CONFIGS:
-    try:
-        configs_map = load_model_configs(MODEL_CONFIGS)
-    except ConfigError as e:
-        logger.error(f"Failed to load model configurations: {e}")
-        raise ConfigError(f"Failed to load model configurations: {e}")
-
-
 def get_llm_endpoint():
     if not MODEL_CONFIGS:
         return DEFAULT_ENDPOINT
-    try:
-        return configs_map.get(MODEL_NAME).get("endpoint")
-    except ConfigError as e:
-        logger.error(f"Input model {MODEL_NAME} not present in model_configs. Error {e}")
-        raise ConfigError(f"Input model {MODEL_NAME} not present in model_configs")
+    else:
+        # Validate and Load the models config if MODEL_CONFIGS is not null
+        configs_map = {}
+        try:
+            configs_map = load_model_configs(MODEL_CONFIGS)
+        except ConfigError as e:
+            logger.error(f"Failed to load model configurations: {e}")
+            raise ConfigError(f"Failed to load model configurations: {e}")
+        try:
+            return configs_map.get(MODEL_NAME).get("endpoint")
+        except ConfigError as e:
+            logger.error(f"Input model {MODEL_NAME} not present in model_configs. Error {e}")
+            raise ConfigError(f"Input model {MODEL_NAME} not present in model_configs")
 
 
 class OPEADocSum(OpeaComponent):
