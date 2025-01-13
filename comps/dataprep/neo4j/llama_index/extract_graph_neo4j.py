@@ -543,7 +543,7 @@ def initialize_graph_store_and_models():
             api_base=TGI_LLM_ENDPOINT + "/v1",
             api_key="fake",
             temperature=0.7,
-            max_tokens=MAX_OUTPUT_TOKENS,  # 1512
+            max_tokens=int(MAX_OUTPUT_TOKENS),  # 1512
             timeout=1200,  # timeout in seconds)
         )
         emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")

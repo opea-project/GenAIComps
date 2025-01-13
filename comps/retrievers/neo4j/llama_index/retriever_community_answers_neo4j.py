@@ -249,7 +249,7 @@ async def initialize_graph_store_and_index():
             api_key="fake",
             timeout=600,
             temperature=0.7,
-            max_tokens=MAX_OUTPUT_TOKENS,
+            max_tokens=int(MAX_OUTPUT_TOKENS),
         )
         emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
         embed_model = TextEmbeddingsInference(
