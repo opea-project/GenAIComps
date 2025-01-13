@@ -5,11 +5,14 @@ import os
 
 import requests
 from langchain_community.llms import VLLMOpenAI
-from .common import *
+
 from comps import CustomLogger, DocSumLLMParams, GeneratedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
+
+from .common import *
 
 logger = CustomLogger("llm_docsum_vllm")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEADocSum_vLLM")
 class OPEADocSum_vLLM(OPEADocSum):
