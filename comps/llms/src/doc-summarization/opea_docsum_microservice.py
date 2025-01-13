@@ -4,7 +4,8 @@
 import os
 import time
 
-from integrations.langchain import OPEADocSum_TGI, OPEADocSum_vLLM
+from integrations.tgi import OPEADocSum_TGI
+from integrations.vllm import OPEADocSum_vLLM
 
 from comps import (
     CustomLogger,
