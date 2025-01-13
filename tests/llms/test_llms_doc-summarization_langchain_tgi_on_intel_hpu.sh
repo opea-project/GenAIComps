@@ -78,7 +78,7 @@ function validate_microservices() {
         "${LLM_ENDPOINT}/generate" \
         "generated_text" \
         "tgi" \
-        "tgi-gaudi-server" \
+        "tgi_gaudi_server" \
         '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
 
     echo "Validate stream=True..."
