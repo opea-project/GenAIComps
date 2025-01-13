@@ -36,7 +36,8 @@ elif os.getenv("vLLM_ENDPOINT") is not None:
     DEFAULT_ENDPOINT = os.getenv("vLLM_ENDPOINT")
 else:
     DEFAULT_ENDPOINT = "http://localhost:8080"
-   
+
+
 def get_llm_endpoint():
     if not MODEL_CONFIGS:
         return DEFAULT_ENDPOINT
