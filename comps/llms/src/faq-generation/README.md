@@ -45,7 +45,7 @@ You can choose one as needed.
 #### 1.3.1 Run Docker with CLI (Option A)
 
 Step 1: Start the backend LLM service
-Please refer to [TGI](../../../third_parties/tgi/deployment/docker_compose/) or [vLLM](<(../../../third_parties/vllm/deployment/docker_compose/)>) guideline to start a backend LLM service.
+Please refer to [TGI](../../../third_parties/tgi/deployment/docker_compose/) or [vLLM](../../../third_parties/vllm/deployment/docker_compose/) guideline to start a backend LLM service.
 
 Step 2: Start the FaqGen microservices
 
