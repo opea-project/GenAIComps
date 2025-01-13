@@ -5,12 +5,14 @@ import os
 
 import requests
 from langchain_community.llms import HuggingFaceEndpoint
-from .common import *
 
 from comps import CustomLogger, DocSumLLMParams, GeneratedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
+from .common import *
+
 logger = CustomLogger("llm_docsum_tgi")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEADocSum_TGI")
 class OPEADocSum_TGI(OPEADocSum):
