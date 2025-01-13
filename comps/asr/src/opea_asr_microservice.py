@@ -34,7 +34,7 @@ loader = OpeaComponentLoader(asr_component_name, description=f"OPEA ASR Componen
     service_type=ServiceType.ASR,
     endpoint="/v1/audio/transcriptions",
     host="0.0.0.0",
-    port=int(os.getenv("ASR_PORT", 9099)),
+    port=9099,
     input_datatype=Base64ByteStrDoc,
     output_datatype=LLMParamsDoc,
 )
