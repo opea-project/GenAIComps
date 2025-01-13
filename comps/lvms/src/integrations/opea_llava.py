@@ -99,9 +99,9 @@ class OpeaLlavaLvm(OpeaComponent):
             prompt = request.prompt
             max_new_tokens = request.max_new_tokens
 
-         # Limit the number of images being sent to the LVM
+        # Limit the number of images being sent to the LVM
         if isinstance(img_b64_str, list) and len(img_b64_str) > max_images:
-            img_b64_str=img_b64_str[-max_images:]
+            img_b64_str = img_b64_str[-max_images:]
 
             # Adjust the number of images tags in the prompt
             image_tag = "<image>\n"
