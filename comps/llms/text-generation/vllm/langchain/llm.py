@@ -200,7 +200,7 @@ async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, Searche
             logger.info("[ ChatCompletionRequest ] input in opea format")
         client = OpenAI(
             api_key="EMPTY",
-            base_url=llm_endpoint + "/v1",
+            base_url=llm_endpoint + "/v1/chat",
         )
 
         if isinstance(input.messages, str):
