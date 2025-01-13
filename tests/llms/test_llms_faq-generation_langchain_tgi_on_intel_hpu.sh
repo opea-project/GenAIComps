@@ -72,7 +72,7 @@ function validate_backend_microservices() {
         "${host_ip}:${LLM_ENDPOINT_PORT}/generate" \
         "generated_text" \
         "tgi" \
-        "tgi-gaudi-server" \
+        "tgi_gaudi_server" \
         '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
 
     # faq
