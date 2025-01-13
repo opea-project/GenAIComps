@@ -5,12 +5,14 @@ import os
 
 import requests
 from langchain_community.llms import HuggingFaceEndpoint
-from .common import *
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
+from .common import *
+
 logger = CustomLogger("opea_faqgen_tgi")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEAFAQGen_TGI")
 class OPEAFAQGen_TGI(OPEAFAQGen):

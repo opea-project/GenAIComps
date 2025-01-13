@@ -5,12 +5,14 @@ import os
 
 import requests
 from langchain_community.llms import VLLMOpenAI
-from .common import *
 
 from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
+from .common import *
+
 logger = CustomLogger("opea_faqgen_vllm")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEAFAQGen_vLLM")
 class OPEAFAQGen_vLLM(OPEAFAQGen):
