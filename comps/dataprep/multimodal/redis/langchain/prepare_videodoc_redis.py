@@ -304,12 +304,12 @@ def prepare_data_and_metadata_from_annotation(
     return text_list, image_list, metadatas
 
 
-def prepare_pdf_data_from_annotation(annotation, path_to_frames, title):
+def prepare_pdf_data_from_annotation(annotation, path_to_files, title):
     """PDF data processing has some key differences from videos and images.
 
-    1. Neighboring frames' transcripts are not currently considered relevant.
+    1. Neighboring transcripts are not currently considered relevant.
        We are only taking the text located on the same page as the image.
-    2. The images/frames are indexed differently, by page and image-within-page
+    2. The images within PDFs are indexed by page and image-within-page
        indices, as opposed to a single frame index.
     3. Instead of time of frame in ms, we return the PDF page index through
        the pre-existing time_of_frame_ms metadata key to maintain compatibility.
@@ -317,29 +317,29 @@ def prepare_pdf_data_from_annotation(annotation, path_to_frames, title):
     text_list = []
     image_list = []
     metadatas = []
-    for frame in annotation:
-        page_index = frame["frame_no"]
-        image_index = frame["sub_video_id"]
-        path_to_frame = os.path.join(path_to_frames, f"page{page_index}_image{image_index}.png")
-        caption_for_ingesting = frame["caption"]
-        caption_for_inference = frame["caption"]
+    for item in annotation:
+        page_index = item["frame_no"]
+        image_index = item["sub_video_id"]
+        path_to_image = os.path.join(path_to_files, f"page{page_index}_image{image_index}.png")
+        caption_for_ingesting = item["caption"]
+        caption_for_inference = item["caption"]
 
-        video_id = frame["video_id"]
-        b64_img_str = frame["b64_img_str"]
+        pdf_id = item["video_id"]
+        b64_img_str = item["b64_img_str"]
         embedding_type = "pair" if b64_img_str else "text"
-        source_video = frame["video_name"]
+        source = item["video_name"]
 
         text_list.append(caption_for_ingesting)
 
         if b64_img_str:
-            image_list.append(path_to_frame)
+            image_list.append(path_to_image)
 
         metadatas.append(
             {
                 "content": caption_for_ingesting,
                 "b64_img_str": b64_img_str,
-                "video_id": video_id,
-                "source_video": source_video,
+                "video_id": pdf_id,
+                "source_video": source,
                 "time_of_frame_ms": page_index,  # For PDFs save the page number
                 "embedding_type": embedding_type,
                 "title": title,
