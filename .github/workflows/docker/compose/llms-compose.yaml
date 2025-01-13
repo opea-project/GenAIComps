@@ -11,14 +11,14 @@ services:
     build:
       dockerfile: comps/llms/text-generation/ollama/langchain/Dockerfile
     image: ${REGISTRY:-opea}/llm-ollama:${TAG:-latest}
-  llm-docsum-tgi:
+  llm-docsum:
     build:
-      dockerfile: comps/llms/summarization/tgi/langchain/Dockerfile
+      dockerfile: comps/llms/src/doc-summarization/Dockerfile
     image: ${REGISTRY:-opea}/llm-docsum-tgi:${TAG:-latest}
-  llm-faqgen-tgi:
+  llm-faqgen:
     build:
-      dockerfile: comps/llms/faq-generation/tgi/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/llm-faqgen-tgi:${TAG:-latest}
+      dockerfile: comps/llms/src/faq-generation/Dockerfile
+    image: ${REGISTRY:-opea}/llm-faqgen:${TAG:-latest}
   llm-native:
     build:
       dockerfile: comps/llms/text-generation/native/langchain/Dockerfile
@@ -50,11 +50,3 @@ services:
     build:
       dockerfile: comps/llms/text-generation/predictionguard/Dockerfile
     image: ${REGISTRY:-opea}/llm-textgen-predictionguard:${TAG:-latest}
-  llm-docsum-vllm:
-    build:
-      dockerfile: comps/llms/summarization/vllm/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/llm-docsum-vllm:${TAG:-latest}
-  llm-faqgen-vllm:
-    build:
-      dockerfile: comps/llms/faq-generation/vllm/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/llm-faqgen-vllm:${TAG:-latest}
