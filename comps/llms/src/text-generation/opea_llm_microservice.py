@@ -6,6 +6,7 @@ import time
 from typing import Union
 
 from integrations.opea import OPEALLM
+from integrations.predictionguard import OPEATextGen_Predictionguard
 
 from comps import (
     CustomLogger,
