@@ -10,6 +10,7 @@ from typing import Union
 from integrations.milvus import OpeaMilvusRetriever
 from integrations.pgvector import OpeaPGVectorRetriever
 from integrations.pinecone import OpeaPineconeRetriever
+from integrations.qdrant import OpeaQDrantRetriever
 from integrations.redis import OpeaRedisRetriever
 
 from comps import (
