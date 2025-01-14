@@ -29,7 +29,7 @@ function start_service() {
     sleep 10s
 
     # pgvector retriever
-    docker run -d --name="test-comps-retriever-pgvector-ms" -p 5003:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:$pgvector_port/${POSTGRES_DB} -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_PINECONE" -e LOGFLAG=true opea/retriever-pgvector:comps
+    docker run -d --name="test-comps-retriever-pgvector-ms" -p 5003:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:$pgvector_port/${POSTGRES_DB} -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_PGVECTOR" -e LOGFLAG=true opea/retriever-pgvector:comps
     sleep 1m
 }
 
