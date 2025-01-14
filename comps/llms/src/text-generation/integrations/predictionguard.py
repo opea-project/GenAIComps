@@ -41,6 +41,8 @@ class OPEATextGen_Predictionguard(OpeaComponent):
 
         try:
             response = self.client.models.list()
+            if logflag:
+                logger.info(response)
             return response is not None
         except Exception as e:
             logger.error(e)

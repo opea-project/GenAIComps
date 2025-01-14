@@ -28,7 +28,7 @@ curl -X POST http://localhost:9000/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
         "model": "Hermes-2-Pro-Llama-3-8B",
-        "query": "Tell me a joke.",
+        "messages": "Tell me a joke.",
         "max_tokens": 100,
         "temperature": 0.7,
         "top_p": 0.9,
@@ -44,7 +44,7 @@ curl -N -X POST http://localhost:9000/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
         "model": "Hermes-2-Pro-Llama-3-8B",
-        "query": "Tell me a joke.",
+        "messages": "Tell me a joke.",
         "max_tokens": 100,
         "temperature": 0.7,
         "top_p": 0.9,
