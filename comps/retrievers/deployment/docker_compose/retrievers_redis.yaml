@@ -5,7 +5,7 @@ version: "3.8"
 
 services:
   tei_xeon_service:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.2
     container_name: tei-xeon-server
     ports:
       - "6060:80"
@@ -14,8 +14,8 @@ services:
     shm_size: 1g
     command: --model-id ${RETRIEVE_MODEL_ID}
   retriever:
-    image: opea/retriever-vdms:latest
-    container_name: retriever-vdms-server
+    image: opea/retriever:latest
+    container_name: retriever-redis-server
     ports:
       - "7000:7000"
     ipc: host
@@ -23,8 +23,11 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      REDIS_URL: ${REDIS_URL}
       INDEX_NAME: ${INDEX_NAME}
-      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
     restart: unless-stopped
 
 networks:

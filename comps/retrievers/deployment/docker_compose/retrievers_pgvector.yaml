@@ -14,7 +14,7 @@ services:
     shm_size: 1g
     command: --model-id ${RETRIEVE_MODEL_ID}
   retriever:
-    image: opea/retriever-pgvector:latest
+    image: opea/retriever:latest
     container_name: retriever-pgvector
     ports:
       - "7000:7000"

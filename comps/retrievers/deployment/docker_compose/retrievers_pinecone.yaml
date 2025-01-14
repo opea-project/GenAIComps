@@ -14,20 +14,19 @@ services:
     shm_size: 1g
     command: --model-id ${RETRIEVE_MODEL_ID}
   retriever:
-    image: opea/retriever-redis:latest
-    container_name: retriever-redis-server
+    image: opea/retrievers:latest
+    container_name: retriever-pinecone-server
     ports:
       - "7000:7000"
     ipc: host
     environment:
-      no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      REDIS_URL: ${REDIS_URL}
-      INDEX_NAME: ${INDEX_NAME}
+      PINECONE_API_KEY: ${PINECONE_API_KEY}
+      INDEX_NAME: ${PINECONE_INDEX_NAME}
+      PINECONE_INDEX_NAME: ${PINECONE_INDEX_NAME}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
-      BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
     restart: unless-stopped
 
 networks:

@@ -93,7 +93,7 @@ services:
       LOGFLAG: ${LOGFLAG}
     restart: unless-stopped
   retriever-neo4j-llamaindex:
-    image: opea/retriever-neo4j-llamaindex:latest
+    image: opea/retriever:latest
     container_name: retriever-neo4j-server
     depends_on:
       - neo4j-apoc

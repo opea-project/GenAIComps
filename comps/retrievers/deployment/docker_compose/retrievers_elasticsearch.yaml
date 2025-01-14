@@ -14,7 +14,7 @@ services:
     shm_size: 1g
     command: --model-id ${RETRIEVE_MODEL_ID}
   retriever:
-    image: opea/retriever-elasticsearch:latest
+    image: opea/retriever:latest
     container_name: retriever-elasticsearch
     ports:
       - "7000:7000"
