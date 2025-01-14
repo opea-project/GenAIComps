@@ -47,7 +47,7 @@ class OpeaMilvusRetriever(OpeaComponent):
         return embeddings
 
     def _initialize_client(self) -> Milvus:
-        """Initializes the redis client."""
+        """Initializes the milvus client."""
         try:
             client = Milvus(
                 embedding_function=self.embedder,

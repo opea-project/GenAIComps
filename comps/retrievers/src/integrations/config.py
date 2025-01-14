@@ -93,3 +93,11 @@ TEI_EMBEDDING_MODEL = os.environ.get("TEI_EMBEDDING_MODEL", "/home/user/bce-embe
 TEI_EMBEDDING_ENDPOINT = os.environ.get("TEI_EMBEDDING_ENDPOINT", "")
 os.environ["OPENAI_API_BASE"] = TEI_EMBEDDING_ENDPOINT
 os.environ["OPENAI_API_KEY"] = "Dummy key"
+
+
+#######################################################
+#                     Pinecone                        #
+#######################################################
+# Pinecone configuration
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "xxx_xxx")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "langchain-test")
