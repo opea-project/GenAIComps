@@ -4,13 +4,6 @@
 
 ## Get Started
 
-### Build Docker Image
-
-```bash
-cd ../../..
-docker build -t opea/llm-textgen-predictionguard:latest -f comps/llms/text-generation/predictionguard/Dockerfile .
-```
-
 ### Run the Predictionguard Microservice
 
 ```bash
