@@ -118,11 +118,11 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     async def build_communities(self):
         """Builds communities from the graph and summarizes them."""
         nx_graph = self._create_nx_graph()
-         # Log the type and some details of nx_graph to ensure it's correct
+        # Log the type and some details of nx_graph to ensure it's correct
         logger.info(f"Type of nx_graph: {type(nx_graph)}")
         logger.info(f"Number of nodes in nx_graph: {nx_graph.number_of_nodes()}")
         logger.info(f"Number of edges in nx_graph: {nx_graph.number_of_edges()}")
-        
+
         # Log the edges to ensure they are correctly formatted
         edges = list(nx_graph.edges())
         logger.info(f"Edges: {edges[:2]}")  # Log the first 10 edges for inspection
