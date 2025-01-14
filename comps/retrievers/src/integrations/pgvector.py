@@ -3,13 +3,17 @@
 
 
 import os
-from langchain_community.vectorstores import PGVector
+
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.vectorstores import PGVector
+
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
-from .config import EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, PG_CONNECTION_STRING, PG_INDEX_NAME
+
+from .config import EMBED_MODEL, PG_CONNECTION_STRING, PG_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("pgvector_retrievers")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_PGVECTOR")
 class OpeaPGVectorRetriever(OpeaComponent):
