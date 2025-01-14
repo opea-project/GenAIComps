@@ -6,6 +6,11 @@ import os
 import time
 from typing import Union
 
+# import for retrievers component registration
+from integrations.milvus import OpeaMilvusRetriever
+from integrations.redis import OpeaRedisRetriever
+from integrations.pinecone import OpeaPineconeRetriever
+
 from comps import (
     CustomLogger,
     EmbedDoc,
