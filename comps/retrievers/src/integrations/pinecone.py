@@ -19,10 +19,10 @@ logflag = os.getenv("LOGFLAG", False)
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_PINECONE")
 class OpeaPineconeRetriever(OpeaComponent):
-    """A specialized retriever component derived from OpeaComponent for milvus retriever services.
+    """A specialized retriever component derived from OpeaComponent for pinecone retriever services.
 
     Attributes:
-        client (Pinecone): An instance of the milvus client for vector database operations.
+        client (Pinecone): An instance of the pinecone client for vector database operations.
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
@@ -79,18 +79,18 @@ class OpeaPineconeRetriever(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         if logflag:
-            logger.info("[ check health ] start to check health of milvus")
+            logger.info("[ check health ] start to check health of pinecone")
         try:
             health_status = self.index.describe_index_stats()
             logger.info(f"[ check health ] health status: {health_status}")
             logger.info("[ check health ] Successfully connected to Pinecone!")
             return True
         except Exception as e:
-            logger.info(f"[ check health ] Failed to connect to Milvus: {e}")
+            logger.info(f"[ check health ] Failed to connect to Pinecone: {e}")
             return False
 
     async def invoke(self, input: EmbedDoc) -> SearchedDoc:
-        """Search the Milvus index for the most similar documents to the input query.
+        """Search the Pinecone index for the most similar documents to the input query.
 
         Args:
             input (EmbedDoc): The input query to search for.

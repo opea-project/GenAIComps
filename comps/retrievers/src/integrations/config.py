@@ -101,3 +101,10 @@ os.environ["OPENAI_API_KEY"] = "Dummy key"
 # Pinecone configuration
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "xxx_xxx")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "langchain-test")
+
+
+#######################################################
+#                     PGvector                        #
+#######################################################
+PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING", "localhost")
+PG_INDEX_NAME = os.getenv("PG_INDEX_NAME", "rag_pgvector")
