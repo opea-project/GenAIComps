@@ -8,7 +8,8 @@ from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from predictionguard import PredictionGuard
 
-from comps import ChatCompletionRequest, CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("opea_textgen_predictionguard")
 logflag = os.getenv("LOGFLAG", False)
