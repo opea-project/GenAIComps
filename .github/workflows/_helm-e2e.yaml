@@ -114,6 +114,8 @@ jobs:
             .github/workflows/scripts/k8s-utils.sh dump_pods_status $NAMESPACE
             exit 1
           fi
+          helm list -A
+          kubectl get pods
 
       - name: Validate e2e test
         if: always()
