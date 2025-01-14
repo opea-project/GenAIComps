@@ -7,12 +7,12 @@ import time
 from typing import List, Optional
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
-
-from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType, TextDoc
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
 
-from .config import EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, PINECONE_API_KEY, PINECONE_INDEX_NAME
+from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType, TextDoc
+
+from .config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("pinecone_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -112,12 +112,16 @@ class OpeaPineconeRetriever(OpeaComponent):
         search_res = self.vector_db.max_marginal_relevance_search(query=input.text, k=input.k, fetch_k=input.fetch_k)
         # if the Pinecone index has data, perform the search
         if input.search_type == "similarity":
-            docs_and_similarities = self.vector_db.similarity_search_by_vector_with_score(embedding=input.embedding, k=input.k)
+            docs_and_similarities = self.vector_db.similarity_search_by_vector_with_score(
+                embedding=input.embedding, k=input.k
+            )
             search_res = [doc for doc, _ in docs_and_similarities]
         elif input.search_type == "similarity_distance_threshold":
             if input.distance_threshold is None:
                 raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
-            docs_and_similarities = self.vector_db.similarity_search_by_vector_with_score(embedding=input.embedding, k=input.k)
+            docs_and_similarities = self.vector_db.similarity_search_by_vector_with_score(
+                embedding=input.embedding, k=input.k
+            )
             search_res = [doc for doc, similarity in docs_and_similarities if similarity > input.distance_threshold]
         elif input.search_type == "similarity_score_threshold":
             docs_and_similarities = self.vector_db.similarity_search_by_vector_with_score(query=input.text, k=input.k)
