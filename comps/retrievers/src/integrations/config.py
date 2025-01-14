@@ -53,6 +53,13 @@ parent_dir = os.path.dirname(current_file_path)
 
 
 #######################################################
+#                Elasticsearch                        #
+#######################################################
+ES_CONNECTION_STRING = os.getenv("ES_CONNECTION_STRING", "http://localhost:9200")
+ES_INDEX_NAME = os.getenv("ES_INDEX_NAME", "rag_elasticsearch")
+
+
+#######################################################
 #                     Redis                           #
 #######################################################
 INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")

@@ -7,6 +7,7 @@ import time
 from typing import Union
 
 # import for retrievers component registration
+from integrations.elasticsearch import OpeaElasticsearchRetriever
 from integrations.milvus import OpeaMilvusRetriever
 from integrations.pgvector import OpeaPGVectorRetriever
 from integrations.pinecone import OpeaPineconeRetriever
