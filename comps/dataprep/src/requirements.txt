@@ -14,12 +14,14 @@ langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
 markdown
 numpy
 openai
+opensearch-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
 Pillow
 prometheus-fastapi-instrumentator
+psycopg2
 pymupdf
 pyspark
 pytesseract
