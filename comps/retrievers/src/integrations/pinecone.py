@@ -4,7 +4,6 @@
 
 import os
 import time
-from typing import List, Optional
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_pinecone import PineconeVectorStore
@@ -103,10 +102,9 @@ class OpeaPineconeRetriever(OpeaComponent):
 
         # return empty result if the index has no data
         if self.index.describe_index_stats()["total_vector_count"] == 0:
-            result = SearchedDoc(retrieved_docs=[], initial_query=input.text)
             if logflag:
-                logger.info(result)
-            return result
+                logger.info("[ invoke ] Pinecone index has no data.")
+            return []
 
         # perform the search
         search_res = self.vector_db.max_marginal_relevance_search(query=input.text, k=input.k, fetch_k=input.fetch_k)
@@ -130,10 +128,6 @@ class OpeaPineconeRetriever(OpeaComponent):
             search_res = self.vector_db.max_marginal_relevance_search(
                 query=input.text, k=input.k, fetch_k=input.fetch_k, lambda_mult=input.lambda_mult
             )
-        searched_docs = []
-        for r in search_res:
-            searched_docs.append(TextDoc(text=r.page_content))
-        result = SearchedDoc(retrieved_docs=searched_docs, initial_query=input.text)
 
         if logflag:
             logger.info(f"retrieve result: {search_res}")
