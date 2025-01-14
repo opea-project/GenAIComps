@@ -8,7 +8,9 @@ langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pgvector==0.2.5
 prometheus-fastapi-instrumentator
+psycopg2-binary
 pymupdf
 redis
 sentence_transformers

@@ -100,7 +100,7 @@ os.environ["OPENAI_API_KEY"] = "Dummy key"
 #######################################################
 # Pinecone configuration
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "xxx_xxx")
-PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "langchain-test")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "rag_pinecone")
 
 
 #######################################################
@@ -108,3 +108,12 @@ PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "langchain-test")
 #######################################################
 PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING", "localhost")
 PG_INDEX_NAME = os.getenv("PG_INDEX_NAME", "rag_pgvector")
+
+
+#######################################################
+#                        QDrant                       #
+#######################################################
+QDRANT_HOST = os.getenv("QDRANT_HOST", "localhost")
+QDRANT_PORT = int(os.getenv("QDRANT_PORT", 6333))
+QDRANT_EMBED_DIMENSION = os.getenv("QDRANT_EMBED_DIMENSION", 768)
+QDRANT_INDEX_NAME = os.getenv("QDRANT_INDEX_NAME", "rag_qdrant")
