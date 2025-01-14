@@ -11,7 +11,7 @@ from langchain_community.vectorstores import Neo4jVector
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalRequest
 
-from .config import EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, NEO4J_URL, NEO4J_USERNAME, NEO4J_PASSWORD
+from .config import EMBED_MODEL, NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("neo4j_retrievers")
 logflag = os.getenv("LOGFLAG", False)

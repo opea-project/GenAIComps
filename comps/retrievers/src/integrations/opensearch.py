@@ -8,11 +8,18 @@ from typing import Callable, List, Union
 import numpy as np
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import OpenSearchVectorSearch
+from pydantic import conlist
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalRequest
-from pydantic import conlist
-from .config import EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, OPENSEARCH_INITIAL_ADMIN_PASSWORD, OPENSEARCH_URL, OPENSEARCH_INDEX_NAME
+
+from .config import (
+    EMBED_MODEL,
+    OPENSEARCH_INDEX_NAME,
+    OPENSEARCH_INITIAL_ADMIN_PASSWORD,
+    OPENSEARCH_URL,
+    TEI_EMBEDDING_ENDPOINT,
+)
 
 logger = CustomLogger("opensearch_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -112,7 +119,9 @@ class OpeaOpensearchRetriever(OpeaComponent):
                 )
             elif input.search_type == "similarity_distance_threshold":
                 if input.distance_threshold is None:
-                    raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
+                    raise ValueError(
+                        "distance_threshold must be provided for " + "similarity_distance_threshold retriever"
+                    )
                 search_res = await self.search_all_embeddings_vectors(
                     embeddings=input.embedding,
                     func=self.vector_db.asimilarity_search_by_vector,
@@ -136,8 +145,12 @@ class OpeaOpensearchRetriever(OpeaComponent):
 
         return search_res
 
-    async def search_all_embeddings_vectors(self,
-        embeddings: Union[conlist(float, min_length=0), List[conlist(float, min_length=0)]], func: Callable, *args, **kwargs
+    async def search_all_embeddings_vectors(
+        self,
+        embeddings: Union[conlist(float, min_length=0), List[conlist(float, min_length=0)]],
+        func: Callable,
+        *args,
+        **kwargs,
     ):
         try:
             if not isinstance(embeddings, np.ndarray):
