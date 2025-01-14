@@ -77,7 +77,7 @@ jobs:
       - name: Initialize chart testing
         run: |
           # Replace values for CI test environment
-          pushd comp/${{ inputs.workload }}/deployment/kubernetes
+          pushd comps/${{ inputs.workload }}/deployment/kubernetes
           # insert a prefix before opea/.*, the prefix is OPEA_IMAGE_REPO
           find . -name '*values.yaml' -type f -exec sed -i "s#repository: opea/*#repository: ${OPEA_IMAGE_REPO}opea/#g" {} \;
           # set OPEA image tag to ${{ inputs.tag }}
