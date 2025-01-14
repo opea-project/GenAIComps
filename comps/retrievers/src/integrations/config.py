@@ -68,6 +68,13 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
 
 
 #######################################################
+#                    Pathway                          #
+#######################################################
+PATHWAY_HOST = os.getenv("PATHWAY_HOST", "127.0.0.1")
+PATHWAY_PORT = int(os.getenv("PATHWAY_PORT", 8666))
+
+
+#######################################################
 #                     Redis                           #
 #######################################################
 INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
@@ -118,7 +125,6 @@ OPENSEARCH_HOST = os.getenv("OPENSEARCH_HOST", "localhost")
 OPENSEARCH_PORT = int(os.getenv("OPENSEARCH_PORT", 9200))
 OPENSEARCH_INITIAL_ADMIN_PASSWORD = os.getenv("OPENSEARCH_INITIAL_ADMIN_PASSWORD", "")
 
-
 def format_opensearch_conn_from_env():
     opensearch_url = os.getenv("OPENSEARCH_URL", None)
     if opensearch_url:
@@ -128,8 +134,6 @@ def format_opensearch_conn_from_env():
         start = "https://" if using_ssl else "http://"
 
         return start + f"{OPENSEARCH_HOST}:{OPENSEARCH_PORT}"
-
-
 OPENSEARCH_URL = format_opensearch_conn_from_env()
 OPENSEARCH_INDEX_NAME = os.getenv("OPENSEARCH_INDEX_NAME", "rag_opensearch")
 

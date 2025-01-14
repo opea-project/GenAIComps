@@ -13,6 +13,7 @@ opensearch-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pathway
 pgvector==0.2.5
 prometheus-fastapi-instrumentator
 psycopg2-binary
