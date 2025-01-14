@@ -5,4 +5,4 @@
 
 pip --no-cache-dir install -r requirements-runtime.txt
 
-python hallucination_detection.py
+python opea_hallucination_detection_microservice.py

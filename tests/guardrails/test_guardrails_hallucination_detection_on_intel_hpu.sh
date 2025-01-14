@@ -48,7 +48,7 @@ function start_service() {
         --trust-remote-code
     until curl -s http://localhost:$port_number/health > /dev/null; do
         echo "Waiting for vllm serving to start..."
-        sleep 5m
+        sleep 2m
     done
     echo "vllm serving started"
 
