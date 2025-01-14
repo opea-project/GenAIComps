@@ -9,18 +9,18 @@ from fastapi.responses import StreamingResponse
 from langchain.schema import HumanMessage, SystemMessage
 from langchain_community.llms import VLLMOpenAI
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from comps.guardrails.src.hallucination_detection.integrations.template import ChatTemplate
 
 from comps import (
     CustomLogger,
     GeneratedDoc,
     LLMParamsDoc,
+    OpeaComponent,
+    OpeaComponentRegistry,
     SearchedDoc,
     ServiceType,
-    OpeaComponent,
-    OpeaComponentRegistry
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
+from comps.guardrails.src.hallucination_detection.integrations.template import ChatTemplate
 
 logger = CustomLogger("opea_hallucination_guard")
 logflag = os.getenv("LOGFLAG", False)
@@ -28,6 +28,7 @@ logflag = os.getenv("LOGFLAG", False)
 llm_endpoint = os.getenv("vLLM_ENDPOINT", "http://localhost:8008")
 model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
 llm = VLLMOpenAI(openai_api_key="EMPTY", openai_api_base=llm_endpoint + "/v1", model_name=model_name)
+
 
 @OpeaComponentRegistry.register("OPEA_HALLUCINATION_GUARD")
 class OpeaHallucinationGuard(OpeaComponent):
@@ -48,7 +49,7 @@ class OpeaHallucinationGuard(OpeaComponent):
         """
         if logflag:
             logger.info(f"Input received: {input}")
-        
+
         if isinstance(input, ChatCompletionRequest):
             if logflag:
                 logger.info("[ ChatCompletionRequest ] input from user")
@@ -66,7 +67,6 @@ class OpeaHallucinationGuard(OpeaComponent):
             return GeneratedDoc(text=response.json()["choices"][0]["message"]["content"], prompt="")
         else:
             logger.info("[ UNKNOWN ] input from user")
-
 
     def check_health(self) -> bool:
         """Checks the health of the hallucination detection service.

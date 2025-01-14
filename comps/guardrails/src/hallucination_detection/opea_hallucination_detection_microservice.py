@@ -9,14 +9,14 @@ from integrations.hallucination_guard import OpeaHallucinationGuard
 
 from comps import (
     CustomLogger,
-    OpeaComponentLoader,
     GeneratedDoc,
     LLMParamsDoc,
+    OpeaComponentLoader,
     SearchedDoc,
     ServiceType,
     opea_microservices,
-    register_statistics,
     register_microservice,
+    register_statistics,
     statistics_dict,
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
@@ -31,6 +31,7 @@ loader = OpeaComponentLoader(
     name=hallucination_detection_component_name,
     description=f"OPEA Hallucination Detection Component: {hallucination_detection_component_name}",
 )
+
 
 @register_microservice(
     name="opea_service@hallucination_detection",
@@ -56,6 +57,7 @@ async def hallucination_guard(input: Union[LLMParamsDoc, ChatCompletionRequest, 
     except Exception as e:
         logger.error(f"Error during hallucination detection invocation: {e}")
         raise
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@hallucination_detection"].start()
