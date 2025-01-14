@@ -78,7 +78,7 @@ class OpeaNeo4jRetriever(OpeaComponent):
                 logger.info("[ check health ] Successfully connected to Neo4j!")
                 return True
             else:
-                logger.info(f"[ check health ] Failed to connect to Neo4j")
+                logger.info("[ check health ] Failed to connect to Neo4j")
                 return False
         except Exception as e:
             logger.info(f"[ check health ] Failed to connect to Neo4j: {e}")
