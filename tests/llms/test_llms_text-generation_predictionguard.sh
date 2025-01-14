@@ -41,7 +41,7 @@ function validate_microservice() {
         -d '{"model": "Hermes-2-Pro-Llama-3-8B", "messages": "What is AI?", "stream": false, "max_tokens": 100, "temperature": 0.7, "top_p": 1.0, "top_k": 50}' \
         -H 'Content-Type: application/json')
 
-    if [[ $result == *"text"* ]]; then
+    if [[ $result == *"content"* ]]; then
         echo "Service response is correct."
     else
         echo "Result wrong. Received was $result"

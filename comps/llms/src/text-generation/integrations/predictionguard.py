@@ -29,6 +29,8 @@ class OPEATextGen_Predictionguard(OpeaComponent):
         health_status = self.check_health()
         if not health_status:
             logger.error("OPEATextGen_Predictionguard health check failed.")
+        else:
+            logger.info("OPEATextGen_Predictionguard health check success.")
 
     def check_health(self) -> bool:
         """Checks the health of the Predictionguard LLM service.
@@ -39,8 +41,6 @@ class OPEATextGen_Predictionguard(OpeaComponent):
 
         try:
             response = self.client.models.list()
-            if logflag:
-                logger.info(response)
             return response is not None
         except Exception as e:
             logger.error(e)
@@ -87,7 +87,7 @@ class OPEATextGen_Predictionguard(OpeaComponent):
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
             try:
-                response = await self.client.chat.completions.create(
+                response = self.client.chat.completions.create(
                     model=input.model,
                     messages=messages,
                     max_tokens=input.max_tokens,
