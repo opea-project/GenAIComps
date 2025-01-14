@@ -1,21 +1,18 @@
 # Copyright (C) 2024 Prediction Guard, Inc.
 # SPDX-License-Identified: Apache-2.0
 
-import time, os
+import os
+import time
+
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from predictionguard import PredictionGuard
 
-from comps import (
-    CustomLogger,
-    ChatCompletionRequest,
-    ServiceType,
-    OpeaComponent, 
-    OpeaComponentRegistry,
-)
+from comps import ChatCompletionRequest, CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 logger = CustomLogger("opea_textgen_predictionguard")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEATextGen_Predictionguard")
 class OPEATextGen_Predictionguard(OpeaComponent):
@@ -67,6 +64,7 @@ class OPEATextGen_Predictionguard(OpeaComponent):
             messages = input.messages
 
         if input.stream:
+
             async def stream_generator():
                 chat_response = ""
                 for res in self.client.chat.completions.create(
