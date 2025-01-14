@@ -3,13 +3,17 @@
 
 
 import os
+
 from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
+
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
-from .config import QDRANT_HOST, QDRANT_PORT, QDRANT_EMBED_DIMENSION, QDRANT_INDEX_NAME
+
+from .config import QDRANT_EMBED_DIMENSION, QDRANT_HOST, QDRANT_INDEX_NAME, QDRANT_PORT
 
 logger = CustomLogger("qdrant_retrievers")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_QDRANT")
 class OpeaQDrantRetriever(OpeaComponent):
@@ -30,7 +34,11 @@ class OpeaQDrantRetriever(OpeaComponent):
     def _initialize_client(self) -> QdrantEmbeddingRetriever:
         """Initializes the qdrant client."""
         qdrant_store = QdrantDocumentStore(
-            host=QDRANT_HOST, port=QDRANT_PORT, embedding_dim=QDRANT_EMBED_DIMENSION, index=QDRANT_INDEX_NAME, recreate_index=False
+            host=QDRANT_HOST,
+            port=QDRANT_PORT,
+            embedding_dim=QDRANT_EMBED_DIMENSION,
+            index=QDRANT_INDEX_NAME,
+            recreate_index=False,
         )
 
         retriever = QdrantEmbeddingRetriever(document_store=qdrant_store)
