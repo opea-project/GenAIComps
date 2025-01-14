@@ -7,14 +7,7 @@ from typing import Union
 
 from langchain_community.vectorstores import Redis
 
-from comps import (
-    CustomLogger,
-    EmbedDoc,
-    EmbedMultimodalDoc,
-    OpeaComponent,
-    OpeaComponentRegistry,
-    ServiceType,
-)
+from comps import CustomLogger, EmbedDoc, EmbedMultimodalDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest
 
 from .config import BRIDGE_TOWER_EMBEDDING, EMBED_MODEL, INDEX_NAME, REDIS_URL, TEI_EMBEDDING_ENDPOINT
@@ -81,9 +74,7 @@ class OpeaRedisRetriever(OpeaComponent):
             logger.info(f"[ health check ] Failed to connect to Redis: {e}")
             return False
 
-    async def invoke(
-        self, input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
-    ) -> list:
+    async def invoke(self, input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]) -> list:
         """Search the Redis index for the most similar documents to the input query.
 
         Args:
