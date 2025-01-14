@@ -10,7 +10,7 @@ from langchain_elasticsearch import ElasticsearchStore
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, ES_CONNECTION_STRING, ES_INDEX_NAME
+from .config import EMBED_MODEL, ES_CONNECTION_STRING, ES_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("es_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -97,7 +97,9 @@ class OpeaElasticsearchRetriever(OpeaComponent):
             search_res = [doc for doc, similarity in docs_and_similarities if similarity > input.distance_threshold]
 
         elif input.search_type == "similarity_score_threshold":
-            docs_and_similarities = self.store.similarity_search_by_vector_with_relevance_scores(query=input.text, k=input.k)
+            docs_and_similarities = self.store.similarity_search_by_vector_with_relevance_scores(
+                query=input.text, k=input.k
+            )
             search_res = [doc for doc, similarity in docs_and_similarities if similarity > input.score_threshold]
 
         elif input.search_type == "mmr":
