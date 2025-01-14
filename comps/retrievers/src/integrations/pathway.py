@@ -3,12 +3,16 @@
 
 
 import os
+
 from langchain_community.vectorstores import PathwayVectorClient
+
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
+
 from .config import PATHWAY_HOST, PATHWAY_PORT
 
 logger = CustomLogger("pathway_retrievers")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_PATHWAY")
 class OpeaPathwayRetriever(OpeaComponent):
