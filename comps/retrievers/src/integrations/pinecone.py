@@ -9,7 +9,7 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFace
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
 
-from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType, TextDoc
+from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 from .config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
 
@@ -89,13 +89,13 @@ class OpeaPineconeRetriever(OpeaComponent):
             logger.info(f"[ check health ] Failed to connect to Pinecone: {e}")
             return False
 
-    async def invoke(self, input: EmbedDoc) -> SearchedDoc:
+    async def invoke(self, input: EmbedDoc) -> list:
         """Search the Pinecone index for the most similar documents to the input query.
 
         Args:
             input (EmbedDoc): The input query to search for.
         Output:
-            Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]: The retrieved documents.
+            list: The retrieved documents.
         """
         if logflag:
             logger.info(input)

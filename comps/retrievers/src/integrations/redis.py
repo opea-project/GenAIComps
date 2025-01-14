@@ -13,10 +13,9 @@ from comps import (
     EmbedMultimodalDoc,
     OpeaComponent,
     OpeaComponentRegistry,
-    SearchedDoc,
     ServiceType,
 )
-from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest, RetrievalResponse
+from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest
 
 from .config import BRIDGE_TOWER_EMBEDDING, EMBED_MODEL, INDEX_NAME, REDIS_URL, TEI_EMBEDDING_ENDPOINT
 
@@ -84,13 +83,13 @@ class OpeaRedisRetriever(OpeaComponent):
 
     async def invoke(
         self, input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
-    ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
+    ) -> list:
         """Search the Redis index for the most similar documents to the input query.
 
         Args:
             input (Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]): The input query to search for.
         Output:
-            Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]: The retrieved documents.
+            list: The retrieved documents.
         """
         if logflag:
             logger.info(input)

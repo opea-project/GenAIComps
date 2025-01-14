@@ -7,7 +7,7 @@ import os
 from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 
-from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
+from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 from .config import QDRANT_EMBED_DIMENSION, QDRANT_HOST, QDRANT_INDEX_NAME, QDRANT_PORT
 
@@ -62,13 +62,13 @@ class OpeaQDrantRetriever(OpeaComponent):
             logger.info(f"[ check health ] Failed to connect to QDrant: {e}")
             return False
 
-    async def invoke(self, input: EmbedDoc) -> SearchedDoc:
+    async def invoke(self, input: EmbedDoc) -> list:
         """Search the QDrant index for the most similar documents to the input query.
 
         Args:
             input (EmbedDoc): The input query to search for.
         Output:
-            Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]: The retrieved documents.
+            list: The retrieved documents.
         """
         if logflag:
             logger.info(f"[ similarity search ] input: {input}")

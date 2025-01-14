@@ -8,7 +8,9 @@ from typing import Union
 
 # import for retrievers component registration
 from integrations.elasticsearch import OpeaElasticsearchRetriever
+from integrations.neo4j import OpeaNeo4jRetriever
 from integrations.milvus import OpeaMilvusRetriever
+from integrations.opensearch import OpeaOpensearchRetriever
 from integrations.pgvector import OpeaPGVectorRetriever
 from integrations.pinecone import OpeaPineconeRetriever
 from integrations.qdrant import OpeaQDrantRetriever

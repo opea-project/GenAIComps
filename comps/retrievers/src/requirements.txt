@@ -7,12 +7,16 @@ langchain-pinecone --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_community --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
+neo4j
+numpy
+opensearch-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pgvector==0.2.5
 prometheus-fastapi-instrumentator
 psycopg2-binary
+pydantic
 pymupdf
 qdrant-haystack
 redis

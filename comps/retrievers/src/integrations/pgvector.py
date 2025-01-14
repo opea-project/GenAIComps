@@ -7,7 +7,7 @@ import os
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores import PGVector
 
-from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
+from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 from .config import EMBED_MODEL, PG_CONNECTION_STRING, PG_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
 
@@ -73,13 +73,13 @@ class OpeaPGVectorRetriever(OpeaComponent):
             logger.info(f"[ check health ] Failed to connect to PGvector: {e}")
             return False
 
-    async def invoke(self, input: EmbedDoc) -> SearchedDoc:
+    async def invoke(self, input: EmbedDoc) -> list:
         """Search the PGVector index for the most similar documents to the input query.
 
         Args:
             input (EmbedDoc): The input query to search for.
         Output:
-            Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]: The retrieved documents.
+            list: The retrieved documents.
         """
         if logflag:
             logger.info(f"[ similarity search ] input: {input}")

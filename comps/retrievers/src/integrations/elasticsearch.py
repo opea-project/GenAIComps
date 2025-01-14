@@ -8,7 +8,7 @@ from elasticsearch import Elasticsearch
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_elasticsearch import ElasticsearchStore
 
-from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
+from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 from .config import EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, ES_CONNECTION_STRING, ES_INDEX_NAME
 
@@ -71,13 +71,13 @@ class OpeaElasticsearchRetriever(OpeaComponent):
             logger.info(f"[ check health ] Failed to connect to Elasticsearch: {e}")
             return False
 
-    async def invoke(self, input: EmbedDoc) -> SearchedDoc:
+    async def invoke(self, input: EmbedDoc) -> list:
         """Search the Elasticsearch index for the most similar documents to the input query.
 
         Args:
             input (EmbedDoc): The input query to search for.
         Output:
-            Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]: The retrieved documents.
+            list: The retrieved documents.
         """
         if logflag:
             logger.info(input)
