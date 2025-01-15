@@ -241,7 +241,6 @@ async def initialize_graph_store_and_index():
             logger.info(f"An error occurred while verifying the API Key: {e}")
     else:
         logger.info("No OpenAI API KEY provided. Will use TGI/VLLM and TEI endpoints")
-        # llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
         # works w VLLM too
         llm = OpenAILike(
             model=LLM_MODEL_ID,
@@ -255,26 +254,26 @@ async def initialize_graph_store_and_index():
         embed_model = TextEmbeddingsInference(
             base_url=TEI_EMBEDDING_ENDPOINT,
             model_name=emb_name,
-            timeout=1200,  # timeout in seconds
+            timeout=600,  # timeout in seconds
             embed_batch_size=10,  # batch size for embedding
         )
     Settings.embed_model = embed_model
     Settings.llm = llm
 
     logger.info("Creating graph store from existing...")
-    starttime = time.time()
+    start = time.time()
     # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
     graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
-    logger.info(f"Time to create graph store: {time.time() - starttime:.2f} seconds")
+    logger.info(f"Time to create graph store: {time.time() - start:.2f} seconds")
 
     logger.info("Creating index from existing...")
-    starttime = time.time()
+    start = time.time()
     index = PropertyGraphIndex.from_existing(
         property_graph_store=graph_store,
         embed_model=embed_model or Settings.embed_model,
         embed_kg_nodes=True,
     )
-    logger.info(f"Time to create index: {time.time() - starttime:.2f} seconds")
+    logger.info(f"Time to create index: {time.time() - start:.2f} seconds")
 
     query_engine = GraphRAGQueryEngine(
         graph_store=index.property_graph_store,

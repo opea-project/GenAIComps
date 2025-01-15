@@ -118,15 +118,6 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     async def build_communities(self):
         """Builds communities from the graph and summarizes them."""
         nx_graph = self._create_nx_graph()
-        # Log the type and some details of nx_graph to ensure it's correct
-        logger.info(f"Type of nx_graph: {type(nx_graph)}")
-        logger.info(f"Number of nodes in nx_graph: {nx_graph.number_of_nodes()}")
-        logger.info(f"Number of edges in nx_graph: {nx_graph.number_of_edges()}")
-
-        # Log the edges to ensure they are correctly formatted
-        edges = list(nx_graph.edges())
-        logger.info(f"Edges: {edges[:2]}")  # Log the first 10 edges for inspection
-
         community_hierarchical_clusters = hierarchical_leiden(nx_graph, max_cluster_size=self.max_cluster_size)
         logger.info(f"Number of clustered entities: {len(community_hierarchical_clusters)}")
         logger.info(f"Community hierarchical clusters: {community_hierarchical_clusters}")
@@ -143,7 +134,6 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         """Converts internal graph representation to NetworkX graph."""
         nx_graph = nx.Graph()
         triplets = self.get_triplets()  # [src, rel, tgt]
-        print(triplets)
         for entity1, relation, entity2 in triplets:
             nx_graph.add_node(entity1.name)
             nx_graph.add_node(entity2.name)
@@ -369,7 +359,7 @@ class GraphRAGExtractor(TransformComponent):
     async def _aextract(self, node: BaseNode) -> BaseNode:
         """Extract triples from a node."""
         assert hasattr(node, "text")
-        starttime = time.time()
+        start = time.time()
         text = node.get_content(metadata_mode="llm")
         try:
             llm_response = await self.llm.apredict(
@@ -381,9 +371,9 @@ class GraphRAGExtractor(TransformComponent):
         except ValueError:
             entities = []
             entities_relationship = []
-        logger.info(f"Time taken to LLM and parse: {time.time() - starttime}")
+        logger.info(f"Time taken to LLM and parse: {time.time() - start}")
 
-        starttime = time.time()
+        start = time.time()
         existing_nodes = node.metadata.pop(KG_NODES_KEY, [])
         existing_relations = node.metadata.pop(KG_RELATIONS_KEY, [])
         entity_metadata = node.metadata.copy()
@@ -407,7 +397,7 @@ class GraphRAGExtractor(TransformComponent):
 
         node.metadata[KG_NODES_KEY] = existing_nodes
         node.metadata[KG_RELATIONS_KEY] = existing_relations
-        logger.info(f"Time taken to process entities and relations: {time.time() - starttime}")
+        logger.info(f"Time taken to process entities and relations: {time.time() - start}")
         logger.info(f"number of extracted nodes {len(existing_nodes), existing_nodes}")
         logger.info(f"number of extracted relations {len(existing_relations), existing_relations}")
         return node
@@ -560,7 +550,7 @@ def initialize_graph_store_and_models():
         embed_model = TextEmbeddingsInference(
             base_url=TEI_EMBEDDING_ENDPOINT,
             model_name=emb_name,
-            timeout=1200,  # timeout in seconds
+            timeout=600,  # timeout in seconds
             embed_batch_size=10,  # batch size for embedding
         )
     Settings.embed_model = embed_model
@@ -626,7 +616,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     if logflag:
         logger.info(f"Done preprocessing. Created  {len(nodes)} chunks of the original file.")
 
-    starttime = time.time()
+    start = time.time()
     # nodes are the chunked docs to insert
     index = PropertyGraphIndex(
         nodes=nodes,
@@ -638,8 +628,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     )
     if logflag:
         logger.info("The graph is built.")
-        logger.info(f"Time taken to update PropertyGraphIndex: {time.time() - starttime}")
-        # logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}")
+        logger.info(f"Time taken to update PropertyGraphIndex: {time.time() - start}")
 
     if logflag:
         logger.info("Done building communities.")
