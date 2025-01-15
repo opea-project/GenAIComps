@@ -10,19 +10,24 @@ huggingface_hub
 langchain --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-community --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-text-splitters --extra-index-url https://download.pytorch.org/whl/cpu
+langchain-elasticsearch --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
 markdown
 moviepy
+neo4j
 numpy
 openai
+openai-whisper
+opencv-python
 opensearch-py
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
+pgvector==0.2.5
 Pillow
-pinecone
+pinecone-client
 prometheus-fastapi-instrumentator
 psycopg2
 pymupdf
@@ -31,10 +36,14 @@ pytesseract
 python-bidi
 python-docx
 python-pptx
-qdrant_client
+qdrant-client
 redis
 sentence_transformers
 shortuuid
+tiktoken
+tqdm
+typing
+tzlocal
 unstructured[all-docs]
 uvicorn
 vdms
