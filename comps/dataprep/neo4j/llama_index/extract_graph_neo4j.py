@@ -15,17 +15,6 @@ import nest_asyncio
 import networkx as nx
 import openai
 import requests
-from .config import (
-    NEO4J_PASSWORD,
-    NEO4J_URL,
-    NEO4J_USERNAME,
-    OPENAI_API_KEY,
-    OPENAI_EMBEDDING_MODEL,
-    OPENAI_LLM_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-    TGI_LLM_ENDPOINT,
-    host_ip,
-)
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -50,6 +39,18 @@ from comps.dataprep.src.utils import (
     get_tables_result,
     parse_html_new,
     save_content_to_local_disk,
+)
+
+from .config import (
+    NEO4J_PASSWORD,
+    NEO4J_URL,
+    NEO4J_USERNAME,
+    OPENAI_API_KEY,
+    OPENAI_EMBEDDING_MODEL,
+    OPENAI_LLM_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
+    TGI_LLM_ENDPOINT,
+    host_ip,
 )
 
 nest_asyncio.apply()
