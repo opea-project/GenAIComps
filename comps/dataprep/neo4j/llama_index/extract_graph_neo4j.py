@@ -32,15 +32,6 @@ from openai import Client
 from transformers import AutoTokenizer
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
-from comps.dataprep.src.utils import (
-    document_loader,
-    encode_filename,
-    get_separators,
-    get_tables_result,
-    parse_html_new,
-    save_content_to_local_disk,
-)
-
 from comps.dataprep.neo4j.llama_index.config import (
     NEO4J_PASSWORD,
     NEO4J_URL,
@@ -51,6 +42,14 @@ from comps.dataprep.neo4j.llama_index.config import (
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
     host_ip,
+)
+from comps.dataprep.src.utils import (
+    document_loader,
+    encode_filename,
+    get_separators,
+    get_tables_result,
+    parse_html_new,
+    save_content_to_local_disk,
 )
 
 nest_asyncio.apply()
