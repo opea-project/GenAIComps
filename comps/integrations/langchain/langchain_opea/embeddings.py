@@ -50,7 +50,7 @@ class OPEAEmbeddings(OpenAIEmbeddings):
     @classmethod
     def get_lc_namespace(cls) -> List[str]:
         """Get the namespace of the langchain object."""
-        return ["langchain", "llms", "opea"]
+        return ["langchain", "embeddings", "opea"]
 
     @property
     def lc_secrets(self) -> Dict[str, str]:

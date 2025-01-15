@@ -62,7 +62,7 @@ class ChatOPEA(BaseChatOpenAI):  # type: ignore[override]
     @classmethod
     def get_lc_namespace(cls) -> List[str]:
         """Get the namespace of the langchain object."""
-        return ["langchain_opea", "chat_models"]
+        return ["langchain", "chat_models", "opea"]
 
     @property
     def lc_attributes(self) -> Dict[str, Any]:
