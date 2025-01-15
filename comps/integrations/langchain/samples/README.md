@@ -1,11 +1,11 @@
 ﻿# Running Langchain OPEA SDK with OPEA microservices
 
-The OPEA Langchain SDK facilitates effortless interaction with open-source large language models, such as Llama 3, directly on your local machine. To leverage the SDK, you need to deploy an OpenAI compatible model serving. 
+The OPEA Langchain SDK facilitates effortless interaction with open-source large language models, such as Llama 3, directly on your local machine. To leverage the SDK, you need to deploy an OpenAI compatible model serving.
 This local microservice deployment is crucial for harnessing the power of advanced language models while ensuring data privacy, reducing latency, and providing the flexibility to select models without relying on external APIs.
 
 ## 1. Starting the microservices using compose
 
-A prerequisite for using Langchain OPEA SDK is that users must have OpenAI compatible LLM text/embeddings generation service  (etc., TGI, vLLM) already running. Langchain OPEA SDK package uses these deployed endpoints to help create end to end enterprise generative AI solutions. 
+A prerequisite for using Langchain OPEA SDK is that users must have OpenAI compatible LLM text/embeddings generation service (etc., TGI, vLLM) already running. Langchain OPEA SDK package uses these deployed endpoints to help create end to end enterprise generative AI solutions.
 
 This approach offers several benefits:
 
