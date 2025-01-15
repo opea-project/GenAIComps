@@ -7,7 +7,6 @@ import re
 from typing import Union
 
 import openai
-
 from llama_index.core import PropertyGraphIndex, Settings
 from llama_index.core.indices.property_graph.sub_retrievers.vector import VectorContextRetriever
 from llama_index.core.llms import LLM, ChatMessage
@@ -23,8 +22,14 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalRespo
 from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, get_attribute_from_tgi_endpoint
 
 from .config import (
-    NEO4J_PASSWORD, NEO4J_URL, NEO4J_USERNAME, TEI_EMBEDDING_ENDPOINT,
-    OPENAI_API_KEY, OPENAI_EMBEDDING_MODEL, OPENAI_LLM_MODEL, TGI_LLM_ENDPOINT
+    NEO4J_PASSWORD,
+    NEO4J_URL,
+    NEO4J_USERNAME,
+    OPENAI_API_KEY,
+    OPENAI_EMBEDDING_MODEL,
+    OPENAI_LLM_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
+    TGI_LLM_ENDPOINT,
 )
 
 logger = CustomLogger("neo4j_retrievers")

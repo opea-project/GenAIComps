@@ -29,11 +29,11 @@ pgvector==0.2.5
 prometheus-fastapi-instrumentator
 psycopg2-binary
 pydantic
+pymupdf
 pytesseract
 python-docx
 python-multipart
 python-pptx
-pymupdf
 qdrant-haystack
 redis
 sentence_transformers
