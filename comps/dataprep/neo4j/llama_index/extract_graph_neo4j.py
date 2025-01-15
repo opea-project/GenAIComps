@@ -41,7 +41,7 @@ from comps.dataprep.src.utils import (
     save_content_to_local_disk,
 )
 
-from .config import (
+from comps.dataprep.neo4j.llama_index.config import (
     NEO4J_PASSWORD,
     NEO4J_URL,
     NEO4J_USERNAME,
