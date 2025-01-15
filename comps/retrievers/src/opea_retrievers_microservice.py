@@ -81,7 +81,10 @@ async def ingest_files(
             )
         else:
             for r in response:
-                retrieved_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
+                if isinstance(r, str):
+                    retrieved_docs.append(RetrievalResponseData(text=r, metadata=None))
+                else:
+                    retrieved_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
             if isinstance(input, RetrievalRequest):
                 result = RetrievalResponse(retrieved_docs=retrieved_docs)
             elif isinstance(input, ChatCompletionRequest):

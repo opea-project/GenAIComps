@@ -65,6 +65,11 @@ ES_INDEX_NAME = os.getenv("ES_INDEX_NAME", "rag_elasticsearch")
 NEO4J_URL = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
+host_ip = os.getenv("host_ip")
+TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", f"http://{host_ip}:6005")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+OPENAI_LLM_MODEL = os.getenv("OPENAI_LLM_MODEL", "gpt-4o")
 
 
 #######################################################
@@ -160,3 +165,15 @@ QDRANT_HOST = os.getenv("QDRANT_HOST", "localhost")
 QDRANT_PORT = int(os.getenv("QDRANT_PORT", 6333))
 QDRANT_EMBED_DIMENSION = os.getenv("QDRANT_EMBED_DIMENSION", 768)
 QDRANT_INDEX_NAME = os.getenv("QDRANT_INDEX_NAME", "rag_qdrant")
+
+
+#######################################################
+#                        VDMs                         #
+#######################################################
+# VDMS Connection Information
+VDMS_HOST = os.getenv("VDMS_HOST", "localhost")
+VDMS_PORT = int(os.getenv("VDMS_PORT", 55555))
+VDMS_INDEX_NAME = os.getenv("VDMS_INDEX_NAME", "rag_vdms")
+VDMS_USE_CLIP = int(os.getenv("VDMS_USE_CLIP", 0))
+SEARCH_ENGINE = "FaissFlat"
+DISTANCE_STRATEGY = "IP"
