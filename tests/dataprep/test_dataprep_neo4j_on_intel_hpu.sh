@@ -11,7 +11,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep-neo4j:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/Dockerfile .
+    docker build --no-cache -t opea/dataprep-neo4j:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-neo4j built fail"
         exit 1
