@@ -68,7 +68,7 @@ async def ingest_files(files: Optional[Union[UploadFile, List[UploadFile]]] = Fi
     port=5000,
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
-async def ingest_files(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
+async def ingest_videos(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
     start = time.time()
 
     if logflag:
