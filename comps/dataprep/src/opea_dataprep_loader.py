@@ -32,6 +32,7 @@ class OpeaDataprepLoader(OpeaComponentLoader):
             logger.info("[ dataprep loader ] delete files")
         return await self.component.delete_files(*args, **kwargs)
 
+
 class OpeaDataprepMultiModalLoader(OpeaComponentLoader):
     def __init__(self, component_name, **kwargs):
         super().__init__(component_name=component_name, **kwargs)

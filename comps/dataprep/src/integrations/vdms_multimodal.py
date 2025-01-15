@@ -16,7 +16,7 @@ from utils import store_embeddings
 from utils.utils import process_all_videos, read_config
 from utils.vclip import vCLIP
 
-from comps import OpeaComponentRegistry, OpeaComponent, ServiceType, CustomLogger
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 VECTORDB_SERVICE_HOST_IP = os.getenv("VDMS_HOST", "0.0.0.0")
 VECTORDB_SERVICE_PORT = os.getenv("VDMS_PORT", 55555)
@@ -51,12 +51,10 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
         model = vCLIP(config)
         return model
 
-
     def read_json(self, path):
         with open(path) as f:
             x = json.load(f)
         return x
-
 
     def store_into_vectordb(self, vs, metadata_file_path, dimensions):
         GMetadata = self.read_json(metadata_file_path)
@@ -87,11 +85,9 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
                 os.system("rm -r tmp_*")
                 break
 
-
     def generate_video_id(self):
         """Generates a unique identifier for a video file."""
         return str(uuid.uuid4())
-
 
     def generate_embeddings(self, config, dimensions, vs):
         process_all_videos(config)
@@ -125,7 +121,8 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
                     video_files.append(file)
                 else:
                     raise HTTPException(
-                        status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only."
+                        status_code=400,
+                        detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only.",
                     )
 
             for video_file in video_files:

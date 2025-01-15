@@ -7,8 +7,8 @@ import time
 from typing import List, Optional, Union
 
 from fastapi import Body, File, UploadFile
-from integrations.vdms_multimodal import OpeaMultimodalVdmsDataprep
 from integrations.redis_multimodal import OpeaMultimodalRedisDataprep
+from integrations.vdms_multimodal import OpeaMultimodalVdmsDataprep
 from opea_dataprep_loader import OpeaDataprepMultiModalLoader
 
 from comps import (
@@ -59,6 +59,7 @@ async def ingest_files(files: Optional[Union[UploadFile, List[UploadFile]]] = Fi
     except Exception as e:
         logger.error(f"Error during dataprep ingest files invocation: {e}")
         raise
+
 
 @register_microservice(
     name="opea_service@dataprep_multimodal",
@@ -114,6 +115,7 @@ async def ingest_generate_transcripts(files: Optional[Union[UploadFile, List[Upl
         logger.error(f"Error during dataprep generate_transcripts invocation: {e}")
         raise
 
+
 @register_microservice(
     name="opea_service@dataprep_multimodal",
     service_type=ServiceType.DATAPREP,
@@ -140,7 +142,6 @@ async def ingest_generate_captions(files: Optional[Union[UploadFile, List[Upload
     except Exception as e:
         logger.error(f"Error during dataprep generate_captions invocation: {e}")
         raise
-
 
 
 @register_microservice(
@@ -170,6 +171,7 @@ async def get_files():
         logger.error(f"Error during dataprep get files invocation: {e}")
         raise
 
+
 @register_microservice(
     name="opea_service@dataprep_multimodal",
     service_type=ServiceType.DATAPREP,
@@ -196,6 +198,7 @@ async def get_one_file(filename: str):
     except Exception as e:
         logger.error(f"Error during dataprep get one file invocation: {e}")
         raise
+
 
 @register_microservice(
     name="opea_service@dataprep_multimodal",

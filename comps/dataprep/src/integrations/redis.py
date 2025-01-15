@@ -31,7 +31,6 @@ from comps.dataprep.src.utils import (
     save_content_to_local_disk,
 )
 
-
 logger = CustomLogger("redis_dataprep")
 logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
@@ -51,6 +50,7 @@ SEARCH_BATCH_SIZE = int(os.getenv("SEARCH_BATCH_SIZE", 10))
 # Redis Connection Information
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+
 
 def get_boolean_env_var(var_name, default_value=False):
     """Retrieve the boolean value of an environment variable.
@@ -77,6 +77,7 @@ def get_boolean_env_var(var_name, default_value=False):
     else:
         return default_value
 
+
 def format_redis_conn_from_env():
     redis_url = os.getenv("REDIS_URL", None)
     if redis_url:
@@ -96,6 +97,7 @@ def format_redis_conn_from_env():
 
 REDIS_URL = format_redis_conn_from_env()
 redis_pool = redis.ConnectionPool.from_url(REDIS_URL)
+
 
 def check_index_existance(client):
     if logflag:

@@ -7,14 +7,14 @@ import time
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, UploadFile
-from integrations.milvus import OpeaMilvusDataprep
-from integrations.redis import OpeaRedisDataprep
 from integrations.elasticsearch import OpeaElasticSearchDataprep
+from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j import OpeaNeo4jDataprep
 from integrations.opensearch import OpeaOpenSearchDataprep
 from integrations.pgvector import OpeaPgvectorDataprep
 from integrations.pipecone import OpeaPineConeDataprep
 from integrations.qdrant import OpeaQdrantDataprep
+from integrations.redis import OpeaRedisDataprep
 from integrations.vdms import OpeaVdmsDataprep
 from opea_dataprep_loader import OpeaDataprepLoader
 

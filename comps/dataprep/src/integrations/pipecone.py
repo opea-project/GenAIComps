@@ -84,7 +84,7 @@ class OpeaPineConeDataprep(OpeaComponent):
     def check_index_existance(self):
         if logflag:
             logger.info(f"[ check index existence ] checking {PINECONE_INDEX_NAME}")
-        
+
         existing_indexes = [index_info["name"] for index_info in self.pc.list_indexes()]
         if PINECONE_INDEX_NAME not in existing_indexes:
             if logflag:
@@ -123,7 +123,6 @@ class OpeaPineConeDataprep(OpeaComponent):
                 logger.info(f"[ drop index ] index {index_name} delete failed: {e}")
             return False
         return True
-
 
     def ingest_data_to_pinecone(self, doc_path: DocPath):
         """Ingest document to Pinecone."""
@@ -185,7 +184,6 @@ class OpeaPineConeDataprep(OpeaComponent):
             )
             if logflag:
                 logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
-
 
     async def ingest_link_to_pinecone(self, link_list: List[str], chunk_size, chunk_overlap):
         # Checking Index existence
