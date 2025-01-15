@@ -15,7 +15,7 @@ import nest_asyncio
 import networkx as nx
 import openai
 import requests
-from config import (
+from .config import (
     NEO4J_PASSWORD,
     NEO4J_URL,
     NEO4J_USERNAME,
