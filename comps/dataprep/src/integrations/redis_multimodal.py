@@ -29,9 +29,8 @@ from multimodal_utils import (
 )
 from PIL import Image
 
-from comps import OpeaComponentRegistry, OpeaComponent, ServiceType, CustomLogger
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
-
 
 # Models
 EMBED_MODEL = os.getenv("EMBEDDING_MODEL_ID", "BridgeTower/bridgetower-large-itm-mlm-itc")
@@ -351,7 +350,12 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         pass
 
     def prepare_data_and_metadata_from_annotation(
-        self, annotation, path_to_frames, title, num_transcript_concat_for_ingesting=2, num_transcript_concat_for_inference=7
+        self,
+        annotation,
+        path_to_frames,
+        title,
+        num_transcript_concat_for_ingesting=2,
+        num_transcript_concat_for_inference=7,
     ):
         text_list = []
         image_list = []
@@ -395,7 +399,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
         return text_list, image_list, metadatas
 
-
     def ingest_multimodal(self, videoname, data_folder, embeddings):
         """Ingest text image pairs to Redis from the data/ directory that consists of frames and annotations."""
         data_folder = os.path.abspath(data_folder)
@@ -405,7 +408,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         annotation = load_json_file(annotation_file_path)
 
         # prepare data to ingest
-        text_list, image_list, metadatas = self.prepare_data_and_metadata_from_annotation(annotation, path_to_frames, videoname)
+        text_list, image_list, metadatas = self.prepare_data_and_metadata_from_annotation(
+            annotation, path_to_frames, videoname
+        )
 
         MultimodalRedis.from_text_image_pairs_return_keys(
             texts=[f"From {videoname}. " + text for text in text_list],
@@ -416,7 +421,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
             index_schema=INDEX_SCHEMA,
             redis_url=REDIS_URL,
         )
-
 
     def drop_index(self, index_name, redis_url=REDIS_URL):
         logger.info(f"dropping index {index_name}")
@@ -439,7 +443,8 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                     files_to_ingest.append(file)
                 else:
                     raise HTTPException(
-                        status_code=400, detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only."
+                        status_code=400,
+                        detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only.",
                     )
 
             for file_to_ingest in files_to_ingest:
@@ -468,7 +473,8 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                     audio_file = dir_name + ".wav"
                     logger.info(f"Extracting {audio_file}")
                     convert_video_to_audio(
-                        os.path.join(self.upload_folder, file_name_with_id), os.path.join(self.upload_folder, audio_file)
+                        os.path.join(self.upload_folder, file_name_with_id),
+                        os.path.join(self.upload_folder, audio_file),
                     )
                     logger.info(f"Done extracting {audio_file}")
                 else:
@@ -533,7 +539,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) or audio (.wav) file.")
 
-
     async def ingest_generate_caption(self, files: List[UploadFile] = File(None)):
         """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
 
@@ -589,12 +594,13 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide at least one file.")
 
-
     async def ingest_files(self, files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
         if files:
             accepted_media_formats = [".mp4", ".png", ".jpg", ".jpeg", ".gif"]
             # Create a lookup dictionary containing all media files
-            matched_files = {f.filename: [f] for f in files if os.path.splitext(f.filename)[1] in accepted_media_formats}
+            matched_files = {
+                f.filename: [f] for f in files if os.path.splitext(f.filename)[1] in accepted_media_formats
+            }
             uploaded_files_map = {}
 
             # Go through files again and match caption files to media files
@@ -682,7 +688,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
             detail="Must provide at least one pair consisting of video (.mp4) and captions (.vtt) or image (.png, .jpg, .jpeg, .gif) with caption (.txt)",
         )
 
-
     async def get_files(self):
         """Returns list of names of uploaded videos saved on the server."""
 
@@ -692,7 +697,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
         uploaded_videos = os.listdir(self.upload_folder)
         return uploaded_videos
-
 
     async def delete_files(self):
         """Delete all uploaded files along with redis index."""

@@ -8,7 +8,6 @@ from typing import List, Optional, Union
 from urllib.parse import urlparse
 
 import psycopg2
-
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
@@ -99,7 +98,6 @@ class OpeaPgvectorDataprep(OpeaComponent):
                     logger.info(f"Write file failed. Exception: {e}")
                 raise HTTPException(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
 
-
     def delete_embeddings(self, doc_name):
         """Get all ids from a vectorstore."""
         try:
@@ -145,7 +143,6 @@ class OpeaPgvectorDataprep(OpeaComponent):
                 logger.info(f"An unexpected error occurred: {e}")
             return False
 
-
     def ingest_doc_to_pgvector(self, doc_path: DocPath):
         """Ingest document to PGVector."""
         doc_path = doc_path.path
@@ -189,7 +186,6 @@ class OpeaPgvectorDataprep(OpeaComponent):
                 logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
         return True
 
-
     async def ingest_link_to_pgvector(self, link_list: List[str]):
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, add_start_index=True, separators=get_separators()
@@ -227,7 +223,6 @@ class OpeaPgvectorDataprep(OpeaComponent):
                     logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
         return True
-
 
     async def ingest_files(
         self,
@@ -291,7 +286,6 @@ class OpeaPgvectorDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
-
     async def get_files(self):
         """Get file structure from pgvector database in the format of
         {
@@ -312,7 +306,6 @@ class OpeaPgvectorDataprep(OpeaComponent):
         if logflag:
             logger.info(file_content)
         return file_content
-
 
     async def delete_files(self, file_path: str = Body(..., embed=True)):
         """Delete file according to `file_path`.
@@ -361,4 +354,3 @@ class OpeaPgvectorDataprep(OpeaComponent):
             return {"status": True}
         else:
             raise HTTPException(status_code=404, detail="File/folder not found. Please check del_path.")
-

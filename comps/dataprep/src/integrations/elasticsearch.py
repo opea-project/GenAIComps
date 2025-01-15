@@ -14,7 +14,7 @@ from langchain_core.documents import Document
 from langchain_elasticsearch import ElasticsearchStore
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 
-from comps import CustomLogger, DocPath, OpeaComponentRegistry, OpeaComponent, ServiceType
+from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -84,8 +84,9 @@ class OpeaElasticSearchDataprep(OpeaComponent):
         else:
             return HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
-
-    def get_elastic_store(self, embedder: Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]) -> ElasticsearchStore:
+    def get_elastic_store(
+        self, embedder: Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]
+    ) -> ElasticsearchStore:
         """Get Elasticsearch vector store."""
         return ElasticsearchStore(index_name=INDEX_NAME, embedding=embedder, es_connection=self.es_client)
 
@@ -112,7 +113,6 @@ class OpeaElasticSearchDataprep(OpeaComponent):
 
             return False
 
-
     def search_by_filename(self, file_name: str) -> bool:
         """Search Elasticsearch by file name."""
 
@@ -124,7 +124,6 @@ class OpeaElasticSearchDataprep(OpeaComponent):
             logger.info(f"[ search by file ] {len(results['hits'])} results: {results}")
 
         return results["hits"]["total"]["value"] > 0
-
 
     def ingest_doc_to_elastic(self, doc_path: DocPath) -> None:
         """Ingest documents to Elasticsearch."""
@@ -180,7 +179,6 @@ class OpeaElasticSearchDataprep(OpeaComponent):
             if logflag:
                 logger.info(f"Processed batch {i // batch_size + 1}/{(num_chunks - 1) // batch_size + 1}")
 
-
     async def ingest_link_to_elastic(self, link_list: List[str]) -> None:
         """Ingest data scraped from website links into Elasticsearch."""
 
@@ -220,7 +218,6 @@ class OpeaElasticSearchDataprep(OpeaComponent):
 
                 if logflag:
                     logger.info(f"Processed batch {i // batch_size + 1}/{(num_chunks - 1) // batch_size + 1}")
-
 
     async def ingest_files(
         self,
@@ -320,7 +317,6 @@ class OpeaElasticSearchDataprep(OpeaComponent):
                 raise HTTPException(status_code=400, detail="Invalid JSON format for link_list.")
 
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
-
 
     async def get_files(self):
         """Get file structure from pipecone database in the format of

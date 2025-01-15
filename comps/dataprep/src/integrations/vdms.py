@@ -11,7 +11,7 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFace
 from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
-from comps import CustomLogger, DocPath, OpeaComponentRegistry, OpeaComponent, ServiceType
+from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -21,7 +21,6 @@ from comps.dataprep.src.utils import (
     parse_html_new,
     save_content_to_local_disk,
 )
-
 
 logger = CustomLogger("opea_dataprep_vdms")
 logflag = os.getenv("LOGFLAG", False)
@@ -51,6 +50,7 @@ TEI_EMBEDDING_ENDPOINT = getEnv("TEI_ENDPOINT")
 # chunk parameters
 CHUNK_SIZE = getEnv("CHUNK_SIZE", 1500)
 CHUNK_OVERLAP = getEnv("CHUNK_OVERLAP", 100)
+
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_VDMS")
 class OpeaVdmsDataprep(OpeaComponent):
@@ -127,7 +127,6 @@ class OpeaVdmsDataprep(OpeaComponent):
                 texts=batch_texts,
             )
             logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
-
 
     async def ingest_files(
         self,

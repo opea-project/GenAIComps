@@ -4,6 +4,7 @@
 import json
 import os
 from typing import List, Optional, Union
+
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
@@ -11,7 +12,8 @@ from langchain_community.vectorstores import OpenSearchVectorSearch
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from opensearchpy import OpenSearch
-from comps import CustomLogger, DocPath, OpeaComponentRegistry, OpeaComponent, ServiceType
+
+from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -29,7 +31,7 @@ logflag = os.getenv("LOGFLAG", False)
 
 class Config:
     """Configuration class to store environment variables and default settings."""
-    
+
     EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
     OPENSEARCH_HOST = os.getenv("OPENSEARCH_HOST", "localhost")
     OPENSEARCH_PORT = int(os.getenv("OPENSEARCH_PORT", 9200))
@@ -40,7 +42,7 @@ class Config:
     KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
     TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
     SEARCH_BATCH_SIZE = int(os.getenv("SEARCH_BATCH_SIZE", 10))
-    
+
     @staticmethod
     def get_boolean_env_var(var_name, default_value=False):
         """Retrieve the boolean value of an environment variable."""
@@ -64,6 +66,7 @@ class Config:
             start = "https://" if Config.OPENSEARCH_SSL else "http://"
             return f"{start}{Config.OPENSEARCH_HOST}:{Config.OPENSEARCH_PORT}"
 
+
 # Initialize the OpenSearch URL based on configuration
 OPENSEARCH_URL = Config.format_opensearch_conn_from_env()
 
@@ -74,7 +77,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
-        
+
         # Initialize embeddings
         tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
         if tei_embedding_endpoint:
@@ -94,7 +97,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             ssl_assert_hostname=False,
             ssl_show_warn=False,
         )
-        
+
         # Perform health check
         health_status = self.check_health()
         if not health_status:
@@ -104,7 +107,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         """Checks the health of the OpenSearch service."""
         try:
             client = OpenSearch(
-                hosts=[{'host': Config.OPENSEARCH_HOST, 'port': Config.OPENSEARCH_PORT}],
+                hosts=[{"host": Config.OPENSEARCH_HOST, "port": Config.OPENSEARCH_PORT}],
                 http_auth=self.auth,
                 use_ssl=True,
                 verify_certs=False,
@@ -154,7 +157,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         file_ids = []
 
         for i in range(0, num_chunks, batch_size):
-            batch_chunks = chunks[i: i + batch_size]
+            batch_chunks = chunks[i : i + batch_size]
             keys = self.opensearch_client.add_texts(
                 texts=batch_chunks, metadatas=[{"source": file_name}] * len(batch_chunks)
             )
@@ -170,7 +173,6 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             logger.error(f"[ ingest chunks ] Failed to store chunks of file {file_name}: {e}")
             raise HTTPException(status_code=500, detail=f"Failed to store chunks of file {file_name}.")
         return True
-
 
     def ingest_data_to_opensearch(self, doc_path: DocPath):
         """Ingest document to OpenSearch."""
@@ -215,7 +217,6 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         file_name = doc_path.path.split("/")[-1]
         return self.ingest_chunks_to_opensearch(file_name, chunks)
 
-
     def search_all_documents(self, index_name, offset, search_batch_size):
         try:
             response = self.opensearch_client.client.search(
@@ -236,7 +237,6 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         except Exception as e:
             print(f"Error performing search: {e}")
             return None
-
 
     async def ingest_files(
         self,
@@ -286,7 +286,8 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                     logger.info(f"[ upload ] File {file.filename} does not exist.")
                 if key_ids:
                     raise HTTPException(
-                        status_code=400, detail=f"Uploaded file {file.filename} already exists. Please change file name."
+                        status_code=400,
+                        detail=f"Uploaded file {file.filename} already exists. Please change file name.",
                     )
 
                 save_path = self.upload_folder + encode_file
@@ -352,7 +353,6 @@ class OpeaOpenSearchDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
-
     async def get_files(self):
         """Get file structure from opensearch database in the format of
         {
@@ -393,7 +393,6 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         if logflag:
             logger.info(f"[get] final file_list: {file_list}")
         return file_list
-
 
     async def delete_files(self, file_path: str = Body(..., embed=True)):
         """Delete file according to `file_path`.
@@ -446,4 +445,3 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             return {"status": True}
         else:
             raise HTTPException(status_code=404, detail="Single file deletion is not implemented yet")
-

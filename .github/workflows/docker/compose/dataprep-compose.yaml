@@ -7,4 +7,3 @@ services:
     build:
       dockerfile: comps/dataprep/src/Dockerfile
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
-

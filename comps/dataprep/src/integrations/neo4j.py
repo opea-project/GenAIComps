@@ -15,7 +15,7 @@ from langchain_experimental.graph_transformers import LLMGraphTransformer
 from langchain_openai import ChatOpenAI
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
-from comps import CustomLogger, DocPath, OpeaComponentRegistry, OpeaComponent, ServiceType
+from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
     document_loader,
     encode_filename,
@@ -39,7 +39,6 @@ TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 TGI_LLM_ENDPOINT_NO_RAG = os.getenv("TGI_LLM_ENDPOINT_NO_RAG", "http://localhost:8081")
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_ENDPOINT")
 OPENAI_KEY = os.getenv("OPENAI_API_KEY")
-
 
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_NEO4J")
@@ -138,7 +137,6 @@ class OpeaNeo4jDataprep(OpeaComponent):
             logger.info("The graph is built.")
 
         return True
-
 
     async def ingest_files(
         self,

@@ -13,7 +13,7 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from qdrant_client import QdrantClient
 
-from comps import CustomLogger, DocPath, OpeaComponentRegistry, OpeaComponent, ServiceType
+from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
     document_loader,
     encode_filename,
