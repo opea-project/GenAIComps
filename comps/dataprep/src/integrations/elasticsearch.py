@@ -77,7 +77,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
         if not self.es_client.indices.exists(index=INDEX_NAME):
             self.es_client.indices.create(index=INDEX_NAME)
 
-    def get_embedder() -> Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]:
+    def get_embedder(self) -> Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]:
         """Obtain required Embedder."""
         if TEI_ENDPOINT:
             return HuggingFaceEndpointEmbeddings(model=TEI_ENDPOINT)
