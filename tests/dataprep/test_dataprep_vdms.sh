@@ -27,7 +27,7 @@ function start_service() {
     docker run -d --name="test-comps-dataprep-vdms" -p $VDMS_PORT:55555 intellabs/vdms:latest
     dataprep_service_port=5013
     COLLECTION_NAME="test-comps"
-    docker run -d --name="test-comps-dataprep-vdms-server" -e COLLECTION_NAME=$COLLECTION_NAME -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VDMS_HOST=$ip_address -e VDMS_PORT=$VDMS_PORT -p ${dataprep_service_port}:6007 -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_VDMS" --ipc=host opea/dataprep-vdms:comps
+    docker run -d --name="test-comps-dataprep-vdms-server" -e COLLECTION_NAME=$COLLECTION_NAME -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VDMS_HOST=$ip_address -e VDMS_PORT=$VDMS_PORT -p ${dataprep_service_port}:5000 -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_VDMS" --ipc=host opea/dataprep-vdms:comps
     sleep 30s
 }
 
@@ -38,7 +38,7 @@ function validate_microservice() {
 
     dataprep_service_port=5013
 
-    URL="http://$ip_address:$dataprep_service_port/v1/dataprep"
+    URL="http://$ip_address:$dataprep_service_port/v1/dataprep/ingest"
     HTTP_STATUS=$(http_proxy="" curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' ${URL} )
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep-upload-file ] HTTP status is 200. Checking content..."

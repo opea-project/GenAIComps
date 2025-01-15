@@ -81,7 +81,7 @@ function start_service() {
     echo "Starting dataprep microservice"
     dataprep_service_port=5013
     REDIS_URL="redis://${ip_address}:${REDIS_PORT}"
-    docker run -d --name="test-comps-dataprep-multimodal-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -p ${dataprep_service_port}:6007 --runtime=runc --ipc=host -e MULTIMODAL_DATAPREP=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MULTIMODALREDIS" opea/dataprep-multimodal-redis:comps
+    docker run -d --name="test-comps-dataprep-multimodal-redis" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -p ${dataprep_service_port}:5000 --runtime=runc --ipc=host -e MULTIMODAL_DATAPREP=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MULTIMODALREDIS" opea/dataprep-multimodal-redis:comps
 
     sleep 1m
 }
@@ -235,7 +235,7 @@ function validate_microservice() {
 
     # test v1/ingest_with_text with invalid input (.png image with .vtt transcript)
     echo "Testing ingest_with_text API with invalid input (.png and .vtt)"
-    URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -259,7 +259,7 @@ function validate_microservice() {
 
     # test v1/generate_captions upload video file
     echo "Testing generate_captions API with video"
-    URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/generate_captions"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$video_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -283,7 +283,7 @@ function validate_microservice() {
 
     # test v1/generate_captions upload image file
     echo "Testing generate_captions API with image"
-    URL="http://${ip_address}:$dataprep_service_port/v1/generate_captions"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/generate_captions"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -307,7 +307,7 @@ function validate_microservice() {
 
     # test /v1/dataprep/get_files
     echo "Testing get_files API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get_files"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -330,7 +330,7 @@ function validate_microservice() {
 
     # test /v1/dataprep/delete_files
     echo "Testing delete_files API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete_files"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')

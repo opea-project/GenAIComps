@@ -27,7 +27,7 @@ function start_service() {
     docker run -d --name="test-comps-dataprep-vdms" -p $VDMS_PORT:55555 intellabs/vdms:latest
     dataprep_service_port=5013
     COLLECTION_NAME="test-comps"
-    docker run -d --name="test-comps-dataprep-vdms-server" -e COLLECTION_NAME=$COLLECTION_NAME -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VDMS_HOST=$ip_address -e VDMS_PORT=$VDMS_PORT -p ${dataprep_service_port}:6007 --ipc=host -e MULTIMODAL_DATAPREP=true opea/dataprep-vdms:comps
+    docker run -d --name="test-comps-dataprep-vdms-server" -e COLLECTION_NAME=$COLLECTION_NAME -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e VDMS_HOST=$ip_address -e VDMS_PORT=$VDMS_PORT -p ${dataprep_service_port}:5000 --ipc=host -e MULTIMODAL_DATAPREP=true opea/dataprep-vdms:comps
     sleep 30s
 }
 
@@ -37,7 +37,7 @@ function validate_microservice() {
     sleep 5
 
     # test /v1/dataprep upload file
-    URL="http://$ip_address:$dataprep_service_port/v1/dataprep"
+    URL="http://$ip_address:$dataprep_service_port/v1/dataprep/ingest_videos"
 
     response=$(http_proxy="" curl -s -w "\n%{http_code}" -X POST -F 'files=@./silence_girl.mp4' -H 'Content-Type: multipart/form-data' ${URL})
     CONTENT=$(echo "$response" | sed -e '$ d')
@@ -88,7 +88,7 @@ function validate_microservice() {
     # test /v1/dataprep/get_file/{filename}
     file_list=$CONTENT
     filename=$(echo $file_list | sed 's/^\[//;s/\]$//;s/,.*//;s/"//g')
-    URL="http://$ip_address:$dataprep_service_port/v1/dataprep/get_file/${filename}"
+    URL="http://$ip_address:$dataprep_service_port/v1/dataprep/get/${filename}"
 
     http_proxy="" wget ${URL}
     CONTENT=$(ls)

@@ -45,7 +45,7 @@ function start_service() {
     INDEX_NAME="file-index"
     docker run -d \
         --name test-comps-dataprep-opensearch-langchain-server \
-        -p 6007:6007 \
+        -p 6007:5000 \
         -e https_proxy=$https_proxy \
         -e http_proxy=$http_proxy \
         -e OPENSEARCH_INITIAL_ADMIN_PASSWORD=$OPENSEARCH_INITIAL_ADMIN_PASSWORD \
@@ -61,7 +61,7 @@ function validate_microservice() {
     cd $LOG_PATH
 
     # test /v1/dataprep upload file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -85,7 +85,7 @@ function validate_microservice() {
 
 
     # test /v1/dataprep upload link
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'link_list=["https://www.ces.tech/"]' -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -108,7 +108,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/get_file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -130,7 +130,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/delete_file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')

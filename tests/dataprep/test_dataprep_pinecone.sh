@@ -24,13 +24,13 @@ function start_service() {
     export PINECONE_INDEX_NAME="test-index"
     export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
 
-    docker run -d --name="test-comps-dataprep-pinecone" -p 5039:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e PINECONE_API_KEY=$PINECONE_API_KEY -e PINECONE_INDEX_NAME=$PINECONE_INDEX_NAME -e LOGFLAG=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_PINECONE" opea/dataprep-pinecone:comps
+    docker run -d --name="test-comps-dataprep-pinecone" -p 5039:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e PINECONE_API_KEY=$PINECONE_API_KEY -e PINECONE_INDEX_NAME=$PINECONE_INDEX_NAME -e LOGFLAG=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_PINECONE" opea/dataprep-pinecone:comps
 
     sleep 1m
 }
 
 function validate_microservice() {
-    URL="http://$ip_address:5039/v1/dataprep"
+    URL="http://$ip_address:5039/v1/dataprep/ingest"
     echo 'The OPEA platform includes: Detailed framework of composable building blocks for state-of-the-art generative AI systems including LLMs, data stores, and prompt engines' > ./dataprep_file.txt
     result=$(curl --noproxy $ip_address --location --request POST \
       --form 'files=@./dataprep_file.txt' $URL)
@@ -41,7 +41,7 @@ function validate_microservice() {
         docker logs test-comps-dataprep-pinecone
         exit 1
     fi
-    DELETE_URL="http://$ip_address:5039/v1/dataprep/delete_file"
+    DELETE_URL="http://$ip_address:5039/v1/dataprep/delete"
     result=$(curl --noproxy $ip_address --location --request POST \
       -d '{"file_path": "all"}' -H 'Content-Type: application/json' $DELETE_URL)
     if [[ $result == *"true"* ]]; then

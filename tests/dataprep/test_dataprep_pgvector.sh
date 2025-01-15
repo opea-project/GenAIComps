@@ -34,7 +34,7 @@ function start_service() {
 
     sleep 10s
 
-    docker run -d --name="test-comps-dataprep-pgvector" -p ${dataprep_service_port}:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_PGVECTOR" opea/dataprep-pgvector:comps
+    docker run -d --name="test-comps-dataprep-pgvector" -p ${dataprep_service_port}:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_PGVECTOR" opea/dataprep-pgvector:comps
 
     sleep 3m
 }
@@ -43,7 +43,7 @@ function validate_microservice() {
     cd $LOG_PATH
 
     # test /v1/dataprep
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
@@ -65,7 +65,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/get_file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."
@@ -85,7 +85,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/delete_file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - del ] HTTP status is 200."

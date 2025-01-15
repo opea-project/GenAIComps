@@ -30,7 +30,7 @@ function start_service() {
     dataprep_service_port=6362
     TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_embedding_port}"
     COLLECTION_NAME="rag-qdrant"
-    docker run -d --name="test-comps-dataprep-qdrant-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e QDRANT_HOST=$ip_address -e QDRANT_PORT=$QDRANT_PORT -e COLLECTION_NAME=$COLLECTION_NAME -e TEI_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -p ${dataprep_service_port}:6007 --ipc=host -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_QDRANT" opea/dataprep-qdrant:comps
+    docker run -d --name="test-comps-dataprep-qdrant-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e QDRANT_HOST=$ip_address -e QDRANT_PORT=$QDRANT_PORT -e COLLECTION_NAME=$COLLECTION_NAME -e TEI_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -p ${dataprep_service_port}:5000 --ipc=host -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_QDRANT" opea/dataprep-qdrant:comps
     sleep 1m
 }
 
@@ -88,14 +88,14 @@ function validate_microservice() {
     # dataprep upload file
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
     validate_services \
-        "${ip_address}:6362/v1/dataprep" \
+        "${ip_address}:6362/v1/dataprep/ingest" \
         "Data preparation succeeded" \
         "dataprep_upload_file" \
         "test-comps-dataprep-qdrant-langchain-server"
 
     # dataprep upload link
     validate_services \
-        "${ip_address}:6362/v1/dataprep" \
+        "${ip_address}:6362/v1/dataprep/ingest" \
         "Data preparation succeeded" \
         "dataprep_upload_link" \
         "test-comps-dataprep-qdrant-langchain-server"

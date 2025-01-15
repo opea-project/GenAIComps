@@ -34,10 +34,10 @@ function start_service() {
 
     # data-prep
     INDEX_NAME="test-elasticsearch"
-    docker run -d --name="test-comps-dataprep-elasticsearch" -p $dataprep_service_port:6011 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ES_CONNECTION_STRING=$ES_CONNECTION_STRING -e INDEX_NAME=$INDEX_NAME -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ELASTICSEARCH" opea/dataprep-elasticsearch:comps
+    docker run -d --name="test-comps-dataprep-elasticsearch" -p $dataprep_service_port:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ES_CONNECTION_STRING=$ES_CONNECTION_STRING -e INDEX_NAME=$INDEX_NAME -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ELASTICSEARCH" opea/dataprep-elasticsearch:comps
     sleep 15s
 
-    bash ./tests/utils/wait-for-it.sh $ip_address:$dataprep_service_port -s -t 100 -- echo "Dataprep service up"
+    bash ./utils/wait-for-it.sh $ip_address:$dataprep_service_port -s -t 100 -- echo "Dataprep service up"
     DATAPREP_UP=$?
     if [ ${DATAPREP_UP} -ne 0 ]; then
         echo "Could not start Dataprep service."
@@ -45,7 +45,7 @@ function start_service() {
     fi
 
     sleep 5s
-    bash ./tests/utils/wait-for-it.sh ${ip_address}:$dataprep_service_port -s -t 1 -- echo "Dataprep service still up"
+    bash ./utils/wait-for-it.sh ${ip_address}:$dataprep_service_port -s -t 1 -- echo "Dataprep service still up"
     DATAPREP_UP=$?
     if [ ${DATAPREP_UP} -ne 0 ]; then
         echo "Dataprep service crashed."
@@ -57,7 +57,7 @@ function validate_microservice() {
     cd $LOG_PATH
 
     # test /v1/dataprep
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
 
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
@@ -80,7 +80,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/get_file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."
@@ -100,7 +100,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/delete_file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete_file"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - del ] HTTP status is 200."
