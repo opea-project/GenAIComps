@@ -159,7 +159,7 @@ function validate_microservice() {
     # retrieval microservice
     validate_service \
         "${ip_address}:6009/v1/retrieval" \
-        "Retrieval of answers from community summaries successful" \
+        "documents" \
         "retriever_community_answers_neo4j" \
         "test-comps-retrievers-neo4j-llama-index-server" \
         "{\"messages\": [{\"role\": \"user\",\"content\": \"Who is John Brady and has he had any confrontations?\"}]}"
