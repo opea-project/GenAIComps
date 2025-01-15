@@ -3,8 +3,8 @@
 
 import logging
 import os
-import nltk
 
+import nltk
 import pathway as pw
 from langchain import text_splitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
@@ -18,9 +18,9 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-nltk.download('punkt')
-nltk.download('punkt_tab')
-nltk.download('averaged_perceptron_tagger_eng')
+nltk.download("punkt")
+nltk.download("punkt_tab")
+nltk.download("averaged_perceptron_tagger_eng")
 
 # This creates a Pathway connector that tracks all the files in the `data/` directory.
 # Additions and modifications will be reflected on the index automatically.
