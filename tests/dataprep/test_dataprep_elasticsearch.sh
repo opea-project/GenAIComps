@@ -37,7 +37,7 @@ function start_service() {
     docker run -d --name="test-comps-dataprep-elasticsearch" -p $dataprep_service_port:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ES_CONNECTION_STRING=$ES_CONNECTION_STRING -e INDEX_NAME=$INDEX_NAME -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ELASTICSEARCH" opea/dataprep-elasticsearch:comps
     sleep 15s
 
-    bash ./utils/wait-for-it.sh $ip_address:$dataprep_service_port -s -t 100 -- echo "Dataprep service up"
+    bash $WORKPATH/tests/utils/wait-for-it.sh $ip_address:$dataprep_service_port -s -t 100 -- echo "Dataprep service up"
     DATAPREP_UP=$?
     if [ ${DATAPREP_UP} -ne 0 ]; then
         echo "Could not start Dataprep service."
@@ -45,7 +45,7 @@ function start_service() {
     fi
 
     sleep 5s
-    bash ./utils/wait-for-it.sh ${ip_address}:$dataprep_service_port -s -t 1 -- echo "Dataprep service still up"
+    bash $WORKPATH/tests/utils/wait-for-it.sh ${ip_address}:$dataprep_service_port -s -t 1 -- echo "Dataprep service still up"
     DATAPREP_UP=$?
     if [ ${DATAPREP_UP} -ne 0 ]; then
         echo "Dataprep service crashed."
