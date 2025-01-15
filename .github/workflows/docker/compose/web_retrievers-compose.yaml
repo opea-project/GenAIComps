@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # this file should be run in the root of the repo
-# images used by GenAIExamples: web-retriever-chroma
 services:
-  web-retriever-chroma:
+  web-retriever:
     build:
-      dockerfile: comps/web_retrievers/chroma/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/web-retriever-chroma:${TAG:-latest}
+      dockerfile: comps/web_retrievers/src/Dockerfile
+    image: ${REGISTRY:-opea}/web-retriever:${TAG:-latest}

@@ -2,21 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # this file should be run in the root of the repo
-# images used by GenAIExamples: embedding-tei
 services:
-  embedding-tei:
+  embedding:
     build:
-      dockerfile: comps/embeddings/tei/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/embedding-tei:${TAG:-latest}
-  embedding-multimodal-clip:
-    build:
-      dockerfile: comps/embeddings/multimodal_clip/Dockerfile
-    image: ${REGISTRY:-opea}/embedding-multimodal-clip:${TAG:-latest}
-  embedding-multimodal-bridgetower:
-    build:
-      dockerfile: comps/embeddings/multimodal/bridgetower/Dockerfile
-    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
-  embedding-multimodal:
-    build:
-      dockerfile: comps/embeddings/multimodal/multimodal_langchain/Dockerfile
-    image: ${REGISTRY:-opea}/embedding-multimodal:${TAG:-latest}
+      dockerfile: comps/embeddings/src/Dockerfile
+    image: ${REGISTRY:-opea}/embedding:${TAG:-latest}

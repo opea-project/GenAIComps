@@ -7,7 +7,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: end-of-file-fixer
         files: (.*\.(py|md|rst|yaml|yml|json|ts|js|html|svelte|sh))$
@@ -75,7 +75,7 @@ repos:
       - id: isort
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
+    rev: 06907d0
     hooks:
       - id: docformatter
         args: [
@@ -86,28 +86,33 @@ repos:
             --style=google,
           ]
 
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v4.0.0-alpha.8" # Use the sha / tag you want to point at
+  - repo: local
     hooks:
       - id: prettier
+        name: prettier
+        description: ""
+        entry: prettier --write --ignore-unknown
+        language: node
+        "types": [text]
         args: [--print-width=120]
         types_or: [markdown, html, css, scss, javascript, json, ts, shell, sh]
-        additional_dependencies:
-          - prettier@3.2.5
+        require_serial: false
+        additional_dependencies: ["prettier@latest"]
+        minimum_pre_commit_version: "0"
 
   - repo: https://github.com/psf/black.git
-    rev: 24.4.2
+    rev: 24.10.0
     hooks:
       - id: black
         files: (.*\.py)$
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.18.0
+    rev: 1.19.1
     hooks:
       - id: blacken-docs
         args: [--line-length=120, --skip-errors]
         additional_dependencies:
-          - black==24.3.0
+          - black==24.10.0
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
@@ -118,7 +123,7 @@ repos:
           - tomli
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.0
+    rev: v0.8.6
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix, --no-cache]

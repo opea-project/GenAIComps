@@ -1,9 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
+import logging
+import multiprocessing
+import re
 from typing import Optional
 
 from fastapi import FastAPI
+from fastapi.responses import Response
 from prometheus_fastapi_instrumentator import Instrumentator
 from uvicorn import Config, Server
 
@@ -69,6 +74,11 @@ class HTTPService(BaseService):
             """Get the health status of this GenAI microservice."""
             return {"Service Title": self.title, "Service Description": self.description}
 
+        @app.get("/health")
+        async def _health() -> Response:
+            """Health check."""
+            return Response(status_code=200)
+
         @app.get(
             path="/v1/statistics",
             summary="Get the statistics of GenAI services",
@@ -80,6 +90,11 @@ class HTTPService(BaseService):
             return result
 
         return app
+
+    def add_startup_event(self, func):
+        @self.app.on_event("startup")
+        async def startup_event():
+            asyncio.create_task(func)
 
     async def initialize_server(self):
         """Initialize and return HTTP server."""
@@ -108,17 +123,16 @@ class HTTPService(BaseService):
                 """
                 await self.main_loop()
 
-        app = self.app
-
         self.server = UviServer(
             config=Config(
-                app=app,
+                app=self.app,
                 host=self.host_address,
                 port=self.primary_port,
                 log_level="info",
                 **self.uvicorn_kwargs,
             )
         )
+        logging.getLogger("uvicorn.access").addFilter(lambda record: "/v1/health_check" not in record.getMessage())
         self.logger.info(f"Uvicorn server setup on port {self.primary_port}")
         await self.server.setup_server()
         self.logger.info("HTTP server setup successful")
@@ -133,6 +147,24 @@ class HTTPService(BaseService):
         self.server.should_exit = True
         await self.server.shutdown()
         self.logger.info("Server termination completed")
+
+    def _async_setup(self):
+        self.event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.event_loop)
+        self.event_loop.run_until_complete(self.initialize_server())
+
+    def start(self):
+        """Running method to block the main thread.
+
+        This method runs the event loop until a Future is done. It is designed to be called in the main thread to keep it busy.
+        """
+        self.event_loop.run_until_complete(self.execute_server())
+
+    def stop(self):
+        self.event_loop.run_until_complete(self.terminate_server())
+        self.event_loop.stop()
+        self.event_loop.close()
+        self.logger.close()
 
     @staticmethod
     def check_server_readiness(ctrl_address: str, timeout: float = 1.0, logger=None, **kwargs) -> bool:
@@ -167,3 +199,6 @@ class HTTPService(BaseService):
         :return: True if status is ready else False.
         """
         return HTTPService.check_server_readiness(ctrl_address, timeout, logger=logger)
+
+    def add_route(self, endpoint, handler, methods=["POST"]):
+        self.app.router.add_api_route(endpoint, handler, methods=methods)

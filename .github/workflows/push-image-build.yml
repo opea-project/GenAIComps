@@ -10,6 +10,7 @@ on:
       - comps/**
       - "!**.md"
       - "!**.txt"
+      - "**requirements.txt"
       - .github/workflows/push-image-build.yml
 
 concurrency:
@@ -32,8 +33,8 @@ jobs:
         run: |
           base_commit=$(git rev-parse HEAD~1)
           merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'comps/' | grep -vE '*.md|*.txt|comps/cores')" || true
-          services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '*.py' | sort -u | jq -R '.' | jq -sc '.') || true
+          changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'comps/' | grep -vE '\.md|\.txt|comps/cores')" || true
+          services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' | jq -sc '.') || true
           echo "services=$services"
           echo "services=$services" >> $GITHUB_OUTPUT
 
@@ -65,6 +66,14 @@ jobs:
             echo "file_exists=false" >> $GITHUB_ENV
             echo "docker_compose_path=${docker_compose_path} for this service does not exist, so skipping image build for this service!!!"
           fi
+      - name: Get build list
+        id: get-build-list
+        env:
+          docker_compose_path: ${{ env.docker_compose_path }}
+          mode: CI
+        run: |
+          build_list=$(bash ${{ github.workspace }}/.github/workflows/scripts/get_cicd_list.sh "${mode}" ${docker_compose_path})
+          echo "build_list=${build_list}" >> $GITHUB_OUTPUT
 
       - name: Build Image
         if: env.file_exists == 'true'
@@ -73,3 +82,4 @@ jobs:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ env.docker_compose_path }}
           registry: ${OPEA_IMAGE_REPO}opea
+          service_list: ${{ steps.get-build-list.outputs.build_list }}

@@ -3,16 +3,14 @@
 
 import json
 import os
-import uuid
 from pathlib import Path
 from typing import List, Optional, Union
 
 from config import (
     COLLECTION_NAME,
+    LOCAL_EMBEDDING_MODEL,
     MILVUS_HOST,
     MILVUS_PORT,
-    MOSEC_EMBEDDING_ENDPOINT,
-    MOSEC_EMBEDDING_MODEL,
     TEI_EMBEDDING_ENDPOINT,
     TEI_EMBEDDING_MODEL,
 )
@@ -22,18 +20,16 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFace
 from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
-from pyspark import SparkConf, SparkContext
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import (
+from comps.dataprep.src.utils import (
     create_upload_folder,
     decode_filename,
     document_loader,
     encode_filename,
-    get_file_structure,
     get_separators,
     get_tables_result,
-    parse_html,
+    parse_html_new,
     remove_folder_with_ignore,
     save_content_to_local_disk,
 )
@@ -42,38 +38,13 @@ logger = CustomLogger("prepare_doc_milvus")
 logflag = os.getenv("LOGFLAG", False)
 
 # workaround notes: cp comps/dataprep/utils.py ./milvus/utils.py
-# from utils import document_loader, get_tables_result, parse_html
 index_params = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
 partition_field_name = "filename"
 upload_folder = "./uploaded_files/"
+milvus_uri = f"http://{MILVUS_HOST}:{MILVUS_PORT}"
 
 
-class MosecEmbeddings(OpenAIEmbeddings):
-    def _get_len_safe_embeddings(
-        self, texts: List[str], *, engine: str, chunk_size: Optional[int] = None
-    ) -> List[List[float]]:
-        _chunk_size = chunk_size or self.chunk_size
-        batched_embeddings: List[List[float]] = []
-        response = self.client.create(input=texts, **self._invocation_params)
-        if not isinstance(response, dict):
-            response = response.model_dump()
-        batched_embeddings.extend(r["embedding"] for r in response["data"])
-
-        _cached_empty_embedding: Optional[List[float]] = None
-
-        def empty_embedding() -> List[float]:
-            nonlocal _cached_empty_embedding
-            if _cached_empty_embedding is None:
-                average_embedded = self.client.create(input="", **self._invocation_params)
-                if not isinstance(average_embedded, dict):
-                    average_embedded = average_embedded.model_dump()
-                _cached_empty_embedding = average_embedded["data"][0]["embedding"]
-            return _cached_empty_embedding
-
-        return [e if e is not None else empty_embedding() for e in batched_embeddings]
-
-
-def ingest_chunks_to_milvus(file_name: str, chunks: List, embedder):
+def ingest_chunks_to_milvus(file_name: str, chunks: List):
     if logflag:
         logger.info(f"[ ingest chunks ] file name: {file_name}")
 
@@ -94,9 +65,9 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List, embedder):
         try:
             _ = Milvus.from_documents(
                 batch_docs,
-                embedder,
+                embeddings,
                 collection_name=COLLECTION_NAME,
-                connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+                connection_args={"uri": milvus_uri},
                 partition_key_field=partition_field_name,
             )
         except Exception as e:
@@ -110,7 +81,7 @@ def ingest_chunks_to_milvus(file_name: str, chunks: List, embedder):
     return True
 
 
-def ingest_data_to_milvus(doc_path: DocPath, embedder):
+def ingest_data_to_milvus(doc_path: DocPath):
     """Ingest document to Milvus."""
     path = doc_path.path
     file_name = path.split("/")[-1]
@@ -151,7 +122,7 @@ def ingest_data_to_milvus(doc_path: DocPath, embedder):
     if logflag:
         logger.info(f"[ ingest data ] Done preprocessing. Created {len(chunks)} chunks of the original file.")
 
-    return ingest_chunks_to_milvus(file_name, chunks, embedder)
+    return ingest_chunks_to_milvus(file_name, chunks)
 
 
 def search_by_file(collection, file_name):
@@ -210,30 +181,11 @@ async def ingest_documents(
     if files and link_list:
         raise HTTPException(status_code=400, detail="Provide either a file or a string list, not both.")
 
-    # Create vectorstore
-    if MOSEC_EMBEDDING_ENDPOINT:
-        # create embeddings using MOSEC endpoint service
-        if logflag:
-            logger.info(
-                f"[ upload ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
-            )
-        embedder = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
-    elif TEI_EMBEDDING_ENDPOINT:
-        # create embeddings using TEI endpoint service
-        if logflag:
-            logger.info(f"[ upload ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-        embedder = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
-    else:
-        # create embeddings using local embedding model
-        if logflag:
-            logger.info(f"[ upload ] Local TEI_EMBEDDING_MODEL:{TEI_EMBEDDING_MODEL}")
-        embedder = HuggingFaceBgeEmbeddings(model_name=TEI_EMBEDDING_MODEL)
-
     # define Milvus obj
     my_milvus = Milvus(
-        embedding_function=embedder,
+        embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+        connection_args={"uri": milvus_uri},
         index_params=index_params,
         auto_id=True,
     )
@@ -274,7 +226,6 @@ async def ingest_documents(
                     process_table=process_table,
                     table_strategy=table_strategy,
                 ),
-                embedder,
             )
             uploaded_files.append(save_path)
             if logflag:
@@ -294,7 +245,6 @@ async def ingest_documents(
         #                 process_table=process_table,
         #                 table_strategy=table_strategy,
         #             ),
-        #             embedder
         #         )
 
         # try:
@@ -342,7 +292,7 @@ async def ingest_documents(
                     )
 
             save_path = upload_folder + encoded_link + ".txt"
-            content = parse_html([link])[0][0]
+            content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
             await save_content_to_local_disk(save_path, content)
             ingest_data_to_milvus(
                 DocPath(
@@ -352,7 +302,6 @@ async def ingest_documents(
                     process_table=process_table,
                     table_strategy=table_strategy,
                 ),
-                embedder,
             )
         if logflag:
             logger.info(f"[ upload ] Successfully saved link list {link_list}")
@@ -368,30 +317,11 @@ async def rag_get_file_structure():
     if logflag:
         logger.info("[ get ] start to get file structure")
 
-    # Create vectorstore
-    if MOSEC_EMBEDDING_ENDPOINT:
-        # create embeddings using MOSEC endpoint service
-        if logflag:
-            logger.info(
-                f"[ get ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
-            )
-        embedder = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
-    elif TEI_EMBEDDING_ENDPOINT:
-        # create embeddings using TEI endpoint service
-        if logflag:
-            logger.info(f"[ get ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-        embedder = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
-    else:
-        # create embeddings using local embedding model
-        if logflag:
-            logger.info(f"[ get ] Local TEI_EMBEDDING_MODEL:{TEI_EMBEDDING_MODEL}")
-        embedder = HuggingFaceBgeEmbeddings(model_name=TEI_EMBEDDING_MODEL)
-
     # define Milvus obj
     my_milvus = Milvus(
-        embedding_function=embedder,
+        embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+        connection_args={"uri": milvus_uri},
         index_params=index_params,
         auto_id=True,
     )
@@ -445,30 +375,11 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
     if logflag:
         logger.info(file_path)
 
-    # Create vectorstore
-    if MOSEC_EMBEDDING_ENDPOINT:
-        # create embeddings using MOSEC endpoint service
-        if logflag:
-            logger.info(
-                f"[ delete ] MOSEC_EMBEDDING_ENDPOINT:{MOSEC_EMBEDDING_ENDPOINT}, MOSEC_EMBEDDING_MODEL:{MOSEC_EMBEDDING_MODEL}"
-            )
-        embedder = MosecEmbeddings(model=MOSEC_EMBEDDING_MODEL)
-    elif TEI_EMBEDDING_ENDPOINT:
-        # create embeddings using TEI endpoint service
-        if logflag:
-            logger.info(f"[ delete ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-        embedder = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
-    else:
-        # create embeddings using local embedding model
-        if logflag:
-            logger.info(f"[ delete ] Local TEI_EMBEDDING_MODEL:{TEI_EMBEDDING_MODEL}")
-        embedder = HuggingFaceBgeEmbeddings(model_name=TEI_EMBEDDING_MODEL)
-
     # define Milvus obj
     my_milvus = Milvus(
-        embedding_function=embedder,
+        embedding_function=embeddings,
         collection_name=COLLECTION_NAME,
-        connection_args={"host": MILVUS_HOST, "port": MILVUS_PORT},
+        connection_args={"uri": milvus_uri},
         index_params=index_params,
         auto_id=True,
     )
@@ -532,5 +443,17 @@ async def delete_single_file(file_path: str = Body(..., embed=True)):
 
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
+
+    # Create vectorstore
+    if TEI_EMBEDDING_ENDPOINT:
+        # create embeddings using TEI endpoint service
+        if logflag:
+            logger.info(f"[ prepare_doc_milvus ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
+        embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+    else:
+        # create embeddings using local embedding model
+        if logflag:
+            logger.info(f"[ prepare_doc_milvus ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
+        embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
 
     opea_microservices["opea_service@prepare_doc_milvus"].start()

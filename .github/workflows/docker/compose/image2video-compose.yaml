@@ -1,0 +1,13 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# this file should be run in the root of the repo
+services:
+  image2video:
+    build:
+      dockerfile: comps/image2video/src/Dockerfile
+    image: ${REGISTRY:-opea}/image2video:${TAG:-latest}
+  image2video-gaudi:
+    build:
+      dockerfile: comps/image2video/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/image2video-gaudi:${TAG:-latest}

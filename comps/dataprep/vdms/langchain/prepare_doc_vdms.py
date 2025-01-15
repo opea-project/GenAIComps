@@ -6,20 +6,20 @@ import os
 from typing import List, Optional, Union
 
 from config import COLLECTION_NAME, DISTANCE_STRATEGY, EMBED_MODEL, SEARCH_ENGINE, VDMS_HOST, VDMS_PORT
-from fastapi import Body, File, Form, HTTPException, UploadFile
+from fastapi import File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import (
+from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
     encode_filename,
     get_separators,
     get_tables_result,
-    parse_html,
+    parse_html_new,
     save_content_to_local_disk,
 )
 
@@ -143,7 +143,7 @@ async def ingest_documents(
             # check whether the link file already exists
 
             save_path = upload_folder + encoded_link + ".txt"
-            content = parse_html([link])[0][0]
+            content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
             await save_content_to_local_disk(save_path, content)
             ingest_data_to_vdms(
                 DocPath(

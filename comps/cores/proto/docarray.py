@@ -17,7 +17,11 @@ class TopologyInfo:
 
 
 class TextDoc(BaseDoc, TopologyInfo):
-    text: str = None
+    text: Union[str, List[str]] = None
+
+
+class Audio2text(BaseDoc, TopologyInfo):
+    query: str = None
 
 
 class FactualityDoc(BaseDoc):
@@ -74,6 +78,12 @@ class Base64ByteStrDoc(BaseDoc):
     byte_str: str
 
 
+class DocSumDoc(BaseDoc):
+    text: Optional[str] = None
+    audio: Optional[str] = None
+    video: Optional[str] = None
+
+
 class DocPath(BaseDoc):
     path: str
     chunk_size: int = 1500
@@ -83,15 +93,15 @@ class DocPath(BaseDoc):
 
 
 class EmbedDoc(BaseDoc):
-    text: str
-    embedding: conlist(float, min_length=0)
+    text: Union[str, List[str]]
+    embedding: Union[conlist(float, min_length=0), List[conlist(float, min_length=0)]]
     search_type: str = "similarity"
     k: int = 4
     distance_threshold: Optional[float] = None
     fetch_k: int = 20
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
-    constraints: Optional[Union[Dict[str, Any], None]] = None
+    constraints: Optional[Union[Dict[str, Any], List[Dict[str, Any]], None]] = None
 
 
 class EmbedMultimodalDoc(EmbedDoc):
@@ -140,7 +150,7 @@ class LVMSearchedMultimodalDoc(SearchedMultimodalDoc):
     top_p: float = 0.95
     typical_p: float = 0.95
     temperature: float = 0.01
-    streaming: bool = False
+    stream: bool = False
     repetition_penalty: float = 1.03
     chat_template: Optional[str] = Field(
         default=None,
@@ -174,7 +184,8 @@ class LLMParamsDoc(BaseDoc):
     frequency_penalty: float = 0.0
     presence_penalty: float = 0.0
     repetition_penalty: float = 1.03
-    streaming: bool = True
+    stream: bool = True
+    language: str = "auto"  # can be "en", "zh"
 
     chat_template: Optional[str] = Field(
         default=None,
@@ -201,7 +212,14 @@ class LLMParamsDoc(BaseDoc):
         return v
 
 
+class DocSumLLMParams(LLMParamsDoc):
+    summary_type: str = "auto"  # can be "auto", "stuff", "truncate", "map_reduce", "refine"
+    chunk_size: int = -1
+    chunk_overlap: int = -1
+
+
 class LLMParams(BaseDoc):
+    model: Optional[str] = None
     max_tokens: int = 1024
     max_new_tokens: int = 1024
     top_k: int = 10
@@ -211,7 +229,8 @@ class LLMParams(BaseDoc):
     frequency_penalty: float = 0.0
     presence_penalty: float = 0.0
     repetition_penalty: float = 1.03
-    streaming: bool = True
+    stream: bool = True
+    language: str = "auto"  # can be "en", "zh"
 
     chat_template: Optional[str] = Field(
         default=None,
@@ -273,7 +292,7 @@ class LVMDoc(BaseDoc):
     typical_p: float = 0.95
     temperature: float = 0.01
     repetition_penalty: float = 1.03
-    streaming: bool = False
+    stream: bool = False
 
 
 class LVMVideoDoc(BaseDoc):
@@ -286,6 +305,12 @@ class LVMVideoDoc(BaseDoc):
 
 class SDInputs(BaseDoc):
     prompt: str
+    num_images_per_prompt: int = 1
+
+
+class SDImg2ImgInputs(BaseDoc):
+    image: str
+    prompt: str = ""
     num_images_per_prompt: int = 1
 
 

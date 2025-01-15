@@ -14,12 +14,12 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
-from comps.dataprep.utils import (
+from comps.dataprep.src.utils import (
     document_loader,
     encode_filename,
     get_separators,
     get_tables_result,
-    parse_html,
+    parse_html_new,
     save_content_to_local_disk,
 )
 
@@ -149,7 +149,7 @@ async def ingest_documents(
         for link in link_list:
             encoded_link = encode_filename(link)
             save_path = upload_folder + encoded_link + ".txt"
-            content = parse_html([link])[0][0]
+            content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
             try:
                 await save_content_to_local_disk(save_path, content)
                 ingest_data_to_qdrant(

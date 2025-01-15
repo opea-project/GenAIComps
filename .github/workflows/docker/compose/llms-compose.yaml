@@ -2,37 +2,47 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # this file should be run in the root of the repo
-# images used by GenAIExamples: llm-tgi,llm-ollama,llm-docsum-tgi,llm-faqgen-tgi,llm-vllm,llm-vllm-hpu,llm-vllm-ray,llm-vllm-ray-hpu
 services:
-  llm-tgi:
+  llm-textgen:
     build:
-      dockerfile: comps/llms/text-generation/tgi/Dockerfile
-    image: ${REGISTRY:-opea}/llm-tgi:${TAG:-latest}
+      dockerfile: comps/llms/src/text-generation/Dockerfile
+    image: ${REGISTRY:-opea}/llm-textgen:${TAG:-latest}
   llm-ollama:
     build:
       dockerfile: comps/llms/text-generation/ollama/langchain/Dockerfile
     image: ${REGISTRY:-opea}/llm-ollama:${TAG:-latest}
-  llm-docsum-tgi:
+  llm-docsum:
     build:
-      dockerfile: comps/llms/summarization/tgi/langchain/Dockerfile
+      dockerfile: comps/llms/src/doc-summarization/Dockerfile
     image: ${REGISTRY:-opea}/llm-docsum-tgi:${TAG:-latest}
-  llm-faqgen-tgi:
+  llm-faqgen:
     build:
-      dockerfile: comps/llms/faq-generation/tgi/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/llm-faqgen-tgi:${TAG:-latest}
-  llm-vllm:
+      dockerfile: comps/llms/src/faq-generation/Dockerfile
+    image: ${REGISTRY:-opea}/llm-faqgen:${TAG:-latest}
+  llm-native:
     build:
-      dockerfile: comps/llms/text-generation/vllm/langchain/Dockerfile
-    image: ${REGISTRY:-opea}/llm-vllm:${TAG:-latest}
-  llm-vllm-hpu:
+      dockerfile: comps/llms/text-generation/native/langchain/Dockerfile
+    image: ${REGISTRY:-opea}/llm-native:${TAG:-latest}
+  llm-native-llamaindex:
     build:
-      dockerfile: comps/llms/text-generation/vllm/langchain/dependency/Dockerfile.intel_hpu
-    image: ${REGISTRY:-opea}/llm-vllm-hpu:${TAG:-latest}
-  llm-vllm-ray:
+      dockerfile: comps/llms/text-generation/native/llama_index/Dockerfile
+    image: ${REGISTRY:-opea}/llm-native-llamaindex:${TAG:-latest}
+  vllm-openvino:
     build:
-      dockerfile: comps/llms/text-generation/vllm/ray/Dockerfile
-    image: ${REGISTRY:-opea}/llm-vllm-ray:${TAG:-latest}
-  llm-vllm-ray-hpu:
+      context: vllm-openvino
+      dockerfile: Dockerfile.openvino
+    image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
+  vllm-gaudi:
     build:
-      dockerfile: comps/llms/text-generation/vllm/ray/dependency/Dockerfile
-    image: ${REGISTRY:-opea}/llm-vllm-ray-hpu:${TAG:-latest}
+      context: vllm-fork
+      dockerfile: Dockerfile.hpu
+    shm_size: '128g'
+    image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
+  vllm-arc:
+    build:
+      dockerfile: comps/llms/text-generation/vllm/langchain/dependency/Dockerfile.intel_gpu
+    image: ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}
+  llm-eval:
+    build:
+      dockerfile: comps/llms/utils/lm-eval/Dockerfile
+    image: ${REGISTRY:-opea}/llm-eval:${TAG:-latest}

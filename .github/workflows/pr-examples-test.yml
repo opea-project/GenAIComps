@@ -4,17 +4,14 @@
 name: Example-test
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
       - .github/workflows/pr-examples-test.yml
       - comps/cores/**
-      - comps/embeddings/langchain/**
-      - comps/retrievers/langchain/redis/**
-      - comps/reranks/tei/**
-      - comps/llms/text-generation/tgi/**
-      - comps/dataprep/redis/langchain/**
+      - comps/dataprep/src/redis/langchain/**
+      - comps/retrievers/src/redis/langchain/**
       - requirements.txt
       - "!**.md"
 

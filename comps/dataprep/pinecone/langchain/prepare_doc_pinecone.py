@@ -17,14 +17,14 @@ from langchain_text_splitters import HTMLHeaderTextSplitter
 from pinecone import Pinecone, ServerlessSpec
 
 from comps import CustomLogger, DocPath, opea_microservices, opea_telemetry, register_microservice
-from comps.dataprep.utils import (
+from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
     encode_filename,
     get_file_structure,
     get_separators,
     get_tables_result,
-    parse_html,
+    parse_html_new,
     remove_folder_with_ignore,
     save_content_to_local_disk,
 )
@@ -118,7 +118,7 @@ def ingest_data_to_pinecone(doc_path: DocPath):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
         chunks = chunks + table_chunks
     if logflag:
-        logger.info("Done preprocessing. Created ", len(chunks), " chunks of the original file.")
+        logger.info(f"Done preprocessing. Created {len(chunks)} chunks of the original file.")
 
     # Create vectorstore
     if tei_embedding_endpoint:
@@ -135,7 +135,7 @@ def ingest_data_to_pinecone(doc_path: DocPath):
         # Creating the index
         create_index(pc)
         if logflag:
-            logger.info("Successfully created the index", PINECONE_INDEX_NAME)
+            logger.info(f"Successfully created the index {PINECONE_INDEX_NAME}")
 
     # Batch size
     batch_size = 32
@@ -158,7 +158,7 @@ def ingest_data_to_pinecone(doc_path: DocPath):
     pc = Pinecone(api_key=PINECONE_API_KEY)
 
 
-async def ingest_link_to_pinecone(link_list: List[str]):
+async def ingest_link_to_pinecone(link_list: List[str], chunk_size, chunk_overlap):
     # Create embedding obj
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
@@ -174,11 +174,11 @@ async def ingest_link_to_pinecone(link_list: List[str]):
         # Creating the index
         create_index(pc)
         if logflag:
-            logger.info("Successfully created the index", PINECONE_INDEX_NAME)
+            logger.info(f"Successfully created the index {PINECONE_INDEX_NAME}")
 
     # save link contents and doc_ids one by one
     for link in link_list:
-        content = parse_html([link])[0][0]
+        content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
         if logflag:
             logger.info(f"[ ingest link ] link: {link} content: {content}")
         encoded_link = encode_filename(link)
@@ -239,7 +239,7 @@ async def ingest_documents(
             link_list = json.loads(link_list)  # Parse JSON string to list
             if not isinstance(link_list, list):
                 raise HTTPException(status_code=400, detail="link_list should be a list.")
-            await ingest_link_to_pinecone(link_list)
+            await ingest_link_to_pinecone(link_list, chunk_size, chunk_overlap)
             result = {"status": 200, "message": "Data preparation succeeded"}
             if logflag:
                 logger.info(f"Successfully saved link list {link_list}")
@@ -252,7 +252,7 @@ async def ingest_documents(
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_pinecone_file", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6008
+    name="opea_service@prepare_doc_pinecone", endpoint="/v1/dataprep/get_file", host="0.0.0.0", port=6007
 )
 async def rag_get_file_structure():
     if logflag:
@@ -270,7 +270,7 @@ async def rag_get_file_structure():
 
 
 @register_microservice(
-    name="opea_service@prepare_doc_pinecone_del", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6009
+    name="opea_service@prepare_doc_pinecone", endpoint="/v1/dataprep/delete_file", host="0.0.0.0", port=6007
 )
 async def delete_all(file_path: str = Body(..., embed=True)):
     """Delete file according to `file_path`.
@@ -288,7 +288,7 @@ async def delete_all(file_path: str = Body(..., embed=True)):
             logger.info("[dataprep - del] successfully delete all files.")
         create_upload_folder(upload_folder)
         if logflag:
-            logger.info({"status": True})
+            logger.info('{"status": True}')
         return {"status": True}
     else:
         raise HTTPException(status_code=404, detail="Single file deletion is not implemented yet")
@@ -297,5 +297,3 @@ async def delete_all(file_path: str = Body(..., embed=True)):
 if __name__ == "__main__":
     create_upload_folder(upload_folder)
     opea_microservices["opea_service@prepare_doc_pinecone"].start()
-    opea_microservices["opea_service@prepare_doc_pinecone_file"].start()
-    opea_microservices["opea_service@prepare_doc_pinecone_del"].start()

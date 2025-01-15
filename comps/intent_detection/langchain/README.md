@@ -56,13 +56,13 @@ export TGI_LLM_ENDPOINT="http://${your_ip}:8008"
 
 ```bash
 cd ../../../
-docker build --no-cache -t opea/llm-tgi:latest -f comps/intent_detection/langchain/Dockerfile .
+docker build --no-cache -t opea/intent-detection-tgi:latest -f comps/intent_detection/langchain/Dockerfile .
 ```
 
 ### 2.4 Run Docker with CLI (Option A)
 
 ```bash
-docker run -it --name="intent-tgi-server" --net=host --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/llm-tgi:latest
+docker run -it --name="intent-tgi-server" --net=host --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/intent-detection-tgi:latest
 ```
 
 ### 2.5 Run with Docker Compose (Option B)
@@ -83,6 +83,6 @@ Once intent detection microservice is started, user can use below command to inv
 ```bash
 curl http://${your_ip}:9000/v1/chat/intent\
   -X POST \
-  -d '{"query":"What is Deep Learning?","max_new_tokens":10,"top_k":1,"temperature":0.001,"streaming":false}' \
+  -d '{"query":"What is Deep Learning?","max_new_tokens":10,"top_k":1,"temperature":0.001,"stream":false}' \
   -H 'Content-Type: application/json'
 ```

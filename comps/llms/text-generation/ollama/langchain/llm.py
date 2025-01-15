@@ -19,7 +19,7 @@ logflag = os.getenv("LOGFLAG", False)
     host="0.0.0.0",
     port=9000,
 )
-def llm_generate(input: LLMParamsDoc):
+async def llm_generate(input: LLMParamsDoc):
     if logflag:
         logger.info(input)
     ollama = Ollama(
@@ -32,7 +32,7 @@ def llm_generate(input: LLMParamsDoc):
         repeat_penalty=input.repetition_penalty,
     )
     # assuming you have Ollama installed and have llama3 model pulled with `ollama pull llama3`
-    if input.streaming:
+    if input.stream:
 
         async def stream_generator():
             chat_response = ""
@@ -48,7 +48,7 @@ def llm_generate(input: LLMParamsDoc):
 
         return StreamingResponse(stream_generator(), media_type="text/event-stream")
     else:
-        response = ollama.invoke(input.query)
+        response = await ollama.ainvoke(input.query)
         if logflag:
             logger.info(response)
         return GeneratedDoc(text=response, prompt=input.query)

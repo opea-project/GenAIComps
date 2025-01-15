@@ -16,7 +16,7 @@ from comps import GeneratedDoc, LLMParamsDoc, ServiceType, opea_microservices, r
     host="0.0.0.0",
     port=9000,
 )
-def llm_generate(input: LLMParamsDoc):
+async def llm_generate(input: LLMParamsDoc):
     llm_endpoint = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
     llm = HuggingFaceEndpoint(
         endpoint_url=llm_endpoint,
@@ -26,7 +26,7 @@ def llm_generate(input: LLMParamsDoc):
         typical_p=input.typical_p,
         temperature=input.temperature,
         repetition_penalty=input.repetition_penalty,
-        streaming=input.streaming,
+        streaming=input.stream,
         timeout=600,
     )
 
@@ -35,7 +35,7 @@ def llm_generate(input: LLMParamsDoc):
 
     llm_chain = LLMChain(prompt=prompt, llm=llm)
 
-    response = llm_chain.invoke(input.query)
+    response = await llm_chain.ainvoke(input.query)
     response = response["text"]
     print("response", response)
     return GeneratedDoc(text=response, prompt=input.query)

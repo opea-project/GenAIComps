@@ -1,6 +1,6 @@
 # LLM Native Microservice
 
-LLM Native microservice uses [optimum-habana](https://github.com/huggingface/optimum-habana) for model initialization and warm-up, focusing solely on large language models (LLMs). It operates without frameworks like TGI/VLLM, using PyTorch directly for inference, and supports only non-streaming formats. This streamlined approach optimizes performance on Habana hardware.
+LLM Native microservice uses [optimum-habana](https://github.com/huggingface/optimum-habana) for model initialization and warm-up, focusing solely on large language models (LLMs). It operates without frameworks like TGI/VLLM, using PyTorch directly for inference, and supports only non-stream formats. This streamlined approach optimizes performance on Habana hardware.
 
 ## 🚀1. Start Microservice
 
@@ -10,16 +10,18 @@ If you start an LLM microservice with docker, the `docker_compose_llm.yaml` file
 
 In order to start Native LLM service, you need to setup the following environment variables first.
 
+For LLM model, both `Qwen` and `Falcon3` models are supported. Users can set different models by changing the `LLM_NATIVE_MODEL` below.
+
 ```bash
 export LLM_NATIVE_MODEL="Qwen/Qwen2-7B-Instruct"
+export HUGGINGFACEHUB_API_TOKEN="your_huggingface_token"
 ```
 
 ### 1.2 Build Docker Image
 
 ```bash
 cd ../../../../../
-docker build -t opea/llm-native:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/native/langchain
-Dockerfile .
+docker build -t opea/llm-native:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/text-generation/native/langchain/Dockerfile .
 ```
 
 To start a docker container, you have two options:

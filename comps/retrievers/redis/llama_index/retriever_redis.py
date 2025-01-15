@@ -5,7 +5,7 @@ import os
 
 from llama_index.core.vector_stores.types import VectorStoreQuery
 from llama_index.vector_stores.redis import RedisVectorStore
-from redis_config import INDEX_NAME, REDIS_URL
+from redis_config import REDIS_URL
 
 from comps import CustomLogger, EmbedDoc, SearchedDoc, ServiceType, TextDoc, opea_microservices, register_microservice
 
@@ -22,11 +22,11 @@ tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
     host="0.0.0.0",
     port=7000,
 )
-def retrieve(input: EmbedDoc) -> SearchedDoc:
+async def retrieve(input: EmbedDoc) -> SearchedDoc:
     if logflag:
         logger.info(input)
     vector_store_query = VectorStoreQuery(query_embedding=input.embedding)
-    search_res = vector_store.query(query=vector_store_query)
+    search_res = await vector_store.aquery(query=vector_store_query)
     searched_docs = []
     for node, id, similarity in zip(search_res.nodes, search_res.ids, search_res.similarities):
         searched_docs.append(TextDoc(text=node.get_content()))
