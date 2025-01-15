@@ -42,7 +42,7 @@ function start_service() {
 
     docker run -d --name="test-comps-retriever-pathway-ms" -p 5009:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LOGFLAG=true -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_PATHWAY" opea/retriever-pathway:comps
 
-    sleep 10s
+    sleep 2m
 }
 
 function validate_microservice() {
