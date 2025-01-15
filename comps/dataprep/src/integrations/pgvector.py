@@ -238,7 +238,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
     ):
-        """Ingest files/links content into redis database.
+        """Ingest files/links content into pgvector database.
 
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
@@ -293,7 +293,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
 
 
     async def get_files(self):
-        """Get file structure from redis database in the format of
+        """Get file structure from pgvector database in the format of
         {
             "name": "File Name",
             "id": "File Name",

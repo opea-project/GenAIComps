@@ -247,7 +247,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
     ):
-        """Ingest files/links content into redis database.
+        """Ingest files/links content into opensearch database.
 
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
@@ -354,7 +354,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
 
 
     async def get_files(self):
-        """Get file structure from redis database in the format of
+        """Get file structure from opensearch database in the format of
         {
             "name": "File Name",
             "id": "File Name",

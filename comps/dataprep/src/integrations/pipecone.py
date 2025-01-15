@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 from typing import List, Optional, Union
 
-from config import EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
@@ -58,7 +57,7 @@ class OpeaPineConeDataprep(OpeaComponent):
         else:
             # create embeddings using local embedding model
             self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
-        
+        self.pc = Pinecone(api_key=PINECONE_API_KEY)
 
         # Perform health check
         health_status = self.check_health()
@@ -67,17 +66,16 @@ class OpeaPineConeDataprep(OpeaComponent):
 
     def check_health(self) -> bool:
         """Checks the health of the Pinecone service."""
-        try:
-            self.pc = Pinecone(api_key=PINECONE_API_KEY)
-            return True
-        except psycopg2.Error as e:
-            if logflag:
-                logger.info(f"Error connect to Pinecone vectorstore: {e}")
+        if self.pc is None:
+            logger.error("Pinecone client is not initialized.")
             return False
 
+        try:
+            # Perform a simple health check via listing indexes
+            self.pc.list_indexes()
+            return True
         except Exception as e:
-            if logflag:
-                logger.info(f"An unexpected error occurred: {e}")
+            logger.error(f"Pinecone health check failed: {e}")
             return False
 
     def invoke(self, *args, **kwargs):
@@ -225,7 +223,7 @@ class OpeaPineConeDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
     ):
-        """Ingest files/links content into redis database.
+        """Ingest files/links content into pipecone database.
 
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
@@ -283,7 +281,7 @@ class OpeaPineConeDataprep(OpeaComponent):
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
     async def get_files(self):
-        """Get file structure from redis database in the format of
+        """Get file structure from pipecone database in the format of
         {
             "name": "File Name",
             "id": "File Name",

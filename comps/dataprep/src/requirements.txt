@@ -3,6 +3,7 @@ cairosvg
 docarray[full]
 docx2txt
 easyocr
+elasticsearch
 fastapi
 html2text
 huggingface_hub
@@ -12,6 +13,7 @@ langchain-text-splitters --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
 markdown
+moviepy
 numpy
 openai
 opensearch-py
@@ -20,6 +22,7 @@ opentelemetry-exporter-otlp
 opentelemetry-sdk
 pandas
 Pillow
+pinecone
 prometheus-fastapi-instrumentator
 psycopg2
 pymupdf
@@ -28,8 +31,11 @@ pytesseract
 python-bidi
 python-docx
 python-pptx
+qdrant_client
 redis
 sentence_transformers
 shortuuid
 unstructured[all-docs]
 uvicorn
+vdms
+webvtt-py
