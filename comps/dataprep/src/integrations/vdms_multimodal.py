@@ -34,10 +34,6 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.device = "cpu"
         self.upload_folder = "./uploaded_files/"
-        # Load embeddings model
-        logger.info("Initializing BridgeTower model as embedder...")
-        self.embeddings = BridgeTowerEmbedding(model_name=EMBED_MODEL, device=self.device)
-        logger.info("Done initialization of embedder!")
 
         # Perform health check
         health_status = self.check_health()
@@ -46,10 +42,6 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
 
     def check_health(self) -> bool:
         """Checks the health of the Multimodal Redis service."""
-        if self.graph is None:
-            logger.error("Neo4j graph is not initialized.")
-            return False
-
         return True
 
     def invoke(self, *args, **kwargs):
