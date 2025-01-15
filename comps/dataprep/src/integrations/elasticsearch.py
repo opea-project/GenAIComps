@@ -55,13 +55,23 @@ class OpeaElasticSearchDataprep(OpeaComponent):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.es_client = Elasticsearch(hosts=ES_CONNECTION_STRING)
         self.es_store = self.get_elastic_store(self.get_embedder())
-        self.create_upload_folder(UPLOADED_FILES_PATH)
         self.create_index()
 
         # Perform health check
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaElasticSearchDataprep health check failed.")
+
+    def check_health(self) -> bool:
+        """Checks the health of the ElasticSearch service."""
+        if self.es_client is None:
+            logger.error("ElasticSearch client is not initialized.")
+            return False
+
+        return True
+
+    def invoke(self, *args, **kwargs):
+        pass
 
     def create_index(self) -> None:
         if not self.es_client.indices.exists(index=INDEX_NAME):
