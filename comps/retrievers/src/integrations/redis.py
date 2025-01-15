@@ -60,6 +60,7 @@ class OpeaRedisRetriever(OpeaComponent):
         """Initializes the redis client."""
         try:
             if BRIDGE_TOWER_EMBEDDING:
+                logger.info(f"generate multimodal redis instance with {BRIDGE_TOWER_EMBEDDING}")
                 client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL)
             else:
                 client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
