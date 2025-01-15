@@ -11,6 +11,7 @@ langchain --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-community --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-experimental --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-openai --extra-index-url https://download.pytorch.org/whl/cpu
+langchain-pinecone --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-text-splitters --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-elasticsearch --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
