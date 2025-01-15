@@ -7,10 +7,18 @@ from typing import Union
 
 from langchain_community.vectorstores import Redis
 
-from comps import CustomLogger, EmbedDoc, EmbedMultimodalDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest
+from comps import (
+    CustomLogger,
+    EmbedDoc,
+    EmbedMultimodalDoc,
+    OpeaComponent,
+    OpeaComponentRegistry,
+    SearchedDoc,
+    ServiceType,
+)
+from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest, RetrievalResponse
 
-from .config import BRIDGE_TOWER_EMBEDDING, EMBED_MODEL, INDEX_NAME, REDIS_URL, TEI_EMBEDDING_ENDPOINT
+from .config import BRIDGE_TOWER_EMBEDDING, EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("redis_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -51,7 +59,10 @@ class OpeaRedisRetriever(OpeaComponent):
     def _initialize_client(self) -> Redis:
         """Initializes the redis client."""
         try:
-            client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
+            if BRIDGE_TOWER_EMBEDDING:
+                client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL)
+            else:
+                client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
             return client
         except Exception as e:
             logger.error(f"fail to initialize redis client: {e}")
@@ -74,13 +85,15 @@ class OpeaRedisRetriever(OpeaComponent):
             logger.info(f"[ health check ] Failed to connect to Redis: {e}")
             return False
 
-    async def invoke(self, input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]) -> list:
+    async def invoke(
+        self, input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
+    ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
         """Search the Redis index for the most similar documents to the input query.
 
         Args:
             input (Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]): The input query to search for.
         Output:
-            list: The retrieved documents.
+            Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]: The retrieved documents.
         """
         if logflag:
             logger.info(input)
