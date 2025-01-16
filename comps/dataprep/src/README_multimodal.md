@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ### 1.2 Start Redis Stack Server
 
-Please refer to this [readme](../../../../vectorstores/redis/README.md).
+Please refer to this [readme](../../../../third_parties/redis/src/README.md).
 
 ### 1.3 Setup Environment Variables
 
@@ -58,7 +58,7 @@ python prepare_videodoc_redis.py
 
 ### 2.1 Start Redis Stack Server
 
-Please refer to this [readme](../../../../vectorstores/redis/README.md).
+Please refer to this [readme](../../../../third_parties/redis/src/README.md).
 
 ### 2.2 Start LVM Microservice (Optional)
 
@@ -87,20 +87,20 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/multimodal/redis/langchain/Dockerfile .
+docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
 ### 2.5 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-multimodal-redis" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep-multimodal-redis:latest
+docker run -d --name="dataprep-multimodal-redis" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e MULTIMODAL_DATAPREP=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MULTIMODALREDIS" opea/dataprep-multimodal-redis:latest
 ```
 
 ### 2.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
 ```bash
 cd comps/dataprep/multimodal/redis/langchain
-docker compose -f docker-compose-dataprep-redis.yaml up -d
+docker compose -f compose_redis_multimodal.yaml up -d
 ```
 
 ## 🚀3. Status Microservice

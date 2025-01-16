@@ -18,7 +18,7 @@ pip install -r requirements.txt
 
 ### 1.2 Start OpenSearch Stack Server
 
-Please refer to this [readme](../../vectorstores/opensearch/README.md).
+Please refer to this [readme](../../third_parties/opensearch/src/README.md).
 
 ### 1.3 Setup Environment Variables
 
@@ -69,7 +69,7 @@ python prepare_doc_opensearch.py
 
 ### 2.1 Start OpenSearch Stack Server
 
-Please refer to this [readme](../../vectorstores/opensearch/README.md).
+Please refer to this [readme](../../third_parties/opensearch/src/README.md).
 
 ### 2.2 Setup Environment Variables
 
@@ -89,7 +89,7 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ```bash
 cd ../../
-docker build -t opea/dataprep-opensearch:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/opensearch/langchain/Dockerfile .
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
 ### 2.4 Run Docker with CLI (Option A)
@@ -97,16 +97,16 @@ docker build -t opea/dataprep-opensearch:latest --build-arg https_proxy=$https_p
 - option 1: Start single-process version (for processing up to 10 files)
 
 ```bash
-docker run -d --name="dataprep-opensearch-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e OPENSEARCH_URL=$OPENSEARCH_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep-opensearch:latest
+docker run -d --name="dataprep-opensearch-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e OPENSEARCH_URL=$OPENSEARCH_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_OPENSEARCH" opea/dataprep:latest
 ```
 
 ### 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
 ```bash
 # for langchain
-cd comps/dataprep/opensearch/langchain
+cd comps/dataprep/deployment/docker_compose
 # common command
-docker compose -f docker-compose-dataprep-opensearch.yaml up -d
+docker compose -f compose_opensearch.yaml up -d
 ```
 
 ## 🚀3. Status Microservice

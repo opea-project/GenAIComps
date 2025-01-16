@@ -119,6 +119,9 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             logger.error(f"[ health check ] Failed to connect to OpenSearch: {e}")
             return False
 
+    def invoke(self, *args, **kwargs):
+        pass
+
     def check_index_existence(self, client, index_name):
         """Check if an index exists in OpenSearch."""
         try:

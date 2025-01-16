@@ -5,8 +5,11 @@ docx2txt
 easyocr
 elasticsearch
 fastapi
+future
+graspologic 
 html2text
 huggingface_hub
+ipython
 langchain --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-community --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-elasticsearch --extra-index-url https://download.pytorch.org/whl/cpu
@@ -16,6 +19,12 @@ langchain-pinecone --extra-index-url https://download.pytorch.org/whl/cpu
 langchain-text-splitters --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
 langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
+llama-index 
+llama-index-core
+llama-index-embeddings-text-embeddings-inference
+llama-index-llms-openai
+llama-index-llms-text-generation-inference
+llama_index_graph_stores_neo4j==0.3.3
 markdown
 moviepy
 neo4j
@@ -41,6 +50,7 @@ python-docx
 python-pptx
 qdrant-client
 redis
+scipy
 sentence_transformers
 shortuuid
 tiktoken

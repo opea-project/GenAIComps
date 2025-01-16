@@ -13,7 +13,7 @@ apt-get install poppler-utils -y
 
 ### 1.2 Start Milvus Server
 
-Please refer to this [readme](../../../vectorstores/milvus/README.md).
+Please refer to this [readme](../../../third_parties/milvus/src/README.md).
 
 ### 1.3 Setup Environment Variables
 
@@ -56,14 +56,14 @@ python prepare_doc_milvus.py
 
 ### 2.1 Start Milvus Server
 
-Please refer to this [readme](../../../vectorstores/milvus/README.md).
+Please refer to this [readme](../../../third_parties/milvus/src/README.md).
 
 ### 2.2 Build Docker Image
 
 ```bash
 cd ../../..
 # build dataprep milvus docker image
-docker build -t opea/dataprep-milvus:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/milvus/langchain/Dockerfile .
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
 ### 2.3 Setup Environment Variables
@@ -76,7 +76,7 @@ export MILVUS_HOST=${your_host_ip}
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} opea/dataprep-milvus:latest
+docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MILVUS" opea/dataprep:latest
 ```
 
 ### 2.4 Run with Docker Compose (Option B)
@@ -88,7 +88,7 @@ git clone https://huggingface.co/BAAI/bge-base-en-v1.5
 cd ../
 # Update `host_ip` and  `HUGGINGFACEHUB_API_TOKEN` in set_env.sh
 . set_env.sh
-docker compose -f docker-compose-dataprep-milvus.yaml up -d
+docker compose -f compose_milvus.yaml up -d
 ```
 
 ## 🚀3. Consume Microservice

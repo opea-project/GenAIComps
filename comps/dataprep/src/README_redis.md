@@ -33,7 +33,7 @@ cd langchain_ray; pip install -r requirements_ray.txt
 
 ### 1.2 Start Redis Stack Server
 
-Please refer to this [readme](../../vectorstores/redis/README.md).
+Please refer to this [readme](../../third_parties/redis/src/README.md).
 
 ### 1.3 Setup Environment Variables
 
@@ -90,7 +90,7 @@ python prepare_doc_redis_on_ray.py
 
 ### 2.1 Start Redis Stack Server
 
-Please refer to this [readme](../../vectorstores/redis/README.md).
+Please refer to this [readme](../../third_parties/redis/src/README.md).
 
 ### 2.2 Setup Environment Variables
 
@@ -104,54 +104,25 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ### 2.3 Build Docker Image
 
-- Build docker image with langchain
-
-- option 1: Start single-process version (for 1-10 files processing)
-
 ```bash
 cd ../../
-docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain/Dockerfile .
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
-- Build docker image with llama_index
-
-```bash
-cd ../../
-docker build -t opea/dataprep-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/llama_index/Dockerfile .
-```
-
-- option 2: Start multi-process version (for >10 files processing)
-
-```bash
-cd ../../../
-docker build -t opea/dataprep-on-ray-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/redis/langchain_ray/Dockerfile .
-```
 
 ### 2.4 Run Docker with CLI (Option A)
 
-- option 1: Start single-process version (for 1-10 files processing)
 
 ```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep-redis:latest
-```
-
-- option 2: Start multi-process version (for >10 files processing)
-
-```bash
-docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e TIMEOUT_SECONDS=600 opea/dataprep-on-ray-redis:latest
+docker run -d --name="dataprep-redis-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep:latest
 ```
 
 ### 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
 ```bash
-# for langchain
-cd comps/dataprep/redis/langchain
-# for langchain_ray
-cd comps/dataprep/redis/langchain_ray
-# for llama_index
-cd comps/dataprep/redis/llama_index
-# common command
-docker compose -f docker-compose-dataprep-redis.yaml up -d
+
+cd comps/deployment/docker_compose
+docker compose -f compose_redis.yaml up -d
 ```
 
 ## 🚀3. Status Microservice

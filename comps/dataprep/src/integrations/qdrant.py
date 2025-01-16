@@ -64,8 +64,8 @@ class OpeaQdrantDataprep(OpeaComponent):
 
     def check_health(self) -> bool:
         """Checks the health of the Qdrant service."""
-        if self.pc is None:
-            logger.error("Qdrant client is not initialized.")
+        if self.embedder is None:
+            logger.error("Qdrant embedder is not initialized.")
             return False
 
         try:

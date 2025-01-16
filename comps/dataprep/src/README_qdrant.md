@@ -13,7 +13,7 @@ apt-get install poppler-utils -y
 
 ### Start Qdrant Server
 
-Please refer to this [readme](../../../vectorstores/qdrant/README.md).
+docker run -p 6333:6333 -p 6334:6334 -v ./qdrant_storage:/qdrant/storage:z qdrant/qdrant
 
 ### Setup Environment Variables
 
@@ -41,13 +41,13 @@ python prepare_doc_qdrant.py
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-qdrant:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/qdrant/langchain/Dockerfile .
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
 ### Run Docker with CLI
 
 ```bash
-docker run -d --name="dataprep-qdrant-server" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/dataprep-qdrant:latest
+docker run -d --name="dataprep-qdrant-server" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_QDRANT" opea/dataprep:latest
 ```
 
 ### Setup Environment Variables
@@ -63,8 +63,8 @@ export COLLECTION_NAME=${your_collection_name}
 ### Run Docker with Docker Compose
 
 ```bash
-cd comps/dataprep/qdrant/langchain
-docker compose -f docker-compose-dataprep-qdrant.yaml up -d
+cd comps/dataprep/deployment/docker_compose
+docker compose -f compose_qdrant.yaml up -d
 ```
 
 ## Invoke Microservice

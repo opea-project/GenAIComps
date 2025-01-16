@@ -40,4 +40,4 @@ USER user
 
 WORKDIR /home/user/comps/dataprep/src
 
-ENTRYPOINT ["sh", "-c", "python $( [ \"$MULTIMODAL_DATAPREP\" = \"true\" ] && echo 'opea_multimodal_dataprep_microservice.py' || echo 'opea_dataprep_microservice.py')"]
+ENTRYPOINT ["sh", "-c", "python $( [ \"$MULTIMODAL_DATAPREP\" = \"true\" ] && echo 'opea_dataprep_multimodal_microservice.py' || echo 'opea_dataprep_microservice.py')"]

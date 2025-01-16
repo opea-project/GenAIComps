@@ -17,7 +17,7 @@ export INDEX_NAME=${your_index_name}
 
 ### 1.3 Start PGVector
 
-Please refer to this [readme](../../../vectorstores/pgvector/README.md).
+Please refer to this [readme](../../../third_parties/pgvector/src/README.md).
 
 ### 1.4 Start Document Preparation Microservice for PGVector with Python Script
 
@@ -31,7 +31,7 @@ python prepare_doc_pgvector.py
 
 ### 2.1 Start PGVector
 
-Please refer to this [readme](../../../vectorstores/pgvector/README.md).
+Please refer to this [readme](../../../third_parties/pgvector/src/README.md).
 
 ### 2.2 Setup Environment Variables
 
@@ -44,20 +44,20 @@ export INDEX_NAME=${your_index_name}
 
 ```bash
 cd GenAIComps
-docker build -t opea/dataprep-pgvector:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/pgvector/langchain/Dockerfile .
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
 ### 2.4 Run Docker with CLI (Option A)
 
 ```bash
-docker run  --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=$PG_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT opea/dataprep-pgvector:latest
+docker run  --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=$PG_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_PGVECTOR" opea/dataprep:latest
 ```
 
 ### 2.5 Run with Docker Compose (Option B)
 
 ```bash
-cd comps/dataprep/pgvector/langchain
-docker compose -f docker-compose-dataprep-pgvector.yaml up -d
+cd comps/dataprep/deployment/docker_compose
+docker compose -f compose_pgvector.yaml up -d
 ```
 
 ## 🚀3. Consume Microservice
