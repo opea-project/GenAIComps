@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import contextlib
 import copy
 import json
 import os
@@ -14,7 +15,6 @@ import requests
 from fastapi.responses import StreamingResponse
 from prometheus_client import Gauge, Histogram
 from pydantic import BaseModel
-import contextlib
 
 from ..proto.docarray import LLMParams
 from ..telemetry.opea_telemetry import opea_telemetry, tracer
@@ -171,9 +171,13 @@ class ServiceOrchestrator(DAG):
 
     def wrap_iterable(self, iterable, is_first=True):
 
-        with tracer.start_as_current_span(f"llm_generate_stream"):
+        with tracer.start_as_current_span("llm_generate_stream"):
             while True:
-                with tracer.start_as_current_span(f"llm_generate_stream_first_token") if is_first else contextlib.nullcontext(): #  else tracer.start_as_current_span(f"llm_generate_stream_next_token")
+                with (
+                    tracer.start_as_current_span("llm_generate_stream_first_token")
+                    if is_first
+                    else contextlib.nullcontext()
+                ):  #  else tracer.start_as_current_span(f"llm_generate_stream_next_token")
                     try:
                         token = next(iterable)
                         yield token
@@ -282,9 +286,7 @@ class ServiceOrchestrator(DAG):
                 response = await session.post(endpoint, json=input_data)
             if response.content_type == "audio/wav":
                 audio_data = await response.read()
-                data = self.align_outputs(
-                    audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs
-                )
+                data = self.align_outputs(audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)
             else:
                 # Parse as JSON
                 data = await response.json()
