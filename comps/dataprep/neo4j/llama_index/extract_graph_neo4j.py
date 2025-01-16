@@ -5,6 +5,9 @@
 import asyncio
 import json
 import os
+# Add the directory containing config.py to the Python path
+import sys
+sys.path.append(os.path.dirname(__file__))
 
 # GraphRAGStore dependencies
 import re
