@@ -4,7 +4,7 @@
 from typing import Any
 
 import motor.motor_asyncio as motor
-from config import DB_NAME, MONGO_HOST, MONGO_PORT
+from comps.chathistory.src.integrations.mongo.config import MONGO_HOST, MONGO_PORT, DB_NAME
 
 
 class MongoClient:
