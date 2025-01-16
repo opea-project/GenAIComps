@@ -78,11 +78,10 @@ export PYTHONPATH=${path_to_comps}
 
 ### 2.3 Build Docker Image
 
-  ```bash
-  cd ../../../
-  docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
-  ```
-
+```bash
+cd ../../../
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+```
 
 ### 2.4 Run Docker with CLI
 
