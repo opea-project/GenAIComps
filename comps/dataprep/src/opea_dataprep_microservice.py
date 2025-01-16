@@ -9,7 +9,7 @@ from typing import List, Optional, Union
 from fastapi import Body, File, Form, UploadFile
 from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.milvus import OpeaMilvusDataprep
-from integrations.neo4j import OpeaNeo4jDataprep
+from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
 from integrations.opensearch import OpeaOpenSearchDataprep
 from integrations.pgvector import OpeaPgvectorDataprep
 from integrations.pipecone import OpeaPineConeDataprep
