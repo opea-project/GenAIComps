@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -13,7 +13,7 @@ function build_docker_images() {
     docker build --no-cache -t opea/bedrock:latest \
         --build-arg https_proxy=$https_proxy \
         --build-arg http_proxy=$http_proxy \
-        -f comps/llms/text-generation/bedrock/Dockerfile .
+        -f comps/llms/src/text-generation/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/bedrock:latest built fail"
         exit 1
@@ -29,14 +29,32 @@ function start_service() {
         exit 1
     fi
 
-    docker run -d --name="bedrock-test" \
-        -p 9009:9000 \
-        --ipc=host \
-        -e http_proxy=$http_proxy \
-        -e https_proxy=$https_proxy \
-        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-        opea/bedrock:latest
+    # If session token is set, include it as an environment variable
+
+    if [ ! -z "$AWS_SESSION_TOKEN" ]; then
+        echo "Detected AWS_SESSION_TOKEN, treating credentials as IAM Role"
+        docker run -d --name="bedrock-test" \
+            -p 9009:9000 \
+            --ipc=host \
+            -e http_proxy=$http_proxy \
+            -e https_proxy=$https_proxy \
+            -e LLM_COMPONENT_NAME="OpeaTextGenBedrock" \
+            -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+            -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+            -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN} \
+            opea/bedrock:latest
+    else
+        echo "Did not detect AWS_SESSION_TOKEN, treating credentials as IAM User"
+        docker run -d --name="bedrock-test" \
+            -p 9009:9000 \
+            --ipc=host \
+            -e http_proxy=$http_proxy \
+            -e https_proxy=$https_proxy \
+            -e LLM_COMPONENT_NAME="OpeaTextGenBedrock" \
+            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+            -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+            opea/bedrock:latest
+    fi
 
     # Give the service time to start
     sleep 10s
