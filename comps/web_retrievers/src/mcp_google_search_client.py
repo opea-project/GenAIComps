@@ -72,7 +72,7 @@ class MCPClient:
 
         response = await self.session.list_tools()
 <<<<<<< HEAD:comps/web_retrievers/src/mcp_google_search_client.py
-        available_tools = [{ 
+        available_tools = [{
             "name": tool.name,
             "description": tool.description,
             "input_schema": tool.inputSchema
