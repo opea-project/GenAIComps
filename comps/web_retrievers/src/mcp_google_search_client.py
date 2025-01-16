@@ -71,19 +71,10 @@ class MCPClient:
         messages = [{"role": "user", "content": query}]
 
         response = await self.session.list_tools()
-<<<<<<< HEAD:comps/web_retrievers/src/mcp_google_search_client.py
-        available_tools = [{ 
-            "name": tool.name,
-            "description": tool.description,
-            "input_schema": tool.inputSchema
-        } for tool in response.tools]
-=======
         available_tools = [
             {"name": tool.name, "description": tool.description, "input_schema": tool.inputSchema}
             for tool in response.tools
         ]
-        # print(available_tools)
->>>>>>> 0e2891343fb69a40ea32e1a4e2bf52f58e653b6b:comps/mcp_google_search/src/google_search/client.py
 
         tool_names = [tool["name"] for tool in available_tools]
 

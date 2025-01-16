@@ -7,3 +7,7 @@ services:
     build:
       dockerfile: comps/web_retrievers/src/Dockerfile
     image: ${REGISTRY:-opea}/web-retriever:${TAG:-latest}
+  web-retriever:
+    build:
+      dockerfile: comps/web_retrievers/src/Dockerfile.mcp
+    image: ${REGISTRY:-opea}/web-retriever-mcp:${TAG:-latest}
