@@ -59,8 +59,8 @@ cd ../../..
 docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/web-retrievers-mcp:latest -f comps/web_retrievers/src/Dockerfile.mcp .
 ```
 
-
 ### Start the services
+
 ```bash
 export host_ip=$(hostname -I | awk '{print $1}')
 
