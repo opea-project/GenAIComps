@@ -43,7 +43,6 @@ tracer = trace.get_tracer(__name__)
 
 
 def opea_telemetry(func):
-    print(f"[*** telemetry ***] {func.__name__} under telemetry.")
     if inspect.iscoroutinefunction(func):
 
         @wraps(func)
