@@ -2,25 +2,25 @@
 # SPDX-License-Identifier: Apache-2.0
 # Adapt from https://github.com/modelcontextprotocol/quickstart-resources/blob/main/weather-server-python/src/weather/server.py
 
+import asyncio
 import os
 
-from mcp.server.models import InitializationOptions
-import mcp.types as types
-from mcp.server import NotificationOptions, Server
 import mcp.server.stdio
-import asyncio
-
+import mcp.types as types
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import AsyncHtmlLoader
 from langchain_community.document_transformers import Html2TextTransformer
 from langchain_community.utilities import GoogleSearchAPIWrapper
-
+from mcp.server import NotificationOptions, Server
+from mcp.server.models import InitializationOptions
 
 server = Server("google-search")
+
+
 @server.list_tools()
 async def handle_list_tools() -> list[types.Tool]:
-    """
-    List available tools.
+    """List available tools.
+
     Each tool specifies its arguments using JSON Schema validation.
     """
     return [
@@ -34,30 +34,23 @@ async def handle_list_tools() -> list[types.Tool]:
                         "type": "string",
                         "description": "Query from the user.",
                     },
-                    "num_results": {
-                        "type": "number",
-                        "description": "How many urls to look up."
-                    },
-                    "google_api_key": {
-                        "type": "string",
-                        "description": "Google API KEY."
-                    },
-                    "google_cse_id": {
-                        "type": "string",
-                        "description": "Google CSE ID."
-                    }
+                    "num_results": {"type": "number", "description": "How many urls to look up."},
+                    "google_api_key": {"type": "string", "description": "Google API KEY."},
+                    "google_cse_id": {"type": "string", "description": "Google CSE ID."},
                 },
                 "required": ["query", "google_api_key", "google_cse_id"],
             },
         ),
     ]
 
+
 @server.call_tool()
 async def handle_call_tool(
-    name: str, arguments: dict | None,
+    name: str,
+    arguments: dict | None,
 ) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
-    """
-    Handle tool execution requests.
+    """Handle tool execution requests.
+
     Tools can fetch google results based on the query.
     """
     if not arguments:
@@ -72,7 +65,7 @@ async def handle_call_tool(
             if not query:
                 raise ValueError("Missing query parameter")
             search = GoogleSearchAPIWrapper(
-                    google_api_key=arguments.get("google_api_key"), google_cse_id=arguments.get("google_cse_id"), k=10
+                google_api_key=arguments.get("google_api_key"), google_cse_id=arguments.get("google_cse_id"), k=10
             )
             search_results = search.results(query, num_results)
             urls_to_look = []
@@ -93,21 +86,12 @@ async def handle_call_tool(
             page_content = [k[0] for k in unique_documents_dict.keys()]
 
             # return the retrieved docs as context directly
-            return [
-                    types.TextContent(
-                        type="text",
-                        text="\n".join(page_content)
-                    )
-                ]
+            return [types.TextContent(type="text", text="\n".join(page_content))]
         except Exception as e:
-            return [
-                    types.TextContent(
-                        type="text",
-                        text=str(e)
-                    )
-                ]
+            return [types.TextContent(type="text", text=str(e))]
     else:
         raise ValueError(f"Unknown tool: {name}")
+
 
 async def main():
     # Run the server using stdin/stdout streams
@@ -124,6 +108,7 @@ async def main():
                 ),
             ),
         )
+
 
 if __name__ == "__main__":
     asyncio.run(main())

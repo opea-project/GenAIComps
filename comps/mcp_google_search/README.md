@@ -9,8 +9,8 @@ cd ../../../..
 docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/mcp-google-search:latest -f comps/mcp_google_search/Dockerfile .
 ```
 
-
 ## Start the services
+
 ```bash
 export host_ip=$(hostname -I | awk '{print $1}')
 
