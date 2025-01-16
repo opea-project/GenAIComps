@@ -6,7 +6,15 @@ import os
 import time
 from typing import Union
 
+# import for retrievers component registration
+from integrations.elasticsearch import OpeaElasticsearchRetriever
 from integrations.milvus import OpeaMilvusRetriever
+from integrations.neo4j import OpeaNeo4jRetriever
+from integrations.opensearch import OpeaOpensearchRetriever
+from integrations.pathway import OpeaPathwayRetriever
+from integrations.pgvector import OpeaPGVectorRetriever
+from integrations.pinecone import OpeaPineconeRetriever
+from integrations.qdrant import OpeaQDrantRetriever
 from integrations.redis import OpeaRedisRetriever
 
 from comps import (
@@ -66,6 +74,12 @@ async def ingest_files(
         if isinstance(input, EmbedDoc) or isinstance(input, EmbedMultimodalDoc):
             metadata_list = []
             for r in response:
+                # If the input had an image, pass that through in the metadata along with the search result image
+                if isinstance(input, EmbedMultimodalDoc) and input.base64_image:
+                    if r.metadata["b64_img_str"]:
+                        r.metadata["b64_img_str"] = [input.base64_image, r.metadata["b64_img_str"]]
+                    else:
+                        r.metadata["b64_img_str"] = input.base64_image
                 metadata_list.append(r.metadata)
                 retrieved_docs.append(TextDoc(text=r.page_content))
             result = SearchedMultimodalDoc(
@@ -73,7 +87,10 @@ async def ingest_files(
             )
         else:
             for r in response:
-                retrieved_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
+                if isinstance(r, str):
+                    retrieved_docs.append(RetrievalResponseData(text=r, metadata=None))
+                else:
+                    retrieved_docs.append(RetrievalResponseData(text=r.page_content, metadata=r.metadata))
             if isinstance(input, RetrievalRequest):
                 result = RetrievalResponse(retrieved_docs=retrieved_docs)
             elif isinstance(input, ChatCompletionRequest):
