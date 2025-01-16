@@ -29,7 +29,6 @@ Following details are to be provided
         a. Dimensions
         b. Metric
 
-
 ### Setup Environment Variables
 
 ```bash
