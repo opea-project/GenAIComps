@@ -7,6 +7,8 @@ from bson.objectid import ObjectId
 
 from comps.chathistory.src.integrations.mongo.config import COLLECTION_NAME
 from comps.chathistory.src.integrations.mongo.mongo_conn import MongoClient
+
+
 class DocumentStore:
 
     def __init__(
