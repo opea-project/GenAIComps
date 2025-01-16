@@ -15,10 +15,10 @@ langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
 llama-index-core
 llama-index-embeddings-openai
 llama-index-embeddings-text-embeddings-inference
-llama_index_graph_stores_neo4j
 llama-index-llms-openai
 llama-index-llms-openai-like
 llama-index-llms-text-generation-inference
+llama_index_graph_stores_neo4j
 neo4j
 numpy
 opensearch-py

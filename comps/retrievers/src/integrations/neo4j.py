@@ -4,6 +4,7 @@
 
 import os
 import re
+import time
 from typing import Union
 
 import openai
@@ -17,13 +18,14 @@ from llama_index.llms.openai import OpenAI
 from llama_index.llms.openai_like import OpenAILike
 from neo4j import GraphDatabase
 from pydantic import PrivateAttr
-import time
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalResponseData
 from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, get_attribute_from_tgi_endpoint
 
 from .config import (
+    LLM_MODEL_ID,
+    MAX_OUTPUT_TOKENS,
     NEO4J_PASSWORD,
     NEO4J_URL,
     NEO4J_USERNAME,
@@ -32,8 +34,6 @@ from .config import (
     OPENAI_LLM_MODEL,
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
-    LLM_MODEL_ID,
-    MAX_OUTPUT_TOKENS,
 )
 
 logger = CustomLogger("neo4j_retrievers")
@@ -71,9 +71,9 @@ class GraphRAGQueryEngine(CustomQueryEngine):
             batch_answers = self.generate_batch_answers_from_summaries(batch_summaries, query_str)
             community_answers.extend(batch_answers)
         # Convert answers to RetrievalResponseData objects
-        #response_data = [RetrievalResponseData(text=answer, metadata={}) for answer in community_answers]
-        #logger.info(f"custom_query output result type {type(response_data)}")
-        #return response_data
+        # response_data = [RetrievalResponseData(text=answer, metadata={}) for answer in community_answers]
+        # logger.info(f"custom_query output result type {type(response_data)}")
+        # return response_data
         return community_answers
 
     def get_entities(self, query_str, similarity_top_k):
@@ -201,6 +201,7 @@ graph_store = None
 query_engine = None
 index = None
 
+
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_NEO4J")
 class OpeaNeo4jRetriever(OpeaComponent):
     """A specialized retriever component derived from OpeaComponent for neo4j retriever services.
@@ -216,9 +217,10 @@ class OpeaNeo4jRetriever(OpeaComponent):
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaNeo4jRetriever health check failed.")
+
     def _initialize_client(self):
         """Initializes the neo4j client."""
-    #async def initialize_graph_store_and_index():
+        # async def initialize_graph_store_and_index():
         global graph_store, index, initialized, query_engine
         if OPENAI_API_KEY:
             logger.info("OpenAI API Key is set. Verifying its validity...")
@@ -296,7 +298,7 @@ class OpeaNeo4jRetriever(OpeaComponent):
         """Search the Neo4j index for the most similar documents to the input query.
 
         Args:
-            input (ChatCompletionRequest): 
+            input (ChatCompletionRequest):
         Output:
             ChatCompletionRequest: The retrieved documents.
         """
