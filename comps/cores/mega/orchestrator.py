@@ -216,14 +216,15 @@ class ServiceOrchestrator(DAG):
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
-            response = requests.post(
-                url=endpoint,
-                data=json.dumps(inputs),
-                headers={"Content-type": "application/json"},
-                proxies={"http": None},
-                stream=True,
-                timeout=1000,
-            )
+            with tracer.start_as_current_span(f"{cur_node}_asyn_generate"):
+                response = requests.post(
+                    url=endpoint,
+                    data=json.dumps(inputs),
+                    headers={"Content-type": "application/json"},
+                    proxies={"http": None},
+                    stream=True,
+                    timeout=1000,
+                )
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
