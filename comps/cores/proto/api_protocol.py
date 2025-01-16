@@ -275,6 +275,7 @@ class DocSumChatCompletionRequest(ChatCompletionRequest):
     chunk_overlap: int = -1
     type: Optional[str] = None
 
+
 class AudioChatCompletionRequest(BaseModel):
     audio: str
     voice: str = "default"
