@@ -31,8 +31,7 @@ from neo4j import GraphDatabase
 from openai import Client
 from transformers import AutoTokenizer
 
-from comps import CustomLogger, DocPath, OpeaComponentRegistry, OpeaComponent, ServiceType
-
+from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
     document_loader,
     encode_filename,
@@ -52,7 +51,6 @@ from llama_index.core.llms.llm import LLM
 from llama_index.core.prompts import PromptTemplate
 from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_PROMPT
 from llama_index.core.schema import BaseNode, TransformComponent
-
 
 host_ip = os.getenv("host_ip")
 # Neo4J configuration
@@ -559,7 +557,6 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-
     def ingest_data_to_neo4j(self, doc_path: DocPath):
         """Ingest document to Neo4J."""
         path = doc_path.path
@@ -623,7 +620,6 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
 
         return index
 
-
     def build_communities(self, index: PropertyGraphIndex):
         try:
             index.property_graph_store.build_communities()
@@ -632,7 +628,6 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
         except Exception as e:
             logger.error(f"Error building communities: {e}")
         return True
-
 
     async def ingest_files(
         self,
