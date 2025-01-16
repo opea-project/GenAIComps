@@ -47,3 +47,49 @@ http_proxy= curl http://${your_ip}:7077/v1/web_retrieval \
   -d "{\"text\":\"What is The Game of the Year 2024?\",\"embedding\":${your_embedding},\"k\":4}" \
   -H 'Content-Type: application/json'
 ```
+
+## MCP Web Retriever Microservice (Experimental)
+
+We also provide a simple web retriever server and a client based on the Model-Context-Protocol protocol. Please refer to [mcp](https://modelcontextprotocol.io/quickstart/server) for details.
+
+### Build MCP Google Search web retriever image
+
+```bash
+cd ../../..
+docker build --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/web-retrievers-mcp:latest -f comps/web_retrievers/src/Dockerfile.mcp .
+```
+
+
+### Start the services
+```bash
+export host_ip=$(hostname -I | awk '{print $1}')
+
+export OLLAMA_MODEL=qwen2.5-coder
+export GOOGLE_API_KEY=$GOOGLE_API_KEY
+export GOOGLE_CSE_ID=$GOOGLE_CSE_ID
+export OLLAMA_ENDPOINT=http://${host_ip}:11434
+
+systemctl stop ollama.service # docker will start ollama instead, make sure there are no port conflicts
+cd comps/web_retrievers/deployment/docker_compose
+docker compose -f compose_web_retrievers_mcp.yaml up -d
+```
+
+### Run the client
+
+```bash
+docker exec -it web-retrievers-mcp bash
+
+python mcp_google_search_client.py mcp_google_search_server.py
+
+# Output log will be like following
+# USER_AGENT environment variable not set, consider setting it to identify your requests.
+
+# Connected to server with tools: ['get-google-search-answer']
+
+# MCP Client Started!
+# Type your queries or 'quit' to exit.
+
+# Query: search some latest sports news
+# ...
+# ...
+```

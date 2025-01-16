@@ -4,12 +4,13 @@ FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS uv
 RUN apt-get update && apt-get install -y --no-install-recommends git
 
 COPY comps /home/user/comps
-WORKDIR /home/user/comps/mcp_google_search
+WORKDIR /home/user/comps/web_retrievers/src
 
 # Install all dependencies in pyproject.toml
 RUN uv venv
 # equivalent to source .venv/bin/activate
-ENV PATH="/home/user/comps/mcp_google_search/.venv/bin:${PATH}"
+# setup with dependencies in pyproject.toml
+ENV PATH="/home/user/comps/web_retrievers/src/.venv/bin:${PATH}"
 RUN uv sync
 
 ENTRYPOINT ["sleep", "infinity"]

@@ -75,7 +75,6 @@ class MCPClient:
             "description": tool.description,
             "input_schema": tool.inputSchema
         } for tool in response.tools]
-        # print(available_tools)
 
         tool_names = [tool['name'] for tool in available_tools]
 

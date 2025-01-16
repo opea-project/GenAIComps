@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  mcp-google-search:
-    image: opea/mcp-google-search:latest
-    container_name: mcp-google-search
+  web-retrievers-mcp:
+    image: opea/web-retrievers-mcp:latest
+    container_name: web-retrievers-mcp
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
