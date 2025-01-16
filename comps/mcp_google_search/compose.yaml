@@ -1,0 +1,33 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  mcp-google-search:
+    image: opea/mcp-google-search:latest
+    container_name: mcp-google-search
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      OLLAMA_ENDPOINT: ${OLLAMA_ENDPOINT}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      GOOGLE_CSE_ID: ${GOOGLE_CSE_ID}
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    entrypoint: ["bash", "-c"]
+    command: ["ollama serve & sleep 10 && ollama run ${OLLAMA_MODEL} & wait"]
+    environment:
+      no_proxy: ${no_proxy}
+      https_proxy: ${https_proxy}
+      OLLAMA_MODEL: ${OLLAMA_MODEL}
+volumes:
+  ollama:
+
+networks:
+  default:
+    driver: bridge
