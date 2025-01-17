@@ -94,7 +94,7 @@ INDEX_NAME = os.getenv("INDEX_NAME", "mm-rag-redis")
 
 current_file_path = os.path.abspath(__file__)
 parent_dir = os.path.dirname(current_file_path)
-REDIS_SCHEMA = os.getenv("REDIS_SCHEMA", os.path.join(os.path.dirname(os.path.abspath(__file__)), "./utils/schema.yml"))
+REDIS_SCHEMA = os.getenv("REDIS_SCHEMA", "./config/schema.yml")
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
 schema_path = os.path.join(parent_dir, REDIS_SCHEMA)
 INDEX_SCHEMA = schema_path
@@ -539,7 +539,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) or audio (.wav) file.")
 
-    async def ingest_generate_caption(self, files: List[UploadFile] = File(None)):
+    async def ingest_generate_captions(self, files: List[UploadFile] = File(None)):
         """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
 
         if files:
