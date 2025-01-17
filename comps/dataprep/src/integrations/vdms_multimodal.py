@@ -97,8 +97,8 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
 
     async def ingest_videos(self, files: List[UploadFile] = File(None)):
         """Ingest videos to VDMS."""
-
-        config = read_config("./config/config.yaml")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        config = read_config(os.path.join(current_dir, "./config/config.yaml"))
         meanclip_cfg = {
             "model_name": config["embeddings"]["vclip_model_name"],
             "num_frm": config["embeddings"]["vclip_num_frm"],
@@ -136,17 +136,16 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
 
         # Creating DB
         logger.info(
-            "Creating DB with video embedding and metadata support, \nIt may take few minutes to download and load all required models if you are running for first time.",
-            flush=True,
+            "Creating DB with video embedding and metadata support, \nIt may take few minutes to download and load all required models if you are running for first time."
         )
-        logger.info("Connecting to {} at {}:{}".format(selected_db, host, port), flush=True)
+        logger.info("Connecting to {} at {}:{}".format(selected_db, host, port))
 
         # init meanclip model
         model = self.setup_vclip_model(meanclip_cfg, device="cpu")
         vs = store_embeddings.VideoVS(
             host, port, selected_db, model, collection_name, embedding_dimensions=vector_dimensions
         )
-        logger.info("done creating DB, sleep 5s", flush=True)
+        logger.info("done creating DB, sleep 5s")
         time.sleep(5)
 
         self.generate_embeddings(config, vector_dimensions, vs)
@@ -155,7 +154,8 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
 
     async def get_videos(self):
         """Returns list of names of uploaded videos saved on the server."""
-        config = read_config("./config/config.yaml")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        config = read_config(os.path.join(current_dir, "./config/config.yaml"))
         if not Path(config["videos"]).exists():
             logger.info("No file uploaded, return empty list.")
             return []
@@ -167,7 +167,8 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
     async def get_one_file(self, filename: str):
         """Download the file from remote."""
 
-        config = read_config("./config/config.yaml")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        config = read_config(os.path.join(current_dir, "./config/config.yaml"))
         UPLOAD_DIR = config["videos"]
         file_path = os.path.join(UPLOAD_DIR, filename)
         if os.path.exists(file_path):

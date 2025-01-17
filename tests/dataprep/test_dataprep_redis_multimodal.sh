@@ -56,9 +56,9 @@ function build_lvm_docker_images() {
 function start_lvm_service() {
     unset http_proxy
     docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5029:8399 --ipc=host opea/lvm-llava:comps
-    sleep 10m
+    sleep 4m
     docker run -d --name="test-comps-lvm-llava-svc" -e LVM_ENDPOINT=http://$ip_address:5029 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${LVM_PORT}:9399 --ipc=host opea/lvm:comps
-    sleep 2m
+    sleep 1m
 }
 
 function start_lvm() {
@@ -140,7 +140,7 @@ function validate_microservice() {
 
     # test v1/generate_transcripts upload file
     echo "Testing generate_transcripts API"
-    URL="http://${ip_address}:$dataprep_service_port/v1/generate_transcripts"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/generate_transcripts"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$video_fn" -F "files=@$audio_fn"  -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
@@ -161,9 +161,9 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/ingest_with_text upload video file
-    echo "Testing ingest_with_text API with video+transcripts"
-    URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
+    # test ingest upload video file
+    echo "Testing ingest API with video+transcripts"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$video_fn" -F "files=@$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -185,9 +185,9 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/ingest_with_text upload image file
-    echo "Testing ingest_with_text API with image+caption"
-    URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
+    # test ingest upload image file
+    echo "Testing ingest API with image+caption"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$caption_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -209,9 +209,9 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/ingest_with_text with video and image
-    echo "Testing ingest_with_text API with both video+transcript and image+caption"
-    URL="http://${ip_address}:$dataprep_service_port/v1/ingest_with_text"
+    # test ingest with video and image
+    echo "Testing ingest API with both video+transcript and image+caption"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$caption_fn" -F "files=@$video_fn" -F "files=@$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
@@ -233,8 +233,8 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/ingest_with_text with invalid input (.png image with .vtt transcript)
-    echo "Testing ingest_with_text API with invalid input (.png and .vtt)"
+    # test ingest with invalid input (.png image with .vtt transcript)
+    echo "Testing ingest API with invalid input (.png and .vtt)"
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$transcript_fn" -H 'Content-Type: multipart/form-data' "$URL")
@@ -257,7 +257,7 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test v1/generate_captions upload video file
+    # test generate_captions upload video file
     echo "Testing generate_captions API with video"
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/generate_captions"
 
@@ -328,8 +328,8 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test /v1/dataprep/delete_files
-    echo "Testing delete_files API"
+    # test /v1/dataprep/delete
+    echo "Testing delete API"
     URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')

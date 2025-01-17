@@ -178,6 +178,7 @@ async def get_files():
     endpoint="/v1/dataprep/get/{filename}",
     host="0.0.0.0",
     port=5000,
+    methods=["GET"],
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def get_one_file(filename: str):
@@ -206,6 +207,7 @@ async def get_one_file(filename: str):
     endpoint="/v1/dataprep/get_videos",
     host="0.0.0.0",
     port=5000,
+    methods=["GET"],
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def get_videos():

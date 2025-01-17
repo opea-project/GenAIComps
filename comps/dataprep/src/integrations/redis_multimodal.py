@@ -27,6 +27,7 @@ from .utils.multimodal import (
     load_whisper_model,
     write_vtt,
 )
+
 from PIL import Image
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -93,11 +94,10 @@ INDEX_NAME = os.getenv("INDEX_NAME", "mm-rag-redis")
 
 current_file_path = os.path.abspath(__file__)
 parent_dir = os.path.dirname(current_file_path)
-REDIS_SCHEMA = os.getenv("REDIS_SCHEMA", "./utils/schema.yml")
+REDIS_SCHEMA = os.getenv("REDIS_SCHEMA", os.path.join(os.path.dirname(os.path.abspath(__file__)), "./utils/schema.yml"))
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
 schema_path = os.path.join(parent_dir, REDIS_SCHEMA)
 INDEX_SCHEMA = schema_path
-
 
 logger = CustomLogger("opea_dataprep_redis_multimodal")
 logflag = os.getenv("LOGFLAG", False)
@@ -340,8 +340,8 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
     def check_health(self) -> bool:
         """Checks the health of the Multimodal Redis service."""
-        if self.graph is None:
-            logger.error("Neo4j graph is not initialized.")
+        if self.embeddings is None:
+            logger.error("Multimodal Redis is not initialized.")
             return False
 
         return True

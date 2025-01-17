@@ -109,7 +109,7 @@ class OpeaVdmsDataprep(OpeaComponent):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
             chunks = chunks + table_chunks
 
-        logger.info("Done preprocessing. Created ", len(chunks), " chunks of the original pdf")
+        logger.info(f"Done preprocessing. Created {len(chunks)} chunks of the original pdf")
 
         # Batch size
         batch_size = 32

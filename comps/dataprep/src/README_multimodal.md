@@ -172,7 +172,7 @@ In this use case, this microservice will use [`whisper`](https://openai.com/inde
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
-    http://localhost:6007/v1/generate_transcripts
+    http://localhost:6007/v1/dataprep/generate_transcripts
 ```
 
 #### Multiple file upload
@@ -183,7 +183,7 @@ curl -X POST \
     -F "files=@./video1.mp4" \
     -F "files=@./video2.mp4" \
     -F "files=@./audio1.wav" \
-    http://localhost:6007/v1/generate_transcripts
+    http://localhost:6007/v1/dataprep/generate_transcripts
 ```
 
 ### 4.3 Consume _generate_captions_ API

@@ -4,6 +4,7 @@ decord
 docarray[full]
 docx2txt
 easyocr
+einops
 elasticsearch
 fastapi
 future
