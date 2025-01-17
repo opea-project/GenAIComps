@@ -95,7 +95,7 @@ class OpeaVDMsRetriever(OpeaComponent):
                 logger.info("[ check health ] Successfully connected to VDMs!")
                 return True
             else:
-                logger.info(f"[ check health ] Failed to connect to VDMs: {e}")
+                logger.info(f"[ check health ] Failed to connect to VDMs.")
                 return False
         except Exception as e:
             logger.info(f"[ check health ] Failed to connect to VDMs: {e}")
