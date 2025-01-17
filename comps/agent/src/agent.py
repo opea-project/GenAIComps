@@ -18,7 +18,7 @@ from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_mi
 from comps.agent.src.integrations.agent import instantiate_agent
 from comps.agent.src.integrations.global_var import assistants_global_kv, threads_global_kv
 from comps.agent.src.integrations.thread import instantiate_thread_memory, thread_completion_callback
-from comps.agent.src.integrations.utils import get_args, assemble_store_messages
+from comps.agent.src.integrations.utils import assemble_store_messages, get_args
 from comps.cores.proto.api_protocol import (
     AssistantsObject,
     ChatCompletionRequest,
@@ -157,18 +157,16 @@ def create_assistants(input: CreateAssistant):
     logger.info(f"Record assistant inst {assistant_id} in global KV")
 
     if input.agent_config.with_store:
-        logger.info(f"Save Agent Config to database")
+        logger.info("Save Agent Config to database")
         agent_inst.with_store = input.agent_config.with_store
         print(input)
         global db_client
         if db_client is None:
             from comps.agent.src.integrations.storage.persistence_redis import RedisPersistence
+
             db_client = RedisPersistence(input.agent_config.store_config.redis_uri)
         # save
-        db_client.put(assistant_id,
-            {"config": input.model_dump_json(), "created_at": created_at},
-            "agent_config"
-        )
+        db_client.put(assistant_id, {"config": input.model_dump_json(), "created_at": created_at}, "agent_config")
 
     # get current time in string format
     return AssistantsObject(
@@ -223,7 +221,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
         thread_id=thread_id,
         role=role,
         content=[structured_content],
-        assistant_id=input.assistant_id
+        assistant_id=input.assistant_id,
     )
 
     # save messages using assistant_id as key
@@ -234,11 +232,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
             logger.info(f"Save Agent Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
             # if with store, db_client initialized already
             global db_client
-            db_client.put(
-                msg_id,
-                message.model_dump_json(),
-                input.assistant_id
-            )
+            db_client.put(msg_id, message.model_dump_json(), input.assistant_id)
 
     return message
 

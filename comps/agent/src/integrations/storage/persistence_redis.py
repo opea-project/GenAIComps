@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-from typing import Any, Dict, List, Optional, Tuple
 from collections import OrderedDict
+from typing import Any, Dict, List, Optional, Tuple
 
 from redis import Redis
 from redis.asyncio import Redis as AsyncRedis
