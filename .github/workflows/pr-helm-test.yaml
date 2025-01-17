@@ -47,7 +47,9 @@ jobs:
               service=$(echo "$values_file" | cut -d'/' -f2) # agent
               if [[ "$valuefile" == *"gaudi"* ]]; then
                 hardware="gaudi"
-              elif [[ "$valuefile" == *"cpu"* ]]; then
+              elif [[ "$valuefile" == *"nv"* ]]; then
+                continue
+              else
                 hardware="xeon"
               fi
               echo "service=${service}, hardware=${hardware}, valuefile=${valuefile}"

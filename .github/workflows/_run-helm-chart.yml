@@ -155,7 +155,7 @@ jobs:
             exit 0
           fi
 
-          if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME oci://ghcr.io/opea-project/charts/${CHART_NAME} --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f comps/${{ inputs.workload }}/deployment/kubernetes/${value_file} --version 0-latest ; then
+          if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME oci://ghcr.io/opea-project/charts/${CHART_NAME} --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f comps/${{ inputs.service }}/deployment/kubernetes/${value_file} --version 0-latest ; then
             echo "Failed to install chart ${{ inputs.service }}"
             echo "skip_validate=true" >> $GITHUB_ENV
             .github/workflows/scripts/k8s-utils.sh dump_pods_status $NAMESPACE
