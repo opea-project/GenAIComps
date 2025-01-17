@@ -189,5 +189,5 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
     async def get_files(self):
         pass
 
-    async def delete_files(self):
+    async def delete_files(self, file_path):
         pass

@@ -698,7 +698,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         uploaded_videos = os.listdir(self.upload_folder)
         return uploaded_videos
 
-    async def delete_files(self):
+    async def delete_files(self, file_path):
         """Delete all uploaded files along with redis index."""
         index_deleted = self.drop_index(index_name=INDEX_NAME)
 
