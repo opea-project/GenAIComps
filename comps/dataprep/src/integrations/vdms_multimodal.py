@@ -12,11 +12,12 @@ from typing import List, Optional, Union
 from fastapi import File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from tqdm import tqdm
+
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
+
 from .utils import store_embeddings
 from .utils.utils import process_all_videos, read_config
 from .utils.vclip import vCLIP
-
-from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 VECTORDB_SERVICE_HOST_IP = os.getenv("VDMS_HOST", "0.0.0.0")
 VECTORDB_SERVICE_PORT = os.getenv("VDMS_PORT", 55555)
