@@ -14,6 +14,7 @@ from langchain_community.vectorstores import Redis
 from langchain_community.vectorstores.redis.base import _generate_field_schema, _prepare_metadata
 from langchain_core.embeddings import Embeddings
 from langchain_core.utils import get_from_dict_or_env
+from PIL import Image
 from utils.multimodal import (
     clear_upload_folder,
     convert_video_to_audio,
@@ -27,7 +28,6 @@ from utils.multimodal import (
     load_whisper_model,
     write_vtt,
 )
-from PIL import Image
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding

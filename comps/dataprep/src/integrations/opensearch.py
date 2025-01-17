@@ -158,7 +158,10 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             logger.info(f"[ store by id ] storing ids of {key}")
         try:
             client.client.index(
-                index=Config.KEY_INDEX_NAME, body={"file_name": f"file:${key}", "key_ids:": value}, id="file:" + key, refresh=True
+                index=Config.KEY_INDEX_NAME,
+                body={"file_name": f"file:${key}", "key_ids:": value},
+                id="file:" + key,
+                refresh=True,
             )
             if logflag:
                 logger.info(f"[ store by id ] store document success. id: file:{key}")
@@ -167,7 +170,6 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 logger.info(f"[ store by id ] fail to store document file:{key}: {e}")
             return False
         return True
-
 
     def search_by_id(self, client, doc_id):
         if logflag:
@@ -184,7 +186,6 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 logger.info(f"[ search by id ] fail to search docs of {doc_id}: {e}")
             return None
 
-
     def drop_index(self, client, index_name):
         if logflag:
             logger.info(f"[ drop index ] dropping index {index_name}")
@@ -197,7 +198,6 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 logger.info(f"[ drop index ] index {index_name} delete failed: {e}")
             return False
         return True
-
 
     def delete_by_id(self, client, doc_id):
         try:
