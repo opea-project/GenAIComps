@@ -16,6 +16,7 @@ from integrations.pgvector import OpeaPGVectorRetriever
 from integrations.pinecone import OpeaPineconeRetriever
 from integrations.qdrant import OpeaQDrantRetriever
 from integrations.redis import OpeaRedisRetriever
+from integrations.vdms import OpeaVDMsRetriever
 
 from comps import (
     CustomLogger,
@@ -37,7 +38,6 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponse,
     RetrievalResponseData,
 )
-from comps.cores.telemetry.opea_telemetry import opea_telemetry
 
 logger = CustomLogger("opea_retrievers_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -57,7 +57,6 @@ loader = OpeaComponentLoader(
     host="0.0.0.0",
     port=7000,
 )
-@opea_telemetry
 @register_statistics(names=["opea_service@retrievers"])
 async def ingest_files(
     input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
