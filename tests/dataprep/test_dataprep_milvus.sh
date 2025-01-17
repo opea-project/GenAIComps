@@ -23,11 +23,11 @@ function build_docker_images() {
 
 function start_service() {
     # start milvus vector db
-    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose/
     # wget https://raw.githubusercontent.com/milvus-io/milvus/v2.4.9/configs/milvus.yaml
     # wget https://github.com/milvus-io/milvus/releases/download/v2.4.9/milvus-standalone-docker-compose.yml -O docker-compose.yml
     # sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
-    docker compose -f compose_milvus.yaml up -d
+    docker compose -f docker-compose.yaml up -d
 
     # start embedding service
     embed_port=5021

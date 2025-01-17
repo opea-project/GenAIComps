@@ -25,7 +25,7 @@ logger = CustomLogger("opea_dataprep_multimodal_microservice")
 logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
 
-dataprep_component_name = os.getenv("DATAPREP_COMPONENT_NAME", "OPEA_DATAPREP_VDMS_MULTIMODAL")
+dataprep_component_name = os.getenv("DATAPREP_COMPONENT_NAME", "OPEA_DATAPREP_MULTIMODALVDMS")
 # Initialize OpeaComponentLoader
 loader = OpeaDataprepMultiModalLoader(
     dataprep_component_name,

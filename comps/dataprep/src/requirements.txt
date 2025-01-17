@@ -1,5 +1,6 @@
 beautifulsoup4
 cairosvg
+decord
 docarray[full]
 docx2txt
 easyocr
@@ -10,15 +11,15 @@ graspologic
 html2text
 huggingface_hub
 ipython
-langchain --extra-index-url https://download.pytorch.org/whl/cpu
-langchain-community --extra-index-url https://download.pytorch.org/whl/cpu
-langchain-elasticsearch --extra-index-url https://download.pytorch.org/whl/cpu
-langchain-experimental --extra-index-url https://download.pytorch.org/whl/cpu
-langchain-openai --extra-index-url https://download.pytorch.org/whl/cpu
-langchain-pinecone --extra-index-url https://download.pytorch.org/whl/cpu
-langchain-text-splitters --extra-index-url https://download.pytorch.org/whl/cpu
-langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
-langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
+langchain
+langchain-community
+langchain-elasticsearch
+langchain-experimental
+langchain-openai
+langchain-pinecone
+langchain-text-splitters
+langchain_huggingface
+langchain_milvus
 llama-index 
 llama-index-core
 llama-index-embeddings-text-embeddings-inference
@@ -33,9 +34,6 @@ openai
 openai-whisper
 opencv-python
 opensearch-py
-opentelemetry-api
-opentelemetry-exporter-otlp
-opentelemetry-sdk
 pandas
 pgvector==0.2.5
 Pillow

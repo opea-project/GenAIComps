@@ -12,9 +12,9 @@ from typing import List, Optional, Union
 from fastapi import File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from tqdm import tqdm
-from utils import store_embeddings
-from utils.utils import process_all_videos, read_config
-from utils.vclip import vCLIP
+from .utils import store_embeddings
+from .utils.utils import process_all_videos, read_config
+from .utils.vclip import vCLIP
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 

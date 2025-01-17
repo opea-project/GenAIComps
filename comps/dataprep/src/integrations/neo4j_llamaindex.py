@@ -493,6 +493,7 @@ def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
 logger = CustomLogger("opea_dataprep_neo4j_llamaindex")
 logflag = os.getenv("LOGFLAG", False)
 
+
 @OpeaComponentRegistry.register("OPEA_DATAPREP_NEO4J_LLAMAINDEX")
 class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
     """Dataprep component for Neo4j ingestion and search services."""
