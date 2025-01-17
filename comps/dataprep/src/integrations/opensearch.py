@@ -77,7 +77,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
-
+        self.upload_folder = "./uploaded_files/"
         # Initialize embeddings
         tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
         if tei_embedding_endpoint:

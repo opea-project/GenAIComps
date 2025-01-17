@@ -490,11 +490,8 @@ def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
     return trimmed_messages
 
 
-logger = CustomLogger("prepare_doc_neo4j")
+logger = CustomLogger("opea_dataprep_neo4j_llamaindex")
 logflag = os.getenv("LOGFLAG", False)
-
-upload_folder = "./uploaded_files/"
-
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_NEO4J_LLAMAINDEX")
 class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
@@ -660,7 +657,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             uploaded_files = []
             for file in files:
                 encode_file = encode_filename(file.filename)
-                save_path = upload_folder + encode_file
+                save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
                 index = self.ingest_data_to_neo4j(
                     DocPath(
@@ -681,7 +678,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
                 raise HTTPException(status_code=400, detail="link_list should be a list.")
             for link in link_list:
                 encoded_link = encode_filename(link)
-                save_path = upload_folder + encoded_link + ".txt"
+                save_path = self.upload_folder + encoded_link + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 try:
                     await save_content_to_local_disk(save_path, content)
