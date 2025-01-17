@@ -23,8 +23,8 @@ numpy
 opensearch-py
 pathway
 pgvector
-protobuf==4.24.2
 prometheus-fastapi-instrumentator
+protobuf==4.24.2
 psycopg2-binary
 pydantic
 pymupdf

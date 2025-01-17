@@ -10,7 +10,16 @@ from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import EMBED_MODEL, TEI_EMBEDDING_ENDPOINT, VDMS_HOST, VDMS_PORT, VDMS_INDEX_NAME, VDMS_USE_CLIP, SEARCH_ENGINE, DISTANCE_STRATEGY
+from .config import (
+    DISTANCE_STRATEGY,
+    EMBED_MODEL,
+    SEARCH_ENGINE,
+    TEI_EMBEDDING_ENDPOINT,
+    VDMS_HOST,
+    VDMS_INDEX_NAME,
+    VDMS_PORT,
+    VDMS_USE_CLIP,
+)
 
 logger = CustomLogger("vdms_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -37,6 +46,7 @@ class OpeaVDMsRetriever(OpeaComponent):
     def _initialize_embedder(self):
         if VDMS_USE_CLIP:
             from comps.third_parties.clip.src.clip_embedding import vCLIP
+
             embeddings = vCLIP({"model_name": "openai/clip-vit-base-patch32", "num_frm": 64})
         if TEI_EMBEDDING_ENDPOINT:
             # create embeddings using TEI endpoint service
@@ -84,7 +94,7 @@ class OpeaVDMsRetriever(OpeaComponent):
             if self.vector_db:
                 logger.info("[ check health ] Successfully connected to VDMs!")
                 return True
-            else: 
+            else:
                 logger.info(f"[ check health ] Failed to connect to VDMs: {e}")
                 return False
         except Exception as e:
@@ -110,7 +120,10 @@ class OpeaVDMsRetriever(OpeaComponent):
             if input.distance_threshold is None:
                 raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
             search_res = self.vector_db.similarity_search_by_vector(
-                embedding=input.embedding, k=input.k, distance_threshold=input.distance_threshold, filter=input.constraints
+                embedding=input.embedding,
+                k=input.k,
+                distance_threshold=input.distance_threshold,
+                filter=input.constraints,
             )
         elif input.search_type == "similarity_score_threshold":
             docs_and_similarities = self.vector_db.similarity_search_with_relevance_scores(
@@ -119,7 +132,11 @@ class OpeaVDMsRetriever(OpeaComponent):
             search_res = [doc for doc, _ in docs_and_similarities]
         elif input.search_type == "mmr":
             search_res = self.vector_db.max_marginal_relevance_search(
-                query=input.text, k=input.k, fetch_k=input.fetch_k, lambda_mult=input.lambda_mult, filter=input.constraints
+                query=input.text,
+                k=input.k,
+                fetch_k=input.fetch_k,
+                lambda_mult=input.lambda_mult,
+                filter=input.constraints,
             )
 
         if logflag:
