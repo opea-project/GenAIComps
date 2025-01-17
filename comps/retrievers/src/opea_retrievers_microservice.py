@@ -16,6 +16,7 @@ from integrations.pgvector import OpeaPGVectorRetriever
 from integrations.pinecone import OpeaPineconeRetriever
 from integrations.qdrant import OpeaQDrantRetriever
 from integrations.redis import OpeaRedisRetriever
+from integrations.vdms import OpeaVDMsRetriever
 
 from comps import (
     CustomLogger,

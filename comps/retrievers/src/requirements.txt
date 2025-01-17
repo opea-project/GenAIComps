@@ -7,11 +7,11 @@ fastapi
 future
 graspologic
 haystack-ai==2.3.1
-langchain-elasticsearch --extra-index-url https://download.pytorch.org/whl/cpu
-langchain-pinecone --extra-index-url https://download.pytorch.org/whl/cpu
-langchain_community --extra-index-url https://download.pytorch.org/whl/cpu
-langchain_huggingface --extra-index-url https://download.pytorch.org/whl/cpu
-langchain_milvus --extra-index-url https://download.pytorch.org/whl/cpu
+langchain-elasticsearch
+langchain-pinecone
+langchain_community
+langchain_huggingface
+langchain_milvus
 llama-index-core
 llama-index-embeddings-openai
 llama-index-embeddings-text-embeddings-inference
@@ -21,12 +21,10 @@ llama_index_graph_stores_neo4j==0.3.3
 neo4j
 numpy
 opensearch-py
-opentelemetry-api
-opentelemetry-exporter-otlp
-opentelemetry-sdk
 pathway
-pgvector==0.2.5
+pgvector
 prometheus-fastapi-instrumentator
+protobuf==4.24.2
 psycopg2-binary
 pydantic
 pymupdf
@@ -40,3 +38,4 @@ sentence_transformers
 shortuuid
 tiktoken
 uvicorn
+vdms==0.0.21
