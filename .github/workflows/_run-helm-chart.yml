@@ -1,16 +1,16 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-name: To Test a Helm Job for call
+name: Helm Chart Test on GenAIComps For Call
 permissions: read-all
 on:
   workflow_call:
     inputs:
-      workload:
+      service:
         default: "chatqna"
         required: true
         type: string
-        description: "workload to test, chatqna or common/asr"
+        description: "service to test, e.g. asr"
       dockerhub:
         default: "false"
         required: false
@@ -18,6 +18,11 @@ on:
         description: "Set to true if you want to use released docker images at dockerhub. By default using internal docker registry."
       tag:
         default: "latest"
+        required: false
+        type: string
+      mode:
+        default: "CD"
+        description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
       hardware:
@@ -30,17 +35,73 @@ on:
         type: string
 
 jobs:
-####################################################################################################
-# Helm Test
-####################################################################################################
+  get-test-case:
+    runs-on: ubuntu-latest
+    outputs:
+      value_files: ${{ steps.get-test-files.outputs.value_files }}
+      CHECKOUT_REF: ${{ steps.get-checkout-ref.outputs.CHECKOUT_REF }}
+    steps:
+      - name: Get checkout ref
+        id: get-checkout-ref
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ] || [ "${{ github.event_name }}" == "pull_request_target" ]; then
+            CHECKOUT_REF=refs/pull/${{ github.event.number }}/merge
+          else
+            CHECKOUT_REF=${{ github.ref }}
+          fi
+          echo "CHECKOUT_REF=${CHECKOUT_REF}" >> $GITHUB_OUTPUT
+          echo "checkout ref ${CHECKOUT_REF}"
+
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get-checkout-ref.outputs.CHECKOUT_REF }}
+          fetch-depth: 0
+
+      - name: Get test Services
+        id: get-test-files
+        run: |
+          set -x
+          if [ "${{ inputs.mode }}" = "CI" ]; then
+            value_files=[\"${{ inputs.valuefile }}\"]
+            echo $value_files
+          elif [ "${{ inputs.mode }}" = "CD" ]; then
+            value_files="["
+            for file in ${{ github.workspace }}/comps/"${{ inputs.service }}"/deployment/kubernetes/*values.yaml; do
+              if [ -f "$file" ]; then
+                filename=$(basename "$file")
+                if [[ "$filename" == *"gaudi"* ]]; then
+                  if [[ "${{ inputs.hardware }}" == "gaudi" ]]; then
+                    value_files="${value_files}\"${filename}\","
+                  fi
+                elif [[ "$filename" == *"nv"* ]]; then
+                  continue
+                else
+                  if [[ "${{ inputs.hardware }}" == "xeon" ]]; then
+                    value_files="${value_files}\"${filename}\","
+                  fi
+                fi
+              fi
+            done
+            value_files="${value_files%,}]"
+          fi
+          echo "value_files=${value_files}"
+          echo "value_files=${value_files}" >> $GITHUB_OUTPUT
+
   helm-test:
+    needs: [get-test-case]
+    strategy:
+      matrix:
+        value_file: ${{ fromJSON(needs.get-test-case.outputs.value_files) }}
     runs-on: ${{ inputs.hardware }}
     continue-on-error: true
     outputs:
       should_cleanup: ${{ steps.set_boolean.outputs.should_cleanup }}
     steps:
       - name: Clean Up Working Directory
-        run: sudo rm -rf ${{github.workspace}}/*
+        run: |
+          echo "value_file=${{ matrix.value_file }}"
+          sudo rm -rf ${{github.workspace}}/*
 
       - name: Get checkout ref
         id: get-checkout-ref
@@ -53,7 +114,7 @@ jobs:
           echo "CHECKOUT_REF=${CHECKOUT_REF}" >> $GITHUB_OUTPUT
           echo "checkout ref ${CHECKOUT_REF}"
 
-      - name: Checkout out Repo
+      - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.get-checkout-ref.outputs.CHECKOUT_REF }}
@@ -61,9 +122,9 @@ jobs:
 
       - name: Set variables
         env:
-          workload_path: ${{ inputs.workload }}
+          service: ${{ inputs.service }}
         run: |
-          CHART_NAME="${workload_path}"  # CodeGen
+          CHART_NAME="${service,,}"  # asr
           echo "CHART_NAME=$CHART_NAME" >> $GITHUB_ENV
           echo "RELEASE_NAME=${CHART_NAME}$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
           echo "NAMESPACE=${CHART_NAME}-$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
@@ -72,17 +133,7 @@ jobs:
           echo "KUBECTL_TIMEOUT_SECONDS=60s" >> $GITHUB_ENV
           echo "should_cleanup=false" >> $GITHUB_ENV
           echo "skip_validate=false" >> $GITHUB_ENV
-          echo "CHART_FOLDER=comps/${workload_path}/deployment/kubernetes" >> $GITHUB_ENV
-
-      - name: Initialize chart testing
-        run: |
-          # Replace values for CI test environment
-          pushd comps/${{ inputs.workload }}/deployment/kubernetes
-          # insert a prefix before opea/.*, the prefix is OPEA_IMAGE_REPO
-          find . -name '*values.yaml' -type f -exec sed -i "s#repository: opea/*#repository: ${OPEA_IMAGE_REPO}opea/#g" {} \;
-          # set OPEA image tag to ${{ inputs.tag }}
-          find . -name '*values.yaml' -type f -exec sed -i 's#tag: "latest"#tag: ${{ inputs.tag }}#g' {} \;
-          popd
+          echo "CHART_FOLDER=comps/${service}/deployment/kubernetes" >> $GITHUB_ENV
 
       - name: Helm install
         id: install
@@ -91,31 +142,25 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           HUGGINGFACEHUB_API_TOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
           HFTOKEN: ${{ secrets.HUGGINGFACEHUB_API_TOKEN }}
+          value_file: ${{ matrix.value_file }}
         run: |
           set -xe
           echo "should_cleanup=true" >> $GITHUB_ENV
-          value_file="${{ inputs.valuefile }}.yaml"
           if [[ ! -f ${{ github.workspace }}/${{ env.CHART_FOLDER }}/${value_file} ]]; then
-            echo "No value file found, exist test!"
+            echo "No value file found, exiting test!"
             echo "skip_validate=true" >> $GITHUB_ENV
             echo "should_cleanup=false" >> $GITHUB_ENV
             exit 0
           fi
-          # helm dependency update ${{ github.workspace }}/${{ env.CHART_FOLDER }}
-          # if ! helm install --create-namespace --namespace $NAMESPACE --wait \
-          #     --timeout "$ROLLOUT_TIMEOUT_SECONDS" \
-          #     --set GOOGLE_API_KEY=${{ env.GOOGLE_API_KEY}} \
-          #     --set GOOGLE_CSE_ID=${{ env.GOOGLE_CSE_ID}} \
-          #     --values ${{ env.CHART_FOLDER }}/${value_file} \
-          #      ${{ env.CHART_FOLDER }} ; then
-          if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME oci://ghcr.io/opea-project/charts/${{ inputs.workload }} --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f comps/${{ inputs.workload }}/deployment/kubernetes/${value_file} --version 0-latest ; then
-            echo "Failed to install chart ${{ inputs.workload }}"
+
+          if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME oci://ghcr.io/opea-project/charts/${CHART_NAME} --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f comps/${{ inputs.workload }}/deployment/kubernetes/${value_file} --version 0-latest ; then
+            echo "Failed to install chart ${{ inputs.service }}"
             echo "skip_validate=true" >> $GITHUB_ENV
             .github/workflows/scripts/k8s-utils.sh dump_pods_status $NAMESPACE
             exit 1
           fi
           helm list -A
-          kubectl get pods
+          kubectl get pods -n $NAMESPACE
 
       - name: Validate e2e test
         if: always()
@@ -147,7 +192,7 @@ jobs:
                 echo "Response check failed, please check the logs in artifacts!"
                 exit 1
             else
-                echo "Response check succeed!"
+                echo "Response check succeeded!"
                 exit 0
             fi
           fi
@@ -162,3 +207,4 @@ jobs:
               kubectl delete ns $NAMESPACE --force --grace-period=0 --timeout=$KUBECTL_TIMEOUT_SECONDS
             fi
           fi
+

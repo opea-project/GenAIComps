@@ -3,3 +3,5 @@
 
 whisper:
   enabled: true
+  # test:
+    # enabled: true
