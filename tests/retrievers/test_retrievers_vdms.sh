@@ -50,9 +50,9 @@ function start_service() {
     docker run -d --name="test-comps-retriever-vdms-server" -p $retriever_port:7000 --ipc=host \
     -e VDMS_INDEX_NAME=$INDEX_NAME -e VDMS_HOST=$ip_address \
     -e https_proxy=$https_proxy -e http_proxy=$http_proxy \
-    -e VDMS_PORT=$vdms_port -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
+    -e VDMS_PORT=$vdms_port -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN \
     -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e VDMS_USE_CLIP=$use_clip \
-    -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_VDMS" \
+    -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_VDMS" -e LOGFLAG=true \
      opea/retriever-vdms:comps
     sleep 3m
 }
