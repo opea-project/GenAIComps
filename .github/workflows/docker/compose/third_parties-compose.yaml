@@ -1,0 +1,47 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  nginx:
+    build:
+      dockerfile: comps/third_parties/nginx/src/Dockerfile
+    image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
+  embedding-multimodal-clip:
+    build:
+      dockerfile: comps/third_parties/clip/src/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-multimodal-clip:${TAG:-latest}
+  embedding-multimodal-bridgetower:
+    build:
+      dockerfile: comps/third_parties/bridgetower/src/Dockerfile
+    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
+  embedding-multimodal-bridgetower-gaudi:
+    build:
+      dockerfile: comps/third_parties/bridgetower/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-gaudi:${TAG:-latest}
+  pathway:
+    build:
+      dockerfile: comps/third_parties/pathway/src/Dockerfile
+    image: ${REGISTRY:-opea}/pathway:${TAG:-latest}
+  wav2lip:
+    build:
+      dockerfile: comps/third_parties/wav2lip/src/Dockerfile
+    image: ${REGISTRY:-opea}/wav2lip:${TAG:-latest}
+  wav2lip-gaudi:
+    build:
+      dockerfile: comps/third_parties/wav2lip/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/wav2lip-gaudi:${TAG:-latest}
+  vllm-arc:
+    build:
+      dockerfile: comps/third_parties/vllm/src/Dockerfile.intel_gpu
+    image: ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}
+  vllm-openvino:
+    build:
+      context: vllm-openvino
+      dockerfile: Dockerfile.openvino
+    image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
+  vllm-gaudi:
+    build:
+      context: vllm-fork
+      dockerfile: Dockerfile.hpu
+    shm_size: '128g'
+    image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}

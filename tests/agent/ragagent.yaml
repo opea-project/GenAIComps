@@ -17,11 +17,12 @@ services:
       llm_engine: tgi
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
       llm_endpoint_url: ${LLM_ENDPOINT_URL}
+      timeout: 500
       model: ${LLM_MODEL_ID}
       temperature: ${temperature}
       max_new_tokens: ${max_new_tokens}
       top_k: 10
-      streaming: false
+      stream: false
       tools: /home/user/tools/custom_tools.yaml
       require_human_feedback: false
       no_proxy: ${no_proxy}

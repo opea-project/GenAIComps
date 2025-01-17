@@ -127,8 +127,6 @@ In order to start the microservices with docker, you need to build the docker im
 
 ### 2.1 Build Docker Image
 
-#### 2.1.1 TGI
-
 ```bash
 # Build the microservice docker
 cd ${OPEA_GENAICOMPS_ROOT}
@@ -136,24 +134,8 @@ cd ${OPEA_GENAICOMPS_ROOT}
 docker build \
   --build-arg https_proxy=$https_proxy \
   --build-arg http_proxy=$http_proxy \
-  -t opea/llm-tgi:latest \
-  -f comps/llms/text-generation/tgi/Dockerfile .
-```
-
-#### 2.1.2 vLLM
-
-```bash
-# Build vllm docker
-bash ${OPEA_GENAICOMPS_ROOT}/comps/llms/text-generation/vllm/langchain/dependency/build_docker_vllm.sh hpu
-
-# Build the microservice docker
-cd ${OPEA_GENAICOMPS_ROOT}
-
-docker build \
-  --build-arg https_proxy=$https_proxy \
-  --build-arg http_proxy=$http_proxy \
-  -t opea/llm-vllm:latest \
-  -f comps/llms/text-generation/vllm/langchain/Dockerfile .
+  -t opea/llm:latest \
+  -f comps/llms/src/text-generation/Dockerfile .
 ```
 
 ### 2.2 Start LLM Service with the built image
@@ -212,7 +194,7 @@ docker run -d \
   -e https_proxy=$https_proxy \
   -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
   -e HF_TOKEN=$HF_TOKEN \
-  opea/llm-tgi:latest
+  opea/llm-textgen:latest
 ```
 
 #### 2.3.2 vLLM
@@ -236,7 +218,7 @@ docker run \
   -e vLLM_LLM_ENDPOINT=$vLLM_LLM_ENDPOINT \
   -e HF_TOKEN=$HF_TOKEN \
   -e LLM_MODEL=$LLM_MODEL \
-  opea/llm-vllm:latest
+  opea/llm-textgen:latest
 ```
 
 ### 2.4 Run Docker with Docker Compose (Option B)
@@ -287,12 +269,12 @@ curl http://${host_ip}:8008/v1/chat/completions \
 
 ### 3.3 Consume LLM Service
 
-You can set the following model parameters according to your actual needs, such as `max_tokens`, `streaming`.
+You can set the following model parameters according to your actual needs, such as `max_tokens`, `stream`.
 
-The `streaming` parameter determines the format of the data returned by the API. It will return text string with `streaming=false`, return text streaming flow with `streaming=true`.
+The `stream` parameter determines the format of the data returned by the API. It will return text string with `stream=false`, return text stream flow with `stream=true`.
 
 ```bash
-# non-streaming mode
+# non-stream mode
 curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -304,11 +286,11 @@ curl http://${your_ip}:9000/v1/chat/completions \
   "typical_p":0.95,
   "temperature":0.01,
   "repetition_penalty":1.03,
-  "streaming":false
+  "stream":false
   }'
 
 
-# streaming mode
+# stream mode
 curl http://${your_ip}:9000/v1/chat/completions \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -320,7 +302,7 @@ curl http://${your_ip}:9000/v1/chat/completions \
   "typical_p":0.95,
   "temperature":0.01,
   "repetition_penalty":1.03,
-  "streaming":true
+  "stream":true
   }'
 
 ```
