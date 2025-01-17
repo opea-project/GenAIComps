@@ -38,7 +38,7 @@ jobs:
           merged_commit=$(git log -1 --format='%H')
           values_files=$(git diff --name-only ${base_commit} ${merged_commit} | \
           grep "kubernetes" | \
-          sort -u ) # comps/agent/deployment/kubernetes/cpu-values.yaml
+          sort -u) # comps/agent/deployment/kubernetes/cpu-values.yaml
 
           run_matrix="{\"include\":["
           for values_file in ${values_files}; do
@@ -51,8 +51,8 @@ jobs:
                 hardware="xeon"
               fi
               echo "service=${service}, hardware=${hardware}, valuefile=${valuefile}"
-              if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${service}\",\"hardware\":\"${hardware}\",\"valuefile\":\"${valuefile}\"},") == 0 ]]; then
-                run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\",\"valuefile\":\"${valuefile}\"},"
+              if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
+                run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},"
                 echo "------------------ add one values file ------------------"
               fi
             fi
@@ -71,6 +71,5 @@ jobs:
     with:
       service: ${{ matrix.service }}
       hardware: ${{ matrix.hardware }}
-      valuefile: ${{ matrix.valuefile }}
       mode: "CI"
     secrets: inherit

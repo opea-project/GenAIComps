@@ -29,10 +29,6 @@ on:
         default: "xeon"
         required: true
         type: string
-      valuefile:
-        default: "values"
-        required: true
-        type: string
 
 jobs:
   get-test-case:
@@ -63,28 +59,34 @@ jobs:
         run: |
           set -x
           if [ "${{ inputs.mode }}" = "CI" ]; then
-            value_files=[\"${{ inputs.valuefile }}\"]
-            echo $value_files
+            base_commit=${{ github.event.pull_request.base.sha }}
+            merged_commit=$(git log -1 --format='%H')
+            values_files=$(git diff --name-only ${base_commit} ${merged_commit} | \
+            grep "kubernetes" | \
+            sort -u )
+            echo $values_files
           elif [ "${{ inputs.mode }}" = "CD" ]; then
-            value_files="["
-            for file in ${{ github.workspace }}/comps/"${{ inputs.service }}"/deployment/kubernetes/*values.yaml; do
-              if [ -f "$file" ]; then
-                filename=$(basename "$file")
-                if [[ "$filename" == *"gaudi"* ]]; then
-                  if [[ "${{ inputs.hardware }}" == "gaudi" ]]; then
-                    value_files="${value_files}\"${filename}\","
-                  fi
-                elif [[ "$filename" == *"nv"* ]]; then
-                  continue
-                else
-                  if [[ "${{ inputs.hardware }}" == "xeon" ]]; then
-                    value_files="${value_files}\"${filename}\","
-                  fi
+            values_files=$(ls ${{ github.workspace }}/comps/"${{ inputs.service }}"/deployment/kubernetes/*values.yaml)
+          fi
+          value_files="["
+          for file in ${values_files}; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              if [[ "$filename" == *"gaudi"* ]]; then
+                if [[ "${{ inputs.hardware }}" == "gaudi" ]]; then
+                  value_files="${value_files}\"${filename}\","
+                fi
+              elif [[ "$filename" == *"nv"* ]]; then
+                continue
+              else
+                if [[ "${{ inputs.hardware }}" == "xeon" ]]; then
+                  value_files="${value_files}\"${filename}\","
                 fi
               fi
-            done
-            value_files="${value_files%,}]"
-          fi
+            fi
+          done
+          value_files="${value_files%,}]"
+
           echo "value_files=${value_files}"
           echo "value_files=${value_files}" >> $GITHUB_OUTPUT
 
