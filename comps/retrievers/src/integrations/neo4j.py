@@ -294,13 +294,13 @@ class OpeaNeo4jRetriever(OpeaComponent):
             logger.info(f"[ check health ] Failed to connect to Neo4j: {e}")
             return False
 
-    async def invoke(self, input: Union[ChatCompletionRequest]) -> Union[ChatCompletionRequest]:
+    async def invoke(self, input: Union[ChatCompletionRequest]) -> list:
         """Search the Neo4j index for the most similar documents to the input query.
 
         Args:
-            input (ChatCompletionRequest):
+            input (ChatCompletionRequest): The input query to search for.
         Output:
-            ChatCompletionRequest: The retrieved documents.
+            list: The retrieved documents.
         """
         if logflag:
             logger.info(input)
