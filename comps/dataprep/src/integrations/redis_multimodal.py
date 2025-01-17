@@ -14,7 +14,7 @@ from langchain_community.vectorstores import Redis
 from langchain_community.vectorstores.redis.base import _generate_field_schema, _prepare_metadata
 from langchain_core.embeddings import Embeddings
 from langchain_core.utils import get_from_dict_or_env
-from multimodal_utils import (
+from utils.multimodal import (
     clear_upload_folder,
     convert_video_to_audio,
     delete_audio_file,

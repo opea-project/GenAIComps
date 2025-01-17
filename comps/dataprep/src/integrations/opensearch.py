@@ -76,8 +76,8 @@ class OpeaOpenSearchDataprep(OpeaComponent):
     """Dataprep component for OpenSearch ingestion and search services."""
 
     def __init__(self, name: str, description: str, config: dict = None):
-        super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.upload_folder = "./uploaded_files/"
+        super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         # Initialize embeddings
         tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
         if tei_embedding_endpoint:
@@ -151,6 +151,68 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             return True
         except Exception as e:
             logger.error(f"[ create index ] Failed to create index {index_name}: {e}")
+            return False
+
+    def store_by_id(self, client, key, value):
+        if logflag:
+            logger.info(f"[ store by id ] storing ids of {key}")
+        try:
+            client.client.index(
+                index=Config.KEY_INDEX_NAME, body={"file_name": f"file:${key}", "key_ids:": value}, id="file:" + key, refresh=True
+            )
+            if logflag:
+                logger.info(f"[ store by id ] store document success. id: file:{key}")
+        except Exception as e:
+            if logflag:
+                logger.info(f"[ store by id ] fail to store document file:{key}: {e}")
+            return False
+        return True
+
+
+    def search_by_id(self, client, doc_id):
+        if logflag:
+            logger.info(f"[ search by id ] searching docs of {doc_id}")
+        try:
+            result = client.client.get(index=Config.KEY_INDEX_NAME, id=doc_id)
+            if result["found"]:
+                if logflag:
+                    logger.info(f"[ search by id ] search success of {doc_id}: {result}")
+                return result
+            return None
+        except Exception as e:
+            if logflag:
+                logger.info(f"[ search by id ] fail to search docs of {doc_id}: {e}")
+            return None
+
+
+    def drop_index(self, client, index_name):
+        if logflag:
+            logger.info(f"[ drop index ] dropping index {index_name}")
+        try:
+            client.client.indices.delete(index=index_name)
+            if logflag:
+                logger.info(f"[ drop index ] index {index_name} deleted")
+        except Exception as e:
+            if logflag:
+                logger.info(f"[ drop index ] index {index_name} delete failed: {e}")
+            return False
+        return True
+
+
+    def delete_by_id(self, client, doc_id):
+        try:
+            response = client.client.delete(index=Config.KEY_INDEX_NAME, id=doc_id)
+            if response["result"] == "deleted":
+                if logflag:
+                    logger.info(f"[ delete by id ] delete id success: {doc_id}")
+                return True
+            else:
+                if logflag:
+                    logger.info(f"[ delete by id ] delete id failed: {doc_id}")
+                return False
+        except Exception as e:
+            if logflag:
+                logger.info(f"[ delete by id ] fail to delete ids {doc_id}: {e}")
             return False
 
     def ingest_chunks_to_opensearch(self, file_name: str, chunks: List):
