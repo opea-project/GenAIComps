@@ -27,6 +27,7 @@ from .utils.multimodal import (
     load_whisper_model,
     write_vtt,
 )
+
 from PIL import Image
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
