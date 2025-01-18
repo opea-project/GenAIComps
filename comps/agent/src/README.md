@@ -171,8 +171,6 @@ curl http://${ip_address}:9091/v1/threads/{thread_id}/runs -X POST -H "Content-T
 
 ```
 
-
-
 ## 🚀 4. Provide your own tools
 
 - Define tools
