@@ -224,7 +224,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
         assistant_id=input.assistant_id,
     )
 
-    # save messages using assistant_id as key    
+    # save messages using assistant_id as key
     if input.assistant_id is not None:
         with assistants_global_kv as g_assistants:
             agent_inst, _ = g_assistants[input.assistant_id]
