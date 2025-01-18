@@ -225,14 +225,14 @@ def create_messages(thread_id, input: CreateMessagesRequest):
     )
 
     # save messages using assistant_id as key
-    if input.assistant_id is not None:
+    if agent_inst.with_store:
+        assert input.assistant_id is not None, "should set assistant_id when persistent"
         with assistants_global_kv as g_assistants:
             agent_inst, _ = g_assistants[input.assistant_id]
-        if agent_inst.with_store:
-            logger.info(f"Save Agent Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
-            # if with store, db_client initialized already
-            global db_client
-            db_client.put(msg_id, message.model_dump_json(), input.assistant_id)
+        logger.info(f"Save Agent Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
+        # if with store, db_client initialized already
+        global db_client
+        db_client.put(msg_id, message.model_dump_json(), input.assistant_id)
 
     return message
 
