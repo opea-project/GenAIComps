@@ -71,17 +71,17 @@ microservice to convert the document to embedding and save to the database.
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"path":"/path/to/document"}' \
-    http://localhost:6011/v1/dataprep
+    http://localhost:6011/v1/dataprep/ingest
 ```
 
-### 3.2 Consume get_file API
+### 3.2 Consume get API
 
 To get uploaded file structures, use the following command:
 
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6011/v1/dataprep/get_file
+    http://localhost:6011/v1/dataprep/get
 ```
 
 Then you will get the response JSON like this:
@@ -103,28 +103,28 @@ Then you will get the response JSON like this:
 ]
 ```
 
-### 4.3 Consume delete_file API
+### 4.3 Consume delete API
 
 To delete uploaded file/link, use the following command.
 
-The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
+The `file_path` here should be the `id` get from `/v1/dataprep/get` API.
 
 ```bash
 # delete link
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "https://www.ces.tech/.txt"}' \
-    http://localhost:6011/v1/dataprep/delete_file
+    http://localhost:6011/v1/dataprep/delete
 
 # delete file
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "uploaded_file_1.txt"}' \
-    http://localhost:6011/v1/dataprep/delete_file
+    http://localhost:6011/v1/dataprep/delete
 
 # delete all files and links
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "all"}' \
-    http://localhost:6011/v1/dataprep/delete_file
+    http://localhost:6011/v1/dataprep/delete
 ```

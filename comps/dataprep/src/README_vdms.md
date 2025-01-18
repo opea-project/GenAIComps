@@ -112,7 +112,7 @@ Make sure the file path after `files=@` is correct.
   curl -X POST \
        -H "Content-Type: multipart/form-data" \
        -F "files=@./file1.txt" \
-       http://localhost:6007/v1/dataprep
+       http://localhost:6007/v1/dataprep/ingest
   ```
 
   You can specify `chunk_size` and `chunk_overlap` by the following commands.
@@ -123,7 +123,7 @@ Make sure the file path after `files=@` is correct.
        -F "files=@./LLAMA2_page6.pdf" \
        -F "chunk_size=1500" \
        -F "chunk_overlap=100" \
-       http://localhost:6007/v1/dataprep
+       http://localhost:6007/v1/dataprep/ingest
   ```
 
 - Multiple file upload
@@ -134,7 +134,7 @@ Make sure the file path after `files=@` is correct.
        -F "files=@./file1.txt" \
        -F "files=@./file2.txt" \
        -F "files=@./file3.txt" \
-       http://localhost:6007/v1/dataprep
+       http://localhost:6007/v1/dataprep/ingest
   ```
 
 - Links upload (not supported for `llama_index` now)
@@ -142,7 +142,7 @@ Make sure the file path after `files=@` is correct.
   ```bash
   curl -X POST \
        -F 'link_list=["https://www.ces.tech/"]' \
-       http://localhost:6007/v1/dataprep
+       http://localhost:6007/v1/dataprep/ingest
   ```
 
   or
@@ -152,7 +152,7 @@ Make sure the file path after `files=@` is correct.
   import json
 
   proxies = {"http": ""}
-  url = "http://localhost:6007/v1/dataprep"
+  url = "http://localhost:6007/v1/dataprep/ingest"
   urls = [
       "https://towardsdatascience.com/no-gpu-no-party-fine-tune-bert-for-sentiment-analysis-with-vertex-ai-custom-jobs-d8fc410e908b?source=rss----7f60cf5620c9---4"
   ]

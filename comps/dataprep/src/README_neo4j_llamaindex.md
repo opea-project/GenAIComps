@@ -73,7 +73,7 @@ Once document preparation microservice for Neo4J is started, user can use below 
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./file1.txt" \
-    http://${host_ip}:6004/v1/dataprep
+    http://${host_ip}:6004/v1/dataprep/ingest
 ```
 
 You can specify chunk_size and chunk_size by the following commands.
@@ -84,7 +84,7 @@ curl -X POST \
     -F "files=@./file1.txt" \
     -F "chunk_size=1500" \
     -F "chunk_overlap=100" \
-    http://${host_ip}:6004/v1/dataprep
+    http://${host_ip}:6004/v1/dataprep/ingest
 ```
 
 Please note that clustering of extracted entities and summarization happens in this data preparation step. The result of this is:
@@ -104,5 +104,5 @@ curl -X POST \
     -F "files=@./your_file.pdf" \
     -F "process_table=true" \
     -F "table_strategy=hq" \
-    http://localhost:6004/v1/dataprep
+    http://localhost:6004/v1/dataprep/ingest
 ```

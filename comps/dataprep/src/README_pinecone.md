@@ -82,5 +82,5 @@ docker compose -f compose_pipecone.yaml up -d
 Once document preparation microservice for Pinecone is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"path":"/path/to/document"}' http://localhost:6007/v1/dataprep
+curl -X POST -H "Content-Type: application/json" -d '{"path":"/path/to/document"}' http://localhost:6007/v1/dataprep/ingest
 ```

@@ -131,7 +131,7 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
     -F "files=@./video1.vtt" \
-    http://localhost:6007/v1/ingest_with_text
+    http://localhost:6007/v1/dataprep/ingest
 ```
 
 #### Single image-caption pair upload
@@ -141,7 +141,7 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./image.jpg" \
     -F "files=@./image.txt" \
-    http://localhost:6007/v1/ingest_with_text
+    http://localhost:6007/v1/dataprep/ingest
 ```
 
 #### Multiple file pair upload
@@ -157,7 +157,7 @@ curl -X POST \
     -F "files=@./image1.txt" \
     -F "files=@./image2.jpg" \
     -F "files=@./image2.txt" \
-    http://localhost:6007/v1/ingest_with_text
+    http://localhost:6007/v1/dataprep/ingest
 ```
 
 ### 4.2 Consume _generate_transcripts_ API
@@ -198,7 +198,7 @@ In this use case, there is no meaningful language transcription. Thus, it is pre
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
-    http://localhost:6007/v1/generate_captions
+    http://localhost:6007/v1/dataprep/generate_captions
 ```
 
 - Multiple video upload
@@ -208,7 +208,7 @@ curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./video1.mp4" \
     -F "files=@./video2.mp4" \
-    http://localhost:6007/v1/generate_captions
+    http://localhost:6007/v1/dataprep/generate_captions
 ```
 
 - Single image upload
@@ -217,25 +217,25 @@ curl -X POST \
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./image.jpg" \
-    http://localhost:6007/v1/generate_captions
+    http://localhost:6007/v1/dataprep/generate_captions
 ```
 
-### 4.4 Consume get_files API
+### 4.4 Consume get API
 
 To get names of uploaded files, use the following command.
 
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6007/v1/dataprep/get_files
+    http://localhost:6007/v1/dataprep/get
 ```
 
-### 4.5 Consume delete_files API
+### 4.5 Consume delete API
 
 To delete uploaded files and clear the database, use the following command.
 
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6007/v1/dataprep/delete_files
+    http://localhost:6007/v1/dataprep/delete
 ```

@@ -129,7 +129,7 @@ Make sure the file path after `files=@` is correct.
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./file1.txt" \
-    http://localhost:6007/v1/dataprep
+    http://localhost:6007/v1/dataprep/ingest
 ```
 
 You can specify chunk_size and chunk_size by the following commands.
@@ -140,7 +140,7 @@ curl -X POST \
     -F "files=@./file1.txt" \
     -F "chunk_size=1500" \
     -F "chunk_overlap=100" \
-    http://localhost:6007/v1/dataprep
+    http://localhost:6007/v1/dataprep/ingest
 ```
 
 We support table extraction from pdf documents. You can specify process_table and table_strategy by the following commands. "table_strategy" refers to the strategies to understand tables for table retrieval. As the setting progresses from "fast" to "hq" to "llm," the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is "fast".
@@ -153,7 +153,7 @@ curl -X POST \
     -F "files=@./your_file.pdf" \
     -F "process_table=true" \
     -F "table_strategy=hq" \
-    http://localhost:6007/v1/dataprep
+    http://localhost:6007/v1/dataprep/ingest
 ```
 
 - Multiple file upload
@@ -164,7 +164,7 @@ curl -X POST \
     -F "files=@./file1.txt" \
     -F "files=@./file2.txt" \
     -F "files=@./file3.txt" \
-    http://localhost:6007/v1/dataprep
+    http://localhost:6007/v1/dataprep/ingest
 ```
 
 - Links upload (not supported for llama_index now)
@@ -172,7 +172,7 @@ curl -X POST \
 ```bash
 curl -X POST \
     -F 'link_list=["https://www.ces.tech/"]' \
-    http://localhost:6007/v1/dataprep
+    http://localhost:6007/v1/dataprep/ingest
 ```
 
 or
@@ -182,7 +182,7 @@ import requests
 import json
 
 proxies = {"http": ""}
-url = "http://localhost:6007/v1/dataprep"
+url = "http://localhost:6007/v1/dataprep/ingest"
 urls = [
     "https://towardsdatascience.com/no-gpu-no-party-fine-tune-bert-for-sentiment-analysis-with-vertex-ai-custom-jobs-d8fc410e908b?source=rss----7f60cf5620c9---4"
 ]
@@ -204,7 +204,7 @@ To get uploaded file structures, use the following command:
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    http://localhost:6007/v1/dataprep/get_file
+    http://localhost:6007/v1/dataprep/get
 ```
 
 Then you will get the response JSON like this:
@@ -230,24 +230,24 @@ Then you will get the response JSON like this:
 
 To delete uploaded file/link, use the following command.
 
-The `file_path` here should be the `id` get from `/v1/dataprep/get_file` API.
+The `file_path` here should be the `id` get from `/v1/dataprep/get` API.
 
 ```bash
 # delete link
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "https://www.ces.tech/.txt"}' \
-    http://localhost:6007/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete
 
 # delete file
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "uploaded_file_1.txt"}' \
-    http://localhost:6007/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete
 
 # delete all files and links
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "all"}' \
-    http://localhost:6007/v1/dataprep/delete_file
+    http://localhost:6007/v1/dataprep/delete
 ```
