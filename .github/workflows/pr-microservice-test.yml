@@ -18,6 +18,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Allow generation of id-token for OIDC auth with AWS
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   job1:
     uses: ./.github/workflows/_get-test-matrix.yml
@@ -40,6 +45,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: "refs/pull/${{ github.event.number }}/merge"
+
+      - name: Get AWS Credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        if: ${{ contains(matrix.service, 'bedrock') }}
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+          aws-region: us-east-1
 
       - name: Run microservice test
         env:
