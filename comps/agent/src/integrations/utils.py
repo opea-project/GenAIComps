@@ -3,6 +3,7 @@
 
 import argparse
 import importlib
+import json
 
 from .config import env_config
 
@@ -123,10 +124,12 @@ def adapt_custom_prompt(local_vars, custom_prompt):
 def assemble_store_messages(messages):
 
     inputs = []
-    for _, message in messages:
-        inputs.append(message["role"] + ":")
-        inputs.append(message["content"]["text"])
+    for mid in messages:
+        message = json.loads(messages[mid])
+        # TODO: format messages
+        inputs.append("### " + message["role"].upper() + ":" + "\n" + message["content"][0]["text"])
 
+    # revert messages
     return "\n".join(inputs)
 
 
