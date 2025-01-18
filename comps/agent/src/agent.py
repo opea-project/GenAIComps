@@ -235,7 +235,8 @@ def create_messages(thread_id, input: CreateMessagesRequest):
             db_client.put(
                 msg_id,
                 message.model_dump_json(),
-                input.
+                input.assistant_id
+            )
 
     return message
 
