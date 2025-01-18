@@ -22,6 +22,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Allow generation of id-token for OIDC auth with AWS
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   job1:
     uses: ./.github/workflows/_get-test-matrix.yml
