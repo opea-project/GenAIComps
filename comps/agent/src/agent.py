@@ -232,11 +232,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
             logger.info(f"Save Agent Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
             # if with store, db_client initialized already
             global db_client
-            db_client.put(
-                msg_id,
-                message.model_dump_json(),
-                input.assistant_id
-            )
+            db_client.put(msg_id, message.model_dump_json(), input.assistant_id)
 
     return message
 
