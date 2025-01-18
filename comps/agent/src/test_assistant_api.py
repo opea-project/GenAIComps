@@ -85,7 +85,7 @@ def test_assistants_http(args):
             "llm_endpoint_url": args.llm_endpoint_url,
             "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml",
             "with_store": True,
-            "store_config": {"redis_uri": f"redis://{args.ip_addr}:6379"}
+            "store_config": {"redis_uri": f"redis://{args.ip_addr}:6379"},
         }
     }
 
@@ -107,7 +107,11 @@ def test_assistants_http(args):
 
     # step 3. add messages
     if args.query is None:
-        query = {"role": "user", "content": "How old was Bill Gates when he built Microsoft?", "assistant_id": assistant_id}
+        query = {
+            "role": "user",
+            "content": "How old was Bill Gates when he built Microsoft?",
+            "assistant_id": assistant_id,
+        }
     else:
         query = {"role": "user", "content": args.query, "assistant_id": assistant_id}
     if ret := process_request(f"threads/{thread_id}/messages", query):
