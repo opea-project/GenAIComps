@@ -596,7 +596,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
             file_paths = []
             uploaded_files_saved_files_map = {}
             for file in files:
-                if os.path.splitext(file.filename)[1] in [".mp4", ".png", ".jpg", ".jpeg", ".gif", ".pdf"]
+                if os.path.splitext(file.filename)[1] in [".mp4", ".png", ".jpg", ".jpeg", ".gif"]:
                     file_paths.append(file)
                 else:
                     raise HTTPException(
