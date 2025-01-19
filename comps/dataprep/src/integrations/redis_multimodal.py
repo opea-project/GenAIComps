@@ -457,7 +457,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
         # prepare data to ingest
         if is_pdf:
-            text_list, image_list, metadatas = self.prepare_pdf_data_from_annotation(annotation, path_to_frames, filename)
+            text_list, image_list, metadatas = self.prepare_pdf_data_from_annotation(
+                annotation, path_to_frames, filename
+            )
         else:
             text_list, image_list, metadatas = self.prepare_data_and_metadata_from_annotation(
                 annotation, path_to_frames, filename
@@ -748,7 +750,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                         json.dump(annotations, f)
 
                     # Ingest multimodal data into redis
-                    self.ingest_multimodal(file_name, os.path.join(self.upload_folder, media_dir_name), self.embeddings, is_pdf=True)
+                    self.ingest_multimodal(
+                        file_name, os.path.join(self.upload_folder, media_dir_name), self.embeddings, is_pdf=True
+                    )
                 else:
                     # Save caption file in upload directory
                     caption_file_extension = os.path.splitext(matched_files[media_file][1].filename)[1]
