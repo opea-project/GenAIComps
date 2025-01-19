@@ -6,6 +6,11 @@ import asyncio
 import json
 import os
 
+# Add the directory containing config.py to the Python path
+import sys
+
+sys.path.append(os.path.dirname(__file__))
+
 # GraphRAGStore dependencies
 import re
 from collections import defaultdict
@@ -15,6 +20,20 @@ import nest_asyncio
 import networkx as nx
 import openai
 import requests
+from config import (
+    LLM_MODEL_ID,
+    MAX_INPUT_LEN,
+    MAX_OUTPUT_TOKENS,
+    NEO4J_PASSWORD,
+    NEO4J_URL,
+    NEO4J_USERNAME,
+    OPENAI_API_KEY,
+    OPENAI_EMBEDDING_MODEL,
+    OPENAI_LLM_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
+    TGI_LLM_ENDPOINT,
+    host_ip,
+)
 from fastapi import File, Form, HTTPException, UploadFile
 from graspologic.partition import hierarchical_leiden
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -26,23 +45,11 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
 from llama_index.llms.openai import OpenAI
-from llama_index.llms.text_generation_inference import TextGenerationInference
+from llama_index.llms.openai_like import OpenAILike
 from neo4j import GraphDatabase
-from openai import Client
 from transformers import AutoTokenizer
 
 from comps import CustomLogger, DocPath, opea_microservices, register_microservice
-from comps.dataprep.neo4j.llama_index.config import (
-    NEO4J_PASSWORD,
-    NEO4J_URL,
-    NEO4J_USERNAME,
-    OPENAI_API_KEY,
-    OPENAI_EMBEDDING_MODEL,
-    OPENAI_LLM_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-    TGI_LLM_ENDPOINT,
-    host_ip,
-)
 from comps.dataprep.src.utils import (
     document_loader,
     encode_filename,
@@ -53,6 +60,9 @@ from comps.dataprep.src.utils import (
 )
 
 nest_asyncio.apply()
+
+import time
+import traceback
 
 from llama_index.core.async_utils import run_jobs
 from llama_index.core.bridge.pydantic import BaseModel, Field
@@ -71,19 +81,17 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     max_cluster_size = 100
 
     def __init__(self, username: str, password: str, url: str, llm: LLM):
-        super().__init__(username=username, password=password, url=url)
+        super().__init__(username=username, password=password, url=url, refresh_schema=False)
         self.llm = llm
         self.driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 
-    def generate_community_summary(self, text):
+    async def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM."""
-        # Get model information from the TGI endpoint
-        model_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
-        max_input_length = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "max_input_length")
+        model_name = LLM_MODEL_ID
+        max_input_length = int(MAX_INPUT_LEN)
         if not model_name or not max_input_length:
             raise ValueError(f"Could not retrieve model information from TGI endpoint: {TGI_LLM_ENDPOINT}")
 
-        # Get the tokenizer
         tokenizer = AutoTokenizer.from_pretrained(model_name)
 
         messages = [
@@ -105,14 +113,14 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         trimmed_messages = trim_messages_to_token_limit(tokenizer, messages, max_input_length)
 
         if OPENAI_API_KEY:
-            response = OpenAI().chat(messages)
+            response = OpenAI().achat(messages)
         else:
-            response = self.llm.chat(trimmed_messages)
+            response = self.llm.achat(trimmed_messages)
 
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
 
-    def build_communities(self):
+    async def build_communities(self):
         """Builds communities from the graph and summarizes them."""
         nx_graph = self._create_nx_graph()
         community_hierarchical_clusters = hierarchical_leiden(nx_graph, max_cluster_size=self.max_cluster_size)
@@ -124,7 +132,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         # self._print_cluster_info(self.entity_info, community_info)
         self.save_entity_info(self.entity_info)
         # entity_from_db = self.read_entity_info()  # to verify if the data is stored in db
-        self._summarize_communities(community_info)
+        await self._summarize_communities(community_info)
         # sum = self.read_all_community_summaries()  # to verify summaries are stored in db
 
     def _create_nx_graph(self):
@@ -232,29 +240,38 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
                 entity_info[record["entity_id"]] = [int(cluster_id) for cluster_id in record["cluster_ids"]]
         return entity_info
 
-    def _summarize_communities(self, community_info):
+    async def _summarize_communities(self, community_info, num_workers=5):
         """Generate and store summaries for each community."""
+        # Run tasks concurrently with a limited number of workers
+        tasks = []
         for community_id, details in community_info.items():
             logger.info(f"Summarizing community {community_id}")
             details_text = "\n".join(details) + "."  # Ensure it ends with a period
-            self.community_summary[community_id] = self.generate_community_summary(details_text)
+            tasks.append(self._process_community(community_id, details_text))
+        await run_jobs(
+            tasks,
+            workers=num_workers,
+            show_progress=True,
+            desc="Summarize communities",
+        )
 
-            # To store summaries in neo4j
-            summary = self.generate_community_summary(details_text)
-            self.store_community_summary_in_neo4j(community_id, summary)
-            # self.community_summary[
-            #     community_id
-            # ] = self.store_community_summary_in_neo4j(community_id, summary)
+    async def _process_community(self, community_id, details_text):
+        """Process a single community and store the summary."""
+        summary = await self.generate_community_summary(details_text)
+        self.community_summary[community_id] = summary
+        self.store_community_summary_in_neo4j(community_id, summary)
 
     def store_community_summary_in_neo4j(self, community_id, summary):
         """Store the community summary in Neo4j."""
+        logger.info(f"Community_id: {community_id} type: {type(community_id)}")
         with self.driver.session() as session:
             session.run(
                 """
-                MERGE (c:Cluster {id: $community_id})
-                SET c.summary = $summary
+            MATCH (c:Cluster {id: $community_id, name: $community_name})
+            SET c.summary = $summary
             """,
-                community_id=int(community_id),
+                community_id=str(community_id),
+                community_name=str(community_id),
                 summary=summary,
             )
 
@@ -347,7 +364,7 @@ class GraphRAGExtractor(TransformComponent):
     async def _aextract(self, node: BaseNode) -> BaseNode:
         """Extract triples from a node."""
         assert hasattr(node, "text")
-
+        start = time.time()
         text = node.get_content(metadata_mode="llm")
         try:
             llm_response = await self.llm.apredict(
@@ -359,7 +376,9 @@ class GraphRAGExtractor(TransformComponent):
         except ValueError:
             entities = []
             entities_relationship = []
+        logger.info(f"Time taken to LLM and parse: {time.time() - start}")
 
+        start = time.time()
         existing_nodes = node.metadata.pop(KG_NODES_KEY, [])
         existing_relations = node.metadata.pop(KG_RELATIONS_KEY, [])
         entity_metadata = node.metadata.copy()
@@ -383,6 +402,7 @@ class GraphRAGExtractor(TransformComponent):
 
         node.metadata[KG_NODES_KEY] = existing_nodes
         node.metadata[KG_RELATIONS_KEY] = existing_relations
+        logger.info(f"Time taken to process entities and relations: {time.time() - start}")
         logger.info(f"number of extracted nodes {len(existing_nodes), existing_nodes}")
         logger.info(f"number of extracted relations {len(existing_relations), existing_relations}")
         return node
@@ -469,19 +489,24 @@ def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
     """Trim the messages to fit within the token limit."""
     total_tokens = 0
     trimmed_messages = []
+    buffer = 100
+    effective_max_tokens = max_tokens - buffer
 
     for message in messages:
         tokens = tokenizer.tokenize(message.content)
-        total_tokens += len(tokens)
-        if total_tokens > max_tokens:
+        message_token_count = len(tokens)
+        if total_tokens + message_token_count > effective_max_tokens:
             # Trim the message to fit within the remaining token limit
-            logger.info(f"Trimming messages: {total_tokens} > {max_tokens}")
-            remaining_tokens = max_tokens - (total_tokens - len(tokens))
+            logger.info(f"Trimming messages: {total_tokens + message_token_count} > {effective_max_tokens}")
+            logger.info(f"message_token_count: {message_token_count}")
+            remaining_tokens = effective_max_tokens - total_tokens
+            logger.info(f"remaining_tokens: {remaining_tokens}")
             tokens = tokens[:remaining_tokens]
             message.content = tokenizer.convert_tokens_to_string(tokens)
             trimmed_messages.append(message)
             break
         else:
+            total_tokens += message_token_count
             trimmed_messages.append(message)
 
     return trimmed_messages
@@ -493,9 +518,66 @@ logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
 client = OpenAI()
 
+# Global variables to store the initialized objects
+llm = None
+embed_model = None
+graph_store = None
+kg_extractor = None
+initialized = False
+
+
+def initialize_graph_store_and_models():
+    global llm, embed_model, graph_store, kg_extractor, initialized
+
+    if OPENAI_API_KEY:
+        logger.info("OpenAI API Key is set. Verifying its validity...")
+        openai.api_key = OPENAI_API_KEY
+        try:
+            llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
+            embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
+            logger.info("OpenAI API Key is valid.")
+        except openai.AuthenticationError:
+            logger.info("OpenAI API Key is invalid.")
+        except Exception as e:
+            logger.info(f"An error occurred while verifying the API Key: {e}")
+    else:
+        logger.info("NO OpenAI API Key. TGI/VLLM/TEI endpoints will be used.")
+        # works with TGI and VLLM endpoints
+        llm = OpenAILike(
+            model=LLM_MODEL_ID,
+            api_base=TGI_LLM_ENDPOINT + "/v1",
+            api_key="fake",
+            temperature=0.7,
+            max_tokens=int(MAX_OUTPUT_TOKENS),  # 1512
+            timeout=1200,  # timeout in seconds)
+        )
+        emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
+        embed_model = TextEmbeddingsInference(
+            base_url=TEI_EMBEDDING_ENDPOINT,
+            model_name=emb_name,
+            timeout=600,  # timeout in seconds
+            embed_batch_size=10,  # batch size for embedding
+        )
+    Settings.embed_model = embed_model
+    Settings.llm = llm
+    kg_extractor = GraphRAGExtractor(
+        llm=llm,
+        extract_prompt=KG_TRIPLET_EXTRACT_TMPL,
+        max_paths_per_chunk=2,
+        parse_fn=parse_fn,
+    )
+    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
+    initialized = True
+
 
 def ingest_data_to_neo4j(doc_path: DocPath):
     """Ingest document to Neo4J."""
+    global initialized
+    if not initialized:
+        starttime = time.time()
+        initialize_graph_store_and_models()
+        logger.info(f"Time taken to initialize: {time.time() - starttime}")
+
     path = doc_path.path
     if logflag:
         logger.info(f"Parsing document {path}.")
@@ -539,44 +621,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     if logflag:
         logger.info(f"Done preprocessing. Created  {len(nodes)} chunks of the original file.")
 
-    if OPENAI_API_KEY:
-        logger.info("OpenAI API Key is set. Verifying its validity...")
-        openai.api_key = OPENAI_API_KEY
-        try:
-            llm = OpenAI(temperature=0, model=OPENAI_LLM_MODEL)
-            embed_model = OpenAIEmbedding(model=OPENAI_EMBEDDING_MODEL, embed_batch_size=100)
-            logger.info("OpenAI API Key is valid.")
-        except openai.AuthenticationError:
-            logger.info("OpenAI API Key is invalid.")
-        except Exception as e:
-            logger.info(f"An error occurred while verifying the API Key: {e}")
-    else:
-        logger.info("NO OpenAI API Key. TGI/TEI endpoints will be used.")
-        llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
-        llm = TextGenerationInference(
-            model_url=TGI_LLM_ENDPOINT,
-            model_name=llm_name,
-            temperature=0.7,
-            max_tokens=1512,
-            timeout=600,  # timeout in seconds
-        )
-        emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
-        embed_model = TextEmbeddingsInference(
-            base_url=TEI_EMBEDDING_ENDPOINT,
-            model_name=emb_name,
-            timeout=600,  # timeout in seconds
-            embed_batch_size=10,  # batch size for embedding
-        )
-    Settings.embed_model = embed_model
-    Settings.llm = llm
-    kg_extractor = GraphRAGExtractor(
-        llm=llm,
-        extract_prompt=KG_TRIPLET_EXTRACT_TMPL,
-        max_paths_per_chunk=2,
-        parse_fn=parse_fn,
-    )
-    graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
-
+    start = time.time()
     # nodes are the chunked docs to insert
     index = PropertyGraphIndex(
         nodes=nodes,
@@ -588,7 +633,7 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     )
     if logflag:
         logger.info("The graph is built.")
-        logger.info(f"Total number of triplets {len(index.property_graph_store.get_triplets())}")
+        logger.info(f"Time taken to update PropertyGraphIndex: {time.time() - start}")
 
     if logflag:
         logger.info("Done building communities.")
@@ -596,13 +641,15 @@ def ingest_data_to_neo4j(doc_path: DocPath):
     return index
 
 
-def build_communities(index: PropertyGraphIndex):
+async def build_communities(index: PropertyGraphIndex):
     try:
-        index.property_graph_store.build_communities()
+        await index.property_graph_store.build_communities()
         if logflag:
             logger.info("Done building communities.")
     except Exception as e:
         logger.error(f"Error building communities: {e}")
+        error_trace = traceback.format_exc()
+        logger.error(f"Error building communities: {e}\n{error_trace}")
     return True
 
 
@@ -621,42 +668,30 @@ async def ingest_documents(
     chunk_overlap: int = Form(100),
     process_table: bool = Form(False),
     table_strategy: str = Form("fast"),
+    skip_ingestion: bool = Form(False),
 ):
     if logflag:
         logger.info(f"files:{files}")
         logger.info(f"link_list:{link_list}")
+        logger.info(f"skip_ingestion:{skip_ingestion}")
 
-    if files:
-        if not isinstance(files, list):
-            files = [files]
-        uploaded_files = []
-        for file in files:
-            encode_file = encode_filename(file.filename)
-            save_path = upload_folder + encode_file
-            await save_content_to_local_disk(save_path, file)
-            index = ingest_data_to_neo4j(
-                DocPath(
-                    path=save_path,
-                    chunk_size=chunk_size,
-                    chunk_overlap=chunk_overlap,
-                    process_table=process_table,
-                    table_strategy=table_strategy,
-                )
-            )
-            uploaded_files.append(save_path)
-            if logflag:
-                logger.info(f"Successfully saved file {save_path}")
-
-    if link_list:
-        link_list = json.loads(link_list)  # Parse JSON string to list
-        if not isinstance(link_list, list):
-            raise HTTPException(status_code=400, detail="link_list should be a list.")
-        for link in link_list:
-            encoded_link = encode_filename(link)
-            save_path = upload_folder + encoded_link + ".txt"
-            content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-            try:
-                await save_content_to_local_disk(save_path, content)
+    if skip_ingestion:
+        initialize_graph_store_and_models()
+        index = PropertyGraphIndex.from_existing(
+            property_graph_store=graph_store,
+            embed_model=embed_model or Settings.embed_model,
+            embed_kg_nodes=True,
+        )
+    else:
+        if files:
+            if not isinstance(files, list):
+                files = [files]
+            uploaded_files = []
+            for file in files:
+                encode_file = encode_filename(file.filename)
+                save_path = upload_folder + encode_file
+                await save_content_to_local_disk(save_path, file)
+                starttime = time.time()
                 index = ingest_data_to_neo4j(
                     DocPath(
                         path=save_path,
@@ -666,14 +701,38 @@ async def ingest_documents(
                         table_strategy=table_strategy,
                     )
                 )
-            except json.JSONDecodeError:
-                raise HTTPException(status_code=500, detail="Fail to ingest data")
+                logger.info(f"Time taken to ingest file:{encode_file} {time.time() - starttime}")
+                uploaded_files.append(save_path)
+                if logflag:
+                    logger.info(f"Successfully saved file {save_path}")
 
-            if logflag:
-                logger.info(f"Successfully saved link {link}")
+        if link_list:
+            link_list = json.loads(link_list)  # Parse JSON string to list
+            if not isinstance(link_list, list):
+                raise HTTPException(status_code=400, detail="link_list should be a list.")
+            for link in link_list:
+                encoded_link = encode_filename(link)
+                save_path = upload_folder + encoded_link + ".txt"
+                content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+                try:
+                    await save_content_to_local_disk(save_path, content)
+                    index = ingest_data_to_neo4j(
+                        DocPath(
+                            path=save_path,
+                            chunk_size=chunk_size,
+                            chunk_overlap=chunk_overlap,
+                            process_table=process_table,
+                            table_strategy=table_strategy,
+                        )
+                    )
+                except json.JSONDecodeError:
+                    raise HTTPException(status_code=500, detail="Fail to ingest data")
 
-    if files or link_list:
-        build_communities(index)
+                if logflag:
+                    logger.info(f"Successfully saved link {link}")
+
+    if files or link_list or skip_ingestion:
+        await build_communities(index)
         result = {"status": 200, "message": "Data preparation succeeded"}
         if logflag:
             logger.info(result)
