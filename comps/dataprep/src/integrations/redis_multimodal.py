@@ -404,6 +404,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
     def prepare_pdf_data_from_annotation(self, annotation, path_to_files, title):
         """PDF data processing has some key differences from videos and images.
+
         1. Neighboring transcripts are not currently considered relevant.
         We are only taking the text located on the same page as the image.
         2. The images within PDFs are indexed by page and image-within-page
