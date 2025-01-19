@@ -51,9 +51,13 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
             json["text"] = input.text
         elif isinstance(input, TextImageDoc):
             json["text"] = input.text.text
-            img_bytes = input.image.url.load_bytes()
-            base64_img = base64.b64encode(img_bytes).decode("utf-8")
-            json["img_b64_str"] = base64_img
+            if input.image.url:
+                img_bytes = input.image.url.load_bytes()
+                base64_img = base64.b64encode(img_bytes).decode("utf-8")
+            elif input.image.base64_image:
+                base64_img = input.image.base64_image
+            if base64_img:
+                json["img_b64_str"] = base64_img
         else:
             raise TypeError(
                 f"Unsupported input type: {type(input)}. "
@@ -70,6 +74,9 @@ class OpeaMultimodalEmbeddingBrigeTower(OpeaComponent):
             res = EmbedMultimodalDoc(text=input.text, embedding=embed_vector)
         elif isinstance(input, TextImageDoc):
             res = EmbedMultimodalDoc(text=input.text.text, url=input.image.url, embedding=embed_vector)
+
+            if base64_img:
+                res.base64_image = base64_img
 
         return res
 

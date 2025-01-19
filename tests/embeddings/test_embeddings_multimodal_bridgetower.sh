@@ -82,9 +82,26 @@ function validate_microservice_image_text_pair_embedding() {
     fi
 }
 
+function validate_microservice_b64_image_text_pair_embedding() {
+    result=$(http_proxy="" curl http://${ip_address}:$MM_EMBEDDING_PORT_MICROSERVICE/v1/embeddings \
+        -X POST \
+        -H "Content-Type: application/json" \
+        -d '{"text": {"text" : "This is some sample text."}, "image" : {"base64_image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC"}}')
+
+    if [[ $result == *"embedding"* ]] && [[ $result == *"base64_image"* ]] ; then
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs embedding-multimodal-bridgetower
+        docker logs embedding-multimodal-bridgetower-server
+        exit 1
+    fi
+}
+
 function validate_microservice() {
     validate_microservice_text_embedding
     validate_microservice_image_text_pair_embedding
+    validate_microservice_b64_image_text_pair_embedding
 }
 
 function stop_docker() {

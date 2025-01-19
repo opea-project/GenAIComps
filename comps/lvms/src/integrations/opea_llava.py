@@ -23,6 +23,9 @@ from comps import (
 logger = CustomLogger("opea_llava")
 logflag = os.getenv("LOGFLAG", False)
 
+# The maximum number of images that should be sent to the LVM
+max_images = int(os.getenv("MAX_IMAGES", 1))
+
 
 class ChatTemplate:
 
@@ -46,6 +49,8 @@ class OpeaLlavaLvm(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LVM.name.lower(), description, config)
         self.base_url = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
+        if logflag:
+            logger.info(f"MAX_IMAGES: {max_images}")
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaLlavaLvm health check failed.")
@@ -93,6 +98,17 @@ class OpeaLlavaLvm(OpeaComponent):
             img_b64_str = request.image
             prompt = request.prompt
             max_new_tokens = request.max_new_tokens
+
+        # Limit the number of images being sent to the LVM
+        if isinstance(img_b64_str, list) and len(img_b64_str) > max_images:
+            img_b64_str = img_b64_str[-max_images:]
+
+            # Adjust the number of images tags in the prompt
+            image_tag = "<image>\n"
+            num_tags_in_prompt = prompt.count(image_tag)
+
+            if len(img_b64_str) < num_tags_in_prompt:
+                prompt = prompt.replace(image_tag, "", num_tags_in_prompt - len(img_b64_str))
 
         inputs = {"img_b64_str": img_b64_str, "prompt": prompt, "max_new_tokens": max_new_tokens}
         # forward to the LLaVA server

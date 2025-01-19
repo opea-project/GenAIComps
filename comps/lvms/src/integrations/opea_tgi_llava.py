@@ -26,6 +26,9 @@ from comps import (
 logger = CustomLogger("opea_tgi_llava")
 logflag = os.getenv("LOGFLAG", False)
 
+# The maximum number of images that should be sent to the LVM
+max_images = int(os.getenv("MAX_IMAGES", 1))
+
 
 class ChatTemplate:
 
@@ -51,6 +54,8 @@ class OpeaTgiLlavaLvm(OpeaComponent):
         self.base_url = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
         self.lvm_client = AsyncInferenceClient(self.base_url)
         health_status = self.check_health()
+        if logflag:
+            logger.info(f"MAX_IMAGES: {max_images}")
         if not health_status:
             logger.error("OpeaTgiLlavaLvm health check failed.")
 
@@ -108,15 +113,43 @@ class OpeaTgiLlavaLvm(OpeaComponent):
             top_k = request.top_k
             top_p = request.top_p
 
-        if not img_b64_str:
-            # Work around an issue where LLaVA-NeXT is not providing good responses when prompted without an image.
-            # Provide an image and then instruct the model to ignore the image. The base64 string below is the encoded png:
-            # https://raw.githubusercontent.com/opea-project/GenAIExamples/refs/tags/v1.0/AudioQnA/ui/svelte/src/lib/assets/icons/png/audio1.png
-            img_b64_str = "iVBORw0KGgoAAAANSUhEUgAAADUAAAAlCAYAAADiMKHrAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKPSURBVHgB7Zl/btowFMefnUTqf+MAHYMTjN4gvcGOABpM+8E0doLSE4xpsE3rKuAG3KC5Ad0J6MYOkP07YnvvhR9y0lVzupTIVT5SwDjB9fd97WfsMkCef1rUXM8dY9HHK4hWUevzi/oVWAqnF8fzLmAtiPA3Aq0lFsVA1fRKxlgNLIbDPaQUZQuu6YO98aIipHOiFGtIqaYfn1UnUCDds6WPyeANlTFbv9WztbFTK+HNUVAPiz7nbPzq7HsPCoKWIBREGfsJXZit5xT07X0jp6iRdIbEHOnjyyD97OvzH00lVS2K5OS2ax11cBXxJgYxlEIE6XZclzdTX6n8XjkkcEIfbj2nMO0/SNd1vy4vsCNjYPyEovfyy88GZIQCSKOCMf6ORgStoboLJuSWKDYCfK2q4jjrMZ+GOh7Pib/gek5DHxVUJtcgA7mJ4kwZRbN7viQXFzQn0Nl52gXG4Fo7DKAYp0yI3VHQ16oaWV0wYa+iGE8nG+wAdx5DzpS/KGyhFGULpShbKEXZQinqLlBK/IKc2asoh4sZvoXJWhlAzuxV1KBVD3HrfYTFAK8ZHgu0hu36DHLG+Izinw250WUkXHJht02QUnxLP7fZxR7f1I6S7Ir2GgmYvIQM5OYUuYBdainATq2ZjTqPBlnbGXYeBrg9Od18DKmc1U0jpw4OIIwEJFxQSl2b4MN2lf74fw8nFNbHt/5N9xWKTZvJ2S6YZk6RC3j2cKpVhSIShZ0mea6caCOCAjyNHd5gPPxGncMBTvI6hunYdaJ6kf8VoSCP2odxX6RkR6NOtanfj13EswKVqEQrPzzFL1lK+YvCFraiEqs8TrwQLGYraqpX4kr/Hixml+63Z+CoM9DTo438AUmP+KyMWT+tAAAAAElFTkSuQmCC"
-            prompt = f"Please disregard the image and answer the question. {prompt}"
+        # Make img_b64_str into a list of strings (if it's not already a list)
+        if not isinstance(img_b64_str, list):
+            if img_b64_str:
+                img_b64_str = [img_b64_str]
+            else:
+                # If img_b64_str was an empty string, which means we have just have a text prompt.
+                # Work around an issue where LLaVA-NeXT is not providing good responses when prompted without an image.
+                # Provide an image and then instruct the model to ignore the image. The base64 string below is the encoded png:
+                # https://raw.githubusercontent.com/opea-project/GenAIExamples/refs/tags/v1.0/AudioQnA/ui/svelte/src/lib/assets/icons/png/audio1.png
+                img_b64_str = [
+                    "iVBORw0KGgoAAAANSUhEUgAAADUAAAAlCAYAAADiMKHrAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKPSURBVHgB7Zl/btowFMefnUTqf+MAHYMTjN4gvcGOABpM+8E0doLSE4xpsE3rKuAG3KC5Ad0J6MYOkP07YnvvhR9y0lVzupTIVT5SwDjB9fd97WfsMkCef1rUXM8dY9HHK4hWUevzi/oVWAqnF8fzLmAtiPA3Aq0lFsVA1fRKxlgNLIbDPaQUZQuu6YO98aIipHOiFGtIqaYfn1UnUCDds6WPyeANlTFbv9WztbFTK+HNUVAPiz7nbPzq7HsPCoKWIBREGfsJXZit5xT07X0jp6iRdIbEHOnjyyD97OvzH00lVS2K5OS2ax11cBXxJgYxlEIE6XZclzdTX6n8XjkkcEIfbj2nMO0/SNd1vy4vsCNjYPyEovfyy88GZIQCSKOCMf6ORgStoboLJuSWKDYCfK2q4jjrMZ+GOh7Pib/gek5DHxVUJtcgA7mJ4kwZRbN7viQXFzQn0Nl52gXG4Fo7DKAYp0yI3VHQ16oaWV0wYa+iGE8nG+wAdx5DzpS/KGyhFGULpShbKEXZQinqLlBK/IKc2asoh4sZvoXJWhlAzuxV1KBVD3HrfYTFAK8ZHgu0hu36DHLG+Izinw250WUkXHJht02QUnxLP7fZxR7f1I6S7Ir2GgmYvIQM5OYUuYBdainATq2ZjTqPBlnbGXYeBrg9Od18DKmc1U0jpw4OIIwEJFxQSl2b4MN2lf74fw8nFNbHt/5N9xWKTZvJ2S6YZk6RC3j2cKpVhSIShZ0mea6caCOCAjyNHd5gPPxGncMBTvI6hunYdaJ6kf8VoSCP2odxX6RkR6NOtanfj13EswKVqEQrPzzFL1lK+YvCFraiEqs8TrwQLGYraqpX4kr/Hixml+63Z+CoM9DTo438AUmP+KyMWT+tAAAAAElFTkSuQmCC"
+                ]
+                prompt = f"Please disregard the image and answer the question. {prompt}"
 
-        image = f"data:image/png;base64,{img_b64_str}"
-        image_prompt = f"![]({image})\n{prompt}\nASSISTANT:"
+        # Truncate the list of images if we have too many, only sending the most recent ones at the end of the list
+        if len(img_b64_str) > max_images:
+            img_b64_str = img_b64_str[-max_images:]
+
+        # Check the number of image tags in the prompt and adjust them to match the number of images that we have
+        image_tag = "<image>\n"
+        num_tags_in_prompt = prompt.count(image_tag)
+
+        # We have too many image tags in the prompt replace the first x instance of the tag with an empty string
+        if len(img_b64_str) < num_tags_in_prompt:
+            prompt = prompt.replace(image_tag, "", num_tags_in_prompt - len(img_b64_str))
+
+        # We don't have enough image tags in the prompt, add them
+        if len(img_b64_str) > num_tags_in_prompt:
+            num_tags_to_add = len(img_b64_str) - num_tags_in_prompt
+            tags_to_add = image_tag * num_tags_to_add
+            prompt = f"{tags_to_add}{prompt}"
+
+        # Replace image tags with the data
+        for i in img_b64_str:
+            formatted_image_str = f"![](data:image/png;base64,{i})\n"
+            prompt = prompt.replace(image_tag, formatted_image_str, 1)
+        image_prompt = f"{prompt}\nASSISTANT:"
 
         if stream:
             t_start = time.time()
