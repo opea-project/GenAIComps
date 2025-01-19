@@ -167,14 +167,8 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retrievers-neo4j*")
-    if [[ ! -z "$cid_retrievers" ]]; then
-        docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
-    fi
-    cid_db=$(docker ps -aq --filter "name=test-comps-retrievers-neo4j-llama-index-neo4j-apoc")
-    if [[ ! -z "$cid_retrievers" ]]; then
-        docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
-    fi
+    cid=$(docker ps -aq --filter "name=test-comps-*")
+    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
 function main() {
