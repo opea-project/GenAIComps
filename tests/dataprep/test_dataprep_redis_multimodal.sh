@@ -264,7 +264,7 @@ function validate_microservice() {
 
     # test ingest with a PDF file
     echo "Testing ingest API with a PDF file"
-    URL="http://${ip_address}:$dataprep_service_port/v1/ingest"
+    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$pdf_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')

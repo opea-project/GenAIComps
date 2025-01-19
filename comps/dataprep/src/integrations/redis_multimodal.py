@@ -404,6 +404,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
     def prepare_pdf_data_from_annotation(self, annotation, path_to_files, title):
         """PDF data processing has some key differences from videos and images.
+
         1. Neighboring transcripts are not currently considered relevant.
         We are only taking the text located on the same page as the image.
         2. The images within PDFs are indexed by page and image-within-page
@@ -646,7 +647,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
     async def ingest_files(self, files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
         if files:
-            accepted_media_formats = [".mp4", ".png", ".jpg", ".jpeg", ".gif"]
+            accepted_media_formats = [".mp4", ".png", ".jpg", ".jpeg", ".gif", ".pdf"]
             # Create a lookup dictionary containing all media files
             matched_files = {
                 f.filename: [f] for f in files if os.path.splitext(f.filename)[1] in accepted_media_formats

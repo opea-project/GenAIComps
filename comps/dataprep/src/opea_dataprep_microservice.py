@@ -11,7 +11,7 @@ from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
 from integrations.opensearch import OpeaOpenSearchDataprep
-from integrations.pgvector import OpeaPgvectorDataprep
+from integrations.pgvect import OpeaPgvectorDataprep
 from integrations.pipecone import OpeaPineConeDataprep
 from integrations.qdrant import OpeaQdrantDataprep
 from integrations.redis import OpeaRedisDataprep
