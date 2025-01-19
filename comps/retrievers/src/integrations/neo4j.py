@@ -4,6 +4,7 @@
 
 import os
 import re
+import time
 from typing import Union
 
 import openai
@@ -14,7 +15,8 @@ from llama_index.core.query_engine import CustomQueryEngine
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.embeddings.text_embeddings_inference import TextEmbeddingsInference
 from llama_index.llms.openai import OpenAI
-from llama_index.llms.text_generation_inference import TextGenerationInference
+from llama_index.llms.openai_like import OpenAILike
+from neo4j import GraphDatabase
 from pydantic import PrivateAttr
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -22,6 +24,8 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalRespo
 from comps.dataprep.src.integrations.neo4j_llamaindex import GraphRAGStore, get_attribute_from_tgi_endpoint
 
 from .config import (
+    LLM_MODEL_ID,
+    MAX_OUTPUT_TOKENS,
     NEO4J_PASSWORD,
     NEO4J_URL,
     NEO4J_USERNAME,
@@ -51,23 +55,24 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         self._llm = llm
         self._similarity_top_k = similarity_top_k
 
-    def custom_query(self, query_str: str) -> RetrievalResponseData:
+    def custom_query(self, query_str: str, batch_size: int = 16) -> RetrievalResponseData:
         """Process all community summaries to generate answers to a specific query."""
 
         entities = self.get_entities(query_str, self._similarity_top_k)
-        entity_info = self._graph_store.read_entity_info()
-        community_ids = self.retrieve_entity_communities(entity_info, entities)
         community_summaries = self.retrieve_community_summaries_cypher(entities)
         community_ids = list(community_summaries.keys())
         if logflag:
             logger.info(f"Community ids: {community_ids}")
-        # community_summaries of relevant communities
-        community_answers = [
-            self.generate_answer_from_summary(community_summary, query_str)
-            for id, community_summary in community_summaries.items()
-        ]
+        # Process community summaries in batches
+        community_answers = []
+        for i in range(0, len(community_ids), batch_size):
+            batch_ids = community_ids[i : i + batch_size]
+            batch_summaries = {community_id: community_summaries[community_id] for community_id in batch_ids}
+            batch_answers = self.generate_batch_answers_from_summaries(batch_summaries, query_str)
+            community_answers.extend(batch_answers)
         # Convert answers to RetrievalResponseData objects
         # response_data = [RetrievalResponseData(text=answer, metadata={}) for answer in community_answers]
+        # logger.info(f"custom_query output result type {type(response_data)}")
         # return response_data
         return community_answers
 
@@ -78,7 +83,7 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         entities = set()
         pattern = r"(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)\s*->\s*(\w+(?:\s+\w+)*)"
         if logflag:
-            logger.info(f" len of triplets {len(self._index.property_graph_store.get_triplets())}")
+            # logger.info(f" len of triplets {len(self._index.property_graph_store.get_triplets())}")
             logger.info(f"number of nodes retrieved {len(nodes_retrieved), nodes_retrieved}")
         for node in nodes_retrieved:
             matches = re.findall(pattern, node.text, re.DOTALL)
@@ -153,6 +158,49 @@ class GraphRAGQueryEngine(CustomQueryEngine):
         cleaned_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return cleaned_response
 
+    def generate_batch_answers_from_summaries(self, batch_summaries, query):
+        """Generate answers from a batch of community summaries based on a given query using LLM."""
+        batch_prompts = []
+        for community_id, summary in batch_summaries.items():
+            prompt = (
+                f"Given the community summary: {summary}, " f"how would you answer the following query? Query: {query}"
+            )
+            messages = [
+                ChatMessage(role="system", content=prompt),
+                ChatMessage(
+                    role="user",
+                    content="I need an answer based on the above information.",
+                ),
+            ]
+            batch_prompts.append((community_id, messages))
+
+        # Generate answers for the batch
+        answers = self.generate_batch_responses(batch_prompts)
+        return answers
+
+    def generate_batch_responses(self, batch_prompts):
+        """Generate responses for a batch of prompts using LLM."""
+        responses = {}
+        messages = [messages for _, messages in batch_prompts]
+
+        # Generate responses for the batch
+        if OPENAI_API_KEY:
+            batch_responses = [OpenAI().chat(message) for message in messages]
+        else:
+            batch_responses = [self._llm.chat(message) for message in messages]
+
+        for (community_id, _), response in zip(batch_prompts, batch_responses):
+            cleaned_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
+            responses[community_id] = cleaned_response
+
+        return [responses[community_id] for community_id, _ in batch_prompts]
+
+
+# Global variables to store the graph_store and index
+graph_store = None
+query_engine = None
+index = None
+
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_NEO4J")
 class OpeaNeo4jRetriever(OpeaComponent):
@@ -172,6 +220,8 @@ class OpeaNeo4jRetriever(OpeaComponent):
 
     def _initialize_client(self):
         """Initializes the neo4j client."""
+        # async def initialize_graph_store_and_index():
+        global graph_store, index, initialized, query_engine
         if OPENAI_API_KEY:
             logger.info("OpenAI API Key is set. Verifying its validity...")
             openai.api_key = OPENAI_API_KEY
@@ -184,32 +234,40 @@ class OpeaNeo4jRetriever(OpeaComponent):
             except Exception as e:
                 logger.info(f"An error occurred while verifying the API Key: {e}")
         else:
-            logger.info("No OpenAI API KEY provided. Will use TGI and TEI endpoints")
-            llm_name = get_attribute_from_tgi_endpoint(TGI_LLM_ENDPOINT, "model_id")
-            llm = TextGenerationInference(
-                model_url=TGI_LLM_ENDPOINT,
-                model_name=llm_name,
+            logger.info("No OpenAI API KEY provided. Will use TGI/VLLM and TEI endpoints")
+            # works w VLLM too
+            llm = OpenAILike(
+                model=LLM_MODEL_ID,
+                api_base=TGI_LLM_ENDPOINT + "/v1",
+                api_key="fake",
+                timeout=600,
                 temperature=0.7,
-                max_tokens=1512,  # 512otherwise too shor
+                max_tokens=int(MAX_OUTPUT_TOKENS),
             )
             emb_name = get_attribute_from_tgi_endpoint(TEI_EMBEDDING_ENDPOINT, "model_id")
             embed_model = TextEmbeddingsInference(
                 base_url=TEI_EMBEDDING_ENDPOINT,
                 model_name=emb_name,
-                timeout=60,  # timeout in seconds
+                timeout=600,  # timeout in seconds
                 embed_batch_size=10,  # batch size for embedding
             )
-
         Settings.embed_model = embed_model
         Settings.llm = llm
+
+        logger.info("Creating graph store from existing...")
+        start = time.time()
         # pre-existiing graph store (created with data_prep/llama-index/extract_graph_neo4j.py)
         graph_store = GraphRAGStore(username=NEO4J_USERNAME, password=NEO4J_PASSWORD, url=NEO4J_URL, llm=llm)
+        logger.info(f"Time to create graph store: {time.time() - start:.2f} seconds")
 
+        logger.info("Creating index from existing...")
+        start = time.time()
         index = PropertyGraphIndex.from_existing(
             property_graph_store=graph_store,
             embed_model=embed_model or Settings.embed_model,
             embed_kg_nodes=True,
         )
+        logger.info(f"Time to create index: {time.time() - start:.2f} seconds")
 
         query_engine = GraphRAGQueryEngine(
             graph_store=index.property_graph_store,
@@ -240,7 +298,7 @@ class OpeaNeo4jRetriever(OpeaComponent):
         """Search the Neo4j index for the most similar documents to the input query.
 
         Args:
-            input (EmbedDoc): The input query to search for.
+            input (ChatCompletionRequest): The input query to search for.
         Output:
             list: The retrieved documents.
         """
