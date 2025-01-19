@@ -49,7 +49,7 @@ function start_multimodal_service() {
 
     # redis retriever
     export REDIS_URL="redis://${ip_address}:5689"
-    export INDEX_NAME="rag-redis"
+    export INDEX_NAME="mm-rag-redis"
     retriever_port=5435
     unset http_proxy
     docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e BRIDGE_TOWER_EMBEDDING=true -e LOGFLAG=true -e RETRIEVER_TYPE="redis" opea/retriever-redis:comps
@@ -84,6 +84,45 @@ function validate_microservice() {
     fi
 }
 
+function validate_mm_microservice() {
+    local test_embedding="$1"
+
+    retriever_port=5435
+    export PATH="${HOME}/miniforge3/bin:$PATH"
+    source activate
+    URL="http://${ip_address}:$retriever_port/v1/retrieval"
+
+    # Test the retriever with a b64 image that should be passed through
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding},\"base64_image\":\"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC\"}" -H 'Content-Type: application/json' "$URL")
+    if [ "$HTTP_STATUS" -eq 200 ]; then
+        echo "[ retriever ] HTTP status is 200. Checking content..."
+        local CONTENT=$(curl -s -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
+
+        if echo "$CONTENT" | grep -q "retrieved_docs"; then
+            echo "[ retriever ] Content has retrieved_docs as expected."
+            empty_search_results=$(echo "$CONTENT" | grep "\"retrieved_docs\":\[\]")
+            if [ -z "$empty_search_results" ]; then
+                # If search results are not empty, check for b64 image string
+                if echo "$CONTENT" | grep -q "b64_img_str"; then
+                    echo "[ retriever ] Content has b64_img_str as expected."
+                else
+                    echo "[ retriever ] Content does not include the b64_img_str: $CONTENT"
+                    docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+                    exit 1
+                fi
+            fi
+        else
+            echo "[ retriever ] Content does not match the expected result: $CONTENT"
+            docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+            exit 1
+        fi
+    else
+        echo "[ retriever ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+        exit 1
+    fi
+}
+
 function stop_docker() {
     cid_retrievers=$(docker ps -aq --filter "name=test-comps-retriever-redis*")
     if [[ ! -z "$cid_retrievers" ]]; then
@@ -106,6 +145,7 @@ function main() {
     start_multimodal_service
     test_embedding_multi=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
     validate_microservice "$test_embedding_multi"
+    validate_mm_microservice "$test_embedding_multi"
 
     # clean env
     stop_docker
