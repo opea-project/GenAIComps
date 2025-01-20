@@ -15,11 +15,21 @@ on:
         description: "Build test required images for Comps"
         required: false
         type: boolean
-      test:
+      test_compose:
         default: true
         description: "Test comps with docker compose"
         required: false
         type: boolean
+      test_helmchart:
+        default: true
+        description: "Test comps with helm chart"
+        required: false
+        type: boolean
+      nodes:
+        default: "gaudi,xeon"
+        description: "Hardware that only runs helm chart test"
+        required: false
+        type: string
       tag:
         default: "rc"
         description: "Tag to apply to images"
@@ -38,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       services: ${{ steps.get-matrix.outputs.services }}
+      nodes: ${{ steps.get-matrix.outputs.nodes }}
     steps:
       - name: Create Matrix
         id: get-matrix
@@ -45,17 +56,27 @@ jobs:
           services=($(echo ${{ inputs.services }} | tr ',' ' '))
           services_json=$(printf '%s\n' "${services[@]}" | sort -u | jq -R '.' | jq -sc '.')
           echo "services=$services_json" >> $GITHUB_OUTPUT
+          if [ ${{ inputs.test_helmchart }} == "true" ]; then
+            nodes=($(echo ${{ inputs.nodes }} | tr ',' ' '))
+            nodes_json=$(printf '%s\n' "${nodes[@]}" | sort -u | jq -R '.' | jq -sc '.')
+            echo "nodes=$nodes_json" >> $GITHUB_OUTPUT
+          else
+            echo "nodes=[]" >> $GITHUB_OUTPUT
+          fi
 
   run-services:
     needs: [get-test-matrix]
     strategy:
       matrix:
         service: ${{ fromJson(needs.get-test-matrix.outputs.services) }}
+        nodes: ${{ fromJson(needs.get-test-matrix.outputs.nodes) }}
       fail-fast: false
     uses: ./.github/workflows/_comps-workflow.yml
     with:
       service: ${{ matrix.service }}
+      hardware: ${{ matrix.nodes }}
       tag: ${{ inputs.tag }}
       mode: ${{ inputs.mode }}
-      test: ${{ inputs.test }}
+      test_compose: ${{ inputs.test_compose }}
+      test_helmchart: ${{ inputs.test_helmchart }}
     secrets: inherit
