@@ -37,8 +37,11 @@ jobs:
       - name: Clean Up Working Directory
         run: |
           sudo rm -rf ${{github.workspace}}/*
-          docker system prune -f
+          cid=$(docker ps -aq --filter "name=test-comps-*")
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
           docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+          docker system prune -f
+          docker ps
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
@@ -67,7 +70,6 @@ jobs:
           timeout 60m bash $(find . -type f -name test_${service}.sh)
 
       - name: Clean up container
-        if: cancelled() || failure()
         run: |
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
