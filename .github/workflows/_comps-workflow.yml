@@ -124,5 +124,5 @@ jobs:
       tag: ${{ inputs.tag }}
       mode: ${{ inputs.mode }}
       service: ${{ inputs.service }}
-      hardware: ${{ inputs.node }}
+      hardware: ${{ inputs.hardware }}
     secrets: inherit
