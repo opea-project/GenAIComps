@@ -121,6 +121,8 @@ docker logs comps-agent-endpoint
 
 Once microservice starts, user can use below script to invoke.
 
+### 3.1 Use chat completions API
+
 ```bash
 curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
      "query": "What is OPEA project?"
@@ -131,6 +133,41 @@ curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: app
 data: 'The OPEA project is .....</s>' # just showing partial example here.
 
 data: [DONE]
+
+```
+
+### 3.2 Use assistants APIs
+
+```bash
+
+# step1 create assistant to get `asssistant_id`
+
+curl http://${ip_address}:9090/v1/assistants -X POST -H "Content-Type: application/json" -d '{
+     "agent_config": {"llm_engine": "tgi", "llm_endpoint_url": "http://${ip_address}:8080", "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml"}
+    }'
+
+## if want to persist your agent messages, set store config like this:
+curl http://${ip_address}:9090/v1/assistants -X POST -H "Content-Type: application/json" -d '{
+     "agent_config": {"llm_engine": "tgi", "llm_endpoint_url": "http://${ip_address}:8080", "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml","with_store":true, "store_config":{"redis_uri":"redis://${ip_address}:6379"}}
+    }'
+
+# step2 create thread to get `thread_id`
+
+curl http://${ip_address}:9090/v1/threads -X POST -H "Content-Type: application/json" -d '{}'
+
+# step3 create messages
+
+curl http://${ip_address}:9091/v1/threads/{thread_id}/messages -X POST -H "Content-Type: application/json" -d '{"role": "user", "content": "What is OPEA project?"}'
+
+
+## if agent is set with `with_store`, should add `assistant_id` in the messages for store
+
+curl http://${ip_address}:9091/v1/threads/{thread_id}/messages -X POST -H "Content-Type: application/json" -d '{"role": "user", "content": "What is OPEA project?", "assistant_id": "{assistant_id}"}'
+
+# step4 run
+
+curl http://${ip_address}:9091/v1/threads/{thread_id}/runs -X POST -H "Content-Type: application/json" -d '{"assistant_id": "{assistant_id}"}'
+
 
 ```
 

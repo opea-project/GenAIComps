@@ -76,6 +76,57 @@ def test_assistants_http(args):
     query = {"assistant_id": assistant_id}
     process_request(f"threads/{thread_id}/runs", query, is_stream=True)
 
+    # ---------------------------------------- test persistent
+    # step 1. create assistants
+
+    query = {
+        "agent_config": {
+            "llm_engine": "tgi",
+            "llm_endpoint_url": args.llm_endpoint_url,
+            "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml",
+            "with_store": True,
+            "store_config": {"redis_uri": f"redis://{args.ip_addr}:6379"},
+        }
+    }
+
+    if ret := process_request("assistants", query):
+        assistant_id = ret.get("id")
+        print("Created Assistant Id: ", assistant_id)
+    else:
+        print("Error when creating assistants !!!!")
+        return
+
+    # step 2. create threads
+    query = {}
+    if ret := process_request("threads", query):
+        thread_id = ret.get("id")
+        print("Created Thread Id: ", thread_id)
+    else:
+        print("Error when creating threads !!!!")
+        return
+
+    # step 3. add messages
+    if args.query is None:
+        query = {
+            "role": "user",
+            "content": "How old was Bill Gates when he built Microsoft?",
+            "assistant_id": assistant_id,
+        }
+    else:
+        query = {"role": "user", "content": args.query, "assistant_id": assistant_id}
+    if ret := process_request(f"threads/{thread_id}/messages", query):
+        pass
+    else:
+        print("Error when add messages !!!!")
+        return
+
+    # step 4. run
+    print("You may cancel the running process with cmdline")
+    print(f"curl {url}/threads/{thread_id}/runs/cancel -X POST -H 'Content-Type: application/json'")
+
+    query = {"assistant_id": assistant_id}
+    process_request(f"threads/{thread_id}/runs", query, is_stream=True)
+
 
 if __name__ == "__main__":
     args1, _ = get_args()
