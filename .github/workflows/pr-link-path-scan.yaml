@@ -139,7 +139,7 @@ jobs:
                   fi
                 fi
               else
-                echo "$check_path does not exist"
+                echo "Invalid reference path from $refer_path, reference path: $(echo $png_line | cut -d ']' -f2)"
                 fail="TRUE"
               fi
             done
