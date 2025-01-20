@@ -97,8 +97,6 @@ jobs:
         value_file: ${{ fromJSON(needs.get-test-case.outputs.value_files) }}
     runs-on: ${{ inputs.hardware }}
     continue-on-error: true
-    outputs:
-      should_cleanup: ${{ steps.set_boolean.outputs.should_cleanup }}
     steps:
       - name: Clean Up Working Directory
         run: |
