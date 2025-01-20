@@ -62,7 +62,8 @@ jobs:
             base_commit=${{ github.event.pull_request.base.sha }}
             merged_commit=$(git log -1 --format='%H')
             values_files=$(git diff --name-only ${base_commit} ${merged_commit} | \
-            grep "kubernetes" | \
+            grep "values.yaml" | \
+            grep "${{ inputs.service }}" | \
             sort -u )
             echo $values_files
           elif [ "${{ inputs.mode }}" = "CD" ]; then
