@@ -3,6 +3,7 @@
 
 import argparse
 import importlib
+import json
 
 from .config import env_config
 
@@ -118,6 +119,18 @@ def adapt_custom_prompt(local_vars, custom_prompt):
         for k in custom_prompt_list:
             v = getattr(custom_prompt, k)
             local_vars[k] = v
+
+
+def assemble_store_messages(messages):
+
+    inputs = []
+    for mid in messages:
+        message = json.loads(messages[mid])
+        # TODO: format messages
+        inputs.append("### " + message["role"].upper() + ":" + "\n" + message["content"][0]["text"])
+
+    # revert messages
+    return "\n".join(inputs)
 
 
 def get_args():
