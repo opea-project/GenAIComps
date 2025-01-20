@@ -26,7 +26,8 @@ pdf_fn="${tmp_dir}/${pdf_name}.pdf"
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep-multimodal-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep-multimodal-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy \
+    -f comps/dataprep/src/Dockerfile . > $LOG_PATH/image_build.log
 
     if [ $? -ne 0 ]; then
         echo "opea/dataprep-multimodal-redis built fail"
@@ -39,14 +40,16 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llava/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy \
+    -f comps/lvms/src/integrations/dependency/llava/Dockerfile . > $LOG_PATH/image_build.log
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava built fail"
         exit 1
     else
         echo "opea/lvm-llava built successful"
     fi
-    docker build --no-cache -t opea/lvm:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/Dockerfile .
+    docker build --no-cache -t opea/lvm:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy \
+    -f comps/lvms/src/Dockerfile . > $LOG_PATH/image_build.log
     if [ $? -ne 0 ]; then
         echo "opea/lvm built fail"
         exit 1
