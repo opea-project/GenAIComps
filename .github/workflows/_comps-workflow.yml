@@ -17,11 +17,19 @@ on:
         default: true
         required: false
         type: boolean
-      test:
+      test_compose:
         default: true
         description: "Test comps with docker compose"
         required: false
         type: boolean
+      test_helmchart:
+        default: true
+        description: "Test comps with helm chart"
+        required: false
+        type: boolean
+      hardware:
+        required: true
+        type: string
       mode:
         default: "CD"
         description: "Whether the test range is CI, CD or CICD"
@@ -33,6 +41,7 @@ jobs:
   # Image Build
   ####################################################################################################
   build-images:
+    if: ${{ !(fromJSON(inputs.test_helmchart)) }}
     runs-on: "docker-build-gaudi"
     continue-on-error: true
     outputs:
@@ -98,9 +107,22 @@ jobs:
   ####################################################################################################
   test-service-compose:
     needs: [build-images]
-    if: ${{ fromJSON(inputs.test) }}
+    if: ${{ fromJSON(inputs.test_compose) }}
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
       tag: ${{ inputs.tag }}
       service: ${{ inputs.service }}
+    secrets: inherit
+
+  ####################################################################################################
+  # Helm Chart Test
+  ####################################################################################################
+  test-service-helmchart:
+    if: ${{ fromJSON(inputs.test_helmchart) }}
+    uses: ./.github/workflows/_run-helm-chart.yml
+    with:
+      tag: ${{ inputs.tag }}
+      mode: ${{ inputs.mode }}
+      service: ${{ inputs.service }}
+      hardware: ${{ inputs.node }}
     secrets: inherit
