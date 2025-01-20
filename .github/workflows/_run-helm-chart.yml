@@ -14,7 +14,7 @@ on:
       dockerhub:
         default: "false"
         required: false
-        type: string
+        type: boolean
         description: "Set to true if you want to use released docker images at dockerhub. By default using internal docker registry."
       tag:
         default: "latest"
@@ -153,7 +153,15 @@ jobs:
             exit 0
           fi
 
-          if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME oci://ghcr.io/opea-project/charts/${CHART_NAME} --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} --set global.modelUseHostPath=/home/sdp/.cache/huggingface/hub -f comps/${{ inputs.service }}/deployment/kubernetes/${value_file} --version 0-latest --wait; then
+          if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME \
+            oci://ghcr.io/opea-project/charts/${CHART_NAME} \
+            --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} \
+            --set global.modelUseHostPath=/home/sdp/.cache/huggingface/hub \
+            --set GOOGLE_API_KEY=${{ env.GOOGLE_API_KEY}} \
+            --set GOOGLE_CSE_ID=${{ env.GOOGLE_CSE_ID}} \
+            -f comps/${{ inputs.service }}/deployment/kubernetes/${value_file} \
+            --version 0-latest \
+            --wait; then
             echo "Failed to install chart ${{ inputs.service }}"
             echo "skip_validate=true" >> $GITHUB_ENV
             .github/workflows/scripts/k8s-utils.sh dump_pods_status $NAMESPACE
@@ -200,7 +208,7 @@ jobs:
       - name: Helm uninstall
         if: always()
         run: |
-          if $should_cleanup; then
+          if [[ $should_cleanup ]]; then
             helm uninstall $RELEASE_NAME --namespace $NAMESPACE
             if ! kubectl delete ns $NAMESPACE --timeout=$KUBECTL_TIMEOUT_SECONDS; then
               kubectl delete pods --namespace $NAMESPACE --force --grace-period=0 --all
