@@ -165,6 +165,11 @@ function start_vllm_service_70B() {
 }
 
 function start_react_agent_service() {
+
+    echo "Starting redis for testing agent persistent"
+
+    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9
+
     echo "Starting react agent microservice"
     docker compose -f $WORKPATH/tests/agent/react_langchain.yaml up -d
     sleep 120s
@@ -333,10 +338,18 @@ function stop_agent_docker() {
     echo "Docker containers stopped successfully"
 }
 
+function stop_redis_docker() {
+    cid=$(docker ps -aq --filter "name=test-persistent-redis")
+    echo "Stopping the docker containers "${cid}
+    if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
+    echo "Docker containers stopped successfully"
+}
+
 function stop_docker() {
     stop_tgi_docker
     stop_vllm_docker
     stop_agent_docker
+    stop_redis_docker
 }
 
 
