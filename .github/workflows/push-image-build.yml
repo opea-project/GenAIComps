@@ -1,17 +1,18 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-# Test
 name: Build latest images on push event
 
 on:
   push:
     branches: ["main"]
     paths:
-      - comps/**
-      - "!**.md"
-      - "!**.txt"
-      - "**requirements.txt"
-      - .github/workflows/push-image-build.yml
+      - 'comps/**'
+      - 'src/**'
+      - '**/*.yaml'
+      - '!**/*.md'
+      - '!**/*.txt'
+      - '**/requirements.txt'
+      - '.github/workflows/push-image-build.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-on-push
@@ -23,7 +24,7 @@ jobs:
     outputs:
       services: ${{ steps.get-services.outputs.services }}
     steps:
-      - name: Checkout out Repo
+      - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -33,7 +34,7 @@ jobs:
         run: |
           base_commit=$(git rev-parse HEAD~1)
           merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'comps/' | grep -vE '\.md|\.txt|comps/cores')" || true
+          changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep '\.yaml$' | grep -vE '\.md|\.txt')" || true
           services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' | jq -sc '.') || true
           echo "services=$services"
           echo "services=$services" >> $GITHUB_OUTPUT
