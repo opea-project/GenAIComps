@@ -155,7 +155,7 @@ jobs:
             exit 0
           fi
 
-          if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME oci://ghcr.io/opea-project/charts/${CHART_NAME} --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f comps/${{ inputs.service }}/deployment/kubernetes/${value_file} --version 0-latest ; then
+          if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME oci://ghcr.io/opea-project/charts/${CHART_NAME} --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} --set global.modelUseHostPath=/home/sdp/.cache/huggingface/hub -f comps/${{ inputs.service }}/deployment/kubernetes/${value_file} --version 0-latest --wait; then
             echo "Failed to install chart ${{ inputs.service }}"
             echo "skip_validate=true" >> $GITHUB_ENV
             .github/workflows/scripts/k8s-utils.sh dump_pods_status $NAMESPACE
@@ -171,7 +171,7 @@ jobs:
           if $skip_validate; then
             echo "Skip validate"
           else
-            LOG_PATH=${{ github.workspace }}/logs
+            LOG_PATH=/home/$(whoami)/helm-logs
             chart=${{ env.CHART_NAME }}
             helm test -n $NAMESPACE $RELEASE_NAME --logs --timeout "$TEST_TIMEOUT_SECONDS" | tee ${LOG_PATH}/charts-${chart}.log
             exit_code=$?

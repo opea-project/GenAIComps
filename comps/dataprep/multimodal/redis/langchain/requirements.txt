@@ -11,6 +11,7 @@ opentelemetry-sdk
 Pillow
 prometheus-fastapi-instrumentator
 pydantic
+pymupdf
 python-multipart
 redis
 shortuuid
