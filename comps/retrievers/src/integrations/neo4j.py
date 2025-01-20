@@ -21,7 +21,7 @@ from pydantic import PrivateAttr
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalResponseData
-from comps.dataprep.neo4j.llama_index.extract_graph_neo4j import GraphRAGStore, get_attribute_from_tgi_endpoint
+from comps.dataprep.src.integrations.neo4j_llamaindex import GraphRAGStore, get_attribute_from_tgi_endpoint
 
 from .config import (
     LLM_MODEL_ID,
