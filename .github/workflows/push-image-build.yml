@@ -51,8 +51,8 @@ jobs:
             fi
           done <<< "$changed_yamls"
 
-          echo "services=$(echo "$services" | jq -sc '.')"
-          echo "services=$services" >> $GITHUB_OUTPUT
+          echo "services=$(echo "$services" | jq -sc 'unique | sort')"
+          echo "services=$(echo "$services" | jq -sc 'unique | sort')" >> $GITHUB_OUTPUT
 
   image-build:
     needs: get-build-matrix
