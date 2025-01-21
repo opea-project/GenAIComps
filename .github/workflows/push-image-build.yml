@@ -4,7 +4,7 @@ name: Build latest images on push event
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "opt-image-build"]
     paths:
       - 'comps/**'
       - 'src/**'
@@ -32,11 +32,25 @@ jobs:
       - name: Get Test Services
         id: get-services
         run: |
+          set -x
           base_commit=$(git rev-parse HEAD~1)
           merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep '\.yaml$' | grep -vE '\.md|\.txt')" || true
-          services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' | jq -sc '.') || true
-          echo "services=$services"
+          changed_src="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep -vE '\.md|\.txt')" || true
+          changed_yamls="$(git diff --name-only ${base_commit} ${merged_commit} | grep '\.yaml$' | grep -vE 'deployment|\.md|\.txt')" || true
+
+          services=$(printf '%s\n' "${changed_src[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' ) || true
+          while IFS= read -r line; do
+            if [[ "$line" == *"workflows/docker/compose"* ]]; then
+              filename=$(basename "$line" -compose.yaml)
+              echo "$line $(printf '%s\n' "$filename" | jq -R '.' )"
+              services+=" "$(printf '%s\n' "$filename" | jq -R '.' )|| true
+            else
+              echo "$line $(printf '%s\n' "$line" | cut -d'/' -f2 | jq -R '.' )"
+              services+=" "$(printf '%s\n' "$line" | cut -d'/' -f2 | jq -R '.' ) || true
+            fi
+          done <<< "$changed_yamls"
+
+          echo "services=$(echo "$services" | jq -sc '.')"
           echo "services=$services" >> $GITHUB_OUTPUT
 
   image-build:
