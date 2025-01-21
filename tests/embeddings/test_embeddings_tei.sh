@@ -26,6 +26,7 @@ function start_service() {
     export EMBEDDER_PORT=10200
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export TAG=comps
+    export host_ip=${ip_address}
     service_name="tei-embedding-serving tei-embedding-server"
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
