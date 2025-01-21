@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  llm:
-    image: opea/llm-reranks-predictionguard:latest
-    container_name: llm-reranks-predictionguard
+  reranking:
+    image: opea/reranks-predictionguard:latest
+    container_name: reranks-predictionguard
     ports:
       - "9000:9000"
     ipc: host
