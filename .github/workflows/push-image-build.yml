@@ -33,7 +33,8 @@ jobs:
         id: get-services
         run: |
           set -x
-          base_commit=$(git rev-parse HEAD~1)
+          # base_commit=$(git rev-parse HEAD~1)
+          base_commit=5f34f5dc7a15b115751fd5a04bf7770a34fe9912
           merged_commit=$(git log -1 --format='%H')
           changed_src="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep -vE '\.md|\.txt')" || true
           changed_yamls="$(git diff --name-only ${base_commit} ${merged_commit} | grep '\.yaml$' | grep -vE 'deployment|\.md|\.txt')" || true
