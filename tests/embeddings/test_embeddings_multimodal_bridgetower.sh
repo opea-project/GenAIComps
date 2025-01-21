@@ -61,8 +61,8 @@ function validate_microservice_text_embedding() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs embedding-multimodal-bridgetower
-        docker logs embedding-multimodal-bridgetower-server
+        docker logs multimodal-bridgetower-embedding-serving
+        docker logs multimodal-bridgetower-embedding-server
         exit 1
     fi
 }
@@ -77,8 +77,8 @@ function validate_microservice_image_text_pair_embedding() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs embedding-multimodal-bridgetower
-        docker logs embedding-multimodal-bridgetower-server
+        docker logs multimodal-bridgetower-embedding-serving
+        docker logs multimodal-bridgetower-embedding-server
         exit 1
     fi
 }
@@ -93,8 +93,8 @@ function validate_microservice_b64_image_text_pair_embedding() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs embedding-multimodal-bridgetower
-        docker logs embedding-multimodal-bridgetower-server
+        docker logs multimodal-bridgetower-embedding-serving
+        docker logs multimodal-bridgetower-embedding-server
         exit 1
     fi
 }
@@ -106,7 +106,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=embedding-multimodal-bridgetower")
+    cid=$(docker ps -aq --filter "name=multimodal-bridgetower-embedding-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
