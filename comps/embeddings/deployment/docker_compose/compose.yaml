@@ -5,6 +5,22 @@ include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
   - ../../../third_parties/bridgetower/deployment/docker_compose/compose.yaml
 
+x-multimodal-bridgetower-embedding-config: &multimodal-bridgetower-embedding-config
+  image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
+  container_name: multimodal-bridgetower-embedding-server
+  ports:
+    - ${MM_EMBEDDING_PORT_MICROSERVICE:-10200}:${MM_EMBEDDING_PORT_MICROSERVICE:-10200}
+  ipc: host
+  environment:
+    no_proxy: ${no_proxy}
+    http_proxy: ${http_proxy}
+    https_proxy: ${https_proxy}
+    MULTIMODAL_EMBEDDING: true
+    EMBEDDING_COMPONENT_NAME: "OPEA_MULTIMODAL_EMBEDDING_BRIDGETOWER"
+    MMEI_EMBEDDING_ENDPOINT: ${MMEI_EMBEDDING_ENDPOINT}
+    MM_EMBEDDING_PORT_MICROSERVICE: ${MM_EMBEDDING_PORT_MICROSERVICE}
+  restart: unless-stopped
+
 services:
   tei-embedding-server:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
@@ -39,26 +55,13 @@ services:
     restart: unless-stopped
 
   multimodal-bridgetower-embedding-server:
-    image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
-    container_name: multimodal-bridgetower-embedding-server
-    ports:
-      - ${MM_EMBEDDING_PORT_MICROSERVICE:-10200}:${MM_EMBEDDING_PORT_MICROSERVICE:-10200}
-    ipc: host
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      MULTIMODAL_EMBEDDING: true
-      EMBEDDING_COMPONENT_NAME: "OPEA_MULTIMODAL_EMBEDDING_BRIDGETOWER"
-      MMEI_EMBEDDING_ENDPOINT: ${MMEI_EMBEDDING_ENDPOINT}
-      MM_EMBEDDING_PORT_MICROSERVICE: ${MM_EMBEDDING_PORT_MICROSERVICE}
-    restart: unless-stopped
+    <<: *multimodal-bridgetower-embedding-config
     depends_on:
       multimodal-bridgetower-embedding-serving:
         condition: service_healthy
 
   multimodal-bridgetower-embedding-gaudi-server:
-    extends: multimodal-bridgetower-embedding-server
+    <<: *multimodal-bridgetower-embedding-config
     container_name: embedding-multimodal-bridgetower-gaudi-server
     depends_on:
       multimodal-bridgetower-embedding-gaudi-serving:
