@@ -8,7 +8,7 @@ on:
     paths:
       - 'comps/**'
       - 'src/**'
-      - '**/*.yaml'
+      - '.github/workflows/docker/compose/**'
       - '!**/*.md'
       - '!**/*.txt'
       - '**/requirements.txt'
@@ -32,7 +32,6 @@ jobs:
       - name: Get Test Services
         id: get-services
         run: |
-          set -x
           base_commit=$(git rev-parse HEAD~1)
           merged_commit=$(git log -1 --format='%H')
           changed_src="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep -vE '\.md')" || true
@@ -53,8 +52,8 @@ jobs:
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
-        node: [docker-build-xeon, docker-build-gaudi]
-    runs-on: ${{ matrix.node }}
+        node: [xeon, gaudi]
+    runs-on: docker-build-${{ matrix.node }}
     continue-on-error: true
     steps:
       - name: Clean up Working Directory
