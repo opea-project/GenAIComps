@@ -4,7 +4,7 @@
 import unittest
 
 from comps.cores.proto.docarray import DocList, TextDoc
-from comps.reranks.predictionguard.helpers import process_doc_list
+from comps.reranks.predictionguard.src.helpers import process_doc_list
 
 
 class MyTestCase(unittest.TestCase):
