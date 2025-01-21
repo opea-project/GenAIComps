@@ -119,7 +119,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         if OPENAI_API_KEY:
             response = OpenAI().achat(messages)
         else:
-            response = self.llm.achat(trimmed_messages)
+            response = await self.llm.achat(trimmed_messages)
 
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
@@ -262,7 +262,6 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     async def _process_community(self, community_id, details_text):
         """Process a single community and store the summary."""
         summary = await self.generate_community_summary(details_text)
-        self.community_summary[community_id] = summary
         self.store_community_summary_in_neo4j(community_id, summary)
 
     def store_community_summary_in_neo4j(self, community_id, summary):
