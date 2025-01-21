@@ -12,7 +12,7 @@ on:
         type: string
         description: "service to test, e.g. asr"
       dockerhub:
-        default: "false"
+        default: false
         required: false
         type: boolean
         description: "Set to true if you want to use released docker images at dockerhub. By default using internal docker registry."
@@ -96,6 +96,7 @@ jobs:
     strategy:
       matrix:
         value_file: ${{ fromJSON(needs.get-test-case.outputs.value_files) }}
+    if: ${{ needs.get-test-case.outputs.value_files != '[]' }}
     runs-on: ${{ inputs.hardware }}
     continue-on-error: true
     steps:
