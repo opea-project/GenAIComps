@@ -97,7 +97,7 @@ jobs:
       matrix:
         value_file: ${{ fromJSON(needs.get-test-case.outputs.value_files) }}
     if: ${{ needs.get-test-case.outputs.value_files != '[]' }}
-    runs-on: ${{ inputs.hardware }}
+    runs-on: k8s-${{ inputs.hardware }}
     continue-on-error: true
     steps:
       - name: Clean Up Working Directory
@@ -136,6 +136,11 @@ jobs:
           echo "should_cleanup=false" >> $GITHUB_ENV
           echo "skip_validate=false" >> $GITHUB_ENV
           echo "CHART_FOLDER=comps/${service}/deployment/kubernetes" >> $GITHUB_ENV
+      
+      - name: get template name
+        run: |
+          echo "template_link=$(grep 'helm install' comps/${CHART_NAME}/deployment/kubernetes/README.md | awk -F' ' '{print $4}' | head -n 1)"
+          echo "template_link=$(grep 'helm install' comps/${CHART_NAME}/deployment/kubernetes/README.md | awk -F' ' '{print $4}' | head -n 1)" >> $GITHUB_ENV
 
       - name: Helm install
         id: install
@@ -154,9 +159,9 @@ jobs:
             echo "should_cleanup=false" >> $GITHUB_ENV
             exit 0
           fi
-
+          # oci://ghcr.io/opea-project/charts/${CHART_NAME} \
           if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME \
-            oci://ghcr.io/opea-project/charts/${CHART_NAME} \
+            ${template_link} \
             --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} \
             --set global.modelUseHostPath=/home/sdp/.cache/huggingface/hub \
             --set GOOGLE_API_KEY=${{ env.GOOGLE_API_KEY}} \
