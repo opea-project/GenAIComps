@@ -23,14 +23,13 @@ function build_docker_images() {
 }
 
 function start_service() {
-    pg_service_port=5124
+    export EMBEDDER_PORT=5124
     unset http_proxy
-    docker run -d --name=test-comps-embedding-pg-server \
-    -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
-    -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
-    -e EMBEDDING_COMPONENT_NAME="OPEA_PREDICTIONGUARD_EMBEDDING" \
-    -p ${pg_service_port}:6000 --ipc=host opea/embedding:comps
-    sleep 60
+    export TAG=comps
+    cd $WORKPATH
+    cd comps/embeddings/deployment/docker_compose/
+    docker compose -f compose_predictionguard.yaml up -d
+    sleep 30
 }
 
 function validate_service() {

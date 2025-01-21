@@ -46,7 +46,7 @@ function build_docker_images() {
 function start_service() {
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
-    docker compose -f compose_multimodal_bridgetower_intel_hpu.yaml up -d
+    docker compose -f compose_multimodal_bridgetower_on_intel_hpu.yaml up -d
     sleep 30
 }
 

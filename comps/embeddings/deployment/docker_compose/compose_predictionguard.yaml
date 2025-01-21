@@ -3,10 +3,10 @@
 
 services:
   embedding:
-    image: opea/embedding:latest
+    image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: embedding
     ports:
-      - "6000:6000"
+      - ${EMBEDDER_PORT}:${EMBEDDER_PORT}
     ipc: host
     environment:
       no_proxy: ${no_proxy}
