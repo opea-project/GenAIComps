@@ -17,15 +17,15 @@ docker build -t opea/reranks-predictionguard:latest -f comps/reranks/predictiong
 docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name reranks-predictionguard opea/reranks-predictionguard:latest
 ```
 
-## Consume the Prediction Guard Microservice
+## Consume the Prediction Guard Rerank Microservice
 
-See the [Prediction Guard docs](https://docs.predictionguard.com/) for available model options.
+See the [Prediction Guard docs](https://docs.predictionguard.com/options/reranker_models) for available model options.
 
 ```bash
 curl -N -X POST http://localhost:9000/v1/reranking \
     -H "Content-Type: application/json" \
     -d '{
-        "initial_query": "What is Deep Learning?"
+        "initial_query": "What is Deep Learning?",
         "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]
         }'
 ```
