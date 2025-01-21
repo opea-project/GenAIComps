@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:comps/third_parties/bridgetower/deployment/docker_compose/compose.yaml
+>>>>>>> 2d3e8d2dfb1e48068f1dcf1d099ba53ef291f137
   multimodal-bridgetower-embedding-serving:
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
     container_name: multimodal-bridgetower-embedding-serving
@@ -24,6 +28,14 @@ services:
   multimodal-bridgetower-embedding-gaudi-serving:
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-hpu:${TAG:-latest}
     container_name: multimodal-bridgetower-embedding-gaudi-serving
+<<<<<<< HEAD
+=======
+========
+  embedding-multimodal-bridgetower:
+    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-hpu:${TAG:-latest}
+    container_name: embedding-multimodal-bridgetower
+>>>>>>>> 2ca81114acf05237eea2fd14094bd57c99701e2b:comps/embeddings/deployment/docker_compose/compose_multimodal_bridgetower_on_intel_hpu.yaml
+>>>>>>> 2d3e8d2dfb1e48068f1dcf1d099ba53ef291f137
     ports:
       - ${EMBEDDER_PORT}:${EMBEDDER_PORT}
     ipc: host
@@ -43,6 +55,30 @@ services:
       timeout: 6s
       retries: 18
       start_period: 30s
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:comps/third_parties/bridgetower/deployment/docker_compose/compose.yaml
+========
+  embedding:
+    image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
+    container_name: embedding-multimodal-bridgetower-server
+    ports:
+      - ${MM_EMBEDDING_PORT_MICROSERVICE}:${MM_EMBEDDING_PORT_MICROSERVICE}
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      MULTIMODAL_EMBEDDING: true
+      EMBEDDING_COMPONENT_NAME: "OPEA_MULTIMODAL_EMBEDDING_BRIDGETOWER"
+      MMEI_EMBEDDING_ENDPOINT: ${MMEI_EMBEDDING_ENDPOINT}
+      MM_EMBEDDING_PORT_MICROSERVICE: ${MM_EMBEDDING_PORT_MICROSERVICE}
+    restart: unless-stopped
+    depends_on:
+      embedding-multimodal-bridgetower:
+        condition: service_healthy
+>>>>>>>> 2ca81114acf05237eea2fd14094bd57c99701e2b:comps/embeddings/deployment/docker_compose/compose_multimodal_bridgetower_on_intel_hpu.yaml
+>>>>>>> 2d3e8d2dfb1e48068f1dcf1d099ba53ef291f137
 
 networks:
   default:
