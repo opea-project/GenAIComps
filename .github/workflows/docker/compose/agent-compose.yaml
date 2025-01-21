@@ -7,4 +7,3 @@ services:
     build:
       dockerfile: comps/agent/src/Dockerfile
     image: ${REGISTRY:-opea}/agent:${TAG:-latest}
-  #test

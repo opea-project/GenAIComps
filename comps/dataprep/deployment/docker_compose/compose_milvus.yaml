@@ -38,7 +38,7 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-#test
+
   standalone:
     container_name: milvus-standalone
     image: milvusdb/milvus:v2.4.9
