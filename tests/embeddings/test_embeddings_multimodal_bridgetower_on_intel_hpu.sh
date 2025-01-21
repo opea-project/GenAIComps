@@ -44,9 +44,10 @@ function build_docker_images() {
 }
 
 function start_service() {
+    service_list="multimodal-bridgetower-embedding-gaudi-serving multimodal-bridgetower-embedding-gaudi-server"
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
-    docker compose -f compose_multimodal_bridgetower_intel_hpu.yaml up -d
+    docker compose up ${service_list} -d
     sleep 30
 }
 

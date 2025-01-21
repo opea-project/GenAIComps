@@ -16,7 +16,7 @@ unset http_proxy
 function build_mm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding:latest -f comps/embeddings/src/Dockerfile .
+    docker build --no-cache -t opea/embedding:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/embedding built fail"
         exit 1
@@ -44,9 +44,10 @@ function build_docker_images() {
 }
 
 function start_service() {
+    service_list="multimodal-bridgetower-embedding-serving multimodal-bridgetower-embedding-server"
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
-    docker compose -f compose_multimodal_bridgetower.yaml up -d
+    docker compose up ${service_list} -d
     sleep 30
 }
 

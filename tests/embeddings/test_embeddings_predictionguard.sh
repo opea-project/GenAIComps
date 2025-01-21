@@ -13,7 +13,7 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding:comps -f comps/embeddings/src/Dockerfile .
+    docker build --no-cache -t opea/embedding:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/embedding built fail"
         exit 1
@@ -23,14 +23,13 @@ function build_docker_images() {
 }
 
 function start_service() {
-    pg_service_port=5124
-    unset http_proxy
-    docker run -d --name=test-comps-embedding-pg-server \
-    -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
-    -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
-    -e EMBEDDING_COMPONENT_NAME="OPEA_PREDICTIONGUARD_EMBEDDING" \
-    -p ${pg_service_port}:6000 --ipc=host opea/embedding:comps
-    sleep 60
+    export EMBEDDER_PORT=5124
+    export TAG=comps
+    service_list="pg-embedding-server"
+    cd $WORKPATH
+    cd comps/embeddings/deployment/docker_compose/
+    docker compose up ${service_list} -d
+    sleep 30
 }
 
 function validate_service() {
@@ -46,11 +45,11 @@ function validate_service() {
         echo "Result correct."
     elif [[ $result == *"error"* || $result == *"detail"* ]]; then
         echo "Result wrong. Error received was: $result"
-        docker logs test-comps-embedding-pg-server
+        docker logs pg-embedding-server
         exit 1
     else
         echo "Unexpected result format received was: $result"
-        docker logs test-comps-embedding-pg-server
+        docker logs pg-embedding-server
         exit 1
     fi
 }
@@ -66,7 +65,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-embedding-pg-*")
+    cid=$(docker ps -aq --filter "name=pg-embedding-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
