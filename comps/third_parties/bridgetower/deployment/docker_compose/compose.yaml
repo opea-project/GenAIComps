@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
+
   multimodal-bridgetower-embedding-serving:
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
     container_name: multimodal-bridgetower-embedding-serving
