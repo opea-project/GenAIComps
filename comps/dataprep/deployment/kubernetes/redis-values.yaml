@@ -7,3 +7,4 @@ redis-vector-db:
   enabled: true
 milvus:
   enabled: false
+#test
