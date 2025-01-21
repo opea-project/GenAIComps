@@ -10,7 +10,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: tei-embedding-server
     ports:
-      - "${EMBEDDER_PORT}:6000"
+      - "${EMBEDDER_PORT:-10200}:6000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -27,7 +27,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: pg-embedding-server
     ports:
-      - ${EMBEDDER_PORT}:6000
+      - ${EMBEDDER_PORT:-10200}:6000
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -42,7 +42,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: multimodal-bridgetower-embedding-server
     ports:
-      - ${MM_EMBEDDING_PORT_MICROSERVICE}:${MM_EMBEDDING_PORT_MICROSERVICE}
+      - ${MM_EMBEDDING_PORT_MICROSERVICE:-10200}:${MM_EMBEDDING_PORT_MICROSERVICE:-10200}
     ipc: host
     environment:
       no_proxy: ${no_proxy}

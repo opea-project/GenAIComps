@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
+
   multimodal-bridgetower-embedding-serving:
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
     container_name: multimodal-bridgetower-embedding-serving
     ports:
-      - ${EMBEDDER_PORT}:${EMBEDDER_PORT}
+      - ${EMBEDDER_PORT:-12400}:${EMBEDDER_PORT:-12400}
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -25,7 +26,7 @@ services:
     image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-hpu:${TAG:-latest}
     container_name: multimodal-bridgetower-embedding-gaudi-serving
     ports:
-      - ${EMBEDDER_PORT}:${EMBEDDER_PORT}
+      - ${EMBEDDER_PORT:-12400}:${EMBEDDER_PORT:-12400}
     ipc: host
     environment:
       no_proxy: ${no_proxy}

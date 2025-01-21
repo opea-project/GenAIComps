@@ -7,7 +7,7 @@ services:
     container_name: tei-embedding-serving
     entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id ${EMBEDDING_MODEL_ID} --auto-truncate"
     ports:
-      - "${TEI_EMBEDDER_PORT}:80"
+      - "${TEI_EMBEDDER_PORT:-12000}:80"
     volumes:
       - "./data:/data"
     shm_size: 1g
