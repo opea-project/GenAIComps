@@ -22,20 +22,20 @@ function build_docker_images() {
 
 function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-    export TEI_EMBEDDER_PORT=5001
-    export EMBEDDER_PORT=5002
+    export TEI_EMBEDDER_PORT=12000
+    export EMBEDDER_PORT=10200
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export TAG=comps
-    service_list="tei-embedding-serving tei-embedding-server"
+    service_name="tei-embedding-serving tei-embedding-server"
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
-    docker compose up ${service_list} -d
+    docker compose up ${service_name} -d
     sleep 15
 }
 
 function validate_service() {
     local INPUT_DATA="$1"
-    tei_service_port=5002
+    tei_service_port=10200
     result=$(http_proxy="" curl http://${ip_address}:$tei_service_port/v1/embeddings \
         -X POST \
         -d "$INPUT_DATA" \
@@ -79,7 +79,7 @@ function main() {
 
     stop_docker
 
-#    build_docker_images
+    build_docker_images
     start_service
 
     validate_microservice

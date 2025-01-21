@@ -23,18 +23,19 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export EMBEDDER_PORT=5124
+    export EMBEDDER_PORT=10201
+    export PG_EMBEDDING_MODEL_NAME="bridgetower-large-itm-mlm-itc"
     export TAG=comps
-    service_list="pg-embedding-server"
+    service_name="pg-embedding-server"
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
-    docker compose up ${service_list} -d
-    sleep 30
+    docker compose up ${service_name} -d
+    sleep 10
 }
 
 function validate_service() {
     local INPUT_DATA="$1"
-    pg_service_port=5124
+    pg_service_port=10201
     result=$(http_proxy="" curl http://${ip_address}:${pg_service_port}/v1/embeddings \
         -X POST \
         -d "$INPUT_DATA" \

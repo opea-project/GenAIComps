@@ -6,10 +6,10 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
-export your_mmei_port=8087
+export your_mmei_port=12401
 export EMBEDDER_PORT=$your_mmei_port
 export MMEI_EMBEDDING_ENDPOINT="http://$ip_address:$your_mmei_port"
-export your_embedding_port_microservice=6608
+export your_embedding_port_microservice=10203
 export MM_EMBEDDING_PORT_MICROSERVICE=$your_embedding_port_microservice
 unset http_proxy
 
@@ -44,10 +44,10 @@ function build_docker_images() {
 }
 
 function start_service() {
-    service_list="multimodal-bridgetower-embedding-gaudi-serving multimodal-bridgetower-embedding-gaudi-server"
+    service_name="multimodal-bridgetower-embedding-gaudi-serving multimodal-bridgetower-embedding-gaudi-server"
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
-    docker compose up ${service_list} -d
+    docker compose up ${service_name} -d
     sleep 30
 }
 
