@@ -41,23 +41,23 @@ You can also deploy the Prediction Guard embedding service using Docker Compose 
 
 1. Set environment variables:
 
-    ```bash
-    export PG_EMBEDDING_MODEL_NAME="bridgetower-large-itm-mlm-itc"
-    export EMBEDDER_PORT=6000
-    export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
-    ```
+   ```bash
+   export PG_EMBEDDING_MODEL_NAME="bridgetower-large-itm-mlm-itc"
+   export EMBEDDER_PORT=6000
+   export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
+   ```
 
 2. Navigate to the Docker Compose directory:
 
-    ```bash
-    cd comps/embeddings/deployment/docker_compose/
-    ```
+   ```bash
+   cd comps/embeddings/deployment/docker_compose/
+   ```
 
 3. Start the services:
 
-    ```bash
-    docker compose up pg-embedding-server -d
-    ```
+   ```bash
+   docker compose up pg-embedding-server -d
+   ```
 
 ## 📦 3. Consume Embedding Service
 
@@ -77,24 +77,24 @@ The API is compatible with the [OpenAI API](https://platform.openai.com/docs/api
 
 1. Single Text Input
 
-    ```bash
-    curl http://localhost:6000/v1/embeddings \
-    -X POST \
-    -d '{"input":"Hello, world!"}' \
-    -H 'Content-Type: application/json'
-    ```
+   ```bash
+   curl http://localhost:6000/v1/embeddings \
+   -X POST \
+   -d '{"input":"Hello, world!"}' \
+   -H 'Content-Type: application/json'
+   ```
 
 2. Multiple Text Inputs with Parameters
 
-    ```bash
-    curl http://localhost:6000/v1/embeddings \
-    -X POST \
-    -d '{"input":["Hello, world!","How are you?"], "dimensions":100}' \
-    -H 'Content-Type: application/json'
-    ```
+   ```bash
+   curl http://localhost:6000/v1/embeddings \
+   -X POST \
+   -d '{"input":["Hello, world!","How are you?"], "dimensions":100}' \
+   -H 'Content-Type: application/json'
+   ```
 
 ## ✨ Additional Notes
-* Prediction Guard Features: Prediction Guard comes with built-in safeguards such as factual consistency checks, toxicity filters, PII detection, and prompt injection protection, ensuring safe use of the service.
-* Multimodal Support: While the service currently only supports text embeddings, we plan to extend this functionality to support images and joint text-image embeddings in future releases.
-* Scalability: The microservice can easily scale to handle large volumes of requests for embedding generation, making it suitable for large-scale semantic search and RAG applications.
 
+- Prediction Guard Features: Prediction Guard comes with built-in safeguards such as factual consistency checks, toxicity filters, PII detection, and prompt injection protection, ensuring safe use of the service.
+- Multimodal Support: While the service currently only supports text embeddings, we plan to extend this functionality to support images and joint text-image embeddings in future releases.
+- Scalability: The microservice can easily scale to handle large volumes of requests for embedding generation, making it suitable for large-scale semantic search and RAG applications.

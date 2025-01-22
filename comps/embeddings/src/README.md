@@ -14,7 +14,6 @@ Key Features:
 
 Users are albe to configure and build embedding-related services according to their actual needs.
 
-
 ## Embeddings Microservice with TEI
 
 For details, please refer to [readme](./README_tei.md).

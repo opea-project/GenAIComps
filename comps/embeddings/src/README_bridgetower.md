@@ -41,7 +41,7 @@ cd ../../../
 docker build -t opea/embedding:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/src/Dockerfile .
 ```
 
-### 🔹  1.2 Run Docker with Docker Compose
+### 🔹 1.2 Run Docker with Docker Compose
 
 ```bash
 export your_mmei_port=8080
@@ -53,6 +53,7 @@ cd comps/embeddings/deployment/docker_compose/
 ```
 
 - For Gaudi HPU:
+
 ```bash
 docker compose up multimodal-bridgetower-embedding-gaudi-serving multimodal-bridgetower-embedding-gaudi-server -d
 ```
@@ -103,6 +104,3 @@ curl -X POST http://0.0.0.0:6600/v1/embeddings \
 ```
 
 This request will return an embedding representing the semantic meaning of the input text.
-
-
-
