@@ -133,7 +133,7 @@ function main() {
     stop_docker
 
     build_docker_images
-    pip install --no-cache-dir openai
+    pip install --no-cache-dir openai pydantic
     start_service
 
     validate_microservices
