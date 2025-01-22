@@ -86,7 +86,7 @@ services:
       vllm-gaudi-server:
         condition: service_healthy
 
-  # predictionguard PII dedection service
+  # predictionguard PII detection service
   pii-predictionguard-server:
     image: ${REGISTRY:-opea}/pii-detection-predictionguard:${TAG:-latest}
     container_name: pii-predictionguard-server
