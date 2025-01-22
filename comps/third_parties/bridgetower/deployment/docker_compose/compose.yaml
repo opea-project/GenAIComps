@@ -23,7 +23,7 @@ services:
       start_period: 30s
 
   multimodal-bridgetower-embedding-gaudi-serving:
-    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-hpu:${TAG:-latest}
+    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-gaudi:${TAG:-latest}
     container_name: multimodal-bridgetower-embedding-gaudi-serving
     ports:
       - ${EMBEDDER_PORT:-12400}:${EMBEDDER_PORT:-12400}
