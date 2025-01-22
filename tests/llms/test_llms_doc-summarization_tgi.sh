@@ -4,13 +4,20 @@
 
 set -xe
 
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
+
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
+service_name="docsum-tgi"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/llm-docsum:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/doc-summarization/Dockerfile .
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-docsum:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/doc-summarization/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llm-docsum built fail"
         exit 1
@@ -21,18 +28,17 @@ function build_docker_images() {
 
 function start_service() {
     export host_ip=${host_ip}
-    export LLM_ENDPOINT_PORT=5072
-    export DOCSUM_PORT=5073
+    export LLM_ENDPOINT_PORT=12105  # 12100-12199
+    export DOCSUM_PORT=10505 #10500-10599
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export MAX_INPUT_TOKENS=2048
     export MAX_TOTAL_TOKENS=4096
-    export DocSum_COMPONENT_NAME="OpeaDocSumTgi" # or "vllm"
     export LOGFLAG=True
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f doc-summarization_tgi.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
+    docker compose -f compose_doc-summarization.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 30s
 }
@@ -77,7 +83,7 @@ function validate_microservices() {
     validate_services \
         "${LLM_ENDPOINT}/generate" \
         "generated_text" \
-        "tgi" \
+        "tgi-server" \
         "tgi-server" \
         '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
 
@@ -85,54 +91,54 @@ function validate_microservices() {
     validate_services \
         "$URL" \
         'text' \
-        "llm_summarization" \
-        "llm-docsum-server" \
+        "llm-docsum-tgi-server" \
+        "llm-docsum-tgi-server" \
         '{"messages": "Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en"}'
 
     echo "Validate stream=False..."
     validate_services \
         "$URL" \
         'text' \
-        "llm_summarization" \
-        "llm-docsum-server" \
+        "llm-docsum-tgi-server" \
+        "llm-docsum-tgi-server" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "stream":false}'
 
     echo "Validate Chinese mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm_summarization" \
-        "llm-docsum-server" \
+        "llm-docsum-tgi-server" \
+        "llm-docsum-tgi-server" \
         '{"messages":"2024年9月26日，北京——今日，英特尔正式发布英特尔® 至强® 6性能核处理器（代号Granite Rapids），为AI、数据分析、科学计算等计算密集型业务提供卓越性能。", "max_tokens":32, "language":"zh", "stream":false}'
 
     echo "Validate truncate mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm_summarization" \
-        "llm-docsum-server" \
+        "llm-docsum-tgi-server" \
+        "llm-docsum-tgi-server" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "truncate", "chunk_size": 2000}'
 
     echo "Validate map_reduce mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm_summarization" \
-        "llm-docsum-server" \
+        "llm-docsum-tgi-server" \
+        "llm-docsum-tgi-server" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "stream":false}'
 
     echo "Validate refine mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm_summarization" \
-        "llm-docsum-server" \
+        "llm-docsum-tgi-server" \
+        "llm-docsum-tgi-server" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000}'
 }
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f doc-summarization_tgi.yaml down
+    docker compose -f compose_doc-summarization.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
