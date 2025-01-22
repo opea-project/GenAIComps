@@ -4,7 +4,8 @@
 name: Microservice Test With Helm Charts
 
 on:
-  pull_request_target:
+  # pull_request_target:
+  pull_request:
     branches: [main]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
@@ -23,6 +24,9 @@ jobs:
     outputs:
       run_matrix: ${{ steps.get-test-matrix.outputs.run_matrix }}
     steps:
+      - name: Display commit SHA
+        run: echo "The commit SHA is ${{ github.sha }}"
+
       - name: Checkout out Repo
         uses: actions/checkout@v4
         with:
