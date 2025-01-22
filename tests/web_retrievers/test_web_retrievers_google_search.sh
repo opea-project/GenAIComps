@@ -23,7 +23,7 @@ function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:6060"
     export host_ip=${ip_address}
-    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} 
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 
     docker compose -f comps/web_retrievers/deployment/docker_compose/compose_web_retrievers.yaml up -d
     sleep 15s
