@@ -45,4 +45,3 @@ services:
       dockerfile: Dockerfile.hpu
     shm_size: '128g'
     image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
-    #test
