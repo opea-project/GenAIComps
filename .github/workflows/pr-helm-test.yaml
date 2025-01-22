@@ -43,7 +43,11 @@ jobs:
           for values_file in ${values_files}; do
             if [ -f "$values_file" ]; then
               valuefile=$(basename "$values_file")   # cpu-values.yaml
-              service=$(echo "$values_file" | cut -d'/' -f2) # agent
+              if [[ "$values_file" == *"third_parties"* ]]; then  #comps/third_parties/bridgetower/deployment/kubernetes/gaudi-values.yaml
+                service=$(echo "$values_file" | cut -d'/' -f2-3) # third_parties/bridgetower
+              else
+                service=$(echo "$values_file" | cut -d'/' -f2) # agent
+              fi
 
               echo "service=${service}"
               if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${service}\"},") == 0 ]]; then

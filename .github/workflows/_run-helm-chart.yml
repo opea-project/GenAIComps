@@ -215,7 +215,7 @@ jobs:
       - name: Helm uninstall
         if: always()
         run: |
-          if [[ $should_cleanup ]]; then
+          if $should_cleanup ; then
             helm uninstall $RELEASE_NAME --namespace $NAMESPACE
             if ! kubectl delete ns $NAMESPACE --timeout=$KUBECTL_TIMEOUT_SECONDS; then
               kubectl delete pods --namespace $NAMESPACE --force --grace-period=0 --all
