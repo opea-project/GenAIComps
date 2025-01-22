@@ -27,9 +27,6 @@ on:
         description: "Test comps with helm chart"
         required: false
         type: boolean
-      hardware:
-        required: true
-        type: string
       mode:
         default: "CD"
         description: "Whether the test range is CI, CD or CICD"
@@ -124,5 +121,4 @@ jobs:
       tag: ${{ inputs.tag }}
       mode: ${{ inputs.mode }}
       service: ${{ inputs.service }}
-      hardware: ${{ inputs.hardware }}
     secrets: inherit

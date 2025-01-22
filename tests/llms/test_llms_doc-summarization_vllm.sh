@@ -43,7 +43,7 @@ function start_service() {
     export DOCSUM_PORT=10507 #10500-10599
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
-    export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
+    export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
     export MAX_INPUT_TOKENS=2048
     export MAX_TOTAL_TOKENS=4096
     export VLLM_SKIP_WARMUP=true
@@ -97,7 +97,7 @@ function validate_microservices() {
         "text" \
         "vllm-server" \
         "vllm-server" \
-        '{"model": "Intel/neural-chat-7b-v3-3", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
+        '{"model": "meta-llama/Meta-Llama-3-8B-Instruct", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
 
     echo "Validate stream=True..."
     validate_services \
