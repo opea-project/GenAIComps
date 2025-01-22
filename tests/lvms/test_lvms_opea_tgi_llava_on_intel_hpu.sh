@@ -24,7 +24,8 @@ function build_docker_images() {
 
 function start_service() {
 
-    export LVM_ENDPOINT=http://$ip_address:5028
+    unset http_proxy
+    export LVM_ENDPOINT=http://$ip_address:5027
     export LLM_MODEL_ID="llava-hf/llava-v1.6-mistral-7b-hf"
 
     docker compose -f comps/lvms/deployment/docker_compose/compose_tgi_llava_hpu.yaml up -d
