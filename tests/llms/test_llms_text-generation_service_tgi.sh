@@ -2,101 +2,132 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
+
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
 
 WORKPATH=$(dirname "$PWD")
+host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
-ip_address=$(hostname -I | awk '{print $1}')
+service_name="textgen-service-tgi"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/llm:comps -f comps/llms/src/text-generation/Dockerfile .
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/llm built fail"
+        echo "opea/llm-textgen built fail"
         exit 1
     else
-        echo "opea/llm built successful"
+        echo "opea/llm-textgen built successful"
     fi
 }
 
 function start_service() {
-    tgi_endpoint_port=5004
-    export hf_llm_model=$1
-    # Remember to set HF_TOKEN before invoking this test!
-    export HF_TOKEN=${HF_TOKEN}
-    docker run -d --name="test-comps-llm-tgi-endpoint" -p $tgi_endpoint_port:80 -v ~/.cache/huggingface/hub:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id ${hf_llm_model} --max-input-tokens 1024 --max-total-tokens 2048
-    export LLM_ENDPOINT="http://${ip_address}:${tgi_endpoint_port}"
+    export LLM_ENDPOINT_PORT=12108  # 12100-12199
+    export TEXTGEN_PORT=10508 #10500-10599
+    export host_ip=${host_ip}
+    export HF_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
+    export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
+    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export LOGFLAG=True
 
-    # check whether tgi is fully ready
-    n=0
-    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/test-comps-vllm-service.log
-        n=$((n+1))
-        if grep -q Connected ${LOG_PATH}/test-comps-vllm-service.log; then
-            break
-        fi
-        sleep 5s
-    done
-    sleep 5s
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    llm_port=5005
-    unset http_proxy
-    docker run -d --name="test-comps-llm-tgi-server" -p ${llm_port}:9000 --ipc=host -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLM_ENDPOINT=$LLM_ENDPOINT -e LLM_MODEL_ID=$hf_llm_model -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN opea/llm:comps
-    sleep 20s
+    sleep 30s
 }
 
-function validate_microservice() {
-    llm_port=5005
+function validate_services() {
+    local URL="$1"
+    local EXPECTED_RESULT="$2"
+    local SERVICE_NAME="$3"
+    local DOCKER_NAME="$4"
+    local INPUT_DATA="$5"
 
-    result=$(http_proxy="" curl http://${ip_address}:${llm_port}/v1/chat/completions \
-        -X POST \
-        -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream":false}' \
-        -H 'Content-Type: application/json')
-    if [[ $result == *"content"* ]]; then
-        echo "Result correct."
+    local HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL")
+
+    echo "==========================================="
+
+    if [ "$HTTP_STATUS" -eq 200 ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+
+        local CONTENT=$(curl -s -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/${SERVICE_NAME}.log)
+
+        if echo "$CONTENT" | grep -q "$EXPECTED_RESULT"; then
+            echo "[ $SERVICE_NAME ] Content is as expected."
+        else
+            echo "[ $SERVICE_NAME ] Content does not match the expected result: $CONTENT"
+            docker logs ${DOCKER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+            exit 1
+        fi
     else
-        echo "Result wrong. Received was $result"
-        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
-        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm-server.log
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs ${DOCKER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
         exit 1
     fi
+    sleep 1s
+}
+
+function validate_microservices() {
+    URL="http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions"
+
+    # tgi
+    echo "Validate tgi..."
+    validate_services \
+        "${LLM_ENDPOINT}/generate" \
+        "generated_text" \
+        "tgi-server" \
+        "tgi-server" \
+        '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
+
+    # textgen
+    echo "Validate textgen with string messages input..."
+    validate_services \
+        "$URL" \
+        "text" \
+        "textgen-service-tgi" \
+        "textgen-service-tgi" \
+        '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}'
+
+    echo "Validate textgen with dict messages input..."
+    validate_services \
+        "$URL" \
+        "content" \
+        "textgen-service-tgi" \
+        "textgen-service-tgi" \
+        '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream":false}'
 }
 
 function validate_microservice_with_openai() {
-    llm_service_port=5005
-    python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py "$ip_address" "$llm_service_port" "llm"
+    python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py "$host_ip" "$TEXTGEN_PORT" "llm"
     if [ $? -ne 0 ]; then
-        docker logs test-comps-llm-tgi-endpoint >> ${LOG_PATH}/llm-tgi.log
-        docker logs test-comps-llm-tgi-server >> ${LOG_PATH}/llm-server.log
+        docker logs tgi-server >> ${LOG_PATH}/llm-tgi.log
+        docker logs textgen-service-tgi >> ${LOG_PATH}/llm-server.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-llm-tgi*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
 
     stop_docker
+
     build_docker_images
-
     pip install --no-cache-dir openai
+    start_service 
 
-    llm_models=(
-    Intel/neural-chat-7b-v3-3
-    # meta-llama/Llama-2-7b-chat-hf
-    # meta-llama/Meta-Llama-3-8B-Instruct
-    # microsoft/Phi-3-mini-4k-instruct
-    )
-    for model in "${llm_models[@]}"; do
-      start_service "${model}"
-      validate_microservice
-      validate_microservice_with_openai
-      stop_docker
-    done
+    validate_microservices
+    validate_microservice_with_openai
 
+    stop_docker
     echo y | docker system prune
 
 }
