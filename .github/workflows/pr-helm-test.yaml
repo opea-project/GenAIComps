@@ -44,6 +44,7 @@ jobs:
             if [ -f "$values_file" ]; then
               valuefile=$(basename "$values_file")   # cpu-values.yaml
               service=$(echo "$values_file" | cut -d'/' -f2) # agent
+
               echo "service=${service}"
               if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${service}\"},") == 0 ]]; then
                 run_matrix="${run_matrix}{\"service\":\"${service}\"},"
