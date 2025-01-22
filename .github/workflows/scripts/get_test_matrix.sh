@@ -108,6 +108,27 @@ function find_test_2() {
     done
 }
 
+function find_test_3() {
+    set -x
+    yaml_files=${changed_files}
+    for yaml_file in ${yaml_files}; do
+        if [ -f $yaml_file ]; then
+            _service=$(echo $yaml_file | cut -d'/' -f2)
+            yaml_name=$(echo $yaml_file | cut -d'/' -f5)
+            if [ "$yaml_name" != "compose.yaml" ]; then
+                _domain=${yaml_name%.yaml}
+                _domain=${_domain#compose_}
+                _service=${_service}_${_domain}
+            fi
+            find_test=$(find ./tests -type f -name test_${_service}*.sh) || true
+            if [ "$find_test" ]; then
+                fill_in_matrix "$find_test"
+            fi
+        fi
+    done
+    set +x
+}
+
 function main() {
 
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|comps/third_parties|deployment|\.yaml') || true
@@ -125,6 +146,14 @@ function main() {
     sleep 1s
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_2============"
+
+    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'deployment/docker_compose/compose' | grep '.yaml') || true
+    echo "===========start find_test_3============"
+    echo "changed_files=${changed_files}"
+    find_test_3
+    sleep 1s
+    echo "run_matrix=${run_matrix}"
+    echo "===========finish find_test_3============"
 
     run_matrix=$run_matrix"]}"
     echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
