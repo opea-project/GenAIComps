@@ -1,0 +1,21 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+accelDevice: "gaudi"
+
+image:
+  repository: opea/embedding-multimodal-bridgetower-gaudi
+
+resources:
+  limits:
+    habana.ai/gaudi: 1
+
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+startupProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 120
