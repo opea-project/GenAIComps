@@ -109,7 +109,6 @@ function find_test_2() {
 }
 
 function find_test_3() {
-    set -x
     yaml_files=${changed_files}
     for yaml_file in ${yaml_files}; do
         if [ -f $yaml_file ]; then
@@ -126,7 +125,6 @@ function find_test_3() {
             fi
         fi
     done
-    set +x
 }
 
 function main() {

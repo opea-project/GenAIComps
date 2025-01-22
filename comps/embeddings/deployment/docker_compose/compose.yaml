@@ -1,6 +1,5 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-# for test only
 
 include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
