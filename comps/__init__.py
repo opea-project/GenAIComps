@@ -5,7 +5,6 @@
 
 import os
 
-# test
 # Document
 from comps.cores.proto.docarray import (
     Audio2TextDoc,
