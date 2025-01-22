@@ -44,7 +44,7 @@ function start_service() {
     export host_ip=${host_ip}
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
-    export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
+    export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
 
@@ -91,7 +91,7 @@ function validate_backend_microservices() {
         "text" \
         "vllm-server" \
         "vllm-server" \
-        '{"model": "meta-llama/Meta-Llama-3.1-8B-Instruct", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
+        '{"model": "meta-llama/Meta-Llama-3-8B-Instruct", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
 
     # faq
     validate_services \
