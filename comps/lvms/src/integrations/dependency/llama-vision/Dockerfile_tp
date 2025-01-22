@@ -9,7 +9,8 @@ ENV LANG=en_US.UTF-8
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     git-lfs \
     libgl1-mesa-glx \
-    libjemalloc-dev
+    libjemalloc-dev \
+    curl
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \

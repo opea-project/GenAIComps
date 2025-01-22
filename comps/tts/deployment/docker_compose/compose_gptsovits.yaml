@@ -26,9 +26,10 @@ services:
     ipc: host
     environment:
       TTS_ENDPOINT: ${TTS_ENDPOINT}
-    dependes_on:
+      TTS_COMPONENT_NAME: "OPEA_GPTSOVITS_TTS"
+    depends_on:
       speecht5-service:
-      condition: service_healthy
+        condition: service_healthy
 
 networks:
   default:

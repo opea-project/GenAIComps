@@ -6,7 +6,7 @@ FROM python:3.9-slim
 ENV LANG=C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    git git-lfs && \ 
+    git git-lfs curl && \ 
     git lfs install
 
 RUN useradd -m -s /bin/bash user && \

@@ -6,11 +6,12 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+export TAG=comps
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/whisper:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/whisper/Dockerfile .
+    docker build --no-cache -t opea/whisper:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/whisper/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/whisper built fail"
@@ -19,7 +20,7 @@ function build_docker_images() {
         echo "opea/whisper built successful"
     fi
 
-    docker build --no-cache -t opea/asr:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/Dockerfile .
+    docker build --no-cache -t opea/asr:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/asr built fail"
@@ -31,30 +32,29 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-asr-whisper" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p 7066:7066 --ipc=host opea/whisper:comps
-    sleep 2m
-    docker run -d --name="test-comps-asr" -e ASR_ENDPOINT=http://$ip_address:7066 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -p 9089:9099 --ipc=host opea/asr:comps
+    export ASR_ENDPOINT=http://$ip_address:7066
+
+    docker compose -f comps/asr/deployment/docker_compose/compose_whisper.yaml up -d
     sleep 15
 }
 
 function validate_microservice() {
     wget https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav
-    result=$(http_proxy="" curl http://localhost:9089/v1/audio/transcriptions -H "Content-Type: multipart/form-data" -F file="@./sample.wav" -F model="openai/whisper-small")
+    result=$(http_proxy="" curl http://localhost:9099/v1/audio/transcriptions -H "Content-Type: multipart/form-data" -F file="@./sample.wav" -F model="openai/whisper-small")
     rm -f sample.wav
     if [[ $result == *"who is"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-asr-whisper
-        docker logs test-comps-asr
+        docker logs whisper-service
+        docker logs asr-service
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-asr*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    docker ps -a --filter "name=whisper-service" --filter "name=asr-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

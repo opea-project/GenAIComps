@@ -13,7 +13,7 @@ ARG ARCH=cpu
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y ffmpeg
+    && apt-get install -y ffmpeg curl
 
 COPY --chown=user:user comps /home/user/comps
 

@@ -6,9 +6,11 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+export TAG=comps
+
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/web-retriever:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/web_retrievers/src/Dockerfile .
+    docker build --no-cache -t opea/web-retriever:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/web_retrievers/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/web-retriever built fail"
         exit 1
@@ -18,23 +20,16 @@ function build_docker_images() {
 }
 
 function start_service() {
+    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:6060"
+    export host_ip=${ip_address}
 
-    # tei endpoint
-    tei_endpoint=5018
-    model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-web-retriever-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
-
-    # web retriever
-    retriever_port=5019
-    unset http_proxy
-    docker run -d --name="test-comps-web-retriever-server" -p ${retriever_port}:7077 --ipc=host -e GOOGLE_API_KEY=$GOOGLE_API_KEY -e GOOGLE_CSE_ID=$GOOGLE_CSE_ID -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/web-retriever:comps
-
-    sleep 3m
+    docker compose -f comps/web_retrievers/deployment/docker_compose/compose_web_retrievers.yaml up -d
+    sleep 15s
 }
 
 function validate_microservice() {
-    retriever_port=5019
+    retriever_port=7077
     export PATH="${HOME}/miniforge3/bin:$PATH"
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
     result=$(http_proxy='' curl http://${ip_address}:$retriever_port/v1/web_retrieval \
@@ -45,17 +40,14 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong. Received status was $result"
-        docker logs test-comps-web-retriever-tei-endpoint
-        docker logs test-comps-web-retriever-server
+        docker logs tei-embedding-server
+        docker logs web-retriever-service
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid_retrievers=$(docker ps -aq --filter "name=test-comps-web*")
-    if [[ ! -z "$cid_retrievers" ]]; then
-        docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
-    fi
+    docker ps -a --filter "name=tei-embedding-server" --filter "name=web-retriever-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {
