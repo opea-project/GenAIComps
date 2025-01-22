@@ -13,9 +13,20 @@ echo "TAG=${TAG}"
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
-service_name="faqgen-tgi-gaudi"
+service_name="faqgen-vllm"
 
 function build_docker_images() {
+    cd $WORKPATH
+    git clone https://github.com/vllm-project/vllm.git
+    cd ./vllm/
+    docker build --no-cache -f Dockerfile.cpu -t ${REGISTRY:-opea}/vllm:${TAG:-latest} --shm-size=128g .
+    if [ $? -ne 0 ]; then
+        echo "opea/vllm built fail"
+        exit 1
+    else
+        echo "opea/vllm built successful"
+    fi
+
     cd $WORKPATH
     docker build --no-cache -t ${REGISTRY:-opea}/llm-faqgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/faq-generation/Dockerfile .
     if [ $? -ne 0 ]; then
@@ -24,17 +35,18 @@ function build_docker_images() {
     else
         echo "opea/llm-faqgen built successful"
     fi
+
 }
 
 function start_service() {
-    export LLM_ENDPOINT_PORT=12100  # 12100-12199
-    export FAQ_PORT=10500 #10500-10599
+    export LLM_ENDPOINT_PORT=12103  # 12100-12199
+    export FAQ_PORT=10503 #10500-10599
     export host_ip=${host_ip}
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
-    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
+    export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
-    export DATA_PATH="/data2/cache"
 
     docker compose -f $WORKPATH/comps/llms/deployment/docker_compose/compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
@@ -73,28 +85,28 @@ function validate_services() {
 }
 
 function validate_backend_microservices() {
-    # tgi
+    # vllm
     validate_services \
-        "${host_ip}:${LLM_ENDPOINT_PORT}/generate" \
-        "generated_text" \
-        "tgi-gaudi-server" \
-        "tgi-gaudi-server" \
-        '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
+        "${host_ip}:${LLM_ENDPOINT_PORT}/v1/completions" \
+        "text" \
+        "vllm-server" \
+        "vllm-server" \
+        '{"model": "meta-llama/Meta-Llama-3-8B-Instruct", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
 
     # faq
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
-        "llm-faqgen-tgi-gaudi-server" \
-        "llm-faqgen-tgi-gaudi-server" \
+        "llm-faqgen-vllm-server" \
+        "llm-faqgen-vllm-server" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32}'
 
     # faq, non-stream
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
-        "llm-faqgen-tgi-gaudi-server" \
-        "llm-faqgen-tgi-gaudi-server" \
+        "llm-faqgen-vllm-server" \
+        "llm-faqgen-vllm-server" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32, "stream":false}'
 }
 
