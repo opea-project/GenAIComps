@@ -36,8 +36,9 @@ jobs:
           # base_commit=$(git rev-parse HEAD~1)
           base_commit=5f34f5dc7a15b115751fd5a04bf7770a34fe9912
           merged_commit=$(git log -1 --format='%H')
-          git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" |grep -Ev ".md"
-          if [ $? -eq 0 ]; then
+          # git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"
+          # if [ $? -eq 0 ]; then
+          if git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"; then
             echo "ALL image build!!!"
             services=$(basename -a .github/workflows/docker/compose/*-compose.yaml | sed 's/-compose.yaml//' | jq -R '.' )
           else
@@ -53,6 +54,7 @@ jobs:
 
           echo "services=$(echo "$services" | jq -sc 'unique | sort')"
           echo "services=$(echo "$services" | jq -sc 'unique | sort')" >> $GITHUB_OUTPUT
+        continue-on-error: true
 
   image-build:
     needs: get-build-matrix
