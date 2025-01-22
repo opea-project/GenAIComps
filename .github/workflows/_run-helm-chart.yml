@@ -131,7 +131,11 @@ jobs:
           service: ${{ inputs.service }}
         run: |
           service_name="${service,,}"  # third_parties/bridgetower
-          CHART_NAME="$(echo "${service,,}"|cut -d'/' -f2)"  # bridgetower
+          if [[ "${service,,}" == *"third_parties"* ]]; then
+            CHART_NAME="$(echo "${service,,}"|cut -d'/' -f2)"  # bridgetower
+          else
+            CHART_NAME="${service_name}"  # agent
+          fi
           echo "service_name=$service_name" >> $GITHUB_ENV
           echo "CHART_NAME=$CHART_NAME" >> $GITHUB_ENV
           echo "RELEASE_NAME=${CHART_NAME}$(date +%d%H%M%S)" >> $GITHUB_ENV
