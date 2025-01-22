@@ -4,7 +4,7 @@ name: Build latest images on push event
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "opt-image-build"]
     paths:
       - 'comps/**'
       - 'src/**'
@@ -32,10 +32,11 @@ jobs:
       - name: Get Test Services
         id: get-services
         run: |
-          base_commit=$(git rev-parse HEAD~1)
+          # base_commit=$(git rev-parse HEAD~1)
+          base_commit=5f34f5dc7a15b115751fd5a04bf7770a34fe9912
           merged_commit=$(git log -1 --format='%H')
           git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py"
-          if [ $? -eq 1 ]; then
+          if [ $? -eq 0 ]; then
             echo "ALL image build!!!"
             services=$(basename -a .github/workflows/docker/compose/*-compose.yaml | sed 's/-compose.yaml//' | jq -R '.' )
           else
