@@ -21,10 +21,10 @@ function build_docker_images() {
 
 function start_service() {
     echo "Starting microservice"
-    export your_ip=$(hostname -I | awk '{print $1}')
+    export host_ip=$(hostname -I | awk '{print $1}')
     export LLM_MODEL_ID="PatronusAI/Llama-3-Patronus-Lynx-8B-Instruct"
     export LLM_ENDPOINT_PORT=12210
-    export vLLM_ENDPOINT="http://${your_ip}:${LLM_ENDPOINT_PORT}"
+    export vLLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export HALLUCINATION_DETECTION_PORT=11305
     export TAG=comps
     service_name="vllm-gaudi-server hallucination-detection-server"

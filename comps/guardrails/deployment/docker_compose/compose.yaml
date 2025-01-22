@@ -7,7 +7,7 @@ include:
 
 services:
   # bias detection service
-  bias-detection-server:
+  guardrails-bias-detection-server:
     image: ${REGISTRY:-opea}/guardrails-bias-detection:${TAG:-latest}
     container_name: guardrails-bias-detection-server
     ports:
@@ -55,7 +55,7 @@ services:
     extends: guardrails-server
     container_name: llamaguard-guardrails-server
     depends_on:
-      tgi-server:
+      tgi-gaudi-server:
         condition: service_healthy
 
   wildguard-guardrails-server:

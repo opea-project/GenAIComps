@@ -22,6 +22,7 @@ function build_docker_images() {
 
 function start_service() {
     echo "Starting microservice"
+    export host_ip=${ip_address}
     export LLM_MODEL_ID="allenai/wildguard"
     export LLM_ENDPOINT_PORT=12120
     export SAFETY_GUARD_MODEL_ID="allenai/wildguard"
@@ -33,6 +34,7 @@ function start_service() {
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
     echo "Microservice started"
+    sleep 15
 }
 
 function validate_microservice() {
