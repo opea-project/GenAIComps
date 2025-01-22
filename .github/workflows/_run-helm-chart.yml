@@ -25,16 +25,12 @@ on:
         description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
-      hardware:
-        default: "xeon"
-        required: true
-        type: string
 
 jobs:
   get-test-case:
     runs-on: ubuntu-latest
     outputs:
-      value_files: ${{ steps.get-test-files.outputs.value_files }}
+      run_matrix: ${{ steps.get-test-files.outputs.run_matrix }}
       CHECKOUT_REF: ${{ steps.get-checkout-ref.outputs.CHECKOUT_REF }}
     steps:
       - name: Get checkout ref
@@ -69,39 +65,43 @@ jobs:
           elif [ "${{ inputs.mode }}" = "CD" ]; then
             values_files=$(ls ${{ github.workspace }}/comps/${{ inputs.service }}/deployment/kubernetes/*values.yaml)
           fi
-          value_files="["
+          run_matrix="["
+          run_matrix="{\"include\":["
           for file in ${values_files}; do
             if [ -f "$file" ]; then
               filename=$(basename "$file")
               if [[ "$filename" == *"gaudi"* ]]; then
-                if [[ "${{ inputs.hardware }}" == "gaudi" ]]; then
-                  value_files="${value_files}\"${filename}\","
-                fi
+                hardware="gaudi"
+                value_file="$filename"
               elif [[ "$filename" == *"nv"* ]]; then
                 continue
               else
-                if [[ "${{ inputs.hardware }}" == "xeon" ]]; then
-                  value_files="${value_files}\"${filename}\","
-                fi
+                hardware="xeon"
+                value_file="$filename"
+              fi
+              echo "service=${{ inputs.service }}, hardware=${hardware}, value_file=${value_file}"
+              if [[ $(echo ${run_matrix} | grep -c "{\"value_file\":\"${value_file}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
+                run_matrix="${run_matrix}{\"value_file\":\"${value_file}\",\"hardware\":\"${hardware}\"},"
+                echo "------------------ add one values file ------------------"
               fi
             fi
           done
-          value_files="${value_files%,}]"
+          run_matrix="${run_matrix%,}]}"
 
-          echo "value_files=${value_files}"
-          echo "value_files=${value_files}" >> $GITHUB_OUTPUT
+          echo "run_matrix=${run_matrix}"
+          echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
 
   helm-test:
     needs: [get-test-case]
     strategy:
-      matrix:
-        value_file: ${{ fromJSON(needs.get-test-case.outputs.value_files) }}
-    if: ${{ needs.get-test-case.outputs.value_files != '[]' }}
-    runs-on: ${{ inputs.hardware }}
+      matrix: ${{ fromJSON(needs.get-test-case.outputs.run_matrix) }}
+    if: ${{ needs.get-test-case.outputs.run_matrix != '[]' }}
+    runs-on: k8s-${{ matrix.hardware }}
     continue-on-error: true
     steps:
       - name: Clean Up Working Directory
         run: |
+          echo "service=${{ inputs.service }} hardware=${{ matrix.hardware }} value_file=${{ matrix.value_file }}"
           echo "value_file=${{ matrix.value_file }}"
           sudo rm -rf ${{github.workspace}}/*
 
@@ -137,6 +137,11 @@ jobs:
           echo "skip_validate=false" >> $GITHUB_ENV
           echo "CHART_FOLDER=comps/${service}/deployment/kubernetes" >> $GITHUB_ENV
 
+      - name: get template name
+        run: |
+          echo "template_link=$(grep 'helm install' comps/${CHART_NAME}/deployment/kubernetes/README.md | awk -F' ' '{print $4}' | head -n 1)"
+          echo "template_link=$(grep 'helm install' comps/${CHART_NAME}/deployment/kubernetes/README.md | awk -F' ' '{print $4}' | head -n 1)" >> $GITHUB_ENV
+
       - name: Helm install
         id: install
         env:
@@ -154,9 +159,9 @@ jobs:
             echo "should_cleanup=false" >> $GITHUB_ENV
             exit 0
           fi
-
+          # oci://ghcr.io/opea-project/charts/${CHART_NAME} \
           if ! helm install --create-namespace --namespace $NAMESPACE $RELEASE_NAME \
-            oci://ghcr.io/opea-project/charts/${CHART_NAME} \
+            ${template_link} \
             --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} \
             --set global.modelUseHostPath=/home/sdp/.cache/huggingface/hub \
             --set GOOGLE_API_KEY=${{ env.GOOGLE_API_KEY}} \
