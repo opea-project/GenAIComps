@@ -136,7 +136,7 @@ function main() {
 
     build_docker_images
     pip install --no-cache-dir openai
-    start_service 
+    start_service
 
     validate_microservices
     validate_microservice_with_openai

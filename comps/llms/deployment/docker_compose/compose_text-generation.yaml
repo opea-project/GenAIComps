@@ -21,7 +21,7 @@ services:
       HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG:-False}
     restart: unless-stopped
-  
+
   textgen-service-tgi:
     extends: textgen
     container_name: textgen-service-tgi
