@@ -31,7 +31,7 @@ function start_service() {
     unset http_proxy
     export TTS_ENDPOINT=http://$ip_address:7055
 
-    docker compose -f comps/tts/deployment/docker_compose/compose_speecht5_hpu.yaml up -d    
+    docker compose -f comps/tts/deployment/docker_compose/compose_speecht5_hpu.yaml up -d
     sleep 15
 }
 
