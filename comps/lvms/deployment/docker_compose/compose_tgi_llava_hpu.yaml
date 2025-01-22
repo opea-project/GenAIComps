@@ -34,7 +34,7 @@ services:
       LVM_ENDPOINT: ${LVM_ENDPOINT}
       LVM_COMPONENT_NAME: "OPEA_TGI_LLAVA_LVM"
     depends_on:
-      llava-service:
+      llava-tgi-service:
         condition: service_healthy
 
 networks:
