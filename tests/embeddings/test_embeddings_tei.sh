@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
@@ -10,7 +11,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/embedding:comps -f comps/embeddings/src/Dockerfile .
+    docker build --no-cache -t opea/embedding:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/embeddings/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/embedding built fail"
         exit 1
@@ -20,20 +21,22 @@ function build_docker_images() {
 }
 
 function start_service() {
-    tei_endpoint=5001
-    model="BAAI/bge-base-en-v1.5"
-    unset http_proxy
-    docker run -d --name="test-comps-embedding-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
-    sleep 3m
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
-    tei_service_port=5002
-    docker run -d --name="test-comps-embedding-server" -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${tei_service_port}:6000 --ipc=host -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_COMPONENT_NAME="OPEA_TEI_EMBEDDING" opea/embedding:comps
+    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export TEI_EMBEDDER_PORT=12000
+    export EMBEDDER_PORT=10200
+    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
+    export TAG=comps
+    export host_ip=${ip_address}
+    service_name="tei-embedding-serving tei-embedding-server"
+    cd $WORKPATH
+    cd comps/embeddings/deployment/docker_compose/
+    docker compose up ${service_name} -d
     sleep 15
 }
 
 function validate_service() {
     local INPUT_DATA="$1"
-    tei_service_port=5002
+    tei_service_port=10200
     result=$(http_proxy="" curl http://${ip_address}:$tei_service_port/v1/embeddings \
         -X POST \
         -d "$INPUT_DATA" \
@@ -42,8 +45,8 @@ function validate_service() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-embedding-endpoint
-        docker logs test-comps-embedding-server
+        docker logs tei-embedding-serving
+        docker logs tei-embedding-server
         exit 1
     fi
 }
@@ -59,17 +62,17 @@ function validate_microservice() {
 }
 
 function validate_microservice_with_openai() {
-    tei_service_port=5002
+    tei_service_port=10200
     python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py $ip_address $tei_service_port "embedding"
     if [ $? -ne 0 ]; then
-        docker logs test-comps-embedding-endpoint
-        docker logs test-comps-embedding-server
+        docker logs tei-embedding-serving
+        docker logs tei-embedding-server
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-embedding-*")
+    cid=$(docker ps -aq --filter "name=tei-embedding-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

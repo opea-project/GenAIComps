@@ -4,16 +4,23 @@
 
 set -x
 
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
+
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
+service_name="faqgen-vllm-gaudi"
 
 function build_docker_images() {
     cd $WORKPATH
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
     git checkout v0.6.4.post2+Gaudi-1.19.0
-    docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g .
+    docker build --no-cache -f Dockerfile.hpu -t ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
         exit 1
@@ -22,7 +29,7 @@ function build_docker_images() {
     fi
 
     cd $WORKPATH
-    docker build --no-cache -t opea/llm-faqgen:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/faq-generation/Dockerfile .
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-faqgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/faq-generation/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/llm-faqgen built fail"
         exit 1
@@ -33,18 +40,17 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export LLM_ENDPOINT_PORT=5066
-    export FAQ_PORT=5067
+    export LLM_ENDPOINT_PORT=12102  # 12100-12199
+    export FAQ_PORT=10502 #10500-10599
     export host_ip=${host_ip}
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
-    export FAQGen_COMPONENT_NAME="OpeaFaqGenvLLM"
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
+    export DATA_PATH="/data2/cache"
 
-    cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f faq-generation_vllm_on_intel_hpu.yaml up -d > ${LOG_PATH}/start_services_with_compose.log
+    docker compose -f $WORKPATH/comps/llms/deployment/docker_compose/compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 30s
 }
@@ -85,7 +91,7 @@ function validate_backend_microservices() {
     validate_services \
         "${host_ip}:${LLM_ENDPOINT_PORT}/v1/completions" \
         "text" \
-        "vllm" \
+        "vllm-gaudi-server" \
         "vllm-gaudi-server" \
         '{"model": "Intel/neural-chat-7b-v3-3", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
 
@@ -93,22 +99,21 @@ function validate_backend_microservices() {
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
-        "llm - faqgen" \
-        "llm-faqgen-server" \
+        "llm-faqgen-vllm-gaudi-server" \
+        "llm-faqgen-vllm-gaudi-server" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32}'
 
     # faq, non-stream
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
-        "FAQGen" \
-        "llm-faqgen-server" \
+        "llm-faqgen-vllm-gaudi-server" \
+        "llm-faqgen-vllm-gaudi-server" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32, "stream":false}'
 }
 
 function stop_docker() {
-    cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f faq-generation_vllm_on_intel_hpu.yaml down
+    docker compose -f $WORKPATH/comps/llms/deployment/docker_compose/compose_faq-generation.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

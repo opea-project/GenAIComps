@@ -19,28 +19,40 @@ export SUMMARIZE_IMAGE_VIA_LVM=1
 
 ## Dataprep Microservice with Redis
 
-For details, please refer to this [readme](redis/README.md)
+For details, please refer to this [readme](src/README_redis.md)
 
 ## Dataprep Microservice with Milvus
 
-For details, please refer to this [readme](milvus/langchain/README.md)
+For details, please refer to this [readme](src/README_milvus.md)
 
 ## Dataprep Microservice with Qdrant
 
-For details, please refer to this [readme](qdrant/langchain/README.md)
+For details, please refer to this [readme](src/README_qdrant.md)
 
 ## Dataprep Microservice with Pinecone
 
-For details, please refer to this [readme](pinecone/langchain/README.md)
+For details, please refer to this [readme](src/README_pinecone.md)
 
 ## Dataprep Microservice with PGVector
 
-For details, please refer to this [readme](pgvector/langchain/README.md)
+For details, please refer to this [readme](src/README_pgvector.md)
 
 ## Dataprep Microservice with VDMS
 
-For details, please refer to this [readme](vdms/README.md)
+For details, please refer to this [readme](src/README_vdms.md)
 
 ## Dataprep Microservice with Multimodal
 
-For details, please refer to this [readme](multimodal/redis/langchain/README.md)
+For details, please refer to this [readme](src/README_multimodal.md)
+
+## Dataprep Microservice with ElasticSearch
+
+For details, please refer to this [readme](src/README_elasticsearch.md)
+
+## Dataprep Microservice with OpenSearch
+
+For details, please refer to this [readme](src/README_opensearch.md)
+
+## Dataprep Microservice with neo4j
+
+For details, please refer to this [readme](src/README_neo4j_llamaindex.md)

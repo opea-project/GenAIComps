@@ -43,17 +43,15 @@ jobs:
           for values_file in ${values_files}; do
             if [ -f "$values_file" ]; then
               valuefile=$(basename "$values_file")   # cpu-values.yaml
-              service=$(echo "$values_file" | cut -d'/' -f2) # agent
-              if [[ "$valuefile" == *"gaudi"* ]]; then
-                hardware="gaudi"
-              elif [[ "$valuefile" == *"nv"* ]]; then
-                continue
+              if [[ "$values_file" == *"third_parties"* ]]; then  #comps/third_parties/bridgetower/deployment/kubernetes/gaudi-values.yaml
+                service=$(echo "$values_file" | cut -d'/' -f2-3) # third_parties/bridgetower
               else
-                hardware="xeon"
+                service=$(echo "$values_file" | cut -d'/' -f2) # agent
               fi
-              echo "service=${service}, hardware=${hardware}, valuefile=${valuefile}"
-              if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
-                run_matrix="${run_matrix}{\"service\":\"${service}\",\"hardware\":\"${hardware}\"},"
+
+              echo "service=${service}"
+              if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${service}\"},") == 0 ]]; then
+                run_matrix="${run_matrix}{\"service\":\"${service}\"},"
                 echo "------------------ add one values file ------------------"
               fi
             fi
@@ -71,6 +69,5 @@ jobs:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
     with:
       service: ${{ matrix.service }}
-      hardware: ${{ matrix.hardware }}
       mode: "CI"
     secrets: inherit

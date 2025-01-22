@@ -14,7 +14,17 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libjemalloc-dev \
     libreoffice \
     poppler-utils \
-    tesseract-ocr
+    tesseract-ocr \
+    libpq-dev \
+    libcairo2 \
+    wget
+
+# Install ffmpeg static build
+RUN cd /root && wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz && \
+mkdir ffmpeg-git-amd64-static && tar -xvf ffmpeg-git-amd64-static.tar.xz -C ffmpeg-git-amd64-static --strip-components 1 && \
+export PATH=/root/ffmpeg-git-amd64-static:$PATH && \
+cp /root/ffmpeg-git-amd64-static/ffmpeg /usr/local/bin/
+
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
@@ -25,8 +35,14 @@ USER user
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    if [ ${ARCH} = "cpu" ]; then pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu; fi && \
-    pip install --no-cache-dir -r /home/user/comps/dataprep/src/requirements.txt
+    if [ ${ARCH} = "cpu" ]; then \
+        PIP_EXTRA_INDEX_URL="--extra-index-url https://download.pytorch.org/whl/cpu"; \
+    else \
+        PIP_EXTRA_INDEX_URL=""; \
+    fi && \
+    pip install --no-cache-dir torch torchvision ${PIP_EXTRA_INDEX_URL} && \
+    pip install --no-cache-dir ${PIP_EXTRA_INDEX_URL} -r /home/user/comps/dataprep/src/requirements.txt && \
+    pip install opentelemetry-api==1.27.0 opentelemetry-exporter-otlp==1.27.0 opentelemetry-sdk==1.27.0
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
@@ -38,4 +54,4 @@ USER user
 
 WORKDIR /home/user/comps/dataprep/src
 
-ENTRYPOINT ["python", "opea_dataprep_microservice.py"]
+ENTRYPOINT ["sh", "-c", "python $( [ \"$MULTIMODAL_DATAPREP\" = \"true\" ] && echo 'opea_dataprep_multimodal_microservice.py' || echo 'opea_dataprep_microservice.py')"]

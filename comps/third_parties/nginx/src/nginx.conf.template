@@ -37,7 +37,7 @@ server {
         gzip off;
     }
 
-    location /v1/dataprep {
+    location /v1/dataprep/ingest {
         proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -49,7 +49,7 @@ server {
         send_timeout 6000;
     }
 
-    location /v1/dataprep/get_file {
+    location /v1/dataprep/get {
         proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -57,7 +57,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location /v1/dataprep/delete_file {
+    location /v1/dataprep/delete {
         proxy_pass http://${DATAPREP_SERVICE_IP}:${DATAPREP_SERVICE_PORT};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
