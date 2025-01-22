@@ -10,6 +10,18 @@ ip_address=$(hostname -I | awk '{print $1}')
 function build_docker_images() {
     echo "Start building docker images for microservice"
     cd $WORKPATH
+    git clone https://github.com/HabanaAI/vllm-fork.git
+    cd vllm-fork/
+    git checkout v0.6.4.post2+Gaudi-1.19.0
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g .
+    if [ $? -ne 0 ]; then
+        echo "opea/vllm-gaudi built fail"
+        exit 1
+    else
+        echo "opea/vllm-gaudi built successful"
+    fi
+
+    cd $WORKPATH
     docker build --no-cache -t opea/hallucination-detection:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/src/hallucination_detection/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/hallucination-detection built fail"
