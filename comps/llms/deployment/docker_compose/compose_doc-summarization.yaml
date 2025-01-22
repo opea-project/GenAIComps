@@ -23,7 +23,7 @@ services:
       MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS}
       MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS}
     restart: unless-stopped
-  
+
   docsum-tgi:
     extends: docsum
     container_name: llm-docsum-tgi-server
