@@ -9,6 +9,7 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 finetuning_service_port=8015
 ray_port=8265
+service_name="finetuning-gaudi"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -24,7 +25,8 @@ function build_docker_images() {
 
 function start_service() {
     export no_proxy="localhost,127.0.0.1,"${ip_address}
-    docker run -d --name="test-comps-finetuning-gaudi-server" --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p $finetuning_service_port:$finetuning_service_port -p $ray_port:$ray_port -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --net=host --ipc=host -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e HF_TOKEN=$HF_TOKEN opea/finetuning-gaudi:latest
+    cd $WORKPATH/comps/finetuning/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 1m
 }
 
@@ -61,7 +63,7 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-finetuning-gaudi-server > ${LOG_PATH}/finetuning-server_upload_file.log
+        docker logs finetuning-gaudi > ${LOG_PATH}/finetuning-server_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -69,7 +71,7 @@ function validate_microservice() {
     # Check if the parsed values match the expected values
     if [[ "$purpose" != "$expected_purpose" || "$filename" != "$expected_filename" ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-finetuning-gaudi-server > ${LOG_PATH}/finetuning-server_upload_file.log
+        docker logs finetuning-gaudi > ${LOG_PATH}/finetuning-server_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -86,14 +88,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-finetuning-gaudi-server >> ${LOG_PATH}/finetuning-server_create.log
+        docker logs finetuning-gaudi >> ${LOG_PATH}/finetuning-server_create.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *'{"id":"ft-job'* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-finetuning-gaudi-server >> ${LOG_PATH}/finetuning-server_create.log
+        docker logs finetuning-gaudi >> ${LOG_PATH}/finetuning-server_create.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -139,14 +141,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-finetuning-gaudi-server > ${LOG_PATH}/finetuning-server_create.log
+        docker logs finetuning-gaudi > ${LOG_PATH}/finetuning-server_create.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *'{"id":"ft-job'* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-finetuning-gaudi-server > ${LOG_PATH}/finetuning-server_create.log
+        docker logs finetuning-gaudi > ${LOG_PATH}/finetuning-server_create.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -173,12 +175,12 @@ function validate_microservice() {
     done
 
     # get logs
-    docker logs test-comps-finetuning-gaudi-server >> ${LOG_PATH}/finetuning-server_create.log
+    docker logs finetuning-gaudi >> ${LOG_PATH}/finetuning-server_create.log
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-finetuning-gaudi-server*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/finetuning/deployment/docker_compose
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
