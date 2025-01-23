@@ -32,12 +32,12 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-    command: --model-id ${EMBEDDING_MODEL_ID} --auto-truncate
+      host_ip: ${host_ip}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${host_ip}:6060/health"]
+      test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_PORT}/health"]
       interval: 10s
       timeout: 6s
-      retries: 18
+      retries: 48
 
 networks:
   default:
