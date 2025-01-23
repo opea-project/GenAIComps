@@ -15,12 +15,13 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest
 logger = CustomLogger("opea_textgen_bedrock")
 logflag = os.getenv("LOGFLAG", False)
 
+
 @OpeaComponentRegistry.register("OpeaTextGenBedrock")
 class OpeaTextGenBedrock(OpeaComponent):
     """A specialized OPEA TextGen component derived from OpeaComponent for
     interacting with AWS Bedrock."""
 
-    def __init__(self, name: str,  description: str, config: dict = None):
+    def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
 
         self.region = os.getenv("BEDROCK_REGION", "us-west-2")
