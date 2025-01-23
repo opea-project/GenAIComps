@@ -13,7 +13,7 @@ export AWS_ACCESS_KEY_ID=${aws_access_key_id}
 export AWS_SECRET_ACCESS_KEY=${aws_secret_access_key}
 ```
 
-If you're using an IAM Role, you must also set the following environment variable.
+If you're using an IAM Role, you also need to set the following environment variable.
 ```bash
 export AWS_SESSION_TOKEN=${aws_session_token}
 ```
