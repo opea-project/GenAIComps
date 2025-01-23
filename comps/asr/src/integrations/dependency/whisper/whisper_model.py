@@ -41,8 +41,12 @@ class WhisperModel:
         self.return_timestamps = return_timestamps
 
         if device == "hpu":
-            self._warmup_whisper_hpu_graph(os.path.dirname(os.path.abspath(__file__)) + "/../../../../assets/ljspeech_30s_audio.wav")
-            self._warmup_whisper_hpu_graph(os.path.dirname(os.path.abspath(__file__)) + "/../../../../assets/ljspeech_60s_audio.wav")
+            self._warmup_whisper_hpu_graph(
+                os.path.dirname(os.path.abspath(__file__)) + "/../../../../assets/ljspeech_30s_audio.wav"
+            )
+            self._warmup_whisper_hpu_graph(
+                os.path.dirname(os.path.abspath(__file__)) + "/../../../../assets/ljspeech_60s_audio.wav"
+            )
 
     def _audiosegment_to_librosawav(self, audiosegment):
         # https://github.com/jiaaro/pydub/blob/master/API.markdown#audiosegmentget_array_of_samples
