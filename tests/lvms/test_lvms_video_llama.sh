@@ -38,7 +38,7 @@ function start_service() {
     export LVM_ENDPOINT=http://$ip_address:$VIDEO_LLAMA_PORT
     export LVM_COMPONENT_NAME=OPEA_VIDEO_LLAMA_LVM
 
-    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up video-llama-service lvm -d
+    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up video-llama-service lvm-video-llama -d
 
     sleep 15
 }
@@ -52,13 +52,13 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs video-llama-service &> ${LOG_PATH}/video-llama-service.log
-        docker logs lvm-service &> ${LOG_PATH}/lvm.log
+        docker logs lvm-video-llama-service &> ${LOG_PATH}/lvm.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=video-llama-service" --filter "name=lvm-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=video-llama-service" --filter "name=lvm-video-llama-service" --format "{{.Names}}" | xargs -r docker stop
 
 }
 

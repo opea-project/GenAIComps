@@ -36,7 +36,7 @@ function start_service() {
     export TTS_ENDPOINT=http://$ip_address:$GPT_SOVITS_PORT
     export TTS_COMPONENT_NAME=OPEA_GPTSOVITS_TTS
 
-    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up gpt-sovits-service tts -d
+    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up gptsovits-service tts-gptsovits-service -d
     sleep 15
 }
 
@@ -47,14 +47,14 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs gpt-sovits-service
-        docker logs tts-service
+        docker logs gptsovits-service
+        docker logs tts-gptsovits-service
         exit 1
     fi
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=gpt-sovits-service" --filter "name=tts-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=gptsovits-service" --filter "name=tts-gptsovits-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

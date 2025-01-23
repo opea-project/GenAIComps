@@ -36,7 +36,7 @@ function start_service() {
     unset http_proxy
     export ASR_ENDPOINT=http://$ip_address:$WHISPER_PORT
 
-    docker compose -f comps/asr/deployment/docker_compose/compose.yaml up whisper-gaudi-service asr -d
+    docker compose -f comps/asr/deployment/docker_compose/compose.yaml up whisper-service asr -d
     sleep 15
 }
 

@@ -34,7 +34,7 @@ function start_service() {
     export TTS_ENDPOINT=http://$ip_address:$SPEECHT5_PORT
     export TTS_COMPONENT_NAME=OPEA_SPEECHT5_TTS
 
-    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up speecht5-service tts -d
+    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up speecht5-service tts-speecht5 -d
     sleep 15
 }
 
@@ -45,14 +45,14 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs speecht5-service
-        docker logs tts-service
+        docker logs tts-speecht5-service
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=speecht5-service" --filter "name=tts-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=speecht5-service" --filter "name=tts-speecht5-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

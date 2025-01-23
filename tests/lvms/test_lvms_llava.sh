@@ -35,7 +35,7 @@ function start_service() {
     export LVM_ENDPOINT=http://$ip_address:$LLAVA_PORT
 
     export LVM_COMPONENT_NAME=OPEA_LLAVA_LVM
-    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up llava-service lvm -d
+    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up llava-service lvm-llava -d
     sleep 15s
 }
 
@@ -47,7 +47,7 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-service >> ${LOG_PATH}/llava-dependency.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -59,7 +59,7 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-service >> ${LOG_PATH}/llava-dependency.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -71,7 +71,7 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-service >> ${LOG_PATH}/llava-dependency.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -83,7 +83,7 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-service >> ${LOG_PATH}/llava-dependency.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -93,7 +93,7 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-service >> ${LOG_PATH}/llava-dependency.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -103,7 +103,7 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-service >> ${LOG_PATH}/llava-dependency.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -114,14 +114,14 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-service >> ${LOG_PATH}/llava-dependency.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=llava-service" --filter "name=lvm-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=llava-service" --filter "name=lvm-llava-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

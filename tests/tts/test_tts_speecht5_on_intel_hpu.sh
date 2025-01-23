@@ -35,7 +35,7 @@ function start_service() {
 
     export TTS_COMPONENT_NAME=OPEA_SPEECHT5_TTS
 
-    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up speecht5-gaudi-service tts -d
+    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up speecht5-gaudi-service tts-speecht5-gaudi -d
     sleep 15
 }
 
@@ -46,15 +46,15 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs speecht5-service
-        docker logs tts-service
+        docker logs speecht5-gaudi-service
+        docker logs tts-speecht5-gaudi-service
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=speecht5-gaudi-service" --filter "name=tts-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=speecht5-gaudi-service" --filter "name=tts-speecht5-gaudi-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

@@ -13,7 +13,7 @@ logger = CustomLogger("opea_llama_vision")
 logflag = os.getenv("LOGFLAG", False)
 
 
-@OpeaComponentRegistry.register("OPEA_LLAVA_VISION_LVM")
+@OpeaComponentRegistry.register("OPEA_LLAMA_VISION_LVM")
 class OpeaLlamaVisionLvm(OpeaComponent):
     """A specialized LVM component derived from OpeaComponent for LLaMA-Vision services."""
 

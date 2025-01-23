@@ -31,7 +31,7 @@ function start_service() {
     export LLM_MODEL_ID="llava-hf/llava-v1.6-mistral-7b-hf"
 
     export LVM_COMPONENT_NAME=OPEA_TGI_LLAVA_LVM
-    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up llava-service lvm -d
+    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up llava-tgi-service lvm-llava-tgi -d
 
     sleep 15s
 }
@@ -43,7 +43,7 @@ function validate_microservice() {
     else
         echo "LVM prompt with an image - Result wrong."
         docker logs llava-tgi-service >> ${LOG_PATH}/llava-tgi.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-tgi-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -53,7 +53,7 @@ function validate_microservice() {
 
         echo "LVM prompt without image - HTTP status is not 200. Received status was $http_status"
         docker logs llava-tgi-service >> ${LOG_PATH}/llava-tgi.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-tgi-service >> ${LOG_PATH}/lvm.log
         exit 1
     else
         echo "LVM prompt without image - HTTP status (successful)"
@@ -67,7 +67,7 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-tgi-service >> ${LOG_PATH}/llava-tgi.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-tgi-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -79,7 +79,7 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-tgi-service >> ${LOG_PATH}/llava-tgi.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-tgi-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -91,13 +91,13 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs llava-tgi-service >> ${LOG_PATH}/llava-tgi.log
-        docker logs lvm-service >> ${LOG_PATH}/lvm.log
+        docker logs lvm-llava-tgi-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=llava-tgi-service" --filter "name=lvm-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=llava-tgi-service" --filter "name=lvm-llava-tgi-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

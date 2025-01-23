@@ -103,6 +103,46 @@ services:
     depends_on:
       llava-service:
         condition: service_healthy
+  lvm-llava:
+    extends: lvm
+    container_name: lvm-llava-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAVA_LVM}
+    depends_on:
+      llava-service:
+        condition: service_healthy
+  lvm-llava-tgi:
+    extends: lvm
+    container_name: lvm-llava-tgi-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_TGI_LLAVA_LVM}
+    depends_on:
+      llava-tgi-service:
+        condition: service_healthy
+  lvm-llama-vision:
+    extends: lvm
+    container_name: lvm-llama-vision-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAMA_VISION_LVM}
+    depends_on:
+      llama-vision-service:
+        condition: service_healthy
+  lvm-predictionguard:
+    extends: lvm
+    container_name: lvm-predictionguard-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_PREDICTION_GUARD_LVM}
+    depends_on:
+      predictionguard-service:
+        condition: service_healthy
+  lvm-video-llama:
+    extends: lvm
+    container_name: lvm-video-llama-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VIDEO_LLAMA_LVM}
+    depends_on:
+      video-llama-service:
+        condition: service_healthy
 
 networks:
   default:
