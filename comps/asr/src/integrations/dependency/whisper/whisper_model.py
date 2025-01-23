@@ -41,8 +41,8 @@ class WhisperModel:
         self.return_timestamps = return_timestamps
 
         if device == "hpu":
-            self._warmup_whisper_hpu_graph("https://github.com/Spycsh/assets/raw/main/ljspeech_60s_audio.wav")
-            self._warmup_whisper_hpu_graph("https://github.com/Spycsh/assets/raw/main/ljspeech_30s_audio.wav")
+            self._warmup_whisper_hpu_graph("https://github.com/opea-project/GenAIComps/blob/main/comps/asr/assets/ljspeech_30s_audio.wav")
+            self._warmup_whisper_hpu_graph("https://github.com/opea-project/GenAIComps/blob/main/comps/asr/assets/ljspeech_60s_audio.wav")
 
     def _audiosegment_to_librosawav(self, audiosegment):
         # https://github.com/jiaaro/pydub/blob/master/API.markdown#audiosegmentget_array_of_samples
@@ -206,7 +206,3 @@ if __name__ == "__main__":
         "sample.wav",
     )
     text = asr.audio2text("sample.wav")
-
-    for i in [5, 10, 30, 60]:
-        urllib.request.urlretrieve(f"https://github.com/Spycsh/assets/raw/main/ljspeech_{i}s_audio.wav", "sample.wav")
-        text = asr.audio2text("sample.wav")

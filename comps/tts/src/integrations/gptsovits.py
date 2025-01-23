@@ -35,7 +35,6 @@ class OpeaGptsovitsTts(OpeaComponent):
         request: AudioSpeechRequest,
     ) -> requests.models.Response:
         """Involve the TTS service to generate speech for the provided input."""
-        # see https://github.com/Spycsh/GPT-SoVITS/blob/openai_compat/api.py#L948 for usage
         # make sure you change the refer_wav_path locally
         request.voice = None
 
