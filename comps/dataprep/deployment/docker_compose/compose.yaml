@@ -115,8 +115,7 @@ services:
       - "${DATAPREP_PORT:-11104}:5000"
     depends_on:
       - opensearch-vector-db
-        condition:
-          service_healthy
+        condition: service_healthy
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -137,8 +136,7 @@ services:
       - "${DATAPREP_PORT:-11105}:5000"
     depends_on:
       - pgvector-vector-db
-        condition:
-          service_healthy
+        condition: service_healthy
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -169,11 +167,9 @@ services:
     container_name: dataprep-qdrant-server
     depends_on:
       - qdrant-vector-db
-        condition:
-          service_healthy
+        condition: service_healthy
       - tei-embedding-serving
-        condition:
-          service_healthy
+        condition: service_healthy
     ports:
       - "${DATAPREP_PORT:-11107}:5000"
     ipc: host
@@ -194,11 +190,9 @@ services:
     container_name: dataprep-redis-server
     depends_on:
       - redis-vector-db
-        condition:
-          service_healthy
+        condition: service_healthy
       - tei-embedding-serving
-        condition:
-          service_healthy
+        condition: service_healthy
     ports:
       - "${DATAPREP_PORT:-11108}:5000"
     ipc: host
@@ -222,8 +216,7 @@ services:
       - "${DATAPREP_PORT:-11109}:5000"
     depends_on:
       - redis-vector-db
-        condition:
-          service_healthy
+        condition: service_healthy
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -246,8 +239,7 @@ services:
       - "${DATAPREP_PORT:-11110}:5000"
     depends_on:
       - vdms-vector-db
-        condition:
-          service_healthy
+        condition: service_healthy
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -267,8 +259,7 @@ services:
       - "${DATAPREP_PORT:-11111}:5000"
     depends_on:
       - vdms-vector-db
-        condition:
-          service_healthy
+        condition: service_healthy
     ipc: host
     environment:
       no_proxy: ${no_proxy}
