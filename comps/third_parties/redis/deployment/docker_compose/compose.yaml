@@ -9,7 +9,7 @@ services:
       - "6379:6379"
       - "8001:8001"
   healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+    test: ["CMD", "redis-cli", "ping"]
+    timeout: 10s
+    retries: 3
+    start_period: 10s
