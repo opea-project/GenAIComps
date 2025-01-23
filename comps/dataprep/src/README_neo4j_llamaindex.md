@@ -9,7 +9,7 @@ This Dataprep microservice performs:
 
 This microservice follows the graphRAG approached defined by Microsoft paper ["From Local to Global: A Graph RAG Approach to Query-Focused Summarization"](https://www.microsoft.com/en-us/research/publication/from-local-to-global-a-graph-rag-approach-to-query-focused-summarization/) with some differences such as: 1) no node degree prioritization is used in populating the LLM context window for community summaries, 2) no ranking of sub-communities is applied in generating higher level communities summaries.
 
-This dataprep microservice ingests the input files and uses LLM (TGI, VLLM or OpenAI model when OPENAI_API_KEY is set) to extract entities, relationships and descriptions of those to build a graph-based text index. Compose yaml file deploys TGI but works also with vLLM inference endpoint. 
+This dataprep microservice ingests the input files and uses LLM (TGI, VLLM or OpenAI model when OPENAI_API_KEY is set) to extract entities, relationships and descriptions of those to build a graph-based text index. Compose yaml file deploys TGI but works also with vLLM inference endpoint.
 
 ## Setup Environment Variables
 
