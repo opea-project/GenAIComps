@@ -42,13 +42,14 @@ function start_service() {
     export LLM_ENDPOINT_PORT=12103  # 12100-12199
     export FAQ_PORT=10503 #10500-10599
     export host_ip=${host_ip}
-    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
+    export HF_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
 
-    docker compose -f $WORKPATH/comps/llms/deployment/docker_compose/compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 30s
 }
@@ -97,21 +98,22 @@ function validate_backend_microservices() {
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
-        "llm-faqgen-vllm-server" \
-        "llm-faqgen-vllm-server" \
+        "faqgen-vllm" \
+        "faqgen-vllm" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32}'
 
     # faq, non-stream
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
-        "llm-faqgen-vllm-server" \
-        "llm-faqgen-vllm-server" \
+        "faqgen-vllm" \
+        "faqgen-vllm" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32, "stream":false}'
 }
 
 function stop_docker() {
-    docker compose -f $WORKPATH/comps/llms/deployment/docker_compose/compose_faq-generation.yaml down ${service_name} --remove-orphans
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

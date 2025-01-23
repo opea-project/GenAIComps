@@ -5,8 +5,8 @@ import os
 import time
 
 from fastapi.responses import StreamingResponse
-from integrations.opea_gptsovits import OpeaGptsovitsTts
-from integrations.opea_speecht5 import OpeaSpeecht5Tts
+from integrations.gptsovits import OpeaGptsovitsTts
+from integrations.speecht5 import OpeaSpeecht5Tts
 
 from comps import (
     CustomLogger,
