@@ -49,7 +49,7 @@ function start_service() {
     export WAV2LIP_ENDPOINT="http://$ip_address:$WAV2LIP_PORT"
 
     cd $WORKPATH/comps/animation/deployment/docker_compose
-    docker compose -f compose.yaml up ${service_name} -d 
+    docker compose -f compose.yaml up ${service_name} -d
 
     sleep 3m
 }
