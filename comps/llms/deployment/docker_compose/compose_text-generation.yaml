@@ -4,6 +4,7 @@
 include:
   - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
   - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/ollama/deployment/docker_compose/compose.yaml
 
 services:
   textgen:
@@ -20,6 +21,28 @@ services:
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG:-False}
+    restart: unless-stopped
+
+  textgen-gaudi:
+    image: ${REGISTRY:-opea}/llm-textgen-gaudi:${TAG:-latest}
+    container_name: llm-textgen-gaudi-server
+    ports:
+      - ${TEXTGEN_PORT:-9000}:9000
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      HF_TOKEN: ${HF_TOKEN}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      TOKENIZERS_PARALLELISM: False
+      LOGFLAG: ${LOGFLAG:-False}
+    runtime: habana
+    cap_add:
+      - SYS_NICE
     restart: unless-stopped
 
   textgen-service-tgi:
@@ -57,6 +80,25 @@ services:
     depends_on:
       vllm-gaudi-server:
         condition: service_healthy
+
+  textgen-service-ollama:
+    extends: textgen
+    container_name: textgen-service-ollama
+    environment:
+      LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenService}
+
+  textgen-predictionguard:
+    extends: textgen
+    container_name: textgen-predictionguard
+    environment:
+      LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenPredictionguard}
+      PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+
+  textgen-native-gaudi:
+    extends: textgen-gaudi
+    container_name: textgen-native-gaudi
+    environment:
+      LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNative}
 
 networks:
   default:

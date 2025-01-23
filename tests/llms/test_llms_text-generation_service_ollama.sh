@@ -4,39 +4,51 @@
 
 set -x
 
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
+
 WORKPATH=$(dirname "$PWD")
+host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
-ip_address=$(hostname -I | awk '{print $1}')
-ollama_endpoint_port=11435
-llm_port=9000
+service_name="textgen-service-ollama"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/llm:comps -f comps/llms/src/text-generation/Dockerfile .
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/llm built fail"
+        echo "opea/llm-textgen built fail"
         exit 1
     else
-        echo "opea/llm built successful"
+        echo "opea/llm-textgen built successful"
     fi
 }
 
 function start_service() {
-    export llm_model=$1
-    docker run -d --name="test-comps-llm-ollama-endpoint" -e https_proxy=$https_proxy -p $ollama_endpoint_port:11434 ollama/ollama
-    export LLM_ENDPOINT="http://${ip_address}:${ollama_endpoint_port}"
+    export LLM_ENDPOINT_PORT=12114  # 12100-12199
+    export TEXTGEN_PORT=10514 #10500-10599
+    export host_ip=${host_ip}
+    export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
+    export LLM_MODEL_ID=$1
+    export LOGFLAG=True
+
+    cd $WORKPATH/comps/third_parties/ollama/deployment/docker_compose/
+    docker compose -f compose.yaml up -d > ${LOG_PATH}/start_services_with_compose_ollama.log
 
     sleep 5s
-    docker exec test-comps-llm-ollama-endpoint ollama pull $llm_model
+    docker exec ollama-server ollama pull $LLM_MODEL_ID
     sleep 20s
 
-    unset http_proxy
-    docker run -d --name="test-comps-llm-ollama-server" -p $llm_port:9000 --ipc=host -e LOGFLAG=True -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLM_ENDPOINT=$LLM_ENDPOINT -e LLM_MODEL_ID=$llm_model opea/llm:comps
-    sleep 20s
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+
+    sleep 30s
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://${ip_address}:${llm_port}/v1/chat/completions \
+    result=$(http_proxy="" curl http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions \
         -X POST \
         -d '{"messages": [{"role": "user", "content": "What is Deep Learning?"}]}' \
         -H 'Content-Type: application/json')
@@ -44,23 +56,21 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-llm-ollama-endpoint >> ${LOG_PATH}/llm-ollama.log
-        docker logs test-comps-llm-ollama-server >> ${LOG_PATH}/llm-server.log
+        docker logs ollama-server >> ${LOG_PATH}/llm-ollama.log
+        docker logs ${service_name} >> ${LOG_PATH}/llm-server.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-llm-ollama*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
 
     stop_docker
     build_docker_images
-
-    pip install --no-cache-dir openai
 
     llm_models=(
     llama3.2:1b
