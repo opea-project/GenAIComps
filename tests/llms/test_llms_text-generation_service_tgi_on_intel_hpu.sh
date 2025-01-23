@@ -2,7 +2,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 IMAGE_REPO=${IMAGE_REPO:-"opea"}
 export REGISTRY=${IMAGE_REPO}
@@ -13,22 +13,25 @@ echo "TAG=${TAG}"
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
-service_name="textgen-native-gaudi"
+service_name="textgen-service-tgi-gaudi"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen-gaudi:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile.intel_hpu .
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/llm-textgen-gaudi built fail"
+        echo "opea/llm-textgen built fail"
         exit 1
     else
-        echo "opea/llm-textgen-gaudi built successful"
+        echo "opea/llm-textgen built successful"
     fi
 }
 
 function start_service() {
-    export TEXTGEN_PORT=10512 #10500-10599
+    export LLM_ENDPOINT_PORT=12109  # 12100-12199
+    export TEXTGEN_PORT=10509 #10500-10599
     export host_ip=${host_ip}
+    export HF_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
+    export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export LOGFLAG=True
     export DATA_PATH="/data2/cache"
@@ -36,7 +39,7 @@ function start_service() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    sleep 2m
+    sleep 30s
 }
 
 function validate_services() {
@@ -73,14 +76,40 @@ function validate_services() {
 function validate_microservices() {
     URL="http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions"
 
+    # tgi
+    echo "Validate tgi..."
+    validate_services \
+        "${LLM_ENDPOINT}/generate" \
+        "generated_text" \
+        "tgi-gaudi-server" \
+        "tgi-gaudi-server" \
+        '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}'
+
     # textgen
     echo "Validate textgen with string messages input..."
     validate_services \
         "$URL" \
         "text" \
-        "textgen-native-gaudi" \
-        "textgen-native-gaudi" \
+        "textgen-service-tgi-gaudi" \
+        "textgen-service-tgi-gaudi" \
         '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}'
+
+    echo "Validate textgen with dict messages input..."
+    validate_services \
+        "$URL" \
+        "content" \
+        "textgen-service-tgi-gaudi" \
+        "textgen-service-tgi-gaudi" \
+        '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream":false}'
+}
+
+function validate_microservice_with_openai() {
+    python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py "$host_ip" "$TEXTGEN_PORT" "llm"
+    if [ $? -ne 0 ]; then
+        docker logs tgi-gaudi-server >> ${LOG_PATH}/llm--gaudi.log
+        docker logs textgen-service-tgi-gaudi >> ${LOG_PATH}/llm-server.log
+        exit 1
+    fi
 }
 
 function stop_docker() {
@@ -91,11 +120,15 @@ function stop_docker() {
 function main() {
 
     stop_docker
-    build_docker_images
-    start_service
-    validate_microservice
-    stop_docker
 
+    build_docker_images
+    pip install --no-cache-dir openai pydantic
+    start_service
+
+    validate_microservices
+    validate_microservice_with_openai
+
+    stop_docker
     echo y | docker system prune
 
 }
