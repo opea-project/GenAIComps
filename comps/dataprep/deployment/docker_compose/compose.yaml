@@ -82,9 +82,9 @@ services:
     depends_on:
       - neo4j-apoc
       - tgi-gaudi-server
-        condition: service_healthy
+          condition: service_healthy
       - tei-embedding-serving
-        condition: service_healthy
+          condition: service_healthy
     ports:
       - "${DATAPREP_PORT:-11103}:5000"
     ipc: host
@@ -112,6 +112,10 @@ services:
     container_name: dataprep-opensearch-server
     ports:
       - "${DATAPREP_PORT:-11104}:5000"
+    depends_on:
+      - opensearch-vector-db
+        condition:
+          service_healthy
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -130,6 +134,10 @@ services:
     container_name: dataprep-pgvector-server
     ports:
       - "${DATAPREP_PORT:-11105}:5000"
+    depends_on:
+      - pgvector-vector-db
+        condition:
+          service_healthy
     ipc: host
     environment:
       no_proxy: ${no_proxy}

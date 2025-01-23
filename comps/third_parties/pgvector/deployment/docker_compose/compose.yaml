@@ -20,3 +20,9 @@ services:
       - https_proxy= ${https_proxy}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+        test: pg_isready
+        interval: 60s
+        retries: 3
+        start_period: 10s
+        timeout: 10s
