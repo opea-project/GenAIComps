@@ -3,7 +3,6 @@
 
 import asyncio
 import os
-import time
 
 import requests
 from fastapi.responses import StreamingResponse
