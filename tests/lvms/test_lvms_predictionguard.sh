@@ -32,7 +32,7 @@ function start_service() {
 
     export LVM_ENDPOINT=http://$ip_address:$PREDICTIONGUARD_PORT
     export LVM_COMPONENT_NAME=OPEA_PREDICTION_GUARD_LVM
-    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up predictionguard-service lvm-predictionguard -d
+    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up predictionguard-service -d
 
     sleep 60  # Sleep for 1 minute to allow the service to start
 }
@@ -53,7 +53,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=predictionguard-service" --filter "name=lvm-predictionguard-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=predictionguard-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

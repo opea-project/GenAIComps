@@ -38,7 +38,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:7066/health"]
       interval: 10s
       timeout: 6s
-      retries: 18
+      retries: 60
   asr:
     image: ${REGISTRY:-opea}/asr:${TAG:-latest}
     container_name: asr-service
