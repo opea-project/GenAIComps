@@ -8,3 +8,6 @@ services:
     container_name: vdms-vector-db
     ports:
       - "55555:55555"
+    healthcheck:
+      test: ["CMD-SHELL", "sleep 8 && echo 'This is a healthcheck test.' || exit 1"]
+

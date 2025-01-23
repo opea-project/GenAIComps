@@ -27,3 +27,8 @@ services:
       - opensearch-net
     security_opt:
       - no-new-privileges:true
+    healthcheck:
+      test: curl -f http://localhost:9201/_cat/health?v || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5

@@ -35,7 +35,7 @@ function start_service() {
     cd $WORKPATH
     cd comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 15
+    sleep 1m
     echo "Microservice started"
 }
 
@@ -99,10 +99,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=*elasticsearch*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-
-    cid=$(docker ps -aq --filter "name=*elasticsearch*")
+    cid=$(docker ps -aq --filter "name=elasticsearch-vector-db" --filter "name=dataprep-elasticsearch")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
