@@ -54,7 +54,7 @@ function start_multimodal_service() {
     export INDEX_NAME="mm-rag-redis"
     export LOGFLAG=True
     export BRIDGE_TOWER_EMBEDDING=true
-    export RETRIEVER_TYPE="redis" 
+    export RETRIEVER_TYPE="redis"
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name_mm} -d > ${LOG_PATH}/start_services_with_compose_multimodal.log

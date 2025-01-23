@@ -34,7 +34,7 @@ services:
         condition: service_healthy
       tei-embedding-serving:
         condition: service_healthy
-  
+
   retriever-redis-multimodal:
     extends: retriever
     container_name: retriever-redis-multimodal
@@ -44,7 +44,7 @@ services:
     depends_on:
       redis-vector-db:
         condition: service_healthy
-      
+
 
 networks:
   default:
