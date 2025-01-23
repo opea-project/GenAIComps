@@ -1,10 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-version: '3.5'
-
 services:
-  milvus-etcd:
+  etcd:
     container_name: milvus-etcd
     image: quay.io/coreos/etcd:v3.5.5
     environment:
@@ -21,15 +19,15 @@ services:
       timeout: 20s
       retries: 3
 
-  milvus-minio:
+  minio:
     container_name: milvus-minio
     image: minio/minio:RELEASE.2023-03-20T20-16-18Z
     environment:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
     ports:
-      - "5044:9001"
-      - "5043:9000"
+      - "${MINIO_PORT1:-5044}:9001"
+      - "${MINIO_PORT2:-5043}:9000"
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
     command: minio server /minio_data --console-address ":9001"
@@ -39,18 +37,18 @@ services:
       timeout: 20s
       retries: 3
 
-  milvus-standalone:
+  standalone:
     container_name: milvus-standalone
-    image: milvusdb/milvus:v2.4.9
+    image: milvusdb/milvus:v2.4.6
     command: ["milvus", "run", "standalone"]
     security_opt:
-    - seccomp:unconfined
+      - seccomp:unconfined
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
     volumes:
-      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
       - ${DOCKER_VOLUME_DIRECTORY:-.}/milvus.yaml:/milvus/configs/milvus.yaml
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
       interval: 30s
@@ -59,35 +57,10 @@ services:
       retries: 3
     ports:
       - "19530:19530"
-      - "9091:9091"
+      - "${MILVUS_STANDALONE_PORT:-9091}:9091"
     depends_on:
       - "etcd"
       - "minio"
-  tei_xeon_service:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
-    container_name: tei-xeon-server
-    ports:
-      - "6060:80"
-    volumes:
-      - "./data:/data"
-    shm_size: 1g
-    command: --model-id ${RETRIEVE_MODEL_ID}
-  retriever:
-    image: opea/retriever:latest
-    container_name: retriever-milvus-server
-    ports:
-      - "7000:7000"
-    ipc: host
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      MILVUS_HOST: ${MILVUS_HOST}
-      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
-      RETRIEVER_COMPONENT_NAME: "OPEA_RETRIEVER_MILVUS"
-      LOGFLAG: ${LOGFLAG}
-    restart: unless-stopped
 
 networks:
   default:

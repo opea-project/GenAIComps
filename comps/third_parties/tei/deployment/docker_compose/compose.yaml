@@ -16,6 +16,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       host_ip: ${host_ip}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_EMBEDDER_PORT}/health"]
       interval: 10s

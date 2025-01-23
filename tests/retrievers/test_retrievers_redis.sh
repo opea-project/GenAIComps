@@ -13,7 +13,7 @@ echo "TAG=${TAG}"
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 export host_ip=$(hostname -I | awk '{print $1}')
-service_name=" retriever-redis"
+service_name="retriever-redis"
 service_name_mm="retriever-redis-multimodal"
 
 function build_docker_images() {

@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  redis-vector-db:
-    image: redis/redis-stack:7.2.0-v9
-    container_name: redis-vector-db
+  qdrant-db:
+    image: qdrant/qdrant
+    container_name: qdrant-db
     ports:
-      - "${REDIS_PORT1:-6379}:6379"
-      - "${REDIS_PORT2:-8001}:8001"
+      - "${QDRANT_PORT:-6333}:6333"
     environment:
       HTTPS_PROXY: ${http_proxy}
       HTTP_PROXY: ${https_proxy}
