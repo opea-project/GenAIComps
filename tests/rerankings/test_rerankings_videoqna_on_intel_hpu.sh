@@ -6,7 +6,7 @@ set -xe
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
-service_name="reranking-videoqna"
+service_name="reranking-videoqna-gaudi"
 
 
 function build_docker_images() {
@@ -26,13 +26,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-    export TEI_RERANKING_PORT=12003
-    export RERANKING_PORT=10702
-    export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
-    export TAG=comps
-    export host_ip=${host_ip}
-
+    export no_proxy="localhost,127.0.0.1,"${ip_address}
     cd $WORKPATH/comps/rerankings/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 1m
