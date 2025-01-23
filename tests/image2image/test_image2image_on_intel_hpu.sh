@@ -9,13 +9,13 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 
 export TAG=comps
-export IMAGE2IMAGE_PORT=10400
-export service_name="image2image"
+export IMAGE2IMAGE_PORT=10401
+export service_name="image2image-gaudi"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/image2image:$TAG -f comps/image2image/src/Dockerfile .
+    docker build --no-cache -t opea/image2image-gaudi:$TAG -f comps/image2image/src/Dockerfile.intel_hpu .
     if [ $? -ne 0 ]; then
         echo "opea/image2image built fail"
         exit 1
@@ -26,8 +26,9 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    cd $WORKPATH/comps/image2image/deployment/docker_compose
     export MODEL='stabilityai/stable-diffusion-xl-refiner-1.0'
+
+    cd $WORKPATH/comps/image2image/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d 
     sleep 30s
 }
@@ -38,7 +39,7 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs image2image-server
+        docker logs image2image-gaudi-server
         exit 1
     fi
 
