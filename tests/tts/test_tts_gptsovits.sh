@@ -36,7 +36,7 @@ function start_service() {
     export TTS_ENDPOINT=http://$ip_address:$GPT_SOVITS_PORT
     export TTS_COMPONENT_NAME=OPEA_GPTSOVITS_TTS
 
-    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up gptsovits-service tts-gptsovits-service -d
+    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up gptsovits-service tts-gptsovits -d
     sleep 15
 }
 
