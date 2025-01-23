@@ -29,7 +29,7 @@ function start_service() {
     export MODEL='stabilityai/stable-diffusion-xl-refiner-1.0'
 
     cd $WORKPATH/comps/image2image/deployment/docker_compose
-    docker compose -f compose.yaml up ${service_name} -d 
+    docker compose -f compose.yaml up ${service_name} -d
     sleep 30s
 }
 
