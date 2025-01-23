@@ -3,10 +3,26 @@
 
 services:
   whisper-service:
-    image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}
+    image: ${REGISTRY:-opea}/whisper:${TAG:-latest}
     container_name: whisper-service
     ports:
-      - "7066:7066"
+      - ${WHISPER_PORT:-7066}:7066
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7066/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
+  whisper-gaudi-service:
+    image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}
+    container_name: whisper-gaudi-service
+    ports:
+      - ${WHISPER_PORT:-7066}:7066
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -27,10 +43,11 @@ services:
     image: ${REGISTRY:-opea}/asr:${TAG:-latest}
     container_name: asr-service
     ports:
-      - "3001:9099"
+      - ${ASR_PORT:-9099}:9099
     ipc: host
     environment:
       ASR_ENDPOINT: ${ASR_ENDPOINT}
+      ASR_COMPONENT_NAME: ${ASR_COMPONENT_NAME:-OPEA_WHISPER_ASR}
     depends_on:
       whisper-service:
         condition: service_healthy

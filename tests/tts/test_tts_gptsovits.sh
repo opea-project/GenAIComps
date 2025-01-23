@@ -7,6 +7,8 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
+export GPT_SOVITS_PORT=11804
+export TTS_PORT=11805
 
 function build_docker_images() {
     cd $WORKPATH
@@ -31,15 +33,15 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    export TTS_ENDPOINT=http://$ip_address:9880
+    export TTS_ENDPOINT=http://$ip_address:$GPT_SOVITS_PORT
     export TTS_COMPONENT_NAME=OPEA_GPTSOVITS_TTS
 
-    docker compose -f comps/tts/deployment/docker_compose/compose_gptsovits.yaml up -d
+    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up gpt-sovits-service tts -d
     sleep 15
 }
 
 function validate_microservice() {
-    http_proxy="" curl localhost:3002/v1/audio/speech -XPOST -d '{"input":"Hello, who are you? 你好。"}' -H 'Content-Type: application/json' --output speech.mp3
+    http_proxy="" curl localhost:$TTS_PORT/v1/audio/speech -XPOST -d '{"input":"Hello, who are you? 你好。"}' -H 'Content-Type: application/json' --output speech.mp3
 
     if [[ $(file speech.mp3) == *"RIFF"* ]]; then
         echo "Result correct."

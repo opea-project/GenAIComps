@@ -7,16 +7,18 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
+export SPEECHT5_PORT=11802
+export TTS_PORT=11803
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/speecht5:$TAG -f comps/tts/src/integrations/dependency/speecht5/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/speecht5-gaudi:$TAG -f comps/tts/src/integrations/dependency/speecht5/Dockerfile.intel_hpu .
     if [ $? -ne 0 ]; then
-        echo "opea/speecht5 built fail"
+        echo "opea/speecht5-gaudi built fail"
         exit 1
     else
-        echo "opea/speecht5 built successful"
+        echo "opea/speecht5-gaudi built successful"
     fi
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/tts:$TAG -f comps/tts/src/Dockerfile .
     if [ $? -ne 0 ]; then
@@ -29,14 +31,17 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    export TTS_ENDPOINT=http://$ip_address:7055
+    export TTS_ENDPOINT=http://$ip_address:$SPEECHT5_PORT
 
-    docker compose -f comps/tts/deployment/docker_compose/compose_speecht5.yaml up -d
+    export TTS_COMPONENT_NAME=OPEA_SPEECHT5_TTS
+
+    docker compose -f comps/tts/deployment/docker_compose/compose.yaml up speecht5-gaudi-service tts -d
     sleep 15
 }
 
 function validate_microservice() {
-    http_proxy="" curl localhost:3002/v1/audio/speech -XPOST -d '{"input":"Hello, who are you?"}' -H 'Content-Type: application/json' --output speech.mp3
+    http_proxy="" curl localhost:$TTS_PORT/v1/audio/speech -XPOST -d '{"input":"Hello, who are you?"}' -H 'Content-Type: application/json' --output speech.mp3
+
     if [[ $(file speech.mp3) == *"RIFF"* ]]; then
         echo "Result correct."
     else
@@ -49,7 +54,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=speecht5-service" --filter "name=tts-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=speecht5-gaudi-service" --filter "name=tts-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {

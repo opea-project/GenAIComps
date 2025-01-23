@@ -7,6 +7,8 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
+export WEB_RETRIEVER_PORT=11900
+export TEI_PORT=11901
 
 function build_docker_images() {
     cd $WORKPATH
@@ -21,19 +23,18 @@ function build_docker_images() {
 
 function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:6060"
+    export TEI_EMBEDDING_ENDPOINT=http://${ip_address}:${TEI_PORT}
     export host_ip=${ip_address}
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 
-    docker compose -f comps/web_retrievers/deployment/docker_compose/compose_web_retrievers.yaml up -d
+    docker compose -f comps/web_retrievers/deployment/docker_compose/compose.yaml up -d
     sleep 15s
 }
 
 function validate_microservice() {
-    retriever_port=7077
     export PATH="${HOME}/miniforge3/bin:$PATH"
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
-    result=$(http_proxy='' curl http://${ip_address}:$retriever_port/v1/web_retrieval \
+    result=$(http_proxy='' curl http://${ip_address}:$WEB_RETRIEVER_PORT/v1/web_retrieval \
         -X POST \
         -d "{\"text\":\"What is OPEA?\",\"embedding\":${test_embedding}}" \
         -H 'Content-Type: application/json')

@@ -7,6 +7,9 @@ set -xe
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
+export TAG=comps
+export VIDEO_LLAMA_PORT=11506
+export LVM_PORT=11507
 
 function build_docker_images() {
     cd $WORKPATH
@@ -31,74 +34,31 @@ function build_docker_images() {
 function start_service() {
     cd $WORKPATH
     unset http_proxy
-    dependency_port=5051
-    server_port=5052
-    export LVM_ENDPOINT=http://$ip_address:$dependency_port
 
-    docker run -d --name="test-comps-lvm-video-llama-dependency" -p $dependency_port:9009 \
-        --ipc=host \
-        -e http_proxy=$http_proxy \
-        -e https_proxy=$https_proxy \
-        -e no_proxy=$no_proxy \
-        -e llm_download="True" \
-        opea/lvm-video-llama:comps
+    export LVM_ENDPOINT=http://$ip_address:$VIDEO_LLAMA_PORT
+    export LVM_COMPONENT_NAME=OPEA_VIDEO_LLAMA_LVM
 
-    # check whether lvm dependency is fully ready
-    n=0
-    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-lvm-video-llama-dependency &> ${LOG_PATH}/lvm-video-llama-dependency.log
-        n=$((n+1))
-        if grep -q "Uvicorn running on" ${LOG_PATH}/lvm-video-llama-dependency.log; then
-            break
-        fi
-        sleep 5s
-    done
-    sleep 5s
+    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up video-llama-service lvm -d
 
-    docker run -d --name="test-comps-lvm-video-llama" -e LVM_COMPONENT_NAME="OPEA_VIDEO_LLAMA_LVM" -p $server_port:9399 \
-        --ipc=host \
-        -e http_proxy=$http_proxy \
-        -e https_proxy=$https_proxy \
-        -e no_proxy=$no_proxy \
-        -e LVM_ENDPOINT=$LVM_ENDPOINT \
-        opea/lvm:comps
-
-    echo "Waiting for the LVM service to start"
-
-    # check whether lvm service is fully ready
-    n=0
-    until [[ "$n" -ge 100 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-lvm-video-llama &> ${LOG_PATH}/lvm-video-llama.log
-        n=$((n+1))
-        if grep -q "Uvicorn running on" ${LOG_PATH}/lvm-video-llama.log; then
-            break
-        fi
-        sleep 5s
-    done
-    sleep 5s
+    sleep 15
 }
 
 function validate_microservice() {
 
-    server_port=5052
-    result=$(http_proxy="" curl http://localhost:$server_port/v1/lvm -X POST -d '{"video_url":"silence_girl.mp4","chunk_start": 0,"chunk_duration": 7,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:$LVM_PORT/v1/lvm -X POST -d '{"video_url":"silence_girl.mp4","chunk_start": 0,"chunk_duration": 7,"prompt":"What is the person doing?","max_new_tokens": 50}' -H 'Content-Type: application/json')
 
     if [[ $result == *"silence"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-lvm-video-llama-dependency &> ${LOG_PATH}/lvm-video-llama-dependency.log
-        docker logs test-comps-lvm-video-llama &> ${LOG_PATH}/lvm-video-llama.log
+        docker logs video-llama-service &> ${LOG_PATH}/video-llama-service.log
+        docker logs lvm-service &> ${LOG_PATH}/lvm.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-lvm-video-llama*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-    if docker volume ls | grep -q video-llama-model; then
-        docker volume rm video-llama-model || echo "Volume video-llama-model does not exist.";
-    fi
+    docker ps -a --filter "name=video-llama-service" --filter "name=lvm-service" --format "{{.Names}}" | xargs -r docker stop
 
 }
 

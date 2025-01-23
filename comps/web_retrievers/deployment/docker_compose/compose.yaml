@@ -6,7 +6,7 @@ services:
     image: ${REGISTRY:-opea}/web-retriever:${TAG:-latest}
     container_name: web-retriever-service
     ports:
-      - "7077:7077"
+      - ${WEB_RETRIEVER_PORT:-7077}:7077
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -24,7 +24,7 @@ services:
     container_name: tei-embedding-server
     entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id ${EMBEDDING_MODEL_ID} --auto-truncate"
     ports:
-      - "6060:80"
+      - ${TEI_PORT:-6060}:80
     volumes:
       - "./data:/data"
     shm_size: 1g
