@@ -49,6 +49,7 @@ services:
       SAFETY_GUARD_MODEL_ID: ${SAFETY_GUARD_MODEL_ID}
       GUARDRAILS_COMPONENT_NAME: "OPEA_LLAMA_GUARD"
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     restart: unless-stopped
 
   llamaguard-guardrails-server:
@@ -80,7 +81,7 @@ services:
       https_proxy: ${https_proxy}
       LLM_MODEL: $LLM_MODEL_ID
       vLLM_ENDPOINT: $vLLM_ENDPOINT
-      HUGGINGFACEHUB_API_TOKEN: $HUGGINGFACEHUB_API_TOKEN
+      HUGGINGFACEHUB_API_TOKEN: $HF_TOKEN
     restart: unless-stopped
     depends_on:
       vllm-gaudi-server:
