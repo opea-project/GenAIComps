@@ -2,18 +2,25 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
+
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
 
 WORKPATH=$(dirname "$PWD")
-ip_address=$(hostname -I | awk '{print $1}')
+host_ip=$(hostname -I | awk '{print $1}')
+LOG_PATH="$WORKPATH/tests"
+service_name="textgen-service-vllm-gaudi"
 
 function build_docker_images() {
-    ## Build VLLM docker
     cd $WORKPATH
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
     git checkout v0.6.4.post2+Gaudi-1.19.0
-    docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g .
+    docker build --no-cache -f Dockerfile.hpu -t ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
         exit 1
@@ -21,110 +28,106 @@ function build_docker_images() {
         echo "opea/vllm-gaudi built successful"
     fi
 
-    ## Build OPEA microservice docker
     cd $WORKPATH
-    docker build  \
-        --no-cache -t opea/llm:comps \
-        -f comps/llms/src/text-generation/Dockerfile .
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/llm built fail"
+        echo "opea/llm-textgen built fail"
         exit 1
     else
-        echo "opea/llm built successful"
+        echo "opea/llm-textgen built successful"
     fi
 }
 
 function start_service() {
+    export LLM_ENDPOINT_PORT=12110  # 12100-12199
+    export TEXTGEN_PORT=10510 #10500-10599
+    export host_ip=${host_ip}
+    export HF_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
+    export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
-    port_number=5025
-    docker run -d --rm \
-        --runtime=habana \
-        --name="test-comps-vllm-service" \
-        -v $PWD/data:/data \
-        -p $port_number:80 \
-        -e HABANA_VISIBLE_DEVICES=all \
-        -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
-        -e VLLM_SKIP_WARMUP=true \
-        --cap-add=sys_nice \
-        --ipc=host \
-        -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
-        opea/vllm-gaudi:comps \
-        --model $LLM_MODEL_ID  --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256 --max-seq_len-to-capture 2048
+    export VLLM_SKIP_WARMUP=true
+    export LOGFLAG=True
+    export DATA_PATH="/data2/cache"
 
-    export LLM_ENDPOINT="http://${ip_address}:${port_number}"
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    # check whether vllm ray is fully ready
-    n=0
-    until [[ "$n" -ge 70 ]] || [[ $ready == true ]]; do
-        docker logs test-comps-vllm-service > ${WORKPATH}/tests/test-comps-vllm-service.log
-        n=$((n+1))
-        if grep -q throughput ${WORKPATH}/tests/test-comps-vllm-service.log; then
-            break
-        fi
-        sleep 5s
-    done
-    sleep 5s
-
-    docker run -d --rm \
-        --name="test-comps-vllm-microservice" \
-        -p 5030:9000 \
-        --ipc=host \
-        -e LLM_ENDPOINT=$LLM_ENDPOINT \
-        -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
-        -e LLM_MODEL_ID=$LLM_MODEL_ID \
-        -e LOGFLAG=True \
-        opea/llm:comps
-    sleep 20s
+    sleep 30s
 }
 
-function validate_microservice() {
-    result=$(http_proxy="" curl http://${ip_address}:5025/v1/completions \
-        -H "Content-Type: application/json" \
-        -d '{
-        "model": "Intel/neural-chat-7b-v3-3",
-        "prompt": "What is Deep Learning?",
-        "max_tokens": 32,
-        "temperature": 0
-        }')
-    if [[ $result == *"text"* ]]; then
-        echo "Result correct."
+function validate_services() {
+    local URL="$1"
+    local EXPECTED_RESULT="$2"
+    local SERVICE_NAME="$3"
+    local DOCKER_NAME="$4"
+    local INPUT_DATA="$5"
+
+    local HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL")
+
+    echo "==========================================="
+
+    if [ "$HTTP_STATUS" -eq 200 ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+
+        local CONTENT=$(curl -s -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/${SERVICE_NAME}.log)
+
+        if echo "$CONTENT" | grep -q "$EXPECTED_RESULT"; then
+            echo "[ $SERVICE_NAME ] Content is as expected."
+        else
+            echo "[ $SERVICE_NAME ] Content does not match the expected result: $CONTENT"
+            docker logs ${DOCKER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+            exit 1
+        fi
     else
-        echo "Result wrong. Received was $result"
-        docker logs test-comps-vllm-service
-        docker logs test-comps-vllm-microservice
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs ${DOCKER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
         exit 1
     fi
+    sleep 1s
+}
 
-    result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
-        -X POST \
-        -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream":false}' \
-        -H 'Content-Type: application/json')
-    if [[ $result == *"content"* ]]; then
-        echo "Result correct."
-    else
-        echo "Result wrong. Received was $result"
-        docker logs test-comps-vllm-service
-        docker logs test-comps-vllm-microservice
-        exit 1
-    fi
+function validate_microservices() {
+    URL="http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions"
 
-    result=$(http_proxy="" curl http://${ip_address}:5030/v1/chat/completions \
-        -X POST \
-        -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}' \
-        -H 'Content-Type: application/json')
-    if [[ $result == *"text"* ]]; then
-        echo "Result correct."
-    else
-        echo "Result wrong. Received was $result"
-        docker logs test-comps-vllm-service
-        docker logs test-comps-vllm-microservice
+    # vllm
+    echo "Validate vllm..."
+    validate_services \
+        "${LLM_ENDPOINT}/v1/completions" \
+        "text" \
+        "vllm-gaudi-server" \
+        "vllm-gaudi-server" \
+        '{"model": "Intel/neural-chat-7b-v3-3", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
+
+    # textgen
+    echo "Validate textgen with string messages input..."
+    validate_services \
+        "$URL" \
+        "text" \
+        "textgen-service-vllm-gaudi" \
+        "textgen-service-vllm-gaudi" \
+        '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}'
+
+    echo "Validate textgen with dict messages input..."
+    validate_services \
+        "$URL" \
+        "content" \
+        "textgen-service-vllm-gaudi" \
+        "textgen-service-vllm-gaudi" \
+        '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}], "max_tokens":17, "stream":false}'
+}
+
+function validate_microservice_with_openai() {
+    python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py "$host_ip" "$TEXTGEN_PORT" "llm"
+    if [ $? -ne 0 ]; then
+        docker logs vllm-gaudi-server >> ${LOG_PATH}/llm--gaudi.log
+        docker logs textgen-service-vllm-gaudi >> ${LOG_PATH}/llm-server.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-vllm*")
-    if [[ ! -z "$cid" ]]; then docker rm $cid -f && sleep 1s; fi
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
@@ -132,9 +135,11 @@ function main() {
     stop_docker
 
     build_docker_images
+    pip install --no-cache-dir openai pydantic
     start_service
 
-    validate_microservice
+    validate_microservices
+    validate_microservice_with_openai
 
     stop_docker
     echo y | docker system prune
