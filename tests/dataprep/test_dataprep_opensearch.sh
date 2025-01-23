@@ -13,7 +13,7 @@ OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -24,10 +24,11 @@ function build_docker_images() {
 
 function start_service() {
     # Start OpenSearch dataprep container
+    export OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
     export OPENSEARCH_URL="http://${ip_address}:${DATAPREP_PORT}"
-    echo $(OPENSEARCH_URL)
+    echo ${OPENSEARCH_URL}
     export INDEX_NAME="file-index"
-    service_name = "opensearch-vector-db dataprep-opensearch"
+    service_name="opensearch-vector-db dataprep-opensearch"
     export host_ip=${ip_address}
     export TAG="comps"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
@@ -135,7 +136,7 @@ function validate_microservice() {
 function stop_service() {
     cid=$(docker ps -aq --filter "name=dataprep-opensearch-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-    cid=$(docker ps -aq --filter "opensearch-vector-db")
+    cid=$(docker ps -aq --filter "name=opensearch-vector-db")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

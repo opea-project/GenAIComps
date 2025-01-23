@@ -8,6 +8,10 @@ services:
     ports:
       - "6379:6379"
       - "8001:8001"
+    environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       timeout: 10s

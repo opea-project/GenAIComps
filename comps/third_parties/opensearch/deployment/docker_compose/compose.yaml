@@ -6,6 +6,10 @@ services:
     image: opensearchproject/opensearch:latest
     container_name: opensearch-vector-db
     environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+      - host_ip=${host_ip}
       - cluster.name=opensearch-cluster
       - node.name=opensearch-vector-db
       - discovery.seed_hosts=opensearch-vector-db
@@ -28,7 +32,7 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: curl -f http://localhost:9201/_cat/health?v || exit 1
+      test: curl -f http://${host_ip}:9200/_cat/health?v || exit 1
       interval: 10s
       timeout: 5s
       retries: 5

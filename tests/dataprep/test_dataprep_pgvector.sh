@@ -31,7 +31,7 @@ function start_service() {
     export POSTGRES_DB=vectordb
     export PG_CONNECTION_STRING=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@$ip_address:5432/${POSTGRES_DB}
 
-    service_name = "pgvector-vector-db dataprep-pgvector"
+    service_name="pgvector-vector-db dataprep-pgvector"
     export host_ip=${ip_address}
     export TAG="comps"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
@@ -98,10 +98,10 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=pgvector-vector*")
+    cid=$(docker ps -aq --filter "name=dataprep-pgvector-server")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 
-    cid=$(docker ps -aq --filter "name=dataprep-pgvector*")
+    cid=$(docker ps -aq --filter "name=pgvector-vector-db")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

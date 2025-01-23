@@ -12,6 +12,9 @@ services:
         - /$HOME/neo4j/plugins:/plugins
     ipc: host
     environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
       - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4J_PLUGINS=["apoc"]
       - NEO4J_apoc_export_file_enabled=true
@@ -29,4 +32,8 @@ services:
     ports:
       - "6337:6337"
       - "6338:6338"
+    environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
 

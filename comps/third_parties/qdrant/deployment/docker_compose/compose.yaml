@@ -9,7 +9,12 @@ services:
       - "6333:6333"
       - "6334:6334"
     healthcheck:
-      test: curl -s http://localhost:6333/healthz | grep -q 'healthz check passed' || exit 1
+      test: curl -s http://${host_ip}:6333/healthz | grep -q 'healthz check passed' || exit 1
       interval: 30s
       retries: 20
       start_period: 30s
+    environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+      - host_ip=${host_ip}

@@ -24,23 +24,17 @@ function build_docker_images() {
 
 function start_service() {
 
-    embed_port=5439
-    embed_model="BAAI/bge-base-en-v1.5"
-    docker run -d -p $embed_port:80 -v ./data:/data --name test-comps-dataprep-redis-langchain-tei-server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $embed_model
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${embed_port}"
-
- -p ${dataprep_service_port}:5000 --ipc=host opea/dataprep-redis:comps
-    sleep 1m
-
     export host_ip=${ip_address}
     export REDIS_HOST=$ip_address
     export REDIS_PORT=6379
+    export DATAPREP_PORT="11108"
+    export TEI_EMBEDDER_PORT="10221"
     export REDIS_URL="redis://${ip_address}:${REDIS_PORT}"
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export INDEX_NAME="rag_redis"
     export TAG="comps"
-    service_name = "redis-vector-db tei-embedding-serving dataprep-redis"
+    service_name="redis-vector-db tei-embedding-serving dataprep-redis"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
     sleep 1m

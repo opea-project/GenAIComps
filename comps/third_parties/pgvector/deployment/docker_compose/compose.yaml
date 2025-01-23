@@ -11,6 +11,9 @@ services:
     restart: always
     ipc: host
     environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
       - POSTGRES_DB=vectordb
       - POSTGRES_USER=testuser
       - POSTGRES_PASSWORD=testpwd

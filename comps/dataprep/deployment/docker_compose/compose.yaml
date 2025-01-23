@@ -4,7 +4,6 @@
 
 include:
   - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
-  - ../../../third_parties/milvus/deployment/docker_compose/compose.yaml
   - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
   - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
   - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
@@ -121,6 +120,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_OPENSEARCH"
       OPENSEARCH_URL: ${OPENSEARCH_URL}
       INDEX_NAME: ${INDEX_NAME}
@@ -253,8 +253,8 @@ services:
     restart: unless-stopped
 
   dataprep-vdms-multimodal:
-    image: ${REGISTRY:-opea}/dataprep-vdms-multimodal:${TAG:-latest}
-    container_name: dataprep-vdms--multimodal-server
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-vdms-multimodal-server
     ports:
       - "${DATAPREP_PORT:-11111}:5000"
     depends_on:

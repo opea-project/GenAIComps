@@ -6,6 +6,9 @@ services:
     container_name: milvus-etcd
     image: quay.io/coreos/etcd:v3.5.5
     environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
       - ETCD_AUTO_COMPACTION_MODE=revision
       - ETCD_AUTO_COMPACTION_RETENTION=1000
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
@@ -23,6 +26,9 @@ services:
     container_name: milvus-minio
     image: minio/minio:RELEASE.2023-03-20T20-16-18Z
     environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
     ports:
@@ -44,6 +50,9 @@ services:
     security_opt:
       - seccomp:unconfined
     environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
     volumes:
@@ -61,3 +70,7 @@ services:
     depends_on:
       - "etcd"
       - "minio"
+
+networks:
+  default:
+    name: milvus

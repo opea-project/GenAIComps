@@ -31,7 +31,7 @@ function start_service() {
     export QDRANT_HOST=$ip_address
     export QDRANT_PORT=$QDRANT_PORT
     export TAG="comps"
-    service_name = "vdms-vector-db dataprep-vdms"
+    service_name="vdms-vector-db dataprep-vdms"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
     sleep 1m

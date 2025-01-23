@@ -26,7 +26,7 @@ function start_service() {
     export PINECONE_INDEX_NAME="test-index"
     export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
 
-    service_name = "dataprep-pinecone"
+    service_name="dataprep-pinecone"
     export TAG="comps"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d

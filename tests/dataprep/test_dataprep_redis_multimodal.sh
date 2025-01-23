@@ -79,8 +79,10 @@ function start_service() {
     export REDIS_HOST=$ip_address
     export REDIS_PORT=6379
     export REDIS_URL="redis://${ip_address}:${REDIS_PORT}"
+    export LVM_PORT=5028
+    export LVM_ENDPOINT="http://${ip_address}:${LVM_PORT}/v1/lvm"
     export TAG="comps"
-    service_name = "redis-vector-db dataprep-multimodal-redis"
+    service_name="redis-vector-db dataprep-multimodal-redis"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
     sleep 1m

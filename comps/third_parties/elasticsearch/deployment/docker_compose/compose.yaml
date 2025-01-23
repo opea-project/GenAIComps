@@ -9,6 +9,9 @@ services:
       - "${ELASTICSEARCH_PORT:-12300}:9200"
       - "9300:9300"
     environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
       - discovery.type=single-node
       - xpack.security.enabled=false
