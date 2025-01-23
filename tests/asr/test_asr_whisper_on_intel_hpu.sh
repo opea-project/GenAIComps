@@ -48,7 +48,7 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs whisper-service
+        docker logs whisper-gaudi-service
         docker logs asr-service
         exit 1
     fi
