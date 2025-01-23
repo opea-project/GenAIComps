@@ -1,8 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-version: "3.5"
-
 services:
   etcd:
     container_name: milvus-etcd
@@ -63,7 +61,3 @@ services:
     depends_on:
       - "etcd"
       - "minio"
-
-networks:
-  default:
-    name: milvus

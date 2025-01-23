@@ -56,12 +56,12 @@ function validate_microservice() {
             echo "[ dataprep ] Content is as expected."
         else
             echo "[ dataprep ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-dataprep-elasticsearch >> ${LOG_PATH}/dataprep.log
+            docker logs dataprep-elasticsearch >> ${LOG_PATH}/dataprep.log
             exit 1
         fi
     else
         echo "[ dataprep ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-elasticsearch >> ${LOG_PATH}/dataprep.log
+        docker logs dataprep-elasticsearch >> ${LOG_PATH}/dataprep.log
         exit 1
     fi
 
@@ -76,12 +76,12 @@ function validate_microservice() {
             echo "[ dataprep - file ] Content is as expected."
         else
             echo "[ dataprep - file ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-dataprep-elasticsearch >> ${LOG_PATH}/dataprep_file.log
+            docker logs dataprep-elasticsearch >> ${LOG_PATH}/dataprep_file.log
             exit 1
         fi
     else
         echo "[ dataprep - file ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-elasticsearch >> ${LOG_PATH}/dataprep_file.log
+        docker logs dataprep-elasticsearch >> ${LOG_PATH}/dataprep_file.log
         exit 1
     fi
 
@@ -90,10 +90,10 @@ function validate_microservice() {
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - del ] HTTP status is 200."
-        docker logs test-comps-dataprep-elasticsearch >> ${LOG_PATH}/dataprep_del.log
+        docker logs dataprep-elasticsearch >> ${LOG_PATH}/dataprep_del.log
     else
         echo "[ dataprep - del ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-elasticsearch >> ${LOG_PATH}/dataprep_del.log
+        docker logs dataprep-elasticsearch >> ${LOG_PATH}/dataprep_del.log
         exit 1
     fi
 }

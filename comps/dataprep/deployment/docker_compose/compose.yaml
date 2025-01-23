@@ -6,7 +6,6 @@ include:
   - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
   - ../../../third_parties/milvus/deployment/docker_compose/compose.yaml
   - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
-  - ../../../third_parties/pathway/deployment/docker_compose/compose.yaml
   - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
   - ../../../third_parties/qdrant/deployment/docker_compose/compose.yaml
   - ../../../third_parties/redis/deployment/docker_compose/compose.yaml
@@ -210,3 +209,8 @@ services:
       VDMS_PORT: ${VDMS_PORT}
       INDEX_NAME: ${INDEX_NAME}
     restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+  opensearch-net:
