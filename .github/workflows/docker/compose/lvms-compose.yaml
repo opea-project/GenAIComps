@@ -33,9 +33,9 @@ services:
     image: ${REGISTRY:-opea}/lvm-llama-vision:${TAG:-latest}
   lvm-llama-vision-tp:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/llama-vision/Dockerfile_tp
+      dockerfile: comps/lvms/src/integrations/dependency/llama-vision/Dockerfile.tp
     image: ${REGISTRY:-opea}/lvm-llama-vision-tp:${TAG:-latest}
   lvm-llama-vision-guard:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/llama-vision/Dockerfile_guard
+      dockerfile: comps/lvms/src/integrations/dependency/llama-vision/Dockerfile.guard
     image: ${REGISTRY:-opea}/lvm-llama-vision-guard:${TAG:-latest}
