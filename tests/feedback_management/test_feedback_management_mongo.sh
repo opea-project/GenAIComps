@@ -15,21 +15,18 @@ export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker run -d -p 27017:27017 --name=test-comps-mongo mongo:latest
 
-    docker build --no-cache -t opea/feedbackmanagement-mongo-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/feedback_management/src/Dockerfile .
+    docker build --no-cache -t opea/feedbackmanagement-mongo:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/feedback_management/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/feedbackmanagement-mongo-server built fail"
+        echo "opea/feedbackmanagement-mongo built fail"
         exit 1
     else
-        echo "opea/feedbackmanagement-mongo-server built successful"
+        echo "opea/feedbackmanagement-mongo built successful"
     fi
 }
 
 function start_service() {
-
-    docker run -d --name="test-comps-feedbackmanagement-mongo-server" -p 6016:6016 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/feedbackmanagement-mongo-server:comps
-
+    docker compose up -d
     sleep 10s
 }
 
