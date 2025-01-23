@@ -32,7 +32,10 @@ class OpeaPoliteGuard(OpeaComponent):
         """
         response = await asyncio.to_thread(self.polite_pipeline, input)
         if response[0]["label"] == "impolite":
-            return TextDoc(text=f"Violated policies: Impolite (score: {response[0]['score']:0.2f}), please check your input.", downstream_black_list=[".*"])
+            return TextDoc(
+                text=f"Violated policies: Impolite (score: {response[0]['score']:0.2f}), please check your input.",
+                downstream_black_list=[".*"],
+            )
         else:
             return TextDoc(text=input)
 
