@@ -48,13 +48,14 @@ services:
       SAFETY_GUARD_ENDPOINT: ${SAFETY_GUARD_ENDPOINT}
       SAFETY_GUARD_MODEL_ID: ${SAFETY_GUARD_MODEL_ID}
       GUARDRAILS_COMPONENT_NAME: "OPEA_LLAMA_GUARD"
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
-      HF_TOKEN: ${HF_TOKEN}
     restart: unless-stopped
 
   llamaguard-guardrails-server:
     extends: guardrails-server
     container_name: llamaguard-guardrails-server
+    environment:
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     depends_on:
       tgi-gaudi-server:
         condition: service_healthy
@@ -64,6 +65,8 @@ services:
     container_name: wildguard-guardrails-server
     environment:
       GUARDRAILS_COMPONENT_NAME: "OPEA_WILD_GUARD"
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     depends_on:
       tgi-gaudi-server:
         condition: service_healthy
