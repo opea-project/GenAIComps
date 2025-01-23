@@ -6,6 +6,7 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+service_name="image2video"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -21,7 +22,8 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-image2video" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 9369:9369 --ipc=host opea/image2video:latest
+    cd $WORKPATH/comps/image2video/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 3m
 }
 
@@ -31,15 +33,15 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-image2video
+        docker logs image2video
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-image2video*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/image2video/deployment/docker_compose
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

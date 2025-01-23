@@ -9,6 +9,7 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 finetuning_service_port=8015
 ray_port=8265
+service_name="finetuning"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -24,7 +25,8 @@ function build_docker_images() {
 
 function start_service() {
     export no_proxy="localhost,127.0.0.1,"${ip_address}
-    docker run -d --name="test-comps-finetuning-server" -p $finetuning_service_port:$finetuning_service_port -p $ray_port:$ray_port --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy opea/finetuning:comps
+    cd $WORKPATH/comps/finetuning/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 1m
 }
 
@@ -131,7 +133,7 @@ function validate_microservice() {
     validate_upload \
         "http://${ip_address}:$finetuning_service_port/v1/files" \
         "general - upload" \
-        "test-comps-finetuning-server" \
+        "finetuning" \
         "fine-tune" \
         "test_data.json"
 
@@ -139,7 +141,7 @@ function validate_microservice() {
     validate_finetune \
         "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
         "general - finetuning" \
-        "test-comps-finetuning-server" \
+        "finetuning" \
         '{"id":"ft-job' \
         '{"training_file": "test_data.json","model": "facebook/opt-125m"}'
 
@@ -159,7 +161,7 @@ EOF
     validate_upload \
         "http://${ip_address}:$finetuning_service_port/v1/files" \
         "rerank - upload" \
-        "test-comps-finetuning-server" \
+        "finetuning" \
         "fine-tune" \
         "test_data_rerank.json"
 
@@ -167,7 +169,7 @@ EOF
     validate_finetune \
         "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
         "rerank - finetuning" \
-        "test-comps-finetuning-server" \
+        "finetuning" \
         '{"id":"ft-job' \
         '{"training_file": "test_data_rerank.json","model": "BAAI/bge-reranker-base","General":{"task":"rerank","lora_config":null}}'
 
@@ -187,7 +189,7 @@ EOF
     validate_upload \
         "http://${ip_address}:$finetuning_service_port/v1/files" \
         "pretrain - upload" \
-        "test-comps-finetuning-server" \
+        "finetuning" \
         "fine-tune" \
         "test_data_pretrain.json"
 
@@ -195,7 +197,7 @@ EOF
     validate_finetune \
         "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
         "pretrain - finetuning" \
-        "test-comps-finetuning-server" \
+        "finetuning" \
         '{"id":"ft-job' \
         '{"training_file": "test_data_pretrain.json","model": "facebook/opt-125m","General":{"task":"pretraining","lora_config":null}}'
 
@@ -211,7 +213,7 @@ EOF
     validate_upload \
         "http://${ip_address}:$finetuning_service_port/v1/files" \
         "dpo - upload" \
-        "test-comps-finetuning-server" \
+        "finetuning" \
         "fine-tune" \
         "test_data_dpo.jsonl"
 
@@ -219,15 +221,15 @@ EOF
     validate_finetune \
         "http://${ip_address}:$finetuning_service_port/v1/fine_tuning/jobs" \
         "dpo - finetuning" \
-        "test-comps-finetuning-server" \
+        "finetuning" \
         '{"id":"ft-job' \
         '{"training_file": "test_data_dpo.jsonl","model": "facebook/opt-125m","General":{"task":"dpo"}}'
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-finetuning-server*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/finetuning/deployment/docker_compose
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
