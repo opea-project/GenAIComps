@@ -1,0 +1,210 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+
+include:
+  - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/milvus/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/pathway/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/qdrant/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/redis/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
+
+services:
+
+  dataprep-elasticsearch:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-elasticsearch
+    ports:
+      - "${DATAPREP_PORT:-11100}:5000"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_ELASTICSEARCH"
+      ES_CONNECTION_STRING: ${ES_CONNECTION_STRING}
+      INDEX_NAME: ${INDEX_NAME}
+      TEI_ENDPOINT: ${TEI_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+    restart: unless-stopped
+    depends_on:
+      elasticsearch-vector-db:
+        condition: service_healthy
+
+  dataprep-milvus:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-milvus
+    ports:
+      - "${DATAPREP_PORT:-11101}:5000"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      ES_CONNECTION_STRING: ${ES_CONNECTION_STRING}
+      INDEX_NAME: ${INDEX_NAME}
+      TEI_ENDPOINT: ${TEI_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+    restart: unless-stopped
+
+  dataprep-neo4j-langchain:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-neo4j-server
+    depends_on:
+      - neo4j-vector-db
+      - tgi_gaudi_service
+    ports:
+      - "${DATAPREP_PORT:-11102}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      NEO4J_URL: ${NEO4J_URL}
+      NEO4J_USERNAME: ${NEO4J_USERNAME}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      TGI_LLM_ENDPOINT: ${TEI_ENDPOINT}
+      OPENAI_KEY: ${OPENAI_API_KEY}
+    restart: unless-stopped
+
+  dataprep-neo4j-llamaindex:
+    image: ${REGISTRY:-opea}/dataprep-neo4j-llamaindex:${TAG:-latest}
+    container_name: dataprep-neo4j-server
+    depends_on:
+      - neo4j-apoc
+      - tgi-gaudi-service
+      - tei-embedding-service
+    ports:
+      - "${DATAPREP_PORT:-11103}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      host_ip: ${host_ip}
+      NEO4J_URL: ${NEO4J_URL}
+      NEO4J_USERNAME: ${NEO4J_USERNAME}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      TGI_LLM_ENDPOINT: ${TGI_LLM_ENDPOINT}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL}
+      OPENAI_LLM_MODEL: ${OPENAI_LLM_MODEL}
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      LOGFLAG: ${LOGFLAG}
+    restart: unless-stopped
+
+  dataprep-opensearch:
+    image: ${REGISTRY:-opea}/dataprep-opensearch:${TAG:-latest}
+    container_name: dataprep-opensearch-server
+    ports:
+      - "${DATAPREP_PORT:-11104}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      OPENSEARCH_URL: ${OPENSEARCH_URL}
+      INDEX_NAME: ${INDEX_NAME}
+      TEI_ENDPOINT: ${TEI_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  dataprep-pgvector:
+    image: ${REGISTRY:-opea}/dataprep-pgvector:${TAG:-latest}
+    container_name: dataprep-pgvector
+    ports:
+      - "${DATAPREP_PORT:-11105}:5000"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}
+      INDEX_NAME: ${INDEX_NAME}
+      TEI_ENDPOINT: ${TEI_ENDPOINT}
+    restart: unless-stopped
+
+  dataprep-pinecone:
+    image: ${REGISTRY:-opea}/dataprep-pinecone:${TAG:-latest}
+    container_name: dataprep-pinecone-server
+    ports:
+      - "${DATAPREP_PORT:-11106}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PINECONE_API_KEY: ${PINECONE_API_KEY}
+      PINECONE_INDEX_NAME: ${PINECONE_INDEX_NAME}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+    restart: unless-stopped
+
+  dataprep-qdrant:
+    image: ${REGISTRY:-opea}/gen-ai-comps:${TAG:-latest}
+    container_name: dataprep-qdrant-server
+    depends_on:
+      - qdrant-vector-db
+      - tei-embedding-service
+    ports:
+      - "${DATAPREP_PORT:-11107}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      QDRANT_HOST: ${QDRANT_HOST}
+      QDRANT_PORT: ${QDRANT_PORT}
+      COLLECTION_NAME: ${COLLECTION_NAME}
+      TEI_ENDPOINT: ${TEI_ENDPOINT}
+    restart: unless-stopped
+
+  dataprep-multimodal-redis:
+    image: ${REGISTRY:-opea}/dataprep-multimodal-redis:${TAG:-latest}
+    container_name: dataprep-multimodal-redis
+    ports:
+      - "${DATAPREP_PORT:-11108}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      REDIS_URL: ${REDIS_URL}
+      INDEX_NAME: ${INDEX_NAME}
+      LVM_ENDPOINT: ${LVM_ENDPOINT}
+    restart: unless-stopped
+
+  dataprep-vdms:
+    image: ${REGISTRY:-opea}/dataprep-vdms:${TAG:-latest}
+    container_name: dataprep-vdms-server
+    ports:
+      - "${DATAPREP_PORT:-11109}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      VDMS_HOST: ${VDMS_HOST}
+      VDMS_PORT: ${VDMS_PORT}
+      COLLECTION_NAME: ${COLLECTION_NAME}
+    restart: unless-stopped
+
+  dataprep-vdms-multimodal:
+    image: ${REGISTRY:-opea}/dataprep-vdms-multimodal:${TAG:-latest}
+    container_name: dataprep-vdms--multimodal-server
+    ports:
+      - "${DATAPREP_PORT:-11110}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      VDMS_HOST: ${VDMS_HOST}
+      VDMS_PORT: ${VDMS_PORT}
+      INDEX_NAME: ${INDEX_NAME}
+    restart: unless-stopped

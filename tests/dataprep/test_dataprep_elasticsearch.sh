@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-dataprep_service_port=6011
+DATAPREP_PORT=11100
 
 function build_docker_images() {
     cd $WORKPATH
@@ -16,48 +16,34 @@ function build_docker_images() {
     docker pull docker.elastic.co/elasticsearch/elasticsearch:8.16.0
 
     # build dataprep image for elasticsearch
-    docker build --no-cache -t opea/dataprep-elasticsearch:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/dataprep-elasticsearch built fail"
+        echo "opea/dataprep built fail"
         exit 1
     else
-        echo "opea/dataprep-elasticsearch built successful"
+        echo "opea/dataprep built successful"
     fi
 }
 
 function start_service() {
-    # elasticsearch
-    elasticsearch_port=9200
-    docker run -d --name test-comps-vectorstore-elasticsearch -e ES_JAVA_OPTS="-Xms1g -Xmx1g" -e "discovery.type=single-node" -e "xpack.security.enabled=false"  -p $elasticsearch_port:9200 -p 9300:9300 docker.elastic.co/elasticsearch/elasticsearch:8.16.0
-    export ES_CONNECTION_STRING="http://${ip_address}:${elasticsearch_port}"
-    sleep 10s
-
-    # data-prep
+    echo "Starting microservice"
+    export ELASTICSEARCH_PORT=12300
+    export ES_CONNECTION_STRING="http://${ip_address}:${ELASTICSEARCH_PORT}"
     INDEX_NAME="test-elasticsearch"
-    docker run -d --name="test-comps-dataprep-elasticsearch" -p $dataprep_service_port:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ES_CONNECTION_STRING=$ES_CONNECTION_STRING -e INDEX_NAME=$INDEX_NAME -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ELASTICSEARCH" opea/dataprep-elasticsearch:comps
-    sleep 15s
-
-    bash $WORKPATH/tests/utils/wait-for-it.sh $ip_address:$dataprep_service_port -s -t 100 -- echo "Dataprep service up"
-    DATAPREP_UP=$?
-    if [ ${DATAPREP_UP} -ne 0 ]; then
-        echo "Could not start Dataprep service."
-        return 1
-    fi
-
-    sleep 5s
-    bash $WORKPATH/tests/utils/wait-for-it.sh ${ip_address}:$dataprep_service_port -s -t 1 -- echo "Dataprep service still up"
-    DATAPREP_UP=$?
-    if [ ${DATAPREP_UP} -ne 0 ]; then
-        echo "Dataprep service crashed."
-        return 1
-    fi
+    export TAG=comps
+    service_name="elasticsearch-vector-db dataprep-elasticsearch"
+    cd $WORKPATH
+    cd comps/dataprep/deployment/docker_compose/
+    docker compose up ${service_name} -d
+    sleep 15
+    echo "Microservice started"
 }
 
 function validate_microservice() {
     cd $LOG_PATH
 
     # test /v1/dataprep
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/ingest"
+    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/ingest"
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
 
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' "$URL")
@@ -80,7 +66,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/get_file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/get"
+    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/get"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - file ] HTTP status is 200. Checking content..."
@@ -100,7 +86,7 @@ function validate_microservice() {
     fi
 
     # test /v1/dataprep/delete_file
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
+    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/delete"
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ dataprep - del ] HTTP status is 200."
@@ -113,10 +99,10 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-vectorstore-elasticsearch*")
+    cid=$(docker ps -aq --filter "name=*elasticsearch*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 
-    cid=$(docker ps -aq --filter "name=test-comps-dataprep-elasticsearch*")
+    cid=$(docker ps -aq --filter "name=*elasticsearch*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
