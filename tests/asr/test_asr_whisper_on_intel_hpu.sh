@@ -36,7 +36,7 @@ function start_service() {
     unset http_proxy
     export ASR_ENDPOINT=http://$ip_address:$WHISPER_PORT
 
-    docker compose -f comps/asr/deployment/docker_compose/compose.yaml up whisper-gaudi-service asr -d
+    docker compose -f comps/asr/deployment/docker_compose/compose.yaml up whisper-gaudi-service asr-whisper-gaudi -d
     sleep 15
 }
 
@@ -49,14 +49,14 @@ function validate_microservice() {
     else
         echo "Result wrong."
         docker logs whisper-gaudi-service
-        docker logs asr-service
+        docker logs asr-whisper-gaudi-service
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=whisper-gaudi-service" --filter "name=asr-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=whisper-gaudi-service" --filter "name=asr-whisper-gaudi-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {
