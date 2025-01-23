@@ -18,7 +18,7 @@ If you are using an IAM Role, you must also set the following environment variab
 export AWS_SESSION_TOKEN=${aws_session_token}
 ```
 
-## Build Docker Image
+## Build Docker Image 
 
 ```bash
 cd GenAIComps/
