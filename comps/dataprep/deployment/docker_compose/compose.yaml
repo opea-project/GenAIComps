@@ -80,11 +80,12 @@ services:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
     container_name: dataprep-neo4j-llamaindex
     depends_on:
-      - neo4j-apoc
-      - tgi-gaudi-server
-          condition: service_healthy
-      - tei-embedding-serving
-          condition: service_healthy
+      neo4j-apoc:
+        condition: service_healthy
+      tgi-gaudi-server:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
     ports:
       - "${DATAPREP_PORT:-11103}:5000"
     ipc: host
