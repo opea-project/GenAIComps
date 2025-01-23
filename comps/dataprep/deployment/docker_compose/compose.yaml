@@ -11,6 +11,8 @@ include:
   - ../../../third_parties/qdrant/deployment/docker_compose/compose.yaml
   - ../../../third_parties/redis/deployment/docker_compose/compose.yaml
   - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
 
 services:
 
@@ -50,10 +52,10 @@ services:
 
   dataprep-neo4j-langchain:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
-    container_name: dataprep-neo4j-server
+    container_name: dataprep-neo4j-langchain
     depends_on:
       - neo4j-vector-db
-      - tgi_gaudi_service
+      - tgi-gaudi-server
     ports:
       - "${DATAPREP_PORT:-11102}:5000"
     ipc: host
@@ -70,11 +72,11 @@ services:
 
   dataprep-neo4j-llamaindex:
     image: ${REGISTRY:-opea}/dataprep-neo4j-llamaindex:${TAG:-latest}
-    container_name: dataprep-neo4j-server
+    container_name: dataprep-neo4j-llamaindex
     depends_on:
       - neo4j-apoc
-      - tgi-gaudi-service
-      - tei-embedding-service
+      - tgi-gaudi-server
+      - tei-embedding-serving
     ports:
       - "${DATAPREP_PORT:-11103}:5000"
     ipc: host
@@ -150,7 +152,7 @@ services:
     container_name: dataprep-qdrant-server
     depends_on:
       - qdrant-vector-db
-      - tei-embedding-service
+      - tei-embedding-serving
     ports:
       - "${DATAPREP_PORT:-11107}:5000"
     ipc: host

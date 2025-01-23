@@ -2,21 +2,31 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  pgvector-vector-db:
-    hostname: db
-    container_name: pgvector-vector-db
-    image: pgvector/pgvector:0.7.0-pg16
-    ports:
-      - "5432:5432"
-    restart: always
+  neo4j-apoc:
+    image: neo4j:latest
+    container_name: neo4j-apoc
+    volumes:
+        - /$HOME/neo4j/logs:/logs
+        - /$HOME/neo4j/config:/config
+        - /$HOME/neo4j/data:/data
+        - /$HOME/neo4j/plugins:/plugins
     ipc: host
     environment:
-      - POSTGRES_DB=vectordb
-      - POSTGRES_USER=testuser
-      - POSTGRES_PASSWORD=testpwd
-      - POSTGRES_HOST_AUTH_METHOD=trust
-      - no_proxy= ${no_proxy}
-      - http_proxy= ${http_proxy}
-      - https_proxy= ${https_proxy}
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.\*
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    restart: always
+
+  neo4j-vector-db:
+    image: neo4j/neo4j
+    container_name: neo4j-graph-db
+    ports:
+      - "6337:6337"
+      - "6338:6338"
+
