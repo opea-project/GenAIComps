@@ -9,7 +9,7 @@ import boto3
 from botocore.exceptions import ClientError
 from fastapi.responses import StreamingResponse
 
-from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType, GeneratedDoc
+from comps import CustomLogger, GeneratedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 logger = CustomLogger("opea_textgen_bedrock")
@@ -130,7 +130,7 @@ class OpeaTextGenBedrock(OpeaComponent):
                 yield "data: [DONE]\n\n"
 
             return StreamingResponse(stream_generator(), headers=self.sse_headers)
-        
+
         response = self.bedrock_runtime.converse(**bedrock_args)
         output_content = response.get("output", {}).get("message", {}).get("content", [])
         output_text = output_content[0].get("text", "") if len(output_content) > 0 else ""
