@@ -28,7 +28,7 @@ services:
       TTS_ENDPOINT: ${TTS_ENDPOINT}
       TTS_COMPONENT_NAME: "OPEA_GPTSOVITS_TTS"
     depends_on:
-      speecht5-service:
+      gpt-sovits-service:
         condition: service_healthy
 
 networks:
