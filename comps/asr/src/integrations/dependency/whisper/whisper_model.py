@@ -41,8 +41,8 @@ class WhisperModel:
         self.return_timestamps = return_timestamps
 
         if device == "hpu":
-            self._warmup_whisper_hpu_graph("https://github.com/opea-project/GenAIComps/blob/main/comps/asr/assets/ljspeech_30s_audio.wav")
-            self._warmup_whisper_hpu_graph("https://github.com/opea-project/GenAIComps/blob/main/comps/asr/assets/ljspeech_60s_audio.wav")
+            self._warmup_whisper_hpu_graph(os.path.dirname(os.path.abspath(__file__)) + "/../../../../assets/ljspeech_30s_audio.wav")
+            self._warmup_whisper_hpu_graph(os.path.dirname(os.path.abspath(__file__)) + "/../../../../assets/ljspeech_60s_audio.wav")
 
     def _audiosegment_to_librosawav(self, audiosegment):
         # https://github.com/jiaaro/pydub/blob/master/API.markdown#audiosegmentget_array_of_samples
@@ -56,14 +56,9 @@ class WhisperModel:
 
         return fp_arr
 
-    def _warmup_whisper_hpu_graph(self, url):
-        print("[ASR] fetch warmup audio...")
-        urllib.request.urlretrieve(
-            url,
-            "warmup.wav",
-        )
+    def _warmup_whisper_hpu_graph(self, path_to_audio):
         print("[ASR] warmup...")
-        waveform = AudioSegment.from_file("warmup.wav").set_frame_rate(16000)
+        waveform = AudioSegment.from_file(path_to_audio).set_frame_rate(16000)
         waveform = self._audiosegment_to_librosawav(waveform)
 
         try:
