@@ -17,8 +17,8 @@ logflag = os.getenv("LOGFLAG", False)
 
 @OpeaComponentRegistry.register("OpeaTextGenBedrock")
 class OpeaTextGenBedrock(OpeaComponent):
-    """A specialized OPEA TextGen component derived from OpeaComponent for interacting with AWS Bedrock.
-    """
+    """A specialized OPEA TextGen component derived from OpeaComponent for
+    interacting with AWS Bedrock."""
 
     def __init__(self, name: str,  description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
@@ -36,7 +36,8 @@ class OpeaTextGenBedrock(OpeaComponent):
             logger.error("OpeaTextGenBedrock health check failed.")
 
     def check_health(self):
-        """Checks health by validating ability to check caller identity with AWS
+        """Checks health by validating ability to check caller identity with
+        AWS.
 
         Returns:
             bool: True if AWS is reachable, False otherwise
@@ -50,7 +51,8 @@ class OpeaTextGenBedrock(OpeaComponent):
             return False
 
     async def invoke(self, input: ChatCompletionRequest):
-        """Invokes the AWS Bedrock service to generate a response based on the previous chats
+        """Invokes the AWS Bedrock service to generate a response based on the
+        previous chats.
 
         Args:
             input (ChatCompletionRequest): The chat input.
