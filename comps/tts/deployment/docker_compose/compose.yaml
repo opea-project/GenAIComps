@@ -64,9 +64,6 @@ services:
     environment:
       TTS_ENDPOINT: ${TTS_ENDPOINT}
       TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_SPEECHT5_TTS}
-    depends_on:
-      speecht5-service:
-        condition: service_healthy
   tts-speecht5:
     extends: tts
     container_name: tts-speecht5-service

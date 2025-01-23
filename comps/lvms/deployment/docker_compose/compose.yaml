@@ -100,9 +100,6 @@ services:
     environment:
       LVM_ENDPOINT: ${LVM_ENDPOINT}
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAVA_LVM}
-    depends_on:
-      llava-service:
-        condition: service_healthy
   lvm-llava:
     extends: lvm
     container_name: lvm-llava-service
