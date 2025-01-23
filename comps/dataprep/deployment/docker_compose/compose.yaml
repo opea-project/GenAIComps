@@ -114,7 +114,7 @@ services:
     ports:
       - "${DATAPREP_PORT:-11104}:5000"
     depends_on:
-      - opensearch-vector-db
+      opensearch-vector-db:
         condition: service_healthy
     ipc: host
     environment:
@@ -135,7 +135,7 @@ services:
     ports:
       - "${DATAPREP_PORT:-11105}:5000"
     depends_on:
-      - pgvector-vector-db
+      pgvector-vector-db:
         condition: service_healthy
     ipc: host
     environment:
@@ -166,9 +166,9 @@ services:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
     container_name: dataprep-qdrant-server
     depends_on:
-      - qdrant-vector-db
+      qdrant-vector-db:
         condition: service_healthy
-      - tei-embedding-serving
+      tei-embedding-serving:
         condition: service_healthy
     ports:
       - "${DATAPREP_PORT:-11107}:5000"
@@ -189,9 +189,9 @@ services:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
     container_name: dataprep-redis-server
     depends_on:
-      - redis-vector-db
+      redis-vector-db:
         condition: service_healthy
-      - tei-embedding-serving
+      tei-embedding-serving:
         condition: service_healthy
     ports:
       - "${DATAPREP_PORT:-11108}:5000"
@@ -215,7 +215,7 @@ services:
     ports:
       - "${DATAPREP_PORT:-11109}:5000"
     depends_on:
-      - redis-vector-db
+      redis-vector-db:
         condition: service_healthy
     ipc: host
     environment:
@@ -238,7 +238,7 @@ services:
     ports:
       - "${DATAPREP_PORT:-11110}:5000"
     depends_on:
-      - vdms-vector-db
+      vdms-vector-db:
         condition: service_healthy
     ipc: host
     environment:
@@ -258,7 +258,7 @@ services:
     ports:
       - "${DATAPREP_PORT:-11111}:5000"
     depends_on:
-      - vdms-vector-db
+      vdms-vector-db:
         condition: service_healthy
     ipc: host
     environment:
