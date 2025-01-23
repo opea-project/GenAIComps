@@ -5,6 +5,7 @@
 include:
   - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
   - ../../../third_parties/milvus/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
   - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
   - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
   - ../../../third_parties/qdrant/deployment/docker_compose/compose.yaml
@@ -22,6 +23,7 @@ services:
       - "${DATAPREP_PORT:-11100}:5000"
     ipc: host
     environment:
+      no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_ELASTICSEARCH"
@@ -41,6 +43,7 @@ services:
       - "${DATAPREP_PORT:-11101}:5000"
     ipc: host
     environment:
+      no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       ES_CONNECTION_STRING: ${ES_CONNECTION_STRING}
@@ -122,6 +125,7 @@ services:
       - "${DATAPREP_PORT:-11105}:5000"
     ipc: host
     environment:
+      no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}

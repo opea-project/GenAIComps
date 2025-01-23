@@ -29,7 +29,7 @@ function start_service() {
     echo "Starting microservice"
     export ELASTICSEARCH_PORT=12300
     export ES_CONNECTION_STRING="http://${ip_address}:${ELASTICSEARCH_PORT}"
-    INDEX_NAME="test-elasticsearch"
+    export INDEX_NAME="test-elasticsearch"
     export TAG=comps
     service_name="elasticsearch-vector-db dataprep-elasticsearch"
     cd $WORKPATH
