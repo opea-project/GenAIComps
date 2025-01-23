@@ -190,15 +190,30 @@ class OpeaDocSum(OpeaComponent):
 
         if input.stream:
 
-            async def stream_generator():
-                from langserve.serialization import WellKnownLCSerializer
+            import json
+            from langserve.serialization import WellKnownLCSerializer
+            _serializer = WellKnownLCSerializer()
 
-                _serializer = WellKnownLCSerializer()
+            def extract_llm_tokens(stream_output):
+                op_data = _serializer.dumps({"ops": stream_output.ops}).decode("utf-8")
+                parsed_data = json.loads(op_data)
+
+                tokens = []
+                for op in parsed_data.get("ops", []):
+                    if op["op"] == "add" and "/streamed_output_str" in op["path"]:
+                        tokens.append(op["value"])
+
+                return "".join(tokens)
+
+            async def stream_generator():
                 async for chunk in llm_chain.astream_log(docs):
-                    data = _serializer.dumps({"ops": chunk.ops}).decode("utf-8")
+                    data = extract_llm_tokens(chunk)
+
                     if logflag:
                         logger.info(data)
-                    yield f"data: {data}\n\n"
+                    if data != '':
+                        yield f"data: {data}\n\n"
+
                 yield "data: [DONE]\n\n"
 
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
