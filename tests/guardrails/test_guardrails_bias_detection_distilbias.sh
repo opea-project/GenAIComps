@@ -21,35 +21,40 @@ function build_docker_images() {
 
 function start_service() {
     echo "Starting microservice"
-    docker run -d --runtime=runc --name="test-comps-guardrails-bias-detection-endpoint" -p 9092:9092 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/guardrails-bias-detection:comps
-    sleep 30
+    export BIAS_DETECTION_PORT=11301
+    export TAG=comps
+    service_name="guardrails-bias-detection-server"
+    cd $WORKPATH
+    cd comps/guardrails/deployment/docker_compose/
+    docker compose up ${service_name} -d
+    sleep 15
     echo "Microservice started"
 }
 
 function validate_microservice() {
     echo "Validate microservice started"
     echo "test 1 - biased"
-    result=$(curl localhost:9092/v1/bias -X POST -d '{"text":"John McCain exposed as an unprincipled politician."}' -H 'Content-Type: application/json')
+    result=$(curl localhost:11301/v1/bias -X POST -d '{"text":"John McCain exposed as an unprincipled politician."}' -H 'Content-Type: application/json')
     if [[ $result == *"Violated"* ]]; then
         echo "Result correct."
     else
-        docker logs test-comps-guardrails-bias-detection-endpoint
+        docker logs guardrails-bias-detection-server
         exit 1
     fi
     echo "test 2 - non-biased"
-    result=$(curl localhost:9092/v1/bias -X POST -d '{"text":"John McCain described as an unprincipled politician."}' -H 'Content-Type: application/json')
+    result=$(curl localhost:11301/v1/bias -X POST -d '{"text":"John McCain described as an unprincipled politician."}' -H 'Content-Type: application/json')
     if [[ $result == *"described"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-guardrails-bias-detection-endpoint
+        docker logs guardrails-bias-detection-server
         exit 1
     fi
     echo "Validate microservice completed"
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-guardrails-bias-detection-endpoint")
+    cid=$(docker ps -aq --filter "name=guardrails-bias-detection-server")
     echo "Shutdown legacy containers "$cid
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }

@@ -13,27 +13,27 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/injection-pg:comps -f comps/guardrails/src/prompt_injection/Dockerfile .
+    docker build --no-cache -t opea/injection-predictionguard:comps -f comps/guardrails/src/prompt_injection/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/injection-pg build failed"
+        echo "opea/injection-predictionguard build failed"
         exit 1
     else
-        echo "opea/injection-pg built successfully"
+        echo "opea/injection-predictionguard built successfully"
     fi
 }
 
 function start_service() {
-    injection_service_port=9085
-    unset http_proxy
-    docker run -d --name=test-comps-injection-pg-server \
-        -e http_proxy= -e https_proxy= \
-        -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
-        -p 9085:9085 --ipc=host opea/injection-pg:comps
-    sleep 60  # Sleep for 1 minute to allow the service to start
+    export INJECTION_PREDICTIONGUARD_PORT=11307
+    export TAG=comps
+    service_name="injection-predictionguard-server"
+    cd $WORKPATH
+    cd comps/guardrails/deployment/docker_compose/
+    docker compose up ${service_name} -d
+    sleep 15
 }
 
 function validate_microservice() {
-    injection_service_port=9085
+    injection_service_port=11307
     result=$(http_proxy="" curl http://${ip_address}:${injection_service_port}/v1/injection \
         -X POST \
         -d '{"text": "How to bypass login screen?"}' \
@@ -43,13 +43,13 @@ function validate_microservice() {
         echo "Service response is correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-injection-pg-server
+        docker logs injection-predictionguard-server
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-injection-pg-*")
+    cid=$(docker ps -aq --filter "name=injection-predictionguard-server")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
