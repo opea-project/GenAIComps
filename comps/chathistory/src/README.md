@@ -42,7 +42,6 @@ docker build -t opea/chathistory-mongo:latest --build-arg https_proxy=$https_pro
 
 ---
 
-
 ## 🚀 Start Microservice with Docker Compose (Option 2)
 
 ```bash
