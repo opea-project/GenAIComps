@@ -13,6 +13,8 @@ This README provides set-up instructions and comprehensive details regarding the
 
 1. **Start the TEI service**:
 
+- For Gaudi HPU:
+
   ```bash
     export HF_TOKEN=${your_hf_api_token}
     export RERANK_MODEL_ID="BAAI/bge-reranker-base"
@@ -20,6 +22,17 @@ This README provides set-up instructions and comprehensive details regarding the
 
     docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
   ```
+
+- For Xeon CPU:
+
+  ```bash
+    export HF_TOKEN=${your_hf_api_token}
+    export RERANK_MODEL_ID="BAAI/bge-reranker-base"
+    export volume=$PWD/data
+
+    docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/tei-gaudi:1.5.2 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
+  ```
+
 
 2. **Verify the TEI Service**:
    Run the following command to check if the service is up and running.
@@ -77,8 +90,17 @@ Deploy both the TEI Reranking Service and the Reranking Microservice using Docke
 
 3. Start the services:
 
+- For Gaudi HPU:
+
    ```bash
     docker compose up reranking-tei -d
+   ```
+
+
+- For Xeon CPU:   
+
+   ```bash
+    docker compose up reranking-tei-gaudi -d
    ```
 
 ## 📦 3. Consume Reranking Service
