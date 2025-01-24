@@ -25,9 +25,9 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export RERANK_MODEL_ID="BAAI/bge-reranker-base"
     export TEI_RERANKING_PORT=12004
-    export RERANKING_PORT=10701
+    export RERANK_PORT=10701
     export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
     export TAG=comps
     export host_ip=${host_ip}

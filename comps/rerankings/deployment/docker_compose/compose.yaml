@@ -15,6 +15,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      TEI_RERANKING_ENDPOINT: ${TEI_RERANKING_ENDPOINT}
     restart: unless-stopped
 
   reranking-tei:
