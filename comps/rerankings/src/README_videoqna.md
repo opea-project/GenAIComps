@@ -10,7 +10,7 @@ Then we could send the `top_n` videos to the downstream LVM.
 
 ---
 
-## 📦 1. Start Microservice with `docker run`
+## 📦 1. Start Microservice with Docker
 
 ### 🔹 1.1 Build Docker Image and Run Docker with CLI
 
@@ -25,10 +25,9 @@ Then we could send the `top_n` videos to the downstream LVM.
       -f comps/rerankings/src/Dockerfile .
    ```
 
-2. Run the reranking microservice and connect it to the TEI service:
+2. Run the reranking microservice and connect it to the VideoQnA service:
 
    ```bash
-
     docker run -d --name "reranking-videoqna-server" \
       -p 10703:8000 \
       --ipc=host \
@@ -39,7 +38,6 @@ Then we could send the `top_n` videos to the downstream LVM.
       -e RERANK_COMPONENT_NAME="OPEA_VIDEO_RERANKING" \
       -e FILE_SERVER_ENDPOINT=${FILE_SERVER_ENDPOINT} \
       opea/reranking:comps
-
    ```
 
 ## 📦 2. Start Microservice with docker compose
@@ -53,9 +51,9 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
    ```bash
     export TEI_RERANKING_PORT=12006
     export RERANK_PORT=10703
+    export host_ip=$(hostname -I | awk '{print $1}')
     export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
     export TAG=comps
-    export host_ip=${host_ip}
    ```
 
 2. Navigate to the Docker Compose directory:
@@ -74,13 +72,13 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
 
 ### 🔹 3.1 Check Service Status
 
-Verify the reranking service is running:
+- Verify the reranking service is running:
 
-```bash
-curl http://localhost:10703/v1/health_check \
--X GET \
--H 'Content-Type: application/json'
-```
+  ```bash
+  curl http://localhost:10703/v1/health_check \
+  -X GET \
+  -H 'Content-Type: application/json'
+  ```
 
 ### 🔹 3.2 Use the Reranking Service API
 
@@ -93,7 +91,7 @@ curl http://localhost:10703/v1/health_check \
     -H 'Content-Type: application/json'
   ```
 
-  - You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
+- You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
 
   ```bash
   curl http://localhost:10703/v1/reranking \
