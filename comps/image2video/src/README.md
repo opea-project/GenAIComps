@@ -45,6 +45,7 @@ docker run --ipc=host -p 9369:9369 -e http_proxy=$http_proxy -e https_proxy=$htt
 ```
 
 Or use docker compose with below command:
+
 ```bash
 cd ../deployment/docker_compose
 docker compose -f compose.yaml up image2video -d
@@ -57,6 +58,7 @@ docker run -p 9369:9369 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_M
 ```
 
 Or use docker compose with below command:
+
 ```bash
 cd ../deployment/docker_compose
 docker compose -f compose.yaml up image2video-gaudi -d

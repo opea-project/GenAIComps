@@ -65,6 +65,7 @@ docker run -d --name="finetuning-server" -p 8015:8015 --runtime=runc --ipc=host 
 ```
 
 Or use docker compose with below command:
+
 ```bash
 cd ../deployment/docker_compose
 docker compose -f compose.yaml up finetuning -d
@@ -91,12 +92,12 @@ docker run --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p 8015:8015 -e OMPI_M
 ```
 
 Or use docker compose with below command:
+
 ```bash
 export HF_TOKEN=${your_huggingface_token}
 cd ../deployment/docker_compose
 docker compose -f compose.yaml up finetuning-gaudi -d
 ```
-
 
 ## 🚀3. Consume Finetuning Service
 

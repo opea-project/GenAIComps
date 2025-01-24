@@ -83,6 +83,7 @@ docker run --ipc=host -p 9379:9379 -e http_proxy=$http_proxy -e https_proxy=$htt
 ```
 
 Or use docker compose with below command:
+
 ```bash
 cd ../deployment/docker_compose
 docker compose -f compose.yaml up text2image -d
@@ -97,6 +98,7 @@ docker run -p 9379:9379 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_M
 ```
 
 Or use docker compose with below command:
+
 ```bash
 cd ../deployment/docker_compose
 docker compose -f compose.yaml up text2image-gaudi -d
