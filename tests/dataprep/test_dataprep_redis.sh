@@ -42,10 +42,9 @@ function start_service() {
 
 function validate_microservice() {
     cd $LOG_PATH
-    export dataprep_service_port=5013
 
     # test /v1/dataprep/delete
-    URL="http://${ip_address}:$dataprep_service_port/v1/dataprep/delete"
+    URL="http://${ip_address}:${DATAPREP_PORT}/v1/dataprep/delete"
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "all"}' -H 'Content-Type: application/json' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')

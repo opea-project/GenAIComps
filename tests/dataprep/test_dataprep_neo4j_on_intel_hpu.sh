@@ -25,7 +25,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    service_name = "neo4j-apoc tei-embedding-serving tgi-gaudi-server dataprep-neo4j-llamaindex"
+    service_name="neo4j-apoc tei-embedding-serving tgi-gaudi-server dataprep-neo4j-llamaindex"
     export host_ip=${ip_address}
     export TAG="comps"
     export NEO4J_AUTH="neo4j/neo4jtest"
