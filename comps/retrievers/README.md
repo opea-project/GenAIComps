@@ -8,24 +8,36 @@ Overall, this microservice provides robust backend support for applications requ
 
 ## Retriever Microservice with Redis
 
-For details, please refer to this [langchain readme](redis/langchain/README.md) or [llama_index readme](redis/llama_index/README.md)
+For details, please refer to this [readme](src/README_redis.md)
 
 ## Retriever Microservice with Milvus
 
-For details, please refer to this [readme](milvus/langchain/README.md)
+For details, please refer to this [readme](src/README_milvus.md)
+
+## Retriever Microservice with Qdrant
+
+For details, please refer to this [readme](src/README_qdrant.md)
 
 ## Retriever Microservice with PGVector
 
-For details, please refer to this [readme](pgvector/langchain/README.md)
-
-## Retriever Microservice with Pathway
-
-For details, please refer to this [readme](pathway/langchain/README.md)
-
-## Retriever Microservice with QDrant
-
-For details, please refer to this [readme](qdrant/haystack/README.md)
+For details, please refer to this [readme](src/README_pgvector.md)
 
 ## Retriever Microservice with VDMS
 
-For details, please refer to this [readme](vdms/langchain/README.md)
+For details, please refer to this [readme](src/README_vdms.md)
+
+## Retriever Microservice with ElasticSearch
+
+For details, please refer to this [readme](src/README_elasticsearch.md)
+
+## Retriever Microservice with OpenSearch
+
+For details, please refer to this [readme](src/README_opensearch.md)
+
+## Retriever Microservice with neo4j
+
+For details, please refer to this [readme](src/README_neo4j.md)
+
+## Retriever Microservice with Pathway
+
+For details, please refer to this [readme](src/README_pathway.md)

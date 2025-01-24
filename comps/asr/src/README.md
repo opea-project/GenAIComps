@@ -73,15 +73,15 @@ Alternatively, you can also start the ASR microservice with Docker.
 - Xeon CPU
 
 ```bash
-cd ../..
-docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/Dockerfile .
+cd ../../..
+docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/whisper/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
-cd ../..
-docker build -t opea/whisper-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/Dockerfile.intel_hpu .
+cd ../../..
+docker build -t opea/whisper-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/whisper/Dockerfile.intel_hpu .
 ```
 
 #### 2.1.2 ASR Service Image
@@ -128,4 +128,27 @@ curl http://localhost:9099/v1/audio/transcriptions \
 
 # python
 python check_asr_server.py
+```
+
+## 🚀3. Start Microservice with Docker Compose (Option 3)
+
+Alternatively, you can also start the ASR microservice with Docker Compose.
+
+```bash
+export ip_address=$(hostname -I | awk '{print $1}')
+export ASR_ENDPOINT=http://$ip_address:7066
+export no_proxy=localhost,$no_proxy
+
+# cpu
+docker compose -f ../deployment/docker_compose/compose.yaml up whisper-service asr-whisper -d
+
+# hpu
+docker compose -f ../deployment/docker_compose/compose.yaml up whisper-gaudi-service asr-whisper-gaudi -d
+
+# Test
+wget https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav
+curl http://localhost:9099/v1/audio/transcriptions \
+  -H "Content-Type: multipart/form-data" \
+  -F file="@./sample.wav" \
+  -F model="openai/whisper-small"
 ```

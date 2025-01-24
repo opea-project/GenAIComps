@@ -1,0 +1,137 @@
+# Copyright (C) 2024 Prediction Guard, Inc
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
+
+services:
+  # bias detection service
+  guardrails-bias-detection-server:
+    image: ${REGISTRY:-opea}/guardrails-bias-detection:${TAG:-latest}
+    container_name: guardrails-bias-detection-server
+    ports:
+      - "${BIAS_DETECTION_PORT:-9092}:9092"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+    restart: unless-stopped
+
+  # factuality alignment service
+  guardrails-factuality-predictionguard-server:
+    image: ${REGISTRY:-opea}/guardrails-factuality-predictionguard:${TAG:-latest}
+    container_name: guardrails-factuality-predictionguard-server
+    ports:
+      - "${FACTUALITY_ALIGNMENT_PORT:-9075}:9075"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+    restart: unless-stopped
+
+  # guardrails service
+  guardrails-server:
+    image: ${REGISTRY:-opea}/guardrails:${TAG:-latest}
+    container_name: guardrails-server
+    ports:
+      - "${GUARDRAILS_PORT:-9090}:9090"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      SAFETY_GUARD_ENDPOINT: ${SAFETY_GUARD_ENDPOINT}
+      SAFETY_GUARD_MODEL_ID: ${SAFETY_GUARD_MODEL_ID}
+      GUARDRAILS_COMPONENT_NAME: "OPEA_LLAMA_GUARD"
+    restart: unless-stopped
+
+  llamaguard-guardrails-server:
+    extends: guardrails-server
+    container_name: llamaguard-guardrails-server
+    environment:
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
+    depends_on:
+      tgi-gaudi-server:
+        condition: service_healthy
+
+  wildguard-guardrails-server:
+    extends: guardrails-server
+    container_name: wildguard-guardrails-server
+    environment:
+      GUARDRAILS_COMPONENT_NAME: "OPEA_WILD_GUARD"
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
+    depends_on:
+      tgi-gaudi-server:
+        condition: service_healthy
+
+  # hallucination detection service
+  hallucination-detection-server:
+    image: ${REGISTRY:-opea}/hallucination-detection:${TAG:-latest}
+    container_name: hallucination-detection-server
+    ports:
+      - "${HALLUCINATION_DETECTION_PORT:-9090}:9000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_MODEL: $LLM_MODEL_ID
+      vLLM_ENDPOINT: $vLLM_ENDPOINT
+      HUGGINGFACEHUB_API_TOKEN: $HF_TOKEN
+    restart: unless-stopped
+    depends_on:
+      vllm-gaudi-server:
+        condition: service_healthy
+
+  # predictionguard PII detection service
+  pii-predictionguard-server:
+    image: ${REGISTRY:-opea}/pii-detection-predictionguard:${TAG:-latest}
+    container_name: pii-predictionguard-server
+    ports:
+      - "${PII_PREDICTIONGUARD_PORT:-9080}:9080"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+    restart: unless-stopped
+
+  # predictionguard injection service
+  injection-predictionguard-server:
+    image: ${REGISTRY:-opea}/injection-predictionguard:${TAG:-latest}
+    container_name: injection-predictionguard-server
+    ports:
+      - "${INJECTION_PREDICTIONGUARD_PORT:-9085}:9085"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+    restart: unless-stopped
+
+  # predictionguard toxicity service
+  toxicity-predictionguard-server:
+    image: ${REGISTRY:-opea}/toxicity-predictionguard:${TAG:-latest}
+    container_name: toxicity-predictionguard-server
+    ports:
+      - "${TOXICITY_PREDICTIONGUARD_PORT:-9090}:9090"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

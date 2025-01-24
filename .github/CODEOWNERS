@@ -16,7 +16,6 @@
 /comps/guardrails/ liang1.lv@intel.com letong.han@intel.com
 /comps/image2image/ qing.yao@intel.com xinyu.ye@intel.com
 /comps/image2video/ xinyu.ye@intel.com qing.yao@intel.com
-/comps/intent_detection/ liang1.lv@intel.com xinyao.wang@intel.com
 /comps/llms/ liang1.lv@intel.com letong.han@intel.com
 /comps/lvms/ sihan.chen@intel.com liang1.lv@intel.com
 /comps/prompt_registry/ hoong.tee.yeoh@intel.com xinyao.wang@intel.com
@@ -26,5 +25,4 @@
 /comps/text2image/ xinyu.ye@intel.com liang1.lv@intel.com
 /comps/text2sql/ yogesh.pandey@intel.com qing.yao@intel.com
 /comps/tts/ sihan.chen@intel.com letong.han@intel.com
-/comps/vectorstores/ xinyu.ye@intel.com letong.han@intel.com
 /comps/web_retrievers/ sihan.chen@intel.com liang1.lv@intel.com

@@ -1,0 +1,63 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
+
+services:
+  faqgen:
+    image: ${REGISTRY:-opea}/llm-faqgen:${TAG:-latest}
+    container_name: llm-faqgen-server
+    ports:
+      - ${FAQ_PORT:-9000}:9000
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      HF_TOKEN: ${HF_TOKEN}
+      LOGFLAG: ${LOGFLAG:-False}
+    restart: unless-stopped
+
+  faqgen-tgi:
+    extends: faqgen
+    container_name: faqgen-tgi
+    environment:
+      FAQGen_COMPONENT_NAME: ${FAQGen_COMPONENT_NAME:-OpeaFaqGenTgi}
+    depends_on:
+      tgi-server:
+        condition: service_healthy
+
+  faqgen-tgi-gaudi:
+    extends: faqgen
+    container_name: faqgen-tgi-gaudi
+    environment:
+      FAQGen_COMPONENT_NAME: ${FAQGen_COMPONENT_NAME:-OpeaFaqGenTgi}
+    depends_on:
+      tgi-gaudi-server:
+        condition: service_healthy
+
+  faqgen-vllm:
+    extends: faqgen
+    container_name: faqgen-vllm
+    environment:
+      FAQGen_COMPONENT_NAME: ${FAQGen_COMPONENT_NAME:-OpeaFaqGenvLLM}
+    depends_on:
+      vllm-server:
+        condition: service_healthy
+
+  faqgen-vllm-gaudi:
+    extends: faqgen
+    container_name: faqgen-vllm-gaudi
+    environment:
+      FAQGen_COMPONENT_NAME: ${FAQGen_COMPONENT_NAME:-OpeaFaqGenvLLM}
+    depends_on:
+      vllm-gaudi-server:
+        condition: service_healthy
+
+networks:
+  default:
+    driver: bridge

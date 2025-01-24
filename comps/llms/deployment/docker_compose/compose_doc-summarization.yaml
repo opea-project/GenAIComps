@@ -1,0 +1,65 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
+
+services:
+  docsum:
+    image: ${REGISTRY:-opea}/llm-docsum:${TAG:-latest}
+    container_name: llm-docsum-server
+    ports:
+      - ${DOCSUM_PORT:-9000}:9000
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      HF_TOKEN: ${HF_TOKEN}
+      LOGFLAG: ${LOGFLAG:-False}
+      MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS}
+      MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS}
+    restart: unless-stopped
+
+  docsum-tgi:
+    extends: docsum
+    container_name: docsum-tgi
+    environment:
+      DocSum_COMPONENT_NAME: ${DocSum_COMPONENT_NAME:-OpeaDocSumTgi}
+    depends_on:
+      tgi-server:
+        condition: service_healthy
+
+  docsum-tgi-gaudi:
+    extends: docsum
+    container_name: docsum-tgi-gaudi
+    environment:
+      DocSum_COMPONENT_NAME: ${DocSum_COMPONENT_NAME:-OpeaDocSumTgi}
+    depends_on:
+      tgi-gaudi-server:
+        condition: service_healthy
+
+  docsum-vllm:
+    extends: docsum
+    container_name: docsum-vllm
+    environment:
+      DocSum_COMPONENT_NAME: ${DocSum_COMPONENT_NAME:-OpeaDocSumvLLM}
+    depends_on:
+      vllm-server:
+        condition: service_healthy
+
+  docsum-vllm-gaudi:
+    extends: docsum
+    container_name: docsum-vllm-gaudi
+    environment:
+      DocSum_COMPONENT_NAME: ${DocSum_COMPONENT_NAME:-OpeaDocSumvLLM}
+    depends_on:
+      vllm-gaudi-server:
+        condition: service_healthy
+
+networks:
+  default:
+    driver: bridge

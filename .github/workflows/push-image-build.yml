@@ -1,17 +1,18 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-# Test
 name: Build latest images on push event
 
 on:
   push:
     branches: ["main"]
     paths:
-      - comps/**
-      - "!**.md"
-      - "!**.txt"
-      - "**requirements.txt"
-      - .github/workflows/push-image-build.yml
+      - 'comps/**'
+      - 'src/**'
+      - '.github/workflows/docker/compose/**'
+      - '!**/*.md'
+      - '!**/*.txt'
+      - '**/requirements.txt'
+      - '.github/workflows/push-image-build.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-on-push
@@ -23,7 +24,7 @@ jobs:
     outputs:
       services: ${{ steps.get-services.outputs.services }}
     steps:
-      - name: Checkout out Repo
+      - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -33,18 +34,33 @@ jobs:
         run: |
           base_commit=$(git rev-parse HEAD~1)
           merged_commit=$(git log -1 --format='%H')
-          changed_files="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'comps/' | grep -vE '\.md|\.txt|comps/cores')" || true
-          services=$(printf '%s\n' "${changed_files[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' | jq -sc '.') || true
-          echo "services=$services"
-          echo "services=$services" >> $GITHUB_OUTPUT
+          # git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"
+          # if [ $? -eq 0 ]; then
+          if git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"; then
+            echo "ALL image build!!!"
+            services=$(basename -a .github/workflows/docker/compose/*-compose.yaml | sed 's/-compose.yaml//' | jq -R '.' )
+          else
+            changed_src="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep -vE '\.md')" || true
+            changed_yamls="$(git diff --name-only ${base_commit} ${merged_commit} | grep '.github/workflows/docker/compose/')" || true
+            services=$(printf '%s\n' "${changed_src[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' ) || true
+            while IFS= read -r line; do
+              filename=$(basename "$line" -compose.yaml)
+              echo "$line $(printf '%s\n' "$filename" | jq -R '.' )"
+              services+=" $(printf '%s\n' "$filename" | jq -R '.' )" || true
+            done <<< "$changed_yamls"
+          fi
+
+          echo "services=$(echo "$services" | jq -sc 'unique | sort')"
+          echo "services=$(echo "$services" | jq -sc 'unique | sort')" >> $GITHUB_OUTPUT
+        continue-on-error: true
 
   image-build:
     needs: get-build-matrix
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
-        node: [docker-build-xeon, docker-build-gaudi]
-    runs-on: ${{ matrix.node }}
+        node: [xeon, gaudi]
+    runs-on: docker-build-${{ matrix.node }}
     continue-on-error: true
     steps:
       - name: Clean up Working Directory
@@ -66,14 +82,14 @@ jobs:
             echo "file_exists=false" >> $GITHUB_ENV
             echo "docker_compose_path=${docker_compose_path} for this service does not exist, so skipping image build for this service!!!"
           fi
-      - name: Get build list
-        id: get-build-list
-        env:
-          docker_compose_path: ${{ env.docker_compose_path }}
-          mode: CI
-        run: |
-          build_list=$(bash ${{ github.workspace }}/.github/workflows/scripts/get_cicd_list.sh "${mode}" ${docker_compose_path})
-          echo "build_list=${build_list}" >> $GITHUB_OUTPUT
+          if [[ $(grep -c "vllm-openvino:" ${docker_compose_path}) != 0 ]]; then
+              git clone https://github.com/vllm-project/vllm.git vllm-openvino
+              cd ./vllm-openvino && git checkout v0.6.1 && git rev-parse HEAD && cd ../
+          fi
+          if [[ $(grep -c "vllm-gaudi:" ${docker_compose_path}) != 0 ]]; then
+              git clone --depth 1 --branch v0.6.4.post2+Gaudi-1.19.0 https://github.com/HabanaAI/vllm-fork.git
+              sed -i 's/triton/triton==3.1.0/g' vllm-fork/requirements-hpu.txt
+          fi
 
       - name: Build Image
         if: env.file_exists == 'true'
@@ -82,4 +98,3 @@ jobs:
           work_dir: ${{ github.workspace }}
           docker_compose_path: ${{ env.docker_compose_path }}
           registry: ${OPEA_IMAGE_REPO}opea
-          service_list: ${{ steps.get-build-list.outputs.build_list }}

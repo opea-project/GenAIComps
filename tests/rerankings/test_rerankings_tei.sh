@@ -2,10 +2,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-set -x
+set -xe
 
 WORKPATH=$(dirname "$PWD")
-ip_address=$(hostname -I | awk '{print $1}')
+host_ip=$(hostname -I | awk '{print $1}')
+service_name="reranking-tei"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -24,24 +25,21 @@ function build_docker_images() {
 }
 
 function start_service() {
-    tei_endpoint=5006
-    # Remember to set HF_TOKEN before invoking this test!
-    export HF_TOKEN=${HF_TOKEN}
-    model=BAAI/bge-reranker-base
-    revision=refs/pr/4
-    volume=$PWD/data
-    docker run -d --name="test-comps-reranking-endpoint" -p $tei_endpoint:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
-    sleep 3m
-    export TEI_RERANKING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
-    tei_service_port=5007
-    unset http_proxy
-    docker run -d --name="test-comps-reranking-server" -e LOGFLAG=True  -p ${tei_service_port}:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN  -e RERANK_COMPONENT_NAME="OPEA_TEI_RERANKING"  opea/reranking:comps
-    sleep 15
+    export RERANK_MODEL_ID="BAAI/bge-reranker-base"
+    export TEI_RERANKING_PORT=12003
+    export RERANK_PORT=10700
+    export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
+    export TAG=comps
+    export host_ip=${host_ip}
+
+    cd $WORKPATH/comps/rerankings/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
+    sleep 1m
 }
 
 function validate_microservice() {
-    tei_service_port=5007
-    local CONTENT=$(curl http://${ip_address}:${tei_service_port}/v1/reranking \
+    tei_service_port=10700
+    local CONTENT=$(curl http://${host_ip}:${tei_service_port}/v1/reranking \
         -X POST \
         -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
         -H 'Content-Type: application/json')
@@ -57,8 +55,8 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-reranking*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/rerankings/deployment/docker_compose
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

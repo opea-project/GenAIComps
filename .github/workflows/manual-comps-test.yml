@@ -7,7 +7,7 @@ on:
     inputs:
       services:
         default: "asr"
-        description: "List of services to test [agent,asr,chathistory,dataprep,embeddings,feedback_management,finetuning,guardrails,intent_detection,knowledgegraphs,llms,lvms,nginx,prompt_registry,ragas,rerankings,retrievers,tts,vectorstores,web_retrievers]"
+        description: "List of services to test [agent,asr,chathistory,dataprep,embeddings,feedback_management,finetuning,guardrails,knowledgegraphs,llms,lvms,nginx,prompt_registry,ragas,rerankings,retrievers,tts,web_retrievers]"
         required: true
         type: string
       build:
@@ -15,9 +15,14 @@ on:
         description: "Build test required images for Comps"
         required: false
         type: boolean
-      test:
+      test_compose:
         default: true
         description: "Test comps with docker compose"
+        required: false
+        type: boolean
+      test_helmchart:
+        default: true
+        description: "Test comps with helm chart"
         required: false
         type: boolean
       tag:
@@ -57,5 +62,6 @@ jobs:
       service: ${{ matrix.service }}
       tag: ${{ inputs.tag }}
       mode: ${{ inputs.mode }}
-      test: ${{ inputs.test }}
+      test_compose: ${{ inputs.test_compose }}
+      test_helmchart: ${{ inputs.test_helmchart }}
     secrets: inherit

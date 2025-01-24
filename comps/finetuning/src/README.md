@@ -64,6 +64,13 @@ Start docker container with below command:
 docker run -d --name="finetuning-server" -p 8015:8015 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/finetuning:latest
 ```
 
+Or use docker compose with below command:
+
+```bash
+cd ../deployment/docker_compose
+docker compose -f compose.yaml up finetuning -d
+```
+
 ### 2.2 Setup on Gaudi2
 
 #### 2.2.1 Build Docker Image
@@ -82,6 +89,14 @@ Start docker container with below command:
 ```bash
 export HF_TOKEN=${your_huggingface_token}
 docker run --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p 8015:8015 -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --net=host --ipc=host -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e HF_TOKEN=$HF_TOKEN opea/finetuning-gaudi:latest
+```
+
+Or use docker compose with below command:
+
+```bash
+export HF_TOKEN=${your_huggingface_token}
+cd ../deployment/docker_compose
+docker compose -f compose.yaml up finetuning-gaudi -d
 ```
 
 ## 🚀3. Consume Finetuning Service
@@ -244,7 +259,7 @@ curl http://${your_ip}:8015/v1/finetune/list_checkpoints -X POST -H "Content-Typ
 
 ### 3.4 Leverage fine-tuned model
 
-After fine-tuning job is done, fine-tuned model can be chosen from listed checkpoints, then the fine-tuned model can be used in other microservices. For example, fine-tuned reranking model can be used in [reranks](../../rerankings/src/README.md) microservice by assign its path to the environment variable `RERANK_MODEL_ID`, fine-tuned embedding model can be used in [embeddings](../../embeddings/src/README.md) microservice by assign its path to the environment variable `model`, LLMs after instruction tuning can be used in [llms](../../llms/text-generation/README.md) microservice by assign its path to the environment variable `your_hf_llm_model`.
+After fine-tuning job is done, fine-tuned model can be chosen from listed checkpoints, then the fine-tuned model can be used in other microservices. For example, fine-tuned reranking model can be used in [reranks](../../rerankings/src/README.md) microservice by assign its path to the environment variable `RERANK_MODEL_ID`, fine-tuned embedding model can be used in [embeddings](../../embeddings/src/README.md) microservice by assign its path to the environment variable `model`, LLMs after instruction tuning can be used in [llms](../../llms/src/text-generation/README.md) microservice by assign its path to the environment variable `your_hf_llm_model`.
 
 ## 🚀4. Descriptions for Finetuning parameters
 

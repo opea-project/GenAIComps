@@ -1,0 +1,34 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+milvus:
+  enabled: true
+  # Milvus config for standalone mode with no PVC which has minimum requirements for the K8s cluster.
+  # Check https://github.com/zilliztech/milvus-helm/tree/milvus-4.2.12/charts/milvus for more production level configuration.
+  cluster:
+    enabled: false
+  etcd:
+    replicaCount: 1
+    persistence:
+      enabled: false
+  pulsar:
+    enabled: false
+  minio:
+    mode: standalone
+    persistence:
+      enabled: false
+  standalone:
+    persistence:
+      enabled: false
+redis-vector-db:
+  enabled: false
+tei:
+  enabled: true
+
+DATAPREP_BACKEND: "MILVUS"
+# text embedding inference service URL, e.g. http://<service-name>:<port>
+# TEI_EMBEDDING_ENDPOINT: "http://data-prep-tei:80"
+# milvus DB configurations
+# MILVUS_HOST: "data-prep-milvus"
+MILVUS_PORT: 19530
+COLLECTION_NAME: "rag_milvus"

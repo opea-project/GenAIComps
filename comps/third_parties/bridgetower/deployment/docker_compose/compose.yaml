@@ -1,0 +1,50 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+
+  multimodal-bridgetower-embedding-serving:
+    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower:${TAG:-latest}
+    container_name: multimodal-bridgetower-embedding-serving
+    ports:
+      - ${EMBEDDER_PORT:-12400}:${EMBEDDER_PORT:-12400}
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PORT: ${EMBEDDER_PORT}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "http_proxy='' curl -f http://localhost:${EMBEDDER_PORT}/v1/health_check"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
+      start_period: 30s
+
+  multimodal-bridgetower-embedding-gaudi-serving:
+    image: ${REGISTRY:-opea}/embedding-multimodal-bridgetower-gaudi:${TAG:-latest}
+    container_name: multimodal-bridgetower-embedding-gaudi-serving
+    ports:
+      - ${EMBEDDER_PORT:-12400}:${EMBEDDER_PORT:-12400}
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PORT: ${EMBEDDER_PORT}
+      HABANA_VISIBLE_DEVICES: all
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "http_proxy='' curl -f http://localhost:${EMBEDDER_PORT}/v1/health_check"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
+      start_period: 30s
+
+networks:
+  default:
+    driver: bridge
