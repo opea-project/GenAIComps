@@ -49,14 +49,14 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-chathistory-mongo-server
+        docker logs chathistory-mongo-server
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps*")
+    cid=$(docker ps -aq --filter "name=chathistory-mongo-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

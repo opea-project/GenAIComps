@@ -16,7 +16,7 @@ services:
 
   promptregistry-mongo:
     image: ${REGISTRY:-opea}/promptregistry-mongo:${TAG:-latest}
-    container_name: promptregistry-server
+    container_name: promptregistry-mongo-server
     ports:
       - "${PROMPT_REGISTRY_PORT:-10600}:6018"
     ipc: host

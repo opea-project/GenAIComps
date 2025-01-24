@@ -36,7 +36,7 @@ function start_service() {
 
 function validate_microservice() {
     result=$(curl -X 'POST' \
-  http://$ip_address:6016/v1/feedback/create \
+  http://$ip_address:${FEEDBACK_MANAGEMENT_PORT}/v1/feedback/create \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -71,14 +71,14 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs test-comps-feedbackmanagement-mongo-server
+        docker logs feedbackmanagement-mongo-server
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps*")
+    cid=$(docker ps -aq --filter "name=feedbackmanagement-mongo-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

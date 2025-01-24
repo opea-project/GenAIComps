@@ -36,7 +36,7 @@ function start_service() {
 
 function validate_microservice() {
     result=$(curl -X 'POST' \
-  http://$ip_address:6018/v1/prompt/create \
+  http://$ip_address:${PROMPT_REGISTRY_PORT}/v1/prompt/create \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -47,14 +47,14 @@ function validate_microservice() {
         echo "Correct result."
     else
         echo "Incorrect result."
-        docker logs test-comps-promptregistry-server
+        docker logs promptregistry-mongo-server
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps*")
+    cid=$(docker ps -aq --filter "name=promptregistry-mongo-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
