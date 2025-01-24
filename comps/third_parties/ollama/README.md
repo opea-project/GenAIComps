@@ -53,22 +53,3 @@ curl --noproxy "*" http://localhost:11434/api/generate -d '{
   "prompt":"Why is the sky blue?"
 }'
 ```
-
-## Build Docker Image
-
-```bash
-cd ../../../../
-docker build -t opea/llm-textgen:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile .
-```
-
-## Run the Ollama Microservice
-
-```bash
-docker run --network host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LLM_ENDPOINT="http://localhost:11434" -e LLM_MODEL_ID="llama3" opea/llm-textgen:latest
-```
-
-## Consume the Ollama Microservice
-
-```bash
-curl http://127.0.0.1:9000/v1/chat/completions  -X POST   -d '{"messages": [{"role": "user", "content": "What is Deep Learning?"}]}' -H 'Content-Type: application/json'
-```
