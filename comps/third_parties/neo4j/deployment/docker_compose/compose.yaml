@@ -5,6 +5,9 @@ services:
   neo4j-apoc:
     image: neo4j:latest
     container_name: neo4j-apoc
+    ports:
+      - "${NEO4J_PORT1:-7474}:7474"
+      - "${NEO4J_PORT2:-7687}:7687"
     volumes:
         - /$HOME/neo4j/logs:/logs
         - /$HOME/neo4j/config:/config
@@ -21,9 +24,6 @@ services:
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_apoc_import_file_use__neo4j__config=true
       - NEO4J_dbms_security_procedures_unrestricted=apoc.\*
-    ports:
-      - "7474:7474"
-      - "7687:7687"
     restart: always
     healthcheck:
       test: wget http://localhost:7474 || exit 1

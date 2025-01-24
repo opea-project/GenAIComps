@@ -121,7 +121,7 @@ function validate_microservice() {
         "${host_ip}:${NEO4J_PORT1}" \
         "200 OK" \
         "neo4j-apoc" \
-        "neo4j-db" \
+        "neo4j-apoc" \
         ""
     sleep 1m  # retrieval can't curl as expected, try to wait for more time
 

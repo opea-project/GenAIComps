@@ -72,6 +72,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       host_ip: ${host_ip}
+      DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_NEO4J_LLAMAINDEX"
       NEO4J_URL: ${NEO4J_URL}
       NEO4J_USERNAME: ${NEO4J_USERNAME}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
