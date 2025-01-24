@@ -42,7 +42,7 @@ docker run -d --runtime=habana --name="llm-native-server" -p 9000:9000 -e https_
 ```bash
 export service_name="textgen-native-gaudi"
 cd comps/llms/deployment/docker_compose
-docker compose -f compose_text-generation.yaml up ${service_name} -d 
+docker compose -f compose_text-generation.yaml up ${service_name} -d
 ```
 
 ## 🚀2. Consume LLM Service

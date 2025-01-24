@@ -64,6 +64,7 @@ docker run -d \
 ```
 
 #### 1.3.2 Run Docker with Docker Compose (Option B)
+
 Set `service_name` to match backend service.
 
 ```bash

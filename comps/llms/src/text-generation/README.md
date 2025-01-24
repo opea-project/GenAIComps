@@ -18,6 +18,7 @@ Overall, this microservice offers a streamlined way to integrate large language 
 | [Phi-3]                     | x         | Limit 4K | Limit 4K   |
 
 ## Support integrations
+
 In this microservices, we have supported following backend LLM service as integrations, we will include TGI/vLLM/Ollama in this readme, for others, please refer to corresponding readmes.
 
 - TGI
@@ -46,6 +47,7 @@ For TGI/vLLM, You must create a user account with [HuggingFace] and obtain permi
 In order to start the microservices with docker, you need to build the docker images first for the microservice.
 
 ### 1. Build Docker Image
+
 #### 1.1 Prepare backend LLM docker image.
 
 If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) to build vLLM docker images first.
@@ -53,6 +55,7 @@ If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) t
 No need for TGI or Ollama.
 
 #### 1.2 Prepare TextGen docker image.
+
 ```bash
 # Build the microservice docker
 cd ${OPEA_GENAICOMPS_ROOT}
@@ -81,11 +84,13 @@ In order to start services, you need to setup the following environment variable
 export LLM_ENDPOINT_PORT=8008
 export TEXTGEN_PORT=9000
 export host_ip=${host_ip}
-export HF_TOKEN=${HF_TOKEN} 
+export HF_TOKEN=${HF_TOKEN}
 export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
 ```
+
 #### 2.2 Run Docker with CLI (Option A)
+
 Step 1: Start the backend LLM service
 
 Please refer to [TGI](../../../third_parties/tgi/), [vLLM](../../../third_parties/vllm/), [Ollama](../../../third_parties/ollama/) guideline to start a backend LLM service.
@@ -109,6 +114,7 @@ docker run \
 ```
 
 #### 2.3 Run Docker with Docker Compose (Option B)
+
 Set `service_name` to match backend service.
 
 ```bash

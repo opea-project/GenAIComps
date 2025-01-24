@@ -7,7 +7,7 @@
 ```bash
 export LLM_ENDPOINT_PORT=8008
 export host_ip=${host_ip}
-export HF_TOKEN=${HF_TOKEN} 
+export HF_TOKEN=${HF_TOKEN}
 export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
 ```
@@ -41,6 +41,7 @@ bash ./launch_vllm_service.sh ${port_number} ${model_name}
 ```
 
 #### Launch vLLM service with docker compose
+
 ```bash
 cd deplopyment/docker_compose
 docker compose -f compose.yaml vllm-server up -d
@@ -59,6 +60,7 @@ bash ./build_docker_vllm.sh hpu
 Set `hw_mode` to `hpu`.
 
 #### Launch vLLM service on single node
+
 1. Option 1: Use docker compose for quick deploy
 
 ```bash
@@ -87,7 +89,6 @@ The `launch_vllm_service.sh` script accepts 7 parameters:
 - max_seq_len_to_capture: default set to 2048 for better performance on HPU
 
 If you want to get more performance tuning tips, can refer to [Performance tuning](https://github.com/HabanaAI/vllm-fork/blob/habana_main/README_GAUDI.md#performance-tips).
-
 
 #### Launch vLLM service on multiple nodes
 
