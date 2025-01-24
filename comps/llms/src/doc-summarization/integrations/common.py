@@ -191,7 +191,9 @@ class OpeaDocSum(OpeaComponent):
         if input.stream:
 
             import json
+
             from langserve.serialization import WellKnownLCSerializer
+
             _serializer = WellKnownLCSerializer()
 
             def extract_llm_tokens(stream_output):
@@ -211,7 +213,7 @@ class OpeaDocSum(OpeaComponent):
 
                     if logflag:
                         logger.info(data)
-                    if data != '':
+                    if data != "":
                         yield f"data: {data}\n\n"
 
                 yield "data: [DONE]\n\n"
