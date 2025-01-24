@@ -49,9 +49,14 @@ services:
     extends: reranking
     container_name: reranking-videoqna-gaudi
     environment:
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
       CHUNK_DURATION: ${CHUNK_DURATION}
       FILE_SERVER_ENDPOINT: ${FILE_SERVER_ENDPOINT}
-      RERANK_COMPONENT_NAME: "OPEA_VIDEO_RERANKING"        
+      RERANK_COMPONENT_NAME: "OPEA_VIDEO_RERANKING" 
+    runtime: habana
+    cap_add:
+      - SYS_NICE     
 
 networks:
   default:

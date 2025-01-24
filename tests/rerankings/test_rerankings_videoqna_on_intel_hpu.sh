@@ -26,17 +26,25 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export no_proxy="localhost,127.0.0.1,"${ip_address}
+    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export TEI_RERANKING_PORT=12003
+    export RERANKING_PORT=10702
+    export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
+    export TAG=comps
+    export host_ip=${host_ip}
+
     cd $WORKPATH/comps/rerankings/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 1m
 }
 
 function validate_microservice() {
+    videoqna_service_port=10700
+
     result=$(\
     http_proxy="" \
     curl -X 'POST' \
-        "http://${ip_address}:5037/v1/reranking" \
+        "http://${ip_address}:$videoqna_service_port/v1/reranking" \
         -H 'accept: application/json' \
         -H 'Content-Type: application/json' \
         -d '{
@@ -62,7 +70,7 @@ function validate_microservice() {
     result=$(\
     http_proxy="" \
     curl -X 'POST' \
-        "http://${ip_address}:5037/v1/reranking" \
+        "http://${ip_address}:$videoqna_service_port/v1/reranking" \
         -H 'accept: application/json' \
         -H 'Content-Type: application/json' \
         -d '{
@@ -82,7 +90,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/rerankings/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphanss
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

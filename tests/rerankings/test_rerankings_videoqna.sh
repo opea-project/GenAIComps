@@ -39,10 +39,12 @@ function start_service() {
 }
 
 function validate_microservice() {
+    videoqna_service_port=10700
+
     result=$(\
     http_proxy="" \
     curl -X 'POST' \
-        "http://${ip_address}:5037/v1/reranking" \
+        "http://${ip_address}:$videoqna_service_port/v1/reranking" \
         -H 'accept: application/json' \
         -H 'Content-Type: application/json' \
         -d '{
@@ -68,7 +70,7 @@ function validate_microservice() {
     result=$(\
     http_proxy="" \
     curl -X 'POST' \
-        "http://${ip_address}:5037/v1/reranking" \
+        "http://${ip_address}:$videoqna_service_port/v1/reranking" \
         -H 'accept: application/json' \
         -H 'Content-Type: application/json' \
         -d '{
@@ -88,7 +90,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/rerankings/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphanss
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
