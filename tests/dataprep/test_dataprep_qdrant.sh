@@ -26,10 +26,11 @@ function build_docker_images() {
 function start_service() {
     export host_ip=${ip_address}
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${EMBEDDING_MODEL_ID}"
+    export TEI_EMBEDDER_PORT="10224"
+    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export COLLECTION_NAME="rag-qdrant"
     export QDRANT_HOST=$ip_address
-    export QDRANT_PORT=$QDRANT_PORT
+    export QDRANT_PORT=6360
     export TAG="comps"
     service_name="qdrant-vector-db tei-embedding-serving dataprep-qdrant"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
