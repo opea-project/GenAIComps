@@ -134,7 +134,6 @@ python check_asr_server.py
 
 Alternatively, you can also start the ASR microservice with Docker Compose.
 
-
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
 export ASR_ENDPOINT=http://$ip_address:7066

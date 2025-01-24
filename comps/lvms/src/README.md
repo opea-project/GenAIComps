@@ -16,7 +16,7 @@ docker run -d --name="test-comps-lvm" -e LVM_ENDPOINT=http://localhost:8399 -e h
 
 Alternatively, you can also start the TTS microservice with Docker Compose.
 
-* LLaVA
+- LLaVA
 
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
@@ -26,7 +26,8 @@ export LVM_ENDPOINT=http://$ip_address:$LLAVA_PORT
 docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up llava-service lvm-llava -d
 ```
 
-* LLaVA TGI on HPU Gaudi
+- LLaVA TGI on HPU Gaudi
+
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
 export LVM_PORT=9399
@@ -35,7 +36,7 @@ export LVM_ENDPOINT=http://$ip_address:$LLAVA_TGI_PORT
 docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up llava-tgi-service lvm-llava-tgi -d
 ```
 
-* LLaMA Vision
+- LLaMA Vision
 
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
@@ -46,7 +47,7 @@ export LVM_ENDPOINT=http://$ip_address:$LLAMA_VISION_PORT
 docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up lvm-llama-vision llama-vision-service -d
 ```
 
-* PredictionGuard
+- PredictionGuard
 
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
@@ -55,7 +56,7 @@ export PREDICTIONGUARD_PORT=9399
 docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up predictionguard-service -d
 ```
 
-* Video LLaMA
+- Video LLaMA
 
 ```bash
 export ip_address=$(hostname -I | awk '{print $1}')
