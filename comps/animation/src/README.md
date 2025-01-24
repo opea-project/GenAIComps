@@ -93,9 +93,7 @@ docker run --privileged -d --name "wav2lip-gaudi-service" -p 7860:7860 --runtime
 docker run -d -p 9066:9066 --ipc=host --name "animation-service" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e WAV2LIP_ENDPOINT=http://$ip_address:7860 opea/animation:latest
 ```
 
-
-
-# 🚀3. Start Microservice with Docker Compose 
+# 🚀3. Start Microservice with Docker Compose
 
 Alternatively, you can also start the Animation microservice with Docker Compose.
 
@@ -106,6 +104,7 @@ cd comps/animation/deployment/docker_compose
 docker compose -f compose.yaml up animation -d
 
 ```
+
 - Gaudi2 HPU
 
 ```bash

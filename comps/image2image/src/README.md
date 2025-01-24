@@ -78,7 +78,7 @@ Start image-to-image service on Gaudi with below command:
 docker run -p 9389:9389 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/image2image-gaudi:latest
 ```
 
-# 🚀3. Start Image-to-Image with Docker Compose 
+# 🚀3. Start Image-to-Image with Docker Compose
 
 Alternatively, you can also start the Image-to-Image microservice with Docker Compose.
 
