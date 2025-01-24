@@ -8,15 +8,15 @@ WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 
 export TAG=comps
-export ANIMATION_PORT=10900
-export WAV2LIP_PORT=12300
-export service_name="animation"
+export ANIMATION_PORT=10901
+export WAV2LIP_PORT=12301
+export service_name="animation-gaudi"
 
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/wav2lip:$TAG -f comps/third_parties/wav2lip/src/Dockerfile .
+    docker build -t opea/wav2lip-gaudi:$TAG -f comps/third_parties/wav2lip/src/Dockerfile.intel_hpu .
     if [ $? -ne 0 ]; then
         echo "opea/wav2lip built fail"
         exit 1
@@ -36,9 +36,9 @@ function start_service() {
     unset http_proxy
     # Set env vars
     export ip_address=$(hostname -I | awk '{print $1}')
-    export DEVICE="cpu"
+    export DEVICE="hpu"
     export INFERENCE_MODE='wav2lip+gfpgan'
-    export CHECKPOINT_PATH='/usr/local/lib/python3.11/site-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
+    export CHECKPOINT_PATH='/usr/local/lib/python3.10/dist-packages/Wav2Lip/checkpoints/wav2lip_gan.pth'
     export FACE="/home/user/comps/animation/src/assets/img/avatar1.jpg"
     export AUDIO='None'
     export FACESIZE=96
@@ -84,6 +84,7 @@ function main() {
     stop_docker
 
     echo y | docker system prune
+
 
 }
 
