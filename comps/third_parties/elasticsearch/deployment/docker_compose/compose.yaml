@@ -6,8 +6,8 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.16.0
     container_name: elasticsearch-vector-db
     ports:
-      - "${ELASTICSEARCH_PORT:-12300}:9200"
-      - "9300:9300"
+      - "${ELASTICSEARCH_PORT1:-9200}:9200"
+      - "${ELASTICSEARCH_PORT2:-9300}:9300"
     environment:
       - no_proxy=${no_proxy}
       - http_proxy=${http_proxy}

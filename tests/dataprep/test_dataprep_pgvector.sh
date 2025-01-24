@@ -26,6 +26,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+    export VOLUMES_PATH=$WORKPATH/comps/third_parties/pgvector/src/init.sql
     export POSTGRES_USER=testuser
     export POSTGRES_PASSWORD=testpwd
     export POSTGRES_DB=vectordb

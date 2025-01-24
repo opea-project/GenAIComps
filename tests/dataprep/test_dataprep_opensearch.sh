@@ -25,7 +25,8 @@ function build_docker_images() {
 function start_service() {
     # Start OpenSearch dataprep container
     export OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
-    export OPENSEARCH_URL="http://${ip_address}:${DATAPREP_PORT}"
+    export OPENSEARCH_PORT1=9200
+    export OPENSEARCH_URL="http://${ip_address}:${OPENSEARCH_PORT1}"
     echo ${OPENSEARCH_URL}
     export INDEX_NAME="file-index"
     service_name="opensearch-vector-db dataprep-opensearch"

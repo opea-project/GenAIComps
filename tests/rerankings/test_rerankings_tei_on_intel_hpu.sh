@@ -6,7 +6,7 @@ set -xe
 
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
-service_name="reranking-tei"
+service_name="reranking-tei-gaudi"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -26,8 +26,8 @@ function build_docker_images() {
 
 function start_service() {
     export RERANK_MODEL_ID="BAAI/bge-reranker-base"
-    export TEI_RERANKING_PORT=12003
-    export RERANK_PORT=10700
+    export TEI_RERANKING_PORT=12004
+    export RERANK_PORT=10701
     export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
     export TAG=comps
     export host_ip=${host_ip}
@@ -38,7 +38,7 @@ function start_service() {
 }
 
 function validate_microservice() {
-    tei_service_port=10700
+    tei_service_port=10701
     local CONTENT=$(curl http://${host_ip}:${tei_service_port}/v1/reranking \
         -X POST \
         -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \

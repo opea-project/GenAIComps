@@ -2,27 +2,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  pgvector-vector-db:
-    hostname: db
-    container_name: pgvector-vector-db
+  pgvector-db:
     image: pgvector/pgvector:0.7.0-pg16
+    container_name: pgvector-db
+    hostname: db
     ports:
-      - "5432:5432"
+      - "${PGVECTOR_PORT:-5432}:5432"
     restart: always
-    ipc: host
     environment:
-      - no_proxy=${no_proxy}
-      - http_proxy=${http_proxy}
-      - https_proxy=${https_proxy}
-      - POSTGRES_DB=vectordb
-      - POSTGRES_USER=testuser
-      - POSTGRES_PASSWORD=testpwd
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_HOST_AUTH_METHOD=trust
-      - no_proxy= ${no_proxy}
-      - http_proxy= ${http_proxy}
-      - https_proxy= ${https_proxy}
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ${VOLUMES_PATH:-./init.sql}:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
         test: pg_isready
         interval: 60s

@@ -6,7 +6,7 @@ services:
     image: intellabs/vdms:latest
     container_name: vdms-vector-db
     ports:
-      - "55555:55555"
+      - "${VDMS_PORT:-55555}:55555"
     environment:
       - no_proxy=${no_proxy}
       - http_proxy=${http_proxy}

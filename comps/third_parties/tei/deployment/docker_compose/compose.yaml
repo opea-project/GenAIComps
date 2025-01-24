@@ -16,8 +16,57 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       host_ip: ${host_ip}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_EMBEDDER_PORT}/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 48
+
+  tei-reranking-serving:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    container_name: tei-reranking-serving
+    entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id ${RERANK_MODEL_ID} --auto-truncate"
+    ports:
+      - "${TEI_RERANKING_PORT:-12003}:80"
+    volumes:
+      - "./data:/data"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      host_ip: ${host_ip}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_RERANKING_PORT}/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 48
+
+
+  tei-reranking-gaudi-serving:
+    image: ghcr.io/huggingface/tei-gaudi:1.5.2
+    container_name: tei-reranking-gaudi-serving
+    entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id ${RERANK_MODEL_ID} --auto-truncate"
+    ports:
+      - ${TEI_RERANKING_PORT:-12004}:80
+    volumes:
+      - "./data:/data"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      host_ip: ${host_ip}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      MAX_WARMUP_SEQUENCE_LENGTH: 512
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    ipc: host
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_RERANKING_PORT}/health"]
       interval: 10s
       timeout: 6s
       retries: 48
