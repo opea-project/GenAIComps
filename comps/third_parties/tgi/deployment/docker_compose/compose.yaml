@@ -14,7 +14,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       host_ip: ${host_ip}
       LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
       MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS:-2048}

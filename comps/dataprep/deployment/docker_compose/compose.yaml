@@ -54,27 +54,6 @@ services:
       tei-embedding-serving:
         condition: service_healthy
 
-  dataprep-neo4j-langchain:
-    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
-    container_name: dataprep-neo4j-langchain
-    depends_on:
-      - neo4j-vector-db
-      - tgi-gaudi-server
-    ports:
-      - "${DATAPREP_PORT:-11102}:5000"
-    ipc: host
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      NEO4J_URL: ${NEO4J_URL}
-      NEO4J_USERNAME: ${NEO4J_USERNAME}
-      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
-      TGI_LLM_ENDPOINT: ${TEI_ENDPOINT}
-      OPENAI_KEY: ${OPENAI_API_KEY}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
-    restart: unless-stopped
-
   dataprep-neo4j-llamaindex:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
     container_name: dataprep-neo4j-llamaindex

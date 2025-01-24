@@ -14,7 +14,7 @@ For LLM model, both `Qwen` and `Falcon3` models are supported. Users can set dif
 
 ```bash
 export LLM_NATIVE_MODEL="Qwen/Qwen2-7B-Instruct"
-export HUGGINGFACEHUB_API_TOKEN="your_huggingface_token"
+export HF_TOKEN="your_huggingface_token"
 ```
 
 ### 1.2 Build Docker Image

@@ -73,14 +73,14 @@ Alternatively, you can also start the ASR microservice with Docker.
 - Xeon CPU
 
 ```bash
-cd ../..
+cd ../../..
 docker build -t opea/whisper:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/whisper/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
-cd ../..
+cd ../../..
 docker build -t opea/whisper-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/whisper/Dockerfile.intel_hpu .
 ```
 

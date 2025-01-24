@@ -1,0 +1,31 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  text2image:
+    image: ${REGISTRY:-opea}/text2image:${TAG:-latest}
+    container_name: text2image
+    ports:
+      - "9379:9379"
+    environment:
+      - no_proxy=${no_proxy}
+      - https_proxy=${https_proxy}
+      - http_proxy=${http_proxy}
+      - MODEL=${MODEL}
+      - HF_TOKEN=${HF_TOKEN}
+    ipc: host
+    restart: always
+  text2image-gaudi:
+    extends: text2image
+    image: ${REGISTRY:-opea}/text2image-gaudi:${TAG:-latest}
+    container_name: text2image-gaudi
+    environment:
+      - HABANA_VISIBLE_DEVICES=all
+      - OMPI_MCA_btl_vader_single_copy_mechanism=none
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,31 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  finetuning:
+    image: ${REGISTRY:-opea}/finetuning:${TAG:-latest}
+    container_name: finetuning
+    ports:
+      - "8015:8015"
+      - "8265:8265"
+    environment:
+      - no_proxy=${no_proxy}
+      - https_proxy=${https_proxy}
+      - http_proxy=${http_proxy}
+      - HF_TOKEN=${HF_TOKEN}
+    ipc: host
+    restart: always
+  finetuning-gaudi:
+    extends: finetuning
+    image: ${REGISTRY:-opea}/finetuning-gaudi:${TAG:-latest}
+    container_name: finetuning-gaudi
+    environment:
+      - HABANA_VISIBLE_DEVICES=all
+      - OMPI_MCA_btl_vader_single_copy_mechanism=none
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+
+networks:
+  default:
+    driver: bridge

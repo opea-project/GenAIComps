@@ -13,4 +13,3 @@ services:
       - https_proxy=${https_proxy}
     healthcheck:
       test: ["CMD-SHELL", "sleep 8 && echo 'This is a healthcheck test.' || exit 1"]
-

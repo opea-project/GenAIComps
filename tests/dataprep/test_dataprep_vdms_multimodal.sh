@@ -25,7 +25,7 @@ function build_docker_images() {
 
 function start_service() {
     export host_ip=${ip_address}
-    export VDMS_HOST=$ip_address 
+    export VDMS_HOST=$ip_address
     export VDMS_PORT=55555
     export COLLECTION_NAME="test-comps"
     export QDRANT_HOST=$ip_address
