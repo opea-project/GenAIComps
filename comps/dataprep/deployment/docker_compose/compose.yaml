@@ -114,7 +114,7 @@ services:
     ports:
       - "${DATAPREP_PORT:-11105}:5000"
     depends_on:
-      pgvector-vector-db:
+      pgvector-db:
         condition: service_healthy
     ipc: host
     environment:
