@@ -102,7 +102,7 @@ function find_test_2() {
     test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "\.sh") || true
     for test_file in ${test_files}; do
         if [ -f $test_file ]; then
-            _service=$(echo $test_file | cut -d'/' -f3 | cut -d'.' -f1 | cut -c6-)
+            _service=$(echo $test_file | cut -d'/' -f3 | grep -E "\.sh" | cut -d'.' -f1 | cut -c6-)
             _fill_in_matrix $_service
         fi
     done
