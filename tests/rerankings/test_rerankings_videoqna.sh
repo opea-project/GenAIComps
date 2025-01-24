@@ -6,6 +6,8 @@ set -xe
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+service_name="reranking-videoqna"
+
 
 function build_docker_images() {
     cd $WORKPATH
@@ -24,28 +26,24 @@ function build_docker_images() {
 }
 
 function start_service() {
-    docker run -d --name "test-comps-reranking-server" \
-        -p 5037:8000 \
-        --ipc=host \
-        -e no_proxy=${no_proxy} \
-        -e http_proxy=${http_proxy} \
-        -e https_proxy=${https_proxy} \
-        -e CHUNK_DURATION=${CHUNK_DURATION} \
-        -e RERANK_COMPONENT_NAME="OPEA_VIDEO_RERANKING" \
-        -e FILE_SERVER_ENDPOINT=${FILE_SERVER_ENDPOINT} \
-        opea/reranking:comps
+    export TEI_RERANKING_PORT=12006
+    export RERANK_PORT=10703
+    export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
+    export TAG=comps
+    export host_ip=${host_ip}
 
-
-    until docker logs test-comps-reranking-server 2>&1 | grep -q "Uvicorn running on"; do
-        sleep 2
-    done
+    cd $WORKPATH/comps/rerankings/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
+    sleep 1m
 }
 
 function validate_microservice() {
+    videoqna_service_port=10703
+
     result=$(\
     http_proxy="" \
     curl -X 'POST' \
-        "http://${ip_address}:5037/v1/reranking" \
+        "http://${ip_address}:$videoqna_service_port/v1/reranking" \
         -H 'accept: application/json' \
         -H 'Content-Type: application/json' \
         -d '{
@@ -71,7 +69,7 @@ function validate_microservice() {
     result=$(\
     http_proxy="" \
     curl -X 'POST' \
-        "http://${ip_address}:5037/v1/reranking" \
+        "http://${ip_address}:$videoqna_service_port/v1/reranking" \
         -H 'accept: application/json' \
         -H 'Content-Type: application/json' \
         -d '{
@@ -90,8 +88,8 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-reranking*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/rerankings/deployment/docker_compose
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
