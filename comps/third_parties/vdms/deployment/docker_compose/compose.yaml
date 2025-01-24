@@ -1,0 +1,14 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  vdms-db:
+    image: intellabs/vdms:latest
+    container_name: vdms-db
+    ports:
+      - "${VDMS_PORT:-55555}:55555"
+    healthcheck:
+      test: ["CMD-SHELL", "sleep 10 && exit 0"]
+      interval: 1s
+      timeout: 15s
+      retries: 1

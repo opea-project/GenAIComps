@@ -1,0 +1,17 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  qdrant-db:
+    image: qdrant/qdrant
+    container_name: qdrant-db
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    environment:
+      HTTPS_PROXY: ${http_proxy}
+      HTTP_PROXY: ${https_proxy}
+    healthcheck:
+      test: ["CMD-SHELL", "sleep 10 && exit 0"]
+      interval: 1s
+      timeout: 15s
+      retries: 1
