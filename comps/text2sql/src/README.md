@@ -113,22 +113,32 @@ docker run  --runtime=runc --name="comps-langchain-text2sql"  -p 9090:8080 --ipc
 
 #### Run via docker compose (Option B)
 
-- Setup Environment Variables.
+##### Setup Environment Variables.
 
-  ```bash
-  export TGI_LLM_ENDPOINT=http://${your_ip}:${TGI_PORT}
-  export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
-  export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
-  export POSTGRES_USER=postgres
-  export POSTGRES_PASSWORD=testpwd
-  export POSTGRES_DB=chinook
-  ```
+```bash
+export TGI_LLM_ENDPOINT=http://${your_ip}:${TGI_PORT}
+export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
+export POSTGRES_USER=postgres
+export POSTGRES_PASSWORD=testpwd
+export POSTGRES_DB=chinook
+```
 
-- Start the services.
+##### Start the services.
 
-  ```bash
-  docker compose -f docker_compose_text2sql.yaml up
-  ```
+- Xeon CPU
+
+```bash
+cd comps/text2sql/deployment/docker_compose
+docker compose -f compose.yaml up text2sql -d
+```
+
+- Gaudi2 HPU
+
+```bash
+cd comps/text2sql/deployment/docker_compose
+docker compose -f compose.yaml up text2sql-gaudi -d
+```
 
 ---
 
