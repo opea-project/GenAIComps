@@ -18,7 +18,7 @@ services:
     image: ${REGISTRY:-opea}/chathistory-mongo:${TAG:-latest}
     container_name: chathistory-mongo-server
     ports:
-      - "${CHATHISTORY_PORT:-11100}:6012"
+      - "${CHATHISTORY_PORT:-6012}:6012"
     ipc: host
     environment:
       http_proxy: ${http_proxy}
