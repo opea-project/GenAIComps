@@ -4,16 +4,20 @@
 
 set -x
 
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
+
 WORKPATH=$(dirname "$PWD")
+host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
-ip_address=$(hostname -I | awk '{print $1}')
+service_name="textgen-native-gaudi"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache \
-        --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy \
-        -t opea/llm-textgen-gaudi:comps \
-        -f comps/llms/src/text-generation/Dockerfile.intel_hpu .
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen-gaudi:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile.intel_hpu .
     if [ $? -ne 0 ]; then
         echo "opea/llm-textgen-gaudi built fail"
         exit 1
@@ -23,59 +27,65 @@ function build_docker_images() {
 }
 
 function start_service() {
-    LLM_MODEL_ID="Qwen/Qwen2-7B-Instruct"
-    llm_native_service_port=5070
-    docker run -d \
-        --name="test-comps-llm-textgen-gaudi-server" \
-        -p ${llm_native_service_port}:9000 \
-        --runtime=habana \
-        --cap-add=SYS_NICE \
-        --ipc=host \
-        -e LOGFLAG=True \
-        -e http_proxy=${http_proxy} \
-        -e https_proxy=${https_proxy} \
-        -e LLM_MODEL_ID=${LLM_MODEL_ID} \
-        -e HABANA_VISIBLE_DEVICES=all \
-        -e OMPI_MCA_btl_vader_single_copy_mechanism=none \
-        -e TOKENIZERS_PARALLELISM=false \
-        -e LLM_COMPONENT_NAME="OpeaTextGenNative" \
-        --restart unless-stopped \
-        --network bridge \
-        opea/llm-textgen-gaudi:comps
+    export TEXTGEN_PORT=10512 #10500-10599
+    export host_ip=${host_ip}
+    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export LOGFLAG=True
+    export DATA_PATH="/data2/cache"
 
-    sleep 3m
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+
+    sleep 2m
 }
 
-function validate_microservice() {
-    llm_native_service_port=5070
-    URL="http://${ip_address}:${llm_native_service_port}/v1/chat/completions"
-    INPUT_DATA='{"messages":"What is Deep Learning?"}'
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL")
-    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
-    SERVICE_NAME="llm-textgen-gaudi"
+function validate_services() {
+    local URL="$1"
+    local EXPECTED_RESULT="$2"
+    local SERVICE_NAME="$3"
+    local DOCKER_NAME="$4"
+    local INPUT_DATA="$5"
 
-    # check response status
-    if [ "$HTTP_STATUS" -ne "200" ]; then
-        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-llm-textgen-gaudi-server >> ${LOG_PATH}/${SERVICE_NAME}.log
-        exit 1
-    else
+    local HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL")
+
+    echo "==========================================="
+
+    if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
-    fi
-    # check response body
-    if [[ "$RESPONSE_BODY" != *'"text":"What'* ]]; then
-        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-llm-textgen-gaudi-server >> ${LOG_PATH}/${SERVICE_NAME}.log
-        exit 1
+
+        local CONTENT=$(curl -s -X POST -d "$INPUT_DATA" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/${SERVICE_NAME}.log)
+
+        if echo "$CONTENT" | grep -q "$EXPECTED_RESULT"; then
+            echo "[ $SERVICE_NAME ] Content is as expected."
+        else
+            echo "[ $SERVICE_NAME ] Content does not match the expected result: $CONTENT"
+            docker logs ${DOCKER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+            exit 1
+        fi
     else
-        echo "[ $SERVICE_NAME ] Content is as expected."
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs ${DOCKER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+        exit 1
     fi
+    sleep 1s
+}
+
+function validate_microservices() {
+    URL="http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions"
+
+    # textgen
+    echo "Validate textgen with string messages input..."
+    validate_services \
+        "$URL" \
+        "text" \
+        "textgen-native-gaudi" \
+        "textgen-native-gaudi" \
+        '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}'
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-llm-textgen-gaudi*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

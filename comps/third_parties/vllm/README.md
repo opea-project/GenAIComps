@@ -5,12 +5,12 @@
 ## 🚀1. Set up Environment Variables
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=<token>
+export HF_TOKEN=<token>
 export vLLM_ENDPOINT="http://${your_ip}:8008"
 export LLM_MODEL="meta-llama/Meta-Llama-3-8B-Instruct"
 ```
 
-For gated models such as `LLAMA-2`, you will have to pass the environment HUGGINGFACEHUB_API_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
+For gated models such as `LLAMA-2`, you will have to pass the environment HF_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HF_TOKEN` environment with the token.
 
 ## 🚀2. Set up vLLM Service
 
@@ -121,10 +121,10 @@ Once it successfully builds, you will have the `opea/vllm-arc:latest` image. It 
 
 For gated models, such as `LLAMA-2`, you will have to pass -e HUGGING_FACE_HUB_TOKEN=\<token\> to the docker run command above with a valid Hugging Face Hub read token.
 
-Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get an access token and export `HUGGINGFACEHUB_API_TOKEN` environment with the token.
+Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get an access token and export `HF_TOKEN` environment with the token.
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=<token>
+export HF_TOKEN=<token>
 ```
 
 To start the model server for Intel CPU:

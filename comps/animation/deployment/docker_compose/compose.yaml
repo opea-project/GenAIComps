@@ -1,0 +1,41 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/wav2lip/deployment/docker_compose/compose.yaml
+
+services:
+  animation:
+    image: ${REGISTRY:-opea}/animation:${TAG:-latest}
+    container_name: animation-server
+    ports:
+      - ${ANIMATION_PORT:-9066}:9066
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      WAV2LIP_ENDPOINT: ${WAV2LIP_ENDPOINT}
+    restart: unless-stopped
+    depends_on:
+      - wav2lip-server
+
+  animation-gaudi:
+    image: ${REGISTRY:-opea}/animation:${TAG:-latest}
+    container_name: animation-gaudi-server
+    ports:
+      - ${ANIMATION_PORT:-9066}:9066
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      WAV2LIP_ENDPOINT: ${WAV2LIP_ENDPOINT}
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    restart: unless-stopped
+    depends_on:
+      - wav2lip-gaudi-server

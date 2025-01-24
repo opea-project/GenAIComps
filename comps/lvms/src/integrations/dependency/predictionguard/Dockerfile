@@ -8,6 +8,10 @@ ENV LANG=en_US.UTF-8
 
 COPY comps /home/comps
 
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y curl
+
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/comps/lvms/src/integrations/dependency/predictionguard/requirements.txt
 

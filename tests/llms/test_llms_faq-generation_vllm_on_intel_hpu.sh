@@ -20,6 +20,7 @@ function build_docker_images() {
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
     git checkout v0.6.4.post2+Gaudi-1.19.0
+    sed -i 's/triton/triton==3.1.0/g' requirements-hpu.txt
     docker build --no-cache -f Dockerfile.hpu -t ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
@@ -43,14 +44,15 @@ function start_service() {
     export LLM_ENDPOINT_PORT=12102  # 12100-12199
     export FAQ_PORT=10502 #10500-10599
     export host_ip=${host_ip}
-    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
+    export HF_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
     export DATA_PATH="/data2/cache"
 
-    docker compose -f $WORKPATH/comps/llms/deployment/docker_compose/compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 30s
 }
@@ -99,21 +101,22 @@ function validate_backend_microservices() {
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
-        "llm-faqgen-vllm-gaudi-server" \
-        "llm-faqgen-vllm-gaudi-server" \
+        "faqgen-vllm-gaudi" \
+        "faqgen-vllm-gaudi" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32}'
 
     # faq, non-stream
     validate_services \
         "${host_ip}:${FAQ_PORT}/v1/faqgen" \
         "text" \
-        "llm-faqgen-vllm-gaudi-server" \
-        "llm-faqgen-vllm-gaudi-server" \
+        "faqgen-vllm-gaudi" \
+        "faqgen-vllm-gaudi" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.","max_tokens": 32, "stream":false}'
 }
 
 function stop_docker() {
-    docker compose -f $WORKPATH/comps/llms/deployment/docker_compose/compose_faq-generation.yaml down ${service_name} --remove-orphans
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

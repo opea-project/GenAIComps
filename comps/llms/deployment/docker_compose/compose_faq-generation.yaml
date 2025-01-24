@@ -18,13 +18,13 @@ services:
       https_proxy: ${https_proxy}
       LLM_ENDPOINT: ${LLM_ENDPOINT}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
-      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG:-False}
     restart: unless-stopped
 
   faqgen-tgi:
     extends: faqgen
-    container_name: llm-faqgen-tgi-server
+    container_name: faqgen-tgi
     environment:
       FAQGen_COMPONENT_NAME: ${FAQGen_COMPONENT_NAME:-OpeaFaqGenTgi}
     depends_on:
@@ -33,7 +33,7 @@ services:
 
   faqgen-tgi-gaudi:
     extends: faqgen
-    container_name: llm-faqgen-tgi-gaudi-server
+    container_name: faqgen-tgi-gaudi
     environment:
       FAQGen_COMPONENT_NAME: ${FAQGen_COMPONENT_NAME:-OpeaFaqGenTgi}
     depends_on:
@@ -42,7 +42,7 @@ services:
 
   faqgen-vllm:
     extends: faqgen
-    container_name: llm-faqgen-vllm-server
+    container_name: faqgen-vllm
     environment:
       FAQGen_COMPONENT_NAME: ${FAQGen_COMPONENT_NAME:-OpeaFaqGenvLLM}
     depends_on:
@@ -51,7 +51,7 @@ services:
 
   faqgen-vllm-gaudi:
     extends: faqgen
-    container_name: llm-faqgen-vllm-gaudi-server
+    container_name: faqgen-vllm-gaudi
     environment:
       FAQGen_COMPONENT_NAME: ${FAQGen_COMPONENT_NAME:-OpeaFaqGenvLLM}
     depends_on:
