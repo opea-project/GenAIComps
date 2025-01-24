@@ -6,6 +6,7 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+service_name="text2image"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -21,7 +22,9 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-text2image" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e MODEL=stabilityai/stable-diffusion-xl-base-1.0 -p 9379:9379 --ipc=host opea/text2image:latest
+    export MODEL=stabilityai/stable-diffusion-xl-base-1.0
+    cd $WORKPATH/comps/text2image/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
     sleep 30s
 }
 
@@ -31,15 +34,15 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-text2image
+        docker logs text2image
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-text2image*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/text2image/deployment/docker_compose
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

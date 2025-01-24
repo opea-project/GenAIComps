@@ -4,20 +4,23 @@
 
 set -x
 
-WORKPATH="$( cd "$( dirname "$0" )" && pwd )"
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
 
-# Define variables
-port=5033
-HF_CACHE_DIR=$HOME/.cache/huggingface
-DOCKER_IMAGE="vllm-openvino:comps"
-CONTAINER_NAME="test-comps-vllm-openvino-container"
+WORKPATH=$(dirname "$PWD")
+export host_ip=$(hostname -I | awk '{print $1}')
+LOG_PATH="$WORKPATH/tests"
+service_name="vllm-openvino"
 
 function build_container() {
     cd $WORKPATH
     git clone https://github.com/vllm-project/vllm.git vllm-openvino
     cd ./vllm-openvino/ && git checkout v0.6.1 # something wrong with main branch image build
 
-    docker build --no-cache -t $DOCKER_IMAGE \
+    docker build --no-cache -t ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest} \
       -f Dockerfile.openvino \
       . \
       --build-arg https_proxy=$https_proxy \
@@ -34,41 +37,24 @@ function build_container() {
 
 # Function to start Docker container
 start_container() {
+    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export LLM_ENDPOINT_PORT=12205
+    export HF_CACHE_DIR=$HOME/.cache/huggingface
 
-    docker run -d --rm --name=$CONTAINER_NAME \
-      -p $port:$port \
-      --ipc=host \
-      -e HTTPS_PROXY=$https_proxy \
-      -e HTTP_PROXY=$https_proxy \
-      -v $HF_CACHE_DIR:/root/.cache/huggingface \
-      vllm-openvino:comps /bin/bash -c "\
-        cd / && \
-        export VLLM_CPU_KVCACHE_SPACE=50 && \
-        python3 -m vllm.entrypoints.openai.api_server \
-          --model \"Intel/neural-chat-7b-v3-3\" \
-          --host 0.0.0.0 \
-          --port $port"
+    cd $WORKPATH/comps/third_parties/vllm/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     # check whether service is fully ready
     n=0
     until [[ "$n" -ge 300 ]]; do
-        docker logs $CONTAINER_NAME > /tmp/$CONTAINER_NAME.log 2>&1
+        docker logs $service_name > /tmp/$service_name.log 2>&1
         n=$((n+1))
-        if grep -q "Uvicorn running on" /tmp/$CONTAINER_NAME.log; then
+        if grep -q "Uvicorn running on" /tmp/$service_name.log; then
             break
         fi
         sleep 3s
     done
 
-}
-
-# Cleanup Function
-cleanup() {
-    # Stop and remove Docker container and images
-    cid=$(docker ps -aq --filter "name=$CONTAINER_NAME")
-        if [[ ! -z "$cid" ]]; then docker stop $cid || docker rm $cid && sleep 1s; fi
-    docker rmi -f $DOCKER_IMAGE
-    rm /tmp/$CONTAINER_NAME.log
 }
 
 # Function to test API endpoint
@@ -79,7 +65,7 @@ function test_api_endpoint {
     # Make the HTTP request
     if test "$1" = "v1/completions"
     then
-        local response=$(curl "http://localhost:$port/$endpoint" \
+        local response=$(curl "http://$host_ip:$LLM_ENDPOINT_PORT/$endpoint" \
           -H "Content-Type: application/json" \
           -d '{
                 "model": "Intel/neural-chat-7b-v3-3",
@@ -91,7 +77,7 @@ function test_api_endpoint {
           --silent \
           --output /dev/null)
     else
-        local response=$(curl "http://localhost:$port/$endpoint" \
+        local response=$(curl "http://$host_ip:$LLM_ENDPOINT_PORT/$endpoint" \
           --write-out '%{http_code}' \
           --silent \
           --output /dev/null)
@@ -102,10 +88,16 @@ function test_api_endpoint {
         echo "PASS: $endpoint returned expected status code: $expected_status"
     else
         echo "FAIL: $endpoint returned unexpected status code: $response (expected: $expected_status)"
-        docker logs $CONTAINER_NAME
+        docker logs $service_name
         exit 1
     fi
 }
+
+function stop_docker() {
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
+}
+
 # Main function
 main() {
 
@@ -120,7 +112,7 @@ main() {
     # Test the /v1/completions API
     test_api_endpoint "v1/completions" 200
 
-    cleanup
+    stop_docker
 }
 
 # Call main function

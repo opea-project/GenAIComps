@@ -18,7 +18,7 @@ services:
       https_proxy: ${https_proxy}
       LLM_ENDPOINT: ${LLM_ENDPOINT}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
-      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG:-False}
       MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS}
       MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS}
@@ -26,7 +26,7 @@ services:
 
   docsum-tgi:
     extends: docsum
-    container_name: llm-docsum-tgi-server
+    container_name: docsum-tgi
     environment:
       DocSum_COMPONENT_NAME: ${DocSum_COMPONENT_NAME:-OpeaDocSumTgi}
     depends_on:
@@ -35,7 +35,7 @@ services:
 
   docsum-tgi-gaudi:
     extends: docsum
-    container_name: llm-docsum-tgi-gaudi-server
+    container_name: docsum-tgi-gaudi
     environment:
       DocSum_COMPONENT_NAME: ${DocSum_COMPONENT_NAME:-OpeaDocSumTgi}
     depends_on:
@@ -44,7 +44,7 @@ services:
 
   docsum-vllm:
     extends: docsum
-    container_name: llm-docsum-vllm-server
+    container_name: docsum-vllm
     environment:
       DocSum_COMPONENT_NAME: ${DocSum_COMPONENT_NAME:-OpeaDocSumvLLM}
     depends_on:
@@ -53,7 +53,7 @@ services:
 
   docsum-vllm-gaudi:
     extends: docsum
-    container_name: llm-docsum-vllm-gaudi-server
+    container_name: docsum-vllm-gaudi
     environment:
       DocSum_COMPONENT_NAME: ${DocSum_COMPONENT_NAME:-OpeaDocSumvLLM}
     depends_on:

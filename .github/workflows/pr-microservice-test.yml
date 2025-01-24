@@ -5,7 +5,7 @@ name: MicroService-test
 
 on:
   pull_request_target:
-    branches: ["main", "*rc"]
+    branches: ["main", "*rc", "pre-ci"]
     types: [opened, reopened, ready_for_review, synchronize] # added `ready_for_review` since draft is skipped
     paths:
       - comps/**
@@ -27,6 +27,9 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
     runs-on: ${{ matrix.hardware }}
+    permissions:
+      id-token: write
+      contents: read
     continue-on-error: true
     if: ${{ !github.event.pull_request.draft }}
     steps:
