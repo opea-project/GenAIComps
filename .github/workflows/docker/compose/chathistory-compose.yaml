@@ -3,7 +3,7 @@
 
 # this file should be run in the root of the repo
 services:
-  chathistory-mongo-server:
+  chathistory-mongo:
     build:
       dockerfile: comps/chathistory/src/Dockerfile
-    image: ${REGISTRY:-opea}/chathistory-mongo-server:${TAG:-latest}
+    image: ${REGISTRY:-opea}/chathistory-mongo:${TAG:-latest}

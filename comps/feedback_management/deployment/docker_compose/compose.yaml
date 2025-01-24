@@ -18,7 +18,7 @@ services:
     image: ${REGISTRY:-opea}/feedbackmanagement-mongo:${TAG:-latest}
     container_name: feedbackmanagement-mongo-server
     ports:
-      - "${FEEDBACK_MANAGEMENT_PORT:-11200}:6016"
+      - "${FEEDBACK_MANAGEMENT_PORT:-6016}:6016"
     ipc: host
     environment:
       http_proxy: ${http_proxy}
