@@ -4,71 +4,50 @@
 
 set -x
 
-WORKPATH="$( cd "$( dirname "$0" )" && pwd )"
-DOCKER_FILE="$WORKPATH"/../../comps/third_parties/vllm/src/Dockerfile.intel_gpu
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
 
-# Define variables
-port=5033
-RENDER_GROUP_ID=110
-DOCKER_IMAGE="vllm-openvino:comps"
-CONTAINER_NAME="test-comps-vllm-openvino-container"
-HF_CACHE_DIR=$HOME/.cache/huggingface
+WORKPATH=$(dirname "$PWD")
+export host_ip=$(hostname -I | awk '{print $1}')
+LOG_PATH="$WORKPATH/tests"
+service_name="vllm-openvino-arc"
 
 function build_container() {
-    docker build --no-cache -t $DOCKER_IMAGE \
-      -f $DOCKER_FILE \
-      . \
-      --build-arg https_proxy=$https_proxy \
-      --build-arg http_proxy=$http_proxy
+    cd $WORKPATH
+    docker build --no-cache -t  ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}  -f comps/third_parties/vllm/src/Dockerfile.intel_gpu  .  --build-arg https_proxy=$https_proxy  --build-arg http_proxy=$http_proxy
 
     if [ $? -ne 0 ]; then
-        echo "vllm-openvino built fail"
+        echo "vllm-arc built fail"
         exit 1
     else
-        echo "vllm-openvino built successful"
+        echo "vllm-arc built successful"
     fi
 }
 
 # Function to start Docker container
 start_container() {
+    export LLM_ENDPOINT_PORT=12206
+    export HF_CACHE_DIR=$HOME/.cache/huggingface
+    export RENDER_GROUP_ID=110
+    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
 
-    docker run -d --rm --name=$CONTAINER_NAME \
-      -p $port:$port \
-      --ipc=host \
-      -e HTTPS_PROXY=$https_proxy \
-      -e HTTP_PROXY=$https_proxy \
-      -v $HF_CACHE_DIR:/root/.cache/huggingface \
-      --device=/dev/dri:/dev/dri \
-      --group-add $RENDER_GROUP_ID \
-      vllm-openvino:comps /bin/bash -c "\
-        export VLLM_OPENVINO_DEVICE=GPU && \
-        export VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON && \
-        python3 -m vllm.entrypoints.openai.api_server \
-          --model Intel/neural-chat-7b-v3-3 \
-          --host 0.0.0.0 \
-          --port $port \
-          --max_model_len 8192"
+    cd $WORKPATH/comps/third_parties/vllm/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     # check whether service is fully ready
     n=0
     until [[ "$n" -ge 300 ]]; do
-        docker logs $CONTAINER_NAME > /tmp/$CONTAINER_NAME.log 2>&1
+        docker logs $service_name > /tmp/$service_name.log 2>&1
         n=$((n+1))
-        if grep -q "Uvicorn running on" /tmp/$CONTAINER_NAME.log; then
+        if grep -q "Uvicorn running on" /tmp/$service_name.log; then
             break
         fi
         sleep 3s
     done
 
-}
-
-# Cleanup Function
-cleanup() {
-    # Stop and remove Docker container and images
-    cid=$(docker ps -aq --filter "name=$CONTAINER_NAME")
-        if [[ ! -z "$cid" ]]; then docker stop $cid || docker rm $cid && sleep 1s; fi
-    docker rmi -f $DOCKER_IMAGE
-    rm /tmp/$CONTAINER_NAME.log
 }
 
 # Function to test API endpoint
@@ -79,7 +58,7 @@ function test_api_endpoint {
     # Make the HTTP request
     if test "$1" = "v1/completions"
     then
-        local response=$(curl "http://localhost:$port/$endpoint" \
+        local response=$(curl "http://localhost:$LLM_ENDPOINT_PORT/$endpoint" \
           -H "Content-Type: application/json" \
           -d '{
                 "model": "Intel/neural-chat-7b-v3-3",
@@ -91,7 +70,7 @@ function test_api_endpoint {
           --silent \
           --output /dev/null)
     else
-        local response=$(curl "http://localhost:$port/$endpoint" \
+        local response=$(curl "http://localhost:$LLM_ENDPOINT_PORT/$endpoint" \
           --write-out '%{http_code}' \
           --silent \
           --output /dev/null)
@@ -102,9 +81,14 @@ function test_api_endpoint {
         echo "PASS: $endpoint returned expected status code: $expected_status"
     else
         echo "FAIL: $endpoint returned unexpected status code: $response (expected: $expected_status)"
-        docker logs $CONTAINER_NAME
+        docker logs $service_name
         exit 1
     fi
+}
+
+function stop_docker() {
+    cd $WORKPATH/comps/llms/deployment/docker_compose
+    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
 }
 
 # Main function
@@ -121,7 +105,7 @@ main() {
     # Test the /v1/completions API
     test_api_endpoint "v1/completions" 200
 
-    cleanup
+    stop_docker
 }
 
 # Call main function
