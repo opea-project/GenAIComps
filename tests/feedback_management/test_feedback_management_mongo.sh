@@ -27,6 +27,7 @@ function build_docker_images() {
 
 function start_service() {
     cd $WORKPATH
+    export FEEDBACK_MANAGEMENT_PORT=11200
     cd comps/feedback_management/deployment/docker_compose/
     docker compose up -d
     sleep 10s
