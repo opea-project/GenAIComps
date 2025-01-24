@@ -15,27 +15,28 @@ export COLLECTION_NAME=${COLLECTION_NAME:-"test"}
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker run -d -p 27017:27017 --name=test-comps-mongo mongo:latest
 
-    docker build --no-cache -t opea/chathistory-mongo-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
+    docker build --no-cache -t opea/chathistory-mongo:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/chathistory-mongo-server built fail"
+        echo "opea/chathistory-mongo built fail"
         exit 1
     else
-        echo "opea/chathistory-mongo-server built successful"
+        echo "opea/chathistory-mongo built successful"
     fi
 }
 
 function start_service() {
-
-    docker run -d --name="test-comps-chathistory-mongo-server" -p 6012:6012 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MONGO_HOST=${MONGO_HOST} -e MONGO_PORT=${MONGO_PORT} -e DB_NAME=${DB_NAME} -e COLLECTION_NAME=${COLLECTION_NAME} opea/chathistory-mongo-server:comps
-
+    cd $WORKPATH
+    export CHATHISTORY_PORT=11000
+    export TAG=comps
+    cd comps/chathistory/deployment/docker_compose/
+    docker compose up -d
     sleep 10s
 }
 
 function validate_microservice() {
     result=$(curl -X 'POST' \
-  http://${ip_address}:6012/v1/chathistory/create \
+  http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/create \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -48,14 +49,14 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-chathistory-mongo-server
+        docker logs chathistory-mongo-server
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps*")
+    cid=$(docker ps -aq --filter "name=chathistory-mongo-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
