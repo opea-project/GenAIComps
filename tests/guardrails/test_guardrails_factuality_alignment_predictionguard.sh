@@ -13,29 +13,27 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/factuality-pg:comps -f comps/guardrails/src/factuality_alignment/Dockerfile .
+    docker build --no-cache -t opea/guardrails-factuality-predictionguard:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/src/factuality_alignment/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/factuality-pg build failed"
+        echo "opea/guardrails-factuality-predictionguard build failed"
         exit 1
     else
-        echo "opea/factuality-pg built successfully"
+        echo "opea/guardrails-factuality-predictionguard built successfully"
     fi
 }
 
 function start_service() {
-    factuality_service_port=9075
-    unset http_proxy
-
-    # Set your API key here (ensure this environment variable is set)
-    docker run -d --name=test-comps-factuality-pg-server \
-        -e http_proxy= -e https_proxy= \
-        -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
-        -p 9075:9075 --ipc=host opea/factuality-pg:comps
-    sleep 60  # Sleep for 3 minutes to allow the service to start
+    export FACTUALITY_ALIGNMENT_PORT=11302
+    service_name="guardrails-factuality-predictionguard-server"
+    export TAG=comps
+    cd $WORKPATH
+    cd comps/guardrails/deployment/docker_compose/
+    docker compose up ${service_name} -d
+    sleep 15
 }
 
 function validate_microservice() {
-    factuality_service_port=9075
+    factuality_service_port=11302
     result=$(http_proxy="" curl http://${ip_address}:${factuality_service_port}/v1/factuality \
         -X POST \
         -d '{"reference": "The Eiffel Tower is in Paris.", "text": "The Eiffel Tower is in Berlin."}' \
@@ -45,13 +43,13 @@ function validate_microservice() {
         echo "Service response is correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-factuality-pg-server
+        docker logs guardrails-factuality-predictionguard-server
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-factuality-pg-*")
+    cid=$(docker ps -aq --filter "name=guardrails-factuality-predictionguard-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
