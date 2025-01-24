@@ -5,20 +5,16 @@
 ## 🚀1. Set up Environment Variables
 
 ```bash
-export HF_TOKEN=<token>
-export vLLM_ENDPOINT="http://${your_ip}:8008"
-export LLM_MODEL="meta-llama/Meta-Llama-3-8B-Instruct"
+export LLM_ENDPOINT_PORT=8008
+export host_ip=${host_ip}
+export HF_TOKEN=${HF_TOKEN}
+export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
+export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
 ```
 
 For gated models such as `LLAMA-2`, you will have to pass the environment HF_TOKEN. Please follow this link [huggingface token](https://huggingface.co/docs/hub/security-tokens) to get the access token and export `HF_TOKEN` environment with the token.
 
 ## 🚀2. Set up vLLM Service
-
-First of all, go to the server folder for vllm.
-
-```bash
-cd dependency
-```
 
 ### 2.1 vLLM on CPU
 
@@ -32,7 +28,7 @@ bash ./build_docker_vllm.sh
 
 The `build_docker_vllm` accepts one parameter `hw_mode` to specify the hardware mode of the service, with the default being `cpu`, and the optional selection can be `hpu`.
 
-#### Launch vLLM service
+#### Launch vLLM service with scripts
 
 ```bash
 bash ./launch_vllm_service.sh
@@ -42,6 +38,13 @@ If you want to customize the port or model_name, can run:
 
 ```bash
 bash ./launch_vllm_service.sh ${port_number} ${model_name}
+```
+
+#### Launch vLLM service with docker compose
+
+```bash
+cd deplopyment/docker_compose
+docker compose -f compose.yaml vllm-server up -d
 ```
 
 ### 2.2 vLLM on Gaudi
@@ -57,6 +60,15 @@ bash ./build_docker_vllm.sh hpu
 Set `hw_mode` to `hpu`.
 
 #### Launch vLLM service on single node
+
+1. Option 1: Use docker compose for quick deploy
+
+```bash
+cd deplopyment/docker_compose
+docker compose -f compose.yaml vllm-gaudi-server up -d
+```
+
+2. Option 2: Use scripts to set parameters.
 
 For small model, we can just use single node.
 
