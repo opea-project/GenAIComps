@@ -76,11 +76,11 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
 
 Verify the reranking service is running:
 
-  ```bash
-  curl http://localhost:10703/v1/health_check \
-  -X GET \
-  -H 'Content-Type: application/json'
-  ```
+```bash
+curl http://localhost:10703/v1/health_check \
+-X GET \
+-H 'Content-Type: application/json'
+```
 
 ### 🔹 3.2 Use the Reranking Service API
 
@@ -102,15 +102,15 @@ Verify the reranking service is running:
     -H 'Content-Type: application/json'
   ```
 
-
 ## ✨ Tips for Better Understanding:
 
 1. Port Mapping:
    Ensure the ports are correctly mapped to avoid conflicts with other services.
 
 2. Environment Variables:
+
    - Use http_proxy and https_proxy for proxy setup if necessary.
    - CHUNK_DURATION: target chunk duration, should be aligned with VideoQnA dataprep. Default 10s.
 
-4. Data Volume:
+3. Data Volume:
    The `-v ./data:/data` flag ensures the data directory is correctly mounted.

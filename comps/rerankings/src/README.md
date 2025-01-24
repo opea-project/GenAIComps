@@ -3,6 +3,7 @@
 The Reranking Microservice, fueled by reranking models, stands as a straightforward yet immensely potent tool for semantic search.
 
 ---
+
 The Reranking Microservice support two features: **text reranking** and **video result reranking** for VideoQnA use case.
 
 ## 🛠️ Features
@@ -29,6 +30,7 @@ This sorts the video as a descending list of names, ranked by their degree of ma
 Then we could send the `top_n` videos to the downstream LVM.
 
 ---
+
 ## ⚙️ Implementation
 
 ### Utilizing Reranking with TEI

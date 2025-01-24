@@ -33,17 +33,16 @@ This README provides set-up instructions and comprehensive details regarding the
     docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/tei-gaudi:1.5.2 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
   ```
 
-
 2. **Verify the TEI Service**:
    Run the following command to check if the service is up and running.
 
-  ```bash
-    export ip_address=$(hostname -I | awk '{print $1}')
-    curl ip_address:6060/rerank \
-        -X POST \
-        -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
-        -H 'Content-Type: application/json'
-  ```
+```bash
+  export ip_address=$(hostname -I | awk '{print $1}')
+  curl ip_address:6060/rerank \
+      -X POST \
+      -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
+      -H 'Content-Type: application/json'
+```
 
 ### 🔹 1.2 Build Docker Image and Run Docker with CLI
 
@@ -61,7 +60,7 @@ This README provides set-up instructions and comprehensive details regarding the
 2. Run the reranking microservice and connect it to the TEI service:
 
    ```bash
-  docker run -d --name="reranking-tei-server" -e LOGFLAG=True  -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN  -e RERANK_COMPONENT_NAME="OPEA_TEI_RERANKING"  opea/reranking:comps
+   docker run -d --name="reranking-tei-server" -e LOGFLAG=True  -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN  -e RERANK_COMPONENT_NAME="OPEA_TEI_RERANKING"  opea/reranking:comps
 
    ```
 
@@ -92,16 +91,15 @@ Deploy both the TEI Reranking Service and the Reranking Microservice using Docke
 
 - For Gaudi HPU:
 
-   ```bash
-    docker compose up reranking-tei -d
-   ```
+  ```bash
+   docker compose up reranking-tei -d
+  ```
 
+- For Xeon CPU:
 
-- For Xeon CPU:   
-
-   ```bash
-    docker compose up reranking-tei-gaudi -d
-   ```
+  ```bash
+   docker compose up reranking-tei-gaudi -d
+  ```
 
 ## 📦 3. Consume Reranking Service
 
@@ -109,11 +107,11 @@ Deploy both the TEI Reranking Service and the Reranking Microservice using Docke
 
 Verify the reranking service is running:
 
-  ```bash
-  curl http://localhost:8000/v1/health_check \
-  -X GET \
-  -H 'Content-Type: application/json'
-  ```
+```bash
+curl http://localhost:8000/v1/health_check \
+-X GET \
+-H 'Content-Type: application/json'
+```
 
 ### 🔹 3.2 Use the Reranking Service API
 
@@ -134,7 +132,6 @@ Verify the reranking service is running:
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}], "top_n":2}' \
     -H 'Content-Type: application/json'
   ```
-
 
 ## ✨ Tips for Better Understanding:
 

@@ -22,7 +22,7 @@ services:
     extends: reranking
     container_name: reranking-tei
     environment:
-      HF_TOKEN: ${HF_TOKEN}   
+      HF_TOKEN: ${HF_TOKEN}
       RERANK_COMPONENT_NAME: "OPEA_TEI_RERANKING"
     depends_on:
       tei-reranking-serving:
@@ -32,7 +32,7 @@ services:
     extends: reranking
     container_name: reranking-tei-gaudi
     environment:
-      HF_TOKEN: ${HF_TOKEN}   
+      HF_TOKEN: ${HF_TOKEN}
       RERANK_COMPONENT_NAME: "OPEA_TEI_RERANKING"
     depends_on:
       tei-reranking-gaudi-serving:
@@ -45,7 +45,7 @@ services:
       CHUNK_DURATION: ${CHUNK_DURATION}
       FILE_SERVER_ENDPOINT: ${FILE_SERVER_ENDPOINT}
       RERANK_COMPONENT_NAME: "OPEA_VIDEO_RERANKING"
- 
+
 
 networks:
   default:
