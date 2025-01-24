@@ -7,7 +7,7 @@ This README provides set-up instructions and comprehensive details regarding the
 
 ---
 
-## 📦 1. Start Microservice with Docker 
+## 📦 1. Start Microservice with Docker
 
 ### 🔹 1.1 Start Reranking Service with TEI
 
@@ -34,18 +34,17 @@ This README provides set-up instructions and comprehensive details regarding the
     docker run -d -p 12005:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN --auto-truncate
   ```
 
-
 2. **Verify the TEI Service**:
 
    Run the following command to check if the service is up and running.
 
-    ```bash
-      export host_ip=$(hostname -I | awk '{print $1}')
-      curl $host_ip:12005/rerank \
-          -X POST \
-          -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
-          -H 'Content-Type: application/json'
-    ```
+   ```bash
+     export host_ip=$(hostname -I | awk '{print $1}')
+     curl $host_ip:12005/rerank \
+         -X POST \
+         -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
+         -H 'Content-Type: application/json'
+   ```
 
 ### 🔹 1.2 Build Docker Image and Run Docker with CLI
 
@@ -68,7 +67,7 @@ This README provides set-up instructions and comprehensive details regarding the
     export host_ip=$(hostname -I | awk '{print $1}')
     export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
 
-   docker run -d --name="reranking-tei-server" -e LOGFLAG=True  -p 10700:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN  -e RERANK_COMPONENT_NAME="OPEA_TEI_RERANKING"  opea/reranking:comps 
+   docker run -d --name="reranking-tei-server" -e LOGFLAG=True  -p 10700:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN  -e RERANK_COMPONENT_NAME="OPEA_TEI_RERANKING"  opea/reranking:comps
    ```
 
 ## 📦 2. Start Microservice with docker compose

@@ -10,7 +10,7 @@ Then we could send the `top_n` videos to the downstream LVM.
 
 ---
 
-## 📦 1. Start Microservice with Docker 
+## 📦 1. Start Microservice with Docker
 
 ### 🔹 1.1 Build Docker Image and Run Docker with CLI
 
@@ -74,11 +74,11 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
 
 - Verify the reranking service is running:
 
-   ```bash
-   curl http://localhost:10703/v1/health_check \
-   -X GET \
-   -H 'Content-Type: application/json'
-   ```
+  ```bash
+  curl http://localhost:10703/v1/health_check \
+  -X GET \
+  -H 'Content-Type: application/json'
+  ```
 
 ### 🔹 3.2 Use the Reranking Service API
 
