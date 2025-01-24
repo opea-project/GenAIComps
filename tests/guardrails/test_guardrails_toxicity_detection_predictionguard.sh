@@ -13,27 +13,27 @@ fi
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/toxicity-pg:comps -f comps/guardrails/src/toxicity_detection/Dockerfile .
+    docker build --no-cache -t opea/toxicity-predictionguard:comps -f comps/guardrails/src/toxicity_detection/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/toxicity-pg build failed"
+        echo "opea/toxicity-predictionguard build failed"
         exit 1
     else
-        echo "opea/toxicity-pg built successfully"
+        echo "opea/toxicity-predictionguard built successfully"
     fi
 }
 
 function start_service() {
-    toxicity_service_port=9090
-    unset http_proxy
-    docker run -d --name=test-comps-toxicity-pg-server \
-        -e http_proxy= -e https_proxy= \
-        -e PREDICTIONGUARD_API_KEY=${PREDICTIONGUARD_API_KEY} \
-        -p 9090:9090 --ipc=host opea/toxicity-pg:comps
-    sleep 60  # Sleep for 1 minute to allow the service to start
+    export TOXICITY_PREDICTIONGUARD_PORT=11308
+    export TAG=comps
+    service_name="toxicity-predictionguard-server"
+    cd $WORKPATH
+    cd comps/guardrails/deployment/docker_compose/
+    docker compose up ${service_name} -d
+    sleep 15
 }
 
 function validate_microservice() {
-    toxicity_service_port=9090
+    toxicity_service_port=11308
     result=$(http_proxy="" curl http://${ip_address}:${toxicity_service_port}/v1/toxicity \
         -X POST \
         -d '{"text": "I hate you."}' \
@@ -43,13 +43,13 @@ function validate_microservice() {
         echo "Service response is correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-toxicity-pg-server
+        docker logs toxicity-predictionguard-server
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-toxicity-pg-*")
+    cid=$(docker ps -aq --filter "name=toxicity-predictionguard-server")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
