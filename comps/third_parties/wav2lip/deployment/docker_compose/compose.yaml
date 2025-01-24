@@ -1,0 +1,61 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  wav2lip-server:
+    image: ${REGISTRY:-opea}/wav2lip:${TAG:-latest}
+    container_name: wav2lip-server
+    ports:
+      - ${WAV2LIP_PORT:-7860}:${WAV2LIP_PORT:-7860}
+    ipc: host
+    volumes:
+      - ${PWD}:/outputs
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      DEVICE: ${DEVICE}
+      INFERENCE_MODE: ${INFERENCE_MODE}
+      CHECKPOINT_PATH: ${CHECKPOINT_PATH}
+      FACE: ${FACE}
+      AUDIO: ${AUDIO}
+      FACESIZE: ${FACESIZE}
+      OUTFILE: ${OUTFILE}
+      GFPGAN_MODEL_VERSION: ${GFPGAN_MODEL_VERSION}
+      UPSCALE_FACTOR: ${UPSCALE_FACTOR}
+      FPS: ${FPS}
+      WAV2LIP_PORT: ${WAV2LIP_PORT:-7860}
+    restart: unless-stopped
+  wav2lip-gaudi-server:
+    image: ${REGISTRY:-opea}/wav2lip-gaudi:${TAG:-latest}
+    container_name: wav2lip-gaudi-server
+    ports:
+      - ${WAV2LIP_PORT:-7860}:${WAV2LIP_PORT:-7860}
+    ipc: host
+    volumes:
+      - ${PWD}:/outputs
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      DEVICE: ${DEVICE}
+      INFERENCE_MODE: ${INFERENCE_MODE}
+      CHECKPOINT_PATH: ${CHECKPOINT_PATH}
+      FACE: ${FACE}
+      AUDIO: ${AUDIO}
+      FACESIZE: ${FACESIZE}
+      OUTFILE: ${OUTFILE}
+      GFPGAN_MODEL_VERSION: ${GFPGAN_MODEL_VERSION}
+      UPSCALE_FACTOR: ${UPSCALE_FACTOR}
+      FPS: ${FPS}
+      WAV2LIP_PORT: ${WAV2LIP_PORT}
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

@@ -18,14 +18,14 @@ docker build -t opea/lvm-llama-vision:latest --build-arg https_proxy=$https_prox
 If you need to build the image for 90B models, use the following command:
 
 ```bash
-docker build -t opea/lvm-llama-vision-tp:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile_tp .
+docker build -t opea/lvm-llama-vision-tp:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile.tp .
 ```
 
 #### Build Llama Vision Guard Model
 
 ```bash
 cd ../../../
-docker build -t opea/lvm-llama-vision-guard:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile_guard .
+docker build -t opea/lvm-llama-vision-guard:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile.guard .
 ```
 
 ### Start Llama LVM Service

@@ -1,0 +1,146 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  llava-service:
+    image: ${REGISTRY:-opea}/lvm-llava:${TAG:-latest}
+    container_name: llava-service
+    ports:
+      - ${LLAVA_PORT:-5028}:8399
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8399/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20
+  llava-tgi-service:
+    image: ghcr.io/huggingface/tgi-gaudi:2.3.1
+    container_name: llava-tgi-service
+    ports:
+      - ${LLAVA_TGI_PORT:-5027}:80
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    ipc: host
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20
+    command: --model-id ${LLM_MODEL_ID} --max-input-length 4096 --max-total-tokens 8192
+  llama-vision-service:
+    image: opea/lvm-llama-vision:latest
+    container_name: lvm-llama-vision-service
+    ports:
+      - ${LLAMA_VISION_PORT:-9399}:9399
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLAMA_VISION_MODEL_ID: ${LLAMA_VISION_MODEL_ID}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    restart: unless-stopped
+  predictionguard-service:
+    image: ${REGISTRY:-opea}/lvm-pg:${TAG:-latest}
+    container_name: predictionguard-service
+    ports:
+      - ${PREDICTIONGUARD_PORT:-5028}:9399
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9399/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20
+  video-llama-service:
+    image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
+    container_name: video-llama-service
+    ports:
+      - ${VIDEO_LLAMA_PORT:-9009}:9009
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      llm_download: "True"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9009/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20
+  lvm:
+    image: ${REGISTRY:-opea}/lvm:${TAG:-latest}
+    container_name: lvm-service
+    ports:
+      - ${LVM_PORT:-5051}:9399
+    ipc: host
+    environment:
+      LVM_ENDPOINT: ${LVM_ENDPOINT}
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAVA_LVM}
+  lvm-llava:
+    extends: lvm
+    container_name: lvm-llava-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAVA_LVM}
+    depends_on:
+      llava-service:
+        condition: service_healthy
+  lvm-llava-tgi:
+    extends: lvm
+    container_name: lvm-llava-tgi-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_TGI_LLAVA_LVM}
+    depends_on:
+      llava-tgi-service:
+        condition: service_healthy
+  lvm-llama-vision:
+    extends: lvm
+    container_name: lvm-llama-vision-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAMA_VISION_LVM}
+    depends_on:
+      llama-vision-service:
+        condition: service_healthy
+  lvm-predictionguard:
+    extends: lvm
+    container_name: lvm-predictionguard-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_PREDICTION_GUARD_LVM}
+    depends_on:
+      predictionguard-service:
+        condition: service_healthy
+  lvm-video-llama:
+    extends: lvm
+    container_name: lvm-video-llama-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VIDEO_LLAMA_LVM}
+    depends_on:
+      video-llama-service:
+        condition: service_healthy
+
+networks:
+  default:
+    driver: bridge

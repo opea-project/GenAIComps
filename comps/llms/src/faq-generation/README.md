@@ -12,7 +12,7 @@ In order to start FaqGen microservices, you need to setup the following environm
 export host_ip=${your_host_ip}
 export LLM_ENDPOINT_PORT=8008
 export FAQ_PORT=9000
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID=${your_hf_llm_model}
 export FAQGen_COMPONENT_NAME="OpeaFaqGenTgi" # or "vllm"
@@ -58,7 +58,7 @@ docker run -d \
     -e https_proxy=$https_proxy \
     -e LLM_MODEL_ID=$LLM_MODEL_ID \
     -e LLM_ENDPOINT=$LLM_ENDPOINT \
-    -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
+    -e HF_TOKEN=$HF_TOKEN \
     -e FAQGen_COMPONENT_NAME=$FAQGen_COMPONENT_NAME \
     opea/llm-faqgen:latest
 ```

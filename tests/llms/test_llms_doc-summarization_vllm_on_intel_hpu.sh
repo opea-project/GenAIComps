@@ -20,6 +20,7 @@ function build_docker_images() {
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
     git checkout v0.6.4.post2+Gaudi-1.19.0
+    sed -i 's/triton/triton==3.1.0/g' requirements-hpu.txt
     docker build --no-cache -f Dockerfile.hpu -t ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
@@ -42,7 +43,7 @@ function start_service() {
     export host_ip=${host_ip}
     export LLM_ENDPOINT_PORT=12106  # 12100-12199
     export DOCSUM_PORT=10506 #10500-10599
-    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+    export HF_TOKEN=${HF_TOKEN}
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export MAX_INPUT_TOKENS=2048
@@ -105,48 +106,48 @@ function validate_microservices() {
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-gaudi-server" \
-        "llm-docsum-vllm-gaudi-server" \
+        "docsum-vllm-gaudi" \
+        "docsum-vllm-gaudi" \
         '{"messages": "Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en"}'
 
     echo "Validate stream=False..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-gaudi-server" \
-        "llm-docsum-vllm-gaudi-server" \
+        "docsum-vllm-gaudi" \
+        "docsum-vllm-gaudi" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "stream":false}'
 
     echo "Validate Chinese mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-gaudi-server" \
-        "llm-docsum-vllm-gaudi-server" \
+        "docsum-vllm-gaudi" \
+        "docsum-vllm-gaudi" \
         '{"messages":"2024年9月26日，北京——今日，英特尔正式发布英特尔® 至强® 6性能核处理器（代号Granite Rapids），为AI、数据分析、科学计算等计算密集型业务提供卓越性能。", "max_tokens":32, "language":"zh", "stream":false}'
 
     echo "Validate truncate mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-gaudi-server" \
-        "llm-docsum-vllm-gaudi-server" \
+        "docsum-vllm-gaudi" \
+        "docsum-vllm-gaudi" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "truncate", "chunk_size": 2000}'
 
     echo "Validate map_reduce mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-gaudi-server" \
-        "llm-docsum-vllm-gaudi-server" \
+        "docsum-vllm-gaudi" \
+        "docsum-vllm-gaudi" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "stream":false}'
 
     echo "Validate refine mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-gaudi-server" \
-        "llm-docsum-vllm-gaudi-server" \
+        "docsum-vllm-gaudi" \
+        "docsum-vllm-gaudi" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000}'
 }
 
