@@ -27,6 +27,8 @@ function build_docker_images() {
 
 function start_service() {
     cd $WORKPATH
+    export CHATHISTORY_PORT=11000
+    export TAG=comps
     cd comps/chathistory/deployment/docker_compose/
     docker compose up -d
     sleep 10s
@@ -34,7 +36,7 @@ function start_service() {
 
 function validate_microservice() {
     result=$(curl -X 'POST' \
-  http://${ip_address}:6012/v1/chathistory/create \
+  http://${ip_address}:${CHATHISTORY_PORT}/v1/chathistory/create \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{

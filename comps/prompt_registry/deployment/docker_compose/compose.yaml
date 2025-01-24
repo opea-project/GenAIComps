@@ -15,10 +15,10 @@ services:
     command: mongod --quiet --logpath /dev/null
 
   promptregistry-mongo:
-    image: opea/promptregistry-mongo:latest
+    image: ${REGISTRY:-opea}/promptregistry-mongo:${TAG:-latest}
     container_name: promptregistry-server
     ports:
-      - "6018:6018"
+      - "${PROMPT_REGISTRY_PORT:-10600}:6018"
     ipc: host
     environment:
       http_proxy: ${http_proxy}

@@ -27,6 +27,8 @@ function build_docker_images() {
 
 function start_service() {
     cd $WORKPATH
+    export PROMPT_REGISTRY_PORT=10600
+    export TAG=comps
     cd comps/prompt_registry/deployment/docker_compose/
     docker compose up -d
     sleep 10s
