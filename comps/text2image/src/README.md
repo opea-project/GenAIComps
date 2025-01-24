@@ -82,12 +82,26 @@ Start text-to-image service on Xeon with below command:
 docker run --ipc=host -p 9379:9379 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/text2image:latest
 ```
 
+Or use docker compose with below command:
+
+```bash
+cd ../deployment/docker_compose
+docker compose -f compose.yaml up text2image -d
+```
+
 ### 2.2.2 Start Text-to-Image Service on Gaudi
 
 Start text-to-image service on Gaudi with below command:
 
 ```bash
 docker run -p 9379:9379 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/text2image-gaudi:latest
+```
+
+Or use docker compose with below command:
+
+```bash
+cd ../deployment/docker_compose
+docker compose -f compose.yaml up text2image-gaudi -d
 ```
 
 # 3 Test Text-to-Image Service
