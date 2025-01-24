@@ -1,0 +1,23 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  neo4j-db:
+    image: neo4j:latest
+    container_name: neo4j-db
+    ports:
+      - "${NEO4J_PORT1:-7474}:7474"
+      - "${NEO4J_PORT2:-7687}:7687"
+    ipc: host
+    environment:
+      - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.\*
+    healthcheck:
+      test: ["CMD-SHELL", "sleep 10 && exit 0"]
+      interval: 1s
+      timeout: 15s
+      retries: 1

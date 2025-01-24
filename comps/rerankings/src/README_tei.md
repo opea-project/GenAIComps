@@ -1,13 +1,13 @@
 # 🌟 Reranking Microservice with TEI
 
 `Text Embeddings Inference (TEI)` is a comprehensive toolkit designed for efficient deployment and serving of open source text embeddings models.
-It enable us to host our own reranker endpoint seamlessly.
+It enables us to host our own reranker endpoint seamlessly.
 
 This README provides set-up instructions and comprehensive details regarding the reranking microservice via TEI.
 
 ---
 
-## 📦 1. Start Microservice with `docker run`
+## 📦 1. Start Microservice with Docker
 
 ### 🔹 1.1 Start Reranking Service with TEI
 
@@ -20,7 +20,8 @@ This README provides set-up instructions and comprehensive details regarding the
     export RERANK_MODEL_ID="BAAI/bge-reranker-base"
     export volume=$PWD/data
 
-    docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
+    docker run -p 12005:80 -v $volume:/data --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none -e MAX_WARMUP_SEQUENCE_LENGTH=512 --cap-add=sys_nice --ipc=host ghcr.io/huggingface/tei-gaudi:latest --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN --auto-truncate
+
   ```
 
 - For Xeon CPU:
@@ -30,19 +31,20 @@ This README provides set-up instructions and comprehensive details regarding the
     export RERANK_MODEL_ID="BAAI/bge-reranker-base"
     export volume=$PWD/data
 
-    docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/tei-gaudi:1.5.2 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
+    docker run -d -p 12005:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN --auto-truncate
   ```
 
 2. **Verify the TEI Service**:
+
    Run the following command to check if the service is up and running.
 
-```bash
-  export ip_address=$(hostname -I | awk '{print $1}')
-  curl ip_address:6060/rerank \
-      -X POST \
-      -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
-      -H 'Content-Type: application/json'
-```
+   ```bash
+     export host_ip=$(hostname -I | awk '{print $1}')
+     curl $host_ip:12005/rerank \
+         -X POST \
+         -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
+         -H 'Content-Type: application/json'
+   ```
 
 ### 🔹 1.2 Build Docker Image and Run Docker with CLI
 
@@ -60,8 +62,12 @@ This README provides set-up instructions and comprehensive details regarding the
 2. Run the reranking microservice and connect it to the TEI service:
 
    ```bash
-   docker run -d --name="reranking-tei-server" -e LOGFLAG=True  -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN  -e RERANK_COMPONENT_NAME="OPEA_TEI_RERANKING"  opea/reranking:comps
+    export TEI_RERANKING_PORT=12005
+    export HF_TOKEN=${your_hf_api_token}
+    export host_ip=$(hostname -I | awk '{print $1}')
+    export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
 
+   docker run -d --name="reranking-tei-server" -e LOGFLAG=True  -p 10700:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN  -e RERANK_COMPONENT_NAME="OPEA_TEI_RERANKING"  opea/reranking:comps
    ```
 
 ## 📦 2. Start Microservice with docker compose
@@ -74,11 +80,12 @@ Deploy both the TEI Reranking Service and the Reranking Microservice using Docke
 
    ```bash
     export RERANK_MODEL_ID="BAAI/bge-reranker-base"
-    export TEI_RERANKING_PORT=12003
-    export RERANK_PORT=8000
+    export TEI_RERANKING_PORT=12005
+    export RERANK_PORT=10700
+    export host_ip=$(hostname -I | awk '{print $1}')
     export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
     export TAG=comps
-    export host_ip=${host_ip}
+
    ```
 
 2. Navigate to the Docker Compose directory:
@@ -92,33 +99,33 @@ Deploy both the TEI Reranking Service and the Reranking Microservice using Docke
 - For Gaudi HPU:
 
   ```bash
-   docker compose up reranking-tei -d
+   docker compose up reranking-tei-gaudi -d
   ```
 
 - For Xeon CPU:
 
   ```bash
-   docker compose up reranking-tei-gaudi -d
+   docker compose up reranking-tei -d
   ```
 
 ## 📦 3. Consume Reranking Service
 
 ### 🔹 3.1 Check Service Status
 
-Verify the reranking service is running:
+- Verify the reranking service is running:
 
-```bash
-curl http://localhost:8000/v1/health_check \
--X GET \
--H 'Content-Type: application/json'
-```
+  ```bash
+    curl http://localhost:10700/v1/health_check \
+    -X GET \
+    -H 'Content-Type: application/json'
+  ```
 
 ### 🔹 3.2 Use the Reranking Service API
 
 - Execute reranking process by providing query and documents
 
   ```bash
-  curl http://localhost:8000/v1/reranking \
+  curl http://localhost:10700/v1/reranking \
     -X POST \
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
     -H 'Content-Type: application/json'
@@ -127,7 +134,7 @@ curl http://localhost:8000/v1/health_check \
   - You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
 
   ```bash
-  curl http://localhost:8000/v1/reranking \
+  curl http://localhost:10700/v1/reranking \
     -X POST \
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}], "top_n":2}' \
     -H 'Content-Type: application/json'

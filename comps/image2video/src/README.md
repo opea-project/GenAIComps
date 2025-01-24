@@ -44,10 +44,24 @@ Start SVD server on Xeon with below command:
 docker run --ipc=host -p 9369:9369 -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/image2video:latest
 ```
 
+Or use docker compose with below command:
+
+```bash
+cd ../deployment/docker_compose
+docker compose -f compose.yaml up image2video -d
+```
+
 Start SVD server on Gaudi with below command:
 
 ```bash
 docker run -p 9369:9369 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/image2video-gaudi:latest
+```
+
+Or use docker compose with below command:
+
+```bash
+cd ../deployment/docker_compose
+docker compose -f compose.yaml up image2video-gaudi -d
 ```
 
 ## 2.3 Test
