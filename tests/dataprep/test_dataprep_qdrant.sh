@@ -107,7 +107,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=dataprep-qdrant-server*" --filter "name=tei-embedding-serving*")
+    cid=$(docker ps -aq --filter "name=dataprep-qdrant-server*" --filter "name=tei-embedding-serving*" --filter "name=qdrant-vector-db")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 
     rm $LOG_PATH/dataprep_file.txt

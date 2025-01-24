@@ -29,7 +29,7 @@ function start_service() {
     export host_ip=${ip_address}
     export TAG="comps"
     export NEO4J_AUTH="neo4j/neo4jtest"
-    export NEO4J_URI="bolt://${ip_address}:7687"
+    export NEO4J_URL="bolt://${ip_address}:7687"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="neo4jtest"
     export NEO4J_apoc_export_file_enabled=true
