@@ -1,4 +1,4 @@
-# Reranking Microservice via TEI
+# 🌟 Reranking Microservice with TEI
 
 `Text Embeddings Inference (TEI)` is a comprehensive toolkit designed for efficient deployment and serving of open source text embeddings models.
 It enable us to host our own reranker endpoint seamlessly.
@@ -7,99 +7,93 @@ This README provides set-up instructions and comprehensive details regarding the
 
 ---
 
-## 🚀1. Start Microservice with Python (Option 1)
+## 📦 1. Start Microservice with `docker run`
 
-To start the Reranking microservice, you must first install the required python packages.
+### 🔹 1.1 Start Reranking Service with TEI
 
-### 1.1 Install Requirements
+1. **Start the TEI service**:
 
-```bash
-pip install -r requirements.txt
-```
+  ```bash
+    export HF_TOKEN=${your_hf_api_token}
+    export RERANK_MODEL_ID="BAAI/bge-reranker-base"
+    export volume=$PWD/data
 
-### 1.2 Start TEI Service
+    docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
+  ```
 
-```bash
-export HF_TOKEN=${your_hf_api_token}
-export RERANK_MODEL_ID="BAAI/bge-reranker-base"
-export volume=$PWD/data
+2. **Verify the TEI Service**:
+   Run the following command to check if the service is up and running.
 
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN
-```
+  ```bash
+    export ip_address=$(hostname -I | awk '{print $1}')
+    curl ip_address:6060/rerank \
+        -X POST \
+        -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
+        -H 'Content-Type: application/json'
+  ```
 
-### 1.3 Verify the TEI Service
+### 🔹 1.2 Build Docker Image and Run Docker with CLI
 
-```bash
-export ip_address=$(hostname -I | awk '{print $1}')
-curl ip_address:6060/rerank \
-    -X POST \
-    -d '{"query":"What is Deep Learning?", "texts": ["Deep Learning is not...", "Deep learning is..."]}' \
-    -H 'Content-Type: application/json'
-```
+1. Build the Docker image for the reranking microservice:
 
-### 1.4 Start Reranking Service with Python Script
+   ```bash
+    docker build --no-cache \
+      -t opea/reranking:comps \
+      --build-arg https_proxy=$https_proxy \
+      --build-arg http_proxy=$http_proxy \
+      --build-arg SERVICE=tei \
+      -f comps/rerankings/src/Dockerfile .
+   ```
 
-```bash
-export TEI_RERANKING_ENDPOINT="http://${ip_address}:6060"
-export RERANK_TYPE=tei
+2. Run the reranking microservice and connect it to the TEI service:
 
-cd GenAIComps/comps/rerankings/src
-python opea_reranking_microservice.py
-```
+   ```bash
+  docker run -d --name="reranking-tei-server" -e LOGFLAG=True  -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN  -e RERANK_COMPONENT_NAME="OPEA_TEI_RERANKING"  opea/reranking:comps
 
----
+   ```
 
-## 🚀2. Start Microservice with Docker (Option 2)
+## 📦 2. Start Microservice with docker compose
 
-If you start an Reranking microservice with docker, the `rerank_tei.yaml` file will automatically start a TEI service with docker.
+Deploy both the TEI Reranking Service and the Reranking Microservice using Docker Compose.
 
-### 2.1 Setup Environment Variables
+🔹 Steps:
 
-```bash
-export ip_address=$(hostname -I | awk '{print $1}')
-export HF_TOKEN=${your_hf_api_token}
-export TEI_RERANKING_ENDPOINT="http://${ip_address}:8808"
-```
+1. Set environment variables:
 
-### 2.2 Build Docker Image
+   ```bash
+    export RERANK_MODEL_ID="BAAI/bge-reranker-base"
+    export TEI_RERANKING_PORT=12003
+    export RERANK_PORT=8000
+    export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
+    export TAG=comps
+    export host_ip=${host_ip}
+   ```
 
-```bash
-cd GenAIComps
-docker build -t opea/reranking-tei:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/rerankings/src/Dockerfile .
-```
+2. Navigate to the Docker Compose directory:
 
-To start a docker container, you have two options:
+   ```bash
+   cd comps/rerankings/deployment/docker_compose/
+   ```
 
-- A. Run Docker with CLI
-- B. Run Docker with Docker Compose
+3. Start the services:
 
-You can choose one as needed.
+   ```bash
+    docker compose up reranking-tei -d
+   ```
 
-### 2.3 Run Docker with CLI (Option A)
+## 📦 3. Consume Reranking Service
 
-```bash
-docker run -d --name="reranking-tei-server" -p 8000:8000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_RERANKING_ENDPOINT=$TEI_RERANKING_ENDPOINT -e HF_TOKEN=$HF_TOKEN RERANK_TYPE=tei opea/reranking:latest
-```
+### 🔹 3.1 Check Service Status
 
-### 2.4 Run Docker with Docker Compose (Option B)
-
-```bash
-docker compose -f comps/rerankings/deployment/docker_compose/rerank_tei.yaml up -d
-```
-
----
-
-## ✅3. Invoke Reranking Microservice
-
-The Reranking microservice exposes following API endpoints:
-
-- Check Service Status
+Verify the reranking service is running:
 
   ```bash
   curl http://localhost:8000/v1/health_check \
-    -X GET \
-    -H 'Content-Type: application/json'
+  -X GET \
+  -H 'Content-Type: application/json'
   ```
+
+### 🔹 3.2 Use the Reranking Service API
 
 - Execute reranking process by providing query and documents
 
@@ -118,3 +112,18 @@ The Reranking microservice exposes following API endpoints:
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}], "top_n":2}' \
     -H 'Content-Type: application/json'
   ```
+
+
+## ✨ Tips for Better Understanding:
+
+1. Port Mapping:
+   Ensure the ports are correctly mapped to avoid conflicts with other services.
+
+2. Model Selection:
+   Choose a model appropriate for your use case, like "BAAI/bge-reranker-base".
+
+3. Environment Variables:
+   Use http_proxy and https_proxy for proxy setup if necessary.
+
+4. Data Volume:
+   The `-v ./data:/data` flag ensures the data directory is correctly mounted.
