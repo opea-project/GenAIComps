@@ -41,10 +41,18 @@ cd ../../
 docker build -t opea/retriever:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
 ```
 
-### Run Docker with CLI
+### Run Docker with CLI (Option A)
 
 ```bash
 docker run -d --name="retriever-milvus-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_EMBEDDING_ENDPOINT=${your_emdding_endpoint} -e MILVUS_HOST=${your_milvus_host_ip} -e RETRIEVER_COMPONENT_NAME=$RETRIEVER_COMPONENT_NAME opea/retriever:latest
+```
+
+### Run Docker with Docker Compose (Option B)
+
+```bash
+cd ../deployment/docker_compose
+export service_name="retriever-milvus"
+docker compose -f compose.yaml up ${service_name} -d
 ```
 
 ## 🚀3. Consume Retriever Service

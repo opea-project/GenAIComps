@@ -99,7 +99,8 @@ docker run -d --name="retriever-multimodal-redis-server" -p 7000:7000 --ipc=host
 
 ```bash
 cd ../deployment/docker_compose
-docker compose -f compose.yaml up -d
+export service_name="retriever-redis"
+docker compose -f compose.yaml up ${service_name} -d
 ```
 
 ## 🚀3. Consume Retriever Service

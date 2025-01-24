@@ -90,7 +90,8 @@ docker run -d --name="retriever-elasticsearch" -p 7000:7000 --ipc=host -e http_p
 
 ```bash
 cd ../deployment/docker_compose
-docker compose -f compose.yaml up -d
+export service_name="retriever-elasticsearch"
+docker compose -f compose.yaml up ${service_name} -d
 ```
 
 ## 🚀3. Consume Retriever Service

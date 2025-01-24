@@ -80,11 +80,8 @@ This will start the both the embedding and retriever services:
 
 ```bash
 cd ../deployment/docker_compose
-docker compose -f compose.yaml build
-docker compose -f compose.yaml up -d
-
-# shut down the containers
-docker compose -f compose.yaml down
+export service_name="retriever-pathway"
+docker compose -f compose.yaml up ${service_name} -d
 ```
 
 Make sure the retriever service is working as expected:

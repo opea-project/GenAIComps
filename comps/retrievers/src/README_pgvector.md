@@ -88,7 +88,8 @@ docker run -d --name="retriever-pgvector" -p 7000:7000 --ipc=host -e http_proxy=
 
 ```bash
 cd ../deployment/docker_compose
-docker compose -f compose.yaml up -d
+export service_name="retriever-pgvector"
+docker compose -f compose.yaml up ${service_name} -d
 ```
 
 ## 🚀3. Consume Retriever Service

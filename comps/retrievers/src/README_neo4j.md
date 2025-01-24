@@ -69,7 +69,8 @@ Docker compose will start 5 microservices: retriever-neo4j-llamaindex, dataprep-
 
 ```bash
 cd ../deployment/docker_compose
-docker compose -f compose.yaml up -d
+export service_name="retriever-neo4j"
+docker compose -f compose.yaml up ${service_name} -d
 ```
 
 ## Invoke Microservice

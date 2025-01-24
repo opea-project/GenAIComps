@@ -104,7 +104,8 @@ docker run -d --name="retriever-vdms-server" -p 7000:7000 --ipc=host -e http_pro
 
 ```bash
 cd ../deployment/docker_compose
-docker compose -f compose.yaml up -d
+export service_name="retriever-vdms"
+docker compose -f compose.yaml up ${service_name} -d
 ```
 
 ## 🚀3. Consume Retriever Service
