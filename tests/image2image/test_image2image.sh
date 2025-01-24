@@ -7,10 +7,15 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 
+
+export TAG=comps
+export IMAGE2IMAGE_PORT=10400
+export service_name="image2image"
+
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/image2image:latest -f comps/image2image/src/Dockerfile .
+    docker build --no-cache -t opea/image2image:$TAG -f comps/image2image/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/image2image built fail"
         exit 1
@@ -21,25 +26,27 @@ function build_docker_images() {
 
 function start_service() {
     unset http_proxy
-    docker run -d --name="test-comps-image2image" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e MODEL=stabilityai/stable-diffusion-xl-refiner-1.0 -p 9389:9389 --ipc=host opea/image2image:latest
+    cd $WORKPATH/comps/image2image/deployment/docker_compose
+    export MODEL='stabilityai/stable-diffusion-xl-refiner-1.0'
+    docker compose -f compose.yaml up ${service_name} -d
     sleep 30s
 }
 
 function validate_microservice() {
-    result=$(http_proxy="" curl http://localhost:9389/v1/image2image -XPOST -d '{"image": "https://huggingface.co/datasets/patrickvonplaten/images/resolve/main/aa_xl/000000009.png", "prompt":"a photo of an astronaut riding a horse on mars", "num_images_per_prompt":1}' -H 'Content-Type: application/json')
+    result=$(http_proxy="" curl http://localhost:$IMAGE2IMAGE_PORT/v1/image2image -XPOST -d '{"image": "https://huggingface.co/datasets/patrickvonplaten/images/resolve/main/aa_xl/000000009.png", "prompt":"a photo of an astronaut riding a horse on mars", "num_images_per_prompt":1}' -H 'Content-Type: application/json')
     if [[ $result == *"images"* ]]; then
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs test-comps-image2image
+        docker logs image2image-server
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-image2image*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/image2image/deployment/docker_compose
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 function main() {

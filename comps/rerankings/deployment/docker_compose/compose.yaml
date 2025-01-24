@@ -1,0 +1,52 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
+
+services:
+  reranking:
+    image: ${REGISTRY:-opea}/reranking:${TAG:-latest}
+    container_name: reranking-server
+    ports:
+      - ${RERANK_PORT:-10700}:8000
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      TEI_RERANKING_ENDPOINT: ${TEI_RERANKING_ENDPOINT}
+    restart: unless-stopped
+
+  reranking-tei:
+    extends: reranking
+    container_name: reranking-tei
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
+      RERANK_COMPONENT_NAME: "OPEA_TEI_RERANKING"
+    depends_on:
+      tei-reranking-serving:
+        condition: service_healthy
+
+  reranking-tei-gaudi:
+    extends: reranking
+    container_name: reranking-tei-gaudi
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
+      RERANK_COMPONENT_NAME: "OPEA_TEI_RERANKING"
+    depends_on:
+      tei-reranking-gaudi-serving:
+        condition: service_healthy
+
+  reranking-videoqna:
+    extends: reranking
+    container_name: reranking-videoqna
+    environment:
+      CHUNK_DURATION: ${CHUNK_DURATION}
+      FILE_SERVER_ENDPOINT: ${FILE_SERVER_ENDPOINT}
+      RERANK_COMPONENT_NAME: "OPEA_VIDEO_RERANKING"
+
+
+networks:
+  default:
+    driver: bridge
