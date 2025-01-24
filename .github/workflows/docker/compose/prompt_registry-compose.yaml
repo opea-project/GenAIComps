@@ -6,4 +6,4 @@ services:
   promptregistry-server:
     build:
       dockerfile: comps/prompt_registry/src/Dockerfile
-    image: ${REGISTRY:-opea}/promptregistry-server:${TAG:-latest}
+    image: ${REGISTRY:-opea}/promptregistry:${TAG:-latest}

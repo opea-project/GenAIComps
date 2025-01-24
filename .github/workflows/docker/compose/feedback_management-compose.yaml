@@ -6,4 +6,4 @@ services:
   feedbackmanagement:
     build:
       dockerfile: comps/feedback_management/src/Dockerfile
-    image: ${REGISTRY:-opea}/feedbackmanagement:${TAG:-latest}
+    image: ${REGISTRY:-opea}/feedbackmanagement-mongo:${TAG:-latest}
