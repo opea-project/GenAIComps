@@ -15,14 +15,13 @@ export FAQ_PORT=9000
 export HF_TOKEN=${your_hf_api_token}
 export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID=${your_hf_llm_model}
-export FAQGen_COMPONENT_NAME="OpeaFaqGenTgi" # or "vllm"
 ```
 
 ### 1.2 Build Docker Image
 
 Step 1: Prepare backend LLM docker image.
 
-If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/src) to build vLLM docker images first.
+If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm) to build vLLM docker images first.
 
 No need for TGI.
 
@@ -45,11 +44,12 @@ You can choose one as needed.
 #### 1.3.1 Run Docker with CLI (Option A)
 
 Step 1: Start the backend LLM service
-Please refer to [TGI](../../../third_parties/tgi/deployment/docker_compose/) or [vLLM](../../../third_parties/vllm/deployment/docker_compose/) guideline to start a backend LLM service.
+Please refer to [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm) guideline to start a backend LLM service.
 
 Step 2: Start the FaqGen microservices
 
 ```bash
+export FAQGen_COMPONENT_NAME="OpeaFaqGenTgi" # or "OpeaFaqGenvLLM"
 docker run -d \
     --name="llm-faqgen-server" \
     -p 9000:9000 \
@@ -65,20 +65,16 @@ docker run -d \
 
 #### 1.3.2 Run Docker with Docker Compose (Option B)
 
+Set `service_name` to match backend service.
+
 ```bash
+export service_name="faqgen-tgi"
+# export service_name="faqgen-tgi-gaudi"
+# export service_name="faqgen-vllm"
+# export service_name="faqgen-vllm-gaudi"
+
 cd ../../deployment/docker_compose/
-
-# Backend is TGI on xeon
-docker compose -f faq-generation_tgi.yaml up -d
-
-# Backend is TGI on gaudi
-# docker compose -f faq-generation_tgi_on_intel_hpu.yaml up -d
-
-# Backend is vLLM on xeon
-# docker compose -f faq-generation_vllm.yaml up -d
-
-# Backend is vLLM on gaudi
-# docker compose -f faq-generation_vllm_on_intel_hpu.yaml up -d
+docker compose -f compose_faq-generation.yaml up ${service_name} -d
 ```
 
 ## 🚀2. Consume LLM Service
