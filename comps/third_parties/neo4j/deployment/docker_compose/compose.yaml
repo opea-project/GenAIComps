@@ -25,15 +25,10 @@ services:
       - "7474:7474"
       - "7687:7687"
     restart: always
-
-  neo4j-vector-db:
-    image: neo4j/neo4j
-    container_name: neo4j-graph-db
-    ports:
-      - "6337:6337"
-      - "6338:6338"
-    environment:
-      - no_proxy=${no_proxy}
-      - http_proxy=${http_proxy}
-      - https_proxy=${https_proxy}
+    healthcheck:
+      test: wget http://localhost:7474 || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 3s
 
