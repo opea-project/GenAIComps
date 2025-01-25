@@ -154,11 +154,62 @@ def test_ut(args):
     for tool in tools:
         print(tool)
 
+def run_agent(agent, config, input_message):
+    from integrations.strategy.react.utils import save_state_to_store
+
+    initial_state = agent.prepare_initial_state(input_message)
+
+    try:
+        for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
+            message = s["messages"][-1]
+            message.pretty_print()
+            save_state_to_store(s, config, agent.persistence.store)
+    except Exception as e:
+        print(str(e))
+
+
+def test_memory(args):
+    from integrations.agent import instantiate_agent
+    
+
+    agent = instantiate_agent(args, strategy="react_llama")
+    print(args)
+
+    assistant_id = "my_assistant"
+    thread_id = "1"
+    namespace_for_memory = (assistant_id, thread_id)
+
+    config = {"recursion_limit": 5, "configurable": {"thread_id": thread_id, "user_id":assistant_id}}
+
+
+    input_message = "Hi! I'm Bob."   
+    run_agent(agent, config, input_message)
+    print("============== End of first turn ==============")
+    
+
+    input_message = "What's OPEA project?"
+    run_agent(agent, config, input_message)
+    print("============== End of second turn ==============")
+    
+    input_message = "what's my name?"
+    run_agent(agent, config, input_message)
+    print("============== End of third turn ==============")
+
+    last_saved_memory = agent.persistence.store.search(namespace_for_memory)[-1].dict()
+    last_saved_messages = last_saved_memory["value"]["state"]["messages"]
+    print("Last saved memory:\n", last_saved_memory)
+    print("Last saved messages:")
+    for m in last_saved_messages:
+        m.pretty_print()
+    
+
+    
+
 
 if __name__ == "__main__":
     args1, _ = get_args()
     parser = argparse.ArgumentParser()
-    parser.add_argument("--strategy", type=str, default="react")
+    parser.add_argument("--strategy", type=str, default="react_llama")
     parser.add_argument("--local_test", action="store_true", help="Test with local mode")
     parser.add_argument("--endpoint_test", action="store_true", help="Test with endpoint mode")
     parser.add_argument("--assistants_api_test", action="store_true", help="Test with endpoint mode")
@@ -175,13 +226,15 @@ if __name__ == "__main__":
     for key, value in vars(args1).items():
         setattr(args, key, value)
 
-    if args.local_test:
-        test_agent_local(args)
-    elif args.endpoint_test:
-        test_agent_http(args)
-    elif args.ut:
-        test_ut(args)
-    elif args.assistants_api_test:
-        test_assistants_http(args)
-    else:
-        print("Please specify the test type")
+    # if args.local_test:
+    #     test_agent_local(args)
+    # elif args.endpoint_test:
+    #     test_agent_http(args)
+    # elif args.ut:
+    #     test_ut(args)
+    # elif args.assistants_api_test:
+    #     test_assistants_http(args)
+    # else:
+    #     print("Please specify the test type")
+
+    test_memory(args)

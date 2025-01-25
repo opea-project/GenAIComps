@@ -148,7 +148,7 @@ from langgraph.prebuilt import ToolNode
 
 from ...storage.persistence_memory import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
-from .utils import assemble_history, assemble_memory, convert_json_to_tool_call
+from .utils import assemble_history, assemble_memory, convert_json_to_tool_call, save_state_to_store
 
 
 class AgentState(TypedDict):
@@ -176,7 +176,8 @@ class ReActAgentNodeLlama:
         )
         llm = setup_chat_model(args)
         self.tools = tools
-        self.chain = prompt | llm | output_parser
+        self.chain = prompt | llm 
+        self.output_parser = output_parser
         self.with_memory = args.with_memory
 
     def __call__(self, state):
@@ -186,12 +187,15 @@ class ReActAgentNodeLlama:
 
         # assemble a prompt from messages
         if self.with_memory:
-            query, history = assemble_memory(messages)
+            query, history, thread_history = assemble_memory(messages)
             print("@@@ Query: ", history)
         else:
             query = messages[0].content
             history = assemble_history(messages)
-        print("@@@ History: ", history)
+            thread_history=""
+
+        print("@@@ Turn History:\n", history)
+        print("@@@ Thread history:\n", thread_history)
 
         tools_used = self.tools
         if state.get("tool_choice") is not None:
@@ -200,24 +204,30 @@ class ReActAgentNodeLlama:
         tools_descriptions = tool_renderer(tools_used)
         print("@@@ Tools description: ", tools_descriptions)
 
-        # invoke chain
-        output = self.chain.invoke({"input": query, "history": history, "tools": tools_descriptions})
+        # invoke chain: raw output from llm
+        response = self.chain.invoke({"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history})
+        response = response.content
+
+        # parse tool calls or answers from raw output: result is a list
+        output = self.output_parser.parse(response)
         print("@@@ Output from chain: ", output)
 
         # convert output to tool calls
         tool_calls = []
-        for res in output:
-            if "tool" in res:
-                add_kw_tc, tool_call = convert_json_to_tool_call(res)
-                # print("Tool call:\n", tool_call)
-                tool_calls.append(tool_call)
+        if output:
+            for res in output:
+                if "tool" in res:
+                    tool_call = convert_json_to_tool_call(res)
+                    # print("Tool call:\n", tool_call)
+                    tool_calls.append(tool_call)
 
-        if tool_calls:
-            ai_message = AIMessage(content="", additional_kwargs=add_kw_tc, tool_calls=tool_calls)
-        elif "answer" in output[0]:
-            ai_message = AIMessage(content=str(output[0]["answer"]))
+            if tool_calls:
+                ai_message = AIMessage(content=response, tool_calls=tool_calls)
+            elif "answer" in output[0]:
+                ai_message = AIMessage(content=str(output[0]["answer"]))
         else:
-            ai_message = AIMessage(content=output)
+            ai_message = AIMessage(content=response)
+        
         return {"messages": [ai_message]}
 
 
@@ -327,10 +337,9 @@ class ReActAgentLlama(BaseAgent):
         try:
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
                 message = s["messages"][-1]
-                if isinstance(message, tuple):
-                    print(message)
-                else:
-                    message.pretty_print()
+                message.pretty_print()
+
+                save_state_to_store(s, config, self.persistence.store)
 
             last_message = s["messages"][-1]
             print("******Response: ", last_message.content)

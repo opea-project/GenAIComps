@@ -32,24 +32,24 @@ class ReActLlamaOutputParser(BaseOutputParser):
         if output:
             return output
         else:
-            return text
+            return None
 
 
 def convert_json_to_tool_call(json_str):
     tool_name = json_str["tool"]
     tool_args = json_str["args"]
     tcid = str(uuid.uuid4())
-    add_kw_tc = {
-        "tool_calls": [
-            ChatCompletionOutputToolCall(
-                function=ChatCompletionOutputFunctionDefinition(arguments=tool_args, name=tool_name, description=None),
-                id=tcid,
-                type="function",
-            )
-        ]
-    }
+    # add_kw_tc = {
+    #     "tool_calls": [
+    #         ChatCompletionOutputToolCall(
+    #             function=ChatCompletionOutputFunctionDefinition(arguments=tool_args, name=tool_name, description=None),
+    #             id=tcid,
+    #             type="function",
+    #         )
+    #     ]
+    # }
     tool_call = ToolCall(name=tool_name, args=tool_args, id=tcid)
-    return add_kw_tc, tool_call
+    return tool_call
 
 
 def get_tool_output(messages, id):
@@ -86,21 +86,30 @@ def assemble_history(messages):
 
 def assemble_memory(messages):
     """
-    messages: Human, AI, TOOL, AI, TOOL, etc.
+    messages: Human, AI, TOOL, AI, TOOL, etc. in a thread with multi-turn conversations
+    output: 
+    query - user input of current turn. 
+    conversation_history - history user input and final ai output in previous turns.
+    query_history - history of tool calls and outputs in current turn.
+
+    How to disect turns: each human message signals the start of a new turn.
     """
     query = ""
     query_id = None
     query_history = ""
     breaker = "-" * 10
 
-    # get query
+    # get most recent human input
     for m in messages[::-1]:
         if isinstance(m, HumanMessage):
             query = m.content
             query_id = m.id
+            most_recent_human_message_idx = messages.index(m)
             break
 
-    for m in messages:
+    # get query history in this turn
+    # start from the most recent human input
+    for m in messages[most_recent_human_message_idx:]:
         if isinstance(m, AIMessage):
             # if there is tool call
             if hasattr(m, "tool_calls") and len(m.tool_calls) > 0:
@@ -115,8 +124,31 @@ def assemble_memory(messages):
                 query_history += f"Assistant Output: {m.content}\n"
 
         elif isinstance(m, HumanMessage):
-            if m.id == query_id:
-                continue
-            query_history += f"Human Input: {m.content}\n"
+            query_history += f"User Input: {m.content}\n"
 
-    return query, query_history
+    # get conversion history of previous turns
+    conversation_history = ""
+    for i, m in enumerate(messages[:most_recent_human_message_idx]):
+        if isinstance(m, HumanMessage):
+            conversation_history += f"User Input: {m.content}\n"
+        elif isinstance(m, AIMessage) and isinstance(messages[i + 1], HumanMessage):
+            conversation_history += f"Assistant Output: {m.content}\n"
+    return query, query_history, conversation_history
+
+
+def save_state_to_store(state, config, store):
+
+    # Get the user id from the config
+    assistant_id = config["configurable"]["user_id"]
+    thread_id = config["configurable"]["thread_id"]
+
+    # Namespace the memory
+    namespace = (assistant_id, thread_id) # pass in instead?
+
+    # ... Analyze conversation and create a new memory
+
+    # Create a new memory ID
+    memory_id = str(uuid.uuid4())
+
+    # We create a new memory
+    store.put(namespace, memory_id, {"state": state})
