@@ -65,7 +65,7 @@ services:
       VDMS_USE_CLIP: 0
       host_ip: ${host_ip}
     depends_on:
-      neo4j-db:
+      neo4j-apoc:
         condition: service_healthy
       tei-embedding-serving:
         condition: service_healthy
@@ -82,7 +82,7 @@ services:
       OPENSEARCH_URL: ${OPENSEARCH_URL}
       OPENSEARCH_INDEX_NAME: ${INDEX_NAME}
     depends_on:
-      opensearch-db:
+      opensearch-vector-db:
         condition: service_healthy
       tei-embedding-serving:
         condition: service_healthy
@@ -126,7 +126,7 @@ services:
       QDRANT_PORT: ${QDRANT_PORT}
       INDEX_NAME: ${INDEX_NAME}
     depends_on:
-      qdrant-db:
+      qdrant-vector-db:
         condition: service_healthy
 
   retriever-redis:
@@ -166,7 +166,7 @@ services:
       VDMS_PORT: ${VDMS_PORT}
       VDMS_USE_CLIP: ${VDMS_USE_CLIP}
     depends_on:
-      vdms-db:
+      vdms-vector-db:
         condition: service_healthy
       tei-embedding-serving:
         condition: service_healthy

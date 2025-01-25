@@ -13,7 +13,7 @@ echo "TAG=${TAG}"
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 export host_ip=$(hostname -I | awk '{print $1}')
-service_name="retriever-opensearch"
+service_name="opensearch-vector-db tei-embedding-serving retriever-opensearch"
 
 function build_docker_images() {
     cd $WORKPATH
