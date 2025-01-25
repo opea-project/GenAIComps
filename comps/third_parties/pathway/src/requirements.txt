@@ -1,7 +1,7 @@
-langchain
-langchain-community
-langchain_huggingface
-langchain_openai
-pathway[xpack-llm]
-sentence-transformers
-unstructured[all-docs] >= 0.16
+langchain==0.3.15
+langchain-community==0.3.15
+langchain-huggingface==0.1.2
+langchain-openai==0.3.2
+pathway[xpack-llm]==0.10.1
+sentence-transformers==3.4.0
+unstructured[all-docs]==0.16.15
