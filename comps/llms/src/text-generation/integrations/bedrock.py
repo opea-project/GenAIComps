@@ -5,7 +5,6 @@ import json
 import os
 import time
 
-# test
 import boto3
 from botocore.exceptions import ClientError
 from fastapi.responses import StreamingResponse
