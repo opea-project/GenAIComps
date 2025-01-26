@@ -48,6 +48,7 @@ def initialize():
                         "use_habana": True,
                         "use_hpu_graphs": args.use_hpu_graphs,
                         "gaudi_config": "Habana/stable-diffusion",
+                        "sdp_on_bf16": True,
                         "token": args.token,
                     }
                 )
@@ -55,6 +56,13 @@ def initialize():
                     from optimum.habana.diffusers import GaudiStableDiffusion3Pipeline
 
                     pipe = GaudiStableDiffusion3Pipeline.from_pretrained(
+                        args.model_name_or_path,
+                        **kwargs,
+                    )
+                elif "stable-diffusion-xl" in args.model_name_or_path:
+                    from optimum.habana.diffusers import GaudiStableDiffusionXLPipeline
+
+                    pipe = GaudiStableDiffusionXLPipeline.from_pretrained(
                         args.model_name_or_path,
                         **kwargs,
                     )
