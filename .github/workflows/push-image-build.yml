@@ -44,7 +44,8 @@ jobs:
           else
             changed_src="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep -vE '\.md')" || true
             changed_yamls="$(git diff --name-only ${base_commit} ${merged_commit} | grep '.github/workflows/docker/compose/')" || true
-            services=$(printf '%s\n' "${changed_src[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' ) || true
+            [[ -n "$changed_src" ]] && services=$(printf '%s\n' "${changed_src[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' ) || true
+
             if [[ -n "$changed_yamls" ]]; then
               while IFS= read -r line; do
                 filename=$(basename "$line" -compose.yaml)
@@ -62,6 +63,7 @@ jobs:
 
   image-build:
     needs: get-build-matrix
+    if: needs.get-build-matrix.outputs.services != 'null'
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
@@ -71,6 +73,7 @@ jobs:
     steps:
       - name: Clean up Working Directory
         run: |
+          echo "matrix.service=${{ matrix.service }}"
           sudo rm -rf ${{github.workspace}}/*
 
       - name: Checkout out Repo
