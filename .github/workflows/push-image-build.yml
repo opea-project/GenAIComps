@@ -32,10 +32,11 @@ jobs:
       - name: Get Test Services
         id: get-services
         run: |
+          set -x
           base_commit=$(git rev-parse HEAD~1)
           merged_commit=$(git log -1 --format='%H')
           # git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"
-          # if [ $? -eq 0 ]; then
+
           if git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"; then
             echo "ALL image build!!!"
             services=$(basename -a .github/workflows/docker/compose/*-compose.yaml | sed 's/-compose.yaml//' | jq -R '.' )
