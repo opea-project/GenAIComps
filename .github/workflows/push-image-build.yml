@@ -4,7 +4,7 @@ name: Build latest images on push event
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "opt-build"]
     paths:
       - 'comps/**'
       - 'src/**'
@@ -33,7 +33,8 @@ jobs:
         id: get-services
         run: |
           set -x
-          base_commit=$(git rev-parse HEAD~1)
+          # base_commit=$(git rev-parse HEAD~1)
+          base_commit=bd28a9f15e7f4b262ebcbbd9df3fa5b7e56803f8
           merged_commit=$(git log -1 --format='%H')
           # git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"
 
@@ -44,11 +45,15 @@ jobs:
             changed_src="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep -vE '\.md')" || true
             changed_yamls="$(git diff --name-only ${base_commit} ${merged_commit} | grep '.github/workflows/docker/compose/')" || true
             services=$(printf '%s\n' "${changed_src[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' ) || true
-            while IFS= read -r line; do
-              filename=$(basename "$line" -compose.yaml)
-              echo "$line $(printf '%s\n' "$filename" | jq -R '.' )"
-              services+=" $(printf '%s\n' "$filename" | jq -R '.' )" || true
-            done <<< "$changed_yamls"
+            if [[ -n "$changed_yamls" ]]; then
+              while IFS= read -r line; do
+                filename=$(basename "$line" -compose.yaml)
+                echo "$line $(printf '%s\n' "$filename" | jq -R '.' )"
+                services+=" $(printf '%s\n' "$filename" | jq -R '.' )" || true
+              done <<< "$changed_yamls"
+            else
+              echo "No changes in YAML files."
+            fi
           fi
 
           echo "services=$(echo "$services" | jq -sc 'unique | sort')"
