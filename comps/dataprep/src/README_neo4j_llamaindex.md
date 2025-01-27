@@ -72,7 +72,7 @@ Docker compose will start 4 microservices: dataprep-neo4j-llamaindex, neo4j-apoc
 
 ```bash
 cd comps/dataprep/deployment/docker_compose
-docker compose -f compose_neo4j_llamaindex.yaml up -d
+docker compose -f compose.yaml up -d
 ```
 
 ## Invoke Microservice
