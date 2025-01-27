@@ -4,7 +4,7 @@ name: Build latest images on push event
 
 on:
   push:
-    branches: ["main","opt-build"]
+    branches: ["main"]
     paths:
       - 'comps/**'
       - 'src/**'
