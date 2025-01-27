@@ -40,7 +40,7 @@ db_client = None
 
 logger.info("========initiating agent============")
 logger.info(f"args: {args}")
-agent_inst = instantiate_agent(args, args.strategy, with_memory=args.with_memory)
+agent_inst = instantiate_agent(args)
 
 
 class AgentCompletionRequest(ChatCompletionRequest):
@@ -117,10 +117,16 @@ class AgentConfig(BaseModel):
     return_full_text: Optional[bool] = False
     custom_prompt: Optional[str] = None
 
-    # short/long term memory
+    # # short/long term memory
     with_memory: Optional[bool] = False
-    # persistence
-    with_store: Optional[bool] = False
+    # # persistence
+    # with_store: Optional[bool] = False
+    # agent memory config
+    # chat_completion api: only supports volatile memory
+    # assistants api: supports volatile and persistent memory
+    # volatile: in-memory checkpointer - MemorySaver()
+    # persistent: redis store
+    memory_type: Optional[str] = "volatile" # choices: volatile, persistent
     store_config: Optional[RedisConfig] = None
 
     timeout: Optional[int] = 60
@@ -147,9 +153,7 @@ class CreateAssistant(CreateAssistantsRequest):
 )
 def create_assistants(input: CreateAssistant):
     # 1. initialize the agent
-    agent_inst = instantiate_agent(
-        input.agent_config, input.agent_config.strategy, with_memory=input.agent_config.with_memory
-    )
+    agent_inst = instantiate_agent(input.agent_config)
     assistant_id = agent_inst.id
     created_at = int(datetime.now().timestamp())
     with assistants_global_kv as g_assistants:
@@ -232,7 +236,9 @@ def create_messages(thread_id, input: CreateMessagesRequest):
             logger.info(f"Save Agent Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
             # if with store, db_client initialized already
             global db_client
-            db_client.put(msg_id, message.model_dump_json(), input.assistant_id)
+            namespace=f"{input.assistant_id}_{thread_id}"
+            # put(key: str, val: dict, collection: str = DEFAULT_COLLECTION)
+            db_client.put(msg_id, message.model_dump_json(), namespace)
 
     return message
 
@@ -259,7 +265,8 @@ def create_run(thread_id, input: CreateRunResponse):
     if agent_inst.with_store:
         # assemble multi-turn messages
         global db_client
-        input_query = assemble_store_messages(db_client.get_all(assistant_id))
+        namespace=f"{assistant_id}_{thread_id}"
+        input_query = assemble_store_messages(db_client.get_all(namespace))
     else:
         input_query = thread_inst.get_query()
 

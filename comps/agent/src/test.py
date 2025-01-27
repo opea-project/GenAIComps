@@ -159,27 +159,27 @@ def run_agent(agent, config, input_message):
 
     initial_state = agent.prepare_initial_state(input_message)
 
-    try:
-        for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
-            message = s["messages"][-1]
-            message.pretty_print()
-            save_state_to_store(s, config, agent.persistence.store)
-    except Exception as e:
-        print(str(e))
+    # try:
+    for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
+        message = s["messages"][-1]
+        message.pretty_print()
+        save_state_to_store(s, config, agent.store)
+    # except Exception as e:
+    #     print(str(e))
 
 
 def test_memory(args):
     from integrations.agent import instantiate_agent
     
 
-    agent = instantiate_agent(args, strategy="react_llama")
+    agent = instantiate_agent(args)
     print(args)
 
     assistant_id = "my_assistant"
     thread_id = "1"
     namespace_for_memory = (assistant_id, thread_id)
 
-    config = {"recursion_limit": 5, "configurable": {"thread_id": thread_id, "user_id":assistant_id}}
+    config = {"recursion_limit": 5, "configurable": {"session_id":thread_id,"thread_id": thread_id, "user_id":assistant_id}}
 
 
     input_message = "Hi! I'm Bob."   
@@ -195,12 +195,12 @@ def test_memory(args):
     run_agent(agent, config, input_message)
     print("============== End of third turn ==============")
 
-    last_saved_memory = agent.persistence.store.search(namespace_for_memory)[-1].dict()
-    last_saved_messages = last_saved_memory["value"]["state"]["messages"]
-    print("Last saved memory:\n", last_saved_memory)
-    print("Last saved messages:")
-    for m in last_saved_messages:
-        m.pretty_print()
+    # last_saved_memory = agent.persistence.store.search(namespace_for_memory)[-1].dict()
+    # last_saved_messages = last_saved_memory["value"]["state"]["messages"]
+    # print("Last saved memory:\n", last_saved_memory)
+    # print("Last saved messages:")
+    # for m in last_saved_messages:
+    #     m.pretty_print()
     
 
     

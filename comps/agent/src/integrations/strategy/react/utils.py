@@ -86,6 +86,7 @@ def assemble_history(messages):
 
 def assemble_memory(messages):
     """
+    Assemble memory from messages within this thread (i.e., same thread id)
     messages: Human, AI, TOOL, AI, TOOL, etc. in a thread with multi-turn conversations
     output: 
     query - user input of current turn. 
@@ -136,6 +137,29 @@ def assemble_memory(messages):
     return query, query_history, conversation_history
 
 
+def assemble_memory_from_store(config, store):
+    """
+    store: RedisPersistence
+    """
+    assistant_id = config["configurable"]["user_id"]
+    thread_id = config["configurable"]["thread_id"]
+    # namespace = f"{assistant_id}_{thread_id}"
+    namespace = (assistant_id, thread_id)
+
+    # get all the messages in this thread
+    # messages = store.get_all(namespace)
+    saved_all = store.search(namespace)
+    messages = []
+    for saved in saved_all:
+        print("@@@@ Saved memory:\n", saved)
+        message = saved.dict()["value"]["state"]["messages"]
+        messages.extend(message)
+    print("@@@@ All messages:\n", messages)
+    
+    query, query_history, conversation_history = assemble_memory(messages)
+    return query, query_history, conversation_history
+
+
 def save_state_to_store(state, config, store):
 
     # Get the user id from the config
@@ -143,12 +167,14 @@ def save_state_to_store(state, config, store):
     thread_id = config["configurable"]["thread_id"]
 
     # Namespace the memory
-    namespace = (assistant_id, thread_id) # pass in instead?
-
-    # ... Analyze conversation and create a new memory
+    # namespace = (assistant_id, thread_id) 
+    namespace = f"{assistant_id}_{thread_id}"
 
     # Create a new memory ID
     memory_id = str(uuid.uuid4())
 
     # We create a new memory
-    store.put(namespace, memory_id, {"state": state})
+    # store.put(namespace, memory_id, {"state": state})
+    
+    # convert message into MessageObject
+    store.put(memory_id, state.model_dump_json(), namespace)

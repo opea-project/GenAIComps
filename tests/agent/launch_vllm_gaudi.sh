@@ -1,4 +1,4 @@
-model="meta-llama/Meta-Llama-3.1-70B-Instruct"
+model="meta-llama/Llama-3.3-70B-Instruct"
 MAX_INPUT=16384
 vllm_port=8086
 vllm_volume=$HF_CACHE_DIR

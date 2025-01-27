@@ -157,7 +157,8 @@ def get_args():
     parser.add_argument("--return_full_text", type=bool, default=False)
     parser.add_argument("--custom_prompt", type=str, default=None)
     parser.add_argument("--with_memory", type=bool, default=False)
-    parser.add_argument("--with_store", type=bool, default=False)
+    # parser.add_argument("--with_store", type=bool, default=False)
+    parser.add_argument("--memory_type", type=str, default="volatile", help="choices: volatile, persistent")
     parser.add_argument("--timeout", type=int, default=60)
 
     # for sql agent

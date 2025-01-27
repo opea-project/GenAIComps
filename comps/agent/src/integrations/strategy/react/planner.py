@@ -14,6 +14,7 @@ from ...global_var import threads_global_kv
 from ...utils import filter_tools, has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
 from .prompt import REACT_SYS_MESSAGE, hwchase17_react_prompt
+from ...storage.persistence_redis import RedisPersistence
 
 
 class ReActAgentwithLangchain(BaseAgent):
@@ -149,6 +150,8 @@ from langgraph.prebuilt import ToolNode
 from ...storage.persistence_memory import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
 from .utils import assemble_history, assemble_memory, convert_json_to_tool_call, save_state_to_store
+from .utils import assemble_memory_from_store
+from langgraph.store.memory import InMemoryStore
 
 
 class AgentState(TypedDict):
@@ -165,7 +168,7 @@ class ReActAgentNodeLlama:
     A workaround for open-source llm served by TGI-gaudi.
     """
 
-    def __init__(self, tools, args):
+    def __init__(self, tools, args, store=None):
         from .prompt import REACT_AGENT_LLAMA_PROMPT
         from .utils import ReActLlamaOutputParser
 
@@ -179,16 +182,23 @@ class ReActAgentNodeLlama:
         self.chain = prompt | llm 
         self.output_parser = output_parser
         self.with_memory = args.with_memory
+        self.memory_type = args.memory_type
+        self.store = store
 
-    def __call__(self, state):
+    def __call__(self, state, config):
 
         print("---CALL Agent node---")
         messages = state["messages"]
 
         # assemble a prompt from messages
         if self.with_memory:
-            query, history, thread_history = assemble_memory(messages)
-            print("@@@ Query: ", history)
+            if self.memory_type == "volatile":
+                query, history, thread_history = assemble_memory(messages)
+            elif self.memory_type == "persistent":
+                # use thread_id, assistant_id to search memory from store
+                query, history, thread_history = assemble_memory_from_store(config, self.store) # TODO
+            else:
+                raise ValueError("Invalid memory type!")
         else:
             query = messages[0].content
             history = assemble_history(messages)
@@ -232,9 +242,21 @@ class ReActAgentNodeLlama:
 
 
 class ReActAgentLlama(BaseAgent):
-    def __init__(self, args, with_memory=False, **kwargs):
+    def __init__(self, args, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
-        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args)
+        if args.with_memory:
+            if args.memory_type == "volatile":
+                self.checkpointer = MemorySaver()
+            elif args.memory_type == "persistent":
+                self.store = RedisPersistence("redis://localhost:6379") #(args.store_config.redis_uri)
+                # self.store = InMemoryStore()
+            else:
+                raise ValueError("Invalid memory type!")
+        else:
+            self.store = None
+            self.checkpointer = None  
+
+        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args, store=self.store)
         tool_node = ToolNode(self.tools_descriptions)
 
         workflow = StateGraph(AgentState)
@@ -271,11 +293,17 @@ class ReActAgentLlama(BaseAgent):
         workflow.add_edge("tools", "agent")
 
         if args.with_memory:
-            self.persistence = AgentPersistence(
-                config=PersistenceConfig(checkpointer=args.with_memory, store=args.with_store)
-            )
-            print(self.persistence.checkpointer)
-            self.app = workflow.compile(checkpointer=self.persistence.checkpointer, store=self.persistence.store)
+            # self.persistence = AgentPersistence(
+            #     config=PersistenceConfig(checkpointer=args.with_memory, store=args.with_store)
+            # )
+            # print(self.persistence.checkpointer)
+            # self.app = workflow.compile(checkpointer=self.persistence.checkpointer, store=self.persistence.store)
+            if args.memory_type == "volatile":
+                self.app = workflow.compile(checkpointer=self.checkpointer)
+            elif args.memory_type == "persistent":
+                self.app = workflow.compile(store=self.store)
+            else:
+                raise ValueError("Invalid memory type!")
         else:
             self.app = workflow.compile()
 
