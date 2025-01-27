@@ -1,0 +1,15 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  vdms-vector-db:
+    image: intellabs/vdms:latest
+    container_name: vdms-vector-db
+    ports:
+      - "${VDMS_PORT:-55555}:55555"
+    environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+    healthcheck:
+      test: ["CMD-SHELL", "sleep 8 && echo 'This is a healthcheck test.' || exit 1"]

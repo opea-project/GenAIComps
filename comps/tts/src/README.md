@@ -91,3 +91,29 @@ curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Conte
 # voice can be 'male' or 'default'
 curl http://localhost:9088/v1/audio/speech -XPOST -d '{"input":"Who are you?", "voice": "male"}' -H 'Content-Type: application/json' --output speech.wav
 ```
+
+## 🚀3. Start Microservice with Docker Compose (Option 3)
+
+Alternatively, you can also start the TTS microservice with Docker Compose.
+
+```bash
+export ip_address=$(hostname -I | awk '{print $1}')
+# default speecht5 port 7055
+export TTS_ENDPOINT=http://$ip_address:7055
+# default gptsovits port 9880
+# if you want to use gptsovits, please execute the following command instead
+# export TTS_ENDPOINT=http://$ip_address:9880
+export no_proxy=localhost,$no_proxy
+
+# speecht5 cpu
+docker compose -f ../deployment/docker_compose/compose.yaml up speecht5-service tts-speecht5 -d
+
+# speecht5 hpu
+docker compose -f ../deployment/docker_compose/compose.yaml up speecht5-gaudi-service tts-speecht5-gaudi -d
+
+# gptsovits cpu
+docker compose -f ../deployment/docker_compose/compose.yaml up tts-gptsovits gptsovits-service -d
+
+# Test
+curl http://localhost:9088/v1/audio/speech -XPOST -d '{"input":"Who are you?"}' -H 'Content-Type: application/json' --output speech.wav
+```

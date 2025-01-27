@@ -11,9 +11,8 @@ RUN useradd -m -s /bin/bash user && \
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     libgl1-mesa-glx \
-    libjemalloc-dev
-
-USER user
+    libjemalloc-dev \
+    curl
 
 COPY comps /home/user/comps
 
@@ -25,6 +24,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/web_retrievers/src
 

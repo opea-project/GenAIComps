@@ -12,12 +12,11 @@ In order to start DocSum services, you need to setup the following environment v
 export host_ip=${your_host_ip}
 export LLM_ENDPOINT_PORT=8008
 export DOCSUM_PORT=9000
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export HF_TOKEN=${your_hf_api_token}
 export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID=${your_hf_llm_model}
 export MAX_INPUT_TOKENS=2048
 export MAX_TOTAL_TOKENS=4096
-export DocSum_COMPONENT_NAME="OpeaDocSumTgi" # or "OpeaDocSumvLLM"
 ```
 
 Please make sure MAX_TOTAL_TOKENS should be larger than (MAX_INPUT_TOKENS + max_new_tokens + 50), 50 is reserved prompt length.
@@ -26,15 +25,15 @@ Please make sure MAX_TOTAL_TOKENS should be larger than (MAX_INPUT_TOKENS + max_
 
 Step 1: Prepare backend LLM docker image.
 
-If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/src) to build vLLM docker images first.
+If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) to build vLLM docker images first.
 
 No need for TGI.
 
-Step 2: Build FaqGen docker image.
+Step 2: Build DocSum docker image.
 
 ```bash
 cd ../../../../
-docker build -t opea/llm-docsum:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/summarization/Dockerfile .
+docker build -t opea/llm-docsum:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/doc-summarization/Dockerfile .
 ```
 
 ### 1.3 Run Docker
@@ -49,11 +48,12 @@ You can choose one as needed.
 ### 1.3.1 Run Docker with CLI (Option A)
 
 Step 1: Start the backend LLM service
-Please refer to [TGI](../../../third_parties/tgi/deployment/docker_compose/) or [vLLM](../../../third_parties/vllm/deployment/docker_compose/) guideline to start a backend LLM service.
+Please refer to [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm) guideline to start a backend LLM service.
 
 Step 2: Start the DocSum microservices
 
 ```bash
+export DocSum_COMPONENT_NAME="OpeaDocSumTgi" # or "OpeaDocSumvLLM"
 docker run -d \
     --name="llm-docsum-server" \
     -p 9000:9000 \
@@ -62,7 +62,7 @@ docker run -d \
     -e https_proxy=$https_proxy \
     -e LLM_MODEL_ID=$LLM_MODEL_ID \
     -e LLM_ENDPOINT=$LLM_ENDPOINT \
-    -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN \
+    -e HF_TOKEN=$HF_TOKEN \
     -e DocSum_COMPONENT_NAME=$DocSum_COMPONENT_NAME \
     -e MAX_INPUT_TOKENS=${MAX_INPUT_TOKENS} \
     -e MAX_TOTAL_TOKENS=${MAX_TOTAL_TOKENS} \
@@ -71,20 +71,16 @@ docker run -d \
 
 ### 1.3.2 Run Docker with Docker Compose (Option B)
 
+Set `service_name` to match backend service.
+
 ```bash
+export service_name="docsum-tgi"
+# export service_name="docsum-tgi-gaudi"
+# export service_name="docsum-vllm"
+# export service_name="docsum-vllm-gaudi"
+
 cd ../../deployment/docker_compose/
-
-# Backend is TGI on xeon
-docker compose -f doc-summarization_tgi.yaml up -d
-
-# Backend is TGI on gaudi
-# docker compose -f doc-summarization_tgi_on_intel_hpu.yaml up -d
-
-# Backend is vLLM on xeon
-# docker compose -f doc-summarization_vllm.yaml up -d
-
-# Backend is vLLM on gaudi
-# docker compose -f doc-summarization_vllm_on_intel_hpu.yaml up -d
+docker compose -f compose_doc-summarization.yaml up ${service_name} -d
 ```
 
 ## 🚀3. Consume LLM Service

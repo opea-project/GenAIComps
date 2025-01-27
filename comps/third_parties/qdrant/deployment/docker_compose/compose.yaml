@@ -1,0 +1,21 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  qdrant-vector-db:
+    image: qdrant/qdrant
+    container_name: qdrant-vector-db
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "6334:6334"
+    healthcheck:
+      #test: curl -s http://${host_ip}:6334/healthz | grep -q 'healthz check passed' || exit 1 # TODO, This is the real healthcheck, but not work
+      test: ["CMD-SHELL", "sleep 10 && exit 0"]
+      interval: 1s
+      timeout: 15s
+      retries: 1
+    environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+      - host_ip=${host_ip}

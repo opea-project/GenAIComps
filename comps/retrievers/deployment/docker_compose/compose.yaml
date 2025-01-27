@@ -1,0 +1,177 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+include:
+  - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/pathway/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/qdrant/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/redis/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
+
+services:
+  retriever:
+    image: ${REGISTRY:-opea}/retriever:${TAG:-latest}
+    container_name: retriever
+    ports:
+      - "${RETRIEVER_PORT:-7000}:7000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      INDEX_NAME: ${INDEX_NAME}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      LOGFLAG: ${LOGFLAG:-False}
+    restart: unless-stopped
+
+  retriever-elasticsearch:
+    extends: retriever
+    container_name: retriever-elasticsearch
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_ELASTICSEARCH}
+      ES_CONNECTION_STRING: ${ES_CONNECTION_STRING}
+    depends_on:
+      elasticsearch-vector-db:
+        condition: service_healthy
+
+  retriever-milvus:
+    extends: retriever
+    container_name: retriever-milvus
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_MILVUS}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      MILVUS_HOST: ${host_ip}
+    depends_on:
+      tei-embedding-serving:
+        condition: service_healthy
+
+  retriever-neo4j:
+    extends: retriever
+    container_name: retriever-neo4j
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_NEO4J}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      TGI_LLM_ENDPOINT: ${TGI_LLM_ENDPOINT}
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      NEO4J_URI: ${NEO4J_URI}
+      NEO4J_USERNAME: ${NEO4J_USERNAME}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      VDMS_USE_CLIP: 0
+      host_ip: ${host_ip}
+    depends_on:
+      neo4j-apoc:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+      tgi-gaudi-server:
+        condition: service_healthy
+
+  retriever-opensearch:
+    extends: retriever
+    container_name: retriever-opensearch
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_OPENSEARCH}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
+      OPENSEARCH_URL: ${OPENSEARCH_URL}
+      OPENSEARCH_INDEX_NAME: ${INDEX_NAME}
+    depends_on:
+      opensearch-vector-db:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+
+  retriever-pinecone:
+    extends: retriever
+    container_name: retriever-pinecone
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_PINECONE}
+      PINECONE_API_KEY: ${PINECONE_API_KEY}
+      PINECONE_INDEX_NAME: ${PINECONE_INDEX_NAME}
+      INDEX_NAME: ${PINECONE_INDEX_NAME}
+
+  retriever-pgvector:
+    extends: retriever
+    container_name: retriever-pgvector
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_PGVECTOR}
+      PG_CONNECTION_STRING: ${PG_CONNECTION_STRING}
+    depends_on:
+      pgvector-db:
+        condition: service_healthy
+
+  retriever-pathway:
+    extends: retriever
+    container_name: retriever-pathway
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_PATHWAY}
+      PATHWAY_HOST: ${PATHWAY_HOST}
+      PATHWAY_PORT: ${PATHWAY_PORT}
+    depends_on:
+      pathway-db:
+        condition: service_healthy
+
+  retriever-qdrant:
+    extends: retriever
+    container_name: retriever-qdrant
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_QDRANT}
+      QDRANT_HOST: ${QDRANT_HOST}
+      QDRANT_PORT: ${QDRANT_PORT}
+      INDEX_NAME: ${INDEX_NAME}
+    depends_on:
+      qdrant-vector-db:
+        condition: service_healthy
+
+  retriever-redis:
+    extends: retriever
+    container_name: retriever-redis
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_REDIS}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      REDIS_URL: ${REDIS_URL}
+    depends_on:
+      redis-vector-db:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+
+  retriever-redis-multimodal:
+    extends: retriever
+    container_name: retriever-redis-multimodal
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_REDIS}
+      RETRIEVER_TYPE: ${RETRIEVER_TYPE:-redis}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      REDIS_URL: ${REDIS_URL}
+      BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
+    depends_on:
+      redis-vector-db:
+        condition: service_healthy
+
+  retriever-vdms:
+    extends: retriever
+    container_name: retriever-vdms
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_VDMS}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      VDMS_INDEX_NAME: ${INDEX_NAME}
+      VDMS_HOST: ${host_ip}
+      VDMS_PORT: ${VDMS_PORT}
+      VDMS_USE_CLIP: ${VDMS_USE_CLIP}
+    depends_on:
+      vdms-vector-db:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+
+
+networks:
+  default:
+    driver: bridge

@@ -32,22 +32,28 @@ jobs:
       - name: Get Test Services
         id: get-services
         run: |
+          set -x
           base_commit=$(git rev-parse HEAD~1)
           merged_commit=$(git log -1 --format='%H')
           # git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"
-          # if [ $? -eq 0 ]; then
+
           if git diff --name-only ${base_commit} ${merged_commit} | grep -E "cores|comps/__init__.py" | grep -Ev ".md"; then
             echo "ALL image build!!!"
             services=$(basename -a .github/workflows/docker/compose/*-compose.yaml | sed 's/-compose.yaml//' | jq -R '.' )
           else
             changed_src="$(git diff --name-only ${base_commit} ${merged_commit} | grep 'src/' | grep -vE '\.md')" || true
             changed_yamls="$(git diff --name-only ${base_commit} ${merged_commit} | grep '.github/workflows/docker/compose/')" || true
-            services=$(printf '%s\n' "${changed_src[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' ) || true
-            while IFS= read -r line; do
-              filename=$(basename "$line" -compose.yaml)
-              echo "$line $(printf '%s\n' "$filename" | jq -R '.' )"
-              services+=" $(printf '%s\n' "$filename" | jq -R '.' )" || true
-            done <<< "$changed_yamls"
+            [[ -n "$changed_src" ]] && services=$(printf '%s\n' "${changed_src[@]}" | cut -d'/' -f2 | grep -vE '\.py' | sort -u | jq -R '.' ) || true
+
+            if [[ -n "$changed_yamls" ]]; then
+              while IFS= read -r line; do
+                filename=$(basename "$line" -compose.yaml)
+                echo "$line $(printf '%s\n' "$filename" | jq -R '.' )"
+                services+=" $(printf '%s\n' "$filename" | jq -R '.' )" || true
+              done <<< "$changed_yamls"
+            else
+              echo "No changes in YAML files."
+            fi
           fi
 
           echo "services=$(echo "$services" | jq -sc 'unique | sort')"
@@ -56,6 +62,7 @@ jobs:
 
   image-build:
     needs: get-build-matrix
+    if: ${{ fromJSON(needs.get-build-matrix.outputs.services).length != 0 }}
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
@@ -65,6 +72,7 @@ jobs:
     steps:
       - name: Clean up Working Directory
         run: |
+          echo "matrix.service=${{ matrix.service }}"
           sudo rm -rf ${{github.workspace}}/*
 
       - name: Checkout out Repo
@@ -87,8 +95,8 @@ jobs:
               cd ./vllm-openvino && git checkout v0.6.1 && git rev-parse HEAD && cd ../
           fi
           if [[ $(grep -c "vllm-gaudi:" ${docker_compose_path}) != 0 ]]; then
-               git clone https://github.com/HabanaAI/vllm-fork.git vllm-fork
-               cd vllm-fork && git checkout v0.6.4.post2+Gaudi-1.19.0 && cd ../
+              git clone --depth 1 --branch v0.6.4.post2+Gaudi-1.19.0 https://github.com/HabanaAI/vllm-fork.git
+              sed -i 's/triton/triton==3.1.0/g' vllm-fork/requirements-hpu.txt
           fi
 
       - name: Build Image

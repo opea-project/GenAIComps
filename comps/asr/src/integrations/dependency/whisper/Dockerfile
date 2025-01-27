@@ -13,11 +13,9 @@ ARG ARCH=cpu
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y ffmpeg
+    && apt-get install -y ffmpeg curl
 
 COPY --chown=user:user comps /home/user/comps
-
-USER user
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
@@ -29,7 +27,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
-
+USER user
 WORKDIR /home/user/comps/asr/src/integrations/dependency/whisper
 
 ENTRYPOINT ["python", "whisper_server.py", "--device", "cpu"]

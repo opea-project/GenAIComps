@@ -2,7 +2,7 @@
 
 OPEA Comps currently provides telemetry functionalities for metrics and tracing using Prometheus, Grafana, and Jaeger. Here’s a basic introduction to these tools:
 
-![opea telemetry](https://raw.githubusercontent.com/Spycsh/assets/main/OPEA%20Telemetry.jpg)
+![opea telemetry](../assets/img/opea_telemetry.jpg)
 
 ## Metrics
 

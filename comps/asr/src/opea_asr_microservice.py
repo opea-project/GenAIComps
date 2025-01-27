@@ -6,7 +6,7 @@ import time
 from typing import List
 
 from fastapi import File, Form, UploadFile
-from integrations.opea_whisper import OpeaWhisperAsr
+from integrations.whisper import OpeaWhisperAsr
 
 from comps import (
     Base64ByteStrDoc,

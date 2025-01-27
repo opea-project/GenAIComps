@@ -7,7 +7,10 @@
 ### Run the Predictionguard Microservice
 
 ```bash
-docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name llm-textgen-predictionguard opea/llm-textgen-predictionguard:latest
+export service_name="textgen-predictionguard"
+
+cd comps/llms/deployment/docker_compose/
+docker compose -f compose_text-generation.yaml up ${service_name} -d
 ```
 
 ## Consume the Prediction Guard Microservice

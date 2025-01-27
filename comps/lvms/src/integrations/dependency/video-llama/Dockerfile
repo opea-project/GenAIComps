@@ -6,15 +6,13 @@ FROM python:3.9-slim
 ENV LANG=C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    git git-lfs && \ 
+    git git-lfs curl && \ 
     git lfs install
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user:user /home/user/
 RUN mkdir /home/user/model && chown user:user -R /home/user/model
-
-USER user
 
 COPY --chown=user:user comps /home/user/comps
 WORKDIR /home/user/comps/lvms/src/integrations/dependency/video-llama/
@@ -31,6 +29,7 @@ RUN tar -xvf video-llama.patch.tar && \
     mv video_llama ../ && \
     cd ../ && rm -rf Video-LLaMA
 
+USER user
 
 ENV PYTHONPATH=/home/user
 

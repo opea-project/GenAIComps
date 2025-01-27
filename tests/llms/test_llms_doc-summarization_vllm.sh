@@ -41,7 +41,7 @@ function start_service() {
     export host_ip=${host_ip}
     export LLM_ENDPOINT_PORT=12107  # 12100-12199
     export DOCSUM_PORT=10507 #10500-10599
-    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+    export HF_TOKEN=${HF_TOKEN}
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
     export MAX_INPUT_TOKENS=2048
@@ -103,48 +103,48 @@ function validate_microservices() {
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-server" \
-        "llm-docsum-vllm-server" \
+        "docsum-vllm" \
+        "docsum-vllm" \
         '{"messages": "Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en"}'
 
     echo "Validate stream=False..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-server" \
-        "llm-docsum-vllm-server" \
+        "docsum-vllm" \
+        "docsum-vllm" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "stream":false}'
 
     echo "Validate Chinese mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-server" \
-        "llm-docsum-vllm-server" \
+        "docsum-vllm" \
+        "docsum-vllm" \
         '{"messages":"2024年9月26日，北京——今日，英特尔正式发布英特尔® 至强® 6性能核处理器（代号Granite Rapids），为AI、数据分析、科学计算等计算密集型业务提供卓越性能。", "max_tokens":32, "language":"zh", "stream":false}'
 
     echo "Validate truncate mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-server" \
-        "llm-docsum-vllm-server" \
+        "docsum-vllm" \
+        "docsum-vllm" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "truncate", "chunk_size": 2000}'
 
     echo "Validate map_reduce mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-server" \
-        "llm-docsum-vllm-server" \
+        "docsum-vllm" \
+        "docsum-vllm" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "stream":false}'
 
     echo "Validate refine mode..."
     validate_services \
         "$URL" \
         'text' \
-        "llm-docsum-vllm-server" \
-        "llm-docsum-vllm-server" \
+        "docsum-vllm" \
+        "docsum-vllm" \
         '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000}'
 }
 
