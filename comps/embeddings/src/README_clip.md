@@ -57,7 +57,7 @@ curl http://localhost:6000/v1/health_check \
 The service supports [OpenAI API](https://platform.openai.com/docs/api-reference/embeddings)-compatible requests.
 
 - **Single Text Input**:
-  
+
   ```bash
   curl http://localhost:6000/v1/embeddings \
     -X POST \
@@ -66,11 +66,10 @@ The service supports [OpenAI API](https://platform.openai.com/docs/api-reference
   ```
 
 - **Multiple Texts with Parameters**:
-  
+
   ```bash
   curl http://localhost:6000/v1/embeddings \
     -X POST \
     -d '{"input":["Hello, world!","How are you?"], "dimensions":100}' \
     -H 'Content-Type: application/json'
   ```
-

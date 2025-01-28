@@ -2,21 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+from typing import List, Union
+
 import torch
 import torch.nn as nn
 from einops import rearrange
 from transformers import AutoProcessor, AutoTokenizer, CLIPModel
-from typing import List, Union
 
-from comps import (
-    CustomLogger,
-    OpeaComponent,
-    OpeaComponentRegistry,
-    ServiceType,
-)
-
-from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponseData, EmbeddingResponse
-
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, EmbeddingResponseData
 
 logger = CustomLogger("opea_multimodal_embedding_clip")
 logflag = os.getenv("LOGFLAG", False)
@@ -85,7 +79,6 @@ class OpeaClipEmbedding(OpeaComponent):
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaClipEmbedding health check failed.")
-
 
     async def invoke(self, input: EmbeddingRequest) -> EmbeddingResponse:
         """Invokes the embedding service to generate embeddings for the provided input.
