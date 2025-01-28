@@ -1,8 +1,10 @@
 aiohttp
 docarray
+einops
 fastapi
 huggingface_hub
 openai
+open-clip-torch
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
@@ -11,4 +13,5 @@ predictionguard==2.2.1
 prometheus-fastapi-instrumentator
 PyYAML
 shortuuid
+transformers
 uvicorn

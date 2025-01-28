@@ -22,6 +22,7 @@ function build_docker_images() {
 function start_service() {
     export TAG=comps
     export host_ip=${ip_address}
+    export EMBEDDER_PORT=10203
     service_name="clip-embedding-server"
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
@@ -31,7 +32,7 @@ function start_service() {
 
 function validate_service() {
     local INPUT_DATA="$1"
-    service_port=5038
+    service_port=10203
     result=$(http_proxy="" curl http://${ip_address}:$service_port/v1/embeddings \
         -X POST \
         -d "$INPUT_DATA" \
@@ -40,7 +41,7 @@ function validate_service() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-embedding-multimodal-server
+        docker logs clip-embedding-server
         exit 1
     fi
 }
@@ -75,4 +76,3 @@ function main() {
 }
 
 main
-

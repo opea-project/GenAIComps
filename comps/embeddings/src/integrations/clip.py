@@ -106,7 +106,7 @@ class OpeaClipEmbedding(OpeaComponent):
                 raise ValueError("Invalid input format: Only string or list of strings are supported.")
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
-        embed_vector = await self.get_embeddings(texts)
+        embed_vector = self.get_embeddings(texts)
         if input.dimensions is not None:
             embed_vector = [embed_vector[i][: input.dimensions] for i in range(len(embed_vector))]
 
