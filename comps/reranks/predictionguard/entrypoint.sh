@@ -5,4 +5,4 @@
 
 #pip --no-cache-dir install -r requirements-runtime.txt
 
-python reranks_predictionguard.py
+python src/reranks_predictionguard.py
