@@ -44,7 +44,7 @@ bash ./launch_vllm_service.sh ${port_number} ${model_name}
 
 ```bash
 cd deplopyment/docker_compose
-docker compose -f compose.yaml vllm-server up -d
+docker compose -f compose.yaml up vllm-server -d
 ```
 
 ### 2.2 vLLM on Gaudi
