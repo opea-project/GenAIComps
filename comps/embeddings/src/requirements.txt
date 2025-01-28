@@ -3,8 +3,8 @@ docarray
 einops
 fastapi
 huggingface_hub
-openai
 open-clip-torch
+openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
