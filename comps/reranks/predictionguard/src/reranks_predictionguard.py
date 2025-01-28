@@ -10,11 +10,14 @@ from predictionguard import PredictionGuard
 from comps import (
     GeneratedDoc,
     LLMParamsDoc,
+    RerankedDoc,
+    SearchedDoc,
     ServiceType,
+    TextDoc,
     opea_microservices,
     register_microservice,
     register_statistics,
-    statistics_dict, SearchedDoc, RerankedDoc, TextDoc,
+    statistics_dict,
 )
 from comps.reranks.predictionguard.src.helpers import process_doc_list
 
@@ -30,7 +33,6 @@ app = FastAPI()
     port=9000,
     input_datatype=SearchedDoc,
     output_datatype=RerankedDoc,
-
 )
 @register_statistics(names=["opea_service@reranks_predictionguard"])
 def reranks_generate(input: SearchedDoc) -> RerankedDoc:
@@ -42,16 +44,13 @@ def reranks_generate(input: SearchedDoc) -> RerankedDoc:
 
         try:
             rerank_result = client.rerank.create(
-                model="bge-reranker-v2-m3",
-                query=input.initial_query,
-                documents=docs,
-                return_documents=True
+                model="bge-reranker-v2-m3", query=input.initial_query, documents=docs, return_documents=True
             )
 
             # based on rerank_result, reorder the retrieved_docs to match the order of the retrieved_docs in the input
-            reranked_docs = [TextDoc(id=input.retrieved_docs[doc["index"]].id, text=doc["text"]) for doc in rerank_result["results"]]
-
-
+            reranked_docs = [
+                TextDoc(id=input.retrieved_docs[doc["index"]].id, text=doc["text"]) for doc in rerank_result["results"]
+            ]
 
         except ValueError as e:
             logging.error(f"rerank failed with error: {e}. Inputs: query={input.initial_query}, documents={docs}")
@@ -59,9 +58,9 @@ def reranks_generate(input: SearchedDoc) -> RerankedDoc:
     else:
         logging.info("reranking request input did not contain any documents")
 
-
     statistics_dict["opea_service@reranks_predictionguard"].append_latency(time.time() - start, None)
     return RerankedDoc(initial_query=input.initial_query, reranked_docs=reranked_docs)
+
 
 if __name__ == "__main__":
     opea_microservices["opea_service@reranks_predictionguard"].start()
