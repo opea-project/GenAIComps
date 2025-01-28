@@ -151,7 +151,6 @@ from ...storage.persistence_memory import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
 from .utils import assemble_history, assemble_memory, convert_json_to_tool_call, save_state_to_store
 from .utils import assemble_memory_from_store
-from langgraph.store.memory import InMemoryStore
 
 
 class AgentState(TypedDict):
@@ -244,17 +243,6 @@ class ReActAgentNodeLlama:
 class ReActAgentLlama(BaseAgent):
     def __init__(self, args, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
-        if args.with_memory:
-            if args.memory_type == "volatile":
-                self.checkpointer = MemorySaver()
-            elif args.memory_type == "persistent":
-                self.store = RedisPersistence("redis://localhost:6379") #(args.store_config.redis_uri)
-                # self.store = InMemoryStore()
-            else:
-                raise ValueError("Invalid memory type!")
-        else:
-            self.store = None
-            self.checkpointer = None  
 
         agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args, store=self.store)
         tool_node = ToolNode(self.tools_descriptions)
@@ -293,11 +281,6 @@ class ReActAgentLlama(BaseAgent):
         workflow.add_edge("tools", "agent")
 
         if args.with_memory:
-            # self.persistence = AgentPersistence(
-            #     config=PersistenceConfig(checkpointer=args.with_memory, store=args.with_store)
-            # )
-            # print(self.persistence.checkpointer)
-            # self.app = workflow.compile(checkpointer=self.persistence.checkpointer, store=self.persistence.store)
             if args.memory_type == "volatile":
                 self.app = workflow.compile(checkpointer=self.checkpointer)
             elif args.memory_type == "persistent":

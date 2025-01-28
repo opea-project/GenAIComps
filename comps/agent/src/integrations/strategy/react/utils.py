@@ -9,6 +9,10 @@ from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.messages.tool import ToolCall
 from langchain_core.output_parsers import BaseOutputParser
 
+import time
+from pydantic import BaseModel
+from typing import Any, Dict, List, Literal, Optional, Union
+
 
 class ReActLlamaOutputParser(BaseOutputParser):
     def parse(self, text: str):
@@ -39,15 +43,6 @@ def convert_json_to_tool_call(json_str):
     tool_name = json_str["tool"]
     tool_args = json_str["args"]
     tcid = str(uuid.uuid4())
-    # add_kw_tc = {
-    #     "tool_calls": [
-    #         ChatCompletionOutputToolCall(
-    #             function=ChatCompletionOutputFunctionDefinition(arguments=tool_args, name=tool_name, description=None),
-    #             id=tcid,
-    #             type="function",
-    #         )
-    #     ]
-    # }
     tool_call = ToolCall(name=tool_name, args=tool_args, id=tcid)
     return tool_call
 
@@ -137,44 +132,119 @@ def assemble_memory(messages):
     return query, query_history, conversation_history
 
 
+class ToolCallObject(BaseModel):
+    name: str
+    args: Dict[str, Any]
+    id: str
+ 
+class StoreMessage(BaseModel):
+    id: str
+    object: str = "thread.message"
+    created_at: float
+    role: str
+    content: Optional[str] = None
+    tool_calls: Optional[List[ToolCallObject]] = None
+    tool_call_id: Optional[str] = None
+
+
+
+def convert_to_message_object(message):
+    if isinstance(message, HumanMessage):
+        message_object = StoreMessage(
+            id=message.id,
+            created_at = time.time(),
+            role="user",
+            content=message.content,
+        )
+    elif isinstance(message, AIMessage):
+        if message.tool_calls:
+            tool_calls = []
+            for tool_call in message.tool_calls:
+                tool_calls.append({
+                    "name": tool_call["name"],
+                    "args": tool_call["args"],
+                    "id": tool_call["id"],
+                })
+        else:
+            tool_calls = None
+
+        message_object = StoreMessage(
+            id=message.id,
+            created_at = time.time(),
+            role="assistant",
+            content=message.content,
+            tool_calls=tool_calls,
+        )
+
+    elif isinstance(message, ToolMessage):
+        message_object = StoreMessage(
+            id=message.id,
+            created_at = time.time(),
+            role="tool",
+            content=message.content,
+            tool_call_id=message.tool_call_id,
+        )
+    else:
+        raise ValueError("Invalid message type")
+
+    return message_object
+
+def save_state_to_store(state, config, store):
+    assistant_id = config["configurable"]["user_id"]
+    thread_id = config["configurable"]["thread_id"]
+    namespace = f"{assistant_id}_{thread_id}"
+
+    # Create a new memory ID
+    memory_id = str(uuid.uuid4())
+
+    # convert message into MessageObject
+    last_message = state["messages"][-1]
+    message_object = convert_to_message_object(last_message)
+    store.put(memory_id, message_object.model_dump_json(), namespace)
+
+
+def convert_from_message_object(message_object):
+    if message_object["role"] == "user":
+        message = HumanMessage(content=message_object["content"], id=message_object["id"])
+    elif message_object["role"] == "assistant":
+        if message_object["tool_calls"]:
+            tool_calls = []
+            for tool_call in message_object["tool_calls"]:
+                tool_calls.append(ToolCall(name=tool_call["name"], args=tool_call["args"], id=tool_call["id"]))
+            message = AIMessage(content=message_object["content"], id=message_object["id"], tool_calls=tool_calls)
+        else:
+            message = AIMessage(content=message_object["content"], id=message_object["id"])
+    elif message_object["role"] == "tool":
+        message = ToolMessage(content=message_object["content"], tool_call_id=message_object["tool_call_id"])
+    else:
+        raise ValueError("Invalid message role")
+    return message
+
+
 def assemble_memory_from_store(config, store):
     """
     store: RedisPersistence
     """
     assistant_id = config["configurable"]["user_id"]
     thread_id = config["configurable"]["thread_id"]
-    # namespace = f"{assistant_id}_{thread_id}"
-    namespace = (assistant_id, thread_id)
+    namespace = f"{assistant_id}_{thread_id}"
 
     # get all the messages in this thread
-    # messages = store.get_all(namespace)
-    saved_all = store.search(namespace)
+    saved_all = store.get_all(namespace)
+    message_objects = []
     messages = []
     for saved in saved_all:
-        print("@@@@ Saved memory:\n", saved)
-        message = saved.dict()["value"]["state"]["messages"]
-        messages.extend(message)
-    print("@@@@ All messages:\n", messages)
+        message_object = json.loads(saved_all[saved])
+        # print("@@@@ Saved memory:\n", message_object)
+        message_objects.append(message_object)
+
+    message_objects = sorted(message_objects, key=lambda x: x["created_at"])
+
+    for message_object in message_objects:
+        message = convert_from_message_object(message_object)
+        messages.append(message)
+
+    # print("@@@@ All messages:\n", messages)
     
     query, query_history, conversation_history = assemble_memory(messages)
     return query, query_history, conversation_history
-
-
-def save_state_to_store(state, config, store):
-
-    # Get the user id from the config
-    assistant_id = config["configurable"]["user_id"]
-    thread_id = config["configurable"]["thread_id"]
-
-    # Namespace the memory
-    # namespace = (assistant_id, thread_id) 
-    namespace = f"{assistant_id}_{thread_id}"
-
-    # Create a new memory ID
-    memory_id = str(uuid.uuid4())
-
-    # We create a new memory
-    # store.put(namespace, memory_id, {"state": state})
-    
-    # convert message into MessageObject
-    store.put(memory_id, state.model_dump_json(), namespace)

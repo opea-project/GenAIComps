@@ -167,7 +167,7 @@ def run_agent(agent, config, input_message):
     # except Exception as e:
     #     print(str(e))
 
-
+from uuid import uuid4
 def test_memory(args):
     from integrations.agent import instantiate_agent
     
@@ -176,7 +176,7 @@ def test_memory(args):
     print(args)
 
     assistant_id = "my_assistant"
-    thread_id = "1"
+    thread_id = str(uuid4())
     namespace_for_memory = (assistant_id, thread_id)
 
     config = {"recursion_limit": 5, "configurable": {"session_id":thread_id,"thread_id": thread_id, "user_id":assistant_id}}

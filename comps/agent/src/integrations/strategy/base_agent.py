@@ -5,6 +5,8 @@ from uuid import uuid4
 
 from ..tools import get_tools_descriptions
 from ..utils import adapt_custom_prompt, setup_chat_model
+from langgraph.checkpoint.memory import MemorySaver
+from ..storage.persistence_redis import RedisPersistence
 
 
 class BaseAgent:
@@ -12,11 +14,21 @@ class BaseAgent:
         self.llm = setup_chat_model(args)
         self.tools_descriptions = get_tools_descriptions(args.tools)
         self.app = None
-        self.memory = None
         self.id = f"assistant_{self.__class__.__name__}_{uuid4()}"
         self.args = args
         adapt_custom_prompt(local_vars, kwargs.get("custom_prompt"))
-        print(self.tools_descriptions)
+        print("Registered tools: ", self.tools_descriptions)
+
+        if args.with_memory:
+            if args.memory_type == "volatile":
+                self.checkpointer = MemorySaver()
+            elif args.memory_type == "persistent":
+                self.store = RedisPersistence(args.store_config.redis_uri)
+            else:
+                raise ValueError("Invalid memory type!")
+        else:
+            self.store = None
+            self.checkpointer = None
 
     @property
     def is_vllm(self):
