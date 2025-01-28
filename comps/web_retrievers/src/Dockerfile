@@ -14,8 +14,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libjemalloc-dev \
     curl
 
-USER user
-
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
@@ -26,6 +24,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/web_retrievers/src
 
