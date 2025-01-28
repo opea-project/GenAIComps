@@ -4,9 +4,9 @@
 import os
 import time
 
+from integrations.clip import OpeaClipEmbedding
 from integrations.predictionguard import PredictionguardEmbedding
 from integrations.tei import OpeaTEIEmbedding
-from integrations.clip import OpeaClipEmbedding
 
 from comps import (
     CustomLogger,
