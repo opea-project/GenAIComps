@@ -22,6 +22,10 @@ However, a reranking model can further refine this process by rearranging potent
 
 For additional information, please refer to this [README](./fastrag/README.md)
 
+### Utilizing Reranking with Prediction Guard
+
+For additional information, please refer to this [README](./predictionguard/README.md)
+
 ### Utilizing Reranking with Mosec
 
 For additional information, please refer to this [README](./mosec/langchain/README.md)
