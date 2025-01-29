@@ -8,13 +8,13 @@
 
 ```bash
 cd ../../..
-docker build -t opea/reranks-predictionguard:latest -f comps/reranks/predictionguard/Dockerfile .
+docker build -t opea/reranking-predictionguard:latest -f comps/reranks/predictionguard/Dockerfile .
 ```
 
 ### Run the Predictionguard Microservice
 
 ```bash
-docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name reranks-predictionguard opea/reranks-predictionguard:latest
+docker run -d -p 9000:9000 -e PREDICTIONGUARD_API_KEY=$PREDICTIONGUARD_API_KEY  --name reranking-predictionguard opea/reranking-predictionguard:latest
 ```
 
 ## Consume the Prediction Guard Rerank Microservice
