@@ -71,7 +71,7 @@ class OpeaDocSumTgi(OpeaDocSum):
             repetition_penalty=input.repetition_penalty if input.repetition_penalty else 1.03,
             streaming=input.stream,
             server_kwargs=server_kwargs,
-            task='text-generation',
+            task="text-generation",
         )
         result = await self.generate(input, self.client)
 
