@@ -195,6 +195,7 @@ class ReActAgentNodeLlama:
                 query, history, thread_history = assemble_memory(messages)
             elif self.memory_type == "persistent":
                 # use thread_id, assistant_id to search memory from store
+                print("@@@ Load memory from store....")
                 query, history, thread_history = assemble_memory_from_store(config, self.store) # TODO
             else:
                 raise ValueError("Invalid memory type!")
@@ -302,6 +303,7 @@ class ReActAgentLlama(BaseAgent):
             return "continue"
 
     def prepare_initial_state(self, query):
+        print("---Prepare initial state---")
         return {"messages": [HumanMessage(content=query)]}
 
     async def stream_generator(self, query, config, thread_id=None):
@@ -310,11 +312,15 @@ class ReActAgentLlama(BaseAgent):
             initial_state["tool_choice"] = config.pop("tool_choice")
 
         try:
+            print("---Start running---")
             async for event in self.app.astream(initial_state, config=config, stream_mode=["updates"]):
+                print(event)
                 event_type = event[0]
                 data = event[1]
                 if event_type == "updates":
                     for node_name, node_state in data.items():
+                        if self.memory_type == "persistent":
+                            save_state_to_store(node_state, config, self.store)
                         print(f"--- CALL {node_name} node ---\n")
                         for k, v in node_state.items():
                             if v is not None:
@@ -349,8 +355,8 @@ class ReActAgentLlama(BaseAgent):
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
                 message = s["messages"][-1]
                 message.pretty_print()
-
-                save_state_to_store(s, config, self.persistence.store)
+                print(" @@@ Save message to store....")
+                save_state_to_store(s, config, self.store)
 
             last_message = s["messages"][-1]
             print("******Response: ", last_message.content)

@@ -21,9 +21,13 @@ class BaseAgent:
 
         if args.with_memory:
             if args.memory_type == "volatile":
+                self.memory_type = "volatile"
                 self.checkpointer = MemorySaver()
+                self.store=None
             elif args.memory_type == "persistent":
+                # print("Using Redis as persistent storage: ", args.store_config.redis_uri)
                 self.store = RedisPersistence(args.store_config.redis_uri)
+                self.memory_type = "persistent"
             else:
                 raise ValueError("Invalid memory type!")
         else:

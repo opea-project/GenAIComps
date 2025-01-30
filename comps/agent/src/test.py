@@ -167,32 +167,97 @@ def run_agent(agent, config, input_message):
     # except Exception as e:
     #     print(str(e))
 
+
+def stream_generator(agent, config, input_message):
+    from integrations.strategy.react.utils import save_state_to_store
+    initial_state = agent.prepare_initial_state(input_message)
+    # try:
+    for event in agent.app.stream(initial_state, config=config, stream_mode=["updates"]):
+        print(event)
+        event_type = event[0]
+        data = event[1]
+        if event_type == "updates":
+            for node_name, node_state in data.items():
+                print(f"@@@ {node_name} : {node_state}")
+                print(" @@@ Save message to store....")
+                save_state_to_store(node_state, config, agent.store)
+                print(f"--- CALL {node_name} node ---\n")
+                for k, v in node_state.items():
+                    if v is not None:
+                        print(f"------- {k}, {v} -------\n\n")
+                        if node_name == "agent":
+                            if v[0].content == "":
+                                tool_names = []
+                                for tool_call in v[0].tool_calls:
+                                    tool_names.append(tool_call["name"])
+                                result = {"tool": tool_names}
+                            else:
+                                result = {"content": [v[0].content.replace("\n\n", "\n")]}
+                            # ui needs this format
+                            print(f"data: {json.dumps(result)}\n\n")
+                        elif node_name == "tools":
+                            full_content = v[0].content
+                            tool_name = v[0].name
+                            result = {"tool": tool_name, "content": [full_content]}
+                            print(f"data: {json.dumps(result)}\n\n")
+                            if not full_content:
+                                continue
+
+    print("data: [DONE]\n\n")
+    # except Exception as e:
+    #     print(str(e))
+
+
 from uuid import uuid4
+import time
 def test_memory(args):
     from integrations.agent import instantiate_agent
-    
 
     agent = instantiate_agent(args)
     print(args)
 
     assistant_id = "my_assistant"
     thread_id = str(uuid4())
-    namespace_for_memory = (assistant_id, thread_id)
+    namespace = f"{assistant_id}_{thread_id}"
+    db_client = agent.store
 
     config = {"recursion_limit": 5, "configurable": {"session_id":thread_id,"thread_id": thread_id, "user_id":assistant_id}}
 
 
-    input_message = "Hi! I'm Bob."   
-    run_agent(agent, config, input_message)
-    print("============== End of first turn ==============")
+    # input_message = "Hi! I'm Bob."   
+    # run_agent(agent, config, input_message)
+    # print("============== End of first turn ==============")
     
 
+    # input_message = "What's OPEA project?"
+    # run_agent(agent, config, input_message)
+    # print("============== End of second turn ==============")
+    
+    # input_message = "what's my name?"
+    # run_agent(agent, config, input_message)
+    # print("============== End of third turn ==============")
+
+    input_message = "Hi! I'm Bob."   
+    msg_id = str(uuid4())
+    input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
+    db_client.put(msg_id, input_object, namespace)
+    stream_generator(agent, config, input_message)
+    print("============== End of first turn ==============")
+    
+    time.sleep(1)
     input_message = "What's OPEA project?"
-    run_agent(agent, config, input_message)
+    msg_id = str(uuid4())
+    input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
+    db_client.put(msg_id, input_object, namespace)
+    stream_generator(agent, config, input_message)
     print("============== End of second turn ==============")
     
+    time.sleep(1)
     input_message = "what's my name?"
-    run_agent(agent, config, input_message)
+    msg_id = str(uuid4())
+    input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
+    db_client.put(msg_id, input_object, namespace)
+    stream_generator(agent, config, input_message)
     print("============== End of third turn ==============")
 
     # last_saved_memory = agent.persistence.store.search(namespace_for_memory)[-1].dict()

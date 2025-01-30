@@ -190,6 +190,8 @@ def convert_to_message_object(message):
     return message_object
 
 def save_state_to_store(state, config, store):
+    last_message = state["messages"][-1]
+
     assistant_id = config["configurable"]["user_id"]
     thread_id = config["configurable"]["thread_id"]
     namespace = f"{assistant_id}_{thread_id}"
@@ -198,14 +200,17 @@ def save_state_to_store(state, config, store):
     memory_id = str(uuid.uuid4())
 
     # convert message into MessageObject
-    last_message = state["messages"][-1]
     message_object = convert_to_message_object(last_message)
     store.put(memory_id, message_object.model_dump_json(), namespace)
 
 
 def convert_from_message_object(message_object):
     if message_object["role"] == "user":
-        message = HumanMessage(content=message_object["content"], id=message_object["id"])
+        try:
+            # MessageObject class has a different structure from StoreMessage
+            message = HumanMessage(content=message_object["content"][0]["text"], id=message_object["id"])
+        except:
+            message = HumanMessage(content=message_object["content"], id=message_object["id"])
     elif message_object["role"] == "assistant":
         if message_object["tool_calls"]:
             tool_calls = []
@@ -228,6 +233,7 @@ def assemble_memory_from_store(config, store):
     assistant_id = config["configurable"]["user_id"]
     thread_id = config["configurable"]["thread_id"]
     namespace = f"{assistant_id}_{thread_id}"
+    print("@@@Namespace: ", namespace)
 
     # get all the messages in this thread
     saved_all = store.get_all(namespace)
@@ -235,7 +241,7 @@ def assemble_memory_from_store(config, store):
     messages = []
     for saved in saved_all:
         message_object = json.loads(saved_all[saved])
-        # print("@@@@ Saved memory:\n", message_object)
+        print("@@@@ Saved memory:\n", message_object)
         message_objects.append(message_object)
 
     message_objects = sorted(message_objects, key=lambda x: x["created_at"])
