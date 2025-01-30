@@ -155,17 +155,18 @@ def test_ut(args):
         print(tool)
 
 def run_agent(agent, config, input_message):
-    from integrations.strategy.react.utils import save_state_to_store
-
     initial_state = agent.prepare_initial_state(input_message)
 
-    # try:
-    for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
-        message = s["messages"][-1]
-        message.pretty_print()
-        save_state_to_store(s, config, agent.store)
-    # except Exception as e:
-    #     print(str(e))
+    try:
+        for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
+            message = s["messages"][-1]
+            message.pretty_print()
+                
+        last_message = s["messages"][-1]
+        print("******Response: ", last_message.content)   
+    except Exception as e:
+        print(str(e))  
+
 
 
 def stream_generator(agent, config, input_message):
@@ -210,6 +211,13 @@ def stream_generator(agent, config, input_message):
 
 from uuid import uuid4
 import time
+
+def save_message_to_store(db_client, namespace, input_message):
+    msg_id = str(uuid4())
+    input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
+    db_client.put(msg_id, input_object, namespace)
+
+
 def test_memory(args):
     from integrations.agent import instantiate_agent
 
@@ -224,49 +232,49 @@ def test_memory(args):
     config = {"recursion_limit": 5, "configurable": {"session_id":thread_id,"thread_id": thread_id, "user_id":assistant_id}}
 
 
-    # input_message = "Hi! I'm Bob."   
-    # run_agent(agent, config, input_message)
-    # print("============== End of first turn ==============")
-    
-
-    # input_message = "What's OPEA project?"
-    # run_agent(agent, config, input_message)
-    # print("============== End of second turn ==============")
-    
-    # input_message = "what's my name?"
-    # run_agent(agent, config, input_message)
-    # print("============== End of third turn ==============")
-
     input_message = "Hi! I'm Bob."   
-    msg_id = str(uuid4())
-    input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
-    db_client.put(msg_id, input_object, namespace)
-    stream_generator(agent, config, input_message)
+    save_message_to_store(db_client, namespace, input_message)
+    run_agent(agent, config, input_message)
+    time.sleep(1)
     print("============== End of first turn ==============")
     
-    time.sleep(1)
+
     input_message = "What's OPEA project?"
-    msg_id = str(uuid4())
-    input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
-    db_client.put(msg_id, input_object, namespace)
-    stream_generator(agent, config, input_message)
+    save_message_to_store(db_client, namespace, input_message)
+    run_agent(agent, config, input_message)
+    time.sleep(1)
     print("============== End of second turn ==============")
     
-    time.sleep(1)
     input_message = "what's my name?"
-    msg_id = str(uuid4())
-    input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
-    db_client.put(msg_id, input_object, namespace)
-    stream_generator(agent, config, input_message)
+    save_message_to_store(db_client, namespace, input_message)
+    run_agent(agent, config, input_message)
+    time.sleep(1)
     print("============== End of third turn ==============")
 
-    # last_saved_memory = agent.persistence.store.search(namespace_for_memory)[-1].dict()
-    # last_saved_messages = last_saved_memory["value"]["state"]["messages"]
-    # print("Last saved memory:\n", last_saved_memory)
-    # print("Last saved messages:")
-    # for m in last_saved_messages:
-    #     m.pretty_print()
+
+    # input_message = "Hi! I'm Bob."   
+    # msg_id = str(uuid4())
+    # input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
+    # db_client.put(msg_id, input_object, namespace)
+    # stream_generator(agent, config, input_message)
+    # print("============== End of first turn ==============")
     
+    # time.sleep(1)
+    # input_message = "What's OPEA project?"
+    # msg_id = str(uuid4())
+    # input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
+    # db_client.put(msg_id, input_object, namespace)
+    # stream_generator(agent, config, input_message)
+    # print("============== End of second turn ==============")
+    
+    # time.sleep(1)
+    # input_message = "what's my name?"
+    # msg_id = str(uuid4())
+    # input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
+    # db_client.put(msg_id, input_object, namespace)
+    # stream_generator(agent, config, input_message)
+    # print("============== End of third turn ==============")
+
 
     
 

@@ -76,7 +76,7 @@ async def llm_generate(input: AgentCompletionRequest):
     if isinstance(input.messages, str):
         messages = input.messages
     else:
-        # TODO: need handle multi-turn messages
+        # last user message
         messages = input.messages[-1]["content"]
 
     # 2. prepare the input for the agent
@@ -90,7 +90,6 @@ async def llm_generate(input: AgentCompletionRequest):
     else:
         logger.info("-----------NOT STREAMING-------------")
         response = await agent_inst.non_streaming_run(messages, config)
-        logger.info("-----------Response-------------")
         return GeneratedDoc(text=response, prompt=messages)
 
 
@@ -234,13 +233,13 @@ def create_messages(thread_id, input: CreateMessagesRequest):
         with assistants_global_kv as g_assistants:
             agent_inst, _ = g_assistants[input.assistant_id]
         if agent_inst.memory_type == "persistent":
-            logger.info(f"Save Agent Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
+            logger.info(f"Save Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
             # if with store, db_client initialized already
             global db_client
             namespace=f"{input.assistant_id}_{thread_id}"
             # put(key: str, val: dict, collection: str = DEFAULT_COLLECTION)
             db_client.put(msg_id, message.model_dump_json(), namespace)
-            print(f"@@@ Save message to db: {msg_id}, {message.model_dump_json()}, {namespace}")
+            logger.info(f"@@@ Save message to db: {msg_id}, {message.model_dump_json()}, {namespace}")
 
     return message
 
@@ -267,7 +266,6 @@ def create_run(thread_id, input: CreateRunResponse):
     if agent_inst.memory_type == "persistent":
         global db_client
         namespace=f"{assistant_id}_{thread_id}"
-        # input_query = assemble_store_messages(db_client.get_all(namespace)) 
         # get the latest human message from store in the namespace
         input_query = get_latest_human_message_from_store(db_client, namespace)
         print("@@@@ Input_query from store: ", input_query)
@@ -278,16 +276,11 @@ def create_run(thread_id, input: CreateRunResponse):
     print("@@@ Agent instance:")
     print(agent_inst.id)
     print(agent_inst.args)
-    try:
+    try:   
         return StreamingResponse(
-            agent_inst.stream_generator(input_query, config, thread_id),
+            thread_completion_callback(agent_inst.stream_generator(input_query, config, thread_id), thread_id),
             media_type="text/event-stream",
         )
-    
-        # return StreamingResponse(
-        #     thread_completion_callback(agent_inst.stream_generator(input_query, config, thread_id), thread_id),
-        #     media_type="text/event-stream",
-        # )
     except Exception as e:
         with threads_global_kv as g_threads:
             thread_inst, created_at, status = g_threads[thread_id]

@@ -348,6 +348,9 @@ class ReActAgentLlama(BaseAgent):
             yield str(e)
 
     async def non_streaming_run(self, query, config):
+        # for use as worker agent (tool of supervisor agent)
+        # only used in chatcompletion api
+        # chat completion api only supports volatile memory
         initial_state = self.prepare_initial_state(query)
         if "tool_choice" in config:
             initial_state["tool_choice"] = config.pop("tool_choice")
@@ -355,9 +358,6 @@ class ReActAgentLlama(BaseAgent):
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
                 message = s["messages"][-1]
                 message.pretty_print()
-                print(" @@@ Save message to store....")
-                save_state_to_store(s, config, self.store)
-
             last_message = s["messages"][-1]
             print("******Response: ", last_message.content)
             return last_message.content

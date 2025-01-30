@@ -76,13 +76,11 @@ class BaseAgent:
         try:
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
                 message = s["messages"][-1]
-                if isinstance(message, tuple):
-                    print(message)
-                else:
-                    message.pretty_print()
+                message.pretty_print()
 
             last_message = s["messages"][-1]
             print("******Response: ", last_message.content)
             return last_message.content
         except Exception as e:
             return str(e)
+    

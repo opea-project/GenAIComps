@@ -58,7 +58,7 @@ def test_assistants_http(args, agent_config=None):
 
     # step 3. add messages
     def add_message_and_run(user_message):
-        query = {"role": "user", "content": user_message}
+        query = {"role": "user", "content": user_message, "assistant_id": assistant_id}
         if ret := process_request(f"threads/{thread_id}/messages", query):
             pass
         else:
@@ -95,9 +95,8 @@ if __name__ == "__main__":
     parser.add_argument("--strategy", type=str, default="react_llama")
     parser.add_argument("--ip_addr", type=str, default="127.0.0.1", help="endpoint ip address")
     parser.add_argument("--ext_port", type=str, default="9090", help="endpoint port")
-    parser.add_argument("--query", type=str, default=None)
     parser.add_argument("--llm_endpoint_url", type=str, default="http://localhost:8086", help="tgi/vllm endpoint")
-    parser.add_argument("--stream", action="store_true", help="streaming mode")
+
     args, _ = parser.parse_known_args()
 
     for key, value in vars(args1).items():
