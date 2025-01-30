@@ -22,6 +22,7 @@ def process_request(url, query, is_stream=False):
 
     payload = {
         "messages": query,
+        "stream":is_stream
     }
 
     try:

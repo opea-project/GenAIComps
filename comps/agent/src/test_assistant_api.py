@@ -3,10 +3,7 @@
 
 import argparse
 import json
-
 import requests
-from integrations.utils import get_args
-
 import time
 
 
@@ -90,7 +87,6 @@ def test_assistants_http(args, agent_config=None):
 
 
 if __name__ == "__main__":
-    args1, _ = get_args()
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", type=str, default="react_llama")
     parser.add_argument("--ip_addr", type=str, default="127.0.0.1", help="endpoint ip address")
@@ -98,9 +94,6 @@ if __name__ == "__main__":
     parser.add_argument("--llm_endpoint_url", type=str, default="http://localhost:8086", help="tgi/vllm endpoint")
 
     args, _ = parser.parse_known_args()
-
-    for key, value in vars(args1).items():
-        setattr(args, key, value)
 
 
     agent_config = {

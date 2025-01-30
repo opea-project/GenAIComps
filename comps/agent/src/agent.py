@@ -118,8 +118,6 @@ class AgentConfig(BaseModel):
 
     # # short/long term memory
     with_memory: Optional[bool] = True
-    # # persistence
-    # with_store: Optional[bool] = False
     # agent memory config
     # chat_completion api: only supports volatile memory
     # assistants api: supports volatile and persistent memory
@@ -176,6 +174,7 @@ def create_assistants(input: CreateAssistant):
     return AssistantsObject(
         id=assistant_id,
         created_at=created_at,
+        model=input.agent_config.model,
     )
 
 
@@ -276,7 +275,7 @@ def create_run(thread_id, input: CreateRunResponse):
     print("@@@ Agent instance:")
     print(agent_inst.id)
     print(agent_inst.args)
-    try:   
+    try:      
         return StreamingResponse(
             thread_completion_callback(agent_inst.stream_generator(input_query, config, thread_id), thread_id),
             media_type="text/event-stream",
