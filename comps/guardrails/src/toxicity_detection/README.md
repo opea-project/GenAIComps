@@ -2,17 +2,46 @@
 
 ## Introduction
 
-Toxicity Detection Microservice allows AI Application developers to safeguard user input and LLM output from harmful language in a RAG environment. By leveraging a smaller fine-tuned Transformer model for toxicity classification (e.g. DistilledBERT, RoBERTa, etc.), we maintain a lightweight guardrails microservice without significantly sacrificing performance making it readily deployable on both Intel Gaudi and Xeon.
+Toxicity Detection Microservice allows AI Application developers to safeguard user input and LLM output from harmful language in a RAG environment. By leveraging a smaller fine-tuned Transformer model for toxicity classification (e.g. DistilledBERT, RoBERTa, etc.), we maintain a lightweight guardrails microservice without significantly sacrificing performance.
 
 This microservice uses [`Intel/toxic-prompt-roberta`](https://huggingface.co/Intel/toxic-prompt-roberta) that was fine-tuned on Gaudi2 with ToxicChat and Jigsaw Unintended Bias datasets.
 
 Toxicity is defined as rude, disrespectful, or unreasonable language likely to make someone leave a conversation. This can include instances of aggression, bullying, targeted hate speech, or offensive language. For more information on labels see [Jigsaw Toxic Comment Classification Challenge](http://kaggle.com/c/jigsaw-toxic-comment-classification-challenge).
+
+## Environment Setup
+
+### Clone OPEA GenAIComps and Setup Environment
+
+Clone this repository at your desired location and set an environment variable for easy setup and usage throughout the instructions.
+
+```bash
+git clone https://github.com/opea-project/GenAIComps.git
+
+export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
+```
+
+Set the port that this service will use and the component name
+```
+export TOXICITY_DETECTION_PORT=9090
+export TOXICITY_DETECTION_COMPONENT_NAME="OPEA_NATIVE_TOXICITY"
+```
+
+By default, this microservice uses `OPEA_NATIVE_TOXICITY` which invokes [`Intel/toxic-prompt-roberta`](https://huggingface.co/Intel/toxic-prompt-roberta), locally.
+
+Alternatively, if you are using Prediction Guard, reset the following component name environment variable:
+```
+export TOXICITY_DETECTION_COMPONENT_NAME="PREDICTIONGUARD_TOXICITY_DETECTION"
+```
+
+### Set environment variables
+
 
 ## 🚀1. Start Microservice with Python（Option 1）
 
 ### 1.1 Install Requirements
 
 ```bash
+cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/src/toxicity_detection
 pip install -r requirements.txt
 ```
 
@@ -24,21 +53,30 @@ python toxicity_detection.py
 
 ## 🚀2. Start Microservice with Docker (Option 2)
 
-### 2.1 Prepare toxicity detection model
-
-export HUGGINGFACEHUB_API_TOKEN=${HP_TOKEN}
-
-### 2.2 Build Docker Image
+### 2.1 Build Docker Image
 
 ```bash
-cd ../../../ # back to GenAIComps/ folder
-docker build -t opea/guardrails-toxicity-detection:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/src/toxicity_detection/Dockerfile .
+cd $OPEA_GENAICOMPS_ROOT
+docker build \
+    --build-arg https_proxy=$https_proxy \
+    --build-arg http_proxy=$http_proxy \
+    -t opea/guardrails-toxicity-detection:latest  \
+    -f comps/guardrails/src/toxicity_detection/Dockerfile .
 ```
 
-### 2.3 Run Docker Container with Microservice
+### 2.2 Run Docker Container with Microservice
 
 ```bash
-docker run -d --rm --runtime=runc --name="guardrails-toxicity-detection-endpoint" -p 9091:9091 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} opea/guardrails-toxicity-detection:latest
+docker run -d --rm \
+    --name="guardrails-toxicity-detection-endpoint" \
+    --runtime=runc  \
+    -p ${TOXICITY_DETECTION_PORT}:${TOXICITY_DETECTION_PORT} \
+    --ipc=host \
+    -e http_proxy=$http_proxy \
+    -e https_proxy=$https_proxy \
+    -e no_proxy=${no_proxy} \
+    -e TOXICITY_DETECTION_PORT=${TOXICITY_DETECTION_PORT} \
+    opea/guardrails-toxicity-detection:latest
 ```
 
 ## 🚀3. Get Status of Microservice
@@ -54,10 +92,10 @@ Once microservice starts, users can use examples (bash or python) below to apply
 **Bash:**
 
 ```bash
-curl localhost:9091/v1/toxicity
-    -X POST
-    -d '{"text":"How to poison my neighbor'\''s dog without being caught?"}'
-    -H 'Content-Type: application/json'
+curl localhost:${TOXICITY_DETECTION_PORT}/v1/toxicity \
+    -X POST \
+    -d '{"text":"How to poison my neighbor'\''s dog without being caught?"}' \
+    -H 'Content-Type: application/json' 
 ```
 
 Example Output:
@@ -71,9 +109,11 @@ Example Output:
 ```python
 import requests
 import json
+import os
 
+toxicity_detection_port = os.getenv("TOXICITY_DETECTION_PORT")
 proxies = {"http": ""}
-url = "http://localhost:9091/v1/toxicity"
+url = f"http://localhost:{toxicty_detection_port}/v1/toxicity"
 data = {"text": "How to poison my neighbor'''s dog without being caught?"}
 
 
