@@ -14,16 +14,18 @@ tgi_port=8085
 tgi_volume=$WORKPATH/data
 
 vllm_port=8086
-export vllm_volume=$WORKPATH/data
-echo "vllm_volume:"
-ls $vllm_volume
+export HF_CACHE_DIR=/data2/huggingface
+echo  "HF_CACHE_DIR=$HF_CACHE_DIR"
+ls $HF_CACHE_DIR
+export vllm_volume=${HF_CACHE_DIR}
+
 
 export WORKPATH=$WORKPATH
 
 export agent_image="opea/agent:comps"
 export agent_container_name="test-comps-agent-endpoint"
 
-export model=meta-llama/Meta-Llama-3.1-70B-Instruct
+export model=meta-llama/Llama-3.3-70B-Instruct #meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export ip_address=$(hostname -I | awk '{print $1}')
 export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
@@ -165,14 +167,9 @@ function start_vllm_service_70B() {
     echo "Service started successfully"
 }
 
-agent_start_wait_time=20s
+agent_start_wait_time=2m
 
 function start_react_agent_service() {
-
-    echo "Starting redis for testing agent persistent"
-
-    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9
-
     echo "Starting react agent microservice"
     docker compose -f $WORKPATH/tests/agent/react_langchain.yaml up -d
     sleep $agent_start_wait_time
@@ -191,6 +188,10 @@ function start_react_langgraph_agent_service_openai() {
 
 
 function start_react_llama_agent_service() {
+    echo "Starting redis for testing agent persistent"
+
+    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9
+
     echo "Starting react_llama agent microservice"
     docker compose -f $WORKPATH/tests/agent/reactllama.yaml up -d
     sleep $agent_start_wait_time
@@ -356,7 +357,7 @@ function stop_docker() {
 function validate_sql_agent(){
     cd $WORKPATH/tests/
     local CONTENT=$(bash agent/sql_agent_test/test_sql_agent.sh)
-    local EXIT_CODE=$(validate "$CONTENT" "173" "test-sql-agent")
+    local EXIT_CODE=$(validate "$CONTENT" "Iron" "test-sql-agent")
     echo "$EXIT_CODE"
     local EXIT_CODE="${EXIT_CODE:0-1}"
     echo "return value is $EXIT_CODE"
@@ -372,46 +373,46 @@ function validate_sql_agent(){
 
 function main() {
     stop_agent_docker
-    # stop_docker
-    # build_docker_images
-    # build_vllm_docker_images
+    stop_docker
+    build_docker_images
+    build_vllm_docker_images
 
     # # ==================== Tests with 70B model ====================
     # # RAG agent, react_llama, react, assistant apis
 
-    # start_vllm_service_70B
+    start_vllm_service_70B
 
     # # test rag agent
     # chat completion API, no memory, single-turn
-    # start_ragagent_agent_service
-    # echo "=============Testing RAG Agent============="
-    # validate_microservice
-    # stop_agent_docker
-    # echo "============================================="
+    start_ragagent_agent_service
+    echo "=============Testing RAG Agent: chat completion, single-turn, not streaming ============="
+    validate_microservice
+    stop_agent_docker
+    echo "============================================="
 
     # # # test react_llama
-    start_react_llama_agent_service # with volatile memory, streaming
-    # echo "===========Testing ReAct Llama ============="
-    # # chat completion single-turn not streaming
-    # echo "=============Testing ReAct Llama: chat completion, not streaming ============="
-    # validate_microservice
+    start_react_llama_agent_service # also starts redis db
+    echo "===========Testing ReAct Llama ============="
+    # chat completion single-turn not streaming
+    echo "=============Testing ReAct Llama: chat completion, single-turn, not streaming ============="
+    validate_microservice
 
     # multi-turn streaming
-    # echo "=============Testing ReAct Llama: multi-turn streaming ============="
-    # validate_microservice_multi_turn_streaming
+    echo "=============Testing ReAct Llama: chat completion, multi-turn streaming ============="
+    validate_microservice_multi_turn_streaming
 
-    # assistant api multi-turn streaming
-    echo "=============Testing ReAct Llama: assistant api, multi-turn streaming ============="
+    # test assistant api multi-turn streaming
+    echo "=============Testing ReAct Llama: assistant api, multi-turn streaming, persistent ============="
     validate_assistant_api
-    # stop_agent_docker
+    stop_agent_docker
     echo "============================================="
 
 
     # # # test sql agent
-    # echo "=============Testing SQL llama============="
-    # validate_sql_agent
-    # stop_docker
-    # echo "============================================="
+    echo "=============Testing SQL llama: chat completion, single-turn, not streaming ============="
+    validate_sql_agent
+    stop_agent_docker
+    echo "============================================="
 
     # # echo "===========Testing Plan Execute VLLM Llama3.1 ============="
     # # start_vllm_service
@@ -448,9 +449,9 @@ function main() {
     # # validate_microservice
     # # stop_agent_docker
 
-    # stop_docker
+    stop_docker
 
-    # echo y | docker system prune 2>&1 > /dev/null
+    echo y | docker system prune 2>&1 > /dev/null
 }
 
 main

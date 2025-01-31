@@ -8,7 +8,7 @@ This agent microservice is built on Langchain/Langgraph frameworks. Agents integ
 
 We currently support the following types of agents. Please refer to the example config yaml (links in the table in [Section 1.2](#12-llm-engine)) for each agent strategy to see what environment variables need to be set up.
 
-1. ReAct: use `react_langchain` or `react_langgraph` or `react_llama` as strategy. First introduced in this seminal [paper](https://arxiv.org/abs/2210.03629). The ReAct agent engages in "reason-act-observe" cycles to solve problems. Please refer to this [doc](https://python.langchain.com/v0.2/docs/how_to/migrate_agent/) to understand the differences between the langchain and langgraph versions of react agents. See table below to understand the validated LLMs for each react strategy.
+1. ReAct: use `react_langchain` or `react_langgraph` or `react_llama` as strategy. First introduced in this seminal [paper](https://arxiv.org/abs/2210.03629). The ReAct agent engages in "reason-act-observe" cycles to solve problems. Please refer to this [doc](https://python.langchain.com/v0.2/docs/how_to/migrate_agent/) to understand the differences between the langchain and langgraph versions of react agents. See table below to understand the validated LLMs for each react strategy. We recommend using `react_llama` as it has the most features enabled, including agent memory, multi-turn conversations and assistants APIs.
 2. RAG agent: use `rag_agent` or `rag_agent_llama` strategy. This agent is specifically designed for improving RAG performance. It has the capability to rephrase query, check relevancy of retrieved context, and iterate if context is not relevant. See table below to understand the validated LLMs for each rag agent strategy.
 3. Plan and execute: `plan_execute` strategy. This type of agent first makes a step-by-step plan given a user request, and then execute the plan sequentially (or in parallel, to be implemented in future). If the execution results can solve the problem, then the agent will output an answer; otherwise, it will replan and execute again.
 4. SQL agent: use `sql_agent_llama` or `sql_agent` strategy. This agent is specifically designed and optimized for answering questions aabout data in SQL databases. Users need to specify `db_name` and `db_path` for the agent to access the SQL database. For more technical details read descriptions [here](integrations/strategy/sqlagent/README.md).
@@ -22,18 +22,18 @@ We currently support the following types of agents. Please refer to the example 
 ### 1.2 LLM engine
 
 Agents use LLM for reasoning and planning. We support 2 options of LLM engine:
-1. Open-source LLMs served with vllm. Follow the instructions in [Section 2.2.2](#222-start-agent-microservices-with-vllm).
+1. Open-source LLMs served with vllm. Follow the instructions in [Section 2.2](#22-start-agent-microservices-with-vllm).
 2. OpenAI LLMs via API calls. To use OpenAI llms, specify `llm_engine=openai` and `export OPENAI_API_KEY=<your-openai-key>`
 
 | Agent type       | `strategy` arg    | Validated LLMs (serving SW)                                                                                  | Notes                                                                                                                                                                                                                                                                          | Example config yaml                                               |
 | ---------------- | ----------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
 | ReAct            | `react_langchain` | [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct) (vllm-gaudi)   | Only allows tools with one input variable                                                                                                                                                                                                                                      | [react_langchain yaml](../../../tests/agent/react_langchain.yaml) |
-| ReAct            | `react_langgraph` | GPT-4o-mini, [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct) (vllm-gaudi), | if using vllm, need to specify `--enable-auto-tool-choice --tool-call-parser ${model_parser}`, refer to vllm docs for more info, only one tool call in each LLM output due to the limitations of llama3.1 modal and vllm tool call parser.                                                                                                                                                | [react_langgraph yaml](../../../tests/agent/react_vllm.yaml)      |
+| ReAct            | `react_langgraph` | GPT-4o-mini, [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct) (vllm-gaudi) | if using vllm, need to specify `--enable-auto-tool-choice --tool-call-parser ${model_parser}`, refer to vllm docs for more info, only one tool call in each LLM output due to the limitations of llama3.1 modal and vllm tool call parser.                                                                                                                                                | [react_langgraph yaml](../../../tests/agent/react_vllm.yaml)      |
 | ReAct            | `react_llama`     | [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct), [llama3.3-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct)(vllm-gaudi)   | Recommended for open-source LLMs, supports multiple tools and parallel tool calls.                                                                                                                                                                                             | [react_llama yaml](../../../tests/agent/reactllama.yaml)          |
 | RAG agent        | `rag_agent`       | GPT-4o-mini                                                                                                  |                                                                                                                                                                                                                                                                                | [rag_agent yaml](../../../tests/agent/ragagent_openai.yaml)       |
-| RAG agent        | `rag_agent_llama` | [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct) (vllm-gaudi)   | Recommended for open-source LLMs, only allows 1 tool with input variable to be "query"                                                                                                                                                                                         | [rag_agent_llama yaml](../../../tests/agent/ragagent.yaml)        |
+| RAG agent        | `rag_agent_llama` | [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct), [llama3.3-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct) (vllm-gaudi)   | Recommended for open-source LLMs, only allows 1 tool with input variable to be "query"                                                                                                                                                                                         | [rag_agent_llama yaml](../../../tests/agent/ragagent.yaml)        |
 | Plan and execute | `plan_execute`    | GPT-4o-mini, [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct) (vllm-gaudi)  | use `--guided-decoding-backend lm-format-enforcer` when launching vllm.                                                                                                                                                                                                        | [plan_execute yaml](../../../tests/agent/planexec_openai.yaml)    |
-| SQL agent        | `sql_agent_llama` | [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct) (vllm-gaudi)               | database query tool is natively integrated using Langchain's [QuerySQLDataBaseTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.sql_database.tool.QuerySQLDatabaseTool.html). User can also register their own tools with this agent. | [sql_agent_llama yaml](../../../tests/agent/sql_agent_llama.yaml) |
+| SQL agent        | `sql_agent_llama` | [llama3.1-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct), [llama3.3-70B-Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct) (vllm-gaudi)               | database query tool is natively integrated using Langchain's [QuerySQLDataBaseTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.sql_database.tool.QuerySQLDatabaseTool.html). User can also register their own tools with this agent. | [sql_agent_llama yaml](../../../tests/agent/sql_agent_llama.yaml) |
 | SQL agent        | `sql_agent`       | GPT-4o-mini                                                                                                  | database query tool is natively integrated using Langchain's [QuerySQLDataBaseTool](https://python.langchain.com/api_reference/community/tools/langchain_community.tools.sql_database.tool.QuerySQLDatabaseTool.html). User can also register their own tools with this agent. | [sql_agent yaml](../../../tests/agent/sql_agent_openai.yaml)      |
 
 ### 1.3 Tools
@@ -47,11 +47,42 @@ The tools are registered with a yaml file. We support the following types of too
 Examples of how to register tools can be found in [Section 4](#-4-provide-your-own-tools) below.
 
 ### 1.4 Agent APIs
+We support two sets of APIs that are OpenAI compatible:
 
-1. OpenAI compatible chat completions API.
-2. OpenAI compatible assistants APIs.
+1. OpenAI compatible chat completions API. Example useage with Python code below.
+```python
+url = f"http://{ip_address}:{agent_port}/v1/chat/completions"
 
-**Note**: not all keywords are supported yet.
+# single-turn, not streaming -> if agent is used as a worker agent (i.e., tool for supervisor agent)
+payload = {
+        "messages": query,
+        "stream":false
+    }
+resp = requests.post(url=url, json=payload, proxies=proxies, stream=False)
+
+# multi-turn, streaming -> to interface with users
+query = {"role": "user", "messages": user_message, "thread_id":thread_id, "stream":stream}
+content = json.dumps(query)
+resp = requests.post(url=url, data=content, proxies=proxies, stream=True)
+for line in resp.iter_lines(decode_unicode=True):
+    print(line)
+```
+2. OpenAI compatible assistants APIs. 
+
+    See example Python code [here](./test_assistant_api.py). There are 4 steps:
+
+    Step 1. create an assistant: /v1/assistants
+
+    Step 2. create a thread: /v1/threads
+
+    Step 3. send a message to the thread: /v1/threads/{thread_id}/messages
+
+    Step 4. run the assistant: /v1/threads/{thread_id}/runs
+
+
+**Note**: 
+1. Currently only `reract_llama` agent is enabled for assistants APIs.
+2. Not all keywords of OpenAI APIs are supported yet.
 
 ### 1.5 Agent memory
 We currently supports two types of memory. 
@@ -61,7 +92,7 @@ We currently supports two types of memory.
 **Note**: Currently only `react_llama` agent supports memory and multi-turn conversations.
 
 #### How to enable agent memory?
-Specify `with_memory`=True and `memory_type`=`volatile` or `persistent`. If want to use persistent memory, you need to launch a Redis database using the command below.
+Specify `with_memory`=True. If want to use persistent memory, specify `memory_type`=`persistent`, and you need to launch a Redis database using the command below.
 ```bash
 # you can change the port from 6379 to another one.
 docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9

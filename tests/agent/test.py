@@ -52,7 +52,7 @@ if __name__ == "__main__":
     ip_address = os.getenv("ip_address", "localhost")
     url = f"http://{ip_address}:9095/v1/chat/completions"
     if args.test_sql_agent:
-        prompt = "How many schools have the average score in Math over 560 in the SAT test?"
+        prompt = "Who has the most albumns?"
     else:
         prompt = "What is OPEA?"
 

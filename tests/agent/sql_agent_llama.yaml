@@ -8,17 +8,17 @@ services:
     volumes:
       - ${TOOLSET_PATH}:/home/user/tools/ # tools
       # - ${WORKDIR}/GenAIComps/comps:/home/user/comps # code
-      - ${WORKDIR}/TAG-Bench/:/home/user/TAG-Bench # SQL database and hints_file
+      - ${WORKDIR}/GenAIComps/tests/agent/:/home/user/chinook-db/
     ports:
       - "9095:9095"
     ipc: host
     environment:
       ip_address: ${ip_address}
       strategy: sql_agent_llama
+      with_memory: false
       db_name: ${db_name}
       db_path: ${db_path}
       use_hints: false
-      hints_file: /home/user/TAG-Bench/${db_name}_hints.csv
       recursion_limit: ${recursion_limit}
       llm_engine: vllm
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
