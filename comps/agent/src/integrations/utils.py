@@ -132,6 +132,7 @@ def assemble_store_messages(messages):
     # revert messages
     return "\n".join(inputs)
 
+
 def get_latest_human_message_from_store(store, namespace):
     messages = store.get_all(namespace)
     human_messages = []
@@ -139,7 +140,7 @@ def get_latest_human_message_from_store(store, namespace):
         message = json.loads(messages[mid])
         if message["role"] == "user":
             human_messages.append(message)
-    
+
     human_messages = sorted(human_messages, key=lambda x: x["created_at"])
     latest_human_message = human_messages[-1]
     return latest_human_message["content"][0]["text"]

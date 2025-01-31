@@ -17,7 +17,8 @@ services:
     volumes:
       - ${VOLUMES_PATH:-./init.sql}:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "sleep 10 && exit 0"]
-      interval: 1s
-      timeout: 15s
-      retries: 1
+        test: pg_isready
+        interval: 60s
+        retries: 3
+        start_period: 10s
+        timeout: 10s

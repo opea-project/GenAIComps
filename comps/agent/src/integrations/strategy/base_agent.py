@@ -3,10 +3,11 @@
 
 from uuid import uuid4
 
+from langgraph.checkpoint.memory import MemorySaver
+
+from ..storage.persistence_redis import RedisPersistence
 from ..tools import get_tools_descriptions
 from ..utils import adapt_custom_prompt, setup_chat_model
-from langgraph.checkpoint.memory import MemorySaver
-from ..storage.persistence_redis import RedisPersistence
 
 
 class BaseAgent:
@@ -23,7 +24,7 @@ class BaseAgent:
             if args.memory_type == "volatile":
                 self.memory_type = "volatile"
                 self.checkpointer = MemorySaver()
-                self.store=None
+                self.store = None
             elif args.memory_type == "persistent":
                 # print("Using Redis as persistent storage: ", args.store_config.redis_uri)
                 self.store = RedisPersistence(args.store_config.redis_uri)
@@ -83,4 +84,3 @@ class BaseAgent:
             return last_message.content
         except Exception as e:
             return str(e)
-    

@@ -154,6 +154,7 @@ def test_ut(args):
     for tool in tools:
         print(tool)
 
+
 def run_agent(agent, config, input_message):
     initial_state = agent.prepare_initial_state(input_message)
 
@@ -161,16 +162,16 @@ def run_agent(agent, config, input_message):
         for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
             message = s["messages"][-1]
             message.pretty_print()
-                
-        last_message = s["messages"][-1]
-        print("******Response: ", last_message.content)   
-    except Exception as e:
-        print(str(e))  
 
+        last_message = s["messages"][-1]
+        print("******Response: ", last_message.content)
+    except Exception as e:
+        print(str(e))
 
 
 def stream_generator(agent, config, input_message):
     from integrations.strategy.react.utils import save_state_to_store
+
     initial_state = agent.prepare_initial_state(input_message)
     # try:
     for event in agent.app.stream(initial_state, config=config, stream_mode=["updates"]):
@@ -209,8 +210,9 @@ def stream_generator(agent, config, input_message):
     #     print(str(e))
 
 
-from uuid import uuid4
 import time
+from uuid import uuid4
+
 
 def save_message_to_store(db_client, namespace, input_message):
     msg_id = str(uuid4())
@@ -229,36 +231,36 @@ def test_memory(args):
     namespace = f"{assistant_id}_{thread_id}"
     db_client = agent.store
 
-    config = {"recursion_limit": 5, "configurable": {"session_id":thread_id,"thread_id": thread_id, "user_id":assistant_id}}
+    config = {
+        "recursion_limit": 5,
+        "configurable": {"session_id": thread_id, "thread_id": thread_id, "user_id": assistant_id},
+    }
 
-
-    input_message = "Hi! I'm Bob."   
+    input_message = "Hi! I'm Bob."
     save_message_to_store(db_client, namespace, input_message)
     run_agent(agent, config, input_message)
     time.sleep(1)
     print("============== End of first turn ==============")
-    
 
     input_message = "What's OPEA project?"
     save_message_to_store(db_client, namespace, input_message)
     run_agent(agent, config, input_message)
     time.sleep(1)
     print("============== End of second turn ==============")
-    
+
     input_message = "what's my name?"
     save_message_to_store(db_client, namespace, input_message)
     run_agent(agent, config, input_message)
     time.sleep(1)
     print("============== End of third turn ==============")
 
-
-    # input_message = "Hi! I'm Bob."   
+    # input_message = "Hi! I'm Bob."
     # msg_id = str(uuid4())
     # input_object = json.dumps({"role": "user", "content": input_message, "id": msg_id, "created_at": int(time.time())})
     # db_client.put(msg_id, input_object, namespace)
     # stream_generator(agent, config, input_message)
     # print("============== End of first turn ==============")
-    
+
     # time.sleep(1)
     # input_message = "What's OPEA project?"
     # msg_id = str(uuid4())
@@ -266,7 +268,7 @@ def test_memory(args):
     # db_client.put(msg_id, input_object, namespace)
     # stream_generator(agent, config, input_message)
     # print("============== End of second turn ==============")
-    
+
     # time.sleep(1)
     # input_message = "what's my name?"
     # msg_id = str(uuid4())
@@ -274,9 +276,6 @@ def test_memory(args):
     # db_client.put(msg_id, input_object, namespace)
     # stream_generator(agent, config, input_message)
     # print("============== End of third turn ==============")
-
-
-    
 
 
 if __name__ == "__main__":

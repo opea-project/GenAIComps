@@ -3,8 +3,9 @@
 
 import argparse
 import json
-import requests
 import time
+
+import requests
 
 
 def test_assistants_http(args, agent_config=None):
@@ -68,7 +69,6 @@ def test_assistants_http(args, agent_config=None):
         query = {"assistant_id": assistant_id}
         process_request(f"threads/{thread_id}/runs", query, is_stream=True)
 
-
     # step 4. First turn
     user_message = "Hi! I'm Bob."
     add_message_and_run(user_message)
@@ -85,7 +85,6 @@ def test_assistants_http(args, agent_config=None):
     time.sleep(1)
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", type=str, default="react_llama")
@@ -95,19 +94,16 @@ if __name__ == "__main__":
 
     args, _ = parser.parse_known_args()
 
-
     agent_config = {
-            "strategy": "react_llama",
-            "stream": True,
-            "llm_engine": "vllm",
-            "llm_endpoint_url": args.llm_endpoint_url,
-            "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml",
-            "with_memory": True,
-            "memory_type": "persistent",
-            "store_config": {"redis_uri": f"redis://{args.ip_addr}:6379"},
-        }
-    
+        "strategy": "react_llama",
+        "stream": True,
+        "llm_engine": "vllm",
+        "llm_endpoint_url": args.llm_endpoint_url,
+        "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml",
+        "with_memory": True,
+        "memory_type": "persistent",
+        "store_config": {"redis_uri": f"redis://{args.ip_addr}:6379"},
+    }
 
     print("test args:", args)
     test_assistants_http(args, agent_config)
-    

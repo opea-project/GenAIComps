@@ -123,7 +123,7 @@ class AgentConfig(BaseModel):
     # assistants api: supports volatile and persistent memory
     # volatile: in-memory checkpointer - MemorySaver()
     # persistent: redis store
-    memory_type: Optional[str] = "volatile" # choices: volatile, persistent
+    memory_type: Optional[str] = "volatile"  # choices: volatile, persistent
     store_config: Optional[RedisConfig] = None
 
     timeout: Optional[int] = 60
@@ -214,7 +214,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
     if isinstance(input.content, str):
         query = input.content
     else:
-        query = input.content[-1]["text"] # content is a list of MessageContent
+        query = input.content[-1]["text"]  # content is a list of MessageContent
     msg_id, created_at = thread_inst.add_query(query)
 
     structured_content = MessageContent(text=query)
@@ -235,7 +235,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
             logger.info(f"Save Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
             # if with store, db_client initialized already
             global db_client
-            namespace=f"{input.assistant_id}_{thread_id}"
+            namespace = f"{input.assistant_id}_{thread_id}"
             # put(key: str, val: dict, collection: str = DEFAULT_COLLECTION)
             db_client.put(msg_id, message.model_dump_json(), namespace)
             logger.info(f"@@@ Save message to db: {msg_id}, {message.model_dump_json()}, {namespace}")
@@ -260,11 +260,14 @@ def create_run(thread_id, input: CreateRunResponse):
     with assistants_global_kv as g_assistants:
         agent_inst, _ = g_assistants[assistant_id]
 
-    config = {"recursion_limit": args.recursion_limit, "configurable": {"session_id":thread_id,"thread_id": thread_id, "user_id":assistant_id}}
-    
+    config = {
+        "recursion_limit": args.recursion_limit,
+        "configurable": {"session_id": thread_id, "thread_id": thread_id, "user_id": assistant_id},
+    }
+
     if agent_inst.memory_type == "persistent":
         global db_client
-        namespace=f"{assistant_id}_{thread_id}"
+        namespace = f"{assistant_id}_{thread_id}"
         # get the latest human message from store in the namespace
         input_query = get_latest_human_message_from_store(db_client, namespace)
         print("@@@@ Input_query from store: ", input_query)
@@ -275,7 +278,7 @@ def create_run(thread_id, input: CreateRunResponse):
     print("@@@ Agent instance:")
     print(agent_inst.id)
     print(agent_inst.args)
-    try:      
+    try:
         return StreamingResponse(
             thread_completion_callback(agent_inst.stream_generator(input_query, config, thread_id), thread_id),
             media_type="text/event-stream",
