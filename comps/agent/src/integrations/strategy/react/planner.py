@@ -11,10 +11,10 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
 from ...global_var import threads_global_kv
+from ...storage.persistence_redis import RedisPersistence
 from ...utils import filter_tools, has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
 from .prompt import REACT_SYS_MESSAGE, hwchase17_react_prompt
-from ...storage.persistence_redis import RedisPersistence
 
 
 class ReActAgentwithLangchain(BaseAgent):
@@ -149,8 +149,13 @@ from langgraph.prebuilt import ToolNode
 
 from ...storage.persistence_memory import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
-from .utils import assemble_history, assemble_memory, convert_json_to_tool_call, save_state_to_store
-from .utils import assemble_memory_from_store
+from .utils import (
+    assemble_history,
+    assemble_memory,
+    assemble_memory_from_store,
+    convert_json_to_tool_call,
+    save_state_to_store,
+)
 
 
 class AgentState(TypedDict):
@@ -178,7 +183,7 @@ class ReActAgentNodeLlama:
         )
         llm = setup_chat_model(args)
         self.tools = tools
-        self.chain = prompt | llm 
+        self.chain = prompt | llm
         self.output_parser = output_parser
         self.with_memory = args.with_memory
         self.memory_type = args.memory_type
@@ -196,13 +201,13 @@ class ReActAgentNodeLlama:
             elif self.memory_type == "persistent":
                 # use thread_id, assistant_id to search memory from store
                 print("@@@ Load memory from store....")
-                query, history, thread_history = assemble_memory_from_store(config, self.store) # TODO
+                query, history, thread_history = assemble_memory_from_store(config, self.store)  # TODO
             else:
                 raise ValueError("Invalid memory type!")
         else:
             query = messages[0].content
             history = assemble_history(messages)
-            thread_history=""
+            thread_history = ""
 
         print("@@@ Turn History:\n", history)
         print("@@@ Thread history:\n", thread_history)
@@ -215,7 +220,9 @@ class ReActAgentNodeLlama:
         print("@@@ Tools description: ", tools_descriptions)
 
         # invoke chain: raw output from llm
-        response = self.chain.invoke({"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history})
+        response = self.chain.invoke(
+            {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
+        )
         response = response.content
 
         # parse tool calls or answers from raw output: result is a list
@@ -237,7 +244,7 @@ class ReActAgentNodeLlama:
                 ai_message = AIMessage(content=str(output[0]["answer"]))
         else:
             ai_message = AIMessage(content=response)
-        
+
         return {"messages": [ai_message]}
 
 

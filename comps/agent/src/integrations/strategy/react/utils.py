@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import time
 import uuid
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from huggingface_hub import ChatCompletionOutputFunctionDefinition, ChatCompletionOutputToolCall
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.messages.tool import ToolCall
 from langchain_core.output_parsers import BaseOutputParser
-
-import time
 from pydantic import BaseModel
-from typing import Any, Dict, List, Literal, Optional, Union
 
 
 class ReActLlamaOutputParser(BaseOutputParser):
@@ -83,8 +82,8 @@ def assemble_memory(messages):
     """
     Assemble memory from messages within this thread (i.e., same thread id)
     messages: Human, AI, TOOL, AI, TOOL, etc. in a thread with multi-turn conversations
-    output: 
-    query - user input of current turn. 
+    output:
+    query - user input of current turn.
     conversation_history - history user input and final ai output in previous turns.
     query_history - history of tool calls and outputs in current turn.
 
@@ -136,7 +135,8 @@ class ToolCallObject(BaseModel):
     name: str
     args: Dict[str, Any]
     id: str
- 
+
+
 class StoreMessage(BaseModel):
     id: str
     object: str = "thread.message"
@@ -147,12 +147,11 @@ class StoreMessage(BaseModel):
     tool_call_id: Optional[str] = None
 
 
-
 def convert_to_message_object(message):
     if isinstance(message, HumanMessage):
         message_object = StoreMessage(
             id=message.id,
-            created_at = time.time(),
+            created_at=time.time(),
             role="user",
             content=message.content,
         )
@@ -160,17 +159,19 @@ def convert_to_message_object(message):
         if message.tool_calls:
             tool_calls = []
             for tool_call in message.tool_calls:
-                tool_calls.append({
-                    "name": tool_call["name"],
-                    "args": tool_call["args"],
-                    "id": tool_call["id"],
-                })
+                tool_calls.append(
+                    {
+                        "name": tool_call["name"],
+                        "args": tool_call["args"],
+                        "id": tool_call["id"],
+                    }
+                )
         else:
             tool_calls = None
 
         message_object = StoreMessage(
             id=message.id,
-            created_at = time.time(),
+            created_at=time.time(),
             role="assistant",
             content=message.content,
             tool_calls=tool_calls,
@@ -179,7 +180,7 @@ def convert_to_message_object(message):
     elif isinstance(message, ToolMessage):
         message_object = StoreMessage(
             id=message.id,
-            created_at = time.time(),
+            created_at=time.time(),
             role="tool",
             content=message.content,
             tool_call_id=message.tool_call_id,
@@ -188,6 +189,7 @@ def convert_to_message_object(message):
         raise ValueError("Invalid message type")
 
     return message_object
+
 
 def save_state_to_store(state, config, store):
     last_message = state["messages"][-1]
@@ -251,6 +253,6 @@ def assemble_memory_from_store(config, store):
         messages.append(message)
 
     # print("@@@@ All messages:\n", messages)
-    
+
     query, query_history, conversation_history = assemble_memory(messages)
     return query, query_history, conversation_history

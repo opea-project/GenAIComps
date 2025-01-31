@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 model="meta-llama/Llama-3.3-70B-Instruct"
 MAX_INPUT=16384
 vllm_port=8086

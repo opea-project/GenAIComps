@@ -20,10 +20,7 @@ def generate_answer_agent_api(url, prompt):
 def process_request(url, query, is_stream=False):
     proxies = {"http": ""}
 
-    payload = {
-        "messages": query,
-        "stream":is_stream
-    }
+    payload = {"messages": query, "stream": is_stream}
 
     try:
         resp = requests.post(url=url, json=payload, proxies=proxies, stream=is_stream)
@@ -52,7 +49,7 @@ if __name__ == "__main__":
     ip_address = os.getenv("ip_address", "localhost")
     url = f"http://{ip_address}:9095/v1/chat/completions"
     if args.test_sql_agent:
-        prompt = "Who has the most albumns?"
+        prompt = "Who has the most albums?"
     else:
         prompt = "What is OPEA?"
 

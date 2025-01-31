@@ -1,7 +1,8 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-from .utils import load_python_prompt
 from .storage.persistence_redis import RedisPersistence
+from .utils import load_python_prompt
+
 
 def instantiate_agent(args):
     strategy = args.strategy
