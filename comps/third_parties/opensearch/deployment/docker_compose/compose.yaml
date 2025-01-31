@@ -2,10 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
-  opensearch-db:
+  opensearch-vector-db:
     image: opensearchproject/opensearch:latest
-    container_name: opensearch-db
+    container_name: opensearch-vector-db
     environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+      - host_ip=${host_ip}
       - cluster.name=opensearch-cluster
       - node.name=opensearch-vector-db
       - discovery.seed_hosts=opensearch-vector-db

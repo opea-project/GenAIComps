@@ -67,7 +67,7 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "neo4jtest")
 
 # LLM/Embedding endpoints
 TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", f"http://{host_ip}:6005")
-TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT ", f"http://{host_ip}:6006")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", f"http://{host_ip}:6006")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
