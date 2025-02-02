@@ -3,6 +3,7 @@ cairosvg
 docarray[full]
 docx2txt
 easyocr
+einops
 fastapi
 future
 graspologic
