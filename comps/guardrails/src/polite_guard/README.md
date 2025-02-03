@@ -56,9 +56,9 @@ Once microservice starts, users can use examples (bash or python) below to apply
 **Bash:**
 
 ```bash
-curl localhost:9092/v1/polite
-    -X POST
-    -d '{"text":"He is stupid"}'
+curl localhost:9092/v1/polite \
+    -X POST \
+    -d '{"text":"He is stupid"}' \
     -H 'Content-Type: application/json'
 ```
 
@@ -72,18 +72,16 @@ Example Output:
 
 ```python
 import requests
-import json
 
-proxies = {"http": ""}
+# Define the URL and payload
 url = "http://localhost:9092/v1/polite"
-data = {"text": "He is stupid"}
+payload = {"text": "He is stupid"}
+headers = {"Content-Type": "application/json"}
 
+# Send a POST request
+response = requests.post(url, json=payload, headers=headers)
 
-try:
-    resp = requests.post(url=url, data=data, proxies=proxies)
-    print(resp.text)
-    resp.raise_for_status()  # Raise an exception for unsuccessful HTTP status codes
-    print("Request successful!")
-except requests.exceptions.RequestException as e:
-    print("An error occurred:", e)
+# Print the response
+print("Status Code:", response.status_code)
+print("Response Body:", response.json())
 ```
