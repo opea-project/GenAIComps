@@ -18,8 +18,6 @@ RUN apt-get update \
 
 COPY --chown=user:user comps /home/user/comps
 
-USER user
-
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ "${ARCH}" = "cpu" ]; then \
         pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
@@ -29,6 +27,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/tts/src/integrations/dependency/speecht5
 

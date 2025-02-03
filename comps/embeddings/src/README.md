@@ -22,6 +22,10 @@ For details, please refer to [readme](./README_tei.md).
 
 For details, please refer to this [readme](./README_predictionguard.md).
 
+## Embeddings Microservice with Multimodal Clip
+
+For details, please refer to this [readme](./README_clip.md)
+
 ## Embeddings Microservice with Multimodal
 
 For details, please refer to this [readme](./README_bridgetower.md).
