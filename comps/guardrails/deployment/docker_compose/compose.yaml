@@ -57,8 +57,7 @@ services:
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
     depends_on:
-      tgi-gaudi-server:
-        condition: service_healthy
+      - tgi-gaudi-server
 
   wildguard-guardrails-server:
     extends: guardrails-server
@@ -68,8 +67,7 @@ services:
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
     depends_on:
-      tgi-gaudi-server:
-        condition: service_healthy
+      - tgi-gaudi-server
 
   # hallucination detection service
   hallucination-detection-server:
