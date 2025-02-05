@@ -22,7 +22,6 @@ Any content that is detected in the following categories is determined as unsafe
 - Regulated or Controlled Substances
 - Suicide & Self Harm
 
-
 ## WildGuard
 
 `allenai/wildguard` was fine-tuned from `mistralai/Mistral-7B-v0.3` on their own [`allenai/wildguardmix`](https://huggingface.co/datasets/allenai/wildguardmix) dataset. Any content that is detected in the following categories is determined as unsafe:
@@ -40,33 +39,39 @@ export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 export GUARDRAIL_PORT=9090
 ```
 
+## Start up the HuggingFace Text Generation Inference (TGI) Server
 
-## Start up the HuggingFace Text Generation Inference (TGI) Server 
 Before starting the guardrail service, we first need to start the TGI server that will be hosting the guardrail model.
 
 Choose one of the following before starting your TGI server.
 
 **For LlamaGuard:**
+
 ```bash
 export SAFETY_GUARD_MODEL_ID="meta-llama/Meta-Llama-Guard-2-8B"
 export GUARDRAILS_COMPONENT_NAME=OPEA_LLAMA_GUARD
 ```
+
 Or
+
 ```bash
 export SAFETY_GUARD_MODEL_ID="meta-llama/LlamaGuard-7b"
 export GUARDRAILS_COMPONENT_NAME=OPEA_LLAMA_GUARD
 ```
-*Other variations of LlamaGuard are also an option to use but are not guaranteed to work OOB.*
+
+_Other variations of LlamaGuard are also an option to use but are not guaranteed to work OOB._
 
 **For Wild Guard:**
+
 ```bash
 export SAFETY_GUARD_MODEL_ID="allenai/wildguard"
 export GUARDRAILS_COMPONENT_NAME=OPEA_WILD_GUARD
 ```
-*Note that both of these models are gated and you need to complete their form on their associated model pages first in order to use them with your HF token.*
 
+_Note that both of these models are gated and you need to complete their form on their associated model pages first in order to use them with your HF token._
 
 Follow the steps [here](https://github.com/opea-project/GenAIComps/tree/main/comps/third_parties/tgi) to start the TGI server container where LLM_MODEL_ID is set to your SAFETY_GUARD_MODEL_ID like below:
+
 ```bash
 export LLM_MODEL_ID=$SAFETY_GUARD_MODEL_ID
 ```
@@ -77,7 +82,6 @@ Once the container is starting up and loading the model, set the endpoint that y
 export SAFETY_GUARD_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 ```
 
-
 **Verify that the TGI Server is ready for inference**
 
 First check that the TGI server successfully loaded the guardrail model. Loading the model could take up to 5-10 minutes. You can do this by running the following:
@@ -86,7 +90,7 @@ First check that the TGI server successfully loaded the guardrail model. Loading
 docker logs tgi-gaudi-server
 ```
 
-If the last line of the log contains something like `INFO text_generation_router::server: router/src/server.rs:2209: Connected` then your TGI server is ready and the following curl should work: 
+If the last line of the log contains something like `INFO text_generation_router::server: router/src/server.rs:2209: Connected` then your TGI server is ready and the following curl should work:
 
 ```bash
 curl localhost:${LLM_ENDPOINT_PORT}/generate \
@@ -94,8 +98,8 @@ curl localhost:${LLM_ENDPOINT_PORT}/generate \
   -d '{"inputs":"How do you buy a tiger in the US?","parameters":{"max_new_tokens":32}}' \
   -H 'Content-Type: application/json'
 ```
-Check the logs again with the `logs` command to confirm that the curl request resulted in `Success`.
 
+Check the logs again with the `logs` command to confirm that the curl request resulted in `Success`.
 
 ### 🚀1. Start Microservice with Python (Option 1)
 
@@ -110,6 +114,7 @@ pip install -r requirements.txt
 ```
 
 #### 1.2 Start Guardrails Service
+
 ```bash
 python opea_guardrails_microservice.py
 ```
@@ -117,7 +122,6 @@ python opea_guardrails_microservice.py
 ### 🚀2. Start Microservice with Docker (Option 2)
 
 With the TGI server already running, now we can start the guardrail service container.
-
 
 #### 2.1 Build Docker Image
 
@@ -132,6 +136,7 @@ docker build -t opea/guardrails:latest \
 #### 2.2.a Run with Docker Compose (Option A)
 
 **To run with LLama Guard:**
+
 ```bash
 docker compose -f $OPEA_GENAICOMPS_ROOT/comps/guardrails/deployment/docker_compose/compose.yaml up -d llamaguard-guardrails-server
 ```
