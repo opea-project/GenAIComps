@@ -49,16 +49,19 @@ Choose one of the following before starting your TGI server.
 **For LlamaGuard:**
 ```bash
 export SAFETY_GUARD_MODEL_ID="meta-llama/Meta-Llama-Guard-2-8B"
+export GUARDRAILS_COMPONENT_NAME=OPEA_LLAMA_GUARD
 ```
 Or
 ```bash
 export SAFETY_GUARD_MODEL_ID="meta-llama/LlamaGuard-7b"
+export GUARDRAILS_COMPONENT_NAME=OPEA_LLAMA_GUARD
 ```
 *Other variations of LlamaGuard are also an option to use but are not guaranteed to work OOB.*
 
 **For Wild Guard:**
 ```bash
 export SAFETY_GUARD_MODEL_ID="allenai/wildguard"
+export GUARDRAILS_COMPONENT_NAME=OPEA_WILD_GUARD
 ```
 *Note that both of these models are gated and you need to complete their form on their associated model pages first in order to use them with your HF token.*
 
@@ -101,14 +104,14 @@ To start the Guardrails microservice, you need to install python packages first.
 #### 1.1 Install Requirements
 
 ```bash
+pip install $OPEA_GENAICOMPS_ROOT
 cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/src/guardrails
 pip install -r requirements.txt
 ```
 
 #### 1.2 Start Guardrails Service
-
 ```bash
-python guardrails_tgi.py
+python opea_guardrails_microservice.py
 ```
 
 ### 🚀2. Start Microservice with Docker (Option 2)
@@ -194,4 +197,4 @@ curl http://localhost:${GUARDRAIL_PORT}/v1/guardrails\
 This request should return text containing:
 `"Violated policies: <category>, please check your input."`
 
-Where `category` is `Violent Crimes` and `harmful` for `Llama-Guard-2-8B` and `wildguard`, respectively.
+Where `category` is `Violent Crimes` or `harmful` for `Llama-Guard-2-8B` or `wildguard`, respectively.
