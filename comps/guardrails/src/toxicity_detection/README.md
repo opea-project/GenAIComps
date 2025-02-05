@@ -65,25 +65,31 @@ docker build \
     -f comps/guardrails/src/toxicity_detection/Dockerfile .
 ```
 
-### 2.2 Run Docker Container with Microservice
+### 2.2.a Run Docker with Compose (Option A)
+
+```bash
+cd $OPEA_GENAICOMPS_ROOT/comps/guardrails/deployment/docker_compose
+docker compose up -d guardrails-toxicity-detection-server
+```
+
+### 2.2.b Run Docker with CLI (Option B)
 
 ```bash
 docker run -d --rm \
-    --name="guardrails-toxicity-detection-endpoint" \
+    --name="guardrails-toxicity-detection-server" \
     --runtime=runc  \
-    -p ${TOXICITY_DETECTION_PORT}:${TOXICITY_DETECTION_PORT} \
+    -p ${TOXICITY_DETECTION_PORT}:9090 \
     --ipc=host \
     -e http_proxy=$http_proxy \
     -e https_proxy=$https_proxy \
     -e no_proxy=${no_proxy} \
-    -e TOXICITY_DETECTION_PORT=${TOXICITY_DETECTION_PORT} \
-    opea/guardrails-toxicity-detection:latest
+     opea/guardrails-toxicity-detection:latest
 ```
 
 ## 🚀3. Get Status of Microservice
 
 ```bash
-docker container logs -f guardrails-toxicity-detection-endpoint
+docker container logs -f guardrails-toxicity-detection-server
 ```
 
 ## 🚀4. Consume Microservice Pre-LLM/Post-LLM
