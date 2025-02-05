@@ -20,7 +20,7 @@ from comps import (
 logger = CustomLogger("opea_toxicity_detection_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
-toxicity_detection_port = os.getenv("TOXICITY_DETECTION_PORT")
+toxicity_detection_port = int(os.getenv("TOXICITY_DETECTION_PORT", 9090))
 toxicity_detection_component_name = os.getenv("TOXICITY_DETECTION_COMPONENT_NAME", "OPEA_NATIVE_TOXICITY")
 
 print(f"HELLO:-{toxicity_detection_component_name}-")
@@ -45,7 +45,7 @@ loader = OpeaComponentLoader(
     service_type=ServiceType.GUARDRAIL,
     endpoint="/v1/toxicity",
     host="0.0.0.0",
-    port=int(toxicity_detection_port),
+    port=toxicity_detection_port,
     input_datatype=TextDoc,
     output_datatype=Union[TextDoc, ScoreDoc],
 )
