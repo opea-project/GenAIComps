@@ -492,12 +492,12 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
             files_to_ingest = []
             uploaded_files_map = {}
             for file in files:
-                if os.path.splitext(file.filename)[1] in [".mp4", ".wav"]:
+                if os.path.splitext(file.filename)[1] in [".mp4", ".wav", ".mp3"]:
                     files_to_ingest.append(file)
                 else:
                     raise HTTPException(
                         status_code=400,
-                        detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only.",
+                        detail=f"File {file.filename} is not an mp4, mp3, or wav file. Please upload mp4, mp3, or wav files only.",
                     )
 
             for file_to_ingest in files_to_ingest:
@@ -590,7 +590,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                 "file_id_maps": uploaded_files_map,
             }
 
-        raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) or audio (.wav) file.")
+        raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) or audio (.wav, .mp3) file.")
 
     async def ingest_generate_captions(self, files: List[UploadFile] = File(None)):
         """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
