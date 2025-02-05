@@ -1,5 +1,5 @@
 release_name=${1:-graph-neo}
-NS=ogpt
+NS=${2:-ogpt}
 
 tsleep=0
 helm uninstall -n $NS ${release_name} && tsleep=5
