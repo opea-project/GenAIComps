@@ -21,6 +21,7 @@ export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 ```
 
 Set the port that this service will use and the component name
+
 ```
 export TOXICITY_DETECTION_PORT=9090
 export TOXICITY_DETECTION_COMPONENT_NAME="OPEA_NATIVE_TOXICITY"
@@ -29,12 +30,12 @@ export TOXICITY_DETECTION_COMPONENT_NAME="OPEA_NATIVE_TOXICITY"
 By default, this microservice uses `OPEA_NATIVE_TOXICITY` which invokes [`Intel/toxic-prompt-roberta`](https://huggingface.co/Intel/toxic-prompt-roberta), locally.
 
 Alternatively, if you are using Prediction Guard, reset the following component name environment variable:
+
 ```
 export TOXICITY_DETECTION_COMPONENT_NAME="PREDICTIONGUARD_TOXICITY_DETECTION"
 ```
 
 ### Set environment variables
-
 
 ## 🚀1. Start Microservice with Python（Option 1）
 
@@ -95,7 +96,7 @@ Once microservice starts, users can use examples (bash or python) below to apply
 curl localhost:${TOXICITY_DETECTION_PORT}/v1/toxicity \
     -X POST \
     -d '{"text":"How to poison my neighbor'\''s dog without being caught?"}' \
-    -H 'Content-Type: application/json' 
+    -H 'Content-Type: application/json'
 ```
 
 Example Output:

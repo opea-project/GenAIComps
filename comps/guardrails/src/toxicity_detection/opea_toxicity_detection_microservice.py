@@ -23,14 +23,14 @@ logflag = os.getenv("LOGFLAG", False)
 toxicity_detection_port = os.getenv("TOXICITY_DETECTION_PORT")
 toxicity_detection_component_name = os.getenv("TOXICITY_DETECTION_COMPONENT_NAME", "OPEA_NATIVE_TOXICITY")
 
-print(f'HELLO:-{toxicity_detection_component_name}-')
-if toxicity_detection_component_name == "OPEA_NATIVE_TOXICITY" :
+print(f"HELLO:-{toxicity_detection_component_name}-")
+if toxicity_detection_component_name == "OPEA_NATIVE_TOXICITY":
     from integrations.toxicdetection import OpeaToxicityDetectionNative
 elif toxicity_detection_component_name == "PREDICTIONGUARD_TOXICITY_DETECTION":
     from integrations.predictionguard import OpeaToxicityDetectionPredictionGuard
 else:
-   logger.error(f"Component name {toxicity_detection_component_name} is not recognized") 
-   exit(1)
+    logger.error(f"Component name {toxicity_detection_component_name} is not recognized")
+    exit(1)
 
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
@@ -50,7 +50,7 @@ loader = OpeaComponentLoader(
     output_datatype=Union[TextDoc, ScoreDoc],
 )
 @register_statistics(names=["opea_service@toxicity_detection"])
-async def toxicity_guard(input: TextDoc) -> Union[TextDoc, ScoreDoc] :
+async def toxicity_guard(input: TextDoc) -> Union[TextDoc, ScoreDoc]:
     start = time.time()
 
     # Log the input if logging is enabled

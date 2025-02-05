@@ -3,12 +3,14 @@
 
 import asyncio
 import os
+
 from transformers import pipeline
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType, TextDoc
 
 logger = CustomLogger("opea_toxicity_native")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_NATIVE_TOXICITY")
 class OpeaToxicityDetectionNative(OpeaComponent):
@@ -32,7 +34,7 @@ class OpeaToxicityDetectionNative(OpeaComponent):
         if toxic[0]["label"].lower() == "toxic":
             return TextDoc(text="Violated policies: toxicity, please check your input.", downstream_black_list=[".*"])
         else:
-            return TextDoc(text=input.text)       
+            return TextDoc(text=input.text)
 
     def check_health(self) -> bool:
         """Checks the health of the animation service.
