@@ -130,6 +130,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+      TOXICITY_DETECTION_COMPONENT_NAME: "PREDICTIONGUARD_TOXICITY_DETECTION"
     restart: unless-stopped
 
 networks:
