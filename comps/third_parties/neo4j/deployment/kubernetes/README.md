@@ -6,5 +6,5 @@
 ## Deploy on Xeon
 
 ```
-./install.sh ${release_name} ${version}
+./install.sh ${release_name} $version $NS
 ```
