@@ -11,7 +11,7 @@ The Guardrails Microservice now offers two primary types of guardrails:
 
 **This microservice supports Meta's [Llama Guard](https://huggingface.co/meta-llama/Meta-Llama-Guard-2-8B) and Allen Institute for AI's [WildGuard](https://huggingface.co/allenai/wildguard) models.**
 
-### Llama Guard
+## Llama Guard
 
 Any content that is detected in the following categories is determined as unsafe:
 
@@ -23,7 +23,7 @@ Any content that is detected in the following categories is determined as unsafe
 - Suicide & Self Harm
 
 
-### WildGuard
+## WildGuard
 
 `allenai/wildguard` was fine-tuned from `mistralai/Mistral-7B-v0.3` on their own [`allenai/wildguardmix`](https://huggingface.co/datasets/allenai/wildguardmix) dataset. Any content that is detected in the following categories is determined as unsafe:
 
