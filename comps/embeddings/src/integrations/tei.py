@@ -70,6 +70,7 @@ class OpeaTEIEmbedding(OpeaComponent):
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
         response = await self.client.post(
             json={"input": texts, "encoding_format": input.encoding_format, "model": input.model, "user": input.user},
+            model=f"{self.base_url}/v1/embeddings",
             task="text-embedding",
         )
         embeddings = json.loads(response.decode())
