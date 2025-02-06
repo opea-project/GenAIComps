@@ -1,0 +1,107 @@
+apiVersion: apps.nebula-graph.io/v1alpha1
+kind: NebulaCluster
+metadata:
+  annotations:
+    nebula-graph.io/owner: test
+  name: nebula
+spec:
+  enablePVReclaim: true
+  graphd:
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /status
+        port: 19669
+        scheme: HTTP
+      initialDelaySeconds: 40
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    image: reg.vesoft-inc.com/vesoft-ent/nebula-graphd
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: fast-disks
+    replicas: 1
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 500Mi
+    version: v3.1.3
+  imagePullPolicy: Always
+  imagePullSecrets:
+  - name: vesoft
+  metad:
+    license:
+      secretName: nebula-license
+      licenseKey: nebula.license
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /status
+        port: 19559
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 5
+    image: reg.vesoft-inc.com/vesoft-ent/nebula-metad
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: fast-disks
+    dataVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: fast-disks
+    replicas: 1
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 500Mi
+    version: v3.1.3
+  reference:
+    name: statefulsets.apps
+    version: v1
+  schedulerName: default-scheduler
+  storaged:
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /status
+        port: 19779
+        scheme: HTTP
+      initialDelaySeconds: 40
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    image: reg.vesoft-inc.com/vesoft-ent/nebula-storaged
+    logVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: fast-disks
+    dataVolumeClaim:
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: fast-disks
+    replicas: 3
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 500Mi
+    version: v3.1.3
+    enableAutoBalance: true      
