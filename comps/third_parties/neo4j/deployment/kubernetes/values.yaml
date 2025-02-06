@@ -3,9 +3,12 @@
 
 neo4j:
   name: "neo4j"
+  passwordFromSecret: neo-creds
   env:
   - name: NEO4J_apoc_import_file_use__neo4j__config
     value: "true"
+nodeSelector:
+  nfs: enabled
 env:
   NEO4J_PLUGINS: '["apoc"]'
 apoc_config:
@@ -18,3 +21,12 @@ config:
   dbms.security.procedures.allowlist: "apoc.*"
   server.config.strict_validation.enabled: "false"
   apoc.trigger.enabled: "true"
+volumes:
+  data:
+    mode: dynamic
+    dynamic:
+      storageClassName: "csi-wekafs-fs"
+      accessModes:
+      - ReadWriteOnce
+      requests:
+        storage: 10Gi
