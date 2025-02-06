@@ -114,6 +114,8 @@ services:
       PATHWAY_HOST: ${PATHWAY_HOST}
       PATHWAY_PORT: ${PATHWAY_PORT}
     depends_on:
+      tei-embedding-serving:
+        condition: service_healthy
       pathway-db:
         condition: service_healthy
 

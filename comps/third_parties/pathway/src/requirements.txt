@@ -2,6 +2,6 @@ langchain
 langchain-community
 langchain_huggingface
 langchain_openai
-pathway[xpack-llm]
+pathway
 sentence-transformers
 unstructured[all-docs] >= 0.16
