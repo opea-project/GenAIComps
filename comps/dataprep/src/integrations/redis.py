@@ -194,11 +194,11 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
                 detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
             )
         import requests
-        response = requests.get(TEI_EMBEDDING_ENDPOINT+"/info")
+
+        response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
         if response.status_code != 200:
             raise HTTPException(
-                status_code=400,
-                detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
             )
         model_id = response.json()["model_id"]
         # create embeddings using TEI endpoint service
