@@ -34,6 +34,7 @@ function start_service() {
     export host_ip=${ip_address}
     export TEI_EMBEDDER_PORT=12005
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export EMBED_MODEL=${EMBEDDING_MODEL_ID}
     export MILVUS_HOST=${ip_address}
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
     service_name="dataprep-milvus tei-embedding-serving"

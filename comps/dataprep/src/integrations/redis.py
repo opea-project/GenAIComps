@@ -11,9 +11,8 @@ from typing import List, Optional, Union
 import redis
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import Redis
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
@@ -40,6 +39,8 @@ upload_folder = "./uploaded_files/"
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 # TEI Embedding endpoints
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 # Vector Index Configuration
 INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
@@ -187,8 +188,17 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
         logger.info(f"[ redis ingest chunks ] file name: {file_name}")
     # Create vectorstore
     if TEI_EMBEDDING_ENDPOINT:
+        if not HUGGINGFACEHUB_API_TOKEN or not EMBED_MODEL:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`."
+            )
         # create embeddings using TEI endpoint service
-        embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+        embedder = HuggingFaceInferenceAPIEmbeddings(
+            api_key=HUGGINGFACEHUB_API_TOKEN,
+            model_name=EMBED_MODEL,
+            api_url=TEI_EMBEDDING_ENDPOINT
+        )
     else:
         # create embeddings using local embedding model
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)

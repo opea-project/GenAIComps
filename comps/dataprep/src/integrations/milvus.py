@@ -10,7 +10,7 @@ from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings, OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
@@ -36,8 +36,11 @@ upload_folder = "./uploaded_files/"
 # Local Embedding model
 LOCAL_EMBEDDING_MODEL = os.getenv("LOCAL_EMBEDDING_MODEL", "maidalun1020/bce-embedding-base_v1")
 # TEI configuration
-TEI_EMBEDDING_MODEL = os.environ.get("TEI_EMBEDDING_MODEL", "/home/user/bge-large-zh-v1.5")
+EMBED_MODEL = os.environ.get("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 TEI_EMBEDDING_ENDPOINT = os.environ.get("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+
 # MILVUS configuration
 MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
 MILVUS_PORT = int(os.getenv("MILVUS_PORT", 19530))
@@ -189,7 +192,17 @@ class OpeaMilvusDataprep(OpeaComponent):
             # create embeddings using TEI endpoint service
             if logflag:
                 logger.info(f"[ milvus embedding ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+            if not HUGGINGFACEHUB_API_TOKEN or not EMBED_MODEL:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`."
+                )
+            # create embeddings using TEI endpoint service
+            embeddings = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN,
+                model_name=EMBED_MODEL,
+                api_url=TEI_EMBEDDING_ENDPOINT
+            )
         else:
             # create embeddings using local embedding model
             if logflag:
