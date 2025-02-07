@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+>>>>>>> origin/nebula
 apiVersion: apps.nebula-graph.io/v1alpha1
 kind: NebulaCluster
 metadata:
