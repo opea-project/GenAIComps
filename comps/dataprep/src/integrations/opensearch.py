@@ -78,17 +78,25 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         self.upload_folder = "./uploaded_files/"
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         # Initialize embeddings
-        tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+        TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
         HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
         EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-        if tei_embedding_endpoint:
-            if not HUGGINGFACEHUB_API_TOKEN or not EMBED_MODEL:
+        if TEI_EMBEDDING_ENDPOINT:
+            if not HUGGINGFACEHUB_API_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
+            import requests
+            response = requests.get(TEI_EMBEDDING_ENDPOINT+"/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
             self.embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=tei_embedding_endpoint
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
             self.embeddings = HuggingFaceBgeEmbeddings(model_name=Config.EMBED_MODEL)

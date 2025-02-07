@@ -192,14 +192,22 @@ class OpeaMilvusDataprep(OpeaComponent):
             # create embeddings using TEI endpoint service
             if logflag:
                 logger.info(f"[ milvus embedding ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            if not HUGGINGFACEHUB_API_TOKEN or not EMBED_MODEL:
+            if not HUGGINGFACEHUB_API_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
+            import requests
+            response = requests.get(TEI_EMBEDDING_ENDPOINT+"/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
             # create embeddings using TEI endpoint service
             embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
             # create embeddings using local embedding model
