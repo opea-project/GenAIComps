@@ -10,8 +10,8 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 
 ```bash
 <<<<<<< HEAD
-helm repo add nebula-operator https://vesoft-inc.github.io/nebula-operator/charts 
-helm repo update 
+helm repo add nebula-operator https://vesoft-inc.github.io/nebula-operator/charts
+helm repo update
 =======
 helm repo add nebula-operator https://vesoft-inc.github.io/nebula-operator/charts
 helm repo update
@@ -25,13 +25,16 @@ Choose the between Enterprise and Community configuration file base on your lice
 <<<<<<< HEAD
 =======
 
->>>>>>> origin/nebula
+> > > > > > > origin/nebula
+
 ```bash
 kubectl create -f enterprise_edition.yaml
 or
 kubectl create -f community_edition.yaml
 ```
+
 <<<<<<< HEAD
 
 =======
->>>>>>> origin/nebula
+
+> > > > > > > origin/nebula
