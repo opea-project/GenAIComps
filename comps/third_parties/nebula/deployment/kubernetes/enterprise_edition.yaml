@@ -111,7 +111,7 @@ spec:
         memory: 500Mi
     version: v3.1.3
 <<<<<<< HEAD
-    enableAutoBalance: true      
+    enableAutoBalance: true
 =======
     enableAutoBalance: true
 >>>>>>> origin/nebula
