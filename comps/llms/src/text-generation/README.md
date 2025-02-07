@@ -32,7 +32,7 @@ Overall, this microservice offers a streamlined way to integrate large language 
 | [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | 8                             |
 | [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | 4                             |
 
-> NOTE: detail system requirements will be added into the table in the future.
+> NOTE: Detailed system requirements coming soon.
 
 ## Support integrations
 
