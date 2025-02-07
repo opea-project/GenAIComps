@@ -78,7 +78,7 @@ def ingest_chunks_to_milvus(embeddings, file_name: str, chunks: List):
         except Exception as e:
             if logflag:
                 logger.info(f"[ ingest chunks ] fail to ingest chunks into Milvus. error: {e}")
-            raise HTTPException(status_code=500, detail=f"Fail to store chunks of file {file_name}.")
+            raise HTTPException(status_code=500, detail=f"Fail to store chunks of file {file_name}: {e}")
 
     if logflag:
         logger.info(f"[ ingest chunks ] Docs ingested file {file_name} to Milvus collection {COLLECTION_NAME}.")
@@ -293,7 +293,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                         search_res = search_by_file(my_milvus.col, encode_file)
                     except Exception as e:
                         raise HTTPException(
-                            status_code=500, detail=f"Failed when searching in Milvus db for file {file.filename}."
+                            status_code=500, detail=f"Failed when searching in Milvus db for file {file.filename}: {e}"
                         )
                     if len(search_res) > 0:
                         if logflag:
@@ -338,7 +338,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                         search_res = search_by_file(my_milvus.col, encoded_link + ".txt")
                     except Exception as e:
                         raise HTTPException(
-                            status_code=500, detail=f"Failed when searching in Milvus db for link {link}."
+                            status_code=500, detail=f"Failed when searching in Milvus db for link {link}: {e}"
                         )
                     if len(search_res) > 0:
                         if logflag:
@@ -394,7 +394,7 @@ class OpeaMilvusDataprep(OpeaComponent):
         try:
             all_data = search_all(my_milvus.col)
         except Exception as e:
-            raise HTTPException(status_code=500, detail="Failed when searching in Milvus db for all files.")
+            raise HTTPException(status_code=500, detail=f"Failed when searching in Milvus db for all files: {e}")
 
         # return [] if no data in db
         if len(all_data) == 0:
@@ -441,8 +441,7 @@ class OpeaMilvusDataprep(OpeaComponent):
             except Exception as e:
                 if logflag:
                     logger.info(f"[ milvus delete ] {e}. Fail to delete {upload_folder}.")
-                raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}.")
-
+                raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}: {e}")
             if logflag:
                 logger.info("[ milvus delete ] successfully delete all files.")
 

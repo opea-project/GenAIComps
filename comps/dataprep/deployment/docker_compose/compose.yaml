@@ -49,6 +49,7 @@ services:
       MILVUS_HOST: ${MILVUS_HOST}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      LOGFLAG: ${LOGFLAG}
     restart: unless-stopped
     depends_on:
       tei-embedding-serving:
