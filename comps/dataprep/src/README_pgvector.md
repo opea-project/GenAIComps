@@ -38,7 +38,6 @@ Please refer to this [readme](../../third_parties/pgvector/src/README.md).
 ```bash
 export PG_CONNECTION_STRING=postgresql+psycopg2://testuser:testpwd@${your_ip}:5432/vectordb
 export INDEX_NAME=${your_index_name}
-export EMBED_MODEL=${your_embedding_model_id}
 export TEI_EMBEDDING_ENDPOINT=${your_tei_embedding_endpoint}
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```

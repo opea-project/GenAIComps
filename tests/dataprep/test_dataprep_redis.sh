@@ -31,7 +31,6 @@ function start_service() {
     export TEI_EMBEDDER_PORT="10221"
     export REDIS_URL="redis://${ip_address}:${REDIS_PORT}"
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-    export EMBED_MODEL=${EMBEDDING_MODEL_ID}
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export INDEX_NAME="rag_redis"
     export TAG="comps"

@@ -74,8 +74,7 @@ Please refer to this [readme](../../third_parties/opensearch/src/README.md).
 ### 2.2 Setup Environment Variables
 
 ```bash
-export EMBED_MODEL="BAAI/bge-base-en-v1.5"
-export EMBEDDING_MODEL_ID=${EMBED_MODEL}
+export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6006"
 export OPENSEARCH_URL="http://${your_ip}:9200"
 export INDEX_NAME=${your_index_name}
