@@ -43,6 +43,7 @@ TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 # Huggingface API token for TEI embedding endpoint
 HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
+
 @OpeaComponentRegistry.register("OPEA_DATAPREP_PINECONE")
 class OpeaPineConeDataprep(OpeaComponent):
     """Dataprep component for Pinecone ingestion and search services."""
@@ -54,14 +55,12 @@ class OpeaPineConeDataprep(OpeaComponent):
         if TEI_EMBEDDING_ENDPOINT:
             if not HUGGINGFACEHUB_API_TOKEN or not EMBED_MODEL:
                 raise HTTPException(
-                    status_code=400, 
-                    detail=f"You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`."
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
             # create embeddings using TEI endpoint service
             self.embedder = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN,
-                model_name=EMBED_MODEL,
-                api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
             # create embeddings using local embedding model

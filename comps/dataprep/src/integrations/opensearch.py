@@ -84,13 +84,11 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         if tei_embedding_endpoint:
             if not HUGGINGFACEHUB_API_TOKEN or not EMBED_MODEL:
                 raise HTTPException(
-                    status_code=400, 
-                    detail=f"You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`."
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
             self.embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN,
-                model_name=EMBED_MODEL,
-                api_url=tei_embedding_endpoint
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=tei_embedding_endpoint
             )
         else:
             self.embeddings = HuggingFaceBgeEmbeddings(model_name=Config.EMBED_MODEL)

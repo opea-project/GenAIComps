@@ -83,13 +83,11 @@ class OpeaElasticSearchDataprep(OpeaComponent):
         if TEI_EMBEDDING_ENDPOINT:
             if not HUGGINGFACEHUB_API_TOKEN or not EMBED_MODEL:
                 raise HTTPException(
-                    status_code=400, 
-                    detail=f"You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`."
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
             embedder = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN,
-                model_name=EMBED_MODEL,
-                api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=TEI_EMBEDDING_ENDPOINT
             )
             return embedder
         else:
