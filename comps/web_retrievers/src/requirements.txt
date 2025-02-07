@@ -13,3 +13,4 @@ prometheus-fastapi-instrumentator
 sentence_transformers
 shortuuid
 uvicorn
+huggingface-hub==0.27.1
