@@ -20,7 +20,7 @@ function build_docker_images() {
         echo "opea/web-retriever built successful"
     fi
 }
-
+#
 function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export TEI_EMBEDDING_ENDPOINT=http://${ip_address}:${TEI_PORT}
