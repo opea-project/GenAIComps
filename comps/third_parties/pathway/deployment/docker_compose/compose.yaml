@@ -1,9 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-include:
-   - ../../../tei/deployment/docker_compose/compose.yaml
-
 services:
   pathway-db:
     image: ${REGISTRY:-opea}/vectorstore-pathway:${TAG:-latest}
@@ -19,11 +16,10 @@ services:
       PATHWAY_HOST: ${PATHWAY_HOST_DB}
       PATHWAY_PORT: ${PATHWAY_PORT}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HF_TOKEN: ${HF_TOKEN}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "sleep 30 && exit 0"]
       interval: 1s
       timeout: 35s
       retries: 1
-    depends_on:
-      tei-embedding-serving:
-        condition: service_healthy
