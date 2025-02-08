@@ -9,7 +9,9 @@ graspologic
 haystack-ai==2.3.1
 langchain-elasticsearch
 langchain-pinecone
-langchain_community
+git+https://github.com/arangoml/langchain.git@arangodb#subdirectory=libs/community
+cityhash
+python-arango
 langchain_huggingface
 langchain_milvus
 llama-index-core
@@ -40,3 +42,5 @@ shortuuid
 tiktoken
 uvicorn
 vdms==0.0.21
+os
+typing
