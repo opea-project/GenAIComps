@@ -8,14 +8,31 @@ Overall, this microservice offers a streamlined way to integrate large language 
 
 ## Validated LLM Models
 
-| Model                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi |
-| --------------------------- | --------- | -------- | ---------- |
-| [Intel/neural-chat-7b-v3-3] | ✓         | ✓        | ✓          |
-| [Llama-2-7b-chat-hf]        | ✓         | ✓        | ✓          |
-| [Llama-2-70b-chat-hf]       | ✓         | -        | ✓          |
-| [Meta-Llama-3-8B-Instruct]  | ✓         | ✓        | ✓          |
-| [Meta-Llama-3-70B-Instruct] | ✓         | -        | ✓          |
-| [Phi-3]                     | x         | Limit 4K | Limit 4K   |
+| Model                                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi |
+| ------------------------------------------- | --------- | -------- | ---------- |
+| [Intel/neural-chat-7b-v3-3]                 | ✓         | ✓        | ✓          |
+| [meta-llama/Llama-2-7b-chat-hf]             | ✓         | ✓        | ✓          |
+| [meta-llama/Llama-2-70b-chat-hf]            | ✓         | -        | ✓          |
+| [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          |
+| [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          |
+| [Phi-3]                                     | x         | Limit 4K | Limit 4K   |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          |
+
+### System Requirements for LLM Models
+
+| Model                                       | Minimum number of Gaudi cards |
+| ------------------------------------------- | ----------------------------- |
+| [Intel/neural-chat-7b-v3-3]                 | 1                             |
+| [meta-llama/Llama-2-7b-chat-hf]             | 1                             |
+| [meta-llama/Llama-2-70b-chat-hf]            | 2                             |
+| [meta-llama/Meta-Llama-3-8B-Instruct]       | 1                             |
+| [meta-llama/Meta-Llama-3-70B-Instruct]      | 2                             |
+| [Phi-3]                                     | x                             |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | 8                             |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | 4                             |
+
+> NOTE: Detailed system requirements coming soon.
 
 ## Support integrations
 
@@ -166,9 +183,11 @@ curl http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions \
 <!--Below are links used in these document. They are not rendered: -->
 
 [Intel/neural-chat-7b-v3-3]: https://huggingface.co/Intel/neural-chat-7b-v3-3
-[Llama-2-7b-chat-hf]: https://huggingface.co/meta-llama/Llama-2-7b-chat-hf
-[Llama-2-70b-chat-hf]: https://huggingface.co/meta-llama/Llama-2-70b-chat-hf
-[Meta-Llama-3-8B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
-[Meta-Llama-3-70B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct
+[meta-llama/Llama-2-7b-chat-hf]: https://huggingface.co/meta-llama/Llama-2-7b-chat-hf
+[meta-llama/Llama-2-70b-chat-hf]: https://huggingface.co/meta-llama/Llama-2-70b-chat-hf
+[meta-llama/Meta-Llama-3-8B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
+[meta-llama/Meta-Llama-3-70B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct
 [Phi-3]: https://huggingface.co/collections/microsoft/phi-3-6626e15e9585a200d2d761e3
 [HuggingFace]: https://huggingface.co/
+[deepseek-ai/DeepSeek-R1-Distill-Llama-70B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+[deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
