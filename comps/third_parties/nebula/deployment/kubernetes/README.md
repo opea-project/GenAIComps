@@ -17,9 +17,9 @@ helm install nebula-operator nebula-operator/nebula-operator --namespace=<namesp
 ## 3. Install and start NebulaGraph clusyter
 
 Choose the between Enterprise and Community configuration file base on your license. Edit the config with the proper storageClassName and run the command below:
+
 ```bash
 kubectl create -f enterprise_edition.yaml
 or
 kubectl create -f community_edition.yaml
 ```
-
