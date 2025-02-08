@@ -36,12 +36,14 @@ nebula-graphd-svc          ClusterIP   10.98.213.34   <none>        9669/TCP,196
 nebula-metad-headless      ClusterIP   None           <none>        9559/TCP,19559/TCP,19560/TCP                     23h
 nebula-storaged-headless   ClusterIP   None           <none>        9779/TCP,19779/TCP,19780/TCP,9778/TCP
 ```
+
 Run the following command to connect to the NebulaGraph database using the IP of the <cluster-name>-graphd-svc Service above:
 ```bash
 kubectl run -ti --image vesoft/nebula-console --restart=Never -- <nebula_console_name> -addr <cluster_ip>  -port <service_port> -u <username> -p <password>
 ```
+
 For example:
-```
+```bash
 kubectl run -ti --image vesoft/nebula-console --restart=Never -- nebula-console -addr 10.98.213.34  -port 9669 -u root -p vesoft
 
 - `--image`: The image for the tool Nebula Console used to connect to NebulaGraph databases.
