@@ -116,8 +116,6 @@ services:
     depends_on:
       tei-embedding-serving:
         condition: service_healthy
-      pathway-db:
-        condition: service_healthy
 
   retriever-qdrant:
     extends: retriever
