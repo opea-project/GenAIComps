@@ -46,13 +46,6 @@ For example:
 ```bash
 kubectl run -ti --image vesoft/nebula-console --restart=Never -- nebula-console -addr 10.98.213.34  -port 9669 -u root -p vesoft
 
-- `--image`: The image for the tool Nebula Console used to connect to NebulaGraph databases.
-- `<nebula-console>`: The custom Pod name.
-- `-addr`: The IP of the `ClusterIP` Service, used to connect to Graphd services.
-- `-port`: The port to connect to Graphd services, the default port of which is 9669.
-- `-u`: The username of your NebulaGraph account. Before enabling authentication, you can use any existing username. The default username is root.
-- `-p`: The password of your NebulaGraph account. Before enabling authentication, you can use any characters as the password.
-
 A successful connection to the database is indicated if the following is returned:
 
 If you don't see a command prompt, try pressing enter.
