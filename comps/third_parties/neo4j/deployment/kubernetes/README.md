@@ -2,7 +2,7 @@
 
 ## Deploy on Xeon
 
-Step 1: Edit values.yaml and replace the values of the following items with the actual configurations of your system:
+Step 1: Edit cpu_values.yaml and replace the values of the following items with the actual configurations of your system:
 
 - passwordFromSecret
 - storageClassName
