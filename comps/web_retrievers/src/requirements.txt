@@ -4,6 +4,7 @@ docarray[full]
 fastapi
 google-api-python-client>=2.100.0
 html2text
+huggingface-hub==0.27.1
 langchain-huggingface
 langchain_community
 opentelemetry-api
