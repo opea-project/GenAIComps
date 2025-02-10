@@ -23,7 +23,6 @@ logflag = os.getenv("LOGFLAG", False)
 toxicity_detection_port = int(os.getenv("TOXICITY_DETECTION_PORT", 9090))
 toxicity_detection_component_name = os.getenv("TOXICITY_DETECTION_COMPONENT_NAME", "OPEA_NATIVE_TOXICITY")
 
-print(f"HELLO:-{toxicity_detection_component_name}-")
 if toxicity_detection_component_name == "OPEA_NATIVE_TOXICITY":
     from integrations.toxicdetection import OpeaToxicityDetectionNative
 elif toxicity_detection_component_name == "PREDICTIONGUARD_TOXICITY_DETECTION":
