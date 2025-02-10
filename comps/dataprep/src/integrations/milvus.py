@@ -10,7 +10,7 @@ from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings, OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings, OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
@@ -36,8 +36,11 @@ upload_folder = "./uploaded_files/"
 # Local Embedding model
 LOCAL_EMBEDDING_MODEL = os.getenv("LOCAL_EMBEDDING_MODEL", "maidalun1020/bce-embedding-base_v1")
 # TEI configuration
-TEI_EMBEDDING_MODEL = os.environ.get("TEI_EMBEDDING_MODEL", "/home/user/bge-large-zh-v1.5")
+EMBED_MODEL = os.environ.get("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 TEI_EMBEDDING_ENDPOINT = os.environ.get("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+
 # MILVUS configuration
 MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
 MILVUS_PORT = int(os.getenv("MILVUS_PORT", 19530))
@@ -75,7 +78,7 @@ def ingest_chunks_to_milvus(embeddings, file_name: str, chunks: List):
         except Exception as e:
             if logflag:
                 logger.info(f"[ ingest chunks ] fail to ingest chunks into Milvus. error: {e}")
-            raise HTTPException(status_code=500, detail=f"Fail to store chunks of file {file_name}.")
+            raise HTTPException(status_code=500, detail=f"Fail to store chunks of file {file_name}: {e}")
 
     if logflag:
         logger.info(f"[ ingest chunks ] Docs ingested file {file_name} to Milvus collection {COLLECTION_NAME}.")
@@ -189,7 +192,23 @@ class OpeaMilvusDataprep(OpeaComponent):
             # create embeddings using TEI endpoint service
             if logflag:
                 logger.info(f"[ milvus embedding ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+            import requests
+
+            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
+            # create embeddings using TEI endpoint service
+            embeddings = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
         else:
             # create embeddings using local embedding model
             if logflag:
@@ -274,7 +293,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                         search_res = search_by_file(my_milvus.col, encode_file)
                     except Exception as e:
                         raise HTTPException(
-                            status_code=500, detail=f"Failed when searching in Milvus db for file {file.filename}."
+                            status_code=500, detail=f"Failed when searching in Milvus db for file {file.filename}: {e}"
                         )
                     if len(search_res) > 0:
                         if logflag:
@@ -319,7 +338,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                         search_res = search_by_file(my_milvus.col, encoded_link + ".txt")
                     except Exception as e:
                         raise HTTPException(
-                            status_code=500, detail=f"Failed when searching in Milvus db for link {link}."
+                            status_code=500, detail=f"Failed when searching in Milvus db for link {link}: {e}"
                         )
                     if len(search_res) > 0:
                         if logflag:
@@ -375,7 +394,7 @@ class OpeaMilvusDataprep(OpeaComponent):
         try:
             all_data = search_all(my_milvus.col)
         except Exception as e:
-            raise HTTPException(status_code=500, detail="Failed when searching in Milvus db for all files.")
+            raise HTTPException(status_code=500, detail=f"Failed when searching in Milvus db for all files: {e}")
 
         # return [] if no data in db
         if len(all_data) == 0:
@@ -422,8 +441,7 @@ class OpeaMilvusDataprep(OpeaComponent):
             except Exception as e:
                 if logflag:
                     logger.info(f"[ milvus delete ] {e}. Fail to delete {upload_folder}.")
-                raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}.")
-
+                raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}: {e}")
             if logflag:
                 logger.info("[ milvus delete ] successfully delete all files.")
 

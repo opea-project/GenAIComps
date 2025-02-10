@@ -44,7 +44,7 @@ This guide walks you through starting, deploying, and consuming the **TEI-based 
 
    ```bash
    docker run -d --name="embedding-tei-server" \
-   -p 6000:5000 \
+   -p 6000:6000 \
    -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
    --ipc=host \
    -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT \
