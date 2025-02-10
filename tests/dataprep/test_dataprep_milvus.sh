@@ -36,6 +36,7 @@ function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export MILVUS_HOST=${ip_address}
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
+    export LOGFLAG=true
     service_name="dataprep-milvus tei-embedding-serving"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
