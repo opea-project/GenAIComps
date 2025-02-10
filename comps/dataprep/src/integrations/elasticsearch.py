@@ -9,10 +9,9 @@ from typing import List, Optional, Union
 from elasticsearch import Elasticsearch
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import HTMLHeaderTextSplitter, RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_core.documents import Document
 from langchain_elasticsearch import ElasticsearchStore
-from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
@@ -37,7 +36,9 @@ UPLOADED_FILES_PATH = os.getenv("UPLOADED_FILES_PATH", "./uploaded_files/")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 
 # TEI Embedding endpoints
-TEI_ENDPOINT = os.getenv("TEI_ENDPOINT", "")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 # Vector Index Configuration
 INDEX_NAME = os.getenv("INDEX_NAME", "rag-elastic")
@@ -77,15 +78,31 @@ class OpeaElasticSearchDataprep(OpeaComponent):
         if not self.es_client.indices.exists(index=INDEX_NAME):
             self.es_client.indices.create(index=INDEX_NAME)
 
-    def get_embedder(self) -> Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]:
+    def get_embedder(self) -> Union[HuggingFaceInferenceAPIEmbeddings, HuggingFaceBgeEmbeddings]:
         """Obtain required Embedder."""
-        if TEI_ENDPOINT:
-            return HuggingFaceEndpointEmbeddings(model=TEI_ENDPOINT)
+        if TEI_EMBEDDING_ENDPOINT:
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` and the `EMBED_MODEL` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+            import requests
+
+            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
+            embedder = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
+            return embedder
         else:
             return HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
     def get_elastic_store(
-        self, embedder: Union[HuggingFaceEndpointEmbeddings, HuggingFaceBgeEmbeddings]
+        self, embedder: Union[HuggingFaceInferenceAPIEmbeddings, HuggingFaceBgeEmbeddings]
     ) -> ElasticsearchStore:
         """Get Elasticsearch vector store."""
         return ElasticsearchStore(index_name=INDEX_NAME, embedding=embedder, es_connection=self.es_client)
