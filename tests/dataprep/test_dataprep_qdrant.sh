@@ -26,6 +26,7 @@ function build_docker_images() {
 function start_service() {
     export host_ip=${ip_address}
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export EMBED_MODEL=${EMBEDDING_MODEL_ID}
     export TEI_EMBEDDER_PORT="10224"
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export COLLECTION_NAME="rag-qdrant"
