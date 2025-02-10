@@ -6,4 +6,4 @@ release_name=${1:-graph-neo}
 version=${2:-5.23.0}
 NS=${3:-ogpt}
 ./uninstall.sh ${release_name} $NS
-helm install -n $NS --version $version ${release_name} neo4j/neo4j -f cpu_values.yaml
+helm install -n $NS --version $version ${release_name} neo4j/neo4j -f cpu.yaml
