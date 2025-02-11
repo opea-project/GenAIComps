@@ -417,13 +417,13 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         metadatas = []
         for item in annotation:
             page_index = item["frame_no"]
-            image_index = item["sub_video_id"]
-            path_to_image = os.path.join(path_to_files, f"page{page_index}_image{image_index}.png")
+            image_index = item.get("sub_video_id", None)
+            path_to_image = os.path.join(path_to_files, f"page{page_index}_image{image_index}.png") if image_index else None
             caption_for_ingesting = item["caption"]
             caption_for_inference = item["caption"]
 
             pdf_id = item["video_id"]
-            b64_img_str = item["b64_img_str"]
+            b64_img_str = item.get("b64_img_str", None)
             embedding_type = "pair" if b64_img_str else "text"
             source = item["video_name"]
 
@@ -715,36 +715,47 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                     for page_idx, page in enumerate(doc, start=1):
                         text = page.get_text()
                         images = page.get_images()
-                        for image_idx, image in enumerate(images, start=1):
-                            # Write image and caption file for each image found in pdf
-                            img_fname = f"page{page_idx}_image{image_idx}"
-                            img_fpath = os.path.join(output_dir, "frames", img_fname + ".png")
-                            pix = pymupdf.Pixmap(doc, image[0])  # create pixmap
+                        if images:
+                            for image_idx, image in enumerate(images, start=1):
+                                # Write image and caption file for each image found in pdf
+                                img_fname = f"page{page_idx}_image{image_idx}"
+                                img_fpath = os.path.join(output_dir, "frames", img_fname + ".png")
+                                pix = pymupdf.Pixmap(doc, image[0])  # create pixmap
 
-                            if pix.n - pix.alpha > 3:  # if CMYK, convert to RGB first
-                                pix = pymupdf.Pixmap(pymupdf.csRGB, pix)
+                                if pix.n - pix.alpha > 3:  # if CMYK, convert to RGB first
+                                    pix = pymupdf.Pixmap(pymupdf.csRGB, pix)
 
-                            pix.save(img_fpath)  # pixmap to png
-                            pix = None
+                                pix.save(img_fpath)  # pixmap to png
+                                pix = None
 
-                            # Convert image to base64 encoded string
-                            with open(img_fpath, "rb") as image2str:
-                                encoded_string = base64.b64encode(image2str.read())  # png to bytes
+                                # Convert image to base64 encoded string
+                                with open(img_fpath, "rb") as image2str:
+                                    encoded_string = base64.b64encode(image2str.read())  # png to bytes
 
-                            decoded_string = encoded_string.decode()  # bytes to string
+                                decoded_string = encoded_string.decode()  # bytes to string
 
-                            # Create annotations file, reusing metadata keys from video
+                                # Create annotations file, reusing metadata keys from video
+                                annotations.append(
+                                    {
+                                        "video_id": file_id,
+                                        "video_name": os.path.basename(os.path.join(self.upload_folder, media_file_name)),
+                                        "b64_img_str": decoded_string,
+                                        "caption": text,
+                                        "time": 0.0,
+                                        "frame_no": page_idx,
+                                        "sub_video_id": image_idx,
+                                    }
+                                )
+                        else:
                             annotations.append(
-                                {
-                                    "video_id": file_id,
-                                    "video_name": os.path.basename(os.path.join(self.upload_folder, media_file_name)),
-                                    "b64_img_str": decoded_string,
-                                    "caption": text,
-                                    "time": 0.0,
-                                    "frame_no": page_idx,
-                                    "sub_video_id": image_idx,
-                                }
-                            )
+                                 {
+                                     "video_id": file_id,
+                                     "video_name": os.path.basename(os.path.join(self.upload_folder, media_file_name)),
+                                     "caption": text,
+                                     "time": 0.0,
+                                     "frame_no": page_idx,
+                                 }
+                             )
 
                     with open(os.path.join(output_dir, "annotations.json"), "w") as f:
                         json.dump(annotations, f)
