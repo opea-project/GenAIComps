@@ -418,7 +418,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         for item in annotation:
             page_index = item["frame_no"]
             image_index = item.get("sub_video_id", None)
-            path_to_image = os.path.join(path_to_files, f"page{page_index}_image{image_index}.png") if image_index else None
+            path_to_image = (
+                os.path.join(path_to_files, f"page{page_index}_image{image_index}.png") if image_index else None
+            )
             caption_for_ingesting = item["caption"]
             caption_for_inference = item["caption"]
 
@@ -738,7 +740,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                                 annotations.append(
                                     {
                                         "video_id": file_id,
-                                        "video_name": os.path.basename(os.path.join(self.upload_folder, media_file_name)),
+                                        "video_name": os.path.basename(
+                                            os.path.join(self.upload_folder, media_file_name)
+                                        ),
                                         "b64_img_str": decoded_string,
                                         "caption": text,
                                         "time": 0.0,
@@ -748,14 +752,14 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                                 )
                         else:
                             annotations.append(
-                                 {
-                                     "video_id": file_id,
-                                     "video_name": os.path.basename(os.path.join(self.upload_folder, media_file_name)),
-                                     "caption": text,
-                                     "time": 0.0,
-                                     "frame_no": page_idx,
-                                 }
-                             )
+                                {
+                                    "video_id": file_id,
+                                    "video_name": os.path.basename(os.path.join(self.upload_folder, media_file_name)),
+                                    "caption": text,
+                                    "time": 0.0,
+                                    "frame_no": page_idx,
+                                }
+                            )
 
                     with open(os.path.join(output_dir, "annotations.json"), "w") as f:
                         json.dump(annotations, f)
