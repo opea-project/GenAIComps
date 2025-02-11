@@ -25,6 +25,7 @@ export MILVUS_HOST=${your_milvus_host_ip}
 export MILVUS_PORT=19530
 export COLLECTION_NAME=${your_collection_name}
 export TEI_EMBEDDING_ENDPOINT=${your_embedding_endpoint}
+export HUGGINGFACEHUB_API_TOKEN=${your_huggingface_api_token}
 ```
 
 ### 1.4 Start TEI Embedding Service
@@ -70,13 +71,15 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 
 ```bash
 export TEI_EMBEDDING_ENDPOINT="http://localhost:$your_port"
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export EMBEDDING_MODEL_ID=${your_embedding_model_id}
 export MILVUS_HOST=${your_host_ip}
 ```
 
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MILVUS" opea/dataprep:latest
+docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MILVUS" opea/dataprep:latest
 ```
 
 ### 2.4 Run with Docker Compose (Option B)
