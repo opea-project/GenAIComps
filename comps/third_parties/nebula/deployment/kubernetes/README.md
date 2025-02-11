@@ -51,12 +51,12 @@ For example:
 ```bash
 kubectl run -ti --image vesoft/nebula-console --restart=Never -- nebula-console -addr 10.98.213.34  -port 9669 -u root -p vesoft
 
+```
 A successful connection to the database is indicated if the following is returned:
 
 If you don't see a command prompt, try pressing enter.
 
 (root@nebula) [(none)]>
-```
 
 ### 4.2. Connect to NebulaGraph databases from outside a NebulaGraph cluster
 
