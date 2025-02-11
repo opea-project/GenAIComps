@@ -71,7 +71,6 @@ jobs:
           fi
           if [[ $(grep -c "vllm-gaudi:" ${docker_compose_yml}) != 0 ]]; then
               git clone --depth 1 --branch v0.6.4.post2+Gaudi-1.19.0 https://github.com/HabanaAI/vllm-fork.git
-              sed -i 's/triton/triton==3.1.0/g' vllm-fork/requirements-hpu.txt
           fi
       - name: Get build list
         id: get-build-list
