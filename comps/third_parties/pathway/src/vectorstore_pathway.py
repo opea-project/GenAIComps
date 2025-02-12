@@ -47,7 +47,9 @@ if __name__ == "__main__":
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
         logging.info(f"Initializing the embedder from tei_embedding_endpoint: {tei_embedding_endpoint}")
-        embeddings = HuggingFaceInferenceAPIEmbeddings(api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=tei_embedding_endpoint)
+        embeddings = HuggingFaceInferenceAPIEmbeddings(
+            api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=tei_embedding_endpoint
+        )
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
