@@ -39,14 +39,10 @@ function start_service() {
     export PATHWAY_VOLUME="$WORKPATH/comps/third_parties/pathway/src/README.md"
     export PATHWAY_HOST=$host_ip  # needed in order to reach to vector store
 
-    cd $WORKPATH/comps/third_parties/pathway/deployment/docker_compose/
-    docker compose up -d
-    sleep 30
-
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    sleep 90
+    sleep 2m
 }
 
 function validate_microservice() {

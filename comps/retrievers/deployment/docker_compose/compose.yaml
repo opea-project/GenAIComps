@@ -114,7 +114,7 @@ services:
       PATHWAY_HOST: ${PATHWAY_HOST}
       PATHWAY_PORT: ${PATHWAY_PORT}
     depends_on:
-      tei-embedding-serving:
+      pathway-db:
         condition: service_healthy
 
   retriever-qdrant:
