@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 import psycopg2
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import PGVector
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -30,6 +30,10 @@ logflag = os.getenv("LOGFLAG", False)
 
 # Embedding model
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+# TEI Embedding endpoints
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING", "localhost")
 
@@ -47,12 +51,26 @@ class OpeaPgvectorDataprep(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
-        self.tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
         self.upload_folder = "./uploaded_files/"
         # Create vectorstore
-        if self.tei_embedding_endpoint:
+        if TEI_EMBEDDING_ENDPOINT:
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+            import requests
+
+            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
             # create embeddings using TEI endpoint service
-            self.embedder = HuggingFaceHubEmbeddings(model=self.tei_embedding_endpoint)
+            self.embedder = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
         else:
             # create embeddings using local embedding model
             self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
