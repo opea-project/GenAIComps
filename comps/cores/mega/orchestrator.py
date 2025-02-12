@@ -28,15 +28,13 @@ LOGFLAG = os.getenv("LOGFLAG", False)
 
 
 class OrchestratorMetrics:
-    # Need an instance ID for metric prefix because:
-    # - Orchestror instances are not named
-    # - CI creates several orchestrator instances
+    # Need an static class-level ID for metric prefix because:
     # - Prometheus requires metrics (their names) to be unique
     _instance_id = 0
 
     def __init__(self) -> None:
-        self._instance_id += 1
-        if self._instance_id > 1:
+        OrchestratorMetrics._instance_id += 1
+        if OrchestratorMetrics._instance_id > 1:
             self._prefix = f"megaservice{self._instance_id}"
         else:
             self._prefix = "megaservice"
