@@ -96,13 +96,11 @@ docker run -p 9379:9379 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_M
 http_proxy="" curl http://localhost:9379/v1/text2image -XPOST -d '{"prompt":"An astronaut riding a green horse", "num_images_per_prompt":1}' -H 'Content-Type: application/json'
 ```
 
-
 # Build docker image with sd_webui
 
 ```
 docker build -t opea/opea-sd-webui:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2image/sdwebui/Dockerfile.intel_gaudi2H .
 ```
-
 
 # setup container
 
