@@ -11,8 +11,13 @@ from langchain_milvus.vectorstores import Milvus
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 from .config import (
-    COLLECTION_NAME, INDEX_PARAMS, LOCAL_EMBEDDING_MODEL, 
-    MILVUS_URI, TEI_EMBEDDING_ENDPOINT, HUGGINGFACEHUB_API_TOKEN)
+    COLLECTION_NAME,
+    HUGGINGFACEHUB_API_TOKEN,
+    INDEX_PARAMS,
+    LOCAL_EMBEDDING_MODEL,
+    MILVUS_URI,
+    TEI_EMBEDDING_ENDPOINT,
+)
 
 logger = CustomLogger("milvus_retrievers")
 logflag = os.getenv("LOGFLAG", False)

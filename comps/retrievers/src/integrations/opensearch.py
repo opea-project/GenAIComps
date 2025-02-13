@@ -16,11 +16,11 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalReque
 
 from .config import (
     EMBED_MODEL,
+    HUGGINGFACEHUB_API_TOKEN,
     OPENSEARCH_INDEX_NAME,
     OPENSEARCH_INITIAL_ADMIN_PASSWORD,
     OPENSEARCH_URL,
     TEI_EMBEDDING_ENDPOINT,
-    HUGGINGFACEHUB_API_TOKEN,
 )
 
 logger = CustomLogger("opensearch_retrievers")

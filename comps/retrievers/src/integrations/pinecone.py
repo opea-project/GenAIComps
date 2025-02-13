@@ -12,9 +12,7 @@ from pinecone import Pinecone, ServerlessSpec
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import (
-    EMBED_MODEL, PINECONE_API_KEY, PINECONE_INDEX_NAME, 
-    TEI_EMBEDDING_ENDPOINT, HUGGINGFACEHUB_API_TOKEN)
+from .config import EMBED_MODEL, HUGGINGFACEHUB_API_TOKEN, PINECONE_API_KEY, PINECONE_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("pinecone_retrievers")
 logflag = os.getenv("LOGFLAG", False)

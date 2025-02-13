@@ -10,9 +10,7 @@ from langchain_community.vectorstores import PGVector
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import (
-    EMBED_MODEL, PG_CONNECTION_STRING, PG_INDEX_NAME, 
-    TEI_EMBEDDING_ENDPOINT, HUGGINGFACEHUB_API_TOKEN)
+from .config import EMBED_MODEL, HUGGINGFACEHUB_API_TOKEN, PG_CONNECTION_STRING, PG_INDEX_NAME, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("pgvector_retrievers")
 logflag = os.getenv("LOGFLAG", False)

@@ -11,9 +11,7 @@ from langchain_elasticsearch import ElasticsearchStore
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import (
-    EMBED_MODEL, ES_CONNECTION_STRING, ES_INDEX_NAME, 
-    TEI_EMBEDDING_ENDPOINT, HUGGINGFACEHUB_API_TOKEN)
+from .config import EMBED_MODEL, ES_CONNECTION_STRING, ES_INDEX_NAME, HUGGINGFACEHUB_API_TOKEN, TEI_EMBEDDING_ENDPOINT
 
 logger = CustomLogger("es_retrievers")
 logflag = os.getenv("LOGFLAG", False)

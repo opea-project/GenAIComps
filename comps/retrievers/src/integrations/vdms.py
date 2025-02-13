@@ -13,13 +13,13 @@ from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, 
 from .config import (
     DISTANCE_STRATEGY,
     EMBED_MODEL,
+    HUGGINGFACEHUB_API_TOKEN,
     SEARCH_ENGINE,
     TEI_EMBEDDING_ENDPOINT,
     VDMS_HOST,
     VDMS_INDEX_NAME,
     VDMS_PORT,
     VDMS_USE_CLIP,
-    HUGGINGFACEHUB_API_TOKEN
 )
 
 logger = CustomLogger("vdms_retrievers")
