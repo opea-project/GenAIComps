@@ -34,6 +34,7 @@ function start_service() {
     export OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export OPENSEARCH_URL="http://${host_ip}:${OPENSEARCH_PORT1}"
     export INDEX_NAME="file-index"
 
