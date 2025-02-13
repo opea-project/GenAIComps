@@ -65,7 +65,9 @@ async def ingest_files(
 
     try:
         # Use the loader to invoke the component
-        response = await loader.ingest_files(files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB)
+        response = await loader.ingest_files(
+            files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB
+        )
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ ingest ] Output generated: {response}")
