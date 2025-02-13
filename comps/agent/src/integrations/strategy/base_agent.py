@@ -21,14 +21,14 @@ class BaseAgent:
         print("Registered tools: ", self.tools_descriptions)
 
         if args.with_memory:
-            if args.memory_type == "volatile":
-                self.memory_type = "volatile"
+            if args.memory_type == "checkpointer":
+                self.memory_type = "checkpointer"
                 self.checkpointer = MemorySaver()
                 self.store = None
-            elif args.memory_type == "persistent":
-                # print("Using Redis as persistent storage: ", args.store_config.redis_uri)
+            elif args.memory_type == "store":
+                # print("Using Redis as store: ", args.store_config.redis_uri)
                 self.store = RedisPersistence(args.store_config.redis_uri)
-                self.memory_type = "persistent"
+                self.memory_type = "store"
             else:
                 raise ValueError("Invalid memory type!")
         else:

@@ -119,11 +119,11 @@ class AgentConfig(BaseModel):
     # # short/long term memory
     with_memory: Optional[bool] = True
     # agent memory config
-    # chat_completion api: only supports volatile memory
-    # assistants api: supports volatile and persistent memory
-    # volatile: in-memory checkpointer - MemorySaver()
-    # persistent: redis store
-    memory_type: Optional[str] = "volatile"  # choices: volatile, persistent
+    # chat_completion api: only supports checkpointer memory
+    # assistants api: supports checkpointer and store memory
+    # checkpointer: in-memory checkpointer - MemorySaver()
+    # store: redis store
+    memory_type: Optional[str] = "checkpointer"  # choices: checkpointer, store
     store_config: Optional[RedisConfig] = None
 
     timeout: Optional[int] = 60
@@ -158,7 +158,7 @@ def create_assistants(input: CreateAssistant):
         g_assistants[assistant_id] = (agent_inst, created_at)
     logger.info(f"Record assistant inst {assistant_id} in global KV")
 
-    if input.agent_config.memory_type == "persistent":
+    if input.agent_config.memory_type == "store":
         logger.info("Save Agent Config to database")
         # agent_inst.memory_type = input.agent_config.memory_type
         print(input)
@@ -231,7 +231,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
     if input.assistant_id is not None:
         with assistants_global_kv as g_assistants:
             agent_inst, _ = g_assistants[input.assistant_id]
-        if agent_inst.memory_type == "persistent":
+        if agent_inst.memory_type == "store":
             logger.info(f"Save Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
             # if with store, db_client initialized already
             global db_client
@@ -265,7 +265,7 @@ def create_run(thread_id, input: CreateRunResponse):
         "configurable": {"session_id": thread_id, "thread_id": thread_id, "user_id": assistant_id},
     }
 
-    if agent_inst.memory_type == "persistent":
+    if agent_inst.memory_type == "store":
         global db_client
         namespace = f"{assistant_id}_{thread_id}"
         # get the latest human message from store in the namespace

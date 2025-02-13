@@ -14,7 +14,7 @@ services:
       ip_address: ${ip_address}
       strategy: react_llama
       with_memory: true
-      memory_type: volatile
+      memory_type: checkpointer
       recursion_limit: ${recursion_limit}
       llm_engine: vllm
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}

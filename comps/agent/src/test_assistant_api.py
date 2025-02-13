@@ -101,7 +101,7 @@ if __name__ == "__main__":
         "llm_endpoint_url": args.llm_endpoint_url,
         "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml",
         "with_memory": True,
-        "memory_type": "persistent",
+        "memory_type": "store",
         "store_config": {"redis_uri": f"redis://{args.ip_addr}:6379"},
     }
 

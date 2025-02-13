@@ -196,9 +196,9 @@ class ReActAgentNodeLlama:
 
         # assemble a prompt from messages
         if self.with_memory:
-            if self.memory_type == "volatile":
+            if self.memory_type == "checkpointer":
                 query, history, thread_history = assemble_memory(messages)
-            elif self.memory_type == "persistent":
+            elif self.memory_type == "store":
                 # use thread_id, assistant_id to search memory from store
                 print("@@@ Load memory from store....")
                 query, history, thread_history = assemble_memory_from_store(config, self.store)  # TODO
@@ -289,9 +289,9 @@ class ReActAgentLlama(BaseAgent):
         workflow.add_edge("tools", "agent")
 
         if args.with_memory:
-            if args.memory_type == "volatile":
+            if args.memory_type == "checkpointer":
                 self.app = workflow.compile(checkpointer=self.checkpointer)
-            elif args.memory_type == "persistent":
+            elif args.memory_type == "store":
                 self.app = workflow.compile(store=self.store)
             else:
                 raise ValueError("Invalid memory type!")
@@ -326,7 +326,7 @@ class ReActAgentLlama(BaseAgent):
                 data = event[1]
                 if event_type == "updates":
                     for node_name, node_state in data.items():
-                        if self.memory_type == "persistent":
+                        if self.memory_type == "store":
                             save_state_to_store(node_state, config, self.store)
                         print(f"--- CALL {node_name} node ---\n")
                         for k, v in node_state.items():
@@ -357,7 +357,7 @@ class ReActAgentLlama(BaseAgent):
     async def non_streaming_run(self, query, config):
         # for use as worker agent (tool of supervisor agent)
         # only used in chatcompletion api
-        # chat completion api only supports volatile memory
+        # chat completion api only supports checkpointer memory
         initial_state = self.prepare_initial_state(query)
         if "tool_choice" in config:
             initial_state["tool_choice"] = config.pop("tool_choice")

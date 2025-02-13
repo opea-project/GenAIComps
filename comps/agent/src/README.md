@@ -89,14 +89,14 @@ for line in resp.iter_lines(decode_unicode=True):
 
 We currently supports two types of memory.
 
-1. `volatile`: agent memory stored in RAM, so is volatile, the memory contains agent states within a thread. Used to enable multi-turn conversations between the user and the agent. Both chat completions API and assistants APIs support this type of memory.
-2. `persistent`: agent memory stored in Redis database, contains agent states in all threads. Only assistants APIs support this type of memory. Used to enable multi-turn conversations. In future we will explore algorithms to take advantage of the info contained in previous conversations to improve agent's performance.
+1. `checkpointer`: agent memory stored in RAM, so is volatile, the memory contains agent states within a thread. Used to enable multi-turn conversations between the user and the agent. Both chat completions API and assistants APIs support this type of memory.
+2. `store`: agent memory stored in Redis database, contains agent states in all threads. Only assistants APIs support this type of memory. Used to enable multi-turn conversations. In future we will explore algorithms to take advantage of the info contained in previous conversations to improve agent's performance.
 
 **Note**: Currently only `react_llama` agent supports memory and multi-turn conversations.
 
 #### How to enable agent memory?
 
-Specify `with_memory`=True. If want to use persistent memory, specify `memory_type`=`persistent`, and you need to launch a Redis database using the command below.
+Specify `with_memory`=True. If want to use persistent memory, specify `memory_type`=`store`, and you need to launch a Redis database using the command below.
 
 ```bash
 # you can change the port from 6379 to another one.
@@ -105,8 +105,8 @@ docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --
 
 Examples of python code for multi-turn conversations using agent memory:
 
-1. [chat completions API with volatile memory](./test_chat_completion_multiturn.py)
-2. [assistants APIs with persistent memory](./test_assistant_api.py)
+1. [chat completions API with checkpointer](./test_chat_completion_multiturn.py)
+2. [assistants APIs with persistent store memory](./test_assistant_api.py)
 
 To run the two examples above, first launch the agent microservice using [this docker compose yaml](../../../tests/agent/reactllama.yaml).
 
@@ -189,7 +189,7 @@ curl http://${ip_address}:9090/v1/assistants -X POST -H "Content-Type: applicati
 
 ## if want to persist your agent messages, set store config like this:
 curl http://${ip_address}:9090/v1/assistants -X POST -H "Content-Type: application/json" -d '{
-     "agent_config": {"llm_engine": "vllm", "llm_endpoint_url": "http://${ip_address}:8080", "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml","with_store":true, "store_config":{"redis_uri":"redis://${ip_address}:6379"}}
+     "agent_config": {"llm_engine": "vllm", "llm_endpoint_url": "http://${ip_address}:8080", "tools": "/home/user/comps/agent/src/tools/custom_tools.yaml","with_memory":true, "memory_type":"store", "store_config":{"redis_uri":"redis://${ip_address}:6379"}}
     }'
 
 # step2 create thread to get `thread_id`
@@ -201,7 +201,7 @@ curl http://${ip_address}:9090/v1/threads -X POST -H "Content-Type: application/
 curl http://${ip_address}:9090/v1/threads/{thread_id}/messages -X POST -H "Content-Type: application/json" -d '{"role": "user", "content": "What is OPEA project?"}'
 
 
-## if agent is set with `memory_type`=persistent, should add `assistant_id` in the messages for store
+## if agent is set with `memory_type`=store, should add `assistant_id` in the messages for store
 
 curl http://${ip_address}:9090/v1/threads/{thread_id}/messages -X POST -H "Content-Type: application/json" -d '{"role": "user", "content": "What is OPEA project?", "assistant_id": "{assistant_id}"}'
 
