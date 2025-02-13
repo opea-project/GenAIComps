@@ -74,7 +74,7 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-s
 OPENAI_LLM_MODEL = os.getenv("OPENAI_LLM_MODEL", "gpt-4o")
 
 LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3.1-70B-Instruct")
-MAX_INPUT_LEN = os.getenv("MAX_INPUT_LEN", "8192")
+MAX_INPUT_TOKENS = os.getenv("MAX_INPUT_TOKENS", "8192")
 MAX_OUTPUT_TOKENS = os.getenv("MAX_OUTPUT_TOKENS", "1024")
 
 
@@ -92,7 +92,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     async def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM."""
         model_name = LLM_MODEL_ID
-        max_input_length = int(MAX_INPUT_LEN)
+        max_input_length = int(MAX_INPUT_TOKENS)
         if not model_name or not max_input_length:
             raise ValueError(f"Could not retrieve model information from TGI endpoint: {TGI_LLM_ENDPOINT}")
 
