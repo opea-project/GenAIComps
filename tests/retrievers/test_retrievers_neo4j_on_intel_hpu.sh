@@ -67,7 +67,7 @@ function start_service() {
     docker run -d --name="test-comps-retrievers-neo4j-llama-index-dataprep" -p 6004:5000 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e TEI_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$EMBEDDING_MODEL_ID -e LLM_MODEL_ID=$LLM_MODEL_ID -e host_ip=$host_ip -e no_proxy=$no_proxy \
         -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}" -e NEO4J_USERNAME="neo4j" \
-        -e NEO4J_PASSWORD="neo4jtest" -e HF_TOKEN=$HF_TOKEN -e LOGFLAG=True -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_NEO4J_LLAMAINDEX" opea/dataprep-neo4j-llamaindex:comps
+        -e NEO4J_PASSWORD="neo4jtest" -e HF_TOKEN=$HF_TOKEN -e MAX_INPUT_LEN=$MAX_INPUT_TOKENS -e LOGFLAG=True -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_NEO4J_LLAMAINDEX" opea/dataprep-neo4j-llamaindex:comps
 
     sleep 1m
 
