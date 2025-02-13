@@ -7,4 +7,3 @@ services:
     build:
       dockerfile: comps/animation/src/Dockerfile
     image: ${REGISTRY:-opea}/animation:${TAG:-latest}
-#test

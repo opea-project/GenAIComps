@@ -4,7 +4,7 @@ name: Build latest images on push event
 
 on:
   push:
-    branches: ["main","Fix-CICD"]
+    branches: ["main"]
     paths:
       - 'comps/**'
       - 'src/**'
@@ -62,7 +62,7 @@ jobs:
 
   image-build:
     needs: get-build-matrix
-    if: needs.get-build-matrix.outputs.services != 'null'
+    if: needs.get-build-matrix.outputs.services != '[]'
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
