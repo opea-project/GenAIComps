@@ -20,7 +20,6 @@ function build_docker_images() {
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
     git checkout v0.6.4.post2+Gaudi-1.19.0
-    sed -i 's/triton/triton==3.1.0/g' requirements-hpu.txt
     docker build --no-cache -f Dockerfile.hpu -t ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
