@@ -71,6 +71,7 @@ class OpeaTEIReranking(OpeaComponent):
 
             response = await self.client.post(
                 json={"query": query, "texts": docs},
+                model=f"{self.base_url}/rerank",
                 task="text-reranking",
             )
 
