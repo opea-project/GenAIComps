@@ -45,6 +45,7 @@ services:
     environment:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_MILVUS}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
       MILVUS_HOST: ${host_ip}
     depends_on:
       tei-embedding-serving:

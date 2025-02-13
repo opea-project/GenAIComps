@@ -33,7 +33,7 @@ function start_service() {
     export TEI_EMBEDDER_PORT=11614
     export RETRIEVER_PORT=11615
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-    export HF_TOKEN=${HF_TOKEN}
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export LOGFLAG=True
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
     export MILVUS_HOST=${host_ip}
