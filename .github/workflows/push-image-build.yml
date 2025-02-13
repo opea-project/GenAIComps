@@ -62,7 +62,7 @@ jobs:
 
   image-build:
     needs: get-build-matrix
-    if: ${{ fromJSON(needs.get-build-matrix.outputs.services).length != 0 }}
+    if: needs.get-build-matrix.outputs.services != 'null'
     strategy:
       matrix:
         service: ${{ fromJSON(needs.get-build-matrix.outputs.services) }}
