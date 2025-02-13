@@ -86,6 +86,7 @@ services:
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       LOGFLAG: ${LOGFLAG}
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     restart: unless-stopped
 
   dataprep-opensearch:
