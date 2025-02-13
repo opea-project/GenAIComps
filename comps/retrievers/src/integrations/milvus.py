@@ -10,12 +10,12 @@ from langchain_milvus.vectorstores import Milvus
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import COLLECTION_NAME, INDEX_PARAMS, LOCAL_EMBEDDING_MODEL, MILVUS_URI, TEI_EMBEDDING_ENDPOINT
+from .config import (
+    COLLECTION_NAME, INDEX_PARAMS, LOCAL_EMBEDDING_MODEL, 
+    MILVUS_URI, TEI_EMBEDDING_ENDPOINT, HUGGINGFACEHUB_API_TOKEN)
 
 logger = CustomLogger("milvus_retrievers")
 logflag = os.getenv("LOGFLAG", False)
-# Huggingface API token for TEI embedding endpoint
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_MILVUS")
