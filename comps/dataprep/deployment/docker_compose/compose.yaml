@@ -87,6 +87,7 @@ services:
       LOGFLAG: ${LOGFLAG}
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
+      MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS:-4096}
     restart: unless-stopped
 
   dataprep-opensearch:
