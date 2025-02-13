@@ -48,7 +48,7 @@ class OpeaVDMsRetriever(OpeaComponent):
             from comps.third_parties.clip.src.clip_embedding import vCLIP
 
             embeddings = vCLIP({"model_name": "openai/clip-vit-base-patch32", "num_frm": 64})
-        if TEI_EMBEDDING_ENDPOINT:
+        elif TEI_EMBEDDING_ENDPOINT:
             # create embeddings using TEI endpoint service
             if logflag:
                 logger.info(f"[ init embedder ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
