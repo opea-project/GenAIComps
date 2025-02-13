@@ -7,8 +7,7 @@ import os
 import nltk
 import pathway as pw
 from langchain import text_splitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from pathway.xpacks.llm.parsers import ParseUnstructured
 from pathway.xpacks.llm.vector_store import VectorStoreServer
 
@@ -40,7 +39,7 @@ host = os.getenv("PATHWAY_HOST", "127.0.0.1")
 port = int(os.getenv("PATHWAY_PORT", 8666))
 
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 if __name__ == "__main__":
@@ -48,7 +47,9 @@ if __name__ == "__main__":
     if tei_embedding_endpoint:
         # create embeddings using TEI endpoint service
         logging.info(f"Initializing the embedder from tei_embedding_endpoint: {tei_embedding_endpoint}")
-        embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
+        embeddings = HuggingFaceInferenceAPIEmbeddings(
+            api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=tei_embedding_endpoint
+        )
     else:
         # create embeddings using local embedding model
         embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
