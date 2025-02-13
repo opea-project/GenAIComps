@@ -169,7 +169,7 @@ def get_args():
     parser.add_argument("--repetition_penalty", type=float, default=1.03)
     parser.add_argument("--return_full_text", type=bool, default=False)
     parser.add_argument("--custom_prompt", type=str, default=None)
-    parser.add_argument("--with_memory", type=bool, default=False)
+    parser.add_argument("--with_memory", type=str, default="true")
     parser.add_argument("--memory_type", type=str, default="checkpointer", help="choices: checkpointer, store")
     parser.add_argument("--timeout", type=int, default=60)
 
