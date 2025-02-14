@@ -41,7 +41,7 @@ function validate_database() {
     # test insert data
     echo "[ test insert ] inserting data.."
     query="USE my_space; CREATE TAG person(name string, age int); INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30); INSERT VERTEX person(name, age) VALUES 'person2':('Bob', 25);"
-   
+
     insert_response=$(kubectl run -ti --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "$query" 2>&1)
 
     if [[ $? -eq 0 ]]; then
@@ -53,7 +53,7 @@ function validate_database() {
         exit 1
     fi
 
- 
+
     # test search data
     echo "[ test search ] searching data.."
     query="USE my_space; MATCH (p:person) RETURN p;"
