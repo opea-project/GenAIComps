@@ -37,7 +37,7 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
     export INDEX_NAME="rag-vdms"
     export VDMS_USE_CLIP=0 #set to 1 if openai clip embedding should be used
-    export HF_TOKEN=${HF_TOKEN}
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export LOGFLAG=True
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
