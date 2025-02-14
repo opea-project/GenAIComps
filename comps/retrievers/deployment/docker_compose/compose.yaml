@@ -3,6 +3,7 @@
 
 include:
   - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/milvus/deployment/docker_compose/compose.yaml
   - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
   - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
   - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
@@ -49,6 +50,8 @@ services:
     depends_on:
       tei-embedding-serving:
         condition: service_healthy
+      standalone:
+        condition: service_healthy
 
   retriever-neo4j:
     extends: retriever
@@ -63,6 +66,8 @@ services:
       NEO4J_USERNAME: ${NEO4J_USERNAME}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
       VDMS_USE_CLIP: 0
+      MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS:-4096}
+      MAX_OUTPUT_TOKENS: ${MAX_TOTAL_TOKENS:-8192}
       host_ip: ${host_ip}
     depends_on:
       neo4j-apoc:
