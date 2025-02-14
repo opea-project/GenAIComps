@@ -124,7 +124,7 @@ services:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_QDRANT}
       QDRANT_HOST: ${QDRANT_HOST}
       QDRANT_PORT: ${QDRANT_PORT}
-      INDEX_NAME: ${INDEX_NAME}
+      QDRANT_INDEX_NAME: ${INDEX_NAME}
     depends_on:
       qdrant-vector-db:
         condition: service_healthy
