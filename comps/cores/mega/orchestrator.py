@@ -27,6 +27,7 @@ logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
 ENABLE_OPEA_TELEMETRY = os.getenv("ENABLE_OPEA_TELEMETRY", "false").lower() == "true"
 
+
 class OrchestratorMetrics:
     # Need an static class-level ID for metric prefix because:
     # - Prometheus requires metrics (their names) to be unique
@@ -253,7 +254,11 @@ class ServiceOrchestrator(DAG):
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
-            with tracer.start_as_current_span(f"{cur_node}_asyn_generate") if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
+            with (
+                tracer.start_as_current_span(f"{cur_node}_asyn_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = requests.post(
                     url=endpoint,
                     data=json.dumps(inputs),
@@ -321,7 +326,11 @@ class ServiceOrchestrator(DAG):
             else:
                 input_data = inputs
 
-            with tracer.start_as_current_span(f"{cur_node}_generate") if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
+            with (
+                tracer.start_as_current_span(f"{cur_node}_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = await session.post(endpoint, json=input_data)
 
             if response.content_type == "audio/wav":
