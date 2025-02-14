@@ -36,7 +36,7 @@ function deploy_and_start_service() {
 }
 
 function validate_database() {
-    cluster_ip=$(kubectl get service -n nebula-operator-system | grep nebula-graphd-svc | awk '/nebula-graphd-svc/ {print $3}')
+    cluster_ip=$(kubectl get service | grep nebula-graphd-svc | awk '/nebula-graphd-svc/ {print $3}')
 
     # test create space
     echo "[ test create ] creating space.."
