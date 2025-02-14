@@ -42,6 +42,8 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export LLM_ENDPOINT_PORT=10510
     export TGI_LLM_ENDPOINT="http://${ip_address}:${LLM_ENDPOINT_PORT}"
+    export MAX_INPUT_TOKENS=4096
+    export MAX_TOTAL_TOKENS=8192
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d

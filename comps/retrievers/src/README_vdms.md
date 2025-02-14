@@ -65,6 +65,7 @@ Please refer to this [readme](../../third_parties/vdms/src/README.md).
 
 ```bash
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_VDMS"
 python opea_retrievers_microservice.py
 ```
@@ -77,6 +78,7 @@ python opea_retrievers_microservice.py
 export RETRIEVE_MODEL_ID="BAAI/bge-base-en-v1.5"
 export INDEX_NAME=${your_index_name or collection_name}
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_VDMS"
 ```
 
@@ -97,7 +99,7 @@ You can choose one as needed.
 ### 2.3 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="retriever-vdms-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e RETRIEVER_COMPONENT_NAME=$RETRIEVER_COMPONENT_NAME opea/retriever:latest
+docker run -d --name="retriever-vdms-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e RETRIEVER_COMPONENT_NAME=$RETRIEVER_COMPONENT_NAME opea/retriever:latest
 ```
 
 ### 2.4 Run Docker with Docker Compose (Option B)
