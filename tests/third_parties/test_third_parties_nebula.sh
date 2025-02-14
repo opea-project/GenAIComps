@@ -8,7 +8,7 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 
 function deploy_and_start_service() {
-    cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose
+    cd $WORKPATH/comps/third_parties/nebula/deployment/kubernetes
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
     kubectl create namespace nebula-operator-system
     helm repo add nebula-operator https://vesoft-inc.github.io/nebula-operator/charts
@@ -71,7 +71,7 @@ function validate_database() {
 }
 
 function stop_service() {
-    cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose
+    cd $WORKPATH/comps/third_parties/nebula/deployment/kubernetes
     kubectl delete -f community_edition.yaml
     helm uninstall nebula-operator --namespace nebula-operator-system
     kubectl delete crd nebulaclusters.apps.nebula-graph.io
