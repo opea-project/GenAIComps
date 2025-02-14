@@ -22,12 +22,13 @@ export MILVUS_HOST=${your_milvus_host_ip}
 export MILVUS_PORT=19530
 export COLLECTION_NAME=${your_collection_name}
 export TEI_EMBEDDING_ENDPOINT=${your_emdding_endpoint}
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
 
 ### Start Retriever Service
 
 ```bash
-export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
+export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:${your_embedding_port}"
 export RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_MILVUS"
 python opea_retrievers_microservice.py
 ```
@@ -44,7 +45,7 @@ docker build -t opea/retriever:latest --build-arg https_proxy=$https_proxy --bui
 ### Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="retriever-milvus-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e TEI_EMBEDDING_ENDPOINT=${your_emdding_endpoint} -e MILVUS_HOST=${your_milvus_host_ip} -e RETRIEVER_COMPONENT_NAME=$RETRIEVER_COMPONENT_NAME opea/retriever:latest
+docker run -d --name="retriever-milvus-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${your_emdding_endpoint} -e MILVUS_HOST=${your_milvus_host_ip} -e HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token} -e RETRIEVER_COMPONENT_NAME=$RETRIEVER_COMPONENT_NAME opea/retriever:latest
 ```
 
 ### Run Docker with Docker Compose (Option B)
