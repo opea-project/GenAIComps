@@ -30,8 +30,6 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-USER user
-
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
@@ -42,11 +40,9 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi && \
     pip install --no-cache-dir torch torchvision ${PIP_EXTRA_INDEX_URL} && \
     pip install --no-cache-dir ${PIP_EXTRA_INDEX_URL} -r /home/user/comps/dataprep/src/requirements.txt && \
-    pip install opentelemetry-api==1.27.0 opentelemetry-exporter-otlp==1.27.0 opentelemetry-sdk==1.27.0
+    pip install opentelemetry-api==1.29.0 opentelemetry-exporter-otlp==1.29.0 opentelemetry-sdk==1.29.0
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
-
-USER root
 
 RUN mkdir -p /home/user/comps/dataprep/src/uploaded_files && chown -R user /home/user/comps/dataprep/src/uploaded_files
 

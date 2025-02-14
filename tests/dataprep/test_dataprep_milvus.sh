@@ -7,17 +7,18 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
+DATAPREP_PORT=11101
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     # dataprep milvus image
-    docker build --no-cache -t opea/dataprep-milvus:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/dataprep-milvus built fail"
+        echo "opea/dataprep built fail"
         exit 1
     else
-        echo "opea/dataprep-milvus built successful"
+        echo "opea/dataprep built successful"
     fi
 }
 
@@ -27,19 +28,18 @@ function start_service() {
     # wget https://raw.githubusercontent.com/milvus-io/milvus/v2.4.9/configs/milvus.yaml
     # wget https://github.com/milvus-io/milvus/releases/download/v2.4.9/milvus-standalone-docker-compose.yml -O docker-compose.yml
     # sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
-    docker compose -f docker-compose.yaml up -d
+    docker compose up -d
+    sleep 30
 
-    # start embedding service
-    embed_port=5021
-    embed_model="BAAI/bge-base-en-v1.5"
-    docker run -d -p $embed_port:80 -v ./data:/data --name test-comps-dataprep-milvus-tei-server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $embed_model
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${embed_port}"
-
-    # start dataprep service
-    MILVUS_HOST=${ip_address}
-    dataprep_service_port=5022
-    HF_TOKEN=${HF_TOKEN}
-    docker run -d --name="test-comps-dataprep-milvus-server" -p ${dataprep_service_port}:5000 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} -e LOGFLAG=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MILVUS" --ipc=host opea/dataprep-milvus:comps
+    export host_ip=${ip_address}
+    export TEI_EMBEDDER_PORT=12005
+    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export MILVUS_HOST=${ip_address}
+    export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
+    export LOGFLAG=true
+    service_name="dataprep-milvus tei-embedding-serving"
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose up ${service_name} -d
     sleep 1m
 }
 
@@ -91,43 +91,42 @@ function validate_service() {
 
 function validate_microservice() {
     cd $LOG_PATH
-    dataprep_service_port=5022
 
     # test /v1/dataprep/delete
     validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/delete" \
+        "http://${ip_address}:${DATAPREP_PORT}/v1/dataprep/delete" \
         '{"status":true}' \
         "dataprep_del" \
-        "test-comps-dataprep-milvus-server"
+        "dataprep-milvus-server"
 
     # test /v1/dataprep upload file
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
     validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/ingest" \
+        "http://${ip_address}:${DATAPREP_PORT}/v1/dataprep/ingest" \
         "Data preparation succeeded" \
         "dataprep_upload_file" \
-        "test-comps-dataprep-milvus-server"
+        "dataprep-milvus-server"
 
     # test /v1/dataprep upload link
     validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/ingest" \
+        "http://${ip_address}:${DATAPREP_PORT}/v1/dataprep/ingest" \
         "Data preparation succeeded" \
         "dataprep_upload_link" \
-        "test-comps-dataprep-milvus-server"
+        "dataprep-milvus-server"
 
     # test /v1/dataprep/get_file
     validate_service \
-        "http://${ip_address}:${dataprep_service_port}/v1/dataprep/get" \
+        "http://${ip_address}:${DATAPREP_PORT}/v1/dataprep/get" \
         '{"name":' \
         "dataprep_get" \
-        "test-comps-dataprep-milvus-server"
+        "dataprep-milvus-server"
 
 }
 
 function stop_docker() {
     cd $WORKPATH
     rm -rf milvus/
-    cid=$(docker ps -aq --filter "name=test-comps-dataprep-milvus*")
+    cid=$(docker ps -aq --filter "name=dataprep-milvus*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
     cid=$(docker ps -aq --filter "name=milvus-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi

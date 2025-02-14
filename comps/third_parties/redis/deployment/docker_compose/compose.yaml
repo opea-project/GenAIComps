@@ -9,10 +9,11 @@ services:
       - "${REDIS_PORT1:-6379}:6379"
       - "${REDIS_PORT2:-8001}:8001"
     environment:
-      HTTPS_PROXY: ${http_proxy}
-      HTTP_PROXY: ${https_proxy}
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
     healthcheck:
-      test: ["CMD-SHELL", "sleep 10 && exit 0"]
-      interval: 1s
-      timeout: 15s
-      retries: 1
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 10s
+      retries: 3
+      start_period: 10s

@@ -16,12 +16,12 @@ function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
 
-    docker build --no-cache -t opea/chathistory-mongo-server:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
+    docker build --no-cache -t opea/chathistory-mongo:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/chathistory/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/chathistory-mongo-server built fail"
+        echo "opea/chathistory-mongo built fail"
         exit 1
     else
-        echo "opea/chathistory-mongo-server built successful"
+        echo "opea/chathistory-mongo built successful"
     fi
 }
 

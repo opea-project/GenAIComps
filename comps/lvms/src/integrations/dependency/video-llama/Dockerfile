@@ -14,8 +14,6 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user:user /home/user/
 RUN mkdir /home/user/model && chown user:user -R /home/user/model
 
-USER user
-
 COPY --chown=user:user comps /home/user/comps
 WORKDIR /home/user/comps/lvms/src/integrations/dependency/video-llama/
 
@@ -31,6 +29,7 @@ RUN tar -xvf video-llama.patch.tar && \
     mv video_llama ../ && \
     cd ../ && rm -rf Video-LLaMA
 
+USER user
 
 ENV PYTHONPATH=/home/user
 

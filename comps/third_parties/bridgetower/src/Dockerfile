@@ -6,7 +6,7 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 RUN apt-get update && apt-get install -y curl
-USER user
+
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
-
+USER user
 ARG EMBEDDER_PORT=8080
 ENV PORT=$EMBEDDER_PORT
 

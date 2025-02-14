@@ -13,6 +13,9 @@ Your use of the source code for these components is subject to the terms and con
 
 See the accompanying [license](LICENSE) file for full license text and copyright notices.
 
+Please note: component(s) depend on software subject to non-open source licenses.  If you use or redistribute this software, it is your sole responsibility to ensure compliance with such licenses.
+e.g langserve
+
 ## Citation
 
 If you use Generative AI Components in your research, use the following BibTeX entry.

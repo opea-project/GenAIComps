@@ -7,30 +7,35 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
+DATAPREP_PORT="11107"
+TEI_EMBEDDER_PORT="10220"
 
 function build_docker_images() {
     cd $WORKPATH
 
     # dataprep qdrant image
-    docker build --no-cache -t opea/dataprep-qdrant:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/dataprep-qdrant built fail"
+        echo "opea/dataprep built fail"
         exit 1
     else
-        echo "opea/dataprep-qdrant built successful"
+        echo "opea/dataprep built successful"
     fi
 }
 
 function start_service() {
-    QDRANT_PORT=6360
-    docker run -d --name="test-comps-dataprep-qdrant-langchain" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $QDRANT_PORT:6333 -p 6334:6334 --ipc=host qdrant/qdrant
-    tei_embedding_port=6361
-    model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-dataprep-qdrant-langchain-tei" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_embedding_port:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
-    dataprep_service_port=6362
-    TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_embedding_port}"
-    COLLECTION_NAME="rag-qdrant"
-    docker run -d --name="test-comps-dataprep-qdrant-langchain-server" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e QDRANT_HOST=$ip_address -e QDRANT_PORT=$QDRANT_PORT -e COLLECTION_NAME=$COLLECTION_NAME -e TEI_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -p ${dataprep_service_port}:5000 --ipc=host -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_QDRANT" opea/dataprep-qdrant:comps
+    export host_ip=${ip_address}
+    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export EMBED_MODEL=${EMBEDDING_MODEL_ID}
+    export TEI_EMBEDDER_PORT="10224"
+    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
+    export COLLECTION_NAME="rag-qdrant"
+    export QDRANT_HOST=$ip_address
+    export QDRANT_PORT=6360
+    export TAG="comps"
+    service_name="qdrant-vector-db tei-embedding-serving dataprep-qdrant"
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose up ${service_name} -d
     sleep 1m
 }
 
@@ -57,8 +62,8 @@ function validate_services() {
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-dataprep-qdrant-langchain-tei >> ${LOG_PATH}/tei-endpoint.log
-        docker logs test-comps-dataprep-qdrant-langchain-server >> ${LOG_PATH}/dataprep-qdrant.log
+        docker logs tei-embedding-serving >> ${LOG_PATH}/tei-endpoint.log
+        docker logs dataprep-qdrant-server >> ${LOG_PATH}/dataprep-qdrant.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -66,8 +71,8 @@ function validate_services() {
     # check response body
     if [[ "$RESPONSE_BODY" != *"$EXPECTED_RESULT"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs test-comps-dataprep-qdrant-langchain-tei >> ${LOG_PATH}/tei-endpoint.log
-        docker logs test-comps-dataprep-qdrant-langchain-server >> ${LOG_PATH}/dataprep-qdrant.log
+        docker logs tei-embedding-serving >> ${LOG_PATH}/tei-endpoint.log
+        docker logs dataprep-qdrant-server >> ${LOG_PATH}/dataprep-qdrant.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -79,31 +84,31 @@ function validate_services() {
 function validate_microservice() {
     # tei for embedding service
     validate_services \
-        "${ip_address}:6361/embed" \
+        "${ip_address}:${TEI_EMBEDDER_PORT}/embed" \
         "[[" \
         "tei_embedding" \
-        "test-comps-dataprep-qdrant-langchain-tei" \
+        "tei-embedding-serving" \
         '{"inputs":"What is Deep Learning?"}'
 
     # dataprep upload file
     echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
     validate_services \
-        "${ip_address}:6362/v1/dataprep/ingest" \
+        "${ip_address}:${DATAPREP_PORT}/v1/dataprep/ingest" \
         "Data preparation succeeded" \
         "dataprep_upload_file" \
-        "test-comps-dataprep-qdrant-langchain-server"
+        "dataprep-qdrant-server"
 
     # dataprep upload link
     validate_services \
-        "${ip_address}:6362/v1/dataprep/ingest" \
+        "${ip_address}:${DATAPREP_PORT}/v1/dataprep/ingest" \
         "Data preparation succeeded" \
         "dataprep_upload_link" \
-        "test-comps-dataprep-qdrant-langchain-server"
+        "dataprep-qdrant-server"
 
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-dataprep-qdrant-langchain*")
+    cid=$(docker ps -aq --filter "name=dataprep-qdrant-server*" --filter "name=tei-embedding-serving*" --filter "name=qdrant-vector-db")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 
     rm $LOG_PATH/dataprep_file.txt
