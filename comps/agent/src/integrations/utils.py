@@ -133,6 +133,19 @@ def assemble_store_messages(messages):
     return "\n".join(inputs)
 
 
+def get_latest_human_message_from_store(store, namespace):
+    messages = store.get_all(namespace)
+    human_messages = []
+    for mid in messages:
+        message = json.loads(messages[mid])
+        if message["role"] == "user":
+            human_messages.append(message)
+
+    human_messages = sorted(human_messages, key=lambda x: x["created_at"])
+    latest_human_message = human_messages[-1]
+    return latest_human_message["content"][0]["text"]
+
+
 def get_args():
     parser = argparse.ArgumentParser()
     # llm args
@@ -156,8 +169,8 @@ def get_args():
     parser.add_argument("--repetition_penalty", type=float, default=1.03)
     parser.add_argument("--return_full_text", type=bool, default=False)
     parser.add_argument("--custom_prompt", type=str, default=None)
-    parser.add_argument("--with_memory", type=bool, default=False)
-    parser.add_argument("--with_store", type=bool, default=False)
+    parser.add_argument("--with_memory", type=str, default="true")
+    parser.add_argument("--memory_type", type=str, default="checkpointer", help="choices: checkpointer, store")
     parser.add_argument("--timeout", type=int, default=60)
 
     # for sql agent
@@ -178,6 +191,11 @@ def get_args():
         sys_args.stream = True
     else:
         sys_args.stream = False
+
+    if sys_args.with_memory == "true":
+        sys_args.with_memory = True
+    else:
+        sys_args.with_memory = False
 
     if sys_args.use_hints == "true":
         print("SQL agent will use hints")
