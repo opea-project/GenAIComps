@@ -29,19 +29,7 @@ ENABLE_OPEA_TELEMETRY = os.getenv("ENABLE_OPEA_TELEMETRY", "false").lower() == "
 
 
 class OrchestratorMetrics:
-    # Need an static class-level ID for metric prefix because:
-    # - Prometheus requires metrics (their names) to be unique
-    _instance_id = 0
-
     def __init__(self) -> None:
-        OrchestratorMetrics._instance_id += 1
-        if OrchestratorMetrics._instance_id > 1:
-            self._prefix = f"megaservice{self._instance_id}"
-        else:
-            self._prefix = "megaservice"
-
-        self.request_pending = Gauge(f"{self._prefix}_request_pending", "Count of currently pending requests (gauge)")
-
         # locking for latency metric creation / method change
         self._lock = threading.Lock()
 
@@ -50,20 +38,22 @@ class OrchestratorMetrics:
         self.first_token_latency = None
         self.inter_token_latency = None
         self.request_latency = None
+        self.request_pending = None
 
         # initial methods to create the metrics
         self.token_update = self._token_update_create
         self.request_update = self._request_update_create
+        self.pending_update = self._pending_update_create
 
     def _token_update_create(self, token_start: float, is_first: bool) -> float:
         with self._lock:
             # in case another thread already got here
             if self.token_update == self._token_update_create:
                 self.first_token_latency = Histogram(
-                    f"{self._prefix}_first_token_latency", "First token latency (histogram)"
+                    "megaservice_first_token_latency", "First token latency (histogram)"
                 )
                 self.inter_token_latency = Histogram(
-                    f"{self._prefix}_inter_token_latency", "Inter-token latency (histogram)"
+                    "megaservice_inter_token_latency", "Inter-token latency (histogram)"
                 )
                 self.token_update = self._token_update_real
         return self.token_update(token_start, is_first)
@@ -73,10 +63,20 @@ class OrchestratorMetrics:
             # in case another thread already got here
             if self.request_update == self._request_update_create:
                 self.request_latency = Histogram(
-                    f"{self._prefix}_request_latency", "Whole LLM request/reply latency (histogram)"
+                    "megaservice_request_latency", "Whole LLM request/reply latency (histogram)"
                 )
                 self.request_update = self._request_update_real
         self.request_update(req_start)
+
+    def _pending_update_create(self, increase: bool) -> None:
+        with self._lock:
+            # in case another thread already got here
+            if self.pending_update == self._pending_update_create:
+                self.request_pending = Gauge(
+                    "megaservice_request_pending", "Count of currently pending requests (gauge)"
+                )
+                self.pending_update = self._pending_update_real
+        self.pending_update(increase)
 
     def _token_update_real(self, token_start: float, is_first: bool) -> float:
         now = time.time()
@@ -89,18 +89,22 @@ class OrchestratorMetrics:
     def _request_update_real(self, req_start: float) -> None:
         self.request_latency.observe(time.time() - req_start)
 
-    def pending_update(self, increase: bool) -> None:
+    def _pending_update_real(self, increase: bool) -> None:
         if increase:
             self.request_pending.inc()
         else:
             self.request_pending.dec()
 
 
+# Prometheus metrics need to be singletons, not per Orchestrator
+_metrics = OrchestratorMetrics()
+
+
 class ServiceOrchestrator(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
 
     def __init__(self) -> None:
-        self.metrics = OrchestratorMetrics()
+        self.metrics = _metrics
         self.services = {}  # all services, id -> service
         super().__init__()
 
