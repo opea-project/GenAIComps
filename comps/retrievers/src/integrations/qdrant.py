@@ -3,8 +3,8 @@
 
 
 import os
-
 from types import SimpleNamespace
+
 from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 
