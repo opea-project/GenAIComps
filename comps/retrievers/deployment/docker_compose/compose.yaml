@@ -70,8 +70,6 @@ services:
       NEO4J_USERNAME: ${NEO4J_USERNAME}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
       VDMS_USE_CLIP: 0
-      MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS:-4096}
-      MAX_OUTPUT_TOKENS: ${MAX_TOTAL_TOKENS:-8192}
       host_ip: ${host_ip}
     depends_on:
       neo4j-apoc:

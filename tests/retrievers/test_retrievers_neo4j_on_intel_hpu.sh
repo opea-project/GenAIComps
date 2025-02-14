@@ -45,7 +45,6 @@ function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export DATA_PATH="/data2/cache"
     export MAX_INPUT_TOKENS=4096
-    export MAX_TOTAL_TOKENS=8192
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
     export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
     export TGI_LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
