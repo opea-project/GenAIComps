@@ -2,11 +2,16 @@
 
 ## Introduction
 
-Toxicity Detection Microservice allows AI Application developers to safeguard user input and LLM output from harmful language in a RAG environment. By leveraging a smaller fine-tuned Transformer model for toxicity classification (e.g. DistilledBERT, RoBERTa, etc.), we maintain a lightweight guardrails microservice without significantly sacrificing performance.
+Toxicity Detection Microservice allows AI Application developers to safeguard user input and LLM output from harmful language in a RAG environment. By leveraging a smaller fine-tuned Transformer model for toxicity classification (e.g. DistillBERT, RoBERTa, etc.), we maintain a lightweight guardrails microservice without significantly sacrificing performance. This [article](https://huggingface.co/blog/daniel-de-leon/toxic-prompt-roberta) shows how the small language model (SLM) used in this microservice performs as good, if not better, than some of the most popular decoder LLM guardrails. This microservice uses [`Intel/toxic-prompt-roberta`](https://huggingface.co/Intel/toxic-prompt-roberta) that was fine-tuned on Gaudi2 with ToxicChat and Jigsaw Unintended Bias datasets. 
 
-This microservice uses [`Intel/toxic-prompt-roberta`](https://huggingface.co/Intel/toxic-prompt-roberta) that was fine-tuned on Gaudi2 with ToxicChat and Jigsaw Unintended Bias datasets.
+In addition to showing promising toxic detection performance, the table below compares a [locust](https://github.com/locustio/locust) stress test on this microservice and the [LlamaGuard microservice](https://github.com/opea-project/GenAIComps/blob/main/comps/guardrails/src/guardrails/README.md#LlamaGuard). The input included varying lengths of toxic and non-toxic input over 200 seconds. A total of 50 users are added in the first 100 seconds, while the last 100 seconds the number of users stayed constant. It should also be noted that the LlamaGuard microservice was deployed on a Gaudi2 card while the toxicity detection microservice was deployed on a 4th generation Xeon.
 
-Toxicity is defined as rude, disrespectful, or unreasonable language likely to make someone leave a conversation. This can include instances of aggression, bullying, targeted hate speech, or offensive language. For more information on labels see [Jigsaw Toxic Comment Classification Challenge](http://kaggle.com/c/jigsaw-toxic-comment-classification-challenge).
+| Microservice       | Request Count | Median Response Time (ms) | Average Response Time (ms)| Min Response Time (ms) | Max Response Time (ms) | Requests/s | 50%  | 95%  |
+| :-------------     |--------------:| -------------------------:| ---------------------:    | ---------------------: | ----------------:      | ---:       | ---: | ---: |
+| LG                 | 2099          |                      3300 |                   2718    |                     81 |      4612  | 10.5 | 3300 | 4600 |
+| Toxicity Detection | 4547          |                      450  |                   796     |                     19 |      10045 | 22.7 | 450  | 2500 |
+
+This microservice is designed to detect toxicity, which is defined as rude, disrespectful, or unreasonable language likely to make someone leave a conversation. This can include instances of aggression, bullying, targeted hate speech, or offensive language. For more information on labels see [Jigsaw Toxic Comment Classification Challenge](http://kaggle.com/c/jigsaw-toxic-comment-classification-challenge).
 
 ## Environment Setup
 
