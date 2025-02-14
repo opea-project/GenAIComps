@@ -7,6 +7,14 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
+export STORAGE_CLASS_NAME=$(kubectl get storageclass -o jsonpath='{.items[0].metadata.name}')
+
+if [ -n "$STORAGE_CLASS_NAME" ]; then
+    echo "Using StorageClass: $STORAGE_CLASS_NAME"
+else
+    echo "No StorageClass found."
+    exit 1
+fi
 
 function deploy_and_start_service() {
     stop_service
@@ -17,8 +25,10 @@ function deploy_and_start_service() {
     helm repo update
     helm install nebula-operator nebula-operator/nebula-operator --namespace=nebula-operator-system --version=1.1.0
 
-    kubectl create -f community_edition.yaml
+    sleep 60s
 
+    #kubectl create -f community_edition.yaml
+    envsubst < community_edition.yaml | kubectl create -f -
     sleep 60s
 }
 

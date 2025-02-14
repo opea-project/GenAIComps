@@ -24,7 +24,7 @@ spec:
       resources:
         requests:
           storage: 2Gi
-      storageClassName: "csi-wekafs-fs"
+      storageClassName: "${STORAGE_CLASS_NAME}"
   metad:
     resources:
       requests:
@@ -40,12 +40,12 @@ spec:
       resources:
         requests:
           storage: 2Gi
-      storageClassName: "csi-wekafs-fs"
+      storageClassName: "${STORAGE_CLASS_NAME}"
     logVolumeClaim:
       resources:
         requests:
           storage: 2Gi
-      storageClassName: "csi-wekafs-fs"
+      storageClassName: "${STORAGE_CLASS_NAME}"
   storaged:
     resources:
       requests:
@@ -61,12 +61,12 @@ spec:
       resources:
         requests:
           storage: 2Gi
-      storageClassName: "csi-wekafs-fs"
+      storageClassName: "${STORAGE_CLASS_NAME}"
     logVolumeClaim:
       resources:
         requests:
           storage: 2Gi
-      storageClassName: "csi-wekafs-fs"
+      storageClassName: "${STORAGE_CLASS_NAME}"
   reference:
     name: statefulsets.apps
     version: v1
