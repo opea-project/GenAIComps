@@ -18,13 +18,16 @@ fi
 
 function deploy_and_start_service() {
     stop_service
+    sleep 60s
+
     cd $WORKPATH/comps/third_parties/nebula/deployment/kubernetes
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
+    sleep 60s
+
     kubectl create namespace nebula-operator-system
     helm repo add nebula-operator https://vesoft-inc.github.io/nebula-operator/charts
     helm repo update
     helm install nebula-operator nebula-operator/nebula-operator --namespace=nebula-operator-system --version=1.1.0
-
     sleep 60s
 
     #kubectl create -f community_edition.yaml
