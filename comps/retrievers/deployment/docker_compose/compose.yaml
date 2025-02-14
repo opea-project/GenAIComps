@@ -52,6 +52,10 @@ services:
         condition: service_healthy
       standalone:
         condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
 
   retriever-neo4j:
     extends: retriever
