@@ -18,7 +18,7 @@ from comps import CustomLogger, GeneratedDoc, LLMParamsDoc, ServiceType, opea_mi
 from comps.agent.src.integrations.agent import instantiate_agent
 from comps.agent.src.integrations.global_var import assistants_global_kv, threads_global_kv
 from comps.agent.src.integrations.thread import instantiate_thread_memory, thread_completion_callback
-from comps.agent.src.integrations.utils import assemble_store_messages, get_args
+from comps.agent.src.integrations.utils import assemble_store_messages, get_args, get_latest_human_message_from_store
 from comps.cores.proto.api_protocol import (
     AssistantsObject,
     ChatCompletionRequest,
@@ -40,7 +40,7 @@ db_client = None
 
 logger.info("========initiating agent============")
 logger.info(f"args: {args}")
-agent_inst = instantiate_agent(args, args.strategy, with_memory=args.with_memory)
+agent_inst = instantiate_agent(args)
 
 
 class AgentCompletionRequest(ChatCompletionRequest):
@@ -76,7 +76,7 @@ async def llm_generate(input: AgentCompletionRequest):
     if isinstance(input.messages, str):
         messages = input.messages
     else:
-        # TODO: need handle multi-turn messages
+        # last user message
         messages = input.messages[-1]["content"]
 
     # 2. prepare the input for the agent
@@ -90,7 +90,6 @@ async def llm_generate(input: AgentCompletionRequest):
     else:
         logger.info("-----------NOT STREAMING-------------")
         response = await agent_inst.non_streaming_run(messages, config)
-        logger.info("-----------Response-------------")
         return GeneratedDoc(text=response, prompt=messages)
 
 
@@ -100,14 +99,14 @@ class RedisConfig(BaseModel):
 
 class AgentConfig(BaseModel):
     stream: Optional[bool] = False
-    agent_name: Optional[str] = "OPEA_Default_Agent"
+    agent_name: Optional[str] = "OPEA_Agent"
     strategy: Optional[str] = "react_llama"
-    role_description: Optional[str] = "LLM enhanced agent"
+    role_description: Optional[str] = "AI assistant"
     tools: Optional[str] = None
     recursion_limit: Optional[int] = 5
 
-    model: Optional[str] = "meta-llama/Meta-Llama-3-8B-Instruct"
-    llm_engine: Optional[str] = None
+    model: Optional[str] = "meta-llama/Llama-3.3-70B-Instruct"
+    llm_engine: Optional[str] = "vllm"
     llm_endpoint_url: Optional[str] = None
     max_new_tokens: Optional[int] = 1024
     top_k: Optional[int] = 10
@@ -117,10 +116,14 @@ class AgentConfig(BaseModel):
     return_full_text: Optional[bool] = False
     custom_prompt: Optional[str] = None
 
-    # short/long term memory
-    with_memory: Optional[bool] = False
-    # persistence
-    with_store: Optional[bool] = False
+    # # short/long term memory
+    with_memory: Optional[bool] = True
+    # agent memory config
+    # chat_completion api: only supports checkpointer memory
+    # assistants api: supports checkpointer and store memory
+    # checkpointer: in-memory checkpointer - MemorySaver()
+    # store: redis store
+    memory_type: Optional[str] = "checkpointer"  # choices: checkpointer, store
     store_config: Optional[RedisConfig] = None
 
     timeout: Optional[int] = 60
@@ -147,18 +150,17 @@ class CreateAssistant(CreateAssistantsRequest):
 )
 def create_assistants(input: CreateAssistant):
     # 1. initialize the agent
-    agent_inst = instantiate_agent(
-        input.agent_config, input.agent_config.strategy, with_memory=input.agent_config.with_memory
-    )
+    print("@@@ Initializing agent with config: ", input.agent_config)
+    agent_inst = instantiate_agent(input.agent_config)
     assistant_id = agent_inst.id
     created_at = int(datetime.now().timestamp())
     with assistants_global_kv as g_assistants:
         g_assistants[assistant_id] = (agent_inst, created_at)
     logger.info(f"Record assistant inst {assistant_id} in global KV")
 
-    if input.agent_config.with_store:
+    if input.agent_config.memory_type == "store":
         logger.info("Save Agent Config to database")
-        agent_inst.with_store = input.agent_config.with_store
+        # agent_inst.memory_type = input.agent_config.memory_type
         print(input)
         global db_client
         if db_client is None:
@@ -172,6 +174,7 @@ def create_assistants(input: CreateAssistant):
     return AssistantsObject(
         id=assistant_id,
         created_at=created_at,
+        model=input.agent_config.model,
     )
 
 
@@ -211,7 +214,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
     if isinstance(input.content, str):
         query = input.content
     else:
-        query = input.content[-1]["text"]
+        query = input.content[-1]["text"]  # content is a list of MessageContent
     msg_id, created_at = thread_inst.add_query(query)
 
     structured_content = MessageContent(text=query)
@@ -224,15 +227,18 @@ def create_messages(thread_id, input: CreateMessagesRequest):
         assistant_id=input.assistant_id,
     )
 
-    # save messages using assistant_id as key
+    # save messages using assistant_id_thread_id as key
     if input.assistant_id is not None:
         with assistants_global_kv as g_assistants:
             agent_inst, _ = g_assistants[input.assistant_id]
-        if agent_inst.with_store:
-            logger.info(f"Save Agent Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
+        if agent_inst.memory_type == "store":
+            logger.info(f"Save Messages, assistant_id: {input.assistant_id}, thread_id: {thread_id}")
             # if with store, db_client initialized already
             global db_client
-            db_client.put(msg_id, message.model_dump_json(), input.assistant_id)
+            namespace = f"{input.assistant_id}_{thread_id}"
+            # put(key: str, val: dict, collection: str = DEFAULT_COLLECTION)
+            db_client.put(msg_id, message.model_dump_json(), namespace)
+            logger.info(f"@@@ Save message to db: {msg_id}, {message.model_dump_json()}, {namespace}")
 
     return message
 
@@ -254,15 +260,24 @@ def create_run(thread_id, input: CreateRunResponse):
     with assistants_global_kv as g_assistants:
         agent_inst, _ = g_assistants[assistant_id]
 
-    config = {"recursion_limit": args.recursion_limit}
+    config = {
+        "recursion_limit": args.recursion_limit,
+        "configurable": {"session_id": thread_id, "thread_id": thread_id, "user_id": assistant_id},
+    }
 
-    if agent_inst.with_store:
-        # assemble multi-turn messages
+    if agent_inst.memory_type == "store":
         global db_client
-        input_query = assemble_store_messages(db_client.get_all(assistant_id))
+        namespace = f"{assistant_id}_{thread_id}"
+        # get the latest human message from store in the namespace
+        input_query = get_latest_human_message_from_store(db_client, namespace)
+        print("@@@@ Input_query from store: ", input_query)
     else:
         input_query = thread_inst.get_query()
+        print("@@@@ Input_query from thread_inst: ", input_query)
 
+    print("@@@ Agent instance:")
+    print(agent_inst.id)
+    print(agent_inst.args)
     try:
         return StreamingResponse(
             thread_completion_callback(agent_inst.stream_generator(input_query, config, thread_id), thread_id),
