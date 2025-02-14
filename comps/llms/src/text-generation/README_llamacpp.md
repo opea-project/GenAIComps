@@ -19,7 +19,7 @@ export MODEL_PATH=~/models
 mkdir $MODEL_PATH
 cd $MODEL_PATH
 wget https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf
-````
+```
 
 ### 2. Set Environment Variables
 
@@ -32,6 +32,7 @@ export LLM_ENDPOINT="http://${host_ip}:80"
 export LLM_MODEL_ID="models/Phi-3-mini-4k-instruct-q4.gguf"
 export LLAMA_ARG_CTX_SIZE=4096
 ```
+
 ### 3. Run the llama.cpp OPEA Microservice
 
 ```bash

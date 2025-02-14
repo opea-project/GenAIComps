@@ -8,7 +8,6 @@ llama.cpp supports this [hardware](https://github.com/ggerganov/llama.cpp?tab=re
 
 To use a CUDA server please refer to [this llama.cpp reference](https://github.com/ggerganov/llama.cpp/blob/master/examples/server/README.md#docker) and modify docker_compose_llm.yaml accordingly.
 
-
 ## Get Started
 
 ### 1. Download a gguf Model
@@ -20,7 +19,7 @@ export MODEL_PATH=~/models
 mkdir $MODEL_PATH
 cd $MODEL_PATH
 wget https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf
-````
+```
 
 ### 2. Set Environment Variables
 
@@ -36,11 +35,10 @@ export LLAMA_ARG_CTX_SIZE=4096
 
 ```bash
 cd deployment/docker_compose
-docker compose -f compose.yaml up llamacpp-server -d 
+docker compose -f compose.yaml up llamacpp-server -d
 ```
 
-To use this in an OPEA text generation component please see [llama.cpp text-generation](
-../../llms/src/text-generation/README_llamacpp.md)  
+To use this in an OPEA text generation component please see [llama.cpp text-generation](../../llms/src/text-generation/README_llamacpp.md)
 
 Note: can use docker logs <container> to observe server.
 
