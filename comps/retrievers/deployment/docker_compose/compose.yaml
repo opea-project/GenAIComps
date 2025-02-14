@@ -3,6 +3,7 @@
 
 include:
   - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/milvus/deployment/docker_compose/compose.yaml
   - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
   - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
   - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
@@ -48,6 +49,12 @@ services:
       MILVUS_HOST: ${host_ip}
     depends_on:
       tei-embedding-serving:
+        condition: service_healthy
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
         condition: service_healthy
 
   retriever-neo4j:
@@ -124,7 +131,7 @@ services:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_QDRANT}
       QDRANT_HOST: ${QDRANT_HOST}
       QDRANT_PORT: ${QDRANT_PORT}
-      INDEX_NAME: ${INDEX_NAME}
+      QDRANT_INDEX_NAME: ${INDEX_NAME}
     depends_on:
       qdrant-vector-db:
         condition: service_healthy

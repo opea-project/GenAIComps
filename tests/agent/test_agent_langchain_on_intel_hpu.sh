@@ -14,21 +14,24 @@ tgi_port=8085
 tgi_volume=$WORKPATH/data
 
 vllm_port=8086
-export vllm_volume=$WORKPATH/data
-echo "vllm_volume:"
-ls $vllm_volume
+export HF_CACHE_DIR=/data2/huggingface
+echo  "HF_CACHE_DIR=$HF_CACHE_DIR"
+ls $HF_CACHE_DIR
+export vllm_volume=${HF_CACHE_DIR}
+
 
 export WORKPATH=$WORKPATH
 
 export agent_image="opea/agent:comps"
 export agent_container_name="test-comps-agent-endpoint"
 
-export model=meta-llama/Meta-Llama-3.1-70B-Instruct
+export model=meta-llama/Llama-3.3-70B-Instruct #meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export ip_address=$(hostname -I | awk '{print $1}')
 export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
-export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-70B-Instruct"
+export LLM_MODEL_ID="meta-llama/Llama-3.3-70B-Instruct" #"meta-llama/Meta-Llama-3.1-70B-Instruct"
 export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
+echo "LLM_ENDPOINT_URL: $LLM_ENDPOINT_URL"
 export temperature=0.01
 export max_new_tokens=4096
 export TOOLSET_PATH=$WORKPATH/comps/agent/src/tools/
@@ -57,7 +60,6 @@ function build_vllm_docker_images() {
     fi
     cd ./vllm-fork
     git checkout v0.6.4.post2+Gaudi-1.19.0
-    sed -i 's/triton/triton==3.1.0/g' requirements-hpu.txt
     docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi:comps failed"
@@ -114,7 +116,6 @@ function start_vllm_service() {
 }
 
 function start_vllm_auto_tool_choice_service() {
-    # redis endpoint
     echo "token is ${HF_TOKEN}"
 
     #single card
@@ -165,15 +166,12 @@ function start_vllm_service_70B() {
     echo "Service started successfully"
 }
 
+agent_start_wait_time=2m
+
 function start_react_agent_service() {
-
-    echo "Starting redis for testing agent persistent"
-
-    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9
-
     echo "Starting react agent microservice"
     docker compose -f $WORKPATH/tests/agent/react_langchain.yaml up -d
-    sleep 120s
+    sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -182,16 +180,20 @@ function start_react_agent_service() {
 function start_react_langgraph_agent_service_openai() {
     echo "Starting react agent microservice"
     docker compose -f $WORKPATH/tests/agent/react_langgraph_openai.yaml up -d
-    sleep 120s
+    sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
 
 
 function start_react_llama_agent_service() {
-    echo "Starting react_langgraph agent microservice"
+    echo "Starting redis for testing agent persistent"
+
+    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9
+
+    echo "Starting react_llama agent microservice"
     docker compose -f $WORKPATH/tests/agent/reactllama.yaml up -d
-    sleep 120s
+    sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -199,7 +201,7 @@ function start_react_llama_agent_service() {
 function start_react_langgraph_agent_service_vllm() {
     echo "Starting react_langgraph agent microservice"
     docker compose -f $WORKPATH/tests/agent/react_vllm.yaml up -d
-    sleep 120s
+    sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -207,7 +209,7 @@ function start_react_langgraph_agent_service_vllm() {
 function start_planexec_agent_service_vllm() {
     echo "Starting planexec agent microservice"
     docker compose -f $WORKPATH/tests/agent/planexec_vllm.yaml up -d
-    sleep 120s
+    sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -215,7 +217,7 @@ function start_planexec_agent_service_vllm() {
 function start_ragagent_agent_service() {
     echo "Starting rag agent microservice"
     docker compose -f $WORKPATH/tests/agent/ragagent.yaml up -d
-    sleep 120s
+    sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -223,7 +225,7 @@ function start_ragagent_agent_service() {
 function start_ragagent_agent_service_openai() {
     echo "Starting rag agent microservice"
     docker compose -f $WORKPATH/tests/agent/ragagent_openai.yaml up -d
-    sleep 120s
+    sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -231,7 +233,7 @@ function start_ragagent_agent_service_openai() {
 function start_planexec_agent_service_openai() {
     echo "Starting plan execute agent microservice"
     docker compose -f $WORKPATH/tests/agent/planexec_openai.yaml up -d
-    sleep 120s
+    sleep $agent_start_wait_time
     docker logs test-comps-agent-endpoint
     echo "Service started successfully"
 }
@@ -256,9 +258,6 @@ function validate() {
 
 function validate_microservice() {
     echo "Testing agent service - chat completion API"
-    # local CONTENT=$(http_proxy="" curl http://${ip_address}:9095/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
-    #  "query": "What is OPEA?"
-    # }')
     CONTENT=$(python3 $WORKPATH/tests/agent/test.py)
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent")
     echo "$EXIT_CODE"
@@ -280,16 +279,16 @@ function validate_microservice() {
 }
 
 
-function validate_microservice_streaming() {
+function validate_microservice_multi_turn_streaming() {
     echo "Testing agent service - chat completion API"
-    CONTENT=$(python3 $WORKPATH/tests/agent/test.py --stream)
+    CONTENT=$(python3 $WORKPATH/comps/agent/src/test_chat_completion_multiturn.py --ip_addr ${ip_address} --ext_port 9095 --stream true --llm_endpoint_url $LLM_ENDPOINT_URL 2>&1 | tee ${LOG_PATH}/test-agent.log)
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent")
     echo "$EXIT_CODE"
     local EXIT_CODE="${EXIT_CODE:0-1}"
     echo "return value is $EXIT_CODE"
     if [ "$EXIT_CODE" == "1" ]; then
-        echo "==================TGI logs ======================"
-        docker logs test-comps-tgi-gaudi-service
+        echo "==================vllm logs ======================"
+        docker logs test-comps-vllm-gaudi-service
         echo "==================Agent logs ======================"
         docker logs test-comps-agent-endpoint
         exit 1
@@ -299,16 +298,16 @@ function validate_microservice_streaming() {
 function validate_assistant_api() {
     cd $WORKPATH
     echo "Testing agent service - assistant api"
-    local CONTENT=$(python3 comps/agent/src/test_assistant_api.py --ip_addr ${ip_address} --ext_port 9095 --assistants_api_test --query 'What is Intel OPEA project?' --llm_endpoint_url $LLM_ENDPOINT_URL 2>&1 | tee ${LOG_PATH}/test-agent-assistantsapi.log)
+    local CONTENT=$(python3 $WORKPATH/comps/agent/src/test_assistant_api.py --ip_addr ${ip_address} --ext_port 9095 --llm_endpoint_url $LLM_ENDPOINT_URL)
     local EXIT_CODE=$(validate "$CONTENT" "OPEA" "test-agent-assistantsapi")
     echo "$EXIT_CODE"
     local EXIT_CODE="${EXIT_CODE:0-1}"
     echo "return value is $EXIT_CODE"
     if [ "$EXIT_CODE" == "1" ]; then
-        echo "==================TGI logs ======================"
-        docker logs comps-tgi-gaudi-service
+        echo "==================vllm logs ======================"
+        docker logs test-comps-vllm-gaudi-service
         echo "==================Agent logs ======================"
-        docker logs comps-agent-endpoint
+        docker logs test-comps-agent-endpoint
         exit 1
     fi
 }
@@ -357,7 +356,7 @@ function stop_docker() {
 function validate_sql_agent(){
     cd $WORKPATH/tests/
     local CONTENT=$(bash agent/sql_agent_test/test_sql_agent.sh)
-    local EXIT_CODE=$(validate "$CONTENT" "173" "test-sql-agent")
+    local EXIT_CODE=$(validate "$CONTENT" "Iron" "test-sql-agent")
     echo "$EXIT_CODE"
     local EXIT_CODE="${EXIT_CODE:0-1}"
     echo "return value is $EXIT_CODE"
@@ -377,74 +376,77 @@ function main() {
     build_docker_images
     build_vllm_docker_images
 
-    # ==================== Tests with 70B model ====================
-    # RAG agent, react_llama, react, assistant apis
+    # # ==================== Tests with 70B model ====================
+    # # RAG agent, react_llama, react, assistant apis
 
     start_vllm_service_70B
 
     # # test rag agent
+    # chat completion API, no memory, single-turn
     start_ragagent_agent_service
-    echo "=============Testing RAG Agent============="
+    echo "=============Testing RAG Agent: chat completion, single-turn, not streaming ============="
     validate_microservice
     stop_agent_docker
     echo "============================================="
 
     # # # test react_llama
-    start_react_llama_agent_service
+    start_react_llama_agent_service # also starts redis db
     echo "===========Testing ReAct Llama ============="
+    # chat completion single-turn not streaming
+    echo "=============Testing ReAct Llama: chat completion, single-turn, not streaming ============="
     validate_microservice
-    stop_agent_docker
-    echo "============================================="
 
+    # multi-turn streaming
+    echo "=============Testing ReAct Llama: chat completion, multi-turn streaming ============="
+    validate_microservice_multi_turn_streaming
 
-    # # # test react
-    start_react_agent_service
-    echo "=============Testing ReAct Langchain============="
-    validate_microservice_streaming
+    # test assistant api multi-turn streaming
+    echo "=============Testing ReAct Llama: assistant api, multi-turn streaming, persistent ============="
     validate_assistant_api
     stop_agent_docker
     echo "============================================="
 
-    # # test sql agent
-    echo "=============Testing SQL llama============="
+
+    # # # test sql agent
+    echo "=============Testing SQL llama: chat completion, single-turn, not streaming ============="
     validate_sql_agent
-    stop_docker
-    echo "============================================="
-
-    echo "===========Testing Plan Execute VLLM Llama3.1 ============="
-    start_vllm_service
-    start_planexec_agent_service_vllm
-    validate_microservice
     stop_agent_docker
-    stop_vllm_docker
     echo "============================================="
 
-    echo "===========Testing ReAct Langgraph VLLM llama3.1 ============="
-    export model_parser=llama3_json
-    start_vllm_auto_tool_choice_service
-    start_react_langgraph_agent_service_vllm
-    validate_microservice
-    stop_agent_docker
-    stop_vllm_docker
-    echo "============================================="
+    # # echo "===========Testing Plan Execute VLLM Llama3.1 ============="
+    # # start_vllm_service
+    # # start_planexec_agent_service_vllm
+    # # validate_microservice
+    # # stop_agent_docker
+    # # stop_vllm_docker
+    # # echo "============================================="
 
-    # # ==================== OpenAI tests ====================
-    # start_ragagent_agent_service_openai
-    # echo "=============Testing RAG Agent OpenAI============="
-    # validate_microservice
-    # stop_agent_docker
-    # echo "============================================="
+    # # echo "===========Testing ReAct Langgraph VLLM llama3.1 ============="
+    # # export model_parser=llama3_json
+    # # start_vllm_auto_tool_choice_service
+    # # start_react_langgraph_agent_service_vllm
+    # # validate_microservice
+    # # stop_agent_docker
+    # # stop_vllm_docker
+    # # echo "============================================="
 
-    # start_react_langgraph_agent_service_openai
-    # echo "===========Testing ReAct Langgraph OpenAI ============="
-    # validate_microservice
-    # stop_agent_docker
-    # echo "============================================="
+    # # # ==================== OpenAI tests ====================
+    # # start_ragagent_agent_service_openai
+    # # echo "=============Testing RAG Agent OpenAI============="
+    # # validate_microservice
+    # # stop_agent_docker
+    # # echo "============================================="
 
-    # start_planexec_agent_service_openai
-    # echo "===========Testing Plan Execute OpenAI ============="
-    # validate_microservice
-    # stop_agent_docker
+    # # start_react_langgraph_agent_service_openai
+    # # echo "===========Testing ReAct Langgraph OpenAI ============="
+    # # validate_microservice
+    # # stop_agent_docker
+    # # echo "============================================="
+
+    # # start_planexec_agent_service_openai
+    # # echo "===========Testing Plan Execute OpenAI ============="
+    # # validate_microservice
+    # # stop_agent_docker
 
     stop_docker
 
