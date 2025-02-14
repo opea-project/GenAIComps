@@ -2,12 +2,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+set +e
 set -x
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 
 function deploy_and_start_service() {
+    stop_service
     cd $WORKPATH/comps/third_parties/nebula/deployment/kubernetes
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
     kubectl create namespace nebula-operator-system
