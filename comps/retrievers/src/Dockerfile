@@ -26,7 +26,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi && \
     pip install --no-cache-dir torch torchvision ${PIP_EXTRA_INDEX_URL} && \
     pip install --no-cache-dir ${PIP_EXTRA_INDEX_URL} -r /home/user/comps/retrievers/src/requirements.txt && \
-    pip install opentelemetry-api==1.29.0 opentelemetry-exporter-otlp==1.29.0 opentelemetry-sdk==1.29.0
+    pip install opentelemetry-api==1.29.0 opentelemetry-exporter-otlp==1.29.0 opentelemetry-sdk==1.29.0 && \
+    pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple langchain-vdms>=0.1.1
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

@@ -7,8 +7,7 @@ import numpy as np
 import torchvision.transforms as T
 from decord import VideoReader, cpu
 from langchain.pydantic_v1 import BaseModel, root_validator
-from langchain_community.vectorstores import VDMS
-from langchain_community.vectorstores.vdms import VDMS_Client
+from langchain_vdms.vectorstores import VDMS, VDMS_Client
 from langchain_core.embeddings import Embeddings
 
 toPIL = T.ToPILImage()
