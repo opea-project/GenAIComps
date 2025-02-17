@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import inspect
 import os
 from functools import wraps
@@ -12,6 +13,8 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+ENABLE_OPEA_TELEMETRY = os.getenv("ENABLE_OPEA_TELEMETRY", "false").lower() == "true"
 
 
 def detach_ignore_err(self, token: object) -> None:
@@ -47,7 +50,7 @@ def opea_telemetry(func):
 
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            with tracer.start_as_current_span(func.__name__):
+            with tracer.start_as_current_span(func.__name__) if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
                 res = await func(*args, **kwargs)
             return res
 
@@ -55,7 +58,7 @@ def opea_telemetry(func):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            with tracer.start_as_current_span(func.__name__):
+            with tracer.start_as_current_span(func.__name__) if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
                 res = func(*args, **kwargs)
             return res
 
