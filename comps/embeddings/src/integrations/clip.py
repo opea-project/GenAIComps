@@ -1,9 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import os
 
-import asyncio
 import requests
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -47,19 +47,18 @@ class OpeaClipEmbedding(OpeaComponent):
                 requests.post,
                 f"{self.base_url}/v1/embeddings",
                 headers={"Content-Type": "application/json"},
-                json=json_payload
+                json=json_payload,
             )
             response.raise_for_status()
             response_json = response.json()
-            
+
             return EmbeddingResponse(
                 data=[EmbeddingResponseData(**item) for item in response_json.get("data", [])],
                 model=response_json.get("model", input.model),
-                usage=response_json.get("usage", {})
+                usage=response_json.get("usage", {}),
             )
         except requests.RequestException as e:
             raise RuntimeError(f"Failed to invoke embedding service: {str(e)}")
-
 
     def check_health(self) -> bool:
         """Checks if the embedding model is healthy.
@@ -71,7 +70,7 @@ class OpeaClipEmbedding(OpeaComponent):
             _ = requests.post(
                 f"{self.base_url}/v1/embeddings",
                 headers={"Content-Type": "application/json"},
-                json={"input": "health check"}
+                json={"input": "health check"},
             )
 
             return True
