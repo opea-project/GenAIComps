@@ -14,7 +14,7 @@ docker run -d --name="test-comps-lvm" -e LVM_ENDPOINT=http://localhost:8399 -e h
 
 ## 🚀1. Start Microservice with Docker Compose (Option 2)
 
-Alternatively, you can also start the TTS microservice with Docker Compose.
+Alternatively, you can also start the LVM microservice with Docker Compose.
 
 - LLaVA
 
