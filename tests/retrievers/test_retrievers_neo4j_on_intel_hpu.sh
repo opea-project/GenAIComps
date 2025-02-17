@@ -153,7 +153,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-*" --filter "name=neo4j-apoc" --filter "name=tgi-gaudi-server" --filter "name=tei-embedding-serving" --filter "test-comps-retrievers-neo4j-llama-index-dataprep")
+    cid=$(docker ps -aq --filter "name=test-comps-*" --filter "name=neo4j-apoc" --filter "name=tgi-gaudi-server" --filter "name=tei-embedding-serving")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml down  ${service_name} --remove-orphans
