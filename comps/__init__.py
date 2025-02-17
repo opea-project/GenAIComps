@@ -51,8 +51,7 @@ from comps.cores.mega.orchestrator_with_yaml import ServiceOrchestratorWithYaml
 from comps.cores.mega.micro_service import MicroService, register_microservice, opea_microservices
 
 # Telemetry
-if os.getenv("ENABLE_OPEA_TELEMETRY", "false").lower() == "true":
-    from comps.cores.telemetry.opea_telemetry import opea_telemetry
+from comps.cores.telemetry.opea_telemetry import opea_telemetry
 
 # Common
 from comps.cores.common.component import OpeaComponent, OpeaComponentRegistry, OpeaComponentLoader

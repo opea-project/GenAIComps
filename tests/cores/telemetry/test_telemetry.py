@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import os
 import time
 import unittest
 
+os.environ["ENABLE_OPEA_TELEMETRY"] = "True"
 from comps.cores.telemetry.opea_telemetry import in_memory_exporter, opea_telemetry
 
 
@@ -31,6 +33,9 @@ async def dummy_async_func():
 
 
 class TestTelemetry(unittest.TestCase):
+
+    def tearDown(self):
+        os.environ["ENABLE_OPEA_TELEMETRY"] = "False"
 
     def test_time_tracing(self):
         dummy_func()
