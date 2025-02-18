@@ -7,8 +7,6 @@ neo4j:
   env:
   - name: NEO4J_apoc_import_file_use__neo4j__config
     value: "true"
-nodeSelector:
-  nfs: enabled
 env:
   NEO4J_PLUGINS: '["apoc"]'
 apoc_config:
