@@ -45,11 +45,11 @@ function validate_database() {
         exit 1
     fi
 
+    kubectl delete pod nebula-console --ignore-not-found
     # test create space
     echo "[ test create ] creating space.."
     query="CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type=FIXED_STRING(32)); USE my_space; CREATE TAG person(name string, age int);"
 
-    #kubectl delete pod nebula-console
     create_response=$(kubectl run -ti --rm --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "$query" 2>&1)
 
     if [[ $? -eq 0 ]]; then
@@ -67,7 +67,6 @@ function validate_database() {
     echo "[ test insert ] inserting data.."
     query="USE my_space; INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30); INSERT VERTEX person(name, age) VALUES 'person2':('Bob', 25);"
 
-    #kubectl delete pod nebula-console
     insert_response=$(kubectl run -ti --rm --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "$query" 2>&1)
 
     if [[ $? -eq 0 ]]; then
@@ -85,7 +84,6 @@ function validate_database() {
     echo "[ test search ] searching data.."
     query="USE my_space; MATCH (p:person) RETURN p;"
 
-    #kubectl delete pod nebula-console
     search_response=$(kubectl run -ti --rm --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "$query" 2>&1)
 
     if [[ $? -eq 0 ]]; then
@@ -100,6 +98,7 @@ function validate_database() {
 
 function stop_service() {
     cd $WORKPATH/comps/third_parties/nebula/deployment/kubernetes
+    kubectl delete pod nebula-console --ignore-not-found
     kubectl delete -f community_edition.yaml
     helm uninstall nebula-operator --namespace nebula-operator-system
     kubectl delete crd nebulaclusters.apps.nebula-graph.io
