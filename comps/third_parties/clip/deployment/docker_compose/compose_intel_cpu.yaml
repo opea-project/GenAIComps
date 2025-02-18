@@ -1,19 +1,22 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-version: "3.8"
-
 services:
-  embedding:
+  multimodal-clip-embedding:
     image: opea/embedding-multimodal-clip:latest
-    container_name: embedding-multimodal-server
+    container_name: multimodal-clip-embedding-server
     ports:
-      - "6000:6000"
+      - "${MULTIMODAL_CLIP_EMBEDDER_PORT:-6990}:6990"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+    healthcheck:
+      test: ["CMD-SHELL", "sleep 30 && exit 0"]
+      interval: 1s
+      timeout: 35s
+      retries: 1
     restart: unless-stopped
 
 networks:

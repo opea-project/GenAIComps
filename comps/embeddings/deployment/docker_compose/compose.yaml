@@ -4,6 +4,7 @@
 include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
   - ../../../third_parties/bridgetower/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/clip/deployment/docker_compose/compose_intel_cpu.yaml
 
 x-multimodal-bridgetower-embedding-config: &multimodal-bridgetower-embedding-config
   image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
@@ -64,7 +65,11 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      CLIP_EMBEDDING_ENDPOINT: ${CLIP_EMBEDDING_ENDPOINT}
       EMBEDDING_COMPONENT_NAME: "OPEA_CLIP_EMBEDDING"
+    depends_on:
+      multimodal-clip-embedding:
+        condition: service_healthy
     restart: unless-stopped
 
   multimodal-bridgetower-embedding-server:
