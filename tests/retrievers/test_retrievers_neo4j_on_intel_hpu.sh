@@ -53,6 +53,7 @@ function start_service() {
     export NEO4J_PORT1=11631
     export NEO4J_PORT2=11632
     export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
+    export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="neo4jtest"
     export no_proxy="localhost,127.0.0.1,"${host_ip}
@@ -68,7 +69,7 @@ function start_service() {
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$EMBEDDING_MODEL_ID -e LLM_MODEL_ID=$LLM_MODEL_ID -e host_ip=$host_ip -e no_proxy=$no_proxy \
         -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}" -e NEO4J_USERNAME="neo4j" \
         -e NEO4J_PASSWORD="neo4jtest" -e NEO4J_PORT1=$NEO4J_PORT1 -e NEO4J_PORT2=$NEO4J_PORT2 -e HF_TOKEN=$HF_TOKEN -e MAX_INPUT_TOKENS=$MAX_INPUT_TOKENS -e LOGFLAG=True \
-        -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_NEO4J_LLAMAINDEX" opea/dataprep:${TAG}
+        -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_NEO4J_LLAMAINDEX" opea/dataprep-neo4j-llamaindex:comps
 
     sleep 1m
 

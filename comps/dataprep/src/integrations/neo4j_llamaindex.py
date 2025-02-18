@@ -62,7 +62,7 @@ from llama_index.core.schema import BaseNode, TransformComponent
 host_ip = os.getenv("host_ip")
 NEO4J_PORT2 = os.getenv("NEO4J_PORT2")
 # Neo4J configuration
-NEO4J_URL = os.getenv("NEO4J_URL", f"bolt://{host_ip}:${NEO4J_PORT2}")
+NEO4J_URL = os.getenv("NEO4J_URL", f"bolt://{host_ip}:{NEO4J_PORT2}")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "neo4jtest")
 
@@ -89,6 +89,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         super().__init__(username=username, password=password, url=url, refresh_schema=False)
         self.llm = llm
         self.driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
+
 
     async def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM."""
