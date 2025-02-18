@@ -140,7 +140,7 @@ class OpeaPineConeDataprep(OpeaComponent):
             return False
         return True
 
-    def ingest_data_to_pinecone(self, doc_path: DocPath):
+    async def ingest_data_to_pinecone(self, doc_path: DocPath):
         """Ingest document to Pinecone."""
         path = doc_path.path
         if logflag:
@@ -161,7 +161,7 @@ class OpeaPineConeDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(path)
@@ -262,7 +262,7 @@ class OpeaPineConeDataprep(OpeaComponent):
                 encode_file = encode_filename(file.filename)
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_pinecone(
+                await self.ingest_data_to_pinecone(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,

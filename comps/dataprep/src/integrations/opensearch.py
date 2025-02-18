@@ -255,7 +255,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             raise HTTPException(status_code=500, detail=f"Failed to store chunks of file {file_name}.")
         return True
 
-    def ingest_data_to_opensearch(self, doc_path: DocPath):
+    async def ingest_data_to_opensearch(self, doc_path: DocPath):
         """Ingest document to OpenSearch."""
         path = doc_path.path
         if logflag:
@@ -276,7 +276,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
         if logflag:
             logger.info("[ ingest data ] file content loaded")
 
@@ -374,7 +374,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
 
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_opensearch(
+                await self.ingest_data_to_opensearch(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -420,7 +420,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 save_path = self.upload_folder + encoded_link + ".txt"
                 content = parse_html([link])[0][0]
                 await save_content_to_local_disk(save_path, content)
-                self.ingest_data_to_opensearch(
+                await self.ingest_data_to_opensearch(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,

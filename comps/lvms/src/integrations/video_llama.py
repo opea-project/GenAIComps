@@ -5,6 +5,7 @@ import os
 import time
 from typing import Union
 
+import aiohttp
 import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
@@ -59,28 +60,29 @@ class OpeaVideoLlamaLvm(OpeaComponent):
 
         t_start = time.time()
 
-        response = requests.post(url=f"{self.base_url}/generate", params=params, proxies={"http": None}, stream=True)
-        logger.info(f"[lvm] Response status code: {response.status_code}")
-        if response.status_code == 200:
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url=f"{self.base_url}/generate", params=params, proxy=None)
 
-            def streamer(time_start):
-                first_token_latency = None
-                yield f"{{'video_url': '{video_url}', 'chunk_start': {chunk_start}, 'chunk_duration': {chunk_duration}}}\n".encode(
-                    "utf-8"
-                )
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
+            logger.info(f"[lvm] Response status code: {response.status}")
+            if response.status == 200:
+
+                async def streamer(time_start):
+                    first_token_latency = None
+                    yield f"{{'video_url': '{video_url}', 'chunk_start': {chunk_start}, 'chunk_duration': {chunk_duration}}}\n".encode(
+                        "utf-8"
+                    )
+                    async for chunk in response.content.iter_chunked(8192):
                         if first_token_latency is None:
                             first_token_latency = time.time() - time_start
                         yield chunk
-                    logger.info(f"[lvm - chat_stream] Streaming chunk of size {len(chunk)}")
-                logger.info("[lvm - chat_stream] stream response finished")
-                statistics_dict["opea_service@lvm"].append_latency(time.time() - time_start, first_token_latency)
+                        logger.info(f"[lvm - chat_stream] Streaming chunk of size {len(chunk)}")
+                    logger.info("[lvm - chat_stream] stream response finished")
+                    statistics_dict["opea_service@lvm"].append_latency(time.time() - time_start, first_token_latency)
 
-            return StreamingResponse(streamer(t_start), media_type="text/event-stream")
-        else:
-            logger.error(f"[lvm] Error: {response.text}")
-            raise HTTPException(status_code=500, detail="The upstream API responded with an error.")
+                return StreamingResponse(streamer(t_start), media_type="text/event-stream")
+            else:
+                logger.error(f"[lvm] Error: {await response.text()}")
+                raise HTTPException(status_code=500, detail="The upstream API responded with an error.")
 
     def check_health(self) -> bool:
         """Checks the health of the embedding service.

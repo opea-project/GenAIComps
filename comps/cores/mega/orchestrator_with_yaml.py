@@ -6,6 +6,7 @@ import re
 from collections import OrderedDict
 from typing import Dict, List, Tuple
 
+import aiohttp
 import requests
 import yaml
 
@@ -23,12 +24,15 @@ class ServiceOrchestratorWithYaml(DAG):
         if not is_valid:
             raise Exception("Invalid mega graph!")
 
-    def execute(self, cur_node: str, inputs: Dict):
+    async def execute(self, cur_node: str, inputs: Dict):
         # send the cur_node request/reply
         endpoint = self.docs["opea_micro_services"][cur_node]["endpoint"]
-        response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None})
-        print(response)
-        return response.json()
+
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url=endpoint, data=json.dumps(inputs), proxy=None)
+            result = await response.json()
+            print(result)
+        return result
 
     def get_all_final_outputs(self):
 
@@ -48,7 +52,7 @@ class ServiceOrchestratorWithYaml(DAG):
                 inputs = initial_inputs
             else:
                 inputs = self.process_outputs(self.predecessors(node))
-            response = self.execute(node, inputs)
+            response = await self.execute(node, inputs)
             self.result_dict[node] = response
 
     def _load_from_yaml(self):
