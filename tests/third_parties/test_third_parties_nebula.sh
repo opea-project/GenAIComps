@@ -32,18 +32,25 @@ function deploy_and_start_service() {
 
     #kubectl create -f community_edition.yaml
     envsubst < community_edition.yaml | kubectl create -f -
-    sleep 60s
+    sleep 120s
 }
 
 function validate_database() {
     cluster_ip=$(kubectl get service | grep nebula-graphd-svc | awk '/nebula-graphd-svc/ {print $3}')
 
+    if [ -n "$cluster_ip" ]; then
+        echo "Using cluster_ip: $cluster_ip"
+    else
+        echo "No cluster_ip found."
+        exit 1
+    fi
+
     # test create space
     echo "[ test create ] creating space.."
-    #query="CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type='FIXED_STRING(32)');"
+    query="CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type=FIXED_STRING(32)); USE my_space; CREATE TAG person(name string, age int);"
 
-    kubectl delete pod nebula-console
-    create_response=$(kubectl run -ti --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type='FIXED_STRING(32)');" 2>&1)
+    #kubectl delete pod nebula-console
+    create_response=$(kubectl run -ti --rm --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "$query" 2>&1)
 
     if [[ $? -eq 0 ]]; then
         echo "[ test create ] create space succeed"
@@ -54,12 +61,14 @@ function validate_database() {
         exit 1
     fi
 
+    sleep 30s
+
     # test insert data
     echo "[ test insert ] inserting data.."
-    #query="CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type='FIXED_STRING(32)'); USE my_space; CREATE TAG person(name string, age int); INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30); INSERT VERTEX person(name, age) VALUES 'person2':('Bob', 25);"
+    query="USE my_space; INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30); INSERT VERTEX person(name, age) VALUES 'person2':('Bob', 25);"
 
-    kubectl delete pod nebula-console
-    insert_response=$(kubectl run -ti --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type='FIXED_STRING(32)'); USE my_space; CREATE TAG person(name string, age int); INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30); INSERT VERTEX person(name, age) VALUES 'person2':('Bob', 25);" 2>&1)
+    #kubectl delete pod nebula-console
+    insert_response=$(kubectl run -ti --rm --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "$query" 2>&1)
 
     if [[ $? -eq 0 ]]; then
         echo "[ test insert ] insert data succeed"
@@ -70,13 +79,14 @@ function validate_database() {
         exit 1
     fi
 
+    sleep 30s
 
     # test search data
     echo "[ test search ] searching data.."
-    #query="CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type='FIXED_STRING(32)'); USE my_space; CREATE TAG person(name string, age int); INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30); INSERT VERTEX person(name, age) VALUES 'person2':('Bob', 25); MATCH (p:person) RETURN p;"
+    query="USE my_space; MATCH (p:person) RETURN p;"
 
-    kubectl delete pod nebula-console
-    search_response=$(kubectl run -ti --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "CREATE SPACE my_space(partition_num=10, replica_factor=1, vid_type='FIXED_STRING(32)'); USE my_space; CREATE TAG person(name string, age int); INSERT VERTEX person(name, age) VALUES 'person1':('Alice', 30); INSERT VERTEX person(name, age) VALUES 'person2':('Bob', 25); MATCH (p:person) RETURN p;" 2>&1)
+    #kubectl delete pod nebula-console
+    search_response=$(kubectl run -ti --rm --image vesoft/nebula-console --restart=Never -- nebula-console -addr "$cluster_ip" -port 9669 -u root -p vesoft -e "$query" 2>&1)
 
     if [[ $? -eq 0 ]]; then
         echo "[ test search ] search data succeed"
