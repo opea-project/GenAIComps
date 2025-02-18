@@ -90,7 +90,6 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         self.llm = llm
         self.driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 
-
     async def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM."""
         model_name = LLM_MODEL_ID
