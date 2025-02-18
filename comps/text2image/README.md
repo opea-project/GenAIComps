@@ -111,11 +111,11 @@ export http_proxy="your_proxy"
 export HF_TOKEN="your_token"
 export MODEL="stable-diffusion-v1-5/stable-diffusion-v1-5"
 
-docker run -it -p 9379:9379 -p 7861:7861 -p 7860:7860 --name="opea_text2image" --rm  --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL --entrypoint /bin/bash opea/text2image-gaudi:latest
+docker run -it -p 9379:9379 -p 7861:7861 -p 7860:7860 --name="opea_text2image" --rm  --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL --entrypoint /bin/bash opea/opea-sd-webui:latest
 
 # load model from local disk
 
 export MODEL="your_model_path"
 
-docker run -it -p 9379:9379 -p 7861:7861 -p 7860:7860 -v $MODEL:/data/$MODEL  --name="opea_text2image" --rm  --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL --entrypoint /bin/bash opea/text2image-gaudi:latest
+docker run -it -p 9379:9379 -p 7861:7861 -p 7860:7860 -v $MODEL:/data/$MODEL  --name="opea_text2image" --rm  --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL --entrypoint /bin/bash opea/opea-sd-webui:latest
 ```
