@@ -3,7 +3,7 @@
 
 neo4j:
   name: "neo4j"
-  passwordFromSecret: neo-creds
+  #passwordFromSecret: neo-creds
   env:
   - name: NEO4J_apoc_import_file_use__neo4j__config
     value: "true"
@@ -25,8 +25,8 @@ volumes:
   data:
     mode: dynamic
     dynamic:
-      storageClassName: "csi-wekafs-fs"
+      storageClassName: "local-path"
       accessModes:
       - ReadWriteOnce
       requests:
-        storage: 10Gi
+        storage: 2Gi
