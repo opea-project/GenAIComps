@@ -19,7 +19,7 @@ langchain-experimental
 langchain-openai
 langchain-pinecone
 langchain-text-splitters
-# langchain-vdms
+langchain-vdms
 langchain_huggingface
 langchain_milvus
 llama-index
