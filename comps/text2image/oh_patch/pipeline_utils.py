@@ -27,12 +27,10 @@ from diffusers.pipelines.pipeline_utils import _unwrap_model
 from diffusers.utils.hub_utils import load_or_create_model_card, populate_model_card
 from diffusers.utils.torch_utils import is_compiled_module
 from huggingface_hub import create_repo
-
 from optimum.utils import logging
 
 from ...transformers.gaudi_configuration import GaudiConfig
 from ...utils import to_device_dtype
-
 
 logger = logging.get_logger(__name__)
 
@@ -174,9 +172,7 @@ class GaudiDiffusionPipeline(DiffusionPipeline):
             if bf16_full_eval or self.gaudi_config.use_torch_autocast:
                 import diffusers
 
-                from ..models import (
-                    gaudi_unet_2d_condition_model_forward,
-                )
+                from ..models import gaudi_unet_2d_condition_model_forward
 
                 diffusers.models.unets.unet_2d_condition.UNet2DConditionModel.forward = (
                     gaudi_unet_2d_condition_model_forward

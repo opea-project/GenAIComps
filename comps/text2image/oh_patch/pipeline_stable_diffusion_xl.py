@@ -25,6 +25,7 @@ from diffusers.pipelines.stable_diffusion_xl import StableDiffusionXLPipeline
 from diffusers.pipelines.stable_diffusion_xl.pipeline_stable_diffusion_xl import rescale_noise_cfg
 from diffusers.schedulers import KarrasDiffusionSchedulers
 from diffusers.utils import BaseOutput, deprecate
+from optimum.utils import logging
 from transformers import (
     CLIPImageProcessor,
     CLIPTextModel,
@@ -33,14 +34,11 @@ from transformers import (
     CLIPVisionModelWithProjection,
 )
 
-from optimum.utils import logging
-
 from ....transformers.gaudi_configuration import GaudiConfig
 from ....utils import HabanaProfile, speed_metrics, warmup_inference_steps_time_adjustment
 from ...models.unet_2d_condition import set_default_attn_processor_hpu
 from ..pipeline_utils import GaudiDiffusionPipeline
 from ..stable_diffusion.pipeline_stable_diffusion import retrieve_timesteps
-
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -265,9 +263,7 @@ class GaudiStableDiffusionXLPipeline(GaudiDiffusionPipeline, StableDiffusionXLPi
                 for i, (negative_pooled_prompt_embeds_batch, add_text_embeds_batch) in enumerate(
                     zip(negative_pooled_prompt_embeds_batches, add_text_embeds_batches[:])
                 ):
-                    add_text_embeds_batches[i] = torch.cat(
-                        [negative_pooled_prompt_embeds_batch, add_text_embeds_batch]
-                    )
+                    add_text_embeds_batches[i] = torch.cat([negative_pooled_prompt_embeds_batch, add_text_embeds_batch])
             add_text_embeds_batches = torch.stack(add_text_embeds_batches)
         else:
             add_text_embeds_batches = None
@@ -337,8 +333,7 @@ class GaudiStableDiffusionXLPipeline(GaudiDiffusionPipeline, StableDiffusionXLPi
         profiling_steps: Optional[int] = 0,
         **kwargs,
     ):
-        r"""
-        Function invoked when calling the pipeline for generation.
+        r"""Function invoked when calling the pipeline for generation.
 
         Args:
             prompt (`str` or `List[str]`, *optional*):
@@ -468,7 +463,7 @@ class GaudiStableDiffusionXLPipeline(GaudiDiffusionPipeline, StableDiffusionXLPi
                 will be passed as `callback_kwargs` argument. You will only be able to include variables listed in the
                 `._callback_tensor_inputs` attribute of your pipeline class.
             profiling_warmup_steps (`int`, *optional*):
-                Number of steps to ignore for profling.
+                Number of steps to ignore for profiling.
             profiling_steps (`int`, *optional*):
                 Number of steps to be captured when enabling profiling.
 
