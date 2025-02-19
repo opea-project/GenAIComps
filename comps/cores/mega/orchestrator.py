@@ -25,18 +25,17 @@ from .logger import CustomLogger
 
 logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
+ENABLE_OPEA_TELEMETRY = os.getenv("ENABLE_OPEA_TELEMETRY", "false").lower() == "true"
 
 
 class OrchestratorMetrics:
-    # Need an instance ID for metric prefix because:
-    # - Orchestror instances are not named
-    # - CI creates several orchestrator instances
+    # Need an static class-level ID for metric prefix because:
     # - Prometheus requires metrics (their names) to be unique
     _instance_id = 0
 
     def __init__(self) -> None:
-        self._instance_id += 1
-        if self._instance_id > 1:
+        OrchestratorMetrics._instance_id += 1
+        if OrchestratorMetrics._instance_id > 1:
             self._prefix = f"megaservice{self._instance_id}"
         else:
             self._prefix = "megaservice"
@@ -210,11 +209,11 @@ class ServiceOrchestrator(DAG):
 
     def wrap_iterable(self, iterable, is_first=True):
 
-        with tracer.start_as_current_span("llm_generate_stream"):
+        with tracer.start_as_current_span("llm_generate_stream") if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
             while True:
                 with (
                     tracer.start_as_current_span("llm_generate_stream_first_token")
-                    if is_first
+                    if is_first and ENABLE_OPEA_TELEMETRY
                     else contextlib.nullcontext()
                 ):  #  else tracer.start_as_current_span(f"llm_generate_stream_next_token")
                     try:
@@ -255,7 +254,11 @@ class ServiceOrchestrator(DAG):
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
-            with tracer.start_as_current_span(f"{cur_node}_asyn_generate"):
+            with (
+                tracer.start_as_current_span(f"{cur_node}_asyn_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = requests.post(
                     url=endpoint,
                     data=json.dumps(inputs),
@@ -322,8 +325,14 @@ class ServiceOrchestrator(DAG):
                 input_data = {k: v for k, v in input_data.items() if v is not None}
             else:
                 input_data = inputs
-            with tracer.start_as_current_span(f"{cur_node}_generate"):
+
+            with (
+                tracer.start_as_current_span(f"{cur_node}_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = await session.post(endpoint, json=input_data)
+
             if response.content_type == "audio/wav":
                 audio_data = await response.read()
                 data = self.align_outputs(audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)
