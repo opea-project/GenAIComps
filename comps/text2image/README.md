@@ -99,7 +99,7 @@ http_proxy="" curl http://localhost:9379/v1/text2image -XPOST -d '{"prompt":"An 
 # Build docker image with sd_webui
 
 ```
-docker build -t opea/opea-sd-webui:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2image/sdwebui/Dockerfile.intel_gaudi2H .
+docker build -t opea/opea-sd-webui:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2image/Dockerfile.intel_gaudi2H .
 ```
 
 # setup container
