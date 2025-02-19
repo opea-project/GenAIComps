@@ -25,12 +25,13 @@ function deploy_and_start_service() {
     kubectl create namespace neo4j-system
     helm repo add neo4j https://helm.neo4j.com/neo4j && helm repo update
 
-    helm install -n neo4j-system --version 5.23.0 graph-neo neo4j/neo4j -f cpu.yaml --set storageClassName=$STORAGE_CLASS_NAME
-    sleep 60s
+    #helm install -n neo4j-system --version 5.23.0 graph-neo neo4j/neo4j -f cpu.yaml --set storageClassName=$STORAGE_CLASS_NAME
+    helm install -n neo4j-system --version 5.23.0 graph-neo neo4j/neo4j -f cpu.yaml
+    sleep 120s
 }
 
 function validate_database() {
-    pod_name=$(kubectl get pods -l app=neo4j | awk '/graph-neo/ {print $1}')
+    pod_name=$(kubectl get pods -n neo4j-system -l app=neo4j | awk '/graph-neo/ {print $1}')
 
     if [ -n "$pod_name" ]; then
         echo "Using pod_name: $pod_name"
