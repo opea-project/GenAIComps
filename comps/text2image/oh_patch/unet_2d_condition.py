@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 from typing import Any, Dict, Optional, Tuple, Union
 
@@ -7,12 +10,7 @@ from diffusers.models.unets.unet_2d_condition import UNet2DConditionOutput
 from diffusers.utils import USE_PEFT_BACKEND, deprecate, logging, scale_lora_layers, torch_utils, unscale_lora_layers
 
 from ..utils.torch_utils import gaudi_fourier_filter
-from .attention_processor import (
-    AttentionProcessor,
-    AttnProcessor2_0,
-    ScaledDotProductAttention,
-)
-
+from .attention_processor import AttentionProcessor, AttnProcessor2_0, ScaledDotProductAttention
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -367,9 +365,9 @@ def gaudi_unet_2d_condition_model_forward(
 
 
 def set_attn_processor_hpu(self, processor: Union[AttentionProcessor, Dict[str, AttentionProcessor]]):
-    """
-    Copied from diffusers.models.unet_2d_condition.UNet2DConditionModel.set_attn_processor
+    """Copied from diffusers.models.unet_2d_condition.UNet2DConditionModel.set_attn_processor
     Added env PATCH_SDPA for HPU specific handle to use ScaledDotProductAttention.
+
     Sets the attention processor to use to compute attention.
     Parameters:
         processor (`dict` of `AttentionProcessor` or only `AttentionProcessor`):
@@ -405,9 +403,7 @@ def set_attn_processor_hpu(self, processor: Union[AttentionProcessor, Dict[str, 
 
 
 def set_default_attn_processor_hpu(self):
-    """
-    Copied from diffusers.models.unet_2d_condition.UNet2DConditionModel.set_default_attn_processor
-    Disables custom attention processors and sets the default attention implementation from HPU.
-    """
+    """Copied from diffusers.models.unet_2d_condition.UNet2DConditionModel.set_default_attn_processor
+    Disables custom attention processors and sets the default attention implementation from HPU."""
     processor = AttnProcessor2_0()
     set_attn_processor_hpu(self, processor)

@@ -22,9 +22,7 @@ import PIL.Image
 import torch
 from diffusers.models import AutoencoderKLTemporalDecoder, UNetSpatioTemporalConditionModel
 from diffusers.pipelines.stable_video_diffusion import StableVideoDiffusionPipeline
-from diffusers.pipelines.stable_video_diffusion.pipeline_stable_video_diffusion import (
-    _append_dims,
-)
+from diffusers.pipelines.stable_video_diffusion.pipeline_stable_video_diffusion import _append_dims
 from diffusers.schedulers import EulerDiscreteScheduler
 from diffusers.utils import BaseOutput, logging
 from diffusers.utils.torch_utils import randn_tensor
@@ -35,14 +33,12 @@ from ....utils import HabanaProfile, speed_metrics
 from ...models.unet_2d_condition import set_default_attn_processor_hpu
 from ..pipeline_utils import GaudiDiffusionPipeline
 
-
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
 
 @dataclass
 class GaudiStableVideoDiffusionPipelineOutput(BaseOutput):
-    r"""
-    Output class for zero-shot text-to-video pipeline.
+    r"""Output class for zero-shot text-to-video pipeline.
 
     Args:
         frames (`[List[PIL.Image.Image]`, `np.ndarray`]):
@@ -92,7 +88,6 @@ class GaudiStableVideoDiffusionPipeline(GaudiDiffusionPipeline, StableVideoDiffu
         gaudi_config: Union[str, GaudiConfig] = None,
         bf16_full_eval: bool = False,
         sdp_on_bf16: bool = False,
-
     ):
         GaudiDiffusionPipeline.__init__(
             self,
@@ -254,8 +249,7 @@ class GaudiStableVideoDiffusionPipeline(GaudiDiffusionPipeline, StableVideoDiffu
         return_dict: bool = True,
         **kwargs,
     ):
-        r"""
-        The call function to the pipeline for generation.
+        r"""The call function to the pipeline for generation.
 
         Args:
             image (`PIL.Image.Image` or `List[PIL.Image.Image]` or `torch.FloatTensor`):
@@ -322,6 +316,7 @@ class GaudiStableVideoDiffusionPipeline(GaudiDiffusionPipeline, StableVideoDiffu
         import os, torch
         from diffusers.utils import load_image, export_to_video
         from optimum.habana.diffusers import GaudiStableVideoDiffusionPipeline
+
         os.environ["PT_HPU_MAX_COMPOUND_OP_SIZE"] = "1"
 
         pipe = GaudiStableVideoDiffusionPipeline.from_pretrained(
@@ -331,7 +326,9 @@ class GaudiStableVideoDiffusionPipeline(GaudiDiffusionPipeline, StableVideoDiffu
             use_hpu_graphs=True,
             gaudi_config="Habana/stable-diffusion",
         )
-        image = load_image("https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/diffusers/svd/rocket.png")
+        image = load_image(
+            "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/diffusers/svd/rocket.png"
+        )
         image = image.resize((1024, 576))
         frames = pipe(image, num_frames=25).frames[0]
         export_to_video(frames, "generated.mp4", fps=7)
@@ -523,7 +520,7 @@ class GaudiStableVideoDiffusionPipeline(GaudiDiffusionPipeline, StableVideoDiffu
                     )
                     latent_model_input = self.scheduler.scale_model_input(latent_model_input, timestep)
 
-                    # Concatenate image_latents over channels dimention
+                    # Concatenate image_latents over channels dimension
                     latent_model_input = torch.cat([latent_model_input, image_latents_batch], dim=2)
 
                     # predict the noise residual
@@ -573,9 +570,11 @@ class GaudiStableVideoDiffusionPipeline(GaudiDiffusionPipeline, StableVideoDiffu
             speed_measures = speed_metrics(
                 split=speed_metrics_prefix,
                 start_time=t0,
-                num_samples=num_batches * batch_size
-                if t1 == t0 or use_warmup_inference_steps
-                else (num_batches - throughput_warmup_steps) * batch_size,
+                num_samples=(
+                    num_batches * batch_size
+                    if t1 == t0 or use_warmup_inference_steps
+                    else (num_batches - throughput_warmup_steps) * batch_size
+                ),
                 num_steps=num_batches * batch_size * num_inference_steps,
                 start_time_after_warmup=t1,
             )
