@@ -44,7 +44,7 @@ function validate_database() {
     echo "[ test query ] querying database.."
     query="MATCH (n) RETURN n LIMIT 5;"
 
-    query_response=$(kubectl exec -it -n neo4j-system "$pod_name" -- cypher-shell -u neo4j -p neo4j "$query" 2>&1)
+    query_response=$(kubectl exec -n neo4j-system "$pod_name" -- cypher-shell -u neo4j -p neo4j "$query" 2>&1)
 
     if [[ $? -eq 0 ]]; then
         echo "[ test query ] query succeed"
