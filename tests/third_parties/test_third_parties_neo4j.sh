@@ -27,7 +27,7 @@ function deploy_and_start_service() {
 
     #helm install -n neo4j-system --version 5.23.0 graph-neo neo4j/neo4j -f cpu.yaml --set storageClassName=$STORAGE_CLASS_NAME
     helm install -n neo4j-system --version 5.23.0 graph-neo neo4j/neo4j --set authEnabled=true --set neo4j.username=neo4j --set neo4j.password=neo4j -f cpu.yaml
-    sleep 120s
+    sleep 600s
 }
 
 function validate_database() {
