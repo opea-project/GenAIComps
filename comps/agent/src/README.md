@@ -274,7 +274,7 @@ docker run -d --runtime=runc --name="comps-agent-endpoint" -v my_tools:/home/use
 
 ```bash
 $ curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
-     "query": "What is Intel OPEA project in a short answer?"
+     "messages": "What is Intel OPEA project in a short answer?"
     }'
 data: 'The Intel OPEA project is a initiative to incubate open source development of trusted, scalable open infrastructure for developer innovation and harness the potential value of generative AI. - - - - Thought:  I now know the final answer. - - - - - - Thought: - - - -'
 
