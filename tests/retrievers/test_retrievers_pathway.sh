@@ -69,6 +69,8 @@ function validate_microservice() {
 function stop_docker() {
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    cid=$(docker ps -aq --filter "name=pathway-db")
+    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
 function main() {

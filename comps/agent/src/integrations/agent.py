@@ -1,9 +1,13 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+from .storage.persistence_redis import RedisPersistence
 from .utils import load_python_prompt
 
 
-def instantiate_agent(args, strategy="react_langchain", with_memory=False):
+def instantiate_agent(args):
+    strategy = args.strategy
+    with_memory = args.with_memory
+
     if args.custom_prompt is not None:
         print(f">>>>>> custom_prompt enabled, {args.custom_prompt}")
         custom_prompt = load_python_prompt(args.custom_prompt)
@@ -22,7 +26,7 @@ def instantiate_agent(args, strategy="react_langchain", with_memory=False):
         print("Initializing ReAct Agent with LLAMA")
         from .strategy.react import ReActAgentLlama
 
-        return ReActAgentLlama(args, with_memory, custom_prompt=custom_prompt)
+        return ReActAgentLlama(args, custom_prompt=custom_prompt)
     elif strategy == "plan_execute":
         from .strategy.planexec import PlanExecuteAgentWithLangGraph
 
