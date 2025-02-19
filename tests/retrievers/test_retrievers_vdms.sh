@@ -37,7 +37,7 @@ function start_service() {
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
     export INDEX_NAME="rag-vdms"
     export VDMS_USE_CLIP=0 #set to 1 if openai clip embedding should be used
-    export HF_TOKEN=${HF_TOKEN}
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export LOGFLAG=True
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
@@ -78,6 +78,8 @@ function validate_microservice() {
 function stop_docker() {
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml down  ${service_name} ${service_name_mm} --remove-orphans
+    cid=$(docker ps -aq --filter "name=retriever-vdms*" --filter "name=vdms-vector-db" --filter "name=tei-embedding-serving")
+    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
 function main() {

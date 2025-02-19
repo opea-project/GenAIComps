@@ -74,7 +74,7 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-s
 OPENAI_LLM_MODEL = os.getenv("OPENAI_LLM_MODEL", "gpt-4o")
 
 LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3.1-70B-Instruct")
-MAX_INPUT_LEN = os.getenv("MAX_INPUT_LEN", "8192")
+MAX_INPUT_TOKENS = os.getenv("MAX_INPUT_TOKENS", "8192")
 MAX_OUTPUT_TOKENS = os.getenv("MAX_OUTPUT_TOKENS", "1024")
 
 
@@ -92,7 +92,7 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
     async def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM."""
         model_name = LLM_MODEL_ID
-        max_input_length = int(MAX_INPUT_LEN)
+        max_input_length = int(MAX_INPUT_TOKENS)
         if not model_name or not max_input_length:
             raise ValueError(f"Could not retrieve model information from TGI endpoint: {TGI_LLM_ENDPOINT}")
 
@@ -656,11 +656,12 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             await index.property_graph_store.build_communities()
             if logflag:
                 logger.info("Done building communities.")
+            return True
         except Exception as e:
             logger.error(f"Error building communities: {e}")
             error_trace = traceback.format_exc()
             logger.error(f"Error building communities: {e}\n{error_trace}")
-        return True
+            return False
 
     async def ingest_files(
         self,
@@ -670,7 +671,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
-        skip_ingestion: bool = Form(False),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into Neo4j database.
 
@@ -683,13 +684,15 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
             process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
             table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+            ingest_from_graphDB (bool, optional): Whether to skip generating graph from files and instead loading index from existing graph store.
         """
         if logflag:
             logger.info(f"files:{files}")
             logger.info(f"link_list:{link_list}")
-            logger.info(f"skip_ingestion:{skip_ingestion}")
+            logger.info(f"ingest_from_graphDB:{ingest_from_graphDB}")
 
-        if skip_ingestion:
+        if ingest_from_graphDB:
+            logger.info(f"ingest_from_graphDB:{ingest_from_graphDB}")
             self.initialize_graph_store_and_models()
             index = PropertyGraphIndex.from_existing(
                 property_graph_store=self.graph_store,
@@ -745,11 +748,12 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
                     if logflag:
                         logger.info(f"Successfully saved link {link}")
 
-        if files or link_list or skip_ingestion:
-            await self.build_communities(index)
-            result = {"status": 200, "message": "Data preparation succeeded"}
-            if logflag:
-                logger.info(result)
-            return result
-        else:
-            raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
+        if files or link_list or ingest_from_graphDB:
+            success = await self.build_communities(index)
+            if success:
+                result = {"status": 200, "message": "Data preparation succeeded"}
+                if logflag:
+                    logger.info(result)
+                return result
+            else:
+                raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
