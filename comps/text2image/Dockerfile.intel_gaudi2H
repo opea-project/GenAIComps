@@ -1,0 +1,40 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# HABANA environment
+FROM vault.habana.ai/gaudi-docker/1.19.0/ubuntu22.04/habanalabs/pytorch-installer-2.5.1 AS hpu
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+
+COPY comps /home/user/comps
+
+RUN chown -R user /home/user/comps/text2image
+
+RUN rm -rf /etc/ssh/ssh_host*
+USER user
+# Set environment variables
+ENV LANG=en_US.UTF-8
+ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/home/user/optimum-habana
+
+# Install requirements and optimum habana
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /home/user/comps/text2image/requirements.txt && \
+    pip install --no-cache-dir optimum[habana]
+
+# install sdwebui dependencies
+RUN cd /home/user/ && \
+    git clone https://github.com/lkk12014402/stable-diffusion-webui.git && \
+    cd stable-diffusion-webui && git checkout opea_hpu && \
+    python3.10 -m venv sd && \
+    ./sd/bin/python -m pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
+    ./sd/bin/python -m pip install --no-cache-dir -r requirements.txt && \
+    ./sd/bin/python -c "import modules.launch_utils; modules.launch_utils.prepare_environment()"
+
+
+WORKDIR /home/user/comps/text2image/sdwebui
+
+RUN echo "nohup python text2image_sdwebui.py --device hpu --use_hpu_graphs --bf16 >> run.log 2>&1 &" >> run.sh && \
+    echo "http_proxy='' /home/user/stable-diffusion-webui/sd/bin/python /home/user/stable-diffusion-webui/launch.py --skip-torch-cuda-test --share --skip-load-model-at-start --opea --opea-txt2img-url http://localhost:9379/sdapi/v1/txt2img --opea-img2img-url http://localhost:9379/sdapi/v1/img2img --server-name 0.0.0.0 --port 7861 --nowebui >> run_sdui.log 2>&1 &" >> run.sh
+
+CMD bash run.sh
