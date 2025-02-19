@@ -9,12 +9,13 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11101
 service_name="dataprep-milvus tei-embedding-serving etcd minio standalone"
+TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     # dataprep milvus image
-    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1

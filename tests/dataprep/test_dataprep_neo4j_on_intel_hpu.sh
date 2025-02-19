@@ -9,11 +9,12 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11103
 LLM_ENDPOINT_PORT=10510
+TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -27,7 +28,6 @@ function build_docker_images() {
 function start_service() {
     service_name="neo4j-apoc tei-embedding-serving tgi-gaudi-server dataprep-neo4j-llamaindex"
     export host_ip=${ip_address}
-    export TAG="comps"
     export NEO4J_AUTH="neo4j/neo4jtest"
     export NEO4J_URL="bolt://${ip_address}:7687"
     export NEO4J_USERNAME="neo4j"
