@@ -56,6 +56,8 @@ class ReActAgentwithLangchain(BaseAgent):
         initial_state = self.prepare_initial_state(query)
         if thread_id is not None:
             config["configurable"] = {"session_id": thread_id}
+        else:
+            config["configurable"] = {"session_id": "0"}
         async for chunk in self.app.astream(initial_state, config=config):
             if thread_id is not None:
                 with threads_global_kv as g_threads:
