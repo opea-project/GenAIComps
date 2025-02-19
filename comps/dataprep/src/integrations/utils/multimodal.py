@@ -8,7 +8,6 @@ import uuid
 from pathlib import Path
 from typing import Iterator
 
-import aiohttp
 import cv2
 import requests
 import webvtt
@@ -236,18 +235,15 @@ def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: s
     return annotations
 
 
-async def use_lvm(endpoint: str, img_b64_string: str, prompt: str = "Provide a short description for this scene."):
+def use_lvm(endpoint: str, img_b64_string: str, prompt: str = "Provide a short description for this scene."):
     """Generate image captions/descriptions using LVM microservice."""
     inputs = {"image": img_b64_string, "prompt": prompt, "max_new_tokens": 32}
-
-    async with aiohttp.ClientSession() as session:
-        response = await session.post(url=endpoint, data=json.dumps(inputs))
-        json_data = await response.json()
-        result = json_data["text"]
-    return result
+    response = requests.post(url=endpoint, data=json.dumps(inputs))
+    print(response)
+    return response.json()["text"]
 
 
-async def extract_frames_and_generate_captions(
+def extract_frames_and_generate_captions(
     video_id: str, video_path: str, lvm_endpoint: str, output_dir: str, key_frame_per_second: int = 1
 ):
     """Extract frames (.png) and annotations (.json) from video file (.mp4) by generating captions using LVM microservice."""
@@ -288,7 +284,7 @@ async def extract_frames_and_generate_captions(
             b64_img_str = convert_img_to_base64(frame)
 
             # Caption generation using LVM microservice
-            caption = await use_lvm(lvm_endpoint, b64_img_str)
+            caption = use_lvm(lvm_endpoint, b64_img_str)
             caption = caption.strip()
             text = caption.replace("\n", " ")
 
