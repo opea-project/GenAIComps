@@ -635,7 +635,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                 self.ingest_multimodal(name, os.path.join(self.upload_folder, dir_name), self.embeddings)
 
                 # Delete temporary directory containing frames and annotations
-                # shutil.rmtree(os.path.join(upload_folder, dir_name))
+                shutil.rmtree(os.path.join(upload_folder, dir_name))
 
                 logger.info(f"Processed file {file.filename}")
 
