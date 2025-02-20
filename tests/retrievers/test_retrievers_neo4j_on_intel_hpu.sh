@@ -50,8 +50,8 @@ function start_service() {
     export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
     export TGI_LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:6004"
-    export NEO4J_PORT1=11631
-    export NEO4J_PORT2=11632
+    export NEO4J_PORT1=7474   # 11631
+    export NEO4J_PORT2=7687   # 11632
     export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
     export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
     export NEO4J_USERNAME="neo4j"
