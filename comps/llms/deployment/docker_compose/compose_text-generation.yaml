@@ -72,6 +72,7 @@ services:
       vllm-server:
         condition: service_healthy
 
+  ## Checking vllm-gaudi-server is healthy before starting textgen-service-vllm-gaudi
   textgen-service-vllm-gaudi:
     extends: textgen
     container_name: textgen-service-vllm-gaudi
