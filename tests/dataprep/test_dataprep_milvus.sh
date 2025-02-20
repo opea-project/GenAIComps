@@ -9,7 +9,7 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11101
 service_name="dataprep-milvus tei-embedding-serving etcd minio standalone"
-TAG="comps"
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH

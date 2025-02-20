@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT="11106"
-TAG="comps"
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
