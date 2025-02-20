@@ -28,8 +28,10 @@ function build_docker_images() {
 function start_service() {
     service_name="neo4j-apoc tei-embedding-serving tgi-gaudi-server dataprep-neo4j-llamaindex"
     export host_ip=${ip_address}
+    export NEO4J_PORT1=7474   # 11631
+    export NEO4J_PORT2=7687   # 11632
     export NEO4J_AUTH="neo4j/neo4jtest"
-    export NEO4J_URL="bolt://${ip_address}:7687"
+    export NEO4J_URL="bolt://${ip_address}:${NEO4J_PORT2}"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="neo4jtest"
     export NEO4J_apoc_export_file_enabled=true
@@ -95,7 +97,7 @@ function validate_service() {
 function validate_microservice() {
     # validate neo4j-apoc
     validate_service \
-        "${ip_address}:7474" \
+        "${ip_address}:${NEO4J_PORT1}" \
         "200 OK" \
         "neo4j-apoc" \
         "neo4j-apoc" \
