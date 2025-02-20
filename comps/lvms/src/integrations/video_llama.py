@@ -1,11 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import os
 import time
 from typing import Union
 
-import asyncio
 import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
@@ -61,12 +61,8 @@ class OpeaVideoLlamaLvm(OpeaComponent):
         t_start = time.time()
 
         response = await asyncio.to_thread(
-            requests.post,
-            url=f"{self.base_url}/generate", 
-            params=params, 
-            proxies={"http": None}, 
-            stream=True
-        ) 
+            requests.post, url=f"{self.base_url}/generate", params=params, proxies={"http": None}, stream=True
+        )
         logger.info(f"[lvm] Response status code: {response.status_code}")
         if response.status_code == 200:
 
