@@ -9,12 +9,13 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT="11107"
 TEI_EMBEDDER_PORT="10220"
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
 
     # dataprep qdrant image
-    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -32,7 +33,6 @@ function start_service() {
     export COLLECTION_NAME="rag-qdrant"
     export QDRANT_HOST=$ip_address
     export QDRANT_PORT=6360
-    export TAG="comps"
     service_name="qdrant-vector-db tei-embedding-serving dataprep-qdrant"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
