@@ -19,7 +19,6 @@ CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 MODEL_ID = os.getenv("MODEL_ID")
 
-
 @OpeaComponentRegistry.register("OPEA_OVMS_EMBEDDING")
 class OpeaOVMSEmbedding(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for OVMS embedding services.
@@ -59,7 +58,6 @@ class OpeaOVMSEmbedding(OpeaComponent):
         Returns:
             EmbeddingResponse: The response in OpenAI embedding format, including embeddings, model, and usage information.
         """
-        print("INPUT", input)
         # Parse input according to the EmbeddingRequest format
         if isinstance(input.input, str):
             texts = [input.input.replace("\n", " ")]

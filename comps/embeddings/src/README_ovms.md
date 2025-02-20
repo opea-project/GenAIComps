@@ -9,38 +9,38 @@ It is Intel highly optimized serving solution which employs OpenVINO Runtime for
 
 ### 🔹 1.1 Start Embedding Service with OVMS
 
-1.  Prepare the model in the model repository
-    This step will export the model from HuggingFace Hub to the local models repository. At the some time model will be converted to IR format and optionally quantized.  
-    It speedup starting the service and avoids copying the model from Internet each time the container starts.
+1. Prepare the model in the model repository
+   This step will export the model from HuggingFace Hub to the local models repository. At the some time model will be converted to IR format and optionally quantized.  
+   It speedup starting the service and avoids copying the model from Internet each time the container starts.
 
-        ```
-        pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
-        curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
-        mkdir models
-        python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
-        ```
+   ```
+   pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
+   curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
+   mkdir models
+   python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
+   ```
 
-2.  **Start the OVMS service**:
-    Replace `your_port` with desired values to start the service.
+2. **Start the OVMS service**:
+   Replace `your_port` with desired values to start the service.
 
-    ```bash
-    your_port=8090
-    docker run -p $your_port:8000 -v ./models:/models --name ovms-embedding-serving \
-    openvino/model_server:2025.0 --port 8000 --config_path /models/config_embeddings.json
-    ```
+   ```bash
+   your_port=8090
+   docker run -p $your_port:8000 -v ./models:/models --name ovms-embedding-serving \
+   openvino/model_server:2025.0 --port 8000 --config_path /models/config_embeddings.json
+   ```
 
-3.  **Test the OVMS service**:
-    Run the following command to check if the service is up and running.
+3. **Test the OVMS service**:
+   Run the following command to check if the service is up and running.
 
-    ```bash
-    curl http://localhost:$your_port/v3/embeddings \
-    -X POST \
-    -H 'Content-Type: application/json'
-    -d '{
-    "model": "BAAI/bge-large-en-v1.5",
-    "input":"What is Deep Learning?"
-    }'
-    ```
+   ```bash
+   curl http://localhost:$your_port/v3/embeddings \
+   -X POST \
+   -H 'Content-Type: application/json'
+   -d '{
+   "model": "BAAI/bge-large-en-v1.5",
+   "input":"What is Deep Learning?"
+   }'
+   ```
 
 ### 🔹 1.2 Build Docker Image and Run Docker with CLI
 
@@ -99,11 +99,11 @@ Deploy both the OVMS Embedding Service and the Embedding Microservice using Dock
 
 Verify the embedding service is running:
 
-```bash
-curl http://localhost:6000/v1/health_check \
--X GET \
--H 'Content-Type: application/json'
-```
+   ```bash
+   curl http://localhost:6000/v1/health_check \
+   -X GET \
+   -H 'Content-Type: application/json'
+   ```
 
 ### 🔹 3.2 Use the Embedding Service API
 
