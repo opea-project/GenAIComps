@@ -40,6 +40,21 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  ovms-embedding-server:
+    image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
+    container_name: ovms-embedding-server
+    ports:
+      - "${EMBEDDER_PORT:-10201}:6000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      OVMS_EMBEDDING_ENDPOINT: ${OVMS_EMBEDDING_ENDPOINT}
+      EMBEDDING_COMPONENT_NAME: "OPEA_OVMS_EMBEDDING"
+      MODEL_ID: ${MODEL_ID}
+    restart: unless-stopped
+
   pg-embedding-server:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: pg-embedding-server
