@@ -9,11 +9,12 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT="11104"
 OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -31,7 +32,6 @@ function start_service() {
     export INDEX_NAME="file-index"
     service_name="opensearch-vector-db dataprep-opensearch"
     export host_ip=${ip_address}
-    export TAG="comps"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
     sleep 1m
