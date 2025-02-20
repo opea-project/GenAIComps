@@ -5,6 +5,7 @@ import os
 import time
 from typing import Union
 
+import asyncio
 import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
@@ -59,16 +60,22 @@ class OpeaVideoLlamaLvm(OpeaComponent):
 
         t_start = time.time()
 
-        response = requests.post(url=f"{self.base_url}/generate", params=params, proxies={"http": None}, stream=True)
+        response = await asyncio.to_thread(
+            requests.post,
+            url=f"{self.base_url}/generate", 
+            params=params, 
+            proxies={"http": None}, 
+            stream=True
+        ) 
         logger.info(f"[lvm] Response status code: {response.status_code}")
         if response.status_code == 200:
 
-            def streamer(time_start):
+            async def streamer(time_start):
                 first_token_latency = None
                 yield f"{{'video_url': '{video_url}', 'chunk_start': {chunk_start}, 'chunk_duration': {chunk_duration}}}\n".encode(
                     "utf-8"
                 )
-                for chunk in response.iter_content(chunk_size=8192):
+                async for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         if first_token_latency is None:
                             first_token_latency = time.time() - time_start
