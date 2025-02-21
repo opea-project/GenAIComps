@@ -16,9 +16,9 @@ To download an example .gguf model to a model path:
 
 ```bash
 export MODEL_PATH=~/models
-mkdir $MODEL_PATH
+mkdir -p $MODEL_PATH # -p means make only if doesn't exist
 cd $MODEL_PATH
-wget https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf
+wget --no-clobber https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf
 ````
 
 ### 2. Set Environment Variables
@@ -29,13 +29,13 @@ export host_ip=$(hostname -I | awk '{print $1}')
 export TEXTGEN_PORT=9000
 export LLM_ENDPOINT_PORT=8008
 export LLM_ENDPOINT="http://${host_ip}:80"
-export LLM_MODEL_ID="models/Phi-3-mini-4k-instruct-q4.gguf"
+export LLM_MODEL_ID="models/qwen2.5-1.5b-instruct-q4_k_m.gguf"
 export LLAMA_ARG_CTX_SIZE=4096
 ```
 ### 3. Run the llama.cpp OPEA Microservice
 
 ```bash
-export service_name="textgen-llamacpp"
+export service_name="textgen-service-llamacpp"
 cd comps/llms/deployment/docker_compose/
 docker compose -f compose_text-generation.yaml up ${service_name} -d
 ```
@@ -51,7 +51,6 @@ curl http://0.0.0.0:8008/v1/chat/completions \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer no-key" \
     -d '{
-    "model": "models/Phi-3-mini-4k-instruct-q4.gguf",
     "messages": [
         {
             "role": "system",
@@ -73,7 +72,6 @@ This component is based on openAI API convention:
 curl -X POST http://localhost:9000/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
-        "model": "models/Phi-3-mini-4k-instruct-q4.gguf",
         "messages": [{"role": "user", "content": "Write a limerick about python exceptions"}],
         "max_tokens": 100,
         "temperature": 0.7,
