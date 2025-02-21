@@ -1,45 +1,46 @@
 # 🌟 Embedding Microservice with OpenVINO Model Server
 
 This guide walks you through starting, deploying, and consuming the **OVMS Embeddings Microservice**. 🚀
-It is Intel highly optimized serving solution which employs OpenVINO Runtime for super fast inference on CPU. 
+It is Intel highly optimized serving solution which employs OpenVINO Runtime for super fast inference on CPU.
+
 ---
 
 ## 📦 1. Start Microservice with `docker run`
 
 ### 🔹 1.1 Start Embedding Service with OVMS
 
-1. Prepare the model in the model repository
-This step will export the model from HuggingFace Hub to the local models repository. At the some time model will be converted to IR format and optionally quantized.  
-It speedup starting the service and avoids copying the model from Internet each time the container starts.
+1.  Prepare the model in the model repository
+    This step will export the model from HuggingFace Hub to the local models repository. At the some time model will be converted to IR format and optionally quantized.  
+    It speedup starting the service and avoids copying the model from Internet each time the container starts.
 
+        ```
+        pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
+        curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
+        mkdir models
+        python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
+        ```
+
+2.  **Start the OVMS service**:
+    Replace `your_port` with desired values to start the service.
+
+    ```bash
+    your_port=8090
+    docker run -p $your_port:8000 -v ./models:/models --name ovms-embedding-serving \
+    openvino/model_server:2025.0 --port 8000 --config_path /models/config_embeddings.json
     ```
-    pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
-    curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
-    mkdir models
-    python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
+
+3.  **Test the OVMS service**:
+    Run the following command to check if the service is up and running.
+
+    ```bash
+    curl http://localhost:$your_port/v3/embeddings \
+    -X POST \
+    -H 'Content-Type: application/json'
+    -d '{
+    "model": "BAAI/bge-large-en-v1.5",
+    "input":"What is Deep Learning?"
+    }'
     ```
-
-2. **Start the OVMS service**:
-   Replace `your_port` with desired values to start the service.
-
-   ```bash
-   your_port=8090
-   docker run -p $your_port:8000 -v ./models:/models --name ovms-embedding-serving \
-   openvino/model_server:2025.0 --port 8000 --config_path /models/config_embeddings.json
-   ```
-
-3. **Test the OVMS service**:
-   Run the following command to check if the service is up and running.
-
-   ```bash
-   curl http://localhost:$your_port/v3/embeddings \
-   -X POST \
-   -H 'Content-Type: application/json'
-   -d '{
-   "model": "BAAI/bge-large-en-v1.5",
-   "input":"What is Deep Learning?"
-   }'   
-   ```
 
 ### 🔹 1.2 Build Docker Image and Run Docker with CLI
 
@@ -139,10 +140,10 @@ The API is compatible with the [OpenAI API](https://platform.openai.com/docs/api
    The `-v ./models:/models` flag ensures the models directory is correctly mounted.
 
 4. Select correct configuration JSON file
-Models repository can host multiple models. Choose the models to be served by selecting the right configuration file.
-In the example above `config_embeddings.json`
+   Models repository can host multiple models. Choose the models to be served by selecting the right configuration file.
+   In the example above `config_embeddings.json`
 
 5. Upload the models to persistent volume claim in Kubernetes
-Models repository with configuration JSON file will be mounted in the OVMS containers when deployed via [helm chart](../../third_parties/ovms/deployment/kubernetes/README.md).
+   Models repository with configuration JSON file will be mounted in the OVMS containers when deployed via [helm chart](../../third_parties/ovms/deployment/kubernetes/README.md).
 
 6. Learn more about [OVMS embeddings API](https://docs.openvino.ai/2025/openvino-workflow/model-server/ovms_docs_rest_api_embeddings.html)

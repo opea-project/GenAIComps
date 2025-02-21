@@ -3,7 +3,6 @@
 - You should have Helm (version >= 3.15) installed. Refer to the [Helm Installation Guide](https://helm.sh/docs/intro/install/) for more information.
 - For more deployment options, refer to [helm charts README](https://github.com/openvinotoolkit/operator/tree/main/helm-charts/ovms).
 
-
 ## Deploy on Xeon
 
 ```
@@ -14,4 +13,3 @@ export PVC=
 export CONFIG_PATH=
 helm install ovms-app ovms --set global.models_settings.config_path=${CONFIG_PATH} --set global.models_repository.models_volume_claim=${PVC} -f cpu-values.yaml
 ```
-
