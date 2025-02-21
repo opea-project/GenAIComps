@@ -41,12 +41,19 @@ def initialize():
     global model, processor, initialized
     with initialization_lock:
         if not initialized:
+            from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+
+            adapt_transformers_to_gaudi()
 
             model_id = os.getenv("LLAMA_VISION_GUARD_MODEL_ID", "meta-llama/Llama-Guard-3-11B-Vision")
             huggingface_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
             model = AutoModelForVision2Seq.from_pretrained(
                 model_id, device_map="hpu", torch_dtype=torch.bfloat16, token=huggingface_token
             )
+            from habana_frameworks.torch.hpu import wrap_in_hpu_graph
+
+            model = wrap_in_hpu_graph(model)
+
             processor = AutoProcessor.from_pretrained(model_id, token=huggingface_token)
             url = "https://llava-vl.github.io/static/images/view.jpg"
             conversation = [
