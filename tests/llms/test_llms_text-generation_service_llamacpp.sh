@@ -43,9 +43,8 @@ function start_service() {
     cd $MODELPATH
     wget --no-clobber https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
-
-    sleep 60  # Sleep for 1 minute to allow the service to start
+    docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose_llama.log
+    sleep 120  # Allow the service to start
 }
 
 function validate_microservice() {
