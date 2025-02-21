@@ -17,9 +17,10 @@ To download an example .gguf model to a model path:
 
 ```bash
 export MODEL_PATH=~/models
-mkdir $MODEL_PATH
+mkdir -p $MODEL_PATH # -p means make only if doesn't exist
 cd $MODEL_PATH
-wget https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf
+
+wget --no-clobber https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf
 ````
 
 ### 2. Set Environment Variables
@@ -28,7 +29,7 @@ wget https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/P
 export MODEL_PATH=~/models
 export host_ip=$(hostname -I | awk '{print $1}')
 export LLM_ENDPOINT_PORT=8008
-export LLM_MODEL_ID="models/Phi-3-mini-4k-instruct-q4.gguf"
+export LLM_MODEL_ID="models/qwen2.5-1.5b-instruct-q4_k_m.gguf"
 export LLAMA_ARG_CTX_SIZE=4096
 ```
 
