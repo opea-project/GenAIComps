@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+set -x
+
+WORKPATH=$(dirname "$PWD")
+LOG_PATH="$WORKPATH/tests"
+ip_address=$(hostname -I | awk '{print $1}')
+TEXT2CYPHER_PORT=11801
+#LLM_ENDPOINT_PORT=11811
+
+function build_docker_images() {
+    cd $WORKPATH
+    echo $(pwd)
+    docker build --no-cache -t opea/text2cypher:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2cypher/src/Dockerfile.intel_hpu .
+    if [ $? -ne 0 ]; then
+        echo "opea/text2cypher built fail"
+        exit 1
+    else
+        echo "opea/text2cypher built successful"
+    fi
+#    docker pull ghcr.io/huggingface/tgi-gaudi:2.3.1
+#    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+}
+
+function start_service() {
+    service_name="neo4j-apoc text2cypher-gaudi"
+    export host_ip=${ip_address}
+    export TAG="comps"
+    export NEO4J_AUTH="neo4j/neo4jtest"
+    export NEO4J_URL="bolt://${ip_address}:7687"
+    export NEO4J_USERNAME="neo4j"
+    export NEO4J_PASSWORD="neo4jtest"
+    export NEO4J_apoc_export_file_enabled=true
+    export NEO4J_apoc_import_file_use__neo4j__config=true
+    export NEO4J_PLUGINS=\[\"apoc\"\]
+#    export TEI_EMBEDDER_PORT=12006
+#    export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
+#    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+#    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
+#    export LLM_ENDPOINT_PORT=10510
+#    export TGI_LLM_ENDPOINT="http://${ip_address}:${LLM_ENDPOINT_PORT}"
+
+    cd $WORKPATH/comps/text2cypher/deployment/docker_compose/
+    docker compose up ${service_name} -d
+    sleep 2m
+}
+
+function validate_neo4j_service() {
+    local URL="${ip_address}:7474"
+    local EXPECTED_RESULT="200 OK"
+    local SERVICE_NAME="neo4j-apoc"
+    local CONTAINER_NAME="neo4j-apoc"
+
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+
+    docker logs ${CONTAINER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+
+    # check response status
+    if [ "$HTTP_STATUS" -ne "200" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+    fi
+
+    sleep 1m
+}
+
+function validate_text2cypher_service() {
+    local SERVICE_NAME="text2cypher-gaudi"
+    local CONTAINER_NAME="text2cypher-gaudi-container"
+
+    result=$(http_proxy="" curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher\
+        -X POST \
+        -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
+        -H 'Content-Type: application/json')
+
+    if [[ len($result) >0 ]]; then
+        echo $result
+        echo "Result correct."
+    else
+        echo "Result wrong. Received was $result"
+        docker logs ${CONTAINER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+        exit 1
+    fi
+
+
+
+#    result=$(http_proxy="" curl http://localhost:9097/v1/text2cypher \
+#	-X POST \
+#	-d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
+#       -H 'Content-Type: application/json')
+	    
+}
+
+function stop_docker() {
+    cid=$(docker ps -aq --filter "name=text2cypher-gaudi*")
+    if [[ ! -z "$cid" ]]; then
+        docker stop $cid && docker rm $cid && sleep 1s
+    fi
+    cid_db=$(docker ps -aq --filter "name=neo4j-apoc")
+    if [[ ! -z "$cid_db" ]]; then
+        docker stop $cid_db && docker rm $cid_db && sleep 1s
+    fi
+}
+
+function main() {
+
+    stop_docker
+
+    build_docker_images
+    start_service
+
+    validate_neo4j_service
+    validate_text2cypher_service
+
+    stop_docker
+    echo y | docker system prune
+
+}
+
+main
