@@ -94,7 +94,7 @@ function validate_text2cypher_service() {
 #	-X POST \
 #	-d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
 #       -H 'Content-Type: application/json')
-	    
+
 }
 
 function stop_docker() {

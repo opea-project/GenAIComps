@@ -1,16 +1,16 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import argparse
 import copy
 import glob
 import os
-import argparse
 import shutil
 import tempfile
 import time
 from pathlib import Path
 
 import torch
-from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
-from transformers.utils import check_min_version
-
 from optimum.habana.checkpoint_utils import (
     get_ds_injection_policy,
     get_repo_root,
@@ -24,6 +24,9 @@ from optimum.habana.utils import (
     get_habana_frameworks_version,
     set_seed,
 )
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+from transformers.utils import check_min_version
+
 
 def setup_parser(parser):
     # Arguments management
@@ -32,7 +35,7 @@ def setup_parser(parser):
         "--model_name_or_path",
         default=None,
         type=str,
-        #required=True,
+        # required=True,
         help="Path to pre-trained model (on the HF Hub or locally).",
     )
     parser.add_argument(
@@ -245,7 +248,7 @@ def setup_parser(parser):
     parser.add_argument(
         "--book_source",
         action="store_true",
-        help="Whether to use project Guttenberg books data as input. Usefull for testing large sequence lenghts.",
+        help="Whether to use project Guttenberg books data as input. Useful for testing large sequence lengths.",
     )
     parser.add_argument(
         "--torch_compile",
@@ -290,6 +293,7 @@ def setup_parser(parser):
             "`--disk_offload` was tested only with fp8, it may not work with full precision. If error raises try to remove the --disk_offload flag."
         )
     return args
+
 
 def adjust_batch(batch, size):
     curr_size = batch["input_ids"].shape[1]
@@ -413,7 +417,6 @@ def setup_device(args):
 # patching LinearAllreduce to use ScopedLinearAllReduce
 def patch_scoped_linear_all_reduce(model):
     from deepspeed.module_inject.layers import LinearAllreduce
-
     from optimum.habana.transformers.models.modeling_all_models import ScopedLinearAllReduce
 
     for name, module in model.named_children():
@@ -458,7 +461,7 @@ def setup_model(args, model_dtype, model_kwargs, logger):
         if args.peft_model is not None:
             model = peft_model(args, model_dtype, logger, **model_kwargs)
         else:
-            if args.model_name_or_path=="neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1":
+            if args.model_name_or_path == "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1":
                 model = AutoModelForCausalLM.from_pretrained(
                     "google/gemma-2-9b-it", torch_dtype=model_dtype, **model_kwargs
                 )
@@ -480,7 +483,6 @@ def setup_model(args, model_dtype, model_kwargs, logger):
 
     if args.use_hpu_graphs:
         from habana_frameworks.torch.hpu import wrap_in_hpu_graph
-
         from optimum.habana.transformers.trainer import _is_peft_model
 
         if check_habana_frameworks_version("1.13.0") and model.config.model_type == "falcon":
