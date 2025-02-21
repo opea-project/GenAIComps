@@ -9,11 +9,12 @@ services:
       - ${LLM_ENDPOINT_PORT:-8008}:80
     volumes:
       # Download the .gguf models to this path.
-      - ${MODEL_PATH:-~/models}:/models
+      - "${MODEL_PATH:-~/models}:/models"
     environment:
       LOGFLAG: False
-      HTTPS_PROXY: ${http_proxy}
-      HTTP_PROXY: ${https_proxy}
+      no_proxy: ${no_proxy}
+      https_proxy: ${http_proxy}
+      http_proxy: ${https_proxy}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
       host_ip: ${host_ip}
@@ -29,7 +30,7 @@ services:
       test: [ "CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1" ]
       interval: 10s
       timeout: 10s
-      retries: 150
+      retries: 100
 
 networks:
   default:
