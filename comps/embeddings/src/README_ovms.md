@@ -20,8 +20,8 @@ It is Intel highly optimized serving solution which employs OpenVINO Runtime for
    python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
    ```
 
-2. **Start the OVMS service**:
-   Replace `your_port` with desired values to start the service.
+3.  **Test the OVMS service**:
+    Run the following command to check if the service is up and running.
 
    ```bash
    your_port=8090

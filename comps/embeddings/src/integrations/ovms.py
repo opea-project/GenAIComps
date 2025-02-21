@@ -19,6 +19,7 @@ CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 MODEL_ID = os.getenv("MODEL_ID")
 
+
 @OpeaComponentRegistry.register("OPEA_OVMS_EMBEDDING")
 class OpeaOVMSEmbedding(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for OVMS embedding services.
