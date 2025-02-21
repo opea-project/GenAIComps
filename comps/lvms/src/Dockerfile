@@ -12,7 +12,8 @@ ENV LANG=C.UTF-8
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/lvms/src/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/lvms/src/requirements.txt && \
+    pip install --no-cache-dir --upgrade transformers
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
