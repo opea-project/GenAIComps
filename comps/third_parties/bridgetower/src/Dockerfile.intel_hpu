@@ -19,6 +19,7 @@ COPY --chown=user comps /home/user/comps
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/third_parties/bridgetower/src/requirements.txt && \
+    pip install --no-cache-dir --upgrade transformers && \
     pip install --no-cache-dir optimum[habana]
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
