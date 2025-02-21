@@ -4,6 +4,7 @@
 
 include:
   - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/milvus/deployment/docker_compose/compose.yaml
   - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
   - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
   - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
@@ -53,6 +54,12 @@ services:
     restart: unless-stopped
     depends_on:
       tei-embedding-serving:
+        condition: service_healthy
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
         condition: service_healthy
 
   dataprep-neo4j-llamaindex:
