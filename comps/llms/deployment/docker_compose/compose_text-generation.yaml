@@ -102,7 +102,7 @@ services:
     environment:
       LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNative}
 
-  textgen-llamacpp:
+  textgen-service-llamacpp:
     extends: textgen
     container_name: textgen-service-llamacpp
     environment:
