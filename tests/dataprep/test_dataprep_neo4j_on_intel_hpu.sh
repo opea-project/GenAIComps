@@ -9,11 +9,12 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11103
 LLM_ENDPOINT_PORT=10510
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -27,9 +28,10 @@ function build_docker_images() {
 function start_service() {
     service_name="neo4j-apoc tei-embedding-serving tgi-gaudi-server dataprep-neo4j-llamaindex"
     export host_ip=${ip_address}
-    export TAG="comps"
+    export NEO4J_PORT1=7474   # 11631
+    export NEO4J_PORT2=7687   # 11632
     export NEO4J_AUTH="neo4j/neo4jtest"
-    export NEO4J_URL="bolt://${ip_address}:7687"
+    export NEO4J_URL="bolt://${ip_address}:${NEO4J_PORT2}"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="neo4jtest"
     export NEO4J_apoc_export_file_enabled=true
@@ -95,7 +97,7 @@ function validate_service() {
 function validate_microservice() {
     # validate neo4j-apoc
     validate_service \
-        "${ip_address}:7474" \
+        "${ip_address}:${NEO4J_PORT1}" \
         "200 OK" \
         "neo4j-apoc" \
         "neo4j-apoc" \

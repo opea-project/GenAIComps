@@ -19,7 +19,7 @@ export MODEL_PATH=~/models
 mkdir -p $MODEL_PATH # -p means make only if doesn't exist
 cd $MODEL_PATH
 wget --no-clobber https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf
-````
+```
 
 ### 2. Set Environment Variables
 
@@ -32,6 +32,7 @@ export LLM_ENDPOINT="http://${host_ip}:80"
 export LLM_MODEL_ID="models/qwen2.5-1.5b-instruct-q4_k_m.gguf"
 export LLAMA_ARG_CTX_SIZE=4096
 ```
+
 ### 3. Run the llama.cpp OPEA Microservice
 
 ```bash
