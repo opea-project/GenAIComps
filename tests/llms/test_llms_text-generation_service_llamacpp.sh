@@ -41,10 +41,18 @@ function start_service() {
     export MODEL_PATH=~/models
     mkdir -p $MODEL_PATH
     cd $MODELPATH
-    wget --no-clobber https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf
+    wget --no-clobber https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf \
+      -q --show-progress --progress=bar
+
+    # Spin up the third party service first before compose_text-generation.yaml,
+    # otherwise there's a dependency error.  Doesn't have this error when running locally.
+    cd $WORKPATH/comps/third_parties/llamacpp/deployment/docker_compose/
+    docker compose -f compose.yaml up -d > ${LOG_PATH}/start_services_with_compose_llamacpp.log
+    sleep 20s
+
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose_llama.log
-    sleep 120  # Allow the service to start
+    docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+    sleep 60s  # Allow the service to start
 }
 
 function validate_microservice() {
