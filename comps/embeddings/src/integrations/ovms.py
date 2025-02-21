@@ -19,6 +19,7 @@ CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 MODEL_ID = os.getenv("MODEL_ID")
 
+
 @OpeaComponentRegistry.register("OPEA_OVMS_EMBEDDING")
 class OpeaOVMSEmbedding(OpeaComponent):
     """A specialized embedding component derived from OpeaComponent for OVMS embedding services.
@@ -58,7 +59,7 @@ class OpeaOVMSEmbedding(OpeaComponent):
         Returns:
             EmbeddingResponse: The response in OpenAI embedding format, including embeddings, model, and usage information.
         """
-        print("INPUT",input)
+        print("INPUT", input)
         # Parse input according to the EmbeddingRequest format
         if isinstance(input.input, str):
             texts = [input.input.replace("\n", " ")]
@@ -70,7 +71,12 @@ class OpeaOVMSEmbedding(OpeaComponent):
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
         response = await self.client.post(
-            json={"input": texts, "encoding_format": input.encoding_format, "model": self.client.model, "user": input.user},
+            json={
+                "input": texts,
+                "encoding_format": input.encoding_format,
+                "model": self.client.model,
+                "user": input.user,
+            },
             model=f"{self.base_url}/v3/embeddings",
             task="text-embedding",
         )

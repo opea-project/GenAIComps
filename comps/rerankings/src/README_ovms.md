@@ -1,11 +1,12 @@
 # 🌟 Reranking Microservice with OVMS
 
 This guide walks you through starting, deploying, and consuming the **OVMS Reranking Microservice**. 🚀
-It is Intel highly optimized serving solution which employs OpenVINO Runtime for super fast inference on CPU. 
-
+It is Intel highly optimized serving solution which employs OpenVINO Runtime for super fast inference on CPU.
 
 ---
+
 ## 📦 1. Prepare the model in the model repository
+
 This step will export the model from HuggingFace Hub to the local models repository. At the some time model will be converted to IR format and optionally quantized.  
 It speedup starting the service and avoids copying the model from Internet each time the container starts.
 
@@ -16,7 +17,6 @@ It speedup starting the service and avoids copying the model from Internet each 
     python export_model.py rerank --source_model BAAI/bge-reranker-large --weight-format int8 --config_file_path models/config_rerank.json --model_repository_path models --target_device CPU
     ```
 
-
 ## 📦 2. Start Microservice with Docker
 
 ### 🔹 2.1 Start Reranking Service with OVMS
@@ -25,11 +25,11 @@ It speedup starting the service and avoids copying the model from Internet each 
 
 - For Xeon CPU:
 
-   ```bash
-   your_port=12005
-   docker run -p $your_port:8001 -v ./models:/models --name ovms-rerank-serving \
-   openvino/model_server:2025.0 --port 8001 --config_path /models/config_rerank.json
-   ```
+  ```bash
+  your_port=12005
+  docker run -p $your_port:8001 -v ./models:/models --name ovms-rerank-serving \
+  openvino/model_server:2025.0 --port 8001 --config_path /models/config_rerank.json
+  ```
 
 2. **Verify the OVMS Service**:
 
@@ -135,11 +135,10 @@ Deploy both the OVMS Reranking Service and the Reranking Microservice using Dock
    The `-v ./models:/models` flag ensures the models directory is correctly mounted.
 
 4. Select correct configuration JSON file
-Models repository can host multiple models. Choose the models to be served by selecting the right configuration file.
-In the example above `config_rerank.json`
+   Models repository can host multiple models. Choose the models to be served by selecting the right configuration file.
+   In the example above `config_rerank.json`
 
 5. Upload the models to persistent volume claim in Kubernetes
-Models repository with configuration JSON file will be mounted in the OVMS containers when deployed via [helm chart](../../third_parties/ovms/deployment/kubernetes/README.md).
+   Models repository with configuration JSON file will be mounted in the OVMS containers when deployed via [helm chart](../../third_parties/ovms/deployment/kubernetes/README.md).
 
 6. Learn more about [OVMS embeddings API](https://docs.openvino.ai/2025/openvino-workflow/model-server/ovms_docs_rest_api_rerank.html)
-

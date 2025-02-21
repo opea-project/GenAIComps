@@ -25,7 +25,7 @@ logflag = os.getenv("LOGFLAG", False)
 TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-MODEL_ID = os.getenv("MODEL_ID","text-reranking")
+MODEL_ID = os.getenv("MODEL_ID", "text-reranking")
 
 
 @OpeaComponentRegistry.register("OPEA_OVMS_RERANKING")
@@ -76,7 +76,10 @@ class OpeaOVMSReranking(OpeaComponent):
             )
             for best_response in json.loads(response.decode())["results"]:
                 reranking_results.append(
-                    {"text": input.retrieved_docs[best_response["index"]].text, "score": best_response["relevance_score"]}
+                    {
+                        "text": input.retrieved_docs[best_response["index"]].text,
+                        "score": best_response["relevance_score"],
+                    }
                 )
 
         if isinstance(input, SearchedDoc):
