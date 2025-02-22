@@ -50,7 +50,10 @@ function start_service() {
     export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
     export TGI_LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:6004"
-    export NEO4J_URI="bolt://${host_ip}:7687"
+    export NEO4J_PORT1=7474   # 11631
+    export NEO4J_PORT2=7687   # 11632
+    export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
+    export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="neo4jtest"
     export no_proxy="localhost,127.0.0.1,"${host_ip}
@@ -64,8 +67,8 @@ function start_service() {
     # Not testing openai code path since not able to provide key for cicd
     docker run -d --name="test-comps-retrievers-neo4j-llama-index-dataprep" -p 6004:5000 -v ./data:/data --ipc=host -e TGI_LLM_ENDPOINT=$TGI_LLM_ENDPOINT \
         -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e EMBEDDING_MODEL_ID=$EMBEDDING_MODEL_ID -e LLM_MODEL_ID=$LLM_MODEL_ID -e host_ip=$host_ip -e no_proxy=$no_proxy \
-        -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URL="bolt://${host_ip}:7687" -e NEO4J_USERNAME="neo4j" \
-        -e NEO4J_PASSWORD="neo4jtest" -e HF_TOKEN=$HF_TOKEN -e MAX_INPUT_TOKENS=$MAX_INPUT_TOKENS -e LOGFLAG=True \
+        -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}" -e NEO4J_USERNAME="neo4j" \
+        -e NEO4J_PASSWORD="neo4jtest" -e NEO4J_PORT1=$NEO4J_PORT1 -e NEO4J_PORT2=$NEO4J_PORT2 -e HF_TOKEN=$HF_TOKEN -e MAX_INPUT_TOKENS=$MAX_INPUT_TOKENS -e LOGFLAG=True \
         -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_NEO4J_LLAMAINDEX" opea/dataprep-neo4j-llamaindex:comps
 
     sleep 1m
@@ -117,7 +120,7 @@ function validate_service() {
 function validate_microservice() {
     # validate neo4j-apoc
     validate_service \
-        "${host_ip}:7474" \
+        "${host_ip}:${NEO4J_PORT1}" \
         "200 OK" \
         "neo4j-apoc" \
         "neo4j-apoc" \
