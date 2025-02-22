@@ -46,13 +46,15 @@ function start_service() {
 
     # Spin up the third party service first before compose_text-generation.yaml,
     # otherwise there's a dependency error.  Doesn't have this error when running locally.
-    cd $WORKPATH/comps/third_parties/llamacpp/deployment/docker_compose/
-    docker compose -f compose.yaml up -d > ${LOG_PATH}/start_services_with_compose_llamacpp.log
-    sleep 20s
+#    cd $WORKPATH/comps/third_parties/llamacpp/deployment/docker_compose/
+#    docker compose -f compose.yaml up -d > ${LOG_PATH}/start_services_with_compose_llamacpp.log
+#    sleep 20s
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+    docker ps -a
     sleep 60s  # Allow the service to start
+    docker ps -a
 }
 
 function validate_microservice() {
@@ -82,14 +84,16 @@ function stop_docker() {
 }
 
 function main() {
-    stop_docker
+    #    stop_docker
+    # Trying this because stop_docker may not stop and remove containers from previous run tests and may block ports.
+    docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)
 
     build_docker_images
     start_service
 
     validate_microservice
 
-    stop_docker
+    stop_dockerllm-textgen
     echo y | docker system prune
 }
 
