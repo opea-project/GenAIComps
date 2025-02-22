@@ -53,8 +53,10 @@ function start_service() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
     docker ps -a
+    docker logs llamacpp-server
     sleep 60s  # Allow the service to start
     docker ps -a
+    docker logs llamacpp-server
 }
 
 function validate_microservice() {
