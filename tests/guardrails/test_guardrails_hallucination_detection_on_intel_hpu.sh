@@ -38,6 +38,7 @@ function start_service() {
     export LLM_ENDPOINT_PORT=12210
     export vLLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export HALLUCINATION_DETECTION_PORT=11305
+    export VLLM_SKIP_WARMUP=true
     export TAG=comps
     service_name="vllm-gaudi-server hallucination-detection-server"
     cd $WORKPATH
