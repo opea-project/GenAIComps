@@ -40,9 +40,9 @@ function start_service() {
 
     export MODEL_PATH=~/models
     mkdir -p $MODEL_PATH
-    cd $MODELPATH
+    cd $MODEL_PATH
     wget --no-clobber https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf \
-      -q --show-progress --progress=bar
+      --show-progress --progress=bar
 
     # Spin up the third party service first before compose_text-generation.yaml,
     # otherwise there's a dependency error.  Doesn't have this error when running locally.
