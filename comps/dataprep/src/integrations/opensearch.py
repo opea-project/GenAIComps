@@ -202,7 +202,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 logger.info(f"[ search by id ] fail to search docs of {doc_id}: {e}")
             return None
 
-    def drop_index(self, client, index_name):
+    def drop_index(self, client: OpenSearchVectorSearch, index_name: str):
         if logflag:
             logger.info(f"[ drop index ] dropping index {index_name}")
         try:
@@ -457,8 +457,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
 
         while True:
             response = self.search_all_documents(Config.KEY_INDEX_NAME, offset, Config.SEARCH_BATCH_SIZE)
-            # no doc retrieved
-            if len(response) < 2:
+            if response is None:
                 break
 
             def format_opensearch_results(response, file_list):
@@ -466,7 +465,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                     file_id = document["_id"]
                     file_list.append({"name": file_id, "id": file_id, "type": "File", "parent": ""})
 
-            file_list = format_opensearch_results(response, file_list)
+            format_opensearch_results(response, file_list)
             offset += Config.SEARCH_BATCH_SIZE
             # last batch
             if (len(response) - 1) // 2 < Config.SEARCH_BATCH_SIZE:
@@ -490,7 +489,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             # drop index KEY_INDEX_NAME
             if self.check_index_existence(self.opensearch_client, Config.KEY_INDEX_NAME):
                 try:
-                    assert self.drop_index(index_name=Config.KEY_INDEX_NAME)
+                    assert self.drop_index(client=self.opensearch_client, index_name=Config.KEY_INDEX_NAME)
                 except Exception as e:
                     if logflag:
                         logger.info(f"[ delete ] {e}. Fail to drop index {Config.KEY_INDEX_NAME}.")
@@ -501,7 +500,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             # drop index INDEX_NAME
             if self.check_index_existence(self.opensearch_client, Config.INDEX_NAME):
                 try:
-                    assert self.drop_index(index_name=Config.INDEX_NAME)
+                    assert self.drop_index(client=self.opensearch_client, index_name=Config.INDEX_NAME)
                 except Exception as e:
                     if logflag:
                         logger.info(f"[ delete ] {e}. Fail to drop index {Config.INDEX_NAME}.")
