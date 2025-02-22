@@ -42,21 +42,13 @@ function start_service() {
     mkdir -p $MODEL_PATH
     cd $MODEL_PATH
     wget --no-clobber https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf \
-      --show-progress --progress=bar
-
-    # Spin up the third party service first before compose_text-generation.yaml,
-    # otherwise there's a dependency error.  Doesn't have this error when running locally.
-#    cd $WORKPATH/comps/third_parties/llamacpp/deployment/docker_compose/
-#    docker compose -f compose.yaml up -d > ${LOG_PATH}/start_services_with_compose_llamacpp.log
-#    sleep 20s
+      -q --show-progress --progress=bar
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
     docker ps -a
     docker logs llamacpp-server
     sleep 60s  # Allow the service to start
-#    docker ps -a
-#    docker logs llamacpp-server
 }
 
 function validate_microservice() {
@@ -82,7 +74,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    # docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
+    # Using down without particular service_name since there can be containers that aren't taken down from other tests.
     docker compose -f compose_text-generation.yaml down --remove-orphans
 }
 
