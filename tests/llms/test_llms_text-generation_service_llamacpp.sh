@@ -32,7 +32,7 @@ function build_docker_images() {
 
 function start_service() {
     export LLM_ENDPOINT_PORT=8008
-    export LLM_ENDPOINT="http://${host_ip}:80"
+    export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export TEXTGEN_PORT=9000
     export LLM_MODEL_ID="models/qwen2.5-1.5b-instruct-q4_k_m.gguf"
     export LLAMA_ARG_CTX_SIZE=4096
@@ -55,8 +55,8 @@ function start_service() {
     docker ps -a
     docker logs llamacpp-server
     sleep 60s  # Allow the service to start
-    docker ps -a
-    docker logs llamacpp-server
+#    docker ps -a
+#    docker logs llamacpp-server
 }
 
 function validate_microservice() {
