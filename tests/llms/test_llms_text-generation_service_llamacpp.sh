@@ -31,6 +31,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+    export host_ip=${host_ip} # must be an environment variable
     export LLM_ENDPOINT_PORT=8008
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export TEXTGEN_PORT=9000
