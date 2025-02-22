@@ -80,20 +80,19 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
+    # docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_text-generation.yaml down --remove-orphans
 }
 
 function main() {
-    #    stop_docker
-    # Trying this because stop_docker may not stop and remove containers from previous run tests and may block ports.
-    docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)
+    stop_docker
 
     build_docker_images
     start_service
 
     validate_microservice
 
-    stop_dockerllm-textgen
+    stop_docker
     echo y | docker system prune
 }
 
