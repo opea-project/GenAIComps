@@ -79,7 +79,7 @@ function validate_text2cypher_service() {
         -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
         -H 'Content-Type: application/json')
 
-    if [[ len($result) >0 ]]; then
+    if [[ ${#result} -gt 0 ]]; then
         echo $result
         echo "Result correct."
     else
