@@ -18,13 +18,13 @@ export MAX_TOTAL_TOKENS=2048
 Run tgi on xeon.
 
 ```bash
-cd deplopyment/docker_compose
+cd deployment/docker_compose
 docker compose -f compose.yaml up -d tgi-server
 ```
 
 Run tgi on gaudi.
 
 ```bash
-cd deplopyment/docker_compose
+cd deployment/docker_compose
 docker compose -f compose.yaml up -d tgi-gaudi-server
 ```
