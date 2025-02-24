@@ -1,6 +1,6 @@
 # 🛢 Text-to-Cypher Microservice
 
-The microservice enables a wide range of use cases, making it a versatile tool for businesses, researchers, and individuals alike. Users can generate queries based on natural language questions, enabling them to quickly retrieve relevant data from graph databases. 
+The microservice enables a wide range of use cases, making it a versatile tool for businesses, researchers, and individuals alike. Users can generate queries based on natural language questions, enabling them to quickly retrieve relevant data from graph databases.
 
 ---
 
@@ -21,6 +21,7 @@ The follow guide provides set-up instructions and comprehensive details regardin
 ---
 
 ### Start Neo4J Service
+
 [Preparing Neo4J microservice](https://github.com/opea-project/GenAIComps/blob/main/comps/dataprep/src/README_neo4j_llamaindex.md)
 
 ### 🚀 Start Text2Cypher Microservice with Python（Option 1）
@@ -40,6 +41,7 @@ python3 opea_text2cypher_microservice.py
 ```
 
 ---
+
 ### 🚀 Start Microservice with Docker (Option 2)
 
 #### Build Docker Image

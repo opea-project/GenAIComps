@@ -1,9 +1,11 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import sys
 
 import torch
 from transformers import TextGenerationPipeline
-
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -80,4 +82,3 @@ class GaudiTextGenerationPipeline(TextGenerationPipeline):
                 return [{"generated_text": output_text}]
 
         return output_text
-

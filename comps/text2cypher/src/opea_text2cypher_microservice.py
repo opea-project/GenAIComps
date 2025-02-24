@@ -14,8 +14,9 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.text2cypher.src.integrations.native import OpeaText2Cypher
 from comps.text2cypher.src.integrations.gaudiutils import setup_parser
+from comps.text2cypher.src.integrations.native import OpeaText2Cypher
+
 logger = CustomLogger("opea_text2cypher_microservice")
 
 
@@ -46,7 +47,7 @@ if __name__ == "__main__":
     args.load_quantized_model = False
     args.num_return_sequences = 1
     args.model_name_or_path = "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1"
-    args.max_new_tokens = 512 
+    args.max_new_tokens = 512
     args.use_hpu_graphs = True
     args.use_kv_cache = True
     args.do_sample = True
@@ -54,7 +55,7 @@ if __name__ == "__main__":
     args.parallel_strategy = "none"
     args.fp8 = False
     args.kv_cache_fp8 = False
-    args.temperature=0.1
+    args.temperature = 0.1
 
     text2cypher_component_name = os.getenv("TEXT2CYPHER_COMPONENT_NAME", "OPEA_TEXT2CYPHER")
     # Initialize OpeaComponentLoader
@@ -66,4 +67,3 @@ if __name__ == "__main__":
 
     logger.info("Text2Cypher server started.")
     opea_microservices["opea_service@text2cypher"].start()
-
