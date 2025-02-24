@@ -86,7 +86,7 @@ function main() {
     stop_docker
     echo "Docker containers after stop_docker"
     docker ps -a
-    
+
     stop_docker
     build_docker_images
     start_service
