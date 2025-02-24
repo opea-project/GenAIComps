@@ -31,7 +31,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export host_ip=${host_ip} # must be an environment variable
+    export host_ip=${host_ip} # must be an environment variable declared in scope of start_service
     export LLM_ENDPOINT_PORT=8008
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export TEXTGEN_PORT=9000
@@ -49,7 +49,7 @@ function start_service() {
     docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
     docker ps -a
     docker logs llamacpp-server
-    sleep 60s  # Allow the service to start
+    sleep 30s  # Allow the service to start
 }
 
 function validate_microservice() {
@@ -75,13 +75,19 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    # Using down without particular service_name since there can be containers that aren't taken down from other tests.
+    # Using down without particular service_name since still can have orphan containers that aren't taken down from other tests.
     docker compose -f compose_text-generation.yaml down --remove-orphans
 }
 
 function main() {
-    stop_docker
 
+    echo "Docker containers before stop_docker"
+    docker ps -a
+    stop_docker
+    echo "Docker containers after stop_docker"
+    docker ps -a
+    
+    stop_docker
     build_docker_images
     start_service
 
