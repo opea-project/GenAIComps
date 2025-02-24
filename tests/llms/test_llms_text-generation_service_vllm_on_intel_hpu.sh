@@ -129,10 +129,12 @@ function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
 }
-
-function main() {
-
+    echo "Docker containers before stop_docker"
+    docker ps -a
     stop_docker
+    echo "Docker containers after stop_docker"
+    docker ps -a
+
 
     build_docker_images
     pip install --no-cache-dir openai pydantic

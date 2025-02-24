@@ -118,10 +118,12 @@ function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
 }
-
-function main() {
-
+    echo "Docker containers before stop_docker"
+    docker ps -a
     stop_docker
+    echo "Docker containers after stop_docker"
+    docker ps -a
+
 
     build_docker_images
     start_service
