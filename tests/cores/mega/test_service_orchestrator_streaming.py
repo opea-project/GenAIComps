@@ -6,10 +6,25 @@ import multiprocessing
 import time
 import unittest
 
+import requests
+
 from fastapi.responses import StreamingResponse
 
-from comps import ServiceOrchestrator, ServiceType, TextDoc, opea_microservices, register_microservice
+from comps import (
+    MicroService,
+    ServiceOrchestrator,
+    ServiceType,
+    ServiceRoleType,
+    TextDoc,
+    opea_microservices,
+    register_microservice,
+)
+from comps.cores.proto.api_protocol import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+)
 
+_MEGA_PORT = 8888
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:
@@ -46,8 +61,19 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
 
         cls.service_builder = ServiceOrchestrator()
 
-        cls.service_builder.add(opea_microservices["s0"]).add(opea_microservices["s1"])
+        cls.service_builder.add(cls.s0).add(cls.s1)
         cls.service_builder.flow_to(cls.s0, cls.s1)
+
+        cls.service = MicroService(
+            "megaservice",
+            service_role=ServiceRoleType.MEGASERVICE,
+            host="0.0.0.0",
+            port=_MEGA_PORT,
+            endpoint="/whatever",
+            input_datatype=ChatCompletionRequest,
+            output_datatype=ChatCompletionResponse,
+        )
+        cls.service.start()
 
     @classmethod
     def tearDownClass(cls):
@@ -64,6 +90,10 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
         async for k in response.__reduce__()[2]["body_iterator"]:
             self.assertEqual(self.service_builder.extract_chunk_str(k).strip(), res_expected[idx])
             idx += 1
+        # check the metric increases from above
+        r = requests.get(f"http://localhost:{_MEGA_PORT}/metrics", timeout=10)
+        self.assertEqual(r.status_code, 200)
+        print(r.text)
 
     def test_extract_chunk_str(self):
         res = self.service_builder.extract_chunk_str("data: [DONE]\n\n")
