@@ -16,6 +16,7 @@ services:
 
   text2cypher-gaudi:
     image: text2cypher-gaudi:${TAG:-latest}
+    pull_policy: never
     container_name: text2cypher-gaudi-container
     ports:
       - ${TEXT2CYPHER_PORT:-9097}:9097
