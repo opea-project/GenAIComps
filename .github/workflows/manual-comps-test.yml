@@ -53,6 +53,9 @@ jobs:
 
   run-services:
     needs: [get-test-matrix]
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       matrix:
         service: ${{ fromJson(needs.get-test-matrix.outputs.services) }}
