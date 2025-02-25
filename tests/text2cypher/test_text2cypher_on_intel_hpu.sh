@@ -13,9 +13,9 @@ export TAG='comps'
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/text2cypher:$TAG --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2cypher/src/Dockerfile.intel_hpu .
+    docker build --no-cache -t text2cypher:$TAG --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2cypher/src/Dockerfile.intel_hpu .
     if [ $? -ne 0 ]; then
-        echo "opea/text2cypher built fail"
+        echo "text2cypher built fail"
         exit 1
     else
         echo "opea/text2cypher built successful"

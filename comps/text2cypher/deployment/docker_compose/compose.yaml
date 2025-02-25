@@ -15,7 +15,7 @@ services:
         condition: service_healthy
 
   text2cypher-gaudi:
-    image: opea/text2cypher-gaudi:${TAG:-latest}
+    image: text2cypher-gaudi:${TAG:-latest}
     container_name: text2cypher-gaudi-container
     ports:
       - ${TEXT2CYPHER_PORT:-9097}:9097
