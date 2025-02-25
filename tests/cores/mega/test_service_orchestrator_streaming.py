@@ -7,24 +7,21 @@ import time
 import unittest
 
 import requests
-
 from fastapi.responses import StreamingResponse
 
 from comps import (
     MicroService,
     ServiceOrchestrator,
-    ServiceType,
     ServiceRoleType,
+    ServiceType,
     TextDoc,
     opea_microservices,
     register_microservice,
 )
-from comps.cores.proto.api_protocol import (
-    ChatCompletionRequest,
-    ChatCompletionResponse,
-)
+from comps.cores.proto.api_protocol import ChatCompletionRequest, ChatCompletionResponse
 
 _MEGA_PORT = 8888
+
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
 async def s1_add(request: TextDoc) -> TextDoc:
