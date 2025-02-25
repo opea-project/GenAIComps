@@ -20,6 +20,19 @@ services:
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
     restart: unless-stopped
 
+  # toxicity detection service
+  guardrails-toxicity-detection-server:
+    image: ${REGISTRY:-opea}/guardrails-toxicity-detection:${TAG:-latest}
+    container_name: guardrails-toxicity-detection-server
+    ports:
+      - "${TOXICITY_DETECTION_PORT:-9090}:9090"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+
   # factuality alignment service
   guardrails-factuality-predictionguard-server:
     image: ${REGISTRY:-opea}/guardrails-factuality-predictionguard:${TAG:-latest}
@@ -130,6 +143,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+      TOXICITY_DETECTION_COMPONENT_NAME: "PREDICTIONGUARD_TOXICITY_DETECTION"
     restart: unless-stopped
 
 networks:
