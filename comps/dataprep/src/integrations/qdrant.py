@@ -94,7 +94,7 @@ class OpeaQdrantDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    def ingest_data_to_qdrant(self, doc_path: DocPath):
+    async def ingest_data_to_qdrant(self, doc_path: DocPath):
         """Ingest document to Qdrant."""
         path = doc_path.path
         if logflag:
@@ -115,7 +115,7 @@ class OpeaQdrantDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(path)
@@ -184,7 +184,7 @@ class OpeaQdrantDataprep(OpeaComponent):
                 encode_file = encode_filename(file.filename)
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_qdrant(
+                await self.ingest_data_to_qdrant(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -211,7 +211,7 @@ class OpeaQdrantDataprep(OpeaComponent):
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 try:
                     await save_content_to_local_disk(save_path, content)
-                    self.ingest_data_to_qdrant(
+                    await self.ingest_data_to_qdrant(
                         DocPath(
                             path=save_path,
                             chunk_size=chunk_size,

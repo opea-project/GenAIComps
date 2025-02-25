@@ -142,7 +142,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
 
         return results["hits"]["total"]["value"] > 0
 
-    def ingest_doc_to_elastic(self, doc_path: DocPath) -> None:
+    async def ingest_doc_to_elastic(self, doc_path: DocPath) -> None:
         """Ingest documents to Elasticsearch."""
 
         path = doc_path.path
@@ -165,7 +165,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(path)
@@ -296,7 +296,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
 
                 await save_content_to_local_disk(save_path, file)
 
-                self.ingest_doc_to_elastic(
+                await self.ingest_doc_to_elastic(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,

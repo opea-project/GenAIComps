@@ -161,7 +161,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
                 logger.info(f"An unexpected error occurred: {e}")
             return False
 
-    def ingest_doc_to_pgvector(self, doc_path: DocPath):
+    async def ingest_doc_to_pgvector(self, doc_path: DocPath):
         """Ingest document to PGVector."""
         doc_path = doc_path.path
         if logflag:
@@ -171,7 +171,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
             chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, add_start_index=True, separators=get_separators()
         )
 
-        content = document_loader(doc_path)
+        content = await document_loader(doc_path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(doc_path)
@@ -280,7 +280,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
                 save_path = self.upload_folder + file.filename
                 await self.save_file_to_local_disk(save_path, file)
 
-                self.ingest_doc_to_pgvector(DocPath(path=save_path))
+                await self.ingest_doc_to_pgvector(DocPath(path=save_path))
                 if logflag:
                     logger.info(f"Successfully saved file {save_path}")
             result = {"status": 200, "message": "Data preparation succeeded"}

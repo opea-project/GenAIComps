@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Dict, List, Union
 from urllib.parse import urlparse, urlunparse
 
+import aiohttp
 import cairosvg
 import cv2
 import docx
@@ -163,7 +164,7 @@ def load_txt(txt_path):
     return text
 
 
-def load_doc(doc_path):
+async def load_doc(doc_path):
     """Load doc file."""
     print("Converting doc file to docx file...")
     docx_path = doc_path + "x"
@@ -181,12 +182,12 @@ def load_doc(doc_path):
         check=True,
     )
     print("Converted doc file to docx file.")
-    text = load_docx(docx_path)
+    text = await load_docx(docx_path)
     os.remove(docx_path)
     return text
 
 
-def load_docx(docx_path):
+async def load_docx(docx_path):
     """Load docx file."""
     doc = docx.Document(docx_path)
     text = ""
@@ -205,7 +206,7 @@ def load_docx(docx_path):
             for rid in rid2img:
                 if rid in paragraph._p.xml:
                     img_path = os.path.join(save_path, rid2img[rid])
-                    img_text = load_image(img_path)
+                    img_text = await load_image(img_path)
                     if img_text:
                         text += img_text + "\n"
     if rid2img:
@@ -213,7 +214,7 @@ def load_docx(docx_path):
     return text
 
 
-def load_ppt(ppt_path):
+async def load_ppt(ppt_path):
     """Load ppt file."""
     print("Converting ppt file to pptx file...")
     pptx_path = ppt_path + "x"
@@ -231,12 +232,12 @@ def load_ppt(ppt_path):
         check=True,
     )
     print("Converted ppt file to pptx file.")
-    text = load_pptx(pptx_path)
+    text = await load_pptx(pptx_path)
     os.remove(pptx_path)
     return text
 
 
-def load_pptx(pptx_path):
+async def load_pptx(pptx_path):
     """Load pptx file."""
     text = ""
     prs = pptx.Presentation(pptx_path)
@@ -259,7 +260,7 @@ def load_pptx(pptx_path):
                 img_path = f"./{shape.image.filename}"
                 with open(img_path, "wb") as f:
                     f.write(shape.image.blob)
-                img_text = load_image(img_path)
+                img_text = await load_image(img_path)
                 if img_text:
                     text += img_text + "\n"
                 os.remove(img_path)
@@ -319,33 +320,36 @@ def load_csv(input_path):
     return content_list
 
 
-def load_image(image_path):
+async def load_image(image_path):
     """Load the image file."""
     if os.getenv("SUMMARIZE_IMAGE_VIA_LVM", None) == "1":
         query = "Please summarize this image."
         image_b64_str = base64.b64encode(open(image_path, "rb").read()).decode()
-        response = requests.post(
-            "http://localhost:9399/v1/lvm",
-            data=json.dumps({"image": image_b64_str, "prompt": query}),
-            headers={"Content-Type": "application/json"},
-            proxies={"http": None},
-        )
-        return response.json()["text"].strip()
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(
+                url="http://localhost:9399/v1/lvm",
+                data=json.dumps({"image": image_b64_str, "prompt": query}),
+                headers={"Content-Type": "application/json"},
+                proxy=None,
+            )
+
+            json_data = await response.json()
+        return json_data["text"].strip()
     loader = UnstructuredImageLoader(image_path)
     text = loader.load()[0].page_content
     return text.strip()
 
 
-def load_svg(svg_path):
+async def load_svg(svg_path):
     """Load the svg file."""
     png_path = svg_path.replace(".svg", ".png")
     cairosvg.svg2png(url=svg_path, write_to=png_path)
-    text = load_image(png_path)
+    text = await load_image(png_path)
     os.remove(png_path)
     return text
 
 
-def document_loader(doc_path):
+async def document_loader(doc_path):
     if doc_path.endswith(".pdf"):
         return load_pdf(doc_path)
     elif doc_path.endswith(".html"):
@@ -353,13 +357,13 @@ def document_loader(doc_path):
     elif doc_path.endswith(".txt"):
         return load_txt(doc_path)
     elif doc_path.endswith(".doc"):
-        return load_doc(doc_path)
+        return await load_doc(doc_path)
     elif doc_path.endswith(".docx"):
-        return load_docx(doc_path)
+        return await load_docx(doc_path)
     elif doc_path.endswith(".ppt"):
-        return load_ppt(doc_path)
+        return await load_ppt(doc_path)
     elif doc_path.endswith(".pptx"):
-        return load_pptx(doc_path)
+        return await load_pptx(doc_path)
     elif doc_path.endswith(".md"):
         return load_md(doc_path)
     elif doc_path.endswith(".xml"):
@@ -380,9 +384,9 @@ def document_loader(doc_path):
         or doc_path.endswith(".jpeg")
         or doc_path.endswith(".png")
     ):
-        return load_image(doc_path)
+        return await load_image(doc_path)
     elif doc_path.endswith(".svg"):
-        return load_svg(doc_path)
+        return await load_svg(doc_path)
     else:
         raise NotImplementedError(
             "Current only support pdf, html, txt, doc, docx, pptx, ppt, md, xml"
