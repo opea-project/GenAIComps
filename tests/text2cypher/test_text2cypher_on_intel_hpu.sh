@@ -7,13 +7,13 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-TEXT2CYPHER_PORT=11801
-#LLM_ENDPOINT_PORT=11811
+export TEXT2CYPHER_PORT=11801
+export TAG='comps'
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/text2cypher:comps --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2cypher/src/Dockerfile.intel_hpu .
+    docker build --no-cache -t opea/text2cypher:$TAG --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/text2cypher/src/Dockerfile.intel_hpu .
     if [ $? -ne 0 ]; then
         echo "opea/text2cypher built fail"
         exit 1
@@ -25,6 +25,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+    unset http_proxy
     service_name="neo4j-apoc text2cypher-gaudi"
     export host_ip=${ip_address}
     export TAG="comps"
