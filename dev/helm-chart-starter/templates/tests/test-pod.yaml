@@ -1,0 +1,29 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "<CHARTNAME>.fullname" . }}-testpod"
+  labels:
+    {{- include "<CHARTNAME>.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: curl
+      image: python:3.10
+      command: ['bash', '-c']
+      args:
+        - |
+          max_retry=20;
+          for ((i=1; i<=max_retry; i++)); do
+            curl http://{{ include "<CHARTNAME>.fullname" . }}:{{ .Values.service.port }}/v1/<CHARTNAME> -sS --fail-with-body \
+              -X POST \
+              -d '{"dummy_input_key": "dummy_intput_value"}' \
+              -H 'Content-Type: application/json' && break;
+            curlcode=$?
+            if [[ $curlcode -eq 7 ]]; then sleep 10; else echo "curl failed with code $curlcode"; exit 1; fi;
+          done;
+          if [ $i -gt $max_retry ]; then echo "test failed with maximum retry"; exit 1; fi
+  restartPolicy: Never
