@@ -179,6 +179,7 @@ services:
       - arango-vector-db
       - tei-embedding-service
     environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_ARANGO}
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}

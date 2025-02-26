@@ -4,48 +4,22 @@ from typing import Any, Union
 
 import openai
 from comps.retrievers.src.integrations.arangodb import ArangoClient
+
 # ArangoDB Connection configuration
-ARANGO_URL = os.getenv("ARANGO_URL", "http://localhost:8529")
-ARANGO_USERNAME = os.getenv("ARANGO_USERNAME", "root")
-ARANGO_PASSWORD = os.getenv("ARANGO_PASSWORD", "test")
-ARANGO_DB_NAME = os.getenv("ARANGO_DB_NAME", "_system")
-
+from .config import ARANGO_URL, ARANGO_USERNAME,ARANGO_PASSWORD,ARANGO_DB_NAME
 # ArangoDB Vector configuration
-ARANGO_GRAPH_NAME = os.getenv("ARANGO_GRAPH_NAME", "GRAPH")
-ARANGO_DISTANCE_STRATEGY = os.getenv("ARANGO_DISTANCE_STRATEGY", "COSINE")
-ARANGO_USE_APPROX_SEARCH = os.getenv("ARANGO_USE_APPROX_SEARCH", "false").lower() == "true"
-ARANGO_TEXT_FIELD = os.getenv("ARANGO_TEXT_FIELD", "text")
-ARANGO_EMBEDDING_FIELD = os.getenv("ARANGO_EMBEDDING_FIELD", "embedding")
-ARANGO_NUM_CENTROIDS = os.getenv("ARANGO_NUM_CENTROIDS", 1)
-
+from .config import ARANGO_GRAPH_NAME, ARANGO_DISTANCE_STRATEGY,ARANGO_USE_APPROX_SEARCH,ARANGO_TEXT_FIELD,ARANGO_EMBEDDING_FIELD,ARANGO_NUM_CENTROIDS
 # ArangoDB Traversal configuration
-ARANGO_TRAVERSAL_ENABLED = os.getenv("ARANGO_TRAVERSAL_ENABLED", "false").lower() == "true"
-ARANGO_TRAVERSAL_MAX_DEPTH = os.getenv("ARANGO_TRAVERSAL_MAX_DEPTH", 0)
-ARANGO_TRAVERSAL_MAX_RETURNED = os.getenv("ARANGO_TRAVERSAL_MAX_RETURNED", 0)
-
+from .config import ARANGO_TRAVERSAL_ENABLED, ARANGO_TRAVERSAL_MAX_DEPTH,ARANGO_TRAVERSAL_MAX_RETURNED
 # Summarizer Configuration
-SUMMARIZER_ENABLED = os.getenv("SUMMARIZER_ENABLED", "false").lower() == "true"
-
+from .config import SUMMARIZER_ENABLED
 # Embedding configuration
-TEI_EMBED_MODEL = os.getenv("TEI_EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-
+from .config import TEI_EMBED_MODEL,TEI_EMBEDDING_ENDPOINT,HUGGINGFACEHUB_API_TOKEN
 # VLLM configuration
-VLLM_ENDPOINT = os.getenv("VLLM_ENDPOINT")
-VLLM_MODEL_ID = os.getenv("VLLM_MODEL_ID", "Intel/neural-chat-7b-v3-3")
-VLLM_MAX_NEW_TOKENS = os.getenv("VLLM_MAX_NEW_TOKENS", 512)
-VLLM_TOP_P = os.getenv("VLLM_TOP_P", 0.9)
-VLLM_TEMPERATURE = os.getenv("VLLM_TEMPERATURE", 0.8)
-VLLM_TIMEOUT = os.getenv("VLLM_TIMEOUT", 600)
-
+from .config import VLLM_ENDPOINT,VLLM_MODEL_ID,VLLM_MAX_NEW_TOKENS,VLLM_TOP_P,VLLM_TEMPERATURE,VLLM_TIMEOUT
 # OpenAI configuration (alternative to VLLM & TEI)
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o")
-OPENAI_CHAT_TEMPERATURE = os.getenv("OPENAI_CHAT_TEMPERATURE", 0)
-OPENAI_EMBED_MODEL = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
-OPENAI_CHAT_ENABLED = os.getenv("OPENAI_CHAT_ENABLED", "true").lower() == "true"
-OPENAI_EMBED_ENABLED = os.getenv("OPENAI_EMBED_ENABLED", "true").lower() == "true"
+from .config import OPENAI_API_KEY,OPENAI_CHAT_MODEL,OPENAI_CHAT_TEMPERATURE,OPENAI_EMBED_MODEL,OPENAI_CHAT_ENABLED,OPENAI_EMBED_ENABLED
+
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.arangodb_vector import ArangoVector
@@ -387,13 +361,11 @@ class OpeaArangoDBRetriever(OpeaComponent):
         # Summarize Results (optional) #
         ################################
        
-        search_res_tuples = [(r.id, r.page_content, r.metadata) for r in search_res]
 
 
         if SUMMARIZER_ENABLED:
-            search_res_tuples_summarized = []
-            for id, text, metadata in search_res_tuples:
-                prompt = self.generate_prompt(query, text)
+              for r in search_res:
+                prompt = self.generate_prompt(query, r.page_content)
                 res = self.llm.invoke(prompt)
                 summarized_text = res.content
                 # tokens_used = res.usage_metadata
@@ -401,10 +373,8 @@ class OpeaArangoDBRetriever(OpeaComponent):
                 if logflag:
                     logger.info(f"Summarized {id}")
 
-                search_res_tuples_summarized.append((id, summarized_text, metadata))
-            search_res = search_res_tuples_summarized
-            if logflag:
-                logger.info(f"Line 407 in arangodb.py final summarised result: {search_res}")
+                r.page_content = summarized_text
+            
 
        
 

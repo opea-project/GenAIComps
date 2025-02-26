@@ -44,7 +44,6 @@ logger = CustomLogger("opea_retrievers_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
 retriever_component_name = os.getenv("RETRIEVER_COMPONENT_NAME", "OPEA_RETRIEVER_REDIS")
-print(retriever_component_name)
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     retriever_component_name,
@@ -71,7 +70,6 @@ async def ingest_files(
     try:
         # Use the loader to invoke the component
         response = await loader.invoke(input)
-        print(response)
 
         # return different response format
         retrieved_docs = []
@@ -84,7 +82,6 @@ async def ingest_files(
                         r.metadata["b64_img_str"] = [input.base64_image, r.metadata["b64_img_str"]]
                     else:
                         r.metadata["b64_img_str"] = input.base64_image
-                print(r)
                 metadata_list.append(r.metadata)
                 retrieved_docs.append(TextDoc(text=r.page_content))
             result = SearchedMultimodalDoc(

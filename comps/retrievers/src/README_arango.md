@@ -15,10 +15,7 @@ To launch ArangoDB locally, first ensure you have docker installed. Then, you ca
 **TODO: Switch to official image when ready**
 
 ```bash
-docker run \
-  -p 8529:8529
-  -e ARANGO_ROOT_PASSWORD=test
-  jbajic/arangodb-arm:vector-index-preview
+docker run -d   --name arango-vector-db  -p 8529:8529   -e ARANGO_ROOT_PASSWORD=password   arangodb/arangodb:3.12.4   --experimental-vector-index=true
 ```
 
 ### Setup Environment Variables
@@ -27,10 +24,11 @@ docker run \
 export no_proxy=${your_no_proxy}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export ARANGODB_URI=${your_arangodb_uri}
+export ARANGO_URL=${your_arangodb_uri}
 export ARANGODB_USERNAME=${your_arangodb_username}
 export ARANGODB_PASSWORD=${your_arangodb_password}
-export ARANGODB_DATABASE=${your_arangodb_database}
+export ARANGO_DB_NAME=${your_arangodb_database}
+
 ```
 
 
@@ -46,7 +44,7 @@ docker build -t opea/retriever:latest --build-arg https_proxy=$https_proxy --bui
 ### Run Docker with CLI
 
 ```bash
-docker run -d --name="retriever-arango-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URL="http://localhost:8529"  opea/retriever-arango:latest -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_ARANGO"
+docker run -d --name="retriever-arango-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URL="http://localhost:8529"  opea/retriever:latest -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_ARANGO"
 ```
 
 
