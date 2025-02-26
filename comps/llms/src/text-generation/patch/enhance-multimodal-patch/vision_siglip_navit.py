@@ -12,14 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Siglip model configuration"""
+"""Siglip model configuration."""
 
 import os
 from typing import Union
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import logging
-
 
 logger = logging.get_logger(__name__)
 
@@ -29,8 +28,9 @@ SIGLIP_PRETRAINED_CONFIG_ARCHIVE_MAP = {
 
 
 class SiglipTextConfig(PretrainedConfig):
-    r"""
-    This is the configuration class to store the configuration of a [`SiglipTextModel`]. It is used to instantiate a
+    r"""This is the configuration class to store the configuration of a [`SiglipTextModel`].
+
+    It is used to instantiate a
     Siglip text encoder according to the specified arguments, defining the model architecture. Instantiating a
     configuration with the defaults will yield a similar configuration to that of the text encoder of the Siglip
     [google/siglip-base-patch16-224](https://huggingface.co/google/siglip-base-patch16-224) architecture.
@@ -73,7 +73,8 @@ class SiglipTextConfig(PretrainedConfig):
     >>> model = SiglipTextModel(configuration)
     >>> # Accessing the model configuration
     >>> configuration = model.config
-    ```"""
+    ```
+    """
 
     model_type = "siglip_text_model"
 
@@ -129,8 +130,9 @@ class SiglipTextConfig(PretrainedConfig):
 
 
 class SiglipVisionConfig(PretrainedConfig):
-    r"""
-    This is the configuration class to store the configuration of a [`SiglipVisionModel`]. It is used to instantiate a
+    r"""This is the configuration class to store the configuration of a [`SiglipVisionModel`].
+
+    It is used to instantiate a
     Siglip vision encoder according to the specified arguments, defining the model architecture. Instantiating a
     configuration with the defaults will yield a similar configuration to that of the vision encoder of the Siglip
     [google/siglip-base-patch16-224](https://huggingface.co/google/siglip-base-patch16-224) architecture.
@@ -167,7 +169,8 @@ class SiglipVisionConfig(PretrainedConfig):
     >>> model = SiglipVisionModel(configuration)
     >>> # Accessing the model configuration
     >>> configuration = model.config
-    ```"""
+    ```
+    """
 
     model_type = "siglip_vision_model"
 
@@ -220,8 +223,9 @@ class SiglipVisionConfig(PretrainedConfig):
 
 
 class SiglipConfig(PretrainedConfig):
-    r"""
-    [`SiglipConfig`] is the configuration class to store the configuration of a [`SiglipModel`]. It is used to
+    r"""[`SiglipConfig`] is the configuration class to store the configuration of a [`SiglipModel`].
+
+    It is used to
     instantiate a Siglip model according to the specified arguments, defining the text model and vision model configs.
     Instantiating a configuration with the defaults will yield a similar configuration to that of the Siglip
     [google/siglip-base-patch16-224](https://huggingface.co/google/siglip-base-patch16-224) architecture.
@@ -249,7 +253,8 @@ class SiglipConfig(PretrainedConfig):
     >>> config_text = SiglipTextConfig()
     >>> config_vision = SiglipVisionConfig()
     >>> config = SiglipConfig.from_text_vision_configs(config_text, config_vision)
-    ```"""
+    ```
+    """
 
     model_type = "siglip"
 
@@ -271,14 +276,15 @@ class SiglipConfig(PretrainedConfig):
 
     @classmethod
     def from_text_vision_configs(cls, text_config: SiglipTextConfig, vision_config: SiglipVisionConfig, **kwargs):
-        r"""
-        Instantiate a [`SiglipConfig`] (or a derived class) from siglip text model configuration and siglip vision
+        r"""Instantiate a [`SiglipConfig`] (or a derived class) from siglip text model configuration and siglip vision
         model configuration.
+
         Returns:
             [`SiglipConfig`]: An instance of a configuration object
         """
 
         return cls(text_config=text_config.to_dict(), vision_config=vision_config.to_dict(), **kwargs)
+
 
 # coding=utf-8
 # Copyright 2024 Google AI and The HuggingFace Team. All rights reserved.
@@ -308,7 +314,6 @@ import torch.nn.functional as F
 import torch.utils.checkpoint
 from torch import nn
 from torch.nn.init import _calculate_fan_in_and_fan_out
-
 from transformers.activations import ACT2FN
 from transformers.modeling_attn_mask_utils import _prepare_4d_attention_mask
 from transformers.modeling_outputs import BaseModelOutput, BaseModelOutputWithPooling
@@ -402,14 +407,16 @@ def trunc_normal_tf_(
     tensor: torch.Tensor, mean: float = 0.0, std: float = 1.0, a: float = -2.0, b: float = 2.0
 ) -> torch.Tensor:
     """Fills the input Tensor with values drawn from a truncated
-    normal distribution. The values are effectively drawn from the
+    normal distribution.
+
+    The values are effectively drawn from the
     normal distribution :math:`\\mathcal{N}(\text{mean}, \text{std}^2)`
     with values outside :math:`[a, b]` redrawn until they are within
     the bounds. The method used for generating the random values works
     best when :math:`a \\leq \text{mean} \\leq b`.
     NOTE: this 'tf' variant behaves closer to Tensorflow / JAX impl where the
     bounds [a, b] are applied when sampling the normal distribution with mean=0, std=1.0
-    and the result is subsquently scaled and shifted by the mean and std args.
+    and the result is subsequently scaled and shifted by the mean and std args.
     Args:
         tensor: an n-dimensional `torch.Tensor`
         mean: the mean of the normal distribution
@@ -458,8 +465,8 @@ def default_flax_embed_init(tensor):
 @dataclass
 # Copied from transformers.models.clip.modeling_clip.CLIPVisionModelOutput with CLIP->Siglip
 class SiglipVisionModelOutput(ModelOutput):
-    """
-    Base class for vision model's outputs that also contains image embeddings of the pooling of the last hidden states.
+    """Base class for vision model's outputs that also contains image embeddings of the pooling of the last hidden states.
+
     Args:
         image_embeds (`torch.FloatTensor` of shape `(batch_size, output_dim)` *optional* returned when model is initialized with `with_projection=True`):
             The image embeddings obtained by applying the projection layer to the pooler_output.
@@ -485,8 +492,8 @@ class SiglipVisionModelOutput(ModelOutput):
 @dataclass
 # Copied from transformers.models.clip.modeling_clip.CLIPTextModelOutput with CLIP->Siglip
 class SiglipTextModelOutput(ModelOutput):
-    """
-    Base class for text model's outputs that also contains a pooling of the last hidden states.
+    """Base class for text model's outputs that also contains a pooling of the last hidden states.
+
     Args:
         text_embeds (`torch.FloatTensor` of shape `(batch_size, output_dim)` *optional* returned when model is initialized with `with_projection=True`):
             The text embeddings obtained by applying the projection layer to the pooler_output.
@@ -639,7 +646,7 @@ class SiglipTextEmbeddings(nn.Module):
 
 
 class SiglipAttention(nn.Module):
-    """Multi-headed attention from 'Attention Is All You Need' paper"""
+    """Multi-headed attention from 'Attention Is All You Need' paper."""
 
     # Copied from transformers.models.clip.modeling_clip.CLIPAttention.__init__
     def __init__(self, config):
@@ -715,8 +722,9 @@ class SiglipAttention(nn.Module):
 
 
 class SiglipFlashAttention2(SiglipAttention):
-    """
-    Llama flash attention module. This module inherits from `LlamaAttention` as the weights of the module stays
+    """Llama flash attention module.
+
+    This module inherits from `LlamaAttention` as the weights of the module stays
     untouched. The only required change would be on the forward pass where it needs to correctly call the public API of
     flash attention and deal with padding tokens in case the input contains any of them.
     """
@@ -971,17 +979,15 @@ class SiglipEncoderLayer(nn.Module):
 
 
 class SiglipPreTrainedModel(PreTrainedModel):
-    """
-    An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
-    models.
-    """
+    """An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
+    models."""
 
     config_class = SiglipConfig
     base_model_prefix = "siglip"
     supports_gradient_checkpointing = True
 
     def _init_weights(self, module):
-        """Initialize the weights"""
+        """Initialize the weights."""
 
         if isinstance(module, SiglipVisionEmbeddings):
             width = (
@@ -1113,8 +1119,9 @@ SIGLIP_INPUTS_DOCSTRING = r"""
 
 # Copied from transformers.models.clip.modeling_clip.CLIPEncoder with CLIP->Siglip
 class SiglipEncoder(nn.Module):
-    """
-    Transformer encoder consisting of `config.num_hidden_layers` self attention layers. Each layer is a
+    """Transformer encoder consisting of `config.num_hidden_layers` self attention layers.
+
+    Each layer is a
     [`SiglipEncoderLayer`].
     Args:
         config: SiglipConfig
@@ -1192,9 +1199,7 @@ class SiglipEncoder(nn.Module):
 
         if not return_dict:
             return tuple(v for v in [hidden_states, encoder_states, all_attentions] if v is not None)
-        return BaseModelOutput(
-            last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions
-        )
+        return BaseModelOutput(last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions)
 
 
 class SiglipTextTransformer(nn.Module):
@@ -1374,7 +1379,7 @@ class SiglipVisionTransformer(nn.Module):
         # So when the `patch_attention_mask` is full of 1s (i.e. attending to the whole sequence),
         # avoiding passing the attention_mask, which is equivalent to attending to the full sequence
         if not torch.any(~patch_attention_mask):
-            attention_mask=None
+            attention_mask = None
         else:
             attention_mask = (
                 _prepare_4d_attention_mask(patch_attention_mask, hidden_states.dtype)

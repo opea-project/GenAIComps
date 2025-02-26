@@ -15,23 +15,21 @@ import sys
 
 sys.path.append("/test/GenAIComps/")
 
+import os
 import threading
 import time
 
+import habana_frameworks.torch.core as htcore
+import soundfile
+import torch
 from langchain_core.prompts import PromptTemplate
+from PIL import Image
+from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig
 
 from comps import CustomLogger, GeneratedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 from .template import ChatTemplate
-
-import os
-import torch
-import habana_frameworks.torch.core as htcore
-from PIL import Image
-import soundfile
-from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig
-
 
 logger = CustomLogger("opea_textgen_native")
 logflag = os.getenv("LOGFLAG", False)
@@ -45,22 +43,22 @@ initialization_lock = threading.Lock()
 initialized = False
 
 kwargs = {}
-kwargs['torch_dtype'] = torch.bfloat16
+kwargs["torch_dtype"] = torch.bfloat16
 
-user_prompt = '<|user|>'
-assistant_prompt = '<|assistant|>'
-prompt_suffix = '<|end|>'
-IMAGE_SPECIAL = '<|endoftext10|>'
-AUDIO_SPECIAL = '<|endoftext11|>'
-sample_prompt = f'{user_prompt}what is the answer for 1+1? Explain it.{prompt_suffix}{assistant_prompt}'
+user_prompt = "<|user|>"
+assistant_prompt = "<|assistant|>"
+prompt_suffix = "<|end|>"
+IMAGE_SPECIAL = "<|endoftext10|>"
+AUDIO_SPECIAL = "<|endoftext11|>"
+sample_prompt = f"{user_prompt}what is the answer for 1+1? Explain it.{prompt_suffix}{assistant_prompt}"
 if logflag:
-    logger.info(f'>>> Prompt\n{sample_prompt}')
+    logger.info(f">>> Prompt\n{sample_prompt}")
 
-generation_config = GenerationConfig.from_pretrained(MODEL_NAME, 'generation_config.json')
+generation_config = GenerationConfig.from_pretrained(MODEL_NAME, "generation_config.json")
 
 # generation_config.max_new_tokens = args.max_new_tokens
 # generation_config.use_cache = args.use_kv_cache
-generation_config.static_shapes = False # There's a list of models optimized with static shapes
+generation_config.static_shapes = False  # There's a list of models optimized with static shapes
 generation_config.bucket_size = -1
 generation_config.bucket_internal = False
 # generation_config.do_sample = args.do_sample
@@ -83,31 +81,30 @@ generation_config.flash_attention_recompute = False
 generation_config.flash_attention_causal_mask = False
 generation_config.flash_attention_fast_softmax = False
 # generation_config.trust_remote_code = args.trust_remote_code
-generation_config.valid_sequence_lengths = None # OkS
+generation_config.valid_sequence_lengths = None  # OkS
 generation_config.attn_batch_split = False
 generation_config.ignore_eos = None
+
 
 def generate(
     query,
 ):
     """Generates sequences from the input sentences and returns them."""
     logger.info(f"[llm - generate] starting to inference with prompt {query}")
-    inputs = processor(query, images=None, return_tensors='pt').to('hpu:0')
+    inputs = processor(query, images=None, return_tensors="pt").to("hpu:0")
 
     generate_ids = model.generate(
         **inputs,
         max_new_tokens=100,
         generation_config=generation_config,
     )
-    generate_ids = generate_ids[:, inputs['input_ids'].shape[1] :]
-    response = processor.batch_decode(
-        generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
-    )[0]
+    generate_ids = generate_ids[:, inputs["input_ids"].shape[1] :]
+    response = processor.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
 
     if logflag:
         logger.info(response)
-    print(f'>>> Response\n{response}')
-    
+    print(f">>> Response\n{response}")
+
     return response
 
 
@@ -119,8 +116,8 @@ def initialize():
             model = AutoModelForCausalLM.from_pretrained(
                 MODEL_NAME,
                 trust_remote_code=True,
-                torch_dtype='auto',
-                _attn_implementation='sdpa',
+                torch_dtype="auto",
+                _attn_implementation="sdpa",
             )
             model = model.to("hpu")
             if logflag:
@@ -130,6 +127,7 @@ def initialize():
 
             # Must put after the models are downloaded because this has custom remote code that needs to be loaded first for the OH to load the override functions
             from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+
             adapt_transformers_to_gaudi()
 
             logger.info("[llm - native] Ready to inference")

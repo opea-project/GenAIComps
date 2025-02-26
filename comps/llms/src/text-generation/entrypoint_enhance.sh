@@ -5,7 +5,7 @@
 #!/bin/bash
 
 #LLM_MODEL_ID mush be a model path
-llm_name=$LLM_MODEL_ID 
+llm_name=$LLM_MODEL_ID
 WORKPATH="/home/user/comps/llms/src/text-generation/"
 
 if [[ $llm_name == *"phi-4-multimodal"* ]]; then

@@ -44,7 +44,7 @@ services:
     cap_add:
       - SYS_NICE
     restart: unless-stopped
-  
+
   textgen-gaudi-enhance:
     image: ${REGISTRY:-opea}/llm-textgen-gaudi-enhance:${TAG:-latest}
     container_name: llm-textgen-gaudi-enhance-server
@@ -121,7 +121,7 @@ services:
     container_name: textgen-native-gaudi
     environment:
       LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNative}
-  
+
   textgen-native-gaudi-enhance:
     extends: textgen-gaudi-enhance
     container_name: textgen-native-gaudi-enhance

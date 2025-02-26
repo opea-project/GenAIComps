@@ -12,19 +12,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-""" Phi-O model configuration"""
+"""Phi-O model configuration."""
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import logging
-
 
 logger = logging.get_logger(__name__)
 
 
 class PhiOConfig(PretrainedConfig):
-    r"""
-    This is the configuration class to store the configuration of a [`PhiOModel`]. It is used to instantiate a Phi-O
+    r"""This is the configuration class to store the configuration of a [`PhiOModel`]. It is used to instantiate a Phi-O
     model according to the specified arguments, defining the model architecture.
 
     Configuration objects inherit from [`PretrainedConfig`] and can be used to control the model outputs. Read the
@@ -103,7 +100,8 @@ class PhiOConfig(PretrainedConfig):
 
     >>> # Accessing the model configuration
     >>> configuration = model.config
-    ```"""
+    ```
+    """
 
     model_type = "phio"
     keys_to_ignore_at_inference = ["past_key_values"]
@@ -181,9 +179,7 @@ class PhiOConfig(PretrainedConfig):
         )
 
     def _rope_scaling_adjustment(self):
-        """
-        Adjust the `type` of the `rope_scaling` configuration for backward compatibility.
-        """
+        """Adjust the `type` of the `rope_scaling` configuration for backward compatibility."""
         if self.rope_scaling is None:
             return
 
@@ -194,9 +190,7 @@ class PhiOConfig(PretrainedConfig):
             self.rope_scaling["type"] = "longrope"
 
     def _rope_scaling_validation(self):
-        """
-        Validate the `rope_scaling` configuration.
-        """
+        """Validate the `rope_scaling` configuration."""
         if self.rope_scaling is None:
             return
 

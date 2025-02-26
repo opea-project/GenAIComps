@@ -12,14 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Siglip model configuration"""
+"""Siglip model configuration."""
 
 import os
 from typing import Union
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import logging
-
 
 logger = logging.get_logger(__name__)
 
@@ -29,8 +28,9 @@ SIGLIP_PRETRAINED_CONFIG_ARCHIVE_MAP = {
 
 
 class SiglipTextConfig(PretrainedConfig):
-    r"""
-    This is the configuration class to store the configuration of a [`SiglipTextModel`]. It is used to instantiate a
+    r"""This is the configuration class to store the configuration of a [`SiglipTextModel`].
+
+    It is used to instantiate a
     Siglip text encoder according to the specified arguments, defining the model architecture. Instantiating a
     configuration with the defaults will yield a similar configuration to that of the text encoder of the Siglip
     [google/siglip-base-patch16-224](https://huggingface.co/google/siglip-base-patch16-224) architecture.
@@ -73,7 +73,8 @@ class SiglipTextConfig(PretrainedConfig):
     >>> model = SiglipTextModel(configuration)
     >>> # Accessing the model configuration
     >>> configuration = model.config
-    ```"""
+    ```
+    """
 
     model_type = "siglip_text_model"
 
@@ -129,8 +130,9 @@ class SiglipTextConfig(PretrainedConfig):
 
 
 class SiglipVisionConfig(PretrainedConfig):
-    r"""
-    This is the configuration class to store the configuration of a [`SiglipVisionModel`]. It is used to instantiate a
+    r"""This is the configuration class to store the configuration of a [`SiglipVisionModel`].
+
+    It is used to instantiate a
     Siglip vision encoder according to the specified arguments, defining the model architecture. Instantiating a
     configuration with the defaults will yield a similar configuration to that of the vision encoder of the Siglip
     [google/siglip-base-patch16-224](https://huggingface.co/google/siglip-base-patch16-224) architecture.
@@ -167,7 +169,8 @@ class SiglipVisionConfig(PretrainedConfig):
     >>> model = SiglipVisionModel(configuration)
     >>> # Accessing the model configuration
     >>> configuration = model.config
-    ```"""
+    ```
+    """
 
     model_type = "siglip_vision_model"
 
@@ -220,8 +223,9 @@ class SiglipVisionConfig(PretrainedConfig):
 
 
 class SiglipConfig(PretrainedConfig):
-    r"""
-    [`SiglipConfig`] is the configuration class to store the configuration of a [`SiglipModel`]. It is used to
+    r"""[`SiglipConfig`] is the configuration class to store the configuration of a [`SiglipModel`].
+
+    It is used to
     instantiate a Siglip model according to the specified arguments, defining the text model and vision model configs.
     Instantiating a configuration with the defaults will yield a similar configuration to that of the Siglip
     [google/siglip-base-patch16-224](https://huggingface.co/google/siglip-base-patch16-224) architecture.
@@ -249,7 +253,8 @@ class SiglipConfig(PretrainedConfig):
     >>> config_text = SiglipTextConfig()
     >>> config_vision = SiglipVisionConfig()
     >>> config = SiglipConfig.from_text_vision_configs(config_text, config_vision)
-    ```"""
+    ```
+    """
 
     model_type = "siglip"
 
@@ -271,14 +276,15 @@ class SiglipConfig(PretrainedConfig):
 
     @classmethod
     def from_text_vision_configs(cls, text_config: SiglipTextConfig, vision_config: SiglipVisionConfig, **kwargs):
-        r"""
-        Instantiate a [`SiglipConfig`] (or a derived class) from siglip text model configuration and siglip vision
+        r"""Instantiate a [`SiglipConfig`] (or a derived class) from siglip text model configuration and siglip vision
         model configuration.
+
         Returns:
             [`SiglipConfig`]: An instance of a configuration object
         """
 
         return cls(text_config=text_config.to_dict(), vision_config=vision_config.to_dict(), **kwargs)
+
 
 # coding=utf-8
 # Copyright 2024 Google AI and The HuggingFace Team. All rights reserved.
@@ -308,7 +314,6 @@ import torch.nn.functional as F
 import torch.utils.checkpoint
 from torch import nn
 from torch.nn.init import _calculate_fan_in_and_fan_out
-
 from transformers.activations import ACT2FN
 from transformers.modeling_attn_mask_utils import _prepare_4d_attention_mask
 from transformers.modeling_outputs import BaseModelOutput, BaseModelOutputWithPooling
@@ -402,14 +407,16 @@ def trunc_normal_tf_(
     tensor: torch.Tensor, mean: float = 0.0, std: float = 1.0, a: float = -2.0, b: float = 2.0
 ) -> torch.Tensor:
     """Fills the input Tensor with values drawn from a truncated
-    normal distribution. The values are effectively drawn from the
+    normal distribution.
+
+    The values are effectively drawn from the
     normal distribution :math:`\\mathcal{N}(\text{mean}, \text{std}^2)`
     with values outside :math:`[a, b]` redrawn until they are within
     the bounds. The method used for generating the random values works
     best when :math:`a \\leq \text{mean} \\leq b`.
     NOTE: this 'tf' variant behaves closer to Tensorflow / JAX impl where the
     bounds [a, b] are applied when sampling the normal distribution with mean=0, std=1.0
-    and the result is subsquently scaled and shifted by the mean and std args.
+    and the result is subsequently scaled and shifted by the mean and std args.
     Args:
         tensor: an n-dimensional `torch.Tensor`
         mean: the mean of the normal distribution
@@ -458,8 +465,8 @@ def default_flax_embed_init(tensor):
 @dataclass
 # Copied from transformers.models.clip.modeling_clip.CLIPVisionModelOutput with CLIP->Siglip
 class SiglipVisionModelOutput(ModelOutput):
-    """
-    Base class for vision model's outputs that also contains image embeddings of the pooling of the last hidden states.
+    """Base class for vision model's outputs that also contains image embeddings of the pooling of the last hidden states.
+
     Args:
         image_embeds (`torch.FloatTensor` of shape `(batch_size, output_dim)` *optional* returned when model is initialized with `with_projection=True`):
             The image embeddings obtained by applying the projection layer to the pooler_output.
@@ -485,8 +492,8 @@ class SiglipVisionModelOutput(ModelOutput):
 @dataclass
 # Copied from transformers.models.clip.modeling_clip.CLIPTextModelOutput with CLIP->Siglip
 class SiglipTextModelOutput(ModelOutput):
-    """
-    Base class for text model's outputs that also contains a pooling of the last hidden states.
+    """Base class for text model's outputs that also contains a pooling of the last hidden states.
+
     Args:
         text_embeds (`torch.FloatTensor` of shape `(batch_size, output_dim)` *optional* returned when model is initialized with `with_projection=True`):
             The text embeddings obtained by applying the projection layer to the pooler_output.
@@ -639,7 +646,7 @@ class SiglipTextEmbeddings(nn.Module):
 
 
 class SiglipAttention(nn.Module):
-    """Multi-headed attention from 'Attention Is All You Need' paper"""
+    """Multi-headed attention from 'Attention Is All You Need' paper."""
 
     # Copied from transformers.models.clip.modeling_clip.CLIPAttention.__init__
     def __init__(self, config):
@@ -715,8 +722,9 @@ class SiglipAttention(nn.Module):
 
 
 class SiglipFlashAttention2(SiglipAttention):
-    """
-    Llama flash attention module. This module inherits from `LlamaAttention` as the weights of the module stays
+    """Llama flash attention module.
+
+    This module inherits from `LlamaAttention` as the weights of the module stays
     untouched. The only required change would be on the forward pass where it needs to correctly call the public API of
     flash attention and deal with padding tokens in case the input contains any of them.
     """
@@ -971,17 +979,15 @@ class SiglipEncoderLayer(nn.Module):
 
 
 class SiglipPreTrainedModel(PreTrainedModel):
-    """
-    An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
-    models.
-    """
+    """An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
+    models."""
 
     config_class = SiglipConfig
     base_model_prefix = "siglip"
     supports_gradient_checkpointing = True
 
     def _init_weights(self, module):
-        """Initialize the weights"""
+        """Initialize the weights."""
 
         if isinstance(module, SiglipVisionEmbeddings):
             width = (
@@ -1113,8 +1119,9 @@ SIGLIP_INPUTS_DOCSTRING = r"""
 
 # Copied from transformers.models.clip.modeling_clip.CLIPEncoder with CLIP->Siglip
 class SiglipEncoder(nn.Module):
-    """
-    Transformer encoder consisting of `config.num_hidden_layers` self attention layers. Each layer is a
+    """Transformer encoder consisting of `config.num_hidden_layers` self attention layers.
+
+    Each layer is a
     [`SiglipEncoderLayer`].
     Args:
         config: SiglipConfig
@@ -1192,9 +1199,7 @@ class SiglipEncoder(nn.Module):
 
         if not return_dict:
             return tuple(v for v in [hidden_states, encoder_states, all_attentions] if v is not None)
-        return BaseModelOutput(
-            last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions
-        )
+        return BaseModelOutput(last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions)
 
 
 class SiglipTextTransformer(nn.Module):
@@ -1375,7 +1380,7 @@ class SiglipVisionTransformer(nn.Module):
         # So when the `patch_attention_mask` is full of 1s (i.e. attending to the whole sequence),
         # avoiding passing the attention_mask, which is equivalent to attending to the full sequence
         if not torch.any(~patch_attention_mask):
-            attention_mask=None
+            attention_mask = None
         else:
             attention_mask = (
                 _prepare_4d_attention_mask(patch_attention_mask, hidden_states.dtype)
@@ -1716,19 +1721,20 @@ def get_siglip_vision_model(_flash_attn_2_enabled=True, **kwargs):
     vision_model = SiglipVisionModel(model_config).vision_model
 
     return vision_model
+
+
 ########################################################################
 
-import torch
-import torch.nn.functional as F
-import torch.nn as nn
-
-from transformers.modeling_outputs import BaseModelOutput
 import sys
+
+import torch
+import torch.nn as nn
+from transformers.modeling_outputs import BaseModelOutput
+
 sys.path.append("/root/.cache/huggingface/modules/transformers_modules/phi-4-multimodal-01312025")
 
-from vision_siglip_navit import SiglipAttention, SiglipEncoderLayer, SiglipEncoder, SiglipConfig
-
 from transformers.utils import logging
+from vision_siglip_navit import SiglipAttention, SiglipConfig, SiglipEncoder, SiglipEncoderLayer
 
 logger = logging.get_logger(__name__)
 
@@ -1739,6 +1745,7 @@ import habana_frameworks.torch.core as htcore
 
 try:
     from habana_frameworks.torch.hpex.kernels import FusedSDPA
+
     _GAUDI_FUSED_SDPA_AVAILABLE = True
 except ImportError:
     FusedSDPA = None
@@ -1749,9 +1756,8 @@ except ImportError:
 # 2) A small module that wraps the FusedSDPA call
 ###############################################################################
 class ModuleFusedSDPA(torch.nn.Module):
-    """
-    Simple wrapper around the Gaudi fused scaled dot-product attention kernel.
-    """
+    """Simple wrapper around the Gaudi fused scaled dot-product attention kernel."""
+
     def __init__(self, fusedSDPA):
         super().__init__()
         self._fused_sdpa = fusedSDPA
@@ -1761,10 +1767,11 @@ class ModuleFusedSDPA(torch.nn.Module):
         # scale can be set to None if you wish to let the kernel compute the default
         return self._fused_sdpa.apply(query, key, value, attn_mask, dropout_p, is_causal, scale)
 
+
 def expand_2d_attention_mask(mask_2d: torch.Tensor) -> torch.Tensor:
-    """
-    Convert a 2D `batch_size x seq_len` mask into a 4D mask
+    """Convert a 2D `batch_size x seq_len` mask into a 4D mask
     `batch_size x 1 x seq_len x seq_len`.
+
     Zeros in `mask_2d` become large negative values
     in the expanded mask (to block out attention).
     """
@@ -1776,7 +1783,7 @@ def expand_2d_attention_mask(mask_2d: torch.Tensor) -> torch.Tensor:
     # (1) Convert 1/0 to float and invert if needed
     #     Often we transform 1→0.0 (keep) and 0→-∞ (mask)
     #     or multiply by -1e4 to get "large negative" for masked positions
-    extended_mask = mask_2d[:, None, None, :].to(torch.float32)   # shape [bsz, 1, 1, seq_len]
+    extended_mask = mask_2d[:, None, None, :].to(torch.float32)  # shape [bsz, 1, 1, seq_len]
 
     # (2) Broadcast along the second dimension to produce [bsz, 1, seq_len, seq_len]
     extended_mask = extended_mask.expand(batch_size, 1, seq_len, seq_len)
@@ -1787,25 +1794,24 @@ def expand_2d_attention_mask(mask_2d: torch.Tensor) -> torch.Tensor:
     return extended_mask
 
 
-
 ###############################################################################
 # 3) New attention class that inherits from SiglipAttention and overrides forward
 ###############################################################################
 from typing import Optional, Tuple
 
+
 class GaudiSiglipAttention(SiglipAttention):
-    """
-    A Gaudi-optimized SiglipAttention. Uses fused scaled-dot-product attention
-    if FusedSDPA is available and `use_flash_attention=True`. 
+    """A Gaudi-optimized SiglipAttention.
+
+    Uses fused scaled-dot-product attention
+    if FusedSDPA is available and `use_flash_attention=True`.
     Otherwise, falls back to the original SiglipAttention logic.
     """
 
     def __init__(self, config):
         super().__init__(config)
         # If the Gaudi fused kernel is available, wrap it; else None
-        self.fused_scaled_dot_product_attention = (
-            ModuleFusedSDPA(FusedSDPA) if _GAUDI_FUSED_SDPA_AVAILABLE else None
-        )
+        self.fused_scaled_dot_product_attention = ModuleFusedSDPA(FusedSDPA) if _GAUDI_FUSED_SDPA_AVAILABLE else None
 
     def forward(
         self,
@@ -1814,8 +1820,7 @@ class GaudiSiglipAttention(SiglipAttention):
         output_attentions: Optional[bool] = False,
         use_flash_attention: bool = True,  # <-- new optional argument
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        """
-        Overridden forward method.
+        """Overridden forward method.
 
         Args:
             hidden_states: [batch_size, seq_len, embed_dim].
@@ -1835,18 +1840,15 @@ class GaudiSiglipAttention(SiglipAttention):
 
         # standard linear projections
         query_states = self.q_proj(hidden_states)
-        key_states   = self.k_proj(hidden_states)
+        key_states = self.k_proj(hidden_states)
         value_states = self.v_proj(hidden_states)
 
         # shape = [bsz, num_heads, seq_len, head_dim]
         query_states = query_states.view(batch_size, q_len, self.num_heads, self.head_dim).transpose(1, 2)
-        key_states   = key_states.view(batch_size, q_len, self.num_heads, self.head_dim).transpose(1, 2)
+        key_states = key_states.view(batch_size, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         value_states = value_states.view(batch_size, q_len, self.num_heads, self.head_dim).transpose(1, 2)
 
-        use_fused_kernel = (
-            use_flash_attention
-            and self.fused_scaled_dot_product_attention is not None
-        )
+        use_fused_kernel = use_flash_attention and self.fused_scaled_dot_product_attention is not None
 
         q_len = query_states.shape[2]
         k_len = key_states.shape[2]
@@ -1859,14 +1861,17 @@ class GaudiSiglipAttention(SiglipAttention):
             # Gaudi fused kernel path
             # Typically, we open an sdp_kernel context:
             import habana_frameworks.torch.hpu as ht
-            import pdb; pdb.set_trace()
+
+            import pdb
+
+            pdb.set_trace()
             with ht.sdp_kernel(enable_recompute=False):  # or True if you want to enable recompute
                 # Here scale can be self.scale, which is (1/sqrt(head_dim)).
                 attn_output = self.fused_scaled_dot_product_attention(
                     query_states,
                     key_states,
                     value_states,
-                    attn_mask=attention_mask,     # shape: [bsz, 1, q_len, q_len]
+                    attn_mask=attention_mask,  # shape: [bsz, 1, q_len, q_len]
                     dropout_p=self.dropout if self.training else 0.0,
                     is_causal=False,  # Siglip is not causal, can be True if you have a causal mask
                     scale=self.scale,
@@ -1904,9 +1909,8 @@ class GaudiSiglipAttention(SiglipAttention):
 # 4) A corresponding “EncoderLayer” that swaps in GaudiSiglipAttention
 ###############################################################################
 class GaudiSiglipEncoderLayer(SiglipEncoderLayer):
-    """
-    Exactly like SiglipEncoderLayer, but uses GaudiSiglipAttention for self_attn.
-    """
+    """Exactly like SiglipEncoderLayer, but uses GaudiSiglipAttention for self_attn."""
+
     def __init__(self, config: SiglipConfig):
         super().__init__(config)
         self.self_attn = GaudiSiglipAttention(config)  # <--- override
@@ -1918,9 +1922,7 @@ class GaudiSiglipEncoderLayer(SiglipEncoderLayer):
         output_attentions: Optional[bool] = False,
         use_flash_attention: bool = True,  # new
     ) -> Tuple[torch.FloatTensor]:
-        """
-        Same signature, but we add a `use_flash_attention` argument.
-        """
+        """Same signature, but we add a `use_flash_attention` argument."""
         residual = hidden_states
         hidden_states = self.layer_norm1(hidden_states)
 
@@ -1949,9 +1951,8 @@ class GaudiSiglipEncoderLayer(SiglipEncoderLayer):
 # 5) A “GaudiSiglipEncoder” that simply uses GaudiSiglipEncoderLayer
 ###############################################################################
 class GaudiSiglipEncoder(SiglipEncoder):
-    """
-    Inherits from SiglipEncoder, but each layer is a GaudiSiglipEncoderLayer.
-    """
+    """Inherits from SiglipEncoder, but each layer is a GaudiSiglipEncoderLayer."""
+
     def __init__(self, config: SiglipConfig):
         super().__init__(config)
         # Re-initialize the list of layers with the Gaudi version
@@ -2009,9 +2010,7 @@ class GaudiSiglipEncoder(SiglipEncoder):
         if not return_dict:
             return tuple(v for v in [hidden_states, encoder_states, all_attentions] if v is not None)
 
-        return BaseModelOutput(
-            last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions
-        )
+        return BaseModelOutput(last_hidden_state=hidden_states, hidden_states=encoder_states, attentions=all_attentions)
 
 
 ############### TODO: REMOVE ####################
