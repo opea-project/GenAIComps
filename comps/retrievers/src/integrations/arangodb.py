@@ -11,7 +11,6 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
 from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalRequest, RetrievalResponse
 
-# ArangoDB Connection configuration
 from .config import (
     ARANGO_DB_NAME,
     ARANGO_DISTANCE_STRATEGY,
