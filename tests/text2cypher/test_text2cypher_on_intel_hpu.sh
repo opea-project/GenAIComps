@@ -20,8 +20,6 @@ function build_docker_images() {
     else
         echo "opea/text2cypher built successful"
     fi
-#    docker pull ghcr.io/huggingface/tgi-gaudi:2.3.1
-#    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
 }
 
 function start_service() {
