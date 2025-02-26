@@ -270,6 +270,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_ARANGODB"
       ARANGO_URL: ${ARANGO_URL}
       ARANGO_DB_NAME: ${ARANGO_DB_NAME}
       ARANGO_USERNAME: ${ARANGO_USERNAME}

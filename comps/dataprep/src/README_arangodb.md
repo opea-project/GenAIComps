@@ -1,24 +1,15 @@
 # Dataprep Microservice with ArangoDB
 
-## 🚀 1. Start Microservice with Python
+## 🚀Start Microservice with Docker
 
-### Install Requirements
-
-```bash
-pip install -r requirements.txt
-apt-get install libtesseract-dev -y
-apt-get install poppler-utils -y
-```
-
-### Start ArangoDB Server
-
-To launch ArangoDB locally, first ensure you have docker installed. Then, you can launch the database with the following docker command.
+### Build Docker Image
 
 ```bash
-docker run -d   --name arango-vector-db  -p 8529:8529   -e ARANGO_ROOT_PASSWORD=password   arangodb/arangodb:3.12.4   --experimental-vector-index=true
+cd ../../
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
-### Setup Environment Variables
+### Set Environment Variables
 
 ```bash
 export no_proxy=${your_no_proxy}
@@ -28,40 +19,31 @@ export ARANGO_URL=${your_arango_url}
 export ARANGO_USERNAME=${your_arango_username}
 export ARANGO_PASSWORD=${your_arango_password}
 export ARANGO_DB_NAME=${your_db_name}
-export PYTHONPATH=${path_to_comps}
 ```
+### Start ArangoDB Server
 
-See below for additional environment variables that can be set.
-
-### Start Dataprep Service
+To launch ArangoDB locally, first ensure you have docker installed. Then, you can launch the database with the following docker command.
 
 ```bash
-python prepare_doc_arango.py
-```
-
-## 🚀 2. Start Microservice with Docker
-
-### Build Docker Image
-
-```bash
-cd /your/path/to/GenAIComps
-docker build -t opea/dataprep-arango:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/arango/langchain/Dockerfile .
+docker run -d   --name arango-vector-db  -p 8529:8529   -e ARANGO_ROOT_PASSWORD=${ARANGO_ROOT_PASSWORD}   arangodb/arangodb:latest   --experimental-vector-index=true
 ```
 
 ### Run Docker with CLI
 
 ```bash
-docker run -d --name="dataprep-arango-server" -p 6007:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ... opea/dataprep-arango:latest
+docker run -d --name="dataprep-arango-service" -p 6007:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URL="http://localhost:8529"  opea/dataprep-arango:latest -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ARANGODB"
 ```
 
-### Run Docker with Docker Compose
+see below for additional environment variables that can be set.
+
+
+## 🚀3. Consume Dataprep Service
 
 ```bash
-cd comps/dataprep/arango/langchain
-docker compose -f docker-compose-dataprep-arango.yaml up -d
+curl http://${your_ip}:6007/v1/health_check \
+  -X GET \
+  -H 'Content-Type: application/json'
 ```
-
-## 🚀 3. Consume Retriever Service
 
 An ArangoDB Graph is created from the documents provided to the microservice. The microservice will extract entities from the documents and create nodes and relationships in the graph based on the entities extracted. The microservice will also create embeddings for the documents if embedding environment variables are specified.
 
@@ -71,8 +53,6 @@ curl -X POST \
     -F "files=@./file1.txt" \
     http://localhost:6007/v1/dataprep
 ```
-
-You can specify the graph name through the `graph_name` variables in arangodb.py.
 
 By default, the microservice will create embeddings for the documents if embedding environment variables are specified. You can specify `-F "create_embeddings=false"` to skip document embedding creation.
 
@@ -104,7 +84,7 @@ curl -X POST \
 
 ---
 
-Additional options that can be specified from the environment variables are as follows (default values are also in the `config.py` file):
+Additional options that can be specified from the environment variables are as follows (default values are in the `arangodb.py` file):
 
 ArangoDB Connection configuration
 - `ARANGO_URL`: The URL for the ArangoDB service.
@@ -119,7 +99,7 @@ ArangoDB Graph Insertion configuration
 - `ARANGO_USE_GRAPH_NAME`: If set to True, the microservice will use the graph name specified in the environment variable `ARANGO_GRAPH_NAME`. If set to False, the file name will be used as the graph name. Defaults to `True`.
 
 vLLM Configuration
-- `VLLM_ENDPOINT`: The endpoint for the VLLM service. Defaults to `http://localhost:9009`.
+- `VLLM_ENDPOINT`: The endpoint for the VLLM service. Defaults to `http://localhost:80`.
 - `VLLM_MODEL_ID`: The model ID for the VLLM service. Defaults to `Intel/neural-chat-7b-v3-3`.
 - `VLLM_MAX_NEW_TOKENS`: The maximum number of new tokens to generate. Defaults to `512`.
 - `VLLM_TOP_P`: If set to < 1, only the smallest set of most probable tokens with probabilities that add up to top_p or higher are kept for generation. Defaults to `0.9`.
