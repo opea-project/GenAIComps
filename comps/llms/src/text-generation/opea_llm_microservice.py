@@ -28,6 +28,10 @@ if logflag:
 
 if llm_component_name == "OpeaTextGenNative":
     from integrations.native import OpeaTextGenNative
+elif llm_component_name == "OpeaTextGenNativeEnhance":
+    from integrations.native_enhance import OpeaTextGenNativeEnhance
+elif llm_component_name == "OpeaTextGenNativeEnhanceMultimodal":
+    from integrations.native_enhance import OpeaTextGenNativeEnhanceMultimodal
 elif llm_component_name == "OpeaTextGenBedrock":
     from integrations.bedrock import OpeaTextGenBedrock
 else:
