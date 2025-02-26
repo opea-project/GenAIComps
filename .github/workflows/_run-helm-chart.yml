@@ -134,8 +134,9 @@ jobs:
           if [[ "${service,,}" == *"third_parties"* ]]; then
             CHART_NAME="$(echo "${service,,}"|cut -d'/' -f2)"  # bridgetower
           else
-            CHART_NAME="${service_name}"  # agent
+            CHART_NAME="${service_name}"  # web_retrievers
           fi
+          CHART_NAME=$(echo "$CHART_NAME" | tr -cd 'a-z0-9')
           echo "service_name=$service_name" >> $GITHUB_ENV
           echo "CHART_NAME=$CHART_NAME" >> $GITHUB_ENV
           echo "RELEASE_NAME=${CHART_NAME}$(date +%d%H%M%S)" >> $GITHUB_ENV

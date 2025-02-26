@@ -44,8 +44,9 @@ if DEBUG:
 # Embedding model
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 LOCAL_EMBEDDING_MODEL = os.getenv("LOCAL_EMBEDDING_MODEL", "maidalun1020/bce-embedding-base_v1")
-TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 BRIDGE_TOWER_EMBEDDING = os.getenv("BRIDGE_TOWER_EMBEDDING", False)
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 # Directory pathss
 current_file_path = os.path.abspath(__file__)
@@ -62,7 +63,8 @@ ES_INDEX_NAME = os.getenv("ES_INDEX_NAME", "rag_elasticsearch")
 #######################################################
 #                    Neo4j                            #
 #######################################################
-NEO4J_URL = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_PORT2 = os.getenv("NEO4J_PORT2", "11632")
+NEO4J_URL = os.getenv("NEO4J_URI", f"bolt://localhost:{NEO4J_PORT2}")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
 host_ip = os.getenv("host_ip")
@@ -122,7 +124,6 @@ INDEX_PARAMS = {"index_type": "FLAT", "metric_type": "IP", "params": {}}
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag_milvus")
 # TEI configuration
 TEI_EMBEDDING_MODEL = os.environ.get("TEI_EMBEDDING_MODEL", "/home/user/bce-embedding-base_v1")
-TEI_EMBEDDING_ENDPOINT = os.environ.get("TEI_EMBEDDING_ENDPOINT", "")
 os.environ["OPENAI_API_BASE"] = TEI_EMBEDDING_ENDPOINT
 os.environ["OPENAI_API_KEY"] = "Dummy key"
 

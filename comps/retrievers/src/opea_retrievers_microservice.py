@@ -82,7 +82,8 @@ async def ingest_files(
                         r.metadata["b64_img_str"] = [input.base64_image, r.metadata["b64_img_str"]]
                     else:
                         r.metadata["b64_img_str"] = input.base64_image
-                metadata_list.append(r.metadata)
+                if r.metadata:
+                    metadata_list.append(r.metadata)
                 retrieved_docs.append(TextDoc(text=r.page_content))
             result = SearchedMultimodalDoc(
                 retrieved_docs=retrieved_docs, initial_query=input.text, metadata=metadata_list

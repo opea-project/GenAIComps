@@ -43,7 +43,7 @@ bash ./launch_vllm_service.sh ${port_number} ${model_name}
 #### Launch vLLM service with docker compose
 
 ```bash
-cd deplopyment/docker_compose
+cd deployment/docker_compose
 docker compose -f compose.yaml up vllm-server -d
 ```
 
@@ -64,8 +64,8 @@ Set `hw_mode` to `hpu`.
 1. Option 1: Use docker compose for quick deploy
 
 ```bash
-cd deplopyment/docker_compose
-docker compose -f compose.yaml vllm-gaudi-server up -d
+cd deployment/docker_compose
+docker compose -f compose.yaml up vllm-gaudi-server -d
 ```
 
 2. Option 2: Use scripts to set parameters.

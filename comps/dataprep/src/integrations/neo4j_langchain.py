@@ -34,10 +34,9 @@ NEO4J_URL = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
 
-# LLM/Embedding endpoints
+# LLM endpoints
 TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 TGI_LLM_ENDPOINT_NO_RAG = os.getenv("TGI_LLM_ENDPOINT_NO_RAG", "http://localhost:8081")
-TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_ENDPOINT")
 OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 
 
@@ -146,6 +145,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into Neo4j database.
 

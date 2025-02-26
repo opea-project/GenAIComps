@@ -23,17 +23,17 @@ export ip_address=$(hostname -I | awk '{print $1}')
 vllm_port=8086
 vllm_volume=${HF_CACHE_DIR}
 
-export model=meta-llama/Meta-Llama-3.1-70B-Instruct
+export model=meta-llama/Llama-3.3-70B-Instruct #meta-llama/Meta-Llama-3.1-70B-Instruct
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
-export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-70B-Instruct"
+export LLM_MODEL_ID="meta-llama/Llama-3.3-70B-Instruct" #"meta-llama/Meta-Llama-3.1-70B-Instruct"
 export LLM_ENDPOINT_URL="http://${ip_address}:${vllm_port}"
 export temperature=0.01
 export max_new_tokens=4096
 export TOOLSET_PATH=$WORKPATH/comps/agent/src/tools/ # $WORKPATH/tests/agent/sql_agent_test/
 echo "TOOLSET_PATH=${TOOLSET_PATH}"
 export recursion_limit=15
-export db_name=california_schools
-export db_path="sqlite:////home/user/TAG-Bench/dev_folder/dev_databases/${db_name}/${db_name}.sqlite"
+export db_name=Chinook
+export db_path="sqlite:////home/user/chinook-db/Chinook_Sqlite.sqlite"
 
 # for using Google search API
 export GOOGLE_CSE_ID=${GOOGLE_CSE_ID}
@@ -55,6 +55,22 @@ function prepare_data() {
     bash run_data_split.sh
 
     echo "Data preparation done!"
+}
+
+function download_chinook_data(){
+    echo "Downloading chinook data..."
+    cd $WORKDIR
+    git clone https://github.com/lerocha/chinook-database.git
+    cp chinook-database/ChinookDatabase/DataSources/Chinook_Sqlite.sqlite $WORKDIR/GenAIComps/tests/agent/
+}
+
+function remove_chinook_data(){
+    echo "Removing chinook data..."
+    cd $WORKDIR
+    if [ -d "chinook-database" ]; then
+        rm -rf chinook-database
+    fi
+    echo "Chinook data removed!"
 }
 
 function remove_data() {
@@ -102,7 +118,6 @@ function build_vllm_docker_images() {
 }
 
 function start_vllm_service() {
-    # redis endpoint
     echo "token is ${HF_TOKEN}"
 
     #single card
@@ -164,7 +179,7 @@ function run_benchmark() {
 
 
 echo "Preparing data...."
-prepare_data
+download_chinook_data
 
 echo "launching sql_agent_llama service...."
 start_sql_agent_llama_service
@@ -176,4 +191,4 @@ echo "Running test...."
 run_test
 
 echo "Removing data...."
-remove_data
+remove_chinook_data

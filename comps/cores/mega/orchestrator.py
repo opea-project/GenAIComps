@@ -7,6 +7,7 @@ import copy
 import json
 import os
 import re
+import threading
 import time
 from typing import Dict, List
 
@@ -24,23 +25,60 @@ from .logger import CustomLogger
 
 logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
+ENABLE_OPEA_TELEMETRY = os.getenv("ENABLE_OPEA_TELEMETRY", "false").lower() == "true"
 
 
 class OrchestratorMetrics:
-    # Because:
-    # - CI creates several orchestrator instances
-    # - Prometheus requires metrics to be singletons
-    # - Oorchestror instances are not provided their own names
-    # Metrics are class members with "megaservice" name prefix
-    first_token_latency = Histogram("megaservice_first_token_latency", "First token latency (histogram)")
-    inter_token_latency = Histogram("megaservice_inter_token_latency", "Inter-token latency (histogram)")
-    request_latency = Histogram("megaservice_request_latency", "Whole request/reply latency (histogram)")
-    request_pending = Gauge("megaservice_request_pending", "Count of currently pending requests (gauge)")
+    # Need an static class-level ID for metric prefix because:
+    # - Prometheus requires metrics (their names) to be unique
+    _instance_id = 0
 
     def __init__(self) -> None:
-        pass
+        OrchestratorMetrics._instance_id += 1
+        if OrchestratorMetrics._instance_id > 1:
+            self._prefix = f"megaservice{self._instance_id}"
+        else:
+            self._prefix = "megaservice"
 
-    def token_update(self, token_start: float, is_first: bool) -> float:
+        self.request_pending = Gauge(f"{self._prefix}_request_pending", "Count of currently pending requests (gauge)")
+
+        # locking for latency metric creation / method change
+        self._lock = threading.Lock()
+
+        # Metrics related to token processing are created on demand,
+        # to avoid bogus ones for services that never handle tokens
+        self.first_token_latency = None
+        self.inter_token_latency = None
+        self.request_latency = None
+
+        # initial methods to create the metrics
+        self.token_update = self._token_update_create
+        self.request_update = self._request_update_create
+
+    def _token_update_create(self, token_start: float, is_first: bool) -> float:
+        with self._lock:
+            # in case another thread already got here
+            if self.token_update == self._token_update_create:
+                self.first_token_latency = Histogram(
+                    f"{self._prefix}_first_token_latency", "First token latency (histogram)"
+                )
+                self.inter_token_latency = Histogram(
+                    f"{self._prefix}_inter_token_latency", "Inter-token latency (histogram)"
+                )
+                self.token_update = self._token_update_real
+        return self.token_update(token_start, is_first)
+
+    def _request_update_create(self, req_start: float) -> None:
+        with self._lock:
+            # in case another thread already got here
+            if self.request_update == self._request_update_create:
+                self.request_latency = Histogram(
+                    f"{self._prefix}_request_latency", "Whole LLM request/reply latency (histogram)"
+                )
+                self.request_update = self._request_update_real
+        self.request_update(req_start)
+
+    def _token_update_real(self, token_start: float, is_first: bool) -> float:
         now = time.time()
         if is_first:
             self.first_token_latency.observe(now - token_start)
@@ -48,7 +86,7 @@ class OrchestratorMetrics:
             self.inter_token_latency.observe(now - token_start)
         return now
 
-    def request_update(self, req_start: float) -> None:
+    def _request_update_real(self, req_start: float) -> None:
         self.request_latency.observe(time.time() - req_start)
 
     def pending_update(self, increase: bool) -> None:
@@ -171,11 +209,11 @@ class ServiceOrchestrator(DAG):
 
     def wrap_iterable(self, iterable, is_first=True):
 
-        with tracer.start_as_current_span("llm_generate_stream"):
+        with tracer.start_as_current_span("llm_generate_stream") if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
             while True:
                 with (
                     tracer.start_as_current_span("llm_generate_stream_first_token")
-                    if is_first
+                    if is_first and ENABLE_OPEA_TELEMETRY
                     else contextlib.nullcontext()
                 ):  #  else tracer.start_as_current_span(f"llm_generate_stream_next_token")
                     try:
@@ -216,7 +254,11 @@ class ServiceOrchestrator(DAG):
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
-            with tracer.start_as_current_span(f"{cur_node}_asyn_generate"):
+            with (
+                tracer.start_as_current_span(f"{cur_node}_asyn_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = requests.post(
                     url=endpoint,
                     data=json.dumps(inputs),
@@ -283,8 +325,14 @@ class ServiceOrchestrator(DAG):
                 input_data = {k: v for k, v in input_data.items() if v is not None}
             else:
                 input_data = inputs
-            with tracer.start_as_current_span(f"{cur_node}_generate"):
+
+            with (
+                tracer.start_as_current_span(f"{cur_node}_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = await session.post(endpoint, json=input_data)
+
             if response.content_type == "audio/wav":
                 audio_data = await response.read()
                 data = self.align_outputs(audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)

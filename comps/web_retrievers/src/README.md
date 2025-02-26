@@ -46,6 +46,7 @@ export GOOGLE_CSE_ID=${GOOGLE_CSE_ID}
 export TEI_PORT=6060
 export no_proxy=$host_ip,$no_proxy
 export EMBEDDING_MODEL_ID=BAAI/bge-base-en-v1.5
+export TEI_EMBEDDING_ENDPOINT=http://${host_ip}:6060
 
 docker compose -f ../deployment/docker_compose/compose.yaml up web-retriever-service tei-embedding-service -d
 ```

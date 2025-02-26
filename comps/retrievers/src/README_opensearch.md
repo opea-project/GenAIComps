@@ -44,6 +44,7 @@ Please refer to this [readme](../../third_parties/opensearch/src/README.md).
 ```bash
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"
 export RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_OPENSEARCH"
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
 python opea_retrievers_microservice.py
 ```
 
