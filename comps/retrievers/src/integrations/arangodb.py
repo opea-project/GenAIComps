@@ -3,41 +3,54 @@ import time
 from typing import Any, Union
 
 import openai
-from arango import ArangoClient
-from config import (
-    SUMMARIZER_ENABLED,
-    ARANGO_DB_NAME,
-    ARANGO_DISTANCE_STRATEGY,
-    ARANGO_EMBEDDING_FIELD,
-    ARANGO_GRAPH_NAME,
-    ARANGO_NUM_CENTROIDS,
-    ARANGO_PASSWORD,
-    ARANGO_TEXT_FIELD,
-    ARANGO_TRAVERSAL_ENABLED,
-    ARANGO_TRAVERSAL_MAX_DEPTH,
-    ARANGO_URL,
-    ARANGO_USE_APPROX_SEARCH,
-    ARANGO_USERNAME,
-    HUGGINGFACEHUB_API_TOKEN,
-    OPENAI_API_KEY,
-    OPENAI_EMBED_MODEL,
-    TEI_EMBED_MODEL,
-    TEI_EMBEDDING_ENDPOINT,
-    ARANGO_TRAVERSAL_MAX_RETURNED,
-    OPENAI_CHAT_ENABLED,
-    OPENAI_CHAT_TEMPERATURE,
-    OPENAI_CHAT_MODEL,
-    TGI_LLM_ENDPOINT,
-    TGI_LLM_MAX_NEW_TOKENS,
-    TGI_LLM_TEMPERATURE,
-    TGI_LLM_TIMEOUT,
-    TGI_LLM_TOP_K,
-    TGI_LLM_TOP_P,
-)
+from comps.retrievers.src.integrations.arangodb import ArangoClient
+# ArangoDB Connection configuration
+ARANGO_URL = os.getenv("ARANGO_URL", "http://localhost:8529")
+ARANGO_USERNAME = os.getenv("ARANGO_USERNAME", "root")
+ARANGO_PASSWORD = os.getenv("ARANGO_PASSWORD", "test")
+ARANGO_DB_NAME = os.getenv("ARANGO_DB_NAME", "_system")
+
+# ArangoDB Vector configuration
+ARANGO_GRAPH_NAME = os.getenv("ARANGO_GRAPH_NAME", "GRAPH")
+ARANGO_DISTANCE_STRATEGY = os.getenv("ARANGO_DISTANCE_STRATEGY", "COSINE")
+ARANGO_USE_APPROX_SEARCH = os.getenv("ARANGO_USE_APPROX_SEARCH", "false").lower() == "true"
+ARANGO_TEXT_FIELD = os.getenv("ARANGO_TEXT_FIELD", "text")
+ARANGO_EMBEDDING_FIELD = os.getenv("ARANGO_EMBEDDING_FIELD", "embedding")
+ARANGO_NUM_CENTROIDS = os.getenv("ARANGO_NUM_CENTROIDS", 1)
+
+# ArangoDB Traversal configuration
+ARANGO_TRAVERSAL_ENABLED = os.getenv("ARANGO_TRAVERSAL_ENABLED", "false").lower() == "true"
+ARANGO_TRAVERSAL_MAX_DEPTH = os.getenv("ARANGO_TRAVERSAL_MAX_DEPTH", 0)
+ARANGO_TRAVERSAL_MAX_RETURNED = os.getenv("ARANGO_TRAVERSAL_MAX_RETURNED", 0)
+
+# Summarizer Configuration
+SUMMARIZER_ENABLED = os.getenv("SUMMARIZER_ENABLED", "false").lower() == "true"
+
+# Embedding configuration
+TEI_EMBED_MODEL = os.getenv("TEI_EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+
+# VLLM configuration
+VLLM_ENDPOINT = os.getenv("VLLM_ENDPOINT")
+VLLM_MODEL_ID = os.getenv("VLLM_MODEL_ID", "Intel/neural-chat-7b-v3-3")
+VLLM_MAX_NEW_TOKENS = os.getenv("VLLM_MAX_NEW_TOKENS", 512)
+VLLM_TOP_P = os.getenv("VLLM_TOP_P", 0.9)
+VLLM_TEMPERATURE = os.getenv("VLLM_TEMPERATURE", 0.8)
+VLLM_TIMEOUT = os.getenv("VLLM_TIMEOUT", 600)
+
+# OpenAI configuration (alternative to VLLM & TEI)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o")
+OPENAI_CHAT_TEMPERATURE = os.getenv("OPENAI_CHAT_TEMPERATURE", 0)
+OPENAI_EMBED_MODEL = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
+OPENAI_CHAT_ENABLED = os.getenv("OPENAI_CHAT_ENABLED", "true").lower() == "true"
+OPENAI_EMBED_ENABLED = os.getenv("OPENAI_EMBED_ENABLED", "true").lower() == "true"
+
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.arangodb_vector import ArangoVector
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain_community.llms import HuggingFaceEndpoint
+# from langchain_community.llms import HuggingFaceEndpoint
 
 from comps import (
     CustomLogger,
@@ -45,10 +58,8 @@ from comps import (
     SearchedDoc,
     ServiceType,
     TextDoc,
-    opea_microservices,
-    register_microservice,
-    register_statistics,
-    statistics_dict,
+    OpeaComponent,
+    OpeaComponentRegistry,
 )
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
@@ -58,21 +69,24 @@ from comps.cores.proto.api_protocol import (
 )
 
 logger = CustomLogger("retriever_arango")
-logflag = os.getenv("LOGFLAG", True)
+logflag = os.getenv("LOGFLAG", False)
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_ARANGO")
-class OpeaOpensearchRetriever(OpeaComponent):
+class OpeaArangoDBRetriever(OpeaComponent):
     """A specialized retriever component derived from OpeaComponent for ArangoDB retriever services.
 
     Attributes:
         client (ArangoDB): An instance of the ArangoDB client for vector database operations.
     """
-    def __init__(self):
-        self.initialize_llm()
+    def __init__(self, name: str, description: str, config: dict = None):
+        super().__init__(name, ServiceType.RETRIEVER.name.lower(), description, config)
+        if SUMMARIZER_ENABLED:
+            self.initialize_llm()
         self.initialize_arangodb()
 
     def initialize_llm(self):
-        if OPENAI_API_KEY and OPENAI_CHAT_ENABLED:
+        """Initialize the language model for summarization if enabled."""
+        if OPENAI_API_KEY:
             if logflag:
                 logger.info("OpenAI API Key is set. Verifying its validity...")
             openai.api_key = OPENAI_API_KEY
@@ -81,26 +95,28 @@ class OpeaOpensearchRetriever(OpeaComponent):
                 openai.models.list()
                 if logflag:
                     logger.info("OpenAI API Key is valid.")
-                self.llm = ChatOpenAI(temperature=OPENAI_CHAT_TEMPERATURE, max_tokens=512, model_name=OPENAI_CHAT_MODEL)
+                self.llm = ChatOpenAI(temperature=OPENAI_CHAT_TEMPERATURE, model=OPENAI_CHAT_MODEL, max_tokens=512)
             except openai.error.AuthenticationError:
                 if logflag:
                     logger.info("OpenAI API Key is invalid.")
             except Exception as e:
                 if logflag:
                     logger.info(f"An error occurred while verifying the API Key: {e}")
-        elif TGI_LLM_ENDPOINT:
-            self.llm = HuggingFaceEndpoint(
-                endpoint_url=TGI_LLM_ENDPOINT,
-                max_new_tokens=TGI_LLM_MAX_NEW_TOKENS,
-                top_k=TGI_LLM_TOP_K,
-                top_p=TGI_LLM_TOP_P,
-                temperature=TGI_LLM_TEMPERATURE,
-                timeout=TGI_LLM_TIMEOUT,
-            )
+        elif VLLM_ENDPOINT:
+            self.llm = ChatOpenAI(
+                openai_api_key="EMPTY",
+                openai_api_base=f"{VLLM_ENDPOINT}/v1",
+                model=VLLM_MODEL_ID,
+                temperature=VLLM_TEMPERATURE,
+                max_tokens=VLLM_MAX_NEW_TOKENS,
+                top_p=VLLM_TOP_P,
+                timeout=VLLM_TIMEOUT,
+                )
         else:
-            raise ValueError("No text generation environment variables are set, cannot generate graphs.")
+            raise ValueError("No LLM text generation environment variables are set, cannot summarize search results.")
 
     def initialize_arangodb(self):
+        """Initialize the ArangoDB connection."""
         self.client = ArangoClient(hosts=ARANGO_URL)
         sys_db = self.client.db(name="_system", username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
 
@@ -108,34 +124,50 @@ class OpeaOpensearchRetriever(OpeaComponent):
             sys_db.create_database(ARANGO_DB_NAME)
 
         self.db = self.client.db(name=ARANGO_DB_NAME, username=ARANGO_USERNAME, password=ARANGO_PASSWORD, verify=True)
-
         if logflag:
             logger.info(f"Connected to ArangoDB {self.db.version()}.")
 
     def check_health(self) -> bool:
-        """Checks the health of the retriever service.
-
-        Returns:
-            bool: True if the service is reachable and healthy, False otherwise.
-        """
+        """Checks the health of the retriever service."""
         if logflag:
-            logger.info("[ check health ] start to check health of milvus")
+            logger.info("[ check health ] start to check health of ArangoDB")
         try:
-            # _ = self.client.client.list_collections()
+            version = self.db.version()
             if logflag:
-                logger.info("[ check health ] Successfully connected to ArangoDB!")
+                logger.info(f"[ check health ] Successfully connected to ArangoDB {version}!")
             return True
         except Exception as e:
             logger.info(f"[ check health ] Failed to connect to ArangoDB: {e}")
             return False
 
-    def fetch_neighborhoods(self, vector_db, keys, neighborhoods, graph_name, source_collection_name, max_depth):
-        if max_depth <= 0:
+    def fetch_neighborhoods(
+        self,
+        vector_db: ArangoVector,
+        keys: list[str],
+        graph_name: str,
+        source_collection_name: str,
+    ) -> dict[str, Any]:
+        """Fetch neighborhoods of source documents"""
+        neighborhoods = {}
+
+        if ARANGO_TRAVERSAL_MAX_DEPTH <= 0:
             start_vertex = "v1"
             links_to_query = ""
         else:
             start_vertex = "v2"
-            links_to_query = f"FOR v2 IN 1..{max_depth} ANY v1 {graph_name}_LINKS_TO OPTIONS {{uniqueEdges: 'path'}}"
+            links_to_query = (
+                f"FOR v2 IN 1..{ARANGO_TRAVERSAL_MAX_DEPTH} ANY v1 {graph_name}_LINKS_TO OPTIONS {{uniqueEdges: 'path'}}"
+            )
+
+        if ARANGO_TRAVERSAL_MAX_RETURNED <= 0:
+            limit_query = ""
+        else:
+            limit_query = f"""
+                LET score = COSINE_SIMILARITY(doc.{ARANGO_EMBEDDING_FIELD}, s.{ARANGO_EMBEDDING_FIELD})
+                SORT score DESC
+                LIMIT {ARANGO_TRAVERSAL_MAX_RETURNED}
+            """
+
         aql = f"""
             FOR doc IN @@collection
                 FILTER doc._key IN @keys
@@ -145,12 +177,7 @@ class OpeaOpensearchRetriever(OpeaComponent):
                         {links_to_query}
                             FOR s IN 1..1 OUTBOUND {start_vertex} {graph_name}_HAS_SOURCE
                                 FILTER s._key != doc._key
-
-                                // Top 3 Most Relevant Chunks (Deterministic)
-                                LET score = COSINE_SIMILARITY(doc.{ARANGO_EMBEDDING_FIELD}, s.{ARANGO_EMBEDDING_FIELD})
-                                SORT score DESC
-                                LIMIT {ARANGO_TRAVERSAL_MAX_RETURNED}
-
+                                {limit_query}
                                 COLLECT id = s._key, text = s.{ARANGO_TEXT_FIELD}
                                 RETURN {{[id]: text}}
                 )
@@ -168,11 +195,29 @@ class OpeaOpensearchRetriever(OpeaComponent):
         for doc in cursor:
             neighborhoods.update(doc)
 
-        if logflag:
-            logger.info(f"Fetched neighborhoods for {len(neighborhoods)} documents.")
+        return neighborhoods
 
-    async def invoke(self, input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]) -> list:
-        logger.info(input)
+    def generate_prompt(self, query: str, text: str) -> str:
+        """Generate a prompt for summarization."""
+        return f"""
+            I've performed vector similarity on the following
+            query to retrieve most relevant documents: '{query}' 
+
+            Each retrieved Document may have a 'RELATED CHUNKS' section.
+
+            Please consider summarizing the Document below using the query as the foundation to summarize the text.
+
+            The Document: {text}
+
+            Provide a summary to include all content relevant to the query, using the RELATED CHUNKS section (if provided) as needed.
+
+            Your summary:
+        """
+
+    async def invoke(self, input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
+        """Process the retrieval request and return relevant documents."""
+        if logflag:
+            logger.info(input)
 
         if isinstance(input, EmbedDoc):
             empty_result = SearchedDoc(retrieved_docs=[], initial_query=input.text)
@@ -190,6 +235,9 @@ class OpeaOpensearchRetriever(OpeaComponent):
         query = input.text if isinstance(input, EmbedDoc) else input.input
         embedding = input.embedding if isinstance(input.embedding, list) else None
 
+        ########################
+        # Fetch the Graph Name #
+        ########################
         graph_name = None
         query_split = query.split("|")
 
@@ -206,7 +254,6 @@ class OpeaOpensearchRetriever(OpeaComponent):
             if logflag:
                 graph_names = [g["name"] for g in self.db.graphs()]
                 logger.error(f"Graph '{graph_name}' does not exist in ArangoDB. Graphs: {graph_names}")
-
             return empty_result
 
         if not self.db.graph(graph_name).has_vertex_collection(source_collection_name):
@@ -214,40 +261,37 @@ class OpeaOpensearchRetriever(OpeaComponent):
                 collection_names = self.db.graph(graph_name).vertex_collections()
                 m = f"Collection '{source_collection_name}' does not exist in graph '{graph_name}'. Collections: {collection_names}"
                 logger.error(m)
-
             return empty_result
 
         collection = self.db.collection(source_collection_name)
-
         collection_count = collection.count()
+
         if collection_count == 0:
             if logflag:
                 logger.error(f"Collection '{source_collection_name}' is empty.")
-
             return empty_result
 
         if collection_count < ARANGO_NUM_CENTROIDS:
             if logflag:
                 m = f"Collection '{source_collection_name}' has fewer documents ({collection_count}) than the number of centroids ({ARANGO_NUM_CENTROIDS})."
                 logger.error(m)
-
             return empty_result
 
+        ################################
+        # Retrieve Embedding Dimension #
+        ################################
         random_doc = collection.random()
         random_doc_id = random_doc["_id"]
-
         embedding = random_doc.get(ARANGO_EMBEDDING_FIELD)
 
         if not embedding:
             if logflag:
                 logger.error(f"Document '{random_doc_id}' is missing field '{ARANGO_EMBEDDING_FIELD}'.")
-
             return empty_result
 
         if not isinstance(embedding, list):
             if logflag:
                 logger.error(f"Document '{random_doc_id}' has a non-list embedding field, found {type(embedding)}.")
-
             return empty_result
 
         dimension = len(embedding)
@@ -255,7 +299,6 @@ class OpeaOpensearchRetriever(OpeaComponent):
         if dimension == 0:
             if logflag:
                 logger.error(f"Document '{random_doc_id}' has an empty embedding field.")
-
             return empty_result
 
         if OPENAI_API_KEY and OPENAI_EMBED_MODEL:
@@ -278,6 +321,9 @@ class OpeaOpensearchRetriever(OpeaComponent):
             num_centroids=ARANGO_NUM_CENTROIDS,
         )
 
+        ######################
+        # Compute Similarity #
+        ######################
         try:
             if input.search_type == "similarity_score_threshold":
                 docs_and_similarities = await vector_db.asimilarity_search_with_relevance_scores(
@@ -307,7 +353,6 @@ class OpeaOpensearchRetriever(OpeaComponent):
         except Exception as e:
             if logflag:
                 logger.error(f"Error during similarity search: {e}")
-
             return empty_result
 
         if not search_res:
@@ -315,106 +360,53 @@ class OpeaOpensearchRetriever(OpeaComponent):
                 logger.info("No documents found.")
             return empty_result
 
-        neighborhoods = {}
         if logflag:
-            logger.info(f"ARANGO_TRAVERSAL_ENABLED: {ARANGO_TRAVERSAL_ENABLED}")
-            logger.info(f"Number of search results to traverse: {len([r.id for r in search_res])}")
+            logger.info(f"Found {len(search_res)} documents.")
 
+        ########################################
+        # Traverse Source Documents (optional) #
+        ########################################
         if ARANGO_TRAVERSAL_ENABLED:
-            try:
-                if logflag:
-                    logger.info(f"Starting neighborhood fetch for keys: {[r.id for r in search_res]}")
-                    logger.info(f"Graph name: {graph_name}")
-                    logger.info(f"Source collection: {source_collection_name}")
-                    logger.info(f"Max depth: {ARANGO_TRAVERSAL_MAX_DEPTH}")
+            neighborhoods = self.fetch_neighborhoods(
+                vector_db=vector_db,
+                keys=[r.id for r in search_res],
+                graph_name=graph_name,
+                source_collection_name=source_collection_name,
+            )
 
-                self.fetch_neighborhoods(
-                    vector_db=vector_db,
-                    keys=[r.id for r in search_res],
-                    neighborhoods=neighborhoods,
-                    graph_name=graph_name,
-                    source_collection_name=source_collection_name,
-                    max_depth=ARANGO_TRAVERSAL_MAX_DEPTH,
-                )
-
-                if logflag:
-                    logger.info(f"Neighborhoods fetched: {len(neighborhoods)}")
-                    logger.info(f"Sample neighborhood structure: {next(iter(neighborhoods.items())) if neighborhoods else 'None'}")
-            except Exception as e:
-                logger.error(f"Error during neighborhood traversal: {e}")
-
-        search_res_tuples = []
-        if logflag:
-            logger.info(f"Processing {len(search_res)} results with {len(neighborhoods)} neighborhoods")
-
-        for r in search_res:
-            page_content = r.page_content
-            neighborhood = neighborhoods.get(r.id)
+            for r in search_res:
+                neighborhood = neighborhoods.get(r.id)
+                if neighborhood:
+                    r.page_content += "\n------\nRELATED CHUNKS:\n------\n"
+                    r.page_content += str(neighborhood)
 
             if logflag:
-                logger.debug(f"Processing document ID: {r.id}")
-                logger.debug(f"Has neighborhood: {neighborhood is not None}")
+                logger.info(f"Added neighborhoods to {len(search_res)} documents.")
 
-            text = page_content
-            if neighborhood:
-                text += "\n------\nRELATED CHUNKS:\n------\n"
-                text += f"{neighborhood}\n"
+        ################################
+        # Summarize Results (optional) #
+        ################################
+       
+        search_res_tuples = [(r.id, r.page_content, r.metadata) for r in search_res]
 
-            if logflag:
-                logger.info(f"Document: {r.id}, Text: {text}")
-
-            search_res_tuples.append((r.id, text, r.metadata))
-            search_res_tuples_summarized = []
 
         if SUMMARIZER_ENABLED:
-
+            search_res_tuples_summarized = []
             for id, text, metadata in search_res_tuples:
                 prompt = self.generate_prompt(query, text)
-
                 res = self.llm.invoke(prompt)
                 summarized_text = res.content
-                tokens_used = res.usage_metadata        
+                # tokens_used = res.usage_metadata
 
                 if logflag:
-                    logger.info(f"Tokens used: {tokens_used}")
-                    logger.info(f"SUMMARIZING {id}: {summarized_text}")
+                    logger.info(f"Summarized {id}")
 
                 search_res_tuples_summarized.append((id, summarized_text, metadata))
+            search_res = search_res_tuples_summarized
+            if logflag:
+                logger.info(f"Line 407 in arangodb.py final summarised result: {search_res}")
 
-        search_res_tuples = search_res_tuples_summarized
+       
 
-        retrieved_docs: Union[list[TextDoc], list[RetrievalResponseData]] = []
-        if isinstance(input, EmbedDoc):
-            retrieved_docs = [TextDoc(id=id, text=text) for id, text, _ in search_res_tuples]
-            result = SearchedDoc(retrieved_docs=retrieved_docs, initial_query=input.text, top_n=4)
+        return search_res
 
-        else:
-            retrieved_docs = [
-                RetrievalResponseData(id=id, text=text, metadata=metadata) for id, text, metadata in search_res_tuples
-            ]
-
-            if isinstance(input, RetrievalRequest):
-                result = RetrievalResponse(retrieved_docs=retrieved_docs)
-
-            else:
-                input.retrieved_docs = retrieved_docs
-                input.documents = [doc.text for doc in retrieved_docs]
-                result = input
-
-        statistics_dict["opea_service@retriever_arango"].append_latency(time.time() - start, None)
-
-        if logflag:
-            logger.info(retrieved_docs)
-            logger.info(result)
-
-        return result
-
-    def generate_prompt(self, query: str, text: str) -> str:
-        return f"""You are a helpful, respectful and honest assistant to help the user with summarizartion. \
-        Please refer to the search results obtained from the local knowledge base. \
-            I've performed vector similarity on query: {query} 
-            to retrieve the most relevant documents. Each document has a RELATED CHUNKS section.
-            The text that I want you to summarize based on the query above is {text}. 
-
-            Please give the long summary to include all relevant content with statistics including important figures from the RELATED CHUNKS section.
-        """

@@ -13,6 +13,7 @@ git+https://github.com/arangoml/langchain.git@arangodb#subdirectory=libs/communi
 cityhash
 python-arango
 langchain_huggingface
+langchain_openai
 langchain_milvus
 llama-index-core
 llama-index-embeddings-openai
@@ -42,5 +43,4 @@ shortuuid
 tiktoken
 uvicorn
 vdms==0.0.21
-os
 typing

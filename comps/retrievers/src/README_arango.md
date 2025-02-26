@@ -33,13 +33,6 @@ export ARANGODB_PASSWORD=${your_arangodb_password}
 export ARANGODB_DATABASE=${your_arangodb_database}
 ```
 
-### Start Retriever Service
-
-```bash
-export PYTHONPATH="/home/mchacki/Github/test"
-cd Github/test/GenAIComps/comps/retrievers/arango/langchain/
-python retriever_arango.py
-```
 
 ## 🚀Start Microservice with Docker
 
@@ -47,14 +40,16 @@ python retriever_arango.py
 
 ```bash
 cd ../../
-docker build -t opea/retriever-arango:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/arango/langchain/Dockerfile .
+docker build -t opea/retriever:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
 ```
 
 ### Run Docker with CLI
 
 ```bash
-docker run -d --name="retriever-arangodb-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URI=${your_arangodb_host_ip}  opea/retriever-arangodb:latest
+docker run -d --name="retriever-arango-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URL="http://localhost:8529"  opea/retriever-arango:latest -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_ARANGO"
 ```
+
+
 
 ## 🚀3. Consume Retriever Service
 
@@ -78,7 +73,6 @@ curl http://${your_ip}:7000/v1/retrieval \
   -H 'Content-Type: application/json'
 ```
 
-
 ```bash
 export your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 curl http://localhost:7000/v1/retrieval \
@@ -88,6 +82,7 @@ curl http://localhost:7000/v1/retrieval \
 ```
 
 
+
 ```bash
 export your_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 curl http://localhost:7000/v1/retrieval \
@@ -95,6 +90,7 @@ curl http://localhost:7000/v1/retrieval \
   -d "{\"text\":\"What is the revenue of Nike in 2023?\",\"embedding\":${your_embedding},\"search_type\":\"similarity_distance_threshold\", \"k\":4, \"distance_threshold\":1.0}" \
   -H 'Content-Type: application/json'
 ```
+
 
 
 ```bash
@@ -115,4 +111,3 @@ curl http://localhost:7000/v1/retrieval \
 ```
 
 
-c

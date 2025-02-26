@@ -192,8 +192,12 @@ DISTANCE_STRATEGY = "IP"
 #######################################################
 #                        ArangoDB                        #
 #######################################################
+#OPEA CONFIG
+ARANGO_INDEX_NAME = os.getenv("VDMS_INDEX_NAME", "rag_arango")
 # ArangoDB Connection configuration
-ARANGO_URL = os.getenv("ARANGO_URL", "http://localhost:8529")
+ARANGO_HOST = os.getenv("ARANGO_HOST", "localhost")
+ARANGO_PORT = os.getenv("ARANGO_PORT", 8529)
+ARANGO_URL = f"http://{ARANGO_HOST}:{ARANGO_PORT}"
 ARANGO_USERNAME = os.getenv("ARANGO_USERNAME", "root")
 ARANGO_PASSWORD = os.getenv("ARANGO_PASSWORD", "test")
 ARANGO_DB_NAME = os.getenv("ARANGO_DB_NAME", "_system")

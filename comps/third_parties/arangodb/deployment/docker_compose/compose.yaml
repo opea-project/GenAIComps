@@ -1,0 +1,21 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+# docker inspect --format='{{json .State.Health}}' arango-vector-db | jq
+
+services:
+  arango-vector-db:
+    image: arangodb/arangodb:3.12.4
+    container_name: arango-vector-db
+    ports:
+      - "8529:8529"
+    environment:
+      ARANGO_ROOT_PASSWORD: ${ARANGO_PASSWORD:-test}
+    command: ["--experimental-vector-index=true"]
+    restart: unless-stopped
+    healthcheck:
+      test: wget http://localhost:8529/_admin/server/availability || exit 1
+      interval: 10s
+      timeout: 30s
+      retries: 20
+      start_period: 30s
+      

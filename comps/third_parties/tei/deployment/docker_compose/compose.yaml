@@ -5,7 +5,7 @@ services:
   tei-embedding-serving:
     image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
     container_name: tei-embedding-serving
-    entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id ${EMBEDDING_MODEL_ID} --auto-truncate"
+    entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id BAAI/bge-base-en-v1.5 --auto-truncate"
     ports:
       - "${TEI_EMBEDDER_PORT:-12000}:80"
     volumes:
@@ -18,10 +18,11 @@ services:
       host_ip: ${host_ip}
       HF_TOKEN: ${HF_TOKEN}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_EMBEDDER_PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:12000/health"]
       interval: 10s
       timeout: 6s
       retries: 48
+      start_period: 40s
 
   tei-reranking-serving:
     image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
