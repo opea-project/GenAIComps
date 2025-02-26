@@ -3,6 +3,7 @@
 
 import os
 import time
+
 import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
@@ -27,7 +28,7 @@ class OpeaTextGenOVMS(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
         self.base_url = os.getenv("OVMS_LLM_ENDPOINT", "http://localhost:8080")
-        self.client = OpenAI(base_url=self.base_url+"/v3", api_key="unused")
+        self.client = OpenAI(base_url=self.base_url + "/v3", api_key="unused")
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaTextGenOVMS health check failed.")
@@ -71,18 +72,18 @@ class OpeaTextGenOVMS(OpeaComponent):
         if input.top_p:
             optional_params["top_p"] = input.top_p
         if input.top_k:
-            optional_params["extra_body"] = {"top_k" : input.top_k}
+            optional_params["extra_body"] = {"top_k": input.top_k}
         if input.stream:
 
             async def stream_generator():
                 chat_response = ""
-                stream =  self.client.chat.completions.create(
+                stream = self.client.chat.completions.create(
                     model=MODEL_ID,
                     messages=messages,
                     max_tokens=input.max_tokens,
                     temperature=input.temperature,
                     stream=True,
-                    **optional_params
+                    **optional_params,
                 )
                 for chunk in stream:
                     if chunk.choices[0].delta.content is not None:
@@ -95,13 +96,13 @@ class OpeaTextGenOVMS(OpeaComponent):
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
             try:
-                print("input:",input)
+                print("input:", input)
                 response = self.client.chat.completions.create(
                     model=MODEL_ID,
                     messages=messages,
                     max_tokens=input.max_tokens,
                     temperature=input.temperature,
-                    **optional_params
+                    **optional_params,
                 )
             except Exception as e:
                 raise HTTPException(status_code=500, detail=str(e))
