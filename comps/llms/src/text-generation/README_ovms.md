@@ -1,7 +1,6 @@
 # LLM OVMS Microservice
 
-LLM OVMS microservice uses [OpenVINO Model Server](https://github.com/openvinotoolkit/model_server). It can efficient generate text on Intel CPU using a set of optimizations technics list continuous batching, paged attention, prefix caching, speculative decoding and many other.
-
+LLM OVMS microservice uses [OpenVINO Model Server](https://github.com/openvinotoolkit/model_server). It can efficient generate text on Intel CPU using a set of optimizations techniques list continuous batching, paged attention, prefix caching, speculative decoding and many other.
 
 ## 🚀1. Start OVMS Microservice
 
@@ -19,42 +18,43 @@ In order to start LLM OVMS service, you need to export the models from Hugging F
 Change the `source_model` as needed.
 
 ### 1.2 **Start the OVMS container**:
-   Replace `your_port` with desired values to start the service.
 
-   ```bash
-   your_port=8090
-   docker run -p $your_port:8000 -v ./models:/models --name ovms-llm-serving \
-   openvino/model_server:2025.0 --port 8000 --config_path /models/config_llm.json
-   ```
+Replace `your_port` with desired values to start the service.
 
-### 1.3  **Test the OVMS container**:
-   OVMS exposes REST API compatible with OpenAI API. Both `completions` and `chat/completions` are supported.
-   Run the following command to check if the service is up and running.
+```bash
+your_port=8090
+docker run -p $your_port:8000 -v ./models:/models --name ovms-llm-serving \
+openvino/model_server:2025.0 --port 8000 --config_path /models/config_llm.json
+```
 
-   ```bash
-    curl -s http://localhost:8090/v3/chat/completions   \
-    -H "Content-Type: application/json"   \
-    -d '{
-    "model": "Qwen/Qwen2-7B-Instruct",
-    "max_tokens":30, "temperature":0,
-    "stream":false,
-    "messages": [
-      {
-        "role": "system",
-        "content": "You are a helpful assistant."
-      },
-      {
-        "role": "user",
-        "content": "What are the 3 main tourist attractions in Paris?"
-      }
-    ]
-    }'
-   ```
+### 1.3 **Test the OVMS container**:
 
+OVMS exposes REST API compatible with OpenAI API. Both `completions` and `chat/completions` are supported.
+Run the following command to check if the service is up and running.
+
+```bash
+ curl -s http://localhost:8090/v3/chat/completions   \
+ -H "Content-Type: application/json"   \
+ -d '{
+ "model": "Qwen/Qwen2-7B-Instruct",
+ "max_tokens":30, "temperature":0,
+ "stream":false,
+ "messages": [
+   {
+     "role": "system",
+     "content": "You are a helpful assistant."
+   },
+   {
+     "role": "user",
+     "content": "What are the 3 main tourist attractions in Paris?"
+   }
+ ]
+ }'
+```
 
 ## 🚀2. Starting OPEA LLM microservice
 
-### 2.1  Building the image
+### 2.1 Building the image
 
 ```bash
 cd ../../../../../
