@@ -43,4 +43,3 @@ shortuuid
 tiktoken
 uvicorn
 vdms==0.0.21
-typing
