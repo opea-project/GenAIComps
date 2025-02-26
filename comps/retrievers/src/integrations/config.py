@@ -189,7 +189,7 @@ DISTANCE_STRATEGY = "IP"
 
 
 #######################################################
-#                        ArangoDB                        #
+#                     ArangoDB                        #
 #######################################################
 
 # ArangoDB Connection configuration
