@@ -3,46 +3,50 @@ import time
 from typing import Any, Union
 
 import openai
-from comps.retrievers.src.integrations.arangodb import ArangoClient
-
-# ArangoDB Connection configuration
-from .config import ARANGO_URL, ARANGO_USERNAME,ARANGO_PASSWORD,ARANGO_DB_NAME
-# ArangoDB Vector configuration
-from .config import ARANGO_GRAPH_NAME, ARANGO_DISTANCE_STRATEGY,ARANGO_USE_APPROX_SEARCH,ARANGO_TEXT_FIELD,ARANGO_EMBEDDING_FIELD,ARANGO_NUM_CENTROIDS
-# ArangoDB Traversal configuration
-from .config import ARANGO_TRAVERSAL_ENABLED, ARANGO_TRAVERSAL_MAX_DEPTH,ARANGO_TRAVERSAL_MAX_RETURNED
-# Summarizer Configuration
-from .config import SUMMARIZER_ENABLED
-# Embedding configuration
-from .config import TEI_EMBED_MODEL,TEI_EMBEDDING_ENDPOINT,HUGGINGFACEHUB_API_TOKEN
-# VLLM configuration
-from .config import VLLM_ENDPOINT,VLLM_MODEL_ID,VLLM_MAX_NEW_TOKENS,VLLM_TOP_P,VLLM_TEMPERATURE,VLLM_TIMEOUT
-# OpenAI configuration (alternative to VLLM & TEI)
-from .config import OPENAI_API_KEY,OPENAI_CHAT_MODEL,OPENAI_CHAT_TEMPERATURE,OPENAI_EMBED_MODEL,OPENAI_CHAT_ENABLED,OPENAI_EMBED_ENABLED
-
-
+from arango import ArangoClient
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.arangodb_vector import ArangoVector
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-from comps import (
-    CustomLogger,
-    EmbedDoc,
-    SearchedDoc,
-    ServiceType,
-    TextDoc,
-    OpeaComponent,
-    OpeaComponentRegistry,
-)
-from comps.cores.proto.api_protocol import (
-    ChatCompletionRequest,
-    RetrievalRequest,
-    RetrievalResponse,
-    RetrievalResponseData,
+from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, SearchedDoc, ServiceType
+from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalRequest, RetrievalResponse
+
+# ArangoDB Connection configuration
+from .config import (
+    ARANGO_DB_NAME,
+    ARANGO_DISTANCE_STRATEGY,
+    ARANGO_EMBEDDING_FIELD,
+    ARANGO_GRAPH_NAME,
+    ARANGO_NUM_CENTROIDS,
+    ARANGO_PASSWORD,
+    ARANGO_TEXT_FIELD,
+    ARANGO_TRAVERSAL_ENABLED,
+    ARANGO_TRAVERSAL_MAX_DEPTH,
+    ARANGO_TRAVERSAL_MAX_RETURNED,
+    ARANGO_URL,
+    ARANGO_USE_APPROX_SEARCH,
+    ARANGO_USERNAME,
+    HUGGINGFACEHUB_API_TOKEN,
+    OPENAI_API_KEY,
+    OPENAI_CHAT_ENABLED,
+    OPENAI_CHAT_MODEL,
+    OPENAI_CHAT_TEMPERATURE,
+    OPENAI_EMBED_ENABLED,
+    OPENAI_EMBED_MODEL,
+    SUMMARIZER_ENABLED,
+    TEI_EMBED_MODEL,
+    TEI_EMBEDDING_ENDPOINT,
+    VLLM_ENDPOINT,
+    VLLM_MAX_NEW_TOKENS,
+    VLLM_MODEL_ID,
+    VLLM_TEMPERATURE,
+    VLLM_TIMEOUT,
+    VLLM_TOP_P,
 )
 
 logger = CustomLogger("retriever_arango")
 logflag = os.getenv("LOGFLAG", False)
+
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_ARANGO")
 class OpeaArangoDBRetriever(OpeaComponent):
@@ -51,17 +55,21 @@ class OpeaArangoDBRetriever(OpeaComponent):
     Attributes:
         client (ArangoDB): An instance of the ArangoDB client for vector database operations.
     """
+
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.RETRIEVER.name.lower(), description, config)
+
+        self.initialize_arangodb()
+
         if SUMMARIZER_ENABLED:
             self.initialize_llm()
-        self.initialize_arangodb()
 
     def initialize_llm(self):
         """Initialize the language model for summarization if enabled."""
-        if OPENAI_API_KEY:
+        if OPENAI_API_KEY and OPENAI_CHAT_ENABLED:
             if logflag:
                 logger.info("OpenAI API Key is set. Verifying its validity...")
+
             openai.api_key = OPENAI_API_KEY
 
             try:
@@ -75,6 +83,7 @@ class OpeaArangoDBRetriever(OpeaComponent):
             except Exception as e:
                 if logflag:
                     logger.info(f"An error occurred while verifying the API Key: {e}")
+
         elif VLLM_ENDPOINT:
             self.llm = ChatOpenAI(
                 openai_api_key="EMPTY",
@@ -84,7 +93,7 @@ class OpeaArangoDBRetriever(OpeaComponent):
                 max_tokens=VLLM_MAX_NEW_TOKENS,
                 top_p=VLLM_TOP_P,
                 timeout=VLLM_TIMEOUT,
-                )
+            )
         else:
             raise ValueError("No LLM text generation environment variables are set, cannot summarize search results.")
 
@@ -128,9 +137,7 @@ class OpeaArangoDBRetriever(OpeaComponent):
             links_to_query = ""
         else:
             start_vertex = "v2"
-            links_to_query = (
-                f"FOR v2 IN 1..{ARANGO_TRAVERSAL_MAX_DEPTH} ANY v1 {graph_name}_LINKS_TO OPTIONS {{uniqueEdges: 'path'}}"
-            )
+            links_to_query = f"FOR v2 IN 1..{ARANGO_TRAVERSAL_MAX_DEPTH} ANY v1 {graph_name}_LINKS_TO OPTIONS {{uniqueEdges: 'path'}}"
 
         if ARANGO_TRAVERSAL_MAX_RETURNED <= 0:
             limit_query = ""
@@ -187,7 +194,9 @@ class OpeaArangoDBRetriever(OpeaComponent):
             Your summary:
         """
 
-    async def invoke(self, input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
+    async def invoke(
+        self, input: Union[EmbedDoc, RetrievalRequest, ChatCompletionRequest]
+    ) -> Union[SearchedDoc, RetrievalResponse, ChatCompletionRequest]:
         """Process the retrieval request and return relevant documents."""
         if logflag:
             logger.info(input)
@@ -211,16 +220,8 @@ class OpeaArangoDBRetriever(OpeaComponent):
         ########################
         # Fetch the Graph Name #
         ########################
-        graph_name = None
-        query_split = query.split("|")
 
-        if len(query_split) == 2:
-            query = query_split[0].strip()
-            graph_name = query_split[1].strip()
-
-        if not graph_name:
-            graph_name = ARANGO_GRAPH_NAME
-
+        graph_name = ARANGO_GRAPH_NAME
         source_collection_name = f"{graph_name}_SOURCE"
 
         if not self.db.has_graph(graph_name):
@@ -253,6 +254,7 @@ class OpeaArangoDBRetriever(OpeaComponent):
         ################################
         # Retrieve Embedding Dimension #
         ################################
+
         random_doc = collection.random()
         random_doc_id = random_doc["_id"]
         embedding = random_doc.get(ARANGO_EMBEDDING_FIELD)
@@ -274,7 +276,7 @@ class OpeaArangoDBRetriever(OpeaComponent):
                 logger.error(f"Document '{random_doc_id}' has an empty embedding field.")
             return empty_result
 
-        if OPENAI_API_KEY and OPENAI_EMBED_MODEL:
+        if OPENAI_API_KEY and OPENAI_EMBED_MODEL and OPENAI_EMBED_ENABLED:
             embeddings = OpenAIEmbeddings(model=OPENAI_EMBED_MODEL, dimensions=dimension)
         elif TEI_EMBEDDING_ENDPOINT and HUGGINGFACEHUB_API_TOKEN:
             embeddings = HuggingFaceHubEmbeddings(
@@ -297,6 +299,7 @@ class OpeaArangoDBRetriever(OpeaComponent):
         ######################
         # Compute Similarity #
         ######################
+
         try:
             if input.search_type == "similarity_score_threshold":
                 docs_and_similarities = await vector_db.asimilarity_search_with_relevance_scores(
@@ -339,6 +342,7 @@ class OpeaArangoDBRetriever(OpeaComponent):
         ########################################
         # Traverse Source Documents (optional) #
         ########################################
+
         if ARANGO_TRAVERSAL_ENABLED:
             neighborhoods = self.fetch_neighborhoods(
                 vector_db=vector_db,
@@ -359,23 +363,16 @@ class OpeaArangoDBRetriever(OpeaComponent):
         ################################
         # Summarize Results (optional) #
         ################################
-       
-
 
         if SUMMARIZER_ENABLED:
-              for r in search_res:
+            for r in search_res:
                 prompt = self.generate_prompt(query, r.page_content)
                 res = self.llm.invoke(prompt)
                 summarized_text = res.content
-                # tokens_used = res.usage_metadata
 
                 if logflag:
                     logger.info(f"Summarized {id}")
 
                 r.page_content = summarized_text
-            
-
-       
 
         return search_res
-
