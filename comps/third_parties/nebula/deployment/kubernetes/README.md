@@ -41,6 +41,7 @@ nebula-storaged-headless   ClusterIP   None           <none>        9779/TCP,197
 ```
 
 Run the following commands to get the cluster ip and service port of the service:
+
 ```bash
 cluster_ip=$(kubectl get service | grep nebula-graphd-svc | awk '/nebula-graphd-svc/ {print $3}')
 service_port=$(kubectl get service | grep nebula-graphd-svc | awk '{print $5}' | cut -d',' -f1 | cut -d'/' -f1)
