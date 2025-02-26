@@ -5,7 +5,7 @@ services:
   ovms-embedding-serving:
     image: openvino/model_server:2025.0
     container_name: ovms-embedding-serving
-    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_embeddings.json"
+    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_embeddings.json
     ports:
       - "${OVMS_EMBEDDER_PORT:-12000}:8000"
     volumes:
@@ -26,7 +26,7 @@ services:
   ovms-reranking-serving:
     image: openvino/model_server:2025.0
     container_name: ovms-reranking-serving
-    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_reranking.json"
+    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_reranking.json
     ports:
       - "${OVMS_RERANKER_PORT:-12000}:8000"
     volumes:
@@ -47,7 +47,7 @@ services:
   ovms-llm-serving:
     image: openvino/model_server:2025.0
     container_name: ovms-llm-serving
-    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_llm.json"
+    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_llm.json
     ports:
       - "${OVMS_LLM_PORT:-12000}:8000"
     volumes:
