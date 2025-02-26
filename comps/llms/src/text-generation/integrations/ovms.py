@@ -3,7 +3,6 @@
 
 import os
 import time
-
 import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
@@ -15,7 +14,6 @@ from comps.cores.proto.api_protocol import ChatCompletionRequest
 logger = CustomLogger("opea_textgen_ovms")
 logflag = os.getenv("LOGFLAG", False)
 MODEL_ID = os.getenv("MODEL_ID")
-
 
 @OpeaComponentRegistry.register("OpeaTextGenOVMS")
 class OpeaTextGenOVMS(OpeaComponent):
@@ -96,7 +94,6 @@ class OpeaTextGenOVMS(OpeaComponent):
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
             try:
-                print("input:", input)
                 response = self.client.chat.completions.create(
                     model=MODEL_ID,
                     messages=messages,

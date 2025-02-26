@@ -112,4 +112,8 @@ curl http://localhost:9000/v1/chat/completions\
   -X POST \
   -d '{"messages":"What is Deep Learning?", "stream": true}' \
   -H 'Content-Type: application/json'
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> e3196aa5 (llm endpoint)
