@@ -88,7 +88,7 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
 ### 2.5 Run Docker with CLI (Option A)
@@ -116,7 +116,7 @@ Once this dataprep microservice is started, user can use the below commands to i
 
 This microservice provides 3 different ways for users to ingest files into Redis vector store corresponding to the 3 use cases.
 
-### 4.1 Consume _ingest_with_text_ API
+### 4.1 Consume _ingest_ API
 
 **Use case:** This API is used for videos accompanied by transcript files (`.vtt` format), images accompanied by text caption files (`.txt` format), and PDF files containing a mix of text and images.
 
