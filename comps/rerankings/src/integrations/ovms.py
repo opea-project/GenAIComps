@@ -108,7 +108,7 @@ class OpeaOVMSReranking(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            response = requests.get(f"{self.base_url}/v2/ready")
+            response = requests.get(f"{self.base_url}/v2/health/ready")
             if response.status_code == 200:
                 return True
             else:
