@@ -12,6 +12,7 @@ include:
   - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
   - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/arangodb/docker_compose/compose.yaml
 
 services:
 
@@ -250,6 +251,61 @@ services:
       VDMS_HOST: ${VDMS_HOST}
       VDMS_PORT: ${VDMS_PORT}
       COLLECTION_NAME: ${INDEX_NAME}
+    restart: unless-stopped
+  
+  dataprep-arangodb:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-arangodb
+    depends_on:
+      arango-vector-db:
+        condition: service_healthy
+      tgi-gaudi-server:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+    ports:
+      - "${DATAPREP_PORT:-11112}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      ARANGO_URL: ${ARANGO_URL}
+      ARANGO_DB_NAME: ${ARANGO_DB_NAME}
+      ARANGO_USERNAME: ${ARANGO_USERNAME}
+      ARANGO_PASSWORD: ${ARANGO_PASSWORD}
+      ARANGO_GRAPH_NAME: ${ARANGO_GRAPH_NAME}
+      ARANGO_USE_GRAPH_NAME: ${ARANGO_USE_GRAPH_NAME}
+      ARANGO_BATCH_SIZE: ${ARANGO_BATCH_SIZE}
+      ARANGO_INSERT_ASYNC: ${ARANGO_INSERT_ASYNC}
+      VLLM_ENDPOINT: ${VLLM_ENDPOINT}
+      VLLM_MODEL_ID: ${VLLM_MODEL_ID}
+      VLLM_MAX_NEW_TOKENS: ${VLLM_MAX_NEW_TOKENS}
+      VLLM_TOP_P: ${VLLM_TOP_P}
+      VLLM_TEMPERATURE: ${VLLM_TEMPERATURE}
+      VLLM_TIMEOUT: ${VLLM_TIMEOUT}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      TEI_EMBED_MODEL: ${TEI_EMBED_MODEL}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      EMBED_SOURCE_DOCUMENTS: ${EMBED_SOURCE_DOCUMENTS}
+      EMBED_NODES: ${EMBED_NODES}
+      EMBED_RELATIONSHIPS: ${EMBED_RELATIONSHIPS}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_EMBED_MODEL: ${OPENAI_EMBED_MODEL}
+      OPENAI_EMBED_DIMENSION: ${OPENAI_EMBED_DIMENSION}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL}
+      OPENAI_CHAT_TEMPERATURE: ${OPENAI_CHAT_TEMPERATURE}
+      OPENAI_CHAT_ENABLED: ${OPENAI_CHAT_ENABLED}
+      OPENAI_EMBED_ENABLED: ${OPENAI_EMBED_ENABLED}
+      SYSTEM_PROMPT_PATH: ${SYSTEM_PROMPT_PATH}
+      ALLOWED_NODES: ${ALLOWED_NODES}
+      ALLOWED_RELATIONSHIPS: ${ALLOWED_RELATIONSHIPS}
+      NODE_PROPERTIES: ${NODE_PROPERTIES}
+      RELATIONSHIP_PROPERTIES: ${RELATIONSHIP_PROPERTIES}
+      PROCESS_TABLE: ${PROCESS_TABLE}
+      TABLE_STRATEGY: ${TABLE_STRATEGY}
+      CHUNK_SIZE: ${CHUNK_SIZE}
+      CHUNK_OVERLAP: ${CHUNK_OVERLAP}
     restart: unless-stopped
 
 networks:

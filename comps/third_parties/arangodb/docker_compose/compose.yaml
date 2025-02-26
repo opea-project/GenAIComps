@@ -1,0 +1,18 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  arango-vector-db:
+    image: arangodb/arangodb:3.12.4
+    container_name: arango-vector-db
+    ports:
+      - "8529:8529"
+    environment:
+      ARANGO_ROOT_PASSWORD: ${ARANGO_PASSWORD:-test}
+    command: ["--experimental-vector-index=true"]
+    restart: unless-stopped
+    healthcheck:
+      test: wget http://localhost:8529 || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 20

@@ -1,5 +1,6 @@
 beautifulsoup4
 cairosvg
+cityhash
 decord
 docarray[full]
 docx2txt
@@ -13,7 +14,8 @@ html2text
 huggingface_hub
 ipython
 langchain
-langchain-community
+#langchain-community
+git+https://github.com/arangoml/langchain.git@master#subdirectory=libs/community
 langchain-elasticsearch
 langchain-experimental
 langchain-openai
@@ -44,6 +46,7 @@ psycopg2
 pymupdf
 pyspark
 pytesseract
+python-arango
 python-bidi
 python-docx
 python-pptx

@@ -17,7 +17,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     tesseract-ocr \
     libpq-dev \
     libcairo2 \
-    wget
+    wget \
+    git
 
 # Install ffmpeg static build
 RUN cd /root && wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz && \
