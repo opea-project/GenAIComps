@@ -7,6 +7,7 @@ import time
 from typing import Union
 
 # import for retrievers component registration
+from integrations.arangodb import OpeaArangoDBRetriever
 from integrations.elasticsearch import OpeaElasticsearchRetriever
 from integrations.milvus import OpeaMilvusRetriever
 from integrations.neo4j import OpeaNeo4jRetriever

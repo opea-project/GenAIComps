@@ -12,6 +12,7 @@ include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
   - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
   - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/arango/deployment/docker_compose/compose.yaml
 
 services:
   retriever:
@@ -170,6 +171,27 @@ services:
         condition: service_healthy
       tei-embedding-serving:
         condition: service_healthy
+  
+  retriever-arango:
+    extends: retriever
+    container_name: retriever-arango
+    depends_on:
+      - arango-vector-db
+      - tei-embedding-service
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_ARANGO}
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      ARANGO_URL: ${ARANGO_URL}
+      ARANGO_USERNAME: ${ARANGO_USERNAME}
+      ARANGO_PASSWORD: ${ARANGO_PASSWORD}
+      ARANGO_DB_NAME: ${ARANGO_DB_NAME}
+      ARANGO_GRAPH_NAME: ${ARANGO_GRAPH_NAME}
+      TEI_EMBED_MODEL: ${TEI_EMBED_MODEL}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
 
 
 networks:

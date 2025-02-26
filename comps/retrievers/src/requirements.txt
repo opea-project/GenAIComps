@@ -9,8 +9,12 @@ graspologic
 haystack-ai==2.3.1
 langchain-elasticsearch
 langchain-pinecone
-langchain_community
+# langchain-community
+git+https://github.com/arangoml/langchain.git@master#subdirectory=libs/community
+cityhash
+python-arango
 langchain_huggingface
+langchain_openai
 langchain_milvus
 llama-index-core
 llama-index-embeddings-openai
