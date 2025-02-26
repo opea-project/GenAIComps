@@ -15,7 +15,7 @@ export NEO4J_apoc_export_file_enabled=true
 export NEO4J_apoc_import_file_use__neo4j__config=true
 export NEO4J_PLUGINS=\[\"apoc\"\]
                                                                                                                                      cd $WORKPATH/comps/text2cypher/deployment/docker_compose/
-docker compose up ${service_name} -d 
+docker compose up ${service_name} -d
 
 ```
 
