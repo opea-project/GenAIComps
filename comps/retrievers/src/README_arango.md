@@ -12,7 +12,6 @@ pip install -r requirements.txt
 
 To launch ArangoDB locally, first ensure you have docker installed. Then, you can launch the database with the following docker command.
 
-**TODO: Switch to official image when ready**
 
 ```bash
 docker run -d   --name arango-vector-db  -p 8529:8529   -e ARANGO_ROOT_PASSWORD=password   arangodb/arangodb:3.12.4   --experimental-vector-index=true
