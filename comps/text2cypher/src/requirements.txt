@@ -1,3 +1,4 @@
+docarray[full]
 bitsandbytes==0.43.0
 docx2txt==0.8
 fastapi==0.110.0
