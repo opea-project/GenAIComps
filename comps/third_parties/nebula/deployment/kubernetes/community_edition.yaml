@@ -16,8 +16,7 @@ spec:
         cpu: "1"
         memory: "1Gi"
     replicas: 1
-    image: vesoft/nebula-graphd
-    #version: v3.1.3
+    image: vesoft/nebula-graphd:v3.8.0
     service:
       type: NodePort
       externalTrafficPolicy: Local
@@ -35,8 +34,7 @@ spec:
         cpu: "1"
         memory: "1Gi"
     replicas: 1
-    image: vesoft/nebula-metad
-    #version: v3.1.3
+    image: vesoft/nebula-metad:v3.8.0
     dataVolumeClaim:
       resources:
         requests:
@@ -56,8 +54,7 @@ spec:
         cpu: "1"
         memory: "1Gi"
     replicas: 3
-    image: vesoft/nebula-storaged
-    #version: v3.1.3
+    image: vesoft/nebula-storaged:v3.8.0
     dataVolumeClaim:
       resources:
         requests:

@@ -3,7 +3,7 @@
 ## 1. Install cert-manager
 
 ```bash
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/<release_version>/cert-manager.yaml
 ```
 
 ## 2. Install Nebula Operator
@@ -11,7 +11,7 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 ```bash
 helm repo add nebula-operator https://vesoft-inc.github.io/nebula-operator/charts
 helm repo update
-helm install nebula-operator nebula-operator/nebula-operator --namespace=<namespace_name> --version=${chart_version}
+helm install nebula-operator nebula-operator/nebula-operator --namespace=<namespace_name> --version=1.1.0
 ```
 
 ## 3. Install and start NebulaGraph cluster
@@ -40,7 +40,13 @@ nebula-metad-headless      ClusterIP   None           <none>        9559/TCP,195
 nebula-storaged-headless   ClusterIP   None           <none>        9779/TCP,19779/TCP,19780/TCP,9778/TCP
 ```
 
-Run the following command to connect to the NebulaGraph database using the IP of the <cluster-name>-graphd-svc Service above:
+Run the following commands to get the cluster ip and service port of the service:
+```bash
+cluster_ip=$(kubectl get service | grep nebula-graphd-svc | awk '/nebula-graphd-svc/ {print $3}')
+service_port=$(kubectl get service | grep nebula-graphd-svc | awk '{print $5}' | cut -d',' -f1 | cut -d'/' -f1)
+```
+
+Run the following command to connect to the NebulaGraph database using the cluster ip and service port the <cluster-name>-graphd-svc service above:
 
 ```bash
 kubectl run -ti --image vesoft/nebula-console --restart=Never -- <nebula_console_name> -addr <cluster_ip>  -port <service_port> -u <username> -p <password>
