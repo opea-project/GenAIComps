@@ -96,11 +96,10 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
         # After request is processed:
         # - first tokens count should be equal to request count
         # - inter tokens count should not include first token
-        # However, above schedule() call does not appear to work properly
         correct = {
             "megaservice_request_latency_count": 1,
-            "megaservice_first_token_latency_count": 0,
-            "megaservice_inter_token_latency_count": token_count,  # -1
+            "megaservice_first_token_latency_count": 1,
+            "megaservice_inter_token_latency_count": token_count - 1,
         }
         for name, value in correct.items():
             self.assertTrue(name in metrics)
