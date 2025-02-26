@@ -24,7 +24,6 @@ from .config import OPENAI_API_KEY,OPENAI_CHAT_MODEL,OPENAI_CHAT_TEMPERATURE,OPE
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_community.vectorstores.arangodb_vector import ArangoVector
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-# from langchain_community.llms import HuggingFaceEndpoint
 
 from comps import (
     CustomLogger,
