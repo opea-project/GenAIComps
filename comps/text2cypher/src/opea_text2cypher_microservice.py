@@ -43,7 +43,7 @@ async def text2cypher(input: Input):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     args = setup_parser(parser)
-    
+
     args.load_quantized_model = False
     args.num_return_sequences = 1
     args.model_name_or_path = "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1"
