@@ -15,7 +15,7 @@ from comps import (
     statistics_dict,
 )
 from comps.text2cypher.src.integrations.gaudiutils import setup_parser
-from comps.text2cypher.src.integrations.native import OpeaText2Cypher
+from comps.text2cypher.src.integrations.native import OpeaText2Cypher, Input, Neo4jConnection
 
 logger = CustomLogger("opea_text2cypher_microservice")
 
@@ -28,7 +28,7 @@ logger = CustomLogger("opea_text2cypher_microservice")
     port=9097,
 )
 @register_statistics(names=["opea_service@text2cypher"])
-async def text2cypher(input: SDInputs):
+async def text2cypher(input: Input):
     start = time.time()
     try:
         # Use the loader to invoke the active component
