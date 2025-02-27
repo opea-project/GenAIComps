@@ -44,8 +44,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     args = setup_parser(parser)
     
-    print("#1 args=", args)
-
     args.load_quantized_model = False
     args.num_return_sequences = 1
     args.model_name_or_path = "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1"
@@ -73,8 +71,6 @@ if __name__ == "__main__":
     args.bf16 = True
     args.attn_softmax_bf16 = False
 
-    print("#2 args=", args)
-    print("#3 config=", args.__dict__)
     text2cypher_component_name = os.getenv("TEXT2CYPHER_COMPONENT_NAME", "OPEA_TEXT2CYPHER")
     # Initialize OpeaComponentLoader
     loader = OpeaComponentLoader(

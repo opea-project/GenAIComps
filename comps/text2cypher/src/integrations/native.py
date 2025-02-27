@@ -88,7 +88,9 @@ class OpeaText2Cypher(OpeaComponent):
         #        }
         #    )
         if device == "hpu":
-            pipe = GaudiTextGenerationPipeline(config, logger, use_with_langchain=True)
+            # Convert config dict back to args-like object
+            args = argparse.Namespace(**config)
+            pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
             hfpipe = HuggingFacePipeline(pipeline=pipe)
 
             self.chat_model = ChatHuggingFace(temperature=0.1, llm=hfpipe, tokenizer=pipe.tokenizer)
