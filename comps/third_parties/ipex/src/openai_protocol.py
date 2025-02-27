@@ -5,8 +5,8 @@
 # https://github.com/lm-sys/FastChat/blob/168ccc29d3f7edc50823016105c024fe2282732a/fastchat/protocol/openai_api_protocol.py
 
 import time
-from typing import Dict, List, Literal, Optional, Union
 import uuid
+from typing import Dict, List, Literal, Optional, Union
 
 import torch
 from pydantic import BaseModel, ConfigDict, Field
@@ -103,9 +103,7 @@ class ChatCompletionRequest(OpenAIBaseModel):
     n: Optional[int] = 1
     presence_penalty: Optional[float] = 0.0
     response_format: Optional[ResponseFormat] = None
-    seed: Optional[int] = Field(None,
-                                ge=torch.iinfo(torch.long).min,
-                                le=torch.iinfo(torch.long).max)
+    seed: Optional[int] = Field(None, ge=torch.iinfo(torch.long).min, le=torch.iinfo(torch.long).max)
     stop: Optional[Union[str, List[str]]] = Field(default_factory=list)
     stream: Optional[bool] = False
     temperature: Optional[float] = 0.7
@@ -131,21 +129,23 @@ class ChatCompletionRequest(OpenAIBaseModel):
     echo: Optional[bool] = Field(
         default=False,
         description=(
-            "If true, the new message will be prepended with the last message "
-            "if they belong to the same role."),
+            "If true, the new message will be prepended with the last message " "if they belong to the same role."
+        ),
     )
     add_generation_prompt: Optional[bool] = Field(
         default=True,
         description=(
             "If true, the generation prompt will be added to the chat template. "
             "This is a parameter used by chat template in tokenizer config of the "
-            "model."),
+            "model."
+        ),
     )
     include_stop_str_in_output: Optional[bool] = Field(
         default=False,
         description=(
             "Whether to include the stop string in the output. "
-            "This is only applied when the stop or stop_token_ids is set."),
+            "This is only applied when the stop or stop_token_ids is set."
+        ),
     )
     guided_json: Optional[Union[str, dict, BaseModel]] = Field(
         default=None,
@@ -153,33 +153,30 @@ class ChatCompletionRequest(OpenAIBaseModel):
     )
     guided_regex: Optional[str] = Field(
         default=None,
-        description=(
-            "If specified, the output will follow the regex pattern."),
+        description=("If specified, the output will follow the regex pattern."),
     )
     guided_choice: Optional[List[str]] = Field(
         default=None,
-        description=(
-            "If specified, the output will be exactly one of the choices."),
+        description=("If specified, the output will be exactly one of the choices."),
     )
     guided_grammar: Optional[str] = Field(
         default=None,
-        description=(
-            "If specified, the output will follow the context free grammar."),
+        description=("If specified, the output will follow the context free grammar."),
     )
     guided_decoding_backend: Optional[str] = Field(
         default=None,
         description=(
             "If specified, will override the default guided decoding backend "
             "of the server for this specific request. If set, must be either "
-            "'outlines' / 'lm-format-enforcer'"))
+            "'outlines' / 'lm-format-enforcer'"
+        ),
+    )
     guided_whitespace_pattern: Optional[str] = Field(
         default=None,
-        description=(
-            "If specified, will override the default whitespace pattern "
-            "for guided json decoding."))
+        description=("If specified, will override the default whitespace pattern " "for guided json decoding."),
+    )
 
     # doc: end-chat-completion-extra-params
-
 
 
 class CompletionRequest(OpenAIBaseModel):
@@ -195,9 +192,7 @@ class CompletionRequest(OpenAIBaseModel):
     max_tokens: Optional[int] = 16
     n: int = 1
     presence_penalty: Optional[float] = 0.0
-    seed: Optional[int] = Field(None,
-                                ge=torch.iinfo(torch.long).min,
-                                le=torch.iinfo(torch.long).max)
+    seed: Optional[int] = Field(None, ge=torch.iinfo(torch.long).min, le=torch.iinfo(torch.long).max)
     stop: Optional[Union[str, List[str]]] = Field(default_factory=list)
     stream: Optional[bool] = False
     suffix: Optional[str] = None
@@ -225,14 +220,16 @@ class CompletionRequest(OpenAIBaseModel):
         default=False,
         description=(
             "Whether to include the stop string in the output. "
-            "This is only applied when the stop or stop_token_ids is set."),
+            "This is only applied when the stop or stop_token_ids is set."
+        ),
     )
     response_format: Optional[ResponseFormat] = Field(
         default=None,
         description=(
             "Similar to chat completion, this parameter specifies the format of "
             "output. Only {'type': 'json_object'} or {'type': 'text' } is "
-            "supported."),
+            "supported."
+        ),
     )
     guided_json: Optional[Union[str, dict, BaseModel]] = Field(
         default=None,
@@ -240,30 +237,28 @@ class CompletionRequest(OpenAIBaseModel):
     )
     guided_regex: Optional[str] = Field(
         default=None,
-        description=(
-            "If specified, the output will follow the regex pattern."),
+        description=("If specified, the output will follow the regex pattern."),
     )
     guided_choice: Optional[List[str]] = Field(
         default=None,
-        description=(
-            "If specified, the output will be exactly one of the choices."),
+        description=("If specified, the output will be exactly one of the choices."),
     )
     guided_grammar: Optional[str] = Field(
         default=None,
-        description=(
-            "If specified, the output will follow the context free grammar."),
+        description=("If specified, the output will follow the context free grammar."),
     )
     guided_decoding_backend: Optional[str] = Field(
         default=None,
         description=(
             "If specified, will override the default guided decoding backend "
             "of the server for this specific request. If set, must be one of "
-            "'outlines' / 'lm-format-enforcer'"))
+            "'outlines' / 'lm-format-enforcer'"
+        ),
+    )
     guided_whitespace_pattern: Optional[str] = Field(
         default=None,
-        description=(
-            "If specified, will override the default whitespace pattern "
-            "for guided json decoding."))
+        description=("If specified, will override the default whitespace pattern " "for guided json decoding."),
+    )
 
     # doc: end-completion-extra-params
 
@@ -285,7 +280,8 @@ class CompletionResponseChoice(OpenAIBaseModel):
         description=(
             "The stop string or token id that caused the completion "
             "to stop, None if the completion finished for some other reason "
-            "including encountering the EOS token"),
+            "including encountering the EOS token"
+        ),
     )
 
 
@@ -308,7 +304,8 @@ class CompletionResponseStreamChoice(OpenAIBaseModel):
         description=(
             "The stop string or token id that caused the completion "
             "to stop, None if the completion finished for some other reason "
-            "including encountering the EOS token"),
+            "including encountering the EOS token"
+        ),
     )
 
 

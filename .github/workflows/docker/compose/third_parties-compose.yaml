@@ -45,3 +45,8 @@ services:
       dockerfile: Dockerfile.hpu
     shm_size: '128g'
     image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
+  ipex-llm:
+    build:
+      context: ipex-llm
+      dockerfile: omps/third_parties/ipex/src/Dockerfile
+    image: ${REGISTRY:-opea}/ipex-llm:${TAG:-latest}
