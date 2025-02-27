@@ -91,7 +91,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    def ingest_data_to_neo4j(self, doc_path: DocPath):
+    async def ingest_data_to_neo4j(self, doc_path: DocPath):
         """Ingest document to Neo4J."""
         path = doc_path.path
         if logflag:
@@ -112,7 +112,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(path)
@@ -171,7 +171,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
                 encode_file = encode_filename(file.filename)
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_neo4j(
+                await self.ingest_data_to_neo4j(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -198,7 +198,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
                 content = parse_html([link])[0][0]
                 try:
                     await save_content_to_local_disk(save_path, content)
-                    self.ingest_data_to_neo4j(
+                    await self.ingest_data_to_neo4j(
                         DocPath(
                             path=save_path,
                             chunk_size=chunk_size,

@@ -5,6 +5,7 @@ import json
 import os
 from typing import Union
 
+import aiohttp
 import requests
 from fastapi import HTTPException
 from langchain_core.prompts import PromptTemplate
@@ -112,11 +113,13 @@ class OpeaLlavaLvm(OpeaComponent):
 
         inputs = {"img_b64_str": img_b64_str, "prompt": prompt, "max_new_tokens": max_new_tokens}
         # forward to the LLaVA server
-        response = requests.post(url=f"{self.base_url}/generate", data=json.dumps(inputs), proxies={"http": None})
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url=f"{self.base_url}/generate", data=json.dumps(inputs), proxy=None)
 
-        result = response.json()["text"]
-        if logflag:
-            logger.info(result)
+            json_data = await response.json()
+            result = json_data["text"]
+            if logflag:
+                logger.info(result)
         if isinstance(request, LVMSearchedMultimodalDoc):
             retrieved_metadata = request.metadata[0]
             return_metadata = {}  # this metadata will be used to construct proof for generated text

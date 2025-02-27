@@ -3,6 +3,7 @@
 import json
 import os
 
+import aiohttp
 import requests
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -30,9 +31,10 @@ class OpeaAnimation(OpeaComponent):
         """
         inputs = {"audio": input}
 
-        response = requests.post(url=f"{self.base_url}/v1/wav2lip", data=json.dumps(inputs), proxies={"http": None})
-
-        outfile = response.json()["wav2lip_result"]
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url=f"{self.base_url}/v1/wav2lip", data=json.dumps(inputs), proxy=None)
+            json_data = await response.json()
+            outfile = json_data["wav2lip_result"]
         return outfile
 
     def check_health(self) -> bool:

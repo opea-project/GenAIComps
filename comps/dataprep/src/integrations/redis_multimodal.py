@@ -624,7 +624,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                 uploaded_files_saved_files_map[name] = file_name
 
                 # Store frames and caption annotations in a new directory
-                extract_frames_and_generate_captions(
+                await extract_frames_and_generate_captions(
                     id,
                     os.path.join(self.upload_folder, file_name),
                     LVM_ENDPOINT,

@@ -86,7 +86,7 @@ def ingest_chunks_to_milvus(embeddings, file_name: str, chunks: List):
     return True
 
 
-def ingest_data_to_milvus(doc_path: DocPath, embeddings):
+async def ingest_data_to_milvus(doc_path: DocPath, embeddings):
     """Ingest document to Milvus."""
     path = doc_path.path
     file_name = path.split("/")[-1]
@@ -108,7 +108,7 @@ def ingest_data_to_milvus(doc_path: DocPath, embeddings):
             separators=get_separators(),
         )
 
-    content = document_loader(path)
+    content = await document_loader(path)
 
     if logflag:
         logger.info("[ ingest data ] file content loaded")
@@ -305,7 +305,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                         )
 
                 await save_content_to_local_disk(save_path, file)
-                ingest_data_to_milvus(
+                await ingest_data_to_milvus(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -351,7 +351,7 @@ class OpeaMilvusDataprep(OpeaComponent):
                 save_path = upload_folder + encoded_link + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 await save_content_to_local_disk(save_path, content)
-                ingest_data_to_milvus(
+                await ingest_data_to_milvus(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,

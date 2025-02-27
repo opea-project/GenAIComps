@@ -207,7 +207,7 @@ class ServiceOrchestrator(DAG):
             all_outputs.update(result_dict[prev_node])
         return all_outputs
 
-    def wrap_iterable(self, iterable, is_first=True):
+    async def wrap_iterable(self, aiterable, is_first=True):
 
         with tracer.start_as_current_span("llm_generate_stream") if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
             while True:
@@ -217,10 +217,10 @@ class ServiceOrchestrator(DAG):
                     else contextlib.nullcontext()
                 ):  #  else tracer.start_as_current_span(f"llm_generate_stream_next_token")
                     try:
-                        token = next(iterable)
+                        token = await anext(aiterable)
                         yield token
                         is_first = False
-                    except StopIteration:
+                    except StopAsyncIteration:
                         # Exiting the iterable loop cleanly
                         break
                     except Exception as e:
@@ -259,14 +259,14 @@ class ServiceOrchestrator(DAG):
                 if ENABLE_OPEA_TELEMETRY
                 else contextlib.nullcontext()
             ):
-                response = requests.post(
-                    url=endpoint,
-                    data=json.dumps(inputs),
-                    headers={"Content-type": "application/json"},
-                    proxies={"http": None},
-                    stream=True,
-                    timeout=1000,
-                )
+                async with aiohttp.ClientSession() as session:
+                    response = await session.post(
+                        url=endpoint,
+                        data=json.dumps(inputs),
+                        headers={"Content-type": "application/json"},
+                        proxy=None,
+                        timeout=aiohttp.ClientTimeout(total=1000),
+                    )
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
@@ -274,36 +274,36 @@ class ServiceOrchestrator(DAG):
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
                 downstream_endpoint = self.services[downstream[0]].endpoint_path
 
-            def generate():
+            async def generate():
                 token_start = req_start
                 if response:
                     # response.elapsed = time until first headers received
                     buffered_chunk_str = ""
                     is_first = True
-
-                    for chunk in self.wrap_iterable(response.iter_content(chunk_size=None)):
-
+                    async for chunk in self.wrap_iterable(response.content.iter_chunked(None)):
                         if chunk:
                             if downstream:
                                 chunk = chunk.decode("utf-8")
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
-                                    res = requests.post(
-                                        url=downstream_endpoint,
-                                        data=json.dumps({"text": buffered_chunk_str}),
-                                        proxies={"http": None},
-                                    )
-                                    res_json = res.json()
-                                    if "text" in res_json:
-                                        res_txt = res_json["text"]
-                                    else:
-                                        raise Exception("Other response types not supported yet!")
-                                    buffered_chunk_str = ""  # clear
-                                    yield from self.token_generator(
-                                        res_txt, token_start, is_first=is_first, is_last=is_last
-                                    )
-                                    token_start = time.time()
+                                    async with aiohttp.ClientSession() as downstream_session:
+                                        res = await downstream_session.post(
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            proxy=None,
+                                        )
+                                        res_json = await res.json()
+                                        if "text" in res_json:
+                                            res_txt = res_json["text"]
+                                        else:
+                                            raise Exception("Other response types not supported yet!")
+                                        buffered_chunk_str = ""  # clear
+                                        async for item in self.token_generator(
+                                            res_txt, token_start, is_first=is_first, is_last=is_last
+                                        ):
+                                            yield item
+                                        token_start = time.time()
                             else:
                                 token_start = self.metrics.token_update(token_start, is_first)
                                 yield chunk

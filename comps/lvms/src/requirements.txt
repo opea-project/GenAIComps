@@ -1,3 +1,4 @@
+aiohttp
 datasets
 docarray[full]
 fastapi

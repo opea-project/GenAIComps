@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import os
 from typing import List
 
@@ -43,7 +44,7 @@ class OpeaWhisperAsr(OpeaComponent):
         # Read the uploaded file
         file_contents = await file.read()
 
-        # Prepare the files and data for requests.post
+        # Prepare the files and data
         files = {
             "file": (file.filename, file_contents, file.content_type),
         }
@@ -57,7 +58,9 @@ class OpeaWhisperAsr(OpeaComponent):
         }
 
         # Send the file and model to the server
-        response = requests.post(f"{self.base_url}/v1/audio/transcriptions", files=files, data=data)
+        response = await asyncio.to_thread(
+            requests.post, f"{self.base_url}/v1/audio/transcriptions", files=files, data=data
+        )
         res = response.json()["text"]
         return AudioTranscriptionResponse(text=res)
 
