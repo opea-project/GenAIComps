@@ -13,12 +13,12 @@ llama-index-graph-stores-neo4j==0.3.5
 llama-index-llms-huggingface==0.3.5
 llama-index-llms-huggingface-api==0.2.0
 neo4j==5.23.0
-optimum-habana==1.13.2
+#optimum-habana==1.13.2
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
-pydantic==2.7.2
+#pydantic==2.7.2
 pydub
 peft==0.14.0
 pyprojroot==0.3.0
@@ -28,14 +28,4 @@ transformers==4.43.1
 unstructured==0.12.6
 urllib3==1.26.18
 uvicorn==0.29.0
-
-
-
-#docx2txt==0.8
-#grpcio-tools==1.62.1
-#InstructorEmbedding==1.0.1
-#protobuf==3.20.2
-#python-multipart==0.0.9
-#requests==2.31.0
-#scikit-learn==1.5.2
 
