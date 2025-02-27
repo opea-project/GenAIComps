@@ -70,7 +70,7 @@ if __name__ == "__main__":
     args.quant_config = os.getenv("QUANT_CONFIG", "")
     args.bf16 = True
     args.attn_softmax_bf16 = False
- 
+
     text2cypher_component_name = os.getenv("TEXT2CYPHER_COMPONENT_NAME", "OPEA_TEXT2CYPHER")
     # Initialize OpeaComponentLoader
     loader = OpeaComponentLoader(
