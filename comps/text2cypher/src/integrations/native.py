@@ -1,21 +1,14 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-# import base64
-# import os
-# import tempfile
-
-# import torch
-# from diffusers import DiffusionPipeline
-
 import argparse
 import logging
 import os
 import sys
 import time
 from string import Template
-from typing import Any, Dict, List, Optional, Union
-
+from typing import Any, Dict, List, Annotated, Optional, Union
+from pydantic import BaseModel, Field
 from langchain.chains.llm import LLMChain
 from langchain_community.chains.graph_qa.cypher import GraphCypherQAChain
 from langchain_community.chains.graph_qa.prompts import CYPHER_QA_PROMPT
@@ -25,8 +18,6 @@ from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 # from langchain_community.chat_models import ChatGaudi
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
-#from llama_index.core.indices.property_graph import LLMSynonymRetriever, VectorContextRetriever
-#from load_llm import load_llm
 from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipeline
 from pyprojroot import here
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
