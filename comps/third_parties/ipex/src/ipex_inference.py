@@ -148,7 +148,7 @@ def load_model(
     model_class = MODEL_CLASSES[model_type]
     if config_file is None:
         if model_type == "chatglm":
-            # chatglm modeling is from remote hub and its torch_dtype in config.json need to be overrided
+            # chatglm modeling is from remote hub and its torch_dtype in config.json need to be overridden
             config = AutoConfig.from_pretrained(
                 model_id,
                 torchscript=deployment_mode,
