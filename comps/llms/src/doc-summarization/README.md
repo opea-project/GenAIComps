@@ -133,7 +133,7 @@ curl http://${your_ip}:9000/v1/docsum \
 
 "summary_type" is set to be "auto" by default, in this mode we will check input token length, if it exceed `MAX_INPUT_TOKENS`, `summary_type` will automatically be set to `refine` mode, otherwise will be set to `stuff` mode.
 
-With long contexts, request may get canceled due to its generation taking longer than the default `timeout` value (120s for TGI).  Increase it as needed.
+With long contexts, request may get canceled due to its generation taking longer than the default `timeout` value (120s for TGI). Increase it as needed.
 
 **summary_type=stuff**
 
