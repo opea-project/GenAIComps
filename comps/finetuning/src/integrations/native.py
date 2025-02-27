@@ -201,7 +201,7 @@ class OpeaFinetuning(OpeaComponent):
             for file in files:  # Loop over directory contents
                 file_path = os.path.join(output_dir, file)
                 if os.path.isdir(file_path) and file.startswith("checkpoint"):
-                    steps = re.findall("\d+", file)[0]
+                    steps = re.findall(r"\d+", file)[0]
                     checkpointsResponse = FineTuningJobCheckpoint(
                         id=f"ftckpt-{uuid.uuid4()}",  # Generate a unique ID
                         created_at=int(time.time()),  # Use the current timestamp
