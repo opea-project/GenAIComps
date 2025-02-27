@@ -345,6 +345,7 @@ def override_prints(enable, logger):
     override_print(enable)
     override_logger(logger, enable)
 
+
 def setup_inference(args, model):
     import habana_frameworks.torch.core as htcore
 
@@ -484,6 +485,7 @@ def setup_model(args, model_dtype, model_kwargs, logger):
         # if args.assistant_model is not None:
         #     assistant_model = get_torch_compiled_model(assistant_model)
     return model, assistant_model
+
 
 def peft_model(args, model_dtype, logger, **model_kwargs):
     import importlib.util
@@ -657,9 +659,7 @@ def initialize_model(args, logger):
     if args.trust_remote_code:
         logger.warning("`trust_remote_code` is set, there is no guarantee this model works properly and it may fail")
 
-    model, assistant_model = (
-        setup_model(args, model_dtype, model_kwargs, logger)
-    )
+    model, assistant_model = setup_model(args, model_dtype, model_kwargs, logger)
     tokenizer, model, assistant_model = setup_tokenizer(args, model, assistant_model)
     generation_config = setup_generation_config(args, model, assistant_model, tokenizer)
 

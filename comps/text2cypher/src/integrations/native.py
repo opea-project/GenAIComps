@@ -30,11 +30,13 @@ from comps.text2cypher.src.integrations.cypher_utils import (
     cypher_insert,
     prepare_chat_template,
 )
-#from comps.text2cypher.src.integrations.gaudiutils import initialize_model, setup_parser
 
 # from llama_index.core.indices.property_graph import LLMSynonymRetriever, VectorContextRetriever
 # from load_llm import load_llm
 from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipeline
+
+# from comps.text2cypher.src.integrations.gaudiutils import initialize_model, setup_parser
+
 
 logger = CustomLogger("opea")
 
