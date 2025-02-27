@@ -16,7 +16,7 @@ helm install nebula-operator nebula-operator/nebula-operator --namespace=<namesp
 
 ## 3. Install and start NebulaGraph cluster
 
-Choose between the Enterprise and Community configuration files base on your license. Edit the config with the proper storageClassName and run the command below:
+Choose between the Enterprise and Community configuration files base on your license. Create a StorageClass or use an existing one in the k8s cluster. Edit the config with the proper storageClassName and run the command below:
 
 ```bash
 kubectl create -f enterprise_edition.yaml
