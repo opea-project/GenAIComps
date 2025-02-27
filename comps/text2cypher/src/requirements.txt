@@ -1,3 +1,4 @@
+accelerate
 docarray[full]
 fastapi
 huggingface_hub

@@ -16,8 +16,8 @@ import time
 from string import Template
 from typing import Any, Dict, List, Optional, Union
 
-from cypher_utils import CypherQueryCorrector2, construct_schema, cypher_cleanup, cypher_insert, prepare_chat_template
-from gaudiutils import initialize_model, setup_parser
+from comps.text2cypher.src.integrations.cypher_utils import CypherQueryCorrector2, construct_schema, cypher_cleanup, cypher_insert, prepare_chat_template
+from comps.text2cypher.src.integrations.gaudiutils import initialize_model, setup_parser
 from langchain.chains.llm import LLMChain
 from langchain_community.chains.graph_qa.cypher import GraphCypherQAChain
 from langchain_community.chains.graph_qa.prompts import CYPHER_QA_PROMPT
@@ -29,7 +29,7 @@ from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 from llama_index.core.indices.property_graph import LLMSynonymRetriever, VectorContextRetriever
 from load_llm import load_llm
-from pipeline import GaudiTextGenerationPipeline
+from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipeline
 from pyprojroot import here
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
