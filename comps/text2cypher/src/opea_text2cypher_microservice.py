@@ -43,6 +43,8 @@ async def text2cypher(input: Input):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     args = setup_parser(parser)
+    
+    print("#1 args=", args)
 
     args.load_quantized_model = False
     args.num_return_sequences = 1
@@ -70,7 +72,9 @@ if __name__ == "__main__":
     args.quant_config = os.getenv("QUANT_CONFIG", "")
     args.bf16 = True
     args.attn_softmax_bf16 = False
- 
+
+    print("#2 args=", args)
+    print("#3 config=", args.__dict__)
     text2cypher_component_name = os.getenv("TEXT2CYPHER_COMPONENT_NAME", "OPEA_TEXT2CYPHER")
     # Initialize OpeaComponentLoader
     loader = OpeaComponentLoader(
