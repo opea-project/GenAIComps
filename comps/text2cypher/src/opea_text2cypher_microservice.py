@@ -15,7 +15,7 @@ from comps import (
     statistics_dict,
 )
 from comps.text2cypher.src.integrations.gaudiutils import setup_parser
-from comps.text2cypher.src.integrations.native import OpeaText2Cypher, Input, Neo4jConnection
+from comps.text2cypher.src.integrations.native import Input, Neo4jConnection, OpeaText2Cypher
 
 logger = CustomLogger("opea_text2cypher_microservice")
 
