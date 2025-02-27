@@ -6,7 +6,7 @@ import os
 
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
-from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
+from langchain_vdms.vectorstores import VDMS, VDMS_Client
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 

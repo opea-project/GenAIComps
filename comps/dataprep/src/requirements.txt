@@ -8,7 +8,7 @@ einops
 elasticsearch
 fastapi
 future
-graspologic 
+graspologic
 html2text
 huggingface_hub
 ipython
@@ -19,6 +19,7 @@ langchain-experimental
 langchain-openai
 langchain-pinecone
 langchain-text-splitters
+langchain-vdms
 langchain_huggingface
 langchain_milvus
 llama-index 
