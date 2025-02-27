@@ -47,6 +47,7 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 RUN mkdir -p /home/user/comps/dataprep/src/uploaded_files && chown -R user /home/user/comps/dataprep/src/uploaded_files
 
 USER user
+ENV NLTK_DATA=/home/user/nltk_data
 
 WORKDIR /home/user/comps/dataprep/src
 
