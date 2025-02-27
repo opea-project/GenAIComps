@@ -19,6 +19,7 @@ export host_ip=${host_ip}
 ```
 
 Note. If you want to run "microsoft/Phi-4-multimodal-instruct", please download the [model weights](https://huggingface.co/microsoft/Phi-4-multimodal-instruct/tree/main) manually and put at `/path/to/Phi-4-multimodal-instruct` locally, then setup following environment.
+
 ```bash
 export LLM_MODEL_ID="/path/to/Phi-4-multimodal-instruct"
 export LLM_COMPONENT_NAME="OpeaTextGenNativePhi4Multimodal"

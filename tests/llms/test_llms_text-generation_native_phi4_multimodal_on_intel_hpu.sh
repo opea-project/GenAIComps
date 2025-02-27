@@ -81,7 +81,7 @@ function validate_microservices() {
         "$service_name" \
         "$service_name" \
         '{"model": "/data/Phi-4-multimodal-instruct", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}'
-    
+
     # image
     echo "Validate textgen with image input..."
     validate_services \

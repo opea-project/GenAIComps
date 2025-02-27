@@ -98,17 +98,17 @@ def generate(
     audios = None
     if image_path is not None:
         if not os.path.exists(image_path):
-            raise FileNotFoundError(f'Provided {image_path} not found.')
+            raise FileNotFoundError(f"Provided {image_path} not found.")
         images = [Image.open(image_path)]
         query_prompt += f"{IMAGE_SPECIAL}"
     if audio_path is not None:
         if not os.path.exists(audio_path):
-            raise FileNotFoundError(f'Provided {audio_path} not found.')
+            raise FileNotFoundError(f"Provided {audio_path} not found.")
         audios = [soundfile.read(audio_path)]
         query_prompt += f"{AUDIO_SPECIAL}"
     query_prompt += f"{query}{prompt_suffix}{assistant_prompt}"
     logger.info(f"[llm - generate] starting to inference with prompt {query_prompt}")
-    
+
     inputs = processor(query_prompt, images=images, audios=audios, return_tensors="pt").to("hpu:0")
 
     generate_ids = model.generate(
