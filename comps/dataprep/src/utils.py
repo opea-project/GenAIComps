@@ -257,13 +257,12 @@ async def load_pptx(pptx_path):
                 if table_contents:
                     text += table_contents + "\n"
             if hasattr(shape, "image") and hasattr(shape.image, "blob"):
-                img_path = f"./{shape.image.filename}"
-                with open(img_path, "wb") as f:
+                with tempfile.NamedTemporaryFile() as f:
                     f.write(shape.image.blob)
-                img_text = await load_image(img_path)
-                if img_text:
-                    text += img_text + "\n"
-                os.remove(img_path)
+                    f.flush()
+                    img_text = await load_image(f.name)
+                    if img_text:
+                        text += img_text + "\n"
     return text
 
 
