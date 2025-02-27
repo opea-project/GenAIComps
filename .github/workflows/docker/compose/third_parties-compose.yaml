@@ -48,5 +48,5 @@ services:
   ipex-llm:
     build:
       context: ipex-llm
-      dockerfile: omps/third_parties/ipex/src/Dockerfile
+      dockerfile: comps/third_parties/ipex/src/Dockerfile
     image: ${REGISTRY:-opea}/ipex-llm:${TAG:-latest}
