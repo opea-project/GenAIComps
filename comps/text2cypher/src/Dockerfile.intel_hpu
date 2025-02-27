@@ -31,7 +31,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 RUN git clone ${REPO} /home/user/optimum-habana && \
     cd /home/user/optimum-habana && git checkout ${REPO_VER} && \
     cd /home/user/comps/text2cypher/src && pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir --upgrade --force-reinstall pydantic numpy==1.23.5
+    pip install --no-cache-dir --upgrade --force-reinstall pydantic numpy<2
 
 # Set environment variables
 ENV PYTHONPATH=/root:/home/user:/usr/lib/habanalabs/:/home/user/optimum-habana
