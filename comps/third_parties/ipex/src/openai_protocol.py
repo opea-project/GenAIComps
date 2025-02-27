@@ -9,10 +9,8 @@ from typing import Dict, List, Literal, Optional, Union
 import uuid
 
 import torch
-from openai.types.chat import ChatCompletionMessageParam
 from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import Annotated
-from typing_extensions import Literal
 
 
 # from vllm.sampling_params import SamplingParams
