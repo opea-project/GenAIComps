@@ -345,13 +345,6 @@ def override_prints(enable, logger):
     override_print(enable)
     override_logger(logger, enable)
 
-
-def setup_distributed(args):
-    args.local_rank = int(os.getenv("LOCAL_RANK", "0"))
-    args.world_size = int(os.getenv("WORLD_SIZE", "0"))
-    args.global_rank = int(os.getenv("RANK", "0"))
-
-
 def setup_inference(args, model):
     import habana_frameworks.torch.core as htcore
 
@@ -385,14 +378,6 @@ def setup_env(args):
     check_optimum_habana_min_version("1.9.0.dev0")
     # TODO: SW-167588 - WA for memory issue in hqt prep_model
     os.environ.setdefault("EXPERIMENTAL_WEIGHT_SHARING", "FALSE")
-
-    if args.global_rank == 0 and not args.torch_compile:
-        os.environ.setdefault("GRAPH_VISUALIZATION", "true")
-        shutil.rmtree(".graph_dumps", ignore_errors=True)
-
-    if args.world_size > 0:
-        os.environ.setdefault("PT_HPU_LAZY_ACC_PAR_MODE", "0")
-        os.environ.setdefault("PT_HPU_ENABLE_LAZY_COLLECTIVES", "true")
 
     if args.use_hpu_graphs and args.limit_hpu_graphs and not args.reuse_cache and args.bucket_internal:
         # Based upon above conditions and below env variable,
@@ -499,86 +484,6 @@ def setup_model(args, model_dtype, model_kwargs, logger):
         # if args.assistant_model is not None:
         #     assistant_model = get_torch_compiled_model(assistant_model)
     return model, assistant_model
-
-
-def setup_distributed_model(args, model_dtype, model_kwargs, logger):
-    import deepspeed
-
-    logger.info("DeepSpeed is enabled.")
-    deepspeed.init_distributed(dist_backend="hccl")
-    config = AutoConfig.from_pretrained(args.model_name_or_path, torch_dtype=model_dtype, **model_kwargs)
-    load_to_meta = model_on_meta(config)
-
-    if args.assistant_model is None:
-        assistant_model = None
-    else:
-        logger.info(f"Using asssitant model {args.assistant_model}.")
-
-    if load_to_meta:
-        # Construct model with fake meta tensors, later will be replaced on devices during ds-inference ckpt load
-        with deepspeed.OnDevice(dtype=model_dtype, device="meta"):
-            model = AutoModelForCausalLM.from_config(config, torch_dtype=model_dtype)
-
-        # Model loaded to meta is managed differently
-        checkpoints_json = tempfile.NamedTemporaryFile(suffix=".json", mode="+w")
-
-        # For PEFT models, write the merged model on disk to be able to load it on the meta device
-        if args.peft_model is not None:
-            merged_model_dir = "/tmp/text_generation_merged_peft_model"
-            if args.local_rank == 0:
-                if Path(merged_model_dir).is_dir():
-                    shutil.rmtree(merged_model_dir)
-                peft_model(args, model_dtype, logger, **model_kwargs).save_pretrained(merged_model_dir)
-            torch.distributed.barrier()
-
-        write_checkpoints_json(
-            merged_model_dir if args.peft_model is not None else args.model_name_or_path,
-            args.local_rank,
-            checkpoints_json,
-            token=args.token,
-        )
-    else:
-        # TODO: revisit placement on CPU when auto-injection is possible
-        with deepspeed.OnDevice(dtype=model_dtype, device="cpu"):
-            if args.peft_model is not None:
-                model = peft_model(args, model_dtype, logger, **model_kwargs)
-            else:
-                model = AutoModelForCausalLM.from_pretrained(
-                    args.model_name_or_path, torch_dtype=model_dtype, **model_kwargs
-                )
-    model.eval()
-
-    if args.assistant_model is not None:
-        assistant_model = AutoModelForCausalLM.from_pretrained(
-            args.assistant_model, torch_dtype=model_dtype, **model_kwargs
-        ).eval()
-
-    # Initialize the model
-    ds_inference_kwargs = {"dtype": model_dtype}
-    ds_inference_kwargs["tensor_parallel"] = {"tp_size": args.world_size}
-    ds_inference_kwargs["enable_cuda_graph"] = args.use_hpu_graphs
-    ds_inference_kwargs["injection_policy"] = get_ds_injection_policy(config)
-    if load_to_meta:
-        ds_inference_kwargs["checkpoint"] = checkpoints_json.name
-
-    model = deepspeed.init_inference(model, **ds_inference_kwargs)
-    model = model.module
-    if model.config.model_type in ["llama", "falcon", "qwen2"]:
-        patch_scoped_linear_all_reduce(model)
-
-    if args.quant_config:
-        import habana_quantization_toolkit
-
-        habana_quantization_toolkit.prep_model(model)
-        if args.assistant_model is not None:
-            habana_quantization_toolkit.prep_model(assistant_model)
-
-    if args.torch_compile and model.config.model_type == "llama":
-        model = get_torch_compiled_model(model)
-        # if args.assistant_model is not None:
-        #     assistant_model = get_torch_compiled_model(assistant_model)
-    return model, assistant_model
-
 
 def peft_model(args, model_dtype, logger, **model_kwargs):
     import importlib.util
@@ -722,13 +627,6 @@ def exclude_hpu_graph_configs(args):
     if args.batch_size == 1 and args.limit_hpu_graphs:
         if "falcon-180B" in args.model_name_or_path or "falcon-180b" in args.model_name_or_path:
             return False
-        if args.world_size == 2 or args.world_size == 4 or args.world_size == 8:
-            if args.quant_config:
-                if args.max_input_tokens >= 8192 and args.max_new_tokens >= 128:
-                    return False
-            else:
-                if args.max_input_tokens >= 4096 and args.max_new_tokens >= 128:
-                    return False
         return True
     else:
         return False
@@ -736,16 +634,15 @@ def exclude_hpu_graph_configs(args):
 
 def initialize_model(args, logger):
     init_start = time.perf_counter()
-    setup_distributed(args)
     if exclude_hpu_graph_configs(args):
         args.limit_hpu_graphs = False
-    override_prints(args.global_rank == 0 or args.verbose_workers, logger)
+    override_prints(args.verbose_workers, logger)
     setup_env(args)
     setup_device(args)
     set_seed(args.seed)
-    get_repo_root(args.model_name_or_path, local_rank=args.local_rank, token=args.token)
+    get_repo_root(args.model_name_or_path, local_rank=0, token=args.token)
     if args.assistant_model is not None:
-        get_repo_root(args.assistant_model, local_rank=args.local_rank, token=args.token)
+        get_repo_root(args.assistant_model, local_rank=0, token=args.token)
     use_deepspeed = False
     if use_deepspeed or args.bf16:
         model_dtype = torch.bfloat16
@@ -762,8 +659,6 @@ def initialize_model(args, logger):
 
     model, assistant_model = (
         setup_model(args, model_dtype, model_kwargs, logger)
-        if not use_deepspeed
-        else setup_distributed_model(args, model_dtype, model_kwargs, logger)
     )
     tokenizer, model, assistant_model = setup_tokenizer(args, model, assistant_model)
     generation_config = setup_generation_config(args, model, assistant_model, tokenizer)
@@ -774,6 +669,6 @@ def initialize_model(args, logger):
         model = setup_inference(args, model)
     init_end = time.perf_counter()
     logger.info(f"Args: {args}")
-    logger.info(f"device: {args.device}, n_hpu: {args.world_size}, bf16: {model_dtype == torch.bfloat16}")
+    logger.info(f"device: {args.device}, n_hpu: 1, bf16: {model_dtype == torch.bfloat16}")
     logger.info(f"Model initialization took {(init_end - init_start):.3f}s")
     return model, assistant_model, tokenizer, generation_config
