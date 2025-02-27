@@ -22,7 +22,7 @@ langchain-text-splitters
 langchain_huggingface
 langchain_milvus
 llama-index 
-llama-index-core
+llama-index-core==0.12.19
 llama-index-embeddings-text-embeddings-inference
 llama-index-graph-stores-neo4j
 llama-index-llms-openai

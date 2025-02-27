@@ -19,22 +19,30 @@ export host_ip=${your_hostname IP}  # local IP
 export no_proxy=$no_proxy,${host_ip}  # important to add {host_ip} for containers communication
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export NEO4J_URI=${your_neo4j_url}
 export NEO4J_USERNAME=${your_neo4j_username}
 export NEO4J_PASSWORD=${your_neo4j_password}  # should match what was used in NEO4J_AUTH when running the neo4j-apoc
 export PYTHONPATH=${path_to_comps}
 export OPENAI_KEY=${your_openai_api_key}  # optional, when not provided will use open models TGI/TEI
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
+export DATA_PATH=${host_path_to_volume_mnt}
 
 # set additional environment settings
 export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+export EMBED_MODEL=${EMBEDDING_MODEL_ID}
 export OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
-export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
+export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
+export MAX_INPUT_TOKENS=4096
+export MAX_TOTAL_TOKENS=8192
 export OPENAI_LLM_MODEL="gpt-4o"
-export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:6006"
-export TGI_LLM_ENDPOINT="http://${host_ip}:6005"
-export NEO4J_URL="bolt://${host_ip}:7687"
-export NEO4J_USERNAME=neo4j
+export TEI_EMBEDDER_PORT=11633
+export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
+export LLM_ENDPOINT_PORT=11634
+export TGI_LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
+export NEO4J_AUTH="${NEO4J_USERNAME}/${NEO4J_PASSWORD}"
+export NEO4J_PORT1=7474   # 11631
+export NEO4J_PORT2=7687   # 11632
+export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
+export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
 export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:6004/v1/dataprep"
 export LOGFLAG=True
 ```

@@ -8,12 +8,14 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11101
+service_name="dataprep-milvus tei-embedding-serving etcd minio standalone"
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
     # dataprep milvus image
-    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -23,22 +25,16 @@ function build_docker_images() {
 }
 
 function start_service() {
-    # start milvus vector db
-    cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose/
-    # wget https://raw.githubusercontent.com/milvus-io/milvus/v2.4.9/configs/milvus.yaml
-    # wget https://github.com/milvus-io/milvus/releases/download/v2.4.9/milvus-standalone-docker-compose.yml -O docker-compose.yml
-    # sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
-    docker compose up -d
-    sleep 30
-
     export host_ip=${ip_address}
     export TEI_EMBEDDER_PORT=12005
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export MILVUS_HOST=${ip_address}
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
-    service_name="dataprep-milvus tei-embedding-serving"
+    export LOGFLAG=true
+
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
-    docker compose up ${service_name} -d
+    docker compose up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+
     sleep 1m
 }
 
@@ -123,12 +119,12 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cd $WORKPATH
-    rm -rf milvus/
-    cid=$(docker ps -aq --filter "name=dataprep-milvus*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-    cid=$(docker ps -aq --filter "name=milvus-*")
-    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+    cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose/
+    docker compose -f compose.yaml down --remove-orphans
+
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose
+    docker compose -f compose.yaml down  ${service_name} --remove-orphans
+
 }
 
 function main() {

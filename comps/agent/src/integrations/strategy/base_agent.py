@@ -3,6 +3,9 @@
 
 from uuid import uuid4
 
+from langgraph.checkpoint.memory import MemorySaver
+
+from ..storage.persistence_redis import RedisPersistence
 from ..tools import get_tools_descriptions
 from ..utils import adapt_custom_prompt, setup_chat_model
 
@@ -12,11 +15,25 @@ class BaseAgent:
         self.llm = setup_chat_model(args)
         self.tools_descriptions = get_tools_descriptions(args.tools)
         self.app = None
-        self.memory = None
         self.id = f"assistant_{self.__class__.__name__}_{uuid4()}"
         self.args = args
         adapt_custom_prompt(local_vars, kwargs.get("custom_prompt"))
-        print(self.tools_descriptions)
+        print("Registered tools: ", self.tools_descriptions)
+
+        if args.with_memory:
+            if args.memory_type == "checkpointer":
+                self.memory_type = "checkpointer"
+                self.checkpointer = MemorySaver()
+                self.store = None
+            elif args.memory_type == "store":
+                # print("Using Redis as store: ", args.store_config.redis_uri)
+                self.store = RedisPersistence(args.store_config.redis_uri)
+                self.memory_type = "store"
+            else:
+                raise ValueError("Invalid memory type!")
+        else:
+            self.store = None
+            self.checkpointer = None
 
     @property
     def is_vllm(self):
@@ -60,10 +77,7 @@ class BaseAgent:
         try:
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
                 message = s["messages"][-1]
-                if isinstance(message, tuple):
-                    print(message)
-                else:
-                    message.pretty_print()
+                message.pretty_print()
 
             last_message = s["messages"][-1]
             print("******Response: ", last_message.content)

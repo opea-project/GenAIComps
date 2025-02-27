@@ -8,11 +8,12 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT="11110"
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
@@ -30,7 +31,6 @@ function start_service() {
     export COLLECTION_NAME="test-comps"
     export QDRANT_HOST=$ip_address
     export QDRANT_PORT=$QDRANT_PORT
-    export TAG="comps"
     service_name="vdms-vector-db dataprep-vdms"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d

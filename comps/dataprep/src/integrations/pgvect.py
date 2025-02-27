@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 import psycopg2
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import PGVector
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -30,6 +30,10 @@ logflag = os.getenv("LOGFLAG", False)
 
 # Embedding model
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+# TEI Embedding endpoints
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING", "localhost")
 
@@ -47,12 +51,26 @@ class OpeaPgvectorDataprep(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
-        self.tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
         self.upload_folder = "./uploaded_files/"
         # Create vectorstore
-        if self.tei_embedding_endpoint:
+        if TEI_EMBEDDING_ENDPOINT:
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+            import requests
+
+            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
             # create embeddings using TEI endpoint service
-            self.embedder = HuggingFaceHubEmbeddings(model=self.tei_embedding_endpoint)
+            self.embedder = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
         else:
             # create embeddings using local embedding model
             self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
@@ -143,7 +161,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
                 logger.info(f"An unexpected error occurred: {e}")
             return False
 
-    def ingest_doc_to_pgvector(self, doc_path: DocPath):
+    async def ingest_doc_to_pgvector(self, doc_path: DocPath):
         """Ingest document to PGVector."""
         doc_path = doc_path.path
         if logflag:
@@ -153,7 +171,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
             chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, add_start_index=True, separators=get_separators()
         )
 
-        content = document_loader(doc_path)
+        content = await document_loader(doc_path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(doc_path)
@@ -232,6 +250,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into pgvector database.
 
@@ -261,7 +280,7 @@ class OpeaPgvectorDataprep(OpeaComponent):
                 save_path = self.upload_folder + file.filename
                 await self.save_file_to_local_disk(save_path, file)
 
-                self.ingest_doc_to_pgvector(DocPath(path=save_path))
+                await self.ingest_doc_to_pgvector(DocPath(path=save_path))
                 if logflag:
                     logger.info(f"Successfully saved file {save_path}")
             result = {"status": 200, "message": "Data preparation succeeded"}
