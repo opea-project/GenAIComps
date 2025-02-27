@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 
 RUN git clone ${REPO} /home/user/optimum-habana && \
     cd /home/user/optimum-habana && git checkout ${REPO_VER} && \
-    cd /home/user/comps/text2cyphersrc && pip install --no-cache-dir -r requirements.txt && \
+    cd /home/user/comps/text2cypher/src && pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir --upgrade --force-reinstall pydantic numpy==1.23.5
 
 # Set environment variables
