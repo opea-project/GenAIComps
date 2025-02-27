@@ -43,7 +43,7 @@ async def text2cypher(input: Input):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     args = setup_parser(parser)
-    
+
     print("#1 args=", args)
 
     args.load_quantized_model = False
