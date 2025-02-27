@@ -56,7 +56,21 @@ if __name__ == "__main__":
     args.fp8 = False
     args.kv_cache_fp8 = False
     args.temperature = 0.1
-
+    args.device = "hpu"
+    args.batch_size = 1
+    args.limit_hpu_graphs = False
+    args.reuse_cache = False
+    args.bucket_internal = False
+    args.disk_offload = False
+    args.seed = 27
+    args.token = None
+    args.assistant_model = None
+    args.torch_compile = False
+    args.peft_model = None
+    args.quant_config = os.getenv("QUANT_CONFIG", "")
+    args.bf16 = True
+    args.attn_softmax_bf16 = False
+ 
     text2cypher_component_name = os.getenv("TEXT2CYPHER_COMPONENT_NAME", "OPEA_TEXT2CYPHER")
     # Initialize OpeaComponentLoader
     loader = OpeaComponentLoader(
