@@ -2,45 +2,38 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import logging
 import os
-import torch
 import re
-import uvicorn
 from typing import Union
+
+import torch
+import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from starlette.middleware.cors import CORSMiddleware
-
 from transformers import AutoConfig, TextStreamer
-
-import logging
 
 logger = logging.getLogger(__name__)
 
 try:
-    from llava.model.builder import load_pretrained_model
+    from llava.constants import DEFAULT_IM_END_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX
     from llava.conversation import conv_templates
     from llava.mm_utils import get_model_name_from_path, tokenizer_image_token
-    from llava.constants import (
-        IMAGE_TOKEN_INDEX,
-        DEFAULT_IMAGE_TOKEN,
-        DEFAULT_IM_START_TOKEN,
-        DEFAULT_IM_END_TOKEN,
-    )
+    from llava.model.builder import load_pretrained_model
 
 except ImportError:
     pass
 
+from openai_protocol import ChatCompletionRequest
 from transformers import (
     AutoModelForCausalLM,
+    AutoProcessor,
     AutoTokenizer,
+    MllamaForConditionalGeneration,
     T5ForConditionalGeneration,
     WhisperForConditionalGeneration,
-    MllamaForConditionalGeneration,
-    AutoProcessor,
 )
-
-from openai_protocol import ChatCompletionRequest
 
 # supported models
 MODEL_CLASSES = {
@@ -92,13 +85,14 @@ app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
 )
 
-model=None
-tokenizer=None
-image_processor=None
-model_type=""
-amp_enabled=False
-amp_dtype=""
-config=None
+model = None
+tokenizer = None
+image_processor = None
+model_type = ""
+amp_enabled = False
+amp_dtype = ""
+config = None
+
 
 def load_model(
     model_id: str,
@@ -114,11 +108,11 @@ def load_model(
     prompt: str = None,
     input_tokens: int = 32,
     max_new_tokens: int = 32,
-    **kwargs
+    **kwargs,
 ):
     global model, tokenizer, image_processor, config, model_type, amp_enabled, amp_dtype
     """Loads the model and processor.
-    
+
     Args:
         model_id: Model ID or path.
         dtype: Data type (bfloat16/float32).
@@ -127,7 +121,7 @@ def load_model(
         deployment_mode: Optimize for deployment scenarios.
         cache_weight_for_large_batch: Enable weight caching for large batch inference.
         backend: Backend for torch.compile.
-        
+
     Returns:
         ModelWrapper: A wrapper containing the model, tokenizer, and processor.
     """
@@ -145,9 +139,7 @@ def load_model(
     amp_dtype = getattr(torch, dtype)
 
     # load model
-    model_type = next(
-        (x for x in MODEL_CLASSES.keys() if x in model_id.lower()), "auto"
-    )
+    model_type = next((x for x in MODEL_CLASSES.keys() if x in model_id.lower()), "auto")
 
     if model_type == "llama" and vision_text_model:
         model_type = "mllama"
@@ -207,9 +199,7 @@ def load_model(
         )
         tokenizer = model_class[1].from_pretrained(model_id, trust_remote_code=True)
     else:
-        tokenizer, model, image_processor, context_len = load_pretrained_model(
-            model_id
-        )
+        tokenizer, model, image_processor, context_len = load_pretrained_model(model_id)
     model = model.eval()
     model = model.to(memory_format=torch.channels_last)
 
@@ -242,7 +232,7 @@ def predict(
     image_url: str = None,
     audio_file: str = None,
     input_mode: int = 0,
-    **kwargs
+    **kwargs,
 ):
     global model, tokenizer, image_processor, model_type, amp_enabled, amp_dtype, config
 
@@ -307,9 +297,10 @@ def predict(
     elif re.search("git", model.config.architectures[0], re.IGNORECASE) or re.search(
         "llava", model.config.architectures[0], re.IGNORECASE
     ):
-        from PIL import Image
-        import requests
         from io import BytesIO
+
+        import requests
+        from PIL import Image
 
         model.config.batch_size = int(batch_size) * num_beams
 
@@ -336,8 +327,8 @@ def predict(
             return raw_image
 
     elif re.search("maira2", model.config.architectures[0], re.IGNORECASE):
-        from PIL import Image
         import requests
+        from PIL import Image
 
         def download_and_open(url: str) -> Image.Image:
             response = requests.get(url, headers={"User-Agent": "MAIRA-2"}, stream=True)
@@ -372,13 +363,15 @@ def predict(
     if re.search("phio", model.config.architectures[0], re.IGNORECASE):
         if config.input_mode in [2, 3]:
             import soundfile
+
             sample = soundfile.read(audio_file)
         else:
             sample = None
 
     if model_type == "git":
-        from PIL import Image
         import requests
+        from PIL import Image
+
         prompt = Image.open(requests.get(image_url, stream=True).raw)
         generate_kwargs.pop("min_new_tokens", None)
     elif model_type == "llava":
@@ -387,13 +380,7 @@ def predict(
         image = load_image(image_url)
         image = [image] * batch_size
         if model.config.mm_use_im_start_end:
-            prompt = (
-                DEFAULT_IM_START_TOKEN
-                + DEFAULT_IMAGE_TOKEN
-                + DEFAULT_IM_END_TOKEN
-                + "\n"
-                + prompt
-            )
+            prompt = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + "\n" + prompt
         else:
             prompt = DEFAULT_IMAGE_TOKEN + "\n" + prompt
         conv.append_message(conv.roles[0], prompt)
@@ -425,35 +412,21 @@ def predict(
     # start
     num_iter = 1
     prompt = [prompt] * batch_size
-    with torch.inference_mode(), torch.no_grad(), torch.cpu.amp.autocast(
-        enabled=amp_enabled
-    ):
+    with torch.inference_mode(), torch.no_grad(), torch.cpu.amp.autocast(enabled=amp_enabled):
         for _ in range(num_iter):
             if model_type == "llava":
                 input_ids = torch.stack(
-                    [
-                        tokenizer_image_token(
-                            pmt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt"
-                        )
-                        for pmt in prompt
-                    ]
+                    [tokenizer_image_token(pmt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt") for pmt in prompt]
                 )
                 image_tensor = [
-                    image_processor.preprocess(img, return_tensors="pt")[
-                        "pixel_values"
-                    ].to(amp_dtype)
-                    for img in image
+                    image_processor.preprocess(img, return_tensors="pt")["pixel_values"].to(amp_dtype) for img in image
                 ]
-                output = model.generate(
-                    input_ids, images=image_tensor, **generate_kwargs
-                )
+                output = model.generate(input_ids, images=image_tensor, **generate_kwargs)
             elif model_type == "git":
                 input_ids = tokenizer(images=prompt, return_tensors="pt").pixel_values
                 output = model.generate(pixel_values=input_ids, **generate_kwargs)
             elif model_type == "whisper":
-                input_ids = tokenizer(
-                    prompt, sampling_rate=16000, return_tensors="pt"
-                ).input_features
+                input_ids = tokenizer(prompt, sampling_rate=16000, return_tensors="pt").input_features
                 output = model.generate(input_ids, **generate_kwargs)
             elif model_type == "mllama":
                 raw_image = load_image(image_url)
@@ -492,11 +465,7 @@ def predict(
                 output = model.generate(input_ids, **generate_kwargs)
             gen_ids = output
             gen_text = tokenizer.batch_decode(
-                (
-                    gen_ids[:, input_ids.shape[1] :]
-                    if model_type in ["llava", "maira2", "phio"]
-                    else gen_ids
-                ),
+                (gen_ids[:, input_ids.shape[1] :] if model_type in ["llava", "maira2", "phio"] else gen_ids),
                 skip_special_tokens=True,
             )
             input_tokens_lengths = [x.shape[0] for x in input_ids]
@@ -521,6 +490,7 @@ async def llm_generate(input: Union[ChatCompletionRequest]) -> StreamingResponse
                 if "role" in input_data and input_data["role"] == "user" and "content" in input_data:
                     message = input_data["content"]
         if input.stream:
+
             async def stream_generator():
                 for output in predict(
                     model_id=model_id,
@@ -536,6 +506,7 @@ async def llm_generate(input: Union[ChatCompletionRequest]) -> StreamingResponse
                 ):
                     yield f"data: {output}\n\n"
                 yield "data: [DONE]\n\n"
+
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
             response = predict(
@@ -565,18 +536,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
     model_id = os.getenv("MODEL_ID", "meta-llama/Llama-3.2-3B-Instruct")
     load_model(
-                model_id=model_id,
-                dtype="bfloat16",
-                ipex=False,
-                torch_compile=False,
-                deployment_mode=False,
-                cache_weight_for_large_batch=False,
-                backend="ipex",
-                vision_text_model=False,
-                config_file=None,
-                kv_cache_dtype="auto",
-                input_tokens=2048,
-                max_new_tokens=4096,
-            )
+        model_id=model_id,
+        dtype="bfloat16",
+        ipex=False,
+        torch_compile=False,
+        deployment_mode=False,
+        cache_weight_for_large_batch=False,
+        backend="ipex",
+        vision_text_model=False,
+        config_file=None,
+        kv_cache_dtype="auto",
+        input_tokens=2048,
+        max_new_tokens=4096,
+    )
 
     uvicorn.run(app, host=args.host, port=args.port)
