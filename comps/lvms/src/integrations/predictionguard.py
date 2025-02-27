@@ -5,6 +5,7 @@ import json
 import os
 from typing import Union
 
+import aiohttp
 import requests
 
 from comps import CustomLogger, LVMDoc, OpeaComponent, OpeaComponentRegistry, ServiceType, TextDoc
@@ -34,11 +35,14 @@ class OpeaPredictionguardLvm(OpeaComponent):
 
         inputs = {"image": request.image, "prompt": request.prompt, "max_new_tokens": request.max_new_tokens}
         # forward to the PredictionGuard server
-        response = requests.post(url=f"{self.base_url}/v1/lvm", data=json.dumps(inputs), proxies={"http": None})
+        async with aiohttp.ClientSession() as session:
+            response = await session.post(url=f"{self.base_url}/v1/lvm", data=json.dumps(inputs), proxy=None)
 
-        result = response.json()["text"]
-        if logflag:
-            logger.info(result)
+            json_data = await response.json()
+            result = json_data["text"]
+
+            if logflag:
+                logger.info(result)
 
         return TextDoc(text=result)
 

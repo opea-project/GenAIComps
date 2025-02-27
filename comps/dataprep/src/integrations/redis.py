@@ -247,7 +247,7 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
     return True
 
 
-def ingest_data_to_redis(doc_path: DocPath):
+async def ingest_data_to_redis(doc_path: DocPath):
     """Ingest document to Redis."""
     path = doc_path.path
     if logflag:
@@ -268,7 +268,7 @@ def ingest_data_to_redis(doc_path: DocPath):
             separators=get_separators(),
         )
 
-    content = document_loader(path)
+    content = await document_loader(path)
     if logflag:
         logger.info("[ redis ingest data ] file content loaded")
 
@@ -393,7 +393,7 @@ class OpeaRedisDataprep(OpeaComponent):
 
                 save_path = upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                ingest_data_to_redis(
+                await ingest_data_to_redis(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -437,7 +437,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 save_path = upload_folder + encoded_link + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 await save_content_to_local_disk(save_path, content)
-                ingest_data_to_redis(
+                await ingest_data_to_redis(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,

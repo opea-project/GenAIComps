@@ -6,6 +6,7 @@ import time
 from concurrent import futures
 from typing import Union
 
+import aiohttp
 import requests
 
 from comps import (
@@ -40,17 +41,19 @@ async def lvm(request: Union[LVMDoc]) -> Union[TextDoc]:
     responses = []
 
     # Function to send requests to individual TP workers
-    def send_request_to_tp_worker(port):
+    async def send_request_to_tp_worker(port):
         try:
             # Build the worker URL dynamically
             url = f"http://127.0.0.1:{port}/v1/lvm_serve"
             # Send POST request to the TP worker
-            response = requests.post(url, json=request.dict())
-            response.raise_for_status()  # Ensure the request was successful
+            async with aiohttp.ClientSession() as session:
+                response = await session.post(url=url, json=request.dict())
 
-            # Parse and process the response
-            json_response = response.json()
-            responses.append(TextDoc(text=json_response.get("text", "")))
+                response.raise_for_status()  # Ensure the request was successful
+
+                # Parse and process the response
+                json_response = await response.json()
+                responses.append(TextDoc(text=json_response.get("text", "")))
 
         except requests.exceptions.RequestException as e:
             # Log any errors that occur

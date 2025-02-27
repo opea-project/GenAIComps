@@ -101,7 +101,7 @@ class OpeaVdmsDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    def ingest_data_to_vdms(self, doc_path: DocPath):
+    async def ingest_data_to_vdms(self, doc_path: DocPath):
         """Ingest document to VDMS."""
         path = doc_path.path
         print(f"Parsing document {doc_path}.")
@@ -118,7 +118,7 @@ class OpeaVdmsDataprep(OpeaComponent):
                 chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True, separators=get_separators()
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
         chunks = text_splitter.split_text(content)
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
@@ -182,7 +182,7 @@ class OpeaVdmsDataprep(OpeaComponent):
 
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_vdms(
+                await self.ingest_data_to_vdms(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -215,7 +215,7 @@ class OpeaVdmsDataprep(OpeaComponent):
                 save_path = self.upload_folder + encoded_link + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 await save_content_to_local_disk(save_path, content)
-                self.ingest_data_to_vdms(
+                await self.ingest_data_to_vdms(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
