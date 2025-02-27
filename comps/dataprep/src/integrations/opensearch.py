@@ -7,9 +7,8 @@ from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import OpenSearchVectorSearch
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from opensearchpy import OpenSearch
 
@@ -79,9 +78,26 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         self.upload_folder = "./uploaded_files/"
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         # Initialize embeddings
-        tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
-        if tei_embedding_endpoint:
-            self.embeddings = HuggingFaceEndpointEmbeddings(model=tei_embedding_endpoint)
+        TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+        HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+        EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+        if TEI_EMBEDDING_ENDPOINT:
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+            import requests
+
+            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
+            self.embeddings = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
         else:
             self.embeddings = HuggingFaceBgeEmbeddings(model_name=Config.EMBED_MODEL)
 
@@ -239,7 +255,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             raise HTTPException(status_code=500, detail=f"Failed to store chunks of file {file_name}.")
         return True
 
-    def ingest_data_to_opensearch(self, doc_path: DocPath):
+    async def ingest_data_to_opensearch(self, doc_path: DocPath):
         """Ingest document to OpenSearch."""
         path = doc_path.path
         if logflag:
@@ -260,7 +276,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
         if logflag:
             logger.info("[ ingest data ] file content loaded")
 
@@ -311,6 +327,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into opensearch database.
 
@@ -357,7 +374,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
 
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_opensearch(
+                await self.ingest_data_to_opensearch(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -403,7 +420,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 save_path = self.upload_folder + encoded_link + ".txt"
                 content = parse_html([link])[0][0]
                 await save_content_to_local_disk(save_path, content)
-                self.ingest_data_to_opensearch(
+                await self.ingest_data_to_opensearch(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,

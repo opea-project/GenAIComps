@@ -11,6 +11,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
 from ...global_var import threads_global_kv
+from ...storage.persistence_redis import RedisPersistence
 from ...utils import filter_tools, has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
 from .prompt import REACT_SYS_MESSAGE, hwchase17_react_prompt
@@ -55,6 +56,8 @@ class ReActAgentwithLangchain(BaseAgent):
         initial_state = self.prepare_initial_state(query)
         if thread_id is not None:
             config["configurable"] = {"session_id": thread_id}
+        else:
+            config["configurable"] = {"session_id": "0"}
         async for chunk in self.app.astream(initial_state, config=config):
             if thread_id is not None:
                 with threads_global_kv as g_threads:
@@ -148,7 +151,13 @@ from langgraph.prebuilt import ToolNode
 
 from ...storage.persistence_memory import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
-from .utils import assemble_history, assemble_memory, convert_json_to_tool_call
+from .utils import (
+    assemble_history,
+    assemble_memory,
+    assemble_memory_from_store,
+    convert_json_to_tool_call,
+    save_state_to_store,
+)
 
 
 class AgentState(TypedDict):
@@ -165,7 +174,7 @@ class ReActAgentNodeLlama:
     A workaround for open-source llm served by TGI-gaudi.
     """
 
-    def __init__(self, tools, args):
+    def __init__(self, tools, args, store=None):
         from .prompt import REACT_AGENT_LLAMA_PROMPT
         from .utils import ReActLlamaOutputParser
 
@@ -176,22 +185,34 @@ class ReActAgentNodeLlama:
         )
         llm = setup_chat_model(args)
         self.tools = tools
-        self.chain = prompt | llm | output_parser
+        self.chain = prompt | llm
+        self.output_parser = output_parser
         self.with_memory = args.with_memory
+        self.memory_type = args.memory_type
+        self.store = store
 
-    def __call__(self, state):
+    def __call__(self, state, config):
 
         print("---CALL Agent node---")
         messages = state["messages"]
 
         # assemble a prompt from messages
         if self.with_memory:
-            query, history = assemble_memory(messages)
-            print("@@@ Query: ", history)
+            if self.memory_type == "checkpointer":
+                query, history, thread_history = assemble_memory(messages)
+            elif self.memory_type == "store":
+                # use thread_id, assistant_id to search memory from store
+                print("@@@ Load memory from store....")
+                query, history, thread_history = assemble_memory_from_store(config, self.store)  # TODO
+            else:
+                raise ValueError("Invalid memory type!")
         else:
             query = messages[0].content
             history = assemble_history(messages)
-        print("@@@ History: ", history)
+            thread_history = ""
+
+        print("@@@ Turn History:\n", history)
+        print("@@@ Thread history:\n", thread_history)
 
         tools_used = self.tools
         if state.get("tool_choice") is not None:
@@ -200,31 +221,40 @@ class ReActAgentNodeLlama:
         tools_descriptions = tool_renderer(tools_used)
         print("@@@ Tools description: ", tools_descriptions)
 
-        # invoke chain
-        output = self.chain.invoke({"input": query, "history": history, "tools": tools_descriptions})
+        # invoke chain: raw output from llm
+        response = self.chain.invoke(
+            {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
+        )
+        response = response.content
+
+        # parse tool calls or answers from raw output: result is a list
+        output = self.output_parser.parse(response)
         print("@@@ Output from chain: ", output)
 
         # convert output to tool calls
         tool_calls = []
-        for res in output:
-            if "tool" in res:
-                add_kw_tc, tool_call = convert_json_to_tool_call(res)
-                # print("Tool call:\n", tool_call)
-                tool_calls.append(tool_call)
+        if output:
+            for res in output:
+                if "tool" in res:
+                    tool_call = convert_json_to_tool_call(res)
+                    # print("Tool call:\n", tool_call)
+                    tool_calls.append(tool_call)
 
-        if tool_calls:
-            ai_message = AIMessage(content="", additional_kwargs=add_kw_tc, tool_calls=tool_calls)
-        elif "answer" in output[0]:
-            ai_message = AIMessage(content=str(output[0]["answer"]))
+            if tool_calls:
+                ai_message = AIMessage(content=response, tool_calls=tool_calls)
+            elif "answer" in output[0]:
+                ai_message = AIMessage(content=str(output[0]["answer"]))
         else:
-            ai_message = AIMessage(content=output)
+            ai_message = AIMessage(content=response)
+
         return {"messages": [ai_message]}
 
 
 class ReActAgentLlama(BaseAgent):
-    def __init__(self, args, with_memory=False, **kwargs):
+    def __init__(self, args, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
-        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args)
+
+        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args, store=self.store)
         tool_node = ToolNode(self.tools_descriptions)
 
         workflow = StateGraph(AgentState)
@@ -261,11 +291,12 @@ class ReActAgentLlama(BaseAgent):
         workflow.add_edge("tools", "agent")
 
         if args.with_memory:
-            self.persistence = AgentPersistence(
-                config=PersistenceConfig(checkpointer=args.with_memory, store=args.with_store)
-            )
-            print(self.persistence.checkpointer)
-            self.app = workflow.compile(checkpointer=self.persistence.checkpointer, store=self.persistence.store)
+            if args.memory_type == "checkpointer":
+                self.app = workflow.compile(checkpointer=self.checkpointer)
+            elif args.memory_type == "store":
+                self.app = workflow.compile(store=self.store)
+            else:
+                raise ValueError("Invalid memory type!")
         else:
             self.app = workflow.compile()
 
@@ -281,6 +312,7 @@ class ReActAgentLlama(BaseAgent):
             return "continue"
 
     def prepare_initial_state(self, query):
+        print("---Prepare initial state---")
         return {"messages": [HumanMessage(content=query)]}
 
     async def stream_generator(self, query, config, thread_id=None):
@@ -289,11 +321,15 @@ class ReActAgentLlama(BaseAgent):
             initial_state["tool_choice"] = config.pop("tool_choice")
 
         try:
+            print("---Start running---")
             async for event in self.app.astream(initial_state, config=config, stream_mode=["updates"]):
+                print(event)
                 event_type = event[0]
                 data = event[1]
                 if event_type == "updates":
                     for node_name, node_state in data.items():
+                        if self.memory_type == "store":
+                            save_state_to_store(node_state, config, self.store)
                         print(f"--- CALL {node_name} node ---\n")
                         for k, v in node_state.items():
                             if v is not None:
@@ -321,17 +357,16 @@ class ReActAgentLlama(BaseAgent):
             yield str(e)
 
     async def non_streaming_run(self, query, config):
+        # for use as worker agent (tool of supervisor agent)
+        # only used in chatcompletion api
+        # chat completion api only supports checkpointer memory
         initial_state = self.prepare_initial_state(query)
         if "tool_choice" in config:
             initial_state["tool_choice"] = config.pop("tool_choice")
         try:
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
                 message = s["messages"][-1]
-                if isinstance(message, tuple):
-                    print(message)
-                else:
-                    message.pretty_print()
-
+                message.pretty_print()
             last_message = s["messages"][-1]
             print("******Response: ", last_message.content)
             return last_message.content

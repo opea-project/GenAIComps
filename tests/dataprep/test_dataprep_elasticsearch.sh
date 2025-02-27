@@ -8,6 +8,7 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11100
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -16,7 +17,7 @@ function build_docker_images() {
     docker pull docker.elastic.co/elasticsearch/elasticsearch:8.16.0
 
     # build dataprep image for elasticsearch
-    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -30,7 +31,6 @@ function start_service() {
     export ELASTICSEARCH_PORT1=12300
     export ES_CONNECTION_STRING="http://${ip_address}:${ELASTICSEARCH_PORT1}"
     export INDEX_NAME="test-elasticsearch"
-    export TAG=comps
     service_name="elasticsearch-vector-db dataprep-elasticsearch"
     cd $WORKPATH
     cd comps/dataprep/deployment/docker_compose/

@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import json
 import os
 import shutil
@@ -147,7 +148,7 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
             host, port, selected_db, model, collection_name, embedding_dimensions=vector_dimensions
         )
         logger.info("done creating DB, sleep 5s")
-        time.sleep(5)
+        await asyncio.sleep(5)
 
         self.generate_embeddings(config, vector_dimensions, vs)
 

@@ -4,6 +4,7 @@
 import os
 from typing import Union
 
+import aiohttp
 import requests
 from fastapi.responses import StreamingResponse
 from langchain.schema import HumanMessage, SystemMessage
@@ -59,12 +60,16 @@ class OpeaHallucinationGuard(OpeaComponent):
             payload["messages"] = input.messages
             payload["max_tokens"] = input.max_tokens
             payload["model"] = input.model
-            response = requests.post(llm_endpoint + "/v1/chat/completions", json=payload, headers=headers)
 
-            if logflag:
-                logger.info(response.text)
+            async with aiohttp.ClientSession() as session:
+                response = await session.post(url=llm_endpoint + "/v1/chat/completions", json=payload, headers=headers)
+                json_data = await response.json()
+                result = json_data["choices"][0]["message"]["content"]
 
-            return GeneratedDoc(text=response.json()["choices"][0]["message"]["content"], prompt="")
+                if logflag:
+                    logger.info(await response.text)
+
+            return GeneratedDoc(text=result, prompt="")
         else:
             logger.info("[ UNKNOWN ] input from user")
 

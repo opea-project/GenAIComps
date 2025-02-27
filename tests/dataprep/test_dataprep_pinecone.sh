@@ -7,12 +7,13 @@ set -x
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT="11106"
+export TAG="comps"
 
 function build_docker_images() {
     cd $WORKPATH
 
     # build dataprep image for pinecone
-    docker build --no-cache -t opea/dataprep:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/Dockerfile .
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f $WORKPATH/comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/dataprep built fail"
         exit 1
@@ -27,7 +28,6 @@ function start_service() {
     export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
 
     service_name="dataprep-pinecone"
-    export TAG="comps"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
     sleep 1m

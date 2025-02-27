@@ -13,7 +13,6 @@ function build_docker_images() {
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
     git checkout v0.6.4.post2+Gaudi-1.19.0
-    sed -i 's/triton/triton==3.1.0/g' requirements-hpu.txt
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
@@ -39,6 +38,7 @@ function start_service() {
     export LLM_ENDPOINT_PORT=12210
     export vLLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export HALLUCINATION_DETECTION_PORT=11305
+    export VLLM_SKIP_WARMUP=true
     export TAG=comps
     service_name="vllm-gaudi-server hallucination-detection-server"
     cd $WORKPATH
