@@ -38,13 +38,7 @@ from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipel
 # from comps.text2cypher.src.integrations.gaudiutils import initialize_model, setup_parser
 
 
-logger = CustomLogger("opea")
-
-# Neo4J configuration
-# NEO4J_URL = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-# NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
-# NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
-
+logger = CustomLogger("native")
 
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
@@ -73,20 +67,6 @@ class OpeaText2Cypher(OpeaComponent):
         model_name_or_path = config["model_name_or_path"]
         device = config["device"]
         self.chat_model = None
-        # kwargs = {}
-        # if config["bf16"]:
-        #    kwargs["torch_dtype"] = torch.bfloat16
-        # if not config["token"]:
-        #    config["token"] = os.getenv("HF_TOKEN")
-        # if device == "hpu":
-        #    kwargs.update(
-        #        {
-        #            "use_habana": True,
-        #            "use_hpu_graphs": config["use_hpu_graphs"],
-        #            "gaudi_config": "Habana/stable-diffusion",
-        #            "token": config["token"],
-        #        }
-        #    )
         if device == "hpu":
             # Convert config dict back to args-like object
             args = argparse.Namespace(**config)
@@ -122,7 +102,7 @@ class OpeaText2Cypher(OpeaComponent):
 
         graph_store.query(cypher_cleanup)
         graph_store.query(cypher_insert)
-        print(f" Graph has been built with the following graph schema \n {graph_store.schema}")
+        logger.info(f"Graph has been built with the following graph schema: {graph_store.schema}")
 
         cypher_prompt = PromptTemplate(input_variables=["schema"], template=prepare_chat_template(prompt))
 
@@ -157,14 +137,8 @@ class OpeaText2Cypher(OpeaComponent):
         end_time = time.time()
         latency = end_time - start_time
 
-        latency_dict = {'latency': f"{latency:.2f} seconds"}
-
-        # Append the new dictionary to the result list
-        result.append(latency_dict)
-
-        print(f"Latency: {latency:.2f} seconds")
-        print(result)
-        print("###############################################")
+        logger.info(f"Latency: {latency:.2f} seconds.")
+        logger.info(f"result: {result}")
         return result
 
     def check_health(self) -> bool:

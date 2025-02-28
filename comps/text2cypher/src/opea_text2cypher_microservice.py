@@ -37,6 +37,7 @@ async def text2cypher(input: Input):
         return results
     except Exception as e:
         logger.error(f"Error during text2cypher invocation: {e}")
+        logger.error("An error occurred:", exc_info=True)
         raise
 
 
