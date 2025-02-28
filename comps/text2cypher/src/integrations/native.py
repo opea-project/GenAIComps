@@ -157,7 +157,7 @@ class OpeaText2Cypher(OpeaComponent):
         end_time = time.time()
         latency = end_time - start_time
 
-        latency_dict = {'latency': f"{latency:.2f} seconds"}
+        latency_dict = {"latency": f"{latency:.2f} seconds"}
 
         # Append the new dictionary to the result list
         result.append(latency_dict)
