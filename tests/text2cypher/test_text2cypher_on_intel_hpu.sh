@@ -40,8 +40,8 @@ function start_service() {
 #    export host_ip=${ip_address}
 #    export TAG="comps"
 
-#    export NEO4J_PORT1=7474   
-#    export NEO4J_PORT2=7687   
+#    export NEO4J_PORT1=7474
+#    export NEO4J_PORT2=7687
 #    export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
 #    export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
 #    export NEO4J_USERNAME="neo4j"
