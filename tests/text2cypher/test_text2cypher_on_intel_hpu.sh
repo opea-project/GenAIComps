@@ -101,6 +101,10 @@ function validate_text2cypher_service() {
 #	-d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
 #       -H 'Content-Type: application/json')
 
+    echo "docker logs -----------------"
+
+    docker logs ${CONTAINER_NAME}
+
     if [[ ${#result} -gt 0 ]]; then
         echo $result
         echo "Result correct."
