@@ -31,13 +31,20 @@ function start_service() {
     service_name="neo4j-apoc text2cypher-gaudi"
     export host_ip=${ip_address}
     export TAG="comps"
-    export NEO4J_AUTH="neo4j/neo4jtest"
-    export NEO4J_URL="bolt://${ip_address}:7687"
+
+    export NEO4J_PORT1=7474   
+    export NEO4J_PORT2=7687   
+    export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
+    export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
     export NEO4J_USERNAME="neo4j"
     export NEO4J_PASSWORD="neo4jtest"
+    export NEO4J_AUTH="neo4j/neo4jtest"
     export NEO4J_apoc_export_file_enabled=true
     export NEO4J_apoc_import_file_use__neo4j__config=true
     export NEO4J_PLUGINS=\[\"apoc\"\]
+    export no_proxy="localhost,127.0.0.1,"${host_ip}
+    export LOGFLAG=True
+
 #    export TEI_EMBEDDER_PORT=12006
 #    export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
 #    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
