@@ -9,6 +9,7 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 export TEXT2CYPHER_PORT=11801
 export TAG='comps'
+export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 
 function build_docker_images() {
     cd $WORKPATH

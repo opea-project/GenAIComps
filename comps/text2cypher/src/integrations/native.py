@@ -91,7 +91,7 @@ class OpeaText2Cypher(OpeaComponent):
             # Convert config dict back to args-like object
             args = argparse.Namespace(**config)
             pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
-            hfpipe = HuggingFacePipeline(pipeline=pipe)
+            hfpipe = HuggingFacePipeline(pipeline=pipe, use_auth_token=True)
 
             self.chat_model = ChatHuggingFace(temperature=0.1, llm=hfpipe, tokenizer=pipe.tokenizer)
 
