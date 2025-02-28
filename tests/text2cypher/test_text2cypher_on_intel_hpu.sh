@@ -11,6 +11,15 @@ export TEXT2CYPHER_PORT=11801
 export TAG='comps'
 export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export HF_TOKEN=${HF_TOKEN}
+export host_ip=${ip_address}
+export NEO4J_PORT1=7474
+export NEO4J_PORT2=7687
+export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
+export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
+export NEO4J_USERNAME="neo4j"
+export NEO4J_PASSWORD="neo4jtest"
+export no_proxy="localhost,127.0.0.1,"${host_ip}
+export LOGFLAG=True
 
 function build_docker_images() {
     cd $WORKPATH
@@ -25,32 +34,24 @@ function build_docker_images() {
 }
 
 function start_service() {
-    echo "token is ${HF_TOKEN}"
     docker compose down
     unset http_proxy
     service_name="neo4j-apoc text2cypher-gaudi"
-    export host_ip=${ip_address}
-    export TAG="comps"
+#    export host_ip=${ip_address}
+#    export TAG="comps"
 
-    export NEO4J_PORT1=7474   
-    export NEO4J_PORT2=7687   
-    export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
-    export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
-    export NEO4J_USERNAME="neo4j"
-    export NEO4J_PASSWORD="neo4jtest"
+#    export NEO4J_PORT1=7474   
+#    export NEO4J_PORT2=7687   
+#    export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
+#    export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
+#    export NEO4J_USERNAME="neo4j"
+#    export NEO4J_PASSWORD="neo4jtest"
     export NEO4J_AUTH="neo4j/neo4jtest"
     export NEO4J_apoc_export_file_enabled=true
     export NEO4J_apoc_import_file_use__neo4j__config=true
     export NEO4J_PLUGINS=\[\"apoc\"\]
-    export no_proxy="localhost,127.0.0.1,"${host_ip}
-    export LOGFLAG=True
-
-#    export TEI_EMBEDDER_PORT=12006
-#    export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
-#    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-#    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
-#    export LLM_ENDPOINT_PORT=10510
-#    export TGI_LLM_ENDPOINT="http://${ip_address}:${LLM_ENDPOINT_PORT}"
+#    export no_proxy="localhost,127.0.0.1,"${host_ip}
+#    export LOGFLAG=True
 
     cd $WORKPATH/comps/text2cypher/deployment/docker_compose/
     docker compose up ${service_name} -d
