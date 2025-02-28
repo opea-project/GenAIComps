@@ -13,3 +13,19 @@ Key Features:
 **Customizable**: Supports configuration and customization to meet specific use case requirements, including different embedding models and preprocessing techniques.
 
 Users are albe to configure and build embedding-related services according to their actual needs.
+
+## Embeddings Microservice with TEI
+
+For details, please refer to [readme](./README_tei.md).
+
+## Embeddings Microservice with Prediction Guard
+
+For details, please refer to this [readme](./README_predictionguard.md).
+
+## Embeddings Microservice with Multimodal Clip
+
+For details, please refer to this [readme](./README_clip.md)
+
+## Embeddings Microservice with Multimodal
+
+For details, please refer to this [readme](./README_bridgetower.md).

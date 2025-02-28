@@ -64,6 +64,13 @@ Start docker container with below command:
 docker run -d --name="finetuning-server" -p 8015:8015 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/finetuning:latest
 ```
 
+Or use docker compose with below command:
+
+```bash
+cd ../deployment/docker_compose
+docker compose -f compose.yaml up finetuning -d
+```
+
 ### 2.2 Setup on Gaudi2
 
 #### 2.2.1 Build Docker Image
@@ -82,6 +89,14 @@ Start docker container with below command:
 ```bash
 export HF_TOKEN=${your_huggingface_token}
 docker run --runtime=habana -e HABANA_VISIBLE_DEVICES=all -p 8015:8015 -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --net=host --ipc=host -e https_proxy=$https_proxy -e http_proxy=$http_proxy -e no_proxy=$no_proxy -e HF_TOKEN=$HF_TOKEN opea/finetuning-gaudi:latest
+```
+
+Or use docker compose with below command:
+
+```bash
+export HF_TOKEN=${your_huggingface_token}
+cd ../deployment/docker_compose
+docker compose -f compose.yaml up finetuning-gaudi -d
 ```
 
 ## 🚀3. Consume Finetuning Service

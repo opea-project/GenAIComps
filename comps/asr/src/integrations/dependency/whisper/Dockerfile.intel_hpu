@@ -19,15 +19,16 @@ RUN apt-get update \
 
 COPY --chown=user:user comps /home/user/comps
 
-USER user
-
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
-    pip install --no-cache-dir optimum[habana]
+    pip install --no-cache-dir optimum[habana] && \
+    pip install git+https://github.com/huggingface/optimum-habana.git@transformers_future && \
+    pip install --no-cache-dir --upgrade Jinja2
 
 ENV PYTHONPATH=$PYTHONPATH:/home/users
 
+USER user
 WORKDIR /home/user/comps/asr/src/integrations/dependency/whisper
 
 ENTRYPOINT ["python", "whisper_server.py", "--device", "hpu"]

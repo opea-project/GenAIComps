@@ -3,14 +3,21 @@
 
 
 import os
-from typing import List, Optional
 
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from fastapi import HTTPException
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_milvus.vectorstores import Milvus
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
-from .config import COLLECTION_NAME, INDEX_PARAMS, LOCAL_EMBEDDING_MODEL, MILVUS_URI, TEI_EMBEDDING_ENDPOINT
+from .config import (
+    COLLECTION_NAME,
+    HUGGINGFACEHUB_API_TOKEN,
+    INDEX_PARAMS,
+    LOCAL_EMBEDDING_MODEL,
+    MILVUS_URI,
+    TEI_EMBEDDING_ENDPOINT,
+)
 
 logger = CustomLogger("milvus_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -28,7 +35,6 @@ class OpeaMilvusRetriever(OpeaComponent):
         super().__init__(name, ServiceType.RETRIEVER.name.lower(), description, config)
 
         self.embedder = self._initialize_embedder()
-        self.client = self._initialize_client()
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaMilvusRetriever health check failed.")
@@ -38,7 +44,22 @@ class OpeaMilvusRetriever(OpeaComponent):
             # create embeddings using TEI endpoint service
             if logflag:
                 logger.info(f"[ init embedder ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            embeddings = HuggingFaceHubEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+            import requests
+
+            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
+            embeddings = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
         else:
             # create embeddings using local embedding model
             if logflag:
@@ -70,7 +91,14 @@ class OpeaMilvusRetriever(OpeaComponent):
         if logflag:
             logger.info("[ check health ] start to check health of milvus")
         try:
-            _ = self.client.client.list_collections()
+            client = Milvus(
+                embedding_function=self.embedder,
+                collection_name=COLLECTION_NAME,
+                connection_args={"uri": MILVUS_URI},
+                index_params=INDEX_PARAMS,
+                auto_id=True,
+            )
+            _ = client.client.list_collections()
             if logflag:
                 logger.info("[ check health ] Successfully connected to Milvus!")
             return True
@@ -89,21 +117,29 @@ class OpeaMilvusRetriever(OpeaComponent):
         if logflag:
             logger.info(input)
 
+        my_milvus = Milvus(
+            embedding_function=self.embedder,
+            collection_name=COLLECTION_NAME,
+            connection_args={"uri": MILVUS_URI},
+            index_params=INDEX_PARAMS,
+            auto_id=True,
+        )
+
         if input.search_type == "similarity":
-            search_res = await self.client.asimilarity_search_by_vector(embedding=input.embedding, k=input.k)
+            search_res = await my_milvus.asimilarity_search_by_vector(embedding=input.embedding, k=input.k)
         elif input.search_type == "similarity_distance_threshold":
             if input.distance_threshold is None:
                 raise ValueError("distance_threshold must be provided for " + "similarity_distance_threshold retriever")
-            search_res = await self.client.asimilarity_search_by_vector(
+            search_res = await my_milvus.asimilarity_search_by_vector(
                 embedding=input.embedding, k=input.k, distance_threshold=input.distance_threshold
             )
         elif input.search_type == "similarity_score_threshold":
-            docs_and_similarities = await self.client.asimilarity_search_with_relevance_scores(
+            docs_and_similarities = await my_milvus.asimilarity_search_with_relevance_scores(
                 query=input.text, k=input.k, score_threshold=input.score_threshold
             )
             search_res = [doc for doc, _ in docs_and_similarities]
         elif input.search_type == "mmr":
-            search_res = await self.client.amax_marginal_relevance_search(
+            search_res = await my_milvus.amax_marginal_relevance_search(
                 query=input.text, k=input.k, fetch_k=input.fetch_k, lambda_mult=input.lambda_mult
             )
 

@@ -4,66 +4,71 @@
 
 set -x
 
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
+
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
-ip_address=$(hostname -I | awk '{print $1}')
+export host_ip=$(hostname -I | awk '{print $1}')
+service_name="retriever-redis"
+service_name_mm="retriever-redis-multimodal"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t opea/retriever-redis:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
+    docker build --no-cache -t ${REGISTRY:-opea}/retriever:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/retriever-redis built fail"
+        echo "opea/retriever built fail"
         exit 1
     else
-        echo "opea/retriever-redis built successful"
+        echo "opea/retriever built successful"
     fi
 }
 
 function start_service() {
-    # redis
-    docker run -d --name test-comps-retriever-redis-vector-db -p 5010:6379 -p 5011:8001 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy redis/redis-stack:7.2.0-v9
-    sleep 10s
-
-    # tei endpoint
-    tei_endpoint=5434
-    model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-redis-tei-endpoint" -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
-    sleep 30s
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
-
-    # redis retriever
-    export REDIS_URL="redis://${ip_address}:5010"
+    export REDIS_PORT1=11601   # 11600-11699
+    export REDIS_PORT2=11602
+    export TEI_EMBEDDER_PORT=11603
+    export RETRIEVER_PORT=11604
+    export HF_TOKEN=${HF_TOKEN}
+    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
+    export REDIS_URL="redis://${host_ip}:${REDIS_PORT1}"
     export INDEX_NAME="rag-redis"
-    export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
-    retriever_port=5435
-    # unset http_proxy
-    docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LOGFLAG=true -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_REDIS" opea/retriever-redis:comps
+    export LOGFLAG=True
 
-    sleep 3m
+    cd $WORKPATH/comps/retrievers/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+
+    sleep 2m
 }
 
 function start_multimodal_service() {
-    # redis
-    docker run -d --name test-comps-retriever-redis-vector-db -p 5689:6379 -p 5011:8001 -e HTTPS_PROXY=$https_proxy -e HTTP_PROXY=$https_proxy redis/redis-stack:7.2.0-v9
-    sleep 10s
-
-    # redis retriever
-    export REDIS_URL="redis://${ip_address}:5689"
+    export REDIS_PORT1=11605   # 11600-11699
+    export REDIS_PORT2=11606
+    export RETRIEVER_PORT=11607
+    export HF_TOKEN=${HF_TOKEN}
+    export REDIS_URL="redis://${host_ip}:${REDIS_PORT1}"
     export INDEX_NAME="mm-rag-redis"
-    retriever_port=5435
-    unset http_proxy
-    docker run -d --name="test-comps-retriever-redis-server" -p ${retriever_port}:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e BRIDGE_TOWER_EMBEDDING=true -e LOGFLAG=true -e RETRIEVER_TYPE="redis" opea/retriever-redis:comps
+    export LOGFLAG=True
+    export BRIDGE_TOWER_EMBEDDING=true
+    export RETRIEVER_TYPE="redis"
+
+    cd $WORKPATH/comps/retrievers/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name_mm} -d > ${LOG_PATH}/start_services_with_compose_multimodal.log
 
     sleep 2m
 }
 
 function validate_microservice() {
     local test_embedding="$1"
+    local container_name="$2"
 
-    retriever_port=5435
     export PATH="${HOME}/miniforge3/bin:$PATH"
     source activate
-    URL="http://${ip_address}:$retriever_port/v1/retrieval"
+    URL="http://${host_ip}:$RETRIEVER_PORT/v1/retrieval"
 
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
@@ -74,23 +79,23 @@ function validate_microservice() {
             echo "[ retriever ] Content is as expected."
         else
             echo "[ retriever ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+            docker logs ${container_name} >> ${LOG_PATH}/retriever.log
             exit 1
         fi
     else
         echo "[ retriever ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+        docker logs ${container_name} >> ${LOG_PATH}/retriever.log
         exit 1
     fi
 }
 
 function validate_mm_microservice() {
     local test_embedding="$1"
+    local container_name="$2"
 
-    retriever_port=5435
     export PATH="${HOME}/miniforge3/bin:$PATH"
     source activate
-    URL="http://${ip_address}:$retriever_port/v1/retrieval"
+    URL="http://${host_ip}:$RETRIEVER_PORT/v1/retrieval"
 
     # Test the retriever with a b64 image that should be passed through
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding},\"base64_image\":\"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC\"}" -H 'Content-Type: application/json' "$URL")
@@ -107,27 +112,27 @@ function validate_mm_microservice() {
                     echo "[ retriever ] Content has b64_img_str as expected."
                 else
                     echo "[ retriever ] Content does not include the b64_img_str: $CONTENT"
-                    docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+                    docker logs ${container_name} >> ${LOG_PATH}/retriever.log
                     exit 1
                 fi
             fi
         else
             echo "[ retriever ] Content does not match the expected result: $CONTENT"
-            docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+            docker logs ${container_name} >> ${LOG_PATH}/retriever.log
             exit 1
         fi
     else
         echo "[ retriever ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs test-comps-retriever-redis-server >> ${LOG_PATH}/retriever.log
+        docker logs ${container_name} >> ${LOG_PATH}/retriever.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid_retrievers=$(docker ps -aq --filter "name=test-comps-retriever-redis*")
-    if [[ ! -z "$cid_retrievers" ]]; then
-        docker stop $cid_retrievers && docker rm $cid_retrievers && sleep 1s
-    fi
+    cd $WORKPATH/comps/retrievers/deployment/docker_compose
+    docker compose -f compose.yaml down  ${service_name} ${service_name_mm} --remove-orphans
+    cid=$(docker ps -aq --filter "name=redis-vector-db")
+    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
 function main() {
@@ -138,14 +143,14 @@ function main() {
     # test text retriever
     start_service
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
-    validate_microservice "$test_embedding"
+    validate_microservice "$test_embedding" "$service_name"
     stop_docker
 
     # test multimodal retriever
     start_multimodal_service
     test_embedding_multi=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
-    validate_microservice "$test_embedding_multi"
-    validate_mm_microservice "$test_embedding_multi"
+    validate_microservice "$test_embedding_multi" "$service_name_mm"
+    validate_mm_microservice "$test_embedding_multi" "$service_name_mm"
 
     # clean env
     stop_docker

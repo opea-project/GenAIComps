@@ -34,10 +34,9 @@ NEO4J_URL = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
 
-# LLM/Embedding endpoints
+# LLM endpoints
 TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 TGI_LLM_ENDPOINT_NO_RAG = os.getenv("TGI_LLM_ENDPOINT_NO_RAG", "http://localhost:8081")
-TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_ENDPOINT")
 OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 
 
@@ -92,7 +91,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    def ingest_data_to_neo4j(self, doc_path: DocPath):
+    async def ingest_data_to_neo4j(self, doc_path: DocPath):
         """Ingest document to Neo4J."""
         path = doc_path.path
         if logflag:
@@ -113,7 +112,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(path)
@@ -146,6 +145,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into Neo4j database.
 
@@ -171,7 +171,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
                 encode_file = encode_filename(file.filename)
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_neo4j(
+                await self.ingest_data_to_neo4j(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -198,7 +198,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
                 content = parse_html([link])[0][0]
                 try:
                     await save_content_to_local_disk(save_path, content)
-                    self.ingest_data_to_neo4j(
+                    await self.ingest_data_to_neo4j(
                         DocPath(
                             path=save_path,
                             chunk_size=chunk_size,

@@ -6,7 +6,6 @@ FROM python:3.11-slim
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
-USER user
 
 ENV LANG=C.UTF-8
 ARG ARCH=cpu
@@ -22,7 +21,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
-
+USER user
 WORKDIR /home/user/comps/asr/src
 
 ENTRYPOINT ["python", "opea_asr_microservice.py"]

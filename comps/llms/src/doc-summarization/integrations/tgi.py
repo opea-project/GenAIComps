@@ -4,7 +4,7 @@
 import os
 
 import requests
-from langchain_community.llms import HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEndpoint
 
 from comps import CustomLogger, GeneratedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import DocSumChatCompletionRequest
@@ -71,6 +71,7 @@ class OpeaDocSumTgi(OpeaDocSum):
             repetition_penalty=input.repetition_penalty if input.repetition_penalty else 1.03,
             streaming=input.stream,
             server_kwargs=server_kwargs,
+            task="text-generation",
         )
         result = await self.generate(input, self.client)
 

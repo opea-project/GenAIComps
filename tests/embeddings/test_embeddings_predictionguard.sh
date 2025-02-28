@@ -30,7 +30,7 @@ function start_service() {
     cd $WORKPATH
     cd comps/embeddings/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 10
+    sleep 30
 }
 
 function validate_service() {

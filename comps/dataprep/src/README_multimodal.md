@@ -88,13 +88,13 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
 ### 2.5 Run Docker with CLI (Option A)
 
 ```bash
-docker run -d --name="dataprep-multimodal-redis" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e MULTIMODAL_DATAPREP=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MULTIMODALREDIS" opea/dataprep-multimodal-redis:latest
+docker run -d --name="dataprep-multimodal-redis" -p 6007:5000 --runtime=runc --ipc=host -e no_proxy=$no_proxy -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_HOST=$your_ip -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e LVM_ENDPOINT=$LVM_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e MULTIMODAL_DATAPREP=true -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MULTIMODALREDIS" opea/dataprep-multimodal-redis:latest
 ```
 
 ### 2.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
@@ -116,7 +116,7 @@ Once this dataprep microservice is started, user can use the below commands to i
 
 This microservice provides 3 different ways for users to ingest files into Redis vector store corresponding to the 3 use cases.
 
-### 4.1 Consume _ingest_with_text_ API
+### 4.1 Consume _ingest_ API
 
 **Use case:** This API is used for videos accompanied by transcript files (`.vtt` format), images accompanied by text caption files (`.txt` format), and PDF files containing a mix of text and images.
 
@@ -240,5 +240,6 @@ To delete uploaded files and clear the database, use the following command.
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
+    -d '{"file_path": "all"}' \
     http://localhost:6007/v1/dataprep/delete
 ```

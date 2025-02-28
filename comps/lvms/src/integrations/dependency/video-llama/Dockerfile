@@ -14,12 +14,10 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user:user /home/user/
 RUN mkdir /home/user/model && chown user:user -R /home/user/model
 
-USER user
-
 COPY --chown=user:user comps /home/user/comps
 WORKDIR /home/user/comps/lvms/src/integrations/dependency/video-llama/
 
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/lvms/src/integrations/dependency/video-llama/requirements.txt
 
 ARG VIDEO_LLAMA_REPO=https://github.com/DAMO-NLP-SG/Video-LLaMA.git
@@ -31,6 +29,7 @@ RUN tar -xvf video-llama.patch.tar && \
     mv video_llama ../ && \
     cd ../ && rm -rf Video-LLaMA
 
+USER user
 
 ENV PYTHONPATH=/home/user
 

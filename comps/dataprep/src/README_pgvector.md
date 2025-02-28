@@ -38,6 +38,8 @@ Please refer to this [readme](../../third_parties/pgvector/src/README.md).
 ```bash
 export PG_CONNECTION_STRING=postgresql+psycopg2://testuser:testpwd@${your_ip}:5432/vectordb
 export INDEX_NAME=${your_index_name}
+export TEI_EMBEDDING_ENDPOINT=${your_tei_embedding_endpoint}
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
 
 ### 2.3 Build Docker Image
@@ -50,7 +52,7 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 ### 2.4 Run Docker with CLI (Option A)
 
 ```bash
-docker run  --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=$PG_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e TEI_ENDPOINT=$TEI_ENDPOINT -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_PGVECTOR" opea/dataprep:latest
+docker run  --name="dataprep-pgvector" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e PG_CONNECTION_STRING=$PG_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e EMBED_MODEL=${EMBED_MODEL} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_PGVECTOR" opea/dataprep:latest
 ```
 
 ### 2.5 Run with Docker Compose (Option B)

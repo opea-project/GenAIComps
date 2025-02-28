@@ -7,12 +7,12 @@ on:
     inputs:
       services:
         default: ""
-        description: "List of services to test [agent,asr,chathistory,dataprep,embeddings,feedback_management,finetuning,guardrails,knowledgegraphs,llms,lvms,nginx,prompt_registry,ragas,rerankings,retrievers,tts,web_retrievers]"
+        description: "List of services to test [agent,asr,chathistory,animation,dataprep,embeddings,feedback_management,finetuning,guardrails,image2image,image2video,intent_detection,llms,lvms,prompt_registry,ragas,rerankings,retrievers,text2image,text2sql,third_parties,tts,vectorstores,web_retrievers]"
         required: false
         type: string
       images:
         default: ""
-        description: "List of images to scan [dataprep-pgvector,dataprep-pinecone...]"
+        description: "List of images to publish [dataprep-pgvector,dataprep-pinecone...]"
         required: false
         type: string
       tag:
@@ -45,6 +45,7 @@ jobs:
     strategy:
       matrix:
         image: ${{ fromJSON(needs.get-image-list.outputs.matrix) }}
+      fail-fast: false
     runs-on: "docker-build-gaudi"
     steps:
       - uses: docker/login-action@v3.2.0

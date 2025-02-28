@@ -25,7 +25,7 @@ Currently, we employ [**BridgeTower**](https://huggingface.co/BridgeTower/bridge
 export EMBEDDER_PORT=8080
 
 cd ../../../../../../../
-docker build -t opea/embedding-multimodal-bridgetower-hpu:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/bridgetower/src/Dockerfile.intel_hpu .
+docker build -t opea/embedding-multimodal-bridgetower-gaudi:latest --build-arg EMBEDDER_PORT=$EMBEDDER_PORT --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/bridgetower/src/Dockerfile.intel_hpu .
 cd comps/third_parties/bridgetower/deployment/docker_compose/
 docker compose -f compose_intel_hpu.yaml up -d
 ```

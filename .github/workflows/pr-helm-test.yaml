@@ -63,7 +63,7 @@ jobs:
 
   Chart-test:
     needs: [job1]
-    if: always() && ${{ needs.job1.outputs.run_matrix.service.length }} > 0
+    if: always() && ${{ fromJSON(needs.job1.outputs.run_matrix).length != 0 }}
     uses: ./.github/workflows/_run-helm-chart.yml
     strategy:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}

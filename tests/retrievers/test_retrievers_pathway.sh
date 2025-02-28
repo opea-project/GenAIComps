@@ -4,55 +4,54 @@
 
 set -x
 
+IMAGE_REPO=${IMAGE_REPO:-"opea"}
+export REGISTRY=${IMAGE_REPO}
+export TAG="comps"
+echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
+echo "TAG=${TAG}"
+
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
-ip_address=$(hostname -I | awk '{print $1}')
+export host_ip=$(hostname -I | awk '{print $1}')
+service_name="retriever-pathway"
+
 function build_docker_images() {
     cd $WORKPATH
 
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/vectorstore-pathway:comps -f comps/third_parties/pathway/src/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t ${REGISTRY:-opea}/vectorstore-pathway:${TAG:-latest}  -f comps/third_parties/pathway/src/Dockerfile .
 
-    docker build --no-cache -t opea/retriever-pathway:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
+    docker build --no-cache -t ${REGISTRY:-opea}/retriever:${TAG:-latest}  --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
     if [ $? -ne 0 ]; then
-        echo "opea/retriever-pathway built fail"
+        echo "opea/retriever built fail"
         exit 1
     else
-        echo "opea/retriever-pathway built successful"
+        echo "opea/retriever built successful"
     fi
 }
 
 function start_service() {
-    cd $WORKPATH
+    export TEI_EMBEDDER_PORT=11619
+    export PATHWAY_PORT=11620
+    export RETRIEVER_PORT=11621
+    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+    export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
+    export PATHWAY_HOST_DB="0.0.0.0"
+    export PATHWAY_VOLUME="$WORKPATH/comps/third_parties/pathway/src/README.md"
+    export PATHWAY_HOST=$host_ip  # needed in order to reach to vector store
 
-    # tei endpoint
-    tei_endpoint=5008
-    model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-retriever-pathway-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.2 --model-id $model
-    export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"
-
-    # pathway
-    export PATHWAY_HOST="0.0.0.0"
-    export PATHWAY_PORT=5433
-
-    docker run -d --name="test-comps-retriever-pathway-vectorstore" -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v $WORKPATH/comps/third_parties/pathway/src/README.md:/app/data/README.md -p ${PATHWAY_PORT}:${PATHWAY_PORT} --network="host" opea/vectorstore-pathway:comps
-
-    sleep 30s
-
-    export PATHWAY_HOST=$ip_address  # needed in order to reach to vector store
-
-    docker run -d --name="test-comps-retriever-pathway-ms" -p 5009:7000 -e PATHWAY_HOST=${PATHWAY_HOST} -e PATHWAY_PORT=${PATHWAY_PORT} -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e LOGFLAG=true -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_PATHWAY" opea/retriever-pathway:comps
+    cd $WORKPATH/comps/retrievers/deployment/docker_compose
+    docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 2m
 }
 
 function validate_microservice() {
-    retriever_port=5009
     export PATH="${HOME}/miniforge3/bin:$PATH"
 
     test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
 
     result=$(http_proxy=''
-    curl http://${ip_address}:$retriever_port/v1/retrieval \
+    curl http://${host_ip}:$RETRIEVER_PORT/v1/retrieval \
         -X POST \
         -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" \
         -H 'Content-Type: application/json')
@@ -60,15 +59,17 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs test-comps-retriever-pathway-vectorstore >> ${LOG_PATH}/vectorstore-pathway.log
-        docker logs test-comps-retriever-pathway-tei-endpoint >> ${LOG_PATH}/tei-endpoint.log
-        docker logs test-comps-retriever-pathway-ms >> ${LOG_PATH}/retriever-pathway.log
+        docker logs pathway-db >> ${LOG_PATH}/vectorstore-pathway.log
+        docker logs tei-embedding-serving >> ${LOG_PATH}/tei-endpoint.log
+        docker logs ${service_name} >> ${LOG_PATH}/retriever-pathway.log
         exit 1
     fi
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=test-comps-retriever-pathway*")
+    cd $WORKPATH/comps/retrievers/deployment/docker_compose
+    docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    cid=$(docker ps -aq --filter "name=pathway-db")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 

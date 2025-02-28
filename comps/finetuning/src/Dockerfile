@@ -16,17 +16,17 @@ COPY comps /home/user/comps
 
 RUN chown -R user /home/user/comps/finetuning
 
-USER user
-
 ENV PATH=$PATH:/home/user/.local/bin
 
-RUN python -m pip install --no-cache-dir --upgrade pip && \
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools peft && \
     python -m pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
     python -m pip install --no-cache-dir intel-extension-for-pytorch && \
     python -m pip install --no-cache-dir oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/cn/ && \
     python -m pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
+
+USER user
 
 WORKDIR /home/user/comps/finetuning/src
 

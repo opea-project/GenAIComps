@@ -60,7 +60,7 @@ cd ../..
 docker build -t opea/image2image-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/image2image/src/Dockerfile.intel_hpu .
 ```
 
-## 2.2 Start Image-to-Image Service
+## 2.2 Start Image-to-Image Service with Docker
 
 ### 2.2.1 Start Image-to-Image Service on Xeon
 
@@ -78,7 +78,25 @@ Start image-to-image service on Gaudi with below command:
 docker run -p 9389:9389 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e HF_TOKEN=$HF_TOKEN -e MODEL=$MODEL opea/image2image-gaudi:latest
 ```
 
-# 3 Test Image-to-Image Service
+# 🚀3. Start Image-to-Image with Docker Compose
+
+Alternatively, you can also start the Image-to-Image microservice with Docker Compose.
+
+- Xeon CPU
+
+```bash
+cd comps/image2image/deployment/docker_compose
+docker compose -f compose.yaml up image2image -d
+```
+
+- Gaudi2 HPU
+
+```bash
+cd comps/image2image/deployment/docker_compose
+docker compose -f compose.yaml up image2image-gaudi -d
+```
+
+# 4 Test Image-to-Image Service
 
 ```bash
 http_proxy="" curl http://localhost:9389/v1/image2image -XPOST -d '{"image": "https://huggingface.co/datasets/patrickvonplaten/images/resolve/main/aa_xl/000000009.png", "prompt":"a photo of an astronaut riding a horse on mars", "num_images_per_prompt":1}' -H 'Content-Type: application/json'

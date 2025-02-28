@@ -11,9 +11,8 @@ from typing import List, Optional, Union
 import redis
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import Redis
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
@@ -40,6 +39,8 @@ upload_folder = "./uploaded_files/"
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 # TEI Embedding endpoints
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 # Vector Index Configuration
 INDEX_NAME = os.getenv("INDEX_NAME", "rag_redis")
@@ -187,8 +188,23 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
         logger.info(f"[ redis ingest chunks ] file name: {file_name}")
     # Create vectorstore
     if TEI_EMBEDDING_ENDPOINT:
+        if not HUGGINGFACEHUB_API_TOKEN:
+            raise HTTPException(
+                status_code=400,
+                detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+            )
+        import requests
+
+        response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+            )
+        model_id = response.json()["model_id"]
         # create embeddings using TEI endpoint service
-        embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+        embedder = HuggingFaceInferenceAPIEmbeddings(
+            api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+        )
     else:
         # create embeddings using local embedding model
         embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
@@ -231,7 +247,7 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
     return True
 
 
-def ingest_data_to_redis(doc_path: DocPath):
+async def ingest_data_to_redis(doc_path: DocPath):
     """Ingest document to Redis."""
     path = doc_path.path
     if logflag:
@@ -252,7 +268,7 @@ def ingest_data_to_redis(doc_path: DocPath):
             separators=get_separators(),
         )
 
-    content = document_loader(path)
+    content = await document_loader(path)
     if logflag:
         logger.info("[ redis ingest data ] file content loaded")
 
@@ -332,6 +348,7 @@ class OpeaRedisDataprep(OpeaComponent):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into redis database.
 
@@ -376,7 +393,7 @@ class OpeaRedisDataprep(OpeaComponent):
 
                 save_path = upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                ingest_data_to_redis(
+                await ingest_data_to_redis(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -420,7 +437,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 save_path = upload_folder + encoded_link + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 await save_content_to_local_disk(save_path, content)
-                ingest_data_to_redis(
+                await ingest_data_to_redis(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,

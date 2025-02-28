@@ -7,6 +7,7 @@ import copy
 import json
 import os
 import re
+import threading
 import time
 from typing import Dict, List
 
@@ -24,23 +25,60 @@ from .logger import CustomLogger
 
 logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
+ENABLE_OPEA_TELEMETRY = os.getenv("ENABLE_OPEA_TELEMETRY", "false").lower() == "true"
 
 
 class OrchestratorMetrics:
-    # Because:
-    # - CI creates several orchestrator instances
-    # - Prometheus requires metrics to be singletons
-    # - Oorchestror instances are not provided their own names
-    # Metrics are class members with "megaservice" name prefix
-    first_token_latency = Histogram("megaservice_first_token_latency", "First token latency (histogram)")
-    inter_token_latency = Histogram("megaservice_inter_token_latency", "Inter-token latency (histogram)")
-    request_latency = Histogram("megaservice_request_latency", "Whole request/reply latency (histogram)")
-    request_pending = Gauge("megaservice_request_pending", "Count of currently pending requests (gauge)")
+    # Need an static class-level ID for metric prefix because:
+    # - Prometheus requires metrics (their names) to be unique
+    _instance_id = 0
 
     def __init__(self) -> None:
-        pass
+        OrchestratorMetrics._instance_id += 1
+        if OrchestratorMetrics._instance_id > 1:
+            self._prefix = f"megaservice{self._instance_id}"
+        else:
+            self._prefix = "megaservice"
 
-    def token_update(self, token_start: float, is_first: bool) -> float:
+        self.request_pending = Gauge(f"{self._prefix}_request_pending", "Count of currently pending requests (gauge)")
+
+        # locking for latency metric creation / method change
+        self._lock = threading.Lock()
+
+        # Metrics related to token processing are created on demand,
+        # to avoid bogus ones for services that never handle tokens
+        self.first_token_latency = None
+        self.inter_token_latency = None
+        self.request_latency = None
+
+        # initial methods to create the metrics
+        self.token_update = self._token_update_create
+        self.request_update = self._request_update_create
+
+    def _token_update_create(self, token_start: float, is_first: bool) -> float:
+        with self._lock:
+            # in case another thread already got here
+            if self.token_update == self._token_update_create:
+                self.first_token_latency = Histogram(
+                    f"{self._prefix}_first_token_latency", "First token latency (histogram)"
+                )
+                self.inter_token_latency = Histogram(
+                    f"{self._prefix}_inter_token_latency", "Inter-token latency (histogram)"
+                )
+                self.token_update = self._token_update_real
+        return self.token_update(token_start, is_first)
+
+    def _request_update_create(self, req_start: float) -> None:
+        with self._lock:
+            # in case another thread already got here
+            if self.request_update == self._request_update_create:
+                self.request_latency = Histogram(
+                    f"{self._prefix}_request_latency", "Whole LLM request/reply latency (histogram)"
+                )
+                self.request_update = self._request_update_real
+        self.request_update(req_start)
+
+    def _token_update_real(self, token_start: float, is_first: bool) -> float:
         now = time.time()
         if is_first:
             self.first_token_latency.observe(now - token_start)
@@ -48,7 +86,7 @@ class OrchestratorMetrics:
             self.inter_token_latency.observe(now - token_start)
         return now
 
-    def request_update(self, req_start: float) -> None:
+    def _request_update_real(self, req_start: float) -> None:
         self.request_latency.observe(time.time() - req_start)
 
     def pending_update(self, increase: bool) -> None:
@@ -169,20 +207,20 @@ class ServiceOrchestrator(DAG):
             all_outputs.update(result_dict[prev_node])
         return all_outputs
 
-    def wrap_iterable(self, iterable, is_first=True):
+    async def wrap_iterable(self, aiterable, is_first=True):
 
-        with tracer.start_as_current_span("llm_generate_stream"):
+        with tracer.start_as_current_span("llm_generate_stream") if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
             while True:
                 with (
                     tracer.start_as_current_span("llm_generate_stream_first_token")
-                    if is_first
+                    if is_first and ENABLE_OPEA_TELEMETRY
                     else contextlib.nullcontext()
                 ):  #  else tracer.start_as_current_span(f"llm_generate_stream_next_token")
                     try:
-                        token = next(iterable)
+                        token = await anext(aiterable)
                         yield token
                         is_first = False
-                    except StopIteration:
+                    except StopAsyncIteration:
                         # Exiting the iterable loop cleanly
                         break
                     except Exception as e:
@@ -216,15 +254,19 @@ class ServiceOrchestrator(DAG):
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
-            with tracer.start_as_current_span(f"{cur_node}_asyn_generate"):
-                response = requests.post(
-                    url=endpoint,
-                    data=json.dumps(inputs),
-                    headers={"Content-type": "application/json"},
-                    proxies={"http": None},
-                    stream=True,
-                    timeout=1000,
-                )
+            with (
+                tracer.start_as_current_span(f"{cur_node}_asyn_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
+                async with aiohttp.ClientSession() as session:
+                    response = await session.post(
+                        url=endpoint,
+                        data=json.dumps(inputs),
+                        headers={"Content-type": "application/json"},
+                        proxy=None,
+                        timeout=aiohttp.ClientTimeout(total=1000),
+                    )
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
@@ -232,36 +274,36 @@ class ServiceOrchestrator(DAG):
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
                 downstream_endpoint = self.services[downstream[0]].endpoint_path
 
-            def generate():
+            async def generate():
                 token_start = req_start
                 if response:
                     # response.elapsed = time until first headers received
                     buffered_chunk_str = ""
                     is_first = True
-
-                    for chunk in self.wrap_iterable(response.iter_content(chunk_size=None)):
-
+                    async for chunk in self.wrap_iterable(response.content.iter_chunked(None)):
                         if chunk:
                             if downstream:
                                 chunk = chunk.decode("utf-8")
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
-                                    res = requests.post(
-                                        url=downstream_endpoint,
-                                        data=json.dumps({"text": buffered_chunk_str}),
-                                        proxies={"http": None},
-                                    )
-                                    res_json = res.json()
-                                    if "text" in res_json:
-                                        res_txt = res_json["text"]
-                                    else:
-                                        raise Exception("Other response types not supported yet!")
-                                    buffered_chunk_str = ""  # clear
-                                    yield from self.token_generator(
-                                        res_txt, token_start, is_first=is_first, is_last=is_last
-                                    )
-                                    token_start = time.time()
+                                    async with aiohttp.ClientSession() as downstream_session:
+                                        res = await downstream_session.post(
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            proxy=None,
+                                        )
+                                        res_json = await res.json()
+                                        if "text" in res_json:
+                                            res_txt = res_json["text"]
+                                        else:
+                                            raise Exception("Other response types not supported yet!")
+                                        buffered_chunk_str = ""  # clear
+                                        async for item in self.token_generator(
+                                            res_txt, token_start, is_first=is_first, is_last=is_last
+                                        ):
+                                            yield item
+                                        token_start = time.time()
                             else:
                                 token_start = self.metrics.token_update(token_start, is_first)
                                 yield chunk
@@ -283,8 +325,14 @@ class ServiceOrchestrator(DAG):
                 input_data = {k: v for k, v in input_data.items() if v is not None}
             else:
                 input_data = inputs
-            with tracer.start_as_current_span(f"{cur_node}_generate"):
+
+            with (
+                tracer.start_as_current_span(f"{cur_node}_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = await session.post(endpoint, json=input_data)
+
             if response.content_type == "audio/wav":
                 audio_data = await response.read()
                 data = self.align_outputs(audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)

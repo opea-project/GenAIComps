@@ -4,6 +4,7 @@
 include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
   - ../../../third_parties/bridgetower/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/clip/deployment/docker_compose/compose_intel_cpu.yaml
 
 x-multimodal-bridgetower-embedding-config: &multimodal-bridgetower-embedding-config
   image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
@@ -26,7 +27,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: tei-embedding-server
     ports:
-      - "${EMBEDDER_PORT:-10200}:6000"
+      - "${EMBEDDER_PORT:-10201}:6000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -43,7 +44,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: pg-embedding-server
     ports:
-      - ${EMBEDDER_PORT:-10200}:6000
+      - ${EMBEDDER_PORT:-10202}:6000
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -52,6 +53,23 @@ services:
       PG_EMBEDDING_MODEL_NAME: ${PG_EMBEDDING_MODEL_NAME}
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
       EMBEDDING_COMPONENT_NAME: "OPEA_PREDICTIONGUARD_EMBEDDING"
+    restart: unless-stopped
+
+  clip-embedding-server:
+    image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
+    container_name: clip-embedding-server
+    ports:
+      - ${EMBEDDER_PORT:-10203}:6000
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      CLIP_EMBEDDING_ENDPOINT: ${CLIP_EMBEDDING_ENDPOINT}
+      EMBEDDING_COMPONENT_NAME: "OPEA_CLIP_EMBEDDING"
+    depends_on:
+      multimodal-clip-embedding:
+        condition: service_healthy
     restart: unless-stopped
 
   multimodal-bridgetower-embedding-server:

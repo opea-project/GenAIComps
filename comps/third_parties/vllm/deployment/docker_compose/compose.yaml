@@ -55,7 +55,7 @@ services:
       test: ["CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1"]
       interval: 10s
       timeout: 10s
-      retries: 100
+      retries: 150
     command: --model $LLM_MODEL_ID --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --block-size 128 --max-num-seqs 256
   vllm-openvino:
     image: ${REGISTRY:-opea}/vllm-openvino:${TAG:-latest}
