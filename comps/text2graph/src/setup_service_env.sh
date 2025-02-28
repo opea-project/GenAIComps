@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 #######################################################################
 # Proxy
 #######################################################################
@@ -5,7 +8,7 @@ export https_proxy=${https_proxy}
 export http_proxy=${http_proxy}
 export no_proxy=${no_proxy}
 ################################################################
-# Configure LLM Parameters based on the model selected.  
+# Configure LLM Parameters based on the model selected.
 ################################################################
 export LLM_ID=${LLM_ID:-"Babelscape/rebel-large"}
 export SPAN_LENGTH=${SPAN_LENGTH:-"1024"}

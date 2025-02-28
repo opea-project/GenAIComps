@@ -6,11 +6,14 @@ from __future__ import annotations
 import os
 import time
 from typing import Annotated, Optional
+
 from langchain.agents.agent_types import AgentType
 from langchain_huggingface import HuggingFaceEndpoint
 from pydantic import BaseModel, Field
+
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.text2graph.src.integrations.graph_agent import TripletManager, TripletBuilder, TripletExtractor
+from comps.text2graph.src.integrations.graph_agent import TripletBuilder, TripletExtractor, TripletManager
+
 ##from comps.text2graph.src.integrations.triplet_manager import TripletManager
 ##from comps.text2graph.src.integrations.triplet_builder import TripletBuilder
 ##from comps.text2graph.src.integrations.triplet_extractor import TripletExtractor
@@ -31,23 +34,23 @@ generation_params = {
     "streaming": True,
 }
 
-#TGI_LLM_ENDPOINT = os.environ.get("TGI_LLM_ENDPOINT")
+# TGI_LLM_ENDPOINT = os.environ.get("TGI_LLM_ENDPOINT")
 #
-#llm = HuggingFaceEndpoint(
+# llm = HuggingFaceEndpoint(
 #    endpoint_url=TGI_LLM_ENDPOINT,
 #    task="text-generation",
 #    **generation_params,
 #    )
 
+
 class Input(BaseModel):
     input_text: str
-    #conn_str: Optional[PostgresConnection] = None
+    # conn_str: Optional[PostgresConnection] = None
+
 
 @OpeaComponentRegistry.register("OPEA_TEXT2GRAPH")
 class OpeaText2GRAPH(OpeaComponent):
-    """
-       A specialized text to graph triplet converter
-    """
+    """A specialized text to graph triplet converter."""
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TEXT2GRAPH.name.lower(), description, config)
@@ -57,29 +60,31 @@ class OpeaText2GRAPH(OpeaComponent):
 
     async def check_health(self) -> bool:
         """Checks the health of the TGI service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            #response = llm.generate(["Hello, how are you?"])
+            # response = llm.generate(["Hello, how are you?"])
             return True
         except Exception as e:
             return False
 
     async def invoke(self, input_text: str):
-       """Invokes the text2graph service to generate graph(s) for the provided input.
+        """Invokes the text2graph service to generate graph(s) for the provided input.
+
         input:
             input: text document
         Returns:
             text : dict
-       """
+        """
 
-       tb = TripletBuilder()
-       graph_triplets = await tb.extract_graph(input_text)
+        tb = TripletBuilder()
+        graph_triplets = await tb.extract_graph(input_text)
 
-       #tm = TripletManager()
-       #entity, relation = tm.write_to_csv(WRITE_TO_CSV=False)
+        # tm = TripletManager()
+        # entity, relation = tm.write_to_csv(WRITE_TO_CSV=False)
 
-       result = {"graph_triplets": graph_triplets}
+        result = {"graph_triplets": graph_triplets}
 
-       return result
+        return result

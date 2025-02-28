@@ -17,7 +17,7 @@ services:
          - LLM_MODEL_ID=${LLM_MODEL_ID:-"Babelscape/rebel-large"}
          - HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
      ipc: host
-     restart: always          
+     restart: always
 
   text2graph-gaudi:
     image: opea/text2graph:${TAG:-latest}

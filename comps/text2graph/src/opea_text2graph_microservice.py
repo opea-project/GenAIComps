@@ -1,8 +1,12 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import pathlib
 import sys
 
 from fastapi.exceptions import HTTPException
+
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
 from comps.text2graph.src.integrations.opea import Input, OpeaText2GRAPH
 
@@ -21,6 +25,7 @@ loader = OpeaComponentLoader(
     description=f"OPEA RERANK Component: {text2graph_component_name}",
 )
 
+
 @register_microservice(
     name="opea_service@text2graph",
     endpoint="/v1/text2graph",
@@ -29,16 +34,17 @@ loader = OpeaComponentLoader(
 )
 async def execute_agent(input_text: str):
     """Execute triplet extraction from text file.
+
     This function takes an Input object containing the input text and database connection information.
     It uses the execute function from the text2graph module to execute the graph query and returns the result.
     Args:
-        input (Input): An Input object with the input text 
+        input (Input): An Input object with the input text
     Returns:
         dict: A dictionary with head, tail and type linking head and tail
     """
-    print(f'===============================================================')
-    print(f'===================ENTERING THIS EXECUTE AGENT=================')
-    print(f'===============================================================')
+    print("===============================================================")
+    print("===================ENTERING THIS EXECUTE AGENT=================")
+    print("===============================================================")
     results = await loader.invoke(input_text)
     return {"result": results}
 
