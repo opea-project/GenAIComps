@@ -24,6 +24,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+    echo "token is ${HF_TOKEN}"
     docker compose down
     unset http_proxy
     service_name="neo4j-apoc text2cypher-gaudi"
