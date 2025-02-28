@@ -40,6 +40,7 @@ from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipel
 
 logger = CustomLogger("opea_text2cypher_microservice")
 
+
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
     password: Annotated[str, Field(min_length=1)]
