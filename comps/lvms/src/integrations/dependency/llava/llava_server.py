@@ -52,7 +52,7 @@ async def generate(request: Request) -> Response:
     print("LLaVA generation begin.")
     request_dict = await request.json()
     prompt = request_dict.pop("prompt")
-    img_b64_str = request_dict.pop("img_b64_str")   # Only accept string
+    img_b64_str = request_dict.pop("img_b64_str")  # Only accept string
     max_new_tokens = request_dict.pop("max_new_tokens", 100)
 
     # Determine the format of the role labels based on the model name

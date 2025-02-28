@@ -6,9 +6,9 @@ langchain-core
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-transformers
 prometheus-fastapi-instrumentator
 pydantic==2.7.2
 pydub
 shortuuid
+transformers
 uvicorn
