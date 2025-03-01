@@ -62,7 +62,7 @@ class OpeaText2Cypher(OpeaComponent):
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
-        logger.info("OpeaText2Cypher initialization started.")
+        logger.info("[ OpeaText2Cypher ] initialization started.")
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
 
         # initialize model and tokenizer
@@ -80,7 +80,7 @@ class OpeaText2Cypher(OpeaComponent):
         # elif device == "cpu":
         else:
             raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
-        logger.info("OpeaText2Cypher initialization completed.")
+        logger.info("[ OpeaText2Cypher ] initialization completed.")
 
     async def invoke(self, input: Input):
         """Invokes the text2cypher service.
@@ -104,7 +104,7 @@ class OpeaText2Cypher(OpeaComponent):
 
         graph_store.query(cypher_cleanup)
         graph_store.query(cypher_insert)
-        logger.info(f"Graph has been built with the following graph schema: {graph_store.schema}")
+        logger.info(f"[ NativeInvoke ] Graph has been built with the following graph schema: {graph_store.schema}")
 
         cypher_prompt = PromptTemplate(input_variables=["schema"], template=prepare_chat_template(prompt))
 
@@ -139,8 +139,8 @@ class OpeaText2Cypher(OpeaComponent):
         end_time = time.time()
         latency = end_time - start_time
 
-        logger.info(f"Latency: {latency:.2f} seconds.")
-        logger.info(f"result: {result}")
+        logger.info(f"[ NativeInvoke ] Latency: {latency:.2f} seconds.")
+        logger.info(f"[ NativeInvoke ] result: {result}")
         return result
 
     def check_health(self) -> bool:
