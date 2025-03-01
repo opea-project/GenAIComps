@@ -197,7 +197,7 @@ class TripletManager():
         df_relation = pd.DataFrame(relation_data)  
 
         # Write to CSV if requested
-        if WRITE_TO_CSV == True:
+        if WRITE_TO_CSV:
           df_entity.to_csv('entities.csv', index=True)
           df_relation.to_csv('relations.csv', index=True)
         return df_entity, df_relation
