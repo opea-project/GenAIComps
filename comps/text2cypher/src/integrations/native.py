@@ -158,7 +158,7 @@ class OpeaText2Cypher(OpeaComponent):
 
         logger.info(f"[ NativeInvoke ] Latency: {latency:.2f} seconds.")
         logger.info(f"[ NativeInvoke ] result: {result}")
-        return result 
+        return result
 
     async def invoke(self, input: Input):
         """Invokes the text2cypher service.
@@ -171,6 +171,6 @@ class OpeaText2Cypher(OpeaComponent):
         """
         while not await self.check_health():
             await asyncio.sleep(1)  # Sleep for a while before checking again
-        
+
         result = await self.gen_cypher(input)
         return result
