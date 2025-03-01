@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import asyncio
 import os
 import sys
 import threading
@@ -106,15 +107,7 @@ class OpeaText2Cypher(OpeaComponent):
             logger.error("Health check failed")
             return False
 
-    def invoke(self, input: Input):
-        """Invokes the text2cypher service.
-
-        Args:
-            input (Inputs): The input for text2cypher service, including input_text and optional connection info.
-
-        Returns:
-            str: the generated output.
-        """
+    async def gen_cypher(self, input: Input):
         prompt = input.input_text
         user = input.conn_str.user
         password = input.conn_str.password
@@ -165,4 +158,19 @@ class OpeaText2Cypher(OpeaComponent):
 
         logger.info(f"[ NativeInvoke ] Latency: {latency:.2f} seconds.")
         logger.info(f"[ NativeInvoke ] result: {result}")
+        return result 
+
+    async def invoke(self, input: Input):
+        """Invokes the text2cypher service.
+
+        Args:
+            input (Inputs): The input for text2cypher service, including input_text and optional connection info.
+
+        Returns:
+            str: the generated output.
+        """
+        while not await self.check_health():
+            await asyncio.sleep(1)  # Sleep for a while before checking again
+        
+        result = await self.gen_cypher(input)
         return result
