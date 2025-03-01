@@ -107,7 +107,7 @@ class OpeaText2Cypher(OpeaComponent):
             logger.error("Health check failed")
             return False
 
-    async def invoke(self, input: Input):
+    def invoke(self, input: Input):
         """Invokes the text2cypher service.
 
         Args:
