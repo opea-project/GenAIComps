@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import logging
+import threading
 import os
 import sys
 import time
@@ -31,14 +31,36 @@ from comps.text2cypher.src.integrations.cypher_utils import (
     prepare_chat_template,
 )
 
-# from llama_index.core.indices.property_graph import LLMSynonymRetriever, VectorContextRetriever
-# from load_llm import load_llm
 from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipeline
 
-# from comps.text2cypher.src.integrations.gaudiutils import initialize_model, setup_parser
-
-
 logger = CustomLogger("opea_text2cypher_native")
+
+initialization_lock = threading.Lock()
+initialized = False
+chat_model = None
+
+def initialize(config: dict = None):
+    global chat_model, initialized
+    with initialization_lock:
+        if not initialized:
+            logger.info("[ OpeaText2Cypher ] initialization started.")
+            # initialize model and tokenizer
+            model_name_or_path = config["model_name_or_path"]
+            device = config["device"]
+            chat_model = None
+            if device == "hpu":
+                # Convert config dict back to args-like object
+                args = argparse.Namespace(**config)
+                pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
+                hfpipe = HuggingFacePipeline(pipeline=pipe)
+    
+                chat_model = ChatHuggingFace(temperature=0.1, llm=hfpipe, tokenizer=pipe.tokenizer)
+
+            # elif device == "cpu":
+            else:
+                raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
+            initialized = True
+            logger.info("[ OpeaText2Cypher ] initialization completed.")
 
 
 class Neo4jConnection(BaseModel):
@@ -62,25 +84,28 @@ class OpeaText2Cypher(OpeaComponent):
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
-        logger.info("[ OpeaText2Cypher ] initialization started.")
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
-
-        # initialize model and tokenizer
-        model_name_or_path = config["model_name_or_path"]
-        device = config["device"]
-        self.chat_model = None
-        if device == "hpu":
-            # Convert config dict back to args-like object
-            args = argparse.Namespace(**config)
-            pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
-            hfpipe = HuggingFacePipeline(pipeline=pipe)
-
-            self.chat_model = ChatHuggingFace(temperature=0.1, llm=hfpipe, tokenizer=pipe.tokenizer)
-
-        # elif device == "cpu":
+        initialize(config)
+        health_status = self.check_health()
+        if not health_status:
+            logger.error("[ OpeaText2Cypher ] health check failed.")
         else:
-            raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
-        logger.info("[ OpeaText2Cypher ] initialization completed.")
+            logger.info("[ OpeaText2Cypher ] health check success.")
+
+
+    def check_health(self) -> bool:
+        """Checks the health of the Text2Cypher service.
+
+        Returns:
+            bool: True if the service is reachable and healthy, False otherwise.
+        """
+
+        try:
+            return initialized
+        except Exception as e:
+            logger.error(e)
+            logger.error("Health check failed")
+            return False
 
     async def invoke(self, input: Input):
         """Invokes the text2cypher service.
@@ -115,9 +140,9 @@ class OpeaText2Cypher(OpeaComponent):
         use_qa_llm_kwargs = {"prompt": CYPHER_QA_PROMPT}
         use_cypher_llm_kwargs = {"prompt": cypher_prompt}
 
-        qa_chain = LLMChain(llm=self.chat_model, **use_qa_llm_kwargs)
+        qa_chain = LLMChain(llm=chat_model, **use_qa_llm_kwargs)
         cypher_generation_chain = LLMChain(
-            llm=self.chat_model,
+            llm=chat_model,
             **use_cypher_llm_kwargs,
         )
 
@@ -143,5 +168,3 @@ class OpeaText2Cypher(OpeaComponent):
         logger.info(f"[ NativeInvoke ] result: {result}")
         return result
 
-    def check_health(self) -> bool:
-        return True
