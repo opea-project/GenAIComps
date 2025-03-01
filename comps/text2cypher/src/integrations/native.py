@@ -38,7 +38,7 @@ from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipel
 # from comps.text2cypher.src.integrations.gaudiutils import initialize_model, setup_parser
 
 
-logger = CustomLogger("opea_text2cypher_microservice")
+logger = CustomLogger("opea_text2cypher_native")
 
 
 class Neo4jConnection(BaseModel):
@@ -62,6 +62,7 @@ class OpeaText2Cypher(OpeaComponent):
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
+        logger.info("OpeaText2Cypher initialization started.")
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
 
         # initialize model and tokenizer
@@ -79,7 +80,7 @@ class OpeaText2Cypher(OpeaComponent):
         # elif device == "cpu":
         else:
             raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
-        logger.info("model initialized.")
+        logger.info("OpeaText2Cypher initialization completed.")
 
     async def invoke(self, input: Input):
         """Invokes the text2cypher service.
