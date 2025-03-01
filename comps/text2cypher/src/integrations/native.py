@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import threading
 import os
 import sys
+import threading
 import time
 from string import Template
 from typing import Annotated, Any, Dict, List, Optional, Union
@@ -30,7 +30,6 @@ from comps.text2cypher.src.integrations.cypher_utils import (
     cypher_insert,
     prepare_chat_template,
 )
-
 from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipeline
 
 logger = CustomLogger("opea_text2cypher_native")
@@ -38,6 +37,7 @@ logger = CustomLogger("opea_text2cypher_native")
 initialization_lock = threading.Lock()
 initialized = False
 chat_model = None
+
 
 def initialize(config: dict = None):
     global chat_model, initialized
@@ -53,7 +53,7 @@ def initialize(config: dict = None):
                 args = argparse.Namespace(**config)
                 pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
                 hfpipe = HuggingFacePipeline(pipeline=pipe)
-    
+
                 chat_model = ChatHuggingFace(temperature=0.1, llm=hfpipe, tokenizer=pipe.tokenizer)
 
             # elif device == "cpu":
@@ -91,7 +91,6 @@ class OpeaText2Cypher(OpeaComponent):
             logger.error("[ OpeaText2Cypher ] health check failed.")
         else:
             logger.info("[ OpeaText2Cypher ] health check success.")
-
 
     def check_health(self) -> bool:
         """Checks the health of the Text2Cypher service.
@@ -167,4 +166,3 @@ class OpeaText2Cypher(OpeaComponent):
         logger.info(f"[ NativeInvoke ] Latency: {latency:.2f} seconds.")
         logger.info(f"[ NativeInvoke ] result: {result}")
         return result
-
