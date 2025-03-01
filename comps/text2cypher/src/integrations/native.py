@@ -93,7 +93,7 @@ class OpeaText2Cypher(OpeaComponent):
         else:
             logger.info("[ OpeaText2Cypher ] health check success.")
 
-    def check_health(self) -> bool:
+    async def check_health(self) -> bool:
         """Checks the health of the Text2Cypher service.
 
         Returns:
