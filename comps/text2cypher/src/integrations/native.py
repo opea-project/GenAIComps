@@ -155,7 +155,7 @@ class OpeaText2Cypher(OpeaComponent):
         """
         # while not await self.check_health():
         if not await self.check_health():
-            logger.info(f"[ invoke ] Failed to connect to Neo4j")
+            logger.info("[ invoke ] Failed to connect to Neo4j")
             return []
 
         result = self.query_engine_chain.run(input.input_text)
