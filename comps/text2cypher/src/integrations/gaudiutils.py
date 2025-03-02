@@ -10,6 +10,7 @@ import tempfile
 import time
 from pathlib import Path
 
+import requests
 import torch
 from huggingface_hub import hf_hub_download
 from optimum.habana.checkpoint_utils import (
@@ -29,9 +30,9 @@ from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import check_min_version
 
 from comps import CustomLogger
-import requests
 
 logger = CustomLogger("opea_text2cypher_utils")
+
 
 # Create a custom requests session with a timeout
 class TimeoutSession(requests.Session):
@@ -40,8 +41,9 @@ class TimeoutSession(requests.Session):
         self.timeout = timeout
 
     def request(self, *args, **kwargs):
-        kwargs['timeout'] = self.timeout
+        kwargs["timeout"] = self.timeout
         return super().request(*args, **kwargs)
+
 
 def setup_parser(parser):
     # Arguments management
