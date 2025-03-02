@@ -55,7 +55,7 @@ function start_service() {
 
     cd $WORKPATH/comps/text2cypher/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 2m
+    sleep 10m
 }
 
 function validate_neo4j_service() {
