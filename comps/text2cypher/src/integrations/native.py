@@ -5,7 +5,6 @@ import argparse
 import asyncio
 import os
 import sys
-import threading
 import time
 from string import Template
 from typing import Annotated, Any, Dict, List, Optional, Union
@@ -35,34 +34,6 @@ from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipel
 
 logger = CustomLogger("opea_text2cypher_native")
 
-initialization_lock = threading.Lock()
-initialized = False
-chat_model = None
-
-
-def initialize(config: dict = None):
-    global chat_model, initialized
-    with initialization_lock:
-        if not initialized:
-            logger.info("[ OpeaText2Cypher ] initialization started.")
-            # initialize model and tokenizer
-            model_name_or_path = config["model_name_or_path"]
-            device = config["device"]
-            chat_model = None
-            if device == "hpu":
-                # Convert config dict back to args-like object
-                args = argparse.Namespace(**config)
-                pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
-                hfpipe = HuggingFacePipeline(pipeline=pipe)
-
-                chat_model = ChatHuggingFace(temperature=0.1, llm=hfpipe, tokenizer=pipe.tokenizer)
-
-            # elif device == "cpu":
-            else:
-                raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
-            initialized = True
-            logger.info("[ OpeaText2Cypher ] initialization completed.")
-
 
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
@@ -86,32 +57,35 @@ class OpeaText2Cypher(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
-        initialize(config)
+
+        self.query_engine_chain = self._initialize_client(config)
         health_status = self.check_health()
         if not health_status:
             logger.error("[ OpeaText2Cypher ] health check failed.")
+
+    def _initialize_client(self, config: dict = None):
+        """Initializes the chain client."""
+        logger.info("[ OpeaText2Cypher ] initialize_client started.")
+        # initialize model and tokenizer
+        model_name_or_path = config["model_name_or_path"]
+        device = config["device"]
+        chat_model = None
+        if device == "hpu":
+            # Convert config dict back to args-like object
+            args = argparse.Namespace(**config)
+            pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
+            hfpipe = HuggingFacePipeline(pipeline=pipe)
+
+            chat_model = ChatHuggingFace(temperature=0.1, llm=hfpipe, tokenizer=pipe.tokenizer)
+
+        # elif device == "cpu":
         else:
-            logger.info("[ OpeaText2Cypher ] health check success.")
+            raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
 
-    async def check_health(self) -> bool:
-        """Checks the health of the Text2Cypher service.
-
-        Returns:
-            bool: True if the service is reachable and healthy, False otherwise.
-        """
-
-        try:
-            return initialized
-        except Exception as e:
-            logger.error(e)
-            logger.error("Health check failed")
-            return False
-
-    async def gen_cypher(self, input: Input):
-        prompt = input.input_text
-        user = input.conn_str.user
-        password = input.conn_str.password
-        url = input.conn_str.url
+        prompt = "what are the symptoms for Diabetes?"
+        user = os.getenv("NEO4J_USERNAME", "neo4j")
+        password = os.getenv("NEO4J_PASSWORD", "neo4jtest")
+        url = os.getenv("NEO4J_URL")
 
         graph_store = Neo4jGraph(
             username=user,
@@ -138,7 +112,7 @@ class OpeaText2Cypher(OpeaComponent):
             **use_cypher_llm_kwargs,
         )
 
-        chain = GraphCypherQAChain(
+        query_engine_chain = GraphCypherQAChain(
             graph=graph_store,
             graph_schema=graph_schema,
             qa_chain=qa_chain,
@@ -151,14 +125,26 @@ class OpeaText2Cypher(OpeaComponent):
             allow_dangerous_requests=True,
         )
 
-        start_time = time.time()
-        result = chain.run(prompt)
-        end_time = time.time()
-        latency = end_time - start_time
+        logger.info("[ OpeaText2Cypher ] initialize_client completed.")
 
-        logger.info(f"[ NativeInvoke ] Latency: {latency:.2f} seconds.")
-        logger.info(f"[ NativeInvoke ] result: {result}")
-        return result
+        return query_engine_chain
+
+
+    async def check_health(self) -> bool:
+        """Checks the health of the Text2Cypher service.
+
+        Returns:
+            bool: True if the service is reachable and healthy, False otherwise.
+        """
+        try:
+            result = self.query_engine_chain.run("what are the symptoms for Diabetes?")
+            logger.info(f"[ check health ] result: {result}")
+            logger.info("[ check health ] Successfully connected to Neo4j!")
+            return True
+        except Exception as e:
+            logger.info(f"[ check health ] Failed to connect to Neo4j: {e}")
+            return False
+
 
     async def invoke(self, input: Input):
         """Invokes the text2cypher service.
@@ -172,5 +158,5 @@ class OpeaText2Cypher(OpeaComponent):
         while not await self.check_health():
             await asyncio.sleep(1)  # Sleep for a while before checking again
 
-        result = await self.gen_cypher(input)
+        result = self.query_engine_chain.run(input.input_text)
         return result
