@@ -3,9 +3,9 @@
 
 import argparse
 import asyncio
-import threading
 import os
 import sys
+import threading
 import time
 from string import Template
 from typing import Annotated, Any, Dict, List, Optional, Union
@@ -153,6 +153,6 @@ class OpeaText2Cypher(OpeaComponent):
         while not await self.check_health():  # Ensure you await this call
             logger.info("[ invoke ] Sleep for a min before checking init again ...")
             await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
-        
+
         result = await self.query_engine_chain.run(input.input_text) Await the asynchronous function
         return result
