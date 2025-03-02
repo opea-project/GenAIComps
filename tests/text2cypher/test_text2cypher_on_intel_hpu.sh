@@ -18,7 +18,7 @@ export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
 export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
 export NEO4J_USERNAME="neo4j"
 export NEO4J_PASSWORD="neo4jtest"
-export no_proxy="localhost,127.0.0.1,"${host_ip}
+#export no_proxy="localhost,127.0.0.1,"${host_ip}
 export LOGFLAG=True
 
 function build_docker_images() {
@@ -37,25 +37,14 @@ function start_service() {
     docker compose down
     unset http_proxy
     service_name="neo4j-apoc text2cypher-gaudi"
-#    export host_ip=${ip_address}
-#    export TAG="comps"
-
-#    export NEO4J_PORT1=7474
-#    export NEO4J_PORT2=7687
-#    export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
-#    export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
-#    export NEO4J_USERNAME="neo4j"
-#    export NEO4J_PASSWORD="neo4jtest"
     export NEO4J_AUTH="neo4j/neo4jtest"
     export NEO4J_apoc_export_file_enabled=true
     export NEO4J_apoc_import_file_use__neo4j__config=true
     export NEO4J_PLUGINS=\[\"apoc\"\]
-#    export no_proxy="localhost,127.0.0.1,"${host_ip}
-#    export LOGFLAG=True
 
     cd $WORKPATH/comps/text2cypher/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 10m
+    sleep 3m
 }
 
 function validate_neo4j_service() {
@@ -68,14 +57,15 @@ function validate_neo4j_service() {
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 
-    docker logs ${CONTAINER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+    #docker logs ${CONTAINER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+    docker logs ${CONTAINER_NAME}
 
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
         exit 1
     else
-        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+        echo "[ $SERVICE_NAME ] HTTP status is 200."
     fi
 
     sleep 1m
@@ -85,12 +75,15 @@ function validate_text2cypher_service() {
     local SERVICE_NAME="text2cypher-gaudi"
     local CONTAINER_NAME="text2cypher-gaudi-container"
 
-
-
-    result=$(http_proxy="" curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher\
+    result=$(http_proxy="" curl http://localhost:${TEXT2CYPHER_PORT}/v1/text2cypher\
         -X POST \
         -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "neo4jtest","url": "'${NEO4J_URL}'" }}' \
         -H 'Content-Type: application/json')
+
+#    result=$(http_proxy="" curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher\
+#        -X POST \
+#        -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "neo4jtest","url": "'${NEO4J_URL}'" }}' \
+#        -H 'Content-Type: application/json')
 
 #    result=$(http_proxy="" curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher\                                                                -X POST \                                                                                                                                       -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
 #        -H 'Content-Type: application/json')
@@ -101,8 +94,6 @@ function validate_text2cypher_service() {
 #	-d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
 #       -H 'Content-Type: application/json')
 
-    echo "docker logs -----------------"
-
     docker logs ${CONTAINER_NAME}
 
     if [[ ${#result} -gt 0 ]]; then
@@ -110,7 +101,7 @@ function validate_text2cypher_service() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        docker logs ${CONTAINER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
+        #docker logs ${CONTAINER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
         exit 1
     fi
 }
