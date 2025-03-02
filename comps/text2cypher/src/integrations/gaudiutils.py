@@ -11,7 +11,6 @@ import time
 from pathlib import Path
 
 import torch
-from huggingface_hub import hf_hub_download
 from optimum.habana.checkpoint_utils import (
     get_ds_injection_policy,
     get_repo_root,
@@ -32,16 +31,6 @@ from comps import CustomLogger
 import requests
 
 logger = CustomLogger("opea_text2cypher_utils")
-
-# Create a custom requests session with a timeout
-class TimeoutSession(requests.Session):
-    def __init__(self, timeout=60):
-        super().__init__()
-        self.timeout = timeout
-
-    def request(self, *args, **kwargs):
-        kwargs['timeout'] = self.timeout
-        return super().request(*args, **kwargs)
 
 def setup_parser(parser):
     # Arguments management
@@ -431,14 +420,9 @@ def get_torch_compiled_model(model):
     model.model = torch.compile(model.model, backend="hpu_backend", options={"keep_input_mutations": True})
     return model
 
-
-def download_model_with_timeout(model_name, timeout=60):
-    session = TimeoutSession(timeout=timeout)
-    return hf_hub_download(model_name, session=session)
-
-
 def setup_model(args, model_dtype, model_kwargs, logger):
     logger.info("Single-device run.")
+    os.environ["HUGGINGFACE_HUB_TIMEOUT"] = "300"
     if args.assistant_model is None:
         assistant_model = None
     else:
@@ -468,15 +452,10 @@ def setup_model(args, model_dtype, model_kwargs, logger):
             model = peft_model(args, model_dtype, logger, **model_kwargs)
         else:
             if args.model_name_or_path == "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1":
-                base_model_path = download_model_with_timeout("google/gemma-2-9b-it")
-                finetuned_model_path = download_model_with_timeout("neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1")
-                model = AutoModelForCausalLM.from_pretrained(base_model_path, torch_dtype=model_dtype, **model_kwargs)
-                model.load_adapter(finetuned_model_path)
-
-                # model = AutoModelForCausalLM.from_pretrained(
-                #    "google/gemma-2-9b-it", torch_dtype=model_dtype, **model_kwargs
-                # )
-                # model.load_adapter(args.model_name_or_path)
+                 model = AutoModelForCausalLM.from_pretrained(
+                    "google/gemma-2-9b-it", torch_dtype=model_dtype, **model_kwargs
+                 )
+                 model.load_adapter(args.model_name_or_path)
             else:
                 model = AutoModelForCausalLM.from_pretrained(
                     args.model_name_or_path, torch_dtype=model_dtype, **model_kwargs
