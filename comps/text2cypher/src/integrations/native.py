@@ -158,7 +158,7 @@ class OpeaText2Cypher(OpeaComponent):
             result = await self.query_engine_chain.run("what are the symptoms for Diabetes?")
             #result = await self.query_engine_chain.run(input.input_text)  # Await the asynchronous function
         except Exception as e:
-            logger.error("Error during text2cypher invocation: %s", e)
+            logger.error(f"Error during text2cypher invocation: {e}")
             logger.error(traceback.format_exc())
 
         return result
