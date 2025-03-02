@@ -153,7 +153,7 @@ class OpeaText2Cypher(OpeaComponent):
         while not await self.check_health():  # Ensure you await this call
             logger.info("[ invoke ] Sleep for a min before checking init again ...")
             await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
-        
+
         result = await self.query_engine_chain.run("what are the symptoms for Diabetes?")
-        #result = await self.query_engine_chain.run(input.input_text)  # Await the asynchronous function
+        # result = await self.query_engine_chain.run(input.input_text)  # Await the asynchronous function
         return result
