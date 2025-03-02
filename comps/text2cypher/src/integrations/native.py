@@ -37,6 +37,7 @@ logger = CustomLogger("opea_text2cypher_native")
 initialization_lock = threading.Lock()
 initialized = False
 
+
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
     password: Annotated[str, Field(min_length=1)]
@@ -139,7 +140,6 @@ class OpeaText2Cypher(OpeaComponent):
         """
         return initialized
 
-
     async def invoke(self, input: Input):
         """Invokes the text2cypher service.
 
@@ -153,6 +153,6 @@ class OpeaText2Cypher(OpeaComponent):
         while not await self.check_health():  # Ensure you await this call
             logger.info("[ invoke ] Sleep for a min before checking init again ...")
             await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
-        
-        result = await self.query_engine_chain.run(input.input_text) #Await the asynchronous function
+
+        result = await self.query_engine_chain.run(input.input_text)  # Await the asynchronous function
         return result
