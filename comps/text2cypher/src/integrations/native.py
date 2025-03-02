@@ -153,7 +153,7 @@ class OpeaText2Cypher(OpeaComponent):
         Returns:
             str: the generated output.
         """
-        #while not await self.check_health():
+        # while not await self.check_health():
         if not await self.check_health():
             logger.info(f"[ invoke ] Failed to connect to Neo4j")
             return []
