@@ -3,6 +3,7 @@
 
 import argparse
 import asyncio
+import threading
 import os
 import sys
 import time
@@ -33,7 +34,8 @@ from comps.text2cypher.src.integrations.cypher_utils import (
 from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipeline
 
 logger = CustomLogger("opea_text2cypher_native")
-
+initialization_lock = threading.Lock()
+initialized = False
 
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
@@ -57,11 +59,11 @@ class OpeaText2Cypher(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
-
-        self.query_engine_chain = self._initialize_client(config)
-        health_status = self.check_health()
-        if not health_status:
-            logger.error("[ OpeaText2Cypher ] health check failed.")
+        global chat_model, initialized
+        with initialization_lock:
+            if not initialized:
+                self.query_engine_chain = self._initialize_client(config)
+                initialized = True
 
     def _initialize_client(self, config: dict = None):
         """Initializes the chain client."""
@@ -135,14 +137,8 @@ class OpeaText2Cypher(OpeaComponent):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
-        try:
-            result = self.query_engine_chain.run("what are the symptoms for Diabetes?")
-            logger.info(f"[ check health ] result: {result}")
-            logger.info("[ check health ] Successfully connected to Neo4j!")
-            return True
-        except Exception as e:
-            logger.info(f"[ check health ] Failed to connect to Neo4j: {e}")
-            return False
+        return initialized
+
 
     async def invoke(self, input: Input):
         """Invokes the text2cypher service.
@@ -153,10 +149,10 @@ class OpeaText2Cypher(OpeaComponent):
         Returns:
             str: the generated output.
         """
-        # while not await self.check_health():
-        if not await self.check_health():
-            logger.info("[ invoke ] Failed to connect to Neo4j")
-            return []
 
-        result = self.query_engine_chain.run(input.input_text)
+        while not await self.check_health():  # Ensure you await this call
+            logger.info("[ invoke ] Sleep for a min before checking init again ...")
+            await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
+        
+        result = await self.query_engine_chain.run(input.input_text) Await the asynchronous function
         return result
