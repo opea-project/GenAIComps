@@ -18,7 +18,7 @@ export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
 export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
 export NEO4J_USERNAME="neo4j"
 export NEO4J_PASSWORD="neo4jtest"
-#export no_proxy="localhost,127.0.0.1,"${host_ip}
+export no_proxy="localhost,127.0.0.1,"${host_ip}
 export LOGFLAG=True
 
 function build_docker_images() {

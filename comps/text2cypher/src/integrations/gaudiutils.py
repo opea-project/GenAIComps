@@ -28,9 +28,19 @@ from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import check_min_version
 from huggingface_hub import hf_hub_download
 from comps import CustomLogger
+import requests
 
 logger = CustomLogger("opea_text2cypher_utils")
 
+# Create a custom requests session with a timeout
+class TimeoutSession(requests.Session):
+    def __init__(self, timeout=60):
+        super().__init__()
+        self.timeout = timeout
+
+    def request(self, *args, **kwargs):
+        kwargs['timeout'] = self.timeout
+        return super().request(*args, **kwargs)
 
 def setup_parser(parser):
     # Arguments management
@@ -421,7 +431,8 @@ def get_torch_compiled_model(model):
     return model
 
 def download_model_with_timeout(model_name, timeout=60):
-    return hf_hub_download(model_name, timeout=timeout)
+    session = TimeoutSession(timeout=timeout)
+    return hf_hub_download(model_name, session=session)
 
 def setup_model(args, model_dtype, model_kwargs, logger):
     logger.info("Single-device run.")
