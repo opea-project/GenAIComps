@@ -26,9 +26,11 @@ from optimum.habana.utils import (
 )
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import check_min_version
+
 from comps import CustomLogger
 
 logger = CustomLogger("opea_text2cypher_utils")
+
 
 def setup_parser(parser):
     # Arguments management
