@@ -32,6 +32,7 @@ from comps import CustomLogger
 
 logger = CustomLogger("opea_text2cypher_utils")
 
+
 def setup_parser(parser):
     # Arguments management
     parser.add_argument("--device", "-d", type=str, choices=["hpu"], help="Device to run", default="hpu")
@@ -420,6 +421,7 @@ def get_torch_compiled_model(model):
     model.model = torch.compile(model.model, backend="hpu_backend", options={"keep_input_mutations": True})
     return model
 
+
 def setup_model(args, model_dtype, model_kwargs, logger):
     logger.info("Single-device run.")
     os.environ["HUGGINGFACE_HUB_TIMEOUT"] = "300"
@@ -452,10 +454,10 @@ def setup_model(args, model_dtype, model_kwargs, logger):
             model = peft_model(args, model_dtype, logger, **model_kwargs)
         else:
             if args.model_name_or_path == "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1":
-                 model = AutoModelForCausalLM.from_pretrained(
+                model = AutoModelForCausalLM.from_pretrained(
                     "google/gemma-2-9b-it", torch_dtype=model_dtype, **model_kwargs
-                 )
-                 model.load_adapter(args.model_name_or_path)
+                )
+                model.load_adapter(args.model_name_or_path)
             else:
                 model = AutoModelForCausalLM.from_pretrained(
                     args.model_name_or_path, torch_dtype=model_dtype, **model_kwargs
