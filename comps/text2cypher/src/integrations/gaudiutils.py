@@ -10,6 +10,7 @@ import tempfile
 import time
 from pathlib import Path
 
+import requests
 import torch
 from optimum.habana.checkpoint_utils import (
     get_ds_injection_policy,
@@ -28,7 +29,6 @@ from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import check_min_version
 
 from comps import CustomLogger
-import requests
 
 logger = CustomLogger("opea_text2cypher_utils")
 
