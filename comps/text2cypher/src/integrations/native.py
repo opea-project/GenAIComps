@@ -129,7 +129,6 @@ class OpeaText2Cypher(OpeaComponent):
 
         return query_engine_chain
 
-
     async def check_health(self) -> bool:
         """Checks the health of the Text2Cypher service.
 
@@ -144,7 +143,6 @@ class OpeaText2Cypher(OpeaComponent):
         except Exception as e:
             logger.info(f"[ check health ] Failed to connect to Neo4j: {e}")
             return False
-
 
     async def invoke(self, input: Input):
         """Invokes the text2cypher service.
