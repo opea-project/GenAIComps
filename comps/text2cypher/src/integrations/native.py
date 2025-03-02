@@ -153,7 +153,7 @@ class OpeaText2Cypher(OpeaComponent):
         Returns:
             str: the generated output.
         """
-        #while not await self.check_health():
+        # while not await self.check_health():
         if not await self.check_health():
             await asyncio.sleep(5 * 60)  # Sleep 5 minutes
 
