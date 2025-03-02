@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 
 import torch
+from huggingface_hub import hf_hub_download
 from optimum.habana.checkpoint_utils import (
     get_ds_injection_policy,
     get_repo_root,
@@ -26,7 +27,7 @@ from optimum.habana.utils import (
 )
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import check_min_version
-from huggingface_hub import hf_hub_download
+
 from comps import CustomLogger
 import requests
 
@@ -430,9 +431,11 @@ def get_torch_compiled_model(model):
     model.model = torch.compile(model.model, backend="hpu_backend", options={"keep_input_mutations": True})
     return model
 
+
 def download_model_with_timeout(model_name, timeout=60):
     session = TimeoutSession(timeout=timeout)
     return hf_hub_download(model_name, session=session)
+
 
 def setup_model(args, model_dtype, model_kwargs, logger):
     logger.info("Single-device run.")
@@ -467,15 +470,13 @@ def setup_model(args, model_dtype, model_kwargs, logger):
             if args.model_name_or_path == "neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1":
                 base_model_path = download_model_with_timeout("google/gemma-2-9b-it")
                 finetuned_model_path = download_model_with_timeout("neo4j/text2cypher-gemma-2-9b-it-finetuned-2024v1")
-                model = AutoModelForCausalLM.from_pretrained(
-                    base_model_path, torch_dtype=model_dtype, **model_kwargs
-                )
+                model = AutoModelForCausalLM.from_pretrained(base_model_path, torch_dtype=model_dtype, **model_kwargs)
                 model.load_adapter(finetuned_model_path)
 
-                #model = AutoModelForCausalLM.from_pretrained(
+                # model = AutoModelForCausalLM.from_pretrained(
                 #    "google/gemma-2-9b-it", torch_dtype=model_dtype, **model_kwargs
-                #)
-                #model.load_adapter(args.model_name_or_path)
+                # )
+                # model.load_adapter(args.model_name_or_path)
             else:
                 model = AutoModelForCausalLM.from_pretrained(
                     args.model_name_or_path, torch_dtype=model_dtype, **model_kwargs
