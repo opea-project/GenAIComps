@@ -64,6 +64,8 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
         async for k in response.__reduce__()[2]["body_iterator"]:
             self.assertEqual(self.service_builder.extract_chunk_str(k).strip(), res_expected[idx])
             idx += 1
+        token_count = len(res_expected)
+        self.assertEqual(idx, token_count)
 
     def test_extract_chunk_str(self):
         res = self.service_builder.extract_chunk_str("data: [DONE]\n\n")
