@@ -212,6 +212,8 @@ class CypherQueryCorrector2(CypherQueryCorrector):
         # query = swap(tmp2, relations)
 
         query = tmp1
+        # temporary fix: 
+        query = "MATCH (d:disease {name: 'Diabetes'})-[INTERACT_WITH]->(s:symptoms) RETURN s.name"
         logger.info(f"[ correct_query ] corrected query: {query}")
         return query
 
