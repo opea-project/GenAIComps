@@ -4,7 +4,7 @@ name: Build and upstream latest base image on push event
 
 on:
   push:
-    branches: ["main", "suyue/cd"]
+    branches: ["main"]
     paths:
       - 'cores/**'
       - '**/src/**'
