@@ -156,7 +156,7 @@ class OpeaText2Cypher(OpeaComponent):
             await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
         try:
             result = self.query_engine_chain.run(input.input_text)
-            #result = await self.query_engine_chain.run("what are the symptoms for Diabetes?")
+            # result = await self.query_engine_chain.run("what are the symptoms for Diabetes?")
             # result = await self.query_engine_chain.run(input.input_text)  # Await the asynchronous function
         except Exception as e:
             logger.error(f"Error during text2cypher invocation: {e}")
