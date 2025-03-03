@@ -202,14 +202,14 @@ class CypherQueryCorrector2(CypherQueryCorrector):
         if start_index == -1:
             raise ValueError("Generated cypher does not contain `MATCH `.")
         tmp1 = query[start_index:]
-        #pattern = r"-\[.*?\]->"
-        #replacement = "-[INTERACT_WITH]->"
-        #tmp2 = re.sub(pattern, replacement, tmp1)
+        # pattern = r"-\[.*?\]->"
+        # replacement = "-[INTERACT_WITH]->"
+        # tmp2 = re.sub(pattern, replacement, tmp1)
 
-        #rel_index = self.schema_str.find("The relationships are the following:\n")
-        #rel_string = self.schema_str[rel_index + len("The relationships are the following:\n") :]
-        #relations = parse_relationships(rel_string)
-        #query = swap(tmp2, relations)
+        # rel_index = self.schema_str.find("The relationships are the following:\n")
+        # rel_string = self.schema_str[rel_index + len("The relationships are the following:\n") :]
+        # relations = parse_relationships(rel_string)
+        # query = swap(tmp2, relations)
 
         query = tmp1
         logger.info(f"[ correct_query ] corrected query: {query}")
