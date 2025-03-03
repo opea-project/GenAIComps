@@ -3,6 +3,7 @@
 
 # Base image for GenAIComps based OPEA Python applications
 # Build: docker build -t opea/comps-base -f Dockerfile .
+# for test
 
 ARG IMAGE_NAME=python
 ARG IMAGE_TAG=3.11-slim
