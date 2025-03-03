@@ -6,7 +6,8 @@ on:
   push:
     branches: ["main", "suyue/cd"]
     paths:
-      - 'src/**'
+      - 'cores/**'
+      - '**/src/**'
       - 'requirements.txt'
       - 'Dockerfile'
 

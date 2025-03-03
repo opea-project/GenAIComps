@@ -18,4 +18,3 @@ pyyaml
 requests
 shortuuid
 uvicorn
-# for test
