@@ -7,7 +7,7 @@ on:
     inputs:
       services:
         default: "asr"
-        description: "List of services to test [agent,asr,chathistory,animation,dataprep,embeddings,feedback_management,finetuning,guardrails,image2image,image2video,intent_detection,llms,lvms,prompt_registry,ragas,rerankings,retrievers,text2image,text2sql,third_parties,tts,vectorstores,web_retrievers]"
+        description: "List of services to test [agent,animation,asr,chathistory,dataprep,embeddings,feedback_management,finetuning,guardrails,image2image,image2video,intent_detection,llms,lvms,prompt_registry,ragas,rerankings,retrievers,text2image,text2sql,third_parties,tts,vectorstores,web_retrievers]"
         required: true
         type: string
       build:
