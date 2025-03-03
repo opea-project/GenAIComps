@@ -48,7 +48,7 @@ logflag = os.getenv("LOGFLAG", False)
 
 
 @OpeaComponentRegistry.register("OPEA_RETRIEVER_ARANGO")
-class OpeaArangoDBRetriever(OpeaComponent):
+class OpeaArangoRetriever(OpeaComponent):
     """A specialized retriever component derived from OpeaComponent for ArangoDB retriever services.
 
     Attributes:
@@ -370,7 +370,7 @@ class OpeaArangoDBRetriever(OpeaComponent):
                 summarized_text = res.content
 
                 if logflag:
-                    logger.info(f"Summarized {id}")
+                    logger.info(f"Summarized {r.id}")
 
                 r.page_content = summarized_text
 
