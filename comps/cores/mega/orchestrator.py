@@ -259,14 +259,14 @@ class ServiceOrchestrator(DAG):
                 if ENABLE_OPEA_TELEMETRY
                 else contextlib.nullcontext()
             ):
-                async with aiohttp.ClientSession() as session:
-                    response = await session.post(
-                        url=endpoint,
-                        data=json.dumps(inputs),
-                        headers={"Content-type": "application/json"},
-                        proxy=None,
-                        timeout=aiohttp.ClientTimeout(total=1000),
-                    )
+                response = requests.post(
+                    url=endpoint,
+                    data=json.dumps(inputs),
+                    headers={"Content-type": "application/json"},
+                    proxies={"http": None},
+                    stream=True,
+                    timeout=1000,
+                )
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
