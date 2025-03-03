@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from langchain_community.chains.graph_qa.cypher_utils import CypherQueryCorrector, Schema
 
+logger = CustomLogger("opea_text2cypher_cypher_utils")
 Relationship = namedtuple("Relationship", ["entity1", "relationship", "entity2"])
 
 cypher_cleanup = """
@@ -68,12 +69,15 @@ def replace_with_lowercase(s, sub):
 
 def parse_relationships(input_str):
     # Split by comma to get each relationship
+    logger.info(f"[ parse_relationships ] input_str: {input_str}")
     substrings = input_str.split(",")
 
+    logger.info(f"[ parse_relationships ] substrings: {substrings}")
     relationships = []
 
     for substring in substrings:
         # Remove unnecessary characters and split by spaces
+        logger.info(f"[ parse_relationships ] substring: {substring}")
         parts = (
             substring.replace("(", "")
             .replace(")", "")
@@ -84,6 +88,7 @@ def parse_relationships(input_str):
             .split("-")
         )
 
+        logger.info(f"[ parse_relationships ] parts: {parts}")
         entity1 = parts[0].strip()
         relationship = parts[1].strip()
         entity2 = parts[2].strip()
@@ -190,6 +195,7 @@ class CypherQueryCorrector2(CypherQueryCorrector):
         self.schema_str = schema_str
 
     def correct_query(self, query: str) -> str:
+        logger.info(f"[ correct_query ] query: {query}")
         start_index = query.find("MATCH ")
         if start_index == -1:
             raise ValueError("Generated cypher does not contain `MATCH `.")
@@ -203,6 +209,7 @@ class CypherQueryCorrector2(CypherQueryCorrector):
         relations = parse_relationships(rel_string)
         query = swap(tmp2, relations)
 
+        logger.info(f"[ correct_query ] corrected query: {query}")
         return query
 
     def __call__(self, query: str) -> str:
