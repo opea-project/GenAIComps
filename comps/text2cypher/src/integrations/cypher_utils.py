@@ -7,6 +7,7 @@ from string import Template
 from typing import Any, Dict, List, Optional, Union
 
 from langchain_community.chains.graph_qa.cypher_utils import CypherQueryCorrector, Schema
+
 from comps import CustomLogger
 
 logger = CustomLogger("opea_text2cypher_cypher_utils")
