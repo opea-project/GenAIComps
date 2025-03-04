@@ -16,7 +16,7 @@ Overall, this microservice offers a streamlined way to integrate large language 
 | [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          |
 | [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          |
 | [Phi-3]                                     | x         | Limit 4K | Limit 4K   |
-| [falcon-3.1-74b]                            | ✓         | ✓        | ✓         |
+| [falcon-3.1-74b]                            | ✓         | ✓        | ✓          |
 | [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          |
 | [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          |
 
