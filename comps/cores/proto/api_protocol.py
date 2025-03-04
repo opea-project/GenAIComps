@@ -195,6 +195,7 @@ class ChatCompletionRequest(BaseModel):
     # top_p: Optional[float] = None # Priority use openai
     typical_p: Optional[float] = None
     # repetition_penalty: Optional[float] = None
+    timeout: Optional[int] = None
 
     # doc: begin-chat-completion-extra-params
     echo: Optional[bool] = Field(
