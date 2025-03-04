@@ -119,8 +119,11 @@ function stop_docker() {
 }
 
 function main() {
-
+    echo "Docker containers before stop_docker"
+    docker ps -a
     stop_docker
+    echo "Docker containers after stop_docker"
+    docker ps -a
 
     build_docker_images
     start_service
