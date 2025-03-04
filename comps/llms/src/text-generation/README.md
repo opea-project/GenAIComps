@@ -16,6 +16,7 @@ Overall, this microservice offers a streamlined way to integrate large language 
 | [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          |
 | [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          |
 | [Phi-3]                                     | x         | Limit 4K | Limit 4K   |
+| [falcon-3.1-74b]                            | ✓         | ✓        | ✓         |
 | [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          |
 | [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          |
 
@@ -29,6 +30,7 @@ Overall, this microservice offers a streamlined way to integrate large language 
 | [meta-llama/Meta-Llama-3-8B-Instruct]       | 1                             |
 | [meta-llama/Meta-Llama-3-70B-Instruct]      | 2                             |
 | [Phi-3]                                     | x                             |
+| [falcon-3.1-74b]                            | 8                             |
 | [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | 8                             |
 | [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | 4                             |
 
@@ -188,6 +190,7 @@ curl http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions \
 [meta-llama/Meta-Llama-3-8B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
 [meta-llama/Meta-Llama-3-70B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct
 [Phi-3]: https://huggingface.co/collections/microsoft/phi-3-6626e15e9585a200d2d761e3
+[falcon-3.1-74b]: https://huggingface.co
 [HuggingFace]: https://huggingface.co/
 [deepseek-ai/DeepSeek-R1-Distill-Llama-70B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B
 [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
