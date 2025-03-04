@@ -302,10 +302,11 @@ class ServiceOrchestrator(DAG):
                                         res_txt, token_start, is_first=is_first, is_last=is_last
                                     )
                                     token_start = time.time()
+                                    is_first = False
                             else:
                                 token_start = self.metrics.token_update(token_start, is_first)
+                                is_first = False
                                 yield chunk
-                            is_first = False
 
                     self.metrics.request_update(req_start)
                     self.metrics.pending_update(False)
@@ -380,5 +381,6 @@ class ServiceOrchestrator(DAG):
         for token in tokens:
             token_start = self.metrics.token_update(token_start, is_first)
             yield prefix + repr(token.replace("\\n", "\n").encode("utf-8")) + suffix
+            is_first = False
         if is_last:
             yield "data: [DONE]\n\n"
