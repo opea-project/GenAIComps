@@ -11,6 +11,9 @@ DATAPREP_PORT="11104"
 OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
 export TAG="comps"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
@@ -38,100 +41,36 @@ function start_service() {
 }
 
 function validate_microservice() {
-    cd $LOG_PATH
+    # test /v1/dataprep/ingest upload file
+    ingest_doc ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - upload - doc" "Data preparation succeeded" dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log
 
-    # test /v1/dataprep upload file
-    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/ingest"
-    echo "Deep learning is a subset of machine learning that utilizes neural networks with multiple layers to analyze various levels of abstract data representations. It enables computers to identify patterns and make decisions with minimal human intervention by learning from large amounts of data." > $LOG_PATH/dataprep_file.txt
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'files=@./dataprep_file.txt' -H 'Content-Type: multipart/form-data' -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD "$URL")
-    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
-    SERVICE_NAME="dataprep - upload - file"
+    ingest_docx ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - upload - docx" "Data preparation succeeded" dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log
 
-    if [ "$HTTP_STATUS" -ne "200" ]; then
-        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-opensearch-server >> ${LOG_PATH}/dataprep_upload_file.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
-    fi
-    if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
-        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-opensearch-server >> ${LOG_PATH}/dataprep_upload_file.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] Content is as expected."
-    fi
+    ingest_pdf ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - upload - pdf" "Data preparation succeeded" dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log
 
+    ingest_pptx ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - upload - pptx" "Data preparation succeeded" dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log
 
-    # test /v1/dataprep upload link
-    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/ingest"
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F 'link_list=["https://www.ces.tech/"]' -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD "$URL")
-    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
-    SERVICE_NAME="dataprep - upload - link"
+    ingest_txt ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - upload - txt" "Data preparation succeeded" dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log
 
+    ingest_xlsx ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - upload - xlsx" "Data preparation succeeded" dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log
 
-    if [ "$HTTP_STATUS" -ne "200" ]; then
-        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-opensearch-server >> ${LOG_PATH}/dataprep_upload_link.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
-    fi
-    if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
-        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-opensearch-server >> ${LOG_PATH}/dataprep_upload_link.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] Content is as expected."
-    fi
+    # test /v1/dataprep/ingest upload link
+    ingest_external_link ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log
 
-    # test /v1/dataprep/get_file
-    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/get"
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD "$URL")
-    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
-    SERVICE_NAME="dataprep - get"
+    # test /v1/dataprep/get
+    get_all ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - get" '' dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log
 
-    if [ "$HTTP_STATUS" -ne "200" ]; then
-        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-opensearch-server >> ${LOG_PATH}/dataprep_file.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
-    fi
-    if [[ "$RESPONSE_BODY" -ne "null" ]]; then
-        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-opensearch-server >> ${LOG_PATH}/dataprep_file.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] Content is as expected."
-    fi
-
-    # test /v1/dataprep/delete_file
-    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/delete"
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -d '{"file_path": "dataprep_file.txt"}' -H 'Content-Type: application/json' -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD "$URL")
-    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
-    SERVICE_NAME="dataprep - del"
-
-    # check response status
-    if [ "$HTTP_STATUS" -ne "404" ]; then
-        echo "[ $SERVICE_NAME ] HTTP status is not 404. Received status was $HTTP_STATUS"
-        docker logs dataprep-opensearch-server >> ${LOG_PATH}/dataprep_del.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] HTTP status is 404. Checking content..."
-    fi
-    # check response body
-    if [[ "$RESPONSE_BODY" != *'{"detail":"Single file deletion is not implemented yet"}'* ]]; then
-        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-opensearch-server >> ${LOG_PATH}/dataprep_del.log
-        exit 1
-    else
-        echo "[ $SERVICE_NAME ] Content is as expected."
-    fi
+    # test /v1/dataprep/delete
+    delete_single ${ip_address} ${DATAPREP_PORT} -k -u admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    check_result "dataprep - del" '{"detail":"Single file deletion is not implemented yet"}' dataprep-opensearch-server ${LOG_PATH}/dataprep_opensearch.log "404"
 }
 
 function stop_service() {
