@@ -67,6 +67,7 @@ class OpeaFaqGenTgi(OpeaFaqGen):
             temperature=input.temperature if input.temperature else 0.01,
             repetition_penalty=input.repetition_penalty if input.repetition_penalty else 1.03,
             streaming=input.stream,
+            timeout=input.timeout if input.timeout is not None else 120,
             server_kwargs=server_kwargs,
         )
         result = await self.generate(input, self.client)
