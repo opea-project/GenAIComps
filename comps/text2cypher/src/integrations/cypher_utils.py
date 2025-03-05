@@ -46,6 +46,7 @@ graph_schema_relationships = """
 (:disease)-[:HOME_REMEDY]->(:diet)
 """
 
+
 def prepare_chat_template(question):
     template = Template(
         """
@@ -212,9 +213,9 @@ class CypherQueryCorrector2(CypherQueryCorrector):
         replacement = "-[INTERACT_WITH]->"
         tmp2 = re.sub(pattern, replacement, tmp1)
 
-        #rel_index = self.schema_str.find("The relationships are the following:\n")
-        #rel_string = self.schema_str[rel_index + len("The relationships are the following:\n") :]
-        rel_string = graph_schema_relationships 
+        # rel_index = self.schema_str.find("The relationships are the following:\n")
+        # rel_string = self.schema_str[rel_index + len("The relationships are the following:\n") :]
+        rel_string = graph_schema_relationships
         relations = parse_relationships(rel_string)
         query = swap(tmp2, relations)
 
