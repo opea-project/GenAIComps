@@ -30,12 +30,13 @@ function get_model() {
     mkdir models
     python export_model.py rerank --source_model BAAI/bge-reranker-base --weight-format int8 --config_file_path models/config_reranking.json --model_repository_path models --target_device CPU
     chmod -R 755 models
+}
 
 function start_service() {
     export RERANK_MODEL_ID="BAAI/bge-reranker-base"
     export OVMS_RERANKING_PORT=12004
     export RERANK_PORT=10700
-    export ${MODELS_REPOSITORY}=${pwd}/models
+    export MODELS_REPOSITORY=${PWD}/models
     export OVMS_RERANKING_ENDPOINT="http://${host_ip}:${OVMS_RERANKING_PORT}"
     export TAG=comps
     export host_ip=${host_ip}
@@ -72,6 +73,7 @@ function main() {
     stop_docker
 
     build_docker_images
+    get_model
     start_service
 
     validate_microservice
