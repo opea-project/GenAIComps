@@ -77,6 +77,7 @@ class OpeaText2Cypher(OpeaComponent):
         if device == "hpu":
             # Convert config dict back to args-like object
             args = argparse.Namespace(**config)
+            logger.info(f"[ OpeaText2Cypher _intialize_client ] args: {args}")
             pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
             hfpipe = HuggingFacePipeline(pipeline=pipe)
 
