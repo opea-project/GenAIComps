@@ -9,7 +9,7 @@ services:
     ports:
       - "${OVMS_EMBEDDER_PORT:-12000}:8000"
     volumes:
-      - "./models:/models"
+      - "${MODELS_REPOSITORY}:/models"
     shm_size: 1g
     environment:
       no_proxy: ${no_proxy}
@@ -30,7 +30,7 @@ services:
     ports:
       - "${OVMS_RERANKER_PORT:-12000}:8000"
     volumes:
-      - "./models:/models"
+      - "${MODELS_REPOSITORY}:/models"
     shm_size: 1g
     environment:
       no_proxy: ${no_proxy}
@@ -51,7 +51,7 @@ services:
     ports:
       - "${OVMS_LLM_PORT:-12000}:8000"
     volumes:
-      - "./models:/models"
+      - "${MODELS_REPOSITORY}:/models"
     shm_size: 1g
     environment:
       no_proxy: ${no_proxy}

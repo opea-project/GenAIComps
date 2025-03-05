@@ -3,6 +3,7 @@
 
 include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/ovms/deployment/docker_compose/compose.yaml
   - ../../../third_parties/bridgetower/deployment/docker_compose/compose.yaml
   - ../../../third_parties/clip/deployment/docker_compose/compose_intel_cpu.yaml
 

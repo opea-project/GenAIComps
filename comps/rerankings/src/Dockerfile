@@ -17,7 +17,7 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-COPY comps/rerankings/src/requirements.txt /home/user/comps/rerankings/src/requirements.txt
+COPY comps/rerankings/src/requirements* /home/user/comps/rerankings/src/
 
 RUN if [ ${ARCH} = "cpu" ]; then \
     pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; \
