@@ -30,9 +30,10 @@ function get_model() {
 
 function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-    export OVMS_EMBEDDER_PORT=10100
+    export OVMS_EMBEDDER_PORT=10206
     export EMBEDDER_PORT=10205
     export MODELS_REPOSITORY=${PWD}/models
+    export MODEL_ID="BAAI/bge-large-en-v1.5"
     export OVMS_EMBEDDING_ENDPOINT="http://${ip_address}:${OVMS_EMBEDDER_PORT}"
     export TAG=comps
     export host_ip=${ip_address}

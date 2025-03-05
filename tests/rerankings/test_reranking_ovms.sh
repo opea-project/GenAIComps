@@ -33,7 +33,7 @@ function get_model() {
 }
 
 function start_service() {
-    export RERANK_MODEL_ID="BAAI/bge-reranker-base"
+    export MODEL_ID="BAAI/bge-reranker-large"
     export OVMS_RERANKING_PORT=12004
     export RERANK_PORT=10700
     export MODELS_REPOSITORY=${PWD}/models

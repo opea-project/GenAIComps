@@ -3,6 +3,7 @@
 
 include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/ovms/deployment/docker_compose/compose.yaml
 
 services:
   reranking:

@@ -70,7 +70,7 @@ Deploy both the OVMS Reranking Service and the Reranking Microservice using Dock
 
    ```bash
     export MODEL_ID="BAAI/bge-reranker-large"
-    export TEI_RERANKING_PORT=12005
+    export OVMS_RERANKING_PORT=12005
     export RERANK_PORT=10700
     export host_ip=$(hostname -I | awk '{print $1}')
     export OVMS_RERANKING_ENDPOINT="http://${host_ip}:${OVMS_RERANKING_PORT}"
