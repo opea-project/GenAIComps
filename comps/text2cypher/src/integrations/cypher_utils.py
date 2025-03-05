@@ -51,8 +51,10 @@ Note: Do not include any explanations or apologies in your responses.
 Use only the user's question to construct a Cypher statement.
 Do not include any text except the generated Cypher statement.
 
-Cypher output:                                                                                                              """)
-    temp_str = template.substitute(question=question)                                                                       return temp_str
+Cypher output:
+    """)
+    temp_str = template.substitute(question=question)
+    return temp_str
 
 # in the original string, change the first character of the substring into lower case
 def replace_with_lowercase(s, sub):
