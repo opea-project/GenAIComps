@@ -3,8 +3,8 @@ datasets
 docarray[full]
 fastapi
 huggingface_hub
-openai
 langchain-core
+openai
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

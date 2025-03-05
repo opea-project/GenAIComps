@@ -8,8 +8,8 @@ from typing import Union
 import requests
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
-from openai import OpenAI
 from langchain_core.prompts import PromptTemplate
+from openai import OpenAI
 
 from comps import (
     CustomLogger,
@@ -29,6 +29,7 @@ logflag = os.getenv("LOGFLAG", False)
 # The maximum number of images that should be sent to the LVM
 # max_images = int(os.getenv("MAX_IMAGES", 1))
 LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "llava-hf/llava-1.5-7b-hf")
+
 
 class ChatTemplate:
 
@@ -53,12 +54,9 @@ class OpeaVllmLvm(OpeaComponent):
         super().__init__(name, ServiceType.LVM.name.lower(), description, config)
         self.base_url = os.getenv("LVM_ENDPOINT", "http://localhost:8399")
         # https://github.com/huggingface/huggingface_hub/blob/v0.29.1/src/huggingface_hub/inference/_providers/hf_inference.py#L87
-        # latest AsyncInferenceClient has model hardcoded issues to "tgi" 
+        # latest AsyncInferenceClient has model hardcoded issues to "tgi"
         # so we use OpenAI client
-        self.lvm_client = OpenAI(
-            api_key="EMPTY",
-            base_url=f"{self.base_url}/v1"
-        )
+        self.lvm_client = OpenAI(api_key="EMPTY", base_url=f"{self.base_url}/v1")
         health_status = self.check_health()
         # if logflag:
         #     logger.info(f"MAX_IMAGES: {max_images}")
@@ -136,25 +134,18 @@ class OpeaVllmLvm(OpeaComponent):
                 # vLLM chat completions api
                 # TODO align legacy LVMDoc with chat completions parameters for vLLM
                 # Now we simply keep the intersection of them
-                # TODO check vLLM multi-image inputs https://platform.openai.com/docs/guides/vision#multiple-image-inputs 
+                # TODO check vLLM multi-image inputs https://platform.openai.com/docs/guides/vision#multiple-image-inputs
                 text_generation = self.lvm_client.chat.completions.create(
                     model=LLM_MODEL_ID,
-                    messages=[{
-                        "role":
-                        "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": prompt
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/png;base64,{img_b64_str}"
-                                }
-                            },
-                        ],
-                    }],
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64_str}"}},
+                            ],
+                        }
+                    ],
                     max_tokens=max_new_tokens,
                     temperature=temperature,
                     top_p=top_p,
@@ -181,25 +172,18 @@ class OpeaVllmLvm(OpeaComponent):
             # vLLM chat completions api
             # TODO align legacy LVMDoc with chat completions parameters for vLLM
             # Now we simply keep the intersection of them
-            # TODO check vLLM multi-image inputs https://platform.openai.com/docs/guides/vision#multiple-image-inputs 
+            # TODO check vLLM multi-image inputs https://platform.openai.com/docs/guides/vision#multiple-image-inputs
             generated_output = self.lvm_client.chat.completions.create(
                 model=LLM_MODEL_ID,
-                messages=[{
-                    "role":
-                    "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": prompt
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/png;base64,{img_b64_str}"
-                            }
-                        },
-                    ],
-                }],
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64_str}"}},
+                        ],
+                    }
+                ],
                 max_tokens=max_new_tokens,
                 temperature=temperature,
                 top_p=top_p,
