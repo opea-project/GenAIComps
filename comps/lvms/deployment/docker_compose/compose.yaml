@@ -18,6 +18,27 @@ services:
       interval: 30s
       timeout: 6s
       retries: 20
+  vllm-service:
+    image: ${REGISTRY:-opea}/vllm:${TAG:-latest}
+    container_name: vllm-service
+    ports:
+      - ${VLLM_PORT:-9699}:80
+    volumes:
+      - "./data:/data"
+    shm_size: 128g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      VLLM_TORCH_PROFILER_DIR: "/mnt"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 100
+    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
   llava-tgi-service:
     image: ghcr.io/huggingface/tgi-gaudi:2.3.1
     container_name: llava-tgi-service
@@ -99,7 +120,8 @@ services:
     ipc: host
     environment:
       LVM_ENDPOINT: ${LVM_ENDPOINT}
-      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAVA_LVM}
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
   lvm-llava:
     extends: lvm
     container_name: lvm-llava-service
@@ -139,6 +161,14 @@ services:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VIDEO_LLAMA_LVM}
     depends_on:
       video-llama-service:
+        condition: service_healthy
+  lvm-vllm:
+    extends: lvm
+    container_name: lvm-vllm-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
+    depends_on:
+      vllm-service:
         condition: service_healthy
 
 networks:
