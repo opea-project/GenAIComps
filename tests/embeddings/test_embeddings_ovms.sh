@@ -25,6 +25,7 @@ function get_model() {
     curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
     mkdir -p models
     python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
+    chmod -R 755 models
 }
 
 function start_service() {

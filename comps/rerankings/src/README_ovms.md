@@ -14,7 +14,7 @@ It speedup starting the service and avoids copying the model from Internet each 
     pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
     curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
     mkdir models
-    python export_model.py rerank --source_model BAAI/bge-reranker-large --weight-format int8 --config_file_path models/config_rerank.json --model_repository_path models --target_device CPU
+    python export_model.py rerank --source_model BAAI/bge-reranker-large --weight-format int8 --config_file_path models/config_reranking.json --model_repository_path models --target_device CPU
     ```
 
 ## 📦 2. Start Microservice with Docker
@@ -28,7 +28,7 @@ It speedup starting the service and avoids copying the model from Internet each 
   ```bash
   your_port=12005
   docker run -p $your_port:8001 -v ./models:/models --name ovms-rerank-serving \
-  openvino/model_server:2025.0 --port 8001 --config_path /models/config_rerank.json
+  openvino/model_server:2025.0 --port 8001 --config_path /models/config_reranking.json
   ```
 
 2. **Verify the OVMS Service**:
@@ -136,9 +136,9 @@ Deploy both the OVMS Reranking Service and the Reranking Microservice using Dock
 
 4. Select correct configuration JSON file
    Models repository can host multiple models. Choose the models to be served by selecting the right configuration file.
-   In the example above `config_rerank.json`
+   In the example above `config_reranking.json`
 
 5. Upload the models to persistent volume claim in Kubernetes
    Models repository with configuration JSON file will be mounted in the OVMS containers when deployed via [helm chart](../../third_parties/ovms/deployment/kubernetes/README.md).
 
-6. Learn more about [OVMS embeddings API](https://docs.openvino.ai/2025/openvino-workflow/model-server/ovms_docs_rest_api_rerank.html)
+6. Learn more about [OVMS rerank API](https://docs.openvino.ai/2025/openvino-workflow/model-server/ovms_docs_rest_api_rerank.html)
