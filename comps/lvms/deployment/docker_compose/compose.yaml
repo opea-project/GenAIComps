@@ -19,7 +19,7 @@ services:
       timeout: 6s
       retries: 20
   vllm-service:
-    image: ${REGISTRY:-opea}/vllm:${TAG:-latest}
+    image: ${REGISTRY:-opea}/vllm:latest
     container_name: vllm-service
     ports:
       - ${VLLM_PORT:-9699}:80
