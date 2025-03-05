@@ -39,8 +39,10 @@ cypher_insert = """
  //MATCH (n:Description) RETURN count(n) AS count
 """
 
+
 def prepare_chat_template(question):
-    template = Template("""
+    template = Template(
+        """
 Generate Cypher statement to query a graph database to answer "$question"
 Instructions:
 Use only the provided relationship types and properties in the schema.
@@ -52,9 +54,11 @@ Use only the user's question to construct a Cypher statement.
 Do not include any text except the generated Cypher statement.
 
 Cypher output:
-    """)
+    """
+    )
     temp_str = template.substitute(question=question)
     return temp_str
+
 
 # in the original string, change the first character of the substring into lower case
 def replace_with_lowercase(s, sub):
@@ -208,8 +212,8 @@ class CypherQueryCorrector2(CypherQueryCorrector):
         query = swap(tmp2, relations)
 
         # temporary fix:
-        #query = tmp1
-        #query = "MATCH (d:disease {name: 'Diabetes'})-[INTERACT_WITH]->(s:symptoms) RETURN s.name"
+        # query = tmp1
+        # query = "MATCH (d:disease {name: 'Diabetes'})-[INTERACT_WITH]->(s:symptoms) RETURN s.name"
         logger.info(f"[ correct_query ] corrected query: {query}")
         return query
 
