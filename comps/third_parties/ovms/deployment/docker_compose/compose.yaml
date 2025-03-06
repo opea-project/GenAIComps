@@ -47,7 +47,7 @@ services:
   ovms-llm-serving:
     image: openvino/model_server:2025.0
     container_name: ovms-llm-serving
-    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_llm.json
+    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_llm.json --log_level DEBUG
     ports:
       - "${OVMS_LLM_PORT:-12000}:8000"
     volumes:

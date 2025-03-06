@@ -26,7 +26,7 @@ class OpeaTextGenOVMS(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
-        self.base_url = os.getenv("OVMS_LLM_ENDPOINT", "http://localhost:8080")
+        self.base_url = os.getenv("LLM_ENDPOINT", "http://localhost:8080")
         self.client = OpenAI(base_url=self.base_url + "/v3", api_key="unused")
         health_status = self.check_health()
         if not health_status:

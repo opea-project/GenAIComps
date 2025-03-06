@@ -73,8 +73,8 @@ function main() {
 
     stop_docker
 
-    #build_docker_images
-    #get_model
+    build_docker_images
+    get_model
     start_service
 
     validate_microservice

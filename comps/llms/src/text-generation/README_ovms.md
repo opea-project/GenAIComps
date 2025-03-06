@@ -71,12 +71,12 @@ You can choose one as needed.
 ### 2.2a Run Docker with CLI (Option A)
 
 ```bash
-export OVMS_LLM_ENDPOINT=http://localhost:8090
+export LLM_ENDPOINT=http://localhost:8090
 export MODEL_ID=Qwen/Qwen2-7B-Instruct
 docker run -d --name="llm-ovms-server" -p 9000:9000  \
 -e MODEL_ID=${MODEL_ID} \
 -e LLM_COMPONENT_NAME=OpeaTextGenOVMS \
--e OVMS_LLM_ENDPOINT=${OVMS_LLM_ENDPOINT} \
+-e OVMS_LLM_ENDPOINT=${LLM_ENDPOINT} \
 opea/llm-textgen-ovms:latest
 ```
 
