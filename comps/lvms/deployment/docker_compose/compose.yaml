@@ -206,7 +206,7 @@ services:
     environment:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
     depends_on:
-      vllm-gaudi--service:
+      vllm-gaudi-service:
         condition: service_healthy
 
 networks:

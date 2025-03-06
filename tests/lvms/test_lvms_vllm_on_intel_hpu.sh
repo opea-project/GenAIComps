@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
 export VLLM_PORT=11510
 export LVM_PORT=11511
-export LLM_MODEL_ID="llava-hf/llava-v1.6-mistral-7b-hf"
+export LLM_MODEL_ID="llava-hf/llava-1.5-7b-hf"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -31,7 +31,7 @@ function start_service() {
 
     export LVM_COMPONENT_NAME=OPEA_VLLM_LVM
     docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up lvm-vllm-gaudi vllm-gaudi-service -d
-    sleep 3m
+    sleep 15s
 }
 
 function validate_microservice() {

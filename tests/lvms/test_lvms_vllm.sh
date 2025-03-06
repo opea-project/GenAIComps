@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
 export VLLM_PORT=11508
 export LVM_PORT=11509
-export LLM_MODEL_ID="llava-hf/llava-v1.6-mistral-7b-hf"
+export LLM_MODEL_ID="llava-hf/llava-1.5-7b-hf"
 
 function build_docker_images() {
     cd $WORKPATH
