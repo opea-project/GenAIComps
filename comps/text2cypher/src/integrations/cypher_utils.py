@@ -46,6 +46,7 @@ graph_schema_relationships = [
     "(d:disease)-(d:diet)-d.name"
 ]
 
+
 def prepare_chat_template(question):
     template = Template(
         """
@@ -226,16 +227,6 @@ class CypherQueryCorrector2(CypherQueryCorrector):
                 query = f"MATCH ({subject} {{name: {match_val}}})-[INTERACT_WITH]->({target}) RETURN {rtn}"
                 logger.info(f"match! ")
                 break
-
-        #tmp1 = query[start_index:]
-        #pattern = r"-\[.*?\]->"
-        #replacement = "-[INTERACT_WITH]->"
-        #tmp2 = re.sub(pattern, replacement, tmp1)
-
-        #rel_index = self.schema_str.find("The relationships are the following:\n")
-        #rel_string = self.schema_str[rel_index + len("The relationships are the following:\n") :]
-        #relations = parse_relationships(rel_string)
-        #query = swap(tmp2, relations)
 
         logger.info(f"[ correct_query ] corrected query: {query}")
         return query
