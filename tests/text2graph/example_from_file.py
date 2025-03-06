@@ -14,7 +14,7 @@ import requests
 # Define the input data : big text file and feed it
 
 TEMP_DIR = os.path.join(os.getcwd(), "tmpdata")
-os.makedirs(f"{TEMP_DIR}")
+os.makedirs(TEMP_DIR, exist_ok=True)
 os.system(
     f"wget -P {TEMP_DIR} 'https://gist.githubusercontent.com/wey-gu/75d49362d011a0f0354d39e396404ba2/raw/0844351171751ebb1ce54ea62232bf5e59445bb7/paul_graham_essay.txt'"
 )
