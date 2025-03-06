@@ -217,6 +217,7 @@ class CypherQueryCorrector2(CypherQueryCorrector):
             raise ValueError("Generated cypher does not contain any match value.")
 
         cypher_str = query[start_index:].lower()
+        logger.info(f"cypher_str={cypher_str}")
         for rel in graph_schema_relationships:
             items = rel.split('-')
             subject = items[0].strip('()')
