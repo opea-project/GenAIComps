@@ -187,7 +187,44 @@ OpenVINO best known configuration for GPU is:
     $ VLLM_OPENVINO_DEVICE=GPU VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON \
         python3 vllm/benchmarks/benchmark_throughput.py --model meta-llama/Llama-2-7b-chat-hf --dataset vllm/benchmarks/ShareGPT_V3_unfiltered_cleaned_split.json
 
-### 2.4 Query the service
+
+### 2.4 vLLM with ROCm (on AMD GPU)
+
+#### Build docker
+
+```bash
+cd GenAIComps/comps/third_parties/vllm/src
+bash ./build_docker_rocm_vllm.sh
+```
+
+#### Launch vLLM service with docker compose
+
+```bash
+cd GenAIComps/comps/third_parties/vllm/deployment/docker_compose
+# IP port for vLLM service
+export VLLM_SERVICE_PORT=8011
+# HF token
+export HUGGINGFACEHUB_API_TOKEN="your_hf_token"
+# Cache dir
+export HF_CACHE_DIR="./data"
+# Model
+export VLLM_LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+# Specify the number of GPUs used
+export TENSOR_PARALLEL_SIZE=1
+# Run deploy
+docker compose -f compose_vllm_rocm.yaml up vllm-service -d
+```
+
+#### Cheking ROCM vLLM service
+
+```bash
+curl http://${host_ip}:${VLLM_SERVICE_PORT}/v1/chat/completions \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}]}'
+```
+
+### 2.5 Query the service
 
 And then you can make requests like below to check the service status:
 
