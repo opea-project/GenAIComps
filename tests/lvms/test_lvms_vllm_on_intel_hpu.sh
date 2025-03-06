@@ -30,7 +30,7 @@ function start_service() {
     export LVM_ENDPOINT=http://$ip_address:$VLLM_PORT
 
     export LVM_COMPONENT_NAME=OPEA_VLLM_LVM
-    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up lvm-vllm vllm-gaudi-service -d
+    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up lvm-vllm-gaudi vllm-gaudi-service -d
     sleep 3m
 }
 

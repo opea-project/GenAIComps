@@ -200,6 +200,14 @@ services:
     depends_on:
       vllm-service:
         condition: service_healthy
+  lvm-vllm-gaudi:
+    extends: lvm
+    container_name: lvm-vllm-gaudi-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
+    depends_on:
+      vllm-gaudi--service:
+        condition: service_healthy
 
 networks:
   default:
