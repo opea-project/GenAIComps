@@ -27,27 +27,27 @@ function build_docker_images() {
 function get_model() {
     pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
     curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
-    mkdir models
+    mkdir -p models
     python export_model.py rerank --source_model BAAI/bge-reranker-base --weight-format int8 --config_file_path models/config_reranking.json --model_repository_path models --target_device CPU
     chmod -R 755 models
 }
 
 function start_service() {
     export MODEL_ID="BAAI/bge-reranker-large"
-    export OVMS_RERANKING_PORT=12004
-    export RERANK_PORT=10700
+    export OVMS_RERANKER_PORT=12004
+    export RERANK_PORT=10702
     export MODELS_REPOSITORY=${PWD}/models
-    export OVMS_RERANKING_ENDPOINT="http://${host_ip}:${OVMS_RERANKING_PORT}"
+    export OVMS_RERANKING_ENDPOINT="http://${host_ip}:${OVMS_RERANKER_PORT}"
     export TAG=comps
     export host_ip=${host_ip}
 
     cd $WORKPATH/comps/rerankings/deployment/docker_compose
-    docker compose -f compose.yaml up ${service_name} -d > start_services_with_compose.log
-    sleep 1m
+    docker compose -f compose.yaml up ${service_name} -d
+    sleep 10
 }
 
 function validate_microservice() {
-    tei_service_port=10700
+    ovms_service_port=10702
     local CONTENT=$(curl http://${host_ip}:${tei_service_port}/v1/reranking \
         -X POST \
         -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
@@ -57,8 +57,8 @@ function validate_microservice() {
         echo "Content is as expected."
     else
         echo "Content does not match the expected result: $CONTENT"
-        docker logs test-comps-reranking-server
-        docker logs test-comps-reranking-endpoint
+        docker logs ovms-reranking-serving
+        docker logs reranking-ovms-server
         exit 1
     fi
 }
@@ -66,14 +66,15 @@ function validate_microservice() {
 function stop_docker() {
     cd $WORKPATH/comps/rerankings/deployment/docker_compose
     docker compose -f compose.yaml down ${service_name} --remove-orphans
+    cd $WORKPATH
 }
 
 function main() {
 
     stop_docker
 
-    build_docker_images
-    get_model
+    #build_docker_images
+    #get_model
     start_service
 
     validate_microservice
