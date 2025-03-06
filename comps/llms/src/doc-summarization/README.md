@@ -2,10 +2,62 @@
 
 This microservice leverages LangChain to implement summarization strategies and facilitate LLM inference using Text Generation Inference on Intel Xeon and Gaudi2 processors. You can set backend service either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
 
-## 🚀1. Start Microservice with Docker 🐳
+## Support integrations
 
-### 1.1 Setup Environment Variables
+In this microservices, we have supported following backend LLM service as integrations, we will include TGI/vLLM/Ollama in this readme, for others, please refer to corresponding readmes.
 
+- TGI
+- VLLM
+
+
+## Clone OPEA GenAIComps
+Clone this repository at your desired location and set an environment variable for easy setup and usage throughout the instructions.
+
+```bash
+git clone https://github.com/opea-project/GenAIComps.git
+
+export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
+```
+
+
+## Prerequisites
+For TGI/vLLM, You must create a user account with HuggingFace and obtain permission to use the gated LLM models by adhering to the guidelines provided on the respective model's webpage. The environment variables LLM_MODEL would be the HuggingFace model id and the HF_TOKEN is your HuggugFace account's "User Access Token".
+
+## 🚀 Start Microservice with Docker 🐳
+
+### 1. Build Docker Image
+
+#### 1.1 Prepare backend LLM docker image.
+If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) to build vLLM docker images first.
+
+No need for TGI.
+
+#### 1.2 Prepare DocSum docker image.
+
+```bash
+# Build the microservice docker
+cd ${OPEA_GENAICOMPS_ROOT}/
+
+docker build \
+  --build-arg https_proxy=$https_proxy \
+  --build-arg http_proxy=$http_proxy \
+  -t opea/llm-docsum:latest \
+  -f comps/llms/src/doc-summarization/Dockerfile .
+```
+
+### 2. Start LLM Service with the built image
+
+To start a docker container, you have two options:
+
+- A. Run Docker with CLI
+- B. Run Docker with Docker Compose
+
+You can choose one as needed.
+
+If you start an LLM microservice with docker compose, the `compose_doc-summarization.yaml` file will automatically start both endpoint and the microservice docker.
+
+
+#### 2.1 Setup Environment Variables
 In order to start DocSum services, you need to setup the following environment variables first.
 
 ```bash
@@ -17,35 +69,12 @@ export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export LLM_MODEL_ID=${your_hf_llm_model}
 export MAX_INPUT_TOKENS=2048
 export MAX_TOTAL_TOKENS=4096
+
 ```
 
 Please make sure MAX_TOTAL_TOKENS should be larger than (MAX_INPUT_TOKENS + max_new_tokens + 50), 50 is reserved prompt length.
 
-### 1.2 Build Docker Image
-
-Step 1: Prepare backend LLM docker image.
-
-If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) to build vLLM docker images first.
-
-No need for TGI.
-
-Step 2: Build DocSum docker image.
-
-```bash
-cd ../../../../
-docker build -t opea/llm-docsum:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/doc-summarization/Dockerfile .
-```
-
-### 1.3 Run Docker
-
-To start a docker container, you have two options:
-
-- A. Run Docker with CLI
-- B. Run Docker with Docker Compose
-
-You can choose one as needed.
-
-### 1.3.1 Run Docker with CLI (Option A)
+#### 2.2 Run Docker with CLI (Option A)
 
 Step 1: Start the backend LLM service
 Please refer to [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm) guideline to start a backend LLM service.
@@ -69,7 +98,7 @@ docker run -d \
     opea/llm-docsum:latest
 ```
 
-### 1.3.2 Run Docker with Docker Compose (Option B)
+#### 2.2 Run Docker with Docker Compose (Option B)
 
 Set `service_name` to match backend service.
 
@@ -83,9 +112,9 @@ cd ../../deployment/docker_compose/
 docker compose -f compose_doc-summarization.yaml up ${service_name} -d
 ```
 
-## 🚀3. Consume LLM Service
+## 🚀 Consume LLM Service
 
-### 3.1 Check Service Status
+### 3. Check Service Status
 
 ```bash
 curl http://${your_ip}:9000/v1/health_check\
@@ -93,7 +122,7 @@ curl http://${your_ip}:9000/v1/health_check\
   -H 'Content-Type: application/json'
 ```
 
-### 3.2 Consume LLM Service
+### 4. Consume LLM Service
 
 In DocSum microservice, except for basic LLM parameters, we also support several optimization parameters setting.
 
@@ -105,7 +134,7 @@ If you want to deal with long context, can select suitable summary type, details
 - "chunk_size": max token length for each chunk. Set to be different default value according to "summary_type".
 - "chunk_overlap": overlap token length between each chunk, default is 0.1\*chunk_size
 
-#### 3.2.1 Basic usage
+#### 4.1 Basic usage
 
 ```bash
 # Enable stream to receive a stream response. By default, this is set to True.
@@ -127,7 +156,7 @@ curl http://${your_ip}:9000/v1/docsum \
   -H 'Content-Type: application/json'
 ```
 
-#### 3.2.2 Long context summarization with "summary_type"
+#### 4.2 Long context summarization with "summary_type"
 
 **summary_type=auto**
 
