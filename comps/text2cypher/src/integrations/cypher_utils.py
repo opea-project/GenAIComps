@@ -39,12 +39,12 @@ cypher_insert = """
  //MATCH (n:Description) RETURN count(n) AS count
 """
 
-graph_schema_relationships = """
-(:disease)-[:MANIFESTATION]->(:symptoms)
-(:disease)-[:TREATMENT]->(:medication)
-(:disease)-[:PREVENTION]->(:precaution)
-(:disease)-[:HOME_REMEDY]->(:diet)
-"""
+graph_schema_relationships = [
+    "(d:disease)-(s:symptoms)-s.name",
+    "(d:disease)-(m:medication)-m.name",
+    "(d:disease)-(p:precaution)-p.name",
+    "(d:disease)-(d:diet)-d.name"
+]
 
 def prepare_chat_template(question):
     template = Template(
@@ -207,20 +207,36 @@ class CypherQueryCorrector2(CypherQueryCorrector):
         start_index = query.find("MATCH ")
         if start_index == -1:
             raise ValueError("Generated cypher does not contain `MATCH `.")
-        tmp1 = query[start_index:]
-        pattern = r"-\[.*?\]->"
-        replacement = "-[INTERACT_WITH]->"
-        tmp2 = re.sub(pattern, replacement, tmp1)
+
+        match = re.search(r"'(.*?)'", query[start_index:])
+        match_val = None
+        if match:
+            match_val = match.group(0)  # This includes the single quotes
+        else:
+            raise ValueError("Generated cypher does not contain any match value.")
+
+        cypher_str = query[start_index:].lower()
+        for rel in graph_schema_relationships:
+            items = rel.split('-')
+            subject = items[0].strip('()')
+            target = items[1].strip('()')
+            rtn = items[2]
+            logger.info(f"subject={subject}, target={target}, rtn={rtn}")
+            if subject in cypher_str and target in cypher_str: 
+                query = f"MATCH ({subject} {{name: {match_val}}})-[INTERACT_WITH]->({target}) RETURN {rtn}"
+                logger.info(f"match! ")
+                break
+
+        #tmp1 = query[start_index:]
+        #pattern = r"-\[.*?\]->"
+        #replacement = "-[INTERACT_WITH]->"
+        #tmp2 = re.sub(pattern, replacement, tmp1)
 
         #rel_index = self.schema_str.find("The relationships are the following:\n")
         #rel_string = self.schema_str[rel_index + len("The relationships are the following:\n") :]
-        rel_string = graph_schema_relationships 
-        relations = parse_relationships(rel_string)
-        query = swap(tmp2, relations)
+        #relations = parse_relationships(rel_string)
+        #query = swap(tmp2, relations)
 
-        # temporary fix:
-        # query = tmp1
-        # query = "MATCH (d:disease {name: 'Diabetes'})-[INTERACT_WITH]->(s:symptoms) RETURN s.name"
         logger.info(f"[ correct_query ] corrected query: {query}")
         return query
 
