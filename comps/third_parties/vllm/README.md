@@ -187,7 +187,6 @@ OpenVINO best known configuration for GPU is:
     $ VLLM_OPENVINO_DEVICE=GPU VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON \
         python3 vllm/benchmarks/benchmark_throughput.py --model meta-llama/Llama-2-7b-chat-hf --dataset vllm/benchmarks/ShareGPT_V3_unfiltered_cleaned_split.json
 
-
 ### 2.4 vLLM with ROCm (on AMD GPU)
 
 #### Build docker
@@ -215,7 +214,7 @@ export TENSOR_PARALLEL_SIZE=1
 docker compose -f compose_vllm_rocm.yaml up vllm-service -d
 ```
 
-#### Cheking ROCM vLLM service
+#### Checking ROCM vLLM service
 
 ```bash
 curl http://${host_ip}:${VLLM_SERVICE_PORT}/v1/chat/completions \
