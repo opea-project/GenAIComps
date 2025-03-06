@@ -1,4 +1,4 @@
-#  LLM Document Summary Microservice
+# LLM Document Summary Microservice
 
 This microservice leverages LangChain to implement summarization strategies and facilitate LLM inference using Text Generation Inference on Intel Xeon and Gaudi2 processors. You can set backend service either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
 
@@ -9,8 +9,8 @@ In this microservices, we have supported following backend LLM service as integr
 - TGI
 - VLLM
 
-
 ## Clone OPEA GenAIComps
+
 Clone this repository at your desired location and set an environment variable for easy setup and usage throughout the instructions.
 
 ```bash
@@ -19,8 +19,8 @@ git clone https://github.com/opea-project/GenAIComps.git
 export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 ```
 
-
 ## Prerequisites
+
 For TGI/vLLM, You must create a user account with HuggingFace and obtain permission to use the gated LLM models by adhering to the guidelines provided on the respective model's webpage. The environment variables LLM_MODEL would be the HuggingFace model id and the HF_TOKEN is your HuggugFace account's "User Access Token".
 
 ## 🚀 Start Microservice with Docker 🐳
@@ -28,6 +28,7 @@ For TGI/vLLM, You must create a user account with HuggingFace and obtain permiss
 ### 1. Build Docker Image
 
 #### 1.1 Prepare backend LLM docker image.
+
 If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) to build vLLM docker images first.
 
 No need for TGI.
@@ -56,8 +57,8 @@ You can choose one as needed.
 
 If you start an LLM microservice with docker compose, the `compose_doc-summarization.yaml` file will automatically start both endpoint and the microservice docker.
 
-
 #### 2.1 Setup Environment Variables
+
 In order to start DocSum services, you need to setup the following environment variables first.
 
 ```bash
