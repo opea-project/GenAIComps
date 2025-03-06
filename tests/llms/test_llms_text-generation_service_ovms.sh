@@ -75,13 +75,13 @@ function stop_docker() {
 function main() {
 
     stop_docker
-    #build_docker_images
+    build_docker_images
 
     llm_models=(
     TinyLlama/TinyLlama-1.1B-Chat-v1.0
     )
     for model in "${llm_models[@]}"; do
-      #get_model "${model}"
+      get_model "${model}"
       start_service "${model}"
       validate_microservice
       stop_docker
