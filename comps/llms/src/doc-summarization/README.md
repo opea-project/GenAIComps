@@ -1,4 +1,4 @@
-# Document Summary LLM Microservice
+#  LLM Document Summary Microservice
 
 This microservice leverages LangChain to implement summarization strategies and facilitate LLM inference using Text Generation Inference on Intel Xeon and Gaudi2 processors. You can set backend service either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
 
