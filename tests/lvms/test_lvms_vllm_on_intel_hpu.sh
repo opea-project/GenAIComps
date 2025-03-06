@@ -8,8 +8,8 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
-export VLLM_PORT=11508
-export LVM_PORT=11509
+export VLLM_PORT=11510
+export LVM_PORT=11511
 
 function build_docker_images() {
     cd $WORKPATH
@@ -29,7 +29,7 @@ function start_service() {
     export LVM_ENDPOINT=http://$ip_address:$VLLM_PORT
 
     export LVM_COMPONENT_NAME=OPEA_VLLM_LVM
-    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up lvm-vllm vllm-service -d
+    docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up lvm-vllm vllm-gaudi-service -d
     sleep 3m
 }
 
@@ -40,8 +40,8 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs vllm-service >> ${LOG_PATH}/vllm-dependency.log
-        docker logs lvm-vllm-service >> ${LOG_PATH}/lvm.log
+        docker logs vllm-gaudi-service >> ${LOG_PATH}/vllm-dependency.log
+        docker logs lvm-vllm-gaudi-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
@@ -51,15 +51,15 @@ function validate_microservice() {
         echo "Result correct."
     else
         echo "Result wrong."
-        docker logs vllm-service >> ${LOG_PATH}/vllm-dependency.log
-        docker logs lvm-vllm-service >> ${LOG_PATH}/lvm.log
+        docker logs vllm-gaudi-service >> ${LOG_PATH}/vllm-dependency.log
+        docker logs lvm-vllm-gaudi-service >> ${LOG_PATH}/lvm.log
         exit 1
     fi
 
 }
 
 function stop_docker() {
-    docker ps -a --filter "name=vllm-service" --filter "name=lvm-vllm-service" --format "{{.Names}}" | xargs -r docker stop
+    docker ps -a --filter "name=vllm-gaudi-service" --filter "name=lvm-vllm-gaudi-service" --format "{{.Names}}" | xargs -r docker stop
 }
 
 function main() {
