@@ -40,7 +40,7 @@ services:
       retries: 100
     command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
   vllm-gaudi-service:
-    image: ${REGISTRY:-opea}/vllm-gaudi:latest
+    image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
     container_name: vllm-gaudi-service
     ports:
       - ${VLLM_PORT:-9699}:80
@@ -59,6 +59,7 @@ services:
       VLLM_SKIP_WARMUP: ${VLLM_SKIP_WARMUP:-false}
       MAX_MODEL_LEN: ${MAX_TOTAL_TOKENS:-4096}
       MAX_SEQ_LEN_TO_CAPTURE: ${MAX_TOTAL_TOKENS:-4096}
+      PT_HPUGRAPH_DISABLE_TENSOR_CACHE: false # https://github.com/HabanaAI/vllm-fork/issues/841#issuecomment-2700421704
     runtime: habana
     cap_add:
       - SYS_NICE
