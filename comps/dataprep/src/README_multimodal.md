@@ -88,7 +88,7 @@ export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 
 ```bash
 cd ../../../../
-docker build -t opea/dataprep-multimodal-redis:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
 ### 2.5 Run Docker with CLI (Option A)
