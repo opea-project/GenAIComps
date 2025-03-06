@@ -61,7 +61,7 @@ function validate_microservice() {
     else
         echo "Result wrong. Received was $result"
         docker logs ovms-llm-serving
-        docker logs textgen-service-ovms 
+        docker logs textgen-service-ovms
         exit 1
     fi
 }
