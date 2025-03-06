@@ -190,7 +190,7 @@ OpenVINO best known configuration for GPU is:
 
 ### 2.4 vLLM with ROCm (on AMD GPU)
 
-#### Build docker
+#### Build docker image for ROCm vLLM
 
 ```bash
 cd GenAIComps/comps/third_parties/vllm/src
