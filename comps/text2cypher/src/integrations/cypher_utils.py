@@ -43,7 +43,7 @@ graph_schema_relationships = [
     "(d:disease)-(s:symptoms)-s.name",
     "(d:disease)-(m:medication)-m.name",
     "(d:disease)-(p:precaution)-p.name",
-    "(d:disease)-(d:diet)-d.name"
+    "(d:disease)-(d:diet)-d.name",
 ]
 
 
@@ -218,14 +218,14 @@ class CypherQueryCorrector2(CypherQueryCorrector):
 
         cypher_str = query[start_index:].lower()
         for rel in graph_schema_relationships:
-            items = rel.split('-')
-            subject = items[0].strip('()')
-            target = items[1].strip('()')
+            items = rel.split("-")
+            subject = items[0].strip("()")
+            target = items[1].strip("()")
             rtn = items[2]
             logger.info(f"subject={subject}, target={target}, rtn={rtn}")
-            if subject in cypher_str and target in cypher_str: 
+            if subject in cypher_str and target in cypher_str:
                 query = f"MATCH ({subject} {{name: {match_val}}})-[INTERACT_WITH]->({target}) RETURN {rtn}"
-                logger.info(f"match! ")
+                logger.info("match! ")
                 break
 
         logger.info(f"[ correct_query ] corrected query: {query}")
