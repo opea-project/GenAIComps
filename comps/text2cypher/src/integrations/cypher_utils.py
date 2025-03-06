@@ -28,7 +28,7 @@ cypher_insert = """
  //SET m.Medication = rows.Medication
  MERGE (d)-[:TREATMENT]->(m)
 
- MERGE (s:symptoms {name:rows.Symptom})
+ MERGE (s:symptom {name:rows.Symptom})
  //SET s.Symptoms = rows.Symptom
  MERGE (d)-[:MANIFESTATION]->(s)
 
@@ -40,10 +40,10 @@ cypher_insert = """
 """
 
 graph_schema_relationships = [
-    "(d:disease)-(s:symptoms)-s.name",
-    "(d:disease)-(m:medication)-m.name",
-    "(d:disease)-(p:precaution)-p.name",
-    "(d:disease)-(d:diet)-d.name",
+    "(d:Disease)-(s:Symptom)-s.name",
+    "(d:Disease)-(m:Medication)-m.name",
+    "(d:Disease)-(p:Precaution)-p.name",
+    "(d:Disease)-(d:Diet)-d.name",
 ]
 
 
