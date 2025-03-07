@@ -34,8 +34,8 @@ class ServiceType(Enum):
     ANIMATION = 17
     IMAGE2IMAGE = 18
     TEXT2SQL = 19
-    TEXT2CYPHER = 20
-
+    TEXT2GRAPH = 20
+    TEXT2CYPHER = 21
 
 class MegaServiceEndpoint(Enum):
     """The enum of an MegaService endpoint."""
