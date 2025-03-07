@@ -64,8 +64,12 @@ class OpeaText2Cypher(OpeaComponent):
         global chat_model, initialized
         with initialization_lock:
             if not initialized:
-                self.query_engine_chain = self._initialize_client(config)
-                initialized = True
+                try:
+                    self.query_engine_chain = self._initialize_client(config)
+                    initialized = True
+                except Exception as e:
+                    logger.error(f"Error during _initialize_client: {e}")
+                    logger.error(traceback.format_exc())
 
     def _initialize_client(self, config: dict = None):
         """Initializes the chain client."""
