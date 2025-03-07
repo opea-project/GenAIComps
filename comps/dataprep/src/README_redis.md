@@ -2,7 +2,7 @@
 
 We have provided dataprep microservice for multimodal data input (e.g., text and image) [here](./README_multimodal.md).
 
-## 🚀1. Start Microservice with Docker 
+## 🚀1. Start Microservice with Docker
 
 ### 1.1 Start Redis Stack Server
 
@@ -15,6 +15,7 @@ export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
+
 ### 1.3 Start Embedding Service
 
 First, you need to start a TEI service.

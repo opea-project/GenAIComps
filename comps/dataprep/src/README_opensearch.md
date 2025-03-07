@@ -2,7 +2,7 @@
 
 For dataprep microservice for text input, we provide here the `Langchain` framework.
 
-## 🚀1. Start Microservice with Docker 
+## 🚀1. Start Microservice with Docker
 
 ### 1.1 Start OpenSearch Stack Server
 
@@ -18,6 +18,7 @@ export OPENSEARCH_URL="http://${your_ip}:9200"
 export INDEX_NAME=${your_index_name}
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
+
 ### 1.3 Start Embedding Service
 
 First, you need to start a TEI service.

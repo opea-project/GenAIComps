@@ -18,6 +18,7 @@ export COLLECTION_NAME=${your_collection_name}
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 export EMBEDDING_MODEL_ID=${your_embedding_model_id}
 ```
+
 ### 1.3 Start TEI Embedding Service
 
 First, start the TEI embedding server.

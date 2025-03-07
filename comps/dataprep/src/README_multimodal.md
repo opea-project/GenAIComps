@@ -7,7 +7,7 @@ This `dataprep` microservice accepts the following from the user and ingests the
 - Audio (wav files)
 - PDFs (with text and images)
 
-## 🚀1. Start Microservice with Docker 
+## 🚀1. Start Microservice with Docker
 
 ### 1.1 Start Redis Stack Server
 
