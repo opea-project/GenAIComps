@@ -66,16 +66,36 @@ export LVM_ENDPOINT=http://$ip_address:$VIDEO_LLAMA_PORT
 docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up video-llama-service lvm-video-llama -d
 ```
 
+- vLLM
+
+```bash
+# currently you have to build the opea/vllm-gaudi with the habana_main branch locally
+git clone https://github.com/HabanaAI/vllm-fork.git
+cd ./vllm-fork/
+git checkout habana_main
+docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+cd ..
+rm -rf vllm-fork
+
+
+export ip_address=$(hostname -I | awk '{print $1}')
+export LVM_PORT=9399
+export VLLM_PORT=11507
+export LVM_ENDPOINT=http://$ip_address:$VLLM_PORT
+export LLM_MODEL_ID=llava-hf/llava-1.5-7b-hf
+docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up vllm-service lvm-vllm -d
+```
+
 ## Test
 
-- LLaVA & llama-vision & PredictionGuard & TGI LLaVA
+- vLLM & LLaVA native & llama-vision & PredictionGuard & TGI LLaVA
 
 ```bash
 # curl with an image and a prompt
 http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC", "prompt":"What is this?"}' -H 'Content-Type: application/json'
 
 # curl with only the prompt
-http_proxy="" curl http://localhost:9399/v1/lvm --silent --write-out "HTTPSTATUS:%{http_code}" -XPOST -d '{"image": "", "prompt":"What is deep learning?"}' -H 'Content-Type: application/json'
+http_proxy="" curl http://localhost:9399/v1/lvm -XPOST -d '{"image": "", "prompt":"What is deep learning?"}' -H 'Content-Type: application/json'
 ```
 
 - video-llama
