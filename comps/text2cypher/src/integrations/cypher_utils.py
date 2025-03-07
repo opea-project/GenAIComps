@@ -75,82 +75,6 @@ def replace_with_lowercase(s, sub):
     # Replace the character at the index with its lowercase version
     return s[:index] + s[index].lower() + s[index + 1 :]
 
-
-def parse_relationships(input_str):
-    # Split by comma to get each relationship
-    logger.info(f"[ parse_relationships ] input_str: {input_str}")
-    substrings = input_str.split(",")
-
-    logger.info(f"[ parse_relationships ] substrings: {substrings}")
-    relationships = []
-
-    for substring in substrings:
-        # Remove unnecessary characters and split by spaces
-        logger.info(f"[ parse_relationships ] substring: {substring}")
-        parts = (
-            substring.replace("(", "")
-            .replace(")", "")
-            .replace(">", "")
-            .replace("[", "")
-            .replace("]", "")
-            .replace(":", "")
-            .split("-")
-        )
-
-        logger.info(f"[ parse_relationships ] parts: {parts}")
-        entity1 = parts[0].strip()
-        relationship = parts[1].strip()
-        entity2 = parts[2].strip()
-
-        # Create a named tuple and add it to the list
-        relationships.append(Relationship(entity1, relationship, entity2))
-
-    return relationships
-
-
-def swap(cypher_string, relations):
-    # Regular expression pattern to match substrings
-    pattern = r"\(([^()]*)\)"
-
-    # Find all matches
-    matches = re.findall(pattern, cypher_string)
-    new_string = cypher_string
-    # Check if there are exactly two matches
-    if len(matches) == 2:
-        first = matches[0]
-        second = matches[1]
-        for rel in relations:
-            e1 = rel.entity1.lower()
-            r = rel.relationship.lower()
-            e2 = rel.entity2.lower()
-            if e1 in first.lower() and e2 in second.lower():
-                new_string = replace_with_lowercase(new_string, e1)
-                new_string = replace_with_lowercase(new_string, e2)
-                break
-            elif e1 in second.lower() and e2 in first.lower():
-                new_string = new_string.replace(f"({second})", "tmp", 1)
-                new_string = new_string.replace(f"({first})", f"({second})", 1)
-                new_string = new_string.replace("tmp", f"({first})", 1)
-                new_string = replace_with_lowercase(new_string, e1)
-                new_string = replace_with_lowercase(new_string, e2)
-                break
-            elif e1 in first.lower() and r in second.lower():
-                new_string = new_string.replace(f"{second[2:]}", f"{e2}", 1)
-                new_string = replace_with_lowercase(new_string, e1)
-                new_string = replace_with_lowercase(new_string, e2)
-                break
-            elif e1 in second.lower() and r in first.lower():
-                new_string = new_string.replace(f"({second})", "tmp", 1)
-                new_string = new_string.replace(f"({first})", f"({second})", 1)
-                new_string = new_string.replace("tmp", f"({first})", 1)
-                # now replace r with e2
-                new_string = new_string.replace(f"{first[2:]}", f"{e2}", 1)
-                new_string = replace_with_lowercase(new_string, e1)
-                new_string = replace_with_lowercase(new_string, e2)
-                break
-    return new_string
-
-
 def construct_schema(
     structured_schema: Dict[str, Any],
     include_types: List[str],
@@ -232,10 +156,8 @@ class CypherQueryCorrectorExt(CypherQueryCorrector):
             subject = items[0].strip("()")
             target = items[1].strip("()")
             rtn = items[2]
-            logger.info(f"subject={subject}, target={target}, rtn={rtn}")
             if subject in cypher_str and target in cypher_str:
                 query = f"MATCH ({subject} {{name: {match_val}}})-[INTERACT_WITH]->({target}) RETURN {rtn}"
-                logger.info("match! ")
                 break
 
         logger.info(f"[ correct_query ] corrected query: {query}")

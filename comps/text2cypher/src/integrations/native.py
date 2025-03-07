@@ -77,13 +77,11 @@ class OpeaText2Cypher(OpeaComponent):
         if device == "hpu":
             # Convert config dict back to args-like object
             args = argparse.Namespace(**config)
-            logger.info(f"[ OpeaText2Cypher _intialize_client ] args: {args}")
             pipe = GaudiTextGenerationPipeline(args, logger, use_with_langchain=True)
             hfpipe = HuggingFacePipeline(pipeline=pipe)
 
             chat_model = ChatHuggingFace(temperature=0.1, llm=hfpipe, tokenizer=pipe.tokenizer)
 
-        # elif device == "cpu":
         else:
             raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
 
@@ -100,7 +98,6 @@ class OpeaText2Cypher(OpeaComponent):
 
         graph_store.query(cypher_cleanup)
         graph_store.query(cypher_insert)
-        time.sleep(180) # 3 min
         logger.info(f"[ NativeInvoke ] Graph has been built with the following graph schema: {graph_store.schema}")
 
         cypher_prompt = PromptTemplate(input_variables=["schema"], template=prepare_chat_template(prompt))
@@ -154,12 +151,9 @@ class OpeaText2Cypher(OpeaComponent):
         """
 
         while not await self.check_health():  # Ensure you await this call
-            logger.info("[ invoke ] Sleep for a min before checking init again ...")
             await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
         try:
             result = self.query_engine_chain.run(input.input_text)
-            # result = await self.query_engine_chain.run("what are the symptoms for Diabetes?")
-            # result = await self.query_engine_chain.run(input.input_text)  # Await the asynchronous function
         except Exception as e:
             logger.error(f"Error during text2cypher invocation: {e}")
             logger.error(traceback.format_exc())
