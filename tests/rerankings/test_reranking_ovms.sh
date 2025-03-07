@@ -25,15 +25,16 @@ function build_docker_images() {
 }
 
 function get_model() {
+    docker run  -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod -R o+w /cache/hub/models--BAAI--bge-reranker-base
     pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
     curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
     mkdir -p models
-    python export_model.py rerank --source_model BAAI/bge-reranker-large --weight-format int8 --config_file_path models/config_reranking.json --model_repository_path models --target_device CPU
+    python export_model.py rerank --source_model BAAI/bge-reranker-base --weight-format int8 --config_file_path models/config_reranking.json --model_repository_path models --target_device CPU
     chmod -R 755 models
 }
 
 function start_service() {
-    export MODEL_ID="BAAI/bge-reranker-large"
+    export MODEL_ID="BAAI/bge-reranker-base"
     export OVMS_RERANKER_PORT=12004
     export RERANK_PORT=10702
     export MODELS_REPOSITORY=${PWD}/models

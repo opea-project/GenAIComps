@@ -21,6 +21,7 @@ function build_docker_images() {
 }
 
 function get_model() {
+    docker run  -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod -R o+w /cache/hub/models--thenlper--gte-small
     pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
     curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
     mkdir -p models
