@@ -193,7 +193,7 @@ OpenVINO best known configuration for GPU is:
 
 ```bash
 cd GenAIComps/comps/third_parties/vllm/src
-bash ./build_docker_rocm_vllm.sh
+docker build -f Dockerfile.amd_gpu -t opea/llm-vllm-rocm:latest . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
 ```
 
 #### Launch vLLM service with docker compose
