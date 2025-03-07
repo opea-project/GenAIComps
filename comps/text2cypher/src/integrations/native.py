@@ -40,6 +40,7 @@ initialized = False
 query_chain = None
 #config = None
 
+
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
     password: Annotated[str, Field(min_length=1)]
@@ -172,8 +173,7 @@ class OpeaText2Cypher(OpeaComponent):
                     logger.error(f"Error during _initialize_client: {e}")
                     logger.error(traceback.format_exc())
 
-
-        #while not await self.check_health():  # Ensure you await this call
+        # while not await self.check_health():  # Ensure you await this call
         #    await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
         try:
             result = self.query_chain.run(input.input_text)
