@@ -100,7 +100,7 @@ class OpeaText2Cypher(OpeaComponent):
 
         graph_store.query(cypher_cleanup)
         graph_store.query(cypher_insert)
-        time.sleep(180) # 3 min
+        time.sleep(180)  # 3 min
         logger.info(f"[ NativeInvoke ] Graph has been built with the following graph schema: {graph_store.schema}")
 
         cypher_prompt = PromptTemplate(input_variables=["schema"], template=prepare_chat_template(prompt))
