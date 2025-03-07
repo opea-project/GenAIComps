@@ -39,7 +39,7 @@ start_container() {
     export VLLM_LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export TENSOR_PARALLEL_SIZE=1
 
-    cd $WORKPATH/comps/third_parties/vllm/deployment/docker_compose
+    cd $WORKPATH/../comps/third_parties/vllm/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     # check whether service is fully ready
