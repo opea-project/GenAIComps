@@ -28,7 +28,7 @@ function get_model() {
     pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
     curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
     mkdir -p models
-    python export_model.py rerank --source_model BAAI/bge-reranker-base --weight-format int8 --config_file_path models/config_reranking.json --model_repository_path models --target_device CPU
+    python export_model.py rerank --source_model BAAI/bge-reranker-large --weight-format int8 --config_file_path models/config_reranking.json --model_repository_path models --target_device CPU
     chmod -R 755 models
 }
 

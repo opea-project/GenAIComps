@@ -24,16 +24,15 @@ function get_model() {
     pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
     curl https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/export_model.py -o export_model.py
     mkdir -p models
-    python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
+    python export_model.py embeddings --source_model thenlper/gte-small --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
     chmod -R 755 models
 }
 
 function start_service() {
-    export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export OVMS_EMBEDDER_PORT=10206
     export EMBEDDER_PORT=10205
     export MODELS_REPOSITORY=${PWD}/models
-    export MODEL_ID="BAAI/bge-large-en-v1.5"
+    export MODEL_ID="thenlper/gte-small"
     export OVMS_EMBEDDING_ENDPOINT="http://${ip_address}:${OVMS_EMBEDDER_PORT}"
     export TAG=comps
     export host_ip=${ip_address}

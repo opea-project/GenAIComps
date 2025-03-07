@@ -75,7 +75,7 @@ Deploy both the OVMS Embedding Service and the Embedding Microservice using Dock
 
    ```bash
    export host_ip=${your_ip_address}
-   export EMBEDDING_MODEL_ID="BAAI/bge-large-en-v1.5"
+   export MODEL_ID="BAAI/bge-large-en-v1.5"
    export OVMS_EMBEDDER_PORT=8090
    export EMBEDDER_PORT=6000
    export OVMS_EMBEDDING_ENDPOINT="http://${host_ip}:${OVMS_EMBEDDER_PORT}"
