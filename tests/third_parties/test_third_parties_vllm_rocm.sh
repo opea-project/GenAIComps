@@ -12,7 +12,7 @@ echo "TAG=${TAG}"
 WORKPATH=$(dirname "$PWD")
 WORKDIR=${WORKPATH}/../
 export host_ip=$(hostname -I | awk '{print $1}')
-LOG_PATH="$WORKPATH/tests"
+LOG_PATH="$WORKPATH"
 service_name="vllm-rocm-server"
 docker_container_name="vllm-service"
 
