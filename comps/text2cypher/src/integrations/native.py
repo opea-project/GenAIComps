@@ -176,7 +176,7 @@ class OpeaText2Cypher(OpeaComponent):
         # while not await self.check_health():  # Ensure you await this call
         #    await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
         try:
-            result = self.query_chain.run(input.input_text)
+            result = query_chain.run(input.input_text)
         except Exception as e:
             logger.error(f"Error during text2cypher invocation: {e}")
             logger.error(traceback.format_exc())
