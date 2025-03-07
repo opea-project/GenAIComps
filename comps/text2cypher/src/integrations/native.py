@@ -26,7 +26,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.text2cypher.src.integrations.cypher_utils import (
-    CypherQueryCorrector2,
+    CypherQueryCorrectorExt,
     construct_schema,
     cypher_cleanup,
     cypher_insert,
@@ -106,7 +106,7 @@ class OpeaText2Cypher(OpeaComponent):
 
         graph_schema = construct_schema(graph_store.get_structured_schema, [], [])
 
-        cypher_query_corrector = CypherQueryCorrector2(schemas=graph_store.schema, schema_str=graph_schema)
+        cypher_query_corrector = CypherQueryCorrectorExt(schemas=graph_store.schema, schema_str=graph_schema)
 
         use_qa_llm_kwargs = {"prompt": CYPHER_QA_PROMPT}
         use_cypher_llm_kwargs = {"prompt": cypher_prompt}

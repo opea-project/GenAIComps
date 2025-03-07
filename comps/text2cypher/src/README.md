@@ -48,13 +48,13 @@ python3 opea_text2cypher_microservice.py
 
 ```bash
 cd GenAIComps/
-docker build -t opea/text2cypher:latest -f comps/text2cypher/src/Dockerfile .
+docker build -t opea/text2cypher:latest -f comps/text2cypher/src/Dockerfile.intel_hpu .
 ```
 
 #### Run Docker with CLI (Option A)
 
 ```bash
-docker run  --runtime=runc --name="comps-langchain-text2cypher"  -p 9097:8080 --ipc=host opea/text2cypher:latest
+docker run  --name="comps-langchain-text2cypher"  -p 9097:8080 --ipc=host opea/text2cypher:latest
 ```
 
 #### Run via docker compose (Option B)
@@ -67,16 +67,10 @@ export HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
 export NEO4J_USER=neo4j
 export NEO4J_PASSWORD=neo4jtest
 export NEO4J_URL="bolt://${ip_address}:7687"
+export TEXT2CYPHER_PORT=11801
 ```
 
 ##### Start the services.
-
-- Xeon CPU
-
-```bash
-cd comps/text2cypher/deployment/docker_compose
-docker compose -f compose.yaml up text2cypher -d
-```
 
 - Gaudi2 HPU
 
@@ -94,7 +88,7 @@ The Text-to-Cypher microservice exposes the following API endpoints:
 - Execute Cypher Query from input text
 
   ```bash
-  curl http://${your_ip}:9097/v1/text2cypher\
+  curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher\
         -X POST \
         -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
         -H 'Content-Type: application/json'

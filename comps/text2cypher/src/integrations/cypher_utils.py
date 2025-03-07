@@ -198,7 +198,16 @@ def construct_schema(
     )
 
 
-class CypherQueryCorrector2(CypherQueryCorrector):
+class CypherQueryCorrectorExt(CypherQueryCorrector):
+    """Extension of CypherQueryCorrector. CypherQueryCorrector corrects 
+    relationship direction in generated Cypher statements.
+ 
+    CypherQueryCorrectorExt can perform additional checks based on a schema.
+    For example, 
+         1. remove any extra information from the cypher statement.
+         2. any user-defined and/or application-specific transformation. 
+    """
+
     def __init__(self, schemas: List[Schema], schema_str: str):
         self.schemas = schemas
         self.schema_str = schema_str

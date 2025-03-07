@@ -80,21 +80,6 @@ function validate_text2cypher_service() {
         -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "neo4jtest","url": "'${NEO4J_URL}'" }}' \
         -H 'Content-Type: application/json')
 
-# connection refused if localhost and/or 9097
-#    result=$(http_proxy="" curl http://localhost:9097/v1/text2cypher\
-#        -X POST \
-#        -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "neo4jtest","url": "'${NEO4J_URL}'" }}' \
-#        -H 'Content-Type: application/json')
-
-#    result=$(http_proxy="" curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher\                                                                -X POST \                                                                                                                                       -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
-#        -H 'Content-Type: application/json')
-
-
-#    result=$(http_proxy="" curl http://localhost:9097/v1/text2cypher \
-#	-X POST \
-#	-d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
-#       -H 'Content-Type: application/json')
-
     docker logs ${CONTAINER_NAME}
 
     if [[ ${#result} -gt 0 ]]; then
