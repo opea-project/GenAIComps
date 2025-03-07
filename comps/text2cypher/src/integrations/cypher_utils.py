@@ -75,6 +75,7 @@ def replace_with_lowercase(s, sub):
     # Replace the character at the index with its lowercase version
     return s[:index] + s[index].lower() + s[index + 1 :]
 
+
 def construct_schema(
     structured_schema: Dict[str, Any],
     include_types: List[str],
