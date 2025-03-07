@@ -211,7 +211,7 @@ export VLLM_LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
 # Specify the number of GPUs used
 export TENSOR_PARALLEL_SIZE=1
 # Run deploy
-docker compose -f compose_vllm_rocm.yaml up vllm-service -d
+docker compose -f compose.yaml up vllm-rocm-server -d
 ```
 
 #### Checking ROCM vLLM service
