@@ -1,9 +1,6 @@
 ﻿# Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-#include:
-#  - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
-
 services:
   text2graph:
      image: opea/text2graph:latest
@@ -26,8 +23,6 @@ services:
       - ${TEXT2GRAPH_PORT:-9090}:8080
     environment:
       - TGI_LLM_ENDPOINT=${TGI_LLM_ENDPOINT:-8080}:8080
-        #    depends_on:
-        #      - tgi-gaudi-server
 
 networks:
   default:

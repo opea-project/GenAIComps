@@ -14,10 +14,6 @@ from pydantic import BaseModel, Field
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.text2graph.src.integrations.graph_agent import TripletBuilder, TripletExtractor, TripletManager
 
-##from comps.text2graph.src.integrations.triplet_manager import TripletManager
-##from comps.text2graph.src.integrations.triplet_builder import TripletBuilder
-##from comps.text2graph.src.integrations.triplet_extractor import TripletExtractor
-
 logger = CustomLogger("comps-text2graph")
 logflag = os.getenv("LOGFLAG", False)
 
@@ -34,18 +30,8 @@ generation_params = {
     "streaming": True,
 }
 
-# TGI_LLM_ENDPOINT = os.environ.get("TGI_LLM_ENDPOINT")
-#
-# llm = HuggingFaceEndpoint(
-#    endpoint_url=TGI_LLM_ENDPOINT,
-#    task="text-generation",
-#    **generation_params,
-#    )
-
-
 class Input(BaseModel):
     input_text: str
-    # conn_str: Optional[PostgresConnection] = None
 
 
 @OpeaComponentRegistry.register("OPEA_TEXT2GRAPH")
@@ -65,7 +51,6 @@ class OpeaText2GRAPH(OpeaComponent):
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            # response = llm.generate(["Hello, how are you?"])
             return True
         except Exception as e:
             return False
@@ -81,9 +66,6 @@ class OpeaText2GRAPH(OpeaComponent):
 
         tb = TripletBuilder()
         graph_triplets = await tb.extract_graph(input_text)
-
-        # tm = TripletManager()
-        # entity, relation = tm.write_to_csv(WRITE_TO_CSV=False)
 
         result = {"graph_triplets": graph_triplets}
 

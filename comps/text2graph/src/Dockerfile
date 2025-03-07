@@ -25,7 +25,6 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
         pip install --no-cache-dir -r /home/user/comps/text2graph/src/requirements.txt; \
     fi
 
-#ENV PYTHONPATH=$PYTHONPATH:/home/user
 ENV https_proxy=${https_proxy}
 ENV http_proxy=${http_proxy}
 ENV no_proxy=${no_proxy}

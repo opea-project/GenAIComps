@@ -22,7 +22,7 @@ text2graph_component_name = os.getenv("TEXT2GRAPH_COMPONENT_NAME", "OPEA_TEXT2GR
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     text2graph_component_name,
-    description=f"OPEA RERANK Component: {text2graph_component_name}",
+    description=f"OPEA text2graph Component: {text2graph_component_name}",
 )
 
 
