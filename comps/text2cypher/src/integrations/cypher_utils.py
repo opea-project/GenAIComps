@@ -40,10 +40,10 @@ cypher_insert = """
 """
 
 graph_schema_relationships = [
-    "(d:Disease)-(s:Symptom)-s.name",
-    "(d:Disease)-(m:Medication)-m.name",
-    "(d:Disease)-(p:Precaution)-p.name",
-    "(d:Disease)-(d:Diet)-d.name",
+    "(d:disease)-(s:symptom)-s.name",
+    "(d:disease)-(m:medication)-m.name",
+    "(d:disease)-(p:precaution)-p.name",
+    "(d:disease)-(d:diet)-d.name",
 ]
 
 
@@ -233,7 +233,7 @@ class CypherQueryCorrectorExt(CypherQueryCorrector):
             target = items[1].strip("()")
             rtn = items[2]
             logger.info(f"subject={subject}, target={target}, rtn={rtn}")
-            if subject.lower() in cypher_str and target.lower() in cypher_str:
+            if subject in cypher_str and target in cypher_str:
                 query = f"MATCH ({subject} {{name: {match_val}}})-[INTERACT_WITH]->({target}) RETURN {rtn}"
                 logger.info("match! ")
                 break
