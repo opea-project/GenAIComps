@@ -37,7 +37,8 @@ from comps.text2cypher.src.integrations.pipeline import GaudiTextGenerationPipel
 logger = CustomLogger("opea_text2cypher_native")
 initialization_lock = threading.Lock()
 initialized = False
-
+query_chain = None
+config = None
 
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
@@ -60,19 +61,24 @@ class OpeaText2Cypher(OpeaComponent):
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
+        global config
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
-        global chat_model, initialized
-        with initialization_lock:
-            if not initialized:
-                try:
-                    self.query_engine_chain = self._initialize_client(config)
-                    initialized = True
-                except Exception as e:
-                    logger.error(f"Error during _initialize_client: {e}")
-                    logger.error(traceback.format_exc())
+        config = config
+        #global query_chain
+        #with initialization_lock:
+        #    if not initialized:
+        #        try:
+        #            self.query_chain = self._initialize_client(config)
+        #            initialized = True
+        #        except Exception as e:
+        #            logger.error(f"Error during _initialize_client: {e}")
+        #            logger.error(traceback.format_exc())
 
-    def _initialize_client(self, config: dict = None):
+    #def _initialize_client(self, config: dict = None):
+    def _initialize_client(self):
         """Initializes the chain client."""
+        global config, query_chain, initialized
+
         logger.info("[ OpeaText2Cypher ] initialize_client started.")
         # initialize model and tokenizer
         model_name_or_path = config["model_name_or_path"]
@@ -119,7 +125,7 @@ class OpeaText2Cypher(OpeaComponent):
             **use_cypher_llm_kwargs,
         )
 
-        query_engine_chain = GraphCypherQAChain(
+        query_chain = GraphCypherQAChain(
             graph=graph_store,
             graph_schema=graph_schema,
             qa_chain=qa_chain,
@@ -134,7 +140,7 @@ class OpeaText2Cypher(OpeaComponent):
 
         logger.info("[ OpeaText2Cypher ] initialize_client completed.")
 
-        return query_engine_chain
+        return query_chain
 
     async def check_health(self) -> bool:
         """Checks the health of the Text2Cypher service.
@@ -142,6 +148,7 @@ class OpeaText2Cypher(OpeaComponent):
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
+        global initialized
         return initialized
 
     async def invoke(self, input: Input):
@@ -154,10 +161,21 @@ class OpeaText2Cypher(OpeaComponent):
             str: the generated output.
         """
 
-        while not await self.check_health():  # Ensure you await this call
-            await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
+        global query_chain, config, initialized
+        with initialization_lock:
+            if not initialized:
+                try:
+                    query_chain = self._initialize_client(config)
+                    initialized = True
+                except Exception as e:
+                    logger.error(f"Error during _initialize_client: {e}")
+                    logger.error(traceback.format_exc())
+
+
+        #while not await self.check_health():  # Ensure you await this call
+        #    await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
         try:
-            result = self.query_engine_chain.run(input.input_text)
+            result = self.query_chain.run(input.input_text)
         except Exception as e:
             logger.error(f"Error during text2cypher invocation: {e}")
             logger.error(traceback.format_exc())
