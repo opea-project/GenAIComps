@@ -1,0 +1,29 @@
+﻿# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  text2graph:
+     image: opea/text2graph:latest
+     container_name: text2graph
+     ports:
+         - ${TEXT2GRAPH_PORT:-8090}:8090
+     environment:
+         - no_proxy=${no_proxy}
+         - https_proxy=${https_proxy}
+         - http_proxy=${http_proxy}
+         - LLM_MODEL_ID=${LLM_MODEL_ID:-"Babelscape/rebel-large"}
+         - HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+     ipc: host
+     restart: always
+
+  text2graph-gaudi:
+    image: opea/text2graph:${TAG:-latest}
+    container_name: text2graph-gaudi-server
+    ports:
+      - ${TEXT2GRAPH_PORT:-9090}:8080
+    environment:
+      - TGI_LLM_ENDPOINT=${TGI_LLM_ENDPOINT:-8080}:8080
+
+networks:
+  default:
+    driver: bridge
