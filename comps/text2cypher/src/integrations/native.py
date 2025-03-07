@@ -38,7 +38,7 @@ logger = CustomLogger("opea_text2cypher_native")
 initialization_lock = threading.Lock()
 initialized = False
 query_chain = None
-config = None
+#config = None
 
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
@@ -61,9 +61,9 @@ class OpeaText2Cypher(OpeaComponent):
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
-        global config
+        #global config
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
-        config = config
+        self.config = config
         #global query_chain
         #with initialization_lock:
         #    if not initialized:
@@ -74,10 +74,11 @@ class OpeaText2Cypher(OpeaComponent):
         #            logger.error(f"Error during _initialize_client: {e}")
         #            logger.error(traceback.format_exc())
 
-    #def _initialize_client(self, config: dict = None):
-    def _initialize_client(self):
+    def _initialize_client(self, config: dict = None):
+    #def _initialize_client(self):
         """Initializes the chain client."""
-        global config, query_chain, initialized
+        #global config
+        global query_chain, initialized
 
         logger.info("[ OpeaText2Cypher ] initialize_client started.")
         # initialize model and tokenizer
@@ -161,11 +162,11 @@ class OpeaText2Cypher(OpeaComponent):
             str: the generated output.
         """
 
-        global query_chain, config, initialized
+        global query_chain, initialized
         with initialization_lock:
             if not initialized:
                 try:
-                    query_chain = self._initialize_client(config)
+                    query_chain = self._initialize_client(self.config)
                     initialized = True
                 except Exception as e:
                     logger.error(f"Error during _initialize_client: {e}")
