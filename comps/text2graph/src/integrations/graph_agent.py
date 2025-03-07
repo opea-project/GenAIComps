@@ -48,7 +48,7 @@ class TripletExtractor:
 class TripletBuilder:
     def __init__(self):
         # Load model and tokenizer
-        MODEL_NAME = os.environ.get("LLM_MODEL_ID","Babelscape/rebel-large")
+        MODEL_NAME = os.environ.get("LLM_MODEL_ID", "Babelscape/rebel-large")
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
 

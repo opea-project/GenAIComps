@@ -30,6 +30,7 @@ generation_params = {
     "streaming": True,
 }
 
+
 class Input(BaseModel):
     input_text: str
 
