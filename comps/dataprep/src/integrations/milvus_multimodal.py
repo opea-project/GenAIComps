@@ -113,6 +113,10 @@ class MultimodalMilvus(Milvus):
         if "keys" in kwargs:
             keys = kwargs.pop("keys")
 
+        filename = ""
+        if "filename" in kwargs:
+            filename = kwargs.pop("filename")
+
         # Name of the search index if not given
         if not collection_name:
             collection_name = uuid.uuid4().hex
@@ -124,7 +128,6 @@ class MultimodalMilvus(Milvus):
             if not (isinstance(metadatas, list) and isinstance(metadatas[0], dict)):
                 raise ValueError("Metadatas must be a list of dicts")
             # generated_schema = _prepare_metadata_fields(metadatas[0])
-
         # Create instance
         metadatas_test = metadatas
         instance = cls(
@@ -136,9 +139,9 @@ class MultimodalMilvus(Milvus):
             **kwargs,
         )
         keys = (
-            instance.add_text_image_pairs(texts, images, embedding, metadatas=metadatas_test, keys=keys)
+            instance.add_text_image_pairs(texts, images, filename, embedding, metadatas=metadatas_test, keys=keys)
             if images
-            else instance.add_text(texts, metadatas=metadatas_test, keys=keys)
+            else instance.add_text(texts, filename, metadatas=metadatas_test, keys=keys)
         )
         return instance, keys
 
@@ -146,6 +149,7 @@ class MultimodalMilvus(Milvus):
         self,
         texts: Iterable[str],
         images: Iterable[str],
+        filename: str,
         embedding: Embeddings = BridgeTowerEmbedding,
         metadatas: Optional[List[dict]] = None,
         embeddings: Optional[List[List[float]]] = None,
@@ -157,10 +161,6 @@ class MultimodalMilvus(Milvus):
         # Get keys or ids from kwargs
         # Other vectorstores use ids
         keys_or_ids = kwargs.get("keys", kwargs.get("ids"))
-        logger.info(f"Testing 2.0 {type(metadatas)}")
-        # type check for metadata
-        logger.info(f"test 2 {isinstance(metadatas, list)}")
-        logger.info(metadatas[0])
         if metadatas:
             if isinstance(metadatas, list) and len(metadatas) != len(texts):  # type: ignore
                 raise ValueError("Number of metadatas must match number of texts")
@@ -171,15 +171,18 @@ class MultimodalMilvus(Milvus):
         if not embeddings:
             embeddings = embedding.embed_image_text_pairs(list(texts), pil_imgs, batch_size=batch_size)
         for metadata in metadatas:
-            metadata["pk"] = str(uuid.uuid4().hex)
+            metadata["filename"] = filename
             for key, value in metadata.items():
                 if isinstance(value, str) and len(value) > 65535:
                     metadata[key] = value[:65535]
-        return self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
+        db_ids = self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
+        logger.info(db_ids)
+        return db_ids
 
     def add_text(
         self,
         texts: Iterable[str],
+        filename: str,
         embedding: Embeddings = BridgeTowerEmbedding,
         metadatas: Optional[List[dict]] = None,
         embeddings: Optional[List[List[float]]] = None,
@@ -205,12 +208,15 @@ class MultimodalMilvus(Milvus):
 
         batch_size = 2
         for metadata in metadatas:
-            metadata["pk"] = str(uuid.uuid4().hex)
+            metadata["filename"] = filename
             for key, value in metadata.items():
                 if isinstance(value, str) and len(value) > 65535:
                     metadata[key] = value[:65535]
 
-        return self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
+
+        db_ids = self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
+        logger.info(db_ids)
+        return db_ids
 
 
 def search_by_file(collection, file_name):
@@ -421,6 +427,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             metadatas=metadatas,
             collection_name=COLLECTION_NAME,
             milvus_uri=MILVUS_URI,
+            filename=filename,
         )
 
     async def ingest_generate_transcripts(self, files: List[UploadFile] = File(None)):
@@ -618,7 +625,6 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                         logger.info(f"No image was found for caption file {file.filename}.")
                 elif file_extension not in accepted_media_formats:
                     logger.info(f"Skipping file {file.filename} because of unsupported format.")
-            print("Pallavi 3")
             for media_file_name, file_list in matched_files.items():
                 if len(file_list) != 2 and os.path.splitext(media_file_name)[1] != ".pdf":
                     raise HTTPException(status_code=400, detail=f"No caption file found for {media_file_name}")
