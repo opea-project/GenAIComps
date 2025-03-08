@@ -213,7 +213,6 @@ class MultimodalMilvus(Milvus):
                 if isinstance(value, str) and len(value) > 65535:
                     metadata[key] = value[:65535]
 
-
         db_ids = self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
         logger.info(db_ids)
         return db_ids
