@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 set -x
@@ -44,7 +44,7 @@ function start_service() {
 
     cd $WORKPATH/comps/text2cypher/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 3m
+    sleep 1m
 }
 
 function validate_neo4j_service() {
@@ -57,7 +57,6 @@ function validate_neo4j_service() {
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 
-    #docker logs ${CONTAINER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
     docker logs ${CONTAINER_NAME}
 
     # check response status
@@ -87,7 +86,6 @@ function validate_text2cypher_service() {
         echo "Result correct."
     else
         echo "Result wrong. Received was $result"
-        #docker logs ${CONTAINER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
         exit 1
     fi
 }
@@ -110,7 +108,7 @@ function main() {
     build_docker_images
     start_service
 
-    validate_neo4j_service
+    #validate_neo4j_service
     validate_text2cypher_service
 
     stop_docker

@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
@@ -57,13 +57,10 @@ class OpeaText2Cypher(OpeaComponent):
         self.config = config
 
     def _initialize_client(self, prompt: str, config: dict = None):
-        # def _initialize_client(self):
         """Initializes the chain client."""
-        # global config
         global query_chain, initialized
 
         logger.info("[ OpeaText2Cypher ] initialize_client started.")
-        # initialize model and tokenizer
         model_name_or_path = config["model_name_or_path"]
         device = config["device"]
         chat_model = None
@@ -78,7 +75,6 @@ class OpeaText2Cypher(OpeaComponent):
         else:
             raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
 
-        #prompt = "what are the symptoms for Diabetes?"
         user = os.getenv("NEO4J_USERNAME", "neo4j")
         password = os.getenv("NEO4J_PASSWORD", "neo4jtest")
         url = os.getenv("NEO4J_URL")
@@ -92,7 +88,6 @@ class OpeaText2Cypher(OpeaComponent):
         graph_store.query(cypher_cleanup)
         graph_store.query(cypher_insert)
         graph_store.refresh_schema()
-        logger.info(f"[ NativeInvoke ] Graph has been built with the following graph schema: {graph_store.schema}")
 
         cypher_prompt = PromptTemplate(input_variables=["schema"], template=prepare_chat_template(prompt))
 
@@ -121,8 +116,6 @@ class OpeaText2Cypher(OpeaComponent):
             return_direct=True,
             allow_dangerous_requests=True,
         )
-
-        logger.info("[ OpeaText2Cypher ] initialize_client completed.")
 
         return query_chain
 

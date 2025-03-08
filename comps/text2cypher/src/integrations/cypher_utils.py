@@ -39,14 +39,6 @@ cypher_insert = """
  //MATCH (n:Description) RETURN count(n) AS count
 """
 
-# graph_schema_relationships = [
-#    "(d:disease)-(s:symptom)-s.name",
-#    "(d:disease)-(m:medication)-m.name",
-#    "(d:disease)-(p:precaution)-p.name",
-#    "(d:disease)-(d:diet)-d.name",
-# ]
-
-
 # in the original string, change the first character of the substring into lower case
 def replace_with_lowercase(s, sub):
     index = s.lower().find(sub)
