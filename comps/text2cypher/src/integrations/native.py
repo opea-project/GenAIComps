@@ -17,7 +17,6 @@ from langchain_community.chains.graph_qa.prompts import CYPHER_QA_PROMPT
 from langchain_community.graphs import Neo4jGraph
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 
-# from langchain_community.chat_models import ChatGaudi
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 from pydantic import BaseModel, Field
@@ -38,8 +37,6 @@ logger = CustomLogger("opea_text2cypher_native")
 initialization_lock = threading.Lock()
 initialized = False
 query_chain = None
-# config = None
-
 
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
@@ -55,27 +52,13 @@ class Input(BaseModel):
 @OpeaComponentRegistry.register("OPEA_TEXT2CYPHER")
 class OpeaText2Cypher(OpeaComponent):
     """A specialized text2cyher component derived from OpeaComponent for text2cypher services.
-
-    Attributes:
-        client (AsyncInferenceClient): An instance of the async client for cypher generation.
-        model_name (str): The name of the embedding model used.
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
-        # global config
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
         self.config = config
-        # global query_chain
-        # with initialization_lock:
-        #    if not initialized:
-        #        try:
-        #            self.query_chain = self._initialize_client(config)
-        #            initialized = True
-        #        except Exception as e:
-        #            logger.error(f"Error during _initialize_client: {e}")
-        #            logger.error(traceback.format_exc())
 
-    def _initialize_client(self, config: dict = None):
+    def _initialize_client(self, config: dict = None, prompt: str):
         # def _initialize_client(self):
         """Initializes the chain client."""
         # global config
@@ -97,7 +80,7 @@ class OpeaText2Cypher(OpeaComponent):
         else:
             raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
 
-        prompt = "what are the symptoms for Diabetes?"
+        #prompt = "what are the symptoms for Diabetes?"
         user = os.getenv("NEO4J_USERNAME", "neo4j")
         password = os.getenv("NEO4J_PASSWORD", "neo4jtest")
         url = os.getenv("NEO4J_URL")
@@ -168,14 +151,12 @@ class OpeaText2Cypher(OpeaComponent):
         with initialization_lock:
             if not initialized:
                 try:
-                    query_chain = self._initialize_client(self.config)
+                    query_chain = self._initialize_client(self.config, input.input_text)
                     initialized = True
                 except Exception as e:
                     logger.error(f"Error during _initialize_client: {e}")
                     logger.error(traceback.format_exc())
 
-        # while not await self.check_health():  # Ensure you await this call
-        #    await asyncio.sleep(30)  # Sleep for 30 seconds before checking again
         try:
             result = query_chain.run(input.input_text)
         except Exception as e:
