@@ -37,6 +37,7 @@ initialization_lock = threading.Lock()
 initialized = False
 query_chain = None
 
+
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
     password: Annotated[str, Field(min_length=1)]
@@ -78,7 +79,7 @@ class OpeaText2Cypher(OpeaComponent):
         else:
             raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
 
-        #prompt = "what are the symptoms for Diabetes?"
+        # prompt = "what are the symptoms for Diabetes?"
         user = os.getenv("NEO4J_USERNAME", "neo4j")
         password = os.getenv("NEO4J_PASSWORD", "neo4jtest")
         url = os.getenv("NEO4J_URL")
