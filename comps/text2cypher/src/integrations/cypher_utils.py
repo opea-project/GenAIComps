@@ -5,9 +5,7 @@ import re
 from collections import namedtuple
 from string import Template
 from typing import Any, Dict, List, Optional, Union
-
 from langchain_community.chains.graph_qa.cypher_utils import CypherQueryCorrector, Schema
-
 from comps import CustomLogger
 
 logger = CustomLogger("opea_text2cypher_cypher_utils")
@@ -39,13 +37,81 @@ cypher_insert = """
  //MATCH (n:Description) RETURN count(n) AS count
 """
 
-graph_schema_relationships = [
-    "(d:disease)-(s:symptom)-s.name",
-    "(d:disease)-(m:medication)-m.name",
-    "(d:disease)-(p:precaution)-p.name",
-    "(d:disease)-(d:diet)-d.name",
-]
+#graph_schema_relationships = [
+#    "(d:disease)-(s:symptom)-s.name",
+#    "(d:disease)-(m:medication)-m.name",
+#    "(d:disease)-(p:precaution)-p.name",
+#    "(d:disease)-(d:diet)-d.name",
+#]
 
+# in the original string, change the first character of the substring into lower case
+def replace_with_lowercase(s, sub):
+    index = s.lower().find(sub)
+    if index < 0 or index >= len(s):
+        raise ValueError("Index out of range")
+    # Replace the character at the index with its lowercase version
+    return s[:index] + s[index].lower() + s[index + 1:]
+
+def parse_relationships(input_str):
+    # Split by comma to get each relationship
+    substrings = input_str.split(',')
+
+    relationships = []
+
+    for substring in substrings:
+        # Remove unnecessary characters and split by spaces
+        parts = substring.replace('(', '').replace(')', '').replace('>', '').replace('[', '').replace(']', '').replace(':', '').split('-')
+
+        entity1 = parts[0].strip()
+        relationship = parts[1].strip()
+        entity2 = parts[2].strip()
+
+        # Create a named tuple and add it to the list
+        relationships.append(Relationship(entity1, relationship, entity2))
+
+    return relationships
+
+def swap(cypher_string, relations):
+    # Regular expression pattern to match substrings
+    pattern = r"\(([^()]*)\)"
+
+    # Find all matches
+    matches = re.findall(pattern, cypher_string)
+    new_string = cypher_string
+    # Check if there are exactly two matches
+    if len(matches) == 2:
+        first = matches[0]
+        second = matches[1]
+        for rel in relations:
+            e1 = rel.entity1.lower()
+            r = rel.relationship.lower()
+            e2 = rel.entity2.lower()
+            if e1 in first.lower() and e2 in second.lower():
+                new_string = replace_with_lowercase(new_string, e1)
+                new_string = replace_with_lowercase(new_string, e2)
+                break
+            elif e1 in second.lower() and e2 in first.lower():
+                new_string = new_string.replace(f"({second})", f"tmp", 1)
+                new_string = new_string.replace(f"({first})", f"({second})", 1)
+                new_string = new_string.replace(f"tmp", f"({first})", 1)
+                new_string = replace_with_lowercase(new_string, e1)
+                new_string = replace_with_lowercase(new_string, e2)
+                break
+            elif e1 in first.lower() and r in second.lower():
+                new_string = new_string.replace(f"{second[2:]}", f"{e2}", 1)
+                new_string = replace_with_lowercase(new_string, e1)
+                new_string = replace_with_lowercase(new_string, e2)
+                break
+            elif e1 in second.lower() and r in first.lower():
+                new_string = new_string.replace(f"({second})", f"tmp", 1)
+                new_string = new_string.replace(f"({first})", f"({second})", 1)
+                new_string = new_string.replace(f"tmp", f"({first})", 1)
+                # now replace r with e2
+                new_string = new_string.replace(f"{first[2:]}", f"{e2}", 1)
+                new_string = replace_with_lowercase(new_string, e1)
+                new_string = replace_with_lowercase(new_string, e2)
+                break
+    return new_string
 
 def prepare_chat_template(question):
     template = Template(
@@ -65,16 +131,6 @@ Cypher output:
     )
     temp_str = template.substitute(question=question)
     return temp_str
-
-
-# in the original string, change the first character of the substring into lower case
-def replace_with_lowercase(s, sub):
-    index = s.lower().find(sub)
-    if index < 0 or index >= len(s):
-        raise ValueError("Index out of range")
-    # Replace the character at the index with its lowercase version
-    return s[:index] + s[index].lower() + s[index + 1 :]
-
 
 def construct_schema(
     structured_schema: Dict[str, Any],
@@ -142,24 +198,15 @@ class CypherQueryCorrectorExt(CypherQueryCorrector):
         start_index = query.find("MATCH ")
         if start_index == -1:
             raise ValueError("Generated cypher does not contain `MATCH `.")
+        tmp1 = query[start_index:]
+        pattern = r"-\[.*?\]->"
+        replacement = "-[INTERACT_WITH]->"
+        tmp2 = re.sub(pattern, replacement, tmp1)
 
-        match = re.search(r"'(.*?)'", query[start_index:])
-        match_val = None
-        if match:
-            match_val = match.group(0)  # This includes the single quotes
-        else:
-            raise ValueError("Generated cypher does not contain any match value.")
-
-        cypher_str = query[start_index:].lower()
-        for rel in graph_schema_relationships:
-            items = rel.split("-")
-            subject = items[0].strip("()")
-            target = items[1].strip("()")
-            rtn = items[2]
-            if subject in cypher_str and target in cypher_str:
-                query = f"MATCH ({subject} {{name: {match_val}}})-[INTERACT_WITH]->({target}) RETURN {rtn}"
-                break
-
+        rel_index = self.schema_str.find("The relationships are the following:\n")
+        rel_string = self.schema_str[rel_index+len("The relationships are the following:\n"):]
+        relations = parse_relationships(rel_string)
+        query = swap(tmp2, relations)
         logger.info(f"[ correct_query ] corrected query: {query}")
         return query
 
