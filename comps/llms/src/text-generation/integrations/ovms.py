@@ -16,6 +16,7 @@ logger = CustomLogger("opea_textgen_ovms")
 logflag = os.getenv("LOGFLAG", False)
 MODEL_ID = os.getenv("MODEL_ID")
 
+
 @OpeaComponentRegistry.register("OpeaTextGenOVMS")
 class OpeaTextGenOVMS(OpeaComponent):
     """A specialized OPEA TextGen component derived from OpeaComponent for interacting with OpenVINO Model Server services.

@@ -20,14 +20,14 @@ It is Intel highly optimized serving solution which employs OpenVINO Runtime for
    python export_model.py embeddings --source_model BAAI/bge-large-en-v1.5 --weight-format int8 --config_file_path models/config_embeddings.json --model_repository_path models --target_device CPU
    ```
 
-3.  **Test the OVMS service**:
-    Run the following command to check if the service is up and running.
+2. **Test the OVMS service**:
+   Run the following command to check if the service is up and running.
 
-   ```bash
-   your_port=8090
-   docker run -p $your_port:8000 -v ./models:/models --name ovms-embedding-serving \
-   openvino/model_server:2025.0 --port 8000 --config_path /models/config_embeddings.json
-   ```
+```bash
+your_port=8090
+docker run -p $your_port:8000 -v ./models:/models --name ovms-embedding-serving \
+openvino/model_server:2025.0 --port 8000 --config_path /models/config_embeddings.json
+```
 
 3. **Test the OVMS service**:
    Run the following command to check if the service is up and running.
@@ -99,11 +99,11 @@ Deploy both the OVMS Embedding Service and the Embedding Microservice using Dock
 
 Verify the embedding service is running:
 
-   ```bash
-   curl http://localhost:6000/v1/health_check \
-   -X GET \
-   -H 'Content-Type: application/json'
-   ```
+```bash
+curl http://localhost:6000/v1/health_check \
+-X GET \
+-H 'Content-Type: application/json'
+```
 
 ### 🔹 3.2 Use the Embedding Service API
 
