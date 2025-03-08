@@ -37,6 +37,7 @@ initialization_lock = threading.Lock()
 initialized = False
 query_chain = None
 
+
 class Neo4jConnection(BaseModel):
     user: Annotated[str, Field(min_length=1)]
     password: Annotated[str, Field(min_length=1)]
