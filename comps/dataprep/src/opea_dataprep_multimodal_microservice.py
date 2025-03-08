@@ -9,6 +9,7 @@ from typing import List, Optional, Union
 from fastapi import Body, File, UploadFile
 from integrations.redis_multimodal import OpeaMultimodalRedisDataprep
 from integrations.vdms_multimodal import OpeaMultimodalVdmsDataprep
+from integrations.milvus_multimodal import OpeaMultimodalMilvusDataprep
 from opea_dataprep_loader import OpeaDataprepMultiModalLoader
 
 from comps import (
