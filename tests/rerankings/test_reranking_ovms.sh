@@ -50,7 +50,7 @@ function start_service() {
 
 function validate_microservice() {
     ovms_service_port=10702
-    local CONTENT=$(curl http://${host_ip}:${tei_service_port}/v1/reranking \
+    local CONTENT=$(curl http://${host_ip}:${ovms_service_port}/v1/reranking \
         -X POST \
         -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
         -H 'Content-Type: application/json')
