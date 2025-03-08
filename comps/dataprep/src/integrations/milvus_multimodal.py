@@ -14,10 +14,10 @@ from typing import Any, Dict, Iterable, List, Optional, Type, Union
 import pymupdf
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_core.embeddings import Embeddings
 from langchain_core.documents import Document
-from langchain_milvus.vectorstores import Milvus
+from langchain_core.embeddings import Embeddings
 from langchain_core.utils import get_from_dict_or_env
+from langchain_milvus.vectorstores import Milvus
 from PIL import Image
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -25,8 +25,8 @@ from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowe
 
 from .utils.multimodal import (
     clear_upload_folder,
-    create_upload_folder,
     convert_video_to_audio,
+    create_upload_folder,
     delete_audio_file,
     extract_frames_and_annotations_from_transcripts,
     extract_frames_and_generate_captions,
@@ -44,8 +44,7 @@ partition_field_name = "filename"
 upload_folder = "./uploaded_files/"
 
 # Models
-EMBED_MODEL = os.getenv("EMBEDDING_MODEL_ID",
-                        "BridgeTower/bridgetower-large-itm-mlm-itc")
+EMBED_MODEL = os.getenv("EMBEDDING_MODEL_ID", "BridgeTower/bridgetower-large-itm-mlm-itc")
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "small")
 
 # Lvm Microservice Information
@@ -61,6 +60,7 @@ COLLECTION_NAME = os.getenv("COLLECTION_NAME", "mm_rag_milvus")
 MILVUS_CONNECTION = {
     "uri": MILVUS_URI,
 }
+
 
 class MultimodalMilvus(Milvus):
     """Milvus vector database to process multimodal data."""
@@ -97,9 +97,7 @@ class MultimodalMilvus(Milvus):
         """
         # If images are provided, the length of texts must be equal to the length of images
         if images and len(texts) != len(images):
-            raise ValueError(
-                f"the len of captions {len(texts)} does not equal the len of images {len(images)}"
-            )
+            raise ValueError(f"the len of captions {len(texts)} does not equal the len of images {len(images)}")
 
         milvus_uri = get_from_dict_or_env(kwargs, "milvus_uri", "MILVUS_URI")
 
@@ -121,15 +119,11 @@ class MultimodalMilvus(Milvus):
 
         # type check for metadata
         if metadatas:
-            if isinstance(metadatas, list) and len(metadatas) != len(
-                    texts):  # type: ignore  # noqa: E501
-                raise ValueError(
-                    "Number of metadatas must match number of texts")
-            if not (isinstance(metadatas, list)
-                    and isinstance(metadatas[0], dict)):
+            if isinstance(metadatas, list) and len(metadatas) != len(texts):  # type: ignore
+                raise ValueError("Number of metadatas must match number of texts")
+            if not (isinstance(metadatas, list) and isinstance(metadatas[0], dict)):
                 raise ValueError("Metadatas must be a list of dicts")
-            #generated_schema = _prepare_metadata_fields(metadatas[0])
-
+            # generated_schema = _prepare_metadata_fields(metadatas[0])
 
         # Create instance
         metadatas_test = metadatas
@@ -141,9 +135,11 @@ class MultimodalMilvus(Milvus):
             partition_key_field=partition_field_name,
             **kwargs,
         )
-        keys = (instance.add_text_image_pairs(
-            texts, images, embedding, metadatas=metadatas_test, keys=keys)
-                if images else instance.add_text(texts, metadatas=metadatas_test, keys=keys))
+        keys = (
+            instance.add_text_image_pairs(texts, images, embedding, metadatas=metadatas_test, keys=keys)
+            if images
+            else instance.add_text(texts, metadatas=metadatas_test, keys=keys)
+        )
         return instance, keys
 
     def add_text_image_pairs(
@@ -166,25 +162,20 @@ class MultimodalMilvus(Milvus):
         logger.info(f"test 2 {isinstance(metadatas, list)}")
         logger.info(metadatas[0])
         if metadatas:
-            if isinstance(metadatas, list) and len(metadatas) != len(
-                    texts):  # type: ignore  # noqa: E501
-                raise ValueError(
-                    "Number of metadatas must match number of texts")
-            if not (isinstance(metadatas, list)
-                    and isinstance(metadatas[0], dict)):
+            if isinstance(metadatas, list) and len(metadatas) != len(texts):  # type: ignore
+                raise ValueError("Number of metadatas must match number of texts")
+            if not (isinstance(metadatas, list) and isinstance(metadatas[0], dict)):
                 raise ValueError("Metadatas must be a list of dicts")
 
         pil_imgs = [Image.open(img) for img in images]
         if not embeddings:
-            embeddings = embedding.embed_image_text_pairs(
-                list(texts), pil_imgs, batch_size=batch_size)
+            embeddings = embedding.embed_image_text_pairs(list(texts), pil_imgs, batch_size=batch_size)
         for metadata in metadatas:
             metadata["pk"] = str(uuid.uuid4().hex)
             for key, value in metadata.items():
                 if isinstance(value, str) and len(value) > 65535:
                     metadata[key] = value[:65535]
-        return self.add_embeddings(list(texts), embeddings, metadatas,
-                                   batch_size)
+        return self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
 
     def add_text(
         self,
@@ -203,12 +194,9 @@ class MultimodalMilvus(Milvus):
 
         # type check for metadata
         if metadatas:
-            if isinstance(metadatas, list) and len(metadatas) != len(
-                    texts):  # type: ignore  # noqa: E501
-                raise ValueError(
-                    "Number of metadatas must match number of texts")
-            if not (isinstance(metadatas, list)
-                    and isinstance(metadatas[0], dict)):
+            if isinstance(metadatas, list) and len(metadatas) != len(texts):  # type: ignore
+                raise ValueError("Number of metadatas must match number of texts")
+            if not (isinstance(metadatas, list) and isinstance(metadatas[0], dict)):
                 raise ValueError("Metadatas must be a list of dicts")
 
         if not embeddings:
@@ -222,8 +210,7 @@ class MultimodalMilvus(Milvus):
                 if isinstance(value, str) and len(value) > 65535:
                     metadata[key] = value[:65535]
 
-        return self.add_embeddings(list(texts), embeddings, metadatas,
-                                   batch_size)
+        return self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
 
 
 def search_by_file(collection, file_name):
@@ -239,8 +226,7 @@ def search_by_file(collection, file_name):
 
 
 def search_all(collection):
-    results = collection.query(expr="pk >= 0",
-                               output_fields=[partition_field_name, "pk"])
+    results = collection.query(expr="pk >= 0", output_fields=[partition_field_name, "pk"])
     if logflag:
         logger.info(f"[ search all ] {len(results)} results: {results}")
     return results
@@ -257,9 +243,7 @@ def delete_all_data(my_milvus):
 
 def delete_by_partition_field(my_milvus, partition_field):
     if logflag:
-        logger.info(
-            f"[ delete partition ] deleting {partition_field_name} {partition_field}"
-        )
+        logger.info(f"[ delete partition ] deleting {partition_field_name} {partition_field}")
     pks = my_milvus.get_pks(f'{partition_field_name} == "{partition_field}"')
     if logflag:
         logger.info(f"[ delete partition ] target pks: {pks}")
@@ -279,14 +263,12 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
     """
 
     def __init__(self, name: str, description: str, config: dict = None):
-        super().__init__(name, ServiceType.DATAPREP.name.lower(), description,
-                         config)
+        super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.device = "cpu"
         # Load embeddings model
         logger.info("Initializing BridgeTower model as embedder...")
         self.upload_folder = "./uploaded_files/"
-        self.embeddings = BridgeTowerEmbedding(model_name=EMBED_MODEL,
-                                               device=self.device)
+        self.embeddings = BridgeTowerEmbedding(model_name=EMBED_MODEL, device=self.device)
         logger.info("Done initialization of embedder!")
 
         health_status = self.check_health()
@@ -310,8 +292,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             )
             _ = client.client.list_collections()
             if logflag:
-                logger.info(
-                    "[ health check ] Successfully connected to Milvus!")
+                logger.info("[ health check ] Successfully connected to Milvus!")
             return True
         except Exception as e:
             logger.info(f"[ health check ] Failed to connect to Milvus: {e}")
@@ -333,25 +314,16 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
         metadatas = []
         for i, frame in enumerate(annotation):
             frame_index = frame["sub_video_id"]
-            path_to_frame = os.path.join(path_to_frames,
-                                         f"frame_{frame_index}.png")
+            path_to_frame = os.path.join(path_to_frames, f"frame_{frame_index}.png")
             # augment this frame's transcript with a reasonable number of neighboring frames' transcripts helps semantic retrieval
             lb_ingesting = max(0, i - num_transcript_concat_for_ingesting)
-            ub_ingesting = min(len(annotation),
-                               i + num_transcript_concat_for_ingesting + 1)
-            caption_for_ingesting = " ".join([
-                annotation[j]["caption"]
-                for j in range(lb_ingesting, ub_ingesting)
-            ])
+            ub_ingesting = min(len(annotation), i + num_transcript_concat_for_ingesting + 1)
+            caption_for_ingesting = " ".join([annotation[j]["caption"] for j in range(lb_ingesting, ub_ingesting)])
 
             # augment this frame's transcript with more neighboring frames' transcript to provide more context to LVM for question answering
             lb_inference = max(0, i - num_transcript_concat_for_inference)
-            ub_inference = min(len(annotation),
-                               i + num_transcript_concat_for_inference + 1)
-            caption_for_inference = " ".join([
-                annotation[j]["caption"]
-                for j in range(lb_inference, ub_inference)
-            ])
+            ub_inference = min(len(annotation), i + num_transcript_concat_for_inference + 1)
+            caption_for_inference = " ".join([annotation[j]["caption"] for j in range(lb_inference, ub_inference)])
 
             video_id = frame["video_id"]
             b64_img_str = frame["b64_img_str"]
@@ -364,21 +336,22 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             if b64_img_str:
                 image_list.append(path_to_frame)
 
-            metadatas.append({
-                "content": caption_for_ingesting,
-                "b64_img_str": b64_img_str,
-                "video_id": video_id,
-                "source_video": source_video,
-                "time_of_frame_ms": float(time_of_frame),
-                "embedding_type": embedding_type,
-                "title": title,
-                "transcript_for_inference": caption_for_inference,
-            })
+            metadatas.append(
+                {
+                    "content": caption_for_ingesting,
+                    "b64_img_str": b64_img_str,
+                    "video_id": video_id,
+                    "source_video": source_video,
+                    "time_of_frame_ms": float(time_of_frame),
+                    "embedding_type": embedding_type,
+                    "title": title,
+                    "transcript_for_inference": caption_for_inference,
+                }
+            )
 
         return text_list, image_list, metadatas
 
-    def prepare_pdf_data_from_annotation(self, annotation, path_to_files,
-                                         title):
+    def prepare_pdf_data_from_annotation(self, annotation, path_to_files, title):
         """PDF data processing has some key differences from videos and images.
 
         1. Neighboring transcripts are not currently considered relevant.
@@ -394,8 +367,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
         for item in annotation:
             page_index = item["frame_no"]
             image_index = item["sub_video_id"]
-            path_to_image = os.path.join(
-                path_to_files, f"page{page_index}_image{image_index}.png")
+            path_to_image = os.path.join(path_to_files, f"page{page_index}_image{image_index}.png")
             caption_for_ingesting = item["caption"]
             caption_for_inference = item["caption"]
 
@@ -409,25 +381,22 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             if b64_img_str:
                 image_list.append(path_to_image)
 
-            metadatas.append({
-                "content": caption_for_ingesting,
-                "b64_img_str": b64_img_str,
-                "video_id": pdf_id,
-                "source_video": source,
-                "time_of_frame_ms":
-                page_index,  # For PDFs save the page number
-                "embedding_type": embedding_type,
-                "title": title,
-                "transcript_for_inference": caption_for_inference,
-            })
+            metadatas.append(
+                {
+                    "content": caption_for_ingesting,
+                    "b64_img_str": b64_img_str,
+                    "video_id": pdf_id,
+                    "source_video": source,
+                    "time_of_frame_ms": page_index,  # For PDFs save the page number
+                    "embedding_type": embedding_type,
+                    "title": title,
+                    "transcript_for_inference": caption_for_inference,
+                }
+            )
 
         return text_list, image_list, metadatas
 
-    def ingest_multimodal(self,
-                          filename,
-                          data_folder,
-                          embeddings,
-                          is_pdf=False):
+    def ingest_multimodal(self, filename, data_folder, embeddings, is_pdf=False):
         """Ingest text image pairs to Milvus from the data/ directory that consists of frames and annotations."""
         data_folder = os.path.abspath(data_folder)
         annotation_file_path = os.path.join(data_folder, "annotations.json")
@@ -438,10 +407,12 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
         # prepare data to ingest
         if is_pdf:
             text_list, image_list, metadatas = self.prepare_pdf_data_from_annotation(
-                annotation, path_to_frames, filename)
+                annotation, path_to_frames, filename
+            )
         else:
             text_list, image_list, metadatas = self.prepare_data_and_metadata_from_annotation(
-                annotation, path_to_frames, filename)
+                annotation, path_to_frames, filename
+            )
 
         MultimodalMilvus.from_text_image_pairs_return_keys(
             texts=[f"From {filename}. " + text for text in text_list],
@@ -452,8 +423,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             milvus_uri=MILVUS_URI,
         )
 
-    async def ingest_generate_transcripts(
-        self, files: List[UploadFile] = File(None)):
+    async def ingest_generate_transcripts(self, files: List[UploadFile] = File(None)):
         """Upload videos or audio files with speech, generate transcripts using whisper and ingest into milvus."""
 
         if files:
@@ -465,8 +435,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                 else:
                     raise HTTPException(
                         status_code=400,
-                        detail=
-                        f"File {file.filename} is not an mp4 file. Please upload mp4 files only.",
+                        detail=f"File {file.filename} is not an mp4 file. Please upload mp4 files only.",
                     )
 
             for file_to_ingest in files_to_ingest:
@@ -474,8 +443,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                 file_extension = os.path.splitext(file_to_ingest.filename)[1]
                 is_video = file_extension == ".mp4"
                 file_type_str = "video" if is_video else "audio file"
-                logger.info(
-                    f"Processing {file_type_str} {file_to_ingest.filename}")
+                logger.info(f"Processing {file_type_str} {file_to_ingest.filename}")
 
                 # Assign unique identifier to video
                 file_id = generate_id()
@@ -486,8 +454,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                 dir_name = os.path.splitext(file_name_with_id)[0]
 
                 # Save file in upload_directory
-                with open(os.path.join(self.upload_folder, file_name_with_id),
-                          "wb") as f:
+                with open(os.path.join(self.upload_folder, file_name_with_id), "wb") as f:
                     shutil.copyfileobj(file_to_ingest.file, f)
 
                 uploaded_files_map[base_file_name] = file_name_with_id
@@ -512,17 +479,13 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
                 # Extract transcript from audio
                 logger.info("Extracting transcript from audio")
-                transcripts = extract_transcript_from_audio(
-                    whisper_model, os.path.join(self.upload_folder,
-                                                audio_file))
+                transcripts = extract_transcript_from_audio(whisper_model, os.path.join(self.upload_folder, audio_file))
 
                 # Save transcript as vtt file and delete audio file
                 vtt_file = dir_name + ".vtt"
-                write_vtt(transcripts,
-                          os.path.join(self.upload_folder, vtt_file))
+                write_vtt(transcripts, os.path.join(self.upload_folder, vtt_file))
                 if is_video:
-                    delete_audio_file(
-                        os.path.join(self.upload_folder, audio_file))
+                    delete_audio_file(os.path.join(self.upload_folder, audio_file))
                 logger.info("Done extracting transcript.")
 
                 if is_video:
@@ -550,9 +513,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
                 # Ingest multimodal data into milvus
                 logger.info("Ingesting data to milvus vector store")
-                self.ingest_multimodal(
-                    base_file_name, os.path.join(self.upload_folder, dir_name),
-                    self.embeddings)
+                self.ingest_multimodal(base_file_name, os.path.join(self.upload_folder, dir_name), self.embeddings)
 
                 # Delete temporary video directory containing frames and annotations
                 shutil.rmtree(os.path.join(self.upload_folder, dir_name))
@@ -567,28 +528,21 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                 "file_id_maps": uploaded_files_map,
             }
 
-        raise HTTPException(
-            status_code=400,
-            detail=
-            "Must provide at least one video (.mp4) or audio (.wav) file.")
+        raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) or audio (.wav) file.")
 
-    async def ingest_generate_captions(self,
-                                       files: List[UploadFile] = File(None)):
+    async def ingest_generate_captions(self, files: List[UploadFile] = File(None)):
         """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into milvus."""
 
         if files:
             file_paths = []
             uploaded_files_saved_files_map = {}
             for file in files:
-                if os.path.splitext(file.filename)[1] in [
-                        ".mp4", ".png", ".jpg", ".jpeg", ".gif"
-                ]:
+                if os.path.splitext(file.filename)[1] in [".mp4", ".png", ".jpg", ".jpeg", ".gif"]:
                     file_paths.append(file)
                 else:
                     raise HTTPException(
                         status_code=400,
-                        detail=
-                        f"File {file.filename} is not a supported file type. Please upload mp4, png, jpg, jpeg, and gif files only.",
+                        detail=f"File {file.filename} is not a supported file type. Please upload mp4, png, jpg, jpeg, and gif files only.",
                     )
 
             for file in file_paths:
@@ -603,8 +557,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                 dir_name = os.path.splitext(file_name)[0]
 
                 # Save file in upload_directory
-                with open(os.path.join(self.upload_folder, file_name),
-                          "wb") as f:
+                with open(os.path.join(self.upload_folder, file_name), "wb") as f:
                     shutil.copyfileobj(file.file, f)
                 uploaded_files_saved_files_map[name] = file_name
 
@@ -617,9 +570,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                 )
 
                 # Ingest multimodal data into milvus
-                self.ingest_multimodal(
-                    name, os.path.join(self.upload_folder, dir_name),
-                    self.embeddings)
+                self.ingest_multimodal(name, os.path.join(self.upload_folder, dir_name), self.embeddings)
 
                 # Delete temporary directory containing frames and annotations
                 # shutil.rmtree(os.path.join(upload_folder, dir_name))
@@ -632,25 +583,18 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                 "file_id_maps": uploaded_files_saved_files_map,
             }
 
-        raise HTTPException(status_code=400,
-                            detail="Must provide at least one file.")
+        raise HTTPException(status_code=400, detail="Must provide at least one file.")
 
-    async def ingest_files(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
+    async def ingest_files(self, files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
 
         if logflag:
             logger.info(f"[ milvus ingest ] files:{files}")
 
         if files:
-            accepted_media_formats = [
-                ".mp4", ".png", ".jpg", ".jpeg", ".gif", ".pdf"
-            ]
+            accepted_media_formats = [".mp4", ".png", ".jpg", ".jpeg", ".gif", ".pdf"]
             # Create a lookup dictionary containing all media files
             matched_files = {
-                f.filename: [f]
-                for f in files
-                if os.path.splitext(f.filename)[1] in accepted_media_formats
+                f.filename: [f] for f in files if os.path.splitext(f.filename)[1] in accepted_media_formats
             }
             uploaded_files_map = {}
 
@@ -660,9 +604,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                     if "{}.mp4".format(file_base) in matched_files:
                         matched_files["{}.mp4".format(file_base)].append(file)
                     else:
-                        logger.info(
-                            f"No video was found for caption file {file.filename}."
-                        )
+                        logger.info(f"No video was found for caption file {file.filename}.")
                 elif file_extension == ".txt":
                     if "{}.png".format(file_base) in matched_files:
                         matched_files["{}.png".format(file_base)].append(file)
@@ -673,26 +615,18 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                     elif "{}.gif".format(file_base) in matched_files:
                         matched_files["{}.gif".format(file_base)].append(file)
                     else:
-                        logger.info(
-                            f"No image was found for caption file {file.filename}."
-                        )
+                        logger.info(f"No image was found for caption file {file.filename}.")
                 elif file_extension not in accepted_media_formats:
-                    logger.info(
-                        f"Skipping file {file.filename} because of unsupported format."
-                    )
+                    logger.info(f"Skipping file {file.filename} because of unsupported format.")
             print("Pallavi 3")
             for media_file_name, file_list in matched_files.items():
-                if len(file_list) != 2 and os.path.splitext(
-                        media_file_name)[1] != ".pdf":
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"No caption file found for {media_file_name}")
+                if len(file_list) != 2 and os.path.splitext(media_file_name)[1] != ".pdf":
+                    raise HTTPException(status_code=400, detail=f"No caption file found for {media_file_name}")
 
             if len(matched_files.keys()) == 0:
                 return HTTPException(
                     status_code=400,
-                    detail=
-                    "The uploaded files have unsupported formats. Please upload at least one video file (.mp4) with captions (.vtt) or one image (.png, .jpg, .jpeg, or .gif) with caption (.txt) or one .pdf file",
+                    detail="The uploaded files have unsupported formats. Please upload at least one video file (.mp4) with captions (.vtt) or one image (.png, .jpg, .jpeg, or .gif) with caption (.txt) or one .pdf file",
                 )
 
             for media_file in matched_files:
@@ -707,20 +641,16 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                 media_dir_name = os.path.splitext(media_file_name)[0]
 
                 # Save file in upload_directory
-                with open(os.path.join(self.upload_folder, media_file_name),
-                          "wb") as f:
+                with open(os.path.join(self.upload_folder, media_file_name), "wb") as f:
                     shutil.copyfileobj(matched_files[media_file][0].file, f)
                 uploaded_files_map[file_name] = media_file_name
 
                 if file_extension == ".pdf":
                     # Set up location to store pdf images and text, reusing "frames" and "annotations" from video
-                    output_dir = os.path.join(self.upload_folder,
-                                              media_dir_name)
+                    output_dir = os.path.join(self.upload_folder, media_dir_name)
                     os.makedirs(output_dir, exist_ok=True)
-                    os.makedirs(os.path.join(output_dir, "frames"),
-                                exist_ok=True)
-                    doc = pymupdf.open(
-                        os.path.join(self.upload_folder, media_file_name))
+                    os.makedirs(os.path.join(output_dir, "frames"), exist_ok=True)
+                    doc = pymupdf.open(os.path.join(self.upload_folder, media_file_name))
                     annotations = []
                     for page_idx, page in enumerate(doc, start=1):
                         text = page.get_text()
@@ -728,10 +658,8 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                         for image_idx, image in enumerate(images, start=1):
                             # Write image and caption file for each image found in pdf
                             img_fname = f"page{page_idx}_image{image_idx}"
-                            img_fpath = os.path.join(output_dir, "frames",
-                                                     img_fname + ".png")
-                            pix = pymupdf.Pixmap(doc,
-                                                 image[0])  # create pixmap
+                            img_fpath = os.path.join(output_dir, "frames", img_fname + ".png")
+                            pix = pymupdf.Pixmap(doc, image[0])  # create pixmap
 
                             if pix.n - pix.alpha > 3:  # if CMYK, convert to RGB first
                                 pix = pymupdf.Pixmap(pymupdf.csRGB, pix)
@@ -741,41 +669,28 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
                             # Convert image to base64 encoded string
                             with open(img_fpath, "rb") as image2str:
-                                encoded_string = base64.b64encode(
-                                    image2str.read())  # png to bytes
+                                encoded_string = base64.b64encode(image2str.read())  # png to bytes
 
-                            decoded_string = encoded_string.decode(
-                            )  # bytes to string
+                            decoded_string = encoded_string.decode()  # bytes to string
 
                             # Create annotations file, reusing metadata keys from video
-                            annotations.append({
-                                "video_id":
-                                file_id,
-                                "video_name":
-                                os.path.basename(
-                                    os.path.join(self.upload_folder,
-                                                 media_file_name)),
-                                "b64_img_str":
-                                decoded_string,
-                                "caption":
-                                text,
-                                "time":
-                                0.0,
-                                "frame_no":
-                                page_idx,
-                                "sub_video_id":
-                                image_idx,
-                            })
+                            annotations.append(
+                                {
+                                    "video_id": file_id,
+                                    "video_name": os.path.basename(os.path.join(self.upload_folder, media_file_name)),
+                                    "b64_img_str": decoded_string,
+                                    "caption": text,
+                                    "time": 0.0,
+                                    "frame_no": page_idx,
+                                    "sub_video_id": image_idx,
+                                }
+                            )
                 else:
                     # Save caption file in upload directory
-                    caption_file_extension = os.path.splitext(
-                        matched_files[media_file][1].filename)[1]
+                    caption_file_extension = os.path.splitext(matched_files[media_file][1].filename)[1]
                     caption_file = f"{media_dir_name}{caption_file_extension}"
-                    with open(
-                            os.path.join(self.upload_folder, caption_file),
-                            "wb") as f:
-                        shutil.copyfileobj(
-                            matched_files[media_file][1].file, f)
+                    with open(os.path.join(self.upload_folder, caption_file), "wb") as f:
+                        shutil.copyfileobj(matched_files[media_file][1].file, f)
 
                     # Store frames and caption annotations in a new directory
                     extract_frames_and_annotations_from_transcripts(
@@ -786,18 +701,13 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                     )
 
                     # Delete temporary caption file
-                    os.remove(
-                        os.path.join(self.upload_folder, caption_file))
+                    os.remove(os.path.join(self.upload_folder, caption_file))
 
                     # Ingest multimodal data into milvus
-                    self.ingest_multimodal(
-                        file_name,
-                        os.path.join(self.upload_folder, media_dir_name),
-                        self.embeddings)
+                    self.ingest_multimodal(file_name, os.path.join(self.upload_folder, media_dir_name), self.embeddings)
 
                 # Delete temporary media directory containing frames and annotations
-                shutil.rmtree(
-                    os.path.join(self.upload_folder, media_dir_name))
+                shutil.rmtree(os.path.join(self.upload_folder, media_dir_name))
 
                 logger.info(f"Processed file {media_file}")
 
@@ -809,8 +719,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
         raise HTTPException(
             status_code=400,
-            detail=
-            "Must provide at least one pair consisting of video (.mp4) and captions (.vtt) or image (.png, .jpg, .jpeg, .gif) with caption (.txt)",
+            detail="Must provide at least one pair consisting of video (.mp4) and captions (.vtt) or image (.png, .jpg, .jpeg, .gif) with caption (.txt)",
         )
 
     async def get_files(self):
@@ -843,10 +752,8 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             clear_upload_folder(upload_folder)
         except Exception as e:
             if logflag:
-                logger.info(
-                    f"[ milvus delete ] {e}. Fail to delete {upload_folder}.")
-            raise HTTPException(status_code=500,
-                                detail=f"Fail to delete {upload_folder}: {e}")
+                logger.info(f"[ milvus delete ] {e}. Fail to delete {upload_folder}.")
+            raise HTTPException(status_code=500, detail=f"Fail to delete {upload_folder}: {e}")
         if logflag:
             logger.info("[ milvus delete ] successfully delete all files.")
 
