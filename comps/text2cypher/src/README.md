@@ -1,6 +1,6 @@
 # 🛢 Text-to-Cypher Microservice
 
-The microservice enables a wide range of use cases, making it a versatile tool for businesses, researchers, and individuals alike. Users can generate queries based on natural language questions, enabling them to quickly retrieve relevant data from graph databases.
+The microservice enables a wide range of use cases, making it a versatile tool for businesses, researchers, and individuals alike. Users can generate queries based on natural language questions, enabling them to quickly retrieve relevant data from graph databases. This service executes locally on Intel Gaudi.
 
 ---
 
@@ -21,8 +21,6 @@ The follow guide provides set-up instructions and comprehensive details regardin
 ---
 
 ### Start Neo4J Service
-
-[Preparing Neo4J microservice](https://github.com/opea-project/GenAIComps/blob/main/comps/dataprep/src/README_neo4j_llamaindex.md)
 
 ### 🚀 Start Text2Cypher Microservice with Python（Option 1）
 
@@ -85,11 +83,44 @@ docker compose -f compose.yaml up text2cypher-gaudi -d
 
 The Text-to-Cypher microservice exposes the following API endpoints:
 
-- Execute Cypher Query from input text
-
+- Execute Cypher Query with Pre-seeded Data and Schema:
   ```bash
   curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher\
         -X POST \
         -d '{"input_text": "what are the symptoms for Diabetes?","conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" }}' \
         -H 'Content-Type: application/json'
   ```
+
+- Execute Cypher Query with User Data and Schema:
+
+Define customized cypher_insert statements:
+```bash
+export cypher_insert='
+ LOAD CSV WITH HEADERS FROM "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCEUxVlMZwwI2sn2T1aulBrRzJYVpsM9no8AEsYOOklCDTljoUIBHItGnqmAez62wwLpbvKMr7YoHI/pub?gid=0&single=true&output=csv" AS rows
+ MERGE (d:disease {name:rows.Disease})
+ MERGE (dt:diet {name:rows.Diet})
+ MERGE (d)-[:HOME_REMEDY]->(dt)
+
+ MERGE (m:medication {name:rows.Medication})
+ MERGE (d)-[:TREATMENT]->(m)
+
+ MERGE (s:symptoms {name:rows.Symptom})
+ MERGE (d)-[:MANIFESTATION]->(s)
+
+ MERGE (p:precaution {name:rows.Precaution})
+ MERGE (d)-[:PREVENTION]->(p)
+'
+```
+
+Pass the cypher_insert to the cypher2text service. The user can also specify whether to refresh the Neo4j database using the refresh_db option.
+```bash
+ curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher \
+        -X POST \
+        -d '{"input_text": "what are the symptoms for Diabetes?", \
+             "conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" } \
+             "seeding": {"cypher_insert": "'${cypher_insert}'","refresh_db": "Ture" }}' \
+        -H 'Content-Type: application/json'
+
+```
+
+

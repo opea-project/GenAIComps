@@ -43,11 +43,14 @@ class Neo4jConnection(BaseModel):
     password: Annotated[str, Field(min_length=1)]
     url: Annotated[str, Field(min_length=1)]
 
+class Neo4jSeeding(BaseModel):
+    cypher_insert: Annotated[str, Field(min_length=1)]
+    refresh_db: Annotated[bool, Field(default=True)]
 
 class Input(BaseModel):
     input_text: str
     conn_str: Optional[Neo4jConnection] = None
-
+    seeding: Optional[Neo4jSeeding] = None 
 
 @OpeaComponentRegistry.register("OPEA_TEXT2CYPHER")
 class OpeaText2Cypher(OpeaComponent):
@@ -57,7 +60,7 @@ class OpeaText2Cypher(OpeaComponent):
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
         self.config = config
 
-    def _initialize_client(self, prompt: str, config: dict = None):
+    def _initialize_client(self, input: Input, config: dict = None):
         """Initializes the chain client."""
         global query_chain, initialized
 
@@ -75,7 +78,8 @@ class OpeaText2Cypher(OpeaComponent):
 
         else:
             raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
-
+       
+        prompt = input.input_text
         user = os.getenv("NEO4J_USERNAME", "neo4j")
         password = os.getenv("NEO4J_PASSWORD", "neo4jtest")
         url = os.getenv("NEO4J_URL")
@@ -86,8 +90,13 @@ class OpeaText2Cypher(OpeaComponent):
             url=url,
         )
 
-        graph_store.query(cypher_cleanup)
-        graph_store.query(cypher_insert)
+        if input.seeding is None:
+            graph_store.query(cypher_cleanup)
+            graph_store.query(cypher_insert)
+        else:
+            if input.seeding.refresh_db:
+                graph_store.query(cypher_cleanup)
+            graph_store.query(input.seeding.cypher_insert)
         graph_store.refresh_schema()
 
         cypher_prompt = PromptTemplate(input_variables=["schema"], template=prepare_chat_template(prompt))
@@ -143,16 +152,25 @@ class OpeaText2Cypher(OpeaComponent):
         with initialization_lock:
             if not initialized:
                 try:
-                    query_chain = self._initialize_client(input.input_text, self.config)
+                    query_chain = self._initialize_client(input, self.config)
                     initialized = True
                 except Exception as e:
                     logger.error(f"Error during _initialize_client: {e}")
                     logger.error(traceback.format_exc())
 
         try:
+            start_time = time.time()
             result = query_chain.run(input.input_text)
+            end_time = time.time()
+            latency = end_time - start_time
+            latency_str = f"{latency:.2f} seconds"
+
+            # Add latency_str as the last item in the original result
+            result.append({"latency": latency_str})
+
         except Exception as e:
             logger.error(f"Error during text2cypher invocation: {e}")
             logger.error(traceback.format_exc())
 
+        
         return result
