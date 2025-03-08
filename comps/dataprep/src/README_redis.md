@@ -2,48 +2,21 @@
 
 We have provided dataprep microservice for multimodal data input (e.g., text and image) [here](./README_multimodal.md).
 
-For dataprep microservice for text input, we provide here two frameworks: `Langchain` and `LlamaIndex`. We also provide `Langchain_ray` which uses ray to parallel the data prep for multi-file performance improvement(observed 5x - 15x speedup by processing 1000 files/links.).
+## 🚀1. Start Microservice with Docker
 
-We organized these two folders in the same way, so you can use either framework for dataprep microservice with the following constructions.
-
-## 🚀1. Start Microservice with Python（Option 1）
-
-### 1.1 Install Requirements
-
-- option 1: Install Single-process version (for 1-10 files processing)
-
-```bash
-apt update
-apt install default-jre
-apt-get install tesseract-ocr -y
-apt-get install libtesseract-dev -y
-apt-get install poppler-utils -y
-# for langchain
-cd langchain
-# for llama_index
-cd llama_index
-pip install -r requirements.txt
-```
-
-- option 2: Install multi-process version (for >10 files processing)
-
-```bash
-cd langchain_ray; pip install -r requirements_ray.txt
-```
-
-### 1.2 Start Redis Stack Server
+### 1.1 Start Redis Stack Server
 
 Please refer to this [readme](../../third_parties/redis/src/README.md).
 
-### 1.3 Setup Environment Variables
+### 1.2 Setup Environment Variables
 
 ```bash
 export REDIS_URL="redis://${your_ip}:6379"
 export INDEX_NAME=${your_index_name}
-export PYTHONPATH=${path_to_comps}
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
 
-### 1.4 Start Embedding Service
+### 1.3 Start Embedding Service
 
 First, you need to start a TEI service.
 
@@ -68,53 +41,20 @@ After checking that it works, set up environment variables.
 export TEI_ENDPOINT="http://localhost:$your_port"
 ```
 
-### 1.4 Start Document Preparation Microservice for Redis with Python Script
-
-Start document preparation microservice for Redis with below command.
-
-- option 1: Start single-process version (for 1-10 files processing)
-
-```bash
-cd langchain
-python prepare_doc_redis.py
-```
-
-- option 2: Start multi-process version (for >10 files processing)
-
-```bash
-cd langchain_ray
-python prepare_doc_redis_on_ray.py
-```
-
-## 🚀2. Start Microservice with Docker (Option 2)
-
-### 2.1 Start Redis Stack Server
-
-Please refer to this [readme](../../third_parties/redis/src/README.md).
-
-### 2.2 Setup Environment Variables
-
-```bash
-export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6006"
-export REDIS_URL="redis://${your_ip}:6379"
-export INDEX_NAME=${your_index_name}
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
-```
-
-### 2.3 Build Docker Image
+### 1.4 Build Docker Image
 
 ```bash
 cd ../../
 docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
-### 2.4 Run Docker with CLI (Option A)
+### 1.5 Run Docker with CLI (Option A)
 
 ```bash
 docker run -d --name="dataprep-redis-server" -p 6007:5000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL=$REDIS_URL -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN opea/dataprep:latest
 ```
 
-### 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
+### 1.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
 ```bash
 
@@ -122,15 +62,15 @@ cd comps/deployment/docker_compose
 docker compose -f compose_redis.yaml up -d
 ```
 
-## 🚀3. Status Microservice
+## 🚀2. Status Microservice
 
 ```bash
 docker container logs -f dataprep-redis-server
 ```
 
-## 🚀4. Consume Microservice
+## 🚀3. Consume Microservice
 
-### 4.1 Consume Upload API
+### 3.1 Consume Upload API
 
 Once document preparation microservice for Redis is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
@@ -210,7 +150,7 @@ except requests.exceptions.RequestException as e:
     print("An error occurred:", e)
 ```
 
-### 4.2 Consume get API
+### 3.2 Consume get API
 
 To get uploaded file structures, use the following command:
 
@@ -239,7 +179,7 @@ Then you will get the response JSON like this:
 ]
 ```
 
-### 4.3 Consume delete API
+### 3.3 Consume delete API
 
 To delete uploaded file/link, use the following command.
 
