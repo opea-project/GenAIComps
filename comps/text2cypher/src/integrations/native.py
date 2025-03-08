@@ -56,7 +56,7 @@ class OpeaText2Cypher(OpeaComponent):
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
         self.config = config
 
-    def _initialize_client(self, config: dict = None, prompt: str):
+    def _initialize_client(self, prompt: str, config: dict = None):
         # def _initialize_client(self):
         """Initializes the chain client."""
         # global config
@@ -149,7 +149,7 @@ class OpeaText2Cypher(OpeaComponent):
         with initialization_lock:
             if not initialized:
                 try:
-                    query_chain = self._initialize_client(self.config, input.input_text)
+                    query_chain = self._initialize_client(input.input_text, self.config)
                     initialized = True
                 except Exception as e:
                     logger.error(f"Error during _initialize_client: {e}")
