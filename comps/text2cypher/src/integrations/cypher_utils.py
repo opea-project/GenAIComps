@@ -39,6 +39,7 @@ cypher_insert = """
  //MATCH (n:Description) RETURN count(n) AS count
 """
 
+
 # in the original string, change the first character of the substring into lower case
 def replace_with_lowercase(s, sub):
     index = s.lower().find(sub)
