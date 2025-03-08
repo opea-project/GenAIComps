@@ -16,7 +16,6 @@ from langchain_community.chains.graph_qa.cypher import GraphCypherQAChain
 from langchain_community.chains.graph_qa.prompts import CYPHER_QA_PROMPT
 from langchain_community.graphs import Neo4jGraph
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
 from langchain_huggingface.llms.huggingface_pipeline import HuggingFacePipeline
 from pydantic import BaseModel, Field
@@ -51,8 +50,7 @@ class Input(BaseModel):
 
 @OpeaComponentRegistry.register("OPEA_TEXT2CYPHER")
 class OpeaText2Cypher(OpeaComponent):
-    """A specialized text2cyher component derived from OpeaComponent for text2cypher services.
-    """
+    """A specialized text2cyher component derived from OpeaComponent for text2cypher services."""
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.TEXT2CYPHER.name.lower(), description, config)
