@@ -43,14 +43,17 @@ class Neo4jConnection(BaseModel):
     password: Annotated[str, Field(min_length=1)]
     url: Annotated[str, Field(min_length=1)]
 
+
 class Neo4jSeeding(BaseModel):
     cypher_insert: Annotated[str, Field(min_length=1)]
     refresh_db: Annotated[bool, Field(default=True)]
 
+
 class Input(BaseModel):
     input_text: str
     conn_str: Optional[Neo4jConnection] = None
-    seeding: Optional[Neo4jSeeding] = None 
+    seeding: Optional[Neo4jSeeding] = None
+
 
 @OpeaComponentRegistry.register("OPEA_TEXT2CYPHER")
 class OpeaText2Cypher(OpeaComponent):
@@ -78,7 +81,7 @@ class OpeaText2Cypher(OpeaComponent):
 
         else:
             raise NotImplementedError(f"Only support hpu device now, device {device} not supported.")
-       
+
         prompt = input.input_text
         user = os.getenv("NEO4J_USERNAME", "neo4j")
         password = os.getenv("NEO4J_PASSWORD", "neo4jtest")
@@ -164,5 +167,4 @@ class OpeaText2Cypher(OpeaComponent):
             logger.error(f"Error during text2cypher invocation: {e}")
             logger.error(traceback.format_exc())
 
-        
         return result

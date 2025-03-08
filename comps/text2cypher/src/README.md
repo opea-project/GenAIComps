@@ -84,6 +84,7 @@ docker compose -f compose.yaml up text2cypher-gaudi -d
 The Text-to-Cypher microservice exposes the following API endpoints:
 
 - Execute Cypher Query with Pre-seeded Data and Schema:
+
   ```bash
   curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher\
         -X POST \
@@ -94,6 +95,7 @@ The Text-to-Cypher microservice exposes the following API endpoints:
 - Execute Cypher Query with User Data and Schema:
 
 Define customized cypher_insert statements:
+
 ```bash
 export cypher_insert='
  LOAD CSV WITH HEADERS FROM "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCEUxVlMZwwI2sn2T1aulBrRzJYVpsM9no8AEsYOOklCDTljoUIBHItGnqmAez62wwLpbvKMr7YoHI/pub?gid=0&single=true&output=csv" AS rows
@@ -113,6 +115,7 @@ export cypher_insert='
 ```
 
 Pass the cypher_insert to the cypher2text service. The user can also specify whether to refresh the Neo4j database using the refresh_db option.
+
 ```bash
  curl http://${ip_address}:${TEXT2CYPHER_PORT}/v1/text2cypher \
         -X POST \
@@ -122,5 +125,3 @@ Pass the cypher_insert to the cypher2text service. The user can also specify whe
         -H 'Content-Type: application/json'
 
 ```
-
-
