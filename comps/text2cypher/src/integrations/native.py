@@ -159,15 +159,7 @@ class OpeaText2Cypher(OpeaComponent):
                     logger.error(traceback.format_exc())
 
         try:
-            start_time = time.time()
             result = query_chain.run(input.input_text)
-            end_time = time.time()
-            latency = end_time - start_time
-            latency_str = f"{latency:.2f} seconds"
-
-            # Add latency_str as the last item in the original result
-            result.append({"latency": latency_str})
-
         except Exception as e:
             logger.error(f"Error during text2cypher invocation: {e}")
             logger.error(traceback.format_exc())
