@@ -22,6 +22,7 @@ function build_docker_images() {
 
 function get_model() {
     docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod o+rw /cache/hub
+    docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod o+rw /cache/hub/.locks
     docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod -R o+rw /cache/hub/.locks/models--thenlper--gte-small || true
     docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod -R o+rw /cache/hub/models--thenlper--gte-small || true
     pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
