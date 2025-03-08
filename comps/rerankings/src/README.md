@@ -33,6 +33,10 @@ Then we could send the `top_n` videos to the downstream LVM.
 
 ## ⚙️ Implementation
 
+### Utilizing Reranking with OVMS
+
+For additional information, please refer to this [README](./README_ovms.md)
+
 ### Utilizing Reranking with TEI
 
 For additional information, please refer to this [README](./README_tei.md)
