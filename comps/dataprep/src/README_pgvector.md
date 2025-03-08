@@ -1,6 +1,6 @@
 # Dataprep Microservice with PGVector
 
-## 🚀1. Start Microservice with Docker (Option 2)
+## 🚀1. Start Microservice with Docker
 
 ### 1.1 Start PGVector
 
