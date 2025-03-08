@@ -5,7 +5,9 @@ import re
 from collections import namedtuple
 from string import Template
 from typing import Any, Dict, List, Optional, Union
+
 from langchain_community.chains.graph_qa.cypher_utils import CypherQueryCorrector, Schema
+
 from comps import CustomLogger
 
 logger = CustomLogger("opea_text2cypher_cypher_utils")
@@ -37,12 +39,13 @@ cypher_insert = """
  //MATCH (n:Description) RETURN count(n) AS count
 """
 
-#graph_schema_relationships = [
+# graph_schema_relationships = [
 #    "(d:disease)-(s:symptom)-s.name",
 #    "(d:disease)-(m:medication)-m.name",
 #    "(d:disease)-(p:precaution)-p.name",
 #    "(d:disease)-(d:diet)-d.name",
-#]
+# ]
+
 
 # in the original string, change the first character of the substring into lower case
 def replace_with_lowercase(s, sub):
@@ -50,17 +53,26 @@ def replace_with_lowercase(s, sub):
     if index < 0 or index >= len(s):
         raise ValueError("Index out of range")
     # Replace the character at the index with its lowercase version
-    return s[:index] + s[index].lower() + s[index + 1:]
+    return s[:index] + s[index].lower() + s[index + 1 :]
+
 
 def parse_relationships(input_str):
     # Split by comma to get each relationship
-    substrings = input_str.split(',')
+    substrings = input_str.split(",")
 
     relationships = []
 
     for substring in substrings:
         # Remove unnecessary characters and split by spaces
-        parts = substring.replace('(', '').replace(')', '').replace('>', '').replace('[', '').replace(']', '').replace(':', '').split('-')
+        parts = (
+            substring.replace("(", "")
+            .replace(")", "")
+            .replace(">", "")
+            .replace("[", "")
+            .replace("]", "")
+            .replace(":", "")
+            .split("-")
+        )
 
         entity1 = parts[0].strip()
         relationship = parts[1].strip()
@@ -70,6 +82,7 @@ def parse_relationships(input_str):
         relationships.append(Relationship(entity1, relationship, entity2))
 
     return relationships
+
 
 def swap(cypher_string, relations):
     # Regular expression pattern to match substrings
@@ -91,9 +104,9 @@ def swap(cypher_string, relations):
                 new_string = replace_with_lowercase(new_string, e2)
                 break
             elif e1 in second.lower() and e2 in first.lower():
-                new_string = new_string.replace(f"({second})", f"tmp", 1)
+                new_string = new_string.replace(f"({second})", "tmp", 1)
                 new_string = new_string.replace(f"({first})", f"({second})", 1)
-                new_string = new_string.replace(f"tmp", f"({first})", 1)
+                new_string = new_string.replace("tmp", f"({first})", 1)
                 new_string = replace_with_lowercase(new_string, e1)
                 new_string = replace_with_lowercase(new_string, e2)
                 break
@@ -103,15 +116,16 @@ def swap(cypher_string, relations):
                 new_string = replace_with_lowercase(new_string, e2)
                 break
             elif e1 in second.lower() and r in first.lower():
-                new_string = new_string.replace(f"({second})", f"tmp", 1)
+                new_string = new_string.replace(f"({second})", "tmp", 1)
                 new_string = new_string.replace(f"({first})", f"({second})", 1)
-                new_string = new_string.replace(f"tmp", f"({first})", 1)
+                new_string = new_string.replace("tmp", f"({first})", 1)
                 # now replace r with e2
                 new_string = new_string.replace(f"{first[2:]}", f"{e2}", 1)
                 new_string = replace_with_lowercase(new_string, e1)
                 new_string = replace_with_lowercase(new_string, e2)
                 break
     return new_string
+
 
 def prepare_chat_template(question):
     template = Template(
@@ -131,6 +145,7 @@ Cypher output:
     )
     temp_str = template.substitute(question=question)
     return temp_str
+
 
 def construct_schema(
     structured_schema: Dict[str, Any],
@@ -204,7 +219,7 @@ class CypherQueryCorrectorExt(CypherQueryCorrector):
         tmp2 = re.sub(pattern, replacement, tmp1)
 
         rel_index = self.schema_str.find("The relationships are the following:\n")
-        rel_string = self.schema_str[rel_index+len("The relationships are the following:\n"):]
+        rel_string = self.schema_str[rel_index + len("The relationships are the following:\n") :]
         relations = parse_relationships(rel_string)
         query = swap(tmp2, relations)
         logger.info(f"[ correct_query ] corrected query: {query}")
