@@ -121,7 +121,7 @@ Pass the cypher_insert to the cypher2text service. The user can also specify whe
         -X POST \
         -d '{"input_text": "what are the symptoms for Diabetes?", \
              "conn_str": {"user": "'${NEO4J_USERNAME}'","password": "'${NEO4J_PASSWPORD}'","url": "'${NEO4J_URL}'" } \
-             "seeding": {"cypher_insert": "'${cypher_insert}'","refresh_db": "Ture" }}' \
+             "seeding": {"cypher_insert": "'${cypher_insert}'","refresh_db": "True" }}' \
         -H 'Content-Type: application/json'
 
 ```
