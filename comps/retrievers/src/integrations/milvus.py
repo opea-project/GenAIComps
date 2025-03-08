@@ -11,13 +11,13 @@ from langchain_milvus.vectorstores import Milvus
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 from .config import (
+    BRIDGE_TOWER_EMBEDDING,
     COLLECTION_NAME,
     HUGGINGFACEHUB_API_TOKEN,
     INDEX_PARAMS,
     LOCAL_EMBEDDING_MODEL,
     MILVUS_URI,
     TEI_EMBEDDING_ENDPOINT,
-    BRIDGE_TOWER_EMBEDDING,
 )
 
 logger = CustomLogger("milvus_retrievers")
