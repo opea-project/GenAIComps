@@ -17,6 +17,7 @@ from .config import (
     LOCAL_EMBEDDING_MODEL,
     MILVUS_URI,
     TEI_EMBEDDING_ENDPOINT,
+    BRIDGE_TOWER_EMBEDDING,
 )
 
 logger = CustomLogger("milvus_retrievers")
@@ -60,6 +61,11 @@ class OpeaMilvusRetriever(OpeaComponent):
             embeddings = HuggingFaceInferenceAPIEmbeddings(
                 api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
+        elif BRIDGE_TOWER_EMBEDDING:
+            logger.info("use bridge tower embedding")
+            from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
+
+            embeddings = BridgeTowerEmbedding()
         else:
             # create embeddings using local embedding model
             if logflag:
