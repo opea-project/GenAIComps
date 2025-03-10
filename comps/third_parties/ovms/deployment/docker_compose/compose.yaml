@@ -1,0 +1,66 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  ovms-embedding-serving:
+    image: openvino/model_server:2025.0
+    container_name: ovms-embedding-serving
+    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_embeddings.json
+    ports:
+      - "${OVMS_EMBEDDER_PORT:-12000}:8000"
+    volumes:
+      - "${MODELS_REPOSITORY:-./models}:/models"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      host_ip: ${host_ip}
+      HF_TOKEN: ${HF_TOKEN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${host_ip}:${OVMS_EMBEDDER_PORT}/v2/health/ready"]
+      interval: 10s
+      timeout: 6s
+      retries: 48
+
+  ovms-reranking-serving:
+    image: openvino/model_server:2025.0
+    container_name: ovms-reranking-serving
+    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_reranking.json
+    ports:
+      - "${OVMS_RERANKER_PORT:-12000}:8000"
+    volumes:
+      - "${MODELS_REPOSITORY:-./models}:/models"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      host_ip: ${host_ip}
+      HF_TOKEN: ${HF_TOKEN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${host_ip}:${OVMS_RERANKER_PORT}/v2/health/ready"]
+      interval: 10s
+      timeout: 6s
+      retries: 48
+
+  ovms-llm-serving:
+    image: openvino/model_server:2025.0
+    container_name: ovms-llm-serving
+    entrypoint: /ovms/bin/ovms --rest_port 8000 --config_path /models/config_llm.json
+    ports:
+      - "${OVMS_LLM_PORT:-12000}:8000"
+    volumes:
+      - "${MODELS_REPOSITORY:-./models}:/models"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      host_ip: ${host_ip}
+      HF_TOKEN: ${HF_TOKEN}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${host_ip}:${OVMS_LLM_PORT}/v2/health/ready"]
+      interval: 10s
+      timeout: 6s
+      retries: 48

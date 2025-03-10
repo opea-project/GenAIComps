@@ -17,7 +17,7 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-COPY comps /home/user/comps
+COPY comps/rerankings/src/requirements* /home/user/comps/rerankings/src/
 
 RUN if [ ${ARCH} = "cpu" ]; then \
     pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; \
@@ -36,6 +36,7 @@ fi && \
 pip install --no-cache-dir --upgrade pip setuptools && \
 pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements.txt;
 
+COPY comps /home/user/comps
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER user
