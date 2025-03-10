@@ -114,7 +114,6 @@ curl http://localhost:9000/v1/chat/completions\
   -H 'Content-Type: application/json'
 ```
 
-
 ## ✨ Tips for Better Understanding:
 
 1. Port Mapping:
