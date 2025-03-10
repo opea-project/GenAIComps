@@ -113,3 +113,25 @@ curl http://localhost:9000/v1/chat/completions\
   -d '{"messages":"What is Deep Learning?", "stream": true}' \
   -H 'Content-Type: application/json'
 ```
+
+
+## ✨ Tips for Better Understanding:
+
+1. Port Mapping:
+   Ensure the ports are correctly mapped to avoid conflicts with other services.
+
+2. Model Selection:
+   Choose a model appropriate for your use case, like "Qwen/Qwen2-7B-Instruct".
+   It should be exported to the models repository and set in 'MODEL_ID' env in the deployment of the OPEA API wrapper.
+
+3. Models repository Volume:
+   The `-v ./models:/models` flag ensures the models directory is correctly mounted.
+
+4. Select correct configuration JSON file
+   Models repository can host multiple models. Choose the models to be served by selecting the right configuration file.
+   In the example above `config_llms.json`
+
+5. Upload the models to persistent volume claim in Kubernetes
+   Models repository with configuration JSON file will be mounted in the OVMS containers when deployed via [helm chart](../../third_parties/ovms/deployment/kubernetes/README.md).
+
+6. Learn more about [OVMS chat/completions API](https://docs.openvino.ai/2025/model-server/ovms_docs_rest_api_chat.html)
