@@ -1,15 +1,20 @@
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
-from langchain_core.documents import Document
-from langchain_redis import RedisConfig, RedisVectorStore
-from docling.document_converter import DocumentConverter
-from openai import OpenAI
-import os
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
+import os
 import uuid
+
+from docling.document_converter import DocumentConverter
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_core.documents import Document
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_redis import RedisConfig, RedisVectorStore
+from openai import OpenAI
 from tqdm import tqdm
-from comps.dataprep.src.integrations.utils.redis_kv import RedisKVStore
+
 from comps import CustomLogger
+from comps.dataprep.src.integrations.utils.redis_kv import RedisKVStore
 
 logger = CustomLogger("redis_dataprep_finance_data")
 
@@ -22,8 +27,8 @@ REDIS_URL_VECTOR = os.getenv("REDIS_URL_VECTOR", "redis://localhost:6379/")
 REDIS_URL_KV = os.getenv("REDIS_URL_KV", "redis://localhost:6380/")
 
 # LLM config
-LLM_MODEL=os.getenv("LLM_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
-LLM_ENDPOINT=os.getenv("LLM_ENDPOINT", "http://localhost:8086")
+LLM_MODEL = os.getenv("LLM_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
+LLM_ENDPOINT = os.getenv("LLM_ENDPOINT", "http://localhost:8086")
 MAX_TOKENS = os.getenv("MAX_TOKENS", 1024)
 TEMPERATURE = os.getenv("TEMPERATURE", 0.2)
 
@@ -44,14 +49,14 @@ Document Title: {doc_title}
 Give your answer in Yes or No. No other words.
 """
 
-METADATA_PROMPT="""\
+METADATA_PROMPT = """\
 Read the following document and extract the following metadata:
 - Company name: only the name of the company, do not include Company, Inc., Corp., etc.
 - Year
 - Quarter: can be empty
 - Document type
 
-Output in json format. Examples: 
+Output in json format. Examples:
 ```json
 {{"company": "Apple", "year": "2020", "quarter": "", "doc_type": "10-K"}}
 ```
@@ -68,7 +73,7 @@ Here is the document:
 Only output the metadata in json format. Now start!
 """
 
-CHUNK_SUMMARY_PROMPT="""\
+CHUNK_SUMMARY_PROMPT = """\
 You are a financial analyst. You are given a document extracted from a SEC filing. Read the document and summarize it in a few sentences.
 Document:
 {doc}
@@ -76,7 +81,7 @@ Only output your summary.
 """
 
 TABLE_SUMMARY_PROMPT = """\
-You are a financial analyst. You are given a table extracted from a SEC filing. Read the table and give it a descriptive title. 
+You are a financial analyst. You are given a table extracted from a SEC filing. Read the table and give it a descriptive title.
 If the table is a financial statement, for example, balance sheet, income statement, cash flow statement, statement of operations, or statement of shareholders' equity, you should specify the type of financial statement in the title.
 
 Table:
@@ -86,16 +91,17 @@ Table:
 Only output the table title.
 """
 
-COMPANY_NAME_PROMPT="""\
+COMPANY_NAME_PROMPT = """\
 Here is the list of company names in the knowledge base:
 {company_list}
 
 This is the company of interest: {company}
 
-Determine if the company of interest is the same as any of the companies in the knowledge base. 
+Determine if the company of interest is the same as any of the companies in the knowledge base.
 If yes, map the company of interest to the company name in the knowledge base. Output the company name in  {{}}. Example: {{3M}}.
 If none of the companies in the knowledge base match the company of interest, output "NONE".
 """
+
 
 def parse_metadata_json(metadata):
     """
@@ -115,20 +121,21 @@ def parse_metadata_json(metadata):
         logger.info("Error in parsing metadata.")
         return {}
 
+
 def post_process_text(text: str) -> str:
     text = text.replace("## Table of Contents", "")
     text = text.replace("Table of Contents", "")
     return text
+
 
 def split_text(text: str) -> list:
     chunks = text.split("##")
     chunks = [chunk for chunk in chunks if chunk]
     return chunks
 
+
 def generate_answer(prompt):
-    """
-    Use vllm endpoint to generate the answer
-    """
+    """Use vllm endpoint to generate the answer."""
     # send request to vllm endpoint
     client = OpenAI(
         base_url=f"{LLM_ENDPOINT}/v1",
@@ -141,17 +148,14 @@ def generate_answer(prompt):
     }
 
     completion = client.chat.completions.create(
-        model=LLM_MODEL,
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        **params
-        )
+        model=LLM_MODEL, messages=[{"role": "user", "content": prompt}], **params
+    )
 
     # get response
     response = completion.choices[0].message.content
     logger.info(f"LLM Response: {response}")
     return response
+
 
 def generate_metadata(full_doc):
     # split the full doc into chunks
@@ -177,12 +181,12 @@ def generate_metadata(full_doc):
         title = f"{final_metadata['company']} {final_metadata['year']} {final_metadata['quarter']} {final_metadata['doc_type']}"
         company_year_quarter = f"{final_metadata['company']}_{final_metadata['year']}_{final_metadata['quarter']}"
         final_metadata["doc_title"] = title
-        final_metadata["company_year"]= f"{final_metadata['company']}_{final_metadata['year']}"
+        final_metadata["company_year"] = f"{final_metadata['company']}_{final_metadata['year']}"
         final_metadata["company_year_quarter"] = company_year_quarter
 
-        for k, v in final_metadata.items():   
+        for k, v in final_metadata.items():
             logger.info(f"{k}: {v}")
-        
+
     else:
         final_metadata = {}
     return final_metadata
@@ -190,8 +194,10 @@ def generate_metadata(full_doc):
 
 def get_tokenizer():
     from transformers import AutoTokenizer
+
     tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL)
     return tokenizer
+
 
 def save_full_doc(full_doc: str, metadata: dict):
     logger.info("Saving full doc....")
@@ -200,8 +206,9 @@ def save_full_doc(full_doc: str, metadata: dict):
     # get # of tokens for full doc
     tokenizer = get_tokenizer()
     doc_length = len(tokenizer.encode(full_doc))
-    kvstore.put(metadata["doc_title"], {"full_doc": full_doc, "doc_length":doc_length, **metadata}, index_name)
-    return None 
+    kvstore.put(metadata["doc_title"], {"full_doc": full_doc, "doc_length": doc_length, **metadata}, index_name)
+    return None
+
 
 def save_file_source(filename: str, metadata: dict):
     # this should be done after saving company name
@@ -209,7 +216,7 @@ def save_file_source(filename: str, metadata: dict):
     # return False if file source did not existed and added to file source list
     logger.info("Saving file source....")
     kvstore = RedisKVStore(redis_uri=REDIS_URL_KV)
-    index_name="file_source"
+    index_name = "file_source"
     # get existing file source list from KV store for this company
     file_source_dict = kvstore.get(metadata["company"], index_name)
     if file_source_dict:
@@ -258,16 +265,21 @@ def save_company_name(metadata: dict):
         prompt = COMPANY_NAME_PROMPT.format(company_list=company_list, company=new_company)
         response = generate_answer(prompt)
         if "NONE" in response.upper():
-            logger.info(f"[save_company_name] Company {new_company} is not in company list. Add {new_company} to company list.")
+            logger.info(
+                f"[save_company_name] Company {new_company} is not in company list. Add {new_company} to company list."
+            )
             # add new_company to company_list
             company_list.append(new_company)
             kvstore.put("company", {"company": company_list}, "company_list")
         else:
             existing_company = response.strip("{}").upper()
-            logger.info(f"[save_company_name] Company is alias of existing company. Map {new_company} to {existing_company}.")
+            logger.info(
+                f"[save_company_name] Company is alias of existing company. Map {new_company} to {existing_company}."
+            )
             metadata["company"] = existing_company
 
     return metadata
+
 
 def get_index_name(doc_type: str, metadata: dict):
     company = metadata["company"]
@@ -283,12 +295,14 @@ def get_index_name(doc_type: str, metadata: dict):
         raise ValueError("doc_type should be either chunks, tables, titles, or full_doc.")
     return index_name
 
+
 def save_doc_title(doc_title: str, metadata: dict):
     logger.info("Saving doc title....")
     index_name = get_index_name("titles", metadata)
     vector_store = get_vectorstore(index_name)
     keys = vector_store.add_texts([doc_title], [metadata])
     return keys
+
 
 def parse_doc_and_extract_metadata(filename: str):
     # extract pdf or url with docling and convert into markdown full content and tables
@@ -345,22 +359,24 @@ def save_chunk(chunk: tuple, metadata: dict, doc_type="chunks"):
     # embed summary and save to vector db
     vector_store = get_vectorstore(index_name)
     key = vector_store.add_texts([chunk_summary], [metadata])
-    
+
     # save chunk_content to kvstore
     logger.info("Saving to kvstore....")
     kvstore = RedisKVStore(redis_uri=REDIS_URL_KV)
-    kvstore.put(doc_id, {"content": chunk_content, "summary":chunk_summary, "metadata":metadata}, index_name)
+    kvstore.put(doc_id, {"content": chunk_content, "summary": chunk_summary, "metadata": metadata}, index_name)
     return key
+
 
 def get_table_summary_with_llm(table_md):
     """
     table_md: str
-    args: including llm_endpoint_url and model 
+    args: including llm_endpoint_url and model
     """
     prompt = TABLE_SUMMARY_PROMPT.format(table_md=table_md)
     table_summary = generate_answer(prompt)
     logger.info(f"Table summary:\n{table_summary}")
     return table_summary
+
 
 def process_tables(conv_res, metadata):
     logger.info("Processing tables....")
@@ -370,7 +386,8 @@ def process_tables(conv_res, metadata):
         context = get_table_summary_with_llm(table_md)
         key = save_chunk((table_md, context), metadata, doc_type="tables")
         keys.extend(key)
-    return keys 
+    return keys
+
 
 def post_process_html(full_doc, doc_title):
     logger.info("Post processing extracted webpage....")
@@ -383,6 +400,7 @@ def post_process_html(full_doc, doc_title):
             final_doc += f"##{chunk}"
     return final_doc
 
+
 def get_company_list():
     kvstore = RedisKVStore(redis_uri=REDIS_URL_KV)
     company_list_dict = kvstore.get("company", "company_list")
@@ -391,7 +409,8 @@ def get_company_list():
         return company_list
     else:
         return []
-    
+
+
 def get_vectorstore(index_name):
     config = RedisConfig(
         index_name=index_name,

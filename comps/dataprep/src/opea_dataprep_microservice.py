@@ -15,8 +15,8 @@ from integrations.pgvect import OpeaPgvectorDataprep
 from integrations.pipecone import OpeaPineConeDataprep
 from integrations.qdrant import OpeaQdrantDataprep
 from integrations.redis import OpeaRedisDataprep
-from integrations.vdms import OpeaVdmsDataprep
 from integrations.redis_finance import OpeaRedisDataprepFinance
+from integrations.vdms import OpeaVdmsDataprep
 from opea_dataprep_loader import OpeaDataprepLoader
 
 from comps import (
