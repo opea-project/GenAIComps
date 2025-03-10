@@ -135,7 +135,7 @@ class RedisKVStore:
         cls,
         host: str,
         port: int,
-    ) -> "RedisPersistence":
+    ):
         """Load a RedisPersistence from a Redis host and port.
 
         Args:
