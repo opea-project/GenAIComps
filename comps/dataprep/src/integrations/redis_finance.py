@@ -13,12 +13,9 @@ from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain_community.vectorstores import Redis
 
 from comps import OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.dataprep.src.utils import (
-    encode_filename,
-    save_content_to_local_disk,
-)
-from comps.dataprep.src.integrations.utils.redis_kv import RedisKVStore
 from comps.dataprep.src.integrations.utils.redis_finance_utils import *
+from comps.dataprep.src.integrations.utils.redis_kv import RedisKVStore
+from comps.dataprep.src.utils import encode_filename, save_content_to_local_disk
 
 logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
@@ -66,8 +63,6 @@ def get_boolean_env_var(var_name, default_value=False):
         return default_value
 
 
-
-
 def drop_index(index_name, redis_url=REDIS_URL_VECTOR):
     if logflag:
         logger.info(f"[ drop index ] dropping index {index_name}")
@@ -91,11 +86,13 @@ def get_all_existing_files():
         file_list.extend(company_docs["source"])
     return file_list
 
+
 def check_file_existance(file_name):
     file_list = get_all_existing_files()
     if file_name in file_list:
         return True
     return False
+
 
 def drop_index_from_kvstore(index_name):
     redis_pool = redis.ConnectionPool.from_url(REDIS_URL_KV)
@@ -109,7 +106,8 @@ def drop_index_from_kvstore(index_name):
         if logflag:
             logger.info(f"[ drop index ] index {index_name} delete failed: {e}")
         return False
-    
+
+
 def drop_record_from_kvstore(index_name, key):
     kvstore = RedisKVStore(REDIS_URL_KV)
     try:
@@ -122,8 +120,9 @@ def drop_record_from_kvstore(index_name, key):
             logger.info(f"[ drop record ] record {key} delete failed: {e}")
         return False
 
+
 def remove_company_from_list(company):
-    kvstore= RedisKVStore(REDIS_URL_KV)
+    kvstore = RedisKVStore(REDIS_URL_KV)
     company_list = get_company_list()
     try:
         company_list.remove(company)
@@ -135,7 +134,7 @@ def remove_company_from_list(company):
         if logflag:
             logger.info(f"[ remove company ] company {company} remove failed: {e}")
         return False
-    
+
 
 async def ingest_financial_data(filename: str):
     """
@@ -169,7 +168,7 @@ async def ingest_financial_data(filename: str):
     doc_title = metadata["doc_title"]
     keys = save_doc_title(doc_title, metadata)
     file_ids.extend(keys)
-    
+
     # chunk and save
     keys = split_markdown_and_summarize_save(full_doc, metadata)
     file_ids.extend(keys)
@@ -178,7 +177,7 @@ async def ingest_financial_data(filename: str):
     keys = process_tables(conv_res, metadata)
     file_ids.extend(keys)
     # save_file_ids_to_filekey_index(doc_id, file_ids)
-    
+
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_REDIS_FINANCE")
 class OpeaRedisDataprepFinance(OpeaComponent):
@@ -195,7 +194,7 @@ class OpeaRedisDataprepFinance(OpeaComponent):
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaRedisDataprepFinance health check failed.")
-    
+
     def _initialize_client(self, url) -> redis.Redis:
         if logflag:
             logger.info("[ initialize client ] initializing redis client...")
@@ -262,16 +261,16 @@ class OpeaRedisDataprepFinance(OpeaComponent):
                 files = [files]
             uploaded_files = []
 
-            for file in files:                
+            for file in files:
                 if not file.filename.lower().endswith(".pdf"):
                     raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-                
+
                 if check_file_existance(file.filename):
                     raise HTTPException(
                         status_code=400,
                         detail=f"Uploaded file {file.filename} already exists. Please upload a different file.",
                     )
-                
+
                 encode_file = encode_filename(file.filename)
                 save_path = upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
@@ -294,8 +293,7 @@ class OpeaRedisDataprepFinance(OpeaComponent):
                     raise HTTPException(status_code=400, detail=f"Link {link} is not a valid URL.")
                 if check_file_existance(link):
                     raise HTTPException(
-                        status_code=400,
-                        detail=f"Uploaded link {link} already exists. Please upload a different link."
+                        status_code=400, detail=f"Uploaded link {link} already exists. Please upload a different link."
                     )
                 if logflag:
                     logger.info(f"[ redis ingest] processing link {link}")
@@ -308,7 +306,7 @@ class OpeaRedisDataprepFinance(OpeaComponent):
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
     async def get_files(self):
-        """Get file source names"""
+        """Get file source names."""
 
         if logflag:
             logger.info("[ redis get ] start to get filenames of all uploaded files")
@@ -319,7 +317,7 @@ class OpeaRedisDataprepFinance(OpeaComponent):
                 logger.info(f"[ redis get ] Successfully get files: {file_list}")
         except:
             if logflag:
-                logger.info(f"[ redis get ] Fail to get files.")
+                logger.info("[ redis get ] Fail to get files.")
             raise HTTPException(status_code=500, detail="Fail to get files.")
         return file_list
 
@@ -327,7 +325,7 @@ class OpeaRedisDataprepFinance(OpeaComponent):
         """Delete file related to `file_path` - company name.
 
         `file_path`:
-            - specific comapny name: delete all files related to the company
+            - specific company name: delete all files related to the company
         """
         if logflag:
             logger.info(f"[ redis delete ] delete files related to: {file_path}")
@@ -337,9 +335,11 @@ class OpeaRedisDataprepFinance(OpeaComponent):
         if company not in company_list:
             if logflag:
                 logger.info(f"[ redis delete ] Company {file_path} does not exists.")
-            raise HTTPException(status_code=404, 
-                                detail=f"Company {file_path} does not exists. Please choose from the following list {company_list}.")
-        
+            raise HTTPException(
+                status_code=404,
+                detail=f"Company {file_path} does not exists. Please choose from the following list {company_list}.",
+            )
+
         # delete files related to the company
         # delete chunks_{company} and tables_{company} from vector store
         # delete full_doc_{company} from kv store
@@ -354,7 +354,7 @@ class OpeaRedisDataprepFinance(OpeaComponent):
             drop_index_from_kvstore(index_name=f"full_doc_{company}")
             drop_record_from_kvstore(index_name="file_source", key=company)
             remove_company_from_list(company)
-            
+
             if logflag:
                 logger.info(f"[ redis delete ] Successfully delete files related to company {file_path}")
             return {"status": True}
@@ -362,5 +362,3 @@ class OpeaRedisDataprepFinance(OpeaComponent):
             if logflag:
                 logger.info(f"[ redis delete ] Fail to delete files related to company {file_path}.")
             raise HTTPException(status_code=500, detail=f"Fail to delete files related to company {file_path}.")
-
-        
