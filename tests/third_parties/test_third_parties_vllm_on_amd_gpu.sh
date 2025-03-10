@@ -34,7 +34,7 @@ function build_container() {
 # Function to start Docker container
 start_container() {
     export VLLM_SERVICE_PORT=8011
-    export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export HF_CACHE_DIR="./data"
     export VLLM_LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export TENSOR_PARALLEL_SIZE=1
