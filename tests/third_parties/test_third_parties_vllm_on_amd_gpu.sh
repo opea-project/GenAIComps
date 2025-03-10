@@ -17,6 +17,7 @@ service_name="vllm-rocm-server"
 docker_container_name="vllm-service"
 
 function build_container() {
+    ls
     cd $WORKDIR/comps/third_parties/vllm/src
     docker build --no-cache -t ${REGISTRY:-opea}/vllm-rocm:${TAG:-latest} \
       -f Dockerfile.amd_gpu \
