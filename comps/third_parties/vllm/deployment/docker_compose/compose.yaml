@@ -103,7 +103,7 @@ services:
       retries: 100
   vllm-rocm-server:
     image: ${REGISTRY:-opea}/vllm-rocm:${TAG:-latest}
-    container_name: vllm-service
+    container_name: vllm-server
     ports:
       - "${VLLM_SERVICE_PORT:-8081}:8011"
     environment:

@@ -14,7 +14,7 @@ WORKDIR=${WORKPATH}/../
 export host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH"
 service_name="vllm-rocm-server"
-docker_container_name="vllm-service"
+docker_container_name="vllm-server"
 
 function build_container() {
     cd $WORKPATH/comps/third_parties/vllm/src
@@ -33,7 +33,7 @@ function build_container() {
 
 # Function to start Docker container
 start_container() {
-    export VLLM_SERVICE_PORT=8011
+    export VLLM_SERVICE_PORT=28011
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export HF_CACHE_DIR="./data"
     export VLLM_LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
