@@ -132,6 +132,6 @@ curl http://localhost:9000/v1/chat/completions\
    In the example above `config_llms.json`
 
 5. Upload the models to persistent volume claim in Kubernetes
-   Models repository with configuration JSON file will be mounted in the OVMS containers when deployed via [helm chart](../../third_parties/ovms/deployment/kubernetes/README.md).
+   Models repository with configuration JSON file will be mounted in the OVMS containers when deployed via [helm chart](../../../third_parties/ovms/deployment/kubernetes/README.md).
 
 6. Learn more about [OVMS chat/completions API](https://docs.openvino.ai/2025/model-server/ovms_docs_rest_api_chat.html)
