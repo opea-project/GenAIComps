@@ -1,7 +1,8 @@
 #!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-set -xe
+
+#set -xe
 
 # this script should be run from tests directory
 #  bash agent/sql_agent_test/test_sql_agent.sh

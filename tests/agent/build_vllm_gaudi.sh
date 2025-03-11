@@ -1,6 +1,5 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-# for test
 
 function build_vllm_docker_images() {
     echo "Building the vllm docker images"
