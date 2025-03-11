@@ -202,6 +202,7 @@ def generate_metadata(full_doc):
 
 def get_tokenizer():
     from transformers import AutoTokenizer
+
     tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL)
     return tokenizer
 
