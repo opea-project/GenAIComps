@@ -9,6 +9,7 @@ from docling.document_converter import DocumentConverter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from fastapi import HTTPException
 from langchain_redis import RedisConfig, RedisVectorStore
 from openai import OpenAI
 from tqdm import tqdm
@@ -36,6 +37,15 @@ TEMPERATURE = os.getenv("TEMPERATURE", 0.2)
 def get_embedder():
     if TEI_EMBEDDING_ENDPOINT:
         # create embeddings using TEI endpoint service
+        # Huggingface API token for TEI embedding endpoint
+        HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+        os.environ["HF_TOKEN"] = HUGGINGFACEHUB_API_TOKEN
+        print(f"Using Huggingface API token: {os.getenv('HF_TOKEN')}")
+        if not HUGGINGFACEHUB_API_TOKEN:
+            raise HTTPException(
+                status_code=400,
+                detail="You MUST provide the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+            )
         embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
     else:
         # create embeddings using local embedding model

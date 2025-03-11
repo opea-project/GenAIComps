@@ -20,17 +20,6 @@ from comps.dataprep.src.utils import encode_filename, save_content_to_local_disk
 logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
 
-
-# Huggingface API token for TEI embedding endpoint
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
-os.environ["HF_TOKEN"] = HUGGINGFACEHUB_API_TOKEN
-print(f"Using Huggingface API token: {os.getenv('HF_TOKEN')}")
-if not HUGGINGFACEHUB_API_TOKEN:
-    raise HTTPException(
-        status_code=400,
-        detail="You MUST provide the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
-    )
-
 # Vector Index Configuration
 KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", 600))
