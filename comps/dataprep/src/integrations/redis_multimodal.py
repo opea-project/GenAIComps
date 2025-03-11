@@ -774,18 +774,17 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                     with open(os.path.join(self.upload_folder, caption_file), "wb") as f:
                         shutil.copyfileobj(matched_files[media_file][1].file, f)
 
-                    # If caption file is an audio format, get the transcription
+                    # If caption file is an audio format, get the transcription and write a .txt caption file
                     if caption_file_extension in audio_formats:
-                        # Get the transcript from the audio and write a vtt file
                         transcripts = extract_transcript_from_audio(whisper_model, os.path.join(self.upload_folder, caption_file))
-                        vtt_file = f"{media_dir_name}.vtt"
-                        write_vtt(transcripts, os.path.join(self.upload_folder, vtt_file))
+                        caption_text = ""
 
-                        # Delete the temporary audio
-                        os.remove(os.path.join(self.upload_folder, caption_file))
+                        if transcripts and "text" in transcripts:
+                            caption_text = transcripts["text"]
 
-                        # After this, the caption file is the vtt file
-                        caption_file = vtt_file
+                        caption_file = f"{media_dir_name}.txt"
+                        with open(os.path.join(self.upload_folder, caption_file), "w") as f:
+                            f.write(caption_text)
 
                     # Store frames and caption annotations in a new directory
                     extract_frames_and_annotations_from_transcripts(

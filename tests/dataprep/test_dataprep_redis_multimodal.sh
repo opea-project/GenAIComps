@@ -17,6 +17,7 @@ transcript_fn="${tmp_dir}/${video_name}.vtt"
 video_fn="${tmp_dir}/${video_name}.mp4"
 image_name="apple"
 image_fn="${tmp_dir}/${image_name}.png"
+jpg_image_fn="${tmp_dir}/${image_name}.jpg"
 caption_fn="${tmp_dir}/${image_name}.txt"
 audio_name="apple"   # Intentionally name the audio file the same as the image for testing image+audio caption
 audio_fn="${tmp_dir}/${audio_name}.wav"
@@ -127,8 +128,11 @@ tire.""" > ${transcript_fn}
 
     echo "This is an apple." > ${caption_fn}
 
-    echo "Downloading Image"
+    echo "Downloading Image (png)"
     wget https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true -O ${image_fn}
+
+    echo "Downloading Image (jpg)"
+    wget https://raw.githubusercontent.com/opea-project/GenAIComps/refs/tags/v1.2/comps/animation/src/assets/img/avatar1.jpg -O ${jpg_image_fn}
 
     echo "Downloading Video"
     wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -O ${video_fn}
@@ -215,11 +219,35 @@ function validate_microservice() {
         echo "[ $SERVICE_NAME ] Content is as expected."
     fi
 
-    # test ingest upload image file with audio caption
-    echo "Testing ingest API with image+audio caption"
+    # test ingest upload image png file with audio caption
+    echo "Testing ingest API with png image+audio caption"
     URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/ingest"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$image_fn" -F "files=@$audio_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    SERVICE_NAME="dataprep - upload - file"
+
+    if [ "$HTTP_STATUS" -ne "200" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+    fi
+    if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
+        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] Content is as expected."
+    fi
+
+    # test ingest upload image jpg file with audio caption
+    echo "Testing ingest API with jpg image+audio caption"
+    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/ingest"
+
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$jpg_image_fn" -F "files=@$audio_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
@@ -374,7 +402,7 @@ function validate_microservice() {
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
-    if [[ "$RESPONSE_BODY" != *${image_name}* || "$RESPONSE_BODY" != *${video_name}* || "$RESPONSE_BODY" != *${audio_name}* || "$RESPONSE_BODY" != *${pdf_name}* ]]; then
+    if [[ "$RESPONSE_BODY" != *${image_name}* || "$RESPONSE_BODY" != *${video_name}* || "$RESPONSE_BODY" != *${audio_name}* || "$RESPONSE_BODY" != *${pdf_name}* || "$RESPONSE_BODY" != *jpg*  ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
         docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
