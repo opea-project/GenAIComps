@@ -48,7 +48,10 @@ function start_service() {
     docker compose up ${service_name} -d
     if [ $? -ne 0 ]; then
         echo "Microservice failed to start!"
-        docker-compose logs ${service_name}
+        for service in $service_name; do
+            echo "Logs for $service..."
+            docker logs $service
+        done
         exit 1
     fi
     echo "Microservice started"
