@@ -79,7 +79,7 @@ class OrchestratorMetrics:
         self.pending_update(increase)
 
     def _token_update_real(self, token_start: float, is_first: bool) -> float:
-        now = time.time()
+        now = time.monotonic()
         if is_first:
             self.first_token_latency.observe(now - token_start)
         else:
@@ -87,7 +87,7 @@ class OrchestratorMetrics:
         return now
 
     def _request_update_real(self, req_start: float) -> None:
-        self.request_latency.observe(time.time() - req_start)
+        self.request_latency.observe(time.monotonic() - req_start)
 
     def _pending_update_real(self, increase: bool) -> None:
         if increase:
@@ -126,7 +126,7 @@ class ServiceOrchestrator(DAG):
 
     @opea_telemetry
     async def schedule(self, initial_inputs: Dict | BaseModel, llm_parameters: LLMParams = LLMParams(), **kwargs):
-        req_start = time.time()
+        req_start = time.monotonic()
         self.metrics.pending_update(True)
 
         result_dict = {}
@@ -305,7 +305,7 @@ class ServiceOrchestrator(DAG):
                                     yield from self.token_generator(
                                         res_txt, token_start, is_first=is_first, is_last=is_last
                                     )
-                                    token_start = time.time()
+                                    token_start = time.monotonic()
                                     is_first = False
                             else:
                                 token_start = self.metrics.token_update(token_start, is_first)
