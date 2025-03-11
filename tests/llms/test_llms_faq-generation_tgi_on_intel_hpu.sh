@@ -38,7 +38,12 @@ function start_service() {
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
-
+    if [ $? -ne 0 ]; then
+        echo "Microservice failed to start!"
+        docker-compose logs ${service_name}
+        exit 1
+    fi
+    echo "Microservice started"
     sleep 1m
 }
 
