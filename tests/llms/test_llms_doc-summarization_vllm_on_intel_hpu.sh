@@ -56,7 +56,7 @@ function start_service() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_doc-summarization.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    sleep 30s
+    sleep 1m
 }
 
 function validate_services() {

@@ -47,7 +47,7 @@ function start_service() {
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
     echo "Microservice started"
-    sleep 15
+    sleep 1m
 }
 
 function validate_microservice() {
