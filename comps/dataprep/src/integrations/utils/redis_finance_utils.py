@@ -39,8 +39,6 @@ def get_embedder():
         # create embeddings using TEI endpoint service
         # Huggingface API token for TEI embedding endpoint
         HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
-        os.environ["HF_TOKEN"] = HUGGINGFACEHUB_API_TOKEN
-        print(f"Using Huggingface API token: {os.getenv('HF_TOKEN')}")
         if not HUGGINGFACEHUB_API_TOKEN:
             raise HTTPException(
                 status_code=400,
@@ -204,7 +202,6 @@ def generate_metadata(full_doc):
 
 def get_tokenizer():
     from transformers import AutoTokenizer
-
     tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL)
     return tokenizer
 
