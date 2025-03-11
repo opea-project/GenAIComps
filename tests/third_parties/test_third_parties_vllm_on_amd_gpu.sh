@@ -45,9 +45,9 @@ start_container() {
     # check whether service is fully ready
     n=0
     until [[ "$n" -ge 300 ]]; do
-        docker logs $docker_container_name > ${LOG_PATH}/$docker_container_name.log 2>&1
+        docker logs ${docker_container_name} > ${LOG_PATH}/${docker_container_name}.log 2>&1
         n=$((n+1))
-        if grep -q ""Application startup complete"" ${LOG_PATH}/$docker_container_name.log; then
+        if grep -q "Application startup complete" ${LOG_PATH}/${docker_container_name}.log; then
             break
         fi
         sleep 10s
