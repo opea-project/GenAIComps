@@ -99,11 +99,13 @@ function _fill_in_matrix() {
 
 # add test case when test scripts code change
 function find_test_2() {
-    test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "\.sh") || true
+    test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "\.sh" | grep -E "test_") || true
     for test_file in ${test_files}; do
         if [ -f $test_file ]; then
             _service=$(echo $test_file | cut -d'/' -f3 | grep -E "\.sh" | cut -d'.' -f1 | cut -c6-)
-            _fill_in_matrix $_service
+            if [ -n "${_service}" ]; then
+                _fill_in_matrix $_service
+            fi
         fi
     done
 }
