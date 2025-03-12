@@ -13,6 +13,8 @@ import signal
 import subprocess
 import tempfile
 import timeit
+import aiofiles
+import asyncio
 import unicodedata
 import urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -146,6 +148,10 @@ def load_pdf(pdf_path):
 
     combined_result = "".join(results)
     return combined_result
+
+
+async def load_pdf_async(pdf_path):
+    return await asyncio.to_thread(load_pdf, pdf_path)
 
 
 def load_html(html_path):
@@ -350,7 +356,7 @@ async def load_svg(svg_path):
 
 async def document_loader(doc_path):
     if doc_path.endswith(".pdf"):
-        return load_pdf(doc_path)
+        return await load_pdf_async(doc_path)
     elif doc_path.endswith(".html"):
         return load_html(doc_path)
     elif doc_path.endswith(".txt"):
@@ -763,15 +769,15 @@ async def save_content_to_local_disk(save_path: str, content):
     save_path = Path(save_path)
     try:
         if isinstance(content, str):
-            with open(save_path, "w", encoding="utf-8") as file:
-                file.write(content)
+            async with aiofiles.open(save_path, "w", encoding="utf-8") as file:
+                await file.write(content)
         else:
-            with save_path.open("wb") as fout:
-                content = await content.read()
-                fout.write(content)
+            content = await content.read()
+            async with aiofiles.open(save_path, "wb") as fout:
+                await fout.write(content)
     except Exception as e:
         print(f"Write file failed. Exception: {e}")
-        raise Exception(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
+        raise Exception(f"Write file {save_path} failed. Exception: {e}")
 
 
 def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, Union[str, List]]]:
