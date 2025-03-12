@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import base64
 import errno
 import functools
@@ -13,8 +14,6 @@ import signal
 import subprocess
 import tempfile
 import timeit
-import aiofiles
-import asyncio
 import unicodedata
 import urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -22,6 +21,7 @@ from pathlib import Path
 from typing import Dict, List, Union
 from urllib.parse import urlparse, urlunparse
 
+import aiofiles
 import aiohttp
 import cairosvg
 import cv2

@@ -3,19 +3,19 @@
 # for test
 
 
+import asyncio
 import json
 import os
 from pathlib import Path
 from typing import List, Optional, Union
 
 import redis
-import asyncio
-from redis import asyncio as aioredis
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import Redis
 from langchain_text_splitters import HTMLHeaderTextSplitter
+from redis import asyncio as aioredis
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
@@ -312,6 +312,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 )
 
             import httpx
+
             async with httpx.AsyncClient() as client:
                 response = await client.get(TEI_EMBEDDING_ENDPOINT + "/info")
                 if response.status_code != 200:
@@ -409,7 +410,7 @@ class OpeaRedisDataprep(OpeaComponent):
                         process_table=process_table,
                         table_strategy=table_strategy,
                     ),
-                    self.embedder
+                    self.embedder,
                 )
                 uploaded_files.append(save_path)
                 if logflag:
@@ -454,7 +455,7 @@ class OpeaRedisDataprep(OpeaComponent):
                         process_table=process_table,
                         table_strategy=table_strategy,
                     ),
-                    self.embedder
+                    self.embedder,
                 )
             if logflag:
                 logger.info(f"[ redis ingest] Successfully saved link list {link_list}")
