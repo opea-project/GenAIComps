@@ -45,3 +45,8 @@ services:
       dockerfile: Dockerfile.hpu
     shm_size: '128g'
     image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
+  vllm-rocm:
+    build:
+      dockerfile: comps/third_parties/vllm/src/Dockerfile.amd_gpu
+    shm_size: '128g'
+    image: ${REGISTRY:-opea}/vllm-rocm:${TAG:-latest}
