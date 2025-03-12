@@ -34,6 +34,8 @@ class ServiceType(Enum):
     ANIMATION = 17
     IMAGE2IMAGE = 18
     TEXT2SQL = 19
+    TEXT2GRAPH = 20
+    TEXT2CYPHER = 21
 
 
 class MegaServiceEndpoint(Enum):
@@ -53,6 +55,7 @@ class MegaServiceEndpoint(Enum):
     RETRIEVALTOOL = "/v1/retrievaltool"
     FAQ_GEN = "/v1/faqgen"
     GRAPH_RAG = "/v1/graphrag"
+    HYBRID_RAG = "/v1/hybridrag"
     # Follow OPENAI
     EMBEDDINGS = "/v1/embeddings"
     TTS = "/v1/audio/speech"
