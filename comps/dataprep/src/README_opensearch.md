@@ -2,34 +2,24 @@
 
 For dataprep microservice for text input, we provide here the `Langchain` framework.
 
-## 🚀1. Start Microservice with Python（Option 1）
+## 🚀1. Start Microservice with Docker
 
-### 1.1 Install Requirements
-
-- option 1: Install Single-process version (for processing up to 10 files)
-
-```bash
-apt update
-apt install default-jre tesseract-ocr libtesseract-dev poppler-utils -y
-# for langchain
-cd langchain
-pip install -r requirements.txt
-```
-
-### 1.2 Start OpenSearch Stack Server
+### 1.1 Start OpenSearch Stack Server
 
 Please refer to this [readme](../../third_parties/opensearch/src/README.md).
 
-### 1.3 Setup Environment Variables
+### 1.2 Setup Environment Variables
 
 ```bash
 export your_ip=$(hostname -I | awk '{print $1}')
+export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6006"
 export OPENSEARCH_URL="http://${your_ip}:9200"
 export INDEX_NAME=${your_index_name}
-export PYTHONPATH=${path_to_comps}
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
 ```
 
-### 1.4 Start Embedding Service
+### 1.3 Start Embedding Service
 
 First, you need to start a TEI service.
 
@@ -54,34 +44,7 @@ After checking that it works, set up environment variables.
 export TEI_EMBEDDING_ENDPOINT="http://localhost:$your_port"
 ```
 
-### 1.4 Start Document Preparation Microservice for OpenSearch with Python Script
-
-Start document preparation microservice for OpenSearch with below command.
-
-- option 1: Start single-process version (for processing up to 10 files)
-
-```bash
-cd langchain
-python prepare_doc_opensearch.py
-```
-
-## 🚀2. Start Microservice with Docker (Option 2)
-
-### 2.1 Start OpenSearch Stack Server
-
-Please refer to this [readme](../../third_parties/opensearch/src/README.md).
-
-### 2.2 Setup Environment Variables
-
-```bash
-export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6006"
-export OPENSEARCH_URL="http://${your_ip}:9200"
-export INDEX_NAME=${your_index_name}
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
-```
-
-### 2.3 Build Docker Image
+### 1.4 Build Docker Image
 
 - Build docker image with langchain
 
@@ -92,7 +55,7 @@ cd ../../
 docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
-### 2.4 Run Docker with CLI (Option A)
+### 1.5 Run Docker with CLI (Option A)
 
 - option 1: Start single-process version (for processing up to 10 files)
 
@@ -100,7 +63,7 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 docker run -d --name="dataprep-opensearch-server" -p 6007:6007 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e OPENSEARCH_URL=$OPENSEARCH_URL -e INDEX_NAME=$INDEX_NAME -e EMBED_MODEL=${EMBED_MODEL} -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_OPENSEARCH" opea/dataprep:latest
 ```
 
-### 2.5 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
+### 1.6 Run with Docker Compose (Option B - deprecated, will move to genAIExample in future)
 
 ```bash
 # for langchain
@@ -109,15 +72,15 @@ cd comps/dataprep/deployment/docker_compose
 docker compose -f compose_opensearch.yaml up -d
 ```
 
-## 🚀3. Status Microservice
+## 🚀2. Status Microservice
 
 ```bash
 docker container logs -f dataprep-opensearch-server
 ```
 
-## 🚀4. Consume Microservice
+## 🚀3. Consume Microservice
 
-### 4.1 Consume Upload API
+### 3.1 Consume Upload API
 
 Once document preparation microservice for OpenSearch is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
@@ -197,7 +160,7 @@ except requests.exceptions.RequestException as e:
     print("An error occurred:", e)
 ```
 
-### 4.2 Consume get_file API
+### 3.2 Consume get_file API
 
 To get uploaded file structures, use the following command:
 
@@ -226,7 +189,7 @@ Then you will get the response JSON like this:
 ]
 ```
 
-### 4.3 Consume delete_file API
+### 3.3 Consume delete_file API
 
 To delete uploaded file/link, use the following command.
 

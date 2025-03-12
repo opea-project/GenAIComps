@@ -1,34 +1,25 @@
 # Dataprep Microservice with Milvus
 
-## 🚀1. Start Microservice with Python (Option 1)
+## 🚀1. Start Microservice with Docker
 
-### 1.1 Requirements
-
-```bash
-pip install -r requirements.txt
-apt-get install tesseract-ocr -y
-apt-get install libtesseract-dev -y
-apt-get install poppler-utils -y
-```
-
-### 1.2 Start Milvus Server
+### 1.1 Start Milvus Server
 
 Please refer to this [readme](../../third_parties/milvus/src/README.md).
 
-### 1.3 Setup Environment Variables
+### 1.2 Setup Environment Variables
 
 ```bash
 export no_proxy=${your_no_proxy}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export MILVUS_HOST=${your_milvus_host_ip}
+export MILVUS_HOST=${your_host_ip}
 export MILVUS_PORT=19530
 export COLLECTION_NAME=${your_collection_name}
-export TEI_EMBEDDING_ENDPOINT=${your_embedding_endpoint}
-export HUGGINGFACEHUB_API_TOKEN=${your_huggingface_api_token}
+export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
+export EMBEDDING_MODEL_ID=${your_embedding_model_id}
 ```
 
-### 1.4 Start TEI Embedding Service
+### 1.3 Start TEI Embedding Service
 
 First, start the TEI embedding server.
 
@@ -36,30 +27,10 @@ First, start the TEI embedding server.
 your_port=6010
 model="BAAI/bge-base-en-v1.5"
 docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
-```
-
-Setup environment variables:
-
-```bash
 export TEI_EMBEDDING_ENDPOINT="http://localhost:$your_port"
-export MILVUS_HOST=${your_host_ip}
 ```
 
-### 1.5 Start Document Preparation Microservice for Milvus with Python Script
-
-Start document preparation microservice for Milvus with below command.
-
-```bash
-python prepare_doc_milvus.py
-```
-
-## 🚀2. Start Microservice with Docker (Option 2)
-
-### 2.1 Start Milvus Server
-
-Please refer to this [readme](../../third_parties/milvus/src/README.md).
-
-### 2.2 Build Docker Image
+### 1.4 Build Docker Image
 
 ```bash
 cd ../../..
@@ -67,22 +38,13 @@ cd ../../..
 docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg no_proxy=$no_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
-### 2.3 Setup Environment Variables
-
-```bash
-export TEI_EMBEDDING_ENDPOINT="http://localhost:$your_port"
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_api_token}
-export EMBEDDING_MODEL_ID=${your_embedding_model_id}
-export MILVUS_HOST=${your_host_ip}
-```
-
-### 2.3 Run Docker with CLI (Option A)
+### 1.5 Run Docker with CLI (Option A)
 
 ```bash
 docker run -d --name="dataprep-milvus-server" -p 6010:6010 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e TEI_EMBEDDING_ENDPOINT=${TEI_EMBEDDING_ENDPOINT} -e MILVUS_HOST=${MILVUS_HOST} -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_MILVUS" opea/dataprep:latest
 ```
 
-### 2.4 Run with Docker Compose (Option B)
+### 1.5 Run with Docker Compose (Option B)
 
 ```bash
 mkdir model
@@ -94,9 +56,9 @@ cd ../
 docker compose -f compose_milvus.yaml up -d
 ```
 
-## 🚀3. Consume Microservice
+## 🚀2. Consume Microservice
 
-### 3.1 Consume Upload API
+### 2.1 Consume Upload API
 
 Once document preparation microservice for Milvus is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
@@ -179,7 +141,7 @@ Note: If you specify "table_strategy=llm", You should first start TGI Service, p
 curl -X POST -H "Content-Type: application/json" -d '{"path":"/home/user/doc/your_document_name","process_table":true,"table_strategy":"hq"}' http://localhost:6010/v1/dataprep/ingest
 ```
 
-### 3.2 Consume get API
+### 2.2 Consume get API
 
 To get uploaded file structures, use the following command:
 
@@ -208,7 +170,7 @@ Then you will get the response JSON like this:
 ]
 ```
 
-### 3.3 Consume delete API
+### 2.3 Consume delete API
 
 To delete uploaded file/link, use the following command.
 
@@ -234,7 +196,7 @@ curl -X POST \
     http://localhost:6010/v1/dataprep/delete
 ```
 
-## 🚀4. Troubleshooting
+## 🚀3. Troubleshooting
 
 1. If you get errors from TEI Embedding Endpoint like `cannot find this task, maybe it has expired` while uploading files, try to reduce the `chunk_size` in the curl command like below (the default chunk_size=1500).
 
