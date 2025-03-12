@@ -60,6 +60,7 @@ function start_service() {
 }
 
 function validate_services() {
+    date
     local URL="$1"
     local EXPECTED_RESULT="$2"
     local SERVICE_NAME="$3"
@@ -89,6 +90,7 @@ function validate_services() {
         docker logs ${DOCKER_NAME} >> ${LOG_PATH}/${SERVICE_NAME}.log
         exit 1
     fi
+    date
     sleep 1s
 }
 
