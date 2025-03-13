@@ -38,6 +38,8 @@ function build_vllm_docker_images() {
     echo "Check out vLLM tag ${VLLM_VER}"
     git checkout ${VLLM_VER} &> /dev/null
 
+    # cd $WORKDIR/vllm-fork
+
     docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi:comps failed"
@@ -51,7 +53,7 @@ function start_vllm_service_70B() {
     echo "token is ${HF_TOKEN}"
     model="meta-llama/Llama-3.3-70B-Instruct"
     vllm_port=8086
-    export HF_CACHE_DIR=/data2/huggingface #${model_cache:-"/data2/huggingface"}
+    export HF_CACHE_DIR=/data2/huggingface
     vllm_volume=$HF_CACHE_DIR
 
     echo "start vllm gaudi service"
@@ -117,16 +119,16 @@ function validate() {
 }
 
 function validate_microservice() {
-    # # test /v1/dataprep/ingest
-    # echo "=========== Test ingest ==========="
-    # local CONTENT=$(python $WORKPATH/tests/dataprep/test_redis_finance.py --port $DATAPREP_PORT --test_option ingest)
-    # local EXIT_CODE=$(validate "$CONTENT" "200" "dataprep-redis-finance")
-    # echo "$EXIT_CODE"
-    # local EXIT_CODE="${EXIT_CODE:0-1}"
-    # if [ "$EXIT_CODE" == "1" ]; then
-    #     docker logs dataprep-redis-server-finance &> ${LOG_PATH}/dataprep_ingest.log
-    #     exit 1
-    # fi
+    # test /v1/dataprep/ingest
+    echo "=========== Test ingest ==========="
+    local CONTENT=$(python $WORKPATH/tests/dataprep/test_redis_finance.py --port $DATAPREP_PORT --test_option ingest)
+    local EXIT_CODE=$(validate "$CONTENT" "200" "dataprep-redis-finance")
+    echo "$EXIT_CODE"
+    local EXIT_CODE="${EXIT_CODE:0-1}"
+    if [ "$EXIT_CODE" == "1" ]; then
+        docker logs dataprep-redis-server-finance &> ${LOG_PATH}/dataprep_ingest.log
+        exit 1
+    fi
 
     # test /v1/dataprep/get
     echo "=========== Test get ==========="
@@ -159,6 +161,7 @@ function stop_docker() {
 function main() {
 
     stop_docker
+    stop_vllm_service
 
     build_docker_images
     start_service
