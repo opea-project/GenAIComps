@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import base64
 import errno
 import functools
@@ -13,8 +14,6 @@ import signal
 import subprocess
 import tempfile
 import timeit
-import aiofiles
-import asyncio
 import unicodedata
 import urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -22,6 +21,7 @@ from pathlib import Path
 from typing import Dict, List, Union
 from urllib.parse import urlparse, urlunparse
 
+import aiofiles
 import aiohttp
 import cairosvg
 import cv2
@@ -207,7 +207,7 @@ async def load_docx(docx_path):
     if rid2img:
         save_path = tempfile.mkdtemp()
         await asyncio.to_thread(docx2txt.process, docx_path, save_path)
-    
+
     text_chunks = []
     image_tasks = []
     for paragraph in doc.paragraphs:
@@ -224,7 +224,7 @@ async def load_docx(docx_path):
         if img_text:
             text_chunks.append(img_text + "\n")
     text = "".join(text_chunks)
-    
+
     if rid2img:
         await asyncio.to_thread(shutil.rmtree, save_path)
     return text
@@ -284,6 +284,7 @@ async def load_pptx(pptx_path):
 
 async def load_md(md_path):
     """Asynchronously load and process Markdown file."""
+
     def process_md():
         loader = UnstructuredMarkdownLoader(md_path)
         return loader.load()[0].page_content
@@ -293,6 +294,7 @@ async def load_md(md_path):
 
 async def load_xml(xml_path):
     """Asynchronously load and process XML file."""
+
     def process_xml():
         loader = UnstructuredXMLLoader(xml_path)
         return loader.load()[0].page_content
@@ -328,6 +330,7 @@ async def load_yaml(yaml_path):
 
 async def load_xlsx(input_path):
     """Asynchronously load and process an xlsx file."""
+
     def process_xlsx():
         df = pd.read_excel(input_path)
         return df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
@@ -337,6 +340,7 @@ async def load_xlsx(input_path):
 
 async def load_csv(input_path):
     """Asynchronously load and process CSV file."""
+
     def process_csv():
         df = pd.read_csv(input_path)
         return df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
@@ -346,9 +350,10 @@ async def load_csv(input_path):
 
 async def load_image(image_path):
     """Load the image file."""
+
     async def read_image_async(image_path):
         return await asyncio.to_thread(lambda: open(image_path, "rb").read())
-    
+
     if os.getenv("SUMMARIZE_IMAGE_VIA_LVM", None) == "1":
         query = "Please summarize this image."
         image_b64_str = base64.b64encode(await read_image_async(image_path)).decode()
@@ -360,11 +365,11 @@ async def load_image(image_path):
             ) as response:
                 json_data = await response.json()
         return json_data["text"].strip()
-    
+
     def load_text_from_image():
         loader = UnstructuredImageLoader(image_path)
         return loader.load()[0].page_content.strip()
-    
+
     text = await asyncio.to_thread(load_text_from_image)
     return text
 
