@@ -1,19 +1,22 @@
 # Dataprep microservice for financial domain data
 
 ## 1. Overview
+
 We currently support ingestion of PDFs and URL links. The data should be financial domain, such as SEC filings and earnings call transcripts. If the data is not financial domain, you may encounter accuracy problems or errors.
 
-The dataprep microservice saves financial documents into two databases: 
+The dataprep microservice saves financial documents into two databases:
+
 1. One vector database of text chunks and tables
 2. One KV store of full-length documents
 
 Each unique company has its own index within the vector database and KV store, and metadata such as year, quarter, doc_title, doc_type and source are stored to enable metadata filtering to improve retrieval precision and recall. A company list is maintained so that when a new document comes, the document will either be mapped to an existing company or be added as a new company.
 
-An LLM is used in processing the documents, including extracting metadata and generating summaries for text chunks and tables, and deciding if the document is about an existing company in the knowledge base or not. The default LLM to be used is `meta-llama/Llama-3.3-70B-Instruct`. 
-
+An LLM is used in processing the documents, including extracting metadata and generating summaries for text chunks and tables, and deciding if the document is about an existing company in the knowledge base or not. The default LLM to be used is `meta-llama/Llama-3.3-70B-Instruct`.
 
 ## 2. Deploy with docker
+
 ### 2.1 Start Redis vector database and Redis KV store
+
 ```bash
 docker run --name redis-db -p 6379:6379 -p 8001:8001 -d redis/redis-stack:7.2.0-v9
 docker run --name redis-kv -p 6380:6379 -p 8002:8001 -d redis/redis-stack:7.2.0-v9
@@ -39,7 +42,9 @@ curl localhost:$your_port/embed \
 ```
 
 ### 2.3 Start vllm endpoint
+
 First build vllm-gaudi docker image.
+
 ```bash
 cd $WORKDIR
 git clone https://github.com/HabanaAI/vllm-fork.git
@@ -49,7 +54,9 @@ echo "Check out vLLM tag ${VLLM_VER}"
 git checkout ${VLLM_VER}
 docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
 ```
+
 Then launch vllm on Gaudi.
+
 ```bash
 export vllm_port=8086
 export vllm_volume=$HF_CACHE_DIR
@@ -82,6 +89,7 @@ export HUGGINGFACEHUB_API_TOKEN=<your-hf-token>
 ```bash
 docker run -d --name="dataprep-redis-server-finance" -p 6007:5000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL_VECTOR=$REDIS_URL_VECTOR -e REDIS_URL_KV=$REDIS_URL_KV -e LLM_MODEL=$LLM_MODEL -e LLM_ENDPOINT=$LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e HF_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e DATAPREP_COMPONENT_NAME=$DATAPREP_COMPONENT_NAME opea/dataprep:latest
 ```
+
 ### 2.6 Check the status of dataprep microservice
 
 ```bash
@@ -89,4 +97,5 @@ docker container logs -f dataprep-redis-server-finance
 ```
 
 ## 3. Consume Microservice
+
 See example python script [here](../../../tests/dataprep/test_redis_finance.py).
