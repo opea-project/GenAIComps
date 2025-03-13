@@ -1,14 +1,6 @@
 # Dataprep Microservice with Neo4J
 
-## 🚀Start Microservice with Python
-
-### Install Requirements
-
-```bash
-pip install -r requirements.txt
-apt-get install libtesseract-dev -y
-apt-get install poppler-utils -y
-```
+## 🚀Start Microservice with Docker
 
 ### Start Neo4J Server
 
@@ -34,18 +26,7 @@ export https_proxy=${your_http_proxy}
 export NEO4J_URI=${your_neo4j_url}
 export NEO4J_USERNAME=${your_neo4j_username}
 export NEO4J_PASSWORD=${your_neo4j_password}
-export PYTHONPATH=${path_to_comps}
 ```
-
-### Start Document Preparation Microservice for Neo4J with Python Script
-
-Start document preparation microservice for Neo4J with below command.
-
-```bash
-python prepare_doc_neo4j.py
-```
-
-## 🚀Start Microservice with Docker
 
 ### Build Docker Image
 
@@ -58,17 +39,6 @@ docker build -t opea/dataprep-neo4j:latest --build-arg https_proxy=$https_proxy 
 
 ```bash
 docker run -d --name="dataprep-neo4j-server" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_NEO4J_LANGCHAIN" opea/dataprep-neo4j:latest
-```
-
-### Setup Environment Variables
-
-```bash
-export no_proxy=${your_no_proxy}
-export http_proxy=${your_http_proxy}
-export https_proxy=${your_http_proxy}
-export NEO4J_URI=${your_neo4j_url}
-export NEO4J_USERNAME=${your_neo4j_username}
-export NEO4J_PASSWORD=${your_neo4j_password}
 ```
 
 ### Run Docker with Docker Compose
