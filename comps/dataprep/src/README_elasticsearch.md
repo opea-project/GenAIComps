@@ -1,12 +1,10 @@
 # Dataprep Microservice with Elasticsearch
 
-## 🚀1. Start Microservice with Python（Option 1）
+## 🚀1. Start Microservice with Docker
 
-### 1.1 Install Requirements
+### 1.1 Start Elasticsearch
 
-```bash
-pip install -r requirements.txt
-```
+Please refer to this [readme](../../third_parties/elasticsearch/src/README.md).
 
 ### 1.2 Setup Environment Variables
 
@@ -15,54 +13,29 @@ export ES_CONNECTION_STRING=http://localhost:9200
 export INDEX_NAME=${your_index_name}
 ```
 
-### 1.3 Start Elasticsearch
-
-Please refer to this [readme](../../third_parties/elasticsearch/src/README.md).
-
-### 1.4 Start Document Preparation Microservice for Elasticsearch with Python Script
-
-Start document preparation microservice for Elasticsearch with below command.
-
-```bash
-python prepare_doc_elastic.py
-```
-
-## 🚀2. Start Microservice with Docker (Option 2)
-
-### 2.1 Start Elasticsearch
-
-Please refer to this [readme](../../third_parties/elasticsearch/src/README.md).
-
-### 2.2 Setup Environment Variables
-
-```bash
-export ES_CONNECTION_STRING=http://localhost:9200
-export INDEX_NAME=${your_index_name}
-```
-
-### 2.3 Build Docker Image
+### 1.3 Build Docker Image
 
 ```bash
 cd GenAIComps
 docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
-### 2.4 Run Docker with CLI (Option A)
+### 1.4 Run Docker with CLI (Option A)
 
 ```bash
 docker run  --name="dataprep-elasticsearch" -p 6011:6011 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ES_CONNECTION_STRING=$ES_CONNECTION_STRING  -e INDEX_NAME=$INDEX_NAME -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ELASTICSEARCH" opea/dataprep:latest
 ```
 
-### 2.5 Run with Docker Compose (Option B)
+### 1.5 Run with Docker Compose (Option B)
 
 ```bash
 cd comps/dataprep/deployment/docker_compose/
 docker compose -f compose_elasticsearch.yaml up -d
 ```
 
-## 🚀3. Consume Microservice
+## 🚀2. Consume Microservice
 
-### 3.1 Consume Upload API
+### 2.1 Consume Upload API
 
 Once document preparation microservice for Elasticsearch is started, user can use below command to invoke the
 microservice to convert the document to embedding and save to the database.
@@ -74,7 +47,7 @@ curl -X POST \
     http://localhost:6011/v1/dataprep/ingest
 ```
 
-### 3.2 Consume get API
+### 2.2 Consume get API
 
 To get uploaded file structures, use the following command:
 
@@ -103,7 +76,7 @@ Then you will get the response JSON like this:
 ]
 ```
 
-### 4.3 Consume delete API
+### 2.3 Consume delete API
 
 To delete uploaded file/link, use the following command.
 

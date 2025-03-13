@@ -1,15 +1,6 @@
 # Dataprep Microservice with Qdrant
 
-## 🚀Start Microservice with Python
-
-### Install Requirements
-
-```bash
-pip install -r requirements.txt
-apt-get install tesseract-ocr -y
-apt-get install libtesseract-dev -y
-apt-get install poppler-utils -y
-```
+## 🚀Start Microservice with Docker
 
 ### Start Qdrant Server
 
@@ -21,21 +12,11 @@ docker run -p 6333:6333 -p 6334:6334 -v ./qdrant_storage:/qdrant/storage:z qdran
 export no_proxy=${your_no_proxy}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export QDRANT=${host_ip}
+export QDRANT_HOST=${host_ip}
 export QDRANT_PORT=6333
 export COLLECTION_NAME=${your_collection_name}
 export PYTHONPATH=${path_to_comps}
 ```
-
-### Start Document Preparation Microservice for Qdrant with Python Script
-
-Start document preparation microservice for Qdrant with below command.
-
-```bash
-python prepare_doc_qdrant.py
-```
-
-## 🚀Start Microservice with Docker
 
 ### Build Docker Image
 
@@ -48,16 +29,6 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 
 ```bash
 docker run -d --name="dataprep-qdrant-server" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_QDRANT" opea/dataprep:latest
-```
-
-### Setup Environment Variables
-
-```bash
-export http_proxy=${your_http_proxy}
-export https_proxy=${your_http_proxy}
-export QDRANT_HOST=${host_ip}
-export QDRANT_PORT=6333
-export COLLECTION_NAME=${your_collection_name}
 ```
 
 ### Run Docker with Docker Compose

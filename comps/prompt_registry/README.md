@@ -1,6 +1,6 @@
 # 🧾 Prompt Registry Microservice
 
-The Prompt Registry microservice facilitates the storage and retrieval of users'preferred prompts by establishing a connection with the databases. This microservice is designed to seamlessly integrate with OPEA applications, enabling data persistence and efficient management of user's preferred prompts.
+The Prompt Registry microservice facilitates the storage and retrieval of users' preferred prompts by establishing a connection with the databases. This microservice is designed to seamlessly integrate with OPEA applications, enabling data persistence and efficient management of user's preferred prompts.
 
 ---
 

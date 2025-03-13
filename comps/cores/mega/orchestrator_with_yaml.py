@@ -1,7 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import asyncio
 import json
 import re
 from collections import OrderedDict
@@ -24,10 +23,10 @@ class ServiceOrchestratorWithYaml(DAG):
         if not is_valid:
             raise Exception("Invalid mega graph!")
 
-    async def execute(self, cur_node: str, inputs: Dict):
+    def execute(self, cur_node: str, inputs: Dict):
         # send the cur_node request/reply
         endpoint = self.docs["opea_micro_services"][cur_node]["endpoint"]
-        response = await asyncio.to_thread(requests.post, url=endpoint, data=json.dumps(inputs), proxies={"http": None})
+        response = requests.post(url=endpoint, data=json.dumps(inputs), proxies={"http": None})
         print(response)
         return response.json()
 
@@ -49,7 +48,7 @@ class ServiceOrchestratorWithYaml(DAG):
                 inputs = initial_inputs
             else:
                 inputs = self.process_outputs(self.predecessors(node))
-            response = await self.execute(node, inputs)
+            response = self.execute(node, inputs)
             self.result_dict[node] = response
 
     def _load_from_yaml(self):

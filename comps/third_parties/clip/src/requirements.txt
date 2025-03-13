@@ -1,3 +1,4 @@
+aiohttp
 dateparser
 docarray[full]
 einops

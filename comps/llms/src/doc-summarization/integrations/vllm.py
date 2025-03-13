@@ -63,6 +63,7 @@ class OpeaDocSumvLLM(OpeaDocSum):
             top_p=input.top_p if input.top_p else 0.95,
             streaming=input.stream,
             temperature=input.temperature if input.temperature else 0.01,
+            request_timeout=float(input.timeout) if input.timeout is not None else None,
         )
         result = await self.generate(input, self.client)
 

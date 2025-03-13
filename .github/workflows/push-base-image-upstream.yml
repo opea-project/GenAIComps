@@ -1,0 +1,55 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+name: Build and upstream latest base image on push event
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - '**/cores/**'
+      - '**/src/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-on-push
+  cancel-in-progress: true
+
+jobs:
+  image-build:
+    strategy:
+      matrix:
+        node: [xeon, gaudi]
+    runs-on: docker-build-${{ matrix.node }}
+    continue-on-error: true
+    steps:
+      - name: Clean up Working Directory
+        run: |
+          echo "Build opea/comps-base:latest !"
+          sudo rm -rf ${{github.workspace}}/*
+
+      - name: Checkout out Repo
+        uses: actions/checkout@v4
+
+      - name: Build Image
+        uses: opea-project/validation/actions/image-build@main
+        with:
+          work_dir: ${{ github.workspace }}
+          docker_compose_path: ${{ github.workspace }}/.github/workflows/docker/compose/base-compose.yaml
+          registry: ${OPEA_IMAGE_REPO}opea
+
+  image-publish:
+    needs: [ image-build ]
+    runs-on: [docker-upstream]
+    steps:
+      - uses: docker/login-action@v3.2.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Image Publish
+        uses: opea-project/validation/actions/image-publish@main
+        with:
+          local_image_ref: ${OPEA_IMAGE_REPO}opea/comps-base:latest
+          image_name: opea/comps-base
+          publish_tags: latest

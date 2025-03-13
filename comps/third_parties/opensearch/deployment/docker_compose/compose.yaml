@@ -28,7 +28,7 @@ services:
       - "${OPENSEARCH_PORT1:-9200}:9200"
       - "${OPENSEARCH_PORT2:-9600}:9600"
     healthcheck:
-      test: ["CMD-SHELL", "sleep 10 && exit 0"]
-      interval: 1s
+      test: ["CMD-SHELL", "curl -f https://localhost:9200 -ku 'admin:$OPENSEARCH_INITIAL_ADMIN_PASSWORD' || exit 1"]
+      interval: 5s
       timeout: 15s
-      retries: 1
+      retries: 12
