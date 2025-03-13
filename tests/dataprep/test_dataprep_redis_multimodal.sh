@@ -143,6 +143,13 @@ tire.""" > ${transcript_fn}
     echo "Downloading PDF"
     wget https://raw.githubusercontent.com/opea-project/GenAIComps/v1.1/comps/retrievers/redis/data/nke-10k-2023.pdf -O ${pdf_fn}
 
+    echo "Creating a text-only pdf file"
+    docker run --rm -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v "$tmp_dir:/mnt" python:latest bash -c " \
+        pip install pymupdf && \
+        python -c \"import fitz; new_pdf = fitz.open(); page = new_pdf.new_page(); page.insert_text(point=(50, 50), text='Text only PDF'); \
+        new_pdf.save('/mnt/test.pdf'); new_pdf.close()\"
+    "
+
 }
 
 function validate_microservice() {
@@ -317,6 +324,31 @@ function validate_microservice() {
 
     # test ingest with a PDF file
     echo "Testing ingest API with a PDF file"
+    URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/ingest"
+
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$pdf_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+    RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+    SERVICE_NAME="dataprep - upload - file"
+
+    if [ "$HTTP_STATUS" -ne "200" ]; then
+        echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
+        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
+    fi
+    if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
+        echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
+        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        exit 1
+    else
+        echo "[ $SERVICE_NAME ] Content is as expected."
+    fi
+
+    # test ingest with a text-only PDF file
+    pdf_fn="${tmp_dir}/test.pdf"
+    echo "Testing ingest API with a text-only PDF file"
     URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/ingest"
 
     HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$pdf_fn" -H 'Content-Type: multipart/form-data' "$URL")
