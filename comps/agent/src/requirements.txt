@@ -8,9 +8,8 @@ langchain
 langchain-google-community
 langchain-huggingface
 langchain-openai
-langchain_community
 langchain-redis
-rank_bm25
+langchain_community
 langchainhub
 langgraph
 langsmith
@@ -24,6 +23,7 @@ pandas
 prometheus_fastapi_instrumentator
 pyarrow
 pydantic #==1.10.13
+rank_bm25
 
 # used by document loader
 # beautifulsoup4
