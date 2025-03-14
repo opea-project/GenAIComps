@@ -9,6 +9,8 @@ langchain-google-community
 langchain-huggingface
 langchain-openai
 langchain_community
+langchain-redis
+rank_bm25
 langchainhub
 langgraph
 langsmith
