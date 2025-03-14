@@ -10,7 +10,7 @@ cd $WORKSPACE
 changed_files_full=$changed_files_full
 run_matrix="{\"include\":["
 
-# add test services when comps code change
+
 function find_test_1() {
     local pre_service_path=$1
     local n=$2
@@ -97,16 +97,19 @@ function _fill_in_matrix() {
     sleep 1s
 }
 
-# add test case when test scripts code change
+
 function find_test_2() {
-    test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "\.sh") || true
+    test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "\.sh" | grep -E "test_") || true
     for test_file in ${test_files}; do
         if [ -f $test_file ]; then
             _service=$(echo $test_file | cut -d'/' -f3 | grep -E "\.sh" | cut -d'.' -f1 | cut -c6-)
-            _fill_in_matrix $_service
+            if [ -n "${_service}" ]; then
+                _fill_in_matrix $_service
+            fi
         fi
     done
 }
+
 
 function find_test_3() {
     yaml_files=${changed_files}
@@ -127,8 +130,10 @@ function find_test_3() {
     done
 }
 
+
 function main() {
 
+    # add test services when comps code change
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|comps/third_parties|deployment|\.yaml') || true
     echo "===========start find_test_1============"
     echo "changed_files=${changed_files}"
@@ -137,6 +142,7 @@ function main() {
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_1============"
 
+    # add test case when test scripts code change
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'tests/' | grep -vE '\.md|\.txt|tests/cores') || true
     echo "===========start find_test_2============"
     echo "changed_files=${changed_files}"
@@ -145,6 +151,7 @@ function main() {
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_2============"
 
+    # add test case when docker-compose code change
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'deployment/docker_compose/compose' | grep '.yaml') || true
     echo "===========start find_test_3============"
     echo "changed_files=${changed_files}"

@@ -6,63 +6,13 @@ For dataprep microservice, we currently provide one framework: `Langchain`.
 
 We organized the folders in the same way, so you can use either framework for dataprep microservice with the following constructions.
 
-## 🚀1. Start Microservice with Python (Option 1)
+## 🚀1. Start Microservice with Docker (Option 2)
 
-### 1.1 Install Requirements
-
-Install Single-process version (for 1-10 files processing)
-
-```bash
-apt-get update
-apt-get install -y default-jre tesseract-ocr libtesseract-dev poppler-utils
-cd langchain
-pip install -r requirements.txt
-```
-
-<!-- - option 2: Install multi-process version (for >10 files processing)
-
-```bash
-cd langchain_ray; pip install -r requirements_ray.txt
-``` -->
-
-### 1.2 Start VDMS Server
+### 1.1 Start VDMS Server
 
 Refer to this [readme](../../third_parties/vdms/src/README.md).
 
-### 1.3 Setup Environment Variables
-
-```bash
-export http_proxy=${your_http_proxy}
-export https_proxy=${your_http_proxy}
-export VDMS_HOST=${host_ip}
-export VDMS_PORT=55555
-export COLLECTION_NAME=${your_collection_name}
-export PYTHONPATH=${path_to_comps}
-```
-
-### 1.4 Start Document Preparation Microservice for VDMS with Python Script
-
-Start document preparation microservice for VDMS with below command.
-
-Start single-process version (for 1-10 files processing)
-
-```bash
-python prepare_doc_vdms.py
-```
-
-<!-- - option 2: Start multi-process version (for >10 files processing)
-
-```bash
-python prepare_doc_redis_on_ray.py
-``` -->
-
-## 🚀2. Start Microservice with Docker (Option 2)
-
-### 2.1 Start VDMS Server
-
-Refer to this [readme](../../third_parties/vdms/src/README.md).
-
-### 2.2 Setup Environment Variables
+### 1.2 Setup Environment Variables
 
 ```bash
 export http_proxy=${your_http_proxy}
@@ -77,14 +27,14 @@ export DISTANCE_STRATEGY="L2"
 export PYTHONPATH=${path_to_comps}
 ```
 
-### 2.3 Build Docker Image
+### 1.3 Build Docker Image
 
 ```bash
 cd ../../../
 docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
 ```
 
-### 2.4 Run Docker with CLI
+### 1.4 Run Docker with CLI
 
 Start single-process version (for 1-10 files processing)
 
@@ -96,13 +46,13 @@ docker run -d --name="dataprep-vdms-server" -p 6007:6007 --runtime=runc --ipc=ho
 -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_VDMS" opea/dataprep:latest
 ```
 
-## 🚀3. Status Microservice
+## 🚀2. Status Microservice
 
 ```bash
 docker container logs -f dataprep-vdms-server
 ```
 
-## 🚀4. Consume Microservice
+## 🚀3. Consume Microservice
 
 Once document preparation microservice for VDMS is started, user can use below command to invoke the microservice to convert the document to embedding and save to the database.
 
