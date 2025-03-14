@@ -1,6 +1,9 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+# Most of code originates from https://github.com/intel/intel-extension-for-pytorch/blob/main/examples/cpu/llm/inference/single_instance/run_generation.py
+# Refactored to FastAPI app for serving the model
+
 import argparse
 import logging
 import os
