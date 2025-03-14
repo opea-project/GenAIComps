@@ -3,7 +3,7 @@
 
 services:
   multimodal-clip-embedding:
-    image: opea/embedding-multimodal-clip:latest
+    image: opea/embedding-multimodal-clip:${TAG:-latest}
     container_name: multimodal-clip-embedding-server
     ports:
       - "${MULTIMODAL_CLIP_EMBEDDER_PORT:-6990}:6990"
