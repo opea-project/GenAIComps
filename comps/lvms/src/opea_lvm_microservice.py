@@ -10,6 +10,7 @@ from integrations.llava import OpeaLlavaLvm
 from integrations.predictionguard import OpeaPredictionguardLvm
 from integrations.tgi_llava import OpeaTgiLlavaLvm
 from integrations.video_llama import OpeaVideoLlamaLvm
+from integrations.vllm import OpeaVllmLvm
 
 from comps import (
     CustomLogger,
@@ -29,7 +30,7 @@ from comps import (
 logger = CustomLogger("opea_lvm_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
-lvm_component_name = os.getenv("LVM_COMPONENT_NAME", "OPEA_LLAVA_LVM")
+lvm_component_name = os.getenv("LVM_COMPONENT_NAME", "OPEA_VLLM_LVM")
 # Initialize OpeaComponentController
 loader = OpeaComponentLoader(lvm_component_name, description=f"OPEA LVM Component: {lvm_component_name}")
 
@@ -54,7 +55,7 @@ async def lvm(
             logger.info(lvm_response)
 
         if loader.component.name in ["OpeaVideoLlamaLvm"] or (
-            loader.component.name in ["OpeaTgiLlavaLvm"] and request.streaming
+            loader.component.name in ["OpeaTgiLlavaLvm", "OpeaVllmLvm"] and request.streaming
         ):
             # statistics for StreamingResponse are handled inside the integrations
             # here directly return the response
