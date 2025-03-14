@@ -14,14 +14,14 @@ from integrations.utils import get_args
 def test_agent_local(args):
     from integrations.agent import instantiate_agent
 
-    
-    agent = instantiate_agent(args) 
+    agent = instantiate_agent(args)
 
     config = {"recursion_limit": args.recursion_limit}
 
     query = "What is OPEA project?"
 
     # run_agent(agent, config, query)
+
 
 def test_agent_http(args):
     proxies = {"http": ""}
@@ -130,14 +130,12 @@ def test_ut(args):
 def run_agent(agent, config, input_message):
     initial_state = agent.prepare_initial_state(input_message)
 
-
     for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
         message = s["messages"][-1]
         message.pretty_print()
 
     last_message = s["messages"][-1]
     print("******Response: ", last_message.content)
-    
 
 
 def stream_generator(agent, config, input_message):

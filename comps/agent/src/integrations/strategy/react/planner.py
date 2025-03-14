@@ -20,6 +20,7 @@ class ReActAgentwithLangchain(BaseAgent):
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
         from .prompt import hwchase17_react_prompt
+
         prompt = hwchase17_react_prompt
         if has_multi_tool_inputs(self.tools_descriptions):
             raise ValueError("Only supports single input tools when using strategy == react_langchain")
