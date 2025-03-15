@@ -72,7 +72,9 @@ class HTTPService(BaseService):
         )
         async def _health_check():
             """Get the health status of this GenAI microservice."""
-            return {"Service Title": self.title, "Service Description": self.description}
+            from comps.version import __version__
+
+            return {"Service Title": self.title, "Version": __version__, "Service Description": self.description}
 
         @app.get("/health")
         async def _health() -> Response:
