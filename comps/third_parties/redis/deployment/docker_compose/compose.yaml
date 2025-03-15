@@ -17,3 +17,19 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  redis-kv-store:
+    image: redis/redis-stack:7.2.0-v9
+    container_name: redis-kv-store
+    ports:
+      - "${REDIS_PORT3:-6380}:6379"
+      - "${REDIS_PORT4:-8002}:8001"
+    environment:
+      - no_proxy=${no_proxy}
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 10s
+      retries: 3
+      start_period: 10s
