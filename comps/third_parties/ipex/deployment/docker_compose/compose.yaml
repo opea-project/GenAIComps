@@ -1,0 +1,22 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+
+  ipex:
+    image: ${REGISTRY:-opea}/ipex-llm:${TAG:-latest}
+    container_name: ipex-llm-server
+    ports:
+      - ${IPEX_LLM_PORT:-8688}:8688
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      MODEL_ID: ${MODEL_ID}
+      HF_TOKEN: ${HF_TOKEN}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
