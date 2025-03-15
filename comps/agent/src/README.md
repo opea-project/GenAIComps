@@ -131,7 +131,8 @@ export vllm_volume=${YOUR_LOCAL_DIR_FOR_MODELS}
 # build vLLM image
 git clone https://github.com/HabanaAI/vllm-fork.git
 cd ./vllm-fork
-git checkout v0.6.4.post2+Gaudi-1.19.0
+VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+git checkout ${VLLM_VER} &> /dev/null
 docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
 
 # vllm serving on 4 Gaudi2 cards

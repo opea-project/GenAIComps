@@ -14,41 +14,13 @@ from integrations.utils import get_args
 def test_agent_local(args):
     from integrations.agent import instantiate_agent
 
-    if args.q == 0:
-        df = pd.DataFrame({"query": ["What is the Intel OPEA Project?"]})
-    elif args.q == 1:
-        df = pd.DataFrame({"query": ["what is the trade volume for Microsoft today?"]})
-    elif args.q == 2:
-        df = pd.DataFrame({"query": ["what is the hometown of Year 2023 Australia open winner?"]})
-
-    agent = instantiate_agent(args, strategy=args.strategy)
-    app = agent.app
+    agent = instantiate_agent(args)
 
     config = {"recursion_limit": args.recursion_limit}
 
-    traces = []
-    success = 0
-    for _, row in df.iterrows():
-        print("Query: ", row["query"])
-        initial_state = {"messages": [{"role": "user", "content": row["query"]}]}
-        try:
-            trace = {"query": row["query"], "trace": []}
-            for event in app.stream(initial_state, config=config):
-                trace["trace"].append(event)
-                for k, v in event.items():
-                    print("{}: {}".format(k, v))
+    query = "What is OPEA project?"
 
-            traces.append(trace)
-            success += 1
-        except Exception as e:
-            print(str(e), str(traceback.format_exc()))
-            traces.append({"query": row["query"], "trace": str(e)})
-
-        print("-" * 50)
-
-    df["trace"] = traces
-    df.to_csv(os.path.join(args.filedir, args.output), index=False)
-    print(f"succeed: {success}/{len(df)}")
+    # run_agent(agent, config, query)
 
 
 def test_agent_http(args):
@@ -158,15 +130,12 @@ def test_ut(args):
 def run_agent(agent, config, input_message):
     initial_state = agent.prepare_initial_state(input_message)
 
-    try:
-        for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
-            message = s["messages"][-1]
-            message.pretty_print()
+    for s in agent.app.stream(initial_state, config=config, stream_mode="values"):
+        message = s["messages"][-1]
+        message.pretty_print()
 
-        last_message = s["messages"][-1]
-        print("******Response: ", last_message.content)
-    except Exception as e:
-        print(str(e))
+    last_message = s["messages"][-1]
+    print("******Response: ", last_message.content)
 
 
 def stream_generator(agent, config, input_message):
@@ -309,4 +278,5 @@ if __name__ == "__main__":
     # else:
     #     print("Please specify the test type")
 
-    test_memory(args)
+    # test_memory(args)
+    test_agent_local(args)
