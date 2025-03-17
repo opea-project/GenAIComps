@@ -43,7 +43,7 @@ bash ./launch_vllm_service.sh ${port_number} ${model_name}
 #### Launch vLLM service with docker compose
 
 ```bash
-cd deplopyment/docker_compose
+cd deployment/docker_compose
 docker compose -f compose.yaml up vllm-server -d
 ```
 
@@ -64,8 +64,8 @@ Set `hw_mode` to `hpu`.
 1. Option 1: Use docker compose for quick deploy
 
 ```bash
-cd deplopyment/docker_compose
-docker compose -f compose.yaml vllm-gaudi-server up -d
+cd deployment/docker_compose
+docker compose -f compose.yaml up vllm-gaudi-server -d
 ```
 
 2. Option 2: Use scripts to set parameters.
@@ -187,7 +187,43 @@ OpenVINO best known configuration for GPU is:
     $ VLLM_OPENVINO_DEVICE=GPU VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON \
         python3 vllm/benchmarks/benchmark_throughput.py --model meta-llama/Llama-2-7b-chat-hf --dataset vllm/benchmarks/ShareGPT_V3_unfiltered_cleaned_split.json
 
-### 2.4 Query the service
+### 2.4 vLLM with ROCm (on AMD GPU)
+
+#### Build docker image for ROCm vLLM
+
+```bash
+cd GenAIComps/comps/third_parties/vllm/src
+docker build -f Dockerfile.amd_gpu -t opea/vllm-rocm:latest . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+```
+
+#### Launch vLLM service with docker compose
+
+```bash
+cd GenAIComps/comps/third_parties/vllm/deployment/docker_compose
+# IP port for vLLM service
+export VLLM_SERVICE_PORT=8011
+# HF token
+export HUGGINGFACEHUB_API_TOKEN="your_hf_token"
+# Cache dir
+export HF_CACHE_DIR="./data"
+# Model
+export VLLM_LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+# Specify the number of GPUs used
+export TENSOR_PARALLEL_SIZE=1
+# Run deploy
+docker compose -f compose.yaml up vllm-rocm-server -d
+```
+
+#### Checking ROCM vLLM service
+
+```bash
+curl http://${host_ip}:${VLLM_SERVICE_PORT}/v1/chat/completions \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"model": "Intel/neural-chat-7b-v3-3", "messages": [{"role": "user", "content": "What is Deep Learning?"}]}'
+```
+
+### 2.5 Query the service
 
 And then you can make requests like below to check the service status:
 

@@ -25,6 +25,7 @@ from .logger import CustomLogger
 
 logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
+ENABLE_OPEA_TELEMETRY = bool(os.environ.get("TELEMETRY_ENDPOINT"))
 
 
 class OrchestratorMetrics:
@@ -208,11 +209,11 @@ class ServiceOrchestrator(DAG):
 
     def wrap_iterable(self, iterable, is_first=True):
 
-        with tracer.start_as_current_span("llm_generate_stream"):
+        with tracer.start_as_current_span("llm_generate_stream") if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
             while True:
                 with (
                     tracer.start_as_current_span("llm_generate_stream_first_token")
-                    if is_first
+                    if is_first and ENABLE_OPEA_TELEMETRY
                     else contextlib.nullcontext()
                 ):  #  else tracer.start_as_current_span(f"llm_generate_stream_next_token")
                     try:
@@ -253,7 +254,11 @@ class ServiceOrchestrator(DAG):
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
                 logger.info(inputs)
-            with tracer.start_as_current_span(f"{cur_node}_asyn_generate"):
+            with (
+                tracer.start_as_current_span(f"{cur_node}_asyn_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = requests.post(
                     url=endpoint,
                     data=json.dumps(inputs),
@@ -275,9 +280,7 @@ class ServiceOrchestrator(DAG):
                     # response.elapsed = time until first headers received
                     buffered_chunk_str = ""
                     is_first = True
-
                     for chunk in self.wrap_iterable(response.iter_content(chunk_size=None)):
-
                         if chunk:
                             if downstream:
                                 chunk = chunk.decode("utf-8")
@@ -299,10 +302,11 @@ class ServiceOrchestrator(DAG):
                                         res_txt, token_start, is_first=is_first, is_last=is_last
                                     )
                                     token_start = time.time()
+                                    is_first = False
                             else:
                                 token_start = self.metrics.token_update(token_start, is_first)
+                                is_first = False
                                 yield chunk
-                            is_first = False
 
                     self.metrics.request_update(req_start)
                     self.metrics.pending_update(False)
@@ -320,8 +324,14 @@ class ServiceOrchestrator(DAG):
                 input_data = {k: v for k, v in input_data.items() if v is not None}
             else:
                 input_data = inputs
-            with tracer.start_as_current_span(f"{cur_node}_generate"):
+
+            with (
+                tracer.start_as_current_span(f"{cur_node}_generate")
+                if ENABLE_OPEA_TELEMETRY
+                else contextlib.nullcontext()
+            ):
                 response = await session.post(endpoint, json=input_data)
+
             if response.content_type == "audio/wav":
                 audio_data = await response.read()
                 data = self.align_outputs(audio_data, cur_node, inputs, runtime_graph, llm_parameters_dict, **kwargs)
@@ -371,5 +381,6 @@ class ServiceOrchestrator(DAG):
         for token in tokens:
             token_start = self.metrics.token_update(token_start, is_first)
             yield prefix + repr(token.replace("\\n", "\n").encode("utf-8")) + suffix
+            is_first = False
         if is_last:
             yield "data: [DONE]\n\n"

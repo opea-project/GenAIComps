@@ -3,6 +3,7 @@
 # for test
 
 
+import asyncio
 import json
 import os
 from pathlib import Path
@@ -14,6 +15,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import Redis
 from langchain_text_splitters import HTMLHeaderTextSplitter
+from redis import asyncio as aioredis
 from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
@@ -100,11 +102,11 @@ REDIS_URL = format_redis_conn_from_env()
 redis_pool = redis.ConnectionPool.from_url(REDIS_URL)
 
 
-def check_index_existance(client):
+async def check_index_existance(client):
     if logflag:
         logger.info(f"[ check index existence ] checking {client}")
     try:
-        results = client.search("*")
+        results = await client.search("*")
         if logflag:
             logger.info(f"[ check index existence ] index of client exists: {client}")
         return results
@@ -114,12 +116,12 @@ def check_index_existance(client):
         return None
 
 
-def create_index(client, index_name: str = KEY_INDEX_NAME):
+async def create_index(client, index_name: str = KEY_INDEX_NAME):
     if logflag:
         logger.info(f"[ create index ] creating index {index_name}")
     try:
         definition = IndexDefinition(index_type=IndexType.HASH, prefix=["file:"])
-        client.create_index((TextField("file_name"), TextField("key_ids")), definition=definition)
+        await client.create_index((TextField("file_name"), TextField("key_ids")), definition=definition)
         if logflag:
             logger.info(f"[ create index ] index {index_name} successfully created")
     except Exception as e:
@@ -129,11 +131,11 @@ def create_index(client, index_name: str = KEY_INDEX_NAME):
     return True
 
 
-def store_by_id(client, key, value):
+async def store_by_id(client, key, value):
     if logflag:
         logger.info(f"[ store by id ] storing ids of {key}")
     try:
-        client.add_document(doc_id="file:" + key, file_name=key, key_ids=value)
+        await client.add_document(doc_id="file:" + key, file_name=key, key_ids=value)
         if logflag:
             logger.info(f"[ store by id ] store document success. id: file:{key}")
     except Exception as e:
@@ -183,31 +185,9 @@ def delete_by_id(client, id):
     return True
 
 
-def ingest_chunks_to_redis(file_name: str, chunks: List):
+async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder):
     if logflag:
         logger.info(f"[ redis ingest chunks ] file name: {file_name}")
-    # Create vectorstore
-    if TEI_EMBEDDING_ENDPOINT:
-        if not HUGGINGFACEHUB_API_TOKEN:
-            raise HTTPException(
-                status_code=400,
-                detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
-            )
-        import requests
-
-        response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
-            )
-        model_id = response.json()["model_id"]
-        # create embeddings using TEI endpoint service
-        embedder = HuggingFaceInferenceAPIEmbeddings(
-            api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
-        )
-    else:
-        # create embeddings using local embedding model
-        embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
 
     # Batch size
     batch_size = 32
@@ -220,7 +200,8 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
         batch_chunks = chunks[i : i + batch_size]
         batch_texts = batch_chunks
 
-        _, keys = Redis.from_texts_return_keys(
+        _, keys = await asyncio.to_thread(
+            Redis.from_texts_return_keys,
             texts=batch_texts,
             embedding=embedder,
             index_name=INDEX_NAME,
@@ -233,13 +214,13 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
             logger.info(f"[ redis ingest chunks ] Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
     # store file_ids into index file-keys
-    r = redis.Redis(connection_pool=redis_pool)
+    r = await aioredis.from_url(REDIS_URL)
     client = r.ft(KEY_INDEX_NAME)
-    if not check_index_existance(client):
-        assert create_index(client)
+    if not await check_index_existance(client):
+        await create_index(client)
 
     try:
-        assert store_by_id(client, key=file_name, value="#".join(file_ids))
+        await store_by_id(client, key=file_name, value="#".join(file_ids))
     except Exception as e:
         if logflag:
             logger.info(f"[ redis ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
@@ -247,7 +228,7 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
     return True
 
 
-def ingest_data_to_redis(doc_path: DocPath):
+async def ingest_data_to_redis(doc_path: DocPath, embedder):
     """Ingest document to Redis."""
     path = doc_path.path
     if logflag:
@@ -268,7 +249,7 @@ def ingest_data_to_redis(doc_path: DocPath):
             separators=get_separators(),
         )
 
-    content = document_loader(path)
+    content = await document_loader(path)
     if logflag:
         logger.info("[ redis ingest data ] file content loaded")
 
@@ -278,7 +259,7 @@ def ingest_data_to_redis(doc_path: DocPath):
     if ext in structured_types:
         chunks = content
     else:
-        chunks = text_splitter.split_text(content)
+        chunks = await asyncio.to_thread(text_splitter.split_text, content)
 
     ### Specially processing for the table content in PDFs
     if doc_path.process_table and path.endswith(".pdf"):
@@ -288,7 +269,7 @@ def ingest_data_to_redis(doc_path: DocPath):
         logger.info(f"[ redis ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
 
     file_name = doc_path.path.split("/")[-1]
-    return ingest_chunks_to_redis(file_name, chunks)
+    return await ingest_chunks_to_redis(file_name, chunks, embedder)
 
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_REDIS")
@@ -301,26 +282,54 @@ class OpeaRedisDataprep(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
-        self.client = self._initialize_client()
-        self.data_index_client = self.client.ft(INDEX_NAME)
-        self.key_index_client = self.client.ft(KEY_INDEX_NAME)
+        self.client = redis.Redis(connection_pool=redis_pool)
+        self.data_index_client, self.key_index_client = asyncio.run(self._initialize_client())
+        self.embedder = asyncio.run(self._initialize_embedder())
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaRedisDataprep health check failed.")
 
-    def _initialize_client(self) -> redis.Redis:
+    async def _initialize_client(self) -> redis.Redis:
         if logflag:
             logger.info("[ initialize client ] initializing redis client...")
 
         """Initializes the redis client."""
         try:
-            client = redis.Redis(connection_pool=redis_pool)
-            return client
+            client = await aioredis.from_url(REDIS_URL)
+            data_index_client = client.ft(INDEX_NAME)
+            key_index_client = client.ft(KEY_INDEX_NAME)
+            return data_index_client, key_index_client
         except Exception as e:
             logger.error(f"fail to initialize redis client: {e}")
             return None
 
-    def check_health(self) -> bool:
+    async def _initialize_embedder(self):
+        if TEI_EMBEDDING_ENDPOINT:
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+
+            import httpx
+
+            async with httpx.AsyncClient() as client:
+                response = await client.get(TEI_EMBEDDING_ENDPOINT + "/info")
+                if response.status_code != 200:
+                    raise HTTPException(
+                        status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                    )
+                model_id = response.json()["model_id"]
+            # create embeddings using TEI endpoint service
+            embedder = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
+        else:
+            # create embeddings using local embedding model
+            embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+        return embedder
+
+    async def check_health(self) -> bool:
         """Checks the health of the dataprep service.
 
         Returns:
@@ -393,14 +402,15 @@ class OpeaRedisDataprep(OpeaComponent):
 
                 save_path = upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                ingest_data_to_redis(
+                await ingest_data_to_redis(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    )
+                    ),
+                    self.embedder,
                 )
                 uploaded_files.append(save_path)
                 if logflag:
@@ -437,14 +447,15 @@ class OpeaRedisDataprep(OpeaComponent):
                 save_path = upload_folder + encoded_link + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 await save_content_to_local_disk(save_path, content)
-                ingest_data_to_redis(
+                await ingest_data_to_redis(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                         process_table=process_table,
                         table_strategy=table_strategy,
-                    )
+                    ),
+                    self.embedder,
                 )
             if logflag:
                 logger.info(f"[ redis ingest] Successfully saved link list {link_list}")
@@ -468,7 +479,7 @@ class OpeaRedisDataprep(OpeaComponent):
         file_list = []
 
         # check index existence
-        res = check_index_existance(self.key_index_client)
+        res = await check_index_existance(self.key_index_client)
         if not res:
             if logflag:
                 logger.info(f"[ redis get ] index {KEY_INDEX_NAME} does not exist")
@@ -506,7 +517,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 logger.info("[ redis delete ] delete all files")
 
             # drop index KEY_INDEX_NAME
-            if check_index_existance(self.key_index_client):
+            if await check_index_existance(self.key_index_client):
                 try:
                     assert drop_index(index_name=KEY_INDEX_NAME)
                 except Exception as e:
@@ -517,7 +528,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 logger.info(f"[ redis delete ] Index {KEY_INDEX_NAME} does not exits.")
 
             # drop index INDEX_NAME
-            if check_index_existance(self.data_index_client):
+            if await check_index_existance(self.data_index_client):
                 try:
                     assert drop_index(index_name=INDEX_NAME)
                 except Exception as e:

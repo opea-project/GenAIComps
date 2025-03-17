@@ -12,7 +12,9 @@ function build_docker_images() {
     cd $WORKPATH
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
-    git checkout v0.6.4.post2+Gaudi-1.19.0
+    VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+    echo "Check out vLLM tag ${VLLM_VER}"
+    git checkout ${VLLM_VER} &> /dev/null
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
@@ -38,13 +40,22 @@ function start_service() {
     export LLM_ENDPOINT_PORT=12210
     export vLLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export HALLUCINATION_DETECTION_PORT=11305
+    export VLLM_SKIP_WARMUP=true
     export TAG=comps
     service_name="vllm-gaudi-server hallucination-detection-server"
     cd $WORKPATH
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
+    if [ $? -ne 0 ]; then
+        echo "Microservice failed to start!"
+        for service in $service_name; do
+            echo "Logs for $service..."
+            docker logs $service
+        done
+        exit 1
+    fi
     echo "Microservice started"
-    sleep 15
+    sleep 1m
 }
 
 function validate_microservice() {

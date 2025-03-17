@@ -60,8 +60,9 @@ from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_
 from llama_index.core.schema import BaseNode, TransformComponent
 
 host_ip = os.getenv("host_ip")
+NEO4J_PORT2 = os.getenv("NEO4J_PORT2")
 # Neo4J configuration
-NEO4J_URL = os.getenv("NEO4J_URL", f"bolt://{host_ip}:7687")
+NEO4J_URL = os.getenv("NEO4J_URL", f"bolt://{host_ip}:{NEO4J_PORT2}")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "neo4jtest")
 
@@ -587,7 +588,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    def ingest_data_to_neo4j(self, doc_path: DocPath):
+    async def ingest_data_to_neo4j(self, doc_path: DocPath):
         """Ingest document to Neo4J."""
         path = doc_path.path
         if logflag:
@@ -608,7 +609,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)  # single doc string
+        content = await document_loader(path)  # single doc string
         document = Document(text=content)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
@@ -709,7 +710,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
                     save_path = self.upload_folder + encode_file
                     await save_content_to_local_disk(save_path, file)
                     starttime = time.time()
-                    index = self.ingest_data_to_neo4j(
+                    index = await self.ingest_data_to_neo4j(
                         DocPath(
                             path=save_path,
                             chunk_size=chunk_size,
@@ -733,7 +734,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
                     content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                     try:
                         await save_content_to_local_disk(save_path, content)
-                        index = self.ingest_data_to_neo4j(
+                        index = await self.ingest_data_to_neo4j(
                             DocPath(
                                 path=save_path,
                                 chunk_size=chunk_size,

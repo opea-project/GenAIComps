@@ -19,6 +19,9 @@ function build_docker_images() {
     cd $WORKPATH
     git clone https://github.com/vllm-project/vllm.git
     cd ./vllm/
+    VLLM_VER="$(git describe --tags "$(git rev-list --tags --max-count=1)" )"
+    echo "Check out vLLM tag ${VLLM_VER}"
+    git checkout ${VLLM_VER} &> /dev/null
     docker build --no-cache -f Dockerfile.cpu -t ${REGISTRY:-opea}/vllm:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm built fail"
@@ -137,7 +140,7 @@ function validate_microservices() {
         'text' \
         "docsum-vllm" \
         "docsum-vllm" \
-        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "stream":false}'
+        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "stream":false, "timeout":200}'
 
     echo "Validate refine mode..."
     validate_services \
@@ -145,7 +148,7 @@ function validate_microservices() {
         'text' \
         "docsum-vllm" \
         "docsum-vllm" \
-        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000}'
+        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000, "timeout":200}'
 }
 
 function stop_docker() {

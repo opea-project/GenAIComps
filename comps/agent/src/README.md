@@ -131,7 +131,8 @@ export vllm_volume=${YOUR_LOCAL_DIR_FOR_MODELS}
 # build vLLM image
 git clone https://github.com/HabanaAI/vllm-fork.git
 cd ./vllm-fork
-git checkout v0.6.4.post2+Gaudi-1.19.0
+VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+git checkout ${VLLM_VER} &> /dev/null
 docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
 
 # vllm serving on 4 Gaudi2 cards
@@ -274,7 +275,7 @@ docker run -d --runtime=runc --name="comps-agent-endpoint" -v my_tools:/home/use
 
 ```bash
 $ curl http://${ip_address}:9090/v1/chat/completions -X POST -H "Content-Type: application/json" -d '{
-     "query": "What is Intel OPEA project in a short answer?"
+     "messages": "What is Intel OPEA project in a short answer?"
     }'
 data: 'The Intel OPEA project is a initiative to incubate open source development of trusted, scalable open infrastructure for developer innovation and harness the potential value of generative AI. - - - - Thought:  I now know the final answer. - - - - - - Thought: - - - -'
 
