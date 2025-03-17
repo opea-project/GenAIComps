@@ -120,7 +120,7 @@ function stop_containers() {
 }
 
 # --- Main ---
-stop_containers
+# stop_containers # I assume containers are already cleared.
 build_vllm_image
 start_vllm
 start_textgen
