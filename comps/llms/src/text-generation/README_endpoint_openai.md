@@ -1,13 +1,12 @@
 # Introduction
 
-This OPEA text generation service run any remote OpenAI style url endpoints, including OpenRouter.
-
+This OPEA text generation service can connect to any OpenAI-compatible API endpoint, including local deployments (like vLLM or TGI) and remote services (like OpenRouter.ai).
 
 ## 1 Prepare TextGen docker image.
 
 ```bash
 # Build the microservice docker
-cd ${OPEA_GENAICOMPS_ROOT}
+cd GenAIComps
 
 docker build \
   --no-cache \
@@ -19,15 +18,17 @@ docker build \
 
 ## 2 Setup Environment Variables
 
+The key environment variable is `LLM_ENDPOINT`, which specifies the URL of the OpenAI-compatible API. This can be a local address (e.g., for vLLM or TGI) or a remote address.
+
 ```
 export host_ip=$(hostname -I | awk '{print $1}')
 export LLM_MODEL_ID="" # e.g. "google/gemma-3-1b-it:free"
-export REMOTE_ENDPOINT=""  # e.g. "https://openrouter.ai/api"  # Important to omit /v1, and no / at end 
-export OPENAI_API_KEY="" 
+export LLM_ENDPOINT=""  # e.g., "http://localhost:8000" (for local vLLM) or "https://openrouter.ai/api" (please make sure to omit /v1 suffix)
+export OPENAI_API_KEY=""
 
 ```
 
-## 3 Run the Remote Textgen Service
+## 3 Run the Textgen Service
 
 ```
 export service_name="textgen-service-endpoint-openai"
@@ -39,9 +40,9 @@ To observe logs:
 docker logs textgen-service-endpoint-openai
 ```
 
-## 4 Test the remote service
+## 4 Test the service
 
-For example, if you are using openrouter:
+You can first test the remote/local endpoint with `curl`.  If you're using a  service like OpenRouter, you can test it directly:
 
 ```
 curl https://openrouter.ai/api/v1/chat/completions \
@@ -58,7 +59,10 @@ curl https://openrouter.ai/api/v1/chat/completions \
 }'
 ```
 
-curl http://localhost:8000/v1/chat/completions \
+Then you can test the OPEA text generation service that wrapped the endpoint, with the following:
+
+```
+curl http://localhost:9000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer testkey" \
   -d '{
@@ -70,20 +74,4 @@ curl http://localhost:8000/v1/chat/completions \
     }
   ]
 }'
-
-## 5 Consume the Microservice
-
 ```
-curl -X POST http://localhost:9000/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -d '{
-        "model": "'${LLM_MODEL_ID}'",
-        "messages": [
-            {
-            "role": "user",
-            "content": "Tell me a joke?"
-            }
-        ]
-    }'
-```
-        
