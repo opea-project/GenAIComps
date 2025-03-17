@@ -27,6 +27,15 @@ CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "EMPTY")
 
+if logflag:
+    logger.info(f"MODEL_NAME: {MODEL_NAME}")
+    logger.info(f"MODEL_CONFIGS: {MODEL_CONFIGS}")
+    logger.info(f"DEFAULT_ENDPOINT: {DEFAULT_ENDPOINT}")
+    logger.info(f"TOKEN_URL: {TOKEN_URL}")
+    logger.info(f"CLIENTID: {CLIENTID}")
+    logger.info(f"CLIENT_SECRET: {CLIENT_SECRET}")
+    logger.info(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
+
 # Validate and Load the models config if MODEL_CONFIGS is not null
 configs_map = {}
 if MODEL_CONFIGS:
@@ -81,7 +90,8 @@ class OpeaTextGenService(OpeaComponent):
         """
 
         try:
-
+            if logflag:
+                logger.info(f"OpeaTextGenService: self.client.base_url: {self.client.base_url}")
             async def send_simple_request():
                 response = await self.client.completions.create(model=MODEL_NAME, prompt="How are you?", max_tokens=4)
                 return response

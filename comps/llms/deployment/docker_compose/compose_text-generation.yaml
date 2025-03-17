@@ -94,19 +94,20 @@ services:
       LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenPredictionguard}
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
 
-  textgen-service-remote-openai:
+  textgen-service-endpoint-openai:
     extends: textgen
-    container_name: textgen-service-remote-openai
+    container_name: textgen-service-endpoint-openai
     environment:
       LLM_COMPONENT_NAME: OpeaTextGenService
-      OPENAI_API_KEY: $OPENAI_API_KEY
-      DEFAULT_ENDPOINT: $REMOTE_ENDPOINT
+      LLM_MODEL_ID: ${LLM_MODEL_ID:-google/gemma-3-1b-it:free}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
 
-    textgen-native-gaudi:
-      extends: textgen-gaudi
-      container_name: textgen-native-gaudi
-      environment:
-        LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNative}
+  textgen-native-gaudi:
+    extends: textgen-gaudi
+    container_name: textgen-native-gaudi
+    environment:
+      LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNative}
 
 networks:
   default:
