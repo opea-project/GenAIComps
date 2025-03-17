@@ -99,10 +99,10 @@ services:
     container_name: textgen-service-endpoint-openai
     environment:
       LLM_COMPONENT_NAME: OpeaTextGenService
+      LLM_ENDPOINT: ${LLM_ENDPOINT} # an endpoint that uses OpenAI API style e.g., https://openrouter.ai/api
+      OPENAI_API_KEY: ${OPENAI_API_KEY} # the key associated with the endpoint
       LLM_MODEL_ID: ${LLM_MODEL_ID:-google/gemma-3-1b-it:free}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LLM_ENDPOINT: ${LLM_ENDPOINT}
-
+      
   textgen-native-gaudi:
     extends: textgen-gaudi
     container_name: textgen-native-gaudi
