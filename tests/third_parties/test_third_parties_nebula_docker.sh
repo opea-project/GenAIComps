@@ -16,7 +16,7 @@ start_service() {
     echo "Starting NebulaGraph services..."
     cd $WORKPATH/comps/third_parties/nebula/deployment/docker_compose/
     docker compose up -d
-    
+
 
     echo "Waiting for services to become healthy..."
     for ((i=1; i<=MAX_ATTEMPTS; i++)); do
