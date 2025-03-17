@@ -14,12 +14,13 @@ from ...global_var import threads_global_kv
 from ...storage.persistence_redis import RedisPersistence
 from ...utils import filter_tools, has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
-from .prompt import REACT_SYS_MESSAGE, hwchase17_react_prompt
 
 
 class ReActAgentwithLangchain(BaseAgent):
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
+        from .prompt import hwchase17_react_prompt
+
         prompt = hwchase17_react_prompt
         if has_multi_tool_inputs(self.tools_descriptions):
             raise ValueError("Only supports single input tools when using strategy == react_langchain")
@@ -56,6 +57,8 @@ class ReActAgentwithLangchain(BaseAgent):
         initial_state = self.prepare_initial_state(query)
         if thread_id is not None:
             config["configurable"] = {"session_id": thread_id}
+        else:
+            config["configurable"] = {"session_id": "0"}
         async for chunk in self.app.astream(initial_state, config=config):
             if thread_id is not None:
                 with threads_global_kv as g_threads:
@@ -84,7 +87,12 @@ class ReActAgentwithLangchain(BaseAgent):
 class ReActAgentwithLanggraph(BaseAgent):
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
-
+        if kwargs.get("custom_prompt") is not None:
+            print("***Custom prompt is provided.")
+            REACT_SYS_MESSAGE = kwargs.get("custom_prompt").REACT_SYS_MESSAGE
+        else:
+            print("*** Using default prompt.")
+            from .prompt import REACT_SYS_MESSAGE
         tools = self.tools_descriptions
         print("REACT_SYS_MESSAGE: ", REACT_SYS_MESSAGE)
 
@@ -172,9 +180,17 @@ class ReActAgentNodeLlama:
     A workaround for open-source llm served by TGI-gaudi.
     """
 
-    def __init__(self, tools, args, store=None):
-        from .prompt import REACT_AGENT_LLAMA_PROMPT
+    def __init__(self, tools, args, store=None, **kwargs):
         from .utils import ReActLlamaOutputParser
+
+        if kwargs.get("custom_prompt") is not None:
+            print("***Custom prompt is provided.")
+            REACT_AGENT_LLAMA_PROMPT = kwargs.get("custom_prompt").REACT_AGENT_LLAMA_PROMPT
+        else:
+            print("*** Using default prompt.")
+            from .prompt import REACT_AGENT_LLAMA_PROMPT
+
+        print("***Prompt template:\n", REACT_AGENT_LLAMA_PROMPT)
 
         output_parser = ReActLlamaOutputParser()
         prompt = PromptTemplate(
@@ -242,6 +258,8 @@ class ReActAgentNodeLlama:
                 ai_message = AIMessage(content=response, tool_calls=tool_calls)
             elif "answer" in output[0]:
                 ai_message = AIMessage(content=str(output[0]["answer"]))
+            else:
+                ai_message = AIMessage(content=response)
         else:
             ai_message = AIMessage(content=response)
 
@@ -252,7 +270,7 @@ class ReActAgentLlama(BaseAgent):
     def __init__(self, args, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
-        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args, store=self.store)
+        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args, store=self.store, **kwargs)
         tool_node = ToolNode(self.tools_descriptions)
 
         workflow = StateGraph(AgentState)

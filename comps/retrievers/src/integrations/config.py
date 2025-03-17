@@ -63,7 +63,8 @@ ES_INDEX_NAME = os.getenv("ES_INDEX_NAME", "rag_elasticsearch")
 #######################################################
 #                    Neo4j                            #
 #######################################################
-NEO4J_URL = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_PORT2 = os.getenv("NEO4J_PORT2", "11632")
+NEO4J_URL = os.getenv("NEO4J_URI", f"bolt://localhost:{NEO4J_PORT2}")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
 host_ip = os.getenv("host_ip")
