@@ -36,6 +36,7 @@ docker compose -f comps/llms/deployment/docker_compose/compose_text-generation.y
 ```
 
 To observe logs:
+
 ```
 docker logs textgen-service-endpoint-openai
 ```

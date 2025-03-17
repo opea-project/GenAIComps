@@ -92,6 +92,7 @@ class OpeaTextGenService(OpeaComponent):
         try:
             if logflag:
                 logger.info(f"OpeaTextGenService: self.client.base_url: {self.client.base_url}")
+
             async def send_simple_request():
                 response = await self.client.completions.create(model=MODEL_NAME, prompt="How are you?", max_tokens=4)
                 return response
