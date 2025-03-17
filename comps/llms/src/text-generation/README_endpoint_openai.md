@@ -2,7 +2,6 @@
 
 This OPEA text generation service run any remote OpenAI style url endpoints, including OpenRouter.
 
-
 ## 1 Prepare TextGen docker image.
 
 ```bash
@@ -22,8 +21,8 @@ docker build \
 ```
 export host_ip=$(hostname -I | awk '{print $1}')
 export LLM_MODEL_ID="" # e.g. "google/gemma-3-1b-it:free"
-export REMOTE_ENDPOINT=""  # e.g. "https://openrouter.ai/api"  # Important to omit /v1, and no / at end 
-export OPENAI_API_KEY="" 
+export REMOTE_ENDPOINT=""  # e.g. "https://openrouter.ai/api"  # Important to omit /v1, and no / at end
+export OPENAI_API_KEY=""
 
 ```
 
@@ -35,6 +34,7 @@ docker compose -f comps/llms/deployment/docker_compose/compose_text-generation.y
 ```
 
 To observe logs:
+
 ```
 docker logs textgen-service-endpoint-openai
 ```
@@ -59,16 +59,16 @@ curl https://openrouter.ai/api/v1/chat/completions \
 ```
 
 curl http://localhost:8000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer testkey" \
-  -d '{
-  "model": "'${LLM_MODEL_ID}'",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Tell me a joke?"
-    }
-  ]
+ -H "Content-Type: application/json" \
+ -H "Authorization: Bearer testkey" \
+ -d '{
+"model": "'${LLM_MODEL_ID}'",
+"messages": [
+{
+"role": "user",
+"content": "Tell me a joke?"
+}
+]
 }'
 
 ## 5 Consume the Microservice
@@ -86,4 +86,3 @@ curl -X POST http://localhost:9000/v1/chat/completions \
         ]
     }'
 ```
-        

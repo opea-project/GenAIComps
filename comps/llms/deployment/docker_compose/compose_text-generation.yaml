@@ -86,7 +86,7 @@ services:
     container_name: textgen-service-ollama
     environment:
       LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenService}
-  
+
   textgen-predictionguard:
     extends: textgen
     container_name: textgen-predictionguard

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # tests/llms/test_llms_textgen_remote_openai.sh
 # SPDX-License-Identifier: Apache-2.0
 
