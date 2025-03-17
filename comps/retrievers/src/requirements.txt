@@ -1,6 +1,7 @@
 aiofiles
 bs4
 cairosvg
+decord
 docarray[full]
 docx2txt
 easyocr

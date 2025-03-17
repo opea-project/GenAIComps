@@ -179,6 +179,18 @@ services:
       tei-embedding-serving:
         condition: service_healthy
 
+  retriever-vdms-multimodal:
+    extends: retriever
+    container_name: retriever-vdms-multimodal
+    environment:
+      RETRIEVER_COMPONENT_NAME: "OPEA_RETRIEVER_VDMS"
+      VDMS_INDEX_NAME: ${INDEX_NAME}
+      VDMS_HOST: ${host_ip}
+      VDMS_PORT: ${VDMS_PORT}
+      VDMS_USE_CLIP: ${VDMS_USE_CLIP}
+    depends_on:
+      vdms-vector-db:
+        condition: service_healthy
 
 networks:
   default:
