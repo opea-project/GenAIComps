@@ -43,7 +43,7 @@ docker logs textgen-service-endpoint-openai
 
 ## 4 Test the service
 
-You can first test the remote/local endpoint with `curl`.  If you're using a  service like OpenRouter, you can test it directly:
+You can first test the remote/local endpoint with `curl`. If you're using a service like OpenRouter, you can test it directly:
 
 ```
 curl https://openrouter.ai/api/v1/chat/completions \
