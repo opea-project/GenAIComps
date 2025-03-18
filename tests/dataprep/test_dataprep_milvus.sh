@@ -10,6 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11101
 service_name="dataprep-milvus tei-embedding-serving etcd minio standalone"
 export TAG="comps"
+export DOCKER_VOLUME_DIRECTORY="."
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source ${SCRIPT_DIR}/dataprep_utils.sh
@@ -17,6 +18,7 @@ source ${SCRIPT_DIR}/dataprep_utils.sh
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
+    mkdir -p ${DOCKER_VOLUME_DIRECTORY}/volumes/
     # dataprep milvus image
     docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
     if [ $? -ne 0 ]; then
@@ -34,6 +36,7 @@ function start_service() {
     export MILVUS_HOST=${ip_address}
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
     export LOGFLAG=true
+    export HF_TOKEN=${HF_TOKEN}
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -80,6 +83,11 @@ function stop_docker() {
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose
     docker compose -f compose.yaml down  ${service_name} --remove-orphans
+
+    cid=$(docker ps -aq --filter "name=tei-embedding-serving" --filter "name=milvus-*")
+    if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+
+    rm -rf ${DOCKER_VOLUME_DIRECTORY}/volumes/* || true
 
 }
 

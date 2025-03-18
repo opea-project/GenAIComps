@@ -18,6 +18,7 @@ retriever_service_name="retriever-milvus"
 
 function build_docker_images() {
     cd $WORKPATH
+    mkdir -p ${DOCKER_VOLUME_DIRECTORY}/volumes/
     docker build --no-cache -t ${REGISTRY:-opea}/retriever:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/retriever built fail"
@@ -75,8 +76,11 @@ function stop_docker() {
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml down  ${service_name} --remove-orphans
-    cid=$(docker ps -aq --filter "name=tei-embedding-serving")
+
+    cid=$(docker ps -aq --filter "name=tei-embedding-serving" --filter "name=milvus-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+
+    rm -rf ${DOCKER_VOLUME_DIRECTORY}/volumes/* || true
 }
 
 function main() {
