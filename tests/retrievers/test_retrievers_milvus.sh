@@ -132,8 +132,13 @@ function stop_docker() {
     cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose/
     docker compose -f compose.yaml down --remove-orphans
 
+    docker stop milvus-etcd
+    docker rm milvus-etcd
+
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    docker compose -f compose.yaml down ${service_name_mm} --remove-orphans
+
     cid=$(docker ps -aq --filter "name=tei-embedding-serving")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
@@ -153,6 +158,8 @@ function main() {
     test_embedding_multi=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(512)]; print(embedding)")
     validate_microservice "$test_embedding_multi" "$service_name_mm"
     validate_mm_microservice "$test_embedding_multi" "$service_name_mm"
+
+    stop_docker
 
     echo y | docker system prune
 
