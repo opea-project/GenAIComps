@@ -239,6 +239,7 @@ class ServiceOrchestrator(DAG):
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
+        access_token = self.services[cur_node].api_key_value
         llm_parameters_dict = llm_parameters.dict()
 
         is_llm_vlm = self.services[cur_node].service_type in (ServiceType.LLM, ServiceType.LVM)
@@ -262,7 +263,11 @@ class ServiceOrchestrator(DAG):
                 response = requests.post(
                     url=endpoint,
                     data=json.dumps(inputs),
+                    headers={
                     headers={"Content-type": "application/json"},
+                        "Content-type": "application/json",
+                        "Authorization": f"Bearer {access_token}"
+                    },
                     proxies={"http": None},
                     stream=True,
                     timeout=1000,
@@ -290,6 +295,10 @@ class ServiceOrchestrator(DAG):
                                     res = requests.post(
                                         url=downstream_endpoint,
                                         data=json.dumps({"text": buffered_chunk_str}),
+                                        headers={
+                                        "Content-type": "application/json",
+                                        "Authorization": f"Bearer {access_token}"  # Replace access_token with your actual token
+                                    },
                                         proxies={"http": None},
                                     )
                                     res_json = res.json()
