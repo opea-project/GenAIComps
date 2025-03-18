@@ -62,6 +62,30 @@ services:
       minio:
         condition: service_healthy
 
+  dataprep-multimodal-milvus:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-multimodal-milvus-server
+    ports:
+      - "${DATAPREP_PORT:-11102}:5000"
+    depends_on:
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      MULTIMODAL_DATAPREP: true
+      DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_MULTIMODALMILVUS"
+      MILVUS_HOST: ${MILVUS_HOST}
+      LVM_ENDPOINT: ${LVM_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+    restart: unless-stopped
+
   dataprep-neo4j-llamaindex:
     image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
     container_name: dataprep-neo4j-llamaindex
