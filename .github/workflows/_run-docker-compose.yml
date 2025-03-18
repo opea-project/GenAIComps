@@ -66,6 +66,9 @@ jobs:
 
   run-test:
     needs: [get-test-case]
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       matrix:
         include: ${{ fromJSON(needs.get-test-case.outputs.run_matrix).include }}
@@ -83,6 +86,13 @@ jobs:
         with:
           ref: ${{ needs.get-test-case.outputs.CHECKOUT_REF }}
           fetch-depth: 0
+
+      - name: Get AWS Credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        if: ${{ contains(matrix.test_case, 'bedrock') }}
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+          aws-region: us-east-1
 
       - name: Run test
         shell: bash

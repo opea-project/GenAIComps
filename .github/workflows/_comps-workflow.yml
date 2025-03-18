@@ -106,6 +106,9 @@ jobs:
   ####################################################################################################
   test-service-compose:
     needs: [build-images]
+    permissions:
+      id-token: write
+      contents: read
     if: ${{ fromJSON(inputs.test_compose) }}
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
