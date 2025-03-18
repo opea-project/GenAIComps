@@ -48,19 +48,17 @@ function start_service() {
 function validate_microservice() {
     local test_embedding="$1"
 
-    export PATH="${HOME}/miniforge3/bin:$PATH"
-    source activate
     URL="http://${host_ip}:$RETRIEVER_PORT/v1/retrieval"
 
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
+    HTTP_STATUS=$(http_proxy="" curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ retriever ] HTTP status is 200. Checking content..."
-        local CONTENT=$(curl -s -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
+        local CONTENT=$(http_proxy="" curl -s -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
 
         if echo "$CONTENT" | grep -q "retrieved_docs"; then
             echo "[ retriever ] Content is as expected."
         else
-            echo "[ retriever ] Content does not match the expected result: $CONTENT"
+            echo "[ retriever ] Content does not match the expected result: $CONTENT" >> ${LOG_PATH}/retriever.log
             docker logs ${retriever_service_name} >> ${LOG_PATH}/retriever.log
             exit 1
         fi
@@ -87,7 +85,7 @@ function main() {
     build_docker_images
 
     start_service
-    test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
+    test_embedding=$(python3 -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
     validate_microservice "$test_embedding"
 
     stop_docker
