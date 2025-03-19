@@ -55,20 +55,20 @@ cd ../../../
 docker build -t opea/lvm-llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llava/Dockerfile.intel_hpu .
 ```
 
-### 2.2 Start LLaVA and LVM Service
+### 2.2 Start LLaVA Service
 
 #### 2.2.1 Start LLaVA server
 
 - Xeon
 
 ```bash
-docker run -d --name lvm-llava -p 8399:8399 -e http_proxy=$http_proxy --ipc=host -e https_proxy=$https_proxy opea/lvm-llava:latest
+docker run -d --name llava-service -p 8399:8399 -e http_proxy=$http_proxy --ipc=host -e https_proxy=$https_proxy opea/lvm-llava:latest
 ```
 
 - Gaudi2 HPU
 
 ```bash
-docker run -d --name lvm-llava -p 8399:8399 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/lvm-llava:latest
+docker run -d --name llava-service -p 8399:8399 --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/lvm-llava:latest
 ```
 
 #### 2.2.2 Test
