@@ -2,6 +2,7 @@
 # to run the OpenAI compatible server.
 # Based on https://github.com/vllm-project/vllm/blob/main/Dockerfile.openvino
 # add Intel ARC support package
+# for test
 
 FROM ubuntu:22.04 AS dev
 
