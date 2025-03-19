@@ -59,7 +59,6 @@ function find_test_1() {
                         fill_in_matrix "$find_test"
                     fi
                 fi
-            set -x
             elif [[ $(ls ${service_path} | grep "third_parties") ]]; then
                  # new org with `src` and `third_parties` folder
                 service_name=$(echo $service_path | sed 's:/src::' | tr '/' '_' | cut -c7-) # comps/third_parties/vllm/src -> third_parties_vllm
@@ -67,7 +66,6 @@ function find_test_1() {
                 if [ "$find_test" ]; then
                     fill_in_matrix "$find_test"
                 fi
-                set +x
             else
                 # old org without 'src' folder
                 service_name=$(echo $service_path | tr '/' '_' | cut -c7-) # comps/retrievers/redis/langchain -> retrievers_redis_langchain
@@ -146,7 +144,9 @@ function main() {
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|deployment|\.yaml') || true
     echo "===========start find_test_1============"
     echo "changed_files=${changed_files}"
+    set -x
     find_test_1 "comps" 2 false
+    set +x
     sleep 1s
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_1============"
