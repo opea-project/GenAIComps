@@ -13,8 +13,7 @@ echo "TAG=${TAG}"
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 export host_ip=$(hostname -I | awk '{print $1}')
-service_name="retriever-milvus etcd minio standalone"
-retriever_service_name="retriever-milvus"
+service_name="retriever-milvus"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -28,7 +27,7 @@ function build_docker_images() {
 }
 
 function start_service() {
-    export MINIO_PORT1=11611
+    export MINIO_PORT1=11611   # 11600-11699
     export MINIO_PORT2=11612
     export MILVUS_STANDALONE_PORT=11613
     export TEI_EMBEDDER_PORT=11614
@@ -38,6 +37,13 @@ function start_service() {
     export LOGFLAG=True
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
     export MILVUS_HOST=${host_ip}
+
+    # wget https://raw.githubusercontent.com/milvus-io/milvus/v2.4.9/configs/milvus.yaml
+    # wget https://github.com/milvus-io/milvus/releases/download/v2.4.9/milvus-standalone-docker-compose.yml -O docker-compose.yml
+    # sed '/- \${DOCKER_VOLUME_DIRECTORY:-\.}\/volumes\/milvus:\/var\/lib\/milvus/a \ \ \ \ \ \ - \${DOCKER_VOLUME_DIRECTORY:-\.}\/milvus.yaml:\/milvus\/configs\/milvus.yaml' -i docker-compose.yml
+
+    cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose/
+    docker compose -f compose.yaml up -d > ${LOG_PATH}/start_services_with_compose_milvus.log
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -61,12 +67,12 @@ function validate_microservice() {
             echo "[ retriever ] Content is as expected."
         else
             echo "[ retriever ] Content does not match the expected result: $CONTENT"
-            docker logs ${retriever_service_name} >> ${LOG_PATH}/retriever.log
+            docker logs ${service_name} >> ${LOG_PATH}/retriever.log
             exit 1
         fi
     else
         echo "[ retriever ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs ${retriever_service_name} >> ${LOG_PATH}/retriever.log
+        docker logs ${service_name} >> ${LOG_PATH}/retriever.log
         exit 1
     fi
 }

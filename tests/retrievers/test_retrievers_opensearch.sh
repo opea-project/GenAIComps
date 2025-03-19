@@ -14,7 +14,6 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 export host_ip=$(hostname -I | awk '{print $1}')
 service_name="opensearch-vector-db tei-embedding-serving retriever-opensearch"
-retriever_service_name="retriever-opensearch"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -35,7 +34,6 @@ function start_service() {
     export OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
-    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     export OPENSEARCH_URL="http://${host_ip}:${OPENSEARCH_PORT1}"
     export INDEX_NAME="file-index"
 
@@ -62,13 +60,13 @@ function validate_microservice() {
             echo "[ retriever ] Content is as expected."
         else
             echo "[ retriever ] Content does not match the expected result: $CONTENT"
-            docker logs ${retriever_service_name} >> ${LOG_PATH}/retriever.log
+            docker logs ${service_name} >> ${LOG_PATH}/retriever.log
             docker logs tei-embedding-serving >> ${LOG_PATH}/tei.log
             exit 1
         fi
     else
         echo "[ retriever ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs ${retriever_service_name} >> ${LOG_PATH}/retriever.log
+        docker logs ${service_name} >> ${LOG_PATH}/retriever.log
         docker logs tei-embedding-serving >> ${LOG_PATH}/tei.log
         exit 1
     fi
@@ -82,14 +80,14 @@ function stop_docker() {
 }
 
 function main() {
-    stop_docker
+    stop_service
 
     build_docker_images
     start_service
 
     validate_microservice
 
-    stop_docker
+    stop_service
     echo y | docker system prune
 }
 
