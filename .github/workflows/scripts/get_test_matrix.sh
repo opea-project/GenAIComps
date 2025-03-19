@@ -122,7 +122,9 @@ function find_test_3() {
     yaml_files=${changed_files}
     for yaml_file in ${yaml_files}; do
         if [ -f $yaml_file ]; then
-            _service=$(echo $yaml_file | cut -d'/' -f2)
+            _service=${yaml_file#comps/}
+            _service=${_service%/deployment/*}
+            _service=${_service//\//_}
             yaml_name=$(echo $yaml_file | cut -d'/' -f5)
             if [ "$yaml_name" != "compose.yaml" ]; then
                 _domain=${yaml_name%.yaml}
@@ -172,6 +174,7 @@ function main() {
     echo "===========finish find_test_3============"
 
     run_matrix=$run_matrix"]}"
+    echo "run_matrix=${run_matrix}"
     echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
 }
 
