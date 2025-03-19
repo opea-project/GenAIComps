@@ -10,7 +10,7 @@ function call_curl() {
     local url=$1
     local header=$2
     shift 2
-    HTTP_RESPONSE=$(http_proxy="" curl --silent --write-out "HTTPSTATUS:%{http_code}" -H "$header" "${url}" $@)
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -H "$header" "${url}" $@)
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 }
@@ -34,7 +34,7 @@ function _invoke_curl() {
 	;;
     esac
 
-    HTTP_RESPONSE=$(http_proxy="" curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H "$header" "${url}" $@)
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -H "$header" "${url}" $@)
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 }
