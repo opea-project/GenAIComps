@@ -22,6 +22,18 @@ jobs:
   job1:
     uses: ./.github/workflows/_get-test-matrix.yml
 
+  job2:
+    needs: job1
+    env:
+      RUN_MATRIX: ${{ needs.job1.outputs.run_matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: |
+          echo "RUN_MATRIX: $RUN_MATRIX"
+          echo "RUN_MATRIX_INCLUDE: $RUN_MATRIX_INCLUDE"
+          
+
   Microservice-test:
     needs: job1
     if: ${{ fromJSON(needs.job1.outputs.run_matrix).include != '[""]' }}
