@@ -5,7 +5,7 @@
 # service: service path name, like 'agent_langchain', 'asr_whisper'
 # hardware: 'intel_cpu', 'intel_hpu', ...
 
-set -ex
+set -e
 cd $WORKSPACE
 changed_files_full=$changed_files_full
 run_matrix="{\"include\":["
@@ -59,6 +59,7 @@ function find_test_1() {
                         fill_in_matrix "$find_test"
                     fi
                 fi
+            set -x
             elif [[ $(ls ${service_path} | grep "third_parties") ]]; then
                  # new org with `src` and `third_parties` folder
                 service_name=$(echo $service_path | sed 's:/src::' | tr '/' '_' | cut -c7-) # comps/third_parties/vllm/src -> third_parties_vllm
@@ -66,6 +67,7 @@ function find_test_1() {
                 if [ "$find_test" ]; then
                     fill_in_matrix "$find_test"
                 fi
+                set +x
             else
                 # old org without 'src' folder
                 service_name=$(echo $service_path | tr '/' '_' | cut -c7-) # comps/retrievers/redis/langchain -> retrievers_redis_langchain
@@ -162,7 +164,9 @@ function main() {
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'deployment/docker_compose/compose' | grep '.yaml') || true
     echo "===========start find_test_3============"
     echo "changed_files=${changed_files}"
+    set -x
     find_test_3
+    set +x
     sleep 1s
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_3============"
