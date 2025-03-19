@@ -5,7 +5,7 @@
 # service: service path name, like 'agent_langchain', 'asr_whisper'
 # hardware: 'intel_cpu', 'intel_hpu', ...
 
-set -e
+set -ex
 cd $WORKSPACE
 changed_files_full=$changed_files_full
 run_matrix="{\"include\":["
