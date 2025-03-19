@@ -15,6 +15,7 @@ All you need is `CoOp/scripts/coop/main.sh`, which contains six input arguments.
 Below we provide examples on how to run CoOp on Caltech101.
 
 **CLIP + CoOp (M=16, end)**:
+
 - 1 shot: `bash scripts/coop/main.sh caltech101 rn50_ep50 end 16 1 False`
 - 2 shots: `bash scripts/coop/main.sh caltech101 rn50_ep100 end 16 2 False`
 - 4 shots: `bash scripts/coop/main.sh caltech101 rn50_ep100 end 16 4 False`
@@ -22,6 +23,7 @@ Below we provide examples on how to run CoOp on Caltech101.
 - 16 shots: `bash scripts/coop/main.sh caltech101 rn50 end 16 16 False`
 
 **CLIP + CoOp (M=16, mid)**:
+
 - 1 shot: `bash scripts/coop/main.sh caltech101 rn50_ep50 middle 16 1 False`
 - 2 shots: `bash scripts/coop/main.sh caltech101 rn50_ep100 middle 16 2 False`
 - 4 shots: `bash scripts/coop/main.sh caltech101 rn50_ep100 middle 16 4 False`
@@ -29,6 +31,7 @@ Below we provide examples on how to run CoOp on Caltech101.
 - 16 shots: `bash scripts/coop/main.sh caltech101 rn50 middle 16 16 False`
 
 **CLIP + CoOp (M=16, end, CSC)**:
+
 - 1 shot: `bash scripts/coop/main.sh caltech101 rn50_ep50 end 16 1 True`
 - 2 shots: `bash scripts/coop/main.sh caltech101 rn50_ep100 end 16 2 True`
 - 4 shots: `bash scripts/coop/main.sh caltech101 rn50_ep100 end 16 4 True`
@@ -36,6 +39,7 @@ Below we provide examples on how to run CoOp on Caltech101.
 - 16 shots: `bash scripts/coop/main.sh caltech101 rn50 end 16 16 True`
 
 **CLIP + CoOp (M=16, mid, CSC)**:
+
 - 1 shot: `bash scripts/coop/main.sh caltech101 rn50_ep50 middle 16 1 True`
 - 2 shots: `bash scripts/coop/main.sh caltech101 rn50_ep100 middle 16 2 True`
 - 4 shots: `bash scripts/coop/main.sh caltech101 rn50_ep100 middle 16 4 True`
@@ -85,6 +89,7 @@ Summary of directory: output/caltech101/CoOp/rn50_16shots/nctx16_cscFalse_ctpend
 **How to visualize nearest words for the learned context tokens?** All you need is `interpret_prompt.py`. Say the learned tokens are saved in `a/b/c/prompt_learner/model.pth.tar` and you would like to see the top-3 nearest words for each token. In this case, run `python interpret_prompt.py a/b/c/prompt_learner/model.pth.tar 3`
 
 ### Robustness to Distribution Shift
+
 To reproduce the robustness experiments, you can simply load the models learned on ImageNet and evaluate them on the following datasets: `imagenetv2`, `imagenet-sketch`, `imagenet-a` and `imagenet-r`.
 
 The command is provided in `CoOp/scripts/coop/eval.sh`. The key arguments are `--model-dir`, `--load-epoch` and `--eval-only`. `--model-dir` indicates the directory where the models are saved (i.e. the entire folder containing `log.txt`, the tensorboard file and `prompt_learner/`). `--load-epoch` tells the code to load the model saved at a specific epoch, like `--load-epoch 50` for ImageNet (see the [source code](https://github.com/KaiyangZhou/Dassl.pytorch/blob/master/dassl/engine/trainer.py#L169) for more details).

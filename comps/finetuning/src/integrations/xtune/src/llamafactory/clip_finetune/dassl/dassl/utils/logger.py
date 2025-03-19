@@ -1,9 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
+import os.path as osp
 import sys
 import time
-import os.path as osp
 
 from .tools import mkdir_if_missing
+
 
 __all__ = ["Logger", "setup_logger"]
 

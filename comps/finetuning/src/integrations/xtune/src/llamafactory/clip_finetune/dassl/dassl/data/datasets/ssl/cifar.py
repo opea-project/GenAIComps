@@ -1,11 +1,14 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import math
-import random
 import os.path as osp
+import random
 
 from dassl.utils import listdir_nohidden
 
+from ..base_dataset import DatasetBase, Datum
 from ..build import DATASET_REGISTRY
-from ..base_dataset import Datum, DatasetBase
 
 
 @DATASET_REGISTRY.register()
@@ -27,9 +30,7 @@ class CIFAR10(DatasetBase):
 
         assert cfg.DATASET.NUM_LABELED > 0
 
-        train_x, train_u, val = self._read_data_train(
-            train_dir, cfg.DATASET.NUM_LABELED, cfg.DATASET.VAL_PERCENT
-        )
+        train_x, train_u, val = self._read_data_train(train_dir, cfg.DATASET.NUM_LABELED, cfg.DATASET.VAL_PERCENT)
         test = self._read_data_test(test_dir)
 
         if cfg.DATASET.ALL_AS_UNLABELED:

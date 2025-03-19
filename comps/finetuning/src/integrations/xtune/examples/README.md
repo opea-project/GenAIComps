@@ -80,7 +80,7 @@ llamafactory-cli train examples/train_lora/llama3_preprocess.yaml
 llamafactory-cli eval examples/train_lora/llama3_lora_eval.yaml
 ```
 
-#### Batch Predicting and Computing BLEU and ROUGE Scores
+#### Batch Predicting and Computing BLEU and ROGUE Scores
 
 ```bash
 llamafactory-cli train examples/train_lora/llama3_lora_predict.yaml
@@ -146,7 +146,7 @@ FORCE_TORCHRUN=1 NNODES=2 RANK=1 MASTER_ADDR=192.168.0.1 MASTER_PORT=29500 llama
 FORCE_TORCHRUN=1 llamafactory-cli train examples/train_full/qwen2vl_full_sft.yaml
 ```
 
-#### Batch Predicting and Computing BLEU and ROUGE Scores
+#### Batch Predicting and Computing BLEU and ROGUE Scores
 
 ```bash
 llamafactory-cli train examples/train_full/llama3_full_predict.yaml

@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from typing import TYPE_CHECKING, Dict
 
 from transformers.trainer_utils import SchedulerType
 
-from ...extras.constants import TRAINING_STAGES
-from ...extras.constants import CLIP_TRAINER
+from ...extras.constants import CLIP_TRAINER, TRAINING_STAGES
 from ...extras.misc import get_device_count
 from ...extras.packages import is_gradio_available
 from ..common import DEFAULT_DATA_DIR, list_checkpoints, list_datasets
 from ..utils import change_stage, list_config_paths, list_output_dirs
 from .data import create_preview_box
-import json
+
 
 if is_gradio_available():
     import gradio as gr
@@ -46,12 +46,9 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
         dataset_dir = gr.Textbox(value=DEFAULT_DATA_DIR, scale=1)
         dataset = gr.Dropdown(multiselect=True, allow_custom_value=True, scale=4)
         preview_elems = create_preview_box(dataset_dir, dataset)
-        
+
     input_elems.update({training_stage, dataset_dir, dataset})
     elem_dict.update(dict(training_stage=training_stage, dataset_dir=dataset_dir, dataset=dataset, **preview_elems))
-
-    
-
 
     with gr.Row():
         learning_rate = gr.Textbox(value="5e-5")
@@ -69,7 +66,7 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             max_grad_norm=max_grad_norm,
             max_samples=max_samples,
             compute_type=compute_type,
-            xpu=xpu
+            xpu=xpu,
         )
     )
 
@@ -275,40 +272,71 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             badam_update_ratio=badam_update_ratio,
         )
     )
-    def update_dropdowns(table_colomn_1,table_colomn_2): 
-        if table_colomn_1 == "Finetune":  
+
+    def update_dropdowns(table_colomn_1, table_colomn_2):
+        if table_colomn_1 == "Finetune":
             options = CLIP_TRAINER[0:4]
             table_colomn_2 = gr.Dropdown(choices=options, value="CLIP_Adapter_hf")
-            #print(111, options)
-        elif table_colomn_1 == "Training free" :
-            #print(CLIP_TRAINER)
+            # print(111, options)
+        elif table_colomn_1 == "Training free":
+            # print(CLIP_TRAINER)
             options = CLIP_TRAINER[4:]
             table_colomn_2 = gr.Dropdown(choices=options, value="Tip_Adapter")
-            #print(222, options)
+            # print(222, options)
         else:
             options = []
             table_colomn_2 = gr.Dropdown(choices=options, value=None)
         return table_colomn_2
+
     def show_for_bias(table_colomn_1):
         if table_colomn_1 == "CLIP_Bias_hf":
             return gr.update(visible=True), gr.update(visible=True)
         else:
             return gr.update(visible=False), gr.update(visible=False)
+
     def show_for_ori(table_colomn_1):
         if table_colomn_1 == "CLIP_Fullfinetune_hf":
-            return gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+            return (
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+            )
         else:
-            return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+            return (
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+            )
 
     def show_for_tip(table_colomn_1):
         if table_colomn_1 == "Tip_Adapter":
-            return gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+            return (
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+            )
 
         else:
-            return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
-        
+            return (
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+            )
+
     def select_new(table_colomn_1):
-        #print(table_colomn_1)
+        # print(table_colomn_1)
         if table_colomn_1 == True:
             return gr.update(interactive=True)
         else:
@@ -319,16 +347,26 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             # clip_trainer = gr.RadioGroup(["Finetune", "Training free"], default="Finetune")
             # clip_trainer_2 = gr.RadioGroup(change_second_dropdown("Finetune"), label=False)
             import os
+
             root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__))) + "/clip_finetune/"
             with gr.Row():
                 clip_trainer_1 = gr.Dropdown(["", "Finetune", "Training free"], label="Traing group")
                 clip_trainer = gr.Dropdown(choices=[], label="Traing method")
-                clip_trainer_1.change(update_dropdowns,inputs=[clip_trainer_1,clip_trainer],outputs=[clip_trainer], concurrency_limit=None)
-                
+                clip_trainer_1.change(
+                    update_dropdowns,
+                    inputs=[clip_trainer_1, clip_trainer],
+                    outputs=[clip_trainer],
+                    concurrency_limit=None,
+                )
+
                 few_shot_num = gr.Slider(minimum=0, maximum=16, value=0, step=1)
             with gr.Row():
-                dataset_config_file = gr.Dropdown(allow_custom_value=True, scale=1, value=root_path+"configs/datasets/")
-                config_file = gr.Dropdown(allow_custom_value=True, scale=1, value=root_path+"configs/trainers/clip_finetune/")
+                dataset_config_file = gr.Dropdown(
+                    allow_custom_value=True, scale=1, value=root_path + "configs/datasets/"
+                )
+                config_file = gr.Dropdown(
+                    allow_custom_value=True, scale=1, value=root_path + "configs/trainers/clip_finetune/"
+                )
             with gr.Row():
                 clip_bias_term = gr.Textbox(visible=False)
                 clip_bias_exclude = gr.Textbox(visible=False)
@@ -337,25 +375,52 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
                 use_abs_group = gr.Checkbox(visible=False)
                 abs_group_name = gr.Textbox(visible=False)
                 keep_min = gr.Checkbox(visible=False)
-                keep_layers = gr.Textbox(value="5",visible=False)
+                keep_layers = gr.Textbox(value="5", visible=False)
             with gr.Row(equal_height=True):
                 with gr.Column():
                     tip_load_cache = gr.Checkbox(visible=False)
                     search_best = gr.Checkbox(visible=False)
-                augment_epoch = gr.Textbox(value="10",visible=False)
-                tip_beta = gr.Textbox(value="1.0",visible=False)
-                tip_alpha = gr.Textbox(value="3.0",visible=False)
+                augment_epoch = gr.Textbox(value="10", visible=False)
+                tip_beta = gr.Textbox(value="1.0", visible=False)
+                tip_alpha = gr.Textbox(value="3.0", visible=False)
                 with gr.Column():
                     new = gr.Checkbox(visible=False)
                     new_dataset = gr.Checkbox(visible=False, interactive=False)
-                
-                
 
             clip_trainer.change(show_for_bias, inputs=[clip_trainer], outputs=[clip_bias_term, clip_bias_exclude])
-            clip_trainer.change(show_for_ori, inputs=[clip_trainer], outputs=[use_abs, use_abs_group, abs_group_name, keep_min, keep_layers])
-            clip_trainer.change(show_for_tip, inputs=[clip_trainer], outputs=[tip_load_cache, augment_epoch, tip_beta, tip_alpha, new, new_dataset, search_best])
+            clip_trainer.change(
+                show_for_ori,
+                inputs=[clip_trainer],
+                outputs=[use_abs, use_abs_group, abs_group_name, keep_min, keep_layers],
+            )
+            clip_trainer.change(
+                show_for_tip,
+                inputs=[clip_trainer],
+                outputs=[tip_load_cache, augment_epoch, tip_beta, tip_alpha, new, new_dataset, search_best],
+            )
             new.change(select_new, inputs=[new], outputs=[new_dataset])
-    input_elems.update({ clip_trainer, dataset_config_file, config_file, few_shot_num, clip_bias_term, clip_bias_exclude, use_abs, use_abs_group, abs_group_name, keep_min, keep_layers, tip_load_cache, augment_epoch, tip_beta, tip_alpha, new, new_dataset, search_best})
+    input_elems.update(
+        {
+            clip_trainer,
+            dataset_config_file,
+            config_file,
+            few_shot_num,
+            clip_bias_term,
+            clip_bias_exclude,
+            use_abs,
+            use_abs_group,
+            abs_group_name,
+            keep_min,
+            keep_layers,
+            tip_load_cache,
+            augment_epoch,
+            tip_beta,
+            tip_alpha,
+            new,
+            new_dataset,
+            search_best,
+        }
+    )
     elem_dict.update(
         dict(
             clip_finetune_tab=clip_finetune_tab,
@@ -365,10 +430,10 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             few_shot_num=few_shot_num,
             clip_bias_term=clip_bias_term,
             clip_bias_exclude=clip_bias_exclude,
-            use_abs=use_abs, 
-            use_abs_group=use_abs_group, 
-            abs_group_name=abs_group_name, 
-            keep_min=keep_min, 
+            use_abs=use_abs,
+            use_abs_group=use_abs_group,
+            abs_group_name=abs_group_name,
+            keep_min=keep_min,
             keep_layers=keep_layers,
             tip_load_cache=tip_load_cache,
             augment_epoch=augment_epoch,
@@ -376,7 +441,7 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             tip_alpha=tip_alpha,
             new=new,
             new_dataset=new_dataset,
-            search_best=search_best
+            search_best=search_best,
         )
     )
     # adaclip对应的的tab
@@ -385,9 +450,11 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
         root_path_ada = os.path.dirname(os.path.dirname(os.path.dirname(__file__))) + "/adaclip_finetune/"
         with gr.Row():
             # 初始化文本框，给默认值，可以做成选框，如61行
-            
-            adaclip_top_k =  gr.Dropdown(allow_custom_value=True, value="16", scale=1)
-            config = gr.Dropdown(allow_custom_value=True, scale=1, value=root_path_ada + "cfgs/peft/activitynet-bitfit-5k-optuna.json")
+
+            adaclip_top_k = gr.Dropdown(allow_custom_value=True, value="16", scale=1)
+            config = gr.Dropdown(
+                allow_custom_value=True, scale=1, value=root_path_ada + "cfgs/peft/activitynet-bitfit-5k-optuna.json"
+            )
             # 初始化单选框
             freeze_cnn = gr.Checkbox()
             frame_agg = gr.Dropdown(allow_custom_value=True, scale=1, value="mlp")
@@ -402,13 +469,24 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             frame_agg=frame_agg,
         )
     )
+
     def show_json(input):
         if input == "clip":
-            return json.dumps({'OPTIM.LR': {'range':[1.0e-10, 1.0e-10], 'log': False}, 'DATALOADER.TRAIN_X.BATCH_SIZE': {'range':[64,128], 'log': False}}, indent=4)
+            return json.dumps(
+                {
+                    "OPTIM.LR": {"range": [1.0e-10, 1.0e-10], "log": False},
+                    "DATALOADER.TRAIN_X.BATCH_SIZE": {"range": [64, 128], "log": False},
+                },
+                indent=4,
+            )
         elif input == "Adaclip":
-            return json.dumps({"coef_lr": {"range": [0.02,0.5],"log": False},"weight_decay": {"range": [0.01,0.5],"log": False}}, indent=4)
+            return json.dumps(
+                {"coef_lr": {"range": [0.02, 0.5], "log": False}, "weight_decay": {"range": [0.01, 0.5], "log": False}},
+                indent=4,
+            )
         else:
             return None
+
     with gr.Accordion(open=False) as optuna_tab:
         with gr.Row():
             optuna = gr.Checkbox()
@@ -425,7 +503,7 @@ def create_train_tab(engine: "Engine") -> Dict[str, "Component"]:
             n_trials=n_trials,
             n_warmup_steps=n_warmup_steps,
             sampler=sampler,
-            opt_params=opt_params
+            opt_params=opt_params,
         )
     )
     with gr.Row():

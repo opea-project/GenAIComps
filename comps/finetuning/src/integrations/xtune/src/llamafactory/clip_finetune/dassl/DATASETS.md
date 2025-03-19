@@ -10,6 +10,7 @@ $DATA/
 ```
 
 [Domain Adaptation](#domain-adaptation)
+
 - [Office-31](#office-31)
 - [Office-Home](#office-home)
 - [VisDA17](#visda17)
@@ -19,6 +20,7 @@ $DATA/
 - [miniDomainNet](#miniDomainNet)
 
 [Domain Generalization](#domain-generalization)
+
 - [PACS](#pacs)
 - [VLCS](#vlcs)
 - [Office-Home-DG](#office-home-dg)
@@ -29,6 +31,7 @@ $DATA/
 - [WILDS](#wilds)
 
 [Semi-Supervised Learning](#semi-supervised-learning)
+
 - [CIFAR10/100 and SVHN](#cifar10100-and-svhn)
 - [STL10](#stl10)
 
@@ -124,7 +127,7 @@ digit5/
 
 Then, run the following command in your terminal under `Dassl.pytorch/datasets/da`,
 
-```bash 
+```bash
 python digit5.py $DATA/digit5
 ```
 
@@ -178,7 +181,7 @@ pacs/
 |–– splits/
 ```
 
-You do not necessarily have to manually download this dataset. Once you run ``tools/train.py``, the code will detect if the dataset exists or not and automatically download the dataset to ``$DATA`` if missing. This also applies to VLCS, Office-Home-DG, and Digits-DG.
+You do not necessarily have to manually download this dataset. Once you run `tools/train.py`, the code will detect if the dataset exists or not and automatically download the dataset to `$DATA` if missing. This also applies to VLCS, Office-Home-DG, and Digits-DG.
 
 ### VLCS
 
@@ -223,17 +226,21 @@ digits_dg/
 ```
 
 ### Digit-Single
+
 Follow the steps for [Digit-5](#digit-5) to organize the dataset.
 
 ### CIFAR-10-C
 
 First download the CIFAR-10-C dataset from https://zenodo.org/record/2535967#.YFxHEWQzb0o to, e.g., $DATA, and extract the file under the same directory. Then, navigate to `Dassl.pytorch/datasets/dg` and run the following command in your terminal
+
 ```bash
 python cifar_c.py $DATA/CIFAR-10-C
 ```
+
 where the first argument denotes the path to the (uncompressed) CIFAR-10-C dataset.
 
 The script will extract images from the `.npy` files and save them to `cifar10_c/` created under $DATA. The file structure will look like
+
 ```
 cifar10_c/
 |–– brightness/
@@ -250,12 +257,15 @@ Note that `cifar10_c/` only contains the test images. The training images are th
 ### CIFAR-100-C
 
 First download the CIFAR-100-C dataset from https://zenodo.org/record/3555552#.YFxpQmQzb0o to, e.g., $DATA, and extract the file under the same directory. Then, navigate to `Dassl.pytorch/datasets/dg` and run the following command in your terminal
+
 ```bash
 python cifar_c.py $DATA/CIFAR-100-C
 ```
+
 where the first argument denotes the path to the (uncompressed) CIFAR-100-C dataset.
 
 The script will extract images from the `.npy` files and save them to `cifar100_c/` created under $DATA. The file structure will look like
+
 ```
 cifar100_c/
 |–– brightness/

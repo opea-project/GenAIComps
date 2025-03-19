@@ -18,9 +18,7 @@
         "role": "assistant"
       }
     ],
-    "images": [
-      "mllm_demo_data/1.jpg"
-    ]
+    "images": ["mllm_demo_data/1.jpg"]
   },
   {
     "messages": [
@@ -41,9 +39,7 @@
         "role": "assistant"
       }
     ],
-    "images": [
-      "mllm_demo_data/2.jpg"
-    ]
+    "images": ["mllm_demo_data/2.jpg"]
   },
   {
     "messages": [
@@ -64,9 +60,7 @@
         "role": "assistant"
       }
     ],
-    "images": [
-      "mllm_demo_data/3.jpg"
-    ]
+    "images": ["mllm_demo_data/3.jpg"]
   },
   {
     "messages": [
@@ -87,9 +81,7 @@
         "role": "assistant"
       }
     ],
-    "images": [
-      "mllm_demo_data/1.jpg"
-    ]
+    "images": ["mllm_demo_data/1.jpg"]
   },
   {
     "messages": [
@@ -110,9 +102,7 @@
         "role": "assistant"
       }
     ],
-    "images": [
-      "mllm_demo_data/2.jpg"
-    ]
+    "images": ["mllm_demo_data/2.jpg"]
   },
   {
     "messages": [
@@ -133,8 +123,6 @@
         "role": "assistant"
       }
     ],
-    "images": [
-      "mllm_demo_data/3.jpg"
-    ]
+    "images": ["mllm_demo_data/3.jpg"]
   }
 ]

@@ -1,4 +1,8 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
+
 import pandas as pd
 
 from dassl.data.datasets import DATASET_REGISTRY

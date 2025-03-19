@@ -1,10 +1,12 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch.nn as nn
 
 
 class Sequential2(nn.Sequential):
     """An alternative sequential container to nn.Sequential,
-    which accepts an arbitrary number of input arguments.
-    """
+    which accepts an arbitrary number of input arguments."""
 
     def forward(self, *inputs):
         for module in self._modules.values():

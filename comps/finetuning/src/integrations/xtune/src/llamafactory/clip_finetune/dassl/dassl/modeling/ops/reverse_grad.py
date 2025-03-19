@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch.nn as nn
 from torch.autograd import Function
 
@@ -27,8 +30,5 @@ class ReverseGrad(nn.Module):
     """
 
     def forward(self, x, grad_scaling=1.0):
-        assert (grad_scaling >=
-                0), "grad_scaling must be non-negative, " "but got {}".format(
-                    grad_scaling
-                )
+        assert grad_scaling >= 0, "grad_scaling must be non-negative, " "but got {}".format(grad_scaling)
         return reverse_grad(x, grad_scaling)

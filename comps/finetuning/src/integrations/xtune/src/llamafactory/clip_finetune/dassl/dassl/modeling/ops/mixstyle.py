@@ -1,5 +1,9 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import random
 from contextlib import contextmanager
+
 import torch
 import torch.nn as nn
 
@@ -74,9 +78,7 @@ class MixStyle(nn.Module):
         self._activated = True
 
     def __repr__(self):
-        return (
-            f"MixStyle(p={self.p}, alpha={self.alpha}, eps={self.eps}, mix={self.mix})"
-        )
+        return f"MixStyle(p={self.p}, alpha={self.alpha}, eps={self.eps}, mix={self.mix})"
 
     def set_activation_status(self, status=True):
         self._activated = status
@@ -97,7 +99,7 @@ class MixStyle(nn.Module):
         var = x.var(dim=[2, 3], keepdim=True)
         sig = (var + self.eps).sqrt()
         mu, sig = mu.detach(), sig.detach()
-        x_normed = (x-mu) / sig
+        x_normed = (x - mu) / sig
 
         lmda = self.beta.sample((B, 1, 1, 1))
         lmda = lmda.to(x.device)
@@ -118,7 +120,7 @@ class MixStyle(nn.Module):
             raise NotImplementedError
 
         mu2, sig2 = mu[perm], sig[perm]
-        mu_mix = mu*lmda + mu2 * (1-lmda)
-        sig_mix = sig*lmda + sig2 * (1-lmda)
+        mu_mix = mu * lmda + mu2 * (1 - lmda)
+        sig_mix = sig * lmda + sig2 * (1 - lmda)
 
-        return x_normed*sig_mix + mu_mix
+        return x_normed * sig_mix + mu_mix

@@ -1,7 +1,11 @@
-import os
-import numpy as np
-import os.path as osp
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import argparse
+import os
+import os.path as osp
+
+import numpy as np
 from PIL import Image
 from scipy.io import loadmat
 
@@ -18,10 +22,7 @@ def extract_and_save(data, label, save_dir):
         if y == 10:
             y = 0
         x = Image.fromarray(x, mode="RGB")
-        save_path = osp.join(
-            save_dir,
-            str(i + 1).zfill(6) + "_" + str(y) + ".jpg"
-        )
+        save_path = osp.join(save_dir, str(i + 1).zfill(6) + "_" + str(y) + ".jpg")
         x.save(save_path)
 
 
@@ -124,8 +125,6 @@ def main(data_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "data_dir", type=str, help="directory containing Digit-Five/"
-    )
+    parser.add_argument("data_dir", type=str, help="directory containing Digit-Five/")
     args = parser.parse_args()
     main(args.data_dir)

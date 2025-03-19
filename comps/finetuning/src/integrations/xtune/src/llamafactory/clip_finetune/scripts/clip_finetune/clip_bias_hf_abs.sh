@@ -1,14 +1,17 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # custom config
 
 TRAINER=CLIP_Bias_hf
 DATASET=$1
 CFG=$2  # rn50, rn101, vit_b32 or vit_b16
-ACCEP=$3
+ACCEPT=$3
 DEVICE=$4
-if [ -z $ACCEP ]; then
-    ACCEP=0
+if [ -z $ACCEPT ]; then
+    ACCEPT=0
 fi
 if [ -z $DEVICE ]; then
     DEVICE="cuda"
@@ -26,11 +29,11 @@ if [ $DEVICE = "XPU" ]; then
     --output-dir output/${TRAINER}/${CFG}/${DATASET} \
     --xpu $device \
     --seed 123 \
-    TRAINER.COOP.ACC $ACCEP \
+    TRAINER.COOP.ACC $ACCEPT \
     TRAINER.COOP.N_CTX 16 \
     TRAINER.COOP.CSC True \
     TRAINER.COOP.CLASS_TOKEN_POSITION end \
-    DATASET.NUM_SHOTS 0 
+    DATASET.NUM_SHOTS 0
 else
     CUDA_VISIBLE_DEVICES=3 python train.py \
     --root ${DATA} \
@@ -40,9 +43,9 @@ else
     --output-dir output/${TRAINER}/${CFG}/${DATASET} \
     --xpu $device \
     --seed 123 \
-    TRAINER.COOP.ACC $ACCEP \
+    TRAINER.COOP.ACC $ACCEPT \
     TRAINER.COOP.N_CTX 16 \
     TRAINER.COOP.CSC True \
     TRAINER.COOP.CLASS_TOKEN_POSITION end \
-    DATASET.NUM_SHOTS 0 
+    DATASET.NUM_SHOTS 0
 fi

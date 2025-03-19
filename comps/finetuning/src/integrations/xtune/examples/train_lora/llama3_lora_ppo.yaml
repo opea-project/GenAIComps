@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 ### model
 model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
 reward_model: saves/llama3-8b/lora/reward

@@ -1,10 +1,14 @@
-import numpy as np
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
+
+import numpy as np
 
 from dassl.utils import listdir_nohidden
 
+from ..base_dataset import DatasetBase, Datum
 from ..build import DATASET_REGISTRY
-from ..base_dataset import Datum, DatasetBase
 
 
 @DATASET_REGISTRY.register()
@@ -31,16 +35,12 @@ class STL10(DatasetBase):
         train_dir = osp.join(self.dataset_dir, "train")
         test_dir = osp.join(self.dataset_dir, "test")
         unlabeled_dir = osp.join(self.dataset_dir, "unlabeled")
-        fold_file = osp.join(
-            self.dataset_dir, "stl10_binary", "fold_indices.txt"
-        )
+        fold_file = osp.join(self.dataset_dir, "stl10_binary", "fold_indices.txt")
 
         # Only use the first five splits
         assert 0 <= cfg.DATASET.STL10_FOLD <= 4
 
-        train_x = self._read_data_train(
-            train_dir, cfg.DATASET.STL10_FOLD, fold_file
-        )
+        train_x = self._read_data_train(train_dir, cfg.DATASET.STL10_FOLD, fold_file)
         train_u = self._read_data_all(unlabeled_dir)
         test = self._read_data_all(test_dir)
 

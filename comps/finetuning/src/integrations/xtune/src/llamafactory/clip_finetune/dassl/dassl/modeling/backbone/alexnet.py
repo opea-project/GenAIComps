@@ -1,9 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 
-from .build import BACKBONE_REGISTRY
 from .backbone import Backbone
+from .build import BACKBONE_REGISTRY
+
 
 model_urls = {
     "alexnet": "https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",

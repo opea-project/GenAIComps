@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import os
-import psutil
 from copy import deepcopy
 from subprocess import Popen, TimeoutExpired
 from typing import TYPE_CHECKING, Any, Dict, Generator, Optional
-import subprocess
+
+import psutil
 from transformers.trainer import TRAINING_ARGS_NAME
 
 from ..extras.constants import LLAMABOARD_CONFIG, PEFT_METHODS, TRAINING_STAGES
@@ -37,12 +37,13 @@ if TYPE_CHECKING:
 
     from .manager import Manager
 
+
 def find_pid_by_description(process_description):
     pids = []
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-        pid = proc.info['pid']
-        cmdline = proc.info.get('cmdline', [])
-        if process_description in ' '.join(cmdline):
+    for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+        pid = proc.info["pid"]
+        cmdline = proc.info.get("cmdline", [])
+        if process_description in " ".join(cmdline):
             print(f"PID: {pid}, Description: {proc.info['name']}, Command Line: {' '.join(cmdline)}")
             pids.append(pid)
     return pids
@@ -52,11 +53,11 @@ class Runner:
     def __init__(self, manager: "Manager", demo_mode: bool = False) -> None:
         self.manager = manager
         self.demo_mode = demo_mode
-        """ Resume """
+        """Resume."""
         self.trainer: Optional["Popen"] = None
         self.do_train = True
         self.running_data: Dict["Component", Any] = None
-        """ State """
+        """State."""
         self.aborted = False
         self.running = False
 
@@ -196,7 +197,7 @@ class Runner:
             n_trials=int(get("train.n_trials")),
             n_warmup_steps=int(get("train.n_warmup_steps")),
             sampler=get("train.sampler"),
-            opt_params=get("train.opt_params")
+            opt_params=get("train.opt_params"),
         )
 
         # checkpoints
@@ -426,7 +427,7 @@ class Runner:
                 continue
 
         if self.do_train:
-            
+
             if os.path.exists(os.path.join(output_path, TRAINING_ARGS_NAME)):
                 finish_info = ALERTS["info_finished"][lang]
             else:

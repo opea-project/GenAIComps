@@ -1,15 +1,18 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 """
 Credit to
 1) https://github.com/ildoonet/pytorch-randaugment
 2) https://github.com/kakaobrain/fast-autoaugment
 """
-import numpy as np
 import random
+
+import numpy as np
 import PIL
-import torch
-import PIL.ImageOps
 import PIL.ImageDraw
 import PIL.ImageEnhance
+import PIL.ImageOps
+import torch
 from PIL import Image
 
 
@@ -143,8 +146,8 @@ def CutoutAbs(img, v):
     x0 = np.random.uniform(w)
     y0 = np.random.uniform(h)
 
-    x0 = int(max(0, x0 - v/2.0))
-    y0 = int(max(0, y0 - v/2.0))
+    x0 = int(max(0, x0 - v / 2.0))
+    y0 = int(max(0, y0 - v / 2.0))
     x1 = min(w, x0 + v)
     y1 = min(h, y0 + v)
 
@@ -184,9 +187,12 @@ class Lighting:
 
         alpha = img.new().resize_(3).normal_(0, self.alphastd)
         rgb = (
-            self.eigvec.type_as(img).clone().mul(
-                alpha.view(1, 3).expand(3, 3)
-            ).mul(self.eigval.view(1, 3).expand(3, 3)).sum(1).squeeze()
+            self.eigvec.type_as(img)
+            .clone()
+            .mul(alpha.view(1, 3).expand(3, 3))
+            .mul(self.eigval.view(1, 3).expand(3, 3))
+            .sum(1)
+            .squeeze()
         )
 
         return img.add(rgb.view(3, 1, 1).expand_as(img))
@@ -219,7 +225,7 @@ class CutoutDefault:
 
 
 def randaugment_list():
-    # 16 oeprations and their ranges
+    # 16 operations and their ranges
     # https://github.com/google-research/uda/blob/master/image/randaugment/policies.py#L57
     # augs = [
     #     (Identity, 0., 1.0),
@@ -320,7 +326,7 @@ class RandAugment:
         ops = random.choices(self.augment_list, k=self.n)
 
         for op, minval, maxval in ops:
-            val = (self.m / 30) * (maxval-minval) + minval
+            val = (self.m / 30) * (maxval - minval) + minval
             img = op(img, val)
 
         return img
@@ -340,7 +346,7 @@ class RandAugment2:
             if random.random() > self.p:
                 continue
             m = random.random()
-            val = m * (maxval-minval) + minval
+            val = m * (maxval - minval) + minval
             img = op(img, val)
 
         return img
@@ -357,7 +363,7 @@ class RandAugmentFixMatch:
 
         for op, minval, maxval in ops:
             m = random.random()
-            val = m * (maxval-minval) + minval
+            val = m * (maxval - minval) + minval
             img = op(img, val)
 
         return img

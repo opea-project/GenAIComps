@@ -1,7 +1,12 @@
-import numpy as np
-import os
-from sklearn.linear_model import LogisticRegression
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import argparse
+import os
+
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="", help="path to dataset")
@@ -54,7 +59,9 @@ for num_shot in [1, 2, 4, 8, 16]:
         search_list = [1e6, 1e4, 1e2, 1, 1e-2, 1e-4, 1e-6]
         acc_list = []
         for c_weight in search_list:
-            clf = LogisticRegression(solver="lbfgs", max_iter=1000, penalty="l2", C=c_weight).fit(fewshot_train_feature, fewshot_train_label)
+            clf = LogisticRegression(solver="lbfgs", max_iter=1000, penalty="l2", C=c_weight).fit(
+                fewshot_train_feature, fewshot_train_label
+            )
             pred = clf.predict(fewshot_val_feature)
             acc_val = sum(pred == fewshot_val_label) / len(fewshot_val_label)
             acc_list.append(acc_val)
@@ -67,12 +74,16 @@ for num_shot in [1, 2, 4, 8, 16]:
         c_left, c_right = 1e-1 * c_peak, 1e1 * c_peak
 
         def binary_search(c_left, c_right, seed, step, test_acc_step_list):
-            clf_left = LogisticRegression(solver="lbfgs", max_iter=1000, penalty="l2", C=c_left).fit(fewshot_train_feature, fewshot_train_label)
+            clf_left = LogisticRegression(solver="lbfgs", max_iter=1000, penalty="l2", C=c_left).fit(
+                fewshot_train_feature, fewshot_train_label
+            )
             pred_left = clf_left.predict(fewshot_val_feature)
             acc_left = sum(pred_left == fewshot_val_label) / len(fewshot_val_label)
             print("Val accuracy (Left): {:.2f}".format(100 * acc_left), flush=True)
 
-            clf_right = LogisticRegression(solver="lbfgs", max_iter=1000, penalty="l2", C=c_right).fit(fewshot_train_feature, fewshot_train_label)
+            clf_right = LogisticRegression(solver="lbfgs", max_iter=1000, penalty="l2", C=c_right).fit(
+                fewshot_train_feature, fewshot_train_label
+            )
             pred_right = clf_right.predict(fewshot_val_feature)
             acc_right = sum(pred_right == fewshot_val_label) / len(fewshot_val_label)
             print("Val accuracy (Right): {:.2f}".format(100 * acc_right), flush=True)
@@ -96,7 +107,9 @@ for num_shot in [1, 2, 4, 8, 16]:
             print("Test Accuracy: {:.2f}".format(test_acc), flush=True)
             test_acc_step_list[seed - 1, step] = test_acc
 
-            saveline = "{}, seed {}, {} shot, weight {}, test_acc {:.2f}\n".format(dataset, seed, num_shot, c_final, test_acc)
+            saveline = "{}, seed {}, {} shot, weight {}, test_acc {:.2f}\n".format(
+                dataset, seed, num_shot, c_final, test_acc
+            )
             with open(
                 "./report/{}_s{}r{}_details.txt".format(args.feature_dir, args.num_step, args.num_run),
                 "a+",
@@ -115,7 +128,9 @@ for num_shot in [1, 2, 4, 8, 16]:
                 f"{dataset}, {num_shot} Shot, Round {step}: {c_left}/{c_right}",
                 flush=True,
             )
-            c_left, c_right, seed, step, test_acc_step_list = binary_search(c_left, c_right, seed, step, test_acc_step_list)
+            c_left, c_right, seed, step, test_acc_step_list = binary_search(
+                c_left, c_right, seed, step, test_acc_step_list
+            )
     # save results of last step
     test_acc_list = test_acc_step_list[:, -1]
     acc_mean = np.mean(test_acc_list)

@@ -1,5 +1,7 @@
 ## The core features for clip finetune tool:
+
 Below method can run on Classification task and Image to Text task
+
 <table width="100%">
     <tr>
         <td align="center" colspan="1"><strong>Method</strong></td>
@@ -7,13 +9,13 @@ Below method can run on Classification task and Image to Text task
     <tr>
     <tr>
         <td align="center" colspan="1"><strong>Full Finetune</strong></td>
-        <td align="center" colspan="1"><strong>1. Default update all paramters<br>
+        <td align="center" colspan="1"><strong>1. Default update all parameters<br>
         2. Enable <a href="https://www.ecva.net/papers/eccv_2020/papers_ECCV/html/3155_ECCV_2020_paper.php">Angle-Based Selection</a>(base on the weight angle to determine which layer to update)<br>
         3. Enable <a href="https://www.ecva.net/papers/eccv_2020/papers_ECCV/html/3155_ECCV_2020_paper.php">Angle-Based Selection</a>(base on the weight angle to determine which layer to update)<br></strong></td>       
     <tr>
     <tr>
         <td align="center" colspan="1"><strong>Partial Finetuning - bias</strong></td>
-        <td align="center" colspan="1"><strong>1. Default update all bias paramters<br>
+        <td align="center" colspan="1"><strong>1. Default update all bias parameters<br>
         2. Allow users to customize which layers participate in training and which ones do not<br></strong></td>       
     <tr>
     <tr>

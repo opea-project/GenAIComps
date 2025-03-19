@@ -1,11 +1,14 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import pickle
 import random
-from scipy.io import loadmat
 from collections import defaultdict
 
-from dassl.data.datasets import DATASET_REGISTRY, Datum, DatasetBase
-from dassl.utils import read_json, mkdir_if_missing
+from dassl.data.datasets import DATASET_REGISTRY, DatasetBase, Datum
+from dassl.utils import mkdir_if_missing, read_json
+from scipy.io import loadmat
 
 from .oxford_pets import OxfordPets
 
@@ -35,7 +38,7 @@ class OxfordFlowers(DatasetBase):
         if num_shots >= 1:
             seed = cfg.SEED
             preprocessed = os.path.join(self.split_fewshot_dir, f"shot_{num_shots}-seed_{seed}.pkl")
-            
+
             if os.path.exists(preprocessed):
                 print(f"Loading preprocessed few-shot data from {preprocessed}")
                 with open(preprocessed, "rb") as file:

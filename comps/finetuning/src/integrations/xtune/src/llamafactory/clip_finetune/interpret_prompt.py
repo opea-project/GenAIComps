@@ -1,10 +1,12 @@
-import os
-import sys
-import argparse
-import torch
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
-from clip.simple_tokenizer import SimpleTokenizer
+import argparse
+import os
+
+import torch
 from clip import clip
+from clip.simple_tokenizer import SimpleTokenizer
 
 
 def load_clip_to_cpu(backbone_name="RN50"):

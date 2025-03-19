@@ -1,50 +1,67 @@
-import os
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import math
-import torch
+import os
+import sys
+from datetime import datetime
+
 import numpy as np
 import optuna
-from tqdm import tqdm
-from datetime import datetime
-from torch.utils.data import DataLoader
+import torch
 from torch.nn.utils import clip_grad_norm_
-import sys
-sys.path.append(os.path.dirname(__file__))
-from utils.flops_table import get_gflops_params
-from utils.logger import LOGGER, add_log_to_file
-from torch.utils.tensorboard import SummaryWriter
-from utils.basic_utils import set_seeds, save_json, NoOp
-from utils.distributed import all_gather, is_main_process, reduce_loss_dict
-from utils.train_utils import progress, save_checkpoint, verbose, log_metrics
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
+
+sys.path.append(os.path.dirname(__file__))
+from modeling.clip_model import CLIP
 from modeling.loss import CrossEn
 from modeling.model import AdaCLIP
-from modeling.clip_model import CLIP
+from torch.utils.tensorboard import SummaryWriter
+from utils.basic_utils import NoOp, save_json, set_seeds
+from utils.distributed import all_gather, is_main_process, reduce_loss_dict
+from utils.flops_table import get_gflops_params
+from utils.logger import LOGGER, add_log_to_file
+from utils.train_utils import log_metrics, progress, save_checkpoint, verbose
+
+
 try:
     from datasets.dataset import BaseDataset
     from datasets.prefetch import PrefetchLoader
 except ImportError:
     from .datasets.dataset import BaseDataset
     from .datasets.prefetch import PrefetchLoader
-from configs.config import parser, parse_with_config
-from modeling.metrics import t2v_metrics, v2t_metrics
-from optimization.utils import setup_optimizer_and_scheduler_single_node, setup_optimizer_and_scheduler_peft
-from finetune import importance_based_shrink_, write_init_params_for_optimization, get_num_params, groupwise_normalization, visualize_param_groups, LisaDispatcherForCLIPSimplified
 
-#from peft import get_peft_model, LoraConfig, PeftModel
+# from peft import get_peft_model, LoraConfig, PeftModel
 from functools import partial
+
+from configs.config import parse_with_config, parser
+from finetune import (
+    LisaDispatcherForCLIPSimplified,
+    get_num_params,
+    groupwise_normalization,
+    importance_based_shrink_,
+    visualize_param_groups,
+    write_init_params_for_optimization,
+)
+from modeling.metrics import t2v_metrics, v2t_metrics
+from optimization.utils import setup_optimizer_and_scheduler_peft, setup_optimizer_and_scheduler_single_node
+
 
 # for optuna sampler selection
 def get_sampler(cfg):
     sampler_name = cfg.optuna_cfg.sampler.name
-    if sampler_name == 'TPESampler':
+    if sampler_name == "TPESampler":
         sampler = optuna.samplers.TPESampler()
-    elif sampler_name == 'CmaEsSampler':
+    elif sampler_name == "CmaEsSampler":
         sampler = optuna.samplers.CmaEsSampler()
-    elif sampler_name == 'GPSampler':
+    elif sampler_name == "GPSampler":
         sampler = optuna.samplers.GPSampler()
     else:
         raise ValueError("Unknown sampler name in config")
     return sampler
+
 
 # for optuna parameter tuning
 def objective(trial, cfg):
@@ -53,23 +70,14 @@ def objective(trial, cfg):
         min_val, max_val = param_data.range
         log_scale = param_data.log
         if isinstance(min_val, int):
-            suggested_value = trial.suggest_int(
-                param_name,
-                min_val,
-                max_val,
-                log=log_scale
-            )
+            suggested_value = trial.suggest_int(param_name, min_val, max_val, log=log_scale)
         elif isinstance(min_val, float):
-            suggested_value = trial.suggest_float(
-                param_name,
-                min_val,
-                max_val,
-                log=log_scale
-            )
+            suggested_value = trial.suggest_float(param_name, min_val, max_val, log=log_scale)
         setattr(cfg, param_name, suggested_value)
     val_best_recall = train(cfg, trial)
 
     return val_best_recall
+
 
 def setup_model(cfg, device):
     LOGGER.info("Setup model...")
@@ -80,18 +88,18 @@ def setup_model(cfg, device):
     if cfg.resume:
         LOGGER.info(f"Loading model checkpoint: {cfg.resume}...")
         checkpoint = torch.load(cfg.resume, map_location="cpu", weights_only=False)
-        state_dict = checkpoint['state_dict']
+        state_dict = checkpoint["state_dict"]
         epoch = checkpoint["epoch"]
     else:
-        LOGGER.info(f"Using CLIP pretrained weights...")
-        for key, val in pretrained_state_dict.items():    
+        LOGGER.info("Using CLIP pretrained weights...")
+        for key, val in pretrained_state_dict.items():
             new_key = "clip." + key
             if new_key not in state_dict:
                 state_dict[new_key] = val.clone()
 
         if cfg.sim_header != "meanP":
             for key, val in pretrained_state_dict.items():
-                # initialize for the frame and type postion embedding
+                # initialize for the frame and type position embedding
                 if key == "positional_embedding":
                     state_dict["frame_position_embeddings.weight"] = val.clone()
 
@@ -104,7 +112,7 @@ def setup_model(cfg, device):
                         state_dict[key.replace("transformer.", "transformerClip.")] = val.clone()
                         continue
 
-                    if num_layer == 4: # for 1-layer transformer sim_header
+                    if num_layer == 4:  # for 1-layer transformer sim_header
                         state_dict[key.replace(str(num_layer), "0")] = val.clone()
 
     model = AdaCLIP(cfg, pretrained_state_dict)
@@ -112,32 +120,42 @@ def setup_model(cfg, device):
     unexpected_keys = []
     error_msgs = []
     # copy state_dict so _load_from_state_dict can modify it
-    metadata = getattr(state_dict, '_metadata', None)
+    metadata = getattr(state_dict, "_metadata", None)
     state_dict = state_dict.copy()
     if metadata is not None:
         state_dict._metadata = metadata
 
-    def load(module, prefix=''):
+    def load(module, prefix=""):
         local_metadata = {} if metadata is None else metadata.get(prefix[:-1], {})
         module._load_from_state_dict(
-            state_dict, prefix, local_metadata, True, missing_keys, unexpected_keys, error_msgs)
+            state_dict, prefix, local_metadata, True, missing_keys, unexpected_keys, error_msgs
+        )
         for name, child in module._modules.items():
             if child is not None:
-                load(child, prefix + name + '.')
+                load(child, prefix + name + ".")
 
-    load(model, prefix='')
+    load(model, prefix="")
 
     if cfg.debug:
         LOGGER.info("-" * 20)
         if len(missing_keys) > 0:
-            LOGGER.info("Weights of {} not initialized from pretrained model: {}"
-                        .format(model.__class__.__name__, "\n   " + "\n   ".join(missing_keys)))
+            LOGGER.info(
+                "Weights of {} not initialized from pretrained model: {}".format(
+                    model.__class__.__name__, "\n   " + "\n   ".join(missing_keys)
+                )
+            )
         if len(unexpected_keys) > 0:
-            LOGGER.info("Weights from pretrained model not used in {}: {}"
-                        .format(model.__class__.__name__, "\n   " + "\n   ".join(unexpected_keys)))
+            LOGGER.info(
+                "Weights from pretrained model not used in {}: {}".format(
+                    model.__class__.__name__, "\n   " + "\n   ".join(unexpected_keys)
+                )
+            )
         if len(error_msgs) > 0:
-            LOGGER.error("Weights from pretrained model cause errors in {}: {}"
-                            .format(model.__class__.__name__, "\n   " + "\n   ".join(error_msgs)))
+            LOGGER.error(
+                "Weights from pretrained model cause errors in {}: {}".format(
+                    model.__class__.__name__, "\n   " + "\n   ".join(error_msgs)
+                )
+            )
 
     if str(device) == "cpu":
         model.float()
@@ -146,7 +164,7 @@ def setup_model(cfg, device):
         model.freeze_clip()
     if cfg.freeze_cnn and cfg.use_policy:
         model.sampler.freeze_cnn_backbone()
-    if (not cfg.freeze_clip) and ('peft' in cfg) and ("lora_config" in cfg.peft):
+    if (not cfg.freeze_clip) and ("peft" in cfg) and ("lora_config" in cfg.peft):
         peft_config = LoraConfig(**cfg.lora_config)
         model = get_peft_model(model, peft_config)
 
@@ -184,9 +202,9 @@ def setup_dataloaders(cfg, device, train_annot, val_annot):
     )
 
     if str(device) != "cpu":
-        train_loader = PrefetchLoader(train_loader,device)
-        val_loader = PrefetchLoader(val_loader,device)
-    
+        train_loader = PrefetchLoader(train_loader, device)
+        val_loader = PrefetchLoader(val_loader, device)
+
     LOGGER.info("Init. train_loader and val_loader done!")
 
     return train_loader, val_loader
@@ -204,7 +222,7 @@ def init_gflops_table(cfg):
         if k == "clip":
             LOGGER.info("%-20s: %.4f GFLOPS" % (f"{k}/f", gflops_table[k]))
         else:
-           LOGGER.info("%-20s: %.4f GFLOPS" % (f"{k}/v", gflops_table[k]))
+            LOGGER.info("%-20s: %.4f GFLOPS" % (f"{k}/v", gflops_table[k]))
 
     return gflops_table
 
@@ -221,14 +239,16 @@ def log_policy_usage(actions, gflops_table, cfg, output_frame_index=False):
     avg_gflops = avg_frame_ratio * gflops_table["clip"] * num_frm
 
     if cfg.use_policy:
-        avg_gflops += (gflops_table["policy"] + gflops_table[cfg.rnn] + gflops_table["mlp"])
+        avg_gflops += gflops_table["policy"] + gflops_table[cfg.rnn] + gflops_table["mlp"]
 
     if cfg.use_policy and output_frame_index:
-        frame_index_count = actions.sum(axis=0, dtype=np.int32) # Obtain frame index for kept frames
+        frame_index_count = actions.sum(axis=0, dtype=np.int32)  # Obtain frame index for kept frames
         LOGGER.info(f"Out of {actions.shape[0]} videos, the number of times each frame index is being selected: ")
         LOGGER.info(frame_index_count.tolist())
 
-    LOGGER.info(f"GFLOPS/f: {avg_gflops / num_frm:.3f} GFLOPS/v: {avg_gflops:.3f} AVG_FRAMES: {avg_frame_ratio * num_frm:.3f}")
+    LOGGER.info(
+        f"GFLOPS/f: {avg_gflops / num_frm:.3f} GFLOPS/v: {avg_gflops:.3f} AVG_FRAMES: {avg_frame_ratio * num_frm:.3f}"
+    )
 
 
 def get_current_temperature(cfg, epoch=0):
@@ -258,7 +278,9 @@ def get_embeddings(val_loader, model, cfg):
             pbar = NoOp()
 
         for minibatch in val_loader:
-            output = model(minibatch["text_input_ids"], minibatch["clip_inputs"], minibatch["policy_inputs"], return_embds=True)
+            output = model(
+                minibatch["text_input_ids"], minibatch["clip_inputs"], minibatch["policy_inputs"], return_embds=True
+            )
             text_embd.append(output["text_embd"])
             frame_embd.append(output["frame_embd"])
             word_embd.append(output["word_embd"])
@@ -293,8 +315,8 @@ def reshape_sim_matrix(sims, break_pts):
         return sims
     sims_reshaped = torch.zeros((num_v, num_v)).to(sims.device)
     for v in range(num_v):
-        for i in range(len(break_pts)-1):
-            sims_reshaped[i, v] = torch.max(sims[break_pts[i]:break_pts[i+1], v], dim=0)[0]
+        for i in range(len(break_pts) - 1):
+            sims_reshaped[i, v] = torch.max(sims[break_pts[i] : break_pts[i + 1], v], dim=0)[0]
     return sims_reshaped
 
 
@@ -322,7 +344,7 @@ def compute_batched_sim_matrix(batch_size, model, text_embd, frame_embd, word_em
 
 @torch.no_grad()
 def validate(model, val_loader, device, cfg, criterion=None, writer=None, epoch=None, gflops_table=None):
-    if hasattr(model, 'module'):
+    if hasattr(model, "module"):
         model = model.module.to(device)
     else:
         model = model.to(device)
@@ -350,9 +372,9 @@ def validate(model, val_loader, device, cfg, criterion=None, writer=None, epoch=
         loss1 = criterion(reshaped_sims)
         loss2 = criterion(reshaped_sims.T)
         retrieval_loss = (loss1 + loss2) / 2
-        writer.add_scalar('Retrieval Loss/val', retrieval_loss.item(), epoch)
+        writer.add_scalar("Retrieval Loss/val", retrieval_loss.item(), epoch)
         loss = retrieval_loss
-        writer.add_scalar('Total Epoch Loss/val', loss.item(), epoch)
+        writer.add_scalar("Total Epoch Loss/val", loss.item(), epoch)
         LOGGER.info(f"EVAL epoch {epoch} Loss: {(loss.item()):.6f}")
         LOGGER.info(f"Retrieval Loss: {retrieval_loss.item():.3f}")
     actions = actions.cpu().detach().numpy()
@@ -361,7 +383,7 @@ def validate(model, val_loader, device, cfg, criterion=None, writer=None, epoch=
     return all_metrics, actions
 
 
-def train(cfg,trial=None):
+def train(cfg, trial=None):
 
     set_seeds(cfg.seed)
 
@@ -370,7 +392,7 @@ def train(cfg,trial=None):
 
     torch.autograd.set_detect_anomaly(True)
     if cfg.xpu:
-        import intel_extension_for_pytorch as ipex
+
         device = torch.device("xpu")
     elif torch.cuda.is_available():
         device = torch.device("cuda")
@@ -378,16 +400,18 @@ def train(cfg,trial=None):
         device = torch.device("cpu")
 
     timestamp = datetime.now().strftime(r"%Y-%m-%d_%H-%M-%S")
-    expname = os.path.split(os.path.splitext(cfg.config)[0])[-1] + f'-lr-{cfg.learning_rate * cfg.coef_lr:.2g}'.replace('e-0', 'n')
+    expname = os.path.split(os.path.splitext(cfg.config)[0])[-1] + f"-lr-{cfg.learning_rate * cfg.coef_lr:.2g}".replace(
+        "e-0", "n"
+    )
     if cfg.freeze_clip:
-        expname += '-fclip'
-    if cfg.optim == 'adamw':
-        expname += '-adamw'
+        expname += "-fclip"
+    if cfg.optim == "adamw":
+        expname += "-adamw"
     if cfg.resume:
-        expname = os.path.split(cfg.resume)[-1].split('-')[0] + '-' + expname
-    
-    #expname += f"-e{cfg.num_epochs}"
-    
+        expname = os.path.split(cfg.resume)[-1].split("-")[0] + "-" + expname
+
+    # expname += f"-e{cfg.num_epochs}"
+
     if is_main_process():
         writer = SummaryWriter(os.path.join(cfg.tensorboard_dir, expname, timestamp))
     else:
@@ -397,15 +421,15 @@ def train(cfg,trial=None):
     if not cfg.no_output:
         output_dir = os.path.join(cfg.output_dir, expname, timestamp)
         add_log_to_file(os.path.join(output_dir, "log.info"))
-        save_json(cfg, os.path.join(output_dir, 'config.json'), save_pretty=True)
+        save_json(cfg, os.path.join(output_dir, "config.json"), save_pretty=True)
 
     model, epoch = setup_model(cfg, device=device)
 
     gflops_table = init_gflops_table(cfg)
 
     if cfg.do_inference:
-        _, eval_loader = setup_dataloaders(cfg, device, cfg.train_annot, cfg.test_annot) 
-        LOGGER.info(f"***** Test information *****")
+        _, eval_loader = setup_dataloaders(cfg, device, cfg.train_annot, cfg.test_annot)
+        LOGGER.info("***** Test information *****")
         LOGGER.info("  Num examples = %d", len(eval_loader.dataset))
         LOGGER.info("  Batch size = %d", cfg.batch_size)
         LOGGER.info("  Num steps = %d", len(eval_loader))
@@ -422,17 +446,16 @@ def train(cfg,trial=None):
     train_loader, val_loader = setup_dataloaders(cfg, device, cfg.train_annot, cfg.val_annot)
 
     total_batch_size = int(cfg.world_size * cfg.batch_size * cfg.gradient_accumulation_steps)
-    num_train_steps = int(math.ceil(1. * cfg.num_epochs * len(train_loader.dataset) / total_batch_size))
+    num_train_steps = int(math.ceil(1.0 * cfg.num_epochs * len(train_loader.dataset) / total_batch_size))
 
-    LOGGER.info(f"device: {device} n_gpu: {cfg.world_size}, "
-                f"rank: {cfg.rank}")
+    LOGGER.info(f"device: {device} n_gpu: {cfg.world_size}, " f"rank: {cfg.rank}")
     LOGGER.info("Starting training...")
     LOGGER.info(f"***** Running training on {cfg.world_size} GPUs *****")
     LOGGER.info("  Num examples = %d", len(train_loader.dataset))
     LOGGER.info("  Batch size = %d", cfg.batch_size)
     LOGGER.info("  Accumulate steps = %d", cfg.gradient_accumulation_steps)
     LOGGER.info("  Num steps = %d", num_train_steps)
-    LOGGER.info(f"***** Validation information *****")
+    LOGGER.info("***** Validation information *****")
     LOGGER.info("  Num examples = %d", len(val_loader.dataset))
     LOGGER.info("  Batch size = %d", cfg.batch_size)
     LOGGER.info("  Num steps = %d", len(val_loader))
@@ -441,19 +464,24 @@ def train(cfg,trial=None):
     if cfg.freeze_layer_num > -1 and not cfg.freeze_clip:
         for name, param in model.clip.named_parameters():
             # top layers always need to train
-            if name.find("ln_final.") == 0 or name.find("text_projection") == 0 or name.find("logit_scale") == 0 \
-                    or name.find("visual.ln_post.") == 0 or name.find("visual.proj") == 0:
-                continue    # need to train
+            if (
+                name.find("ln_final.") == 0
+                or name.find("text_projection") == 0
+                or name.find("logit_scale") == 0
+                or name.find("visual.ln_post.") == 0
+                or name.find("visual.proj") == 0
+            ):
+                continue  # need to train
             elif name.find("visual.transformer.resblocks.") == 0 or name.find("transformer.resblocks.") == 0:
                 layer_num = int(name.split(".resblocks.")[1].split(".")[0])
                 if layer_num >= cfg.freeze_layer_num:
-                    continue    # need to train
-            # paramenters which < freeze_layer_num will be freezed
+                    continue  # need to train
+            # parameters which < freeze_layer_num will be freezed
             param.requires_grad = False
 
     criterion = CrossEn().to(device)
 
-    if 'peft' in cfg:
+    if "peft" in cfg:
         model, optimizer, lr_scheduler = setup_optimizer_and_scheduler_peft(model, cfg, num_train_steps)
     else:
         model, optimizer, lr_scheduler = setup_optimizer_and_scheduler_single_node(model, cfg, num_train_steps)
@@ -465,19 +493,19 @@ def train(cfg,trial=None):
     curr_k = None
 
     # importance based weight
-    importance_based_shrink_enabled = 'peft' in cfg and cfg.peft.method == 'ibs'
-    lisa_enabled = 'peft' in cfg and cfg.peft.method == 'lisa'
+    importance_based_shrink_enabled = "peft" in cfg and cfg.peft.method == "ibs"
+    lisa_enabled = "peft" in cfg and cfg.peft.method == "lisa"
     if lisa_enabled:
         lisa_dispatcher = LisaDispatcherForCLIPSimplified(model, num_train_steps, **cfg.peft.config)
-        with open(os.path.join(output_dir, 'lisa_tunable_clip_params.txt'), 'w') as f:
+        with open(os.path.join(output_dir, "lisa_tunable_clip_params.txt"), "w") as f:
             for n in lisa_dispatcher.get_lisa_tunable():
-                f.write(f'{n}\n')
-        os.makedirs(os.path.join(output_dir, 'debug'))
+                f.write(f"{n}\n")
+        os.makedirs(os.path.join(output_dir, "debug"))
 
     write_init_params_for_optimization(model, output_dir)
 
     for epoch in range(cfg.num_epochs):
-        
+
         if importance_based_shrink_enabled:
             importance_based_shrink_(model, epoch, output_dir, cfg)
 
@@ -486,23 +514,25 @@ def train(cfg,trial=None):
         total_loss = 0
         model.train()
 
-        #train_loader.sampler.set_epoch(epoch)
+        # train_loader.sampler.set_epoch(epoch)
         all_actions_list = []
         tau = get_current_temperature(cfg, epoch)
 
         if cfg.use_policy and cfg.warmup_epochs:
             curr_k = get_current_k(cfg, curr_k, epoch, cfg.warmup_epochs)
-            if hasattr(model, 'module'):
+            if hasattr(model, "module"):
                 model.module.sampler.top_k = curr_k
             else:
                 model.sampler.top_k = curr_k
 
         for step, minibatch in enumerate(train_loader):
             if importance_based_shrink_enabled and epoch < cfg.peft.config.num_pre_epochs:
-                sub_indices = torch.randperm(minibatch["clip_inputs"].size(0))[:cfg.peft.config.pre_batch_size]
+                sub_indices = torch.randperm(minibatch["clip_inputs"].size(0))[: cfg.peft.config.pre_batch_size]
                 minibatch = {k: v[sub_indices] for k, v in minibatch.items()}
 
-            sim_matrix, actions = model(minibatch["text_input_ids"], minibatch["clip_inputs"], minibatch["policy_inputs"], tau=tau, gather=False)
+            sim_matrix, actions = model(
+                minibatch["text_input_ids"], minibatch["clip_inputs"], minibatch["policy_inputs"], tau=tau, gather=False
+            )
             all_actions_list.append(actions.cpu().detach().numpy())
             loss1 = criterion(sim_matrix)
             loss2 = criterion(sim_matrix.T)
@@ -517,11 +547,17 @@ def train(cfg,trial=None):
             if lisa_enabled:
                 if lisa_dispatcher.update_(model, global_step):
                     num_tunable, num_total = get_num_params(optimizer, model, clip=True)
-                    writer.add_scalar('CLIP tunable ratio', num_tunable / num_total, global_step)
+                    writer.add_scalar("CLIP tunable ratio", num_tunable / num_total, global_step)
                 if global_step % cfg.peft.config.log_probs_interval == 0:
-                    lisa_dispatcher.write_probs(model, os.path.join(output_dir, 'debug', f'{global_step:0>6d}.csv'))
+                    lisa_dispatcher.write_probs(model, os.path.join(output_dir, "debug", f"{global_step:0>6d}.csv"))
                     gn_nvd, labels = groupwise_normalization(lisa_dispatcher.importance_nvd, lisa_dispatcher.num_groups)
-                    visualize_param_groups(lisa_dispatcher.importance_nvd, gn_nvd, labels, os.path.join(output_dir, 'debug'), step=global_step)
+                    visualize_param_groups(
+                        lisa_dispatcher.importance_nvd,
+                        gn_nvd,
+                        labels,
+                        os.path.join(output_dir, "debug"),
+                        step=global_step,
+                    )
 
             # Reduce losses over all GPUs for logging purposes
             loss_dict = {"Retrieval Loss": retrieval_loss}
@@ -543,36 +579,44 @@ def train(cfg,trial=None):
                 optimizer.zero_grad()
 
                 # https://github.com/openai/CLIP/issues/46
-                if hasattr(model, 'module'):
+                if hasattr(model, "module"):
                     torch.clamp_(model.module.clip.logit_scale.data, max=np.log(100))
                 else:
                     torch.clamp_(model.clip.logit_scale.data, max=np.log(100))
 
-                if cfg.optim == 'bertadam':
+                if cfg.optim == "bertadam":
                     lrs = optimizer.get_lrs()
                 if global_step % cfg.n_display == 0:
-                    prog = progress(step+1, len_epoch)
-                    lr = '|'.join([f'{itm:.2e}' for itm in sorted(lrs)]) if cfg.optim == "bertadam" else cfg.learning_rate
+                    prog = progress(step + 1, len_epoch)
+                    lr = (
+                        "|".join([f"{itm:.2e}" for itm in sorted(lrs)])
+                        if cfg.optim == "bertadam"
+                        else cfg.learning_rate
+                    )
                     LOGGER.info(f"Train Epoch: {epoch} {prog} Loss: {losses_reduced.item():.6f} Lr: {lr}")
                     LOGGER.info("  ".join([f"{k}: {v.item():.3f}" for k, v in loss_dict_reduced.items()]))
                     if cfg.use_policy:
                         LOGGER.info(f"Gumbel softmax temperature: {tau:.4f}")
                     log_policy_usage(actions.cpu().detach().numpy(), gflops_table, cfg)
-                writer.add_scalar('Retrieval Loss/train', loss_dict_reduced["Retrieval Loss"].item(), global_step)
-                writer.add_scalar('Total Loss/train', losses_reduced.item(), global_step)
-                #writer.add_scalar('LR/max', max(lrs), global_step)
-                #writer.add_scalar('LR/min', min(lrs), global_step)
+                writer.add_scalar("Retrieval Loss/train", loss_dict_reduced["Retrieval Loss"].item(), global_step)
+                writer.add_scalar("Total Loss/train", losses_reduced.item(), global_step)
+                # writer.add_scalar('LR/max', max(lrs), global_step)
+                # writer.add_scalar('LR/min', min(lrs), global_step)
 
         LOGGER.info(f"Train Epoch: {epoch} Loss: {(total_loss / len_epoch):.6f}")
         num_tunable, num_total = get_num_params(optimizer, model, clip=False)
-        LOGGER.info('# number of tunable/total params: {}/{}={:.3f}%'.format(
-            num_tunable, num_total, num_tunable / num_total * 100.)
+        LOGGER.info(
+            "# number of tunable/total params: {}/{}={:.3f}%".format(
+                num_tunable, num_total, num_tunable / num_total * 100.0
+            )
         )
         num_tunable, num_total = get_num_params(optimizer, model, clip=True)
-        LOGGER.info('# number of tunable/total CLIP params: {}/{}={:.3f}%'.format(
-            num_tunable, num_total, num_tunable / num_total * 100.)
+        LOGGER.info(
+            "# number of tunable/total CLIP params: {}/{}={:.3f}%".format(
+                num_tunable, num_total, num_tunable / num_total * 100.0
+            )
         )
-        writer.add_scalar('Total Epoch Loss/train', total_loss / len_epoch, epoch)
+        writer.add_scalar("Total Epoch Loss/train", total_loss / len_epoch, epoch)
         log_policy_usage(np.concatenate(all_actions_list, axis=0), gflops_table, cfg, True)
 
         set_seeds(cfg.seed)
@@ -585,7 +629,7 @@ def train(cfg,trial=None):
             best_recall = (ret_metrics["t2v_metrics"]["R1"] + ret_metrics["t2v_metrics"]["R5"]) / 2
             if trial is not None:
                 # record each epoch's best_recall
-                trial.report(best_recall,epoch)
+                trial.report(best_recall, epoch)
                 # handle pruning based on intermediate value.
                 if trial.should_prune():
                     raise optuna.exceptions.TrialPruned()
@@ -600,7 +644,9 @@ def train(cfg,trial=None):
                     save_checkpoint(best_checkpoint, cfg, optimizer, os.path.join(output_dir, "trained_model.pth"))
                     LOGGER.info(f"Saving the best ckpt to disk (epoch {best_checkpoint['epoch']})")
             else:
-                LOGGER.info(f"This epoch did not improve R1-5-10. Best checkpoint saved for epoch {best_checkpoint['epoch']}")
+                LOGGER.info(
+                    f"This epoch did not improve R1-5-10. Best checkpoint saved for epoch {best_checkpoint['epoch']}"
+                )
 
             if cfg.save_last and epoch == cfg.num_epochs - 1:
                 last_checkpoint = {"epoch": epoch, "model": model}
@@ -611,14 +657,14 @@ def train(cfg,trial=None):
         LOGGER.info(f"Best retrieval performance from epoch {best_checkpoint['epoch']}")
         log_policy_usage(best_actions, gflops_table, cfg, True)
         for metric in best_metrics:
-            verbose(best_metrics[metric], metric, best_checkpoint['epoch'])
+            verbose(best_metrics[metric], metric, best_checkpoint["epoch"])
 
     if not cfg.no_output:
         output_dirs = all_gather(output_dir)
         if is_main_process():
             if cfg.test_annot != cfg.val_annot:
-                _, eval_loader = setup_dataloaders(cfg, device, cfg.train_annot, cfg.test_annot) 
-                LOGGER.info(f"***** Test information *****")
+                _, eval_loader = setup_dataloaders(cfg, device, cfg.train_annot, cfg.test_annot)
+                LOGGER.info("***** Test information *****")
                 LOGGER.info("  Num examples = %d", len(eval_loader.dataset))
                 LOGGER.info("  Batch size = %d", cfg.batch_size)
                 LOGGER.info("  Num steps = %d", len(eval_loader))
@@ -635,7 +681,8 @@ def train(cfg,trial=None):
 
     return best
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parsed_args = parser.parse_args()
     args = parse_with_config(parsed_args)
     if "optuna_cfg" in args:
@@ -646,9 +693,15 @@ if __name__ == '__main__':
         objective_fn = partial(objective, cfg=args)
         sampler = get_sampler(args)
         # set up and run the optuna study
-        study = optuna.create_study(sampler=sampler, pruner=optuna.pruners.MedianPruner(
-            n_warmup_steps=args.optuna_cfg.n_warmup_steps), direction='maximize', study_name="adaclip_bitfit_coef_lr00205_weight_decay00105_n_trials30", storage=storage_name, load_if_exists=True)
-        study.optimize(objective_fn, n_trials=args.optuna_cfg.n_trials,gc_after_trial=True)
+        study = optuna.create_study(
+            sampler=sampler,
+            pruner=optuna.pruners.MedianPruner(n_warmup_steps=args.optuna_cfg.n_warmup_steps),
+            direction="maximize",
+            study_name="adaclip_bitfit_coef_lr00205_weight_decay00105_n_trials30",
+            storage=storage_name,
+            load_if_exists=True,
+        )
+        study.optimize(objective_fn, n_trials=args.optuna_cfg.n_trials, gc_after_trial=True)
         best_hyperparameters = study.best_trial.params
         print("best_hyperparameters:", best_hyperparameters)
         if args.do_training_af_optuna:

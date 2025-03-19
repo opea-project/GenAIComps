@@ -1,11 +1,14 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 from torch.nn import functional as F
 
-from dassl.optim import build_optimizer, build_lr_scheduler
-from dassl.utils import count_num_param
 from dassl.engine import TRAINER_REGISTRY, TrainerX
-from dassl.modeling import build_network
 from dassl.engine.trainer import SimpleNet
+from dassl.modeling import build_network
+from dassl.optim import build_lr_scheduler, build_optimizer
+from dassl.utils import count_num_param
 
 
 @TRAINER_REGISTRY.register()
@@ -59,9 +62,7 @@ class DDAIG(TrainerX):
         #############
         input_p = self.G(input, lmda=self.lmda)
         if self.clamp:
-            input_p = torch.clamp(
-                input_p, min=self.clamp_min, max=self.clamp_max
-            )
+            input_p = torch.clamp(input_p, min=self.clamp_min, max=self.clamp_max)
         loss_g = 0
         # Minimize label loss
         loss_g += F.cross_entropy(self.F(input_p), label)
@@ -73,9 +74,7 @@ class DDAIG(TrainerX):
         with torch.no_grad():
             input_p = self.G(input, lmda=self.lmda)
             if self.clamp:
-                input_p = torch.clamp(
-                    input_p, min=self.clamp_min, max=self.clamp_max
-                )
+                input_p = torch.clamp(input_p, min=self.clamp_min, max=self.clamp_max)
 
         #############
         # Update F

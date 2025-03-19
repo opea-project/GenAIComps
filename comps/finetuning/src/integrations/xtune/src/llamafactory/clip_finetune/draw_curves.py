@@ -1,7 +1,11 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
-import pandas as pd
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 
 save_dir = "main_curves"
@@ -12,9 +16,17 @@ path = "Results.xlsx"  # this is the excel file containing the results (like the
 file = pd.read_excel(path, sheet_name="imcls_fewshot")
 
 datasets = [
-    "OxfordPets", "Flowers102", "FGVCAircraft", "DTD",
-    "EuroSAT", "StanfordCars", "Food101", "SUN397",
-    "Caltech101", "UCF101", "ImageNet"
+    "OxfordPets",
+    "Flowers102",
+    "FGVCAircraft",
+    "DTD",
+    "EuroSAT",
+    "StanfordCars",
+    "Food101",
+    "SUN397",
+    "Caltech101",
+    "UCF101",
+    "ImageNet",
 ]
 
 shots = [1, 2, 4, 8, 16]
@@ -25,19 +37,19 @@ COLORS = {
     "ours_v16_end": "C0",
     "ours_v16_mid": "C2",
     "ours_v16_end_csc": "C1",
-    "ours_v16_mid_csc": "C3"
+    "ours_v16_mid_csc": "C3",
 }
 MS = 3
 ALPHA = 1
 plt.rcParams.update({"font.size": 12})
 
 average = {
-    "zs": 0.,
-    "ours_v16_end": np.array([0., 0., 0., 0., 0.]),
-    "ours_v16_mid": np.array([0., 0., 0., 0., 0.]),
-    "ours_v16_end_csc": np.array([0., 0., 0., 0., 0.]),
-    "ours_v16_mid_csc": np.array([0., 0., 0., 0., 0.]),
-    "linear": np.array([0., 0., 0., 0., 0.])
+    "zs": 0.0,
+    "ours_v16_end": np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
+    "ours_v16_mid": np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
+    "ours_v16_end_csc": np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
+    "ours_v16_mid_csc": np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
+    "linear": np.array([0.0, 0.0, 0.0, 0.0, 0.0]),
 }
 
 for dataset in datasets:
@@ -76,8 +88,8 @@ for dataset in datasets:
     values += ours_v16_mid_csc
     val_min, val_max = min(values), max(values)
     diff = val_max - val_min
-    val_bot = val_min - diff*0.05
-    val_top = val_max + diff*0.05
+    val_bot = val_min - diff * 0.05
+    val_top = val_max + diff * 0.05
 
     fig, ax = plt.subplots()
     ax.set_facecolor("#EBEBEB")
@@ -91,63 +103,62 @@ for dataset in datasets:
     ax.set_title(dataset)
     ax.set_ylim(val_bot, val_top)
 
+    ax.plot(0, zs, marker="*", markersize=MS * 1.5, color=COLORS["zs"], alpha=ALPHA)
     ax.plot(
-        0, zs,
-        marker="*",
-        markersize=MS*1.5,
-        color=COLORS["zs"],
-        alpha=ALPHA
-    )
-    ax.plot(
-        shots, ours_v16_end,
+        shots,
+        ours_v16_end,
         marker="o",
         markersize=MS,
         color=COLORS["ours_v16_end"],
         label="CLIP + CoOp ($M\!=\!16$, end)",
-        alpha=ALPHA
+        alpha=ALPHA,
     )
     ax.plot(
-        shots, ours_v16_mid,
+        shots,
+        ours_v16_mid,
         marker="o",
         markersize=MS,
         color=COLORS["ours_v16_mid"],
         label="CLIP + CoOp ($M\!=\!16$, mid)",
-        alpha=ALPHA
+        alpha=ALPHA,
     )
     ax.plot(
-        shots, ours_v16_end_csc,
+        shots,
+        ours_v16_end_csc,
         marker="o",
         markersize=MS,
         color=COLORS["ours_v16_end_csc"],
         label="CLIP + CoOp ($M\!=\!16$, end, CSC)",
-        alpha=ALPHA
+        alpha=ALPHA,
     )
     ax.plot(
-        shots, ours_v16_mid_csc,
+        shots,
+        ours_v16_mid_csc,
         marker="o",
         markersize=MS,
         color=COLORS["ours_v16_mid_csc"],
         label="CLIP + CoOp ($M\!=\!16$, mid, CSC)",
-        alpha=ALPHA
+        alpha=ALPHA,
     )
     ax.plot(
-        shots, linear,
+        shots,
+        linear,
         marker="o",
         markersize=MS,
         color=COLORS["linear"],
         label="Linear probe CLIP",
         linestyle="dotted",
-        alpha=ALPHA
+        alpha=ALPHA,
     )
 
-    ax.text(-0.5, zs-diff*0.11, "Zero-shot\nCLIP", color=COLORS["zs"])
+    ax.text(-0.5, zs - diff * 0.11, "Zero-shot\nCLIP", color=COLORS["zs"])
     ax.legend(loc="lower right")
 
     fig.savefig(f"{save_dir}/{dataset}.pdf", bbox_inches="tight")
 
 
 # Plot
-average = {k: v/len(datasets) for k, v in average.items()}
+average = {k: v / len(datasets) for k, v in average.items()}
 zs = average["zs"]
 linear = list(average["linear"])
 ours_v16_end = list(average["ours_v16_end"])
@@ -163,8 +174,8 @@ values += ours_v16_end_csc
 values += ours_v16_mid_csc
 val_min, val_max = min(values), max(values)
 diff = val_max - val_min
-val_bot = val_min - diff*0.05
-val_top = val_max + diff*0.05
+val_bot = val_min - diff * 0.05
+val_top = val_max + diff * 0.05
 
 fig, ax = plt.subplots()
 ax.set_facecolor("#EBEBEB")
@@ -178,56 +189,55 @@ ax.axhline(zs, color="white", linewidth=1)
 ax.set_title("Average over 11 datasets", fontweight="bold")
 ax.set_ylim(val_bot, val_top)
 
+ax.plot(0, zs, marker="*", markersize=MS * 1.5, color=COLORS["zs"], alpha=ALPHA)
 ax.plot(
-    0, zs,
-    marker="*",
-    markersize=MS*1.5,
-    color=COLORS["zs"],
-    alpha=ALPHA
-)
-ax.plot(
-    shots, ours_v16_end,
+    shots,
+    ours_v16_end,
     marker="o",
     markersize=MS,
     color=COLORS["ours_v16_end"],
     label="CLIP + CoOp ($M\!=\!16$, end)",
-    alpha=ALPHA
+    alpha=ALPHA,
 )
 ax.plot(
-    shots, ours_v16_mid,
+    shots,
+    ours_v16_mid,
     marker="o",
     markersize=MS,
     color=COLORS["ours_v16_mid"],
     label="CLIP + CoOp ($M\!=\!16$, mid)",
-    alpha=ALPHA
+    alpha=ALPHA,
 )
 ax.plot(
-    shots, ours_v16_end_csc,
+    shots,
+    ours_v16_end_csc,
     marker="o",
     markersize=MS,
     color=COLORS["ours_v16_end_csc"],
     label="CLIP + CoOp ($M\!=\!16$, end, CSC)",
-    alpha=ALPHA
+    alpha=ALPHA,
 )
 ax.plot(
-    shots, ours_v16_mid_csc,
+    shots,
+    ours_v16_mid_csc,
     marker="o",
     markersize=MS,
     color=COLORS["ours_v16_mid_csc"],
     label="CLIP + CoOp ($M\!=\!16$, mid, CSC)",
-    alpha=ALPHA
+    alpha=ALPHA,
 )
 ax.plot(
-    shots, linear,
+    shots,
+    linear,
     marker="o",
     markersize=MS,
     color=COLORS["linear"],
     label="Linear probe CLIP",
     linestyle="dotted",
-    alpha=ALPHA
+    alpha=ALPHA,
 )
 
-ax.text(-0.5, zs-diff*0.11, "Zero-shot\nCLIP", color=COLORS["zs"])
+ax.text(-0.5, zs - diff * 0.11, "Zero-shot\nCLIP", color=COLORS["zs"])
 ax.legend(loc="lower right")
 
 fig.savefig(f"{save_dir}/average.pdf", bbox_inches="tight")

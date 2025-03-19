@@ -1,5 +1,10 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from collections import defaultdict
+
 import torch
+
 
 __all__ = ["AverageMeter", "MetricMeter"]
 
@@ -64,9 +69,7 @@ class MetricMeter:
             return
 
         if not isinstance(input_dict, dict):
-            raise TypeError(
-                "Input to MetricMeter.update() must be a dictionary"
-            )
+            raise TypeError("Input to MetricMeter.update() must be a dictionary")
 
         for k, v in input_dict.items():
             if isinstance(v, torch.Tensor):

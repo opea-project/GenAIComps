@@ -17,24 +17,21 @@ import random
 import subprocess
 import sys
 from enum import Enum, unique
-import logging
+
+from transformers.utils import (
+    is_torch_xpu_available,
+)
+
 from . import launcher
 from .api.app import run_api
 from .chat.chat_model import run_chat
 from .eval.evaluator import run_eval
 from .extras.env import VERSION, print_env
 from .extras.logging import get_logger
-import logging
 from .extras.misc import get_device_count
 from .train.tuner import export_model, run_exp
 from .webui.interface import run_web_demo, run_web_ui
-from transformers.utils import (
-    is_torch_bf16_gpu_available,
-    is_torch_cuda_available,
-    is_torch_mps_available,
-    is_torch_npu_available,
-    is_torch_xpu_available,
-)
+
 
 USAGE = (
     "-" * 70
@@ -65,6 +62,7 @@ WELCOME = (
 
 logger = get_logger(__name__)
 logger.info("test")
+
 
 @unique
 class Command(str, Enum):
@@ -97,14 +95,12 @@ def main():
         if force_torchrun or get_device_count() > 1:
             master_addr = os.environ.get("MASTER_ADDR", "127.0.0.1")
             master_port = os.environ.get("MASTER_PORT", str(random.randint(29501, 29999)))
-            os.environ['MASTER_ADDR'] = master_addr  # your master address
-            os.environ['MASTER_PORT'] = master_port  # your master port
+            os.environ["MASTER_ADDR"] = master_addr  # your master address
+            os.environ["MASTER_PORT"] = master_port  # your master port
             logger.info("Initializing distributed tasks at: {}:{}".format(master_addr, master_port))
             if is_torch_xpu_available():
                 process = subprocess.run(
-                    (
-                        "mpiexec -np 2 -l python  {file_name} {args}"
-                    ).format(
+                    ("mpiexec -np 2 -l python  {file_name} {args}").format(
                         file_name=launcher.__file__,
                         args=" ".join(sys.argv[1:]),
                     ),

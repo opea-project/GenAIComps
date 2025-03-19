@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from torch.nn import functional as F
 
 from dassl.engine import TRAINER_REGISTRY, TrainerXU
@@ -7,8 +10,7 @@ from dassl.metrics import compute_accuracy
 @TRAINER_REGISTRY.register()
 class SourceOnly(TrainerXU):
     """Baseline model for domain adaptation, which is
-    trained using source data only.
-    """
+    trained using source data only."""
 
     def forward_backward(self, batch_x, batch_u):
         input, label = self.parse_batch_train(batch_x, batch_u)

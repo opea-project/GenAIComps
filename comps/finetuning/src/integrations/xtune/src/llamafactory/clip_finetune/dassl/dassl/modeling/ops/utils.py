@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import numpy as np
 import torch
 
@@ -49,7 +52,7 @@ def sigmoid_rampup(current, rampup_length):
     """
     assert rampup_length > 0
     current = np.clip(current, 0.0, rampup_length)
-    phase = 1.0 - current/rampup_length
+    phase = 1.0 - current / rampup_length
     return float(np.exp(-5.0 * phase * phase))
 
 

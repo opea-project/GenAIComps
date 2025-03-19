@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # custom config
 DATA=/home/wangjilong/data
 TRAINER=CLIP_Prompt
@@ -30,4 +33,3 @@ TRAINER.COOP.N_CTX ${NCTX} \
 TRAINER.COOP.CSC ${CSC} \
 TRAINER.COOP.CLASS_TOKEN_POSITION ${CTP} \
 DATASET.NUM_SHOTS ${SHOTS}
-

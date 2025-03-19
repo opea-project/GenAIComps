@@ -1,10 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 from torch.nn import functional as F
 
-from dassl.optim import build_optimizer, build_lr_scheduler
-from dassl.utils import count_num_param
 from dassl.engine import TRAINER_REGISTRY, TrainerX
 from dassl.engine.trainer import SimpleNet
+from dassl.optim import build_lr_scheduler, build_optimizer
+from dassl.utils import count_num_param
 
 
 @TRAINER_REGISTRY.register()

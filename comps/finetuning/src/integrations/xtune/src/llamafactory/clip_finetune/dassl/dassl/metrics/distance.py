@@ -1,3 +1,5 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 """
 Source: https://github.com/KaiyangZhou/deep-person-reid
 """
@@ -22,12 +24,8 @@ def compute_distance_matrix(input1, input2, metric="euclidean"):
     # check input
     assert isinstance(input1, torch.Tensor)
     assert isinstance(input2, torch.Tensor)
-    assert input1.dim() == 2, "Expected 2-D tensor, but got {}-D".format(
-        input1.dim()
-    )
-    assert input2.dim() == 2, "Expected 2-D tensor, but got {}-D".format(
-        input2.dim()
-    )
+    assert input1.dim() == 2, "Expected 2-D tensor, but got {}-D".format(input1.dim())
+    assert input2.dim() == 2, "Expected 2-D tensor, but got {}-D".format(input2.dim())
     assert input1.size(1) == input2.size(1)
 
     if metric == "euclidean":
@@ -35,10 +33,7 @@ def compute_distance_matrix(input1, input2, metric="euclidean"):
     elif metric == "cosine":
         distmat = cosine_distance(input1, input2)
     else:
-        raise ValueError(
-            "Unknown distance metric: {}. "
-            'Please choose either "euclidean" or "cosine"'.format(metric)
-        )
+        raise ValueError("Unknown distance metric: {}. " 'Please choose either "euclidean" or "cosine"'.format(metric))
 
     return distmat
 

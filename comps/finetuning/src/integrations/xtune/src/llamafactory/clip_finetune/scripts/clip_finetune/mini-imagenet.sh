@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 train_directory_path="/home/wangjilong/data/mini-imagenet/train/"
 val_directory_path="/home/wangjilong/data/mini-imagenet/val/"
 test_directory_path="/home/wangjilong/data/mini-imagenet/test/"
@@ -12,7 +15,7 @@ fi
 mkdir -p $val_directory_path
 mkdir -p $test_directory_path
 for file in $(ls $train_directory_path)
-do 
+do
     mkdir -p $val_directory_path/$file
     files=$(ls "$train_directory_path/$file")
     random_files=$(echo "$files" | tr ' ' '\n' | shuf -n 50)
@@ -22,7 +25,7 @@ do
     done
 done
 for file in $(ls $train_directory_path)
-do 
+do
     mkdir -p $test_directory_path/$file
     files=$(ls "$train_directory_path/$file")
     random_files=$(echo "$files" | tr ' ' '\n' | shuf -n 100)

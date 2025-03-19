@@ -1,9 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
 
 from dassl.utils import listdir_nohidden
 
+from ..base_dataset import DatasetBase, Datum
 from ..build import DATASET_REGISTRY
-from ..base_dataset import Datum, DatasetBase
+
 
 AVAI_C_TYPES = [
     "brightness",
@@ -50,9 +54,7 @@ class CIFAR10C(DatasetBase):
         root = osp.abspath(osp.expanduser(cfg.DATASET.ROOT))
         self.dataset_dir = root
 
-        self.check_input_domains(
-            cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS
-        )
+        self.check_input_domains(cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS)
         source_domain = cfg.DATASET.SOURCE_DOMAINS[0]
         target_domain = cfg.DATASET.TARGET_DOMAINS[0]
         assert source_domain == self.domains[0]
@@ -62,19 +64,13 @@ class CIFAR10C(DatasetBase):
         c_level = cfg.DATASET.CIFAR_C_LEVEL
 
         if not c_type:
-            raise ValueError(
-                "Please specify DATASET.CIFAR_C_TYPE in the config file"
-            )
+            raise ValueError("Please specify DATASET.CIFAR_C_TYPE in the config file")
 
-        assert (
-            c_type in AVAI_C_TYPES
-        ), f'C_TYPE is expected to belong to {AVAI_C_TYPES}, but got "{c_type}"'
+        assert c_type in AVAI_C_TYPES, f'C_TYPE is expected to belong to {AVAI_C_TYPES}, but got "{c_type}"'
         assert 1 <= c_level <= 5
 
         train_dir = osp.join(self.dataset_dir, source_domain, "train")
-        test_dir = osp.join(
-            self.dataset_dir, target_domain, c_type, str(c_level)
-        )
+        test_dir = osp.join(self.dataset_dir, target_domain, c_type, str(c_level))
 
         if not osp.exists(test_dir):
             raise ValueError

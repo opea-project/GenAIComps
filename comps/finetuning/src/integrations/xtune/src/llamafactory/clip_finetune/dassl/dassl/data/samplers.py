@@ -1,9 +1,14 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import copy
-import numpy as np
 import random
 from collections import defaultdict
-from torch.utils.data.sampler import Sampler, RandomSampler, SequentialSampler
+
+import numpy as np
 import torch
+from torch.utils.data.sampler import RandomSampler, Sampler, SequentialSampler
+
 
 class RandomDomainSampler(Sampler):
     """Randomly samples N domains each with K images
@@ -128,10 +133,7 @@ class RandomClassSampler(Sampler):
 
     def __init__(self, data_source, batch_size, n_ins):
         if batch_size < n_ins:
-            raise ValueError(
-                "batch_size={} must be no less "
-                "than n_ins={}".format(batch_size, n_ins)
-            )
+            raise ValueError("batch_size={} must be no less " "than n_ins={}".format(batch_size, n_ins))
 
         self.data_source = data_source
         self.batch_size = batch_size
@@ -178,16 +180,8 @@ class RandomClassSampler(Sampler):
         return self.length
 
 
-def build_sampler(
-    sampler_type,
-    cfg=None,
-    data_source=None,
-    batch_size=32,
-    n_domain=0,
-    n_ins=16,
-    flag=False
-):
-    if (( cfg.TRAINER.COOP.XPU and torch.xpu.device_count() > 1 ) or torch.cuda.device_count() > 1 ) and flag == True:
+def build_sampler(sampler_type, cfg=None, data_source=None, batch_size=32, n_domain=0, n_ins=16, flag=False):
+    if ((cfg.TRAINER.COOP.XPU and torch.xpu.device_count() > 1) or torch.cuda.device_count() > 1) and flag == True:
         return torch.utils.data.distributed.DistributedSampler(data_source)
     if sampler_type == "RandomSampler":
         return RandomSampler(data_source)

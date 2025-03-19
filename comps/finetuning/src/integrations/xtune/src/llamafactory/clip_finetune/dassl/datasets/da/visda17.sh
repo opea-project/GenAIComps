@@ -1,6 +1,9 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # ------------------------------------------------------------------------
 # ROOT is the root directory where you put your domain datasets.
-# 
+#
 # Suppose you wanna put the dataset under $DATA, which stores all the
 # domain datasets, run the following command in your terminal to
 # download VisDa17:
@@ -16,7 +19,7 @@ wget http://csr.bu.edu/ftp/visda17/clf/train.tar
 tar xvf train.tar
 
 wget http://csr.bu.edu/ftp/visda17/clf/validation.tar
-tar xvf validation.tar  
+tar xvf validation.tar
 
 wget http://csr.bu.edu/ftp/visda17/clf/test.tar
 tar xvf test.tar

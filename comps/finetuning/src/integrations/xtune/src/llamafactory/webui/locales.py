@@ -335,10 +335,7 @@ LOCALES = {
         "ru": {
             "label": "clip_finetune method",
         },
-        "zh": {
-            "label": "小样本学习的样本数量",
-            "info": "使用完整数据集选择0"
-        },
+        "zh": {"label": "小样本学习的样本数量", "info": "使用完整数据集选择0"},
         "ko": {
             "label": "clip_trainer",
         },
@@ -415,7 +412,7 @@ LOCALES = {
     },
     "abs_group_name": {
         "en": {
-            "label": "how to seperate group",
+            "label": "how to separate group",
         },
         "ru": {
             "label": "clip_finetune method",
@@ -518,15 +515,12 @@ LOCALES = {
     },
     "new": {
         "en": {
-            "label": "whther to use fixed size cache",
+            "label": "whether to use fixed size cache",
         },
         "ru": {
             "label": "clip_finetune method",
         },
-        "zh": {
-            "label": "是否将缓存大小固定",
-            "info": "选中意味着将缓存大小固定，所有数据集的训练出的数据都融合到一起"
-        },
+        "zh": {"label": "是否将缓存大小固定", "info": "选中意味着将缓存大小固定，所有数据集的训练出的数据都融合到一起"},
         "ko": {
             "label": "clip_trainer",
         },

@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 
 
@@ -7,7 +10,10 @@ def gumbel_softmax_top_k(logits, top_k, tau, hard=False, reduce_sum=True, maskve
     and https://pytorch.org/docs/stable/_modules/torch/nn/functional.html#gumbel_softmax
     """
     dim = -1
-    m = torch.distributions.gumbel.Gumbel(torch.zeros_like(logits, memory_format=torch.legacy_contiguous_format), torch.ones_like(logits, memory_format=torch.legacy_contiguous_format))
+    m = torch.distributions.gumbel.Gumbel(
+        torch.zeros_like(logits, memory_format=torch.legacy_contiguous_format),
+        torch.ones_like(logits, memory_format=torch.legacy_contiguous_format),
+    )
     gumbels = m.sample()
     y = (logits / logit_tau) + gumbels
 
@@ -27,7 +33,7 @@ def gumbel_softmax_top_k(logits, top_k, tau, hard=False, reduce_sum=True, maskve
 
         if not maskvector:
             if i != 0 and not reduce_sum and hard:
-                y[torch.arange(y.shape[0]),ind_max] += torch.log(_EPS)
+                y[torch.arange(y.shape[0]), ind_max] += torch.log(_EPS)
 
         onehot_approx = (y / tau).softmax(dim)  # B,N
         if reduce_sum:
@@ -39,7 +45,7 @@ def gumbel_softmax_top_k(logits, top_k, tau, hard=False, reduce_sum=True, maskve
             if maskvector:
                 masked_onehot_approx = onehot_approx + mask_vector
                 ind_max = torch.argmax(masked_onehot_approx, dim=-1)
-                mask_vector[torch.arange(mask_vector.shape[0]),ind_max] += torch.log(_EPS)
+                mask_vector[torch.arange(mask_vector.shape[0]), ind_max] += torch.log(_EPS)
             else:
                 ind_max = torch.argmax(onehot_approx, dim=-1)
             indmax_list.append(ind_max)
@@ -52,12 +58,16 @@ def gumbel_softmax_top_k(logits, top_k, tau, hard=False, reduce_sum=True, maskve
         else:
             ret = khot
     else:
-        khot_matrix = torch.stack(khot_list, dim=1)  #B,K,N
+        khot_matrix = torch.stack(khot_list, dim=1)  # B,K,N
         if hard:
             indmax_matrix = torch.stack(indmax_list, dim=-1)
             for ind in indmax_matrix:
-                assert torch.unique(ind).shape[0] == top_k, "found duplicate token proposal during gumbel top-k sampling!"
-            y_hard = torch.zeros_like(khot_matrix, memory_format=torch.legacy_contiguous_format).scatter_(dim, indmax_matrix[:,:,None], 1.0)
+                assert (
+                    torch.unique(ind).shape[0] == top_k
+                ), "found duplicate token proposal during gumbel top-k sampling!"
+            y_hard = torch.zeros_like(khot_matrix, memory_format=torch.legacy_contiguous_format).scatter_(
+                dim, indmax_matrix[:, :, None], 1.0
+            )
             ret = y_hard - khot_matrix.detach() + khot_matrix
         else:
             ret = khot_matrix

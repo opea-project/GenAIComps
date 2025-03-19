@@ -1,15 +1,17 @@
-"""
-This script
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""This script.
+
 - creates a folder named "cifar10_c" under the same directory as 'CIFAR-10-C'
 - extracts images from .npy files and save them as .jpg.
 """
 import os
-import sys
-import numpy as np
 import os.path as osp
-from PIL import Image
+import sys
 
+import numpy as np
 from dassl.utils import mkdir_if_missing
+from PIL import Image
 
 
 def extract_and_save(images, labels, level, dst):
@@ -17,7 +19,7 @@ def extract_and_save(images, labels, level, dst):
     assert 0 <= level <= 4
 
     for i in range(10000):
-        real_i = i + level*10000
+        real_i = i + level * 10000
         im = Image.fromarray(images[real_i])
         label = int(labels[real_i])
         category_dir = osp.join(dst, str(label).zfill(3))

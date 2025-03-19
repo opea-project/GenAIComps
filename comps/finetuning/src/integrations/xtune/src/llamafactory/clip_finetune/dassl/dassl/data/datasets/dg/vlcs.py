@@ -1,10 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import glob
 import os.path as osp
 
 from dassl.utils import listdir_nohidden
 
+from ..base_dataset import DatasetBase, Datum
 from ..build import DATASET_REGISTRY
-from ..base_dataset import Datum, DatasetBase
 
 
 @DATASET_REGISTRY.register()
@@ -31,9 +34,7 @@ class VLCS(DatasetBase):
             dst = osp.join(root, "vlcs.zip")
             self.download_data(self.data_url, dst, from_gdrive=True)
 
-        self.check_input_domains(
-            cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS
-        )
+        self.check_input_domains(cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS)
 
         train = self._read_data(cfg.DATASET.SOURCE_DOMAINS, "train")
         val = self._read_data(cfg.DATASET.SOURCE_DOMAINS, "crossval")

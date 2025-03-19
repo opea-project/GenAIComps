@@ -1,9 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import copy
+
 from torch.nn import functional as F
 
 from dassl.engine import TRAINER_REGISTRY, TrainerXU
 from dassl.metrics import compute_accuracy
-from dassl.modeling.ops.utils import sigmoid_rampup, ema_model_update
+from dassl.modeling.ops.utils import ema_model_update, sigmoid_rampup
 
 
 @TRAINER_REGISTRY.register()
@@ -32,14 +36,14 @@ class MeanTeacher(TrainerXU):
 
         target_u = F.softmax(self.teacher(input_u), 1)
         prob_u = F.softmax(self.model(input_u), 1)
-        loss_u = ((prob_u - target_u)**2).sum(1).mean()
+        loss_u = ((prob_u - target_u) ** 2).sum(1).mean()
 
         weight_u = self.weight_u * sigmoid_rampup(self.epoch, self.rampup)
-        loss = loss_x + loss_u*weight_u
+        loss = loss_x + loss_u * weight_u
         self.model_backward_and_update(loss)
 
         global_step = self.batch_idx + self.epoch * self.num_batches
-        ema_alpha = min(1 - 1 / (global_step+1), self.ema_alpha)
+        ema_alpha = min(1 - 1 / (global_step + 1), self.ema_alpha)
         ema_model_update(self.model, self.teacher, ema_alpha)
 
         loss_summary = {

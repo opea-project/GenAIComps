@@ -1,10 +1,15 @@
-import os
-import logging
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
-_LOG_FMT = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s'
-_DATE_FMT = '%m/%d/%Y %H:%M:%S'
+import logging
+import os
+
+
+_LOG_FMT = "%(asctime)s - %(levelname)s - %(name)s -   %(message)s"
+_DATE_FMT = "%m/%d/%Y %H:%M:%S"
 logging.basicConfig(format=_LOG_FMT, datefmt=_DATE_FMT, level=logging.INFO)
-LOGGER = logging.getLogger('__main__')  # this is the global logger
+LOGGER = logging.getLogger("__main__")  # this is the global logger
+
 
 def add_log_to_file(log_path):
     dirname = os.path.dirname(log_path)

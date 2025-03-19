@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # custom config
 DATA=/home/wangjilong/data
 TRAINER=ZeroshotCLIP
@@ -11,4 +14,4 @@ python train.py \
 --trainer ${TRAINER} \
 --dataset-config-file configs/datasets/${DATASET}.yaml \
 --config-file configs/trainers/CoOp/${CFG}.yaml \
---output-dir output/${TRAINER}/${CFG}/${DATASET} 
+--output-dir output/${TRAINER}/${CFG}/${DATASET}

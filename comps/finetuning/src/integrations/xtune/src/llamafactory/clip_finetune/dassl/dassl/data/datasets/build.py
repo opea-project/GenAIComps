@@ -1,4 +1,8 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from dassl.utils import Registry, check_availability
+
 
 DATASET_REGISTRY = Registry("DATASET")
 

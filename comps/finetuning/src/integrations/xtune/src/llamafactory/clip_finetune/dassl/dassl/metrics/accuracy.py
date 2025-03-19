@@ -1,4 +1,8 @@
-def compute_accuracy(output, target, topk=(1, )):
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+
+def compute_accuracy(output, target, topk=(1,)):
     """Computes the accuracy over the k top predictions for
     the specified values of k.
 
@@ -18,11 +22,11 @@ def compute_accuracy(output, target, topk=(1, )):
         output = output[0]
 
     _, pred = output.topk(maxk, 1, True, True)
-    
+
     pred = pred.t()
-    #print(pred)
+    # print(pred)
     correct = pred.eq(target.view(1, -1).expand_as(pred))
-    #print(correct)
+    # print(correct)
     res = []
     for k in topk:
         correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
@@ -31,7 +35,8 @@ def compute_accuracy(output, target, topk=(1, )):
 
     return res
 
-def compute_accuracy_hf(logits, label, topk=(1, )):
+
+def compute_accuracy_hf(logits, label, topk=(1,)):
     """Computes the accuracy over the k top predictions for
     the specified values of k.
 
@@ -45,11 +50,11 @@ def compute_accuracy_hf(logits, label, topk=(1, )):
         list: accuracy at top-k.
     """
     import torch
-    max_value, _ = torch.max(logits, dim = 1)
+
+    max_value, _ = torch.max(logits, dim=1)
     for i in label:
         if logits[i][i] == max_value[i]:
             logits[i][i] += 0.0001
-    i2t_acc = (logits.argmax(-1) == label).sum()/len(logits)
-    #print("tmp", logits.argmax(-1))
+    i2t_acc = (logits.argmax(-1) == label).sum() / len(logits)
+    # print("tmp", logits.argmax(-1))
     return 100 * i2t_acc
-

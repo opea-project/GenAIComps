@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # sh feat_extractor.sh
 DATA=/path/to/datasets
 OUTPUT='./clip_feat/'

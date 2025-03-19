@@ -16,15 +16,14 @@
 # limitations under the License.
 
 from dataclasses import dataclass, field
-from typing import Literal, Optional
+from typing import Optional
+
 
 # UI传入的参数，最后都会传到AdaclipArguments
 # 后续在workflow.py里会根据这个把参数传到adaclip真正执行的main函数里
 @dataclass
 class AdaclipArguments:
-    r"""
-    Arguments pertaining to what data we are going to input our model for training and evaluation.
-    """
+    r"""Arguments pertaining to what data we are going to input our model for training and evaluation."""
 
     resume: Optional[str] = field(
         default=None,
@@ -72,7 +71,9 @@ class AdaclipArguments:
     )
     warmup_proportion: float = field(
         default=0.1,
-        metadata={"help": "proportion of training to perform linear learning rate warmup for. E.g., 0.1 = 10%% of training"},
+        metadata={
+            "help": "proportion of training to perform linear learning rate warmup for. E.g., 0.1 = 10%% of training"
+        },
     )
     init_tau: float = field(
         default=5.0,
@@ -95,10 +96,8 @@ class AdaclipArguments:
         metadata={"help": "Whether or not to disable the mask on the prompt."},
     )
 
-
     def __post_init__(self):
         def split_arg(arg):
             if isinstance(arg, str):
                 return [item.strip() for item in arg.split(",")]
             return arg
-

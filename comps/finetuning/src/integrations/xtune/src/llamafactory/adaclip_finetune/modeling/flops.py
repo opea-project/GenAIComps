@@ -1,7 +1,11 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
-import torchvision
 import torch.nn as nn
+import torchvision
 from einops import rearrange
+
 from modeling.clip_model import Transformer
 
 
@@ -21,7 +25,9 @@ class SamplerFlops(nn.Module):
             last_layer = "classifier"
             setattr(self.cnn_model, last_layer, nn.Sequential())
         elif policy_backbone == "mobilenet_v3_large":
-            self.cnn_model = torchvision.models.mobilenet_v3_large(weights=torchvision.models.MobileNet_V3_Large_Weights.DEFAULT)
+            self.cnn_model = torchvision.models.mobilenet_v3_large(
+                weights=torchvision.models.MobileNet_V3_Large_Weights.DEFAULT
+            )
             last_layer = "classifier"
             self.cnn_model.classifier[2] = nn.Sequential()
             self.cnn_model.classifier[3] = nn.Sequential()
@@ -35,9 +41,13 @@ class SamplerFlops(nn.Module):
             self.frame_position_embeddings = nn.Embedding(self.num_frm, transformer_width)
             self.transformer = Transformer(width=transformer_width, layers=1, heads=transformer_heads)
         elif self.rnn_type == "lstm":
-            self.rnn = nn.LSTM(input_size=input_dim, hidden_size=hidden_dim, bias=True, batch_first=True, bidirectional=False)
+            self.rnn = nn.LSTM(
+                input_size=input_dim, hidden_size=hidden_dim, bias=True, batch_first=True, bidirectional=False
+            )
         elif self.rnn_type == "bilstm":
-            self.rnn = nn.LSTM(input_size=input_dim, hidden_size=hidden_dim, bias=True, batch_first=True, bidirectional=True)
+            self.rnn = nn.LSTM(
+                input_size=input_dim, hidden_size=hidden_dim, bias=True, batch_first=True, bidirectional=True
+            )
 
         self.linear = self.prepare_linear(input_dim, 1, hidden_dim, mlp_type)
 
@@ -45,11 +55,7 @@ class SamplerFlops(nn.Module):
         if mlp_type == "fc":
             linear_model = nn.Sequential(nn.Linear(input_dim, output_dim))
         elif mlp_type == "mlp":
-            linear_model = nn.Sequential(
-                nn.Linear(input_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Linear(hidden_dim, output_dim)
-            )
+            linear_model = nn.Sequential(nn.Linear(input_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, output_dim))
         for module in linear_model:
             if isinstance(module, nn.Linear):
                 nn.init.kaiming_normal_(module.weight)
@@ -58,7 +64,7 @@ class SamplerFlops(nn.Module):
 
     def get_cnn_flops(self, visual_inputs):
         if self.cnn_model is not None:
-            return self.cnn_model(visual_inputs) # (b * n_frms, feat_dim)
+            return self.cnn_model(visual_inputs)  # (b * n_frms, feat_dim)
 
     def get_rnn_flops(self, feat_lite):
 

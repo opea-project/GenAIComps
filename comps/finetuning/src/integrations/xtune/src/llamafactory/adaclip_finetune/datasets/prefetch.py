@@ -1,4 +1,9 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
+
+
 """
 modified from UNITER codebase
 
@@ -39,9 +44,7 @@ def record_device_stream(batch, device):
 
 
 class PrefetchLoader:
-    """
-    Overlap compute and device data transfer.
-    """
+    """Overlap compute and device data transfer."""
 
     def __init__(self, loader, device):
         self.loader = loader
@@ -59,8 +62,7 @@ class PrefetchLoader:
         batch = self.next(loader_it)
         while batch is not None:
             batch["clip_inputs"] = batch["clip_inputs"].float()
-            batch["policy_inputs"] = batch["policy_inputs"].float(
-            ) if batch["policy_inputs"] is not None else None
+            batch["policy_inputs"] = batch["policy_inputs"].float() if batch["policy_inputs"] is not None else None
             yield batch
             batch = self.next(loader_it)
 
@@ -98,8 +100,7 @@ class PrefetchLoader:
 
     def next(self, it):
         if str(self.device) == "xpu":
-            torch.xpu.current_stream(
-                device=self.device).wait_stream(self.stream)
+            torch.xpu.current_stream(device=self.device).wait_stream(self.stream)
         else:
             torch.cuda.current_stream().wait_stream(self.stream)
         batch = self.batch

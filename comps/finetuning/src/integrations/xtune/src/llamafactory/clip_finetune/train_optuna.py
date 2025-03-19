@@ -1,45 +1,17 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import argparse
-import torch
-import sys
 import os
 import shutil
-from dassl.utils import setup_logger, set_random_seed, collect_env_info
+
+# custom
+import optuna
+import torch
 from dassl.config import get_cfg_default
 from dassl.engine import build_trainer
-import optuna
+from dassl.utils import collect_env_info, set_random_seed, setup_logger
 from optuna.trial import TrialState
-# custom
-import datasets.oxford_pets
-import datasets.oxford_flowers
-import datasets.fgvc_aircraft
-import datasets.dtd
-import datasets.eurosat
-import datasets.stanford_cars
-import datasets.food101
-import datasets.sun397
-import datasets.caltech101
-import datasets.ucf101
-import datasets.imagenet
-import datasets.mini_imagenet
-import datasets.imagenet_sketch
-import datasets.imagenetv2
-import datasets.imagenet_a
-import datasets.imagenet_r
-import datasets.flickr
-import datasets.flickr5k
-import datasets.mscoco
-
-import trainers.coop
-import trainers.clip_adapter
-import trainers.clip_fullfinetune
-import trainers.clip_bias
-import trainers.clip_vpt
-import trainers.cocoop
-import trainers.zsclip
-import trainers.clip_bias_hf
-import trainers.clip_adapter_hf
-import trainers.clip_fullfinetune_hf
-import trainers.clip_vpt_hf
 
 
 def print_args(args, cfg):
@@ -89,8 +61,7 @@ def reset_cfg(cfg, args):
 
 
 def extend_cfg(cfg):
-    """
-    Add new config variables.
+    """Add new config variables.
 
     E.g.
         from yacs.config import CfgNode as CN
@@ -108,9 +79,9 @@ def extend_cfg(cfg):
     cfg.TRAINER.COOP.PREC = "fp16"  # fp16, fp32, amp
     cfg.TRAINER.COOP.CLASS_TOKEN_POSITION = "end"  # 'middle' or 'end' or 'front'
 
-    cfg.TRAINER.COOP.N_PLN = 4 # initialization prompt length for clip prompt 
-    cfg.TRAINER.COOP.N_PDT = 0.0 # initialization prompt_dropout for clip prompt 
-    cfg.TRAINER.COOP.PMT_DEEP = True # initialization prompt_dropout for clip prompt 
+    cfg.TRAINER.COOP.N_PLN = 4  # initialization prompt length for clip prompt
+    cfg.TRAINER.COOP.N_PDT = 0.0  # initialization prompt_dropout for clip prompt
+    cfg.TRAINER.COOP.PMT_DEEP = True  # initialization prompt_dropout for clip prompt
     cfg.TRAINER.COOP.ACC = 0
     cfg.TRAINER.COOP.XPU = False
     cfg.TRAINER.COOP.XPU_ID = "xpu:0"
@@ -124,7 +95,6 @@ def extend_cfg(cfg):
     cfg.TRAINER.COCOOP.N_CTX = 16  # number of context vectors
     cfg.TRAINER.COCOOP.CTX_INIT = ""  # initialization words
     cfg.TRAINER.COCOOP.PREC = "fp16"  # fp16, fp32, amp
-    
 
     cfg.DATASET.SUBSAMPLE_CLASSES = "all"  # all, base or new
 
@@ -148,28 +118,29 @@ def setup_cfg(args):
 
     # 4. From optional input arguments
     cfg.merge_from_list(args.opts)
-    
-    #print(cfg)
-    #cfg.freeze()
+
+    # print(cfg)
+    # cfg.freeze()
 
     return cfg
+
 
 def objective(trial, cfg):
     lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
     bs = trial.suggest_int("bs", 32, 256, log=True)
-    
-   
+
     cfg.OPTIM.LR = lr
     cfg.DATALOADER.TRAIN_X.BATCH_SIZE = bs
-    #cfg.freeze()
+    # cfg.freeze()
     print_args(args, cfg)
     print("Collecting env info ...")
     print("** System info **\n{}\n".format(collect_env_info()))
-    
+
     trainer = build_trainer(cfg)
     trainer.train()
     return trainer.test_acc, trainer.test_time_epoch
-    
+
+
 if __name__ == "__main__":
     print("start")
     parser = argparse.ArgumentParser()
@@ -181,21 +152,11 @@ if __name__ == "__main__":
         default="",
         help="checkpoint directory (from which the training resumes)",
     )
-    parser.add_argument(
-        "--seed", type=int, default=-1, help="only positive value enables a fixed seed"
-    )
-    parser.add_argument(
-        "--source-domains", type=str, nargs="+", help="source domains for DA/DG"
-    )
-    parser.add_argument(
-        "--target-domains", type=str, nargs="+", help="target domains for DA/DG"
-    )
-    parser.add_argument(
-        "--transforms", type=str, nargs="+", help="data augmentation methods"
-    )
-    parser.add_argument(
-        "--config-file", type=str, default="", help="path to config file"
-    )
+    parser.add_argument("--seed", type=int, default=-1, help="only positive value enables a fixed seed")
+    parser.add_argument("--source-domains", type=str, nargs="+", help="source domains for DA/DG")
+    parser.add_argument("--target-domains", type=str, nargs="+", help="target domains for DA/DG")
+    parser.add_argument("--transforms", type=str, nargs="+", help="data augmentation methods")
+    parser.add_argument("--config-file", type=str, default="", help="path to config file")
     parser.add_argument(
         "--dataset-config-file",
         type=str,
@@ -212,23 +173,18 @@ if __name__ == "__main__":
         default="",
         help="load model from this directory for eval-only mode",
     )
-    parser.add_argument(
-        "--load-epoch", type=int, help="load model weights at this epoch for evaluation"
-    )
-    parser.add_argument(
-        "--no-train", action="store_true", help="do not call trainer.train()"
-    )
+    parser.add_argument("--load-epoch", type=int, help="load model weights at this epoch for evaluation")
+    parser.add_argument("--no-train", action="store_true", help="do not call trainer.train()")
     parser.add_argument(
         "opts",
         default=None,
         nargs=argparse.REMAINDER,
         help="modify config options using the command-line",
     )
-    parser.add_argument('--xpu', default=None, type=int,
-                    help='XPU id to use.')
+    parser.add_argument("--xpu", default=None, type=int, help="XPU id to use.")
     args = parser.parse_args()
-    if args.xpu == 1 :
-        import intel_extension_for_pytorch as ipex
+    if args.xpu == 1:
+        pass
     cfg = setup_cfg(args)
     if os.path.exists(cfg.OUTPUT_DIR):
         shutil.rmtree(cfg.OUTPUT_DIR)

@@ -1,14 +1,18 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from einops import rearrange
+from utils.distributed import AllGather
+
+from modeling.clip_model import QuickGELU, Transformer, build_model
 from modeling.sampler import Sampler
 from modeling.transformer import LayerNorm
 from modeling.transformer import Transformer as TransformerClip
-from modeling.clip_model import build_model, QuickGELU, Transformer
 
-from utils.distributed import AllGather
+
 allgather = AllGather.apply
 
 
@@ -38,10 +42,10 @@ class AdaCLIP(nn.Module):
         if self.use_policy:
             self.sampler = Sampler(cfg, embed_dim)
 
-        if self.sim_header == "seqTransf": # 4 layers following CLIP4Clip
+        if self.sim_header == "seqTransf":  # 4 layers following CLIP4Clip
             self.frame_position_embeddings = nn.Embedding(context_length, embed_dim)
             self.transformerClip = TransformerClip(width=transformer_width, layers=4, heads=transformer_heads)
-        elif self.sim_header == "transformer": # 1 layer
+        elif self.sim_header == "transformer":  # 1 layer
             self.frame_position_embeddings = nn.Embedding(num_frm, embed_dim)
             self.transformer = Transformer(width=transformer_width, layers=1, heads=transformer_heads)
 
@@ -51,7 +55,7 @@ class AdaCLIP(nn.Module):
                 QuickGELU(),
                 nn.Linear(2 * embed_dim, embed_dim),
                 QuickGELU(),
-                nn.Linear(embed_dim, 1)
+                nn.Linear(embed_dim, 1),
             )
         elif self.frame_agg == "transformer":
             self.frame_agg_transformer = Transformer(width=transformer_width, layers=1, heads=transformer_heads)
@@ -63,7 +67,7 @@ class AdaCLIP(nn.Module):
                 QuickGELU(),
                 nn.Linear(2 * embed_dim, embed_dim),
                 QuickGELU(),
-                nn.Linear(embed_dim, 1)
+                nn.Linear(embed_dim, 1),
             )
         elif self.word_agg == "transformer":
             self.word_agg_transformer = TransformerClip(width=transformer_width, layers=1, heads=transformer_heads)
@@ -73,8 +77,7 @@ class AdaCLIP(nn.Module):
         self.apply(self.init_weights)
 
     def init_weights(self, module):
-        """ Initialize the weights.
-        """
+        """Initialize the weights."""
         if isinstance(module, (nn.Linear, nn.Embedding)):
             # Slightly different from the TF version which uses truncated_normal for initialization
             # cf https://github.com/pytorch/pytorch/pull/5617
@@ -194,7 +197,7 @@ class AdaCLIP(nn.Module):
     def mean_pool_sim_matrix(self, frame_embd, text_embd):
         text_embd = rearrange(text_embd, "b n d -> (b n) d")
         text_embd = text_embd / text_embd.norm(dim=-1, keepdim=True)
-        frame_embd = frame_embd / frame_embd.norm(dim=-1, keepdim=True) 
+        frame_embd = frame_embd / frame_embd.norm(dim=-1, keepdim=True)
         video_embd = frame_embd.mean(dim=1)
         video_embd = video_embd / video_embd.norm(dim=-1, keepdim=True)
         sims = self.clip.logit_scale.exp() * torch.matmul(text_embd, video_embd.t())
@@ -215,9 +218,9 @@ class AdaCLIP(nn.Module):
         if self.word_agg == "mlp":
             logits = self.word_agg_mlp(word_embd)
         elif self.word_agg == "transformer":
-            text_mask = torch.ones(word_embd.shape[:2]).to(word_embd.device) # 1s for tokens
+            text_mask = torch.ones(word_embd.shape[:2]).to(word_embd.device)  # 1s for tokens
             for i in range(lengths.shape[0]):
-                text_mask[i, lengths[i]:] = 0
+                text_mask[i, lengths[i] :] = 0
             extended_text_mask = (1.0 - text_mask.unsqueeze(1)) * -1000000.0
             extended_text_mask = extended_text_mask.expand(-1, text_mask.size(1), -1)
             word_embd = word_embd.permute(1, 0, 2)
@@ -274,12 +277,12 @@ class AdaCLIP(nn.Module):
         text_embd = text_embd / text_embd.norm(dim=-1, keepdim=True)
         frame_embd_orig = frame_embd
         frame_embd = frame_embd / frame_embd.norm(dim=-1, keepdim=True)
-        sims = torch.einsum('ad, bvd -> abv', text_embd, frame_embd) # Bt, Bv, N
+        sims = torch.einsum("ad, bvd -> abv", text_embd, frame_embd)  # Bt, Bv, N
         weights = F.softmax(sims / self.frame_agg_temp, dim=2)
-        frame_embd_weighted = torch.einsum('b v d, a b v -> a b v d', frame_embd_orig, weights)  # Bt, Bv, N, D
-        video_embd = frame_embd_weighted.sum(dim=2) # Bt, Bv, D
+        frame_embd_weighted = torch.einsum("b v d, a b v -> a b v d", frame_embd_orig, weights)  # Bt, Bv, N, D
+        video_embd = frame_embd_weighted.sum(dim=2)  # Bt, Bv, D
         video_embd = video_embd / video_embd.norm(dim=2, keepdim=True)
-        sims = self.clip.logit_scale.exp() * torch.einsum('a d, a b d -> a b', text_embd, video_embd)
+        sims = self.clip.logit_scale.exp() * torch.einsum("a d, a b d -> a b", text_embd, video_embd)
         return sims
 
     def freeze_clip(self):

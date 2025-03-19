@@ -1,10 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch.nn as nn
 from torch.nn import functional as F
 
 from dassl.utils import init_network_weights
 
-from .build import BACKBONE_REGISTRY
 from .backbone import Backbone
+from .build import BACKBONE_REGISTRY
 
 
 class Convolution(nn.Module):
@@ -31,9 +34,7 @@ class ConvNet(Backbone):
 
     def _check_input(self, x):
         H, W = x.shape[2:]
-        assert (
-            H == 32 and W == 32
-        ), "Input to network must be 32x32, " "but got {}x{}".format(H, W)
+        assert H == 32 and W == 32, "Input to network must be 32x32, " "but got {}x{}".format(H, W)
 
     def forward(self, x):
         self._check_input(x)

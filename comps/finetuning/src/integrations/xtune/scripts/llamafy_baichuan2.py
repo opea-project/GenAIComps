@@ -91,8 +91,8 @@ def llamafy_baichuan2(
     shard_size: str = "2GB",
     save_safetensors: bool = True,
 ):
-    r"""
-    Converts the Baichuan2-7B model in the same format as LLaMA2-7B.
+    r"""Converts the Baichuan2-7B model in the same format as LLaMA2-7B.
+
     Usage: python llamafy_baichuan2.py --input_dir input --output_dir output
     Converted model: https://huggingface.co/hiyouga/Baichuan2-7B-Base-LLaMAfied
     """

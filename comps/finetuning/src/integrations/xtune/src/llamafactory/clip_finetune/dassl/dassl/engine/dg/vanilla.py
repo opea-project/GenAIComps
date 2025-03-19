@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from torch.nn import functional as F
 
 from dassl.engine import TRAINER_REGISTRY, TrainerX
@@ -7,7 +10,7 @@ from dassl.metrics import compute_accuracy
 @TRAINER_REGISTRY.register()
 class Vanilla(TrainerX):
     """Vanilla model.
-    
+
     A.k.a. Empirical Risk Minimization, or ERM.
     """
 

@@ -1,13 +1,14 @@
-"""
-Reference
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""Reference.
 
 https://github.com/VisionLearningGroup/VisionLearningGroup.github.io/tree/master/M3SDA
 """
 import torch.nn as nn
 from torch.nn import functional as F
 
-from .build import BACKBONE_REGISTRY
 from .backbone import Backbone
+from .build import BACKBONE_REGISTRY
 
 
 class FeatureExtractor(Backbone):
@@ -29,9 +30,7 @@ class FeatureExtractor(Backbone):
 
     def _check_input(self, x):
         H, W = x.shape[2:]
-        assert (
-            H == 32 and W == 32
-        ), "Input to network must be 32x32, " "but got {}x{}".format(H, W)
+        assert H == 32 and W == 32, "Input to network must be 32x32, " "but got {}x{}".format(H, W)
 
     def forward(self, x):
         self._check_input(x)

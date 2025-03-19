@@ -1,16 +1,18 @@
-"""
-Run this after you have the annotation files and all the videos downloaded.
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""Run this after you have the annotation files and all the videos downloaded.
 
 Annotations are from CLIP4Clip: https://github.com/ArrowLuo/CLIP4Clip/releases/download/v0.0/msrvtt_data.zip
 
 Script outputs two json files, one for training, one for testing.
 """
-import os
-import json
 import argparse
+import json
+import os
+from pathlib import Path
+
 import pandas as pd
 from tqdm import tqdm
-from pathlib import Path
 from utils import is_exist
 
 
@@ -47,9 +49,9 @@ def main(args):
             train_data[video_id]["sentences"].append(cap_annot["caption"])
         # elif video_id in val_vids:
         #     val_data[video_id]["sentences"].append(cap_annot["caption"])
-    
+
     for video_id in val_vids:
-        sentence = val_df.loc[val_df['video_id'] == video_id, 'sentence'].iloc[0] # JS-fusion split
+        sentence = val_df.loc[val_df["video_id"] == video_id, "sentence"].iloc[0]  # JS-fusion split
         val_data[video_id]["sentences"].append(sentence)
 
     Path(os.path.join(args.output_folder)).mkdir(parents=True, exist_ok=True)
@@ -66,9 +68,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MSRVTT-9k annotation preprocessing")
-    parser.add_argument('--video_dir', default='/mnt/sda/msrvtt/all_vids', help='path to downloaded videos')
-    parser.add_argument('--annot_dir', default='/mnt/sda/msrvtt/clip4clip_annots', help='path to annotation files')
-    parser.add_argument('--output_folder', default='annots/msrvtt-jsfusion')
+    parser.add_argument("--video_dir", default="/mnt/sda/msrvtt/all_vids", help="path to downloaded videos")
+    parser.add_argument("--annot_dir", default="/mnt/sda/msrvtt/clip4clip_annots", help="path to annotation files")
+    parser.add_argument("--output_folder", default="annots/msrvtt-jsfusion")
     args = parser.parse_args()
 
     main(args)

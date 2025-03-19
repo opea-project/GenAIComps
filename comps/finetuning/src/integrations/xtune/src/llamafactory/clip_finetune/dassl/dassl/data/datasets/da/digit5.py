@@ -1,10 +1,14 @@
-import random
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
+import random
 
 from dassl.utils import listdir_nohidden
 
+from ..base_dataset import DatasetBase, Datum
 from ..build import DATASET_REGISTRY
-from ..base_dataset import Datum, DatasetBase
+
 
 # Folder names for train and test sets
 MNIST = {"train": "train_images", "test": "test_images"}
@@ -94,9 +98,7 @@ class Digit5(DatasetBase):
         root = osp.abspath(osp.expanduser(cfg.DATASET.ROOT))
         self.dataset_dir = osp.join(root, self.dataset_dir)
 
-        self.check_input_domains(
-            cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS
-        )
+        self.check_input_domains(cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS)
 
         train_x = self._read_data(cfg.DATASET.SOURCE_DOMAINS, split="train")
         train_u = self._read_data(cfg.DATASET.TARGET_DOMAINS, split="train")
@@ -113,12 +115,7 @@ class Digit5(DatasetBase):
             items_d = eval(func)(domain_dir, split=split)
 
             for impath, label in items_d:
-                item = Datum(
-                    impath=impath,
-                    label=label,
-                    domain=domain,
-                    classname=str(label)
-                )
+                item = Datum(impath=impath, label=label, domain=domain, classname=str(label))
                 items.append(item)
 
         return items

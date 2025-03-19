@@ -1,12 +1,17 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import logging  # isort:skip
+
 logging.disable(logging.WARNING)  # isort:skip
 
-import pickle
 import logging
 import os.path as osp
+import pickle
+
 from wilds import get_dataset as wilds_get_dataset
 
-from dassl.data.datasets import Datum, DatasetBase
+from dassl.data.datasets import DatasetBase, Datum
 
 
 class WILDSBase(DatasetBase):
@@ -30,9 +35,7 @@ class WILDSBase(DatasetBase):
                 val = dataset["val"]
                 test = dataset["test"]
         else:
-            dataset = wilds_get_dataset(
-                dataset=name, root_dir=root, download=True
-            )
+            dataset = wilds_get_dataset(dataset=name, root_dir=root, download=True)
             subset_train = dataset.get_subset("train")
             subset_val = dataset.get_subset("val")
             subset_test = dataset.get_subset("test")
@@ -82,12 +85,7 @@ class WILDSBase(DatasetBase):
             label = self.get_label(dataset, idx)
             domain = self.get_domain(dataset, idx)
             classname = self.label_to_name[label]
-            item = Datum(
-                impath=image_path,
-                label=label,
-                domain=domain,
-                classname=classname
-            )
+            item = Datum(impath=image_path, label=label, domain=domain, classname=classname)
             items.append(item)
 
         if self.relabel_domain:
@@ -98,10 +96,7 @@ class WILDSBase(DatasetBase):
 
             for item in items:
                 item_new = Datum(
-                    impath=item.impath,
-                    label=item.label,
-                    domain=mapping[item.domain],
-                    classname=item.classname
+                    impath=item.impath, label=item.label, domain=mapping[item.domain], classname=item.classname
                 )
                 items_new.append(item_new)
 

@@ -14,10 +14,13 @@
 
 import os
 import shutil
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
 import time
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
 import torch
+import torch.distributed as dist
 from transformers import PreTrainedModel
+from transformers.utils import is_torch_xpu_available
 
 from ..data import get_template_and_fix_tokenizer
 from ..extras.constants import V_HEAD_SAFE_WEIGHTS_NAME, V_HEAD_WEIGHTS_NAME
@@ -31,10 +34,10 @@ from .ppo import run_ppo
 from .pt import run_pt
 from .rm import run_rm
 from .sft import run_sft
-from .sft_clip import run_sft_clip
 from .sft_adaclip import run_sft_adaclip
-import torch.distributed as dist
-from transformers.utils import is_torch_bf16_gpu_available, is_torch_npu_available, is_torch_xpu_available
+from .sft_clip import run_sft_clip
+
+
 if TYPE_CHECKING:
     from transformers import TrainerCallback
 
@@ -45,8 +48,10 @@ logger = get_logger(__name__)
 def run_exp(args: Optional[Dict[str, Any]] = None, callbacks: List["TrainerCallback"] = []) -> None:
 
     callbacks.append(LogCallback())
-    model_args, data_args, training_args, finetuning_args, generating_args, clip_args, adaclip_args, optuna_args = get_train_args(args)
-    if is_torch_xpu_available() and torch.xpu.device_count() > 1 :
+    model_args, data_args, training_args, finetuning_args, generating_args, clip_args, adaclip_args, optuna_args = (
+        get_train_args(args)
+    )
+    if is_torch_xpu_available() and torch.xpu.device_count() > 1:
         dist.destroy_process_group()
         time.sleep(5)
     if finetuning_args.stage == "pt":
@@ -54,9 +59,13 @@ def run_exp(args: Optional[Dict[str, Any]] = None, callbacks: List["TrainerCallb
     elif finetuning_args.stage == "sft":
         run_sft(model_args, data_args, training_args, finetuning_args, generating_args, callbacks)
     elif finetuning_args.stage == "sft_clip":
-        run_sft_clip(model_args, data_args, training_args, finetuning_args, generating_args, clip_args, optuna_args, callbacks)
+        run_sft_clip(
+            model_args, data_args, training_args, finetuning_args, generating_args, clip_args, optuna_args, callbacks
+        )
     elif finetuning_args.stage == "sft_adaclip":
-        run_sft_adaclip(model_args, data_args, training_args, finetuning_args, generating_args, adaclip_args, optuna_args, callbacks)
+        run_sft_adaclip(
+            model_args, data_args, training_args, finetuning_args, generating_args, adaclip_args, optuna_args, callbacks
+        )
     elif finetuning_args.stage == "rm":
         run_rm(model_args, data_args, training_args, finetuning_args, callbacks)
     elif finetuning_args.stage == "ppo":

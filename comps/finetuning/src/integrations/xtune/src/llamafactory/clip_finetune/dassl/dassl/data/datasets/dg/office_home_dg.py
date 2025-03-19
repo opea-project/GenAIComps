@@ -1,8 +1,11 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
 
+from ..base_dataset import DatasetBase
 from ..build import DATASET_REGISTRY
 from .digits_dg import DigitsDG
-from ..base_dataset import DatasetBase
 
 
 @DATASET_REGISTRY.register()
@@ -32,18 +35,10 @@ class OfficeHomeDG(DatasetBase):
             dst = osp.join(root, "office_home_dg.zip")
             self.download_data(self.data_url, dst, from_gdrive=True)
 
-        self.check_input_domains(
-            cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS
-        )
+        self.check_input_domains(cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS)
 
-        train = DigitsDG.read_data(
-            self.dataset_dir, cfg.DATASET.SOURCE_DOMAINS, "train"
-        )
-        val = DigitsDG.read_data(
-            self.dataset_dir, cfg.DATASET.SOURCE_DOMAINS, "val"
-        )
-        test = DigitsDG.read_data(
-            self.dataset_dir, cfg.DATASET.TARGET_DOMAINS, "all"
-        )
+        train = DigitsDG.read_data(self.dataset_dir, cfg.DATASET.SOURCE_DOMAINS, "train")
+        val = DigitsDG.read_data(self.dataset_dir, cfg.DATASET.SOURCE_DOMAINS, "val")
+        test = DigitsDG.read_data(self.dataset_dir, cfg.DATASET.TARGET_DOMAINS, "all")
 
         super().__init__(train_x=train, val=val, test=test)

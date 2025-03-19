@@ -3,11 +3,13 @@
 To run linear probe baselines, make sure that your current working directory is `lpclip/`.
 
 Step 1: Extract Features using the CLIP Image Encoder
+
 ```bash
 sh feat_extractor.sh
 ```
 
 Step 2: Train few-shot linear probe
+
 ```bash
 sh linear_probe.sh
 ```

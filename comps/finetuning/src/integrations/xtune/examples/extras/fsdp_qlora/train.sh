@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # DO NOT use GPTQ/AWQ model in FSDP+QLoRA
 
 CUDA_VISIBLE_DEVICES=0,1 accelerate launch \

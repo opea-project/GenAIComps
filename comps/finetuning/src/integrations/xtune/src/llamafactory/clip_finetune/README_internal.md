@@ -82,7 +82,7 @@ For oneapi & pytorch whl & driver info, please check with the internal AI team r
     # e.g.
     wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/dfc4a434-838c-4450-a6fe-2fa903b75aa7/intel-oneapi-base-toolkit-2025.0.1.46_offline.sh
     sudo sh ./intel-oneapi-base-toolkit-2025.0.1.46_offline.sh -a --silent --cli --eula accept
-    
+
 
 # install intel CA
 # Note: for internal client only
@@ -174,10 +174,10 @@ You can use optuna(https://github.com/optuna/optuna) to automatic tune the hyper
 We only support turn bs and lr. 
 You can set the bs and lr in yaml, such as  ./configs/clip_finetune/vit_b16_opt.yaml
  ```python
-    # turn on optuna in A100
-    bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 cuda 1
-    # turn on optuna in A770
-    bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 XPU 1
+ # turn on optuna in A100
+ bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 cuda 1
+ # turn on optuna in A770
+ bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 XPU 1
  ```
 
 # problem

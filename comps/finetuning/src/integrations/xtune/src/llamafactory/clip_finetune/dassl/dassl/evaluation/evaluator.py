@@ -1,8 +1,12 @@
-import numpy as np
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
 from collections import OrderedDict, defaultdict
+
+import numpy as np
 import torch
-from sklearn.metrics import f1_score, confusion_matrix
+from sklearn.metrics import confusion_matrix, f1_score
 
 from .build import EVALUATOR_REGISTRY
 
@@ -51,13 +55,13 @@ class Classification(EvaluatorBase):
     def process(self, mo, gt):
         # mo (torch.Tensor): model output [batch, num_classes]
         # gt (torch.LongTensor): ground truth [batch]
-        if 'ITC' in self.cfg.DATASET.NAME :
-            max_value, _ = torch.max(mo, dim = 1)
+        if "ITC" in self.cfg.DATASET.NAME:
+            max_value, _ = torch.max(mo, dim=1)
             for i in gt:
                 if mo[i][i] == max_value[i]:
                     mo[i][i] += 0.0001
             pred = mo.argmax(-1)
-            i2t_acc = (mo.argmax(-1) == gt).sum()/len(mo)
+            i2t_acc = (mo.argmax(-1) == gt).sum() / len(mo)
             matches = pred.eq(gt).float()
         else:
             pred = mo.max(1)[1]
@@ -74,17 +78,11 @@ class Classification(EvaluatorBase):
                 matches_i = int(matches[i].item())
                 self._per_class_res[label].append(matches_i)
 
-
     def evaluate(self):
         results = OrderedDict()
         acc = 100.0 * self._correct / self._total
         err = 100.0 - acc
-        macro_f1 = 100.0 * f1_score(
-            self._y_true,
-            self._y_pred,
-            average="macro",
-            labels=np.unique(self._y_true)
-        )
+        macro_f1 = 100.0 * f1_score(self._y_true, self._y_pred, average="macro", labels=np.unique(self._y_true))
 
         # The first value will be returned by trainer.test()
         results["accuracy"] = acc
@@ -126,9 +124,7 @@ class Classification(EvaluatorBase):
             results["perclass_accuracy"] = mean_acc
 
         if self.cfg.TEST.COMPUTE_CMAT:
-            cmat = confusion_matrix(
-                self._y_true, self._y_pred, normalize="true"
-            )
+            cmat = confusion_matrix(self._y_true, self._y_pred, normalize="true")
             save_path = osp.join(self.cfg.OUTPUT_DIR, "cmat.pt")
             torch.save(cmat, save_path)
             print(f"Confusion matrix is saved to {save_path}")
@@ -138,20 +134,21 @@ class Classification(EvaluatorBase):
     def evaluate_flickr(self, scores_i2t, scores_t2i, txt2img, img2txt):
         results = OrderedDict()
         import numpy
+
         numpy.set_printoptions(threshold=np.inf)
-        #Images->Text
+        # Images->Text
         ranks = np.zeros(scores_i2t.shape[0])
-        for index,score in enumerate(scores_i2t):
+        for index, score in enumerate(scores_i2t):
             for i in img2txt[index]:
                 score[i] += 0.1
-            inds = np.argsort(score)[::-1]         
+            inds = np.argsort(score)[::-1]
             # Score
-            rank = 1e20  
+            rank = 1e20
             # if index == 2:
             #     print("score", score)
             #     print("inds", inds)
             #     print("max", score[inds[0]])
-            #     print("img2txt[index]", img2txt[index])       
+            #     print("img2txt[index]", img2txt[index])
             for i in img2txt[index]:
                 tmp = np.where(inds == i)[0][0]
                 if tmp < rank:
@@ -166,12 +163,10 @@ class Classification(EvaluatorBase):
         tr5 = 100.0 * len(np.where(ranks < 5)[0]) / len(ranks)
         tr10 = 100.0 * len(np.where(ranks < 10)[0]) / len(ranks)
 
-
-
-        #Text->Images 
+        # Text->Images
         ranks = np.zeros(scores_t2i.shape[0])
-        #print(len(ranks))
-        for index,score in enumerate(scores_t2i):
+        # print(len(ranks))
+        for index, score in enumerate(scores_t2i):
             inds = np.argsort(score)[::-1]
             ranks[index] = np.where(inds == txt2img[index])[0][0]
         ranks_new = ranks[:length]
@@ -179,15 +174,15 @@ class Classification(EvaluatorBase):
         for i in range(0, length):
             for j in range(0, len(img2txt[i])):
                 if j == 0:
-                    ranks_new[i] = ranks[num] 
+                    ranks_new[i] = ranks[num]
                 else:
                     ranks_new[i] = min(ranks_new[i], ranks[num + j])
             num += len(img2txt[i])
-        #print(len(ranks_new))
+        # print(len(ranks_new))
         # Compute metrics
         ir1 = 100.0 * len(np.where(ranks_new < 1)[0]) / len(ranks_new)
         ir5 = 100.0 * len(np.where(ranks_new < 5)[0]) / len(ranks_new)
-        ir10 = 100.0 * len(np.where(ranks_new < 10)[0]) / len(ranks_new)        
+        ir10 = 100.0 * len(np.where(ranks_new < 10)[0]) / len(ranks_new)
 
         tr_mean = (tr1 + tr5 + tr10) / 3
         ir_mean = (ir1 + ir5 + ir10) / 3
@@ -221,5 +216,5 @@ class Classification(EvaluatorBase):
             f"* tr10: {tr10:.1f}%\n"
             f"* text_r_mean: {tr_mean:.1f}%"
         )
-        
+
         return results

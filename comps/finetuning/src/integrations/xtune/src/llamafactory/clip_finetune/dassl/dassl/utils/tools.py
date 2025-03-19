@@ -1,20 +1,24 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 """
 Modified from https://github.com/KaiyangZhou/deep-person-reid
 """
-import os
-import sys
-import json
-import time
+import copy
 import errno
-import numpy as np
-import random
+import json
+import os
 import os.path as osp
+import random
+import sys
+import time
 import warnings
 from difflib import SequenceMatcher
+
+import numpy as np
 import PIL
 import torch
 from PIL import Image
-import copy
+
 
 try:
     from geomloss import SamplesLoss
@@ -37,8 +41,9 @@ __all__ = [
     "sinkhorn_assignment",
     "l2_norm",
     "get_accuracies",
-    "get_one_to_one_features"
+    "get_one_to_one_features",
 ]
+
 
 def get_one_to_one_features(visual_features, class_prototypes, labels):
     if labels is not None:
@@ -49,13 +54,12 @@ def get_one_to_one_features(visual_features, class_prototypes, labels):
     text_features = assignments @ class_prototypes
     return text_features
 
+
 def topk_accuracies(preds, labels, topk_vals):
     assert preds.size(0) == labels.size(0)
 
     # Get class index for the top k probabilities
-    top_max_k_inds = torch.topk(
-        preds, max(topk_vals), dim=1, largest=True, sorted=True
-    )[1]
+    top_max_k_inds = torch.topk(preds, max(topk_vals), dim=1, largest=True, sorted=True)[1]
 
     top_max_k_inds = top_max_k_inds.t()
     # duplicate the prediction top k time
@@ -63,13 +67,13 @@ def topk_accuracies(preds, labels, topk_vals):
 
     # count the number of correct predictions
     top_max_k_correct = top_max_k_inds.eq(rep_max_k_labels)
-    num_topks_correct = [top_max_k_correct[:k, :].float().sum()
-                         for k in topk_vals]
+    num_topks_correct = [top_max_k_correct[:k, :].float().sum() for k in topk_vals]
 
     accuracies = [(x / preds.size(0)) * 100.0 for x in num_topks_correct]
     return accuracies
 
-def get_acc(visual_feats, class_prototypes, labels, alpha=0.0, topk = (1,5), softmax_temp = 0.07):
+
+def get_acc(visual_feats, class_prototypes, labels, alpha=0.0, topk=(1, 5), softmax_temp=0.07):
     assert visual_feats.ndim == class_prototypes.ndim == 2
     assert visual_feats.size(1) == class_prototypes.size(1)
 
@@ -79,7 +83,10 @@ def get_acc(visual_feats, class_prototypes, labels, alpha=0.0, topk = (1,5), sof
     topk_accs = [acc.cpu().numpy().round(2) for acc in topk_accs]
     return {f"top_{i}": acc for i, acc in zip(topk, topk_accs)}
 
-def get_acc_new(cfg, new_visual_feats, ori_visual_feats, class_prototypes, labels, alpha=0.0, topk = (1,5), softmax_temp = 0.07):
+
+def get_acc_new(
+    cfg, new_visual_feats, ori_visual_feats, class_prototypes, labels, alpha=0.0, topk=(1, 5), softmax_temp=0.07
+):
     assert new_visual_feats.ndim == class_prototypes.ndim == 2
     assert new_visual_feats.size(1) == class_prototypes.size(1)
 
@@ -91,10 +98,12 @@ def get_acc_new(cfg, new_visual_feats, ori_visual_feats, class_prototypes, label
     topk_accs = [acc.cpu().numpy().round(2) for acc in topk_accs]
     return {f"top_{i}": acc for i, acc in zip(topk, topk_accs)}
 
-def get_accuracies(cfg, train_arrays, test_arrays, transform = None, target_set_transform = None, five_crop = False, alpha = 0.0):
+
+def get_accuracies(
+    cfg, train_arrays, test_arrays, transform=None, target_set_transform=None, five_crop=False, alpha=0.0
+):
     device = cfg.TRAINER.COOP.XPU_ID if cfg.TRAINER.COOP.XPU else cfg.TRAINER.COOP.CUDA_ID
 
-    
     names = ["train", "test"]
 
     arrays = [train_arrays] + [test_arrays]
@@ -106,10 +115,7 @@ def get_accuracies(cfg, train_arrays, test_arrays, transform = None, target_set_
         labels = arr["labels"].to(device)
         if five_crop and name == "train":
             # only keep the center ones for fast testing
-            mask = (
-                torch.tensor([0, 0, 0, 0, 1]).repeat(
-                    visual_feats.shape[0] // 5).bool()
-            )
+            mask = torch.tensor([0, 0, 0, 0, 1]).repeat(visual_feats.shape[0] // 5).bool()
             mask = torch.cat([mask, torch.zeros(visual_feats.shape[0] - mask.shape[0])], dim=0).bool()
             visual_feats = visual_feats[mask]
             labels = labels[mask]
@@ -120,8 +126,7 @@ def get_accuracies(cfg, train_arrays, test_arrays, transform = None, target_set_
         labels = labels.to(device)
 
         if target_set_transform is not None and name == "new":
-            new_visual_feats = l2_norm(
-                new_visual_feats @ target_set_transform.to(device))
+            new_visual_feats = l2_norm(new_visual_feats @ target_set_transform.to(device))
 
         elif transform is not None:
             # renormalize since transform might not be orthogonal
@@ -138,23 +143,23 @@ def get_accuracies(cfg, train_arrays, test_arrays, transform = None, target_set_
 
     return accuracies
 
+
 def l2_norm(features):
     return features / features.norm(dim=-1, p=2, keepdim=True)
 
-def sinkhorn_assignment(cfg, x_source, y_target, p = 2, blur = 0.05, scaling = 0.95, batch = 1000, verbose = True):
+
+def sinkhorn_assignment(cfg, x_source, y_target, p=2, blur=0.05, scaling=0.95, batch=1000, verbose=True):
     device = cfg.TRAINER.COOP.XPU_ID if cfg.TRAINER.COOP.XPU else cfg.TRAINER.COOP.CUDA_ID
     if verbose:
         print("Generating the assignment with sinkhorn ...")
     N, M, D = x_source.shape[0], y_target.shape[0], x_source.shape[1]
     x_source = x_source.to(device)
     y_target = y_target.to(device)
-    
+
     x_source_w = torch.ones(N, device=x_source.device) / N
     y_target_w = torch.ones(M, device=x_source.device) / M
 
-    sinkhorn_solver = SamplesLoss(
-        loss="sinkhorn", p=p, blur=blur, scaling=scaling, debias=False, potentials=True
-    )
+    sinkhorn_solver = SamplesLoss(loss="sinkhorn", p=p, blur=blur, scaling=scaling, debias=False, potentials=True)
 
     F, G = sinkhorn_solver(x_source_w, x_source, y_target_w, y_target)
     x_source = x_source.view(N, 1, D)
@@ -170,21 +175,17 @@ def sinkhorn_assignment(cfg, x_source, y_target, p = 2, blur = 0.05, scaling = 0
     for i in range(0, N, batch):
         # loop to avoid memory issues
 
-        cost_matrix = (
-            1 / p) * ((x_source[i: i + batch] - y_target) ** p).sum(-1)  # (N,M)
+        cost_matrix = (1 / p) * ((x_source[i : i + batch] - y_target) ** p).sum(-1)  # (N,M)
         eps = blur**p  # temperature epsilon
 
         # (N,M) transport plan
-        transport_plan = ((F[i: i + batch] + G - cost_matrix) / eps).exp()
-        transport_plan = transport_plan * (
-            x_source_weights[i: i + batch] * y_target_weights
-        )
+        transport_plan = ((F[i : i + batch] + G - cost_matrix) / eps).exp()
+        transport_plan = transport_plan * (x_source_weights[i : i + batch] * y_target_weights)
 
-        soft_assignments[i: i + batch] = transport_plan / transport_plan.sum(
-            dim=1, keepdim=True
-        )
-    
+        soft_assignments[i : i + batch] = transport_plan / transport_plan.sum(dim=1, keepdim=True)
+
     return soft_assignments.cpu()
+
 
 def mkdir_if_missing(dirname):
     """Create dirname if it is missing."""
@@ -251,11 +252,10 @@ def download_url(url, dst):
             return
         duration = time.time() - start_time
         progress_size = int(count * block_size)
-        speed = int(progress_size / (1024*duration))
+        speed = int(progress_size / (1024 * duration))
         percent = int(count * block_size * 100 / total_size)
         sys.stdout.write(
-            "\r...%d%%, %d MB, %d KB/s, %d seconds passed" %
-            (percent, progress_size / (1024*1024), speed, duration)
+            "\r...%d%%, %d MB, %d KB/s, %d seconds passed" % (percent, progress_size / (1024 * 1024), speed, duration)
         )
         sys.stdout.flush()
 
