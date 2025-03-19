@@ -339,6 +339,7 @@ class ChatMessage(BaseModel):
     content: str
     audio: Optional[Dict[str, Any]] = None
 
+
 class ChatCompletionResponseChoice(BaseModel):
     index: int
     message: ChatMessage

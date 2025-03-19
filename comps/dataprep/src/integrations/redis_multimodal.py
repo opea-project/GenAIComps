@@ -418,7 +418,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         for item in annotation:
             page_index = item["frame_no"]
             image_index = item.get("sub_video_id", None)
-            path_to_image = os.path.join(path_to_files, f"page{page_index}_image{image_index}.png") if image_index else None
+            path_to_image = (
+                os.path.join(path_to_files, f"page{page_index}_image{image_index}.png") if image_index else None
+            )
             caption_for_ingesting = item["caption"]
             caption_for_inference = item["caption"]
 
@@ -590,7 +592,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                 "file_id_maps": uploaded_files_map,
             }
 
-        raise HTTPException(status_code=400, detail="Must provide at least one video (.mp4) or audio (.wav, .mp3) file.")
+        raise HTTPException(
+            status_code=400, detail="Must provide at least one video (.mp4) or audio (.wav, .mp3) file."
+        )
 
     async def ingest_generate_captions(self, files: List[UploadFile] = File(None)):
         """Upload images and videos without speech (only background music or no audio), generate captions using lvm microservice and ingest into redis."""
@@ -730,10 +734,10 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                     for page_idx, page in enumerate(doc, start=1):
                         text = page.get_text()
                         images = page.get_images()
-                        
+
                         if images:
                             is_plain_pdf = False
-                        
+
                         for image_idx, image in enumerate(images, start=1):
                             # Write image and caption file for each image found in pdf
                             img_fname = f"page{page_idx}_image{image_idx}"
@@ -764,7 +768,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                                     "sub_video_id": image_idx,
                                 }
                             )
-                        
+
                     if is_plain_pdf:
                         annotations.append(
                             {
@@ -792,7 +796,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
                     # If caption file is an audio format, get the transcription and write a .txt caption file
                     if caption_file_extension in audio_formats:
-                        transcripts = extract_transcript_from_audio(whisper_model, os.path.join(self.upload_folder, caption_file))
+                        transcripts = extract_transcript_from_audio(
+                            whisper_model, os.path.join(self.upload_folder, caption_file)
+                        )
                         caption_text = ""
 
                         if transcripts and "text" in transcripts:
