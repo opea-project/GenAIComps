@@ -74,6 +74,7 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
             metadata_list = [data]
             if vs.selected_db == "vdms":
                 vs.video_db.add_videos(
+                    texts=video_name_list,
                     paths=video_name_list,
                     metadatas=metadata_list,
                     start_time=[data["timestamp"]],
