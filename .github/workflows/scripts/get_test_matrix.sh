@@ -59,6 +59,13 @@ function find_test_1() {
                         fill_in_matrix "$find_test"
                     fi
                 fi
+            elif [[ $(echo ${service_path} | grep "third_parties") ]]; then
+                 # new org with `src` and `third_parties` folder
+                service_name=$(echo $service_path | sed 's:/src::' | tr '/' '_' | cut -c7-) # comps/third_parties/vllm/src -> third_parties_vllm
+                find_test=$(find ./tests -type f -name test_${service_name}*.sh) || true
+                if [ "$find_test" ]; then
+                    fill_in_matrix "$find_test"
+                fi
             else
                 # old org without 'src' folder
                 service_name=$(echo $service_path | tr '/' '_' | cut -c7-) # comps/retrievers/redis/langchain -> retrievers_redis_langchain
@@ -115,8 +122,10 @@ function find_test_3() {
     yaml_files=${changed_files}
     for yaml_file in ${yaml_files}; do
         if [ -f $yaml_file ]; then
-            _service=$(echo $yaml_file | cut -d'/' -f2)
-            yaml_name=$(echo $yaml_file | cut -d'/' -f5)
+            _service=${yaml_file#comps/}
+            _service=${_service%/deployment/*}
+            _service=${_service//\//_}
+            yaml_name=$(basename $yaml_file)
             if [ "$yaml_name" != "compose.yaml" ]; then
                 _domain=${yaml_name%.yaml}
                 _domain=${_domain#compose_}
@@ -134,7 +143,7 @@ function find_test_3() {
 function main() {
 
     # add test services when comps code change
-    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|comps/third_parties|deployment|\.yaml') || true
+    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|deployment|\.yaml') || true
     echo "===========start find_test_1============"
     echo "changed_files=${changed_files}"
     find_test_1 "comps" 2 false
@@ -161,7 +170,14 @@ function main() {
     echo "===========finish find_test_3============"
 
     run_matrix=$run_matrix"]}"
+    echo "run_matrix=${run_matrix}"
     echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
+
+    if [[ $(echo "$run_matrix" | grep -c "service") != 0 ]]; then
+        is_empty="false"
+    fi
+    echo "is_empty=${is_empty}"
+    echo "is_empty=${is_empty}" >> $GITHUB_OUTPUT
 }
 
 main
