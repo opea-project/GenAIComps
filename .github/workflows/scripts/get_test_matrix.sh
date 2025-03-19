@@ -141,7 +141,7 @@ function find_test_3() {
 function main() {
 
     # add test services when comps code change
-    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|comps/third_parties|deployment|\.yaml') || true
+    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|deployment|\.yaml') || true
     echo "===========start find_test_1============"
     echo "changed_files=${changed_files}"
     find_test_1 "comps" 2 false
