@@ -1,11 +1,15 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 """
 Modified from https://github.com/KaiyangZhou/deep-person-reid
 """
 import warnings
+
 import torch
 import torch.nn as nn
 
 from .radam import RAdam
+
 
 AVAI_OPTIMS = ["adam", "amsgrad", "sgd", "rmsprop", "radam", "adamw"]
 
@@ -32,22 +36,18 @@ def build_optimizer(model, optim_cfg, param_groups=None):
     base_lr_mult = optim_cfg.BASE_LR_MULT
 
     if optim not in AVAI_OPTIMS:
-        raise ValueError(
-            f"optim must be one of {AVAI_OPTIMS}, but got {optim}"
-        )
+        raise ValueError(f"optim must be one of {AVAI_OPTIMS}, but got {optim}")
 
     if param_groups is not None and staged_lr:
         warnings.warn(
-            "staged_lr will be ignored, if you need to use staged_lr, "
-            "please bind it with param_groups yourself."
+            "staged_lr will be ignored, if you need to use staged_lr, " "please bind it with param_groups yourself."
         )
 
     if param_groups is None:
         if staged_lr:
             if not isinstance(model, nn.Module):
                 raise TypeError(
-                    "When staged_lr is True, model given to "
-                    "build_optimizer() must be an instance of nn.Module"
+                    "When staged_lr is True, model given to " "build_optimizer() must be an instance of nn.Module"
                 )
 
             if isinstance(model, nn.DataParallel):
@@ -70,13 +70,8 @@ def build_optimizer(model, optim_cfg, param_groups=None):
                     base_layers.append(name)
 
             param_groups = [
-                {
-                    "params": base_params,
-                    "lr": lr * base_lr_mult
-                },
-                {
-                    "params": new_params
-                },
+                {"params": base_params, "lr": lr * base_lr_mult},
+                {"params": new_params},
             ]
 
         else:

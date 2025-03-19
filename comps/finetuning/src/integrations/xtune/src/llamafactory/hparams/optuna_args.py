@@ -16,20 +16,18 @@
 # limitations under the License.
 
 from dataclasses import dataclass, field
-from typing import Literal, Optional
+from typing import Optional
 
 
 @dataclass
 class OptunaArguments:
-    r"""
-    Arguments pertaining to what data we are going to input our model for training and evaluation.
-    """
+    r"""Arguments pertaining to what data we are going to input our model for training and evaluation."""
 
     optuna: Optional[bool] = field(
         default=False,
         metadata={"help": "whether to use optuna"},
     )
-    
+
     n_trials: int = field(
         default=30,
         metadata={"help": "Train bs"},
@@ -47,10 +45,8 @@ class OptunaArguments:
         metadata={"help": "Path to the folder containing the datasets."},
     )
 
-    
     def __post_init__(self):
         def split_arg(arg):
             if isinstance(arg, str):
                 return [item.strip() for item in arg.split(",")]
             return arg
-

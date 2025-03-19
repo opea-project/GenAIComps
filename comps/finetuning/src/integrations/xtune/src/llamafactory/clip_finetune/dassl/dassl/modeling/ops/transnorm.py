@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 import torch.nn as nn
 
@@ -16,9 +19,7 @@ class _TransNorm(nn.Module):
         adaptive_alpha (bool): apply domain adaptive alpha.
     """
 
-    def __init__(
-        self, num_features, eps=1e-5, momentum=0.1, adaptive_alpha=True
-    ):
+    def __init__(self, num_features, eps=1e-5, momentum=0.1, adaptive_alpha=True):
         super().__init__()
         self.num_features = num_features
         self.eps = eps
@@ -51,7 +52,7 @@ class _TransNorm(nn.Module):
         ratio_s = mean_s / (var_s + self.eps).sqrt()
         ratio_t = mean_t / (var_t + self.eps).sqrt()
         dist = (ratio_s - ratio_t).abs()
-        dist_inv = 1 / (1+dist)
+        dist_inv = 1 / (1 + dist)
         return C * dist_inv / dist_inv.sum()
 
     def forward(self, input):
@@ -70,8 +71,8 @@ class _TransNorm(nn.Module):
         if not self.training:
             mean_t = self.running_mean_t.view(*new_shape)
             var_t = self.running_var_t.view(*new_shape)
-            output = (input-mean_t) / (var_t + self.eps).sqrt()
-            output = output*weight + bias
+            output = (input - mean_t) / (var_t + self.eps).sqrt()
+            output = output * weight + bias
 
             if self.adaptive_alpha:
                 mean_s = self.running_mean_s.view(*new_shape)
@@ -93,8 +94,8 @@ class _TransNorm(nn.Module):
         self.running_var_s.add_((1 - self.momentum) * var_s.data)
         mean_s = mean_s.reshape(*new_shape)
         var_s = var_s.reshape(*new_shape)
-        output_s = (input_s-mean_s) / (var_s + self.eps).sqrt()
-        output_s = output_s*weight + bias
+        output_s = (input_s - mean_s) / (var_s + self.eps).sqrt()
+        output_s = output_s * weight + bias
 
         x_t = input_t.transpose(0, 1).reshape(C, -1)
         mean_t = x_t.mean(1)
@@ -105,8 +106,8 @@ class _TransNorm(nn.Module):
         self.running_var_t.add_((1 - self.momentum) * var_t.data)
         mean_t = mean_t.reshape(*new_shape)
         var_t = var_t.reshape(*new_shape)
-        output_t = (input_t-mean_t) / (var_t + self.eps).sqrt()
-        output_t = output_t*weight + bias
+        output_t = (input_t - mean_t) / (var_t + self.eps).sqrt()
+        output_t = output_t * weight + bias
 
         output = torch.cat([output_s, output_t], 0)
 
@@ -122,17 +123,11 @@ class TransNorm1d(_TransNorm):
 
     def _check_input(self, x):
         if x.dim() != 2:
-            raise ValueError(
-                "Expected the input to be 2-D, "
-                "but got {}-D".format(x.dim())
-            )
+            raise ValueError("Expected the input to be 2-D, " "but got {}-D".format(x.dim()))
 
 
 class TransNorm2d(_TransNorm):
 
     def _check_input(self, x):
         if x.dim() != 4:
-            raise ValueError(
-                "Expected the input to be 4-D, "
-                "but got {}-D".format(x.dim())
-            )
+            raise ValueError("Expected the input to be 4-D, " "but got {}-D".format(x.dim()))

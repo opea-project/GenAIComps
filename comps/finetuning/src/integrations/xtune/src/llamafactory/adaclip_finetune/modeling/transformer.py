@@ -1,18 +1,18 @@
-# Adapted from https://github.com/ArrowLuo/CLIP4Clip/blob/master/modules/module_cross.py
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
+# Adapted from https://github.com/ArrowLuo/CLIP4Clip/blob/master/modules/module_cross.py
+from __future__ import absolute_import, division, print_function
+
+from collections import OrderedDict
 
 import torch
 from torch import nn
-from collections import OrderedDict
 
 
 class LayerNorm(nn.Module):
     def __init__(self, hidden_size, eps=1e-12):
-        """Construct a layernorm module in the TF style (epsilon inside the square root).
-        """
+        """Construct a layernorm module in the TF style (epsilon inside the square root)."""
         super(LayerNorm, self).__init__()
         self.weight = nn.Parameter(torch.ones(hidden_size))
         self.bias = nn.Parameter(torch.zeros(hidden_size))
@@ -36,11 +36,15 @@ class ResidualAttentionBlock(nn.Module):
 
         self.attn = nn.MultiheadAttention(d_model, n_head)
         self.ln_1 = LayerNorm(d_model)
-        self.mlp = nn.Sequential(OrderedDict([
-            ("c_fc", nn.Linear(d_model, d_model * 4)),
-            ("gelu", QuickGELU()),
-            ("c_proj", nn.Linear(d_model * 4, d_model))
-        ]))
+        self.mlp = nn.Sequential(
+            OrderedDict(
+                [
+                    ("c_fc", nn.Linear(d_model, d_model * 4)),
+                    ("gelu", QuickGELU()),
+                    ("c_proj", nn.Linear(d_model * 4, d_model)),
+                ]
+            )
+        )
         self.ln_2 = LayerNorm(d_model)
         self.n_head = n_head
 

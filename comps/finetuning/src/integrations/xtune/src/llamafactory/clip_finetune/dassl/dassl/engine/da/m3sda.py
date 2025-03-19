@@ -1,11 +1,14 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from dassl.optim import build_optimizer, build_lr_scheduler
-from dassl.utils import count_num_param
 from dassl.engine import TRAINER_REGISTRY, TrainerXU
 from dassl.engine.trainer import SimpleNet
+from dassl.optim import build_lr_scheduler, build_optimizer
+from dassl.utils import count_num_param
 
 
 class PairClassifiers(nn.Module):
@@ -59,12 +62,7 @@ class M3SDA(TrainerXU):
         fdim = self.F.fdim
 
         print("Building C")
-        self.C = nn.ModuleList(
-            [
-                PairClassifiers(fdim, self.num_classes)
-                for _ in range(self.num_source_domains)
-            ]
-        )
+        self.C = nn.ModuleList([PairClassifiers(fdim, self.num_classes) for _ in range(self.num_source_domains)])
         self.C.to(self.device)
         print("# params: {:,}".format(count_num_param(self.C)))
         self.optim_C = build_optimizer(self.C, cfg.OPTIM)
@@ -161,7 +159,7 @@ class M3SDA(TrainerXU):
         u_var = u.var(0)
         dist2 = self.pairwise_distance(x_var, u_var)
 
-        return (dist1+dist2) / 2
+        return (dist1 + dist2) / 2
 
     def pairwise_distance(self, x, u):
         # x (list): a list of feature vector.
@@ -181,7 +179,7 @@ class M3SDA(TrainerXU):
         return dist / count
 
     def euclidean(self, input1, input2):
-        return ((input1 - input2)**2).sum().sqrt()
+        return ((input1 - input2) ** 2).sum().sqrt()
 
     def discrepancy(self, y1, y2):
         return (y1 - y2).abs().mean()

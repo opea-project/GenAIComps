@@ -1,11 +1,13 @@
-"""Module for computing performance metrics
-"""
-import torch
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""Module for computing performance metrics."""
 import numpy as np
+import torch
 
 
 def t2v_metrics(sims, break_pts=None):
-    """Compute retrieval metrics from a similiarity matrix.
+    """Compute retrieval metrics from a similarity matrix.
+
     Args:
         sims (th.Tensor): N x M matrix of similarities between embeddings, where
              x_{i,j} = <text_embd[i], vid_embed[j]>
@@ -19,7 +21,7 @@ def t2v_metrics(sims, break_pts=None):
     ranks = []
     for i in range(min(inds.shape[0], inds.shape[1])):
         # inds = (num_caps, num_imgs) return best image for each caption
-        ranks.append(inds[break_pts[i]:break_pts[i+1], i])
+        ranks.append(inds[break_pts[i] : break_pts[i + 1], i])
     ranks = torch.cat(ranks).cpu().numpy()
     return ranks_to_recall(ranks)
 
@@ -34,7 +36,7 @@ def v2t_metrics(sims, break_pts=None):
     ranks = []
     for i in range(min(inds.shape[0], inds.shape[1])):
         # inds = (num_imgs, num_caps) return minimum rank of all the captions
-        ranks.append(min(inds[i, break_pts[i]:break_pts[i+1]]).unsqueeze(0))
+        ranks.append(min(inds[i, break_pts[i] : break_pts[i + 1]]).unsqueeze(0))
     ranks = torch.cat(ranks).cpu().numpy()
     return ranks_to_recall(ranks)
 
@@ -47,4 +49,4 @@ def ranks_to_recall(ranks):
     metrics["R50"] = 100 * float(np.sum(ranks < 50)) / len(ranks)
     metrics["MedR"] = np.median(ranks) + 1
     metrics["MeanR"] = np.mean(ranks) + 1
-    return metrics 
+    return metrics

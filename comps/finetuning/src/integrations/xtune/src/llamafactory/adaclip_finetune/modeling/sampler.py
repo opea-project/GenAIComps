@@ -1,11 +1,14 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
-import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
-
-from modeling import clip
+import torchvision
 from einops import rearrange
 from utils.flops_table import feat_dim_dict
+
+from modeling import clip
 from modeling.clip_model import Transformer
 from modeling.gumbel_softmax import gumbel_softmax_top_k
 
@@ -29,7 +32,9 @@ class Sampler(nn.Module):
             last_layer = "classifier"
             setattr(self.cnn_model, last_layer, nn.Sequential())
         elif cfg.policy_backbone == "mobilenet_v3_large":
-            self.cnn_model = torchvision.models.mobilenet_v3_large(weights=torchvision.models.MobileNet_V3_Large_Weights.DEFAULT)
+            self.cnn_model = torchvision.models.mobilenet_v3_large(
+                weights=torchvision.models.MobileNet_V3_Large_Weights.DEFAULT
+            )
             last_layer = "classifier"
             self.cnn_model.classifier[2] = nn.Sequential()
             self.cnn_model.classifier[3] = nn.Sequential()
@@ -57,9 +62,21 @@ class Sampler(nn.Module):
                 self.frame_position_embeddings = nn.Embedding(cfg.num_frm, transformer_width)
                 self.transformer = Transformer(width=transformer_width, layers=1, heads=transformer_heads)
             elif self.rnn_type == "lstm":
-                self.rnn = nn.LSTM(input_size=backbone_channel_in_size, hidden_size=cfg.hidden_dim, bias=True, batch_first=True, bidirectional=False)
+                self.rnn = nn.LSTM(
+                    input_size=backbone_channel_in_size,
+                    hidden_size=cfg.hidden_dim,
+                    bias=True,
+                    batch_first=True,
+                    bidirectional=False,
+                )
             elif self.rnn_type == "bilstm":
-                self.rnn = nn.LSTM(input_size=backbone_channel_in_size, hidden_size=cfg.hidden_dim, bias=True, batch_first=True, bidirectional=True)
+                self.rnn = nn.LSTM(
+                    input_size=backbone_channel_in_size,
+                    hidden_size=cfg.hidden_dim,
+                    bias=True,
+                    batch_first=True,
+                    bidirectional=True,
+                )
 
         input_dim = cfg.hidden_dim if self.use_rnn else backbone_channel_in_size
         self.linear = self.prepare_linear(input_dim, 1, cfg.mlp_hidden_dim, cfg.mlp_type)
@@ -68,11 +85,7 @@ class Sampler(nn.Module):
         if mlp_type == "fc":
             linear_model = nn.Sequential(nn.Linear(input_dim, output_dim))
         elif mlp_type == "mlp":
-            linear_model = nn.Sequential(
-                nn.Linear(input_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Linear(hidden_dim, output_dim)
-            )
+            linear_model = nn.Sequential(nn.Linear(input_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, output_dim))
         for module in linear_model:
             if isinstance(module, nn.Linear):
                 nn.init.kaiming_normal_(module.weight)
@@ -86,8 +99,8 @@ class Sampler(nn.Module):
                 with torch.no_grad():
                     feat_lite = self.cnn_model(visual_inputs).detach()
             else:
-                feat_lite = self.cnn_model(visual_inputs) # (b * n_frms, feat_dim)
-            #feat_lite = self.cnn_model(visual_inputs) # (b * n_frms, feat_dim)
+                feat_lite = self.cnn_model(visual_inputs)  # (b * n_frms, feat_dim)
+            # feat_lite = self.cnn_model(visual_inputs) # (b * n_frms, feat_dim)
         elif self.policy_backbone == "clip":
             feat_lite = visual_inputs
         elif self.policy_backbone == "frozen_clip":
@@ -115,10 +128,10 @@ class Sampler(nn.Module):
         logits = self.linear(feat_lite).squeeze(-1)
         if self.training:
             prob = torch.log(F.softmax(logits, dim=-1).clamp(min=1e-8))
-            actions = gumbel_softmax_top_k(prob, int(self.top_k), tau, True, reduce_sum=False) # B, K, N
+            actions = gumbel_softmax_top_k(prob, int(self.top_k), tau, True, reduce_sum=False)  # B, K, N
         else:
-            index = torch.argsort(logits, dim=-1, descending=True)[:, :self.top_k]
-            actions = F.one_hot(index, num_classes=logits.shape[-1]).to(logits.dtype) # B, K, N
+            index = torch.argsort(logits, dim=-1, descending=True)[:, : self.top_k]
+            actions = F.one_hot(index, num_classes=logits.shape[-1]).to(logits.dtype)  # B, K, N
         return actions, logits
 
     def forward(self, policy_inputs, tau=1):

@@ -21,27 +21,26 @@ import sys
 from typing import Any, Dict, Optional, Tuple
 
 import torch
-import torch.distributed as dist
 import transformers
-import argparse
 from transformers import HfArgumentParser, Seq2SeqTrainingArguments
 from transformers.integrations import is_deepspeed_zero3_enabled
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.training_args import ParallelMode
-from transformers.utils import is_torch_bf16_gpu_available, is_torch_npu_available, is_torch_xpu_available
+from transformers.utils import is_torch_bf16_gpu_available, is_torch_npu_available
 from transformers.utils.versions import require_version
 
 from ..extras.constants import CHECKPOINT_NAMES
 from ..extras.logging import get_logger
 from ..extras.misc import check_dependencies, get_current_device
+from .adaclip_args import AdaclipArguments
+from .clip_args import ClipArguments
 from .data_args import DataArguments
 from .evaluation_args import EvaluationArguments
 from .finetuning_args import FinetuningArguments
 from .generating_args import GeneratingArguments
 from .model_args import ModelArguments
-from .clip_args import ClipArguments
 from .optuna_args import OptunaArguments
-from .adaclip_args import AdaclipArguments
+
 
 logger = get_logger(__name__)
 
@@ -49,12 +48,62 @@ logger = get_logger(__name__)
 check_dependencies()
 
 
-_TRAIN_ARGS = [ModelArguments, DataArguments, Seq2SeqTrainingArguments, FinetuningArguments, GeneratingArguments, ClipArguments, AdaclipArguments, OptunaArguments]
-_TRAIN_CLS = Tuple[ModelArguments, DataArguments, Seq2SeqTrainingArguments, FinetuningArguments, GeneratingArguments, ClipArguments, AdaclipArguments, OptunaArguments]
-_INFER_ARGS = [ModelArguments, DataArguments, FinetuningArguments, GeneratingArguments, ClipArguments, AdaclipArguments, OptunaArguments]
-_INFER_CLS = Tuple[ModelArguments, DataArguments, FinetuningArguments, GeneratingArguments, ClipArguments, AdaclipArguments, OptunaArguments]
-_EVAL_ARGS = [ModelArguments, DataArguments, EvaluationArguments, FinetuningArguments, ClipArguments, AdaclipArguments, OptunaArguments]
-_EVAL_CLS = Tuple[ModelArguments, DataArguments, EvaluationArguments, FinetuningArguments, ClipArguments, AdaclipArguments, OptunaArguments]
+_TRAIN_ARGS = [
+    ModelArguments,
+    DataArguments,
+    Seq2SeqTrainingArguments,
+    FinetuningArguments,
+    GeneratingArguments,
+    ClipArguments,
+    AdaclipArguments,
+    OptunaArguments,
+]
+_TRAIN_CLS = Tuple[
+    ModelArguments,
+    DataArguments,
+    Seq2SeqTrainingArguments,
+    FinetuningArguments,
+    GeneratingArguments,
+    ClipArguments,
+    AdaclipArguments,
+    OptunaArguments,
+]
+_INFER_ARGS = [
+    ModelArguments,
+    DataArguments,
+    FinetuningArguments,
+    GeneratingArguments,
+    ClipArguments,
+    AdaclipArguments,
+    OptunaArguments,
+]
+_INFER_CLS = Tuple[
+    ModelArguments,
+    DataArguments,
+    FinetuningArguments,
+    GeneratingArguments,
+    ClipArguments,
+    AdaclipArguments,
+    OptunaArguments,
+]
+_EVAL_ARGS = [
+    ModelArguments,
+    DataArguments,
+    EvaluationArguments,
+    FinetuningArguments,
+    ClipArguments,
+    AdaclipArguments,
+    OptunaArguments,
+]
+_EVAL_CLS = Tuple[
+    ModelArguments,
+    DataArguments,
+    EvaluationArguments,
+    FinetuningArguments,
+    ClipArguments,
+    AdaclipArguments,
+    OptunaArguments,
+]
 
 
 def _parse_args(parser: "HfArgumentParser", args: Optional[Dict[str, Any]] = None) -> Tuple[Any]:
@@ -148,7 +197,7 @@ def _check_extra_dependencies(
 
 
 def _parse_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
-    #print(_TRAIN_ARGS)
+    # print(_TRAIN_ARGS)
     parser = HfArgumentParser(_TRAIN_ARGS)
     return _parse_args(parser, args)
 
@@ -164,7 +213,9 @@ def _parse_eval_args(args: Optional[Dict[str, Any]] = None) -> _EVAL_CLS:
 
 
 def get_train_args(args: Optional[Dict[str, Any]] = None) -> _TRAIN_CLS:
-    model_args, data_args, training_args, finetuning_args, generating_args, clip_args, adaclip_args, optuna_args = _parse_train_args(args)
+    model_args, data_args, training_args, finetuning_args, generating_args, clip_args, adaclip_args, optuna_args = (
+        _parse_train_args(args)
+    )
     # Setup logging
     if training_args.should_log:
         _set_transformers_logging()

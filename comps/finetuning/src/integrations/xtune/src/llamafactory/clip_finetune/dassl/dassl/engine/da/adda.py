@@ -1,11 +1,15 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import copy
+
 import torch
 import torch.nn as nn
 
-from dassl.optim import build_optimizer, build_lr_scheduler
-from dassl.utils import check_isfile, count_num_param, open_specified_layers
 from dassl.engine import TRAINER_REGISTRY, TrainerXU
 from dassl.modeling import build_head
+from dassl.optim import build_lr_scheduler, build_optimizer
+from dassl.utils import check_isfile, count_num_param, open_specified_layers
 
 
 @TRAINER_REGISTRY.register()
@@ -31,9 +35,7 @@ class ADDA(TrainerXU):
         self.bce = nn.BCEWithLogitsLoss()
 
     def check_cfg(self, cfg):
-        assert check_isfile(
-            cfg.MODEL.INIT_WEIGHTS
-        ), "The weights of source model must be provided"
+        assert check_isfile(cfg.MODEL.INIT_WEIGHTS), "The weights of source model must be provided"
 
     def build_critic(self):
         cfg = self.cfg

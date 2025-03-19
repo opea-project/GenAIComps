@@ -18,9 +18,7 @@ from typing import List, Literal, Optional
 
 @dataclass
 class FreezeArguments:
-    r"""
-    Arguments pertaining to the freeze (partial-parameter) training.
-    """
+    r"""Arguments pertaining to the freeze (partial-parameter) training."""
 
     freeze_trainable_layers: int = field(
         default=2,
@@ -56,9 +54,7 @@ class FreezeArguments:
 
 @dataclass
 class LoraArguments:
-    r"""
-    Arguments pertaining to the LoRA training.
-    """
+    r"""Arguments pertaining to the LoRA training."""
 
     additional_target: Optional[str] = field(
         default=None,
@@ -128,9 +124,7 @@ class LoraArguments:
 
 @dataclass
 class RLHFArguments:
-    r"""
-    Arguments pertaining to the PPO, DPO and KTO training.
-    """
+    r"""Arguments pertaining to the PPO, DPO and KTO training."""
 
     pref_beta: float = field(
         default=0.1,
@@ -212,9 +206,7 @@ class RLHFArguments:
 
 @dataclass
 class GaloreArguments:
-    r"""
-    Arguments pertaining to the GaLore algorithm.
-    """
+    r"""Arguments pertaining to the GaLore algorithm."""
 
     use_galore: bool = field(
         default=False,
@@ -253,9 +245,7 @@ class GaloreArguments:
 
 @dataclass
 class BAdamArgument:
-    r"""
-    Arguments pertaining to the BAdam optimizer.
-    """
+    r"""Arguments pertaining to the BAdam optimizer."""
 
     use_badam: bool = field(
         default=False,
@@ -306,9 +296,7 @@ class BAdamArgument:
 
 @dataclass
 class FinetuningArguments(FreezeArguments, LoraArguments, RLHFArguments, GaloreArguments, BAdamArgument):
-    r"""
-    Arguments pertaining to which techniques we are going to fine-tuning with.
-    """
+    r"""Arguments pertaining to which techniques we are going to fine-tuning with."""
 
     pure_bf16: bool = field(
         default=False,

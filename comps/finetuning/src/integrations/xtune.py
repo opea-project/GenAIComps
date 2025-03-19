@@ -25,7 +25,6 @@ from comps.cores.proto.api_protocol import (
 )
 from comps.finetuning.src.integrations.finetune_config import FinetuneConfig, FineTuningParams
 
-
 logger = CustomLogger("opea")
 
 DATASET_BASE_PATH = "datasets"
@@ -117,9 +116,7 @@ class XtuneFinetuning(OpeaComponent):
             model=model,
             created_at=int(time.time()),
             training_file=train_file,
-            hyperparameters={
-                
-            },
+            hyperparameters={},
             status="running",
             seed=random.randint(0, 1000) if request.seed is None else request.seed,
         )
@@ -134,7 +131,7 @@ class XtuneFinetuning(OpeaComponent):
                 # Entrypoint shell command to execute
                 entrypoint=f"cd integrations/xtune/src/llamafactory/clip_finetune && export DATA={finetune_config.General.xtune_config.dataset_root} && bash scripts/clip_finetune/{finetune_config.General.xtune_config.trainer}.sh {finetune_config.General.xtune_config.dataset} {finetune_config.General.xtune_config.model} 0 {finetune_config.General.xtune_config.device} > /tmp/test.log 2>&1 || true",
             )
-            
+
         else:
             if flag == 1:
                 ray_job_id = ray_client.submit_job(

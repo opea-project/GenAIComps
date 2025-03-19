@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # custom config
 
 TRAINER=CLIP_VPT
@@ -7,10 +10,10 @@ DATASET=$1
 CFG=$2  # rn50, rn101, vit_b32 or vit_b16
 PTL=$3
 DEEP=$4
-ACCEP=$5
+ACCEPT=$5
 DEVICE=$6
-if [ -z $ACCEP ]; then
-    ACCEP=0
+if [ -z $ACCEPT ]; then
+    ACCEPT=0
 fi
 if [ -z $PTL ]; then
     PTL=4
@@ -32,11 +35,10 @@ CUDA_VISIBLE_DEVICES=0 python train.py \
 --config-file configs/trainers/clip_finetune/${CFG}_prompt.yaml \
 --output-dir output/${TRAINER}_${PTL}_${DEEP}/${CFG}/${DATASET} \
 --xpu $device \
-TRAINER.COOP.ACC $ACCEP \
+TRAINER.COOP.ACC $ACCEPT \
 TRAINER.COOP.N_PLN $PTL \
 TRAINER.COOP.PMT_DEEP $DEEP \
 TRAINER.COOP.N_CTX 16 \
 TRAINER.COOP.CSC True \
 TRAINER.COOP.CLASS_TOKEN_POSITION end \
 DATASET.NUM_SHOTS 0
-

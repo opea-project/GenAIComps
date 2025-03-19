@@ -30,7 +30,6 @@ from ...extras.logging import get_logger
 from ..callbacks import PissaConvertCallback, SaveProcessorCallback
 from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
 
-
 if TYPE_CHECKING:
     from torch.utils.data import Dataset
     from transformers import ProcessorMixin
@@ -38,46 +37,43 @@ if TYPE_CHECKING:
 
     from ...hparams import FinetuningArguments
 
-
-from dassl.utils import setup_logger, set_random_seed, collect_env_info
 from dassl.config import get_cfg_default
 from dassl.engine import build_trainer
-import ..CLIP_FineTune.datasets.oxford_pets
+from dassl.utils import collect_env_info, set_random_seed, setup_logger
+
 import ..CLIP_FineTune..datasets.oxford_flowers
-import ..CLIP_FineTune.datasets.fgvc_aircraft
+import ..CLIP_FineTune.datasets.caltech101
 import ..CLIP_FineTune.datasets.dtd
 import ..CLIP_FineTune.datasets.eurosat
-import ..CLIP_FineTune.datasets.stanford_cars
+import ..CLIP_FineTune.datasets.fgvc_aircraft
 import ..CLIP_FineTune.datasets.food101
-import ..CLIP_FineTune.datasets.sun397
-import ..CLIP_FineTune.datasets.caltech101
-import ..CLIP_FineTune.datasets.ucf101
 import ..CLIP_FineTune.datasets.imagenet
-import ..CLIP_FineTune.datasets.mini_imagenet
-import ..CLIP_FineTune.datasets.imagenet_sketch
-import ..CLIP_FineTune.datasets.imagenetv2
 import ..CLIP_FineTune.datasets.imagenet_a
 import ..CLIP_FineTune.datasets.imagenet_r
-
-import ..CLIP_FineTune.trainers.coop
+import ..CLIP_FineTune.datasets.imagenet_sketch
+import ..CLIP_FineTune.datasets.imagenetv2
+import ..CLIP_FineTune.datasets.mini_imagenet
+import ..CLIP_FineTune.datasets.oxford_pets
+import ..CLIP_FineTune.datasets.stanford_cars
+import ..CLIP_FineTune.datasets.sun397
+import ..CLIP_FineTune.datasets.ucf101
 import ..CLIP_FineTune.trainers.clip_adapter
-import ..CLIP_FineTune.trainers.clip_fullfinetune
-import ..CLIP_FineTune.trainers.clip_bias
-import ..CLIP_FineTune.trainers.clip_vpt
-import ..CLIP_FineTune.trainers.cocoop
-import ..CLIP_FineTune.trainers.zsclip
-import ..CLIP_FineTune.trainers.clip_bias_hf
 import ..CLIP_FineTune.trainers.clip_adapter_hf
+import ..CLIP_FineTune.trainers.clip_bias
+import ..CLIP_FineTune.trainers.clip_bias_hf
+import ..CLIP_FineTune.trainers.clip_fullfinetune
 import ..CLIP_FineTune.trainers.clip_fullfinetune_hf
+import ..CLIP_FineTune.trainers.clip_vpt
 import ..CLIP_FineTune.trainers.clip_vpt_hf
+import ..CLIP_FineTune.trainers.cocoop
+import ..CLIP_FineTune.trainers.coop
+import ..CLIP_FineTune.trainers.zsclip
 
 logger = get_logger(__name__)
 
 
 class CustomSeq2SeqTrainer(Seq2SeqTrainer):
-    r"""
-    Inherits Seq2SeqTrainer to compute generative metrics such as BLEU and ROUGE.
-    """
+    r"""Inherits Seq2SeqTrainer to compute generative metrics such as BLEU and ROGUE."""
 
     def __init__(
         self, finetuning_args: "FinetuningArguments", processor: Optional["ProcessorMixin"], **kwargs
@@ -129,8 +125,7 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
         prediction_loss_only: bool,
         ignore_keys: Optional[List[str]] = None,
     ) -> Tuple[Optional[float], Optional["torch.Tensor"], Optional["torch.Tensor"]]:
-        r"""
-        Removes the prompt part in the generated tokens.
+        r"""Removes the prompt part in the generated tokens.
 
         Subclass and override to inject custom behavior.
         """
@@ -154,17 +149,14 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
         return loss, generated_tokens, labels
 
     def _pad_tensors_to_target_len(self, src_tensor: "torch.Tensor", tgt_tensor: "torch.Tensor") -> "torch.Tensor":
-        r"""
-        Pads the tensor to the same length as the target tensor.
-        """
+        r"""Pads the tensor to the same length as the target tensor."""
         assert self.tokenizer.pad_token_id is not None, "Pad token is required."
         padded_tensor = self.tokenizer.pad_token_id * torch.ones_like(tgt_tensor)
         padded_tensor[:, -src_tensor.shape[-1] :] = src_tensor  # adopt left-padding
         return padded_tensor.contiguous()  # in contiguous memory
 
     def save_predictions(self, dataset: "Dataset", predict_results: "PredictionOutput") -> None:
-        r"""
-        Saves model predictions to `output_dir`.
+        r"""Saves model predictions to `output_dir`.
 
         A custom behavior that not contained in Seq2SeqTrainer.
         """

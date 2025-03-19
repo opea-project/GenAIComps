@@ -1,7 +1,10 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import pickle
 
-from dassl.data.datasets import DATASET_REGISTRY, Datum, DatasetBase
+from dassl.data.datasets import DATASET_REGISTRY, DatasetBase, Datum
 from dassl.utils import mkdir_if_missing
 
 from .oxford_pets import OxfordPets
@@ -34,7 +37,7 @@ class FGVCAircraft(DatasetBase):
         if num_shots >= 1:
             seed = cfg.SEED
             preprocessed = os.path.join(self.split_fewshot_dir, f"shot_{num_shots}-seed_{seed}.pkl")
-            
+
             if os.path.exists(preprocessed):
                 print(f"Loading preprocessed few-shot data from {preprocessed}")
                 with open(preprocessed, "rb") as file:

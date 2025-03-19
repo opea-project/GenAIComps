@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from torch.nn import functional as F
 
 from dassl.engine import TRAINER_REGISTRY, TrainerXU

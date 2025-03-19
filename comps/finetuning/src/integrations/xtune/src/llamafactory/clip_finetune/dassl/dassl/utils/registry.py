@@ -1,3 +1,5 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 """
 Modified from https://github.com/facebookresearch/fvcore
 """
@@ -12,15 +14,14 @@ class Registry:
 
     .. code-block:: python
 
-        BACKBONE_REGISTRY = Registry('BACKBONE')
+        BACKBONE_REGISTRY = Registry("BACKBONE")
 
     To register an object:
 
     .. code-block:: python
 
         @BACKBONE_REGISTRY.register()
-        class MyBackbone(nn.Module):
-            ...
+        class MyBackbone(nn.Module): ...
 
     Or:
 
@@ -35,10 +36,7 @@ class Registry:
 
     def _do_register(self, name, obj, force=False):
         if name in self._obj_map and not force:
-            raise KeyError(
-                'An object named "{}" was already '
-                'registered in "{}" registry'.format(name, self._name)
-            )
+            raise KeyError('An object named "{}" was already ' 'registered in "{}" registry'.format(name, self._name))
 
         self._obj_map[name] = obj
 
@@ -58,10 +56,7 @@ class Registry:
 
     def get(self, name):
         if name not in self._obj_map:
-            raise KeyError(
-                'Object name "{}" does not exist '
-                'in "{}" registry'.format(name, self._name)
-            )
+            raise KeyError('Object name "{}" does not exist ' 'in "{}" registry'.format(name, self._name))
 
         return self._obj_map[name]
 

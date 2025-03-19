@@ -1,23 +1,24 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 import torch.nn as nn
 
 from dassl.data import DataManager
-from dassl.optim import build_optimizer, build_lr_scheduler
-from dassl.utils import count_num_param
-from dassl.engine import TRAINER_REGISTRY, TrainerXU
-from dassl.metrics import compute_accuracy
-from dassl.engine.trainer import SimpleNet
 from dassl.data.transforms import build_transform
+from dassl.engine import TRAINER_REGISTRY, TrainerXU
+from dassl.engine.trainer import SimpleNet
+from dassl.metrics import compute_accuracy
 from dassl.modeling.ops.utils import create_onehot
+from dassl.optim import build_lr_scheduler, build_optimizer
+from dassl.utils import count_num_param
 
 
 class Experts(nn.Module):
 
     def __init__(self, n_source, fdim, num_classes):
         super().__init__()
-        self.linears = nn.ModuleList(
-            [nn.Linear(fdim, num_classes) for _ in range(n_source)]
-        )
+        self.linears = nn.ModuleList([nn.Linear(fdim, num_classes) for _ in range(n_source)])
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, i, x):
@@ -125,17 +126,14 @@ class DAEL(TrainerXU):
         feat_x2 = [self.F(x) for x in input_x2]
         feat_u2 = self.F(input_u2)
 
-        for feat_xi, feat_x2i, label_xi, i in zip(
-            feat_x, feat_x2, label_x, domain_x
-        ):
+        for feat_xi, feat_x2i, label_xi, i in zip(feat_x, feat_x2, label_x, domain_x):
             cr_s = [j for j in domain_x if j != i]
 
             # Learning expert
             pred_xi = self.E(i, feat_xi)
             loss_x += (-label_xi * torch.log(pred_xi + 1e-5)).sum(1).mean()
             expert_label_xi = pred_xi.detach()
-            acc_x += compute_accuracy(pred_xi.detach(),
-                                      label_xi.max(1)[1])[0].item()
+            acc_x += compute_accuracy(pred_xi.detach(), label_xi.max(1)[1])[0].item()
 
             # Consistency regularization
             cr_pred = []
@@ -145,7 +143,7 @@ class DAEL(TrainerXU):
                 cr_pred.append(pred_j)
             cr_pred = torch.cat(cr_pred, 1)
             cr_pred = cr_pred.mean(1)
-            loss_cr += ((cr_pred - expert_label_xi)**2).sum(1).mean()
+            loss_cr += ((cr_pred - expert_label_xi) ** 2).sum(1).mean()
 
         loss_x /= self.n_domain
         loss_cr /= self.n_domain

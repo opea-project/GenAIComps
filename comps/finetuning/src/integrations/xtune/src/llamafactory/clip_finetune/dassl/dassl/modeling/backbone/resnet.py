@@ -1,8 +1,12 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 
-from .build import BACKBONE_REGISTRY
 from .backbone import Backbone
+from .build import BACKBONE_REGISTRY
+
 
 model_urls = {
     "resnet18": "https://download.pytorch.org/models/resnet18-5c106cde.pth",
@@ -14,15 +18,8 @@ model_urls = {
 
 
 def conv3x3(in_planes, out_planes, stride=1):
-    """3x3 convolution with padding"""
-    return nn.Conv2d(
-        in_planes,
-        out_planes,
-        kernel_size=3,
-        stride=stride,
-        padding=1,
-        bias=False
-    )
+    """3x3 convolution with padding."""
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
 
 
 class BasicBlock(nn.Module):
@@ -64,18 +61,9 @@ class Bottleneck(nn.Module):
         super().__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(
-            planes,
-            planes,
-            kernel_size=3,
-            stride=stride,
-            padding=1,
-            bias=False
-        )
+        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(
-            planes, planes * self.expansion, kernel_size=1, bias=False
-        )
+        self.conv3 = nn.Conv2d(planes, planes * self.expansion, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * self.expansion)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
@@ -106,23 +94,12 @@ class Bottleneck(nn.Module):
 
 class ResNet(Backbone):
 
-    def __init__(
-        self,
-        block,
-        layers,
-        ms_class=None,
-        ms_layers=[],
-        ms_p=0.5,
-        ms_a=0.1,
-        **kwargs
-    ):
+    def __init__(self, block, layers, ms_class=None, ms_layers=[], ms_p=0.5, ms_a=0.1, **kwargs):
         self.inplanes = 64
         super().__init__()
 
         # backbone network
-        self.conv1 = nn.Conv2d(
-            3, 64, kernel_size=7, stride=2, padding=3, bias=False
-        )
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -139,9 +116,7 @@ class ResNet(Backbone):
             self.mixstyle = ms_class(p=ms_p, alpha=ms_a)
             for layer_name in ms_layers:
                 assert layer_name in ["layer1", "layer2", "layer3"]
-            print(
-                f"Insert {self.mixstyle.__class__.__name__} after {ms_layers}"
-            )
+            print(f"Insert {self.mixstyle.__class__.__name__} after {ms_layers}")
         self.ms_layers = ms_layers
 
         self._init_params()
@@ -171,9 +146,7 @@ class ResNet(Backbone):
     def _init_params(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(
-                    m.weight, mode="fan_out", nonlinearity="relu"
-                )
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
             elif isinstance(m, nn.BatchNorm2d):
@@ -318,12 +291,7 @@ def resnet18_ms_l12(pretrained=True, **kwargs):
 def resnet18_ms_l1(pretrained=True, **kwargs):
     from dassl.modeling.ops import MixStyle
 
-    model = ResNet(
-        block=BasicBlock,
-        layers=[2, 2, 2, 2],
-        ms_class=MixStyle,
-        ms_layers=["layer1"]
-    )
+    model = ResNet(block=BasicBlock, layers=[2, 2, 2, 2], ms_class=MixStyle, ms_layers=["layer1"])
 
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet18"])
@@ -369,12 +337,7 @@ def resnet50_ms_l12(pretrained=True, **kwargs):
 def resnet50_ms_l1(pretrained=True, **kwargs):
     from dassl.modeling.ops import MixStyle
 
-    model = ResNet(
-        block=Bottleneck,
-        layers=[3, 4, 6, 3],
-        ms_class=MixStyle,
-        ms_layers=["layer1"]
-    )
+    model = ResNet(block=Bottleneck, layers=[3, 4, 6, 3], ms_class=MixStyle, ms_layers=["layer1"])
 
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet50"])
@@ -420,12 +383,7 @@ def resnet101_ms_l12(pretrained=True, **kwargs):
 def resnet101_ms_l1(pretrained=True, **kwargs):
     from dassl.modeling.ops import MixStyle
 
-    model = ResNet(
-        block=Bottleneck,
-        layers=[3, 4, 23, 3],
-        ms_class=MixStyle,
-        ms_layers=["layer1"]
-    )
+    model = ResNet(block=Bottleneck, layers=[3, 4, 23, 3], ms_class=MixStyle, ms_layers=["layer1"])
 
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet101"])
@@ -476,12 +434,7 @@ def resnet18_efdmix_l12(pretrained=True, **kwargs):
 def resnet18_efdmix_l1(pretrained=True, **kwargs):
     from dassl.modeling.ops import EFDMix
 
-    model = ResNet(
-        block=BasicBlock,
-        layers=[2, 2, 2, 2],
-        ms_class=EFDMix,
-        ms_layers=["layer1"]
-    )
+    model = ResNet(block=BasicBlock, layers=[2, 2, 2, 2], ms_class=EFDMix, ms_layers=["layer1"])
 
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet18"])
@@ -527,12 +480,7 @@ def resnet50_efdmix_l12(pretrained=True, **kwargs):
 def resnet50_efdmix_l1(pretrained=True, **kwargs):
     from dassl.modeling.ops import EFDMix
 
-    model = ResNet(
-        block=Bottleneck,
-        layers=[3, 4, 6, 3],
-        ms_class=EFDMix,
-        ms_layers=["layer1"]
-    )
+    model = ResNet(block=Bottleneck, layers=[3, 4, 6, 3], ms_class=EFDMix, ms_layers=["layer1"])
 
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet50"])
@@ -578,12 +526,7 @@ def resnet101_efdmix_l12(pretrained=True, **kwargs):
 def resnet101_efdmix_l1(pretrained=True, **kwargs):
     from dassl.modeling.ops import EFDMix
 
-    model = ResNet(
-        block=Bottleneck,
-        layers=[3, 4, 23, 3],
-        ms_class=EFDMix,
-        ms_layers=["layer1"]
-    )
+    model = ResNet(block=Bottleneck, layers=[3, 4, 23, 3], ms_class=EFDMix, ms_layers=["layer1"])
 
     if pretrained:
         init_pretrained_weights(model, model_urls["resnet101"])

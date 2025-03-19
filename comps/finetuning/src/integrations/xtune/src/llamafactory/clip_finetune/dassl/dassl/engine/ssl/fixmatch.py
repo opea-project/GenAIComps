@@ -1,10 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 from torch.nn import functional as F
 
 from dassl.data import DataManager
+from dassl.data.transforms import build_transform
 from dassl.engine import TRAINER_REGISTRY, TrainerXU
 from dassl.metrics import compute_accuracy
-from dassl.data.transforms import build_transform
 
 
 @TRAINER_REGISTRY.register()
@@ -42,11 +45,7 @@ class FixMatch(TrainerXU):
         acc_thre = n_masked_correct / (mask.sum() + 1e-5)
         acc_raw = y_pred.eq(y_true).sum() / y_pred.numel()  # raw accuracy
         keep_rate = mask.sum() / mask.numel()
-        output = {
-            "acc_thre": acc_thre,
-            "acc_raw": acc_raw,
-            "keep_rate": keep_rate
-        }
+        output = {"acc_thre": acc_thre, "acc_raw": acc_raw, "keep_rate": keep_rate}
         return output
 
     def forward_backward(self, batch_x, batch_u):
@@ -63,9 +62,7 @@ class FixMatch(TrainerXU):
             mask_u = (max_prob >= self.conf_thre).float()
 
             # Evaluate pseudo labels' accuracy
-            y_u_pred_stats = self.assess_y_pred_quality(
-                label_u_pred[n_x:], label_u, mask_u[n_x:]
-            )
+            y_u_pred_stats = self.assess_y_pred_quality(label_u_pred[n_x:], label_u, mask_u[n_x:])
 
         # Supervised loss
         output_x = self.model(input_x)

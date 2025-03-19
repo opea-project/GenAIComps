@@ -1,16 +1,17 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
 from collections import OrderedDict
-import math
 
 import torch
 import torch.nn as nn
-from torch.nn import functional as F
-from torch.cuda.amp import GradScaler, autocast
-
 from dassl.engine import TRAINER_REGISTRY, TrainerX
-from dassl.metrics import compute_accuracy
-from dassl.utils import load_pretrained_weights, load_checkpoint
-from dassl.optim import build_optimizer, build_lr_scheduler
+from dassl.optim import build_lr_scheduler, build_optimizer
+from dassl.utils import load_checkpoint, load_pretrained_weights
+from torch.cuda.amp import GradScaler, autocast
+from torch.nn import functional as F
+
 
 try:
     from clip import clip
@@ -96,12 +97,16 @@ class PromptLearner(nn.Module):
 
         self.ctx = nn.Parameter(ctx_vectors)
 
-        self.meta_net = nn.Sequential(OrderedDict([
-            ("linear1", nn.Linear(vis_dim, vis_dim // 16)),
-            ("relu", nn.ReLU(inplace=True)),
-            ("linear2", nn.Linear(vis_dim // 16, ctx_dim))
-        ]))
-        
+        self.meta_net = nn.Sequential(
+            OrderedDict(
+                [
+                    ("linear1", nn.Linear(vis_dim, vis_dim // 16)),
+                    ("relu", nn.ReLU(inplace=True)),
+                    ("linear2", nn.Linear(vis_dim // 16, ctx_dim)),
+                ]
+            )
+        )
+
         if cfg.TRAINER.COCOOP.PREC == "fp16":
             self.meta_net.half()
 
@@ -123,7 +128,7 @@ class PromptLearner(nn.Module):
         self.n_ctx = n_ctx
         self.tokenized_prompts = tokenized_prompts  # torch.Tensor
         self.name_lens = name_lens
-    
+
     def construct_prompts(self, ctx, prefix, suffix, label=None):
         # dim0 is either batch_size (during training) or n_cls (during testing)
         # ctx: context tokens, with shape of (dim0, n_ctx, ctx_dim)
@@ -137,7 +142,7 @@ class PromptLearner(nn.Module):
         prompts = torch.cat(
             [
                 prefix,  # (dim0, 1, dim)
-                ctx,     # (dim0, n_ctx, dim)
+                ctx,  # (dim0, n_ctx, dim)
                 suffix,  # (dim0, *, dim)
             ],
             dim=1,
@@ -148,12 +153,12 @@ class PromptLearner(nn.Module):
     def forward(self, im_features):
         prefix = self.token_prefix
         suffix = self.token_suffix
-        ctx = self.ctx                     # (n_ctx, ctx_dim)
+        ctx = self.ctx  # (n_ctx, ctx_dim)
         bias = self.meta_net(im_features)  # (batch, ctx_dim)
-        bias = bias.unsqueeze(1)           # (batch, 1, ctx_dim)
-        ctx = ctx.unsqueeze(0)             # (1, n_ctx, ctx_dim)
-        ctx_shifted = ctx + bias           # (batch, n_ctx, ctx_dim)
-        
+        bias = bias.unsqueeze(1)  # (batch, 1, ctx_dim)
+        ctx = ctx.unsqueeze(0)  # (1, n_ctx, ctx_dim)
+        ctx_shifted = ctx + bias  # (batch, n_ctx, ctx_dim)
+
         # Use instance-conditioned context tokens for all classes
         prompts = []
         for ctx_shifted_i in ctx_shifted:
@@ -161,7 +166,7 @@ class PromptLearner(nn.Module):
             pts_i = self.construct_prompts(ctx_i, prefix, suffix)  # (n_cls, n_tkn, ctx_dim)
             prompts.append(pts_i)
         prompts = torch.stack(prompts)
-        
+
         return prompts
 
 
@@ -183,7 +188,7 @@ class CustomCLIP(nn.Module):
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
         prompts = self.prompt_learner(image_features)
-        
+
         logits = []
         for pts_i, imf_i in zip(prompts, image_features):
             text_features = self.text_encoder(pts_i, tokenized_prompts)
@@ -191,10 +196,10 @@ class CustomCLIP(nn.Module):
             l_i = logit_scale * imf_i @ text_features.t()
             logits.append(l_i)
         logits = torch.stack(logits)
-        
+
         if self.prompt_learner.training:
             return F.cross_entropy(logits, label)
-        
+
         return logits
 
 
@@ -209,7 +214,7 @@ class CoCoOp(TrainerX):
 
         print(f"Loading CLIP (backbone: {cfg.MODEL.BACKBONE.NAME})")
         clip_model = load_clip_to_cpu(cfg)
-        
+
         if cfg.TRAINER.COCOOP.PREC == "fp32" or cfg.TRAINER.COCOOP.PREC == "amp":
             # CLIP's default precision is fp16
             clip_model.float()
@@ -219,11 +224,11 @@ class CoCoOp(TrainerX):
 
         print("Turning off gradients in both the image and the text encoder")
         name_to_update = "prompt_learner"
-        
+
         for name, param in self.model.named_parameters():
             if name_to_update not in name:
                 param.requires_grad_(False)
-        
+
         # Double check
         enabled = set()
         for name, param in self.model.named_parameters():
@@ -255,7 +260,7 @@ class CoCoOp(TrainerX):
         model = self.model
         optim = self.optim
         scaler = self.scaler
-        
+
         prec = self.cfg.TRAINER.COCOOP.PREC
         if prec == "amp":
             with autocast():

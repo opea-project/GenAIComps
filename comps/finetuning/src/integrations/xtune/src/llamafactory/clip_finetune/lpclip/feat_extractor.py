@@ -1,32 +1,22 @@
-import os, argparse
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import argparse
+import os
+import sys
+
 import numpy as np
 import torch
-import sys
+
 
 sys.path.append(os.path.abspath(".."))
 
-from datasets.oxford_pets import OxfordPets
-from datasets.oxford_flowers import OxfordFlowers
-from datasets.fgvc_aircraft import FGVCAircraft
-from datasets.dtd import DescribableTextures
-from datasets.eurosat import EuroSAT
-from datasets.stanford_cars import StanfordCars
-from datasets.food101 import Food101
-from datasets.sun397 import SUN397
-from datasets.caltech101 import Caltech101
-from datasets.ucf101 import UCF101
-from datasets.imagenet import ImageNet
-from datasets.imagenetv2 import ImageNetV2
-from datasets.imagenet_sketch import ImageNetSketch
-from datasets.imagenet_a import ImageNetA
-from datasets.imagenet_r import ImageNetR
-
-from dassl.utils import setup_logger, set_random_seed, collect_env_info
-from dassl.config import get_cfg_default
-from dassl.data.transforms import build_transform
-from dassl.data import DatasetWrapper
-
 import clip
+from dassl.config import get_cfg_default
+from dassl.data import DatasetWrapper
+from dassl.data.transforms import build_transform
+from dassl.utils import collect_env_info, set_random_seed, setup_logger
+
 
 # import pdb; pdb.set_trace()
 
@@ -63,8 +53,7 @@ def reset_cfg(cfg, args):
 
 
 def extend_cfg(cfg):
-    """
-    Add new config variables.
+    """Add new config variables.
 
     E.g.
         from yacs.config import CfgNode as CN

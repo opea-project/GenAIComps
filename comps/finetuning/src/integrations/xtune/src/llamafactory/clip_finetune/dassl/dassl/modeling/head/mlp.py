@@ -1,4 +1,8 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import functools
+
 import torch.nn as nn
 
 from .build import HEAD_REGISTRY

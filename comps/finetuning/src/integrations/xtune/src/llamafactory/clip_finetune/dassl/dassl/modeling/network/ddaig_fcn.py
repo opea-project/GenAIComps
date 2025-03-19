@@ -1,7 +1,10 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 """
 Credit to: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix
 """
 import functools
+
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -13,9 +16,7 @@ def init_network_weights(model, init_type="normal", gain=0.02):
 
     def _init_func(m):
         classname = m.__class__.__name__
-        if hasattr(m, "weight") and (
-            classname.find("Conv") != -1 or classname.find("Linear") != -1
-        ):
+        if hasattr(m, "weight") and (classname.find("Conv") != -1 or classname.find("Linear") != -1):
             if init_type == "normal":
                 nn.init.normal_(m.weight.data, 0.0, gain)
             elif init_type == "xavier":
@@ -25,10 +26,7 @@ def init_network_weights(model, init_type="normal", gain=0.02):
             elif init_type == "orthogonal":
                 nn.init.orthogonal_(m.weight.data, gain=gain)
             else:
-                raise NotImplementedError(
-                    "initialization method {} is not implemented".
-                    format(init_type)
-                )
+                raise NotImplementedError("initialization method {} is not implemented".format(init_type))
             if hasattr(m, "bias") and m.bias is not None:
                 nn.init.constant_(m.bias.data, 0.0)
         elif classname.find("BatchNorm2d") != -1:
@@ -46,15 +44,11 @@ def get_norm_layer(norm_type="instance"):
     if norm_type == "batch":
         norm_layer = functools.partial(nn.BatchNorm2d, affine=True)
     elif norm_type == "instance":
-        norm_layer = functools.partial(
-            nn.InstanceNorm2d, affine=False, track_running_stats=False
-        )
+        norm_layer = functools.partial(nn.InstanceNorm2d, affine=False, track_running_stats=False)
     elif norm_type == "none":
         norm_layer = None
     else:
-        raise NotImplementedError(
-            "normalization layer [%s] is not found" % norm_type
-        )
+        raise NotImplementedError("normalization layer [%s] is not found" % norm_type)
     return norm_layer
 
 
@@ -62,13 +56,9 @@ class ResnetBlock(nn.Module):
 
     def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
         super().__init__()
-        self.conv_block = self.build_conv_block(
-            dim, padding_type, norm_layer, use_dropout, use_bias
-        )
+        self.conv_block = self.build_conv_block(dim, padding_type, norm_layer, use_dropout, use_bias)
 
-    def build_conv_block(
-        self, dim, padding_type, norm_layer, use_dropout, use_bias
-    ):
+    def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias):
         conv_block = []
         p = 0
         if padding_type == "reflect":
@@ -78,9 +68,7 @@ class ResnetBlock(nn.Module):
         elif padding_type == "zero":
             p = 1
         else:
-            raise NotImplementedError(
-                "padding [%s] is not implemented" % padding_type
-            )
+            raise NotImplementedError("padding [%s] is not implemented" % padding_type)
 
         conv_block += [
             nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias),
@@ -98,9 +86,7 @@ class ResnetBlock(nn.Module):
         elif padding_type == "zero":
             p = 1
         else:
-            raise NotImplementedError(
-                "padding [%s] is not implemented" % padding_type
-            )
+            raise NotImplementedError("padding [%s] is not implemented" % padding_type)
         conv_block += [
             nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias),
             norm_layer(dim),
@@ -127,11 +113,7 @@ class LocNet(nn.Module):
         super().__init__()
 
         backbone = []
-        backbone += [
-            nn.Conv2d(
-                input_nc, nc, kernel_size=3, stride=2, padding=1, bias=False
-            )
-        ]
+        backbone += [nn.Conv2d(input_nc, nc, kernel_size=3, stride=2, padding=1, bias=False)]
         backbone += [nn.BatchNorm2d(nc)]
         backbone += [nn.ReLU(True)]
         for _ in range(n_blocks):
@@ -146,7 +128,7 @@ class LocNet(nn.Module):
             ]
             backbone += [nn.MaxPool2d(2, stride=2)]
         self.backbone = nn.Sequential(*backbone)
-        reduced_imsize = int(image_size * 0.5**(n_blocks + 1))
+        reduced_imsize = int(image_size * 0.5 ** (n_blocks + 1))
         self.fc_loc = nn.Linear(nc * reduced_imsize**2, 2 * 2)
 
     def forward(self, x):
@@ -189,11 +171,7 @@ class FCN(nn.Module):
             p = 1
         else:
             raise NotImplementedError
-        backbone += [
-            nn.Conv2d(
-                input_nc, nc, kernel_size=3, stride=1, padding=p, bias=False
-            )
-        ]
+        backbone += [nn.Conv2d(input_nc, nc, kernel_size=3, stride=1, padding=p, bias=False)]
         backbone += [norm_layer(nc)]
         backbone += [nn.ReLU(True)]
 
@@ -213,33 +191,25 @@ class FCN(nn.Module):
         self.gctx_fusion = None
         if gctx:
             self.gctx_fusion = nn.Sequential(
-                nn.Conv2d(
-                    2 * nc, nc, kernel_size=1, stride=1, padding=0, bias=False
-                ),
+                nn.Conv2d(2 * nc, nc, kernel_size=1, stride=1, padding=0, bias=False),
                 norm_layer(nc),
                 nn.ReLU(True),
             )
 
         self.regress = nn.Sequential(
-            nn.Conv2d(
-                nc, output_nc, kernel_size=1, stride=1, padding=0, bias=True
-            ),
+            nn.Conv2d(nc, output_nc, kernel_size=1, stride=1, padding=0, bias=True),
             nn.Tanh(),
         )
 
         self.locnet = None
         if stn:
-            self.locnet = LocNet(
-                input_nc, nc=nc, n_blocks=n_blocks, image_size=image_size
-            )
+            self.locnet = LocNet(input_nc, nc=nc, n_blocks=n_blocks, image_size=image_size)
 
     def init_loc_layer(self):
         """Initialize the weights/bias with identity transformation."""
         if self.locnet is not None:
             self.locnet.fc_loc.weight.data.zero_()
-            self.locnet.fc_loc.bias.data.copy_(
-                torch.tensor([1, 0, 0, 1], dtype=torch.float)
-            )
+            self.locnet.fc_loc.bias.data.copy_(torch.tensor([1, 0, 0, 1], dtype=torch.float))
 
     def stn(self, x):
         """Spatial transformer network."""
@@ -268,7 +238,7 @@ class FCN(nn.Module):
             x = self.gctx_fusion(x)
 
         p = self.regress(x)
-        x_p = input + lmda*p
+        x_p = input + lmda * p
 
         if return_stn_output:
             return x_p, p, input
@@ -298,15 +268,7 @@ def fcn_3x64_gctx(**kwargs):
 @NETWORK_REGISTRY.register()
 def fcn_3x32_gctx_stn(image_size=32, **kwargs):
     norm_layer = get_norm_layer(norm_type="instance")
-    net = FCN(
-        3,
-        3,
-        nc=32,
-        n_blocks=3,
-        norm_layer=norm_layer,
-        stn=True,
-        image_size=image_size
-    )
+    net = FCN(3, 3, nc=32, n_blocks=3, norm_layer=norm_layer, stn=True, image_size=image_size)
     init_network_weights(net, init_type="normal", gain=0.02)
     net.init_loc_layer()
     return net
@@ -315,15 +277,7 @@ def fcn_3x32_gctx_stn(image_size=32, **kwargs):
 @NETWORK_REGISTRY.register()
 def fcn_3x64_gctx_stn(image_size=224, **kwargs):
     norm_layer = get_norm_layer(norm_type="instance")
-    net = FCN(
-        3,
-        3,
-        nc=64,
-        n_blocks=3,
-        norm_layer=norm_layer,
-        stn=True,
-        image_size=image_size
-    )
+    net = FCN(3, 3, nc=64, n_blocks=3, norm_layer=norm_layer, stn=True, image_size=image_size)
     init_network_weights(net, init_type="normal", gain=0.02)
     net.init_loc_layer()
     return net

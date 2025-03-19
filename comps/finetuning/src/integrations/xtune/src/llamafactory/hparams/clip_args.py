@@ -16,14 +16,12 @@
 # limitations under the License.
 
 from dataclasses import dataclass, field
-from typing import Literal, Optional
+from typing import Optional
 
 
 @dataclass
 class ClipArguments:
-    r"""
-    Arguments pertaining to what data we are going to input our model for training and evaluation.
-    """
+    r"""Arguments pertaining to what data we are going to input our model for training and evaluation."""
 
     root: Optional[str] = field(
         default=None,
@@ -141,9 +139,9 @@ class ClipArguments:
         default=False,
         metadata={"help": "Whether or not to disable the mask on the prompt."},
     )
+
     def __post_init__(self):
         def split_arg(arg):
             if isinstance(arg, str):
                 return [item.strip() for item in arg.split(",")]
             return arg
-

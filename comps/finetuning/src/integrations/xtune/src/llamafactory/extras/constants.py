@@ -77,7 +77,7 @@ TRAINING_STAGES = {
     "KTO": "kto",
     "Pre-Training": "pt",
     "clip": "sft_clip",
-    "Adaclip": "sft_adaclip"
+    "Adaclip": "sft_adaclip",
 }
 CLIP_TRAINER = ["CLIP_Adapter_hf", "CLIP_Bias_hf", "CLIP_VPT_hf", "CLIP_Fullfinetune_hf", "Tip_Adapter"]
 

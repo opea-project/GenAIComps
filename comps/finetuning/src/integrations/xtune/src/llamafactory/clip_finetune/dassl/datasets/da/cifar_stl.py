@@ -1,9 +1,13 @@
-import sys
-import pprint as pp
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
-from torchvision.datasets import STL10, CIFAR10
+import pprint as pp
+import sys
 
 from dassl.utils import mkdir_if_missing
+from torchvision.datasets import CIFAR10, STL10
+
 
 cifar_label2name = {
     0: "airplane",
@@ -58,10 +62,7 @@ def extract_and_save_image(dataset, save_dir, discard, label2name):
             continue
         class_name = label2name[label]
         label_new = new_name2label[class_name]
-        class_dir = osp.join(
-            save_dir,
-            str(label_new).zfill(3) + "_" + class_name
-        )
+        class_dir = osp.join(save_dir, str(label_new).zfill(3) + "_" + class_name)
         mkdir_if_missing(class_dir)
         impath = osp.join(class_dir, str(i + 1).zfill(5) + ".jpg")
         img.save(impath)

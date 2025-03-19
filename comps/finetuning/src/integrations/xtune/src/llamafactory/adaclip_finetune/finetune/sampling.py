@@ -1,29 +1,35 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import random
-import numpy
+
 import numpy
 from numpy.random import choice
-from .utils import transform_importance_for_probs, importance_nvd_from_weights_update, groupwise_normalization
+
+from .utils import groupwise_normalization, importance_nvd_from_weights_update, transform_importance_for_probs
 
 
 class LisaDispatcherForCLIPSimplified:
-    def __init__(self, 
-        model, 
-        total_steps, 
-        active_ratio = 0.05, 
-        sampling_interval = 7, 
-        probs_update_func = 'sin-1', 
-        keep_module_keywords = [], 
-        normalization = True, 
-        num_groups = 2, 
-        metric = 'l2norm', 
-        warmup_steps = 500, 
-        warmup_decay = 0.1, 
-        accu_decay = False, 
-        prob_transform = 'power-2', 
-        **_
+    def __init__(
+        self,
+        model,
+        total_steps,
+        active_ratio=0.05,
+        sampling_interval=7,
+        probs_update_func="sin-1",
+        keep_module_keywords=[],
+        normalization=True,
+        num_groups=2,
+        metric="l2norm",
+        warmup_steps=500,
+        warmup_decay=0.1,
+        accu_decay=False,
+        prob_transform="power-2",
+        **_,
     ):
         self.init_clip_tunable = {
-            n: p.cpu().detach() for n, p in model.clip.named_parameters() 
+            n: p.cpu().detach()
+            for n, p in model.clip.named_parameters()
             if not any(kw in n for kw in keep_module_keywords) and p.requires_grad
         }
         self.clip_tunable_names = sorted(self.init_clip_tunable)
@@ -31,7 +37,12 @@ class LisaDispatcherForCLIPSimplified:
         self.active_ratio = active_ratio
         self.num_active = round(self.num_tunable * active_ratio)
         self.metric = metric
-        self.sampling_probs = numpy.array([1 / self.num_tunable, ] * self.num_tunable)
+        self.sampling_probs = numpy.array(
+            [
+                1 / self.num_tunable,
+            ]
+            * self.num_tunable
+        )
         self.importance_nvd = [(n, 0, self.init_clip_tunable[n].numel()) for n in self.clip_tunable_names]
         self.importance = [_[1] for _ in self.importance_nvd]
         self.transformed_importance = {n: 0 for n in self.clip_tunable_names}
@@ -54,18 +65,20 @@ class LisaDispatcherForCLIPSimplified:
         self.accu_decay = accu_decay
 
     def _get_probs_update_func(self, func_expr):
-        func_name, func_arg = func_expr.split('_')
+        func_name, func_arg = func_expr.split("_")
         max_val = float(func_arg)
-        if func_name == 'sin':
-            return lambda step: max_val * numpy.sin(0.5 * max(0, step - self.warmup_steps) / self.total_steps * numpy.pi)
-        if func_name == 'linear':
+        if func_name == "sin":
+            return lambda step: max_val * numpy.sin(
+                0.5 * max(0, step - self.warmup_steps) / self.total_steps * numpy.pi
+            )
+        if func_name == "linear":
             return lambda step: max_val * max(0, step - self.warmup_steps) / self.total_steps
-        if func_name == 'square':
+        if func_name == "square":
             return lambda step: max_val * (max(0, step - self.warmup_steps) / self.total_steps) ** 2
-        if func_name == 'const':
+        if func_name == "const":
             return lambda _: max_val
         else:
-            raise NotImplementedError(f'Function {func_name} is not implemented.')
+            raise NotImplementedError(f"Function {func_name} is not implemented.")
 
     def update_(self, model, step):
         if step % self.sampling_interval == 0:
@@ -81,10 +94,10 @@ class LisaDispatcherForCLIPSimplified:
                         # reset to equal
                         self.sampling_probs = numpy.ones_like(self.sampling_probs) / self.sampling_probs.size
                         self.warmup = False
-            
+
             if self.warmup and step < self.warmup_steps:
                 self.sampling_probs /= self.sampling_probs.sum()
-                
+
             return True
         else:
             return False
@@ -102,16 +115,13 @@ class LisaDispatcherForCLIPSimplified:
         return act_params
 
     def cal_sampling_probs(self, model):
-        clip_tunable = {
-            n: p.cpu().detach() for n, p in model.clip.named_parameters() 
-            if n in self.clip_tunable_names
-        }
+        clip_tunable = {n: p.cpu().detach() for n, p in model.clip.named_parameters() if n in self.clip_tunable_names}
         self.importance_nvd = importance_nvd_from_weights_update(
-            clip_tunable, 
-            self.init_clip_tunable, 
-            self.clip_tunable_names, 
-            metric=self.metric, 
-            update_count = self.update_count if self.accu_decay else None
+            clip_tunable,
+            self.init_clip_tunable,
+            self.clip_tunable_names,
+            metric=self.metric,
+            update_count=self.update_count if self.accu_decay else None,
         )
         if self.normalization:
             gn_importance_nvd, self.group_labels = groupwise_normalization(self.importance_nvd, self.num_groups)
@@ -131,32 +141,37 @@ class LisaDispatcherForCLIPSimplified:
         return self.clip_tunable_names[:]
 
     def write_probs(self, model, filepath):
-        with open(filepath, 'w') as f:
-            f.write('param,sampling_probs,probs,importance,transformed_importance,count\n')
+        with open(filepath, "w") as f:
+            f.write("param,sampling_probs,probs,importance,transformed_importance,count\n")
             probs = self.cal_sampling_probs(model)
-            for i, (n, p) in enumerate(sorted(zip(self.clip_tunable_names, self.sampling_probs), reverse=True, key=lambda _: _[1])):
-                f.write(f'{n},{p:.6g},{probs[i]:.6g},{self.importance[i]:.6g},{self.transformed_importance[i]:.6g},{self.update_count[n]}\n')
-
+            for i, (n, p) in enumerate(
+                sorted(zip(self.clip_tunable_names, self.sampling_probs), reverse=True, key=lambda _: _[1])
+            ):
+                f.write(
+                    f"{n},{p:.6g},{probs[i]:.6g},{self.importance[i]:.6g},{self.transformed_importance[i]:.6g},{self.update_count[n]}\n"
+                )
 
 
 class LisaDispatcherForCLIPSimplifiedG:
-    def __init__(self, 
-        model, 
-        total_steps, 
-        active_ratio = 0.05, 
-        sampling_interval = 7, 
-        probs_update_func = 'sin_1', 
-        keep_module_keywords = [], 
-        normalization = True, 
-        num_groups = 2, 
-        metric = 'l2norm', 
-        warmup_steps = 500, 
-        warmup_decay = 0.1, 
-        prob_transform = 'power-2', 
-        **_
+    def __init__(
+        self,
+        model,
+        total_steps,
+        active_ratio=0.05,
+        sampling_interval=7,
+        probs_update_func="sin_1",
+        keep_module_keywords=[],
+        normalization=True,
+        num_groups=2,
+        metric="l2norm",
+        warmup_steps=500,
+        warmup_decay=0.1,
+        prob_transform="power-2",
+        **_,
     ):
         self.clip_tunable = {
-            n: p for n, p in model.clip.named_parameters() 
+            n: p
+            for n, p in model.clip.named_parameters()
             if not any(kw in n for kw in keep_module_keywords) and p.requires_grad
         }
         self.clip_tunable_names = sorted(self.clip_tunable)
@@ -164,7 +179,12 @@ class LisaDispatcherForCLIPSimplifiedG:
         self.active_ratio = active_ratio
         self.num_active = round(self.num_tunable * active_ratio)
         self.metric = metric
-        self.sampling_probs = numpy.array([1 / self.num_tunable, ] * self.num_tunable)
+        self.sampling_probs = numpy.array(
+            [
+                1 / self.num_tunable,
+            ]
+            * self.num_tunable
+        )
         self.importance_nvd = [(n, 0, self.clip_tunable[n].numel()) for n in self.clip_tunable_names]
         self.importance = [_[1] for _ in self.importance_nvd]
         self.transformed_importance = {n: 0 for n in self.clip_tunable_names}
@@ -186,18 +206,20 @@ class LisaDispatcherForCLIPSimplifiedG:
         self.warmup = True if warmup_steps > 0 else False
 
     def _get_probs_update_func(self, func_expr):
-        func_name, func_arg = func_expr.split('_')
+        func_name, func_arg = func_expr.split("_")
         max_val = float(func_arg)
-        if func_name == 'sin':
-            return lambda step: max_val * numpy.sin(0.5 * max(0, step - self.warmup_steps) / self.total_steps * numpy.pi)
-        if func_name == 'linear':
+        if func_name == "sin":
+            return lambda step: max_val * numpy.sin(
+                0.5 * max(0, step - self.warmup_steps) / self.total_steps * numpy.pi
+            )
+        if func_name == "linear":
             return lambda step: max_val * max(0, step - self.warmup_steps) / self.total_steps
-        if func_name == 'square':
+        if func_name == "square":
             return lambda step: max_val * (max(0, step - self.warmup_steps) / self.total_steps) ** 2
-        if func_name == 'const':
+        if func_name == "const":
             return lambda _: max_val
         else:
-            raise NotImplementedError(f'Function {func_name} is not implemented.')
+            raise NotImplementedError(f"Function {func_name} is not implemented.")
 
     def update_(self, model, step):
         if step % self.sampling_interval == 0:
@@ -213,10 +235,10 @@ class LisaDispatcherForCLIPSimplifiedG:
                         # reset to equal
                         self.sampling_probs = numpy.ones_like(self.sampling_probs) / self.sampling_probs.size
                         self.warmup = False
-            
+
             if self.warmup and step < self.warmup_steps:
                 self.sampling_probs /= self.sampling_probs.sum()
-                
+
             return True
         else:
             return False
@@ -236,18 +258,15 @@ class LisaDispatcherForCLIPSimplifiedG:
     @staticmethod
     def _cal_new_importance_val(param, count, val):
         if param.requires_grad and param.grad is not None:
-            c = 1. / max(count, 1)
+            c = 1.0 / max(count, 1)
             return c * param.grad.norm().item() / numpy.sqrt(param.numel()) + (1 - c) * val
         else:
             return val
 
     def cal_sampling_probs(self, model):
         self.importance_nvd = [
-            (
-                n, 
-                self._cal_new_importance_val(self.clip_tunable[n], self.update_count[n], v), 
-                d
-            ) for n, v, d in self.importance_nvd
+            (n, self._cal_new_importance_val(self.clip_tunable[n], self.update_count[n], v), d)
+            for n, v, d in self.importance_nvd
         ]
         if self.normalization:
             gn_importance_nvd, self.group_labels = groupwise_normalization(self.importance_nvd, self.num_groups)
@@ -267,38 +286,40 @@ class LisaDispatcherForCLIPSimplifiedG:
         return self.clip_tunable_names[:]
 
     def write_probs(self, model, filepath):
-        with open(filepath, 'w') as f:
-            f.write('param,sampling_probs,probs,importance,transformed_importance,count\n')
+        with open(filepath, "w") as f:
+            f.write("param,sampling_probs,probs,importance,transformed_importance,count\n")
             probs = self.cal_sampling_probs(model)
-            for i, (n, p) in enumerate(sorted(zip(self.clip_tunable_names, self.sampling_probs), reverse=True, key=lambda _: _[1])):
-                f.write(f'{n},{p:.6g},{probs[i]:.6g},{self.importance[i]:.6g},{self.transformed_importance[i]:.6g},{self.update_count[n]}\n')
-
-
+            for i, (n, p) in enumerate(
+                sorted(zip(self.clip_tunable_names, self.sampling_probs), reverse=True, key=lambda _: _[1])
+            ):
+                f.write(
+                    f"{n},{p:.6g},{probs[i]:.6g},{self.importance[i]:.6g},{self.transformed_importance[i]:.6g},{self.update_count[n]}\n"
+                )
 
 
 ###################### DEPRECIATED #########################
-#⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇#
-
-
+# ⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇#
 
 
 class LisaDispatcherForCLIP:
-    def __init__(self, 
-        model, 
-        active_ratio = 0.05, 
-        sampling_interval = 7, 
-        probs_update_coeff = 0, 
-        probs_update_interval = -1, 
-        keep_module_keywords = [], 
-        boot_rounds = 5, 
-        normalization = True, 
-        num_groups = 2, 
-        metric = 'l2norm', 
-        prob_transform = 'power-2', 
-        **_
+    def __init__(
+        self,
+        model,
+        active_ratio=0.05,
+        sampling_interval=7,
+        probs_update_coeff=0,
+        probs_update_interval=-1,
+        keep_module_keywords=[],
+        boot_rounds=5,
+        normalization=True,
+        num_groups=2,
+        metric="l2norm",
+        prob_transform="power-2",
+        **_,
     ):
         self.init_clip_tunable = {
-            n: p.cpu().detach() for n, p in model.clip.named_parameters() 
+            n: p.cpu().detach()
+            for n, p in model.clip.named_parameters()
             if not any(kw in n for kw in keep_module_keywords) and p.requires_grad
         }
         self.clip_tunable_names = sorted(self.init_clip_tunable)
@@ -307,7 +328,12 @@ class LisaDispatcherForCLIP:
         self.num_active = round(self.num_tunable * active_ratio)
         self.probs_update_coeff = probs_update_coeff
         self.metric = metric
-        self.sampling_probs = numpy.array([1 / self.num_tunable, ] * self.num_tunable)
+        self.sampling_probs = numpy.array(
+            [
+                1 / self.num_tunable,
+            ]
+            * self.num_tunable
+        )
         self.importance_nvd = [(n, 0, self.init_clip_tunable[n].numel()) for n in self.clip_tunable_names]
         self.importance = [_[1] for _ in self.importance_nvd]
         self.transformed_importance = {n: 0 for n in self.clip_tunable_names}
@@ -342,18 +368,20 @@ class LisaDispatcherForCLIP:
                 self.update_count[act_param] += self.sampling_interval
             return True
         return False
-        
+
     def uniform_sampling_without_replacement(self):
         if self.num_active > self.num_tunable - self.boot_sample_index:
             # next cycle & shuffle
-            act_params = self.shuffled_clip_tunable_names[self.boot_sample_index:]
+            act_params = self.shuffled_clip_tunable_names[self.boot_sample_index :]
             random.shuffle(self.shuffled_clip_tunable_names)
             self.boot_sample_index = self.num_active - len(act_params)
-            act_params += self.shuffled_clip_tunable_names[:self.boot_sample_index]
+            act_params += self.shuffled_clip_tunable_names[: self.boot_sample_index]
         else:
-            act_params = self.shuffled_clip_tunable_names[self.boot_sample_index:self.boot_sample_index+self.num_active]
+            act_params = self.shuffled_clip_tunable_names[
+                self.boot_sample_index : self.boot_sample_index + self.num_active
+            ]
             self.boot_sample_index += self.num_active
-        
+
         self.boot_sampled += self.num_active
 
         return act_params
@@ -385,11 +413,10 @@ class LisaDispatcherForCLIP:
         return act_params
 
     def cal_sampling_probs(self, model):
-        clip_tunable = {
-            n: p.cpu().detach() for n, p in model.clip.named_parameters() 
-            if n in self.clip_tunable_names
-        }
-        self.importance_nvd = importance_nvd_from_weights_update(clip_tunable, self.init_clip_tunable, self.clip_tunable_names, metric=self.metric)
+        clip_tunable = {n: p.cpu().detach() for n, p in model.clip.named_parameters() if n in self.clip_tunable_names}
+        self.importance_nvd = importance_nvd_from_weights_update(
+            clip_tunable, self.init_clip_tunable, self.clip_tunable_names, metric=self.metric
+        )
         if self.normalization:
             gn_importance_nvd, self.group_labels = groupwise_normalization(self.importance_nvd, self.num_groups)
             self.importance = [_[1] for _ in gn_importance_nvd]
@@ -406,9 +433,12 @@ class LisaDispatcherForCLIP:
         return self.clip_tunable_names[:]
 
     def write_probs(self, model, filepath):
-        with open(filepath, 'w') as f:
-            f.write('param,sampling_probs,probs,importance,transformed_importance,count\n')
+        with open(filepath, "w") as f:
+            f.write("param,sampling_probs,probs,importance,transformed_importance,count\n")
             probs = self.cal_sampling_probs(model)
-            for i, (n, p) in enumerate(sorted(zip(self.clip_tunable_names, self.sampling_probs), reverse=True, key=lambda _: _[1])):
-                f.write(f'{n},{p:.6g},{probs[i]:.6g},{self.importance[i]:.6g},{self.transformed_importance[i]:.6g},{self.update_count[n]}\n')
-
+            for i, (n, p) in enumerate(
+                sorted(zip(self.clip_tunable_names, self.sampling_probs), reverse=True, key=lambda _: _[1])
+            ):
+                f.write(
+                    f"{n},{p:.6g},{probs[i]:.6g},{self.importance[i]:.6g},{self.transformed_importance[i]:.6g},{self.update_count[n]}\n"
+                )

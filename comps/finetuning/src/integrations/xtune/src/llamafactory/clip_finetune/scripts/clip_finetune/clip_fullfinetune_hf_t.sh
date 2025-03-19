@@ -1,15 +1,18 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # custom config
 TRAINER=CLIP_VPT_hf
 DATASET=$1
 CFG=$2  # rn50, rn101, vit_b32 or vit_b16
 PTL=$3
 DEEP=$4
-ACCEP=$5
+ACCEPT=$5
 DEVICE=$6
-if [ -z $ACCEP ]; then
-    ACCEP=0
+if [ -z $ACCEPT ]; then
+    ACCEPT=0
 fi
 if [ -z $PTL ]; then
     PTL=4
@@ -35,7 +38,7 @@ do
     --config-file configs/trainers/clip_finetune/${CFG}.yaml \
     --output-dir output/${TRAINER}_${i}/${CFG}/${DATASET} \
     --xpu $device \
-    TRAINER.COOP.ACC $ACCEP \
+    TRAINER.COOP.ACC $ACCEPT \
     TRAINER.COOP.N_PLN $PTL \
     TRAINER.COOP.PMT_DEEP $DEEP \
     TRAINER.COOP.N_CTX 16 \
@@ -44,5 +47,5 @@ do
     DATASET.NUM_SHOTS 0 \
     OPTIM.LR ${x[i-1]} \
     DATALOADER.TRAIN_X.BATCH_SIZE ${xx[i-1]} \
-    DATALOADER.TRAIN_U.BATCH_SIZE ${xx[i-1]} 
+    DATALOADER.TRAIN_U.BATCH_SIZE ${xx[i-1]}
 done

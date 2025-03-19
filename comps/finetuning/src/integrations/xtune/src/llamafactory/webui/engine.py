@@ -37,9 +37,7 @@ class Engine:
             create_ds_config()
 
     def _update_component(self, input_dict: Dict[str, Dict[str, Any]]) -> Dict["Component", "Component"]:
-        r"""
-        Gets the dict to update the components.
-        """
+        r"""Gets the dict to update the components."""
         output_dict: Dict["Component", "Component"] = {}
         for elem_id, elem_attr in input_dict.items():
             elem = self.manager.get_elem_by_id(elem_id)

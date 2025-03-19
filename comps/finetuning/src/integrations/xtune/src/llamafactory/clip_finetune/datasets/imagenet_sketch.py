@@ -1,6 +1,9 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 
-from dassl.data.datasets import DATASET_REGISTRY, Datum, DatasetBase
+from dassl.data.datasets import DATASET_REGISTRY, DatasetBase, Datum
 from dassl.utils import listdir_nohidden
 
 from .imagenet import ImageNet

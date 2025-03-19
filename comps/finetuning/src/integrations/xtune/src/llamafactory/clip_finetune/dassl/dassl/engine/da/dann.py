@@ -1,13 +1,16 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import numpy as np
 import torch
 import torch.nn as nn
 
-from dassl.optim import build_optimizer, build_lr_scheduler
-from dassl.utils import count_num_param
 from dassl.engine import TRAINER_REGISTRY, TrainerXU
 from dassl.metrics import compute_accuracy
 from dassl.modeling import build_head
 from dassl.modeling.ops import ReverseGrad
+from dassl.optim import build_lr_scheduler, build_optimizer
+from dassl.utils import count_num_param
 
 
 @TRAINER_REGISTRY.register()

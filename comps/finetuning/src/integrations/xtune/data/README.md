@@ -1,4 +1,4 @@
-The [dataset_info.json](dataset_info.json) contains all available datasets. If you are using a custom dataset, please **make sure** to add a *dataset description* in `dataset_info.json` and specify `dataset: dataset_name` before training to use it.
+The [dataset_info.json](dataset_info.json) contains all available datasets. If you are using a custom dataset, please **make sure** to add a _dataset description_ in `dataset_info.json` and specify `dataset: dataset_name` before training to use it.
 
 Currently we support datasets in **alpaca** and **sharegpt** format.
 
@@ -44,7 +44,7 @@ Currently we support datasets in **alpaca** and **sharegpt** format.
 
 ### Supervised Fine-Tuning Dataset
 
-* [Example dataset](alpaca_en_demo.json)
+- [Example dataset](alpaca_en_demo.json)
 
 In supervised fine-tuning, the `instruction` column will be concatenated with the `input` column and used as the human prompt, then the human prompt would be `instruction\ninput`. The `output` column represents the model response.
 
@@ -67,7 +67,7 @@ The `history` column is a list consisting of string tuples representing prompt-r
 ]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {
@@ -89,13 +89,10 @@ Regarding the above dataset, the *dataset description* in `dataset_info.json` sh
 In pre-training, only the `text` column will be used for model learning.
 
 ```json
-[
-  {"text": "document"},
-  {"text": "document"}
-]
+[{ "text": "document" }, { "text": "document" }]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {
@@ -123,7 +120,7 @@ It requires a better response in `chosen` column and a worse response in `reject
 ]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {
@@ -187,7 +184,7 @@ Note that the human and observation should appear in odd positions, while gpt an
 ]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {
@@ -240,7 +237,7 @@ Preference datasets in sharegpt format also require a better message in `chosen`
 ]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {
@@ -279,7 +276,7 @@ KTO datasets require a extra `kto_tag` column containing the boolean human feedb
 ]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {
@@ -313,14 +310,12 @@ The number of images should be identical to the `<image>` tokens in the conversa
         "value": "model response"
       }
     ],
-    "images": [
-      "image path (required)"
-    ]
+    "images": ["image path (required)"]
   }
 ]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {
@@ -354,14 +349,12 @@ The number of videos should be identical to the `<video>` tokens in the conversa
         "value": "model response"
       }
     ],
-    "videos": [
-      "video path (required)"
-    ]
+    "videos": ["video path (required)"]
   }
 ]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {
@@ -399,7 +392,7 @@ The openai format is simply a special case of the sharegpt format, where the fir
 ]
 ```
 
-Regarding the above dataset, the *dataset description* in `dataset_info.json` should be:
+Regarding the above dataset, the _dataset description_ in `dataset_info.json` should be:
 
 ```json
 "dataset_name": {

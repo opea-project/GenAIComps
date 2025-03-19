@@ -1,9 +1,13 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
-import random
 import os.path as osp
+import random
 import tarfile
 import zipfile
 from collections import defaultdict
+
 import gdown
 
 from dassl.utils import check_isfile
@@ -49,8 +53,7 @@ class DatasetBase:
     """A unified dataset class for
     1) domain adaptation
     2) domain generalization
-    3) semi-supervised learning
-    """
+    3) semi-supervised learning."""
 
     dataset_dir = ""  # the directory where the dataset is stored
     domains = []  # string names of all domains
@@ -113,13 +116,13 @@ class DatasetBase:
         container = set()
         for item in data_source:
             container.add((item.label, item.classname))
-        
+
         mapping = {label: classname for label, classname in container}
         labels = list(mapping.keys())
         labels.sort()
-        #print(labels)
+        # print(labels)
         classnames = [mapping[label] for label in labels]
-        #print(len(classnames))
+        # print(len(classnames))
         return mapping, classnames
 
     def check_input_domains(self, source_domains, target_domains):
@@ -131,10 +134,7 @@ class DatasetBase:
     def is_input_domain_valid(self, input_domains):
         for domain in input_domains:
             if domain not in self.domains:
-                raise ValueError(
-                    "Input domain must belong to {}, "
-                    "but got [{}]".format(self.domains, domain)
-                )
+                raise ValueError("Input domain must belong to {}, " "but got [{}]".format(self.domains, domain))
 
     def download_data(self, url, dst, from_gdrive=True):
         if not osp.exists(osp.dirname(dst)):
@@ -167,9 +167,7 @@ class DatasetBase:
 
         print("File extracted to {}".format(osp.dirname(dst)))
 
-    def generate_fewshot_dataset(
-        self, *data_sources, num_shots=-1, repeat=False
-    ):
+    def generate_fewshot_dataset(self, *data_sources, num_shots=-1, repeat=False):
         """Generate a few-shot dataset (typically for the training set).
 
         This function is useful when one wants to evaluate a model

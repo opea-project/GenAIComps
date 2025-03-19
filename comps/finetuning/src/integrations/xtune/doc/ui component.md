@@ -1,4 +1,5 @@
 ##
+
 <table width="100%" >
   <tr>
     <td align="center" width=30%><strong>Component for basic</strong></td>
@@ -40,6 +41,7 @@
 </table>
 
 ##
+
 <table width="100%" >
   <tr>
     <td align="center" width=30%><strong>Component for Clip_Finetune_tab</strong></td>
@@ -51,7 +53,7 @@
   <tr>
   <tr>
     <td align="center" width=30%>clip_finetune method</td>
-    <td align="center">releated method</td>
+    <td align="center">related method</td>
   <tr>
   <tr>
     <td align="center" width=30%>
@@ -69,6 +71,7 @@ clip_finetune few_shot_num</td>
 </table>
 
 ##
+
 <table width="100%" >
   <tr>
     <td align="center" width=30%><strong>Component for Adaclip_finetune_tab</strong></td>
@@ -92,8 +95,8 @@ clip_finetune few_shot_num</td>
   <tr>
 </table>
 
-
 ##
+
 <table width="100%" >
   <tr>
     <td align="center" width=30%><strong>Component for optuna configuration</strong></td>

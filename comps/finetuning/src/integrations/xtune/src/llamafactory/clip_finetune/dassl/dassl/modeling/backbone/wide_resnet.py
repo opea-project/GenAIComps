@@ -1,3 +1,5 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 """
 Modified from https://github.com/xternalz/WideResNet-pytorch
 """
@@ -5,8 +7,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .build import BACKBONE_REGISTRY
 from .backbone import Backbone
+from .build import BACKBONE_REGISTRY
 
 
 class BasicBlock(nn.Module):
@@ -15,35 +17,23 @@ class BasicBlock(nn.Module):
         super().__init__()
         self.bn1 = nn.BatchNorm2d(in_planes)
         self.relu1 = nn.LeakyReLU(0.01, inplace=True)
-        self.conv1 = nn.Conv2d(
-            in_planes,
-            out_planes,
-            kernel_size=3,
-            stride=stride,
-            padding=1,
-            bias=False
-        )
+        self.conv1 = nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_planes)
         self.relu2 = nn.LeakyReLU(0.01, inplace=True)
-        self.conv2 = nn.Conv2d(
-            out_planes,
-            out_planes,
-            kernel_size=3,
-            stride=1,
-            padding=1,
-            bias=False
-        )
+        self.conv2 = nn.Conv2d(out_planes, out_planes, kernel_size=3, stride=1, padding=1, bias=False)
         self.droprate = dropRate
         self.equalInOut = in_planes == out_planes
         self.convShortcut = (
-            (not self.equalInOut) and nn.Conv2d(
+            (not self.equalInOut)
+            and nn.Conv2d(
                 in_planes,
                 out_planes,
                 kernel_size=1,
                 stride=stride,
                 padding=0,
                 bias=False,
-            ) or None
+            )
+            or None
         )
 
     def forward(self, x):
@@ -60,17 +50,11 @@ class BasicBlock(nn.Module):
 
 class NetworkBlock(nn.Module):
 
-    def __init__(
-        self, nb_layers, in_planes, out_planes, block, stride, dropRate=0.0
-    ):
+    def __init__(self, nb_layers, in_planes, out_planes, block, stride, dropRate=0.0):
         super().__init__()
-        self.layer = self._make_layer(
-            block, in_planes, out_planes, nb_layers, stride, dropRate
-        )
+        self.layer = self._make_layer(block, in_planes, out_planes, nb_layers, stride, dropRate)
 
-    def _make_layer(
-        self, block, in_planes, out_planes, nb_layers, stride, dropRate
-    ):
+    def _make_layer(self, block, in_planes, out_planes, nb_layers, stride, dropRate):
         layers = []
         for i in range(int(nb_layers)):
             layers.append(
@@ -91,28 +75,18 @@ class WideResNet(Backbone):
 
     def __init__(self, depth, widen_factor, dropRate=0.0):
         super().__init__()
-        nChannels = [
-            16, 16 * widen_factor, 32 * widen_factor, 64 * widen_factor
-        ]
-        assert (depth-4) % 6 == 0
-        n = (depth-4) / 6
+        nChannels = [16, 16 * widen_factor, 32 * widen_factor, 64 * widen_factor]
+        assert (depth - 4) % 6 == 0
+        n = (depth - 4) / 6
         block = BasicBlock
         # 1st conv before any network block
-        self.conv1 = nn.Conv2d(
-            3, nChannels[0], kernel_size=3, stride=1, padding=1, bias=False
-        )
+        self.conv1 = nn.Conv2d(3, nChannels[0], kernel_size=3, stride=1, padding=1, bias=False)
         # 1st block
-        self.block1 = NetworkBlock(
-            n, nChannels[0], nChannels[1], block, 1, dropRate
-        )
+        self.block1 = NetworkBlock(n, nChannels[0], nChannels[1], block, 1, dropRate)
         # 2nd block
-        self.block2 = NetworkBlock(
-            n, nChannels[1], nChannels[2], block, 2, dropRate
-        )
+        self.block2 = NetworkBlock(n, nChannels[1], nChannels[2], block, 2, dropRate)
         # 3rd block
-        self.block3 = NetworkBlock(
-            n, nChannels[2], nChannels[3], block, 2, dropRate
-        )
+        self.block3 = NetworkBlock(n, nChannels[2], nChannels[3], block, 2, dropRate)
         # global average pooling and classifier
         self.bn1 = nn.BatchNorm2d(nChannels[3])
         self.relu = nn.LeakyReLU(0.01, inplace=True)
@@ -121,9 +95,7 @@ class WideResNet(Backbone):
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(
-                    m.weight, mode="fan_out", nonlinearity="relu"
-                )
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()

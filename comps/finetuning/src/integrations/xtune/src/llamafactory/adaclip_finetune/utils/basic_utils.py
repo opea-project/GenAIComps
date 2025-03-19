@@ -1,9 +1,12 @@
-import os
-import time
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import json
-import torch
+import os
 import random
+
 import numpy as np
+import torch
 
 
 class AverageMeter(object):
@@ -24,12 +27,14 @@ class AverageMeter(object):
 
 
 class NoOp(object):
-    """ useful for distributed training No-Ops """
+    """Useful for distributed training No-Ops."""
+
     def __getattr__(self, name):
         return self.noop
 
     def noop(self, *args, **kwargs):
         return
+
 
 def set_seeds(seed: int):
     """Set seeds for randomisation libraries.
@@ -37,13 +42,13 @@ def set_seeds(seed: int):
     Args:
         seed: the seed value
     """
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
-    torch.backends.cudnn.benchmark = False # avoid benchmarking every time input sizes changes
+    torch.backends.cudnn.benchmark = False  # avoid benchmarking every time input sizes changes
     torch.backends.cudnn.deterministic = True
 
 

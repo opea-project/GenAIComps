@@ -7,15 +7,15 @@
     "concat_captions": "concat",
     "max_txt_len": 64,
     "num_frm": 32,
-    "batch_size": 16, 
+    "batch_size": 16,
     "peft": {
-        "method": "bitfit", 
+        "method": "bitfit",
         "config": {
             "keep_module_keywords": [
-                "ln_post", 
-                "visual.proj", 
-                "ln_final", 
-                "text_projection", 
+                "ln_post",
+                "visual.proj",
+                "ln_final",
+                "text_projection",
                 "logit_scale"
             ]
         }

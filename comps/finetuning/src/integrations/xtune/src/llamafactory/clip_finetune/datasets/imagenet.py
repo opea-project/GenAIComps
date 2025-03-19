@@ -1,8 +1,11 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 import pickle
 from collections import OrderedDict
 
-from dassl.data.datasets import DATASET_REGISTRY, Datum, DatasetBase
+from dassl.data.datasets import DATASET_REGISTRY, DatasetBase, Datum
 from dassl.utils import listdir_nohidden, mkdir_if_missing
 
 from .oxford_pets import OxfordPets
@@ -42,7 +45,7 @@ class ImageNet(DatasetBase):
         if num_shots >= 1:
             seed = cfg.SEED
             preprocessed = os.path.join(self.split_fewshot_dir, f"shot_{num_shots}-seed_{seed}.pkl")
-            
+
             if os.path.exists(preprocessed):
                 print(f"Loading preprocessed few-shot data from {preprocessed}")
                 with open(preprocessed, "rb") as file:
@@ -63,8 +66,7 @@ class ImageNet(DatasetBase):
     @staticmethod
     def read_classnames(text_file):
         """Return a dictionary containing
-        key-value pairs of <folder name>: <class name>.
-        """
+        key-value pairs of <folder name>: <class name>."""
         classnames = OrderedDict()
         with open(text_file, "r") as f:
             lines = f.readlines()

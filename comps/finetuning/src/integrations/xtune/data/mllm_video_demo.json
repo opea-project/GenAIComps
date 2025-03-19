@@ -10,9 +10,7 @@
         "role": "assistant"
       }
     ],
-    "videos": [
-      "mllm_demo_data/1.mp4"
-    ]
+    "videos": ["mllm_demo_data/1.mp4"]
   },
   {
     "messages": [
@@ -25,9 +23,7 @@
         "role": "assistant"
       }
     ],
-    "videos": [
-      "mllm_demo_data/2.avi"
-    ]
+    "videos": ["mllm_demo_data/2.avi"]
   },
   {
     "messages": [
@@ -40,8 +36,6 @@
         "role": "assistant"
       }
     ],
-    "videos": [
-      "mllm_demo_data/3.mp4"
-    ]
+    "videos": ["mllm_demo_data/3.mp4"]
   }
 ]

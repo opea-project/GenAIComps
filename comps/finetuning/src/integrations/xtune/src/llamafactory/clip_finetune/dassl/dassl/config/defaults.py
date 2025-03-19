@@ -1,4 +1,8 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from yacs.config import CfgNode as CN
+
 
 ###########################
 # Config definition
@@ -55,7 +59,7 @@ _C.INPUT.COLORJITTER_H = 0.1
 # Random gray scale's probability
 _C.INPUT.RGS_P = 0.2
 # Gaussian blur
-_C.INPUT.GB_P = 0.5  # propability of applying this operation
+_C.INPUT.GB_P = 0.5  # probability of applying this operation
 _C.INPUT.GB_K = 21  # kernel size (should be an odd number)
 
 ###########################
@@ -133,7 +137,7 @@ _C.MODEL.ABS = False
 _C.MODEL.ABS_TOP = True
 _C.MODEL.ABS_GROUP = False
 _C.MODEL.ABS_GROUP_NAME = ["k_proj", "v_proj", "q_proj", "out_proj", "layrnorm", "mlp"]
-_C.MODEL.ABS_KEEP= 5
+_C.MODEL.ABS_KEEP = 5
 _C.MODEL.BACKBONE = CN()
 _C.MODEL.BACKBONE.NAME = ""
 _C.MODEL.BACKBONE.PRETRAINED = True
@@ -174,7 +178,7 @@ _C.OPTIM.BASE_LR_MULT = 0.1
 # Learning rate scheduler
 _C.OPTIM.LR_SCHEDULER = "single_step"
 # -1 or 0 means the stepsize is equal to max_epoch
-_C.OPTIM.STEPSIZE = (-1, )
+_C.OPTIM.STEPSIZE = (-1,)
 _C.OPTIM.GAMMA = 0.1
 _C.OPTIM.MAX_EPOCH = 10
 # Set WARMUP_EPOCH larger than 0 to activate warmup training

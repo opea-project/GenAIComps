@@ -1,18 +1,19 @@
-import torch
-import torch.nn as nn
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
 
+import torch
 from dassl.engine import TRAINER_REGISTRY, TrainerX
-from dassl.optim import build_optimizer, build_lr_scheduler
+
 
 try:
     from clip import clip
     from clip.simple_tokenizer import SimpleTokenizer as _Tokenizer
 except ImportError:
     from ..clip import clip
-    from ..clip.simple_tokenizer import SimpleTokenizer as _Tokenizer
 
 from .coop import load_clip_to_cpu
-from .imagenet_templates import IMAGENET_TEMPLATES, IMAGENET_TEMPLATES_SELECT
+from .imagenet_templates import IMAGENET_TEMPLATES_SELECT
+
 
 CUSTOM_TEMPLATES = {
     "OxfordPets": "a photo of a {}, a type of pet.",

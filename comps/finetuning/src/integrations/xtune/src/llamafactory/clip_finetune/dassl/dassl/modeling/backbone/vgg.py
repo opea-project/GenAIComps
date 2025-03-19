@@ -1,8 +1,12 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 import torch.nn as nn
 
-from .build import BACKBONE_REGISTRY
 from .backbone import Backbone
+from .build import BACKBONE_REGISTRY
+
 
 try:
     from torch.hub import load_state_dict_from_url
@@ -51,9 +55,7 @@ class VGG(Backbone):
     def _initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(
-                    m.weight, mode="fan_out", nonlinearity="relu"
-                )
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
             elif isinstance(m, nn.BatchNorm2d):
@@ -82,8 +84,7 @@ def make_layers(cfg, batch_norm=False):
 
 cfgs = {
     "A": [64, "M", 128, "M", 256, 256, "M", 512, 512, "M", 512, 512, "M"],
-    "B":
-    [64, 64, "M", 128, 128, "M", 256, 256, "M", 512, 512, "M", 512, 512, "M"],
+    "B": [64, 64, "M", 128, 128, "M", 256, 256, "M", 512, 512, "M", 512, 512, "M"],
     "D": [
         64,
         64,
@@ -132,10 +133,7 @@ cfgs = {
 
 def _vgg(arch, cfg, batch_norm, pretrained):
     init_weights = False if pretrained else True
-    model = VGG(
-        make_layers(cfgs[cfg], batch_norm=batch_norm),
-        init_weights=init_weights
-    )
+    model = VGG(make_layers(cfgs[cfg], batch_norm=batch_norm), init_weights=init_weights)
     if pretrained:
         state_dict = load_state_dict_from_url(model_urls[arch], progress=True)
         model.load_state_dict(state_dict, strict=False)

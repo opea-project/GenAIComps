@@ -1,5 +1,9 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import random
 from contextlib import contextmanager
+
 import torch
 import torch.nn as nn
 
@@ -74,9 +78,7 @@ class EFDMix(nn.Module):
         self._activated = True
 
     def __repr__(self):
-        return (
-            f"MixStyle(p={self.p}, alpha={self.alpha}, eps={self.eps}, mix={self.mix})"
-        )
+        return f"MixStyle(p={self.p}, alpha={self.alpha}, eps={self.eps}, mix={self.mix})"
 
     def set_activation_status(self, status=True):
         self._activated = status
@@ -114,5 +116,5 @@ class EFDMix(nn.Module):
 
         inverse_index = index_x.argsort(-1)
         x_view_copy = value_x[perm].gather(-1, inverse_index)
-        new_x = x_view + (x_view_copy - x_view.detach()) * (1-lmda)
+        new_x = x_view + (x_view_copy - x_view.detach()) * (1 - lmda)
         return new_x.view(B, C, W, H)

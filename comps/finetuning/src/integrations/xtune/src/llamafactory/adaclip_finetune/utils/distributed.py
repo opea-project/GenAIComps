@@ -1,11 +1,12 @@
-"""
-***From facebookresearch/maskrcnn-benchmark repo***
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""***From facebookresearch/maskrcnn-benchmark repo***
 This file contains primitives for multi-gpu communication.
+
 This is useful when doing distributed training.
 """
 
 import pickle
-import time
 
 import torch
 import torch.distributed as dist
@@ -52,10 +53,8 @@ def is_main_process():
 
 
 def synchronize():
-    """
-    Helper function to synchronize (barrier) among all processes when
-    using distributed training
-    """
+    """Helper function to synchronize (barrier) among all processes when
+    using distributed training."""
     if not dist.is_available():
         return
     if not dist.is_initialized():
@@ -139,9 +138,10 @@ def reduce_dict(input_dict, average=True):
 
 
 def reduce_loss_dict(loss_dict):
-    """
-    Reduce the loss dictionary from all processes so that process with rank
-    0 has the averaged results. Returns a dict with the same fields as
+    """Reduce the loss dictionary from all processes so that process with rank
+    0 has the averaged results.
+
+    Returns a dict with the same fields as
     loss_dict, after reduction.
     """
     world_size = get_world_size()

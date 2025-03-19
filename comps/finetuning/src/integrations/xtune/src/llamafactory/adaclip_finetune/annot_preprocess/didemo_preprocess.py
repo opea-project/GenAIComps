@@ -1,16 +1,18 @@
-"""
-Run this after you have the annotation files and all the videos downloaded.
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""Run this after you have the annotation files and all the videos downloaded.
 
 Annotations are from Localization Moments in Video with Natural Language: https://github.com/LisaAnne/LocalizingMoments/tree/master/data
 and Collaborative Experts: https://github.com/albanie/collaborative-experts/tree/master/misc/datasets/didemo
 
 Script outputs three json files, for train, val, and test.
 """
-import os
-import json
 import argparse
-from tqdm import tqdm
+import json
+import os
 from pathlib import Path
+
+from tqdm import tqdm
 from utils import is_exist
 
 
@@ -50,9 +52,9 @@ def main(args, subset):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="DiDeMo annotation preprocessing")
-    parser.add_argument('--video_dir', default='/mnt/sdb/angela/didemo/videos', help='path to downloaded videos')
-    parser.add_argument('--annot_dir', default='/mnt/sdb/angela/didemo/annots', help='path to annotation files')
-    parser.add_argument('--output_folder', default='annots/didemo')
+    parser.add_argument("--video_dir", default="/mnt/sdb/angela/didemo/videos", help="path to downloaded videos")
+    parser.add_argument("--annot_dir", default="/mnt/sdb/angela/didemo/annots", help="path to annotation files")
+    parser.add_argument("--output_folder", default="annots/didemo")
     args = parser.parse_args()
 
     main(args, "train")

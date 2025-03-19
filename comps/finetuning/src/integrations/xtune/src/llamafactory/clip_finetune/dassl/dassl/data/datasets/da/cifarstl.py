@@ -1,9 +1,12 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
 
 from dassl.utils import listdir_nohidden
 
+from ..base_dataset import DatasetBase, Datum
 from ..build import DATASET_REGISTRY
-from ..base_dataset import Datum, DatasetBase
 
 
 @DATASET_REGISTRY.register()
@@ -38,9 +41,7 @@ class CIFARSTL(DatasetBase):
         root = osp.abspath(osp.expanduser(cfg.DATASET.ROOT))
         self.dataset_dir = osp.join(root, self.dataset_dir)
 
-        self.check_input_domains(
-            cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS
-        )
+        self.check_input_domains(cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS)
 
         train_x = self._read_data(cfg.DATASET.SOURCE_DOMAINS, split="train")
         train_u = self._read_data(cfg.DATASET.TARGET_DOMAINS, split="train")

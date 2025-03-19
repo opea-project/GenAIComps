@@ -1,7 +1,10 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
 
+from ..base_dataset import DatasetBase, Datum
 from ..build import DATASET_REGISTRY
-from ..base_dataset import Datum, DatasetBase
 
 
 @DATASET_REGISTRY.register()
@@ -35,9 +38,7 @@ class PACS(DatasetBase):
             dst = osp.join(root, "pacs.zip")
             self.download_data(self.data_url, dst, from_gdrive=True)
 
-        self.check_input_domains(
-            cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS
-        )
+        self.check_input_domains(cfg.DATASET.SOURCE_DOMAINS, cfg.DATASET.TARGET_DOMAINS)
 
         train = self._read_data(cfg.DATASET.SOURCE_DOMAINS, "train")
         val = self._read_data(cfg.DATASET.SOURCE_DOMAINS, "crossval")
@@ -50,28 +51,17 @@ class PACS(DatasetBase):
 
         for domain, dname in enumerate(input_domains):
             if split == "all":
-                file_train = osp.join(
-                    self.split_dir, dname + "_train_kfold.txt"
-                )
+                file_train = osp.join(self.split_dir, dname + "_train_kfold.txt")
                 impath_label_list = self._read_split_pacs(file_train)
-                file_val = osp.join(
-                    self.split_dir, dname + "_crossval_kfold.txt"
-                )
+                file_val = osp.join(self.split_dir, dname + "_crossval_kfold.txt")
                 impath_label_list += self._read_split_pacs(file_val)
             else:
-                file = osp.join(
-                    self.split_dir, dname + "_" + split + "_kfold.txt"
-                )
+                file = osp.join(self.split_dir, dname + "_" + split + "_kfold.txt")
                 impath_label_list = self._read_split_pacs(file)
 
             for impath, label in impath_label_list:
                 classname = impath.split("/")[-2]
-                item = Datum(
-                    impath=impath,
-                    label=label,
-                    domain=domain,
-                    classname=classname
-                )
+                item = Datum(impath=impath, label=label, domain=domain, classname=classname)
                 items.append(item)
 
         return items

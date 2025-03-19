@@ -1,17 +1,28 @@
-from __future__ import print_function, division
-import os
-import time
-import subprocess
-from tqdm import tqdm
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import division, print_function
+
 import argparse
+import os
+import subprocess
+import time
 from multiprocessing import Pool
+
+from tqdm import tqdm
+
 
 parser = argparse.ArgumentParser(description="Dataset processor: Video->Frames")
 parser.add_argument("dir_path", type=str, help="original dataset path")
 parser.add_argument("dst_dir_path", type=str, help="dest path to save the frames")
 parser.add_argument("--prefix", type=str, default="image_%05d.jpg", help="output image type")
-parser.add_argument("--accepted_formats", type=str, default=[".mp4", ".mkv", ".webm", ".avi"], nargs="+",
-                    help="list of input video formats")
+parser.add_argument(
+    "--accepted_formats",
+    type=str,
+    default=[".mp4", ".mkv", ".webm", ".avi"],
+    nargs="+",
+    help="list of input video formats",
+)
 parser.add_argument("--begin", type=int, default=0)
 parser.add_argument("--end", type=int, default=666666666)
 parser.add_argument("--file_list", type=str, default="")
@@ -44,7 +55,7 @@ if __name__ == "__main__":
         if not any([x in file_name for x in args.accepted_formats]):
             del_list.append(i)
     file_names = [x for i, x in enumerate(file_names) if i not in del_list]
-    file_names = file_names[args.begin:args.end + 1]
+    file_names = file_names[args.begin : args.end + 1]
     print("%d videos to handle (after %d being removed)" % (len(file_names), len(del_list)))
     cmd_list = []
     for file_name in tqdm(file_names):
@@ -77,8 +88,9 @@ if __name__ == "__main__":
                 frame_size_str = "-vf scale=%d:-1" % args.frame_size
         else:
             frame_size_str = ""
-        cmd = 'ffmpeg -nostats -loglevel 0 -i {} -q:v 2 {} {} {}/{}'.format(video_file_path, frame_size_str, frame_rate_str,
-                                                                                   dst_directory_path, args.prefix)
+        cmd = "ffmpeg -nostats -loglevel 0 -i {} -q:v 2 {} {} {}/{}".format(
+            video_file_path, frame_size_str, frame_rate_str, dst_directory_path, args.prefix
+        )
         if not args.parallel:
             if args.dry_run:
                 print(cmd)

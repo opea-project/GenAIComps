@@ -1,19 +1,24 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import hashlib
 import os
 import urllib
 import warnings
-from typing import Union, List
+from typing import List, Union
 
 import torch
 from PIL import Image
-from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
+from torchvision.transforms import CenterCrop, Compose, Normalize, Resize, ToTensor
 from tqdm import tqdm
 
 from .model import build_model
 from .simple_tokenizer import SimpleTokenizer as _Tokenizer
 
+
 try:
     from torchvision.transforms import InterpolationMode
+
     BICUBIC = InterpolationMode.BICUBIC
 except ImportError:
     BICUBIC = Image.BICUBIC
@@ -54,7 +59,7 @@ def _download(url: str, root: str = os.path.expanduser("~/.cache/clip")):
             warnings.warn(f"{download_target} exists, but the SHA256 checksum does not match; re-downloading the file")
 
     with urllib.request.urlopen(url) as source, open(download_target, "wb") as output:
-        with tqdm(total=int(source.info().get("Content-Length")), ncols=80, unit='iB', unit_scale=True) as loop:
+        with tqdm(total=int(source.info().get("Content-Length")), ncols=80, unit="iB", unit_scale=True) as loop:
             while True:
                 buffer = source.read(8192)
                 if not buffer:
@@ -64,28 +69,30 @@ def _download(url: str, root: str = os.path.expanduser("~/.cache/clip")):
                 loop.update(len(buffer))
 
     if hashlib.sha256(open(download_target, "rb").read()).hexdigest() != expected_sha256:
-        raise RuntimeError(f"Model has been downloaded but the SHA256 checksum does not not match")
+        raise RuntimeError("Model has been downloaded but the SHA256 checksum does not not match")
 
     return download_target
 
 
 def _transform(n_px):
-    return Compose([
-        Resize(n_px, interpolation=BICUBIC),
-        CenterCrop(n_px),
-        lambda image: image.convert("RGB"),
-        ToTensor(),
-        Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
-    ])
+    return Compose(
+        [
+            Resize(n_px, interpolation=BICUBIC),
+            CenterCrop(n_px),
+            lambda image: image.convert("RGB"),
+            ToTensor(),
+            Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
+        ]
+    )
 
 
 def available_models() -> List[str]:
-    """Returns the names of available CLIP models"""
+    """Returns the names of available CLIP models."""
     return list(_MODELS.keys())
 
 
 def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", jit=False):
-    """Load a CLIP model
+    """Load a CLIP model.
 
     Parameters
     ----------
@@ -184,8 +191,7 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
 
 
 def tokenize(texts: Union[str, List[str]], context_length: int = 77, truncate: bool = False) -> torch.LongTensor:
-    """
-    Returns the tokenized representation of given input string(s)
+    """Returns the tokenized representation of given input string(s)
 
     Parameters
     ----------
@@ -217,6 +223,6 @@ def tokenize(texts: Union[str, List[str]], context_length: int = 77, truncate: b
                 tokens[-1] = eot_token
             else:
                 raise RuntimeError(f"Input {texts[i]} is too long for context length {context_length}")
-        result[i, :len(tokens)] = torch.tensor(tokens)
+        result[i, : len(tokens)] = torch.tensor(tokens)
 
     return result

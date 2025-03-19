@@ -1,8 +1,11 @@
-import sys
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
-from torchvision.datasets import SVHN, CIFAR10, CIFAR100
+import sys
 
 from dassl.utils import mkdir_if_missing
+from torchvision.datasets import CIFAR10, CIFAR100, SVHN
 
 
 def extract_and_save_image(dataset, save_dir):

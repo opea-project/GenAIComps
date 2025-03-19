@@ -1,10 +1,11 @@
-"""
-Replace text in python files.
-"""
-import glob
-import os.path as osp
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""Replace text in python files."""
 import argparse
 import fileinput
+import glob
+import os.path as osp
+
 
 EXTENSION = ".py"
 
@@ -37,14 +38,10 @@ def recursive_update(directory, text_to_search, replacement_text):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "file_or_dir", type=str, help="path to file or directory"
-    )
+    parser.add_argument("file_or_dir", type=str, help="path to file or directory")
     parser.add_argument("text_to_search", type=str, help="name to be replaced")
     parser.add_argument("replacement_text", type=str, help="new name")
-    parser.add_argument(
-        "--ext", type=str, default=".py", help="file extension"
-    )
+    parser.add_argument("--ext", type=str, default=".py", help="file extension")
     args = parser.parse_args()
 
     file_or_dir = args.file_or_dir

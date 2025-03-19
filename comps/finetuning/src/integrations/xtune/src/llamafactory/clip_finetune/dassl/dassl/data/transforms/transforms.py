@@ -1,16 +1,30 @@
-import numpy as np
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import random
+
+import numpy as np
 import torch
 import torchvision.transforms.functional as F
 from torchvision.transforms import (
-    Resize, Compose, ToTensor, Normalize, CenterCrop, RandomCrop, ColorJitter,
-    RandomApply, GaussianBlur, RandomGrayscale, RandomResizedCrop,
-    RandomHorizontalFlip
+    CenterCrop,
+    ColorJitter,
+    Compose,
+    GaussianBlur,
+    Normalize,
+    RandomApply,
+    RandomCrop,
+    RandomGrayscale,
+    RandomHorizontalFlip,
+    RandomResizedCrop,
+    Resize,
+    ToTensor,
 )
 from torchvision.transforms.functional import InterpolationMode
 
-from .autoaugment import SVHNPolicy, CIFAR10Policy, ImageNetPolicy
+from .autoaugment import CIFAR10Policy, ImageNetPolicy, SVHNPolicy
 from .randaugment import RandAugment, RandAugment2, RandAugmentFixMatch
+
 
 AVAI_CHOICES = [
     "random_flip",
@@ -53,9 +67,7 @@ class Random2DTranslation:
             ``torchvision.transforms.functional.InterpolationMode.BILINEAR``
     """
 
-    def __init__(
-        self, height, width, p=0.5, interpolation=InterpolationMode.BILINEAR
-    ):
+    def __init__(self, height, width, p=0.5, interpolation=InterpolationMode.BILINEAR):
         self.height = height
         self.width = width
         self.p = p
@@ -63,30 +75,16 @@ class Random2DTranslation:
 
     def __call__(self, img):
         if random.uniform(0, 1) > self.p:
-            return F.resize(
-                img=img,
-                size=[self.height, self.width],
-                interpolation=self.interpolation
-            )
+            return F.resize(img=img, size=[self.height, self.width], interpolation=self.interpolation)
 
         new_width = int(round(self.width * 1.125))
         new_height = int(round(self.height * 1.125))
-        resized_img = F.resize(
-            img=img,
-            size=[new_height, new_width],
-            interpolation=self.interpolation
-        )
+        resized_img = F.resize(img=img, size=[new_height, new_width], interpolation=self.interpolation)
         x_maxrange = new_width - self.width
         y_maxrange = new_height - self.height
         x1 = int(round(random.uniform(0, x_maxrange)))
         y1 = int(round(random.uniform(0, y_maxrange)))
-        croped_img = F.crop(
-            img=resized_img,
-            top=y1,
-            left=x1,
-            height=self.height,
-            width=self.width
-        )
+        croped_img = F.crop(img=resized_img, top=y1, left=x1, height=self.height, width=self.width)
 
         return croped_img
 
@@ -109,7 +107,7 @@ class InstanceNormalization:
         img_re = img.reshape(C, H * W)
         mean = img_re.mean(1).view(C, 1, 1)
         std = img_re.std(1).view(C, 1, 1)
-        return (img-mean) / (std + self.eps)
+        return (img - mean) / (std + self.eps)
 
 
 class Cutout:
@@ -120,7 +118,7 @@ class Cutout:
     Args:
         n_holes (int, optional): number of patches to cut out
             of each image. Default is 1.
-        length (int, optinal): length (in pixels) of each square
+        length (int, optional): length (in pixels) of each square
             patch. Default is 16.
     """
 
@@ -230,9 +228,7 @@ def _build_transform_train(cfg, choices, target_size, normalize):
     if "random_resized_crop" in choices:
         s_ = cfg.INPUT.RRCROP_SCALE
         print(f"+ random resized crop (size={input_size}, scale={s_})")
-        tfm_train += [
-            RandomResizedCrop(input_size, scale=s_, interpolation=interp_mode)
-        ]
+        tfm_train += [RandomResizedCrop(input_size, scale=s_, interpolation=interp_mode)]
 
     if "random_flip" in choices:
         print("+ random flip")
@@ -271,10 +267,7 @@ def _build_transform_train(cfg, choices, target_size, normalize):
         c_ = cfg.INPUT.COLORJITTER_C
         s_ = cfg.INPUT.COLORJITTER_S
         h_ = cfg.INPUT.COLORJITTER_H
-        print(
-            f"+ color jitter (brightness={b_}, "
-            f"contrast={c_}, saturation={s_}, hue={h_})"
-        )
+        print(f"+ color jitter (brightness={b_}, " f"contrast={c_}, saturation={s_}, hue={h_})")
         tfm_train += [
             ColorJitter(
                 brightness=b_,
@@ -303,15 +296,11 @@ def _build_transform_train(cfg, choices, target_size, normalize):
         tfm_train += [Cutout(cutout_n, cutout_len)]
 
     if "normalize" in choices:
-        print(
-            f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
-        )
+        print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
         tfm_train += [normalize]
 
     if "gaussian_noise" in choices:
-        print(
-            f"+ gaussian noise (mean={cfg.INPUT.GN_MEAN}, std={cfg.INPUT.GN_STD})"
-        )
+        print(f"+ gaussian noise (mean={cfg.INPUT.GN_MEAN}, std={cfg.INPUT.GN_STD})")
         tfm_train += [GaussianNoise(cfg.INPUT.GN_MEAN, cfg.INPUT.GN_STD)]
 
     if "instance_norm" in choices:
@@ -340,9 +329,7 @@ def _build_transform_test(cfg, choices, target_size, normalize):
     tfm_test += [ToTensor()]
 
     if "normalize" in choices:
-        print(
-            f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})"
-        )
+        print(f"+ normalization (mean={cfg.INPUT.PIXEL_MEAN}, std={cfg.INPUT.PIXEL_STD})")
         tfm_test += [normalize]
 
     if "instance_norm" in choices:

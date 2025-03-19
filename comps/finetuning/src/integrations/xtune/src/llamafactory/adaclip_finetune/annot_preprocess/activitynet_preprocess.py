@@ -1,13 +1,15 @@
-"""
-Run this after you have the annotation files and all the videos downloaded.
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+"""Run this after you have the annotation files and all the videos downloaded.
 
 Script outputs two json files, one for training, one for testing.
 """
-import os
-import json
 import argparse
-from tqdm import tqdm
+import json
+import os
 from pathlib import Path
+
+from tqdm import tqdm
 from utils import is_exist
 
 
@@ -41,9 +43,9 @@ def main(args, subset):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ActivityNet annotation preprocessing")
-    parser.add_argument('--video_dir', default='/mnt/sda/activitynet/videos', help='path to downloaded videos')
-    parser.add_argument('--annot_dir', default='/mnt/sda/activitynet/annots', help='path to annotation files')
-    parser.add_argument('--output_folder', default='annots/activitynet')
+    parser.add_argument("--video_dir", default="/mnt/sda/activitynet/videos", help="path to downloaded videos")
+    parser.add_argument("--annot_dir", default="/mnt/sda/activitynet/annots", help="path to annotation files")
+    parser.add_argument("--output_folder", default="annots/activitynet")
     args = parser.parse_args()
 
     main(args, "train")

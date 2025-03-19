@@ -1,14 +1,16 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os.path as osp
 
 import torch
 import torch.nn as nn
-from torch.nn import functional as F
-from torch.cuda.amp import GradScaler, autocast
-
 from dassl.engine import TRAINER_REGISTRY, TrainerX
 from dassl.metrics import compute_accuracy
-from dassl.utils import load_pretrained_weights, load_checkpoint
-from dassl.optim import build_optimizer, build_lr_scheduler
+from dassl.utils import load_checkpoint, load_pretrained_weights
+from torch.cuda.amp import GradScaler, autocast
+from torch.nn import functional as F
+
 
 try:
     from clip import clip
@@ -131,7 +133,7 @@ class PromptLearner(nn.Module):
             prompts = torch.cat(
                 [
                     prefix,  # (n_cls, 1, dim)
-                    ctx,     # (n_cls, n_ctx, dim)
+                    ctx,  # (n_cls, n_ctx, dim)
                     suffix,  # (n_cls, *, dim)
                 ],
                 dim=1,
@@ -149,11 +151,11 @@ class PromptLearner(nn.Module):
                 ctx_i_half2 = ctx[i : i + 1, half_n_ctx:, :]
                 prompt = torch.cat(
                     [
-                        prefix_i,     # (1, 1, dim)
+                        prefix_i,  # (1, 1, dim)
                         ctx_i_half1,  # (1, n_ctx//2, dim)
-                        class_i,      # (1, name_len, dim)
+                        class_i,  # (1, name_len, dim)
                         ctx_i_half2,  # (1, n_ctx//2, dim)
-                        suffix_i,     # (1, *, dim)
+                        suffix_i,  # (1, *, dim)
                     ],
                     dim=1,
                 )
@@ -171,8 +173,8 @@ class PromptLearner(nn.Module):
                 prompt = torch.cat(
                     [
                         prefix_i,  # (1, 1, dim)
-                        class_i,   # (1, name_len, dim)
-                        ctx_i,     # (1, n_ctx, dim)
+                        class_i,  # (1, name_len, dim)
+                        ctx_i,  # (1, n_ctx, dim)
                         suffix_i,  # (1, *, dim)
                     ],
                     dim=1,
@@ -229,7 +231,7 @@ class CoOp(TrainerX):
 
         print(f"Loading CLIP (backbone: {cfg.MODEL.BACKBONE.NAME})")
         clip_model = load_clip_to_cpu(cfg)
-        
+
         if cfg.TRAINER.COOP.PREC == "fp32" or cfg.TRAINER.COOP.PREC == "amp":
             # CLIP's default precision is fp16
             clip_model.float()
@@ -247,9 +249,9 @@ class CoOp(TrainerX):
 
         self.model.to(self.device)
         # NOTE: only give prompt_learner to the optimizer
-        #self.optim = build_optimizer(self.model.prompt_learner, cfg.OPTIM)
-        #self.sched = build_lr_scheduler(self.optim, cfg.OPTIM)
-        #self.register_model("prompt_learner", self.model.prompt_learner, self.optim, self.sched)
+        # self.optim = build_optimizer(self.model.prompt_learner, cfg.OPTIM)
+        # self.sched = build_lr_scheduler(self.optim, cfg.OPTIM)
+        # self.register_model("prompt_learner", self.model.prompt_learner, self.optim, self.sched)
 
         self.scaler = GradScaler() if cfg.TRAINER.COOP.PREC == "amp" else None
 
@@ -262,7 +264,7 @@ class CoOp(TrainerX):
 
     def forward_backward(self, batch):
         image, label = self.parse_batch_train(batch)
-        
+
         prec = self.cfg.TRAINER.COOP.PREC
         if prec == "amp":
             with autocast():

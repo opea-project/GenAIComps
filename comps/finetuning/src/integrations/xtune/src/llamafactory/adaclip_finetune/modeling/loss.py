@@ -1,10 +1,15 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 class CrossEn(nn.Module):
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         super(CrossEn, self).__init__()
 
     def forward(self, sim_matrix):
