@@ -24,6 +24,7 @@ jobs:
 
   Microservice-test:
     needs: job1
+    if: ${{ needs.job1.outputs.run_matrix.include != '' && !github.event.pull_request.draft }}
     strategy:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
     runs-on: ${{ matrix.hardware }}
@@ -31,7 +32,6 @@ jobs:
       id-token: write
       contents: read
     continue-on-error: true
-    if: ${{ !github.event.pull_request.draft }}
     steps:
       - name: Clean Up Working Directory
         run: |
