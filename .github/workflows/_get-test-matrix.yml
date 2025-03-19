@@ -10,6 +10,9 @@ on:
       run_matrix:
         description: "The matrix string"
         value: ${{ jobs.job1.outputs.run_matrix }}
+      is_empty:
+        description: "The matrix is empty or not"
+        value: ${{ jobs.job1.outputs.is_empty }}
 
 jobs:
   job1:
@@ -17,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       run_matrix: ${{ steps.get-test-matrix.outputs.run_matrix }}
+      is_empty: ${{ steps.get-test-matrix.outputs.is_empty }}
     if: ${{ !github.event.pull_request.draft }}
     steps:
       - name: Get checkout ref
