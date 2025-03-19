@@ -1,0 +1,11 @@
+{
+    "dataset": "activitynet",
+    "train_annot": "annots/activitynet/train.json",
+    "val_annot": "annots/activitynet/val.json",
+    "test_annot": "annots/activitynet/val.json",
+    "frames_dir": "/raid/activitynet/frames",
+    "concat_captions": "concat",
+    "max_txt_len": 64,
+    "num_frm": 64,
+    "batch_size": 16
+}

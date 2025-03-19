@@ -1,0 +1,11 @@
+{
+    "dataset": "didemo",
+    "train_annot": "annots/didemo/train.json",
+    "val_annot": "annots/didemo/val.json",
+    "test_annot": "annots/didemo/test.json",
+    "frames_dir": "/raid/didemo/frames",
+    "concat_captions": "concat",
+    "max_txt_len": 64,
+    "num_frm": 32,
+    "batch_size": 32
+}

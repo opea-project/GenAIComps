@@ -1,0 +1,11 @@
+{
+    "dataset": "msrvtt",
+    "train_annot": "annots/msrvtt-jsfusion/train.json",
+    "val_annot": "annots/msrvtt-jsfusion/val.json",
+    "test_annot": "annots/msrvtt-jsfusion/val.json",
+    "frames_dir": "/raid/msrvtt/frames",
+    "concat_captions": "indep-one",
+    "max_txt_len": 32,
+    "num_frm": 16,
+    "batch_size": 64
+}
