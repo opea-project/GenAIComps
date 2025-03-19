@@ -146,9 +146,7 @@ function main() {
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|deployment|\.yaml') || true
     echo "===========start find_test_1============"
     echo "changed_files=${changed_files}"
-    set -x
     find_test_1 "comps" 2 false
-    set +x
     sleep 1s
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_1============"
@@ -166,9 +164,7 @@ function main() {
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'deployment/docker_compose/compose' | grep '.yaml') || true
     echo "===========start find_test_3============"
     echo "changed_files=${changed_files}"
-    set -x
     find_test_3
-    set +x
     sleep 1s
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_3============"
@@ -176,6 +172,12 @@ function main() {
     run_matrix=$run_matrix"]}"
     echo "run_matrix=${run_matrix}"
     echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
+
+    if [[ $(echo "$run_matrix" | grep -c "service") != 0 ]]; then
+        is_empty="false"
+    fi
+    echo "is_empty=${is_empty}"
+    echo "is_empty=${is_empty}" >> $GITHUB_OUTPUT
 }
 
 main
