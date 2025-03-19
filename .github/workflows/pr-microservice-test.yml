@@ -24,7 +24,7 @@ jobs:
 
   Microservice-test:
     needs: job1
-    if: ${{ needs.job1.outputs.run_matrix.include != '' && !github.event.pull_request.draft }}
+    if: ${{ needs.job1.outputs.run_matrix.include != '[""]' && !github.event.pull_request.draft }}
     strategy:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
     runs-on: ${{ matrix.hardware }}
