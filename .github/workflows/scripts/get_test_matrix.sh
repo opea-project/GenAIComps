@@ -125,7 +125,7 @@ function find_test_3() {
             _service=${yaml_file#comps/}
             _service=${_service%/deployment/*}
             _service=${_service//\//_}
-            yaml_name=$(echo $yaml_file | cut -d'/' -f5)
+            yaml_name=$(basename $yaml_file)
             if [ "$yaml_name" != "compose.yaml" ]; then
                 _domain=${yaml_name%.yaml}
                 _domain=${_domain#compose_}
