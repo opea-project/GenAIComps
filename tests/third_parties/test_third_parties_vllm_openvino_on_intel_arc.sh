@@ -52,6 +52,7 @@ start_container() {
 
 # Function to test API endpoint
 function test_api_endpoint {
+
     local endpoint="$1"
     local expected_status="$2"
 
