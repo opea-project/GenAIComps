@@ -7,16 +7,16 @@ import time
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, UploadFile
-from integrations.elasticsearch import OpeaElasticSearchDataprep
-from integrations.milvus import OpeaMilvusDataprep
-from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
-from integrations.opensearch import OpeaOpenSearchDataprep
-from integrations.pgvect import OpeaPgvectorDataprep
-from integrations.pipecone import OpeaPineConeDataprep
-from integrations.qdrant import OpeaQdrantDataprep
-from integrations.redis import OpeaRedisDataprep
-from integrations.vdms import OpeaVdmsDataprep
-from opea_dataprep_loader import OpeaDataprepLoader
+from comps.dataprep.src.integrations.elasticsearch import OpeaElasticSearchDataprep
+from comps.dataprep.src.integrations.milvus import OpeaMilvusDataprep
+from comps.dataprep.src.integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
+from comps.dataprep.src.integrations.opensearch import OpeaOpenSearchDataprep
+from comps.dataprep.src.integrations.pgvect import OpeaPgvectorDataprep
+from comps.dataprep.src.integrations.pipecone import OpeaPineConeDataprep
+from comps.dataprep.src.integrations.qdrant import OpeaQdrantDataprep
+from comps.dataprep.src.integrations.redis import OpeaRedisDataprep
+from comps.dataprep.src.integrations.vdms import OpeaVdmsDataprep
+from comps.dataprep.src.opea_dataprep_loader import OpeaDataprepLoader
 
 from comps import (
     CustomLogger,
@@ -55,9 +55,13 @@ async def ingest_files(
     chunk_overlap: int = Form(100),
     process_table: bool = Form(False),
     table_strategy: str = Form("fast"),
-    ingest_from_graphDB: bool = Form(False),
+    key_index_name: Optional[str] = Form(None),
 ):
     start = time.time()
+    
+    if key_index_name:
+        # Set key_input_name to environment variable
+        os.environ['KEY_INDEX_NAME'] = key_index_name
 
     if logflag:
         logger.info(f"[ ingest ] files:{files}")
@@ -65,9 +69,7 @@ async def ingest_files(
 
     try:
         # Use the loader to invoke the component
-        response = await loader.ingest_files(
-            files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB
-        )
+        response = await loader.ingest_files(files, link_list, chunk_size, chunk_overlap, process_table, table_strategy)
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ ingest ] Output generated: {response}")
@@ -87,7 +89,7 @@ async def ingest_files(
     port=5000,
 )
 @register_statistics(names=["opea_service@dataprep"])
-async def get_files():
+async def get_files(key_index_name: Optional[str] = File(None)):
     start = time.time()
 
     if logflag:
@@ -95,7 +97,7 @@ async def get_files():
 
     try:
         # Use the loader to invoke the component
-        response = await loader.get_files()
+        response = await loader.get_files(key_index_name)
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ get ] ingested files: {response}")
@@ -134,6 +136,34 @@ async def delete_files(file_path: str = Body(..., embed=True)):
         logger.error(f"Error during dataprep delete invocation: {e}")
         raise
 
+@register_microservice(
+    name="opea_service@dataprep",
+    service_type=ServiceType.DATAPREP,
+    endpoint="/v1/dataprep/indices",
+    host="0.0.0.0",
+    port=5000,
+)
+@register_statistics(names=["opea_service@dataprep"])
+async def get_list_of_indices():
+    start = time.time()
+    if logflag:
+        logger.info("[ get ] start to get list of indices.")
+
+    try:
+        # Use the loader to invoke the component
+        response = await loader.get_list_of_indices()
+        
+        # Log the result if logging is enabled
+        if logflag:
+            logger.info(f"[ get ] list of indices: {response}")
+            
+        # Record statistics
+        statistics_dict["opea_service@dataprep"].append_latency(time.time() - start, None)
+        
+        return response
+    except Exception as e:
+        logger.error(f"Error during dataprep get list of indices: {e}")
+        raise
 
 if __name__ == "__main__":
     logger.info("OPEA Dataprep Microservice is starting...")
