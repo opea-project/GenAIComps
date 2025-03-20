@@ -2,7 +2,6 @@
 
 This microservice leverages LangChain to implement advanced text summarization strategies and facilitate Large Language Model (LLM) inference using Text Generation Inference (TGI) on Intel Xeon and Gaudi2 processors. Users can configure the backend service to utilize either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
 
-
 # Quick Start Guide
 
 ## Deployment options
@@ -30,7 +29,7 @@ Please make sure MAX_TOTAL_TOKENS should be larger than (MAX_INPUT_TOKENS + max_
 
 Step 1: Prepare backend LLM docker image.
 
-If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) for building the necessary Docker image. 
+If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) for building the necessary Docker image.
 
 TGI does not require additional setup.
 
@@ -85,16 +84,19 @@ export service_name="docsum-tgi"
 cd ../../deployment/docker_compose/
 docker compose -f compose_doc-summarization.yaml up ${service_name} -d
 ```
+
 ## 🚀2. Start Microservice with Kubernetes
 
 The **DocSum microservice** can be deployed on a **Kubernetes cluster** using the provided manifests.
 
 ### 2.1 Deployment Overview
+
 - Requires **a running Kubernetes cluster** and `kubectl` configured.
 - The service can be exposed using **ClusterIP, NodePort, or Ingress**.
 - Backend LLM service (**TGI or vLLM**) must be running.
 
 ### 2.2 Quick Deployment Steps
+
 Run the following commands to deploy:
 
 ```bash
@@ -102,8 +104,8 @@ kubectl apply -f deployment/k8s/docsum-deployment.yaml
 kubectl apply -f deployment/k8s/docsum-service.yaml
 kubectl apply -f deployment/k8s/docsum-ingress.yaml  # If using Ingress
 ```
-For detailed deployment steps and configuration options, refer to the [Kubernetes Deployment Guide](../../../llms/deployment).
 
+For detailed deployment steps and configuration options, refer to the [Kubernetes Deployment Guide](../../../llms/deployment).
 
 ## 🚀3. Consume LLM Service
 
