@@ -25,7 +25,7 @@ from .logger import CustomLogger
 
 logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
-ENABLE_OPEA_TELEMETRY = os.getenv("ENABLE_OPEA_TELEMETRY", "false").lower() == "true"
+ENABLE_OPEA_TELEMETRY = bool(os.environ.get("TELEMETRY_ENDPOINT"))
 
 
 class OrchestratorMetrics:
@@ -280,9 +280,7 @@ class ServiceOrchestrator(DAG):
                     # response.elapsed = time until first headers received
                     buffered_chunk_str = ""
                     is_first = True
-
                     for chunk in self.wrap_iterable(response.iter_content(chunk_size=None)):
-
                         if chunk:
                             if downstream:
                                 chunk = chunk.decode("utf-8")
@@ -304,10 +302,11 @@ class ServiceOrchestrator(DAG):
                                         res_txt, token_start, is_first=is_first, is_last=is_last
                                     )
                                     token_start = time.time()
+                                    is_first = False
                             else:
                                 token_start = self.metrics.token_update(token_start, is_first)
+                                is_first = False
                                 yield chunk
-                            is_first = False
 
                     self.metrics.request_update(req_start)
                     self.metrics.pending_update(False)
@@ -382,5 +381,6 @@ class ServiceOrchestrator(DAG):
         for token in tokens:
             token_start = self.metrics.token_update(token_start, is_first)
             yield prefix + repr(token.replace("\\n", "\n").encode("utf-8")) + suffix
+            is_first = False
         if is_last:
             yield "data: [DONE]\n\n"

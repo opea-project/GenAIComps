@@ -68,10 +68,25 @@ function validate_microservice() {
     -H 'Content-Type: application/json')
 
   if [[ $result == *"data: [DONE]"* ]]; then
-    echo "Result correct."
+    echo "Result correct using chat messages."
     echo "$result" >> ${LOG_PATH}/bedrock.log
   else
-    echo "Result wrong. Received was $result"
+    echo "Result wrong for chat messages. Received was $result"
+    docker logs bedrock-test >> ${LOG_PATH}/bedrock.log
+    exit 1
+  fi
+
+  # Test string message
+  result=$(http_proxy="" curl http://${ip_address}:${bedrock_port}/v1/chat/completions \
+    -X POST \
+    -d '{"model": "us.anthropic.claude-3-haiku-20240307-v1:0", "messages": "What is Deep Learning?", "max_tokens":17, "stream": "true"}' \
+    -H 'Content-Type: application/json')
+
+  if [[ $result == *"data: [DONE]"* ]]; then
+    echo "Result correct using string message."
+    echo "$result" >> ${LOG_PATH}/bedrock.log
+  else
+    echo "Result wrong for string message. Received was $result"
     docker logs bedrock-test >> ${LOG_PATH}/bedrock.log
     exit 1
   fi
