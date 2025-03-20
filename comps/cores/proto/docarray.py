@@ -102,7 +102,8 @@ class EmbedDoc(BaseDoc):
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
     constraints: Optional[Union[Dict[str, Any], List[Dict[str, Any]], None]] = None
-
+    index_name: Optional[str] = None
+    
 
 class EmbedMultimodalDoc(EmbedDoc):
     # extend EmbedDoc with these attributes
@@ -225,6 +226,7 @@ class LLMParams(BaseDoc):
     repetition_penalty: float = 1.03
     stream: bool = True
     language: str = "auto"  # can be "en", "zh"
+    key_index_name: Optional[str] = None
 
     chat_template: Optional[str] = Field(
         default=None,

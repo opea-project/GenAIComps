@@ -56,16 +56,16 @@ class OpeaRedisRetriever(OpeaComponent):
         if not health_status:
             logger.error("OpeaRedisRetriever health check failed.")
 
-    def _initialize_client(self) -> Redis:
+    def _initialize_client(self, index_name = INDEX_NAME) -> Redis:
         """Initializes the redis client."""
         try:
             if BRIDGE_TOWER_EMBEDDING:
                 logger.info(f"generate multimodal redis instance with {BRIDGE_TOWER_EMBEDDING}")
                 client = Redis(
-                    embedding=self.embeddings, index_name=INDEX_NAME, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL
+                    embedding=self.embeddings, index_name=index_name, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL
                 )
             else:
-                client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
+                client = Redis(embedding=self.embeddings, index_name=index_name, redis_url=REDIS_URL)
             return client
         except Exception as e:
             logger.error(f"fail to initialize redis client: {e}")
@@ -100,6 +100,9 @@ class OpeaRedisRetriever(OpeaComponent):
         """
         if logflag:
             logger.info(input)
+        
+        if input.index_name:
+            self.client = self._initialize_client(index_name=input.index_name)
 
         # check if the Redis index has data
         if self.client.client.keys() == []:
