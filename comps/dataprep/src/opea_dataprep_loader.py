@@ -37,6 +37,7 @@ class OpeaDataprepLoader(OpeaComponentLoader):
             logger.info("[ dataprep loader ] get indices")
         return self.component.get_list_of_indices(*args, **kwargs)
 
+
 class OpeaDataprepMultiModalLoader(OpeaComponentLoader):
     def __init__(self, component_name, **kwargs):
         super().__init__(component_name=component_name, **kwargs)

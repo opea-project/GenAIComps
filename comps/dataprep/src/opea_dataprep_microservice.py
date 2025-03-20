@@ -58,10 +58,10 @@ async def ingest_files(
     key_index_name: Optional[str] = Form(None),
 ):
     start = time.time()
-    
+
     if key_index_name:
         # Set key_input_name to environment variable
-        os.environ['KEY_INDEX_NAME'] = key_index_name
+        os.environ["KEY_INDEX_NAME"] = key_index_name
 
     if logflag:
         logger.info(f"[ ingest ] files:{files}")
@@ -136,6 +136,7 @@ async def delete_files(file_path: str = Body(..., embed=True)):
         logger.error(f"Error during dataprep delete invocation: {e}")
         raise
 
+
 @register_microservice(
     name="opea_service@dataprep",
     service_type=ServiceType.DATAPREP,
@@ -152,18 +153,19 @@ async def get_list_of_indices():
     try:
         # Use the loader to invoke the component
         response = await loader.get_list_of_indices()
-        
+
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ get ] list of indices: {response}")
-            
+
         # Record statistics
         statistics_dict["opea_service@dataprep"].append_latency(time.time() - start, None)
-        
+
         return response
     except Exception as e:
         logger.error(f"Error during dataprep get list of indices: {e}")
         raise
+
 
 if __name__ == "__main__":
     logger.info("OPEA Dataprep Microservice is starting...")

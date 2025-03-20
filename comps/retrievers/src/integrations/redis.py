@@ -56,7 +56,7 @@ class OpeaRedisRetriever(OpeaComponent):
         if not health_status:
             logger.error("OpeaRedisRetriever health check failed.")
 
-    def _initialize_client(self, index_name = INDEX_NAME) -> Redis:
+    def _initialize_client(self, index_name=INDEX_NAME) -> Redis:
         """Initializes the redis client."""
         try:
             if BRIDGE_TOWER_EMBEDDING:
@@ -100,7 +100,7 @@ class OpeaRedisRetriever(OpeaComponent):
         """
         if logflag:
             logger.info(input)
-            
+
         if input.index_name:
             self.client = self._initialize_client(index_name=input.index_name)
 

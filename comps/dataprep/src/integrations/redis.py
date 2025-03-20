@@ -102,7 +102,7 @@ REDIS_URL = format_redis_conn_from_env()
 redis_pool = redis.ConnectionPool.from_url(REDIS_URL)
 
 
-def check_index_existance(client, index_name: str=KEY_INDEX_NAME):
+def check_index_existance(client, index_name: str = KEY_INDEX_NAME):
     if logflag:
         logger.info(f"[ check index existence ] checking {client}")
     try:
@@ -116,7 +116,7 @@ def check_index_existance(client, index_name: str=KEY_INDEX_NAME):
         return None
 
 
-def create_index(client, index_name: str=KEY_INDEX_NAME):
+def create_index(client, index_name: str = KEY_INDEX_NAME):
     if logflag:
         logger.info(f"[ create index ] creating index {index_name}")
     try:
@@ -135,7 +135,9 @@ def store_by_id(client, key, value):
     if logflag:
         logger.info(f"[ store by id ] storing ids of {client.index_name + '_' + key}")
     try:
-        client.add_document(doc_id="file:" + client.index_name + '_' + key, file_name=client.index_name + '_' + key, key_ids=value)
+        client.add_document(
+            doc_id="file:" + client.index_name + "_" + key, file_name=client.index_name + "_" + key, key_ids=value
+        )
         if logflag:
             logger.info(f"[ store by id ] store document success. id: file:{client.index_name + '_' + key}")
     except Exception as e:
@@ -186,7 +188,7 @@ def delete_by_id(client, id):
 
 
 def ingest_chunks_to_redis(file_name: str, chunks: List):
-    KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")    
+    KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
     if logflag:
         logger.info(f"[ redis ingest chunks ] file name: '{file_name}' to '{KEY_INDEX_NAME}' index.")
     # Create vectorstore
@@ -229,7 +231,7 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
             index_name=KEY_INDEX_NAME,
             redis_url=REDIS_URL,
         )
-        keys = [k.replace(KEY_INDEX_NAME, KEY_INDEX_NAME + '_' + file_name) for k in keys]
+        keys = [k.replace(KEY_INDEX_NAME, KEY_INDEX_NAME + "_" + file_name) for k in keys]
         if logflag:
             logger.info(f"[ redis ingest chunks ] keys: {keys}")
         file_ids.extend(keys)
@@ -239,13 +241,13 @@ def ingest_chunks_to_redis(file_name: str, chunks: List):
     # store file_ids into index file-keys
     r = redis.Redis(connection_pool=redis_pool)
     client = r.ft(KEY_INDEX_NAME)
-    
+
     if not check_index_existance(client):
         assert create_index(client, index_name=KEY_INDEX_NAME)
-    
+
     try:
         assert store_by_id(client, key=file_name, value="#".join(file_ids))
-        
+
     except Exception as e:
         if logflag:
             logger.info(f"[ redis ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
@@ -294,7 +296,7 @@ def ingest_data_to_redis(doc_path: DocPath):
         logger.info(f"[ redis ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
 
     file_name = doc_path.path.split("/")[-1]
-    
+
     return ingest_chunks_to_redis(file_name, chunks)
 
 
@@ -371,13 +373,15 @@ class OpeaRedisDataprep(OpeaComponent):
         if logflag:
             logger.info(f"[ redis ingest ] files:{files}")
             logger.info(f"[ redis ingest ] link_list:{link_list}")
-            
+
         KEY_INDEX_NAME = os.getenv("KEY_INDEX_NAME", "file-keys")
         if KEY_INDEX_NAME != "file-keys":
-            logger.info(f"KEY_INDEX_NAME: {KEY_INDEX_NAME} is different than the default one. Setting up the parameters.")
+            logger.info(
+                f"KEY_INDEX_NAME: {KEY_INDEX_NAME} is different than the default one. Setting up the parameters."
+            )
             self.data_index_client = self.client.ft(INDEX_NAME)
             self.key_index_client = self.client.ft(KEY_INDEX_NAME)
-                        
+
         if files:
             if not isinstance(files, list):
                 files = [files]
@@ -385,7 +389,7 @@ class OpeaRedisDataprep(OpeaComponent):
 
             for file in files:
                 encode_file = encode_filename(file.filename)
-                doc_id = "file:" + KEY_INDEX_NAME + '_' + encode_file
+                doc_id = "file:" + KEY_INDEX_NAME + "_" + encode_file
                 if logflag:
                     logger.info(f"[ redis ingest ] processing file {doc_id}")
 
@@ -395,7 +399,9 @@ class OpeaRedisDataprep(OpeaComponent):
                     try:
                         key_ids = search_by_id(self.key_index_client, doc_id).key_ids
                         if logflag:
-                            logger.info(f"[ redis ingest] File '{file.filename}' already exists in '{KEY_INDEX_NAME}' index.")
+                            logger.info(
+                                f"[ redis ingest] File '{file.filename}' already exists in '{KEY_INDEX_NAME}' index."
+                            )
                     except Exception as e:
                         logger.info(f"[ redis ingest] File {file.filename} does not exist.")
                     if key_ids:
@@ -406,7 +412,7 @@ class OpeaRedisDataprep(OpeaComponent):
 
                 save_path = upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                
+
                 ingest_data_to_redis(
                     DocPath(
                         path=save_path,
@@ -474,7 +480,7 @@ class OpeaRedisDataprep(OpeaComponent):
             "type": "File",
             "parent": "",
         }"""
-        
+
         if key_index_name is None:
             key_index_name = KEY_INDEX_NAME
         if logflag:
@@ -627,15 +633,13 @@ class OpeaRedisDataprep(OpeaComponent):
             raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
 
     def get_list_of_indices(self):
-        """
-        Retrieves a list of all indices from the Redis client.
-        
+        """Retrieves a list of all indices from the Redis client.
+
         Returns:
             A list of index names as strings.
         """
         # Execute the command to list all indices
-        indices = self.client.execute_command('FT._LIST')
+        indices = self.client.execute_command("FT._LIST")
         # Decode each index name from bytes to string
-        indices_list = [item.decode('utf-8') for item in indices]
+        indices_list = [item.decode("utf-8") for item in indices]
         return indices_list
-    
