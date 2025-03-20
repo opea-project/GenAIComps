@@ -7,16 +7,16 @@ import time
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, UploadFile
-from comps.dataprep.src.integrations.elasticsearch import OpeaElasticSearchDataprep
-from comps.dataprep.src.integrations.milvus import OpeaMilvusDataprep
-from comps.dataprep.src.integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
-from comps.dataprep.src.integrations.opensearch import OpeaOpenSearchDataprep
-from comps.dataprep.src.integrations.pgvect import OpeaPgvectorDataprep
-from comps.dataprep.src.integrations.pipecone import OpeaPineConeDataprep
-from comps.dataprep.src.integrations.qdrant import OpeaQdrantDataprep
-from comps.dataprep.src.integrations.redis import OpeaRedisDataprep
-from comps.dataprep.src.integrations.vdms import OpeaVdmsDataprep
-from comps.dataprep.src.opea_dataprep_loader import OpeaDataprepLoader
+from integrations.elasticsearch import OpeaElasticSearchDataprep
+from integrations.milvus import OpeaMilvusDataprep
+from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
+from integrations.opensearch import OpeaOpenSearchDataprep
+from integrations.pgvect import OpeaPgvectorDataprep
+from integrations.pipecone import OpeaPineConeDataprep
+from integrations.qdrant import OpeaQdrantDataprep
+from integrations.redis import OpeaRedisDataprep
+from integrations.vdms import OpeaVdmsDataprep
+from opea_dataprep_loader import OpeaDataprepLoader
 
 from comps import (
     CustomLogger,
