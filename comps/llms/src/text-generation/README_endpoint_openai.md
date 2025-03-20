@@ -65,7 +65,6 @@ Then you can test the OPEA text generation service that wrapped the endpoint, wi
 ```
 curl http://localhost:9000/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer testkey" \
   -d '{
   "model": "'${LLM_MODEL_ID}'",
   "messages": [
@@ -76,3 +75,4 @@ curl http://localhost:9000/v1/chat/completions \
   ]
 }'
 ```
+
