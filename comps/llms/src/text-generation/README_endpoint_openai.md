@@ -75,4 +75,3 @@ curl http://localhost:9000/v1/chat/completions \
   ]
 }'
 ```
-
