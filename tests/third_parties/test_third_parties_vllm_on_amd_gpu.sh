@@ -1,6 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Advanced Micro Devices, Inc.
 
 set -x
 
@@ -11,28 +10,34 @@ echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
 echo "TAG=${TAG}"
 
 WORKPATH=$(dirname "$PWD")
+WORKDIR=${WORKPATH}/../
 export host_ip=$(hostname -I | awk '{print $1}')
-LOG_PATH="$WORKPATH/tests"
-service_name="vllm-openvino-arc"
+LOG_PATH="$WORKPATH"
+service_name="vllm-rocm-server"
+docker_container_name="vllm-server"
 
 function build_container() {
-    cd $WORKPATH
-    docker build --no-cache -t  ${REGISTRY:-opea}/vllm-arc:${TAG:-latest}  -f comps/third_parties/vllm/src/Dockerfile.intel_gpu  .  --build-arg https_proxy=$https_proxy  --build-arg http_proxy=$http_proxy
-
+    cd $WORKPATH/comps/third_parties/vllm/src
+    docker build --no-cache -t ${REGISTRY:-opea}/vllm-rocm:${TAG:-latest} \
+      -f Dockerfile.amd_gpu \
+      . \
+      --build-arg https_proxy=$https_proxy \
+      --build-arg http_proxy=$http_proxy
     if [ $? -ne 0 ]; then
-        echo "vllm-arc built fail"
+        echo "vllm-rocm built fail"
         exit 1
     else
-        echo "vllm-arc built successful"
+        echo "vllm-rocm built successful"
     fi
 }
 
 # Function to start Docker container
 start_container() {
-    export LLM_ENDPOINT_PORT=12206
-    export HF_CACHE_DIR=${model_cache:-"$HOME/.cache/huggingface"}
-    export RENDER_GROUP_ID=110
-    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export VLLM_SERVICE_PORT=28011
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+    export HF_CACHE_DIR="./data"
+    export VLLM_LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export TENSOR_PARALLEL_SIZE=1
 
     cd $WORKPATH/comps/third_parties/vllm/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -40,30 +45,29 @@ start_container() {
     # check whether service is fully ready
     n=0
     until [[ "$n" -ge 300 ]]; do
-        docker logs $service_name > /tmp/$service_name.log 2>&1
+        docker logs ${docker_container_name} > ${LOG_PATH}/${docker_container_name}.log 2>&1
         n=$((n+1))
-        if grep -q "Uvicorn running on" /tmp/$service_name.log; then
+        if grep -q "Application startup complete" ${LOG_PATH}/${docker_container_name}.log; then
             break
         fi
-        sleep 3s
+        sleep 10s
     done
 
 }
 
 # Function to test API endpoint
 function test_api_endpoint {
-
     local endpoint="$1"
     local expected_status="$2"
 
     # Make the HTTP request
     if test "$1" = "v1/completions"
     then
-        local response=$(curl "http://localhost:$LLM_ENDPOINT_PORT/$endpoint" \
+        local response=$(curl "http://${host_ip}:${VLLM_SERVICE_PORT}/$endpoint" \
           -H "Content-Type: application/json" \
           -d '{
                 "model": "Intel/neural-chat-7b-v3-3",
-                "prompt": "What is the key advantage of Openvino framework",
+                "prompt": "What is deep learning?",
                 "max_tokens": 300,
                 "temperature": 0.7
               }' \
@@ -71,7 +75,7 @@ function test_api_endpoint {
           --silent \
           --output /dev/null)
     else
-        local response=$(curl "http://localhost:$LLM_ENDPOINT_PORT/$endpoint" \
+        local response=$(curl "http://${host_ip}:${VLLM_SERVICE_PORT}/$endpoint" \
           --write-out '%{http_code}' \
           --silent \
           --output /dev/null)
@@ -88,8 +92,8 @@ function test_api_endpoint {
 }
 
 function stop_docker() {
-    cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
+    cd $WORKPATH/../comps/third_parties/vllm/deployment/docker_compose
+    docker compose -f compose.yaml down ${service_name} --remove-orphans
 }
 
 # Main function

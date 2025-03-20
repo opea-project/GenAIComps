@@ -12,7 +12,7 @@ iopath
 langchain
 langchain-community
 langchain-core
-numpy
+numpy==1.26.4
 omegaconf
 opencv-python-headless
 opentelemetry-api
