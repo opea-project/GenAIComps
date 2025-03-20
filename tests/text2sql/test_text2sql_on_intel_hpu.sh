@@ -14,7 +14,7 @@ export TAG='comps'
 
 export TEXT2SQL_PORT=11701
 export LLM_ENDPOINT_PORT=11711
-
+export DATA_PATH=${model_cache}
 
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
