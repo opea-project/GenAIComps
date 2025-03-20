@@ -14,7 +14,7 @@ WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
 service_name="docsum-vllm"
-
+export DATA_PATH=${model_cache}
 function build_docker_images() {
     cd $WORKPATH
     git clone https://github.com/vllm-project/vllm.git
