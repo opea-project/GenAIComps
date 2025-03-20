@@ -264,7 +264,6 @@ class ServiceOrchestrator(DAG):
                     url=endpoint,
                     data=json.dumps(inputs),
                     headers={
-                    headers={"Content-type": "application/json"},
                         "Content-type": "application/json",
                         "Authorization": f"Bearer {access_token}"
                     },
