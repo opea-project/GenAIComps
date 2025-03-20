@@ -263,10 +263,7 @@ class ServiceOrchestrator(DAG):
                 response = requests.post(
                     url=endpoint,
                     data=json.dumps(inputs),
-                    headers={
-                        "Content-type": "application/json",
-                        "Authorization": f"Bearer {access_token}"
-                    },
+                    headers={"Content-type": "application/json", "Authorization": f"Bearer {access_token}"},
                     proxies={"http": None},
                     stream=True,
                     timeout=1000,
@@ -295,9 +292,9 @@ class ServiceOrchestrator(DAG):
                                         url=downstream_endpoint,
                                         data=json.dumps({"text": buffered_chunk_str}),
                                         headers={
-                                        "Content-type": "application/json",
-                                        "Authorization": f"Bearer {access_token}"  # Replace access_token with your actual token
-                                    },
+                                            "Content-type": "application/json",
+                                            "Authorization": f"Bearer {access_token}",  # Replace access_token with your actual token
+                                        },
                                         proxies={"http": None},
                                     )
                                     res_json = res.json()
