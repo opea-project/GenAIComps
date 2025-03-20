@@ -43,6 +43,7 @@ export ip_address=$(hostname -I | awk '{print $1}')
 export LVM_PORT=9399
 export LLAMA_VISION_PORT=11510
 export LVM_ENDPOINT=http://$ip_address:$LLAMA_VISION_PORT
+export LLM_MODEL_ID="meta-llama/Llama-3.2-11B-Vision-Instruct"
 
 docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up lvm-llama-vision llama-vision-service -d
 ```
