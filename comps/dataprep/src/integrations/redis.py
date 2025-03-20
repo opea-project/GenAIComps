@@ -102,7 +102,7 @@ REDIS_URL = format_redis_conn_from_env()
 redis_pool = redis.ConnectionPool.from_url(REDIS_URL)
 
 
-async def check_index_existance(client, index_name: str = KEY_INDEX_NAME)::
+async def check_index_existance(client, index_name: str = KEY_INDEX_NAME):
     if logflag:
         logger.info(f"[ check index existence ] checking {client}")
     try:
@@ -473,7 +473,7 @@ class OpeaRedisDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
-    async def get_files(self):
+    async def get_files(self, key_index_name=KEY_INDEX_NAME):
         """Get file structure from redis database in the format of
         {
             "name": "File Name",
@@ -482,6 +482,9 @@ class OpeaRedisDataprep(OpeaComponent):
             "parent": "",
         }"""
 
+        if key_index_name is None:
+            key_index_name = KEY_INDEX_NAME
+            
         if logflag:
             logger.info("[ redis get ] start to get file structure")
 
@@ -489,20 +492,21 @@ class OpeaRedisDataprep(OpeaComponent):
         file_list = []
 
         # check index existence
-        res = await check_index_existance(self.key_index_client)
+        res = key_index_name in self.get_list_of_indices()
+        
         if not res:
             if logflag:
-                logger.info(f"[ redis get ] index {KEY_INDEX_NAME} does not exist")
+                logger.info(f"[ redis get ] index {key_index_name} does not exist")
             return file_list
 
         while True:
             response = self.client.execute_command(
-                "FT.SEARCH", KEY_INDEX_NAME, "*", "LIMIT", offset, offset + SEARCH_BATCH_SIZE
+                "FT.SEARCH", key_index_name, "*", "LIMIT", offset, offset + SEARCH_BATCH_SIZE
             )
             # no doc retrieved
             if len(response) < 2:
                 break
-            file_list = format_search_results(response, file_list)
+            file_list = format_search_results(response, key_index_name, file_list)
             offset += SEARCH_BATCH_SIZE
             # last batch
             if (len(response) - 1) // 2 < SEARCH_BATCH_SIZE:
@@ -630,3 +634,16 @@ class OpeaRedisDataprep(OpeaComponent):
             if logflag:
                 logger.info(f"[ redis delete ] Delete folder {file_path} is not supported for now.")
             raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
+
+    def get_list_of_indices(self):
+        """
+        Retrieves a list of all indices from the Redis client.
+        
+        Returns:
+            A list of index names as strings.
+        """
+        # Execute the command to list all indices
+        indices = self.client.execute_command('FT._LIST')
+        # Decode each index name from bytes to string
+        indices_list = [item.decode('utf-8') for item in indices]
+        return indices_list
