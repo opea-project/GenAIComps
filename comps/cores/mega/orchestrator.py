@@ -25,6 +25,8 @@ from .logger import CustomLogger
 
 logger = CustomLogger("comps-core-orchestrator")
 LOGFLAG = os.getenv("LOGFLAG", False)
+
+API_KEY_TOKENS = os.getenv("API_KEY_TOKEN", "EMPTY")
 ENABLE_OPEA_TELEMETRY = bool(os.environ.get("TELEMETRY_ENDPOINT"))
 
 
@@ -262,7 +264,7 @@ class ServiceOrchestrator(DAG):
                 response = requests.post(
                     url=endpoint,
                     data=json.dumps(inputs),
-                    headers={"Content-type": "application/json"},
+                    headers={"Content-type": "application/json", "Authorization": f"Bearer {API_KEY_TOKENS}"},
                     proxies={"http": None},
                     stream=True,
                     timeout=1000,
