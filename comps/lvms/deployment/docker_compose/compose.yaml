@@ -93,8 +93,8 @@ services:
       retries: 20
     command: --model-id ${LLM_MODEL_ID} --max-input-length 4096 --max-total-tokens 8192
   llama-vision-service:
-    image: opea/lvm-llama-vision:latest
-    container_name: lvm-llama-vision-service
+    image: ${REGISTRY:-opea}/lvm-llama-vision:${TAG:-latest}
+    container_name: llama-vision-service
     ports:
       - ${LLAMA_VISION_PORT:-9399}:9399
     runtime: habana
@@ -105,10 +105,16 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      LLAMA_VISION_MODEL_ID: ${LLAMA_VISION_MODEL_ID}
+      LLAMA_VISION_MODEL_ID: ${LLM_MODEL_ID}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
       HABANA_VISIBLE_DEVICES: all
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9399/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20
   predictionguard-service:
     image: ${REGISTRY:-opea}/lvm-pg:${TAG:-latest}
     container_name: predictionguard-service
@@ -153,6 +159,7 @@ services:
       LVM_ENDPOINT: ${LVM_ENDPOINT}
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
+      LOGFLAG: ${LOGFLAG}
   lvm-llava:
     extends: lvm
     container_name: lvm-llava-service

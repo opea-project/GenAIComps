@@ -9,7 +9,7 @@ Visual Question and Answering is one of the multimodal tasks empowered by LVMs (
 #### Build Llama Vision Model
 
 ```bash
-cd ../../../
+cd GenAIComps
 docker build -t opea/lvm-llama-vision:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile .
 ```
 
@@ -24,7 +24,7 @@ docker build -t opea/lvm-llama-vision-tp:latest --build-arg https_proxy=$https_p
 #### Build Llama Vision Guard Model
 
 ```bash
-cd ../../../
+cd GenAIComps
 docker build -t opea/lvm-llama-vision-guard:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile.guard .
 ```
 
@@ -44,7 +44,7 @@ If you need to run the 90B models, use the following command:
 ```bash
 export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
 export WORLD_SIZE=4
-export no_proxy=localhosst,127.0.0.1
+export no_proxy=localhost,127.0.0.1
 docker run -it -p 9599:9599 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e no_proxy=$no_proxy -e MODEL_ID="meta-llama/Llama-3.2-90B-Vision-Instruct" -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e WORLD_SIZE=$WORLD_SIZE --runtime=habana -e HABANA_VISIBLE_DEVICES=all -e OMPI_MCA_btl_vader_single_copy_mechanism=none --cap-add=sys_nice opea/lvm-llama-vision-tp:latest
 ```
 
