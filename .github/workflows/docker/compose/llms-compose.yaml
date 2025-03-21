@@ -11,6 +11,10 @@ services:
     build:
       dockerfile: comps/llms/src/text-generation/Dockerfile.intel_hpu
     image: ${REGISTRY:-opea}/llm-textgen-gaudi:${TAG:-latest}
+  llm-textgen-phi4-gaudi:
+    build:
+      dockerfile: comps/llms/src/text-generation/Dockerfile.intel_hpu_phi4
+    image: ${REGISTRY:-opea}/llm-textgen-phi4-gaudi:${TAG:-latest}
   llm-docsum:
     build:
       dockerfile: comps/llms/src/doc-summarization/Dockerfile
