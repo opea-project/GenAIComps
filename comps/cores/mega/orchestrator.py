@@ -29,6 +29,7 @@ LOGFLAG = os.getenv("LOGFLAG", False)
 API_KEY_TOKENS = os.getenv("API_KEY_TOKEN", "EMPTY")
 ENABLE_OPEA_TELEMETRY = bool(os.environ.get("TELEMETRY_ENDPOINT"))
 
+
 class OrchestratorMetrics:
     # Need an static class-level ID for metric prefix because:
     # - Prometheus requires metrics (their names) to be unique
