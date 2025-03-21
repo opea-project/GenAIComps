@@ -23,7 +23,7 @@ export POSTGRES_PASSWORD=testpwd
 export POSTGRES_DB=chinook
 
 export service_name="text2sql-gaudi"
-
+export DATA_PATH=${model_cache}
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t opea/text2sql:$TAG -f comps/text2sql/src/Dockerfile .

@@ -7,7 +7,7 @@ set -xe
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 service_name="reranking-tei-gaudi"
-
+export DATA_PATH=${model_cache}
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache \

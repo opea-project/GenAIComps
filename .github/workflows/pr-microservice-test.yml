@@ -66,6 +66,7 @@ jobs:
         run: |
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
+          export model_cache="/data2/huggingface"
           timeout 60m bash $(find . -type f -name test_${service}.sh)
 
       - name: Clean up container

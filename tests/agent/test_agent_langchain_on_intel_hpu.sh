@@ -11,10 +11,10 @@ echo "========================="
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 tgi_port=8085
-tgi_volume=$WORKPATH/data
+tgi_volume=${model_cache:-$WORKPATH/data}
 
 vllm_port=8086
-export HF_CACHE_DIR=/data2/huggingface
+export HF_CACHE_DIR=${model_cache:-/data2/huggingface}
 echo  "HF_CACHE_DIR=$HF_CACHE_DIR"
 ls $HF_CACHE_DIR
 export vllm_volume=${HF_CACHE_DIR}

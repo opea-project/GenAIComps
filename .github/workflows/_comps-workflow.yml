@@ -32,6 +32,11 @@ on:
         description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
+      use_model_cache:
+        default: false
+        description: "use model cache true or false"
+        required: false
+        type: boolean
 
 jobs:
   ####################################################################################################
@@ -111,6 +116,7 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       service: ${{ inputs.service }}
+      use_model_cache: ${{ inputs.use_model_cache }}
     secrets: inherit
 
   ####################################################################################################

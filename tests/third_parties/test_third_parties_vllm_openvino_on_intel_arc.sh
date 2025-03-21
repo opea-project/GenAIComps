@@ -30,7 +30,7 @@ function build_container() {
 # Function to start Docker container
 start_container() {
     export LLM_ENDPOINT_PORT=12206
-    export HF_CACHE_DIR=$HOME/.cache/huggingface
+    export HF_CACHE_DIR=${model_cache:-"$HOME/.cache/huggingface"}
     export RENDER_GROUP_ID=110
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
 

@@ -35,6 +35,11 @@ on:
         description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
+      use_model_cache:
+        default: false
+        description: "use model cache true or false"
+        required: false
+        type: boolean
 
 permissions: read-all
 
@@ -64,4 +69,5 @@ jobs:
       mode: ${{ inputs.mode }}
       test_compose: ${{ inputs.test_compose }}
       test_helmchart: ${{ inputs.test_helmchart }}
+      use_model_cache: ${{ inputs.use_model_cache }}
     secrets: inherit

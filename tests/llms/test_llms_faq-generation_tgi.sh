@@ -14,7 +14,7 @@ WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
 service_name="faqgen-tgi"
-
+export DATA_PATH=${model_cache}
 function build_docker_images() {
     cd $WORKPATH
     docker build --no-cache -t ${REGISTRY:-opea}/llm-faqgen:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/faq-generation/Dockerfile .
