@@ -10,6 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 export TAG=comps
 export LLAMA_VISION_PORT=11510
 export LVM_PORT=11511
+export HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN
 
 function build_docker_images() {
     cd $WORKPATH
