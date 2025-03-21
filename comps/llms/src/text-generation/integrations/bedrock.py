@@ -87,13 +87,21 @@ class OpeaTextGenBedrock(OpeaComponent):
         if logflag and len(inference_config) > 0:
             logger.info(f"[llm - chat] inference_config: {inference_config}")
 
-        # Parse messages from HuggingFace TGI format to bedrock messages format
-        # tgi: [{role: "system" | "user", content: "text"}]
+        # Parse messages to Bedrock format
+        # tgi: "prompt" or [{role: "system" | "user", content: "text"}]
         # bedrock: [role: "assistant" | "user", content: {text: "content"}]
-        messages = [
-            {"role": "assistant" if i.get("role") == "system" else "user", "content": [{"text": i.get("content", "")}]}
-            for i in input.messages
-        ]
+        messages = None
+        if isinstance(input.messages, str):
+            messages = [{"role": "user", "content": [{"text": input.messages}]}]
+        else:
+            # Convert from list of HuggingFace TGI message objects
+            messages = [
+                {
+                    "role": "assistant" if i.get("role") == "system" else "user",
+                    "content": [{"text": i.get("content", "")}],
+                }
+                for i in input.messages
+            ]
 
         # Bedrock requires that conversations start with a user prompt
         # TGI allows the first message to be an assistant prompt, defining assistant behavior

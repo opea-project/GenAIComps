@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import inspect
 import os
 from functools import wraps
@@ -12,6 +13,10 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+from ..mega.logger import CustomLogger
+
+logger = CustomLogger("OpeaComponent")
 
 
 def detach_ignore_err(self, token: object) -> None:
@@ -29,12 +34,17 @@ def detach_ignore_err(self, token: object) -> None:
 # bypass the ValueError that ContextVar context was created in a different Context from StreamingResponse
 ContextVarsRuntimeContext.detach = detach_ignore_err
 
-telemetry_endpoint = os.environ.get("TELEMETRY_ENDPOINT", "http://localhost:4318/v1/traces")
-
 resource = Resource.create({SERVICE_NAME: "opea"})
 traceProvider = TracerProvider(resource=resource)
 
-traceProvider.add_span_processor(BatchSpanProcessor(HTTPSpanExporter(endpoint=telemetry_endpoint)))
+ENABLE_OPEA_TELEMETRY = False
+telemetry_endpoint = os.environ.get("TELEMETRY_ENDPOINT")
+if telemetry_endpoint is not None:
+
+    ENABLE_OPEA_TELEMETRY = True
+    logger.info(f" Has Telemetry Endpoint :  {telemetry_endpoint}")
+    traceProvider.add_span_processor(BatchSpanProcessor(HTTPSpanExporter(endpoint=telemetry_endpoint)))
+
 in_memory_exporter = InMemorySpanExporter()
 traceProvider.add_span_processor(BatchSpanProcessor(in_memory_exporter))
 trace.set_tracer_provider(traceProvider)
@@ -47,7 +57,7 @@ def opea_telemetry(func):
 
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            with tracer.start_as_current_span(func.__name__):
+            with tracer.start_as_current_span(func.__name__) if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
                 res = await func(*args, **kwargs)
             return res
 
@@ -55,7 +65,7 @@ def opea_telemetry(func):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            with tracer.start_as_current_span(func.__name__):
+            with tracer.start_as_current_span(func.__name__) if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
                 res = func(*args, **kwargs)
             return res
 

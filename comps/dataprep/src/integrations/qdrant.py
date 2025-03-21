@@ -7,9 +7,8 @@ from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import Qdrant
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from qdrant_client import QdrantClient
 
@@ -38,7 +37,9 @@ COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag-qdrant")
 # LLM/Embedding endpoints
 TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 TGI_LLM_ENDPOINT_NO_RAG = os.getenv("TGI_LLM_ENDPOINT_NO_RAG", "http://localhost:8081")
-TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_ENDPOINT")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_QDRANT")
@@ -47,12 +48,26 @@ class OpeaQdrantDataprep(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
-        self.tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
         self.upload_folder = "./uploaded_files/"
         # Create vectorstore
         if TEI_EMBEDDING_ENDPOINT:
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+            import requests
+
+            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
             # create embeddings using TEI endpoint service
-            self.embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
+            self.embedder = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
         else:
             # create embeddings using local embedding model
             self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
@@ -79,7 +94,7 @@ class OpeaQdrantDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    def ingest_data_to_qdrant(self, doc_path: DocPath):
+    async def ingest_data_to_qdrant(self, doc_path: DocPath):
         """Ingest document to Qdrant."""
         path = doc_path.path
         if logflag:
@@ -100,7 +115,7 @@ class OpeaQdrantDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(path)
@@ -143,6 +158,7 @@ class OpeaQdrantDataprep(OpeaComponent):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into qdrant database.
 
@@ -168,7 +184,7 @@ class OpeaQdrantDataprep(OpeaComponent):
                 encode_file = encode_filename(file.filename)
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_qdrant(
+                await self.ingest_data_to_qdrant(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -195,7 +211,7 @@ class OpeaQdrantDataprep(OpeaComponent):
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 try:
                     await save_content_to_local_disk(save_path, content)
-                    self.ingest_data_to_qdrant(
+                    await self.ingest_data_to_qdrant(
                         DocPath(
                             path=save_path,
                             chunk_size=chunk_size,

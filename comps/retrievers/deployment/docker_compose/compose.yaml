@@ -3,6 +3,7 @@
 
 include:
   - ../../../third_parties/elasticsearch/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/milvus/deployment/docker_compose/compose.yaml
   - ../../../third_parties/opensearch/deployment/docker_compose/compose.yaml
   - ../../../third_parties/neo4j/deployment/docker_compose/compose.yaml
   - ../../../third_parties/pgvector/deployment/docker_compose/compose.yaml
@@ -49,6 +50,12 @@ services:
     depends_on:
       tei-embedding-serving:
         condition: service_healthy
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
 
   retriever-neo4j:
     extends: retriever
@@ -60,6 +67,7 @@ services:
       EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       NEO4J_URI: ${NEO4J_URI}
+      NEO4J_URL: ${NEO4J_URI}
       NEO4J_USERNAME: ${NEO4J_USERNAME}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
       VDMS_USE_CLIP: 0
@@ -124,7 +132,7 @@ services:
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_QDRANT}
       QDRANT_HOST: ${QDRANT_HOST}
       QDRANT_PORT: ${QDRANT_PORT}
-      INDEX_NAME: ${INDEX_NAME}
+      QDRANT_INDEX_NAME: ${INDEX_NAME}
     depends_on:
       qdrant-vector-db:
         condition: service_healthy

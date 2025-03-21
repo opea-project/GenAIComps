@@ -61,8 +61,6 @@ The initially supported `Microservices` are described in the below table. More `
 A `Microservices` can be created by using the decorator `register_microservice`. Taking the `embedding microservice` as an example:
 
 ```python
-from langchain_community.embeddings import HuggingFaceHubEmbeddings
-
 from comps import register_microservice, EmbedDoc, ServiceType, TextDoc
 
 

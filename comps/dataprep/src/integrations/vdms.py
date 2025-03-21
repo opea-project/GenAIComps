@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
@@ -28,7 +28,6 @@ logflag = os.getenv("LOGFLAG", False)
 
 def getEnv(key, default_value=None):
     env_value = os.getenv(key, default=default_value)
-    print(f"{key}: {env_value}")
     return env_value
 
 
@@ -45,7 +44,9 @@ DISTANCE_STRATEGY = getEnv("DISTANCE_STRATEGY", "L2")
 # LLM/Embedding endpoints
 TGI_LLM_ENDPOINT = getEnv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 TGI_LLM_ENDPOINT_NO_RAG = getEnv("TGI_LLM_ENDPOINT_NO_RAG", "http://localhost:8081")
-TEI_EMBEDDING_ENDPOINT = getEnv("TEI_ENDPOINT")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
+# Huggingface API token for TEI embedding endpoint
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
 # chunk parameters
 CHUNK_SIZE = getEnv("CHUNK_SIZE", 1500)
@@ -58,14 +59,28 @@ class OpeaVdmsDataprep(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
-        self.tei_embedding_endpoint = os.getenv("TEI_ENDPOINT")
         self.upload_folder = "./uploaded_files/"
         create_upload_folder(self.upload_folder)
         self.client = VDMS_Client(VDMS_HOST, int(VDMS_PORT))
         # Create vectorstore
-        if self.tei_embedding_endpoint:
+        if TEI_EMBEDDING_ENDPOINT:
+            if not HUGGINGFACEHUB_API_TOKEN:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                )
+            import requests
+
+            response = requests.get(TEI_EMBEDDING_ENDPOINT + "/info")
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400, detail=f"TEI embedding endpoint {TEI_EMBEDDING_ENDPOINT} is not available."
+                )
+            model_id = response.json()["model_id"]
             # create embeddings using TEI endpoint service
-            self.embedder = HuggingFaceHubEmbeddings(model=self.tei_embedding_endpoint)
+            self.embedder = HuggingFaceInferenceAPIEmbeddings(
+                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+            )
         else:
             # create embeddings using local embedding model
             self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
@@ -86,7 +101,7 @@ class OpeaVdmsDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    def ingest_data_to_vdms(self, doc_path: DocPath):
+    async def ingest_data_to_vdms(self, doc_path: DocPath):
         """Ingest document to VDMS."""
         path = doc_path.path
         print(f"Parsing document {doc_path}.")
@@ -103,7 +118,7 @@ class OpeaVdmsDataprep(OpeaComponent):
                 chunk_size=doc_path.chunk_size, chunk_overlap=100, add_start_index=True, separators=get_separators()
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
         chunks = text_splitter.split_text(content)
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
@@ -136,6 +151,7 @@ class OpeaVdmsDataprep(OpeaComponent):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into VDMS database.
 
@@ -166,7 +182,7 @@ class OpeaVdmsDataprep(OpeaComponent):
 
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
-                self.ingest_data_to_vdms(
+                await self.ingest_data_to_vdms(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,
@@ -199,7 +215,7 @@ class OpeaVdmsDataprep(OpeaComponent):
                 save_path = self.upload_folder + encoded_link + ".txt"
                 content = parse_html_new([link], chunk_size=chunk_size, chunk_overlap=chunk_overlap)
                 await save_content_to_local_disk(save_path, content)
-                self.ingest_data_to_vdms(
+                await self.ingest_data_to_vdms(
                     DocPath(
                         path=save_path,
                         chunk_size=chunk_size,

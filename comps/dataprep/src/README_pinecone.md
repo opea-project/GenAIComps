@@ -1,12 +1,6 @@
 # Dataprep Microservice with Pinecone
 
-## 🚀Start Microservice with Python
-
-### Install Requirements
-
-```bash
-pip install -r requirements.txt
-```
+## 🚀Start Microservice with Docker
 
 ### Start Pinecone Server
 
@@ -38,16 +32,6 @@ export PINECONE_API_KEY=${PINECONE_API_KEY}
 export PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME}
 ```
 
-### Start Document Preparation Microservice for Pinecone with Python Script
-
-Start document preparation microservice for Pinecone with below command.
-
-```bash
-python prepare_doc_pinecone.py
-```
-
-## 🚀Start Microservice with Docker
-
 ### Build Docker Image
 
 ```bash
@@ -59,15 +43,6 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 
 ```bash
 docker run -d --name="dataprep-pinecone-server" -p 6007:6007 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_PINECONE" opea/dataprep:latest
-```
-
-### Setup Environment Variables
-
-```bash
-export http_proxy=${your_http_proxy}
-export https_proxy=${your_http_proxy}
-export PINECONE_API_KEY=${PINECONE_API_KEY}
-export PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME}
 ```
 
 ### Run Docker with Docker Compose

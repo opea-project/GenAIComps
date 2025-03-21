@@ -53,7 +53,8 @@ ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.11/site-packages/gfpgan"
 WORKDIR /usr/local/lib/python3.11/site-packages
 
 # Install pip dependencies
-RUN pip install -r /home/user/comps/animation/src/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install -r /home/user/comps/animation/src/requirements.txt
 
 # Custom patches
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional
