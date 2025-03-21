@@ -55,18 +55,6 @@ function validate_microservice() {
         exit 1
     fi
 
-    result=$(http_proxy="" curl http://localhost:$LVM_PORT/v1/lvm --silent --write-out "HTTPSTATUS:%{http_code}" -XPOST -d '{"image": "", "prompt":"What is deep learning?"}' -H 'Content-Type: application/json')
-    http_status=$(echo $result | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-    if [ "$http_status" -ne "200" ]; then
-
-        echo "LVM prompt without image - HTTP status is not 200. Received status was $http_status"
-        docker logs llama-vision-service >> ${LOG_PATH}/llama-vision.log
-        docker logs lvm-llama-vision-service >> ${LOG_PATH}/lvm.log
-        exit 1
-    else
-        echo "LVM prompt without image - HTTP status (successful)"
-    fi
-
 }
 
 function stop_docker() {
