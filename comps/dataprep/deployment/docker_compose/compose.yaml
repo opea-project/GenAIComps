@@ -286,6 +286,32 @@ services:
       COLLECTION_NAME: ${INDEX_NAME}
     restart: unless-stopped
 
+  dataprep-redis-finance:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-redis-server-finance
+    depends_on:
+      redis-vector-db:
+        condition: service_healthy
+      redis-kv-store:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+    ports:
+      - "${DATAPREP_PORT:-11108}:5000"
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      DATAPREP_COMPONENT_NAME: ${DATAPREP_COMPONENT_NAME}
+      REDIS_URL_VECTOR: ${REDIS_URL_VECTOR}
+      REDIS_URL_KV: ${REDIS_URL_KV}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      LLM_ENDPOINT: ${LLM_ENDPOINT}
+      LLM_MODEL: ${LLM_MODEL}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
+      LOGFLAG: true
+
 networks:
   default:
     driver: bridge
