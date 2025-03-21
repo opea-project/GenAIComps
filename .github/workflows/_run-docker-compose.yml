@@ -106,7 +106,14 @@ jobs:
           cd ${{ github.workspace }}/tests
           service=$(echo "${test_case}" | cut -d'/' -f3 | cut -d'_' -f2- |cut -d'.' -f1)
           echo "service=${service}" >> $GITHUB_ENV
-          if [[ "$use_model_cache" == "true" ]]; then export model_cache="/data2/huggingface"; fi
+          if [[ "$use_model_cache" == "true" ]]; then
+            if [ -d "/data2/huggingface" ]; then
+              export model_cache="/data2/huggingface"
+            else
+              echo "Model cache directory /data2/huggingface does not exist"
+              export model_cache="/data2/huggingface"
+            fi
+          fi
           if [ -f ${test_case} ]; then timeout 60m bash ${test_case}; else echo "Test script {${test_case}} not found, skip test!"; fi
 
       - name: Clean up container

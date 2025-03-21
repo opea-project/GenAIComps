@@ -66,7 +66,12 @@ jobs:
         run: |
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
-          export model_cache="/data2/huggingface"
+          if [ -d "/data2/huggingface" ]; then
+            export model_cache="/data2/huggingface"
+          else
+            echo "Model cache directory /data2/huggingface does not exist"
+            export model_cache="/data2/huggingface"
+          fi
           timeout 60m bash $(find . -type f -name test_${service}.sh)
 
       - name: Clean up container

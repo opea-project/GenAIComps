@@ -7,13 +7,13 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATA_PATH=$WORKPATH/data
+export DATA_PATH=${model_cache:-$WORKPATH/data}
 
 export TAG='comps'
 
 export TEXT2SQL_PORT=11700
 export LLM_ENDPOINT_PORT=11710
-export DATA_PATH=${model_cache}
+
 
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
