@@ -3,6 +3,7 @@
 
 include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/ovms/deployment/docker_compose/compose.yaml
   - ../../../third_parties/bridgetower/deployment/docker_compose/compose.yaml
   - ../../../third_parties/clip/deployment/docker_compose/compose_intel_cpu.yaml
 
@@ -38,6 +39,21 @@ services:
     depends_on:
       tei-embedding-serving:
         condition: service_healthy
+    restart: unless-stopped
+
+  ovms-embedding-server:
+    image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
+    container_name: ovms-embedding-server
+    ports:
+      - "${EMBEDDER_PORT:-10201}:6000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      OVMS_EMBEDDING_ENDPOINT: ${OVMS_EMBEDDING_ENDPOINT}
+      EMBEDDING_COMPONENT_NAME: "OPEA_OVMS_EMBEDDING"
+      MODEL_ID: ${MODEL_ID}
     restart: unless-stopped
 
   pg-embedding-server:

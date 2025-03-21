@@ -5,6 +5,7 @@ import os
 import time
 from typing import Union
 
+from integrations.ovms import OpeaOVMSReranking
 from integrations.tei import OpeaTEIReranking
 from integrations.videoqna import OpeaVideoReranking
 
