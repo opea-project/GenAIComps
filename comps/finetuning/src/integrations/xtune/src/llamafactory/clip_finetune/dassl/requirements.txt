@@ -1,0 +1,14 @@
+flake8==3.7.9
+ftfy
+future
+gdown
+isort==4.3.21
+regex
+scikit-learn
+scipy
+tabulate
+tb-nightly
+tqdm
+wilds==1.2.2
+yacs
+yapf==0.29.0

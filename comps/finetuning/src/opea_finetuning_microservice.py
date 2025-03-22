@@ -8,6 +8,7 @@ from comps import CustomLogger, opea_microservices, register_microservice
 from comps.cores.proto.api_protocol import FineTuningJobIDRequest, UploadFileRequest
 from comps.finetuning.src.integrations.finetune_config import FineTuningParams
 from comps.finetuning.src.integrations.native import OpeaFinetuning, upload_file
+from comps.finetuning.src.integrations.xtune import XtuneFinetuning
 from comps.finetuning.src.opea_finetuning_loader import OpeaFinetuningLoader
 
 logger = CustomLogger("opea_finetuning_microservice")

@@ -1,0 +1,954 @@
+04/18/2023 20:53:25 - INFO - __main__ -   Setup model...
+04/18/2023 20:53:26 - INFO - __main__ -   Using CLIP pretrained weights...
+04/18/2023 20:53:30 - INFO - __main__ -   Setup model done!
+04/18/2023 20:53:33 - INFO - __main__ -   gflops_table: 
+04/18/2023 20:53:33 - INFO - __main__ -   clip/f              : 4.4111 GFLOPS
+04/18/2023 20:53:33 - INFO - __main__ -   policy/v            : 3.6332 GFLOPS
+04/18/2023 20:53:33 - INFO - __main__ -   transformer/v       : 0.0611 GFLOPS
+04/18/2023 20:53:33 - INFO - __main__ -   mlp/v               : 0.0084 GFLOPS
+04/18/2023 20:53:33 - INFO - __main__ -   Init. train_loader and val_loader...
+04/18/2023 20:53:33 - INFO - __main__ -   Init. train_loader and val_loader done!
+04/18/2023 20:53:33 - INFO - __main__ -   device: cuda:0 n_gpu: 3, rank: 0
+04/18/2023 20:53:33 - INFO - __main__ -   Starting training...
+04/18/2023 20:53:33 - INFO - __main__ -   ***** Running training on 3 GPUs *****
+04/18/2023 20:53:33 - INFO - __main__ -     Num examples = 9000
+04/18/2023 20:53:33 - INFO - __main__ -     Batch size = 64
+04/18/2023 20:53:33 - INFO - __main__ -     Accumulate steps = 1
+04/18/2023 20:53:33 - INFO - __main__ -     Num steps = 1407
+04/18/2023 20:53:33 - INFO - __main__ -   ***** Validation information *****
+04/18/2023 20:53:33 - INFO - __main__ -     Num examples = 1000
+04/18/2023 20:53:33 - INFO - __main__ -     Batch size = 64
+04/18/2023 20:53:33 - INFO - __main__ -     Num steps = 16
+04/18/2023 20:54:39 - INFO - __main__ -   Train Epoch: 0 [20/46 (43%)] Loss: 2.092647 Lr: 0.000000014-0.000014215
+04/18/2023 20:54:39 - INFO - __main__ -   Retrieval Loss: 2.093  Uniform Loss: 0.000
+04/18/2023 20:54:39 - INFO - __main__ -   Gumbel softmax temperature: 5.0000
+04/18/2023 20:54:39 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 20:54:39 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 20:54:39 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:55:16 - INFO - __main__ -   Train Epoch: 0 [40/46 (87%)] Loss: 1.617624 Lr: 0.000000028-0.000028429
+04/18/2023 20:55:16 - INFO - __main__ -   Retrieval Loss: 1.618  Uniform Loss: 0.000
+04/18/2023 20:55:16 - INFO - __main__ -   Gumbel softmax temperature: 5.0000
+04/18/2023 20:55:16 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 20:55:16 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 20:55:16 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:55:28 - INFO - __main__ -   Train Epoch: 0 Loss: 1.944760
+04/18/2023 20:55:28 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 20:55:28 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 20:55:28 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 20:55:28 - INFO - __main__ -   [6708, 6547, 6681, 6544, 6521, 6703, 6469, 6631, 6625, 6608, 6782, 6682, 6665, 6563, 6647, 6608]
+04/18/2023 20:55:28 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:55:55 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 20:55:55 - INFO - __main__ -   EVAL epoch 0 Loss: 2.897162
+04/18/2023 20:55:55 - INFO - __main__ -   Retrieval Loss: 2.897
+04/18/2023 20:55:55 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 20:55:55 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 20:55:55 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 20:55:55 - INFO - __main__ -   [752, 674, 657, 752, 803, 881, 780, 744, 709, 631, 834, 749, 820, 686, 747, 781]
+04/18/2023 20:55:55 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:55:55 - INFO - __main__ -   [t2v_metrics]EVAL epoch 0, R@1: 36.0, R@5: 60.4, R@10 71.8, R@50 90.6, MedR: 3, MeanR: 23.8
+04/18/2023 20:55:55 - INFO - __main__ -   [v2t_metrics]EVAL epoch 0, R@1: 38.2, R@5: 64.2, R@10 73.4, R@50 91.3, MedR: 3, MeanR: 18.9
+04/18/2023 20:55:56 - INFO - __main__ -   Saving the best ckpt to disk (epoch 0)
+04/18/2023 20:56:32 - INFO - __main__ -   Train Epoch: 1 [14/46 (30%)] Loss: 1.643334 Lr: 0.000000043-0.000042644
+04/18/2023 20:56:32 - INFO - __main__ -   Retrieval Loss: 1.643  Uniform Loss: 0.000
+04/18/2023 20:56:32 - INFO - __main__ -   Gumbel softmax temperature: 4.7800
+04/18/2023 20:56:32 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 20:56:32 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 20:56:32 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:57:10 - INFO - __main__ -   Train Epoch: 1 [34/46 (74%)] Loss: 1.626231 Lr: 0.000000057-0.000056859
+04/18/2023 20:57:10 - INFO - __main__ -   Retrieval Loss: 1.626  Uniform Loss: 0.000
+04/18/2023 20:57:10 - INFO - __main__ -   Gumbel softmax temperature: 4.7800
+04/18/2023 20:57:10 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 20:57:10 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 20:57:10 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:57:33 - INFO - __main__ -   Train Epoch: 1 Loss: 1.438136
+04/18/2023 20:57:33 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 20:57:33 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 20:57:33 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 20:57:33 - INFO - __main__ -   [6711, 6749, 6564, 6637, 6723, 6713, 6599, 6558, 6480, 6569, 6510, 6558, 6730, 6532, 6660, 6691]
+04/18/2023 20:57:33 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:58:01 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 20:58:01 - INFO - __main__ -   EVAL epoch 1 Loss: 2.602266
+04/18/2023 20:58:01 - INFO - __main__ -   Retrieval Loss: 2.602
+04/18/2023 20:58:01 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 20:58:01 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 20:58:01 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 20:58:01 - INFO - __main__ -   [772, 775, 742, 782, 842, 835, 782, 689, 776, 611, 757, 688, 693, 710, 750, 796]
+04/18/2023 20:58:01 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:58:01 - INFO - __main__ -   [t2v_metrics]EVAL epoch 1, R@1: 39.1, R@5: 65.6, R@10 76.3, R@50 93.2, MedR: 2, MeanR: 18.1
+04/18/2023 20:58:01 - INFO - __main__ -   [v2t_metrics]EVAL epoch 1, R@1: 39.9, R@5: 67.6, R@10 78.7, R@50 94.2, MedR: 2, MeanR: 14.3
+04/18/2023 20:58:02 - INFO - __main__ -   Saving the best ckpt to disk (epoch 1)
+04/18/2023 20:58:27 - INFO - __main__ -   Train Epoch: 2 [8/46 (17%)] Loss: 1.343702 Lr: 0.000000071-0.000071073
+04/18/2023 20:58:27 - INFO - __main__ -   Retrieval Loss: 1.344  Uniform Loss: 0.000
+04/18/2023 20:58:27 - INFO - __main__ -   Gumbel softmax temperature: 4.5697
+04/18/2023 20:58:27 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 20:58:27 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 20:58:27 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:59:06 - INFO - __main__ -   Train Epoch: 2 [28/46 (61%)] Loss: 1.319985 Lr: 0.000000085-0.000085288
+04/18/2023 20:59:06 - INFO - __main__ -   Retrieval Loss: 1.320  Uniform Loss: 0.000
+04/18/2023 20:59:06 - INFO - __main__ -   Gumbel softmax temperature: 4.5697
+04/18/2023 20:59:06 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 20:59:06 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 20:59:06 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 20:59:40 - INFO - __main__ -   Train Epoch: 2 Loss: 1.318238
+04/18/2023 20:59:40 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 20:59:40 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 20:59:40 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 20:59:40 - INFO - __main__ -   [6659, 6866, 6847, 6815, 6846, 6850, 6660, 6472, 6492, 6259, 6506, 6437, 6437, 6531, 6612, 6695]
+04/18/2023 20:59:40 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:00:06 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:00:07 - INFO - __main__ -   EVAL epoch 2 Loss: 2.518826
+04/18/2023 21:00:07 - INFO - __main__ -   Retrieval Loss: 2.519
+04/18/2023 21:00:07 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:00:07 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:00:07 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:00:07 - INFO - __main__ -   [801, 835, 818, 850, 853, 863, 811, 643, 791, 587, 689, 591, 602, 680, 760, 826]
+04/18/2023 21:00:07 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:00:07 - INFO - __main__ -   [t2v_metrics]EVAL epoch 2, R@1: 40.2, R@5: 67.5, R@10 77.9, R@50 93.3, MedR: 2, MeanR: 16.9
+04/18/2023 21:00:07 - INFO - __main__ -   [v2t_metrics]EVAL epoch 2, R@1: 41.2, R@5: 67.6, R@10 80.1, R@50 95.3, MedR: 2, MeanR: 12.8
+04/18/2023 21:00:08 - INFO - __main__ -   Saving the best ckpt to disk (epoch 2)
+04/18/2023 21:00:20 - INFO - __main__ -   Train Epoch: 3 [2/46 (4%)] Loss: 1.270516 Lr: 0.000000100-0.000099502
+04/18/2023 21:00:20 - INFO - __main__ -   Retrieval Loss: 1.271  Uniform Loss: 0.000
+04/18/2023 21:00:20 - INFO - __main__ -   Gumbel softmax temperature: 4.3686
+04/18/2023 21:00:20 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:00:20 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:00:20 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:01:00 - INFO - __main__ -   Train Epoch: 3 [22/46 (48%)] Loss: 1.239262 Lr: 0.000000097-0.000096843
+04/18/2023 21:01:00 - INFO - __main__ -   Retrieval Loss: 1.239  Uniform Loss: 0.000
+04/18/2023 21:01:00 - INFO - __main__ -   Gumbel softmax temperature: 4.3686
+04/18/2023 21:01:00 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:01:00 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:01:00 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:01:38 - INFO - __main__ -   Train Epoch: 3 [42/46 (91%)] Loss: 1.276188 Lr: 0.000000096-0.000096016
+04/18/2023 21:01:38 - INFO - __main__ -   Retrieval Loss: 1.276  Uniform Loss: 0.000
+04/18/2023 21:01:38 - INFO - __main__ -   Gumbel softmax temperature: 4.3686
+04/18/2023 21:01:38 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:01:38 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:01:38 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:01:46 - INFO - __main__ -   Train Epoch: 3 Loss: 1.246064
+04/18/2023 21:01:46 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:01:46 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:01:46 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:01:46 - INFO - __main__ -   [7143, 7167, 7009, 7028, 6767, 6994, 6613, 6363, 6576, 6111, 6269, 6111, 6255, 6384, 6446, 6748]
+04/18/2023 21:01:46 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:02:13 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:02:13 - INFO - __main__ -   EVAL epoch 3 Loss: 2.451105
+04/18/2023 21:02:13 - INFO - __main__ -   Retrieval Loss: 2.451
+04/18/2023 21:02:13 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:02:13 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:02:13 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:02:13 - INFO - __main__ -   [953, 968, 963, 966, 909, 921, 862, 541, 726, 522, 586, 380, 483, 588, 733, 899]
+04/18/2023 21:02:13 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:02:13 - INFO - __main__ -   [t2v_metrics]EVAL epoch 3, R@1: 40.9, R@5: 68.9, R@10 79.1, R@50 94.3, MedR: 2, MeanR: 15.5
+04/18/2023 21:02:13 - INFO - __main__ -   [v2t_metrics]EVAL epoch 3, R@1: 40.0, R@5: 69.9, R@10 79.9, R@50 96.2, MedR: 2, MeanR: 11.9
+04/18/2023 21:02:14 - INFO - __main__ -   Saving the best ckpt to disk (epoch 3)
+04/18/2023 21:02:55 - INFO - __main__ -   Train Epoch: 4 [16/46 (35%)] Loss: 0.869540 Lr: 0.000000095-0.000095097
+04/18/2023 21:02:55 - INFO - __main__ -   Retrieval Loss: 0.870  Uniform Loss: 0.000
+04/18/2023 21:02:55 - INFO - __main__ -   Gumbel softmax temperature: 4.1764
+04/18/2023 21:02:55 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:02:55 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:02:55 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:03:33 - INFO - __main__ -   Train Epoch: 4 [36/46 (78%)] Loss: 1.107429 Lr: 0.000000094-0.000094088
+04/18/2023 21:03:33 - INFO - __main__ -   Retrieval Loss: 1.107  Uniform Loss: 0.000
+04/18/2023 21:03:33 - INFO - __main__ -   Gumbel softmax temperature: 4.1764
+04/18/2023 21:03:33 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:03:33 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:03:33 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:03:52 - INFO - __main__ -   Train Epoch: 4 Loss: 1.124462
+04/18/2023 21:03:52 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:03:52 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:03:52 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:03:52 - INFO - __main__ -   [7665, 7593, 7486, 7178, 7016, 6943, 6728, 6033, 6207, 5854, 6032, 5916, 6019, 6259, 6297, 6758]
+04/18/2023 21:03:52 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:04:20 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:04:20 - INFO - __main__ -   EVAL epoch 4 Loss: 2.424362
+04/18/2023 21:04:20 - INFO - __main__ -   Retrieval Loss: 2.424
+04/18/2023 21:04:20 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:04:20 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:04:20 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:04:20 - INFO - __main__ -   [965, 979, 979, 973, 917, 943, 844, 539, 704, 460, 552, 351, 393, 673, 793, 935]
+04/18/2023 21:04:20 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:04:20 - INFO - __main__ -   [t2v_metrics]EVAL epoch 4, R@1: 41.5, R@5: 69.8, R@10 79.5, R@50 93.7, MedR: 2, MeanR: 15.7
+04/18/2023 21:04:20 - INFO - __main__ -   [v2t_metrics]EVAL epoch 4, R@1: 42.3, R@5: 71.1, R@10 80.2, R@50 95.2, MedR: 2, MeanR: 11.5
+04/18/2023 21:04:21 - INFO - __main__ -   Saving the best ckpt to disk (epoch 4)
+04/18/2023 21:04:50 - INFO - __main__ -   Train Epoch: 5 [10/46 (22%)] Loss: 1.105800 Lr: 0.000000093-0.000092991
+04/18/2023 21:04:50 - INFO - __main__ -   Retrieval Loss: 1.106  Uniform Loss: 0.000
+04/18/2023 21:04:50 - INFO - __main__ -   Gumbel softmax temperature: 3.9926
+04/18/2023 21:04:50 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:04:50 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:04:50 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:05:28 - INFO - __main__ -   Train Epoch: 5 [30/46 (65%)] Loss: 0.963062 Lr: 0.000000092-0.000091808
+04/18/2023 21:05:28 - INFO - __main__ -   Retrieval Loss: 0.963  Uniform Loss: 0.000
+04/18/2023 21:05:28 - INFO - __main__ -   Gumbel softmax temperature: 3.9926
+04/18/2023 21:05:28 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:05:28 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:05:28 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:05:59 - INFO - __main__ -   Train Epoch: 5 Loss: 1.078554
+04/18/2023 21:05:59 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:05:59 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:05:59 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:05:59 - INFO - __main__ -   [8358, 8232, 8096, 7757, 7298, 7283, 6430, 5584, 5959, 5487, 5535, 5011, 5326, 6019, 6475, 7134]
+04/18/2023 21:05:59 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:06:27 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:06:27 - INFO - __main__ -   EVAL epoch 5 Loss: 2.393314
+04/18/2023 21:06:27 - INFO - __main__ -   Retrieval Loss: 2.393
+04/18/2023 21:06:27 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:06:27 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:06:27 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:06:27 - INFO - __main__ -   [990, 984, 981, 964, 911, 874, 757, 568, 688, 465, 540, 350, 436, 699, 839, 954]
+04/18/2023 21:06:27 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:06:27 - INFO - __main__ -   [t2v_metrics]EVAL epoch 5, R@1: 42.3, R@5: 69.7, R@10 79.9, R@50 94.2, MedR: 2, MeanR: 16.2
+04/18/2023 21:06:27 - INFO - __main__ -   [v2t_metrics]EVAL epoch 5, R@1: 42.2, R@5: 71.4, R@10 82.6, R@50 95.7, MedR: 2, MeanR: 11.9
+04/18/2023 21:06:28 - INFO - __main__ -   Saving the best ckpt to disk (epoch 5)
+04/18/2023 21:06:45 - INFO - __main__ -   Train Epoch: 6 [4/46 (9%)] Loss: 1.052278 Lr: 0.000000091-0.000090543
+04/18/2023 21:06:45 - INFO - __main__ -   Retrieval Loss: 1.052  Uniform Loss: 0.000
+04/18/2023 21:06:45 - INFO - __main__ -   Gumbel softmax temperature: 3.8169
+04/18/2023 21:06:45 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:06:45 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:06:45 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:07:24 - INFO - __main__ -   Train Epoch: 6 [24/46 (52%)] Loss: 1.087624 Lr: 0.000000089-0.000089196
+04/18/2023 21:07:24 - INFO - __main__ -   Retrieval Loss: 1.088  Uniform Loss: 0.000
+04/18/2023 21:07:24 - INFO - __main__ -   Gumbel softmax temperature: 3.8169
+04/18/2023 21:07:24 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:07:24 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:07:24 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:08:02 - INFO - __main__ -   Train Epoch: 6 [44/46 (96%)] Loss: 1.058751 Lr: 0.000000088-0.000087771
+04/18/2023 21:08:02 - INFO - __main__ -   Retrieval Loss: 1.059  Uniform Loss: 0.000
+04/18/2023 21:08:02 - INFO - __main__ -   Gumbel softmax temperature: 3.8169
+04/18/2023 21:08:02 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:08:02 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:08:02 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:08:06 - INFO - __main__ -   Train Epoch: 6 Loss: 1.017312
+04/18/2023 21:08:06 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:08:06 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:08:06 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:08:06 - INFO - __main__ -   [8634, 8371, 8247, 7873, 7233, 7175, 6236, 5577, 5920, 5256, 5470, 4767, 5002, 5950, 6545, 7728]
+04/18/2023 21:08:06 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:08:33 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:08:33 - INFO - __main__ -   EVAL epoch 6 Loss: 2.370407
+04/18/2023 21:08:33 - INFO - __main__ -   Retrieval Loss: 2.370
+04/18/2023 21:08:33 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:08:33 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:08:33 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:08:33 - INFO - __main__ -   [997, 991, 980, 945, 872, 892, 760, 637, 665, 484, 531, 349, 390, 730, 818, 959]
+04/18/2023 21:08:33 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:08:33 - INFO - __main__ -   [t2v_metrics]EVAL epoch 6, R@1: 42.3, R@5: 70.8, R@10 79.5, R@50 94.4, MedR: 2, MeanR: 15.7
+04/18/2023 21:08:33 - INFO - __main__ -   [v2t_metrics]EVAL epoch 6, R@1: 42.0, R@5: 71.2, R@10 81.2, R@50 96.1, MedR: 2, MeanR: 11.3
+04/18/2023 21:08:33 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 5
+04/18/2023 21:09:17 - INFO - __main__ -   Train Epoch: 7 [18/46 (39%)] Loss: 1.012151 Lr: 0.000000086-0.000086271
+04/18/2023 21:09:17 - INFO - __main__ -   Retrieval Loss: 1.012  Uniform Loss: 0.000
+04/18/2023 21:09:17 - INFO - __main__ -   Gumbel softmax temperature: 3.6489
+04/18/2023 21:09:17 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:09:17 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:09:17 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:09:56 - INFO - __main__ -   Train Epoch: 7 [38/46 (83%)] Loss: 1.232112 Lr: 0.000000085-0.000084698
+04/18/2023 21:09:56 - INFO - __main__ -   Retrieval Loss: 1.232  Uniform Loss: 0.000
+04/18/2023 21:09:56 - INFO - __main__ -   Gumbel softmax temperature: 3.6489
+04/18/2023 21:09:56 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:09:56 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:09:56 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:10:11 - INFO - __main__ -   Train Epoch: 7 Loss: 0.998124
+04/18/2023 21:10:11 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:10:11 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:10:11 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:10:11 - INFO - __main__ -   [8613, 8331, 8185, 7694, 7087, 7008, 6283, 5788, 5832, 5361, 5490, 4926, 5240, 5914, 6632, 7600]
+04/18/2023 21:10:11 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:10:38 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:10:38 - INFO - __main__ -   EVAL epoch 7 Loss: 2.346251
+04/18/2023 21:10:38 - INFO - __main__ -   Retrieval Loss: 2.346
+04/18/2023 21:10:38 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:10:38 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:10:38 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:10:38 - INFO - __main__ -   [997, 995, 986, 955, 908, 916, 772, 626, 645, 493, 547, 330, 364, 663, 836, 967]
+04/18/2023 21:10:38 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:10:38 - INFO - __main__ -   [t2v_metrics]EVAL epoch 7, R@1: 42.5, R@5: 71.6, R@10 80.1, R@50 94.2, MedR: 2, MeanR: 16.0
+04/18/2023 21:10:38 - INFO - __main__ -   [v2t_metrics]EVAL epoch 7, R@1: 42.8, R@5: 72.4, R@10 80.5, R@50 95.5, MedR: 2, MeanR: 10.6
+04/18/2023 21:10:40 - INFO - __main__ -   Saving the best ckpt to disk (epoch 7)
+04/18/2023 21:11:12 - INFO - __main__ -   Train Epoch: 8 [12/46 (26%)] Loss: 1.035144 Lr: 0.000000083-0.000083056
+04/18/2023 21:11:12 - INFO - __main__ -   Retrieval Loss: 1.035  Uniform Loss: 0.000
+04/18/2023 21:11:12 - INFO - __main__ -   Gumbel softmax temperature: 3.4884
+04/18/2023 21:11:12 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:11:12 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:11:12 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:11:51 - INFO - __main__ -   Train Epoch: 8 [32/46 (70%)] Loss: 0.796467 Lr: 0.000000081-0.000081349
+04/18/2023 21:11:51 - INFO - __main__ -   Retrieval Loss: 0.796  Uniform Loss: 0.000
+04/18/2023 21:11:51 - INFO - __main__ -   Gumbel softmax temperature: 3.4884
+04/18/2023 21:11:51 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:11:51 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:11:51 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:12:18 - INFO - __main__ -   Train Epoch: 8 Loss: 0.993913
+04/18/2023 21:12:18 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:12:18 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:12:18 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:12:18 - INFO - __main__ -   [8692, 8570, 8508, 8034, 7355, 7243, 6404, 5411, 5858, 5012, 5145, 4532, 4765, 5871, 6588, 7996]
+04/18/2023 21:12:18 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:12:45 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:12:45 - INFO - __main__ -   EVAL epoch 8 Loss: 2.354160
+04/18/2023 21:12:45 - INFO - __main__ -   Retrieval Loss: 2.354
+04/18/2023 21:12:45 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:12:45 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:12:45 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:12:45 - INFO - __main__ -   [996, 1000, 990, 965, 888, 889, 784, 593, 688, 422, 532, 396, 396, 668, 835, 958]
+04/18/2023 21:12:45 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:12:45 - INFO - __main__ -   [t2v_metrics]EVAL epoch 8, R@1: 42.4, R@5: 69.9, R@10 80.7, R@50 94.6, MedR: 2, MeanR: 15.4
+04/18/2023 21:12:45 - INFO - __main__ -   [v2t_metrics]EVAL epoch 8, R@1: 43.2, R@5: 71.7, R@10 81.3, R@50 96.1, MedR: 2, MeanR: 10.4
+04/18/2023 21:12:45 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 7
+04/18/2023 21:13:06 - INFO - __main__ -   Train Epoch: 9 [6/46 (13%)] Loss: 0.964736 Lr: 0.000000080-0.000079579
+04/18/2023 21:13:06 - INFO - __main__ -   Retrieval Loss: 0.965  Uniform Loss: 0.000
+04/18/2023 21:13:06 - INFO - __main__ -   Gumbel softmax temperature: 3.3349
+04/18/2023 21:13:06 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:13:06 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:13:06 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:13:45 - INFO - __main__ -   Train Epoch: 9 [26/46 (57%)] Loss: 0.825695 Lr: 0.000000078-0.000077749
+04/18/2023 21:13:45 - INFO - __main__ -   Retrieval Loss: 0.826  Uniform Loss: 0.000
+04/18/2023 21:13:45 - INFO - __main__ -   Gumbel softmax temperature: 3.3349
+04/18/2023 21:13:45 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:13:45 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:13:45 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:14:23 - INFO - __main__ -   Train Epoch: 9 [46/46 (100%)] Loss: 1.029375 Lr: 0.000000076-0.000075865
+04/18/2023 21:14:23 - INFO - __main__ -   Retrieval Loss: 1.029  Uniform Loss: 0.000
+04/18/2023 21:14:23 - INFO - __main__ -   Gumbel softmax temperature: 3.3349
+04/18/2023 21:14:23 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:14:23 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:14:23 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:14:23 - INFO - __main__ -   Train Epoch: 9 Loss: 0.933068
+04/18/2023 21:14:23 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:14:23 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:14:23 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:14:23 - INFO - __main__ -   [8725, 8633, 8540, 8088, 7137, 7326, 6485, 5293, 5563, 4916, 5259, 4648, 4715, 5844, 6720, 8092]
+04/18/2023 21:14:23 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:14:50 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:14:50 - INFO - __main__ -   EVAL epoch 9 Loss: 2.335880
+04/18/2023 21:14:50 - INFO - __main__ -   Retrieval Loss: 2.336
+04/18/2023 21:14:50 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:14:50 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:14:50 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:14:50 - INFO - __main__ -   [998, 998, 987, 962, 851, 889, 835, 583, 559, 536, 489, 413, 409, 672, 838, 981]
+04/18/2023 21:14:50 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:14:50 - INFO - __main__ -   [t2v_metrics]EVAL epoch 9, R@1: 42.8, R@5: 70.7, R@10 80.8, R@50 94.5, MedR: 2, MeanR: 15.5
+04/18/2023 21:14:50 - INFO - __main__ -   [v2t_metrics]EVAL epoch 9, R@1: 42.6, R@5: 71.2, R@10 81.7, R@50 96.2, MedR: 2, MeanR: 10.4
+04/18/2023 21:14:52 - INFO - __main__ -   Saving the best ckpt to disk (epoch 9)
+04/18/2023 21:15:40 - INFO - __main__ -   Train Epoch: 10 [20/46 (43%)] Loss: 0.985980 Lr: 0.000000074-0.000073929
+04/18/2023 21:15:40 - INFO - __main__ -   Retrieval Loss: 0.986  Uniform Loss: 0.000
+04/18/2023 21:15:40 - INFO - __main__ -   Gumbel softmax temperature: 3.1881
+04/18/2023 21:15:40 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:15:40 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:15:40 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:16:18 - INFO - __main__ -   Train Epoch: 10 [40/46 (87%)] Loss: 0.929669 Lr: 0.000000072-0.000071945
+04/18/2023 21:16:18 - INFO - __main__ -   Retrieval Loss: 0.930  Uniform Loss: 0.000
+04/18/2023 21:16:18 - INFO - __main__ -   Gumbel softmax temperature: 3.1881
+04/18/2023 21:16:18 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:16:18 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:16:18 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:16:30 - INFO - __main__ -   Train Epoch: 10 Loss: 0.938215
+04/18/2023 21:16:30 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:16:30 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:16:30 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:16:30 - INFO - __main__ -   [8764, 8658, 8520, 8129, 7140, 7302, 6629, 5346, 5447, 4883, 5333, 4610, 4636, 5761, 6696, 8130]
+04/18/2023 21:16:30 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:16:58 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:16:58 - INFO - __main__ -   EVAL epoch 10 Loss: 2.332613
+04/18/2023 21:16:58 - INFO - __main__ -   Retrieval Loss: 2.333
+04/18/2023 21:16:58 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:16:58 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:16:58 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:16:58 - INFO - __main__ -   [998, 998, 985, 953, 869, 892, 820, 578, 592, 467, 589, 395, 421, 643, 833, 967]
+04/18/2023 21:16:58 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:16:58 - INFO - __main__ -   [t2v_metrics]EVAL epoch 10, R@1: 43.0, R@5: 72.2, R@10 80.6, R@50 94.7, MedR: 2, MeanR: 15.7
+04/18/2023 21:16:58 - INFO - __main__ -   [v2t_metrics]EVAL epoch 10, R@1: 42.3, R@5: 72.8, R@10 81.7, R@50 96.0, MedR: 2, MeanR: 10.5
+04/18/2023 21:16:59 - INFO - __main__ -   Saving the best ckpt to disk (epoch 10)
+04/18/2023 21:17:35 - INFO - __main__ -   Train Epoch: 11 [14/46 (30%)] Loss: 0.773212 Lr: 0.000000070-0.000069918
+04/18/2023 21:17:35 - INFO - __main__ -   Retrieval Loss: 0.773  Uniform Loss: 0.000
+04/18/2023 21:17:35 - INFO - __main__ -   Gumbel softmax temperature: 3.0479
+04/18/2023 21:17:35 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:17:35 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:17:35 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:18:14 - INFO - __main__ -   Train Epoch: 11 [34/46 (74%)] Loss: 0.742040 Lr: 0.000000068-0.000067851
+04/18/2023 21:18:14 - INFO - __main__ -   Retrieval Loss: 0.742  Uniform Loss: 0.000
+04/18/2023 21:18:14 - INFO - __main__ -   Gumbel softmax temperature: 3.0479
+04/18/2023 21:18:14 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:18:14 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:18:14 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:18:37 - INFO - __main__ -   Train Epoch: 11 Loss: 0.905903
+04/18/2023 21:18:37 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:18:37 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:18:37 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:18:37 - INFO - __main__ -   [8731, 8621, 8471, 8014, 7133, 7332, 6714, 5298, 5418, 4744, 5387, 4588, 4629, 5945, 6866, 8093]
+04/18/2023 21:18:37 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:19:04 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:19:04 - INFO - __main__ -   EVAL epoch 11 Loss: 2.336452
+04/18/2023 21:19:04 - INFO - __main__ -   Retrieval Loss: 2.336
+04/18/2023 21:19:04 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:19:04 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:19:04 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:19:04 - INFO - __main__ -   [999, 997, 991, 956, 863, 896, 851, 559, 571, 429, 565, 377, 436, 674, 857, 979]
+04/18/2023 21:19:04 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:19:04 - INFO - __main__ -   [t2v_metrics]EVAL epoch 11, R@1: 45.1, R@5: 71.7, R@10 79.9, R@50 94.6, MedR: 2, MeanR: 15.5
+04/18/2023 21:19:04 - INFO - __main__ -   [v2t_metrics]EVAL epoch 11, R@1: 44.0, R@5: 71.9, R@10 82.1, R@50 96.1, MedR: 2, MeanR: 10.7
+04/18/2023 21:19:05 - INFO - __main__ -   Saving the best ckpt to disk (epoch 11)
+04/18/2023 21:19:30 - INFO - __main__ -   Train Epoch: 12 [8/46 (17%)] Loss: 0.909918 Lr: 0.000000066-0.000065748
+04/18/2023 21:19:30 - INFO - __main__ -   Retrieval Loss: 0.910  Uniform Loss: 0.000
+04/18/2023 21:19:30 - INFO - __main__ -   Gumbel softmax temperature: 2.9137
+04/18/2023 21:19:30 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:19:30 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:19:30 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:20:09 - INFO - __main__ -   Train Epoch: 12 [28/46 (61%)] Loss: 0.722313 Lr: 0.000000064-0.000063614
+04/18/2023 21:20:09 - INFO - __main__ -   Retrieval Loss: 0.722  Uniform Loss: 0.000
+04/18/2023 21:20:09 - INFO - __main__ -   Gumbel softmax temperature: 2.9137
+04/18/2023 21:20:09 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:20:09 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:20:09 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:20:44 - INFO - __main__ -   Train Epoch: 12 Loss: 0.887318
+04/18/2023 21:20:44 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:20:44 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:20:44 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:20:44 - INFO - __main__ -   [8753, 8670, 8551, 8137, 7180, 7491, 6878, 5374, 5593, 4517, 5152, 4267, 4593, 5763, 6938, 8127]
+04/18/2023 21:20:44 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:21:11 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:21:11 - INFO - __main__ -   EVAL epoch 12 Loss: 2.343343
+04/18/2023 21:21:11 - INFO - __main__ -   Retrieval Loss: 2.343
+04/18/2023 21:21:11 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:21:11 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:21:11 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:21:11 - INFO - __main__ -   [998, 998, 993, 960, 860, 914, 812, 553, 645, 391, 551, 406, 434, 675, 839, 971]
+04/18/2023 21:21:11 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:21:11 - INFO - __main__ -   [t2v_metrics]EVAL epoch 12, R@1: 43.8, R@5: 70.9, R@10 80.0, R@50 94.8, MedR: 2, MeanR: 16.0
+04/18/2023 21:21:11 - INFO - __main__ -   [v2t_metrics]EVAL epoch 12, R@1: 43.6, R@5: 71.6, R@10 81.6, R@50 95.7, MedR: 2, MeanR: 11.4
+04/18/2023 21:21:11 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:21:24 - INFO - __main__ -   Train Epoch: 13 [2/46 (4%)] Loss: 0.829461 Lr: 0.000000061-0.000061452
+04/18/2023 21:21:24 - INFO - __main__ -   Retrieval Loss: 0.829  Uniform Loss: 0.000
+04/18/2023 21:21:24 - INFO - __main__ -   Gumbel softmax temperature: 2.7855
+04/18/2023 21:21:24 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:21:24 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:21:24 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:22:03 - INFO - __main__ -   Train Epoch: 13 [22/46 (48%)] Loss: 0.774151 Lr: 0.000000059-0.000059268
+04/18/2023 21:22:03 - INFO - __main__ -   Retrieval Loss: 0.774  Uniform Loss: 0.000
+04/18/2023 21:22:03 - INFO - __main__ -   Gumbel softmax temperature: 2.7855
+04/18/2023 21:22:03 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:22:03 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:22:03 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:22:41 - INFO - __main__ -   Train Epoch: 13 [42/46 (91%)] Loss: 0.915950 Lr: 0.000000057-0.000057066
+04/18/2023 21:22:41 - INFO - __main__ -   Retrieval Loss: 0.916  Uniform Loss: 0.000
+04/18/2023 21:22:41 - INFO - __main__ -   Gumbel softmax temperature: 2.7855
+04/18/2023 21:22:41 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:22:41 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:22:41 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:22:49 - INFO - __main__ -   Train Epoch: 13 Loss: 0.857605
+04/18/2023 21:22:49 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:22:49 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:22:49 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:22:49 - INFO - __main__ -   [8743, 8644, 8450, 7954, 7036, 7408, 6641, 5448, 5740, 4642, 5209, 4685, 4778, 5922, 6806, 7878]
+04/18/2023 21:22:49 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:23:16 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:23:16 - INFO - __main__ -   EVAL epoch 13 Loss: 2.333142
+04/18/2023 21:23:16 - INFO - __main__ -   Retrieval Loss: 2.333
+04/18/2023 21:23:16 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:23:16 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:23:16 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:23:16 - INFO - __main__ -   [999, 999, 992, 961, 852, 914, 807, 575, 648, 413, 515, 401, 412, 677, 856, 979]
+04/18/2023 21:23:16 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:23:16 - INFO - __main__ -   [t2v_metrics]EVAL epoch 13, R@1: 42.6, R@5: 71.1, R@10 80.1, R@50 94.1, MedR: 2, MeanR: 15.7
+04/18/2023 21:23:16 - INFO - __main__ -   [v2t_metrics]EVAL epoch 13, R@1: 42.9, R@5: 71.9, R@10 81.6, R@50 96.4, MedR: 2, MeanR: 10.8
+04/18/2023 21:23:16 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:23:57 - INFO - __main__ -   Train Epoch: 14 [16/46 (35%)] Loss: 0.646126 Lr: 0.000000055-0.000054849
+04/18/2023 21:23:57 - INFO - __main__ -   Retrieval Loss: 0.646  Uniform Loss: 0.000
+04/18/2023 21:23:57 - INFO - __main__ -   Gumbel softmax temperature: 2.6630
+04/18/2023 21:23:57 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:23:57 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:23:57 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:24:35 - INFO - __main__ -   Train Epoch: 14 [36/46 (78%)] Loss: 0.633790 Lr: 0.000000053-0.000052622
+04/18/2023 21:24:35 - INFO - __main__ -   Retrieval Loss: 0.634  Uniform Loss: 0.000
+04/18/2023 21:24:35 - INFO - __main__ -   Gumbel softmax temperature: 2.6630
+04/18/2023 21:24:35 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:24:35 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:24:35 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:24:55 - INFO - __main__ -   Train Epoch: 14 Loss: 0.834571
+04/18/2023 21:24:55 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:24:55 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:24:55 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:24:55 - INFO - __main__ -   [8732, 8661, 8412, 7882, 7151, 7209, 6595, 5405, 5774, 4848, 5150, 4675, 4819, 5870, 6873, 7928]
+04/18/2023 21:24:55 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:25:22 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:25:22 - INFO - __main__ -   EVAL epoch 14 Loss: 2.329831
+04/18/2023 21:25:22 - INFO - __main__ -   Retrieval Loss: 2.330
+04/18/2023 21:25:22 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:25:22 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:25:22 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:25:22 - INFO - __main__ -   [999, 998, 994, 967, 881, 900, 825, 564, 645, 421, 491, 377, 425, 670, 861, 982]
+04/18/2023 21:25:22 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:25:22 - INFO - __main__ -   [t2v_metrics]EVAL epoch 14, R@1: 43.0, R@5: 71.2, R@10 81.2, R@50 94.0, MedR: 2, MeanR: 15.6
+04/18/2023 21:25:22 - INFO - __main__ -   [v2t_metrics]EVAL epoch 14, R@1: 44.2, R@5: 71.9, R@10 83.4, R@50 96.4, MedR: 2, MeanR: 10.3
+04/18/2023 21:25:22 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:25:51 - INFO - __main__ -   Train Epoch: 15 [10/46 (22%)] Loss: 0.961495 Lr: 0.000000050-0.000050391
+04/18/2023 21:25:51 - INFO - __main__ -   Retrieval Loss: 0.961  Uniform Loss: 0.000
+04/18/2023 21:25:51 - INFO - __main__ -   Gumbel softmax temperature: 2.5458
+04/18/2023 21:25:51 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:25:51 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:25:51 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:26:30 - INFO - __main__ -   Train Epoch: 15 [30/46 (65%)] Loss: 0.963959 Lr: 0.000000048-0.000048158
+04/18/2023 21:26:30 - INFO - __main__ -   Retrieval Loss: 0.964  Uniform Loss: 0.000
+04/18/2023 21:26:30 - INFO - __main__ -   Gumbel softmax temperature: 2.5458
+04/18/2023 21:26:30 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:26:30 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:26:30 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:27:00 - INFO - __main__ -   Train Epoch: 15 Loss: 0.855419
+04/18/2023 21:27:00 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:27:00 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:27:00 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:27:00 - INFO - __main__ -   [8749, 8684, 8470, 7941, 7146, 7228, 6815, 5345, 5717, 4813, 5093, 4631, 4796, 5863, 6752, 7941]
+04/18/2023 21:27:00 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:27:28 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:27:28 - INFO - __main__ -   EVAL epoch 15 Loss: 2.314278
+04/18/2023 21:27:28 - INFO - __main__ -   Retrieval Loss: 2.314
+04/18/2023 21:27:28 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:27:28 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:27:28 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:27:28 - INFO - __main__ -   [999, 1000, 996, 969, 864, 901, 841, 594, 639, 410, 468, 358, 439, 669, 868, 985]
+04/18/2023 21:27:28 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:27:28 - INFO - __main__ -   [t2v_metrics]EVAL epoch 15, R@1: 44.6, R@5: 72.4, R@10 80.7, R@50 94.5, MedR: 2, MeanR: 15.4
+04/18/2023 21:27:28 - INFO - __main__ -   [v2t_metrics]EVAL epoch 15, R@1: 43.8, R@5: 71.7, R@10 82.2, R@50 96.2, MedR: 2, MeanR: 10.3
+04/18/2023 21:27:28 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:27:44 - INFO - __main__ -   Train Epoch: 16 [4/46 (9%)] Loss: 0.903660 Lr: 0.000000046-0.000045930
+04/18/2023 21:27:44 - INFO - __main__ -   Retrieval Loss: 0.904  Uniform Loss: 0.000
+04/18/2023 21:27:44 - INFO - __main__ -   Gumbel softmax temperature: 2.4338
+04/18/2023 21:27:44 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:27:44 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:27:44 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:28:23 - INFO - __main__ -   Train Epoch: 16 [24/46 (52%)] Loss: 0.840330 Lr: 0.000000044-0.000043709
+04/18/2023 21:28:23 - INFO - __main__ -   Retrieval Loss: 0.840  Uniform Loss: 0.000
+04/18/2023 21:28:23 - INFO - __main__ -   Gumbel softmax temperature: 2.4338
+04/18/2023 21:28:23 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:28:23 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:28:23 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:29:01 - INFO - __main__ -   Train Epoch: 16 [44/46 (96%)] Loss: 0.599300 Lr: 0.000000042-0.000041501
+04/18/2023 21:29:01 - INFO - __main__ -   Retrieval Loss: 0.599  Uniform Loss: 0.000
+04/18/2023 21:29:01 - INFO - __main__ -   Gumbel softmax temperature: 2.4338
+04/18/2023 21:29:01 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:29:01 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:29:01 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:29:05 - INFO - __main__ -   Train Epoch: 16 Loss: 0.836896
+04/18/2023 21:29:05 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:29:05 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:29:05 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:29:05 - INFO - __main__ -   [8728, 8618, 8417, 7899, 7131, 7121, 6689, 5501, 5630, 4878, 5126, 4631, 4873, 5927, 6915, 7900]
+04/18/2023 21:29:05 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:29:33 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:29:33 - INFO - __main__ -   EVAL epoch 16 Loss: 2.317190
+04/18/2023 21:29:33 - INFO - __main__ -   Retrieval Loss: 2.317
+04/18/2023 21:29:33 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:29:33 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:29:33 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:29:33 - INFO - __main__ -   [999, 1000, 996, 973, 878, 887, 827, 580, 621, 413, 506, 352, 444, 650, 884, 990]
+04/18/2023 21:29:33 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:29:33 - INFO - __main__ -   [t2v_metrics]EVAL epoch 16, R@1: 43.8, R@5: 72.7, R@10 80.8, R@50 94.6, MedR: 2, MeanR: 15.4
+04/18/2023 21:29:33 - INFO - __main__ -   [v2t_metrics]EVAL epoch 16, R@1: 43.1, R@5: 73.2, R@10 82.1, R@50 96.4, MedR: 2, MeanR: 10.4
+04/18/2023 21:29:33 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:30:18 - INFO - __main__ -   Train Epoch: 17 [18/46 (39%)] Loss: 0.698904 Lr: 0.000000039-0.000039310
+04/18/2023 21:30:18 - INFO - __main__ -   Retrieval Loss: 0.699  Uniform Loss: 0.000
+04/18/2023 21:30:18 - INFO - __main__ -   Gumbel softmax temperature: 2.3267
+04/18/2023 21:30:18 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:30:18 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:30:18 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:30:56 - INFO - __main__ -   Train Epoch: 17 [38/46 (83%)] Loss: 0.910995 Lr: 0.000000037-0.000037140
+04/18/2023 21:30:56 - INFO - __main__ -   Retrieval Loss: 0.911  Uniform Loss: 0.000
+04/18/2023 21:30:56 - INFO - __main__ -   Gumbel softmax temperature: 2.3267
+04/18/2023 21:30:56 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:30:56 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:30:56 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:31:11 - INFO - __main__ -   Train Epoch: 17 Loss: 0.801026
+04/18/2023 21:31:11 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:31:11 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:31:11 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:31:11 - INFO - __main__ -   [8719, 8613, 8384, 7884, 7162, 7007, 6720, 5558, 5646, 4892, 5078, 4576, 5009, 5836, 6972, 7928]
+04/18/2023 21:31:11 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:31:38 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:31:38 - INFO - __main__ -   EVAL epoch 17 Loss: 2.301126
+04/18/2023 21:31:38 - INFO - __main__ -   Retrieval Loss: 2.301
+04/18/2023 21:31:38 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:31:38 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:31:38 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:31:38 - INFO - __main__ -   [998, 1000, 995, 969, 872, 901, 820, 568, 622, 392, 532, 339, 454, 663, 892, 983]
+04/18/2023 21:31:38 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:31:38 - INFO - __main__ -   [t2v_metrics]EVAL epoch 17, R@1: 44.0, R@5: 72.5, R@10 80.5, R@50 94.7, MedR: 2, MeanR: 15.4
+04/18/2023 21:31:38 - INFO - __main__ -   [v2t_metrics]EVAL epoch 17, R@1: 43.6, R@5: 72.7, R@10 82.2, R@50 96.1, MedR: 2, MeanR: 10.4
+04/18/2023 21:31:38 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:32:11 - INFO - __main__ -   Train Epoch: 18 [12/46 (26%)] Loss: 0.712897 Lr: 0.000000035-0.000034996
+04/18/2023 21:32:11 - INFO - __main__ -   Retrieval Loss: 0.713  Uniform Loss: 0.000
+04/18/2023 21:32:11 - INFO - __main__ -   Gumbel softmax temperature: 2.2243
+04/18/2023 21:32:11 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:32:11 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:32:11 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:32:49 - INFO - __main__ -   Train Epoch: 18 [32/46 (70%)] Loss: 0.891427 Lr: 0.000000033-0.000032882
+04/18/2023 21:32:49 - INFO - __main__ -   Retrieval Loss: 0.891  Uniform Loss: 0.000
+04/18/2023 21:32:49 - INFO - __main__ -   Gumbel softmax temperature: 2.2243
+04/18/2023 21:32:49 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:32:49 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:32:49 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:33:16 - INFO - __main__ -   Train Epoch: 18 Loss: 0.814345
+04/18/2023 21:33:16 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:33:16 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:33:16 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:33:16 - INFO - __main__ -   [8684, 8570, 8336, 7830, 7157, 7077, 6602, 5512, 5688, 4811, 5304, 4716, 4996, 5970, 6900, 7831]
+04/18/2023 21:33:16 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:33:44 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:33:44 - INFO - __main__ -   EVAL epoch 18 Loss: 2.301362
+04/18/2023 21:33:44 - INFO - __main__ -   Retrieval Loss: 2.301
+04/18/2023 21:33:44 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:33:44 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:33:44 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:33:44 - INFO - __main__ -   [998, 1000, 995, 974, 878, 891, 835, 568, 609, 373, 545, 331, 460, 671, 888, 984]
+04/18/2023 21:33:44 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:33:44 - INFO - __main__ -   [t2v_metrics]EVAL epoch 18, R@1: 43.4, R@5: 72.5, R@10 80.4, R@50 94.8, MedR: 2, MeanR: 15.2
+04/18/2023 21:33:44 - INFO - __main__ -   [v2t_metrics]EVAL epoch 18, R@1: 43.6, R@5: 72.6, R@10 82.2, R@50 96.2, MedR: 2, MeanR: 10.3
+04/18/2023 21:33:44 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:34:05 - INFO - __main__ -   Train Epoch: 19 [6/46 (13%)] Loss: 0.881938 Lr: 0.000000031-0.000030801
+04/18/2023 21:34:05 - INFO - __main__ -   Retrieval Loss: 0.882  Uniform Loss: 0.000
+04/18/2023 21:34:05 - INFO - __main__ -   Gumbel softmax temperature: 2.1264
+04/18/2023 21:34:05 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:34:05 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:34:05 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:34:43 - INFO - __main__ -   Train Epoch: 19 [26/46 (57%)] Loss: 0.767604 Lr: 0.000000029-0.000028760
+04/18/2023 21:34:43 - INFO - __main__ -   Retrieval Loss: 0.768  Uniform Loss: 0.000
+04/18/2023 21:34:43 - INFO - __main__ -   Gumbel softmax temperature: 2.1264
+04/18/2023 21:34:43 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:34:43 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:34:43 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:35:22 - INFO - __main__ -   Train Epoch: 19 [46/46 (100%)] Loss: 0.806916 Lr: 0.000000027-0.000026760
+04/18/2023 21:35:22 - INFO - __main__ -   Retrieval Loss: 0.807  Uniform Loss: 0.000
+04/18/2023 21:35:22 - INFO - __main__ -   Gumbel softmax temperature: 2.1264
+04/18/2023 21:35:22 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:35:22 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:35:22 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:35:22 - INFO - __main__ -   Train Epoch: 19 Loss: 0.782217
+04/18/2023 21:35:22 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:35:22 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:35:22 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:35:22 - INFO - __main__ -   [8716, 8581, 8321, 7912, 7118, 7038, 6479, 5653, 5670, 4783, 5355, 4704, 5005, 5941, 6898, 7810]
+04/18/2023 21:35:22 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:35:49 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:35:49 - INFO - __main__ -   EVAL epoch 19 Loss: 2.300930
+04/18/2023 21:35:49 - INFO - __main__ -   Retrieval Loss: 2.301
+04/18/2023 21:35:49 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:35:49 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:35:49 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:35:49 - INFO - __main__ -   [997, 1000, 995, 969, 871, 900, 829, 562, 621, 360, 574, 328, 455, 672, 883, 984]
+04/18/2023 21:35:49 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:35:49 - INFO - __main__ -   [t2v_metrics]EVAL epoch 19, R@1: 43.5, R@5: 72.6, R@10 80.9, R@50 95.2, MedR: 2, MeanR: 15.1
+04/18/2023 21:35:49 - INFO - __main__ -   [v2t_metrics]EVAL epoch 19, R@1: 42.9, R@5: 74.0, R@10 83.1, R@50 96.2, MedR: 2, MeanR: 10.3
+04/18/2023 21:35:49 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:36:38 - INFO - __main__ -   Train Epoch: 20 [20/46 (43%)] Loss: 0.780739 Lr: 0.000000025-0.000024807
+04/18/2023 21:36:38 - INFO - __main__ -   Retrieval Loss: 0.781  Uniform Loss: 0.000
+04/18/2023 21:36:38 - INFO - __main__ -   Gumbel softmax temperature: 2.0328
+04/18/2023 21:36:38 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:36:38 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:36:38 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:37:16 - INFO - __main__ -   Train Epoch: 20 [40/46 (87%)] Loss: 0.696820 Lr: 0.000000023-0.000022904
+04/18/2023 21:37:16 - INFO - __main__ -   Retrieval Loss: 0.697  Uniform Loss: 0.000
+04/18/2023 21:37:16 - INFO - __main__ -   Gumbel softmax temperature: 2.0328
+04/18/2023 21:37:16 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:37:16 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:37:16 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:37:27 - INFO - __main__ -   Train Epoch: 20 Loss: 0.778976
+04/18/2023 21:37:27 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:37:27 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:37:27 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:37:27 - INFO - __main__ -   [8689, 8582, 8320, 7789, 7011, 7013, 6662, 5690, 5657, 4864, 5471, 4731, 5034, 5927, 6709, 7835]
+04/18/2023 21:37:27 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:37:55 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:37:55 - INFO - __main__ -   EVAL epoch 20 Loss: 2.302013
+04/18/2023 21:37:55 - INFO - __main__ -   Retrieval Loss: 2.302
+04/18/2023 21:37:55 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:37:55 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:37:55 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:37:55 - INFO - __main__ -   [997, 999, 996, 973, 873, 901, 835, 558, 616, 369, 570, 328, 456, 660, 882, 987]
+04/18/2023 21:37:55 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:37:55 - INFO - __main__ -   [t2v_metrics]EVAL epoch 20, R@1: 42.9, R@5: 72.2, R@10 81.7, R@50 95.2, MedR: 2, MeanR: 15.3
+04/18/2023 21:37:55 - INFO - __main__ -   [v2t_metrics]EVAL epoch 20, R@1: 43.4, R@5: 73.5, R@10 82.8, R@50 96.0, MedR: 2, MeanR: 10.2
+04/18/2023 21:37:55 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:38:32 - INFO - __main__ -   Train Epoch: 21 [14/46 (30%)] Loss: 0.709196 Lr: 0.000000021-0.000021055
+04/18/2023 21:38:32 - INFO - __main__ -   Retrieval Loss: 0.709  Uniform Loss: 0.000
+04/18/2023 21:38:32 - INFO - __main__ -   Gumbel softmax temperature: 1.9434
+04/18/2023 21:38:32 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:38:32 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:38:32 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:39:10 - INFO - __main__ -   Train Epoch: 21 [34/46 (74%)] Loss: 0.904757 Lr: 0.000000019-0.000019264
+04/18/2023 21:39:10 - INFO - __main__ -   Retrieval Loss: 0.905  Uniform Loss: 0.000
+04/18/2023 21:39:10 - INFO - __main__ -   Gumbel softmax temperature: 1.9434
+04/18/2023 21:39:10 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:39:10 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:39:10 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:39:33 - INFO - __main__ -   Train Epoch: 21 Loss: 0.780387
+04/18/2023 21:39:33 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:39:33 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:39:33 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:39:33 - INFO - __main__ -   [8691, 8586, 8355, 7824, 7122, 7126, 6657, 5570, 5622, 4741, 5502, 4776, 4992, 5823, 6788, 7809]
+04/18/2023 21:39:33 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:40:01 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:40:01 - INFO - __main__ -   EVAL epoch 21 Loss: 2.303630
+04/18/2023 21:40:01 - INFO - __main__ -   Retrieval Loss: 2.304
+04/18/2023 21:40:01 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:40:01 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:40:01 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:40:01 - INFO - __main__ -   [997, 999, 994, 974, 882, 903, 838, 585, 598, 359, 577, 332, 437, 668, 870, 987]
+04/18/2023 21:40:01 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:40:01 - INFO - __main__ -   [t2v_metrics]EVAL epoch 21, R@1: 43.3, R@5: 72.2, R@10 81.5, R@50 94.8, MedR: 2, MeanR: 15.3
+04/18/2023 21:40:01 - INFO - __main__ -   [v2t_metrics]EVAL epoch 21, R@1: 43.6, R@5: 73.1, R@10 82.4, R@50 95.9, MedR: 2, MeanR: 10.3
+04/18/2023 21:40:01 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:40:26 - INFO - __main__ -   Train Epoch: 22 [8/46 (17%)] Loss: 0.965602 Lr: 0.000000018-0.000017534
+04/18/2023 21:40:26 - INFO - __main__ -   Retrieval Loss: 0.966  Uniform Loss: 0.000
+04/18/2023 21:40:26 - INFO - __main__ -   Gumbel softmax temperature: 1.8579
+04/18/2023 21:40:26 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:40:26 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:40:26 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:41:05 - INFO - __main__ -   Train Epoch: 22 [28/46 (61%)] Loss: 0.540986 Lr: 0.000000016-0.000015869
+04/18/2023 21:41:05 - INFO - __main__ -   Retrieval Loss: 0.541  Uniform Loss: 0.000
+04/18/2023 21:41:05 - INFO - __main__ -   Gumbel softmax temperature: 1.8579
+04/18/2023 21:41:05 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:41:05 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:41:05 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:41:40 - INFO - __main__ -   Train Epoch: 22 Loss: 0.798946
+04/18/2023 21:41:40 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:41:40 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:41:40 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:41:40 - INFO - __main__ -   [8683, 8572, 8351, 7854, 7094, 7104, 6667, 5651, 5581, 4726, 5502, 4691, 4986, 5817, 6789, 7916]
+04/18/2023 21:41:40 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:42:08 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:42:08 - INFO - __main__ -   EVAL epoch 22 Loss: 2.301498
+04/18/2023 21:42:08 - INFO - __main__ -   Retrieval Loss: 2.301
+04/18/2023 21:42:08 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:42:08 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:42:08 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:42:08 - INFO - __main__ -   [998, 999, 994, 971, 879, 910, 840, 579, 606, 365, 565, 341, 424, 675, 870, 984]
+04/18/2023 21:42:08 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:42:08 - INFO - __main__ -   [t2v_metrics]EVAL epoch 22, R@1: 43.4, R@5: 72.5, R@10 81.1, R@50 95.1, MedR: 2, MeanR: 15.3
+04/18/2023 21:42:08 - INFO - __main__ -   [v2t_metrics]EVAL epoch 22, R@1: 43.5, R@5: 72.7, R@10 82.6, R@50 96.1, MedR: 2, MeanR: 10.3
+04/18/2023 21:42:08 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:42:20 - INFO - __main__ -   Train Epoch: 23 [2/46 (4%)] Loss: 0.725311 Lr: 0.000000014-0.000014272
+04/18/2023 21:42:20 - INFO - __main__ -   Retrieval Loss: 0.725  Uniform Loss: 0.000
+04/18/2023 21:42:20 - INFO - __main__ -   Gumbel softmax temperature: 1.7761
+04/18/2023 21:42:20 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:42:20 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:42:20 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:43:00 - INFO - __main__ -   Train Epoch: 23 [22/46 (48%)] Loss: 0.870889 Lr: 0.000000013-0.000012746
+04/18/2023 21:43:00 - INFO - __main__ -   Retrieval Loss: 0.871  Uniform Loss: 0.000
+04/18/2023 21:43:00 - INFO - __main__ -   Gumbel softmax temperature: 1.7761
+04/18/2023 21:43:00 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:43:00 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:43:00 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:43:38 - INFO - __main__ -   Train Epoch: 23 [42/46 (91%)] Loss: 0.737427 Lr: 0.000000011-0.000011294
+04/18/2023 21:43:38 - INFO - __main__ -   Retrieval Loss: 0.737  Uniform Loss: 0.000
+04/18/2023 21:43:38 - INFO - __main__ -   Gumbel softmax temperature: 1.7761
+04/18/2023 21:43:38 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:43:38 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:43:38 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:43:46 - INFO - __main__ -   Train Epoch: 23 Loss: 0.791858
+04/18/2023 21:43:46 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:43:46 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:43:46 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:43:46 - INFO - __main__ -   [8682, 8556, 8340, 7845, 7062, 7135, 6637, 5557, 5769, 4884, 5307, 4691, 4973, 5836, 6795, 7915]
+04/18/2023 21:43:46 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:44:13 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:44:13 - INFO - __main__ -   EVAL epoch 23 Loss: 2.296666
+04/18/2023 21:44:13 - INFO - __main__ -   Retrieval Loss: 2.297
+04/18/2023 21:44:13 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:44:13 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:44:13 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:44:13 - INFO - __main__ -   [998, 999, 995, 972, 883, 905, 842, 580, 610, 367, 575, 332, 419, 673, 865, 985]
+04/18/2023 21:44:13 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:44:13 - INFO - __main__ -   [t2v_metrics]EVAL epoch 23, R@1: 43.9, R@5: 72.4, R@10 81.3, R@50 95.0, MedR: 2, MeanR: 15.3
+04/18/2023 21:44:13 - INFO - __main__ -   [v2t_metrics]EVAL epoch 23, R@1: 43.8, R@5: 73.0, R@10 82.7, R@50 95.9, MedR: 2, MeanR: 10.2
+04/18/2023 21:44:13 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:44:54 - INFO - __main__ -   Train Epoch: 24 [16/46 (35%)] Loss: 0.634095 Lr: 0.000000010-0.000009920
+04/18/2023 21:44:54 - INFO - __main__ -   Retrieval Loss: 0.634  Uniform Loss: 0.000
+04/18/2023 21:44:54 - INFO - __main__ -   Gumbel softmax temperature: 1.6980
+04/18/2023 21:44:54 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:44:54 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:44:54 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:45:32 - INFO - __main__ -   Train Epoch: 24 [36/46 (78%)] Loss: 0.984152 Lr: 0.000000009-0.000008625
+04/18/2023 21:45:32 - INFO - __main__ -   Retrieval Loss: 0.984  Uniform Loss: 0.000
+04/18/2023 21:45:32 - INFO - __main__ -   Gumbel softmax temperature: 1.6980
+04/18/2023 21:45:32 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:45:32 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:45:32 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:45:52 - INFO - __main__ -   Train Epoch: 24 Loss: 0.783908
+04/18/2023 21:45:52 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:45:52 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:45:52 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:45:52 - INFO - __main__ -   [8683, 8550, 8363, 7886, 7105, 7114, 6500, 5634, 5718, 4765, 5491, 4680, 4851, 5908, 6831, 7905]
+04/18/2023 21:45:52 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:46:19 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:46:19 - INFO - __main__ -   EVAL epoch 24 Loss: 2.298299
+04/18/2023 21:46:19 - INFO - __main__ -   Retrieval Loss: 2.298
+04/18/2023 21:46:19 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:46:19 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:46:19 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:46:19 - INFO - __main__ -   [998, 999, 995, 967, 878, 904, 834, 578, 614, 365, 586, 346, 421, 667, 863, 985]
+04/18/2023 21:46:19 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:46:19 - INFO - __main__ -   [t2v_metrics]EVAL epoch 24, R@1: 43.5, R@5: 72.4, R@10 81.3, R@50 95.1, MedR: 2, MeanR: 15.2
+04/18/2023 21:46:19 - INFO - __main__ -   [v2t_metrics]EVAL epoch 24, R@1: 43.6, R@5: 73.1, R@10 82.7, R@50 95.9, MedR: 2, MeanR: 10.2
+04/18/2023 21:46:19 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:46:47 - INFO - __main__ -   Train Epoch: 25 [10/46 (22%)] Loss: 0.974128 Lr: 0.000000007-0.000007413
+04/18/2023 21:46:47 - INFO - __main__ -   Retrieval Loss: 0.974  Uniform Loss: 0.000
+04/18/2023 21:46:47 - INFO - __main__ -   Gumbel softmax temperature: 1.6233
+04/18/2023 21:46:47 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:46:47 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:46:47 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:47:26 - INFO - __main__ -   Train Epoch: 25 [30/46 (65%)] Loss: 0.772493 Lr: 0.000000006-0.000006286
+04/18/2023 21:47:26 - INFO - __main__ -   Retrieval Loss: 0.772  Uniform Loss: 0.000
+04/18/2023 21:47:26 - INFO - __main__ -   Gumbel softmax temperature: 1.6233
+04/18/2023 21:47:26 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:47:26 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:47:26 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:47:57 - INFO - __main__ -   Train Epoch: 25 Loss: 0.798508
+04/18/2023 21:47:57 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:47:57 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:47:57 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:47:57 - INFO - __main__ -   [8656, 8578, 8361, 7826, 7032, 7051, 6712, 5480, 5689, 4753, 5521, 4793, 4928, 5951, 6833, 7820]
+04/18/2023 21:47:57 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:48:24 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:48:24 - INFO - __main__ -   EVAL epoch 25 Loss: 2.293404
+04/18/2023 21:48:24 - INFO - __main__ -   Retrieval Loss: 2.293
+04/18/2023 21:48:24 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:48:24 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:48:24 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:48:24 - INFO - __main__ -   [997, 998, 993, 968, 877, 913, 831, 576, 617, 369, 572, 338, 432, 669, 865, 985]
+04/18/2023 21:48:24 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:48:24 - INFO - __main__ -   [t2v_metrics]EVAL epoch 25, R@1: 43.5, R@5: 72.0, R@10 81.7, R@50 95.1, MedR: 2, MeanR: 15.2
+04/18/2023 21:48:24 - INFO - __main__ -   [v2t_metrics]EVAL epoch 25, R@1: 43.5, R@5: 73.1, R@10 82.6, R@50 95.8, MedR: 2, MeanR: 10.3
+04/18/2023 21:48:24 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:48:41 - INFO - __main__ -   Train Epoch: 26 [4/46 (9%)] Loss: 0.740379 Lr: 0.000000005-0.000005246
+04/18/2023 21:48:41 - INFO - __main__ -   Retrieval Loss: 0.740  Uniform Loss: 0.000
+04/18/2023 21:48:41 - INFO - __main__ -   Gumbel softmax temperature: 1.5518
+04/18/2023 21:48:41 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:48:41 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:48:41 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:49:19 - INFO - __main__ -   Train Epoch: 26 [24/46 (52%)] Loss: 0.675291 Lr: 0.000000004-0.000004296
+04/18/2023 21:49:19 - INFO - __main__ -   Retrieval Loss: 0.675  Uniform Loss: 0.000
+04/18/2023 21:49:19 - INFO - __main__ -   Gumbel softmax temperature: 1.5518
+04/18/2023 21:49:19 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:49:19 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:49:19 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:49:57 - INFO - __main__ -   Train Epoch: 26 [44/46 (96%)] Loss: 0.670158 Lr: 0.000000003-0.000003436
+04/18/2023 21:49:57 - INFO - __main__ -   Retrieval Loss: 0.670  Uniform Loss: 0.000
+04/18/2023 21:49:57 - INFO - __main__ -   Gumbel softmax temperature: 1.5518
+04/18/2023 21:49:57 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:49:57 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:49:57 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:50:01 - INFO - __main__ -   Train Epoch: 26 Loss: 0.771848
+04/18/2023 21:50:01 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:50:01 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:50:01 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:50:01 - INFO - __main__ -   [8654, 8595, 8327, 7818, 7123, 7124, 6697, 5574, 5616, 4765, 5532, 4793, 4897, 5828, 6783, 7858]
+04/18/2023 21:50:01 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:50:29 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:50:29 - INFO - __main__ -   EVAL epoch 26 Loss: 2.294888
+04/18/2023 21:50:29 - INFO - __main__ -   Retrieval Loss: 2.295
+04/18/2023 21:50:29 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:50:29 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:50:29 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:50:29 - INFO - __main__ -   [997, 999, 993, 969, 874, 913, 833, 577, 618, 374, 574, 335, 429, 668, 862, 985]
+04/18/2023 21:50:29 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:50:29 - INFO - __main__ -   [t2v_metrics]EVAL epoch 26, R@1: 43.8, R@5: 72.1, R@10 81.8, R@50 95.2, MedR: 2, MeanR: 15.2
+04/18/2023 21:50:29 - INFO - __main__ -   [v2t_metrics]EVAL epoch 26, R@1: 43.7, R@5: 73.2, R@10 82.6, R@50 95.8, MedR: 2, MeanR: 10.3
+04/18/2023 21:50:29 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:51:14 - INFO - __main__ -   Train Epoch: 27 [18/46 (39%)] Loss: 0.782323 Lr: 0.000000003-0.000002669
+04/18/2023 21:51:14 - INFO - __main__ -   Retrieval Loss: 0.782  Uniform Loss: 0.000
+04/18/2023 21:51:14 - INFO - __main__ -   Gumbel softmax temperature: 1.4836
+04/18/2023 21:51:14 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:51:14 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:51:14 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:51:52 - INFO - __main__ -   Train Epoch: 27 [38/46 (83%)] Loss: 0.902088 Lr: 0.000000002-0.000001997
+04/18/2023 21:51:52 - INFO - __main__ -   Retrieval Loss: 0.902  Uniform Loss: 0.000
+04/18/2023 21:51:52 - INFO - __main__ -   Gumbel softmax temperature: 1.4836
+04/18/2023 21:51:52 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:51:52 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:51:52 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:52:07 - INFO - __main__ -   Train Epoch: 27 Loss: 0.762221
+04/18/2023 21:52:07 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:52:07 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:52:07 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:52:07 - INFO - __main__ -   [8677, 8574, 8335, 7836, 7036, 7183, 6629, 5538, 5614, 4834, 5618, 4782, 4901, 5886, 6711, 7830]
+04/18/2023 21:52:07 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:52:35 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:52:35 - INFO - __main__ -   EVAL epoch 27 Loss: 2.295046
+04/18/2023 21:52:35 - INFO - __main__ -   Retrieval Loss: 2.295
+04/18/2023 21:52:35 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:52:35 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:52:35 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:52:35 - INFO - __main__ -   [997, 999, 993, 970, 876, 912, 833, 578, 618, 372, 571, 338, 429, 669, 860, 985]
+04/18/2023 21:52:35 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:52:35 - INFO - __main__ -   [t2v_metrics]EVAL epoch 27, R@1: 43.9, R@5: 72.1, R@10 81.8, R@50 95.1, MedR: 2, MeanR: 15.2
+04/18/2023 21:52:35 - INFO - __main__ -   [v2t_metrics]EVAL epoch 27, R@1: 43.7, R@5: 73.3, R@10 82.6, R@50 95.9, MedR: 2, MeanR: 10.3
+04/18/2023 21:52:35 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:53:08 - INFO - __main__ -   Train Epoch: 28 [12/46 (26%)] Loss: 0.634340 Lr: 0.000000001-0.000001420
+04/18/2023 21:53:08 - INFO - __main__ -   Retrieval Loss: 0.634  Uniform Loss: 0.000
+04/18/2023 21:53:08 - INFO - __main__ -   Gumbel softmax temperature: 1.4183
+04/18/2023 21:53:08 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:53:08 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:53:08 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:53:46 - INFO - __main__ -   Train Epoch: 28 [32/46 (70%)] Loss: 0.632152 Lr: 0.000000001-0.000000940
+04/18/2023 21:53:46 - INFO - __main__ -   Retrieval Loss: 0.632  Uniform Loss: 0.000
+04/18/2023 21:53:46 - INFO - __main__ -   Gumbel softmax temperature: 1.4183
+04/18/2023 21:53:46 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:53:46 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:53:46 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:54:13 - INFO - __main__ -   Train Epoch: 28 Loss: 0.805580
+04/18/2023 21:54:13 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:54:13 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:54:13 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:54:13 - INFO - __main__ -   [8674, 8570, 8410, 7764, 7134, 7106, 6569, 5462, 5720, 4904, 5476, 4661, 5068, 5810, 6807, 7849]
+04/18/2023 21:54:13 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:54:40 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:54:40 - INFO - __main__ -   EVAL epoch 28 Loss: 2.294468
+04/18/2023 21:54:40 - INFO - __main__ -   Retrieval Loss: 2.294
+04/18/2023 21:54:40 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:54:40 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:54:40 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:54:40 - INFO - __main__ -   [997, 998, 993, 969, 874, 913, 832, 581, 616, 370, 576, 333, 431, 672, 861, 984]
+04/18/2023 21:54:40 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:54:40 - INFO - __main__ -   [t2v_metrics]EVAL epoch 28, R@1: 43.9, R@5: 72.2, R@10 81.9, R@50 95.1, MedR: 2, MeanR: 15.2
+04/18/2023 21:54:40 - INFO - __main__ -   [v2t_metrics]EVAL epoch 28, R@1: 43.9, R@5: 73.3, R@10 82.6, R@50 95.9, MedR: 2, MeanR: 10.3
+04/18/2023 21:54:40 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:55:01 - INFO - __main__ -   Train Epoch: 29 [6/46 (13%)] Loss: 0.983610 Lr: 0.000000001-0.000000558
+04/18/2023 21:55:01 - INFO - __main__ -   Retrieval Loss: 0.984  Uniform Loss: 0.000
+04/18/2023 21:55:01 - INFO - __main__ -   Gumbel softmax temperature: 1.3559
+04/18/2023 21:55:01 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:55:01 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:55:01 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:55:40 - INFO - __main__ -   Train Epoch: 29 [26/46 (57%)] Loss: 1.001060 Lr: 0.000000000-0.000000275
+04/18/2023 21:55:40 - INFO - __main__ -   Retrieval Loss: 1.001  Uniform Loss: 0.000
+04/18/2023 21:55:40 - INFO - __main__ -   Gumbel softmax temperature: 1.3559
+04/18/2023 21:55:40 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:55:40 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:55:40 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:56:19 - INFO - __main__ -   Train Epoch: 29 [46/46 (100%)] Loss: 0.771248 Lr: 0.000000000-0.000000091
+04/18/2023 21:56:19 - INFO - __main__ -   Retrieval Loss: 0.771  Uniform Loss: 0.000
+04/18/2023 21:56:19 - INFO - __main__ -   Gumbel softmax temperature: 1.3559
+04/18/2023 21:56:19 - INFO - __main__ -   CLIP model: 2304 (75.00)%
+04/18/2023 21:56:19 - INFO - __main__ -   Skip 1 frame: 768 (25.00)%
+04/18/2023 21:56:19 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:56:19 - INFO - __main__ -   Train Epoch: 29 Loss: 0.796002
+04/18/2023 21:56:19 - INFO - __main__ -   CLIP model: 105984 (75.00)%
+04/18/2023 21:56:19 - INFO - __main__ -   Skip 1 frame: 35328 (25.00)%
+04/18/2023 21:56:19 - INFO - __main__ -   Out of 8832 videos, the number of times each frame index is being selected: 
+04/18/2023 21:56:19 - INFO - __main__ -   [8668, 8584, 8319, 7849, 7065, 7096, 6554, 5504, 5704, 4758, 5521, 4833, 4992, 5848, 6824, 7865]
+04/18/2023 21:56:19 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:56:35 - INFO - __main__ -   Num. of queries: 1000, Num. of videos: 1000
+04/18/2023 21:56:35 - INFO - __main__ -   EVAL epoch 29 Loss: 2.295004
+04/18/2023 21:56:35 - INFO - __main__ -   Retrieval Loss: 2.295
+04/18/2023 21:56:35 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:56:35 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:56:35 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:56:35 - INFO - __main__ -   [997, 998, 993, 971, 878, 911, 835, 578, 618, 367, 575, 335, 430, 671, 858, 985]
+04/18/2023 21:56:35 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:56:35 - INFO - __main__ -   [t2v_metrics]EVAL epoch 29, R@1: 43.8, R@5: 71.9, R@10 82.0, R@50 95.1, MedR: 2, MeanR: 15.2
+04/18/2023 21:56:35 - INFO - __main__ -   [v2t_metrics]EVAL epoch 29, R@1: 43.8, R@5: 73.3, R@10 82.6, R@50 96.0, MedR: 2, MeanR: 10.3
+04/18/2023 21:56:35 - INFO - __main__ -   This epoch did not improve R1-5-10. Best checkpoint saved for epoch 11
+04/18/2023 21:56:35 - INFO - __main__ -   Best retrieval performance from epoch 11
+04/18/2023 21:56:35 - INFO - __main__ -   CLIP model: 12000 (75.00)%
+04/18/2023 21:56:35 - INFO - __main__ -   Skip 1 frame: 4000 (25.00)%
+04/18/2023 21:56:35 - INFO - __main__ -   Out of 1000 videos, the number of times each frame index is being selected: 
+04/18/2023 21:56:35 - INFO - __main__ -   [999, 997, 991, 956, 863, 896, 851, 559, 571, 429, 565, 377, 436, 674, 857, 979]
+04/18/2023 21:56:35 - INFO - __main__ -   GFLOPS/f: 3.540 GFLOPS/v: 56.636 AVG_FRAMES: 12.000
+04/18/2023 21:56:35 - INFO - __main__ -   [t2v_metrics]EVAL epoch 11, R@1: 45.1, R@5: 71.7, R@10 79.9, R@50 94.6, MedR: 2, MeanR: 15.5
+04/18/2023 21:56:35 - INFO - __main__ -   [v2t_metrics]EVAL epoch 11, R@1: 44.0, R@5: 71.9, R@10 82.1, R@50 96.1, MedR: 2, MeanR: 10.7
+04/18/2023 21:56:35 - INFO - __main__ -   Log file and the best performing ckpt can be found at output/msrvtt/2023-04-18_20-53-25

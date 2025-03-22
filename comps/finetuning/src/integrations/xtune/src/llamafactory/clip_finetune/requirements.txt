@@ -1,0 +1,6 @@
+ftfy
+geomloss
+keopscore
+optuna
+regex
+tqdm

@@ -1,0 +1,15 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+DATALOADER:
+  TRAIN_X:
+    BATCH_SIZE: 256
+  TEST:
+    BATCH_SIZE: 256
+
+OPTIM:
+  NAME: "sgd"
+  LR: 0.05
+  STEPSIZE: [30]
+  MAX_EPOCH: 30
+  LR_SCHEDULER: "cosine"
