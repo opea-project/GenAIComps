@@ -272,6 +272,7 @@ class ChatCompletionRequest(BaseModel):
     # key index name
     index_name: Optional[str] = None
 
+
 class DocSumChatCompletionRequest(ChatCompletionRequest):
     summary_type: str = "auto"  # can be "auto", "stuff", "truncate", "map_reduce", "refine"
     chunk_size: int = -1

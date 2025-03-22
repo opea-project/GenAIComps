@@ -192,10 +192,10 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
     # Batch size
     batch_size = 32
     num_chunks = len(chunks)
-    
+
     # if data will be saved to a different index name than the default one
     ingest_index_name = index_name if index_name else INDEX_NAME
-    
+
     file_ids = []
     for i in range(0, num_chunks, batch_size):
         if logflag:
@@ -361,7 +361,7 @@ class OpeaRedisDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
         ingest_from_graphDB: bool = Form(False),
-        index_name: str = Form(None)
+        index_name: str = Form(None),
     ):
         """Ingest files/links content into redis database.
 
@@ -415,7 +415,7 @@ class OpeaRedisDataprep(OpeaComponent):
                         table_strategy=table_strategy,
                     ),
                     self.embedder,
-                    index_name
+                    index_name,
                 )
                 uploaded_files.append(save_path)
                 if logflag:
@@ -461,7 +461,7 @@ class OpeaRedisDataprep(OpeaComponent):
                         table_strategy=table_strategy,
                     ),
                     self.embedder,
-                    index_name
+                    index_name,
                 )
             if logflag:
                 logger.info(f"[ redis ingest] Successfully saved link list {link_list}")
@@ -628,14 +628,13 @@ class OpeaRedisDataprep(OpeaComponent):
             raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
 
     def get_list_of_indices(self):
-        """
-        Retrieves a list of all indices from the Redis client.
-        
+        """Retrieves a list of all indices from the Redis client.
+
         Returns:
             A list of index names as strings.
         """
         # Execute the command to list all indices
-        indices = self.client.execute_command('FT._LIST')
+        indices = self.client.execute_command("FT._LIST")
         # Decode each index name from bytes to string
-        indices_list = [item.decode('utf-8') for item in indices]
+        indices_list = [item.decode("utf-8") for item in indices]
         return indices_list
