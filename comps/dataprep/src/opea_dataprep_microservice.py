@@ -57,6 +57,7 @@ async def ingest_files(
     process_table: bool = Form(False),
     table_strategy: str = Form("fast"),
     ingest_from_graphDB: bool = Form(False),
+    index_name: Optional[str] = Form(None),
 ):
     start = time.time()
 
@@ -67,7 +68,7 @@ async def ingest_files(
     try:
         # Use the loader to invoke the component
         response = await loader.ingest_files(
-            files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB
+            files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB, index_name
         )
         # Log the result if logging is enabled
         if logflag:
@@ -133,6 +134,36 @@ async def delete_files(file_path: str = Body(..., embed=True)):
         return response
     except Exception as e:
         logger.error(f"Error during dataprep delete invocation: {e}")
+        raise
+
+
+@register_microservice(
+    name="opea_service@dataprep",
+    service_type=ServiceType.DATAPREP,
+    endpoint="/v1/dataprep/indices",
+    host="0.0.0.0",
+    port=5000,
+)
+@register_statistics(names=["opea_service@dataprep"])
+async def get_list_of_indices():
+    start = time.time()
+    if logflag:
+        logger.info("[ get ] start to get list of indices.")
+
+    try:
+        # Use the loader to invoke the component
+        response = await loader.get_list_of_indices()
+
+        # Log the result if logging is enabled
+        if logflag:
+            logger.info(f"[ get ] list of indices: {response}")
+
+        # Record statistics
+        statistics_dict["opea_service@dataprep"].append_latency(time.time() - start, None)
+
+        return response
+    except Exception as e:
+        logger.error(f"Error during dataprep get list of indices: {e}")
         raise
 
 
