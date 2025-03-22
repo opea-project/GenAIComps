@@ -270,7 +270,7 @@ class ChatCompletionRequest(BaseModel):
     request_type: Literal["chat"] = "chat"
 
     # key index name
-    key_index_name: Optional[str] = None
+    index_name: Optional[str] = None
 
 class DocSumChatCompletionRequest(ChatCompletionRequest):
     summary_type: str = "auto"  # can be "auto", "stuff", "truncate", "map_reduce", "refine"

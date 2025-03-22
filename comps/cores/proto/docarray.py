@@ -226,7 +226,7 @@ class LLMParams(BaseDoc):
     repetition_penalty: float = 1.03
     stream: bool = True
     language: str = "auto"  # can be "en", "zh"
-    key_index_name: Optional[str] = None
+    index_name: Optional[str] = None
 
     chat_template: Optional[str] = Field(
         default=None,
