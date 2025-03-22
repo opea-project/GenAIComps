@@ -1,6 +1,10 @@
 # Document Summary LLM Microservice
 
-This microservice leverages LangChain to implement summarization strategies and facilitate LLM inference using Text Generation Inference on Intel Xeon and Gaudi2 processors. You can set backend service either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
+This microservice leverages LangChain to implement advanced text summarization strategies and facilitate Large Language Model (LLM) inference using Text Generation Inference (TGI) on Intel Xeon and Gaudi2 processors. Users can configure the backend service to utilize either [TGI](../../../third_parties/tgi) or [vLLM](../../../third_parties/vllm).
+
+# Quick Start Guide
+
+## Deployment options
 
 ## 🚀1. Start Microservice with Docker 🐳
 
@@ -25,18 +29,18 @@ Please make sure MAX_TOTAL_TOKENS should be larger than (MAX_INPUT_TOKENS + max_
 
 Step 1: Prepare backend LLM docker image.
 
-If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) to build vLLM docker images first.
+If you want to use vLLM backend, refer to [vLLM](../../../third_parties/vllm/) for building the necessary Docker image.
 
-No need for TGI.
+TGI does not require additional setup.
 
-Step 2: Build DocSum docker image.
+Step 2: Build DocSum docker image:
 
 ```bash
 cd ../../../../
 docker build -t opea/llm-docsum:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/doc-summarization/Dockerfile .
 ```
 
-### 1.3 Run Docker
+### 1.3 Run Docker Service
 
 To start a docker container, you have two options:
 
@@ -75,17 +79,37 @@ Set `service_name` to match backend service.
 
 ```bash
 export service_name="docsum-tgi"
-# export service_name="docsum-tgi-gaudi"
-# export service_name="docsum-vllm"
-# export service_name="docsum-vllm-gaudi"
+# Alternative you can use service_name as: "docsum-tgi-gaudi", "docsum-vllm", "docsum-vllm-gaudi"
 
 cd ../../deployment/docker_compose/
 docker compose -f compose_doc-summarization.yaml up ${service_name} -d
 ```
 
+## 🚀2. Start Microservice with Kubernetes
+
+The **DocSum microservice** can be deployed on a **Kubernetes cluster** using the provided manifests.
+
+### 2.1 Deployment Overview
+
+- Requires **a running Kubernetes cluster** and `kubectl` configured.
+- The service can be exposed using **ClusterIP, NodePort, or Ingress**.
+- Backend LLM service (**TGI or vLLM**) must be running.
+
+### 2.2 Quick Deployment Steps
+
+Run the following commands to deploy:
+
+```bash
+kubectl apply -f deployment/k8s/docsum-deployment.yaml
+kubectl apply -f deployment/k8s/docsum-service.yaml
+kubectl apply -f deployment/k8s/docsum-ingress.yaml  # If using Ingress
+```
+
+For detailed deployment steps and configuration options, refer to the [Kubernetes Deployment Guide](../../../llms/deployment).
+
 ## 🚀3. Consume LLM Service
 
-### 3.1 Check Service Status
+### 3.1 Checking Service Status
 
 ```bash
 curl http://${your_ip}:9000/v1/health_check\
