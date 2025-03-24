@@ -25,7 +25,7 @@ function _invoke_curl() {
       ingest)
         header='Content-Type: multipart/form-data'
         ;;
-      delete|get)
+      delete|get|indices)
         header='Content-Type: application/json'
 	;;
       *)
@@ -108,6 +108,13 @@ function get_all() {
     local port=$2
     shift 2
     _invoke_curl $fqdn $port get $@
+}
+
+function indices() {
+    local fqdn=$1
+    local port=$2
+    shift 2
+    _invoke_curl $fqdn $port indices $@
 }
 
 function check_result() {
