@@ -12,7 +12,7 @@ graspologic
 haystack-ai==2.3.1
 langchain-elasticsearch
 langchain-pinecone
-langchain-vdms
+langchain-vdms>=0.1.4
 langchain_community
 langchain_huggingface
 langchain_milvus
@@ -43,4 +43,3 @@ sentence_transformers
 shortuuid
 tiktoken
 uvicorn
-vdms>=0.0.21
