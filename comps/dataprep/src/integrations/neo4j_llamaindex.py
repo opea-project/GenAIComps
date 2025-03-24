@@ -673,6 +673,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
         ingest_from_graphDB: bool = Form(False),
+        index_name: str = Form(None)
     ):
         """Ingest files/links content into Neo4j database.
 
@@ -686,6 +687,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
             table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
             ingest_from_graphDB (bool, optional): Whether to skip generating graph from files and instead loading index from existing graph store.
+            index_name (str, optional): The name of the index where data will be ingested.
         """
         if logflag:
             logger.info(f"files:{files}")
