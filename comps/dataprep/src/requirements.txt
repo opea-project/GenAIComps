@@ -21,7 +21,7 @@ langchain-openai
 langchain-pinecone
 langchain-redis
 langchain-text-splitters
-langchain-vdms
+langchain-vdms>=0.1.4
 langchain_huggingface
 langchain_milvus
 llama-index
@@ -62,5 +62,4 @@ typing
 tzlocal
 unstructured[all-docs]
 uvicorn
-vdms>=0.0.21
 webvtt-py

@@ -10,13 +10,12 @@ import torch.nn as nn
 import torchvision.transforms as T
 from decord import VideoReader, cpu
 from einops import rearrange
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.embeddings import Embeddings
 from langchain_vdms.vectorstores import VDMS, VDMS_Client
 from pydantic import BaseModel, model_validator
 from torch import cat as torch_cat
 from transformers import AutoProcessor, AutoTokenizer, CLIPModel
-from fastapi import HTTPException
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
@@ -75,7 +74,7 @@ class OpeaVDMsRetriever(OpeaComponent):
             # create embeddings using local embedding model
             if logflag:
                 logger.info(f"[ init embedder ] LOCAL_EMBEDDING_MODEL:{EMBED_MODEL}")
-            embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+            embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         return embeddings
 
     def _initialize_vector_db(self) -> VDMS:
