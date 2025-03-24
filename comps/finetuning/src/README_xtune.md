@@ -43,10 +43,10 @@ export FINETUNING_COMPONENT_NAME="XTUNE_FINETUNING"
 python opea_finetuning_microservice.py
 ```
 
-
 ## 🚀3. Consume Finetuning Service
 
 #### 3.1 How to use xtune
+
 Use the following command to launch a job for xtune:
 
 ```bash
@@ -78,6 +78,7 @@ curl http://localhost:8015/v1/fine_tuning/jobs/cancel -X POST -H "Content-Type: 
 ```
 
 ### 3.3 Check fine-tuning job full log
+
 ```bash
 cat /tmp/test.log
 ```

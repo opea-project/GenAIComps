@@ -45,7 +45,7 @@ function validate_upload() {
     # Parse the JSON response
     purpose=$(echo "$RESPONSE_BODY" | jq -r '.purpose')
     filename=$(echo "$RESPONSE_BODY" | jq -r '.filename')
-    
+
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
         docker logs $DOCKER_NAME >> ${LOG_PATH}/finetuning-server_upload_file.log
