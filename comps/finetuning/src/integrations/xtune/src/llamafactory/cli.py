@@ -18,9 +18,7 @@ import subprocess
 import sys
 from enum import Enum, unique
 
-from transformers.utils import (
-    is_torch_xpu_available,
-)
+from transformers.utils import is_torch_xpu_available
 
 from . import launcher
 from .api.app import run_api

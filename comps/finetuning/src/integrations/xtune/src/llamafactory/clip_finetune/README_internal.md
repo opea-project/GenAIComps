@@ -1,6 +1,7 @@
-
 ## Requirements
+
 We utilize the code base of [CoOp](https://github.com/KaiyangZhou/CoOp). Please follow their instructions to prepare the environment and datasets.
+
 ```python
 conda create -y -n clip_adapter python=3.10
 conda activate clip_adapter
@@ -24,6 +25,7 @@ export HF_ENDPOINT=https://hf-mirror.com
 ```
 
 # Prepare Dataset
+
 ```python
 # For internal use
 # support  caltech101, mini-imagenet, flickr30k, flickr5k
@@ -34,11 +36,12 @@ rm -rf ~/data/*/split_fewshot
 ```
 
 ## Get Started
+
 ```python
 export HF_ENDPOINT=https://hf-mirror.com
 export TOKENIZERS_PARALLELISM=false
 export DATA=/path/to/dataset
-# run clip_adapter 
+# run clip_adapter
 # run with huggingface transformers backbone
 # run clip_adapter
 bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0
@@ -58,22 +61,27 @@ bash scripts/CLIP_finetune/clip_prompt_hf.sh mini_imagenet vit_b16 1 True 0
 bash scripts/CLIP_finetune/clip_adapter_hf.sh flickr30k vit_b16 0
 
 # checkpoint will save to output/$METHOD/$MODEL/$DATASET
-# you can set `export CLIP_DEBUG=1` to remove checkpoint 
+# you can set `export CLIP_DEBUG=1` to remove checkpoint
 ```
+
 # config yaml for clip_bias
+
 ```python
 we use yaml to config param.
 e.g.       ./configs/clip_finetune/vit_b16_bias_example.yaml
 BIAS_TERMS:             which layer's bias you want to tune, default to tune all bias layer, in this config we tune the layer with attn or mlp in name
 BIAS_TERMS_EXCLUDE      which layer's bias you don't need to tune, in this config we don't tune text_encoder
 ```
+
 ## code structure
+
 ```python
 ./scripts/CLIP_finetune contains the scripts we use to run
 ./trainers contains model related code
 ```
 
 ## run on A770
+
 ```python
 For oneapi & pytorch whl & driver info, please check with the internal AI team realse WIKI(https://wiki.ith.intel.com/pages/viewpage.action?pageId=1786921649)
 # download oneapi
@@ -136,7 +144,7 @@ git apply profile_patch
 python setup.py install
 
 # run with A770
-# run with huggingface transformers backbone 
+# run with huggingface transformers backbone
 export HF_ENDPOINT=https://hf-mirror.com
 export TOKENIZERS_PARALLELISM=false
 export DATA=/path/to/dataset
@@ -148,6 +156,7 @@ bash scripts/CLIP_finetune/clip_prompt_hf.sh caltech101 vit_b16 1 True 0 XPU
 ```
 
 ## run on A770 with DDP
+
 ```python
 source /opt/intel/oneapi/setvars.sh
 source /opt/intel/oneapi/pti/latest/env/vars.sh
@@ -170,22 +179,25 @@ bash scripts/CLIP_finetune/clip_adapter_hf_mutiXPU.sh caltech101 vit_b16 0 XPU
 ```
 
 # use optuna to automatic get the best param
+
 You can use optuna(https://github.com/optuna/optuna) to automatic tune the hyperparameter.
-We only support turn bs and lr. 
-You can set the bs and lr in yaml, such as  ./configs/clip_finetune/vit_b16_opt.yaml
- ```python
- # turn on optuna in A100
- bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 cuda 1
- # turn on optuna in A770
- bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 XPU 1
- ```
+We only support turn bs and lr.
+You can set the bs and lr in yaml, such as ./configs/clip_finetune/vit_b16_opt.yaml
+
+```python
+# turn on optuna in A100
+bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 cuda 1
+# turn on optuna in A770
+bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 XPU 1
+```
 
 # problem
+
 ```bash
-if you hit below problem with DDP, 
+if you hit below problem with DDP,
     [1] [1728626096.870265672] DUT7113ATSM:rank1.python: Reading from remote process' memory failed. Disabling CMA support
     [1] DUT7113ATSM:rank1: Assertion failure at psm3/ptl_am/ptl.c:210: nbytes == req->req_data.recv_msglen
 You can run
     echo 0 >> /proc/sys/kernel/yama/ptrace_scope
-This issue is caused by PYTORCHDGQ-4236(https://jira.devtools.intel.com/browse/PYTORCHDGQ-4236) 
+This issue is caused by PYTORCHDGQ-4236(https://jira.devtools.intel.com/browse/PYTORCHDGQ-4236)
 ```
