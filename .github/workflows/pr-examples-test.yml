@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   example-test:
-    runs-on: gaudi-01-3
+    runs-on: gaudi
     steps:
       - name: Clean Up Working Directory
         run: |
