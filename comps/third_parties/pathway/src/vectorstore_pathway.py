@@ -8,8 +8,8 @@ import nltk
 import pathway as pw
 from langchain import text_splitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
-from pathway.xpacks.llm.parsers import ParseUnstructured
 from langchain_huggingface import HuggingFaceEmbeddings
+from pathway.xpacks.llm.parsers import ParseUnstructured
 from pathway.xpacks.llm.vector_store import VectorStoreServer
 
 logging.basicConfig(

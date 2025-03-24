@@ -7,8 +7,8 @@ import time
 
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
-from langchain_pinecone import PineconeVectorStore
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
