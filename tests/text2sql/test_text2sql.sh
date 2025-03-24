@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATA_PATH=$WORKPATH/data
+export DATA_PATH=${model_cache:-./data}
 
 export TAG='comps'
 
