@@ -13,6 +13,7 @@ import redis
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Redis
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from redis import asyncio as aioredis
@@ -326,7 +327,7 @@ class OpeaRedisDataprep(OpeaComponent):
             )
         else:
             # create embeddings using local embedding model
-            embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+            embedder = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         return embedder
 
     async def check_health(self) -> bool:
