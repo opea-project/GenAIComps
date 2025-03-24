@@ -11,7 +11,7 @@ pip install -r requirements.txt
 
 ### 1.2 Install Requirements for Xtune
 
-follow [doc](./README.md) to install requirements and download dataset.
+follow [doc](./integrations/xtune/README.md) to install requirements and download dataset.
 
 ### 1.2 Start Finetuning Service with Python Script
 
@@ -39,13 +39,14 @@ ray start --address='${head_node_ip}:6379'
 
 ```bash
 export HF_TOKEN=${your_huggingface_token}
+export FINETUNING_COMPONENT_NAME="XTUNE_FINETUNING"
 python opea_finetuning_microservice.py
 ```
+
 
 ## 🚀3. Consume Finetuning Service
 
 #### 3.1 How to use xtune
-
 Use the following command to launch a job for xtune:
 
 ```bash
@@ -77,7 +78,6 @@ curl http://localhost:8015/v1/fine_tuning/jobs/cancel -X POST -H "Content-Type: 
 ```
 
 ### 3.3 Check fine-tuning job full log
-
 ```bash
 cat /tmp/test.log
 ```
