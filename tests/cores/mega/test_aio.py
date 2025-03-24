@@ -81,7 +81,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         self.process3.terminate()
 
     async def test_schedule(self):
-        t = time.time()
+        t = time.monotonic()
         task1 = asyncio.create_task(self.service_builder.schedule(initial_inputs={"text": "hello, "}))
         task2 = asyncio.create_task(self.service_builder.schedule(initial_inputs={"text": "hi, "}))
         await asyncio.gather(task1, task2)
@@ -93,7 +93,7 @@ class TestServiceOrchestrator(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result_dict2[self.s2.name]["text"], "hi, opea project1!")
         self.assertEqual(result_dict2[self.s3.name]["text"], "hi, opea project2!")
         self.assertEqual(len(self.service_builder.get_all_final_outputs(result_dict1, runtime_graph1).keys()), 2)
-        self.assertEqual(int(time.time() - t), 15)
+        self.assertEqual(int(time.monotonic() - t), 15)
 
 
 if __name__ == "__main__":
