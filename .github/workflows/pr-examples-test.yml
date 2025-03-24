@@ -27,8 +27,12 @@ jobs:
       - name: Clean Up Working Directory
         run: |
           sudo rm -rf ${{github.workspace}}/* || true
-          echo y | docker system prune
+          
+          # clean up containers use ports
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+        
           docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+          docker system prune -f
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
