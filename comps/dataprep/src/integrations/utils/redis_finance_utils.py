@@ -9,6 +9,7 @@ from docling.document_converter import DocumentConverter
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_core.documents import Document
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_redis import RedisConfig, RedisVectorStore
 from openai import OpenAI
@@ -47,7 +48,7 @@ def get_embedder():
         embedder = HuggingFaceEndpointEmbeddings(model=TEI_EMBEDDING_ENDPOINT)
     else:
         # create embeddings using local embedding model
-        embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+        embedder = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
     return embedder
 
 

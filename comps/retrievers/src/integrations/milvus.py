@@ -7,6 +7,7 @@ import os
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_milvus.vectorstores import Milvus
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
@@ -64,7 +65,7 @@ class OpeaMilvusRetriever(OpeaComponent):
             # create embeddings using local embedding model
             if logflag:
                 logger.info(f"[ init embedder ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
-            embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+            embeddings = HuggingFaceEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
         return embeddings
 
     def _initialize_client(self) -> Milvus:
