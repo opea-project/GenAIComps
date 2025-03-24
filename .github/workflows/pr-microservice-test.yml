@@ -66,11 +66,11 @@ jobs:
         run: |
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
-          if [ -d "/data2/huggingface" ]; then
-            export model_cache="/data2/huggingface"
+          if [ -d "/data2/hf_model" ]; then
+            export model_cache="/data2/hf_model"
           else
             echo "Model cache directory /data2/huggingface does not exist"
-            export model_cache="/data2/huggingface"
+            export model_cache="~/.cache/huggingface/hub"
           fi
           timeout 60m bash $(find . -type f -name test_${service}.sh)
 
