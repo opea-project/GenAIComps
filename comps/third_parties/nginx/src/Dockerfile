@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-FROM nginx:alpine
-
-RUN apk add --no-cache gettext
+FROM nginxinc/nginx-unprivileged
+USER root
+RUN apt-get update && apt-get install -y gettext && apt-get clean
+#RUN apk add --no-cache gettext
 
 COPY comps/third_parties/nginx/src/nginx.conf.template /etc/nginx/nginx.conf.template
 
