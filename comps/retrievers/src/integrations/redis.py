@@ -7,7 +7,7 @@ import asyncio
 from typing import Union
 from concurrent.futures import ThreadPoolExecutor
 
-from langchain_redis import RedisVectorStore
+from langchain.vectorstores import Redis
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
 from fastapi import HTTPException
@@ -47,7 +47,7 @@ class OpeaRedisRetriever(OpeaComponent):
         super().__init__(name, ServiceType.RETRIEVER.name.lower(), description, config)
         self.embeddings = asyncio.run(self._initialize_embedder())
         self.client = asyncio.run(self._initialize_client())
-        health_status = asyncio.run(self.check_health())
+        health_status = self.check_health()
         if not health_status:
             logger.error("OpeaRedisRetriever health check failed.")
 
@@ -84,22 +84,22 @@ class OpeaRedisRetriever(OpeaComponent):
             embedder = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         return embedder
 
-    async def _initialize_client(self) -> RedisVectorStore:
+    async def _initialize_client(self) -> Redis:
         """Initializes the redis client."""
         try:
             if BRIDGE_TOWER_EMBEDDING:
                 logger.info(f"generate multimodal redis instance with {BRIDGE_TOWER_EMBEDDING}")
-                client = RedisVectorStore(
-                    embeddings=self.embeddings, index_name=INDEX_NAME, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL
+                client = Redis(
+                    embedding=self.embeddings, index_name=INDEX_NAME, index_schema=INDEX_SCHEMA, redis_url=REDIS_URL
                 )
             else:
-                client = RedisVectorStore(embeddings=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
+                client = Redis(embedding=self.embeddings, index_name=INDEX_NAME, redis_url=REDIS_URL)
             return client
         except Exception as e:
             logger.error(f"fail to initialize redis client: {e}")
             return None
 
-    async def check_health(self) -> bool:
+    def check_health(self) -> bool:
         """Checks the health of the retriever service.
 
         Returns:
@@ -109,7 +109,7 @@ class OpeaRedisRetriever(OpeaComponent):
             logger.info("[ health check ] start to check health of redis")
         try:
             if self.client:
-                await run_in_thread(self.client.client.ping)
+                self.client.client.ping()
                 if logflag:
                     logger.info("[ health check ] Successfully connected to Redis!")
                 return True
@@ -132,12 +132,14 @@ class OpeaRedisRetriever(OpeaComponent):
 
         # check if the Redis index has data
         try:
-            keys_exist = await self.client.client.keys()
+            keys_exist = self.client.client.keys()
         except Exception as e:
             logger.error(f"Redis key check failed: {e}")
             keys_exist = []
 
         if not keys_exist:
+            if logflag:
+                logger.info("No data in Redis index, return []")
             search_res = []
         else:
             if isinstance(input, EmbedDoc) or isinstance(input, EmbedMultimodalDoc):
@@ -153,7 +155,7 @@ class OpeaRedisRetriever(OpeaComponent):
             # if the Redis index has data, perform the search
             if input.search_type == "similarity":
                 search_res = await run_in_thread(
-                    self.client.asimilarity_search_by_vector,
+                    self.client.similarity_search_by_vector,
                     embedding=embedding_data_input, 
                     k=input.k)
             elif input.search_type == "similarity_distance_threshold":
@@ -162,14 +164,14 @@ class OpeaRedisRetriever(OpeaComponent):
                         "distance_threshold must be provided for " + "similarity_distance_threshold retriever"
                     )
                 search_res = await run_in_thread(
-                    self.client.asimilarity_search_by_vector,
+                    self.client.similarity_search_by_vector,
                     embedding=input.embedding,
                     k=input.k,
                     distance_threshold=input.distance_threshold
                 )
             elif input.search_type == "similarity_score_threshold":
                 docs_and_similarities = await run_in_thread(
-                    self.client.asimilarity_search_with_relevance_scores,
+                    self.client.similarity_search_with_relevance_scores,
                     query=input.text,
                     k=input.k,
                     score_threshold=input.score_threshold
@@ -177,7 +179,7 @@ class OpeaRedisRetriever(OpeaComponent):
                 search_res = [doc for doc, _ in docs_and_similarities]
             elif input.search_type == "mmr":
                 search_res = await run_in_thread(
-                    self.client.amax_marginal_relevance_search,
+                    self.client.max_marginal_relevance_search,
                     query=input.text,
                     k=input.k,
                     fetch_k=input.fetch_k,
