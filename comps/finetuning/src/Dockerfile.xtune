@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Use the same python version with ray
-FROM opea/finetuning:comps
+FROM python:3.10.14
 
 ARG HF_TOKEN
 
