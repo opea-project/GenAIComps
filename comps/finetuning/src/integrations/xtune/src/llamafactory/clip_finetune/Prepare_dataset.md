@@ -38,7 +38,7 @@ $DATA/
 
 - Create a folder named `mscoco2014/` under `$DATA`.
 - Download the dataset from the [MSCOCO](https://cocodataset.org/#download) and extract the training and validation sets to `$DATA/mscoco2014`.
-- download json file from `https://www.kaggle.com/datasets/wangjilong/dataset-json/` data/mscococ2014/*.json to `$DATA/mscoco2014`
+- download json file from `https://www.kaggle.com/datasets/wangjilong/dataset-json/` data/mscococ2014/\*.json to `$DATA/mscoco2014`
 
 The directory structure should look like
 
@@ -56,7 +56,7 @@ $DATA/
 
 - Create a folder name `flickr/` under `$DATA`.
 - Download the dataset form the [Kaggle](https://www.kaggle.com/datasets/eeshawn/flickr30k/data)
-- download json file from `https://www.kaggle.com/datasets/wangjilong/dataset-json/` data/flickr/*.json to `$DATA/flickr`
+- download json file from `https://www.kaggle.com/datasets/wangjilong/dataset-json/` data/flickr/\*.json to `$DATA/flickr`
 
 ```
 $DATA/
@@ -72,7 +72,7 @@ $DATA/
 
 - Create a folder name `flickr5k/` under `$DATA`.
 - Download the dataset form the [Kaggle](https://www.kaggle.com/datasets/wangjilong/self-data/code)
-- download json file from `https://www.kaggle.com/datasets/wangjilong/dataset-json/` data/flickr5k/*.json to `$DATA/flickr5k`
+- download json file from `https://www.kaggle.com/datasets/wangjilong/dataset-json/` data/flickr5k/\*.json to `$DATA/flickr5k`
 
 ```
 $DATA/
