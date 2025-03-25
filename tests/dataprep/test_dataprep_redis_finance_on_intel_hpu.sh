@@ -53,7 +53,7 @@ function start_vllm_service_70B() {
     echo "token is ${HF_TOKEN}"
     model="meta-llama/Llama-3.3-70B-Instruct"
     vllm_port=8086
-    export HF_CACHE_DIR=${model_cache:-/data2/hf_model}
+    export HF_CACHE_DIR=${model_cache:-./data}
     vllm_volume=$HF_CACHE_DIR
 
     echo "start vllm gaudi service"
