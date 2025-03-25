@@ -9,6 +9,7 @@ from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import OpenSearchVectorSearch
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from opensearchpy import OpenSearch
 
@@ -99,7 +100,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
                 api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
-            self.embeddings = HuggingFaceBgeEmbeddings(model_name=Config.EMBED_MODEL)
+            self.embeddings = HuggingFaceEmbeddings(model_name=Config.EMBED_MODEL)
 
         # OpenSearch client setup
         self.auth = ("admin", Config.OPENSEARCH_INITIAL_ADMIN_PASSWORD)
