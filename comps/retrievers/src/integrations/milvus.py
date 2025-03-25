@@ -6,8 +6,8 @@ import os
 
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
-from langchain_milvus.vectorstores import Milvus
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_milvus.vectorstores import Milvus
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 

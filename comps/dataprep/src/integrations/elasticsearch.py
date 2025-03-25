@@ -10,9 +10,9 @@ from elasticsearch import Elasticsearch
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import HTMLHeaderTextSplitter, RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from langchain_elasticsearch import ElasticsearchStore
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (

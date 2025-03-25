@@ -9,8 +9,7 @@ from docling.document_converter import DocumentConverter
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_core.documents import Document
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpointEmbeddings
 from langchain_redis import RedisConfig, RedisVectorStore
 from openai import OpenAI
 from tqdm import tqdm
