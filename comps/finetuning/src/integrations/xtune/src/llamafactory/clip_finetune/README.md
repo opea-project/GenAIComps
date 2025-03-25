@@ -67,7 +67,7 @@ export HF_ENDPOINT=https://hf-mirror.com
 ```
 
 # Prepare Dataset
-
+Please follow [doc](./Prepare_dataset.md)
 ```python
 # support  caltech101, mini-imagenet, flickr30k, flickr5k
 The dataset directory should be link
