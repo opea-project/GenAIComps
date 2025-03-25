@@ -264,10 +264,7 @@ class ServiceOrchestrator(DAG):
                     response = requests.post(
                         url=endpoint,
                         data=json.dumps(inputs),
-                        headers={
-                            "Content-type": "application/json",
-                            "Authorization": f"Bearer {access_token}"
-                        },
+                        headers={"Content-type": "application/json", "Authorization": f"Bearer {access_token}"},
                         proxies={"http": None},
                         stream=True,
                         timeout=1000,
@@ -283,7 +280,7 @@ class ServiceOrchestrator(DAG):
                         stream=True,
                         timeout=1000,
                     )
-                
+
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
@@ -306,23 +303,23 @@ class ServiceOrchestrator(DAG):
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
                                     if access_token:
                                         res = requests.post(
-                                          url=downstream_endpoint,
-                                          data=json.dumps({"text": buffered_chunk_str}),
-                                          headers={
-                                          "Content-type": "application/json",
-                                          "Authorization": f"Bearer {access_token}"
-                                      },
-                                          proxies={"http": None},
-                                      )
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            headers={
+                                                "Content-type": "application/json",
+                                                "Authorization": f"Bearer {access_token}",
+                                            },
+                                            proxies={"http": None},
+                                        )
                                     else:
                                         res = requests.post(
-                                        url=downstream_endpoint,
-                                        data=json.dumps({"text": buffered_chunk_str}),
-                                        headers={
-                                        "Content-type": "application/json",
-                                    },
-                                        proxies={"http": None},
-                                    )
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            headers={
+                                                "Content-type": "application/json",
+                                            },
+                                            proxies={"http": None},
+                                        )
                                     res_json = res.json()
                                     if "text" in res_json:
                                         res_txt = res_json["text"]
