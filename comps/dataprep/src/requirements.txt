@@ -24,7 +24,7 @@ langchain-text-splitters
 langchain-vdms
 langchain_huggingface
 langchain_milvus
-llama-index 
+llama-index
 llama-index-core==0.12.19
 llama-index-embeddings-text-embeddings-inference
 llama-index-graph-stores-neo4j
@@ -43,6 +43,7 @@ pgvector==0.2.5
 Pillow
 pinecone-client
 prometheus-fastapi-instrumentator
+protobuf==4.24.2
 psycopg2
 pymupdf
 pyspark
@@ -61,5 +62,5 @@ typing
 tzlocal
 unstructured[all-docs]
 uvicorn
-vdms
+vdms>=0.0.21
 webvtt-py
