@@ -7,6 +7,8 @@ html2text
 huggingface-hub==0.27.1
 langchain-huggingface
 langchain_community
+langchain-google-community
+langchain-chroma
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
