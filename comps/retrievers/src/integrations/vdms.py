@@ -10,8 +10,8 @@ import torch.nn as nn
 import torchvision.transforms as T
 from decord import VideoReader, cpu
 from einops import rearrange
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.embeddings import Embeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_vdms.vectorstores import VDMS, VDMS_Client
 from pydantic import BaseModel, model_validator
 from torch import cat as torch_cat
