@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import os
 import asyncio
-from typing import Union
+import os
 from concurrent.futures import ThreadPoolExecutor
+from typing import Union
 
+from fastapi import HTTPException
 from langchain.vectorstores import Redis
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
-from fastapi import HTTPException
 
 from comps import (
     CustomLogger,
@@ -23,7 +23,15 @@ from comps import (
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest, EmbeddingResponse, RetrievalRequest, RetrievalResponse
 
-from .config import BRIDGE_TOWER_EMBEDDING, EMBED_MODEL, INDEX_NAME, INDEX_SCHEMA, REDIS_URL, TEI_EMBEDDING_ENDPOINT, HUGGINGFACEHUB_API_TOKEN
+from .config import (
+    BRIDGE_TOWER_EMBEDDING,
+    EMBED_MODEL,
+    HUGGINGFACEHUB_API_TOKEN,
+    INDEX_NAME,
+    INDEX_SCHEMA,
+    REDIS_URL,
+    TEI_EMBEDDING_ENDPOINT,
+)
 
 logger = CustomLogger("redis_retrievers")
 logflag = os.getenv("LOGFLAG", False)
@@ -155,9 +163,8 @@ class OpeaRedisRetriever(OpeaComponent):
             # if the Redis index has data, perform the search
             if input.search_type == "similarity":
                 search_res = await run_in_thread(
-                    self.client.similarity_search_by_vector,
-                    embedding=embedding_data_input, 
-                    k=input.k)
+                    self.client.similarity_search_by_vector, embedding=embedding_data_input, k=input.k
+                )
             elif input.search_type == "similarity_distance_threshold":
                 if input.distance_threshold is None:
                     raise ValueError(
@@ -167,14 +174,14 @@ class OpeaRedisRetriever(OpeaComponent):
                     self.client.similarity_search_by_vector,
                     embedding=input.embedding,
                     k=input.k,
-                    distance_threshold=input.distance_threshold
+                    distance_threshold=input.distance_threshold,
                 )
             elif input.search_type == "similarity_score_threshold":
                 docs_and_similarities = await run_in_thread(
                     self.client.similarity_search_with_relevance_scores,
                     query=input.text,
                     k=input.k,
-                    score_threshold=input.score_threshold
+                    score_threshold=input.score_threshold,
                 )
                 search_res = [doc for doc, _ in docs_and_similarities]
             elif input.search_type == "mmr":
@@ -183,7 +190,7 @@ class OpeaRedisRetriever(OpeaComponent):
                     query=input.text,
                     k=input.k,
                     fetch_k=input.fetch_k,
-                    lambda_mult=input.lambda_mult
+                    lambda_mult=input.lambda_mult,
                 )
             else:
                 raise ValueError(f"{input.search_type} not valid")
