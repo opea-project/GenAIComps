@@ -43,4 +43,4 @@ sentence_transformers
 shortuuid
 tiktoken
 uvicorn
-vdms==0.0.21
+vdms>=0.0.21
