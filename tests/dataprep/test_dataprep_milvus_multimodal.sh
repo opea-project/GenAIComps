@@ -22,7 +22,7 @@ image_fn="${tmp_dir}/${image_name}.png"
 caption_fn="${tmp_dir}/${image_name}.txt"
 pdf_name="nke-10k-2023"
 pdf_fn="${tmp_dir}/${pdf_name}.pdf"
-DATAPREP_PORT="11109"
+DATAPREP_PORT="11102"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -60,7 +60,7 @@ function start_lvm_service() {
     unset http_proxy
     docker run -d --name="test-comps-lvm-llava" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p 5029:8399 --ipc=host opea/lvm-llava:comps
     sleep 4m
-    docker run -d --name="test-comps-lvm-llava-svc" -e LVM_ENDPOINT=http://$ip_address:5029 -e LVM_COMPONENT_NAME=OPEA_LLAVA_LVM -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${LVM_PORT}:9399 --ipc=host opea/lvm:comps
+    docker run -d --name="test-comps-lvm-llava-svc" -e LVM_COMPONENT_NAME=OPEA_LLAVA_LVM -e LVM_ENDPOINT=http://$ip_address:5029 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p ${LVM_PORT}:9399 --ipc=host opea/lvm:comps
     sleep 1m
 }
 
@@ -76,14 +76,12 @@ function start_lvm() {
 
 function start_service() {
     export host_ip=${ip_address}
-    export REDIS_HOST=$ip_address
-    export REDIS_PORT=6379
-    export REDIS_URL="redis://${ip_address}:${REDIS_PORT}"
+    export MILVUS_HOST=$ip_address
     export LVM_PORT=5028
     export LVM_ENDPOINT="http://${ip_address}:${LVM_PORT}/v1/lvm"
     export INDEX_NAME="dataprep"
     export TAG="comps"
-    service_name="redis-vector-db dataprep-multimodal-redis"
+    service_name="etcd minio standalone dataprep-multimodal-milvus"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
     sleep 1m
@@ -154,14 +152,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -178,14 +176,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -202,14 +200,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -226,14 +224,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -250,14 +248,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "400" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 400. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 400. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"No caption file found for $image_name"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -274,14 +272,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -298,14 +296,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -322,14 +320,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *"Data preparation succeeded"* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_upload_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_upload_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -345,14 +343,14 @@ function validate_microservice() {
 
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
     fi
     if [[ "$RESPONSE_BODY" != *${image_name}* || "$RESPONSE_BODY" != *${video_name}* || "$RESPONSE_BODY" != *${audio_name}* || "$RESPONSE_BODY" != *${pdf_name}* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_file.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_file.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -369,7 +367,7 @@ function validate_microservice() {
     # check response status
     if [ "$HTTP_STATUS" -ne "200" ]; then
         echo "[ $SERVICE_NAME ] HTTP status is not 200. Received status was $HTTP_STATUS"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_del.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_del.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] HTTP status is 200. Checking content..."
@@ -377,7 +375,7 @@ function validate_microservice() {
     # check response body
     if [[ "$RESPONSE_BODY" != *'{"status":true}'* ]]; then
         echo "[ $SERVICE_NAME ] Content does not match the expected result: $RESPONSE_BODY"
-        docker logs dataprep-multimodal-redis-server >> ${LOG_PATH}/dataprep_del.log
+        docker logs dataprep-multimodal-milvus-server >> ${LOG_PATH}/dataprep_del.log
         exit 1
     else
         echo "[ $SERVICE_NAME ] Content is as expected."
@@ -385,7 +383,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cid=$(docker ps -aq --filter "name=dataprep-multimodal-redis-server*" --filter "name=redis-vector-*")
+    cid=$(docker ps -aq --filter "name=dataprep-multimodal-milvus-server*" --filter "name=milvus-*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
     cid=$(docker ps -aq --filter "name=test-comps-lvm*")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
