@@ -7,6 +7,7 @@ import os
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_community.vectorstores import PGVector
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
@@ -60,7 +61,7 @@ class OpeaPGVectorRetriever(OpeaComponent):
             # create embeddings using local embedding model
             if logflag:
                 logger.info(f"[ init embedder ] LOCAL_EMBEDDING_MODEL:{EMBED_MODEL}")
-            embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+            embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         return embeddings
 
     def _initialize_client(self) -> PGVector:

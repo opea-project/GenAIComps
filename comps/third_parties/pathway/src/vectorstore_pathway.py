@@ -8,6 +8,7 @@ import nltk
 import pathway as pw
 from langchain import text_splitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from pathway.xpacks.llm.parsers import ParseUnstructured
 from pathway.xpacks.llm.vector_store import VectorStoreServer
 
@@ -52,7 +53,7 @@ if __name__ == "__main__":
         )
     else:
         # create embeddings using local embedding model
-        embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+        embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
 
     server = VectorStoreServer.from_langchain_components(
         *data_sources,

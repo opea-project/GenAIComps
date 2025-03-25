@@ -12,6 +12,7 @@ from langchain.text_splitter import HTMLHeaderTextSplitter, RecursiveCharacterTe
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
 from langchain_core.documents import Document
 from langchain_elasticsearch import ElasticsearchStore
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
@@ -78,7 +79,7 @@ class OpeaElasticSearchDataprep(OpeaComponent):
         if not self.es_client.indices.exists(index=INDEX_NAME):
             self.es_client.indices.create(index=INDEX_NAME)
 
-    def get_embedder(self) -> Union[HuggingFaceInferenceAPIEmbeddings, HuggingFaceBgeEmbeddings]:
+    def get_embedder(self) -> Union[HuggingFaceInferenceAPIEmbeddings, HuggingFaceEmbeddings]:
         """Obtain required Embedder."""
         if TEI_EMBEDDING_ENDPOINT:
             if not HUGGINGFACEHUB_API_TOKEN:
@@ -99,10 +100,10 @@ class OpeaElasticSearchDataprep(OpeaComponent):
             )
             return embedder
         else:
-            return HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+            return HuggingFaceEmbeddings(model_name=EMBED_MODEL)
 
     def get_elastic_store(
-        self, embedder: Union[HuggingFaceInferenceAPIEmbeddings, HuggingFaceBgeEmbeddings]
+        self, embedder: Union[HuggingFaceInferenceAPIEmbeddings, HuggingFaceEmbeddings]
     ) -> ElasticsearchStore:
         """Get Elasticsearch vector store."""
         return ElasticsearchStore(index_name=INDEX_NAME, embedding=embedder, es_connection=self.es_client)

@@ -9,6 +9,7 @@ from typing import List, Optional, Union
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_text_splitters import HTMLHeaderTextSplitter
 from pinecone import Pinecone, ServerlessSpec
@@ -72,7 +73,7 @@ class OpeaPineConeDataprep(OpeaComponent):
             )
         else:
             # create embeddings using local embedding model
-            self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+            self.embedder = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         self.pc = Pinecone(api_key=PINECONE_API_KEY)
 
         # Perform health check

@@ -12,6 +12,7 @@ from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings, OpenAIEmbeddings
 from langchain_core.documents import Document
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_milvus.vectorstores import Milvus
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
@@ -213,7 +214,7 @@ class OpeaMilvusDataprep(OpeaComponent):
             # create embeddings using local embedding model
             if logflag:
                 logger.info(f"[ milvus embedding ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
-            embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+            embeddings = HuggingFaceEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
         return embeddings
 
     def check_health(self) -> bool:
