@@ -48,9 +48,9 @@ class OpeaRedisRetriever(OpeaComponent):
             self.embeddings = BridgeTowerEmbedding()
         else:
             # create embeddings using local embedding model
-            from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+            from langchain_community.embeddings import HuggingFaceEmbeddings
 
-            self.embeddings = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+            self.embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         self.client = self._initialize_client()
         health_status = self.check_health()
         if not health_status:
