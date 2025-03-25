@@ -237,7 +237,6 @@ class OpeaPineConeDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
         ingest_from_graphDB: bool = Form(False),
-        index_name: str = Form(None)
     ):
         """Ingest files/links content into pipecone database.
 
@@ -250,7 +249,6 @@ class OpeaPineConeDataprep(OpeaComponent):
             chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
             process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
             table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
-            index_name (str, optional): The name of the index where data will be ingested.
         """
         if logflag:
             logger.info(f"files:{files}")

@@ -110,6 +110,14 @@ function get_all() {
     _invoke_curl $fqdn $port get $@
 }
 
+function ingest_txt_with_index_name() {
+    local fqdn=$1
+    local port=$2
+    local index_name=$3
+    shift 3
+    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.txt" -F "index_name=${index_name}" $@
+}
+
 function indices() {
     local fqdn=$1
     local port=$2

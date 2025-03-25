@@ -102,7 +102,7 @@ class OpeaRedisRetriever(OpeaComponent):
             logger.info(input)
 
         client = self.client
-        if isinstance(input, EmbedDoc) and input.index_name:
+        if isinstance(input, EmbedDoc) and input.index_name and input.index_name != INDEX_NAME:
             client = self._initialize_client(index_name=input.index_name)
 
         # check if the Redis index has data

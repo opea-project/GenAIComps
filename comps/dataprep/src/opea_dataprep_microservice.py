@@ -67,9 +67,19 @@ async def ingest_files(
 
     try:
         # Use the loader to invoke the component
-        response = await loader.ingest_files(
-            files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB, index_name
-        )
+        if dataprep_component_name == "OPEA_DATAPREP_REDIS":
+            response = await loader.ingest_files(
+                files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB, index_name
+            )
+        else:
+            if index_name:
+                logger.error('Error during dataprep ingest invocation: "index_name" option is supported if "DATAPREP_COMPONENT_NAME" environment variable is set to "OPEA_DATAPREP_REDIS". i.e: export DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_REDIS"')
+                raise
+            
+            response = await loader.ingest_files(
+                files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB
+            )
+                                    
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ ingest ] Output generated: {response}")
@@ -150,6 +160,10 @@ async def get_list_of_indices():
     if logflag:
         logger.info("[ get ] start to get list of indices.")
 
+    if dataprep_component_name != "OPEA_DATAPREP_REDIS":
+        logger.error('Error during dataprep - get list of indices: "index_name" option is supported if "DATAPREP_COMPONENT_NAME" environment variable is set to "OPEA_DATAPREP_REDIS". i.e: export DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_REDIS"')
+        raise
+    
     try:
         # Use the loader to invoke the component
         response = await loader.get_list_of_indices()

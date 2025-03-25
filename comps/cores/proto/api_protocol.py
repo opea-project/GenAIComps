@@ -261,6 +261,7 @@ class ChatCompletionRequest(BaseModel):
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
     retrieved_docs: Union[List[RetrievalResponseData], List[Dict[str, Any]]] = Field(default_factory=list)
+    index_name: Optional[str] = None
 
     # reranking
     top_n: int = 1
@@ -268,9 +269,6 @@ class ChatCompletionRequest(BaseModel):
 
     # define
     request_type: Literal["chat"] = "chat"
-
-    # key index name
-    index_name: Optional[str] = None
 
 
 class DocSumChatCompletionRequest(ChatCompletionRequest):
