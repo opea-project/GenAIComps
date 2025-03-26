@@ -30,6 +30,8 @@ if llm_component_name == "OpeaTextGenNative":
     from integrations.native import OpeaTextGenNative
 elif llm_component_name == "OpeaTextGenBedrock":
     from integrations.bedrock import OpeaTextGenBedrock
+elif llm_component_name == "OpeaTextGenOVMS":
+    from integrations.ovms import OpeaTextGenOVMS
 else:
     from integrations.predictionguard import OpeaTextGenPredictionguard
     from integrations.service import OpeaTextGenService
