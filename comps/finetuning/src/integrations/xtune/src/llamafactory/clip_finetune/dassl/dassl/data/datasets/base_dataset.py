@@ -8,6 +8,7 @@ import zipfile
 from collections import defaultdict
 
 import gdown
+
 from dassl.utils import check_isfile
 
 
@@ -147,17 +148,17 @@ class DatasetBase:
 
         if dst.endswith(".zip"):
             zip_ref = zipfile.ZipFile(dst, "r")
-            zip_ref.extractall(osp.dirname(dst)) #nosec
+            zip_ref.extractall(osp.dirname(dst))  # nosec
             zip_ref.close()
 
         elif dst.endswith(".tar"):
             tar = tarfile.open(dst, "r:")
-            tar.extractall(osp.dirname(dst)) #nosec
+            tar.extractall(osp.dirname(dst))  # nosec
             tar.close()
 
         elif dst.endswith(".tar.gz"):
             tar = tarfile.open(dst, "r:gz")
-            tar.extractall(osp.dirname(dst)) #nosec
+            tar.extractall(osp.dirname(dst))  # nosec
             tar.close()
 
         else:

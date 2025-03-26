@@ -28,7 +28,7 @@ from typing_extensions import override
 from ...extras.constants import IGNORE_INDEX
 from ...extras.logging import get_logger
 from ..callbacks import PissaConvertCallback, SaveProcessorCallback
-from ..trainer_utils import create_custom_optimizer, create_custom_scheduler
+
 
 if TYPE_CHECKING:
     from torch.utils.data import Dataset
@@ -37,9 +37,9 @@ if TYPE_CHECKING:
 
     from ...hparams import FinetuningArguments
 
-from dassl.config import get_cfg_default
 from dassl.engine import build_trainer
 from dassl.utils import collect_env_info, set_random_seed, setup_logger
+
 
 logger = get_logger(__name__)
 
@@ -47,9 +47,7 @@ logger = get_logger(__name__)
 class CustomSeq2SeqTrainer(Seq2SeqTrainer):
     r"""Inherits Seq2SeqTrainer to compute generative metrics such as BLEU and ROGUE."""
 
-    def __init__(
-        self, finetuning_args: "FinetuningArguments", processor: Optional["ProcessorMixin"], **kwargs
-    ) -> None:
+    def __init__(self, finetuning_args: "FinetuningArguments", processor: Optional["ProcessorMixin"], **kwargs) -> None:
         super().__init__(**kwargs)
         self.finetuning_args = finetuning_args
 

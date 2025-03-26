@@ -75,7 +75,7 @@ if __name__ == "__main__":
             try:
                 with os.popen(
                     f"ffprobe -hide_banner -loglevel error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 {video_file_path}"
-                ) as p: #nosec
+                ) as p:  # nosec
                     result = p.read()
                 w, h = [int(d) for d in result.readline().rstrip().split(",")]
             except:

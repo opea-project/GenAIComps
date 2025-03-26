@@ -14,66 +14,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import TYPE_CHECKING, List, Optional
-import os
 import json
+import os
 import shutil
-from ...data import SFTDataCollatorWith4DAttentionMask, get_dataset, get_template_and_fix_tokenizer
-from ...extras.constants import IGNORE_INDEX
-from ...extras.misc import get_logits_processor
-from ...extras.plotting import plot_loss
-from ...model import load_model, load_tokenizer
-from ..trainer_utils import create_modelcard_and_push
+from typing import TYPE_CHECKING, List, Optional
 
 
 if TYPE_CHECKING:
     from transformers import Seq2SeqTrainingArguments, TrainerCallback
 
     from ...hparams import DataArguments, FinetuningArguments, GeneratingArguments, ModelArguments
-from dassl.utils import setup_logger, set_random_seed, collect_env_info
-from dassl.config import get_cfg_default
-from dassl.engine import build_trainer
-from ...clip_finetune.datasets import oxford_pets
-from ...clip_finetune.datasets import oxford_flowers
-from ...clip_finetune.datasets import fgvc_aircraft
-from ...clip_finetune.datasets import dtd
-from ...clip_finetune.datasets import eurosat
-from ...clip_finetune.datasets import stanford_cars
-from ...clip_finetune.datasets import food101
-from ...clip_finetune.datasets import sun397
-from ...clip_finetune.datasets import caltech101
-from ...clip_finetune.datasets import ucf101
-from ...clip_finetune.datasets import imagenet
-from ...clip_finetune.datasets import mini_imagenet
-from ...clip_finetune.datasets import imagenet_sketch
-from ...clip_finetune.datasets import imagenetv2
-from ...clip_finetune.datasets import imagenet_a
-from ...clip_finetune.datasets import imagenet_r
-from ...clip_finetune.datasets import flickr
-from ...clip_finetune.datasets import flickr5k
-from ...clip_finetune.datasets import mscoco
 
-from ...clip_finetune.trainers import coop
-from ...clip_finetune.trainers import clip_adapter
-from ...clip_finetune.trainers import clip_fullfinetune
-from ...clip_finetune.trainers import clip_bias
-from ...clip_finetune.trainers import clip_vpt
-from ...clip_finetune.trainers import cocoop
-from ...clip_finetune.trainers import zsclip
-from ...clip_finetune.trainers import clip_bias_hf
-from ...clip_finetune.trainers import clip_adapter_hf
-from ...clip_finetune.trainers import clip_fullfinetune_hf
-from ...clip_finetune.trainers import clip_vpt_hf
-from ...clip_finetune.trainers import tip_adapter
-
-import optuna
-from optuna.trial import TrialState
-import shutil
 import gc
 
+import optuna
 import torch
-import torch.nn.parallel
 import torch.distributed as dist
+import torch.nn.parallel
+from dassl.config import get_cfg_default
+from dassl.engine import build_trainer
+from dassl.utils import collect_env_info, set_random_seed, setup_logger
+from optuna.trial import TrialState
 
 
 def objective(trial, cfg):

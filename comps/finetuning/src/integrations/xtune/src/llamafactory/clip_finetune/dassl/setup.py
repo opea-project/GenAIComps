@@ -7,7 +7,6 @@ import numpy as np
 from setuptools import find_packages, setup
 
 
-
 def find_version():
     version_file = "dassl/__init__.py"
     with open(version_file, "r") as f:
