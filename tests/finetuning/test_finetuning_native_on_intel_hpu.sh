@@ -180,7 +180,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/finetuning/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 }
 
 function main() {

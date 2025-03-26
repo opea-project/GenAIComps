@@ -116,7 +116,7 @@ function validate_backend_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_faq-generation.yaml down --remove-orphans
 }
 
 function main() {

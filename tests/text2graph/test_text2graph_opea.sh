@@ -46,7 +46,7 @@ function validate_microservice() {
 function stop_docker() {
     echo "===================  START STOP DOCKER ========================"
     cd $WORKPATH/comps/text2graph/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
     echo "===================  END STOP DOCKER ========================"
 }
 

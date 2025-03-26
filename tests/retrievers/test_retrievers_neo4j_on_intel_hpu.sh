@@ -157,7 +157,7 @@ function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-*" --filter "name=neo4j-apoc" --filter "name=tgi-gaudi-server" --filter "name=tei-embedding-serving")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
-    docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 }
 
 function main() {
