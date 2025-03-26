@@ -113,7 +113,7 @@ function validate_microservice_with_openai() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_text-generation.yaml down --remove-orphans
 }
 
 function main() {
