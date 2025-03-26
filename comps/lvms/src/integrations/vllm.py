@@ -259,6 +259,7 @@ class OpeaVllmLvm(OpeaComponent):
                     }
                 ],
                 max_tokens=max_new_tokens,
+                frequency_penalty=frequency_penalty,
                 temperature=temperature,
                 top_p=top_p,
             )
