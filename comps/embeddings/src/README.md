@@ -12,7 +12,11 @@ Key Features:
 
 **Customizable**: Supports configuration and customization to meet specific use case requirements, including different embedding models and preprocessing techniques.
 
-Users are albe to configure and build embedding-related services according to their actual needs.
+Users are able to configure and build embedding-related services according to their actual needs.
+
+## Embeddings Microservice with OVMS
+
+For details, please refer to [readme](./README_ovms.md).
 
 ## Embeddings Microservice with TEI
 
