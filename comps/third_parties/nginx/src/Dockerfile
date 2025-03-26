@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y gettext && apt-get clean
 
 COPY comps/third_parties/nginx/src/nginx.conf.template /etc/nginx/nginx.conf.template
 
+ENV NGINX_PORT=8080
 ENV FRONTEND_SERVICE_IP=localhost
 ENV FRONTEND_SERVICE_PORT=5173
 ENV BACKEND_SERVICE_NAME=chatqna
