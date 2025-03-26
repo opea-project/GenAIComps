@@ -26,6 +26,9 @@ llama_index_graph_stores_neo4j
 neo4j
 numpy
 opensearch-py
+opentelemetry-api==1.27.0
+opentelemetry-exporter-otlp==1.27.0
+opentelemetry-sdk==1.27.0
 pathway
 pgvector
 prometheus-fastapi-instrumentator

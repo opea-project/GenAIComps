@@ -39,8 +39,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
         PIP_EXTRA_INDEX_URL=""; \
     fi && \
     pip install --no-cache-dir torch torchvision ${PIP_EXTRA_INDEX_URL} && \
-    pip install --no-cache-dir ${PIP_EXTRA_INDEX_URL} -r /home/user/comps/dataprep/src/requirements.txt && \
-    pip install "protobuf==4.24.2" opentelemetry-api==1.27.0 opentelemetry-exporter-otlp==1.27.0 opentelemetry-sdk==1.27.0
+    pip install --no-cache-dir ${PIP_EXTRA_INDEX_URL} -r /home/user/comps/dataprep/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
