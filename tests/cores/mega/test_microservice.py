@@ -47,7 +47,8 @@ class TestMicroService(unittest.TestCase):
 
         response = self.client.get("/v1/health_check")
         self.assertEqual(
-            response.json(), {"Service Title": "s1", "Service Description": "OPEA Microservice Infrastructure"}
+            response.json(),
+            {"Service Title": "s1", "Version": "1.2", "Service Description": "OPEA Microservice Infrastructure"},
         )
 
         response = self.client.get("/v1/sum")
