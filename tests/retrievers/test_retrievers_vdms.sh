@@ -115,7 +115,7 @@ function validate_mm_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
-    docker compose -f compose.yaml down  ${service_name} ${service_name_mm} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
     cid=$(docker ps -aq --filter "name=retriever-vdms*" --filter "name=vdms-vector-db" --filter "name=tei-embedding-serving")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
