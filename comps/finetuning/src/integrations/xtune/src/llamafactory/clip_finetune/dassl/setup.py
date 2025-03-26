@@ -7,11 +7,6 @@ import numpy as np
 from setuptools import find_packages, setup
 
 
-def readme():
-    with open("README.md") as f:
-        content = f.read()
-    return content
-
 
 def find_version():
     version_file = "dassl/__init__.py"
@@ -41,7 +36,6 @@ setup(
     description="Dassl: Domain adaptation and semi-supervised learning",
     author="Kaiyang Zhou",
     license="MIT",
-    long_description=readme(),
     url="https://github.com/KaiyangZhou/Dassl.pytorch",
     packages=find_packages(),
     install_requires=get_requirements(),

@@ -19,10 +19,6 @@ from typing import TYPE_CHECKING, Any, Dict, Generator, Optional
 
 import psutil
 from transformers.trainer import TRAINING_ARGS_NAME
-try:
-    import ..extras.constants.LLAMABOARD_CONFIG
-except ImportError:
-    from ..extras.constants import LLAMABOARD_CONFIG
 from ..extras.constants import LLAMABOARD_CONFIG, PEFT_METHODS, TRAINING_STAGES
 from ..extras.misc import is_gpu_or_npu_available, torch_gc
 from ..extras.packages import is_gradio_available

@@ -41,34 +41,6 @@ from dassl.config import get_cfg_default
 from dassl.engine import build_trainer
 from dassl.utils import collect_env_info, set_random_seed, setup_logger
 
-import ..CLIP_FineTune..datasets.oxford_flowers
-import ..CLIP_FineTune.datasets.caltech101
-import ..CLIP_FineTune.datasets.dtd
-import ..CLIP_FineTune.datasets.eurosat
-import ..CLIP_FineTune.datasets.fgvc_aircraft
-import ..CLIP_FineTune.datasets.food101
-import ..CLIP_FineTune.datasets.imagenet
-import ..CLIP_FineTune.datasets.imagenet_a
-import ..CLIP_FineTune.datasets.imagenet_r
-import ..CLIP_FineTune.datasets.imagenet_sketch
-import ..CLIP_FineTune.datasets.imagenetv2
-import ..CLIP_FineTune.datasets.mini_imagenet
-import ..CLIP_FineTune.datasets.oxford_pets
-import ..CLIP_FineTune.datasets.stanford_cars
-import ..CLIP_FineTune.datasets.sun397
-import ..CLIP_FineTune.datasets.ucf101
-import ..CLIP_FineTune.trainers.clip_adapter
-import ..CLIP_FineTune.trainers.clip_adapter_hf
-import ..CLIP_FineTune.trainers.clip_bias
-import ..CLIP_FineTune.trainers.clip_bias_hf
-import ..CLIP_FineTune.trainers.clip_fullfinetune
-import ..CLIP_FineTune.trainers.clip_fullfinetune_hf
-import ..CLIP_FineTune.trainers.clip_vpt
-import ..CLIP_FineTune.trainers.clip_vpt_hf
-import ..CLIP_FineTune.trainers.cocoop
-import ..CLIP_FineTune.trainers.coop
-import ..CLIP_FineTune.trainers.zsclip
-
 logger = get_logger(__name__)
 
 

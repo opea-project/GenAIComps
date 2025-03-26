@@ -32,7 +32,7 @@ tb-nightly
 tensorboard==2.18.0
 tiktoken
 tqdm==4.67.1
-transformers==4.49.0
+transformers==4.45.0
 triton
 trl>=0.8.6,<=0.9.6
 uvicorn
