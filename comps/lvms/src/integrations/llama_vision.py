@@ -36,7 +36,7 @@ class OpeaLlamaVisionLvm(OpeaComponent):
         inputs = {"image": request.image, "prompt": request.prompt, "max_new_tokens": request.max_new_tokens}
         # forward to the LLaMA Vision server
         async with aiohttp.ClientSession() as session:
-            response = await session.post(url=f"{self.base_url}/v1/lvm", data=json.dumps(inputs), proxy=None)
+            response = await session.post(url=f"{self.base_url}/v1/lvm", json=inputs, proxy=None)
             json_data = await response.json()
             result = json_data["text"]
 

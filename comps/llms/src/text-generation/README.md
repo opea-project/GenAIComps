@@ -8,16 +8,18 @@ Overall, this microservice offers a streamlined way to integrate large language 
 
 ## Validated LLM Models
 
-| Model                                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi |
-| ------------------------------------------- | --------- | -------- | ---------- |
-| [Intel/neural-chat-7b-v3-3]                 | ✓         | ✓        | ✓          |
-| [meta-llama/Llama-2-7b-chat-hf]             | ✓         | ✓        | ✓          |
-| [meta-llama/Llama-2-70b-chat-hf]            | ✓         | -        | ✓          |
-| [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          |
-| [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          |
-| [Phi-3]                                     | x         | Limit 4K | Limit 4K   |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          |
+| Model                                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     |
+| ------------------------------------------- | --------- | -------- | ---------- | -------- |
+| [Intel/neural-chat-7b-v3-3]                 | ✓         | ✓        | ✓          | ✓        |
+| [meta-llama/Llama-2-7b-chat-hf]             | ✓         | ✓        | ✓          | ✓        |
+| [meta-llama/Llama-2-70b-chat-hf]            | ✓         | -        | ✓          | -        |
+| [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          | ✓        |
+| [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          | -        |
+| [Phi-3]                                     | x         | Limit 4K | Limit 4K   | Limit 4K |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          | -        |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          | -        |
+| [mistralai/Mistral-Small-24B-Instruct-2501] | ✓         | -        | ✓          | -        |
+| [mistralai/Mistral-Large-Instruct-2411]     | x         | -        | ✓          | -        |
 
 ### System Requirements for LLM Models
 
@@ -31,6 +33,8 @@ Overall, this microservice offers a streamlined way to integrate large language 
 | [Phi-3]                                     | x                             |
 | [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | 8                             |
 | [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | 4                             |
+| [mistralai/Mistral-Small-24B-Instruct-2501] | 1                             |
+| [mistralai/Mistral-Large-Instruct-2411]     | 4                             |
 
 > NOTE: Detailed system requirements coming soon.
 
@@ -191,3 +195,5 @@ curl http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions \
 [HuggingFace]: https://huggingface.co/
 [deepseek-ai/DeepSeek-R1-Distill-Llama-70B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B
 [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+[mistralai/Mistral-Small-24B-Instruct-2501]: https://huggingface.co/mistralai/Mistral-Small-24B-Instruct-2501
+[mistralai/Mistral-Large-Instruct-2411]: https://huggingface.co/mistralai/Mistral-Large-Instruct-2411

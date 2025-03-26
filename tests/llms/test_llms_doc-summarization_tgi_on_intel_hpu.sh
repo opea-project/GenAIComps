@@ -36,7 +36,7 @@ function start_service() {
     export MAX_INPUT_TOKENS=2048
     export MAX_TOTAL_TOKENS=4096
     export LOGFLAG=True
-    export DATA_PATH="/data2/cache"
+    export DATA_PATH="/data2/hf_model"
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_doc-summarization.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -139,7 +139,7 @@ function validate_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_doc-summarization.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_doc-summarization.yaml down --remove-orphans
 }
 
 function main() {

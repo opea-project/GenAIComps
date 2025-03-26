@@ -52,6 +52,7 @@ start_container() {
 
 # Function to test API endpoint
 function test_api_endpoint {
+
     local endpoint="$1"
     local expected_status="$2"
 
@@ -88,7 +89,7 @@ function test_api_endpoint {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_faq-generation.yaml down --remove-orphans
 }
 
 # Main function

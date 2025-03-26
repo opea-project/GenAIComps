@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATA_PATH=$WORKPATH/data
+export DATA_PATH=${model_cache:-./data}
 
 export TAG='comps'
 
@@ -87,7 +87,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/text2sql/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 }
 
 function main() {
