@@ -57,7 +57,7 @@ class AgentCompletionRequest(ChatCompletionRequest):
     endpoint="/v1/models",
     host="0.0.0.0",
     port=args.port,
-    methods=["GET"]
+    methods=["GET"],
 )
 async def models():
 
@@ -65,9 +65,39 @@ async def models():
         logger.info("get models")
 
     # TODO: need format here
-    model_info = {"object":"list","data":[{"id":"opea-agent","object":"model","created":1742903391,"owned_by":"opea","root":"opea-agent","parent":None,"max_model_len":16384,"permission":[{"id":"modelperm-ae01a5779d174375ad4b28503c675e81","object":"model_permission","created":1742903391,"allow_create_engine":False,"allow_sampling":True,"allow_logprobs":True,"allow_search_indices":False,"allow_view":True,"allow_fine_tuning":False,"organization":"*","group":None,"is_blocking":False}]}]}
+    model_info = {
+        "object": "list",
+        "data": [
+            {
+                "id": "opea-agent",
+                "object": "model",
+                "created": 1742903391,
+                "owned_by": "opea",
+                "root": "opea-agent",
+                "parent": None,
+                "max_model_len": 16384,
+                "permission": [
+                    {
+                        "id": "modelperm-ae01a5779d174375ad4b28503c675e81",
+                        "object": "model_permission",
+                        "created": 1742903391,
+                        "allow_create_engine": False,
+                        "allow_sampling": True,
+                        "allow_logprobs": True,
+                        "allow_search_indices": False,
+                        "allow_view": True,
+                        "allow_fine_tuning": False,
+                        "organization": "*",
+                        "group": None,
+                        "is_blocking": False,
+                    }
+                ],
+            }
+        ],
+    }
 
     return model_info
+
 
 @register_microservice(
     name="opea_service@comps-chat-agent",
