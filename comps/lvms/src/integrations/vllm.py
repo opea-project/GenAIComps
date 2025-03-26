@@ -179,9 +179,9 @@ class OpeaVllmLvm(OpeaComponent):
         if "UI-TARS" in LLM_MODEL_ID:
             # TODO validate mobile flow https://github.com/bytedance/UI-TARS
             prompt = ChatTemplate.generate_ui_tars_prompt_for_computer(prompt=prompt)
-            frequency_penalty = 1.0 # force to use frequency_penalty 1.0
+            frequency_penalty = 1.0  # force to use frequency_penalty 1.0
         else:
-            frequency_penalty = 0.0 # default
+            frequency_penalty = 0.0  # default
 
         if not img_b64_str:
             # If img_b64_str was an empty string, which means we have just have a text prompt.
