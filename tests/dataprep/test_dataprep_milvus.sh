@@ -79,7 +79,7 @@ function stop_docker() {
     docker compose -f compose.yaml down --remove-orphans
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose
-    docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 
 }
 
