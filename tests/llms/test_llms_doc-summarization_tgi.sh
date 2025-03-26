@@ -138,7 +138,7 @@ function validate_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_doc-summarization.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_doc-summarization.yaml down --remove-orphans
 }
 
 function main() {

@@ -93,7 +93,7 @@ function test_api_endpoint {
 
 function stop_docker() {
     cd $WORKPATH/../comps/third_parties/vllm/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 }
 
 # Main function
