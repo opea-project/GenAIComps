@@ -27,7 +27,7 @@ services:
     ports:
       - ${TEI_PORT:-6060}:80
     volumes:
-      - "./data:/data"
+      - "${DATA_PATH-./data}:/data"
     shm_size: 1g
     environment:
       no_proxy: ${no_proxy}
