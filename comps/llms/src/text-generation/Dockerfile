@@ -11,11 +11,12 @@ RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
 
-COPY comps /home/user/comps
+COPY comps/llms/src/text-generation/requirements.txt /home/user/comps/llms/src/text-generation/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/llms/src/text-generation/requirements.txt
 
+COPY comps /home/user/comps
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER user
