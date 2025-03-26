@@ -47,8 +47,7 @@ class ChatTemplate:
 
     @staticmethod
     def generate_ui_tars_prompt_for_computer(prompt: str):
-        # fmt: off
-        template = r"""You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.
+        template = r"""You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task. """ + r"""
 
 ## Output Format
 ```\nThought: ...
@@ -80,8 +79,7 @@ call_user() # Submit the task and call the user when the task is unsolvable, or 
 
     @staticmethod
     def generate_ui_tars_prompt_for_mobile(prompt: str):
-        # fmt: off
-        template = r"""You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task.
+        template = r"""You are a GUI agent. You are given a task and your action history, with screenshots. You need to perform the next action to complete the task. """ + """
 
 ## Output Format
 ```\nThought: ...
