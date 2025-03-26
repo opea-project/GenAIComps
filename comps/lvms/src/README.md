@@ -94,7 +94,7 @@ export CHAT_TEMPLATE=None
 
 export VLLM_SKIP_WARMUP=true # skip the warmup-phase will start the vLLM server quickly on Gaudi, but increase runtime inference time when meeting unseen HPU shape
 
-docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up vllm-gaudi-service lvm-vllm -d
+docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up vllm-gaudi-service lvm-vllm-gaudi -d
 ```
 
 ## Test
