@@ -141,11 +141,11 @@ class OpeaRedisRetriever(OpeaComponent):
         client = self.client
         if isinstance(input, EmbedDoc) and input.index_name and input.index_name != INDEX_NAME:
             client = asyncio.run(self._initialize_client(index_name=input.index_name))
-            
+
         # check if the Redis index has data
         try:
             keys_exist = client.client.keys()
-            
+
         except Exception as e:
             logger.error(f"Redis key check failed: {e}")
             keys_exist = []
