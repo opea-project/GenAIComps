@@ -146,7 +146,7 @@ class ReActAgentwithLanggraph(BaseAgent):
 # since tgi and vllm still do not have very good support for tool calling like OpenAI
 
 import json
-from typing import Annotated, List, Optional, Sequence, TypedDict, Union, Dict
+from typing import Annotated, Dict, List, Optional, Sequence, TypedDict, Union
 
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.prompts import PromptTemplate
@@ -154,6 +154,8 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.managed import IsLastStep
 from langgraph.prebuilt import ToolNode
+
+from comps.cores.proto.api_protocol import ChatCompletionResponse, ChatCompletionStreamResponse
 
 from ...storage.persistence_memory import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
@@ -165,7 +167,6 @@ from .utils import (
     save_state_to_store,
 )
 
-from comps.cores.proto.api_protocol import ChatCompletionResponse, ChatCompletionStreamResponse
 
 def convert_aimessage_to_chat_completion(response: Union[dict, AIMessage]):
     """
@@ -181,7 +182,7 @@ def convert_aimessage_to_chat_completion(response: Union[dict, AIMessage]):
         "message": {"role": "assistant", "content": response.content, "tool_calls": []},
         "logprobs": response.response_metadata["logprobs"],
         "finish_reason": response.response_metadata["finish_reason"],
-        "stop_reason": None
+        "stop_reason": None,
     }
 
     return {
@@ -191,7 +192,7 @@ def convert_aimessage_to_chat_completion(response: Union[dict, AIMessage]):
         "choices": [choice],
         "model": model,
         "usage": usage,
-        "prompt_logprobs": None
+        "prompt_logprobs": None,
     }
 
 
@@ -396,7 +397,6 @@ class ReActAgentLlama(BaseAgent):
             yield "data: [DONE]\n\n"
         except Exception as e:
             yield str(e)
-
 
     async def non_streaming_run(self, query, config):
         # for use as worker agent (tool of supervisor agent)
