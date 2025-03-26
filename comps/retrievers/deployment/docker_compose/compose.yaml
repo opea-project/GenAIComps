@@ -57,6 +57,23 @@ services:
       minio:
         condition: service_healthy
 
+  retriever-milvus-multimodal:
+    extends: retriever
+    container_name: retriever-milvus-multimodal
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_MILVUS}
+      RETRIEVER_TYPE: ${RETRIEVER_TYPE:-milvus}
+      MILVUS_HOST: ${host_ip}
+      BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
+      COLLECTION_NAME: ${COLLECTION_NAME:-LangChainCollection}
+    depends_on:
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
   retriever-neo4j:
     extends: retriever
     container_name: retriever-neo4j
