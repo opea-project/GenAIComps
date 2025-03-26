@@ -52,7 +52,7 @@ docker build \
 
 ### 2. Start LLM Service with the built image (Run Docker Service)
 
-To start a docker container, you have two options:
+To start a docker container, you have three options:
 
 - A. Run Docker with CLI
 - B. Run Docker with Docker Compose
