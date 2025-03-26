@@ -186,6 +186,8 @@ class OpeaVllmLvm(OpeaComponent):
             # TODO validate mobile flow https://github.com/bytedance/UI-TARS
             prompt = ChatTemplate.generate_ui_tars_prompt_for_computer(prompt=prompt)
             frequency_penalty = 1.0  # force to use frequency_penalty 1.0
+            temperature=1.0
+            top_p=1.0
         else:
             frequency_penalty = 0.0  # default
 
