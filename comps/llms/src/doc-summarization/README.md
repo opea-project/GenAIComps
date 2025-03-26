@@ -118,11 +118,10 @@ docker compose -f compose_doc-summarization.yaml up ${service_name} -d
 
 #### 2.2 Run Docker Image with Kubernetes (Option C)
 
-
-
 The **DocSum microservice** can be deployed on a **Kubernetes cluster** using the provided manifests.
 
 **Step 1:** Verify Deployment Requirements (Deployment Overview)
+
 - Requires **a running Kubernetes cluster** and `kubectl` configured.
 - The service can be exposed using **ClusterIP, NodePort, or Ingress**.
 - Backend LLM service (**TGI or vLLM**) must be running.
@@ -137,8 +136,6 @@ kubectl apply -f deployment/k8s/docsum-ingress.yaml  # If using Ingress
 ```
 
 For detailed deployment steps and configuration options, refer to the [Kubernetes Deployment Guide](../../../llms/deployment).
-
-
 
 ### 3. Check Service Status
 
