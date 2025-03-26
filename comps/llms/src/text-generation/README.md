@@ -8,18 +8,18 @@ Overall, this microservice offers a streamlined way to integrate large language 
 
 ## Validated LLM Models
 
-| Model                                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi |
-| ------------------------------------------- | --------- | -------- | ---------- |
-| [Intel/neural-chat-7b-v3-3]                 | ✓         | ✓        | ✓          |
-| [meta-llama/Llama-2-7b-chat-hf]             | ✓         | ✓        | ✓          |
-| [meta-llama/Llama-2-70b-chat-hf]            | ✓         | -        | ✓          |
-| [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          |
-| [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          |
-| [Phi-3]                                     | x         | Limit 4K | Limit 4K   |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          |
-| [mistralai/Mistral-Small-24B-Instruct-2501] | ✓         | -        | ✓          |
-| [mistralai/Mistral-Large-Instruct-2411]     | x         | -        | ✓          |
+| Model                                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     |
+| ------------------------------------------- | --------- | -------- | ---------- | -------- |
+| [Intel/neural-chat-7b-v3-3]                 | ✓         | ✓        | ✓          | ✓        |
+| [meta-llama/Llama-2-7b-chat-hf]             | ✓         | ✓        | ✓          | ✓        |
+| [meta-llama/Llama-2-70b-chat-hf]            | ✓         | -        | ✓          | -        |
+| [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          | ✓        |
+| [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          | -        |
+| [Phi-3]                                     | x         | Limit 4K | Limit 4K   | Limit 4K |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          | -        |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          | -        |
+| [mistralai/Mistral-Small-24B-Instruct-2501] | ✓         | -        | ✓          | -        |
+| [mistralai/Mistral-Large-Instruct-2411]     | x         | -        | ✓          | -        |
 
 ### System Requirements for LLM Models
 
