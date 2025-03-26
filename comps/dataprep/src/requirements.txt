@@ -38,6 +38,9 @@ openai
 openai-whisper
 opencv-python
 opensearch-py
+opentelemetry-api==1.27.0
+opentelemetry-exporter-otlp==1.27.0
+opentelemetry-sdk==1.27.0
 pandas
 pgvector==0.2.5
 Pillow
