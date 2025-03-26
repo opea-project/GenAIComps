@@ -58,7 +58,7 @@ loader = OpeaComponentLoader(
     port=7000,
 )
 @register_statistics(names=["opea_service@retrievers"])
-async def ingest_files(
+async def retrieve_docs(
     input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest]
 ) -> Union[SearchedDoc, SearchedMultimodalDoc, RetrievalResponse, ChatCompletionRequest]:
     start = time.time()
