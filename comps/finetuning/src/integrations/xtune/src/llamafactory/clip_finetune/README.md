@@ -178,9 +178,9 @@ bash scripts/CLIP_finetune/clip_adapter_hf_opt.sh caltech101 vit_b16 0 XPU 1
 # problem
 
 ```bash
-if you hit below problem with DDP,
-    [1] [1728626096.870265672] DUT7113ATSM:rank1.python: Reading from remote process' memory failed. Disabling CMA support
-    [1] DUT7113ATSM:rank1: Assertion failure at psm3/ptl_am/ptl.c:210: nbytes == req->req_data.recv_msglen
-You can run
+# if you hit below problem with DDP,
+#     [1] [1728626096.870265672] DUT7113ATSM:rank1.python: Reading from remote process' memory failed. Disabling CMA support
+#     [1] DUT7113ATSM:rank1: Assertion failure at psm3/ptl_am/ptl.c:210: nbytes == req->req_data.recv_msglen
+# You can run
     echo 0 >> /proc/sys/kernel/yama/ptrace_scope
 ```

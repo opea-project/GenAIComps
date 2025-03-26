@@ -9,8 +9,10 @@ import zipfile
 from collections import defaultdict
 
 import gdown
-
-from dassl.utils import check_isfile
+try:
+    import ..utils.checkisfile
+except ImportError:
+    from dassl.utils import check_isfile
 
 
 class Datum:

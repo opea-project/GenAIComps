@@ -102,7 +102,7 @@ def main():
                         file_name=launcher.__file__,
                         args=" ".join(sys.argv[1:]),
                     ),
-                    shell=True,
+                    shell=False,
                 )
                 sys.exit(process.returncode)
             process = subprocess.run(
@@ -118,7 +118,7 @@ def main():
                     file_name=launcher.__file__,
                     args=" ".join(sys.argv[1:]),
                 ),
-                shell=True,
+                shell=False,
             )
             sys.exit(process.returncode)
         else:

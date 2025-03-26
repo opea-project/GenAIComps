@@ -18,7 +18,7 @@ or use the command line to use tools separately which is easier to customize par
 
 ## Installation
 
-please fololow [Install Dependency](doc/install%20dependency.md) to install Driver for Arc 770
+please fololow [install_dependency](./doc/install_dependency.md) to install Driver for Arc 770
 
 > [!IMPORTANT]
 > Installation is mandatory.
@@ -42,7 +42,7 @@ pip install -e ".[metrics]"
 
 ## Data Preparation
 
-Please refer to [data/Prepare_dataset.md](data/Prepare_dataset.md) for checking the details about the dataset files.
+Please refer to [data/Prepare_dataset.md](./data/Prepare_dataset.md) for checking the details about the dataset files.
 
 > [!NOTE]
 > Please update `dataset_info.json` to use your custom dataset.
@@ -79,7 +79,7 @@ then make `dataset_info.json` in your dataset directory
 
 See screenshot of running CLIP and AdaCLIP finetune on Intel Arc A770 below.
 
-UI component details can be seen [here](./doc/ui%20component.md).
+UI component details can be seen [here](./doc/ui_component.md).
 
 <table width="100%">
   <tr>

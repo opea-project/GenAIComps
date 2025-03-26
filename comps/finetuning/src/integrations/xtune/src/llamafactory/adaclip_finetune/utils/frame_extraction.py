@@ -38,7 +38,7 @@ def par_job(command):
     if args.dry_run:
         print(command)
     else:
-        subprocess.call(command, shell=True)
+        subprocess.check_call(command, shell=False)
 
 
 if __name__ == "__main__":
@@ -73,9 +73,10 @@ if __name__ == "__main__":
         frame_rate_str = "-r %d" % args.frame_rate if args.frame_rate > 0 else ""
         if args.frame_size > 0:
             try:
-                result = os.popen(
+                with os.popen(
                     f"ffprobe -hide_banner -loglevel error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 {video_file_path}"
-                )
+                ) as p: #nosec
+                    result = p.read()
                 w, h = [int(d) for d in result.readline().rstrip().split(",")]
             except:
                 print(f"Error with video {video_file_path}!")
@@ -95,7 +96,7 @@ if __name__ == "__main__":
             if args.dry_run:
                 print(cmd)
             else:
-                subprocess.call(cmd, shell=True)
+                subprocess.check_call(cmd, shell=False)
         cmd_list.append(cmd)
 
     if args.parallel:

@@ -53,7 +53,7 @@ pip install -r requirements.txt
 
 ### Install Driver for Arc 770
 
-please fololow [Install Dependency](doc/Install%20Dependency.md) to install Driver for Arc 770
+please fololow [Install Dependency](../../../doc/install_dependency.md) to install Driver for Arc 770
 
 ### Install oneapi
 

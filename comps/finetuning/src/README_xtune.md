@@ -55,7 +55,7 @@ curl http://0.0.0.0:8015/v1/fine_tuning/jobs -X POST -H "Content-Type: applicati
     "training_file": "",
     "model": "vit_b16",
     "General":{
-      "xtune_config":{"tool":"clip","device":"XPU", "dataset_root":"/home/data/jlwang/data/", "trainer": "clip_adapter_hf", "dataset":"caltech101", "model":"vit_b16"}
+      "xtune_config":{"tool":"clip","device":"XPU", "dataset_root":"/home/data/", "trainer": "clip_adapter_hf", "dataset":"caltech101", "model":"vit_b16"}
     }
   }'
 ```

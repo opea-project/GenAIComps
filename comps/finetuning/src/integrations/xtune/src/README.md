@@ -25,15 +25,7 @@ export HF_ENDPOINT=https://hf-mirror.com
 ```
 
 # Prepare Dataset
-
-```python
-# For internal use
-# support  caltech101, mini-imagenet, flickr30k, flickr5k
-rsync -avPr jlwang@10.67.100.188:/home/data/jlwang/data ~
-passwd: 86960408wjl
-rm -rf ~/data/*/preprocessed.pkl
-rm -rf ~/data/*/split_fewshot
-```
+see [doc](../data/Prepare_dataset.md)
 
 ## Get Started
 
