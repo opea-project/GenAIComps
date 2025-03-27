@@ -269,7 +269,7 @@ def mapping_refinement(
         opt.step()
         scheduler.step()
         # project the transformation matrix to the space of orthogonal matrices
-        
+
         elif cfg.TRAINER.LFA.orthogonalize:
             transfm.data = (1 + cfg.TRAINER.LFA.orth_beta) * transfm.data - cfg.TRAINER.LFA.orth_beta * (
                 (transfm.data @ transfm.data.T) @ transfm.data
