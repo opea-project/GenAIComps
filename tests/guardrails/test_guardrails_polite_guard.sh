@@ -28,8 +28,15 @@ function start_service() {
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
     sleep 15
+    max_retries=3
+    retries=0
     until docker logs ${service_name} 2>&1 | grep -q "Application startup complete"; do
-        echo "Waiting for application startup to complete..."
+        if [ $retries -ge $max_retries ]; then
+            echo "Application failed to start after $max_retries attempts."
+            exit 1
+        fi
+        echo "Waiting for application startup to complete... (Attempt $((retries + 1))/$max_retries)"
+        retries=$((retries + 1))
         sleep 2  # Wait for 2 seconds before checking again
     done
     echo "Microservice started"
