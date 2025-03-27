@@ -15,7 +15,6 @@ from dassl.utils import load_checkpoint, load_pretrained_weights
 from torch.nn import Dropout
 from torch.nn import functional as F
 
-
 try:
     from clip import clip
     from clip.simple_tokenizer import SimpleTokenizer as _Tokenizer

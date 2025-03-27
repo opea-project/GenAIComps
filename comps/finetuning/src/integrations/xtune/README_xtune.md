@@ -17,9 +17,11 @@ You can use this UI to easily access basic functions(merge two tool into one UI)
 or use the command line to use tools separately which is easier to customize parameters and has more comprehensive functionality.
 
 ## Installation
+
 Please install git first and make sure `git clone` can work.
 
-Run install_xtune.sh to prepare component. 
+Run install_xtune.sh to prepare component.
+
 ```bash
 apt install -y rsync
 bash install_xtune.sh

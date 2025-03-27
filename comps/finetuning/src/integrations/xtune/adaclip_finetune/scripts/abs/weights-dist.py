@@ -6,7 +6,6 @@ import math
 import torch
 from matplotlib import pyplot
 
-
 loaded = torch.load("pre-trained/didemo-c-32-16.pth", map_location="cpu", weights_only=False)
 
 stats = []

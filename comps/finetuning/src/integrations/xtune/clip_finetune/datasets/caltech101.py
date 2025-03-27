@@ -10,7 +10,6 @@ from dassl.utils import mkdir_if_missing
 from .dtd import DescribableTextures as DTD
 from .oxford_pets import OxfordPets
 
-
 IGNORED = ["BACKGROUND_Google", "Faces_easy"]
 NEW_CNAMES = {
     "airplanes": "airplane",

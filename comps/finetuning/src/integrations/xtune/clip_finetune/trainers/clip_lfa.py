@@ -23,7 +23,6 @@ from torch.nn import functional as F
 from tqdm import tqdm
 from transformers import CLIPModel, CLIPProcessor
 
-
 N_AUGMENTATIONS = 5
 CUSTOM_TEMPLATES = {
     "OxfordPets": "a photo of a {}, a type of pet.",

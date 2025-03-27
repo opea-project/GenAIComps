@@ -8,7 +8,6 @@ import sys
 import numpy as np
 import torch
 
-
 sys.path.append(os.path.abspath(".."))
 
 import clip
@@ -16,7 +15,6 @@ from dassl.config import get_cfg_default
 from dassl.data import DatasetWrapper
 from dassl.data.transforms import build_transform
 from dassl.utils import collect_env_info, set_random_seed, setup_logger
-
 
 # import pdb; pdb.set_trace()
 

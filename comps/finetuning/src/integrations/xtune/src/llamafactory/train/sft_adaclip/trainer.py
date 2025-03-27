@@ -29,7 +29,6 @@ from ...extras.constants import IGNORE_INDEX
 from ...extras.logging import get_logger
 from ..callbacks import PissaConvertCallback, SaveProcessorCallback
 
-
 if TYPE_CHECKING:
     from torch.utils.data import Dataset
     from transformers import ProcessorMixin
@@ -39,7 +38,6 @@ if TYPE_CHECKING:
 
 from dassl.engine import build_trainer
 from dassl.utils import collect_env_info, set_random_seed, setup_logger
-
 
 logger = get_logger(__name__)
 

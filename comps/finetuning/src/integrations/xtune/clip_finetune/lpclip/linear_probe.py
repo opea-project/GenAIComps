@@ -7,7 +7,6 @@ import os
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="", help="path to dataset")
 parser.add_argument("--num_step", type=int, default=8, help="number of steps")

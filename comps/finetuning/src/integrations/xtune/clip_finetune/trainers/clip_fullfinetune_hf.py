@@ -13,7 +13,6 @@ from dassl.utils import load_checkpoint, load_pretrained_weights
 from torch.nn import functional as F
 from transformers import CLIPModel, CLIPProcessor
 
-
 CUSTOM_TEMPLATES = {
     "OxfordPets": "a photo of a {}, a type of pet.",
     "OxfordFlowers": "a photo of a {}, a type of flower.",

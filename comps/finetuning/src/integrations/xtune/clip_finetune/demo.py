@@ -8,14 +8,12 @@ import torch.distributed as dist
 import torch.nn as nn
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-
 try:
     pass
 except:
     print("can't import ipex")
 
 import argparse
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--device", "-dev", type=str, default="cpu", help="Device type to use: cpu, xpu")

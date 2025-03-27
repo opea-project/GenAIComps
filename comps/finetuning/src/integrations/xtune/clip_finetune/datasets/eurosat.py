@@ -10,7 +10,6 @@ from dassl.utils import mkdir_if_missing
 from .dtd import DescribableTextures as DTD
 from .oxford_pets import OxfordPets
 
-
 NEW_CNAMES = {
     "AnnualCrop": "Annual Crop Land",
     "Forest": "Forest",

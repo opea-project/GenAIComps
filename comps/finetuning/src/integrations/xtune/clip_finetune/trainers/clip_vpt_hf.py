@@ -19,7 +19,6 @@ from torch.nn import functional as F
 from transformers import CLIPModel, CLIPProcessor
 from transformers.modeling_outputs import BaseModelOutput, BaseModelOutputWithPooling
 
-
 CUSTOM_TEMPLATES = {
     "OxfordPets": "a photo of a {}, a type of pet.",
     "OxfordFlowers": "a photo of a {}, a type of flower.",

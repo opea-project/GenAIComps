@@ -4,7 +4,6 @@
 import torch
 from dassl.engine import TRAINER_REGISTRY, TrainerX
 
-
 try:
     from clip import clip
     from clip.simple_tokenizer import SimpleTokenizer as _Tokenizer
@@ -13,7 +12,6 @@ except ImportError:
 
 from .coop import load_clip_to_cpu
 from .imagenet_templates import IMAGENET_TEMPLATES_SELECT
-
 
 CUSTOM_TEMPLATES = {
     "OxfordPets": "a photo of a {}, a type of pet.",

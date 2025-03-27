@@ -7,7 +7,6 @@ import re
 import torch
 import torch.nn as nn
 
-
 root = "abs-study/didemo-abs-16/2024-11-21_15-30-03"  # sys.argv[1]
 p = re.compile(r"^clip-state-dict-\d{4}\.pth$")
 pths = sorted([_ for _ in os.listdir(root) if p.match(_)])
@@ -37,7 +36,6 @@ for k, v in angles[last_index].items():
     print(f"{k: <48s}\t{dim:0>8d}\t{v: >6.2f}")
 
 from matplotlib import pyplot
-
 
 for i in range(start_index + 1, len(pths)):
     pyplot.figure(f"hist-{i}")

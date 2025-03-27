@@ -11,7 +11,6 @@ from dassl.utils import load_checkpoint, load_pretrained_weights
 from torch.cuda.amp import GradScaler, autocast
 from torch.nn import functional as F
 
-
 try:
     from clip import clip
     from clip.simple_tokenizer import SimpleTokenizer as _Tokenizer

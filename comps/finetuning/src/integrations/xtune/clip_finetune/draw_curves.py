@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
 save_dir = "main_curves"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)

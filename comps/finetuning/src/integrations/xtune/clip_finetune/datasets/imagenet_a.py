@@ -8,7 +8,6 @@ from dassl.utils import listdir_nohidden
 
 from .imagenet import ImageNet
 
-
 TO_BE_IGNORED = ["README.txt"]
 
 

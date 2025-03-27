@@ -26,7 +26,6 @@ from utils.flops_table import get_gflops_params
 from utils.logger import LOGGER, add_log_to_file
 from utils.train_utils import log_metrics, progress, save_checkpoint, verbose
 
-
 torch.distributed.init_process_group(backend="nccl")
 
 
