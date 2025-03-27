@@ -26,7 +26,7 @@ First, start the TEI embedding server.
 ```bash
 your_port=6010
 model="BAAI/bge-base-en-v1.5"
-docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
 export TEI_EMBEDDING_ENDPOINT="http://localhost:$your_port"
 ```
 

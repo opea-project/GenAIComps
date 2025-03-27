@@ -24,6 +24,7 @@ audio_fn="${tmp_dir}/${audio_name}.wav"
 pdf_name="nke-10k-2023"
 pdf_fn="${tmp_dir}/${pdf_name}.pdf"
 DATAPREP_PORT="11109"
+export DATA_PATH=${model_cache}
 
 function build_docker_images() {
     cd $WORKPATH

@@ -10,6 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11103
 LLM_ENDPOINT_PORT=10510
 export TAG="comps"
+export DATA_PATH=${model_cache}
 
 function build_docker_images() {
     cd $WORKPATH
@@ -22,7 +23,7 @@ function build_docker_images() {
         echo "opea/dataprep built successful"
     fi
     docker pull ghcr.io/huggingface/tgi-gaudi:2.3.1
-    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
 }
 
 function start_service() {
