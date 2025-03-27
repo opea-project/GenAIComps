@@ -34,6 +34,7 @@ loader = OpeaComponentLoader(
 )
 async def execute_agent(input_text: str):
     """Execute triplet extraction from text file.
+
     This function takes an Input object containing the input text and database connection information.
     It uses the execute function from the text2kg module to execute the graph query and returns the result.
     Args:

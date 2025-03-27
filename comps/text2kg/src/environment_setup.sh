@@ -20,7 +20,7 @@ export LLM_ENDPOINT_PORT=${LLM_ENDPOINT_PORT:-"9001"}
 
 export TGI_PORT=8008
 export PYTHONPATH="/home/user/"
-export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}" 
+export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
 
 export NEO4J_USERNAME=${NEO4J_USERNAME:-"neo4j"}
 export NEO4J_PASSWORD=${NEO4J_PASSWORD:-"neo4j_password"}

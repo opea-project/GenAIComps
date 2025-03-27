@@ -19,7 +19,7 @@ services:
          - HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
      depends_on:
          - tgi-server
-         - neo4j-apoc           
+         - neo4j-apoc
      ipc: host
      network_mode: "host"
      restart: always

@@ -12,7 +12,7 @@ from langchain_huggingface import HuggingFaceEndpoint
 from pydantic import BaseModel, Field
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.text2kg.src.integrations.kg_graph_agent import GenerateKG 
+from comps.text2kg.src.integrations.kg_graph_agent import GenerateKG
 
 logger = CustomLogger("comps-text2kg")
 logflag = os.getenv("LOGFLAG", False)
@@ -38,6 +38,7 @@ llm = HuggingFaceEndpoint(
     **generation_params,
 )
 
+
 class Input(BaseModel):
     input_text: str
 
@@ -53,15 +54,13 @@ class OpeaText2KG(OpeaComponent):
         if not health_status:
             logger.error("OpeaText2KG health check failed.")
         gdb = GenerateKG(
-               data_directory = "data/",
-               embedding_model = "BAAI/bge-small-en-v1.5",
-               llm = "HuggingFaceH4/zephyr-7b-alpha"
-               )
+            data_directory="data/", embedding_model="BAAI/bge-small-en-v1.5", llm="HuggingFaceH4/zephyr-7b-alpha"
+        )
         neo4j_index = gdb.prepare_and_save_graphdb()
-
 
     async def check_health(self) -> bool:
         """Checks the health of the TGI service.
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
@@ -72,15 +71,14 @@ class OpeaText2KG(OpeaComponent):
 
     async def invoke(self, input_text: str):
         """Invokes the text2kg service to generate graph(s) for the provided input.
+
         input:
             input: text document
         Returns:
             text : dict
         """
 
-        query_engine = neo4j_index.as_query_engine(
-           include_text=False, response_mode="tree_summarize"
-        )
+        query_engine = neo4j_index.as_query_engine(include_text=False, response_mode="tree_summarize")
 
         result = query_engine.query(input_text)
         print(result)
