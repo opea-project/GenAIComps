@@ -206,7 +206,7 @@ class Tip_Adapter(TrainerX):
         super().run_epoch()
 
     def build_cache_model(self, cfg, clip_model, train_loader_cache):
-        if !cfg.TRAINER.TIP.LOAD_CACHE:
+        if not cfg.TRAINER.TIP.LOAD_CACHE:
             cache_keys = []
             cache_values = []
             if cfg.TRAINER.TIP.NEW:
