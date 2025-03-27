@@ -51,7 +51,7 @@ function start_service() {
     export MAX_TOTAL_TOKENS=4096
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
-    export DATA_PATH="/data2/hf_model"
+    export DATA_PATH=${model_cache:-./data}
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_doc-summarization.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log

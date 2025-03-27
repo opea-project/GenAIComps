@@ -31,7 +31,7 @@ function start_service() {
     export host_ip=${host_ip}
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export LOGFLAG=True
-    export DATA_PATH="/data2/hf_model"
+    export DATA_PATH=${model_cache:-./data}
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
