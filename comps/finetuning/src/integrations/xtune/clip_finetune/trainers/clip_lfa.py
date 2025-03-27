@@ -248,8 +248,6 @@ def mapping_refinement(
         train_text_batch = train_text_batch.to(device)
         labels_batch = labels_batch.to(device)
 
-        if cfg.TRAINER.LFA.INTERPOLATE_FEATURES:
-            train_visual_batch, labels_batch = feature_augmentation(train_visual_batch, labels_batch)
 
         if cfg.TRAINER.LFA.GAUSSIAN_NOISE > 0.0 and np.random.uniform() > 0.5:
             train_visual_batch += torch.randn_like(train_visual_batch) * cfg.TRAINER.LFA.GAUSSIAN_NOISE
@@ -271,8 +269,7 @@ def mapping_refinement(
         opt.step()
         scheduler.step()
         # project the transformation matrix to the space of orthogonal matrices
-        if cfg.TRAINER.LFA.spectral_proj:
-            transfm.data = spectral_projection(transfm.data)
+        
         elif cfg.TRAINER.LFA.orthogonalize:
             transfm.data = (1 + cfg.TRAINER.LFA.orth_beta) * transfm.data - cfg.TRAINER.LFA.orth_beta * (
                 (transfm.data @ transfm.data.T) @ transfm.data
@@ -368,9 +365,9 @@ class TextEncoder(nn.Module):
         self.dtype = clip_model.dtype
 
     def forward(self, classname=None):
-        # for small dataset, we tokenize all prompt ------- if classname == None
+        # for small dataset, we tokenize all prompt ------- if classname is None
         # for large dataset, we tokenize (bs) prompt
-        if classname == None:
+        if classname is None:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
             prompts = [temp.format(c.replace("_", " ")) for c in self.classnames]
         else:

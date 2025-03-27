@@ -149,9 +149,9 @@ class CLIP_Fullfinetune(TrainerX):
         self.register_model("clip_ori", self.model, self.optim, self.sched)
 
         print("=====================================")
-        print(device_count)
-        if device_count > 1:
-            print(f"Multiple GPUs detected (n_gpus={device_count}), use all of them!")
+        print(torch.xpu.device_count)
+        if torch.xpu.device_count > 1:
+            print(f"Multiple GPUs detected (n_gpus={torch.xpu.device_count}), use all of them!")
             torch.cuda.set_device(self.cfg.TRAINER.COOP.CUDA_ID)
             self.model = torch.nn.parallel.DistributedDataParallel(
                 self.model, device_ids=[self.cfg.TRAINER.COOP.CUDA_ID]

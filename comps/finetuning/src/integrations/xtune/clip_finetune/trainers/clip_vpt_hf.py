@@ -173,7 +173,7 @@ class PromptEncoder(nn.Module):
                 # add prompt in first layer
                 # or
                 # add prompt in all layer if cfg.TRAINER.COOP.PMT_DEEP
-                if idx == 0 or self.cfg.TRAINER.COOP.PMT_DEEP != True:
+                if idx == 0 or ( not self.cfg.TRAINER.COOP.PMT_DEEP ) :
                     layer_outputs = encoder_layer(
                         hidden_states,
                         attention_mask,
@@ -327,7 +327,7 @@ class TextEncoder(nn.Module):
         self.dtype = clip_model.dtype
 
     def forward(self, classname=None):
-        if classname == None:
+        if classname is None:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
             prompts = [temp.format(c.replace("_", " ")) for c in self.classnames]
         else:

@@ -349,7 +349,7 @@ def main(args):
         print(f"\thighest_accuracy time: {best_time}")
         print(f"\thighest_accuracy param: {best_param}")
         for trail in study.trials:
-            if trail.values != None:
+            if trail.values is not None:
                 if trail.values[0] >= trial_with_highest_accuracy.values[0] - 1 and trail.values[1] <= best_time:
                     best_acc = trail.values[0]
                     best_time = trail.values[1]

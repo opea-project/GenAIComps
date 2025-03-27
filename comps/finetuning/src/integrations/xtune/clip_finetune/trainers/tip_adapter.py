@@ -82,9 +82,9 @@ class TextEncoder(nn.Module):
         self.dtype = clip_model.dtype
 
     def forward(self, classname=None):
-        # for small dataset, we tokenize all prompt ------- if classname == None
+        # for small dataset, we tokenize all prompt ------- if classname is None
         # for large dataset, we tokenize (bs) prompt
-        if classname == None:
+        if classname is None:
             temp = CUSTOM_TEMPLATES[self.cfg.DATASET.NAME]
             prompts = [temp.format(c.replace("_", " ")) for c in self.classnames]
         else:

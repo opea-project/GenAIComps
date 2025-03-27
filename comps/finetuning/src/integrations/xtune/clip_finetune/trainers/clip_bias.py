@@ -147,7 +147,7 @@ class CLIP_Bias(TrainerX):
                         if str in name:
                             param.requires_grad_(False)
         for name, param in self.model.named_parameters():
-            if param.requires_grad == True:
+            if param.requires_grad:
                 print(name)
 
         if cfg.MODEL.INIT_WEIGHTS:
