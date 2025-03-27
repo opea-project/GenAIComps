@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import csv
-import os.path as osp
-import os
 import json
+import os
+import os.path as osp
+import re
 from collections import OrderedDict
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -16,27 +18,29 @@ from dassl.utils import load_checkpoint, load_pretrained_weights
 from torch.nn import functional as F
 from tqdm import tqdm
 from transformers import CLIPModel, CLIPProcessor
-import re
-def pre_caption(caption,max_words=50):
+
+
+def pre_caption(caption, max_words=50):
     caption = re.sub(
-        r"([.!\"()*#:;~])",       
-        ' ',
+        r"([.!\"()*#:;~])",
+        " ",
         caption.lower(),
     )
     caption = re.sub(
         r"\s{2,}",
-        ' ',
+        " ",
         caption,
     )
-    caption = caption.rstrip('\n') 
-    caption = caption.strip(' ')
+    caption = caption.rstrip("\n")
+    caption = caption.strip(" ")
 
-    #truncate caption
-    caption_words = caption.split(' ')
-    if len(caption_words)>max_words:
-        caption = ' '.join(caption_words[:max_words])
-            
+    # truncate caption
+    caption_words = caption.split(" ")
+    if len(caption_words) > max_words:
+        caption = " ".join(caption_words[:max_words])
+
     return caption
+
 
 CUSTOM_TEMPLATES = {
     "OxfordPets": "a photo of a {}, a type of pet.",
