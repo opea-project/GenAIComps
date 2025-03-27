@@ -30,9 +30,11 @@ jobs:
 
           # clean up containers use ports
           cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 
           docker rmi $(docker images --filter reference="*/*:comps" -q) || true
           docker system prune -f
+          docker ps
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
