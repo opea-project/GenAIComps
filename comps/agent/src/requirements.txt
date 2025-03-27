@@ -14,7 +14,6 @@ langchainhub
 langgraph
 langsmith
 numpy
-qwen-agent[python_executor]
 
 # used by cloud native
 opentelemetry-api
@@ -24,6 +23,7 @@ pandas
 prometheus_fastapi_instrumentator
 pyarrow
 pydantic #==1.10.13
+qwen-agent[python_executor]
 rank_bm25
 
 # used by document loader
