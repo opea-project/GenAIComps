@@ -13,7 +13,7 @@ Input Formats: Accepts text from documents, text files, or strings\*.
 
 Output: Answer to the query asked by the user.
 
-# 🚀 1. Start individual microservices using docker cli (Option 1)
+## 🚀 1. Start individual microservices using docker cli (Option 1)
 
 Update the environment_setup.sh file with your device and user information, and source it using -
 
@@ -117,7 +117,7 @@ Launch the docker container
 docker run -i -t --net=host --ipc=host -p TEXT2KG_PORT opea/text2kg:latest -v data:/home/user/comps/text2kg/src/data /bin/bash
 ```
 
-# 🚀 2. Start text2kg and dependent microservices with docker-compose (Option 2)
+## 🚀 2. Start text2kg and dependent microservices with docker-compose (Option 2)
 
 ```bash
 cd comps/text2kg/deployment/docker_compose/
@@ -143,7 +143,7 @@ Launch using the following command to run on gaudi
 docker compose -f compose.yaml up ${service_name}  -d > ${LOG_PATH}/start_services_with_compose.log
 ```
 
-# 3. Check the service using API endpoint
+## 3. Check the service using API endpoint
 
 ```bash
 curl -X 'POST' \
