@@ -30,6 +30,7 @@ class MicroService(HTTPService):
         protocol: str = "http",
         host: str = "localhost",
         port: int = 8080,
+        api_key: str = None,
         ssl_keyfile: Optional[str] = None,
         ssl_certfile: Optional[str] = None,
         endpoint: Optional[str] = "/",
@@ -49,6 +50,7 @@ class MicroService(HTTPService):
         self.protocol = protocol
         self.host = host
         self.port = port
+        self.api_key = api_key
         self.endpoint = endpoint
         self.input_datatype = input_datatype
         self.output_datatype = output_datatype
@@ -137,7 +139,14 @@ class MicroService(HTTPService):
 
     @property
     def endpoint_path(self):
-        return f"{self.protocol}://{self.host}:{self.port}{self.endpoint}"
+        if self.api_key:
+            return f"{self.host}{self.endpoint}"
+        else:
+            return f"{self.protocol}://{self.host}:{self.port}{self.endpoint}"
+
+    @property
+    def api_key_value(self):
+        return self.api_key
 
 
 def register_microservice(

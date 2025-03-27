@@ -243,6 +243,7 @@ class ServiceOrchestrator(DAG):
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
+        access_token = self.services[cur_node].api_key_value
         llm_parameters_dict = llm_parameters.dict()
 
         is_llm_vlm = self.services[cur_node].service_type in (ServiceType.LLM, ServiceType.LVM)
@@ -263,14 +264,27 @@ class ServiceOrchestrator(DAG):
                 if ENABLE_OPEA_TELEMETRY
                 else contextlib.nullcontext()
             ):
-                response = requests.post(
-                    url=endpoint,
-                    data=json.dumps(inputs),
-                    headers={"Content-type": "application/json"},
-                    proxies={"http": None},
-                    stream=True,
-                    timeout=1000,
-                )
+                if access_token:
+                    response = requests.post(
+                        url=endpoint,
+                        data=json.dumps(inputs),
+                        headers={"Content-type": "application/json", "Authorization": f"Bearer {access_token}"},
+                        proxies={"http": None},
+                        stream=True,
+                        timeout=1000,
+                    )
+                else:
+                    response = requests.post(
+                        url=endpoint,
+                        data=json.dumps(inputs),
+                        headers={
+                            "Content-type": "application/json",
+                        },
+                        proxies={"http": None},
+                        stream=True,
+                        timeout=1000,
+                    )
+
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
@@ -291,11 +305,25 @@ class ServiceOrchestrator(DAG):
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
-                                    res = requests.post(
-                                        url=downstream_endpoint,
-                                        data=json.dumps({"text": buffered_chunk_str}),
-                                        proxies={"http": None},
-                                    )
+                                    if access_token:
+                                        res = requests.post(
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            headers={
+                                                "Content-type": "application/json",
+                                                "Authorization": f"Bearer {access_token}",
+                                            },
+                                            proxies={"http": None},
+                                        )
+                                    else:
+                                        res = requests.post(
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            headers={
+                                                "Content-type": "application/json",
+                                            },
+                                            proxies={"http": None},
+                                        )
                                     res_json = res.json()
                                     if "text" in res_json:
                                         res_txt = res_json["text"]
