@@ -201,14 +201,14 @@ index 8bc99730..a99be34d 100644
 -
 -## Benchmark
 -
--Compared to ChatGLM's [P-Tuning](https://github.com/THUDM/ChatGLM2-6B/tree/main/ptuning), LLaMA Factory's LoRA tuning offers up to **3.7 times faster** training speed with a better Rouge score on the advertising text generation task. By leveraging 4-bit quantization technique, LLaMA Factory's QLoRA further improves the efficiency regarding the GPU memory.
+-Compared to ChatGLM's [P-Tuning](https://github.com/THUDM/ChatGLM2-6B/tree/main/ptuning), LLaMA Factory's LoRA tuning offers up to **3.7 times faster** training speed with a better Rogue score on the advertising text generation task. By leveraging 4-bit quantization technique, LLaMA Factory's QLoRA further improves the efficiency regarding the GPU memory.
 -
 -![benchmark](assets/benchmark.svg)
 -
 -<details><summary>Definitions</summary>
 -
 -- **Training Speed**: the number of training samples processed per second during the training. (bs=4, cutoff_len=1024)
--- **Rouge Score**: Rouge-2 score on the development set of the [advertising text generation](https://aclanthology.org/D19-1321.pdf) task. (bs=4, cutoff_len=1024)
+-- **Rogue Score**: Rogue-2 score on the development set of the [advertising text generation](https://aclanthology.org/D19-1321.pdf) task. (bs=4, cutoff_len=1024)
 -- **GPU Memory**: Peak GPU memory usage in 4-bit quantized training. (bs=1, cutoff_len=1024)
 -- We adopt `pre_seq_len=128` for ChatGLM's P-Tuning and `lora_rank=32` for LLaMA Factory's LoRA tuning.
 -
@@ -542,15 +542,15 @@ index 8bc99730..a99be34d 100644
 -
 -<details><summary>For Ascend NPU users</summary>
 -
--To install LLaMA Factory on Ascend NPU devices, please specify extra dependencies: `pip install -e ".[torch-npu,metrics]"`. Additionally, you need to install the **[Ascend CANN Toolkit and Kernels](https://www.hiascend.com/developer/download/community/result?module=cann)**. Please follow the [installation tutorial](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/softwareinstall/instg/atlasdeploy_03_0031.html) or use the following commands:
+-To install LLaMA Factory on Ascend NPU devices, please specify extra dependencies: `pip install -e ".[torch-npu,metrics]"`. Additionally, you need to install the **[Ascend CAN Toolkit and Kernels](https://www.hiascend.com/developer/download/community/result?module=can)**. Please follow the [installation tutorial](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/softwareinstall/instg/atlasdeploy_03_0031.html) or use the following commands:
 -
 -```bash
--# replace the url according to your CANN version and devices
--# install CANN Toolkit
+-# replace the url according to your CAN version and devices
+-# install CAN Toolkit
 -wget https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Milan-ASL/Milan-ASL%20V100R001C17SPC701/Ascend-cann-toolkit_8.0.RC1.alpha001_linux-"$(uname -i)".run
 -bash Ascend-cann-toolkit_8.0.RC1.alpha001_linux-"$(uname -i)".run --install
 -
--# install CANN Kernels
+-# install CAN Kernels
 -wget https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Milan-ASL/Milan-ASL%20V100R001C17SPC701/Ascend-cann-kernels-910b_8.0.RC1.alpha001_linux.run
 -bash Ascend-cann-kernels-910b_8.0.RC1.alpha001_linux.run --install
 -
@@ -560,7 +560,7 @@ index 8bc99730..a99be34d 100644
 -
 -| Requirement  | Minimum | Recommend   |
 -| ------------ | ------- | ----------- |
--| CANN         | 8.0.RC1 | 8.0.RC1     |
+-| CAN         | 8.0.RC1 | 8.0.RC1     |
 -| torch        | 2.1.0   | 2.1.0       |
 -| torch-npu    | 2.1.0   | 2.1.0.post3 |
 -| deepspeed    | 0.13.2  | 0.13.2      |
@@ -793,7 +793,7 @@ index 8bc99730..a99be34d 100644
 -1. Choi et al. FACT-GPT: Fact-Checking Augmentation via Claim Matching with LLMs. 2024. [[arxiv]](https://arxiv.org/abs/2402.05904)
 -1. Zhang et al. AutoMathText: Autonomous Data Selection with Language Models for Mathematical Texts. 2024. [[arxiv]](https://arxiv.org/abs/2402.07625)
 -1. Lyu et al. KnowTuning: Knowledge-aware Fine-tuning for Large Language Models. 2024. [[arxiv]](https://arxiv.org/abs/2402.11176)
--1. Yang et al. LaCo: Large Language Model Pruning via Layer Collaps. 2024. [[arxiv]](https://arxiv.org/abs/2402.11187)
+-1. Yang et al. LaCo: Large Language Model Pruning via Layer Collapse. 2024. [[arxiv]](https://arxiv.org/abs/2402.11187)
 -1. Bhardwaj et al. Language Models are Homer Simpson! Safety Re-Alignment of Fine-tuned Language Models through Task Arithmetic. 2024. [[arxiv]](https://arxiv.org/abs/2402.11746)
 -1. Yang et al. Enhancing Empathetic Response Generation by Augmenting LLMs with Small-scale Empathetic Models. 2024. [[arxiv]](https://arxiv.org/abs/2402.11801)
 -1. Yi et al. Generation Meets Verification: Accelerating Large Language Model Inference with Smart Parallel Auto-Correct Decoding. ACL 2024 Findings. [[arxiv]](https://arxiv.org/abs/2402.11809)
@@ -2031,7 +2031,7 @@ index 68857c1a..929164ab 100644
      if is_torch_npu_available():
          info["PyTorch version"] += " (NPU)"
          info["NPU type"] = torch.npu.get_device_name()
--        info["CANN version"] = torch.version.cann
+-        info["CAN version"] = torch.version.can
 +        info["CAN version"] = torch.version.can
  
      try:
@@ -2268,7 +2268,7 @@ index a7f221ca..62f80fe3 100644
      )
      n_shot: int = field(
          default=5,
--        metadata={"help": "Number of examplars for few-shot learning."},
+-        metadata={"help": "Number of exemplars for few-shot learning."},
 +        metadata={"help": "Number of exemplars for few-shot learning."},
      )
      save_dir: Optional[str] = field(
@@ -2741,7 +2741,7 @@ index d52731b8..77a55fd0 100644
  
  def get_seqlens_in_batch(attention_mask: "torch.Tensor") -> "torch.Tensor":
 -    r"""
--    Gets the sequnce lengths in the current batch.
+-    Gets the sequence lengths in the current batch.
 +    r"""Gets the sequence lengths in the current batch.
  
      e.g.
@@ -3094,7 +3094,7 @@ index 3a8464ec..9f19ca92 100644
  
  from ...data import PairwiseDataCollatorWithPadding, get_dataset, get_template_and_fix_tokenizer
  from ...extras.constants import IGNORE_INDEX
--from ...extras.ploting import plot_loss
+-from ...extras.plotting import plot_loss
 +from ...extras.plotting import plot_loss
  from ...hparams import ModelArguments
  from ...model import load_model, load_tokenizer
@@ -3154,7 +3154,7 @@ index 81c30a14..491ae2d9 100644
  
  from ...data import KTODataCollatorWithPadding, get_dataset, get_template_and_fix_tokenizer
  from ...extras.constants import IGNORE_INDEX
--from ...extras.ploting import plot_loss
+-from ...extras.plotting import plot_loss
 +from ...extras.plotting import plot_loss
  from ...hparams import ModelArguments
  from ...model import load_model, load_tokenizer
@@ -3296,7 +3296,7 @@ index 92262f99..22661146 100644
  from typing import TYPE_CHECKING, List, Optional
  
  from ...data import MultiModalDataCollatorForSeq2Seq, get_dataset, get_template_and_fix_tokenizer
--from ...extras.ploting import plot_loss
+-from ...extras.plotting import plot_loss
 +from ...extras.plotting import plot_loss
  from ...model import load_model, load_tokenizer
  from ..callbacks import fix_valuehead_checkpoint
@@ -3329,7 +3329,7 @@ index 06afdc12..0e1d341d 100644
  from transformers import DataCollatorForLanguageModeling
  
  from ...data import get_dataset, get_template_and_fix_tokenizer
--from ...extras.ploting import plot_loss
+-from ...extras.plotting import plot_loss
 +from ...extras.plotting import plot_loss
  from ...model import load_model, load_tokenizer
  from ..trainer_utils import create_modelcard_and_push
@@ -3397,7 +3397,7 @@ index e3f1b762..44beee19 100644
  from typing import TYPE_CHECKING, List, Optional
  
  from ...data import PairwiseDataCollatorWithPadding, get_dataset, get_template_and_fix_tokenizer
--from ...extras.ploting import plot_loss
+-from ...extras.plotting import plot_loss
 +from ...extras.plotting import plot_loss
  from ...model import load_model, load_tokenizer
  from ..callbacks import fix_valuehead_checkpoint
@@ -3410,7 +3410,7 @@ index b64df0c5..57ad2d8f 100644
  
  
  if is_rouge_available():
--    from rouge_chinese import Rouge
+-    from rouge_chinese import Rogue
 +    from rouge_chinese import Rogue
  
  
@@ -3447,8 +3447,8 @@ index b64df0c5..57ad2d8f 100644
              if len(" ".join(hypothesis).split()) == 0 or len(" ".join(reference).split()) == 0:
                  result = {"rouge-1": {"f": 0.0}, "rouge-2": {"f": 0.0}, "rouge-l": {"f": 0.0}}
              else:
--                rouge = Rouge()
--                scores = rouge.get_scores(" ".join(hypothesis), " ".join(reference))
+-                rogue = Rogue()
+-                scores = rogue.get_scores(" ".join(hypothesis), " ".join(reference))
 +                rogue = Rogue()
 +                scores = rogue.get_scores(" ".join(hypothesis), " ".join(reference))
                  result = scores[0]
@@ -3463,7 +3463,7 @@ index 609f0f06..91f862b7 100644
  
  class CustomSeq2SeqTrainer(Seq2SeqTrainer):
 -    r"""
--    Inherits Seq2SeqTrainer to compute generative metrics such as BLEU and ROUGE.
+-    Inherits Seq2SeqTrainer to compute generative metrics such as BLEU and ROGUE.
 -    """
 +    r"""Inherits Seq2SeqTrainer to compute generative metrics such as BLEU and ROGUE."""
  
@@ -3512,7 +3512,7 @@ index 43a9aef1..62bdf4fb 100644
  from ...data import SFTDataCollatorWith4DAttentionMask, get_dataset, get_template_and_fix_tokenizer
  from ...extras.constants import IGNORE_INDEX
  from ...extras.misc import get_logits_processor
--from ...extras.ploting import plot_loss
+-from ...extras.plotting import plot_loss
 +from ...extras.plotting import plot_loss
  from ...model import load_model, load_tokenizer
  from ..trainer_utils import create_modelcard_and_push
@@ -3584,7 +3584,7 @@ index bc97e205..6c0855c0 100644
      elif training_args.optim == "adafactor":
          optim_class = GaLoreAdafactor
      else:
--        raise NotImplementedError("Unknow optim: {}".format(training_args.optim))
+-        raise NotImplementedError("Unknown optim: {}".format(training_args.optim))
 +        raise NotImplementedError("Unknown optim: {}".format(training_args.optim))
  
      if finetuning_args.galore_layerwise:
@@ -3707,7 +3707,7 @@ index 019812c7..cf3fd2e6 100644
      os.makedirs(DEFAULT_CACHE_DIR, exist_ok=True)
      user_config = load_config()
      user_config["lang"] = lang or user_config["lang"]
-@@ -99,9 +91,7 @@ def save_config(lang: str, model_name: Optional[str] = None, model_path: Optiona
+@@ -99,9 +91,7 @@ def save_config(lang: str, model_name: Optional[str] = None, model_path: Optional
  
  
  def get_model_path(model_name: str) -> str:
@@ -4946,7 +4946,7 @@ index c52c0887..01db2495 100644
  
  from ..extras.constants import PEFT_METHODS, RUNNING_LOG, TRAINER_LOG, TRAINING_ARGS, TRAINING_STAGES
  from ..extras.packages import is_gradio_available, is_matplotlib_available
--from ..extras.ploting import gen_loss_plot
+-from ..extras.plotting import gen_loss_plot
 +from ..extras.plotting import gen_loss_plot, gen_loss_plot_adaclip, gen_loss_plot_clip
  from ..model import QuantizationMethod
  from .common import DEFAULT_CACHE_DIR, DEFAULT_CONFIG_DIR, get_save_dir
@@ -5063,7 +5063,7 @@ index c52c0887..01db2495 100644
  
  def get_trainer_info(output_path: os.PathLike, do_train: bool) -> Tuple[str, "gr.Slider", Optional["gr.Plot"]]:
 -    r"""
--    Gets training infomation for monitor.
+-    Gets training information for monitor.
 -    """
 +    r"""Gets training information for monitor."""
      running_log = ""
@@ -5344,7 +5344,7 @@ index 57ad2d8f..86e20890 100644
  
  if is_rouge_available():
 -    from rouge_chinese import Rogue
-+    from rouge_chinese import Rouge
++    from rouge_chinese import Rogue
  
  
  def eval_logit_processor(logits: "torch.Tensor", labels: "torch.Tensor") -> "torch.Tensor":
