@@ -9,6 +9,7 @@ export REGISTRY=${IMAGE_REPO}
 export TAG="comps"
 echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
 echo "TAG=${TAG}"
+export DATA_PATH=${model_cache}
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -35,7 +36,7 @@ function build_docker_images() {
     fi
 
     docker pull ghcr.io/huggingface/tgi-gaudi:2.3.1
-    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
 }
 
 function start_service() {
