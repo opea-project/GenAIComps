@@ -248,7 +248,6 @@ def mapping_refinement(
         train_text_batch = train_text_batch.to(device)
         labels_batch = labels_batch.to(device)
 
-
         if cfg.TRAINER.LFA.GAUSSIAN_NOISE > 0.0 and np.random.uniform() > 0.5:
             train_visual_batch += torch.randn_like(train_visual_batch) * cfg.TRAINER.LFA.GAUSSIAN_NOISE
 
