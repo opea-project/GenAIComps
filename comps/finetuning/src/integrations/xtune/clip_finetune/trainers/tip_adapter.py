@@ -206,10 +206,10 @@ class Tip_Adapter(TrainerX):
         super().run_epoch()
 
     def build_cache_model(self, cfg, clip_model, train_loader_cache):
-        if cfg.TRAINER.TIP.LOAD_CACHE == False:
+        if !cfg.TRAINER.TIP.LOAD_CACHE:
             cache_keys = []
             cache_values = []
-            if cfg.TRAINER.TIP.NEW == True:
+            if cfg.TRAINER.TIP.NEW:
                 for i in range(0, 100):
                     cache_keys.append([])
                     cache_values.append(i)
@@ -271,7 +271,7 @@ class Tip_Adapter(TrainerX):
             torch.save(cache_values, cfg.TRAINER.TIP.CACHE_DIR + "/values_" + str(cfg.DATASET.NUM_SHOTS) + "shots.pt")
 
         else:
-            if cfg.TRAINER.TIP.NEW == True:
+            if cfg.TRAINER.TIP.NEW:
                 cache_keys = []
                 cache_values = []
                 new_cache_keys = torch.load(
@@ -282,7 +282,7 @@ class Tip_Adapter(TrainerX):
                     cfg.TRAINER.TIP.CACHE_DIR_NEW + "/values_" + str(cfg.DATASET.NUM_SHOTS) + "shots_new.pt",
                     weights_only=False,
                 )
-                if cfg.TRAINER.TIP.NEW_DATASET == True:
+                if cfg.TRAINER.TIP.NEW_DATASET:
                     new_cache_keys = new_cache_keys.permute(1, 0)
                     for i in range(0, 100):
                         cache_keys.append([])
@@ -350,7 +350,7 @@ class Tip_Adapter(TrainerX):
 
         print(f"Evaluate on the *{split}* set")
 
-        if self.cfg.TRAINER.TIP.search_best == True:
+        if self.cfg.TRAINER.TIP.search_best:
             new_data_loader = self.test_loader
             images = []
             labels = []
@@ -399,7 +399,7 @@ class Tip_Adapter(TrainerX):
 
         # config for ITC task
         if "ITC" in self.cfg.DATASET.NAME:
-            if split == "val":
+            if split == "val" :
                 if self.cfg.DATASET.NAME == "ITC_Flickr":
                     annotation = json.load(
                         open(os.path.join(os.path.join(self.cfg.DATASET.ROOT, "flickr"), "flickr30k_val.json"), "r")
@@ -415,7 +415,7 @@ class Tip_Adapter(TrainerX):
                             "r",
                         )
                     )
-            elif split == "test":
+            elif split == "test" :
                 if self.cfg.DATASET.NAME == "ITC_Flickr":
                     annotation = json.load(
                         open(os.path.join(os.path.join(self.cfg.DATASET.ROOT, "flickr"), "flickr30k_test.json"), "r")

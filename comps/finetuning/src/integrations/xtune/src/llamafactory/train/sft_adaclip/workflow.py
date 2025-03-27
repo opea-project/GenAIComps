@@ -258,7 +258,7 @@ def run_sft_adaclip(
     args.test_annot = dataset_config_path + args.test_annot
     # if "optuna_cfg" in args:
     #     args.optuna = True
-    if optuna_args.optuna == True:
+    if optuna_args.optuna:
         args.optuna = True
         args.optuna_cfg = edict()
         args.optuna_cfg.n_trials = optuna_args.n_trials
