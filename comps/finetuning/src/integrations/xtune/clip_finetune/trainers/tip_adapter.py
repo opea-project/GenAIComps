@@ -3,7 +3,9 @@
 
 import csv
 import os.path as osp
-
+import os
+import json
+from collections import OrderedDict
 import numpy as np
 import torch
 import torch.nn as nn
@@ -14,6 +16,27 @@ from dassl.utils import load_checkpoint, load_pretrained_weights
 from torch.nn import functional as F
 from tqdm import tqdm
 from transformers import CLIPModel, CLIPProcessor
+import re
+def pre_caption(caption,max_words=50):
+    caption = re.sub(
+        r"([.!\"()*#:;~])",       
+        ' ',
+        caption.lower(),
+    )
+    caption = re.sub(
+        r"\s{2,}",
+        ' ',
+        caption,
+    )
+    caption = caption.rstrip('\n') 
+    caption = caption.strip(' ')
+
+    #truncate caption
+    caption_words = caption.split(' ')
+    if len(caption_words)>max_words:
+        caption = ' '.join(caption_words[:max_words])
+            
+    return caption
 
 CUSTOM_TEMPLATES = {
     "OxfordPets": "a photo of a {}, a type of pet.",
@@ -560,7 +583,7 @@ class Tip_Adapter(TrainerX):
         logit_scale = self.clip_model.logit_scale.exp()
         logits = image_features @ self.text_features.t()
         if self.train_flag == 1:
-            affinity = adapter(image_features)
+            affinity = self.adapter(image_features)
             cache_logits = ((-1) * (self.beta - self.beta * affinity)).exp() @ self.cache_values
             tip_logits = 100.0 * logits + cache_logits * self.alpha
             return tip_logits
@@ -568,7 +591,7 @@ class Tip_Adapter(TrainerX):
         affinity = image_features @ self.cache_keys
         cache_logits = ((-1) * (self.beta - self.beta * affinity)).exp() @ self.cache_values
 
-        tip_logits = 100.0 * clip_logits + cache_logits * self.alpha
+        tip_logits = 100.0 * logits + cache_logits * self.alpha
         return tip_logits
 
     def forward_backward(self, batch):

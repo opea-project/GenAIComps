@@ -29,7 +29,7 @@ from ..trainer_utils import create_modelcard_and_push
 if TYPE_CHECKING:
     from transformers import Seq2SeqTrainingArguments, TrainerCallback
 
-    from ...hparams import DataArguments, FinetuningArguments, GeneratingArguments, ModelArguments
+    from ...hparams import DataArguments, FinetuningArguments, GeneratingArguments, ModelArguments, ClipArguments, OptunaArguments
 
 import gc
 
@@ -370,15 +370,15 @@ def run_sft_clip(
         torch.backends.cudnn.benchmark = True
     cfg.DATASET.NUM_SHOTS = clip_args.few_shot_num
     cfg.TRAIN.PRINT_FREQ = clip_args.clip_logging_steps
-    if clip_args.clip_bias_term != None:
+    if clip_args.clip_bias_term is not None:
         cfg.BIAS.BIAS_TERMS = [item.strip() for item in clip_args.clip_bias_term.split(",")]
-    if clip_args.clip_bias_exclude != None:
+    if clip_args.clip_bias_exclude is not None:
         cfg.BIAS.BIAS_TERMS_EXCLUDE = [item.strip() for item in clip_args.clip_bias_exclude.split(",")]
     cfg.MODEL.ABS = clip_args.use_abs
     cfg.MODEL.ABS_GROUP = clip_args.use_abs_group
     cfg.MODEL.ABS_TOP = not clip_args.keep_min
     cfg.MODEL.ABS_KEEP = clip_args.keep_layers
-    if clip_args.abs_group_name != None:
+    if clip_args.abs_group_name is not None:
         cfg.MODEL.ABS_GROUP_NAME = [item.strip() for item in clip_args.abs_group_name.split(",")]
     cfg.TRAINER.TIP.LOAD_CACHE = clip_args.tip_load_cache
     cfg.TRAINER.TIP.AUGMENT_EPOCH = clip_args.augment_epoch
@@ -421,7 +421,7 @@ def run_sft_clip(
         print(f"\thighest_accuracy time: {best_time}")
         print(f"\thighest_accuracy param: {best_param}")
         for trail in study.trials:
-            if trail.values != None:
+            if trail.values is not None:
                 if trail.values[0] >= trial_with_highest_accuracy.values[0] - 1 and trail.values[1] <= best_time:
                     best_acc = trail.values[0]
                     best_time = trail.values[1]
@@ -453,5 +453,3 @@ def run_sft_clip(
     if not clip_args.no_train:
         trainer.train()
 
-    if training_args.predict_with_generate:
-        tokenizer.padding_side = "left"  # use left-padding in generation

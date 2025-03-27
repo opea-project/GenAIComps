@@ -60,18 +60,18 @@ class CustomSeq2SeqTrainer(Seq2SeqTrainer):
 
             self.accelerator.clip_grad_norm_ = MethodType(clip_grad_norm_old_version, self.accelerator)
             self.add_callback(BAdamCallback)
-        self.cfg = setup_cfg(finetuning_args)
-        if self.cfg.SEED >= 0:
-            print("Setting fixed seed: {}".format(self.cfg.SEED))
-            set_random_seed(self.cfg.SEED)
-        setup_logger(self.cfg.OUTPUT_DIR)
+        # #self.cfg = setup_cfg(finetuning_args)
+        # #if self.cfg.SEED >= 0:
+        #     print("Setting fixed seed: {}".format(self.cfg.SEED))
+        #     set_random_seed(self.cfg.SEED)
+        # setup_logger(self.cfg.OUTPUT_DIR)
 
-        if torch.cuda.is_available() and self.cfg.USE_CUDA:
-            torch.backends.cudnn.benchmark = True
-        print_args(args, self.cfg)
-        print("Collecting env info ...")
-        print("** System info **\n{}\n".format(collect_env_info()))
-        self.trainer = build_trainer(self.cfg)
+        # if torch.cuda.is_available() and self.cfg.USE_CUDA:
+        #     torch.backends.cudnn.benchmark = True
+        # print_args(args, self.cfg)
+        # print("Collecting env info ...")
+        # print("** System info **\n{}\n".format(collect_env_info()))
+        # self.trainer = build_trainer(self.cfg)
 
     @override
     def create_optimizer(self) -> "torch.optim.Optimizer":
