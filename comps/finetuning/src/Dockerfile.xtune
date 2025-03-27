@@ -20,6 +20,7 @@ echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg] htt
         libze-intel-gpu1 libze1 intel-opencl-icd clinfo \
         libze-dev intel-ocloc \
         intel-level-zero-gpu-raytracing \
+        vim \
         rsync
 
 COPY comps /home/user/comps
