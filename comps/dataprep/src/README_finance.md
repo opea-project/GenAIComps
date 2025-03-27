@@ -29,7 +29,7 @@ First, you need to start a TEI service.
 ```bash
 your_port=6006
 model="BAAI/bge-base-en-v1.5"
-docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
 ```
 
 Then you need to test your TEI service using the following commands:

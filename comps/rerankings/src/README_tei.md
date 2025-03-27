@@ -31,7 +31,7 @@ This README provides set-up instructions and comprehensive details regarding the
     export RERANK_MODEL_ID="BAAI/bge-reranker-base"
     export volume=$PWD/data
 
-    docker run -d -p 12005:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN --auto-truncate
+    docker run -d -p 12005:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $RERANK_MODEL_ID --hf-api-token $HF_TOKEN --auto-truncate
   ```
 
 2. **Verify the TEI Service**:

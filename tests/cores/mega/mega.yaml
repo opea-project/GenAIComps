@@ -19,7 +19,7 @@ micro_services:
     dependencies:
       - redis-vector-db
   - service_name: embedding-server
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
     ports:
       - "8090:80"
     volumes:
