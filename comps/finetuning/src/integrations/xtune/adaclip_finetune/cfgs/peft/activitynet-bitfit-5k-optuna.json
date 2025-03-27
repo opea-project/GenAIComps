@@ -1,0 +1,34 @@
+{
+  "dataset": "activitynet",
+  "train_annot": "annots-finetune/activitynet/finetune-5000.json",
+  "val_annot": "annots/activitynet/val.json",
+  "test_annot": "annots/activitynet/val.json",
+  "frames_dir": "data/activitynet/frames",
+  "concat_captions": "concat",
+  "max_txt_len": 64,
+  "num_frm": 32,
+  "batch_size": 16,
+  "peft": {
+    "method": "bitfit",
+    "config": {
+      "keep_module_keywords": ["ln_post", "visual.proj", "ln_final", "text_projection", "logit_scale"]
+    }
+  },
+  "optuna_cfg": {
+    "n_trials": 30,
+    "n_warmup_steps": 15,
+    "sampler": {
+      "name": "TPESampler"
+    },
+    "opt_params": {
+      "coef_lr": {
+        "range": [0.02, 0.5],
+        "log": false
+      },
+      "weight_decay": {
+        "range": [0.01, 0.5],
+        "log": false
+      }
+    }
+  }
+}
