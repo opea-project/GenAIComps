@@ -51,7 +51,7 @@ function start_service() {
     export MAX_TOTAL_TOKENS=4096
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
-    export DATA_PATH="/data2/cache"
+    export DATA_PATH=${model_cache:-./data}
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_doc-summarization.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -156,7 +156,7 @@ function validate_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_doc-summarization.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_doc-summarization.yaml down --remove-orphans
 }
 
 function main() {

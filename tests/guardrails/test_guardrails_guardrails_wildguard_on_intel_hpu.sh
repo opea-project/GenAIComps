@@ -6,6 +6,7 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+export DATA_PATH=${model_cache}
 
 function build_docker_images() {
     echo "Start building docker images for microservice"

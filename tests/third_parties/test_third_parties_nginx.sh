@@ -23,7 +23,7 @@ function start_service() {
     export NGINX_PORT=80
 
     # Start Docker Containers
-    docker run -d --name test-comps-nginx-server -p 80:80 opea/nginx:comps
+    docker run -d --name test-comps-nginx-server -p ${NGINX_PORT}:8080 -e NGINX_PORT=8080 opea/nginx:comps
 
     sleep 5s
 }
