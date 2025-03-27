@@ -140,9 +140,15 @@ class OpeaDocSum(OpeaComponent):
             text_splitter = CharacterTextSplitter()
         else:
             if input.summary_type == "refine":
-                if MAX_TOTAL_TOKENS <= 2 * input.max_tokens + 256 or MAX_INPUT_TOKENS <= input.max_tokens + 256:  ## 256 is reserved prompt length
-                    raise RuntimeError("In Refine mode, Please set MAX_TOTAL_TOKENS larger than (max_tokens * 2 + 256), MAX_INPUT_TOKENS larger than (max_tokens + 256)")
-                max_input_tokens = min(MAX_TOTAL_TOKENS - 2 * input.max_tokens - 256, MAX_INPUT_TOKENS - input.max_tokens - 256)
+                if (
+                    MAX_TOTAL_TOKENS <= 2 * input.max_tokens + 256 or MAX_INPUT_TOKENS <= input.max_tokens + 256
+                ):  ## 256 is reserved prompt length
+                    raise RuntimeError(
+                        "In Refine mode, Please set MAX_TOTAL_TOKENS larger than (max_tokens * 2 + 256), MAX_INPUT_TOKENS larger than (max_tokens + 256)"
+                    )
+                max_input_tokens = min(
+                    MAX_TOTAL_TOKENS - 2 * input.max_tokens - 256, MAX_INPUT_TOKENS - input.max_tokens - 256
+                )
             else:
                 if MAX_TOTAL_TOKENS <= input.max_tokens + 256:  # 256 is reserved token length for prompt
                     raise RuntimeError("Please set MAX_TOTAL_TOKENS larger than max_tokens + 256)")
