@@ -264,7 +264,7 @@ index cd873e9..2799a16 100644
  # Random gray scale's probability
  _C.INPUT.RGS_P = 0.2
  # Gaussian blur
--_C.INPUT.GB_P = 0.5  # propability of applying this operation
+-_C.INPUT.GB_P = 0.5  # probability of applying this operation
 +_C.INPUT.GB_P = 0.5  # probability of applying this operation
  _C.INPUT.GB_K = 21  # kernel size (should be an odd number)
  
@@ -1750,7 +1750,7 @@ index 5c39ff3..2a9bb7c 100644
  
  
  def randaugment_list():
--    # 16 oeprations and their ranges
+-    # 16 operations and their ranges
 +    # 16 operations and their ranges
      # https://github.com/google-research/uda/blob/master/image/randaugment/policies.py#L57
      # augs = [
@@ -1881,7 +1881,7 @@ index 4ea00d6..d538143 100644
      Args:
          n_holes (int, optional): number of patches to cut out
              of each image. Default is 1.
--        length (int, optinal): length (in pixels) of each square
+-        length (int, optional): length (in pixels) of each square
 +        length (int, optional): length (in pixels) of each square
              patch. Default is 16.
      """
