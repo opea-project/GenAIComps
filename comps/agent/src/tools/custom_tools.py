@@ -5,7 +5,7 @@ try:
     from qwen_agent.tools.python_executor import PythonExecutor
 except ImportError as e:
     raise ImportError(
-        'The dependency of PythonExecutor is not installed. '
+        "The dependency of PythonExecutor is not installed. "
         'Please install the required dependency by running: pip install "qwen-agent[python_executor]"'
     ) from e
 
@@ -29,15 +29,10 @@ def search_weather(query: str) -> str:
 
 
 def python_executor(
-    code: str,
-    get_answer_from_stdout=True,
-    get_answer_expr=None,
-    get_answer_symbol=None,
-    timeout_length=20
+    code: str, get_answer_from_stdout=True, get_answer_expr=None, get_answer_symbol=None, timeout_length=20
 ) -> list:
-    """
-    Execute the given python code and return the result of code execution.
-    
+    """Execute the given python code and return the result of code execution.
+
     Args:
         code: A string contains code to execute, format should be like ```\n<code>\n```.
         get_answer_from_stdout: A bool variable to specify whether to get execution result from stdout.
@@ -47,12 +42,14 @@ def python_executor(
     Returns:
         A tuple of code execution result, format as (execution result string, execution status string).
     """
-    executor = PythonExecutor({
-        "get_answer_from_stdout":get_answer_from_stdout,
-        "get_answer_expr":get_answer_expr,
-        "get_answer_symbol":get_answer_symbol,
-        "timeout_length":timeout_length
-    })
+    executor = PythonExecutor(
+        {
+            "get_answer_from_stdout": get_answer_from_stdout,
+            "get_answer_expr": get_answer_expr,
+            "get_answer_symbol": get_answer_symbol,
+            "timeout_length": timeout_length,
+        }
+    )
     return executor.call(code)
 
 
