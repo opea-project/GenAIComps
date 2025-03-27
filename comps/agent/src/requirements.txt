@@ -14,6 +14,7 @@ langchainhub
 langgraph
 langsmith
 numpy
+qwen-agent[python_executor]
 
 # used by cloud native
 opentelemetry-api
