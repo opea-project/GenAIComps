@@ -2,20 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import torch
-import torch.nn.parallel
-import torch.distributed as dist
-import sys
+import gc
 import os
-from dassl.utils import setup_logger, set_random_seed, collect_env_info
+import shutil
+import sys
+
+import optuna
+import torch
+import torch.distributed as dist
+import torch.nn.parallel
 from dassl.config import get_cfg_default
 from dassl.engine import build_trainer
-
-# custom
-
-
+from dassl.utils import collect_env_info, set_random_seed, setup_logger
 from datasets import (
     caltech101,
+    dtd,
     flickr,
     flickr5k,
     imagenet,
@@ -26,19 +27,12 @@ from datasets import (
     mini_imagenet,
     mscoco,
     oxford_pets,
-    dtd,
 )
-from trainers import (
-    clip_adapter_hf,
-    clip_bias_hf,
-    clip_fullfinetune_hf,
-    clip_vpt_hf,
-    tip_adapter,
-)
-import optuna
 from optuna.trial import TrialState
-import shutil
-import gc
+from trainers import clip_adapter_hf, clip_bias_hf, clip_fullfinetune_hf, clip_vpt_hf, tip_adapter
+
+# custom
+
 
 def objective(trial, cfg):
     # flag = 0

@@ -38,6 +38,7 @@ from optuna.trial import TrialState
 
 from ...clip_finetune.datasets import (
     caltech101,
+    dtd,
     flickr,
     flickr5k,
     imagenet,
@@ -48,15 +49,8 @@ from ...clip_finetune.datasets import (
     mini_imagenet,
     mscoco,
     oxford_pets,
-    dtd,
 )
-from ...clip_finetune.trainers import (
-    clip_adapter_hf,
-    clip_bias_hf,
-    clip_fullfinetune_hf,
-    clip_vpt_hf,
-    tip_adapter,
-)
+from ...clip_finetune.trainers import clip_adapter_hf, clip_bias_hf, clip_fullfinetune_hf, clip_vpt_hf, tip_adapter
 
 
 def objective(trial, cfg):
