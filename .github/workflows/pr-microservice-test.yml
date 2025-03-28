@@ -83,6 +83,7 @@ jobs:
             echo "Model cache directory /data2/huggingface does not exist"
             export model_cache="~/.cache/huggingface/hub"
           fi
+          export PATH=${HOME}/miniforge3/bin/:$PATH
           timeout 60m bash $(find . -type f -name test_${service}.sh)
 
       - name: Clean up container

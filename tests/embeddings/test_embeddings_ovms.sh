@@ -75,7 +75,6 @@ function validate_microservice() {
 
 function validate_microservice_with_openai() {
     ovms_service_port=10205
-    echo $PATH
     pip install openai
     python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py $ip_address $ovms_service_port "embedding"
     if [ $? -ne 0 ]; then
@@ -92,6 +91,7 @@ function stop_docker() {
 
 function main() {
 
+    echo $PATH
     stop_docker
 
     build_docker_images
