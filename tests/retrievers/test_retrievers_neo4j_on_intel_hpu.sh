@@ -9,6 +9,7 @@ export REGISTRY=${IMAGE_REPO}
 export TAG="comps"
 echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
 echo "TAG=${TAG}"
+export DATA_PATH=${model_cache}
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -35,7 +36,7 @@ function build_docker_images() {
     fi
 
     docker pull ghcr.io/huggingface/tgi-gaudi:2.3.1
-    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
 }
 
 function start_service() {
@@ -157,7 +158,7 @@ function stop_docker() {
     cid=$(docker ps -aq --filter "name=test-comps-*" --filter "name=neo4j-apoc" --filter "name=tgi-gaudi-server" --filter "name=tei-embedding-serving")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
-    docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 }
 
 function main() {

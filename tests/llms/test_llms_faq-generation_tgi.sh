@@ -9,6 +9,7 @@ export REGISTRY=${IMAGE_REPO}
 export TAG="comps"
 echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
 echo "TAG=${TAG}"
+export DATA_PATH=${model_cache}
 
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
@@ -100,7 +101,7 @@ function validate_backend_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_faq-generation.yaml down --remove-orphans
 }
 
 function main() {

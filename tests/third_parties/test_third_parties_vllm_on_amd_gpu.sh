@@ -35,7 +35,7 @@ function build_container() {
 start_container() {
     export VLLM_SERVICE_PORT=28011
     export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
-    export HF_CACHE_DIR="./data"
+    export HF_CACHE_DIR=${model_cache:-./data}
     export VLLM_LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export TENSOR_PARALLEL_SIZE=1
 
@@ -93,7 +93,7 @@ function test_api_endpoint {
 
 function stop_docker() {
     cd $WORKPATH/../comps/third_parties/vllm/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 }
 
 # Main function

@@ -9,6 +9,7 @@ export REGISTRY=${IMAGE_REPO}
 export TAG="comps"
 echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
 echo "TAG=${TAG}"
+export DATA_PATH=${model_cache}
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -76,7 +77,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
-    docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
     cid=$(docker ps -aq --filter "name=opensearch-vector-db" --filter "name=tei-embedding-serving")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
