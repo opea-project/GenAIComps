@@ -6,6 +6,7 @@ set -x
 WORKPATH=$(git rev-parse --show-toplevel)
 TAG='latest'
 LOG_PATH="$WORKPATH/comps/text2kg/deployment/docker_compose"
+export DATA_PATH=${model_cache}
 source $WORKPATH/comps/text2kg/src/environment_setup.sh
 
 
