@@ -164,7 +164,7 @@ Example
 
 Config path: `src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-bitfit-5k.json`
 
-**TODO**: check if the naive recusive monkey patch has problems.
+**TODO**: check if the naive recursive  monkey patch has problems.
 
 ## Importance Based Selection (IBS)
 
