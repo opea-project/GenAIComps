@@ -119,7 +119,6 @@ function validate_microservices() {
 }
 
 function validate_microservice_with_openai() {
-    pip install openai
     python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py "$host_ip" "$TEXTGEN_PORT" "llm"
     if [ $? -ne 0 ]; then
         docker logs vllm-gaudi-server >> ${LOG_PATH}/llm--gaudi.log
