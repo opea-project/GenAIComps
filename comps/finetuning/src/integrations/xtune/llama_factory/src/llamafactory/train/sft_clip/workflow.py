@@ -1,20 +1,42 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import argparse
-import torch
-import torch.nn.parallel
-import torch.distributed as dist
-import sys
+import json
 import os
-from dassl.utils import setup_logger, set_random_seed, collect_env_info
+import shutil
+from typing import TYPE_CHECKING, List, Optional
+
+from ...data import SFTDataCollatorWith4DAttentionMask, get_dataset, get_template_and_fix_tokenizer
+from ...extras.constants import IGNORE_INDEX
+from ...extras.misc import get_logits_processor
+from ...extras.plotting import plot_loss
+from ...model import load_model, load_tokenizer
+from ..trainer_utils import create_modelcard_and_push
+
+if TYPE_CHECKING:
+    from transformers import Seq2SeqTrainingArguments, TrainerCallback
+
+    from ...hparams import (
+        DataArguments,
+        FinetuningArguments,
+        GeneratingArguments,
+        ModelArguments,
+        ClipArguments,
+        OptunaArguments,
+    )
+
+import gc
+
+import optuna
+import torch
+import torch.distributed as dist
+import torch.nn.parallel
 from dassl.config import get_cfg_default
 from dassl.engine import build_trainer
+from dassl.utils import collect_env_info, set_random_seed, setup_logger
+from optuna.trial import TrialState
 
-# custom
-
-
-from datasets import (
+from ...clip_finetune.datasets import (
     caltech101,
     flickr,
     flickr5k,
@@ -28,17 +50,14 @@ from datasets import (
     oxford_pets,
     dtd,
 )
-from trainers import (
+from ...clip_finetune.trainers import (
     clip_adapter_hf,
     clip_bias_hf,
     clip_fullfinetune_hf,
     clip_vpt_hf,
     tip_adapter,
 )
-import optuna
-from optuna.trial import TrialState
-import shutil
-import gc
+
 
 def objective(trial, cfg):
     # flag = 0
@@ -117,18 +136,13 @@ def print_args(args, cfg):
     print(cfg)
 
 
-def reset_cfg(cfg, args):
+def reset_cfg(cfg, args, training_args):
     if args.root:
         cfg.DATASET.ROOT = args.root
 
-    if args.output_dir:
-        cfg.OUTPUT_DIR = args.output_dir
+    cfg.OUTPUT_DIR = training_args.output_dir
 
-    if args.resume:
-        cfg.RESUME = args.resume
-
-    if args.seed:
-        cfg.SEED = args.seed
+    cfg.SEED = training_args.seed
 
     if args.source_domains:
         cfg.DATASET.SOURCE_DOMAINS = args.source_domains
@@ -225,31 +239,6 @@ def extend_cfg(cfg):
     cfg.DATASET.SUBSAMPLE_CLASSES = "all"  # all, base or new
 
 
-def setup_cfg(args):
-    cfg = get_cfg_default()
-    extend_cfg(cfg)
-    if args.xpu == 1:
-        cfg.TRAINER.COOP.XPU = True
-    # 1. From the dataset config file
-    if args.dataset_config_file:
-        cfg.merge_from_file(args.dataset_config_file)
-
-    # 2. From the method config file
-    if args.config_file:
-        cfg.merge_from_file(args.config_file)
-
-    # 3. From input arguments
-    reset_cfg(cfg, args)
-    # print("args.opts", args.opts)
-    # 4. From optional input arguments
-    cfg.merge_from_list(args.opts)
-
-    # print(cfg)
-    # cfg.freeze()
-
-    return cfg
-
-
 def get_sampler(cfg):
     sampler_name = cfg.optuna_cfg.sampler.name
     if sampler_name == "TPESampler":
@@ -263,43 +252,12 @@ def get_sampler(cfg):
     return sampler
 
 
-def main(args):
-    # initialization cfg
-    cfg = setup_cfg(args)
-    print(cfg)
-    env_var_name = "CLIP_DEBUG"
-    if env_var_name in os.environ:
-        if os.path.exists(cfg.OUTPUT_DIR):
-            shutil.rmtree(cfg.OUTPUT_DIR)
+def setup_cfg(args, training_args, data_args, model_args):
+    cfg = get_cfg_default()
+    extend_cfg(cfg)
+    if args.xpu == 1:
+        cfg.TRAINER.COOP.XPU = True
 
-    # cache dir for Tip Adapter
-    cache_dir = os.path.join("./caches", cfg.DATASET.NAME)
-    os.makedirs(cache_dir, exist_ok=True)
-    cfg.TRAINER.TIP.CACHE_DIR = cache_dir
-    cfg.TRAINER.TIP.CACHE_DIR_NEW = "./caches"
-    if cfg.SEED >= 0:
-        print("Setting fixed seed: {}".format(cfg.SEED))
-        set_random_seed(cfg.SEED)
-    setup_logger(cfg.OUTPUT_DIR)
-
-    if torch.cuda.is_available() and cfg.USE_CUDA:
-        torch.backends.cudnn.benchmark = True
-    # config for XPU, used in DDP
-    if cfg.TRAINER.COOP.XPU:
-        mpi_world_size = int(os.environ.get("PMI_SIZE", -1))
-        mpi_rank = int(os.environ.get("PMI_RANK", -1))
-        if mpi_world_size > 0:
-            os.environ["RANK"] = str(mpi_rank)
-            os.environ["WORLD_SIZE"] = str(mpi_world_size)
-        else:
-            # set the default rank and world size to 0 and 1
-            os.environ["RANK"] = str(os.environ.get("RANK", 0))
-            os.environ["WORLD_SIZE"] = str(os.environ.get("WORLD_SIZE", 1))
-        os.environ["MASTER_ADDR"] = "127.0.0.1"  # your master address
-        os.environ["MASTER_PORT"] = "29500"  # your master port
-        args.world_size = int(os.environ.get("WORLD_SIZE", -1))
-        args.rank = int(os.environ.get("PMI_RANK", -1))
-        init_method = "tcp://" + args.dist_url + ":" + args.dist_port
         if torch.xpu.device_count() > 1:
             mpi_world_size = int(os.environ.get("PMI_SIZE", -1))
             mpi_rank = int(os.environ.get("PMI_RANK", -1))
@@ -314,19 +272,20 @@ def main(args):
             os.environ["MASTER_PORT"] = "29500"  # your master port
             args.world_size = int(os.environ.get("WORLD_SIZE", -1))
             args.rank = int(os.environ.get("PMI_RANK", -1))
-            init_method = "tcp://" + args.dist_url + ":" + args.dist_port
-            dist.init_process_group(
-                backend=args.dist_backend, init_method=init_method, world_size=args.world_size, rank=args.rank
-            )
+            print("mpi_world_size", mpi_world_size)
+            print("args.rank", args.rank)
+            init_method = "tcp://" + os.environ["MASTER_ADDR"] + ":" + os.environ["MASTER_PORT"]
+            print("222222222222")
+
+            dist.init_process_group(backend="ccl", init_method=init_method, world_size=args.world_size, rank=args.rank)
             local_rank = os.environ["MPI_LOCALRANKID"]
-            # cfg.OUTPUT_DIR = cfg.OUTPUT_DIR + "/" + str(local_rank)
+            cfg.OUTPUT_DIR = cfg.OUTPUT_DIR + "/" + str(local_rank)
         else:
             local_rank = 0
         args.xpu_id = local_rank
         args.xpu_id = "xpu:{}".format(args.xpu_id)
         cfg.TRAINER.COOP.XPU_ID = args.xpu_id
         print("xpu_id", cfg.TRAINER.COOP.XPU_ID)
-    # config for CUDA, used in DDP
     else:
         if torch.cuda.device_count() > 1:
             os.environ["MASTER_ADDR"] = "127.0.0.1"  # your master address
@@ -341,13 +300,83 @@ def main(args):
             local_rank = 0
         cfg.TRAINER.COOP.CUDA_ID = "cuda:{}".format(local_rank)
         print("cuda_id", cfg.TRAINER.COOP.CUDA_ID)
+    cfg.output_dir = training_args.output_dir
+    args.dataset_config_file = args.dataset_config_file + data_args.dataset[0] + ".yaml"
+    args.config_file = args.config_file + model_args.model_name_or_path + ".yaml"
+    # 1. From the dataset config file
+    if args.dataset_config_file:
+        cfg.merge_from_file(args.dataset_config_file)
 
-    # config for optuna
-    if args.use_optuna == 1:
+    # 2. From the method config file
+    if args.config_file:
+        cfg.merge_from_file(args.config_file)
+
+    # 3. From input arguments
+    reset_cfg(cfg, args, training_args)
+
+    if training_args.num_train_epochs != 3:
+        cfg.OPTIM.MAX_EPOCH = int(training_args.num_train_epochs)
+    if training_args.learning_rate != 5e-5:
+        cfg.OPTIM.LR = training_args.learning_rate
+    cfg.DATALOADER.BATCH_SIZE = args.clip_batch_size
+    # print(cfg)
+
+    return cfg
+
+
+def run_sft_clip(
+    model_args: "ModelArguments",
+    data_args: "DataArguments",
+    training_args: "Seq2SeqTrainingArguments",
+    finetuning_args: "FinetuningArguments",
+    generating_args: "GeneratingArguments",
+    clip_args: "ClipArguments",
+    optuna_args: "OptunaArguments",
+    callbacks: Optional[List["TrainerCallback"]] = None,
+):
+
+    # Initialize our Trainer
+    cfg = setup_cfg(clip_args, training_args, data_args, model_args)
+    if os.path.exists(cfg.OUTPUT_DIR):
+        shutil.rmtree(cfg.OUTPUT_DIR)
+    if cfg.SEED >= 0:
+        print("Setting fixed seed: {}".format(cfg.SEED))
+        set_random_seed(cfg.SEED)
+    if os.path.exists(cfg.OUTPUT_DIR + "/trainer_log.jsonl"):
+        os.remove(cfg.OUTPUT_DIR + "/trainer_log.jsonl")
+    setup_logger(cfg.OUTPUT_DIR + "/trainer_log.jsonl")
+
+    if torch.cuda.is_available() and cfg.USE_CUDA:
+        torch.backends.cudnn.benchmark = True
+    cfg.DATASET.NUM_SHOTS = clip_args.few_shot_num
+    cfg.TRAIN.PRINT_FREQ = clip_args.clip_logging_steps
+    if clip_args.clip_bias_term is not None:
+        cfg.BIAS.BIAS_TERMS = [item.strip() for item in clip_args.clip_bias_term.split(",")]
+    if clip_args.clip_bias_exclude is not None:
+        cfg.BIAS.BIAS_TERMS_EXCLUDE = [item.strip() for item in clip_args.clip_bias_exclude.split(",")]
+    cfg.MODEL.ABS = clip_args.use_abs
+    cfg.MODEL.ABS_GROUP = clip_args.use_abs_group
+    cfg.MODEL.ABS_TOP = not clip_args.keep_min
+    cfg.MODEL.ABS_KEEP = clip_args.keep_layers
+    if clip_args.abs_group_name is not None:
+        cfg.MODEL.ABS_GROUP_NAME = [item.strip() for item in clip_args.abs_group_name.split(",")]
+    cfg.TRAINER.TIP.LOAD_CACHE = clip_args.tip_load_cache
+    cfg.TRAINER.TIP.AUGMENT_EPOCH = clip_args.augment_epoch
+    cfg.TRAINER.TIP.beta = clip_args.tip_beta
+    cfg.TRAINER.TIP.alpha = clip_args.tip_alpha
+    cfg.TRAINER.TIP.NEW = clip_args.new
+    cfg.TRAINER.TIP.NEW_DATASET = clip_args.new_dataset
+    cfg.TRAINER.TIP.search_best = clip_args.search_best
+    cfg.optuna_cfg.n_trials = optuna_args.n_trials
+    cfg.optuna_cfg.n_warmup_steps = optuna_args.n_warmup_steps
+    cfg.optuna_cfg.sampler.name = optuna_args.sampler
+    cfg.optuna_cfg.opt_params = [json.loads(optuna_args.opt_params)]
+
+    if optuna_args.optuna == 1:
         max_epoch_log = cfg.OPTIM.MAX_EPOCH
 
         sampler = get_sampler(cfg)
-        storage_name = "sqlite:///optuna.db"
+        storage_name = "sqlite:///clip_optuna.db"
         study = optuna.create_study(
             sampler=sampler,
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=cfg.optuna_cfg.n_warmup_steps),
@@ -383,7 +412,7 @@ def main(args):
         print(f"\tRelatively best_time: {best_time}")
 
     # config best param which is got from optuna
-    if args.use_optuna == 1:
+    if optuna_args.optuna == 1:
         print("use best param", best_param)
 
         for param_name, param_data in best_param.items():
@@ -393,112 +422,13 @@ def main(args):
             cfg.merge_from_list(temp)
         cfg.OPTIM.MAX_EPOCH = max_epoch_log
 
-    print_args(args, cfg)
+    cfg.freeze()
+    print_args(clip_args, cfg)
     print("Collecting env info ...")
-    print("00000000000")
     print("** System info **\n{}\n".format(collect_env_info()))
 
-    cfg.freeze()
-    setup_logger(cfg.OUTPUT_DIR)
     trainer = build_trainer(cfg)
 
-    if args.eval_only:
-        trainer.load_model(args.model_dir, epoch=args.load_epoch)
-        trainer.test()
-        return
-
-    if not args.no_train:
+    # Training
+    if not clip_args.no_train:
         trainer.train()
-    if args.use_optuna == 1:
-        print("=====================finish with best param=============")
-        print("finish with param lr:", best_param["lr"])
-        print("finish with param bs:", best_param["bs"])
-    else:
-        print("=====================finish=============")
-
-
-if __name__ == "__main__":
-    print("start")
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=str, default="", help="path to dataset")
-    parser.add_argument("--output-dir", type=str, default="", help="output directory")
-    parser.add_argument(
-        "--resume",
-        type=str,
-        default="",
-        help="checkpoint directory (from which the training resumes)",
-    )
-    parser.add_argument("--seed", type=int, default=-1, help="only positive value enables a fixed seed")
-    parser.add_argument("--source-domains", type=str, nargs="+", help="source domains for DA/DG")
-    parser.add_argument("--target-domains", type=str, nargs="+", help="target domains for DA/DG")
-    parser.add_argument("--transforms", type=str, nargs="+", help="data augmentation methods")
-    parser.add_argument("--config-file", type=str, default="", help="path to config file")
-    parser.add_argument(
-        "--dataset-config-file",
-        type=str,
-        default="",
-        help="path to config file for dataset setup",
-    )
-    parser.add_argument("--trainer", type=str, default="", help="name of trainer")
-    parser.add_argument("--backbone", type=str, default="", help="name of CNN backbone")
-    parser.add_argument("--head", type=str, default="", help="name of head")
-    parser.add_argument("--eval-only", action="store_true", help="evaluation only")
-    parser.add_argument(
-        "--model-dir",
-        type=str,
-        default="",
-        help="load model from this directory for eval-only mode",
-    )
-    parser.add_argument("--load-epoch", type=int, help="load model weights at this epoch for evaluation")
-    parser.add_argument("--no-train", action="store_true", help="do not call trainer.train()")
-
-    parser.add_argument("--xpu", default=None, type=int, help="Whether to use XPU.")
-    parser.add_argument("--xpu_id", default=None, type=int, help="XPU id to use.")
-    parser.add_argument("--world-size", default=-1, type=int, help="number of nodes for distributed training")
-    parser.add_argument("--rank", default=-1, type=int, help="node rank for distributed training")
-    parser.add_argument("--local-rank", default=-1, type=int, help="node rank for distributed training")
-    parser.add_argument("--dist-url", default="127.0.0.1", type=str, help="url used to set up distributed training")
-    parser.add_argument("--dist-port", default="29500", type=str, help="url port used to set up distributed training")
-    parser.add_argument("--dist-backend", default="ccl", type=str, help="distributed backend, default is torch-ccl")
-    parser.add_argument("--disable-broadcast-buffers", action="store_true", help="disable syncing buffers")
-    parser.add_argument("--bucket-cap", default=25, type=int, help="controls the bucket size in MegaBytes")
-    parser.add_argument(
-        "--large-first-bucket",
-        action="store_true",
-        help="Configure a large capacity of the first bucket in DDP for allreduce",
-    )
-    parser.add_argument(
-        "--use-gradient-as-bucket-view", action="store_true", help="Turn ON gradient_as_bucket_view optimization in DDP"
-    )
-    parser.add_argument("--use-optuna", default=None, type=int, help="Use optuna to get best param")
-    parser.add_argument(
-        "opts",
-        default=None,
-        nargs=argparse.REMAINDER,
-        help="modify config options using the command-line",
-    )
-    args = parser.parse_args()
-    # DDP env setup
-    mpi_world_size = int(os.environ.get("PMI_SIZE", -1))
-    print("mpi_world_size", mpi_world_size)
-    if mpi_world_size > 0:
-        os.environ["MASTER_ADDR"] = args.dist_url  #'127.0.0.1'
-        os.environ["MASTER_PORT"] = args.dist_port  #'29500'
-        os.environ["RANK"] = os.environ.get("PMI_RANK", -1)
-        os.environ["WORLD_SIZE"] = os.environ.get("PMI_SIZE", -1)
-        args.rank = int(os.environ.get("PMI_RANK", -1))
-    args.world_size = int(os.environ.get("WORLD_SIZE", -1))
-    args.distributed = args.world_size > 1
-    ngpus_per_node = 1
-    args.world_size = ngpus_per_node * args.world_size
-    print("world_size", args.world_size)
-    # Need by A770
-    if args.xpu == 1:
-
-        if args.dist_backend == "ccl":
-            try:
-                import oneccl_bindings_for_pytorch
-            except ImportError:
-                pass
-    main(args)
-    os._exit(1)

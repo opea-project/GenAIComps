@@ -39,7 +39,7 @@ sudo sh ./intel-oneapi-base-toolkit-2025.0.1.46_offline.sh -a --silent --cli --e
 
 ### Install Driver
 
-please follow [Install Dependency](Install%20Dependency.md) to install public Driver
+please follow [Install Dependency](./doc/install_dependency.md) to install public Driver
 
 ### Install IPEX and other lib
 
@@ -68,7 +68,7 @@ export HF_ENDPOINT=https://hf-mirror.com
 
 # Prepare Dataset
 
-Please follow [doc](./Prepare_dataset.md)
+Please follow [doc](./doc/Prepare_dataset.md)
 
 ```python
 # support  caltech101, mini-imagenet, flickr30k, flickr5k
@@ -92,21 +92,21 @@ export DATA=/path/to/dataset
 # run clip_adapter
 # run with huggingface transformers backbone
 # run clip_adapter
-bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0
+bash scripts/clip_finetune/clip_adapter_hf.sh caltech101 vit_b16 0
 # run clip_adapter and do val/train acc cal every 10 epoch
-bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 10
+bash scripts/clip_finetune/clip_adapter_hf.sh caltech101 vit_b16 10
 # run clip_full_finetune
-bash scripts/CLIP_finetune/clip_fullfinetune_hf.sh caltech101 vit_b16 0
+bash scripts/clip_finetune/clip_fullfinetune_hf.sh caltech101 vit_b16 0
 # run clip_bias
-bash scripts/CLIP_finetune/clip_bias_hf.sh caltech101 vit_b16 0
+bash scripts/clip_finetune/clip_bias_hf.sh caltech101 vit_b16 0
 # run clip_prompt with 1 prompt length and use Deep VPT
-bash scripts/CLIP_finetune/clip_prompt_hf.sh caltech101 vit_b16 1 True 0
+bash scripts/clip_finetune/clip_prompt_hf.sh caltech101 vit_b16 1 True 0
 # run clip_prompt with 2 prompt length and don't use Deep VPT
-bash scripts/CLIP_finetune/clip_prompt_hf.sh caltech101 vit_b16 2 False 0
+bash scripts/clip_finetune/clip_prompt_hf.sh caltech101 vit_b16 2 False 0
 # run clip_prompt with 1 prompt length and use Deep VPT using mini-imagenet dataset
-bash scripts/CLIP_finetune/clip_prompt_hf.sh mini_imagenet vit_b16 1 True 0
+bash scripts/clip_finetune/clip_prompt_hf.sh mini_imagenet vit_b16 1 True 0
 # run clip_adapter using flickr30k dataset
-bash scripts/CLIP_finetune/clip_adapter_hf.sh flickr30k vit_b16 0
+bash scripts/clip_finetune/clip_adapter_hf.sh flickr30k vit_b16 0
 
 # checkpoint will save to output/$METHOD/$MODEL/$DATASET
 # you can set `export CLIP_DEBUG=1` to remove checkpoint
@@ -124,21 +124,21 @@ BIAS_TERMS_EXCLUDE      which layer's bias you don't need to tune, in this confi
 ## code structure
 
 ```python
-./scripts/CLIP_finetune contains the scripts we use to run
+./scripts/clip_finetune contains the scripts we use to run
 ./trainers contains model related code
 ```
 
 ### Run on single A770
 
-```
+```bash
 # run with A770
 # run with huggingface transformers backbone
 export HF_ENDPOINT=https://hf-mirror.com
 export TOKENIZERS_PARALLELISM=false
-bash scripts/CLIP_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 XPU
-bash scripts/CLIP_finetune/clip_fullfinetune_hf.sh caltech101 vit_b16 0 XPU
-bash scripts/CLIP_finetune/clip_bias_hf.sh caltech101 vit_b16 0 XPU
-bash scripts/CLIP_finetune/clip_prompt_hf.sh caltech101 vit_b16 1 True 0 XPU
+bash scripts/clip_finetune/clip_adapter_hf.sh caltech101 vit_b16 0 XPU
+bash scripts/clip_finetune/clip_fullfinetune_hf.sh caltech101 vit_b16 0 XPU
+bash scripts/clip_finetune/clip_bias_hf.sh caltech101 vit_b16 0 XPU
+bash scripts/clip_finetune/clip_prompt_hf.sh caltech101 vit_b16 1 True 0 XPU
 
 ```
 
@@ -149,7 +149,7 @@ export NEOReadDebugKeys=1
 export DisableScratchPages=0
 export CCL_ATL_TRANSPORT=ofi
 
-bash scripts/CLIP_finetune/clip_adapter_hf_muti.sh caltech101 vit_b16 0 XPU
+bash scripts/clip_finetune/clip_adapter_hf_muti.sh caltech101 vit_b16 0 XPU
 ```
 
 # use optuna to automatic get the best param
@@ -160,9 +160,9 @@ You can set the bs and lr in yaml, such as ./configs/clip_finetune/vit_b16_opt.y
 
 ```python
 # turn on optuna in A100
-bash scripts/CLIP_finetune/clip_adapter_hf_opt.sh caltech101 vit_b16 0 cuda 1
+bash scripts/clip_finetune/clip_adapter_hf_opt.sh caltech101 vit_b16 0 cuda 1
 # turn on optuna in A770
-bash scripts/CLIP_finetune/clip_adapter_hf_opt.sh caltech101 vit_b16 0 XPU 1
+bash scripts/clip_finetune/clip_adapter_hf_opt.sh caltech101 vit_b16 0 XPU 1
 ```
 
 ## Performance of different finetune methods on Caltech-101
@@ -170,9 +170,9 @@ bash scripts/CLIP_finetune/clip_adapter_hf_opt.sh caltech101 vit_b16 0 XPU 1
 | Finetune method     | epochs | batch size | LR   | Consume GPU Memory | train | test | Acc   | Consume Time |
 | ------------------- | ------ | ---------- | ---- | ------------------ | ----- | ---- | ----- | ------------ |
 | Full Finetune       | 200    | 32         | 1e-5 | 11422 MB           | 4128  | 2465 | 96.9% | 311.75 Min   |
-| CLIP Bias           | 200    | 32         | 2e-2 | 7640 MB            | 4128  | 2465 | 96.4% | 224.03 Min   |
-| CLIP VPT Deep       | 200    | 32         | 2e-2 | 4866 MB            | 4128  | 2465 | 96.7% | 172 Min      |
-| CLIP Adapter        | 200    | 32         | 2e-2 | 1584 MB            | 4128  | 2465 | 96.3% | 95.46 Min    |
+| clip Bias           | 200    | 32         | 2e-2 | 7640 MB            | 4128  | 2465 | 96.4% | 224.03 Min   |
+| clip VPT Deep       | 200    | 32         | 2e-2 | 4866 MB            | 4128  | 2465 | 96.7% | 172 Min      |
+| clip Adapter        | 200    | 32         | 2e-2 | 1584 MB            | 4128  | 2465 | 96.3% | 95.46 Min    |
 | Full Finetune + ABS | 200    | 32         | 2e-2 | 8158 MB            | 4128  | 2465 | 96.5% | 110.08 Min   |
 
 # problem

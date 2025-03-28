@@ -29,7 +29,7 @@ COPY comps /home/user/comps
 RUN chown -R user /home/user/comps/finetuning
 
 ENV PATH=$PATH:/home/user/.local/bin
-RUN cd /home/user/comps/finetuning/src/integrations/xtune && git config --global user.name "test" && git config --global user.email "test" && bash install_xtune.sh 
+RUN cd /home/user/comps/finetuning/src/integrations/xtune && git config --global user.name "test" && git config --global user.email "test" && bash prepare_xtune.sh 
 
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools peft && \
     python -m pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt && \
