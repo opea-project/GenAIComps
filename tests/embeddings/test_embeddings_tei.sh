@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
@@ -65,6 +64,14 @@ function validate_microservice() {
 function validate_microservice_with_openai() {
     tei_service_port=10200
     echo $PATH
+    echo "Shell environment: $SHELL"
+    echo "Environment variables:"
+    env
+    echo "Current user:"
+    whoami
+    echo "Shell version:"
+    bash --version
+
     pip install openai
     python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py $ip_address $tei_service_port "embedding"
     if [ $? -ne 0 ]; then
