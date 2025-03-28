@@ -73,6 +73,7 @@ jobs:
           PREDICTIONGUARD_API_KEY: ${{ secrets.PREDICTIONGUARD_API_KEY }}
           service: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
+        shell: bash
         run: |
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
