@@ -186,13 +186,16 @@ def delete_by_id(client, id):
     return True
 
 
-async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder):
+async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_name: str):
     if logflag:
         logger.info(f"[ redis ingest chunks ] file name: {file_name}")
 
     # Batch size
     batch_size = 32
     num_chunks = len(chunks)
+
+    # if data will be saved to a different index name than the default one
+    ingest_index_name = index_name if index_name else INDEX_NAME
 
     file_ids = []
     for i in range(0, num_chunks, batch_size):
@@ -205,7 +208,7 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder):
             Redis.from_texts_return_keys,
             texts=batch_texts,
             embedding=embedder,
-            index_name=INDEX_NAME,
+            index_name=ingest_index_name,
             redis_url=REDIS_URL,
         )
         if logflag:
@@ -229,7 +232,7 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder):
     return True
 
 
-async def ingest_data_to_redis(doc_path: DocPath, embedder):
+async def ingest_data_to_redis(doc_path: DocPath, embedder, index_name):
     """Ingest document to Redis."""
     path = doc_path.path
     if logflag:
@@ -270,7 +273,7 @@ async def ingest_data_to_redis(doc_path: DocPath, embedder):
         logger.info(f"[ redis ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
 
     file_name = doc_path.path.split("/")[-1]
-    return await ingest_chunks_to_redis(file_name, chunks, embedder)
+    return await ingest_chunks_to_redis(file_name, chunks, embedder, index_name)
 
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_REDIS")
@@ -359,6 +362,7 @@ class OpeaRedisDataprep(OpeaComponent):
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
         ingest_from_graphDB: bool = Form(False),
+        index_name: str = Form(None),
     ):
         """Ingest files/links content into redis database.
 
@@ -371,6 +375,7 @@ class OpeaRedisDataprep(OpeaComponent):
             chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
             process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
             table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+            index_name (str, optional): The name of the index where data will be ingested.
         """
         if logflag:
             logger.info(f"[ redis ingest ] files:{files}")
@@ -412,6 +417,7 @@ class OpeaRedisDataprep(OpeaComponent):
                         table_strategy=table_strategy,
                     ),
                     self.embedder,
+                    index_name,
                 )
                 uploaded_files.append(save_path)
                 if logflag:
@@ -457,6 +463,7 @@ class OpeaRedisDataprep(OpeaComponent):
                         table_strategy=table_strategy,
                     ),
                     self.embedder,
+                    index_name,
                 )
             if logflag:
                 logger.info(f"[ redis ingest] Successfully saved link list {link_list}")
@@ -621,3 +628,15 @@ class OpeaRedisDataprep(OpeaComponent):
             if logflag:
                 logger.info(f"[ redis delete ] Delete folder {file_path} is not supported for now.")
             raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
+
+    def get_list_of_indices(self):
+        """Retrieves a list of all indices from the Redis client.
+
+        Returns:
+            A list of index names as strings.
+        """
+        # Execute the command to list all indices
+        indices = self.client.execute_command("FT._LIST")
+        # Decode each index name from bytes to string
+        indices_list = [item.decode("utf-8") for item in indices]
+        return indices_list
