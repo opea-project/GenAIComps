@@ -64,6 +64,7 @@ jobs:
             else
               hardware="intel_cpu"
             fi
+            hardware=$(echo $hardware | tr '_' '-')
             run_matrix=$(echo $run_matrix | jq --arg script "$script" --arg hardware "$hardware" '.include += [{"test_case": $script, "hardware": $hardware}]')
           done
           run_matrix=$(echo $run_matrix | jq -c .)
