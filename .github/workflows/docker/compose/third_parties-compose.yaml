@@ -50,3 +50,8 @@ services:
       dockerfile: comps/third_parties/vllm/src/Dockerfile.amd_gpu
     shm_size: '128g'
     image: ${REGISTRY:-opea}/vllm-rocm:${TAG:-latest}
+  ipex-llm:
+    build:
+      context: ipex-llm
+      dockerfile: comps/third_parties/ipex/src/Dockerfile
+    image: ${REGISTRY:-opea}/ipex-llm:${TAG:-latest}
