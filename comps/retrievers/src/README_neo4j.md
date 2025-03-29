@@ -17,25 +17,6 @@ cd ../../../
 docker build -t opea/retriever:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
 ```
 
-### 2. Install Requirements
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Start Neo4j VectorDB Service
-
-```bash
-docker run \
-    -p 7474:7474 -p 7687:7687 \
-    -v $PWD/data:/data -v $PWD/plugins:/plugins \
-    --name neo4j-apoc \
-    -d \
-    -e NEO4J_AUTH=neo4j/password \
-    -e NEO4J_PLUGINS=\[\"apoc\"\]  \
-    neo4j:latest
-```
-
 ### 2. Setup Environment Variables
 
 ```bash
@@ -58,18 +39,17 @@ export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
 export MAX_INPUT_TOKENS=4096
 export MAX_TOTAL_TOKENS=8192
 export OPENAI_LLM_MODEL="gpt-4o"
-export TEI_EMBEDDER_PORT=11633
+export TEI_EMBEDDER_PORT=8090
 export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
-export LLM_ENDPOINT_PORT=11634
+export LLM_ENDPOINT_PORT=8008
 export TGI_LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
-export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:6006"
-export TGI_LLM_ENDPOINT="http://${host_ip}:6005"
-export NEO4J_PORT1=7474   # 11631
-export NEO4J_PORT2=7687   # 11632
+export NEO4J_PORT1=7474
+export NEO4J_PORT2=7687
 export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
 export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
-export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:6004/v1/dataprep"
-export RETRIEVER_PORT=11635
+export DATAPREP_PORT=5000
+export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:${DATAPREP_PORT}/v1/dataprep"
+export RETRIEVER_PORT=7000
 export LOGFLAG=True
 ```
 
@@ -88,7 +68,7 @@ docker compose -f compose.yaml up ${service_name} -d
 ### 3.1 Check Service Status
 
 ```bash
-curl http://${host_ip}:7000/v1/health_check \
+curl http://${host_ip}:${RETRIEVER_PORT}/v1/health_check \
   -X GET \
   -H 'Content-Type: application/json'
 ```
@@ -98,7 +78,7 @@ curl http://${host_ip}:7000/v1/health_check \
 If OPEN_AI_KEY is provided it will use OPENAI endpoints for LLM and Embeddings otherwise will use TGI and TEI endpoints. If a model name not provided in the request it will use the default specified by the set_env.sh script.
 
 ```bash
-curl -X POST http://${host_ip}:7000/v1/retrieval \
+curl -X POST http://${host_ip}:${RETRIEVER_PORT}/v1/retrieval \
   -H "Content-Type: application/json" \
   -d '{"model": "gpt-3.5-turbo","messages": [{"role": "user","content": "Who is John Brady and has he had any confrontations?"}]}'
 ```
