@@ -71,27 +71,12 @@ async def models():
             {
                 "id": "opea-agent",
                 "object": "model",
-                "created": 1742903391,
+                "created": None,
                 "owned_by": "opea",
                 "root": "opea-agent",
                 "parent": None,
                 "max_model_len": 16384,
-                "permission": [
-                    {
-                        "id": "modelperm-ae01a5779d174375ad4b28503c675e81",
-                        "object": "model_permission",
-                        "created": 1742903391,
-                        "allow_create_engine": False,
-                        "allow_sampling": True,
-                        "allow_logprobs": True,
-                        "allow_search_indices": False,
-                        "allow_view": True,
-                        "allow_fine_tuning": False,
-                        "organization": "*",
-                        "group": None,
-                        "is_blocking": False,
-                    }
-                ],
+                "permission": [],
             }
         ],
     }
