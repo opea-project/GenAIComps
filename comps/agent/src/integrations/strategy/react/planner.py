@@ -163,9 +163,9 @@ from .utils import (
     assemble_history,
     assemble_memory,
     assemble_memory_from_store,
+    convert_aimessage_to_chat_completion,
     convert_json_to_tool_call,
     save_state_to_store,
-    convert_aimessage_to_chat_completion,
 )
 
 
