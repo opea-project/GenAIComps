@@ -19,8 +19,6 @@ class BaseAgent:
         self.args = args
         adapt_custom_prompt(local_vars, kwargs.get("custom_prompt"))
         print("Registered tools: ", self.tools_descriptions)
-        print("kwargs: ", kwargs)
-        print("local_vars: ", local_vars)
 
         self.with_memory = args.with_memory
         self.memory_type = args.memory_type

@@ -165,35 +165,8 @@ from .utils import (
     assemble_memory_from_store,
     convert_json_to_tool_call,
     save_state_to_store,
+    convert_aimessage_to_chat_completion,
 )
-
-
-def convert_aimessage_to_chat_completion(response: Union[dict, AIMessage]):
-    """
-    convert langchain output back to openai chat completion format
-    https://api.python.langchain.com/en/latest/_modules/langchain_openai/chat_models/base.html#ChatOpenAI
-    """
-
-    usage = response.response_metadata["token_usage"]
-    chat_id = response.response_metadata["id"]
-    model = response.response_metadata["model_name"]
-    choice = {
-        "index": 0,
-        "message": {"role": "assistant", "content": response.content, "tool_calls": []},
-        "logprobs": response.response_metadata["logprobs"],
-        "finish_reason": response.response_metadata["finish_reason"],
-        "stop_reason": None,
-    }
-
-    return {
-        "id": chat_id,
-        "object": "chat.completion",
-        "created": "",
-        "choices": [choice],
-        "model": model,
-        "usage": usage,
-        "prompt_logprobs": None,
-    }
 
 
 class AgentState(TypedDict):
