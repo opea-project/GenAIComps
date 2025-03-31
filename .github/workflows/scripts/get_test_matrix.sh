@@ -96,8 +96,9 @@ function _fill_in_matrix() {
     else
         hardware=${_service#*_on_}
     fi
+    hardware=$(echo "$hardware" | tr '_' '-')
     echo "service=${_service}, hardware=${hardware}"
-    if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
+    if [[ $(echo "${run_matrix}" | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
         run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
         echo "------------------ add one service ------------------"
     fi

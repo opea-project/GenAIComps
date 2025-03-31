@@ -74,6 +74,7 @@ jobs:
           service: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
         run: |
+          export PATH=${HOME}/miniforge3/bin/:$PATH
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
           if [ -d "/data2/hf_model" ]; then

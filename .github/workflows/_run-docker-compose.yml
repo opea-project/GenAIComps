@@ -64,6 +64,7 @@ jobs:
             else
               hardware="intel_cpu"
             fi
+            hardware=$(echo $hardware | tr '_' '-')
             run_matrix=$(echo $run_matrix | jq --arg script "$script" --arg hardware "$hardware" '.include += [{"test_case": $script, "hardware": $hardware}]')
           done
           run_matrix=$(echo $run_matrix | jq -c .)
@@ -112,6 +113,7 @@ jobs:
           hardware: ${{ matrix.hardware }}
           use_model_cache: ${{ inputs.use_model_cache }}
         run: |
+          export PATH=${HOME}/miniforge3/bin/:$PATH
           cd ${{ github.workspace }}/tests
           service=$(echo "${test_case}" | cut -d'/' -f3 | cut -d'_' -f2- |cut -d'.' -f1)
           echo "service=${service}" >> $GITHUB_ENV
