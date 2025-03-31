@@ -30,7 +30,7 @@ loader = OpeaComponentLoader(
     name="opea_service@text2kg",
     endpoint="/v1/text2kg",
     host="0.0.0.0",
-    port=8090,
+    port=os.getenv("TEXT2KG_PORT"),
 )
 async def execute_agent(input_text: str):
     """Execute triplet extraction from text file.
