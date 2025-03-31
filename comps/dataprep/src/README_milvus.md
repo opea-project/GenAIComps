@@ -207,3 +207,7 @@ curl -X POST \
        -F "chunk_size=500" \
        http://localhost:6010/v1/dataprep/ingest
    ```
+
+## Running in the air gapped environment
+
+Please follow the [common guide](../README.md#running-in-the-air-gapped-environment) to run dataprep microservice in the air gapped environment.
