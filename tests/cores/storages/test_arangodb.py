@@ -15,7 +15,7 @@ def mock_arangodb_store():
 
 
 def test_crud(mock_arangodb_store):
-    """Test saving a document to the database."""
+    """Mock CRUD operations."""
     document = {"name": "test"}
     assert mock_arangodb_store.save_document(document)
     assert mock_arangodb_store.save_documents([document])
