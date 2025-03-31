@@ -35,7 +35,7 @@ class Input(BaseModel):
     cypher_cmd : str
 
 
-@OpeaComponentRegistry.register("OPEA_TEXT2CSV")
+@OpeaComponentRegistry.register("OPEA_STRUCT2GRAPH")
 class OpeaStruct2Graph(OpeaComponent):
     """A specialized text to graph triplet converter."""
 

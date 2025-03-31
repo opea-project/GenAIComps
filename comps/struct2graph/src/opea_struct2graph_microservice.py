@@ -17,7 +17,7 @@ sys.path.append(comps_path)
 logger = CustomLogger("struct2graph")
 logflag = os.getenv("LOGFLAG", False)
 
-struct2graph_component_name = os.getenv("TEXT2CSV_COMPONENT_NAME", "OPEA_STRUCT2GRAPH")
+struct2graph_component_name = os.getenv("STRUCT2GRAPH_COMPONENT_NAME", "OPEA_STRUCT2GRAPH")
 
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
