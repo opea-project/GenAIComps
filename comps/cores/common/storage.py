@@ -61,8 +61,7 @@ class OpeaStore(ABC):
 
     @abstractmethod
     def save_document(self, doc: dict) -> None:
-        """
-        Save a single document to the store.
+        """Save a single document to the store.
         Document can optionally contain a unique identifier.
 
         Args:
@@ -72,8 +71,7 @@ class OpeaStore(ABC):
 
     @abstractmethod
     def save_documents(self, docs: list[dict]) -> None:
-        """
-        Save multiple documents to the store.
+        """Save multiple documents to the store.
         Documents can optionally contain unique identifiers.
 
         Args:
@@ -83,8 +81,7 @@ class OpeaStore(ABC):
 
     @abstractmethod
     def update_document(self, doc: dict) -> None:
-        """
-        Update a single document in the store.
+        """Update a single document in the store.
         Document must contain its unique identifier.
 
         Args:
@@ -94,8 +91,7 @@ class OpeaStore(ABC):
 
     @abstractmethod
     def update_documents(self, docs: list[dict]) -> None:
-        """
-        Update multiple documents in the store.
+        """Update multiple documents in the store.
         Each document must contain its unique identifier.
 
         Args:
@@ -105,8 +101,7 @@ class OpeaStore(ABC):
 
     @abstractmethod
     def get_document_by_id(self, id: str) -> dict:
-        """
-        Retrieve a single document by its unique identifier.
+        """Retrieve a single document by its unique identifier.
 
         Args:
             id (str): The unique identifier for the document.
@@ -118,8 +113,7 @@ class OpeaStore(ABC):
 
     @abstractmethod
     def get_documents_by_ids(self, ids: list[str]) -> list[dict]:
-        """
-        Retrieve multiple documents by their unique identifiers.
+        """Retrieve multiple documents by their unique identifiers.
 
         Args:
             ids (list[str]): A list of unique identifiers for the documents.
@@ -131,8 +125,7 @@ class OpeaStore(ABC):
 
     @abstractmethod
     def delete_document(self, id: str) -> None:
-        """
-        Delete a single document from the store.
+        """Delete a single document from the store.
 
         Args:
             id (str): The unique identifier for the document.
@@ -141,8 +134,7 @@ class OpeaStore(ABC):
 
     @abstractmethod
     def delete_documents(self, ids: list[str]) -> None:
-        """
-        Delete multiple documents from the store.
+        """Delete multiple documents from the store.
 
         Args:
             ids (list[str]): A list of unique identifiers for the documents.

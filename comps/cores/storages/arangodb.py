@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from ..common.storage import OpeaStore
 from ..mega.logger import CustomLogger
 
@@ -5,13 +8,10 @@ logger = CustomLogger("ArangoDBStore")
 
 
 class ArangoDBStore(OpeaStore):
-    """
-    A concrete implementation of OpeaStore for ArangoDB.
-    """
+    """A concrete implementation of OpeaStore for ArangoDB."""
 
     def __init__(self, name: str, description: str = "", config: dict = {}):
-        """
-        Initializes the ArangoDBStore with the given configuration.
+        """Initializes the ArangoDBStore with the given configuration.
 
         Args:
             name (str): The name of the component.
@@ -45,9 +45,7 @@ class ArangoDBStore(OpeaStore):
         self._initialize_connection()
 
     def _initialize_connection(self) -> None:
-        """
-        Initializes the connection to the ArangoDB database and collection.
-        """
+        """Initializes the connection to the ArangoDB database and collection."""
 
         from arango import ArangoClient
 
@@ -82,8 +80,7 @@ class ArangoDBStore(OpeaStore):
             raise
 
     def save_document(self, doc: dict, **kwargs) -> bool | dict:
-        """
-        Save a single document to the store.
+        """Save a single document to the store.
         Document can optionally contain a unique identifier.
 
         Args:
@@ -97,8 +94,7 @@ class ArangoDBStore(OpeaStore):
             raise
 
     def save_documents(self, docs: list[dict], **kwargs) -> bool | list:
-        """
-        Save multiple documents to the store.
+        """Save multiple documents to the store.
         Documents can optionally contain unique identifiers.
 
         NOTE: If inserting a document fails, the exception is not raised
@@ -120,8 +116,7 @@ class ArangoDBStore(OpeaStore):
             raise
 
     def update_document(self, doc: dict, **kwargs) -> bool | dict:
-        """
-        Update a single document in the store.
+        """Update a single document in the store.
         Document must contain its unique identifier.
 
         Args:
@@ -134,8 +129,7 @@ class ArangoDBStore(OpeaStore):
             raise
 
     def update_documents(self, docs: list[dict], **kwargs) -> bool | list:
-        """
-        Update multiple documents in the store.
+        """Update multiple documents in the store.
         Each document must contain its unique identifier.
 
         NOTE: If updating a document fails, the exception is not raised
@@ -156,8 +150,7 @@ class ArangoDBStore(OpeaStore):
             raise
 
     def get_document_by_id(self, id: str, **kwargs) -> dict | None:
-        """
-        Retrieve a single document by its unique identifier.
+        """Retrieve a single document by its unique identifier.
 
         Args:
             id (str): The unique identifier for the document.
@@ -173,8 +166,7 @@ class ArangoDBStore(OpeaStore):
             raise
 
     def get_documents_by_ids(self, ids: list[str], **kwargs) -> list[dict]:
-        """
-        Retrieve multiple documents by their unique identifiers.
+        """Retrieve multiple documents by their unique identifiers.
 
         Args:
             ids (list[str]): A list of unique identifiers for the documents.
@@ -189,8 +181,7 @@ class ArangoDBStore(OpeaStore):
             raise
 
     def delete_document(self, id: str, **kwargs) -> bool | dict:
-        """
-        Delete a single document from the store.
+        """Delete a single document from the store.
 
         Args:
             id (str): The unique identifier for the document.
@@ -202,8 +193,7 @@ class ArangoDBStore(OpeaStore):
             raise
 
     def delete_documents(self, ids: list[str], **kwargs) -> bool | list:
-        """
-        Delete multiple documents from the store.
+        """Delete multiple documents from the store.
 
         NOTE: If updating a document fails, the exception is not raised
         but returned as an object in the result list. It is up to you to
