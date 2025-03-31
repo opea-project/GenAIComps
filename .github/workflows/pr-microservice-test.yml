@@ -74,7 +74,13 @@ jobs:
           service: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
         run: |
+          cat ~/.bashrc
+          sleep 1s
+          echo $PATH
           source ~/.bashrc
+          sleep 1s
+          echo $PATH
+
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
           if [ -d "/data2/hf_model" ]; then
