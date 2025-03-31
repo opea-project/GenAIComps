@@ -45,6 +45,9 @@ class ArangoDBStore(OpeaStore):
 
         self._initialize_connection()
 
+        self.async_db = self.db.begin_async_execution()
+        self.async_collection = self.async_db.collection(self.collection.name)
+
     def _initialize_connection(self) -> None:
         """Initializes the connection to the ArangoDB database and collection."""
 
