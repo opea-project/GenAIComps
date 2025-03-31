@@ -76,10 +76,10 @@ jobs:
         run: |
           cat ~/.bashrc
           sleep 1s
-          echo $PATH
+          echo "before ---> $PATH"
           source ~/.bashrc
           sleep 1s
-          echo $PATH
+          echo "after source ----> $PATH"
 
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
