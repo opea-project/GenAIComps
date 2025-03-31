@@ -89,7 +89,7 @@ class OpeaStore(ABC):
             docs (list[dict]): A list of document data to save.
         """
         raise NotImplementedError("save_documents method must be implemented by subclasses.")
-    
+
     @abstractmethod
     async def asave_documents(self, docs: list[dict]) -> None:
         """Asynchronously save multiple documents to the store.
