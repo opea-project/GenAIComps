@@ -9,7 +9,7 @@ class ArangoDBStore(OpeaStore):
     A concrete implementation of OpeaStore for ArangoDB.
     """
 
-    def __init__(self, name: str, description: str, config: dict = None):
+    def __init__(self, name: str, description: str = "", config: dict = {}):
         """
         Initializes the ArangoDBStore with the given configuration.
 
@@ -32,9 +32,8 @@ class ArangoDBStore(OpeaStore):
             from arango.collection import StandardCollection
             from arango.database import StandardDatabase
         except ImportError:
-            logger.error(
-                "ArangoDB client library is not installed. Please install it using 'pip install python-arango'."
-            )
+            m = "ArangoDB client library is not installed. Please install it using 'pip install python-arango'."
+            logger.error(m)
             raise
 
         super().__init__(name, description, config)

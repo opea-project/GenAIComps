@@ -18,7 +18,7 @@ class OpeaStore(ABC):
         config (dict): A dictionary containing configuration parameters for the component.
     """
 
-    def __init__(self, name: str, description: str, config: dict = None):
+    def __init__(self, name: str, description: str = "", config: dict = {}):
         """Initializes an OpeaComponent instance with the provided attributes.
 
         Args:
