@@ -17,6 +17,8 @@ export NEO4J_PASSWORD=${NEO4J_PASSWORD:-"neo4j_password"}
 export NEO4J_URL=${NEO4J_URL:-"neo4j://neo4j-apoc:7687"}
 export DATA_DIRECTORY=${DATA_DIRECTORY:-data}
 export FILENAME=${FILENAME:-test1.csv}
+export LOAD_FORMAT=${LOAD_FORMAT:-"CSV"}
+
 
 export CYPHER_CSV_CMD="LOAD CSV WITH HEADERS FROM 'file:////test1.csv' AS row \
 CREATE (:Person {ID: toInteger(row.ID), Name: row.Name, Age: toInteger(row.Age), City: row.City});"
