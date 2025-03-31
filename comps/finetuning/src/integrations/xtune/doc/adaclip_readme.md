@@ -1,4 +1,5 @@
 # AdaCLIP-Finetune
+
 This repo is the finetune implementation for the paper "AdaCLIP: Towards Pragmatic Multimodal Video Retrieval"
 
 Incorporating large image-text foundation models such as CLIP has
@@ -229,11 +230,13 @@ python  train.py --config src/llamafactory/adaclip_finetune/cfgs/peft/activityne
 ```
 
 Finetune AdaCLIP with ibs
+
 ```sh
 python  train.py --config src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-ibs-r005-5k.json (or activitynet-ibs-r010-5k.json) --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pre-train/model --batch_size 8
 ```
 
 Full finetune
+
 ```sh
 python  train.py --config src/llamafactory/adaclip_finetune/cfgs/finetune/activitynet-finetune-5000-c-32.json --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --batch_size 8
 ```
@@ -253,6 +256,7 @@ cd src/llamafactory/adaclip_finetune
 ```
 
 Finetune AdaCLIP with bitfit
+
 ```sh
 python  train.py --config src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-bitfit-5k.json --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --xpu --batch_size 8
 ```
@@ -274,6 +278,7 @@ The finetune output will located in `src/llamafactory/adaclip_finetune/output`
 # Use optuna to automatic get the best param
 
 You can enable optuna to automatic get the best param by adding `optuna_cfg` configs to config files like:
+
 ```sh
     "optuna_cfg": {
         "n_trials": 30,
@@ -293,6 +298,7 @@ You can enable optuna to automatic get the best param by adding `optuna_cfg` con
         }
     }
 ```
+
 The config example is: `src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-bitfit-5k-optuna.json`
 |Config name|Description|
 |:--|:--|
@@ -318,10 +324,12 @@ python train.py --config ./cfgs/peft/activitynet-bitfit-5k-c-32_optuna.json --fr
 ## Visualization
 
 You can review optuna tuning results by:
+
 ```sh
 sudo ufw allow 8084
 optuna-dashboard --host 0.0.0.0 --port 8084 sqlite:///optuna.db
 ```
+
 Open in the website:
 
 ```
