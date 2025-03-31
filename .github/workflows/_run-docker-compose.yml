@@ -113,7 +113,7 @@ jobs:
           hardware: ${{ matrix.hardware }}
           use_model_cache: ${{ inputs.use_model_cache }}
         run: |
-          source ~/.bashrc
+          export PATH=${HOME}/miniforge3/bin/:$PATH
           cd ${{ github.workspace }}/tests
           service=$(echo "${test_case}" | cut -d'/' -f3 | cut -d'_' -f2- |cut -d'.' -f1)
           echo "service=${service}" >> $GITHUB_ENV
