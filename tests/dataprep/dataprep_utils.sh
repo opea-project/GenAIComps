@@ -224,3 +224,13 @@ function check_healthy() {
     echo "$container_name did not become healthy in time."
     return 1
 }
+
+DATAPREP_MODELS=(microsoft/table-transformer-structure-recognition timm/resnet18.a1_in1k unstructuredio/yolo_x_layout)
+
+function prepare_dataprep_models() {
+    local model_path=$1
+    python3 -m pip install huggingface_hub[cli] --user
+    for m in ${DATAPREP_MODELS[@]}; do
+      PATH=~/.local/bin:$PATH huggingface-cli --cache-dir ${model_path} $m
+    done
+}

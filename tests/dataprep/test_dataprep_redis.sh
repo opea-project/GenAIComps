@@ -27,7 +27,10 @@ function build_docker_images() {
     fi
 }
 
+service_name="redis-vector-db tei-embedding-serving dataprep-redis"
+
 function start_service() {
+    local offline=${1:-false}
 
     export host_ip=${ip_address}
     export REDIS_HOST=$ip_address
@@ -38,7 +41,12 @@ function start_service() {
     export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${TEI_EMBEDDER_PORT}"
     export INDEX_NAME="rag_redis"
-    service_name="redis-vector-db tei-embedding-serving dataprep-redis"
+    if $offline ; then
+        service_name="redis-vector-db tei-embedding-serving dataprep-redis-offline"
+        export offline_no_proxy="${ip_address}"
+    else
+        service_name="redis-vector-db tei-embedding-serving dataprep-redis"
+    fi
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
 
@@ -114,14 +122,30 @@ function stop_docker() {
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
 
+function stop_service() {
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    docker compose down ${service_name} || true
+}
+
 function main() {
 
     stop_docker
 
     build_docker_images
-    start_service
+    trap stop_service EXIT
 
+    echo "Test normal env ..."
+    start_service
     validate_microservice
+    stop_service
+
+    if [[ ! -z "${DATA_PATH}" ]]; then
+        echo "Test air gapped env ..."
+        prepare_dataprep_models ${DATA_PATH}
+        start_service true
+        validate_microservice
+        stop_service
+    fi
 
     stop_docker
     echo y | docker system prune

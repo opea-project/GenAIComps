@@ -72,3 +72,7 @@ curl -X POST \
     -F "table_strategy=hq" \
     http://localhost:6007/v1/dataprep/ingest
 ```
+
+## Running in the air gapped environment
+
+Please follow the [common guide](../README.md#running-in-the-air-gapped-environment) to run dataprep microservice in the air gapped environment.
