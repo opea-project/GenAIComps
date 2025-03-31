@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
+from typing import Any
 
 from ..mega.logger import CustomLogger
 
@@ -140,3 +141,19 @@ class OpeaStore(ABC):
             ids (list[str]): A list of unique identifiers for the documents.
         """
         raise NotImplementedError("delete_documents method must be implemented by subclasses.")
+
+    @abstractmethod
+    def search(self, key: str, value: Any, search_type: str = "exact", **kwargs) -> list[dict]:
+        """Search for documents in the store based on a specific key-value pair.
+
+        Args:
+            key (str): The key to search for.
+            value (str): The value to search for.
+            search_type (str): The type of search to perform.
+                Can be ignored for some implementations.
+            **kwargs: Additional arguments for the search query.
+
+        Returns:
+            list[dict]: A list of documents matching the search criteria.
+        """
+        raise NotImplementedError("search_by_keyword method must be implemented by subclasses.")
