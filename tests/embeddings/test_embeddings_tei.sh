@@ -79,8 +79,6 @@ function stop_docker() {
 
 function main() {
 
-    echo $PATH
-    sleep 1s
     stop_docker
 
     build_docker_images
