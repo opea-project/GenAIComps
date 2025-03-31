@@ -1,6 +1,11 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from .arangodb import ArangoDBStore
+
 # from .redisdb import RedisDBStore
 # from .mongodb import MongoDBStore
+
 
 def opea_store(name: str, *args, **kwargs):
     if name == "arangodb":
