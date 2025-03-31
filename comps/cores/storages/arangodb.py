@@ -1,5 +1,6 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+from typing import Any
 
 from ..common.storage import OpeaStore
 from ..mega.logger import CustomLogger
@@ -86,6 +87,9 @@ class ArangoDBStore(OpeaStore):
         Args:
             doc (dict): The document data to save.
             **kwargs: Additional arguments for saving the document.
+
+        Returns:
+            bool | dict: The result of the save operation.
         """
         try:
             return self.collection.insert(doc, **kwargs)
@@ -108,6 +112,9 @@ class ArangoDBStore(OpeaStore):
         Args:
             docs (list[dict]): A list of document data to save.
             **kwargs: Additional arguments for saving the documents.
+
+        Returns:
+            bool | list: A list of results for the save operations.
         """
         try:
             return self.collection.insert_many(docs, **kwargs)
@@ -121,6 +128,10 @@ class ArangoDBStore(OpeaStore):
 
         Args:
             doc (dict): The document data to update.
+            **kwargs: Additional arguments for updating the document.
+
+        Returns:
+            bool | dict: The result of the update operation.
         """
         try:
             return self.collection.update(doc, **kwargs)
@@ -142,6 +153,10 @@ class ArangoDBStore(OpeaStore):
 
         Args:
             docs (list[dict]): The list of documents to update.
+            **kwargs: Additional arguments for updating the documents.
+
+        Returns:
+            bool | list: A list of results for the update operations.
         """
         try:
             return self.collection.update_many(docs, **kwargs)
@@ -170,6 +185,7 @@ class ArangoDBStore(OpeaStore):
 
         Args:
             ids (list[str]): A list of unique identifiers for the documents.
+            **kwargs: Additional arguments for retrieving the documents.
 
         Returns:
             list[dict]: A list of retrieved document data.
@@ -185,9 +201,13 @@ class ArangoDBStore(OpeaStore):
 
         Args:
             id (str): The unique identifier for the document.
+            **kwargs: Additional arguments for deleting the document.
+
+        Returns:
+            bool | dict: The result of the delete operation.
         """
         try:
-            return self.collection.delete(id)
+            return self.collection.delete(id, **kwargs)
         except Exception as e:
             logger.error(f"Failed to delete document by ID {id}: {e}")
             raise
@@ -205,9 +225,64 @@ class ArangoDBStore(OpeaStore):
 
         Args:
             ids (list[str]): A list of unique identifiers for the documents.
+        **kwargs: Additional arguments for deleting the documents.
+
+        Returns:
+            bool | list: A list of results for the delete operations.
         """
         try:
             return self.collection.delete_many(ids, **kwargs)
         except Exception as e:
             logger.error(f"Failed to delete documents by IDs {ids}: {e}")
+            raise
+
+    def search(self, key: str, value: Any, search_type: str = "exact", **kwargs) -> list[dict]:
+        """Search for documents in the store based on a specific key-value pair.
+
+        Args:
+            key (str): The key to search for.
+            value (str): The value to search for.
+            search_type (str): The type of search to perform. Options include:
+                - "exact": Exact match.
+                - "contains": Contains the value.
+                - "starts_with": Starts with the value.
+                - "ends_with": Ends with the value.
+                - "regex": Regular expression match.
+                - "custom": Custom filter clause. In this case,
+                    the `filter_clause` argument must be provided as a string
+                    in `kwargs`.
+            **kwargs: Additional arguments passed to the query execution.
+
+        Returns:
+            list[dict]: A list of documents matching the search criteria.
+        """
+
+        if search_type == "exact":
+            filter_clause = "doc.@key == @value"
+        elif search_type == "contains":
+            filter_clause = "CONTAINS(doc.@key, @value)"
+        elif search_type == "starts_with":
+            filter_clause = "STARTS_WITH(doc.@key, @value)"
+        elif search_type == "ends_with":
+            filter_clause = "ENDS_WITH(doc.@key, @value)"
+        elif search_type == "regex":
+            filter_clause = "REGEX_MATCHES(doc.@key, @value)"
+        elif search_type == "custom":
+            filter_clause = kwargs.pop("filter_clause")
+            if not filter_clause or not isinstance(filter_clause, str):
+                raise ValueError("Custom filter clause is a required string for 'custom' search type.")
+        else:
+            raise ValueError(f"Unsupported search type: {search_type}")
+
+        query = f"""
+            FOR doc IN @@col
+                {filter_clause}
+                RETURN doc
+        """
+
+        try:
+            bind_vars = {"@col": self.collection.name, "key": key, "value": value}
+            return list(self.db.aql.execute(query, bind_vars=bind_vars, **kwargs))
+        except Exception as e:
+            logger.error(f"Failed to search documents with {key} / {value}: {e}. Query: {query}")
             raise
