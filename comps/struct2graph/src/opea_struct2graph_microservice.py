@@ -1,12 +1,7 @@
-# Copyright (C) 2025 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
-
 import os
 import pathlib
 import sys
-
 from fastapi.exceptions import HTTPException
-
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
 from comps.struct2graph.src.integrations.opea import Input, OpeaStruct2Graph
 
@@ -25,29 +20,27 @@ loader = OpeaComponentLoader(
     description=f"OPEA struct2graph Component: {struct2graph_component_name}",
 )
 
-
 @register_microservice(
     name="opea_service@struct2graph",
     endpoint="/v1/struct2graph",
     host="0.0.0.0",
-    port=8090,
+    port=os.getenv("STRUCT2GRAPH_PORT"),
 )
 async def execute_agent(input: Input):
     """Execute triplet extraction from text file.
-
     This function takes an Input object containing the input text and database connection information.
     It uses the execute function from the struct2graph module to execute the graph query and returns the result.
+    
     Args:
         input (Input): An Input object with the input text
         task (Input): type of task to perform index or query
+    
     Returns:
         dict: A dictionary with head, tail and type linking head and tail
     """
     results = await loader.invoke(input)
-    print(f"PASSING BACK {results}")
-
+    logger.info(f"PASSING BACK {results}")
     return {"result": results}
-
 
 if __name__ == "__main__":
     logger.info("OPEA Struct2Graph Microservice is starting...")
