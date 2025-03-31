@@ -22,7 +22,7 @@ image_fn="${tmp_dir}/${image_name}.png"
 caption_fn="${tmp_dir}/${image_name}.txt"
 pdf_name="nke-10k-2023"
 pdf_fn="${tmp_dir}/${pdf_name}.pdf"
-DATAPREP_PORT="11102"
+export DATAPREP_PORT="11102"
 
 function build_docker_images() {
     cd $WORKPATH
