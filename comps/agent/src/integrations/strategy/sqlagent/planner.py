@@ -13,6 +13,8 @@ from langgraph.graph.message import add_messages
 from langgraph.managed import IsLastStep
 from langgraph.prebuilt import ToolNode
 
+from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
+
 from ...utils import setup_chat_model, tool_renderer
 from ..base_agent import BaseAgent
 from .hint import pick_hints, read_hints
@@ -35,6 +37,7 @@ class AgentState(TypedDict):
 
 
 class AgentNodeLlama:
+    @opea_telemetry
     def __init__(self, args, tools):
         self.llm = setup_chat_model(args)
         self.args = args
@@ -57,6 +60,7 @@ class AgentNodeLlama:
             self.column_embeddings = self.embed_model.encode(self.values_descriptions)
             print("Done embedding column descriptions")
 
+    @opea_telemetry
     def __call__(self, state):
         print("----------Call Agent Node----------")
         question = state["messages"][0].content
@@ -121,6 +125,7 @@ class SQLAgentLlama(BaseAgent):
     # need new args:
     # # db_name and db_path
     # # use_hints, hints_file
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
         # note: here tools only include user defined tools
@@ -158,6 +163,7 @@ class SQLAgentLlama(BaseAgent):
 
         self.app = workflow.compile()
 
+    @opea_telemetry
     def decide_next_step(self, state: AgentState):
         messages = state["messages"]
         last_message = messages[-1]
@@ -178,6 +184,7 @@ class SQLAgentLlama(BaseAgent):
 # Below is SQL agent using OpenAI models
 ################################################
 class AgentNode:
+    @opea_telemetry
     def __init__(self, args, llm, tools):
         self.llm = llm.bind_tools(tools)
         self.args = args
@@ -188,6 +195,7 @@ class AgentNode:
             self.embed_model = SentenceTransformer("BAAI/bge-large-en-v1.5")
             self.column_embeddings = self.embed_model.encode(self.values_descriptions)
 
+    @opea_telemetry
     def __call__(self, state):
         print("----------Call Agent Node----------")
         question = state["messages"][0].content
@@ -214,6 +222,7 @@ class AgentNode:
 
 
 class QueryFixerNode:
+    @opea_telemetry
     def __init__(self, args, llm):
         prompt = PromptTemplate(
             template=QUERYFIXER_PROMPT,
@@ -222,6 +231,7 @@ class QueryFixerNode:
         self.chain = prompt | llm
         self.args = args
 
+    @opea_telemetry
     def get_sql_query_and_result(self, state):
         messages = state["messages"]
         assert isinstance(messages[-1], ToolMessage), "The last message should be a tool message"
@@ -237,6 +247,7 @@ class QueryFixerNode:
         print("@@@@ Execution Result: ", result)
         return query, result
 
+    @opea_telemetry
     def __call__(self, state):
         print("----------Call Query Fixer Node----------")
         table_schema, _ = get_table_schema(self.args.db_path)
@@ -257,6 +268,7 @@ class QueryFixerNode:
 
 
 class SQLAgent(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
@@ -298,6 +310,7 @@ class SQLAgent(BaseAgent):
         self.app = workflow.compile()
 
     # Define the function that determines whether to continue or not
+    @opea_telemetry
     def should_continue(self, state: AgentState):
         messages = state["messages"]
         last_message = messages[-1]
@@ -308,6 +321,7 @@ class SQLAgent(BaseAgent):
         else:
             return "continue"
 
+    @opea_telemetry
     def should_go_to_query_fixer(self, state: AgentState):
         messages = state["messages"]
         last_message = messages[-1]

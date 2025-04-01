@@ -10,6 +10,8 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 
+from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
+
 from ...utils import setup_chat_model
 from ..base_agent import BaseAgent
 from .prompt import DOC_GRADER_PROMPT, RAG_PROMPT, QueryWriterLlamaPrompt
@@ -41,6 +43,7 @@ class QueryWriter:
     def __init__(self, llm, tools):
         self.llm = llm.bind_tools(tools)
 
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL QueryWriter---")
         messages = state["messages"]
@@ -59,6 +62,7 @@ class Retriever:
 
 
 class RAGAgent(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
@@ -111,6 +115,7 @@ class RAGAgent(BaseAgent):
         else:
             self.app = workflow.compile()
 
+    @opea_telemetry
     def should_retry(self, state):
         # first check how many retry attempts have been made
         num_retry = 0
@@ -128,6 +133,7 @@ class RAGAgent(BaseAgent):
     def prepare_initial_state(self, query):
         return {"messages": [HumanMessage(content=query)], "query_time": "", "output": "", "doc_score": ""}
 
+    @opea_telemetry
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -143,6 +149,7 @@ class RAGAgent(BaseAgent):
         except Exception as e:
             yield str(e)
 
+    @opea_telemetry
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -171,6 +178,7 @@ class QueryWriterLlama:
     Streaming=false is required for this chain.
     """
 
+    @opea_telemetry
     def __init__(self, args, tools):
         from .utils import QueryWriterLlamaOutputParser
 
@@ -187,6 +195,7 @@ class QueryWriterLlama:
         self.tools = tools
         self.chain = prompt | llm | output_parser
 
+    @opea_telemetry
     def __call__(self, state):
         from .utils import assemble_history, convert_json_to_tool_call
 
@@ -226,6 +235,7 @@ class DocumentGrader:
         str: A decision for whether the documents are relevant or not
     """
 
+    @opea_telemetry
     def __init__(self, args):
         prompt = PromptTemplate(
             template=DOC_GRADER_PROMPT,
@@ -234,6 +244,7 @@ class DocumentGrader:
         llm = setup_chat_model(args)
         self.chain = prompt | llm
 
+    @opea_telemetry
     def __call__(self, state) -> Literal["generate", "rewrite"]:
         from .utils import aggregate_docs
 
@@ -269,12 +280,14 @@ class TextGenerator:
         dict: The updated state with re-phrased question
     """
 
+    @opea_telemetry
     def __init__(self, args):
         self.args = args
         prompt = RAG_PROMPT
         llm = setup_chat_model(args)
         self.rag_chain = prompt | llm
 
+    @opea_telemetry
     def __call__(self, state):
         from .utils import aggregate_docs
 

@@ -13,6 +13,8 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from pydantic import BaseModel, Field
 
+from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
+
 from ...global_var import threads_global_kv
 from ...utils import has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
@@ -54,6 +56,7 @@ class PlanStepChecker:
         str: A decision for whether we should use this plan or not
     """
 
+    @opea_telemetry
     def __init__(self, llm, is_vllm=False):
         class grade(BaseModel):
             binary_score: str = Field(description="executable score 'yes' or 'no'")
@@ -66,6 +69,7 @@ class PlanStepChecker:
         output_parser = PydanticToolsParser(tools=[grade], first_tool_only=True)
         self.chain = plan_check_prompt | llm | output_parser
 
+    @opea_telemetry
     def __call__(self, state):
         # print("---CALL PlanStepChecker---")
         scored_result = self.chain.invoke(state)
@@ -79,6 +83,7 @@ class PlanStepChecker:
 
 # Define workflow Node
 class Planner:
+    @opea_telemetry
     def __init__(self, llm, plan_checker=None, is_vllm=False):
         if is_vllm:
             llm = llm.bind_tools([Plan], tool_choice={"function": {"name": Plan.__name__}})
@@ -88,6 +93,7 @@ class Planner:
         self.llm = planner_prompt | llm | output_parser
         self.plan_checker = plan_checker
 
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL Planner---")
         input = state["messages"][-1].content
@@ -116,6 +122,7 @@ class Planner:
 
 
 class Executor:
+    @opea_telemetry
     def __init__(self, llm, tools=[]):
         prompt = hwchase17_react_prompt
         if has_multi_tool_inputs(tools):
@@ -126,6 +133,7 @@ class Executor:
             agent=agent_chain, tools=tools, handle_parsing_errors=True, max_iterations=50
         )
 
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL Executor---")
         plan = state["plan"]
@@ -151,6 +159,7 @@ previous steps and output: {out_state}
 
 
 class AnswerMaker:
+    @opea_telemetry
     def __init__(self, llm, is_vllm=False):
         if is_vllm:
             llm = llm.bind_tools([Response], tool_choice={"function": {"name": Response.__name__}})
@@ -159,6 +168,7 @@ class AnswerMaker:
         output_parser = PydanticToolsParser(tools=[Response], first_tool_only=True)
         self.llm = answer_make_prompt | llm | output_parser
 
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL AnswerMaker---")
         success = False
@@ -183,6 +193,7 @@ class FinalAnswerChecker:
         str: A decision for whether we should use this plan or not
     """
 
+    @opea_telemetry
     def __init__(self, llm, is_vllm=False):
         class grade(BaseModel):
             binary_score: str = Field(description="executable score 'yes' or 'no'")
@@ -194,6 +205,7 @@ class FinalAnswerChecker:
         output_parser = PydanticToolsParser(tools=[grade], first_tool_only=True)
         self.chain = answer_check_prompt | llm | output_parser
 
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL FinalAnswerChecker---")
         scored_result = self.chain.invoke(state)
@@ -206,12 +218,14 @@ class FinalAnswerChecker:
 
 
 class Replanner:
+    @opea_telemetry
     def __init__(self, llm, answer_checker=None):
         llm = llm.bind_tools([Plan])
         output_parser = PydanticToolsParser(tools=[Plan], first_tool_only=True)
         self.llm = replanner_prompt | llm | output_parser
         self.answer_checker = answer_checker
 
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL Replanner---")
         success = False
@@ -230,6 +244,7 @@ class Replanner:
 
 
 class PlanExecuteAgentWithLangGraph(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
@@ -260,6 +275,7 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
     def prepare_initial_state(self, query):
         return {"messages": [("user", query)]}
 
+    @opea_telemetry
     async def stream_generator(self, query, config, thread_id=None):
         initial_state = self.prepare_initial_state(query)
         if thread_id is not None:
@@ -282,6 +298,7 @@ class PlanExecuteAgentWithLangGraph(BaseAgent):
             yield f"data: {repr(event)}\n\n"
         yield "data: [DONE]\n\n"
 
+    @opea_telemetry
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
