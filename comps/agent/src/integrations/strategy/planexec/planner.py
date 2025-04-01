@@ -70,9 +70,14 @@ class PlanStepChecker:
         self.chain = plan_check_prompt | llm | output_parser
 
     @opea_telemetry
+    def __llm_invoke__(self, state):
+        scored_result = self.chain.invoke(state)
+        return scored_result
+
+    @opea_telemetry
     def __call__(self, state):
         # print("---CALL PlanStepChecker---")
-        scored_result = self.chain.invoke(state)
+        scored_result = self.__llm_invoke__(state)
         score = scored_result.binary_score
         print(f"Task is {state['context']}, Score is {score}")
         if score.startswith("yes"):
@@ -94,6 +99,11 @@ class Planner:
         self.plan_checker = plan_checker
 
     @opea_telemetry
+    def __llm_invoke__(self, messages):
+        plan = self.llm.invoke(messages)
+        return plan
+
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL Planner---")
         input = state["messages"][-1].content
@@ -102,7 +112,7 @@ class Planner:
         while not success:
             while not success:
                 try:
-                    plan = self.llm.invoke({"messages": [("user", state["messages"][-1].content)]})
+                    plan = self.__llm_invoke__({"messages": [("user", state["messages"][-1].content)]})
                     print("Generated plan: ", plan)
                     success = True
                 except OutputParserException as e:
@@ -169,13 +179,18 @@ class AnswerMaker:
         self.llm = answer_make_prompt | llm | output_parser
 
     @opea_telemetry
+    def __llm_invoke__(self, state):
+        output = self.llm.invoke(state)
+        return output
+
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL AnswerMaker---")
         success = False
         # sometime, LLM will not provide accurate steps per ask, try more than one time until success
         while not success:
             try:
-                output = self.llm.invoke(state)
+                output = self.__llm_invoke__(state)
                 print("Generated response: ", output.response)
                 success = True
             except OutputParserException as e:
@@ -206,9 +221,14 @@ class FinalAnswerChecker:
         self.chain = answer_check_prompt | llm | output_parser
 
     @opea_telemetry
+    def __llm_invoke__(self, state):
+        output = self.chain.invoke(state)
+        return output
+
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL FinalAnswerChecker---")
-        scored_result = self.chain.invoke(state)
+        scored_result = self.__llm_invoke__(state)
         score = scored_result.binary_score
         print(f"Answer is {state['response']}, Grade of good response is {score}")
         if score.startswith("yes"):
@@ -226,13 +246,18 @@ class Replanner:
         self.answer_checker = answer_checker
 
     @opea_telemetry
+    def __llm_invoke__(self, state):
+        output = self.llm.invoke(state)
+        return output
+
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL Replanner---")
         success = False
         # sometime, LLM will not provide accurate steps per ask, try more than one time until success
         while not success:
             try:
-                output = self.llm.invoke(state)
+                output = self.__llm_invoke__(state)
                 success = True
                 print("Replan: ", output)
             except OutputParserException as e:

@@ -214,6 +214,14 @@ class ReActAgentNodeLlama:
         self.store = store
 
     @opea_telemetry
+    def __llm_invoke__(self, query, history, tools_descriptions, thread_history):
+        # invoke chain: raw output from llm
+        response = self.chain.invoke(
+            {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
+        )
+        return response
+
+    @opea_telemetry
     def __call__(self, state, config):
 
         print("---CALL Agent node---")
@@ -245,9 +253,7 @@ class ReActAgentNodeLlama:
         print("@@@ Tools description: ", tools_descriptions)
 
         # invoke chain: raw output from llm
-        response = self.chain.invoke(
-            {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
-        )
+        response = self.__llm_invoke__(query, history, tools_descriptions, thread_history)
         response = response.content
 
         # parse tool calls or answers from raw output: result is a list

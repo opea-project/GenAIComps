@@ -61,6 +61,11 @@ class AgentNodeLlama:
             print("Done embedding column descriptions")
 
     @opea_telemetry
+    def __llm_invoke__(self, prompt):
+        output = self.chain.invoke(prompt)
+        return output
+
+    @opea_telemetry
     def __call__(self, state):
         print("----------Call Agent Node----------")
         question = state["messages"][0].content
@@ -88,7 +93,7 @@ class AgentNodeLlama:
             history=history,
         )
 
-        output = self.chain.invoke(prompt)
+        output = self.__llm_invoke__(prompt)
         output = self.output_parser.parse(
             output.content, history, table_schema, hints, question, state["messages"]
         )  # text: str, history: str, db_schema: str, hint: str
@@ -196,6 +201,11 @@ class AgentNode:
             self.column_embeddings = self.embed_model.encode(self.values_descriptions)
 
     @opea_telemetry
+    def __llm_invoke__(self, chain, state):
+        response = chain.invoke(state)
+        return response
+
+    @opea_telemetry
     def __call__(self, state):
         print("----------Call Agent Node----------")
         question = state["messages"][0].content
@@ -216,7 +226,7 @@ class AgentNode:
         )
 
         chain = state_modifier_runnable | self.llm
-        response = chain.invoke(state)
+        response = self.__llm_invoke__(chain, state)
 
         return {"messages": [response], "hint": hints}
 
@@ -248,12 +258,7 @@ class QueryFixerNode:
         return query, result
 
     @opea_telemetry
-    def __call__(self, state):
-        print("----------Call Query Fixer Node----------")
-        table_schema, _ = get_table_schema(self.args.db_path)
-        question = state["messages"][0].content
-        hint = state["hint"]
-        query, result = self.get_sql_query_and_result(state)
+    def __llm_invoke__(self, table_schema, question, hint, query, result):
         response = self.chain.invoke(
             {
                 "DATABASE_SCHEMA": table_schema,
@@ -263,6 +268,16 @@ class QueryFixerNode:
                 "RESULT": result,
             }
         )
+        return response
+
+    @opea_telemetry
+    def __call__(self, state):
+        print("----------Call Query Fixer Node----------")
+        table_schema, _ = get_table_schema(self.args.db_path)
+        question = state["messages"][0].content
+        hint = state["hint"]
+        query, result = self.get_sql_query_and_result(state)
+        response = self.__llm_invoke__(table_schema, question, hint, query, result)
         # print("@@@@@ Query fixer output:\n", response.content)
         return {"messages": [response]}
 

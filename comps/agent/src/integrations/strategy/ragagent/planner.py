@@ -44,11 +44,16 @@ class QueryWriter:
         self.llm = llm.bind_tools(tools)
 
     @opea_telemetry
+    def __llm_invoke__(self, messages):
+        response = self.llm.invoke(messages)
+        return response
+
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL QueryWriter---")
         messages = state["messages"]
 
-        response = self.llm.invoke(messages)
+        response = self.__llm_invoke__(messages)
         # We return a list, because this will get added to the existing list
         return {"messages": [response], "output": response}
 
@@ -196,6 +201,11 @@ class QueryWriterLlama:
         self.chain = prompt | llm | output_parser
 
     @opea_telemetry
+    def __llm_invoke__(self, question, history, feedback):
+        response = self.chain.invoke({"question": question, "history": history, "feedback": feedback})
+        return response
+
+    @opea_telemetry
     def __call__(self, state):
         from .utils import assemble_history, convert_json_to_tool_call
 
@@ -206,7 +216,7 @@ class QueryWriterLlama:
         history = assemble_history(messages)
         feedback = instruction
 
-        response = self.chain.invoke({"question": question, "history": history, "feedback": feedback})
+        response = self.__llm_invoke__(question, history, feedback)
         print("Response from query writer llm: ", response)
 
         ############ allow multiple tool calls in one AI message ############
@@ -245,6 +255,11 @@ class DocumentGrader:
         self.chain = prompt | llm
 
     @opea_telemetry
+    def __llm_invoke__(self, question, docs):
+        scored_result = self.chain.invoke({"question": question, "context": docs})
+        return scored_result
+
+    @opea_telemetry
     def __call__(self, state) -> Literal["generate", "rewrite"]:
         from .utils import aggregate_docs
 
@@ -255,7 +270,7 @@ class DocumentGrader:
         docs = aggregate_docs(messages)
         print("@@@@ Docs: ", docs)
 
-        scored_result = self.chain.invoke({"question": question, "context": docs})
+        scored_result = self.__llm_invoke__(question, docs)
 
         score = scored_result.content
         print("@@@@ Score: ", score)
@@ -288,6 +303,11 @@ class TextGenerator:
         self.rag_chain = prompt | llm
 
     @opea_telemetry
+    def __llm_invoke__(self, docs, question, query_time):
+        response = self.rag_chain.invoke({"context": docs, "question": question, "time": query_time})
+        return response
+
+    @opea_telemetry
     def __call__(self, state):
         from .utils import aggregate_docs
 
@@ -299,7 +319,7 @@ class TextGenerator:
         question = messages[0].content
         docs = aggregate_docs(messages)
 
-        response = self.rag_chain.invoke({"context": docs, "question": question, "time": query_time})
+        response = self.__llm_invoke__(docs, question, query_time)
         print("@@@@ Used this doc for generation:\n", docs)
         print("@@@@ Generated response: ", response)
         return {"messages": [response], "output": response}
