@@ -19,6 +19,7 @@ Input:
 Output: Directory with results to query.
 
 The task can be set to the following -
+
 1. Index - generates index based on the cypher command (Output: Generated index)
 2. Query - queries the index based on the input text (Output: Directory with results to query)
 
@@ -111,7 +112,9 @@ docker compose -f struct2graph-compose.yaml up
 ```
 
 ## 3. Validate the service using API endpoint
+
 Example for "index" task -
+
 ```bash
 curl -X POST http://localhost:$STRUCT2GRAPH_PORT/v1/struct2graph \
 -H "accept: application/json" \
@@ -124,6 +127,7 @@ curl -X POST http://localhost:$STRUCT2GRAPH_PORT/v1/struct2graph \
 ```
 
 Example for "query" task -
+
 ```bash
 curl -X POST http://localhost:$STRUCT2GRAPH_PORT/v1/struct2graph \
 -H "accept: application/json" \
@@ -134,4 +138,3 @@ curl -X POST http://localhost:$STRUCT2GRAPH_PORT/v1/struct2graph \
   "cypher_cmd": ""
 }'
 ```
-
