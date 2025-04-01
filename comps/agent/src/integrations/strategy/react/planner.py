@@ -360,12 +360,14 @@ class ReActAgentLlama(BaseAgent):
                                 if node_name == "agent" and k == "chat_completion":
                                     yield f"data: {json.dumps(v)}\n\n"
                                 elif node_name == "tools":
-                                    full_content = v[0].content
-                                    tool_name = v[0].name
-                                    result = {"tool_name": tool_name, "tool_content": [full_content]}
-                                    yield f"data: {json.dumps(result)}\n\n"
-                                    if not full_content:
-                                        continue
+                                    # for multi tools in 1 turn
+                                    for each in v:
+                                        full_content = each.content
+                                        tool_name = each.name
+                                        result = {"tool_name": tool_name, "tool_content": [full_content]}
+                                        yield f"data: {json.dumps(result)}\n\n"
+                                        if not full_content:
+                                            continue
 
             yield "data: [DONE]\n\n"
         except Exception as e:
