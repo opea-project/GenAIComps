@@ -23,7 +23,7 @@ services:
         hard: -1
       nofile:
         soft: 65536  # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
-        hard: 65536
+        hard: 262144
     ports:
       - "${OPENSEARCH_PORT1:-9200}:9200"
       - "${OPENSEARCH_PORT2:-9600}:9600"
