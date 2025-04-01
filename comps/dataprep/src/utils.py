@@ -9,7 +9,6 @@ import json
 import multiprocessing
 import os
 import re
-import uuid
 import shutil
 import signal
 import subprocess
@@ -17,6 +16,7 @@ import tempfile
 import timeit
 import unicodedata
 import urllib.parse
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Dict, List, Union
