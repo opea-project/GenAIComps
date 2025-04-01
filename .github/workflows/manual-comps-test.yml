@@ -69,4 +69,5 @@ jobs:
       mode: ${{ inputs.mode }}
       test_compose: ${{ inputs.test_compose }}
       test_helmchart: ${{ inputs.test_helmchart }}
+      use_model_cache: ${{ inputs.use_model_cache }}
     secrets: inherit

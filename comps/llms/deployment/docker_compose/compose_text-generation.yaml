@@ -5,6 +5,7 @@ include:
   - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
   - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
   - ../../../third_parties/ollama/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/ovms/deployment/docker_compose/compose.yaml
 
 services:
   textgen:
@@ -99,6 +100,17 @@ services:
     container_name: textgen-native-gaudi
     environment:
       LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNative}
+
+  textgen-service-ovms:
+    extends: textgen
+    container_name: textgen-service-ovms
+    environment:
+      LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenService}
+      OVMS_LLM_ENDPOINT: ${OVMS_LLM_ENDPOINT}
+      MODEL_ID: ${MODEL_ID}
+    depends_on:
+      ovms-llm-serving:
+        condition: service_healthy
 
 networks:
   default:

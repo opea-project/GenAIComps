@@ -9,6 +9,7 @@ export REGISTRY=${IMAGE_REPO}
 export TAG="comps"
 echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
 echo "TAG=${TAG}"
+export DATA_PATH=${model_cache}
 
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
@@ -136,6 +137,7 @@ function stop_docker() {
     docker rm milvus-etcd
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
+
     docker compose -f compose.yaml down  ${service_name} --remove-orphans
     docker compose -f compose.yaml down ${service_name_mm} --remove-orphans
 

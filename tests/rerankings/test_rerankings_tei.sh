@@ -7,6 +7,7 @@ set -xe
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 service_name="reranking-tei"
+export DATA_PATH=${model_cache}
 
 function build_docker_images() {
     cd $WORKPATH
@@ -56,7 +57,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/rerankings/deployment/docker_compose
-    docker compose -f compose.yaml down ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 }
 
 function main() {

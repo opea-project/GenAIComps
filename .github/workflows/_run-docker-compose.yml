@@ -64,6 +64,7 @@ jobs:
             else
               hardware="intel_cpu"
             fi
+            hardware=$(echo $hardware | tr '_' '-')
             run_matrix=$(echo $run_matrix | jq --arg script "$script" --arg hardware "$hardware" '.include += [{"test_case": $script, "hardware": $hardware}]')
           done
           run_matrix=$(echo $run_matrix | jq -c .)
@@ -80,8 +81,17 @@ jobs:
       - name: Clean up Working Directory
         run: |
           sudo rm -rf ${{github.workspace}}/*
-          docker system prune -f
+
+          # clean up test containers
+          cid=$(docker ps -aq --filter "name=test-comps-*")
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          # clean up containers use ports
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+
           docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+          docker system prune -f
+          docker ps
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
@@ -103,6 +113,7 @@ jobs:
           hardware: ${{ matrix.hardware }}
           use_model_cache: ${{ inputs.use_model_cache }}
         run: |
+          export PATH=${HOME}/miniforge3/bin/:$PATH
           cd ${{ github.workspace }}/tests
           service=$(echo "${test_case}" | cut -d'/' -f3 | cut -d'_' -f2- |cut -d'.' -f1)
           echo "service=${service}" >> $GITHUB_ENV
@@ -119,9 +130,14 @@ jobs:
       - name: Clean up container
         if: cancelled() || failure()
         run: |
+          # clean up test containers
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          # clean up containers use ports
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
           docker system prune -f
+          docker ps
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}

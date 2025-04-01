@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11101
 service_name="dataprep-milvus tei-embedding-serving etcd minio standalone"
 export TAG="comps"
-
+export DATA_PATH=${model_cache}
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source ${SCRIPT_DIR}/dataprep_utils.sh
 
@@ -79,7 +79,7 @@ function stop_docker() {
     docker compose -f compose.yaml down --remove-orphans
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose
-    docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 
 }
 
