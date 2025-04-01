@@ -8,7 +8,6 @@ from pydantic import BaseModel, Field
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
 from .arangodb import ArangoDBStore
-
 # from .redisdb import RedisDBStore
 # from .mongodb import MongoDBStore
 
