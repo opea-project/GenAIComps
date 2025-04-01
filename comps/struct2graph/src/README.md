@@ -61,7 +61,6 @@ export LOAD_FORMAT="CSV"
 docker run --restart always \
         --publish=7474:7474 \
         --publish=7687:7687 \
-        -v /home/saraghava/CHECKIN/neo4j_docker/import:/import \
         --name neo4j-apoc \
         -e NEO4J_apoc_export_file_enabled=true \
         -e NEO4J_apoc_import_file_enabled=true \
