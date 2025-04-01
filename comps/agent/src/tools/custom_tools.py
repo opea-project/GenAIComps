@@ -1,23 +1,23 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import json
+import os
 import random
-from typing import Annotated
 from collections import defaultdict
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
+from typing import Annotated
+
 import pandas as pd
 
 finnhub_client = None
 
 try:
     if os.environ.get("FINNHUB_API_KEY") is None:
-        print(
-                "Please set the environment variable FINNHUB_API_KEY to use the Finnhub API."
-        )
+        print("Please set the environment variable FINNHUB_API_KEY to use the Finnhub API.")
     else:
         import finnhub
+
         finnhub_client = finnhub.Client(api_key=os.environ["FINNHUB_API_KEY"])
         print("Finnhub client initialized")
 
@@ -26,9 +26,7 @@ except:
 
 
 def get_company_profile(symbol: Annotated[str, "ticker symbol"]) -> str:
-    """
-    get a company's profile information
-    """
+    """Get a company's profile information."""
     profile = finnhub_client.company_profile2(symbol=symbol)
     if not profile:
         return f"Failed to find company profile for symbol {symbol} from finnhub!"
@@ -56,13 +54,9 @@ def get_company_news(
         str,
         "end date of the search period for the company's basic financials, yyyy-mm-dd",
     ],
-    max_news_num: Annotated[
-        int, "maximum number of news to return, default to 10"
-    ] = 10,
-    ):
-    """
-    retrieve market news related to designated company
-    """
+    max_news_num: Annotated[int, "maximum number of news to return, default to 10"] = 10,
+):
+    """Retrieve market news related to designated company."""
     news = finnhub_client.company_news(symbol, _from=start_date, to=end_date)
     if len(news) == 0:
         print(f"No company news found for symbol {symbol} from finnhub!")
@@ -81,6 +75,7 @@ def get_company_news(
     output = pd.DataFrame(news)
 
     return output.to_json(orient="split")
+
 
 def get_current_date():
     return date.today().strftime("%Y-%m-%d")
@@ -102,4 +97,3 @@ def search_weather(query: str) -> str:
     It's clear.
     """
     return ret_text
-
