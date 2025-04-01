@@ -87,7 +87,9 @@ then make `dataset_info.json` in your dataset directory
  ZE_AFFINITY_MASK=0 llamafactory-cli webui
 ```
 
+## `Xtune` Examples
 
+See screenshot of running CLIP and AdaCLIP finetune on Intel Arc A770 in README_XTUNE.md.
 
 ## Citation
 

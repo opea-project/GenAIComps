@@ -9,7 +9,6 @@ else
     echo "start prepare for xtune"
     bash clip_finetune/prepare_clip_finetune.sh
     bash adaclip_finetune/prepare_adaclip_finetune.sh
-    cd llama_factory && mv examples src ../ && cd ..
     bash llama_factory/prepare_llama_factory.sh
     rm -rf llama_factory
     rsync -avPr clip_finetune src/llamafactory/
