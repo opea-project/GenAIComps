@@ -38,6 +38,7 @@ class ServiceType(Enum):
     TEXT2CYPHER = 21
     STRUCT2GRAPH = 23
 
+
 class MegaServiceEndpoint(Enum):
     """The enum of an MegaService endpoint."""
 
