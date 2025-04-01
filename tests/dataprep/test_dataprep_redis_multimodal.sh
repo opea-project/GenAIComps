@@ -23,6 +23,7 @@ audio_name="apple"   # Intentionally name the audio file the same as the image f
 audio_fn="${tmp_dir}/${audio_name}.wav"
 pdf_name="nke-10k-2023"
 pdf_fn="${tmp_dir}/${pdf_name}.pdf"
+text_ony_pdf_fn="${WORKPATH}/tests/dataprep/ingest_dataprep_text.pdf"
 DATAPREP_PORT="11109"
 export DATA_PATH=${model_cache}
 
@@ -143,14 +144,6 @@ tire.""" > ${transcript_fn}
 
     echo "Downloading PDF"
     wget https://raw.githubusercontent.com/opea-project/GenAIComps/v1.1/comps/retrievers/redis/data/nke-10k-2023.pdf -O ${pdf_fn}
-
-    echo "Creating a text-only pdf file"
-    docker run --rm -e http_proxy=$http_proxy -e https_proxy=$https_proxy -v "$tmp_dir:/mnt" python:latest bash -c " \
-        pip install pymupdf && \
-        python -c \"import fitz; new_pdf = fitz.open(); page = new_pdf.new_page(); page.insert_text(point=(50, 50), text='Text only PDF'); \
-        new_pdf.save('/mnt/test.pdf'); new_pdf.close()\"
-    "
-
 }
 
 function validate_microservice() {
@@ -348,11 +341,10 @@ function validate_microservice() {
     fi
 
     # test ingest with a text-only PDF file
-    pdf_fn="${tmp_dir}/test.pdf"
     echo "Testing ingest API with a text-only PDF file"
     URL="http://${ip_address}:$DATAPREP_PORT/v1/dataprep/ingest"
 
-    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$pdf_fn" -H 'Content-Type: multipart/form-data' "$URL")
+    HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X POST -F "files=@$text_ony_pdf_fn" -H 'Content-Type: multipart/form-data' "$URL")
     HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
     SERVICE_NAME="dataprep - upload - file"
