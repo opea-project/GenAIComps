@@ -28,7 +28,7 @@ function build_docker_graph() {
 function start_service() {
     echo "===================  START SERVICE ========================"
     cd $LOG_PATH
-    docker compose -f struct2graph_compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+    docker compose -f struct2graph-compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     sleep 10s
     echo "===================  END SERVICE ========================"
@@ -44,7 +44,7 @@ function validate_microservice() {
 function stop_docker() {
     echo "===================  START STOP DOCKER ========================"
     cd $LOG_PATH
-    docker compose -f struct2graph_compose.yaml down --remove-orphans
+    docker compose -f struct2graph-compose.yaml down --remove-orphans
     echo "===================  END STOP DOCKER ========================"
 }
 

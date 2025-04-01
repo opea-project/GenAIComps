@@ -105,7 +105,7 @@ Command to run docker compose -
 ```bash
 cd GenAIComps/tests/struct2graph/deployment/docker_compose
 
-docker compose -f struct2graph_compose.yaml up
+docker compose -f struct2graph-compose.yaml up
 ```
 
 ## Validation and testing
