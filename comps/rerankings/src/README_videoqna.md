@@ -29,7 +29,7 @@ Then we could send the `top_n` videos to the downstream LVM.
 
    ```bash
     docker run -d --name "reranking-videoqna-server" \
-      -p 10703:8000 \
+      -p 8000:8000 \
       --ipc=host \
       -e no_proxy=${no_proxy} \
       -e http_proxy=${http_proxy} \
@@ -50,7 +50,7 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
 
    ```bash
     export TEI_RERANKING_PORT=12006
-    export RERANK_PORT=10703
+    export RERANK_PORT=8000
     export host_ip=$(hostname -I | awk '{print $1}')
     export TEI_RERANKING_ENDPOINT="http://${host_ip}:${TEI_RERANKING_PORT}"
     export TAG=comps
@@ -75,7 +75,7 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
 - Verify the reranking service is running:
 
   ```bash
-  curl http://localhost:10703/v1/health_check \
+  curl http://localhost:8000/v1/health_check \
   -X GET \
   -H 'Content-Type: application/json'
   ```
@@ -85,7 +85,7 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
 - Execute reranking process by providing query and documents
 
   ```bash
-  curl http://localhost:10703/v1/reranking \
+  curl http://localhost:8000/v1/reranking \
     -X POST \
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}' \
     -H 'Content-Type: application/json'
@@ -94,7 +94,7 @@ Deploy both the Videoqna Reranking Service and the Reranking Microservice using 
 - You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
 
   ```bash
-  curl http://localhost:10703/v1/reranking \
+  curl http://localhost:8000/v1/reranking \
     -X POST \
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}], "top_n":2}' \
     -H 'Content-Type: application/json'
