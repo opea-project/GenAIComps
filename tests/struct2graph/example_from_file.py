@@ -4,32 +4,25 @@
 import os
 import subprocess
 import sys
-from urllib.parse import quote
 from typing import Literal
-import requests
+from urllib.parse import quote
+
 import requests
 
-print(f"----------- Extract graph from CSV -----------")
+print("----------- Extract graph from CSV -----------")
 
-print(f"----------- Generating index ----------------")
-os.environ['LOAD_FORMAT'] = 'CSV'
-load_format = os.getenv('LOAD_FORMAT')
-CYPHER_CSV_CMD="LOAD CSV WITH HEADERS FROM 'file:////test1.csv' AS row \
+print("----------- Generating index ----------------")
+os.environ["LOAD_FORMAT"] = "CSV"
+load_format = os.getenv("LOAD_FORMAT")
+CYPHER_CSV_CMD = "LOAD CSV WITH HEADERS FROM 'file:////test1.csv' AS row \
                 CREATE (:Person {ID: toInteger(row.ID), Name: row.Name, Age: toInteger(row.Age), City: row.City});"
 
 print(f" CYPHER COMMAND USED:: {CYPHER_CSV_CMD} ")
-STRUCT2GRAPH_PORT = os.getenv('STRUCT2GRAPH_PORT')
+STRUCT2GRAPH_PORT = os.getenv("STRUCT2GRAPH_PORT")
 url = f"http://localhost:{STRUCT2GRAPH_PORT}/v1/struct2graph"
-headers = {
-    "accept": "application/json",
-    "Content-Type": "application/json"
-}
+headers = {"accept": "application/json", "Content-Type": "application/json"}
 
-payload = {
-    "input_text": "",
-    "task": "Index",
-    "cypher_cmd": CYPHER_CSV_CMD
-}
+payload = {"input_text": "", "task": "Index", "cypher_cmd": CYPHER_CSV_CMD}
 
 try:
     # Send the POST request
@@ -39,13 +32,9 @@ try:
 except requests.exceptions.RequestException as e:
     print("Request failed:", e)
 
-print(f"----------- Loading graph completed Query ----------------")
-print(f"----------- Issuing Query --------------------------------")
-payload = {
-    "input_text": "MATCH (p:Person {Name:'Alice'}) RETURN p",
-    "task": "Query",
-    "cypher_cmd": ""
-}
+print("----------- Loading graph completed Query ----------------")
+print("----------- Issuing Query --------------------------------")
+payload = {"input_text": "MATCH (p:Person {Name:'Alice'}) RETURN p", "task": "Query", "cypher_cmd": ""}
 
 try:
     # Send the POST request
@@ -56,13 +45,13 @@ except requests.exceptions.RequestException as e:
     print("Request failed:", e)
 
 
-print(f"----------- Extract graph from JSON -----------")
+print("----------- Extract graph from JSON -----------")
 
-print(f"----------- Generating index ----------------")
+print("----------- Generating index ----------------")
 
-os.environ['LOAD_FORMAT'] = 'JSON'
-load_format = os.getenv('LOAD_FORMAT')
-CYPHER_JSON_CMD=" \
+os.environ["LOAD_FORMAT"] = "JSON"
+load_format = os.getenv("LOAD_FORMAT")
+CYPHER_JSON_CMD = " \
 CALL apoc.load.json('file:///test1.json') YIELD value \
 UNWIND value.table AS row \
 CREATE (:Person { \
@@ -76,16 +65,9 @@ CREATE (:Person { \
 print(f" CYPHER COMMAND USED:: {os.environ['CYPHER_JSON_CMD']}")
 
 url = f"http://localhost:{STRUCT2GRAPH_PORT}/v1/struct2graph"
-headers = {
-    "accept": "application/json",
-    "Content-Type": "application/json"
-}
+headers = {"accept": "application/json", "Content-Type": "application/json"}
 
-payload = {
-    "input_text": "",
-    "task": "Index",
-    "cypher_cmd": CYPHER_JSON_CMD
-}
+payload = {"input_text": "", "task": "Index", "cypher_cmd": CYPHER_JSON_CMD}
 
 try:
     # Send the POST request
@@ -96,14 +78,9 @@ except requests.exceptions.RequestException as e:
     print("Request failed:", e)
 
 
-
-print(f"----------- Loading graph completed Query ----------------")
-print(f"----------- Issuing Query ----------------")
-payload = {
-    "input_text": "MATCH (n) RETURN n",
-    "task": "Query",
-    "cypher_cmd": ""
-}
+print("----------- Loading graph completed Query ----------------")
+print("----------- Issuing Query ----------------")
+payload = {"input_text": "MATCH (n) RETURN n", "task": "Query", "cypher_cmd": ""}
 
 try:
     # Send the POST request
@@ -114,12 +91,8 @@ except requests.exceptions.RequestException as e:
     print("Request failed:", e)
 
 
-print(f"----------- Issuing Query ----------------")
-payload = {
-    "input_text": "MATCH (p:Person {Name:'Alice'}) RETURN p",
-    "task": "Query",
-    "cypher_cmd": ""
-}
+print("----------- Issuing Query ----------------")
+payload = {"input_text": "MATCH (p:Person {Name:'Alice'}) RETURN p", "task": "Query", "cypher_cmd": ""}
 
 print(f" Issuing query {payload}")
 

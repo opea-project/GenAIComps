@@ -1,8 +1,14 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
+
 import os
 import time
 from typing import Annotated, Optional
+
 from pydantic import BaseModel, Field
+
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.struct2graph.src.integrations.graph_utils import PrepareGraphDB
 
@@ -23,24 +29,26 @@ generation_params = {
     "streaming": True,
 }
 
+
 class Input(BaseModel):
     input_text: str
     task: str
     cypher_cmd: str
 
+
 @OpeaComponentRegistry.register("OPEA_STRUCT2GRAPH")
 class OpeaStruct2Graph(OpeaComponent):
     """A specialized text to graph triplet converter."""
-    
+
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.STRUCT2GRAPH.name.lower(), description, config)
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaStruct2Graph health check failed.")
-    
+
     async def check_health(self) -> bool:
         """Checks the health of the TGI service.
-        
+
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
@@ -50,40 +58,40 @@ class OpeaStruct2Graph(OpeaComponent):
         except Exception as e:
             logger.error(f"Health check failed: {str(e)}")
             return False
-    
+
     async def invoke(self, input: Input) -> dict:
         """Invokes the struct2graph service to generate graph(s) for the provided input.
-        
+
         Args:
             input: Input object containing:
                 - input_text: text document
                 - task: Query or Index
                 - cypher_cmd: CSV or JSON command
-        
+
         Returns:
             dict: Result of the operation
         """
         logger.info("Starting struct2graph operation...")
         logger.debug(f"Received input: {input}")
-        
+
         gdb = PrepareGraphDB()
         logger.info("Initialized PrepareGraphDB instance")
-        
-        if input.task == 'Query':
+
+        if input.task == "Query":
             logger.info("Executing query operation")
             graph_store = gdb.neo4j_link()
             result = graph_store.query(input.input_text)
             logger.info("Query executed successfully")
-            
-        elif input.task == 'Index':
+
+        elif input.task == "Index":
             logger.info("Executing index operation")
             graph_store = gdb.prepare_insert_graphdb(cypher_cmd=input.cypher_cmd)
             result = "Done indexing"
             logger.info("Indexing completed successfully")
-            
+
         else:
             logger.error(f"Unsupported task type: {input.task}")
             raise ValueError(f"Unsupported task type: {input.task}")
-            
+
         logger.info("Operation completed successfully")
         return result
