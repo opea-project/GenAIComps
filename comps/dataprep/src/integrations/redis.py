@@ -146,11 +146,11 @@ async def store_by_id(client, key, value):
     return True
 
 
-def search_by_id(client, doc_id):
+async def search_by_id(client, doc_id):
     if logflag:
         logger.info(f"[ search by id ] searching docs of {doc_id}")
     try:
-        results = client.load_document(doc_id)
+        results = await client.load_document(doc_id)
         if logflag:
             logger.info(f"[ search by id ] search success of {doc_id}: {results}")
         return results
@@ -390,7 +390,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 # check whether the file already exists
                 key_ids = None
                 try:
-                    key_ids = search_by_id(self.key_index_client, doc_id).key_ids
+                    key_ids = await search_by_id(self.key_index_client, doc_id).key_ids
                     if logflag:
                         logger.info(f"[ redis ingest] File {file.filename} already exists.")
                 except Exception as e:
@@ -435,7 +435,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 # check whether the link file already exists
                 key_ids = None
                 try:
-                    key_ids = search_by_id(self.key_index_client, doc_id).key_ids
+                    key_ids = await search_by_id(self.key_index_client, doc_id).key_ids
                     if logflag:
                         logger.info(f"[ redis ingest] Link {link} already exists.")
                 except Exception as e:
@@ -565,7 +565,7 @@ class OpeaRedisDataprep(OpeaComponent):
 
         # determine whether this file exists in db KEY_INDEX_NAME
         try:
-            key_ids = search_by_id(self.key_index_client, doc_id).key_ids
+            key_ids = await search_by_id(self.key_index_client, doc_id).key_ids
         except Exception as e:
             if logflag:
                 logger.info(f"[ redis delete ] {e}, File {file_path} does not exists.")
@@ -586,7 +586,7 @@ class OpeaRedisDataprep(OpeaComponent):
         for file_id in file_ids:
             # determine whether this file exists in db INDEX_NAME
             try:
-                search_by_id(self.data_index_client, file_id)
+                await search_by_id(self.data_index_client, file_id)
             except Exception as e:
                 if logflag:
                     logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
