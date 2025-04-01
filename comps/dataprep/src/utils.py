@@ -9,6 +9,7 @@ import json
 import multiprocessing
 import os
 import re
+import uuid
 import shutil
 import signal
 import subprocess
@@ -233,20 +234,28 @@ async def load_docx(docx_path):
 async def load_ppt(ppt_path):
     """Load ppt file."""
     print("Converting ppt file to pptx file...")
-    pptx_path = ppt_path + "x"
+
+    temp_dir = tempfile.gettempdir()
+    base_name = os.path.splitext(os.path.basename(ppt_path))[0]
+    pptx_path = os.path.join(temp_dir, base_name + ".pptx")
+
     subprocess.run(
         [
             "libreoffice",
             "--headless",
             "--invisible",
             "--convert-to",
-            "docx",
+            "pptx",
             "--outdir",
             os.path.dirname(pptx_path),
             ppt_path,
         ],
         check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
     )
+    if not os.path.exists(pptx_path):
+        raise FileNotFoundError(f"pptx file not created: {pptx_path}")
     print("Converted ppt file to pptx file.")
     text = await load_pptx(pptx_path)
     os.remove(pptx_path)
