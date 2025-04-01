@@ -10,7 +10,7 @@ services:
     image: ${REGISTRY:-opea}/reranking:${TAG:-latest}
     container_name: reranking-server
     ports:
-      - ${RERANK_PORT:-10700}:8000
+      - ${RERANK_PORT:-8000}:8000
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -51,7 +51,7 @@ services:
     image: ${REGISTRY:-opea}/reranking:${TAG:-latest}
     container_name: reranking-ovms-server
     ports:
-      - "${RERANK_PORT:-10201}:8000"
+      - "${RERANK_PORT:-8000}:8000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
