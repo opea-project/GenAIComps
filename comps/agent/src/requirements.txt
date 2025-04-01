@@ -1,6 +1,9 @@
 # used by microservice
 docarray[full]
 fastapi
+
+# get data source
+finnhub-python==2.4.22
 huggingface_hub
 langchain
 
@@ -46,8 +49,5 @@ tavily-python
 # used by agents
 transformers
 transformers[sentencepiece]
-
-# get data source
-finnhub-python==2.4.22
 
 uvicorn

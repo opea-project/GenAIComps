@@ -90,8 +90,8 @@ def load_langchain_tool(tools_dir, tool_setting_tuple):
         if isinstance(func_definition, BaseTool):
             return func_definition
         else:
-            """
-            raise ValueError(
+            """Raise ValueError(
+
                 f"Tool {tool_name} is missing 'args_schema' or 'description' in the tool setting. Tool is {func_definition}"
             )
             """
