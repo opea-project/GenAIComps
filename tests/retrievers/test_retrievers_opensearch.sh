@@ -41,6 +41,8 @@ function start_service() {
     export INDEX_NAME="file-index"
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
+    # set vm.max_map_count to 262144 for opensearch
+    sudo sysctl -w vm.max_map_count=262144
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
 

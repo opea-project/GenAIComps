@@ -33,6 +33,8 @@ function start_service() {
     service_name="opensearch-vector-db dataprep-opensearch"
     export host_ip=${ip_address}
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    # set vm.max_map_count to 262144 for opensearch
+    sudo sysctl -w vm.max_map_count=262144
     docker compose up ${service_name} -d
     sleep 1m
 }
