@@ -65,7 +65,7 @@ sudo gpasswd -a ${USER} render
 newgrp render
 ```
 
-### Optional:
+## Optional:
 
 Configure the window system to wayland
 
