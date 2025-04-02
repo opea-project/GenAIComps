@@ -7,7 +7,6 @@ httpx
 kubernetes
 langchain
 langchain-community
-langchain-huggingface
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

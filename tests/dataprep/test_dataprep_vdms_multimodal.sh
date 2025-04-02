@@ -28,8 +28,8 @@ function start_service() {
     export VDMS_HOST=$ip_address
     export VDMS_PORT=55555
     export COLLECTION_NAME="test-comps"
-    export QDRANT_HOST=$ip_address
-    export QDRANT_PORT=$QDRANT_PORT
+    export VDMS_HOST=$ip_address
+    export VDMS_PORT=$VDMS_PORT
     export TAG="comps"
     service_name="vdms-vector-db dataprep-vdms-multimodal"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/

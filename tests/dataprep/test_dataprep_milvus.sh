@@ -52,6 +52,9 @@ function validate_microservice() {
     ingest_pdf ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - pdf" "Data preparation succeeded" dataprep-milvus-server ${LOG_PATH}/dataprep_milvus.log
 
+    ingest_ppt ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - ppt" "Data preparation succeeded" dataprep-milvus-server ${LOG_PATH}/dataprep_upload_file.log
+
     ingest_pptx ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - pptx" "Data preparation succeeded" dataprep-milvus-server ${LOG_PATH}/dataprep_milvus.log
 
