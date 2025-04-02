@@ -21,23 +21,24 @@ or use the command line to use tools separately which is easier to customize par
 
 ## Installation
 
-Please install git first and make sure `git clone` can work.
+> [!IMPORTANT]
+> Installation is mandatory.
+
+> Please install git first and make sure `git clone` can work.
+
+> Please fololow [install_dependency](./doc/install_dependency.md) to install Driver for Arc 770
+### 1. Install xtune on native
 
 Run install_xtune.sh to prepare component.
 
 ```bash
+conda create -n xtune python=3.10 -y
+conda activate xtune
 apt install -y rsync
 bash prepare_xtune.sh
 ```
-
-Then please fololow [install_dependency](./doc/install_dependency.md) to install Driver for Arc 770
-
-> [!IMPORTANT]
-> Installation is mandatory.
-
+Blow command is in prepare_xtune.sh. You can ignore it if you don't want to update lib mannually.
 ```bash
-conda create -n xtune python=3.10 -y
-conda activate xtune
 pip install -r requirements.txt
 # if you want to run on NVIDIA GPU
     conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
@@ -54,6 +55,27 @@ pip install --no-deps transformers==4.45.0 datasets==2.21.0 accelerate==0.34.2 p
 python -m pip install intel-extension-for-pytorch==2.5.10+xpu oneccl_bind_pt==2.5.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
 ```
 
+### 2. Install xtune on docker
+#### 2.1 Build Docker Image
+
+Build docker image with below command:
+
+```bash
+cd ../../../deployment/docker_compose
+export DATA="where to find dataset"
+docker build -t opea/finetuning-xtune:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN --build-arg DATA=$DATA -f comps/finetuning/src/Dockerfile.xtune .
+```
+
+#### 2.2 Run Docker with CLI
+
+Suse docker compose with below command:
+
+```bash
+export HF_TOKEN=${your_huggingface_token}
+export DATA="where to find dataset"
+cd ../../../deployment/docker_compose
+docker compose -f compose.yaml up finetuning-xtune -d
+```
 ## Data Preparation
 
 Please refer to [data/Prepare_dataset.md](./doc/Prepare_dataset.md) for checking the details about the dataset files.

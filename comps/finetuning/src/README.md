@@ -103,28 +103,7 @@ docker compose -f compose.yaml up finetuning-gaudi -d
 
 ### 2.3 Setup Xtune on Arc A770
 
-Please follow [doc](./integrations/xtune/doc/install_dependency.md) to install driver first
-
-#### 2.3.1 Build Docker Image
-
-Build docker image with below command:
-
-```bash
-cd ../deployment/docker_compose
-export DATA="where to find dataset"
-docker build -t opea/finetuning-xtune:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN --build-arg DATA=$DATA -f comps/finetuning/src/Dockerfile.xtune .
-```
-
-#### 2.3.2 Run Docker with CLI
-
-Suse docker compose with below command:
-
-```bash
-export HF_TOKEN=${your_huggingface_token}
-export DATA="where to find dataset"
-cd ../deployment/docker_compose
-docker compose -f compose.yaml up finetuning-xtune -d
-```
+Please follow [doc](./integrations/xtune/README.md) to install Xtune on Arc A770
 
 ## 🚀3. Consume Finetuning Service
 
@@ -290,9 +269,8 @@ After fine-tuning job is done, fine-tuned model can be chosen from listed checkp
 
 ### 3.5 Xtune
 
-Once you follow `3.2 Setup Xtune on Arc A770`, it will open llama-factory UI in container.
-Then access in web through http://localhost:7860/
-Please see [xtune doc](./integrations/xtune/README.md) for details.
+Once you follow `3.2 Setup Xtune on Arc A770`, you can access Xtune in web through http://localhost:7860/
+Please see [Xtune doc](./integrations/xtune/README.md) for details.
 
 ## 🚀4. Descriptions for Finetuning parameters
 
