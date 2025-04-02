@@ -34,5 +34,5 @@ else
         echo "failed to start server, please check your environment"
     fi
     echo 0 >> done
-    echo "Please follow README.md to install driver or update torch lib"  
+    echo "Please follow README.md to install driver or update torch lib"
 fi
