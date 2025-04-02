@@ -83,8 +83,18 @@ export ip_address=$(hostname -I | awk '{print $1}')
 export LVM_PORT=9399
 export VLLM_PORT=11507
 export LVM_ENDPOINT=http://$ip_address:$VLLM_PORT
+
+# llava (option 1)
 export LLM_MODEL_ID=llava-hf/llava-1.5-7b-hf
-docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up vllm-service lvm-vllm -d
+export CHAT_TEMPLATE=examples/template_llava.jinja
+# UI-TARS (option 2)
+export LLM_MODEL_ID=bytedance-research/UI-TARS-7B-DPO
+export TP_SIZE=1    # change to 4 or 8 if using UI-TARS-72B-DPO
+export CHAT_TEMPLATE=None
+
+export VLLM_SKIP_WARMUP=true # skip the warmup-phase will start the vLLM server quickly on Gaudi, but increase runtime inference time when meeting unseen HPU shape
+
+docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up vllm-gaudi-service lvm-vllm-gaudi -d
 ```
 
 ## Test
