@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from comps.cores.storages.opea_store import opea_store
+from comps.cores.storages import opea_store
 
 
 @pytest.fixture
