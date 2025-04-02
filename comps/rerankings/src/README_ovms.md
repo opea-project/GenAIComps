@@ -26,7 +26,7 @@ It speedup starting the service and avoids copying the model from Internet each 
 - For Xeon CPU:
 
   ```bash
-  your_port=12005
+  your_port=8001
   docker run -p $your_port:8001 -v ./models:/models --name ovms-rerank-serving \
   openvino/model_server:2025.0 --port 8001 --config_path /models/config_reranking.json
   ```
@@ -53,11 +53,11 @@ It speedup starting the service and avoids copying the model from Internet each 
 2. Run the reranking microservice and connect it to the OVMS service:
 
    ```bash
-    export OVMS_RERANKING_PORT=12005
+    export OVMS_RERANKING_PORT=8001
     export OVMS_RERANKING_ENDPOINT="http://localhost:${OVMS_RERANKING_PORT}"
     export MODEL_ID=BAAI/bge-reranker-large
 
-   docker run -d --rm --name="reranking-ovms-server" -e LOGFLAG=True  -p 10700:8000 --ipc=host -e OVMS_RERANKING_ENDPOINT=$OVMS_RERANKING_ENDPOINT -e RERANK_COMPONENT_NAME="OPEA_OVMS_RERANKING" -e MODEL_ID=$MODEL_ID opea/reranking:comps
+   docker run -d --rm --name="reranking-ovms-server" -e LOGFLAG=True  -p 8000:8000 --ipc=host -e OVMS_RERANKING_ENDPOINT=$OVMS_RERANKING_ENDPOINT -e RERANK_COMPONENT_NAME="OPEA_OVMS_RERANKING" -e MODEL_ID=$MODEL_ID opea/reranking:comps
    ```
 
 ## 📦 3. Start Microservice with docker compose
@@ -71,7 +71,7 @@ Deploy both the OVMS Reranking Service and the Reranking Microservice using Dock
    ```bash
     export MODEL_ID="BAAI/bge-reranker-large"
     export OVMS_RERANKING_PORT=12005
-    export RERANK_PORT=10700
+    export RERANK_PORT=8000
     export host_ip=$(hostname -I | awk '{print $1}')
     export OVMS_RERANKING_ENDPOINT="http://${host_ip}:${OVMS_RERANKING_PORT}"
     export TAG=comps
@@ -99,7 +99,7 @@ Deploy both the OVMS Reranking Service and the Reranking Microservice using Dock
 - Verify the reranking service is running:
 
   ```bash
-    curl http://localhost:10700/v1/health_check \
+    curl http://localhost:8000/v1/health_check \
     -X GET \
     -H 'Content-Type: application/json'
   ```
@@ -109,14 +109,14 @@ Deploy both the OVMS Reranking Service and the Reranking Microservice using Dock
 - Execute reranking process by providing query and documents
 
   ```bash
-  curl http://localhost:10700/v1/reranking -X POST -H 'Content-Type: application/json' \
+  curl http://localhost:8000/v1/reranking -X POST -H 'Content-Type: application/json' \
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}]}'
   ```
 
   - You can add the parameter `top_n` to specify the return number of the reranker model, default value is 1.
 
   ```bash
-  curl http://localhost:10700/v1/reranking \
+  curl http://localhost:8000/v1/reranking \
     -X POST \
     -d '{"initial_query":"What is Deep Learning?", "retrieved_docs": [{"text":"Deep Learning is not..."}, {"text":"Deep learning is..."}], "top_n":2}' \
     -H 'Content-Type: application/json'
