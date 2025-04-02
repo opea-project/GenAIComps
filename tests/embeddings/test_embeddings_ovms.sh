@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
@@ -21,8 +20,8 @@ function build_docker_images() {
 }
 
 function get_model() {
-    docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod o+rw /cache/hub
-    docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod o+rw /cache/hub/.locks
+    docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod o+rw /cache/hub || true
+    docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod o+rw /cache/hub/.locks || true
     docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod -R o+rw /cache/hub/.locks/models--thenlper--gte-small || true
     docker run -v ${HOME}/.cache/huggingface:/cache ubuntu:22.04 chmod -R o+rw /cache/hub/models--thenlper--gte-small || true
     pip3 install -r https://raw.githubusercontent.com/openvinotoolkit/model_server/refs/heads/releases/2025/0/demos/common/export_models/requirements.txt
@@ -76,6 +75,7 @@ function validate_microservice() {
 
 function validate_microservice_with_openai() {
     ovms_service_port=10205
+    pip install openai
     python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py $ip_address $ovms_service_port "embedding"
     if [ $? -ne 0 ]; then
         docker logs ovms-embedding-serving

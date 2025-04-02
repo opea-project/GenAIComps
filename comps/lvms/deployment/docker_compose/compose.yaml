@@ -24,7 +24,7 @@ services:
     ports:
       - ${VLLM_PORT:-9699}:80
     volumes:
-      - "./data:/data"
+      - "./data:/root/.cache/huggingface/hub/"
     shm_size: 128g
     environment:
       no_proxy: ${no_proxy}
@@ -45,7 +45,7 @@ services:
     ports:
       - ${VLLM_PORT:-9699}:80
     volumes:
-      - "./data:/data"
+      - "./data:/root/.cache/huggingface/hub/"
     shm_size: 128g
     environment:
       no_proxy: ${no_proxy}
@@ -60,6 +60,7 @@ services:
       MAX_MODEL_LEN: ${MAX_TOTAL_TOKENS:-4096}
       MAX_SEQ_LEN_TO_CAPTURE: ${MAX_TOTAL_TOKENS:-4096}
       PT_HPUGRAPH_DISABLE_TENSOR_CACHE: false # https://github.com/HabanaAI/vllm-fork/issues/841#issuecomment-2700421704
+      PT_HPU_ENABLE_LAZY_COLLECTIVES: true # for tensor parallel inference with hpu graphs
     runtime: habana
     cap_add:
       - SYS_NICE
@@ -69,7 +70,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 150
-    command: --model $LLM_MODEL_ID --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
+    command: --model $LLM_MODEL_ID --tensor-parallel-size ${TP_SIZE:-1} --host 0.0.0.0 --port 80 --enable-auto-tool-choice --tool-call-parser hermes  --chat-template ${CHAT_TEMPLATE:-examples/template_llava.jinja} # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
   llava-tgi-service:
     image: ghcr.io/huggingface/tgi-gaudi:2.3.1
     container_name: llava-tgi-service
