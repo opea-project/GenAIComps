@@ -65,7 +65,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Set Memory Map Limit
-        if: ${{ contains(matrix.service, "opensearch") }}
+        if: ${{ contains(matrix.service, 'opensearch') }}
         run: sudo sysctl -w vm.max_map_count=262144
 
       - name: Run microservice test
