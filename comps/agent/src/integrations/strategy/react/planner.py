@@ -146,7 +146,7 @@ class ReActAgentwithLanggraph(BaseAgent):
 # since tgi and vllm still do not have very good support for tool calling like OpenAI
 
 import json
-from typing import Annotated, List, Optional, Sequence, TypedDict
+from typing import Annotated, Dict, List, Optional, Sequence, TypedDict, Union
 
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.prompts import PromptTemplate
@@ -155,12 +155,15 @@ from langgraph.graph.message import add_messages
 from langgraph.managed import IsLastStep
 from langgraph.prebuilt import ToolNode
 
+from comps.cores.proto.api_protocol import ChatCompletionResponse, ChatCompletionStreamResponse
+
 from ...storage.persistence_memory import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
 from .utils import (
     assemble_history,
     assemble_memory,
     assemble_memory_from_store,
+    convert_aimessage_to_chat_completion,
     convert_json_to_tool_call,
     save_state_to_store,
 )
@@ -171,6 +174,7 @@ class AgentState(TypedDict):
 
     messages: Annotated[Sequence[BaseMessage], add_messages]
     tool_choice: Optional[List[str]] = None
+    chat_completion: Optional[Union[Dict, ChatCompletionResponse]] = None
     is_last_step: IsLastStep
 
 
@@ -207,7 +211,7 @@ class ReActAgentNodeLlama:
 
     def __call__(self, state, config):
 
-        print("---CALL Agent node---")
+        print("---CALL Agent LLM node---")
         messages = state["messages"]
 
         # assemble a prompt from messages
@@ -239,6 +243,8 @@ class ReActAgentNodeLlama:
         response = self.chain.invoke(
             {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
         )
+        # convert to openai
+        chat_completion = convert_aimessage_to_chat_completion(response)
         response = response.content
 
         # parse tool calls or answers from raw output: result is a list
@@ -263,7 +269,7 @@ class ReActAgentNodeLlama:
         else:
             ai_message = AIMessage(content=response)
 
-        return {"messages": [ai_message]}
+        return {"messages": [ai_message], "chat_completion": chat_completion}
 
 
 class ReActAgentLlama(BaseAgent):
@@ -347,23 +353,16 @@ class ReActAgentLlama(BaseAgent):
                         if self.memory_type == "store":
                             save_state_to_store(node_state, config, self.store)
                         print(f"--- CALL {node_name} node ---\n")
+
                         for k, v in node_state.items():
                             if v is not None:
                                 print(f"------- {k}, {v} -------\n\n")
-                                if node_name == "agent":
-                                    if v[0].content == "":
-                                        tool_names = []
-                                        for tool_call in v[0].tool_calls:
-                                            tool_names.append(tool_call["name"])
-                                        result = {"tool": tool_names}
-                                    else:
-                                        result = {"content": [v[0].content.replace("\n\n", "\n")]}
-                                    # ui needs this format
-                                    yield f"data: {json.dumps(result)}\n\n"
+                                if node_name == "agent" and k == "chat_completion":
+                                    yield f"data: {json.dumps(v)}\n\n"
                                 elif node_name == "tools":
                                     full_content = v[0].content
                                     tool_name = v[0].name
-                                    result = {"tool": tool_name, "content": [full_content]}
+                                    result = {"tool_name": tool_name, "tool_content": [full_content]}
                                     yield f"data: {json.dumps(result)}\n\n"
                                     if not full_content:
                                         continue
