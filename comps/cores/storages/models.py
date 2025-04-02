@@ -1,9 +1,11 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 from typing import Annotated, Optional
 
 from pydantic import BaseModel, Field
 
 from comps.cores.proto.api_protocol import ChatCompletionRequest
-
 
 #################################################################
 # NOTE: Below are the data models for the different storage     #
