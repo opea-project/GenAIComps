@@ -70,7 +70,7 @@ This microservice provides 3 different ways for users to ingest files into Redis
 
 ### 3.1 Consume _ingest_ API
 
-**Use case:** This API is used for videos accompanied by transcript files (`.vtt` format), images accompanied by text caption files (`.txt` format), and PDF files containing a mix of text and images.
+**Use case:** This API is used for videos accompanied by transcript files (`.vtt` format), images accompanied by text caption files (`.txt` format), images accompanied by a spoken audio caption (`.wav` or `.mp3`), and PDF files containing a mix of text and images.
 
 **Important notes:**
 
@@ -90,11 +90,27 @@ curl -X POST \
 
 #### Single image-caption pair upload
 
+Text caption file:
+
 ```bash
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./image.jpg" \
     -F "files=@./image.txt" \
+    http://localhost:6007/v1/dataprep/ingest
+```
+
+Spoken audio caption file:
+
+> Note: When an audio caption file is provided, the speech is translated to text using the
+> [whisper model](https://openai.com/index/whisper/). The translated text is then embedded with the image, and ingested
+> into the vector store.
+
+```bash
+curl -X POST \
+    -H "Content-Type: multipart/form-data" \
+    -F "files=@./image.jpg" \
+    -F "files=@./image.wav" \
     http://localhost:6007/v1/dataprep/ingest
 ```
 
