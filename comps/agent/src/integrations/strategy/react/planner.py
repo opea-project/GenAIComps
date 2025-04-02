@@ -148,7 +148,7 @@ class ReActAgentwithLanggraph(BaseAgent):
 import json
 from typing import Annotated, Dict, List, Optional, Sequence, TypedDict, Union
 
-from langchain_core.messages import AIMessage, BaseMessage, ToolMessage, AIMessageChunk
+from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
 from langchain_core.prompts import PromptTemplate
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
@@ -332,7 +332,7 @@ class ReActAgentLlama(BaseAgent):
         initial_state = self.prepare_initial_state(query)
         if "tool_choice" in config:
             initial_state["tool_choice"] = config.pop("tool_choice")
-        stream_mode=["updates"]
+        stream_mode = ["updates"]
         stream_mode = ["updates", "messages"]
         try:
             print("---Start running---")
