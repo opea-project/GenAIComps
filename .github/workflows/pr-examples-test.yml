@@ -57,6 +57,11 @@ jobs:
 
           echo "Run test..."
           echo "LOG_DIR=$(pwd)" >> $GITHUB_ENV
+          if [ -d "/data2/hf_model" ]; then
+            export model_cache="/data2/hf_model"
+          else
+            export model_cache="~/.cache/huggingface/hub"
+          fi
           export IMAGE_TAG="comps"
           timeout 50m bash test_compose_on_gaudi.sh
 
