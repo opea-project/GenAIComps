@@ -85,6 +85,8 @@ then make `dataset_info.json` in your dataset directory
  CUDA_VISIBLE_DEVICES=0 llamafactory-cli webui
  Run with ARC770:
  ZE_AFFINITY_MASK=0 llamafactory-cli webui
+
+ Then access in web through http://localhost:7860/ 
 ```
 
 ## `Xtune` Examples

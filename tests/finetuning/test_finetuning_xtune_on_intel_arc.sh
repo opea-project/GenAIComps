@@ -9,18 +9,18 @@ LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 finetuning_service_port=8015
 ray_port=8265
-export TAG="comps"
+export DATA=${DATA:-/data}
 service_name="finetuning-xtune"
 
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build -t opea/finetuning:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN -f comps/finetuning/src/Dockerfile.xtune .
+    docker build -t opea/finetuning-xtune:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg HF_TOKEN=$HF_TOKEN --build-arg DATA=$DATA -f comps/finetuning/src/Dockerfile.xtune .
     if [ $? -ne 0 ]; then
-        echo "opea/finetuning built fail"
+        echo "opea/finetuning-xtune built fail"
         exit 1
     else
-        echo "opea/finetuning built successful"
+        echo "opea/finetuning-xtune built successful"
     fi
 }
 
