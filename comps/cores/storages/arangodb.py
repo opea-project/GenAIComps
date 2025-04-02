@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Intel Corporation
+# Copyright (C) 2025 ArangoDB Inc.
 # SPDX-License-Identifier: Apache-2.0
 from typing import Any
 
