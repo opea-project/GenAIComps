@@ -3,13 +3,14 @@
 
 include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/ovms/deployment/docker_compose/compose.yaml
 
 services:
   reranking:
     image: ${REGISTRY:-opea}/reranking:${TAG:-latest}
     container_name: reranking-server
     ports:
-      - ${RERANK_PORT:-10700}:8000
+      - ${RERANK_PORT:-8000}:8000
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -46,6 +47,20 @@ services:
       FILE_SERVER_ENDPOINT: ${FILE_SERVER_ENDPOINT}
       RERANK_COMPONENT_NAME: "OPEA_VIDEO_RERANKING"
 
+  ovms-reranking-server:
+    image: ${REGISTRY:-opea}/reranking:${TAG:-latest}
+    container_name: reranking-ovms-server
+    ports:
+      - "${RERANK_PORT:-8000}:8000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      OVMS_RERANKING_ENDPOINT: ${OVMS_RERANKING_ENDPOINT}
+      RERANK_COMPONENT_NAME: "OPEA_OVMS_RERANKING"
+      MODEL_ID: ${MODEL_ID}
+    restart: unless-stopped
 
 networks:
   default:
