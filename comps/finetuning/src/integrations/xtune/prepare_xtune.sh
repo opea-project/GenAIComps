@@ -27,7 +27,7 @@ else
     pip install --no-deps transformers==4.45.0 datasets==2.21.0 accelerate==0.34.2 peft==0.12.0
     pip install --no-cache-dir --force-reinstall intel-extension-for-pytorch==2.6.10+xpu oneccl_bind_pt==2.6.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
     echo "start llamafactory webui"
-    ZE_AFFINITY_MASK=0 llamafactory-cli webui
+    ZE_AFFINITY_MASK=0 llamafactory-cli webui &
     if [ $? -eq 0 ]; then
         echo "server start successfully"
     else
