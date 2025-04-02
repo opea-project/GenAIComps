@@ -146,7 +146,6 @@ For a more detailed guide, please refer to [How to Finetune](#how-to-finetune) s
 Example
 
 ```json
-    ...
     "peft": {
         "method": "bitfit",
         "config": {
@@ -159,7 +158,6 @@ Example
             ]
         }
     }
-    ...
 ```
 
 Config path: `src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-bitfit-5k.json`
@@ -174,7 +172,6 @@ Select partial layers for finetune based on the parameter updates after training
 Example
 
 ```json
-    ...
     "peft": {
         "method": "ibs",
         "config": {
@@ -192,7 +189,6 @@ Example
             ]
         }
     }
-    ...
 ```
 
 Config path:
