@@ -135,7 +135,7 @@ services:
     container_name: textgen-native-phi4-multimodal-gaudi
     environment:
       LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNativePhi4Multimodal}
-    
+
   textgen-service-ovms:
     extends: textgen
     container_name: textgen-service-ovms
