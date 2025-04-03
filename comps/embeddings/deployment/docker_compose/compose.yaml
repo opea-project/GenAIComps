@@ -28,7 +28,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: tei-embedding-server
     ports:
-      - "${EMBEDDER_PORT:-10201}:6000"
+      - "${EMBEDDER_PORT:-6000}:6000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -45,7 +45,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: ovms-embedding-server
     ports:
-      - "${EMBEDDER_PORT:-10201}:6000"
+      - "${EMBEDDER_PORT:-6000}:6000"
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -60,7 +60,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: pg-embedding-server
     ports:
-      - ${EMBEDDER_PORT:-10202}:6000
+      - ${EMBEDDER_PORT:-6000}:6000
     ipc: host
     environment:
       no_proxy: ${no_proxy}
@@ -75,7 +75,7 @@ services:
     image: ${REGISTRY:-opea}/embedding:${TAG:-latest}
     container_name: clip-embedding-server
     ports:
-      - ${EMBEDDER_PORT:-10203}:6000
+      - ${EMBEDDER_PORT:-6000}:6000
     ipc: host
     environment:
       no_proxy: ${no_proxy}
