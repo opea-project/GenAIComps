@@ -10,6 +10,8 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 
+from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
+
 from ...utils import setup_chat_model
 from ..base_agent import BaseAgent
 from .prompt import DOC_GRADER_PROMPT, RAG_PROMPT, QueryWriterLlamaPrompt
@@ -41,11 +43,17 @@ class QueryWriter:
     def __init__(self, llm, tools):
         self.llm = llm.bind_tools(tools)
 
+    @opea_telemetry
+    def __llm_invoke__(self, messages):
+        response = self.llm.invoke(messages)
+        return response
+
+    @opea_telemetry
     def __call__(self, state):
         print("---CALL QueryWriter---")
         messages = state["messages"]
 
-        response = self.llm.invoke(messages)
+        response = self.__llm_invoke__(messages)
         # We return a list, because this will get added to the existing list
         return {"messages": [response], "output": response}
 
@@ -59,6 +67,7 @@ class Retriever:
 
 
 class RAGAgent(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
@@ -111,6 +120,7 @@ class RAGAgent(BaseAgent):
         else:
             self.app = workflow.compile()
 
+    @opea_telemetry
     def should_retry(self, state):
         # first check how many retry attempts have been made
         num_retry = 0
@@ -128,6 +138,7 @@ class RAGAgent(BaseAgent):
     def prepare_initial_state(self, query):
         return {"messages": [HumanMessage(content=query)], "query_time": "", "output": "", "doc_score": ""}
 
+    @opea_telemetry
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -143,6 +154,7 @@ class RAGAgent(BaseAgent):
         except Exception as e:
             yield str(e)
 
+    @opea_telemetry
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -171,6 +183,7 @@ class QueryWriterLlama:
     Streaming=false is required for this chain.
     """
 
+    @opea_telemetry
     def __init__(self, args, tools):
         from .utils import QueryWriterLlamaOutputParser
 
@@ -187,6 +200,12 @@ class QueryWriterLlama:
         self.tools = tools
         self.chain = prompt | llm | output_parser
 
+    @opea_telemetry
+    def __llm_invoke__(self, question, history, feedback):
+        response = self.chain.invoke({"question": question, "history": history, "feedback": feedback})
+        return response
+
+    @opea_telemetry
     def __call__(self, state):
         from .utils import assemble_history, convert_json_to_tool_call
 
@@ -197,7 +216,7 @@ class QueryWriterLlama:
         history = assemble_history(messages)
         feedback = instruction
 
-        response = self.chain.invoke({"question": question, "history": history, "feedback": feedback})
+        response = self.__llm_invoke__(question, history, feedback)
         print("Response from query writer llm: ", response)
 
         ############ allow multiple tool calls in one AI message ############
@@ -226,6 +245,7 @@ class DocumentGrader:
         str: A decision for whether the documents are relevant or not
     """
 
+    @opea_telemetry
     def __init__(self, args):
         prompt = PromptTemplate(
             template=DOC_GRADER_PROMPT,
@@ -234,6 +254,12 @@ class DocumentGrader:
         llm = setup_chat_model(args)
         self.chain = prompt | llm
 
+    @opea_telemetry
+    def __llm_invoke__(self, question, docs):
+        scored_result = self.chain.invoke({"question": question, "context": docs})
+        return scored_result
+
+    @opea_telemetry
     def __call__(self, state) -> Literal["generate", "rewrite"]:
         from .utils import aggregate_docs
 
@@ -244,7 +270,7 @@ class DocumentGrader:
         docs = aggregate_docs(messages)
         print("@@@@ Docs: ", docs)
 
-        scored_result = self.chain.invoke({"question": question, "context": docs})
+        scored_result = self.__llm_invoke__(question, docs)
 
         score = scored_result.content
         print("@@@@ Score: ", score)
@@ -269,12 +295,19 @@ class TextGenerator:
         dict: The updated state with re-phrased question
     """
 
+    @opea_telemetry
     def __init__(self, args):
         self.args = args
         prompt = RAG_PROMPT
         llm = setup_chat_model(args)
         self.rag_chain = prompt | llm
 
+    @opea_telemetry
+    def __llm_invoke__(self, docs, question, query_time):
+        response = self.rag_chain.invoke({"context": docs, "question": question, "time": query_time})
+        return response
+
+    @opea_telemetry
     def __call__(self, state):
         from .utils import aggregate_docs
 
@@ -286,7 +319,7 @@ class TextGenerator:
         question = messages[0].content
         docs = aggregate_docs(messages)
 
-        response = self.rag_chain.invoke({"context": docs, "question": question, "time": query_time})
+        response = self.__llm_invoke__(docs, question, query_time)
         print("@@@@ Used this doc for generation:\n", docs)
         print("@@@@ Generated response: ", response)
         return {"messages": [response], "output": response}

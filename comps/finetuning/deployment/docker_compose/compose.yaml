@@ -15,6 +15,26 @@ services:
       - HF_TOKEN=${HF_TOKEN}
     ipc: host
     restart: always
+  finetuning-xtune:
+    image: ${REGISTRY:-opea}/finetuning-xtune:${TAG:-latest}
+    container_name: finetuning-xtune
+    ports:
+      - "${PORT1:-8015}:8015"
+      - "${PORT2:-8265}:8265"
+      - "${PORT3:-7860}:7860"
+    environment:
+      - no_proxy=${no_proxy}
+      - https_proxy=${https_proxy}
+      - http_proxy=${http_proxy}
+      - HF_TOKEN=${HF_TOKEN}
+    devices:
+      - "/dev/dri:/dev/dri"
+    volumes:
+      - ${DATA:-/data}:${DATA:-/data}
+    group_add:
+      - ${RENDER_GROUP_ID:-110}
+    ipc: host
+    restart: always
   finetuning-gaudi:
     extends: finetuning
     image: ${REGISTRY:-opea}/finetuning-gaudi:${TAG:-latest}

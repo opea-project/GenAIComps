@@ -112,7 +112,7 @@ docker compose -f ../deployment/docker_compose/compose.yaml up speecht5-service 
 docker compose -f ../deployment/docker_compose/compose.yaml up speecht5-gaudi-service tts-speecht5-gaudi -d
 
 # gptsovits cpu
-docker compose -f ../deployment/docker_compose/compose.yaml up tts-gptsovits gptsovits-service -d
+docker compose -f ../deployment/docker_compose/compose.yaml up tts-gptsovits gpt-sovits-service -d
 
 # Test
 curl http://localhost:9088/v1/audio/speech -XPOST -d '{"input":"Who are you?"}' -H 'Content-Type: application/json' --output speech.wav

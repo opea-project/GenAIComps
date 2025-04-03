@@ -39,7 +39,9 @@ ray start --address='${head_node_ip}:6379'
 
 ```bash
 export HF_TOKEN=${your_huggingface_token}
-python finetuning_service.py
+# export FINETUNING_COMPONENT_NAME="which component you want to run"
+# export FINETUNING_COMPONENT_NAME="OPEA_FINETUNING" or export FINETUNING_COMPONENT_NAME="XTUNE_FINETUNING"
+python opea_finetuning_microservice.py
 ```
 
 ## 🚀2. Start Microservice with Docker (Option 2)
@@ -98,6 +100,10 @@ export HF_TOKEN=${your_huggingface_token}
 cd ../deployment/docker_compose
 docker compose -f compose.yaml up finetuning-gaudi -d
 ```
+
+### 2.3 Setup Xtune on Arc A770
+
+Please follow [doc](./integrations/xtune/README.md) to install Xtune on Arc A770
 
 ## 🚀3. Consume Finetuning Service
 
@@ -260,6 +266,11 @@ curl http://${your_ip}:8015/v1/finetune/list_checkpoints -X POST -H "Content-Typ
 ### 3.4 Leverage fine-tuned model
 
 After fine-tuning job is done, fine-tuned model can be chosen from listed checkpoints, then the fine-tuned model can be used in other microservices. For example, fine-tuned reranking model can be used in [reranks](../../rerankings/src/README.md) microservice by assign its path to the environment variable `RERANK_MODEL_ID`, fine-tuned embedding model can be used in [embeddings](../../embeddings/src/README.md) microservice by assign its path to the environment variable `model`, LLMs after instruction tuning can be used in [llms](../../llms/src/text-generation/README.md) microservice by assign its path to the environment variable `your_hf_llm_model`.
+
+### 3.5 Xtune
+
+Once you follow `3.2 Setup Xtune on Arc A770`, you can access Xtune in web through http://localhost:7860/
+Please see [Xtune doc](./integrations/xtune/README.md) for details.
 
 ## 🚀4. Descriptions for Finetuning parameters
 

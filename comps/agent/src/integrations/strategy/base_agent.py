@@ -5,12 +5,15 @@ from uuid import uuid4
 
 from langgraph.checkpoint.memory import MemorySaver
 
+from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
+
 from ..storage.persistence_redis import RedisPersistence
 from ..tools import get_tools_descriptions
 from ..utils import adapt_custom_prompt, setup_chat_model
 
 
 class BaseAgent:
+    @opea_telemetry
     def __init__(self, args, local_vars=None, **kwargs) -> None:
         self.llm = setup_chat_model(args)
         self.tools_descriptions = get_tools_descriptions(args.tools)
@@ -56,6 +59,7 @@ class BaseAgent:
     def prepare_initial_state(self, query):
         raise NotImplementedError
 
+    @opea_telemetry
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -71,6 +75,7 @@ class BaseAgent:
         except Exception as e:
             yield str(e)
 
+    @opea_telemetry
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
         print("@@@ Initial State: ", initial_state)
