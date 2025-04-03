@@ -38,17 +38,17 @@ class LoraConfig(BaseModel):
 
 
 class XtuneConfig(BaseModel):
-    tool: str = None
-    trainer: str = None
-    model: str = None
-    config_file: str = None
-    dataset: str = None
-    dataset_root: str = None
-    device: str = None
+    tool: str = ""
+    trainer: str = ""
+    model: str = ""
+    config_file: str = ""
+    dataset: str = ""
+    dataset_root: str = ""
+    device: str = ""
 
     @validator("tool")
     def check_task(cls, v: str):
-        assert v in [None, "clip", "adaclip"]
+        assert v in ["", "clip", "adaclip"]
         return v
 
 
