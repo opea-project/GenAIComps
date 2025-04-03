@@ -46,7 +46,7 @@ loader = OpeaDataprepLoader(
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/ingest",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def ingest_files(
@@ -85,7 +85,7 @@ async def ingest_files(
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/get",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def get_files():
@@ -113,7 +113,7 @@ async def get_files():
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/delete",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def delete_files(file_path: str = Body(..., embed=True)):

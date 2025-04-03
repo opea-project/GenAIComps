@@ -52,7 +52,7 @@ export NEO4J_PORT1=7474
 export NEO4J_PORT2=7687
 export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
 export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
-export DATAPREP_PORT=5000
+export DATAPREP_PORT=5001
 export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:${DATAPREP_PORT}/v1/dataprep"
 export LOGFLAG=True
 ```

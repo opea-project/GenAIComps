@@ -39,7 +39,7 @@ loader = OpeaDataprepMultiModalLoader(
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/ingest",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def ingest_files(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
@@ -67,7 +67,7 @@ async def ingest_files(files: Optional[Union[UploadFile, List[UploadFile]]] = Fi
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/ingest_videos",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def ingest_videos(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
@@ -95,7 +95,7 @@ async def ingest_videos(files: Optional[Union[UploadFile, List[UploadFile]]] = F
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/generate_transcripts",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def ingest_generate_transcripts(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
@@ -122,7 +122,7 @@ async def ingest_generate_transcripts(files: Optional[Union[UploadFile, List[Upl
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/generate_captions",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def ingest_generate_captions(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
@@ -150,7 +150,7 @@ async def ingest_generate_captions(files: Optional[Union[UploadFile, List[Upload
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/get",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def get_files():
@@ -178,7 +178,7 @@ async def get_files():
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/get/{filename}",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
     methods=["GET"],
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
@@ -207,7 +207,7 @@ async def get_one_file(filename: str):
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/get_videos",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
     methods=["GET"],
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
@@ -236,7 +236,7 @@ async def get_videos():
     service_type=ServiceType.DATAPREP,
     endpoint="/v1/dataprep/delete",
     host="0.0.0.0",
-    port=5000,
+    port=5001,
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def delete_files(file_path: str = Body(..., embed=True)):
