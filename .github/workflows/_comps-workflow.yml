@@ -9,6 +9,9 @@ on:
       service:
         required: true
         type: string
+      node:
+        required: true
+        type: string
       tag:
         default: "comps"
         required: false
@@ -43,8 +46,7 @@ jobs:
   # Image Build
   ####################################################################################################
   build-images:
-    if: ${{ !(fromJSON(inputs.test_helmchart)) }}
-    runs-on: "docker-build-gaudi"
+    runs-on: "docker-build-${{ inputs.node }}"
     continue-on-error: true
     outputs:
       file_exists: ${{ steps.get-yaml-path.outputs.file_exists }}
@@ -110,7 +112,6 @@ jobs:
   # Docker Compose Test
   ####################################################################################################
   test-service-compose:
-    needs: [build-images]
     if: ${{ fromJSON(inputs.test_compose) }}
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
