@@ -57,7 +57,7 @@ def opea_telemetry(func):
 
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            with tracer.start_as_current_span(func.__name__) if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
+            with tracer.start_as_current_span(func.__qualname__) if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
                 res = await func(*args, **kwargs)
             return res
 
@@ -65,7 +65,7 @@ def opea_telemetry(func):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            with tracer.start_as_current_span(func.__name__) if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
+            with tracer.start_as_current_span(func.__qualname__) if ENABLE_OPEA_TELEMETRY else contextlib.nullcontext():
                 res = func(*args, **kwargs)
             return res
 
