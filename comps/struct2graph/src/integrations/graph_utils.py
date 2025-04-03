@@ -6,8 +6,8 @@ import os
 
 from langchain_neo4j import Neo4jGraph
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from comps import CustomLogger
+logger = CustomLogger("opea_struct2graph")
 
 
 class PrepareGraphDB:

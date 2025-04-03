@@ -61,19 +61,7 @@ export LOAD_FORMAT="CSV" # or JSON
 
 ### Launch Neo4j Service
 
-```bash
-docker run --restart always \
-        --publish=7474:7474 \
-        --publish=7687:7687 \
-        --name neo4j-apoc \
-        -e NEO4J_apoc_export_file_enabled=true \
-        -e NEO4J_apoc_import_file_enabled=true \
-        -e NEO4J_apoc_import_file_use__neo4j__config=true \
-        -e NEO4J_server_directories_import=import \
-        -e NEO4J_dbms_security_allow_csv_import_from_file_urls=true \
-        -e NEO4J_PLUGINS=\[\"apoc\"\] \
-        -e NEO4J_dbms_security_procedures_unrestricted=apoc.\\\* neo4j:5.23.0
-```
+Refer to [this link](https://github.com/opea-project/GenAIComps/blob/main/comps/third_parties/neo4j/src/README.md) to start and verify the neo4j microservice.
 
 ### Verify the Neo4j Service
 
@@ -94,7 +82,7 @@ docker build -f Dockerfile -t opea/struct2graph:latest ../../../
 Command to run struct2graph microservice -
 
 ```bash
-docker run -i -t --net=host --ipc=host -p PORT opea/struct2graph:latest
+docker run -i -t --net=host --ipc=host -p STRUCT2GRAPH_PORT opea/struct2graph:latest
 ```
 
 The docker launches the struct2graph microservice interactively.
