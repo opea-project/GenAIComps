@@ -48,8 +48,8 @@ args_dict = {
     "device": "hpu",
     "model_name_or_path": MODEL_NAME,
     "bf16": True,
-    "max_new_tokens": 100,
-    "max_input_tokens": 0,
+    "max_new_tokens": 32,
+    "max_input_tokens": 128,
     "batch_size": 1,
     "warmup": 3,
     "n_iterations": 5,
@@ -105,6 +105,21 @@ args_dict = {
     "penalty_alpha": None,
 }
 
+if "Phi-4-mini-instruct" in MODEL_NAME:
+    args_dict_phi4 = {
+        "use_kv_cache": False,
+        "attn_softmax_bf16": True,
+        "limit_hpu_graphs": True,
+        "use_flash_attention": True,
+        "flash_attention_recompute": True,
+        "flash_attention_causal_mask": True,
+        "flash_attention_fast_softmax": True,
+    }
+    args_dict.update(args_dict_phi4)
+
+if logflag:
+    logger.info(args_dict)
+
 
 class Args:
     def __init__(self, **entries):
@@ -123,6 +138,7 @@ initialized = False
 def generate(
     input_query: list,
     device="hpu",
+    max_new_tokens=32,
     use_lazy_mode=True,
     use_hpu_graphs=True,
     profiling_steps=0,
@@ -159,6 +175,7 @@ def generate(
         **input_tokens,
         generation_config=generation_config,
         assistant_model=assistant_model,
+        max_new_tokens=max_new_tokens,
         lazy_mode=use_lazy_mode,
         hpu_graphs=use_hpu_graphs,
         profiling_steps=profiling_steps,
@@ -262,7 +279,7 @@ class OpeaTextGenNative(OpeaComponent):
         else:
             if input.documents:
                 prompt = ChatTemplate.generate_rag_prompt(message, input.documents)
-        res = generate([prompt])
+        res = generate([prompt], max_new_tokens=input.max_tokens)
 
         if logflag:
             logger.info(f"[llm - native] inference result: {res}")
