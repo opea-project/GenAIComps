@@ -13,9 +13,9 @@ opentelemetry-sdk
 Pillow
 prometheus-fastapi-instrumentator
 pypdf
+python-arango
 python-multipart
 pyyaml
 requests
 shortuuid
 uvicorn
-python-arango
