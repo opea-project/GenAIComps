@@ -39,7 +39,7 @@ services:
       interval: 10s
       timeout: 6s
       retries: 18
-  gptsovits-service:
+  gpt-sovits-service:
     image: ${REGISTRY:-opea}/gpt-sovits:${TAG:-latest}
     container_name: gpt-sovits-service
     ports:
@@ -82,11 +82,11 @@ services:
         condition: service_healthy
   tts-gptsovits:
     extends: tts
-    container_name: tts-gptsovits-service
+    container_name: tts-gpt-sovits-service
     environment:
       TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_GPTSOVITS_TTS}
     depends_on:
-      gptsovits-service:
+      gpt-sovits-service:
         condition: service_healthy
 
 
