@@ -37,6 +37,21 @@ class LoraConfig(BaseModel):
     target_modules: Optional[List[str]] = None
 
 
+class XtuneConfig(BaseModel):
+    tool: str = ""
+    trainer: str = ""
+    model: str = ""
+    config_file: str = ""
+    dataset: str = ""
+    dataset_root: str = ""
+    device: str = ""
+
+    @validator("tool")
+    def check_task(cls, v: str):
+        assert v in ["", "clip", "adaclip"]
+        return v
+
+
 class GeneralConfig(BaseModel):
     base_model: str = None
     tokenizer_name: Optional[str] = None
@@ -48,6 +63,7 @@ class GeneralConfig(BaseModel):
     save_strategy: str = "no"
     config: LoadConfig = LoadConfig()
     lora_config: Optional[LoraConfig] = LoraConfig()
+    xtune_config: Optional[XtuneConfig] = XtuneConfig()
     enable_gradient_checkpointing: bool = False
     task: str = "instruction_tuning"
 
