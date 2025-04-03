@@ -73,6 +73,7 @@ async def llm_generate(input: AgentCompletionRequest):
 
     if logflag:
         logger.info(type(agent_inst))
+    print("=== test ===")
 
     # openai compatible input
     if isinstance(input.messages, str):
@@ -196,6 +197,7 @@ def create_threads(input: CreateThreadsRequest):
     with threads_global_kv as g_threads:
         g_threads[thread_id] = (thread_inst, created_at, status)
     logger.info(f"Record thread inst {thread_id} in global KV")
+    print("=== test ===")
 
     return ThreadObject(
         id=thread_id,
@@ -221,6 +223,7 @@ def create_messages(thread_id, input: CreateMessagesRequest):
     else:
         query = input.content[-1]["text"]  # content is a list of MessageContent
     msg_id, created_at = thread_inst.add_query(query)
+    print("=== test ===")
 
     structured_content = MessageContent(text=query)
     message = MessageObject(
@@ -304,6 +307,7 @@ def create_run(thread_id, input: CreateRunResponse):
 )
 @opea_telemetry
 def cancel_run(thread_id):
+    print("=== test ===")
     with threads_global_kv as g_threads:
         thread_inst, created_at, status = g_threads[thread_id]
         if status == "ready":

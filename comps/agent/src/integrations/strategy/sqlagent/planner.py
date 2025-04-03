@@ -290,6 +290,7 @@ class SQLAgent(BaseAgent):
         sql_tool = get_sql_query_tool(args.db_path)
         tools = self.tools_descriptions + [sql_tool]
         print("@@@@ ALL Tools: ", tools)
+        print("=== test ===")
 
         tool_node = ToolNode(tools)
         agent = AgentNode(args, self.llm, tools)
@@ -339,6 +340,7 @@ class SQLAgent(BaseAgent):
     @opea_telemetry
     def should_go_to_query_fixer(self, state: AgentState):
         messages = state["messages"]
+        print("=== test ===")
         last_message = messages[-1]
         assert isinstance(last_message, ToolMessage), "The last message should be a tool message"
         print("@@@@ Called Tool: ", last_message.name)

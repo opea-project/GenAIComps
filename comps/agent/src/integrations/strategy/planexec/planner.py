@@ -66,11 +66,13 @@ class PlanStepChecker:
         else:
             llm = llm.bind_tools([grade])
 
+        print("=== test ===")
         output_parser = PydanticToolsParser(tools=[grade], first_tool_only=True)
         self.chain = plan_check_prompt | llm | output_parser
 
     @opea_telemetry
     def __llm_invoke__(self, state):
+        print("=== test ===")
         scored_result = self.chain.invoke(state)
         return scored_result
 
@@ -80,6 +82,7 @@ class PlanStepChecker:
         scored_result = self.__llm_invoke__(state)
         score = scored_result.binary_score
         print(f"Task is {state['context']}, Score is {score}")
+        print("=== test ===")
         if score.startswith("yes"):
             return True
         else:
@@ -97,15 +100,18 @@ class Planner:
         output_parser = PydanticToolsParser(tools=[Plan], first_tool_only=True)
         self.llm = planner_prompt | llm | output_parser
         self.plan_checker = plan_checker
+        print("=== test ===")
 
     @opea_telemetry
     def __llm_invoke__(self, messages):
         plan = self.llm.invoke(messages)
+        print("=== test ===")
         return plan
 
     @opea_telemetry
     def __call__(self, state):
         print("---CALL Planner---")
+        print("=== test ===")
         input = state["messages"][-1].content
         success = False
         # sometime, LLM will not provide accurate steps per ask, try more than one time until success
@@ -135,6 +141,7 @@ class Executor:
     @opea_telemetry
     def __init__(self, llm, tools=[]):
         prompt = hwchase17_react_prompt
+        print("=== test ===")
         if has_multi_tool_inputs(tools):
             raise ValueError("Only supports single input tools when using strategy == react")
         else:
@@ -146,6 +153,7 @@ class Executor:
     @opea_telemetry
     def __call__(self, state):
         print("---CALL Executor---")
+        print("=== test ===")
         plan = state["plan"]
         out_state = []
         for i, step in enumerate(plan):
@@ -177,6 +185,7 @@ class AnswerMaker:
             llm = llm.bind_tools([Response])
         output_parser = PydanticToolsParser(tools=[Response], first_tool_only=True)
         self.llm = answer_make_prompt | llm | output_parser
+        print("=== test ===")
 
     @opea_telemetry
     def __llm_invoke__(self, state):
@@ -223,6 +232,7 @@ class FinalAnswerChecker:
     @opea_telemetry
     def __llm_invoke__(self, state):
         output = self.chain.invoke(state)
+        print("=== test ===")
         return output
 
     @opea_telemetry

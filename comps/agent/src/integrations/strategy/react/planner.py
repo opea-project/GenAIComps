@@ -24,6 +24,7 @@ class ReActAgentwithLangchain(BaseAgent):
         super().__init__(args, local_vars=globals(), **kwargs)
         from .prompt import hwchase17_react_prompt
 
+        print("=== test ===")
         prompt = hwchase17_react_prompt
         if has_multi_tool_inputs(self.tools_descriptions):
             raise ValueError("Only supports single input tools when using strategy == react_langchain")
@@ -59,6 +60,7 @@ class ReActAgentwithLangchain(BaseAgent):
     @opea_telemetry
     async def stream_generator(self, query, config, thread_id=None):
         initial_state = self.prepare_initial_state(query)
+        print("=== test ===")
         if thread_id is not None:
             config["configurable"] = {"session_id": thread_id}
         else:
@@ -91,6 +93,7 @@ class ReActAgentwithLangchain(BaseAgent):
 class ReActAgentwithLanggraph(BaseAgent):
     @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
+        print("=== test ===")
         super().__init__(args, local_vars=globals(), **kwargs)
         if kwargs.get("custom_prompt") is not None:
             print("***Custom prompt is provided.")
@@ -189,6 +192,7 @@ class ReActAgentNodeLlama:
 
     @opea_telemetry
     def __init__(self, tools, args, store=None, **kwargs):
+        print("=== test ===")
         from .utils import ReActLlamaOutputParser
 
         if kwargs.get("custom_prompt") is not None:
@@ -355,6 +359,7 @@ class ReActAgentLlama(BaseAgent):
 
         try:
             print("---Start running---")
+            print("=== test ===")
             async for event in self.app.astream(initial_state, config=config, stream_mode=["updates"]):
                 print(event)
                 event_type = event[0]
@@ -395,6 +400,7 @@ class ReActAgentLlama(BaseAgent):
         # only used in chatcompletion api
         # chat completion api only supports checkpointer memory
         initial_state = self.prepare_initial_state(query)
+        print("=== test ===")
         if "tool_choice" in config:
             initial_state["tool_choice"] = config.pop("tool_choice")
         try:

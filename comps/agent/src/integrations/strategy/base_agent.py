@@ -15,6 +15,7 @@ from ..utils import adapt_custom_prompt, setup_chat_model
 class BaseAgent:
     @opea_telemetry
     def __init__(self, args, local_vars=None, **kwargs) -> None:
+        print("=== test ===")
         self.llm = setup_chat_model(args)
         self.tools_descriptions = get_tools_descriptions(args.tools)
         self.app = None
@@ -62,6 +63,7 @@ class BaseAgent:
     @opea_telemetry
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
+        print("=== test ===")
         try:
             async for event in self.app.astream(initial_state, config=config):
                 for node_name, node_state in event.items():
@@ -79,6 +81,7 @@ class BaseAgent:
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
         print("@@@ Initial State: ", initial_state)
+        print("=== test ===")
         try:
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
                 message = s["messages"][-1]

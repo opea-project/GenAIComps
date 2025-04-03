@@ -46,11 +46,13 @@ class QueryWriter:
     @opea_telemetry
     def __llm_invoke__(self, messages):
         response = self.llm.invoke(messages)
+        print("=== test ===")
         return response
 
     @opea_telemetry
     def __call__(self, state):
         print("---CALL QueryWriter---")
+        print("=== test ===")
         messages = state["messages"]
 
         response = self.__llm_invoke__(messages)
@@ -78,6 +80,8 @@ class RAGAgent(BaseAgent):
             query_writer = QueryWriterLlama(args, self.tools_descriptions)
         else:
             raise ValueError("Only support 'rag_agent' or 'rag_agent_llama' strategy")
+
+        print("=== test ===")
         document_grader = DocumentGrader(args)
         text_generator = TextGenerator(args)
 
@@ -129,6 +133,7 @@ class RAGAgent(BaseAgent):
                 num_retry += 1
 
         print("**********Num retry: ", num_retry)
+        print("=== test ===")
 
         if (num_retry < MAX_RETRY) and (state["doc_score"] == "rewrite"):
             return True
@@ -156,6 +161,7 @@ class RAGAgent(BaseAgent):
 
     @opea_telemetry
     async def non_streaming_run(self, query, config):
+        print("=== test ===")
         initial_state = self.prepare_initial_state(query)
         try:
             async for s in self.app.astream(initial_state, config=config, stream_mode="values"):
@@ -187,6 +193,7 @@ class QueryWriterLlama:
     def __init__(self, args, tools):
         from .utils import QueryWriterLlamaOutputParser
 
+        print("=== test ===")
         assert len(tools) == 1, "Only support one tool, passed in {} tools".format(len(tools))
         self.tools = tools
         self.args = args
@@ -203,6 +210,7 @@ class QueryWriterLlama:
     @opea_telemetry
     def __llm_invoke__(self, question, history, feedback):
         response = self.chain.invoke({"question": question, "history": history, "feedback": feedback})
+        print("=== test ===")
         return response
 
     @opea_telemetry
@@ -257,6 +265,7 @@ class DocumentGrader:
     @opea_telemetry
     def __llm_invoke__(self, question, docs):
         scored_result = self.chain.invoke({"question": question, "context": docs})
+        print("=== test ===")
         return scored_result
 
     @opea_telemetry
@@ -264,6 +273,7 @@ class DocumentGrader:
         from .utils import aggregate_docs
 
         print("---CALL DocumentGrader---")
+        print("=== test ===")
         messages = state["messages"]
 
         question = messages[0].content  # the original query
@@ -312,6 +322,7 @@ class TextGenerator:
         from .utils import aggregate_docs
 
         print("---GENERATE---")
+        print("=== test ===")
         messages = state["messages"]
         question = messages[0].content
         query_time = state["query_time"]
