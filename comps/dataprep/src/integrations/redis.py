@@ -146,11 +146,11 @@ async def store_by_id(client, key, value):
     return True
 
 
-def search_by_id(client, doc_id):
+async def search_by_id(client, doc_id):
     if logflag:
         logger.info(f"[ search by id ] searching docs of {doc_id}")
     try:
-        results = client.load_document(doc_id)
+        results = await client.load_document(doc_id)
         if logflag:
             logger.info(f"[ search by id ] search success of {doc_id}: {results}")
         return results
@@ -174,9 +174,10 @@ def drop_index(index_name, redis_url=REDIS_URL):
     return True
 
 
-def delete_by_id(client, id):
+async def delete_by_id(client, id):
     try:
-        assert client.delete_document(id)
+        res = await client.delete_document(id)
+        assert res
         if logflag:
             logger.info(f"[ delete by id ] delete id success: {id}")
     except Exception as e:
@@ -286,7 +287,7 @@ class OpeaRedisDataprep(OpeaComponent):
         self.client = redis.Redis(connection_pool=redis_pool)
         self.data_index_client, self.key_index_client = asyncio.run(self._initialize_client())
         self.embedder = asyncio.run(self._initialize_embedder())
-        health_status = self.check_health()
+        health_status = asyncio.run(self.check_health())
         if not health_status:
             logger.error("OpeaRedisDataprep health check failed.")
 
@@ -390,7 +391,8 @@ class OpeaRedisDataprep(OpeaComponent):
                 # check whether the file already exists
                 key_ids = None
                 try:
-                    key_ids = search_by_id(self.key_index_client, doc_id).key_ids
+                    result = await search_by_id(self.key_index_client, doc_id)
+                    key_ids = result.key_ids
                     if logflag:
                         logger.info(f"[ redis ingest] File {file.filename} already exists.")
                 except Exception as e:
@@ -435,7 +437,8 @@ class OpeaRedisDataprep(OpeaComponent):
                 # check whether the link file already exists
                 key_ids = None
                 try:
-                    key_ids = search_by_id(self.key_index_client, doc_id).key_ids
+                    result = await search_by_id(self.key_index_client, doc_id)
+                    key_ids = result.key_ids
                     if logflag:
                         logger.info(f"[ redis ingest] Link {link} already exists.")
                 except Exception as e:
@@ -565,7 +568,8 @@ class OpeaRedisDataprep(OpeaComponent):
 
         # determine whether this file exists in db KEY_INDEX_NAME
         try:
-            key_ids = search_by_id(self.key_index_client, doc_id).key_ids
+            result = await search_by_id(self.key_index_client, doc_id)
+            key_ids = result.key_ids
         except Exception as e:
             if logflag:
                 logger.info(f"[ redis delete ] {e}, File {file_path} does not exists.")
@@ -576,7 +580,8 @@ class OpeaRedisDataprep(OpeaComponent):
 
         # delete file keys id in db KEY_INDEX_NAME
         try:
-            assert delete_by_id(self.key_index_client, doc_id)
+            res = await delete_by_id(self.key_index_client, doc_id)
+            assert res
         except Exception as e:
             if logflag:
                 logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {KEY_INDEX_NAME}.")
@@ -586,7 +591,7 @@ class OpeaRedisDataprep(OpeaComponent):
         for file_id in file_ids:
             # determine whether this file exists in db INDEX_NAME
             try:
-                search_by_id(self.data_index_client, file_id)
+                await search_by_id(self.data_index_client, file_id)
             except Exception as e:
                 if logflag:
                     logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
@@ -596,7 +601,8 @@ class OpeaRedisDataprep(OpeaComponent):
 
             # delete file content
             try:
-                assert delete_by_id(self.data_index_client, file_id)
+                res = await delete_by_id(self.data_index_client, file_id)
+                assert res
             except Exception as e:
                 if logflag:
                     logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {INDEX_NAME}")
