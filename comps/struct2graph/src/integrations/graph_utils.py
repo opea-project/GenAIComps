@@ -7,6 +7,7 @@ import os
 from langchain_neo4j import Neo4jGraph
 
 from comps import CustomLogger
+
 logger = CustomLogger("opea_struct2graph")
 
 
