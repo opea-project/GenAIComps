@@ -6,10 +6,9 @@ from typing import Any, Dict, List
 import numpy as np
 import torchvision.transforms as T
 from decord import VideoReader, cpu
-from langchain.pydantic_v1 import BaseModel, root_validator
-from langchain_community.vectorstores import VDMS
-from langchain_community.vectorstores.vdms import VDMS_Client
 from langchain_core.embeddings import Embeddings
+from langchain_vdms.vectorstores import VDMS, VDMS_Client
+from pydantic import BaseModel, model_validator
 
 toPIL = T.ToPILImage()
 
@@ -21,7 +20,7 @@ class vCLIPEmbeddings(BaseModel, Embeddings):
 
     model: Any
 
-    @root_validator(allow_reuse=True)
+    @model_validator(mode="before")
     def validate_environment(cls, values: Dict) -> Dict:
         """Validate that open_clip and torch libraries are installed."""
         try:
@@ -99,6 +98,8 @@ class VideoVS:
         collection_name,
         embedding_dimensions: int = 512,
         chosen_video_search_type="similarity",
+        engine: str = "FaissFlat",
+        distance_strategy: str = "IP",
     ):
 
         self.host = host
@@ -110,6 +111,8 @@ class VideoVS:
         self.video_embedder = vCLIPEmbeddings(model=video_retriever_model)
         self.chosen_video_search_type = chosen_video_search_type
         self.embedding_dimensions = embedding_dimensions
+        self.engine = engine
+        self.distance_strategy = distance_strategy
 
         # initialize_db
         self.get_db_client()
@@ -128,7 +131,7 @@ class VideoVS:
                 client=self.client,
                 embedding=self.video_embedder,
                 collection_name=self.video_collection,
-                engine="FaissFlat",
-                distance_strategy="IP",
+                engine=self.engine,
+                distance_strategy=self.distance_strategy,
                 embedding_dimensions=self.embedding_dimensions,
             )
