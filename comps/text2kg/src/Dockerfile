@@ -19,7 +19,6 @@ RUN useradd -m -s /bin/bash user && \
 COPY comps /home/user/comps
 
 RUN mkdir -p /home/users/comps/text2kg/src/tmpddata && cd /home/users/comps/text2kg/src/tmpddata
-RUN wget https://gist.githubusercontent.com/wey-gu/75d49362d011a0f0354d39e396404ba2/raw/0844351171751ebb1ce54ea62232bf5e59445bb7/paul_graham_essay.txt
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     if [ ${ARCH} = "cpu" ]; then \
@@ -37,7 +36,6 @@ ENV OVERLAP=${OVERLAP:-"100"}
 ENV MAX_LENGTH=${MAX_NEW_TOKENS:-"256"}
 ENV HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 ENV HF_TOKEN=${HF_TOKEN}
-ENV LLM_MODEL_ID=${LLM_ID}
 ENV TGI_PORT=8008
 ENV PYTHONPATH="/home/user/":$PYTHONPATH
 

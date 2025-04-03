@@ -25,54 +25,15 @@ If you skip this step, you can export variables related to individual services a
 
 ### 1. TGI
 
-#### a. Start the TGI microservice
+Refer to [this link](https://github.com/opea-project/GenAIComps/blob/main/comps/third_parties/tgi/README.md) to start and verify the TGI microservice.
 
-```bash
-(you can skip this part if you have sourced your environment_setup file already)
 
-export TGI_PORT=8008
-export HF_TOKEN=${HF_TOKEN}
-export LLM_MODEL_ID=${LLM_MODEL_ID:-"HuggingFaceH4/zephyr-7b-alpha"}
-export LLM_ENDPOINT_PORT=${LLM_ENDPOINT_PORT:-"9001"}
-export TGI_LLM_ENDPOINT="http://${your_ip}:${TGI_PORT}"
-export PYTHONPATH="/home/user/"
-```
-
-```bash
-docker run -d --name="text2graph-tgi-endpoint" --ipc=host -p $TGI_PORT:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} -e model=${LLM_MODEL_ID} ghcr.io/huggingface/text-generation-inference:2.1.0 --model-id $LLM_MODEL_ID
-```
-
-#### b. Verify the TGI microservice
-
-```bash
-export your_ip=$(hostname -I | awk '{print $1}')
-curl http://${your_ip}:${TGI_PORT}/generate \
-  -X POST \
-  -d '{"inputs":"What is Deep Learning?","parameters":{"max_new_tokens":17, "do_sample": true}}' \
-  -H 'Content-Type: application/json'
-```
 
 ### 2. Neo4J
 
-#### a. Download Neo4J image
+Refer to [this link](https://github.com/opea-project/GenAIComps/blob/main/comps/third_parties/neo4j/README.md) to start and verify the neo4j microservice.
 
 ```bash
-docker pull neo4j:latest
-```
-
-#### b. Configure the username, password, dbname, and other neo4j relational variables based on your data (this is an example)
-
-```bash
-(you can skip this part if you have sourced your environment_setup file already)
-export NEO4J_AUTH=neo4j/password
-export NEO4J_PLUGINS=\[\"apoc\"\]
-export NEO4J_USERNAME=${NEO4J_USERNAME:-"neo4j"}
-export NEO4J_PASSWORD=${NEO4J_PASSWORD:-"neo4j_password"}
-export NEO4J_PORT1={$NEO4J_PORT1:-7474}:7474
-export NEO4J_PORT2={$NEO4J_PORT2:-7687}:7687
-export NEO4J_URL=${NEO4J_URL:-"neo4j://localhost:7687"}
-export NEO4J_URI=${NEO4J_URI:-"neo4j://localhost:7687"}
-
 export DATA_DIRECTORY=$(pwd)
 export ENTITIES="PERSON,PLACE,ORGANIZATION"
 export RELATIONS="HAS,PART_OF,WORKED_ON,WORKED_WITH,WORKED_AT"
@@ -81,21 +42,6 @@ export VALIDATION_SCHEMA='{
     "PLACE": ["HAS", "PART_OF", "WORKED_AT"],
     "ORGANIZATION": ["HAS", "PART_OF", "WORKED_WITH"]
 }'
-```
-
-#### c. Run Neo4J service
-
-Launch the database with the following docker command.
-
-```bash
-docker run \
-    -p 7474:7474 -p 7687:7687 \
-    -v $PWD/data:/data -v $PWD/plugins:/plugins \
-    --name neo4j-apoc \
-    -d \
-    -e NEO4J_AUTH=neo4j/password \
-    -e NEO4J_PLUGINS=\[\"apoc\"\]  \
-    neo4j:latest
 ```
 
 ### 3. Text2kg
@@ -114,7 +60,7 @@ docker build -f Dockerfile -t opea/text2kg:latest ../../../
 Launch the docker container
 
 ```bash
-docker run -i -t --net=host --ipc=host -p TEXT2KG_PORT opea/text2kg:latest -v data:/home/user/comps/text2kg/src/data /bin/bash
+docker run -i -t --net=host --ipc=host -p TEXT2KG_PORT -e HF_TOKEN=${HF_TOKEN} -e LLM_MODEL_ID=${LLM_MODEL_ID} opea/text2kg:latest -v data:/home/user/comps/text2kg/src/data /bin/bash
 ```
 
 ## 🚀 2. Start text2kg and dependent microservices with docker-compose (Option 2)
