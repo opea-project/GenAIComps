@@ -225,7 +225,7 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
         await create_index(client)
 
     try:
-        await store_by_id(client, key=file_name, value="#".join(file_ids))
+        await store_by_id(client, key=encode_filename(ingest_index_name) + "_" + file_name, value="#".join(file_ids))        
     except Exception as e:
         if logflag:
             logger.info(f"[ redis ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
@@ -389,7 +389,9 @@ class OpeaRedisDataprep(OpeaComponent):
 
             for file in files:
                 encode_file = encode_filename(file.filename)
-                doc_id = "file:" + encode_file
+                index_name_id = encode_filename(INDEX_NAME if index_name is None else index_name) 
+                doc_id = "file:" + index_name_id + "_" + encode_file
+                    
                 if logflag:
                     logger.info(f"[ redis ingest ] processing file {doc_id}")
 
@@ -405,7 +407,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 if key_ids:
                     raise HTTPException(
                         status_code=400,
-                        detail=f"Uploaded file {file.filename} already exists. Please change file name.",
+                        detail=f"Uploaded file {file.filename} already exists. Please change file name or index name.",
                     )
 
                 save_path = upload_folder + encode_file
@@ -436,7 +438,8 @@ class OpeaRedisDataprep(OpeaComponent):
                 raise HTTPException(status_code=400, detail=f"Link_list {link_list} should be a list.")
             for link in link_list:
                 encoded_link = encode_filename(link)
-                doc_id = "file:" + encoded_link + ".txt"
+                index_name_id = encode_filename(INDEX_NAME if index_name is None else index_name) 
+                doc_id = "file:" + index_name_id + "_" + encoded_link + ".txt"
                 if logflag:
                     logger.info(f"[ redis ingest] processing link {doc_id}")
 
@@ -451,7 +454,7 @@ class OpeaRedisDataprep(OpeaComponent):
                     logger.info(f"[ redis ingest] Link {link} does not exist. Keep storing.")
                 if key_ids:
                     raise HTTPException(
-                        status_code=400, detail=f"Uploaded link {link} already exists. Please change another link."
+                        status_code=400, detail=f"Uploaded link {link} already exists. Please change another link or index_name."
                     )
 
                 save_path = upload_folder + encoded_link + ".txt"
