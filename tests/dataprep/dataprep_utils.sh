@@ -61,6 +61,13 @@ function ingest_pdf() {
     _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.pdf" $@
 }
 
+function ingest_ppt() {
+    local fqdn=$1
+    local port=$2
+    shift 2
+    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.ppt" $@
+}
+
 function ingest_pptx() {
     local fqdn=$1
     local port=$2
