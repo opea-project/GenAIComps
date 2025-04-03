@@ -98,9 +98,9 @@ jobs:
 
   helm-test:
     needs: [get-test-case]
+    if: ${{ needs.get-test-case.outputs.run_matrix != '[]' }}
     strategy:
       matrix: ${{ fromJSON(needs.get-test-case.outputs.run_matrix) }}
-    if: ${{ needs.get-test-case.outputs.run_matrix != '[]' }}
     runs-on: k8s-${{ matrix.hardware }}
     continue-on-error: true
     steps:
