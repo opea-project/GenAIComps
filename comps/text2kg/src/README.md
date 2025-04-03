@@ -29,7 +29,7 @@ Refer to [this link](https://github.com/opea-project/GenAIComps/blob/main/comps/
 
 ### 2. Neo4J
 
-Refer to [this link](https://github.com/opea-project/GenAIComps/blob/main/comps/third_parties/neo4j/README.md) to start and verify the neo4j microservice.
+Refer to [this link](https://github.com/opea-project/GenAIComps/blob/main/comps/third_parties/neo4j/src/README.md) to start and verify the neo4j microservice.
 
 ```bash
 export DATA_DIRECTORY=$(pwd)
