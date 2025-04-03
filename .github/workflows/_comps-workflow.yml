@@ -43,7 +43,6 @@ jobs:
   # Image Build
   ####################################################################################################
   build-images:
-    if: ${{ !(fromJSON(inputs.test_helmchart)) }}
     runs-on: "docker-build-gaudi"
     continue-on-error: true
     outputs:
@@ -110,7 +109,6 @@ jobs:
   # Docker Compose Test
   ####################################################################################################
   test-service-compose:
-    needs: [build-images]
     if: ${{ fromJSON(inputs.test_compose) }}
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
