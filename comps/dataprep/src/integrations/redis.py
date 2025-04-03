@@ -225,7 +225,7 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
         await create_index(client)
 
     try:
-        await store_by_id(client, key=encode_filename(ingest_index_name) + "_" + file_name, value="#".join(file_ids))        
+        await store_by_id(client, key=encode_filename(ingest_index_name) + "_" + file_name, value="#".join(file_ids))
     except Exception as e:
         if logflag:
             logger.info(f"[ redis ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
@@ -389,9 +389,9 @@ class OpeaRedisDataprep(OpeaComponent):
 
             for file in files:
                 encode_file = encode_filename(file.filename)
-                index_name_id = encode_filename(INDEX_NAME if index_name is None else index_name) 
+                index_name_id = encode_filename(INDEX_NAME if index_name is None else index_name)
                 doc_id = "file:" + index_name_id + "_" + encode_file
-                    
+
                 if logflag:
                     logger.info(f"[ redis ingest ] processing file {doc_id}")
 
@@ -438,7 +438,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 raise HTTPException(status_code=400, detail=f"Link_list {link_list} should be a list.")
             for link in link_list:
                 encoded_link = encode_filename(link)
-                index_name_id = encode_filename(INDEX_NAME if index_name is None else index_name) 
+                index_name_id = encode_filename(INDEX_NAME if index_name is None else index_name)
                 doc_id = "file:" + index_name_id + "_" + encoded_link + ".txt"
                 if logflag:
                     logger.info(f"[ redis ingest] processing link {doc_id}")
@@ -454,7 +454,8 @@ class OpeaRedisDataprep(OpeaComponent):
                     logger.info(f"[ redis ingest] Link {link} does not exist. Keep storing.")
                 if key_ids:
                     raise HTTPException(
-                        status_code=400, detail=f"Uploaded link {link} already exists. Please change another link or index_name."
+                        status_code=400,
+                        detail=f"Uploaded link {link} already exists. Please change another link or index_name.",
                     )
 
                 save_path = upload_folder + encoded_link + ".txt"
@@ -541,19 +542,19 @@ class OpeaRedisDataprep(OpeaComponent):
             else:
                 logger.info(f"[ redis delete ] Index {KEY_INDEX_NAME} does not exits.")
 
-            if len(self.get_list_of_indices())>0:
+            if len(self.get_list_of_indices()) > 0:
                 for i in self.get_list_of_indices():
                     try:
                         # drop index INDEX_NAME
                         assert drop_index(index_name=i)
-                        logger.info(f"[ redis delete ]  Index_name: {i} is deleted.")                                    
+                        logger.info(f"[ redis delete ]  Index_name: {i} is deleted.")
                     except Exception as e:
                         if logflag:
                             logger.info(f"[ redis delete ] {e}. Fail to drop index {i}.")
                         raise HTTPException(status_code=500, detail=f"Fail to drop index {i}.")
             else:
                 if logflag:
-                    logger.info(f"[ redis delete ] There is no index_name registered to redis db.")
+                    logger.info("[ redis delete ] There is no index_name registered to redis db.")
 
             # delete files on local disk
             try:
@@ -577,8 +578,8 @@ class OpeaRedisDataprep(OpeaComponent):
         # partially delete files
         encode_file = encode_filename(file_path)
         index_name = INDEX_NAME if index_name is None else index_name
-        index_name_id = encode_filename(index_name) 
-        doc_id = "file:" + index_name_id + "_" + encode_file         
+        index_name_id = encode_filename(index_name)
+        doc_id = "file:" + index_name_id + "_" + encode_file
         logger.info(f"[ redis delete ] doc id: {doc_id}")
 
         # determine whether this file exists in db KEY_INDEX_NAME

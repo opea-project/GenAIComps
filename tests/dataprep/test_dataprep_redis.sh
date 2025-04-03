@@ -99,7 +99,7 @@ function main() {
 
     build_docker_images
     start_service
-    
+
     validate_microservice
 
     stop_docker
