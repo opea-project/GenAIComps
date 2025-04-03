@@ -95,15 +95,7 @@ class XtuneFinetuning(OpeaComponent):
     def create_finetuning_jobs(self, request: FineTuningParams, background_tasks: BackgroundTasks):
         model = request.model
         train_file = request.training_file
-        # train_file = request.General.config_file
-        # train_file_path = os.path.join(DATASET_BASE_PATH, train_file)
-        # pre_train_file_path = os.path.join("CLIP_LLama_Factory/src/llamafactory/CLIP_Finetune/configs/trainers", train_file)
-        # if (not os.path.exists(pre_train_file_path)) or ( not os.path.exists(train_file_path) ):
-        #     raise HTTPException(status_code=404, detail=f"Training file '{train_file}' not found!")
-        # if os.path.exists(pre_train_file_path):
-        #     train_file_path = pre_train_file_path
         finetune_config = FinetuneConfig(General=request.General)
-        # finetune_config.General.config_file = train_file_path
         if finetune_config.General.xtune_config.device == "XPU":
             flag = 1
         else:
