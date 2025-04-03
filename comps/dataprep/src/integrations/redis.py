@@ -515,7 +515,7 @@ class OpeaRedisDataprep(OpeaComponent):
             logger.info(f"[get] final file_list: {file_list}")
         return file_list
 
-    async def delete_files(self, file_path: str = Body(..., embed=True)):
+    async def delete_files(self, file_path: str = Body(..., embed=True), index_name: str = Body(None, embed=True)):
         """Delete file according to `file_path`.
 
         `file_path`:
@@ -541,17 +541,19 @@ class OpeaRedisDataprep(OpeaComponent):
             else:
                 logger.info(f"[ redis delete ] Index {KEY_INDEX_NAME} does not exits.")
 
-            # drop index INDEX_NAME
-            if await check_index_existance(self.data_index_client):
-                try:
-                    assert drop_index(index_name=INDEX_NAME)
-                except Exception as e:
-                    if logflag:
-                        logger.info(f"[ redis delete ] {e}. Fail to drop index {INDEX_NAME}.")
-                    raise HTTPException(status_code=500, detail=f"Fail to drop index {INDEX_NAME}.")
+            if len(self.get_list_of_indices())>0:
+                for i in self.get_list_of_indices():
+                    try:
+                        # drop index INDEX_NAME
+                        assert drop_index(index_name=i)
+                        logger.info(f"[ redis delete ]  Index_name: {i} is deleted.")                                    
+                    except Exception as e:
+                        if logflag:
+                            logger.info(f"[ redis delete ] {e}. Fail to drop index {i}.")
+                        raise HTTPException(status_code=500, detail=f"Fail to drop index {i}.")
             else:
                 if logflag:
-                    logger.info(f"[ redis delete ] Index {INDEX_NAME} does not exits.")
+                    logger.info(f"[ redis delete ] There is no index_name registered to redis db.")
 
             # delete files on local disk
             try:
@@ -573,7 +575,10 @@ class OpeaRedisDataprep(OpeaComponent):
             logger.info(f"[ redis delete ] delete_path: {delete_path}")
 
         # partially delete files
-        doc_id = "file:" + encode_filename(file_path)
+        encode_file = encode_filename(file_path)
+        index_name = INDEX_NAME if index_name is None else index_name
+        index_name_id = encode_filename(index_name) 
+        doc_id = "file:" + index_name_id + "_" + encode_file         
         logger.info(f"[ redis delete ] doc id: {doc_id}")
 
         # determine whether this file exists in db KEY_INDEX_NAME
@@ -597,16 +602,16 @@ class OpeaRedisDataprep(OpeaComponent):
                 logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {KEY_INDEX_NAME}.")
             raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for key index.")
 
-        # delete file content in db INDEX_NAME
+        # delete file content in db index_name
         for file_id in file_ids:
-            # determine whether this file exists in db INDEX_NAME
+            # determine whether this file exists in db index_name
             try:
                 await search_by_id(self.data_index_client, file_id)
             except Exception as e:
                 if logflag:
                     logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
                 raise HTTPException(
-                    status_code=404, detail=f"File not found in db {INDEX_NAME}. Please check file_path."
+                    status_code=404, detail=f"File not found in db {index_name}. Please check file_path."
                 )
 
             # delete file content
@@ -615,7 +620,7 @@ class OpeaRedisDataprep(OpeaComponent):
                 assert res
             except Exception as e:
                 if logflag:
-                    logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {INDEX_NAME}")
+                    logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {index_name}")
                 raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for index.")
 
         # local file does not exist (restarted docker container)
