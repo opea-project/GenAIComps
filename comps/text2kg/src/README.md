@@ -27,8 +27,6 @@ If you skip this step, you can export variables related to individual services a
 
 Refer to [this link](https://github.com/opea-project/GenAIComps/blob/main/comps/third_parties/tgi/README.md) to start and verify the TGI microservice.
 
-
-
 ### 2. Neo4J
 
 Refer to [this link](https://github.com/opea-project/GenAIComps/blob/main/comps/third_parties/neo4j/README.md) to start and verify the neo4j microservice.
