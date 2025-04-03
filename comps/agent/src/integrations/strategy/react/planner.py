@@ -148,14 +148,12 @@ class ReActAgentwithLanggraph(BaseAgent):
 import json
 from typing import Annotated, Dict, List, Optional, Sequence, TypedDict, Union
 
-from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.messages import AIMessage, BaseMessage, AIMessageChunk, ToolMessage
 from langchain_core.prompts import PromptTemplate
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.managed import IsLastStep
 from langgraph.prebuilt import ToolNode
-
-from comps.cores.proto.api_protocol import ChatCompletionResponse, ChatCompletionStreamResponse
 
 from ...storage.persistence_memory import AgentPersistence, PersistenceConfig
 from ...utils import setup_chat_model
@@ -174,7 +172,6 @@ class AgentState(TypedDict):
 
     messages: Annotated[Sequence[BaseMessage], add_messages]
     tool_choice: Optional[List[str]] = None
-    chat_completion: Optional[Union[Dict, ChatCompletionResponse]] = None
     is_last_step: IsLastStep
 
 
@@ -243,12 +240,11 @@ class ReActAgentNodeLlama:
         response = self.chain.invoke(
             {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
         )
-        # convert to openai
-        chat_completion = convert_aimessage_to_chat_completion(response)
-        response = response.content
+
+        content = response.content
 
         # parse tool calls or answers from raw output: result is a list
-        output = self.output_parser.parse(response)
+        output = self.output_parser.parse(content)
         print("@@@ Output from chain: ", output)
 
         # convert output to tool calls
@@ -257,19 +253,14 @@ class ReActAgentNodeLlama:
             for res in output:
                 if "tool" in res:
                     tool_call = convert_json_to_tool_call(res)
-                    # print("Tool call:\n", tool_call)
                     tool_calls.append(tool_call)
 
             if tool_calls:
-                ai_message = AIMessage(content=response, tool_calls=tool_calls)
+                response.tool_calls = tool_calls
             elif "answer" in output[0]:
-                ai_message = AIMessage(content=str(output[0]["answer"]))
-            else:
-                ai_message = AIMessage(content=response)
-        else:
-            ai_message = AIMessage(content=response)
+                response.content = str(output[0]["answer"])
 
-        return {"messages": [ai_message], "chat_completion": chat_completion}
+        return {"messages": [response]}
 
 
 class ReActAgentLlama(BaseAgent):
@@ -342,12 +333,14 @@ class ReActAgentLlama(BaseAgent):
         if "tool_choice" in config:
             initial_state["tool_choice"] = config.pop("tool_choice")
 
+        stream_mode = ["updates", "messages"]
         try:
             print("---Start running---")
-            async for event in self.app.astream(initial_state, config=config, stream_mode=["updates"]):
+            async for event in self.app.astream(initial_state, config=config, stream_mode=stream_mode):
                 print(event)
                 event_type = event[0]
                 data = event[1]
+
                 if event_type == "updates":
                     for node_name, node_state in data.items():
                         if self.memory_type == "store":
@@ -355,17 +348,31 @@ class ReActAgentLlama(BaseAgent):
                         print(f"--- CALL {node_name} node ---\n")
 
                         for k, v in node_state.items():
-                            if v is not None:
+                            if k == "messages" and v is not None:
                                 print(f"------- {k}, {v} -------\n\n")
-                                if node_name == "agent" and k == "chat_completion":
-                                    yield f"data: {json.dumps(v)}\n\n"
+                                if node_name == "agent":
+                                    # the message is displayed in the event_type="messages"
+                                    if "messages" not in stream_mode:
+                                        for each in v:
+                                            result = convert_aimessage_to_chat_completion(each)
+                                            yield f"data: {json.dumps(result)}\n\n"
                                 elif node_name == "tools":
-                                    full_content = v[0].content
-                                    tool_name = v[0].name
-                                    result = {"tool_name": tool_name, "tool_content": [full_content]}
-                                    yield f"data: {json.dumps(result)}\n\n"
-                                    if not full_content:
-                                        continue
+                                    # for multi tools in 1 turn
+                                    for each in v:
+                                        full_content = each.content
+                                        tool_name = each.name
+                                        result = {"tool_name": tool_name, "tool_content": [full_content]}
+                                        yield f"data: {json.dumps(result)}\n\n"
+                                        if not full_content:
+                                            continue
+                elif event_type == "messages":
+                    # only keep AIMessageChunk message
+                    if not isinstance(data[0], AIMessageChunk):
+                        continue
+
+                    # convert to openai format
+                    result = convert_aimessage_to_chat_completion(data[0], stream=True, metadata=data[1])
+                    yield f"data: {json.dumps(result)}\n\n"
 
             yield "data: [DONE]\n\n"
         except Exception as e:

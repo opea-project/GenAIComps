@@ -48,3 +48,6 @@ transformers
 transformers[sentencepiece]
 
 uvicorn
+
+# get data source
+finnhub-python==2.4.22
