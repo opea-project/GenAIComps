@@ -184,5 +184,5 @@ VDMS_HOST = os.getenv("VDMS_HOST", "localhost")
 VDMS_PORT = int(os.getenv("VDMS_PORT", 55555))
 VDMS_INDEX_NAME = os.getenv("VDMS_INDEX_NAME", "rag_vdms")
 VDMS_USE_CLIP = int(os.getenv("VDMS_USE_CLIP", 0))
-SEARCH_ENGINE = "FaissFlat"
-DISTANCE_STRATEGY = "IP"
+SEARCH_ENGINE = os.getenv("SEARCH_ENGINE", "FaissFlat")
+DISTANCE_STRATEGY = os.getenv("DISTANCE_STRATEGY", "IP")

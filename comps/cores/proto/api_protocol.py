@@ -156,6 +156,7 @@ class ChatCompletionRequest(BaseModel):
         List[Dict[str, Union[str, List[Dict[str, Union[str, Dict[str, str]]]]]]],
     ]
     model: Optional[str] = None
+    modalities: List[Literal["text", "audio"]] = Field(default=["text"])
     frequency_penalty: Optional[float] = 0.0
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[bool] = False
@@ -197,6 +198,7 @@ class ChatCompletionRequest(BaseModel):
     # top_p: Optional[float] = None # Priority use openai
     typical_p: Optional[float] = None
     # repetition_penalty: Optional[float] = None
+    timeout: Optional[int] = None
 
     # doc: begin-chat-completion-extra-params
     echo: Optional[bool] = Field(
@@ -337,6 +339,7 @@ class AudioSpeechRequest(BaseModel):
 class ChatMessage(BaseModel):
     role: str
     content: str
+    audio: Optional[Dict[str, Any]] = None
 
 
 class ChatCompletionResponseChoice(BaseModel):

@@ -6,13 +6,16 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+export DATA_PATH=${model_cache}
 
 function build_docker_images() {
     echo "Start building docker images for microservice"
     cd $WORKPATH
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
-    git checkout v0.6.4.post2+Gaudi-1.19.0
+    VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+    echo "Check out vLLM tag ${VLLM_VER}"
+    git checkout ${VLLM_VER} &> /dev/null
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
@@ -44,8 +47,16 @@ function start_service() {
     cd $WORKPATH
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
+    if [ $? -ne 0 ]; then
+        echo "Microservice failed to start!"
+        for service in $service_name; do
+            echo "Logs for $service..."
+            docker logs $service
+        done
+        exit 1
+    fi
     echo "Microservice started"
-    sleep 15
+    sleep 1m
 }
 
 function validate_microservice() {

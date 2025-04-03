@@ -7,7 +7,7 @@ on:
     inputs:
       services:
         default: "asr"
-        description: "List of services to test [agent,asr,chathistory,animation,dataprep,embeddings,feedback_management,finetuning,guardrails,image2image,image2video,intent_detection,llms,lvms,prompt_registry,ragas,rerankings,retrievers,text2image,text2sql,third_parties,tts,vectorstores,web_retrievers]"
+        description: "List of services to test [agent,animation,asr,chathistory,dataprep,embeddings,feedback_management,finetuning,guardrails,image2image,image2video,intent_detection,llms,lvms,prompt_registry,ragas,rerankings,retrievers,text2image,text2sql,third_parties,tts,vectorstores,web_retrievers]"
         required: true
         type: string
       build:
@@ -35,6 +35,11 @@ on:
         description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
+      use_model_cache:
+        default: false
+        description: "use model cache true or false"
+        required: false
+        type: boolean
 
 permissions: read-all
 
@@ -64,4 +69,5 @@ jobs:
       mode: ${{ inputs.mode }}
       test_compose: ${{ inputs.test_compose }}
       test_helmchart: ${{ inputs.test_helmchart }}
+      use_model_cache: ${{ inputs.use_model_cache }}
     secrets: inherit

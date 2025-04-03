@@ -6,11 +6,13 @@ import os
 
 from fastapi import HTTPException
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_milvus.vectorstores import Milvus
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
 
 from .config import (
+    BRIDGE_TOWER_EMBEDDING,
     COLLECTION_NAME,
     HUGGINGFACEHUB_API_TOKEN,
     INDEX_PARAMS,
@@ -60,11 +62,16 @@ class OpeaMilvusRetriever(OpeaComponent):
             embeddings = HuggingFaceInferenceAPIEmbeddings(
                 api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
+        elif BRIDGE_TOWER_EMBEDDING:
+            logger.info("use bridge tower embedding")
+            from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
+
+            embeddings = BridgeTowerEmbedding()
         else:
             # create embeddings using local embedding model
             if logflag:
                 logger.info(f"[ init embedder ] LOCAL_EMBEDDING_MODEL:{LOCAL_EMBEDDING_MODEL}")
-            embeddings = HuggingFaceBgeEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
+            embeddings = HuggingFaceEmbeddings(model_name=LOCAL_EMBEDDING_MODEL)
         return embeddings
 
     def _initialize_client(self) -> Milvus:

@@ -17,7 +17,7 @@ model=BAAI/bge-base-en-v1.5
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6060"  # if you want to use the hosted embedding service, example: "http://127.0.0.1:6060"
 
 # then run:
-docker run -p 6060:80 -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+docker run -p 6060:80 -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
 ```
 
 Health check the embedding service with:

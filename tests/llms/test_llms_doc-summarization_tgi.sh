@@ -9,6 +9,7 @@ export REGISTRY=${IMAGE_REPO}
 export TAG="comps"
 echo "REGISTRY=IMAGE_REPO=${IMAGE_REPO}"
 echo "TAG=${TAG}"
+export DATA_PATH=${model_cache}
 
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
@@ -125,7 +126,7 @@ function validate_microservices() {
         'text' \
         "docsum-tgi" \
         "docsum-tgi" \
-        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "stream":false}'
+        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "map_reduce", "chunk_size": 2000, "stream":false, "timeout":200}'
 
     echo "Validate refine mode..."
     validate_services \
@@ -133,12 +134,12 @@ function validate_microservices() {
         'text' \
         "docsum-tgi" \
         "docsum-tgi" \
-        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000}'
+        '{"messages":"Text Embeddings Inference (TEI) is a toolkit for deploying and serving open source text embeddings and sequence classification models. TEI enables high-performance extraction for the most popular models, including FlagEmbedding, Ember, GTE and E5.", "max_tokens":32, "language":"en", "summary_type": "refine", "chunk_size": 2000, "timeout":200}'
 }
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_doc-summarization.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_doc-summarization.yaml down --remove-orphans
 }
 
 function main() {

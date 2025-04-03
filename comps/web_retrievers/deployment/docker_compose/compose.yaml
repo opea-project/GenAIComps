@@ -21,13 +21,13 @@ services:
       tei-embedding-service:
         condition: service_healthy
   tei-embedding-service:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
     container_name: tei-embedding-server
     entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id ${EMBEDDING_MODEL_ID} --auto-truncate"
     ports:
       - ${TEI_PORT:-6060}:80
     volumes:
-      - "./data:/data"
+      - "${DATA_PATH:-./data}:/data"
     shm_size: 1g
     environment:
       no_proxy: ${no_proxy}

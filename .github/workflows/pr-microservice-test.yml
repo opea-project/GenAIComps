@@ -24,6 +24,7 @@ jobs:
 
   Microservice-test:
     needs: job1
+    if: ${{ needs.job1.outputs.is_empty == 'false' }}
     strategy:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
     runs-on: ${{ matrix.hardware }}
@@ -31,14 +32,23 @@ jobs:
       id-token: write
       contents: read
     continue-on-error: true
-    if: ${{ !github.event.pull_request.draft }}
     steps:
       - name: Clean Up Working Directory
         run: |
+          # clean up workspace
           sudo rm -rf ${{github.workspace}}/*
+
+          # clean up test containers
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          # clean up containers use ports
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+
+          # clean up images
           docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+          docker rmi $(docker images --filter reference="opea/*:*" -q) || true
+
           docker system prune -f
           docker ps
 
@@ -64,15 +74,29 @@ jobs:
           service: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
         run: |
+          export PATH=${HOME}/miniforge3/bin/:$PATH
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
+          if [ -d "/data2/hf_model" ]; then
+            export model_cache="/data2/hf_model"
+          else
+            echo "Model cache directory /data2/huggingface does not exist"
+            export model_cache="~/.cache/huggingface/hub"
+          fi
           timeout 60m bash $(find . -type f -name test_${service}.sh)
 
       - name: Clean up container
+        if: cancelled() || failure()
         run: |
+          # clean up test containers
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          # clean up containers use ports
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+
           docker system prune -f
+          docker ps
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}

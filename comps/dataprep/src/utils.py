@@ -1,6 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import base64
 import errno
 import functools
@@ -15,11 +16,13 @@ import tempfile
 import timeit
 import unicodedata
 import urllib.parse
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Dict, List, Union
 from urllib.parse import urlparse, urlunparse
 
+import aiofiles
 import aiohttp
 import cairosvg
 import cv2
@@ -148,6 +151,10 @@ def load_pdf(pdf_path):
     return combined_result
 
 
+async def load_pdf_async(pdf_path):
+    return await asyncio.to_thread(load_pdf, pdf_path)
+
+
 def load_html(html_path):
     """Load the html file."""
     data_html = UnstructuredHTMLLoader(html_path).load()
@@ -157,11 +164,13 @@ def load_html(html_path):
     return content
 
 
-def load_txt(txt_path):
-    """Load txt file."""
-    with open(txt_path, "r") as file:
-        text = file.read()
-    return text
+async def load_txt(txt_path):
+    """Asynchronously stream a large text file in chunks."""
+    text = []
+    async with aiofiles.open(txt_path, "r", encoding="utf-8") as file:
+        async for line in file:
+            text.append(line)
+    return "".join(text)
 
 
 async def load_doc(doc_path):
@@ -189,7 +198,7 @@ async def load_doc(doc_path):
 
 async def load_docx(docx_path):
     """Load docx file."""
-    doc = docx.Document(docx_path)
+    doc = await asyncio.to_thread(docx.Document, docx_path)
     text = ""
     # Save all 'rId:filenames' relationships in an dictionary and save the images if any.
     rid2img = {}
@@ -198,39 +207,55 @@ async def load_docx(docx_path):
             rid2img[r.rId] = os.path.basename(r._target.partname)
     if rid2img:
         save_path = tempfile.mkdtemp()
-        docx2txt.process(docx_path, save_path)
+        await asyncio.to_thread(docx2txt.process, docx_path, save_path)
+
+    text_chunks = []
+    image_tasks = []
     for paragraph in doc.paragraphs:
         if hasattr(paragraph, "text"):
-            text += paragraph.text + "\n"
+            text_chunks.append(paragraph.text + "\n")
         if "graphicData" in paragraph._p.xml:
             for rid in rid2img:
                 if rid in paragraph._p.xml:
                     img_path = os.path.join(save_path, rid2img[rid])
-                    img_text = await load_image(img_path)
-                    if img_text:
-                        text += img_text + "\n"
+                    image_tasks.append(load_image(img_path))
+    image_texts = await asyncio.gather(*image_tasks)
+
+    for img_text in image_texts:
+        if img_text:
+            text_chunks.append(img_text + "\n")
+    text = "".join(text_chunks)
+
     if rid2img:
-        shutil.rmtree(save_path)
+        await asyncio.to_thread(shutil.rmtree, save_path)
     return text
 
 
 async def load_ppt(ppt_path):
     """Load ppt file."""
     print("Converting ppt file to pptx file...")
-    pptx_path = ppt_path + "x"
+
+    temp_dir = tempfile.gettempdir()
+    base_name = os.path.splitext(os.path.basename(ppt_path))[0]
+    pptx_path = os.path.join(temp_dir, base_name + ".pptx")
+
     subprocess.run(
         [
             "libreoffice",
             "--headless",
             "--invisible",
             "--convert-to",
-            "docx",
+            "pptx",
             "--outdir",
             os.path.dirname(pptx_path),
             ppt_path,
         ],
         check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
     )
+    if not os.path.exists(pptx_path):
+        raise FileNotFoundError(f"pptx file not created: {pptx_path}")
     print("Converted ppt file to pptx file.")
     text = await load_pptx(pptx_path)
     os.remove(pptx_path)
@@ -257,87 +282,105 @@ async def load_pptx(pptx_path):
                 if table_contents:
                     text += table_contents + "\n"
             if hasattr(shape, "image") and hasattr(shape.image, "blob"):
-                img_path = f"./{shape.image.filename}"
-                with open(img_path, "wb") as f:
+                with tempfile.NamedTemporaryFile() as f:
                     f.write(shape.image.blob)
-                img_text = await load_image(img_path)
-                if img_text:
-                    text += img_text + "\n"
-                os.remove(img_path)
+                    f.flush()
+                    img_text = await load_image(f.name)
+                    if img_text:
+                        text += img_text + "\n"
     return text
 
 
-def load_md(md_path):
-    """Load md file."""
-    loader = UnstructuredMarkdownLoader(md_path)
-    text = loader.load()[0].page_content
-    return text
+async def load_md(md_path):
+    """Asynchronously load and process Markdown file."""
+
+    def process_md():
+        loader = UnstructuredMarkdownLoader(md_path)
+        return loader.load()[0].page_content
+
+    return await asyncio.to_thread(process_md)
 
 
-def load_xml(xml_path):
-    """Load xml file."""
-    loader = UnstructuredXMLLoader(xml_path)
-    text = loader.load()[0].page_content
-    return text
+async def load_xml(xml_path):
+    """Asynchronously load and process XML file."""
+
+    def process_xml():
+        loader = UnstructuredXMLLoader(xml_path)
+        return loader.load()[0].page_content
+
+    return await asyncio.to_thread(process_xml)
 
 
-def load_json(json_path):
-    """Load and process json file."""
-    with open(json_path, "r") as file:
-        data = json.load(file)
-    content_list = [json.dumps(item) for item in data]
-    return content_list
+async def load_json(json_path):
+    """Asynchronously load and process JSON file."""
+    async with aiofiles.open(json_path, "r", encoding="utf-8") as file:
+        content = await file.read()
+    data = json.loads(content)
+    return [json.dumps(item) for item in data]
 
 
-def load_jsonl(jsonl_path):
-    """Load and process jsonl file."""
+async def load_jsonl(jsonl_path):
+    """Asynchronously load and process JSONL file line by line."""
     content_list = []
-    with open(jsonl_path, "r") as file:
-        for line in file:
+    async with aiofiles.open(jsonl_path, "r", encoding="utf-8") as file:
+        async for line in file:
             json_obj = json.loads(line)
             content_list.append(json_obj)
     return content_list
 
 
-def load_yaml(yaml_path):
-    """Load and process yaml file."""
-    with open(yaml_path, "r") as file:
-        data = yaml.safe_load(file)
+async def load_yaml(yaml_path):
+    """Asynchronously load and process YAML file."""
+    async with aiofiles.open(yaml_path, "r", encoding="utf-8") as file:
+        content = await file.read()
+    data = yaml.safe_load(content)
     return yaml.dump(data)
 
 
-def load_xlsx(input_path):
-    """Load and process xlsx file."""
-    df = pd.read_excel(input_path)
-    content_list = df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
-    return content_list
+async def load_xlsx(input_path):
+    """Asynchronously load and process an xlsx file."""
+
+    def process_xlsx():
+        df = pd.read_excel(input_path)
+        return df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
+
+    return await asyncio.to_thread(process_xlsx)
 
 
-def load_csv(input_path):
-    """Load the csv file."""
-    df = pd.read_csv(input_path)
-    content_list = df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
-    return content_list
+async def load_csv(input_path):
+    """Asynchronously load and process CSV file."""
+
+    def process_csv():
+        df = pd.read_csv(input_path)
+        return df.apply(lambda row: ", ".join(row.astype(str)), axis=1).tolist()
+
+    return await asyncio.to_thread(process_csv)
 
 
 async def load_image(image_path):
     """Load the image file."""
+
+    async def read_image_async(image_path):
+        return await asyncio.to_thread(lambda: open(image_path, "rb").read())
+
     if os.getenv("SUMMARIZE_IMAGE_VIA_LVM", None) == "1":
         query = "Please summarize this image."
-        image_b64_str = base64.b64encode(open(image_path, "rb").read()).decode()
+        image_b64_str = base64.b64encode(await read_image_async(image_path)).decode()
         async with aiohttp.ClientSession() as session:
-            response = await session.post(
+            async with session.post(
                 url="http://localhost:9399/v1/lvm",
-                data=json.dumps({"image": image_b64_str, "prompt": query}),
+                json={"image": image_b64_str, "prompt": query},
                 headers={"Content-Type": "application/json"},
-                proxy=None,
-            )
-
-            json_data = await response.json()
+            ) as response:
+                json_data = await response.json()
         return json_data["text"].strip()
-    loader = UnstructuredImageLoader(image_path)
-    text = loader.load()[0].page_content
-    return text.strip()
+
+    def load_text_from_image():
+        loader = UnstructuredImageLoader(image_path)
+        return loader.load()[0].page_content.strip()
+
+    text = await asyncio.to_thread(load_text_from_image)
+    return text
 
 
 async def load_svg(svg_path):
@@ -351,11 +394,11 @@ async def load_svg(svg_path):
 
 async def document_loader(doc_path):
     if doc_path.endswith(".pdf"):
-        return load_pdf(doc_path)
+        return await load_pdf_async(doc_path)
     elif doc_path.endswith(".html"):
         return load_html(doc_path)
     elif doc_path.endswith(".txt"):
-        return load_txt(doc_path)
+        return await load_txt(doc_path)
     elif doc_path.endswith(".doc"):
         return await load_doc(doc_path)
     elif doc_path.endswith(".docx"):
@@ -365,19 +408,19 @@ async def document_loader(doc_path):
     elif doc_path.endswith(".pptx"):
         return await load_pptx(doc_path)
     elif doc_path.endswith(".md"):
-        return load_md(doc_path)
+        return await load_md(doc_path)
     elif doc_path.endswith(".xml"):
-        return load_xml(doc_path)
+        return await load_xml(doc_path)
     elif doc_path.endswith(".json"):
-        return load_json(doc_path)
+        return await load_json(doc_path)
     elif doc_path.endswith(".jsonl"):
-        return load_jsonl(doc_path)
+        return await load_jsonl(doc_path)
     elif doc_path.endswith(".yaml"):
-        return load_yaml(doc_path)
+        return await load_yaml(doc_path)
     elif doc_path.endswith(".xlsx") or doc_path.endswith(".xls"):
-        return load_xlsx(doc_path)
+        return await load_xlsx(doc_path)
     elif doc_path.endswith(".csv"):
-        return load_csv(doc_path)
+        return await load_csv(doc_path)
     elif (
         doc_path.endswith(".tiff")
         or doc_path.endswith(".jpg")
@@ -764,15 +807,15 @@ async def save_content_to_local_disk(save_path: str, content):
     save_path = Path(save_path)
     try:
         if isinstance(content, str):
-            with open(save_path, "w", encoding="utf-8") as file:
-                file.write(content)
+            async with aiofiles.open(save_path, "w", encoding="utf-8") as file:
+                await file.write(content)
         else:
-            with save_path.open("wb") as fout:
-                content = await content.read()
-                fout.write(content)
+            content = await content.read()
+            async with aiofiles.open(save_path, "wb") as fout:
+                await fout.write(content)
     except Exception as e:
         print(f"Write file failed. Exception: {e}")
-        raise Exception(status_code=500, detail=f"Write file {save_path} failed. Exception: {e}")
+        raise Exception(f"Write file {save_path} failed. Exception: {e}")
 
 
 def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, Union[str, List]]]:

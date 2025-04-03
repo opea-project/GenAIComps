@@ -19,7 +19,9 @@ function build_docker_images() {
     cd $WORKPATH
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
-    git checkout v0.6.4.post2+Gaudi-1.19.0
+    VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+    echo "Check out vLLM tag ${VLLM_VER}"
+    git checkout ${VLLM_VER} &> /dev/null
     docker build --no-cache -f Dockerfile.hpu -t ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest} --shm-size=128g .
     if [ $? -ne 0 ]; then
         echo "opea/vllm-gaudi built fail"
@@ -48,7 +50,7 @@ function start_service() {
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
-    export DATA_PATH="/data2/cache"
+    export DATA_PATH=${model_cache:-./data}
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -115,7 +117,7 @@ function validate_backend_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_faq-generation.yaml down --remove-orphans
 }
 
 function main() {

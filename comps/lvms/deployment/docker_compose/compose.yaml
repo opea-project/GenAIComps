@@ -18,6 +18,59 @@ services:
       interval: 30s
       timeout: 6s
       retries: 20
+  vllm-service:
+    image: ${REGISTRY:-opea}/vllm:latest
+    container_name: vllm-service
+    ports:
+      - ${VLLM_PORT:-9699}:80
+    volumes:
+      - "./data:/root/.cache/huggingface/hub/"
+    shm_size: 128g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      VLLM_TORCH_PROFILER_DIR: "/mnt"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 100
+    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
+  vllm-gaudi-service:
+    image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
+    container_name: vllm-gaudi-service
+    ports:
+      - ${VLLM_PORT:-9699}:80
+    volumes:
+      - "./data:/root/.cache/huggingface/hub/"
+    shm_size: 128g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      VLLM_TORCH_PROFILER_DIR: "/mnt"
+      VLLM_SKIP_WARMUP: ${VLLM_SKIP_WARMUP:-false}
+      MAX_MODEL_LEN: ${MAX_TOTAL_TOKENS:-4096}
+      MAX_SEQ_LEN_TO_CAPTURE: ${MAX_TOTAL_TOKENS:-4096}
+      PT_HPUGRAPH_DISABLE_TENSOR_CACHE: false # https://github.com/HabanaAI/vllm-fork/issues/841#issuecomment-2700421704
+      PT_HPU_ENABLE_LAZY_COLLECTIVES: true # for tensor parallel inference with hpu graphs
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    ipc: host
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 150
+    command: --model $LLM_MODEL_ID --tensor-parallel-size ${TP_SIZE:-1} --host 0.0.0.0 --port 80 --enable-auto-tool-choice --tool-call-parser hermes  --chat-template ${CHAT_TEMPLATE:-examples/template_llava.jinja} # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
   llava-tgi-service:
     image: ghcr.io/huggingface/tgi-gaudi:2.3.1
     container_name: llava-tgi-service
@@ -41,8 +94,8 @@ services:
       retries: 20
     command: --model-id ${LLM_MODEL_ID} --max-input-length 4096 --max-total-tokens 8192
   llama-vision-service:
-    image: opea/lvm-llama-vision:latest
-    container_name: lvm-llama-vision-service
+    image: ${REGISTRY:-opea}/lvm-llama-vision:${TAG:-latest}
+    container_name: llama-vision-service
     ports:
       - ${LLAMA_VISION_PORT:-9399}:9399
     runtime: habana
@@ -53,10 +106,16 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      LLAMA_VISION_MODEL_ID: ${LLAMA_VISION_MODEL_ID}
+      LLAMA_VISION_MODEL_ID: ${LLM_MODEL_ID}
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
       HABANA_VISIBLE_DEVICES: all
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9399/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20
   predictionguard-service:
     image: ${REGISTRY:-opea}/lvm-pg:${TAG:-latest}
     container_name: predictionguard-service
@@ -99,7 +158,9 @@ services:
     ipc: host
     environment:
       LVM_ENDPOINT: ${LVM_ENDPOINT}
-      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_LLAVA_LVM}
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      LOGFLAG: ${LOGFLAG}
   lvm-llava:
     extends: lvm
     container_name: lvm-llava-service
@@ -139,6 +200,22 @@ services:
       LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VIDEO_LLAMA_LVM}
     depends_on:
       video-llama-service:
+        condition: service_healthy
+  lvm-vllm:
+    extends: lvm
+    container_name: lvm-vllm-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
+    depends_on:
+      vllm-service:
+        condition: service_healthy
+  lvm-vllm-gaudi:
+    extends: lvm
+    container_name: lvm-vllm-gaudi-service
+    environment:
+      LVM_COMPONENT_NAME: ${LVM_COMPONENT_NAME:-OPEA_VLLM_LVM}
+    depends_on:
+      vllm-gaudi-service:
         condition: service_healthy
 
 networks:
