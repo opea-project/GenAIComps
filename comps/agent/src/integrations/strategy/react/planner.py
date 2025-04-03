@@ -10,6 +10,8 @@ from langchain_huggingface import ChatHuggingFace
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
+from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
+
 from ...global_var import threads_global_kv
 from ...storage.persistence_redis import RedisPersistence
 from ...utils import filter_tools, has_multi_tool_inputs, tool_renderer
@@ -17,6 +19,7 @@ from ..base_agent import BaseAgent
 
 
 class ReActAgentwithLangchain(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
         from .prompt import hwchase17_react_prompt
@@ -53,6 +56,7 @@ class ReActAgentwithLangchain(BaseAgent):
     def prepare_initial_state(self, query):
         return {"input": query}
 
+    @opea_telemetry
     async def stream_generator(self, query, config, thread_id=None):
         initial_state = self.prepare_initial_state(query)
         if thread_id is not None:
@@ -85,6 +89,7 @@ class ReActAgentwithLangchain(BaseAgent):
 
 
 class ReActAgentwithLanggraph(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
         if kwargs.get("custom_prompt") is not None:
@@ -106,6 +111,7 @@ class ReActAgentwithLanggraph(BaseAgent):
     def prepare_initial_state(self, query):
         return {"messages": [HumanMessage(content=query)]}
 
+    @opea_telemetry
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -121,6 +127,7 @@ class ReActAgentwithLanggraph(BaseAgent):
         except Exception as e:
             yield str(e)
 
+    @opea_telemetry
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -180,6 +187,7 @@ class ReActAgentNodeLlama:
     A workaround for open-source llm served by TGI-gaudi.
     """
 
+    @opea_telemetry
     def __init__(self, tools, args, store=None, **kwargs):
         from .utils import ReActLlamaOutputParser
 
@@ -205,6 +213,15 @@ class ReActAgentNodeLlama:
         self.memory_type = args.memory_type
         self.store = store
 
+    @opea_telemetry
+    def __llm_invoke__(self, query, history, tools_descriptions, thread_history):
+        # invoke chain: raw output from llm
+        response = self.chain.invoke(
+            {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
+        )
+        return response
+
+    @opea_telemetry
     def __call__(self, state, config):
 
         print("---CALL Agent node---")
@@ -236,9 +253,7 @@ class ReActAgentNodeLlama:
         print("@@@ Tools description: ", tools_descriptions)
 
         # invoke chain: raw output from llm
-        response = self.chain.invoke(
-            {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
-        )
+        response = self.__llm_invoke__(query, history, tools_descriptions, thread_history)
         response = response.content
 
         # parse tool calls or answers from raw output: result is a list
@@ -267,6 +282,7 @@ class ReActAgentNodeLlama:
 
 
 class ReActAgentLlama(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
@@ -331,6 +347,7 @@ class ReActAgentLlama(BaseAgent):
         print("---Prepare initial state---")
         return {"messages": [HumanMessage(content=query)]}
 
+    @opea_telemetry
     async def stream_generator(self, query, config, thread_id=None):
         initial_state = self.prepare_initial_state(query)
         if "tool_choice" in config:
@@ -372,6 +389,7 @@ class ReActAgentLlama(BaseAgent):
         except Exception as e:
             yield str(e)
 
+    @opea_telemetry
     async def non_streaming_run(self, query, config):
         # for use as worker agent (tool of supervisor agent)
         # only used in chatcompletion api
