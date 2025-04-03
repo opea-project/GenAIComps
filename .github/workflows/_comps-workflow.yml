@@ -9,6 +9,9 @@ on:
       service:
         required: true
         type: string
+      node:
+        required: true
+        type: string
       tag:
         default: "comps"
         required: false
@@ -43,7 +46,7 @@ jobs:
   # Image Build
   ####################################################################################################
   build-images:
-    runs-on: "docker-build-gaudi"
+    runs-on: "docker-build-${{ inputs.node }}"
     continue-on-error: true
     outputs:
       file_exists: ${{ steps.get-yaml-path.outputs.file_exists }}

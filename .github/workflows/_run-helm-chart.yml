@@ -58,7 +58,9 @@ jobs:
         id: get-test-files
         run: |
           set -x
-          if [ "${{ inputs.mode }}" = "CI" ]; then
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            values_files=$(ls ${{ github.workspace }}/comps/${{ inputs.service }}/deployment/kubernetes/*values.yaml)
+          else
             base_commit=${{ github.event.pull_request.base.sha }}
             merged_commit=$(git log -1 --format='%H')
             values_files=$(git diff --name-only ${base_commit} ${merged_commit} | \
@@ -66,9 +68,8 @@ jobs:
             grep "${{ inputs.service }}" | \
             sort -u )
             echo $values_files
-          elif [ "${{ inputs.mode }}" = "CD" ]; then
-            values_files=$(ls ${{ github.workspace }}/comps/${{ inputs.service }}/deployment/kubernetes/*values.yaml)
           fi
+
           run_matrix="["
           run_matrix="{\"include\":["
           for file in ${values_files}; do
