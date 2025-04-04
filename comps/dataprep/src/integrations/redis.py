@@ -21,6 +21,7 @@ from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import RedisDataprepRequest
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -355,15 +356,7 @@ class OpeaRedisDataprep(OpeaComponent):
         pass
 
     async def ingest_files(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
-        ingest_from_graphDB: bool = Form(False),
-        index_name: str = Form(None),
+        self, input: RedisDataprepRequest
     ):
         """Ingest files/links content into redis database.
 
@@ -378,6 +371,14 @@ class OpeaRedisDataprep(OpeaComponent):
             table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
             index_name (str, optional): The name of the index where data will be ingested.
         """
+        files = input.files
+        link_list = input.link_list
+        chunk_size = input.chunk_size
+        chunk_overlap = input.chunk_overlap
+        process_table = input.process_table
+        table_strategy = input.table_strategy
+        index_name = input.index_name
+
         if logflag:
             logger.info(f"[ redis ingest ] files:{files}")
             logger.info(f"[ redis ingest ] link_list:{link_list}")

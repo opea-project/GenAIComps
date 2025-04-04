@@ -36,6 +36,7 @@ from neo4j import GraphDatabase
 from transformers import AutoTokenizer
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import Neo4jDataprepRequest
 from comps.dataprep.src.utils import (
     document_loader,
     encode_filename,
@@ -665,14 +666,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             return False
 
     async def ingest_files(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
-        ingest_from_graphDB: bool = Form(False),
+        self, input: Neo4jDataprepRequest,
     ):
         """Ingest files/links content into Neo4j database.
 
@@ -687,6 +681,14 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
             ingest_from_graphDB (bool, optional): Whether to skip generating graph from files and instead loading index from existing graph store.
         """
+        files = input.files
+        link_list = input.link_list
+        chunk_size = input.chunk_size
+        chunk_overlap = input.chunk_overlap
+        process_table = input.process_table
+        table_strategy = input.table_strategy
+        ingest_from_graphDB = input.ingest_from_graphDB
+
         if logflag:
             logger.info(f"files:{files}")
             logger.info(f"link_list:{link_list}")

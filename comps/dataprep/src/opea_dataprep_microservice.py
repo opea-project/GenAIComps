@@ -28,6 +28,7 @@ from comps import (
     statistics_dict,
 )
 from comps.dataprep.src.utils import create_upload_folder
+from comps.cores.proto.api_protocol import DataprepRequest, RedisDataprepRequest, Neo4jDataprepRequest
 
 logger = CustomLogger("opea_dataprep_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -49,45 +50,18 @@ loader = OpeaDataprepLoader(
     port=5000,
 )
 @register_statistics(names=["opea_service@dataprep"])
-async def ingest_files(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-    link_list: Optional[str] = Form(None),
-    chunk_size: int = Form(1500),
-    chunk_overlap: int = Form(100),
-    process_table: bool = Form(False),
-    table_strategy: str = Form("fast"),
-    ingest_from_graphDB: bool = Form(False),
-    index_name: Optional[str] = Form(None),
-):
+async def ingest_files(input: Union[DataprepRequest, RedisDataprepRequest, Neo4jDataprepRequest]):
     start = time.time()
+
+    files = input.files
+    link_list = input.link_list
 
     if logflag:
         logger.info(f"[ ingest ] files:{files}")
         logger.info(f"[ ingest ] link_list:{link_list}")
 
     try:
-        # Use the loader to invoke the component
-        if dataprep_component_name == "OPEA_DATAPREP_REDIS":
-            response = await loader.ingest_files(
-                files,
-                link_list,
-                chunk_size,
-                chunk_overlap,
-                process_table,
-                table_strategy,
-                ingest_from_graphDB,
-                index_name,
-            )
-        else:
-            if index_name:
-                logger.error(
-                    'Error during dataprep ingest invocation: "index_name" option is supported if "DATAPREP_COMPONENT_NAME" environment variable is set to "OPEA_DATAPREP_REDIS". i.e: export DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_REDIS"'
-                )
-                raise
-
-            response = await loader.ingest_files(
-                files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB
-            )
+        response = await loader.ingest_files(input)
 
         # Log the result if logging is enabled
         if logflag:

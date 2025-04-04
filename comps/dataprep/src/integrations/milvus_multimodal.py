@@ -21,6 +21,7 @@ from langchain_milvus.vectorstores import Milvus
 from PIL import Image
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import DataprepRequest
 from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
 
 from .utils.multimodal import (
@@ -591,7 +592,8 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide at least one file.")
 
-    async def ingest_files(self, files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
+    async def ingest_files(self, input: DataprepRequest):
+        files = input.files
 
         if logflag:
             logger.info(f"[ milvus ingest ] files:{files}")
