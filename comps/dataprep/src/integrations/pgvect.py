@@ -245,7 +245,8 @@ class OpeaPgvectorDataprep(OpeaComponent):
         return True
 
     async def ingest_files(
-        self, input: DataprepRequest,
+        self,
+        input: DataprepRequest,
     ):
         """Ingest files/links content into pgvector database.
 

@@ -146,7 +146,8 @@ class OpeaVdmsDataprep(OpeaComponent):
             logger.info(f"Processed batch {i//batch_size + 1}/{(num_chunks-1)//batch_size + 1}")
 
     async def ingest_files(
-        self, input: DataprepRequest,
+        self,
+        input: DataprepRequest,
     ):
         """Ingest files/links content into VDMS database.
 

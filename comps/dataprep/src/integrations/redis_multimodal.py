@@ -20,9 +20,8 @@ from langchain_core.utils import get_from_dict_or_env
 from PIL import Image
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
 from comps.cores.proto.api_protocol import DataprepRequest
-
+from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
 
 from .utils.multimodal import (
     clear_upload_folder,
