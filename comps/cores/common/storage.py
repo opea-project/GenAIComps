@@ -60,7 +60,6 @@ class OpeaStore(ABC):
         """
         return f"OpeaStore(name={self.name}, type={self.type}, description={self.description})"
 
-    @abstractmethod
     def save_document(self, doc: dict) -> None:
         """Save a single document to the store.
         Document can optionally contain a unique identifier.
@@ -70,7 +69,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("save_document method must be implemented by subclasses.")
 
-    @abstractmethod
     async def asave_document(self, doc: dict) -> None:
         """Asynchronously save a single document to the store.
         Document can optionally contain a unique identifier.
@@ -80,7 +78,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("asave_document method must be implemented by subclasses.")
 
-    @abstractmethod
     def save_documents(self, docs: list[dict]) -> None:
         """Save multiple documents to the store.
         Documents can optionally contain unique identifiers.
@@ -90,7 +87,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("save_documents method must be implemented by subclasses.")
 
-    @abstractmethod
     async def asave_documents(self, docs: list[dict]) -> None:
         """Asynchronously save multiple documents to the store.
         Documents can optionally contain unique identifiers.
@@ -100,7 +96,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("asave_documents method must be implemented by subclasses.")
 
-    @abstractmethod
     def update_document(self, doc: dict) -> None:
         """Update a single document in the store.
         Document must contain its unique identifier.
@@ -110,7 +105,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("update_document method must be implemented by subclasses.")
 
-    @abstractmethod
     async def aupdate_document(self, doc: dict) -> None:
         """Asynchronously update a single document in the store.
         Document must contain its unique identifier.
@@ -120,7 +114,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("aupdate_document method must be implemented by subclasses.")
 
-    @abstractmethod
     def update_documents(self, docs: list[dict]) -> None:
         """Update multiple documents in the store.
         Each document must contain its unique identifier.
@@ -130,7 +123,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("update_documents method must be implemented by subclasses.")
 
-    @abstractmethod
     async def aupdate_documents(self, docs: list[dict]) -> None:
         """Asynchronously update multiple documents in the store.
         Each document must contain its unique identifier.
@@ -140,7 +132,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("aupdate_documents method must be implemented by subclasses.")
 
-    @abstractmethod
     def get_document_by_id(self, id: str) -> dict:
         """Retrieve a single document by its unique identifier.
 
@@ -152,7 +143,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("get_document_by_id method must be implemented by subclasses.")
 
-    @abstractmethod
     async def aget_document_by_id(self, id: str) -> dict:
         """Asynchronously retrieve a single document by its unique identifier.
 
@@ -164,7 +154,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("aget_document_by_id method must be implemented by subclasses.")
 
-    @abstractmethod
     def get_documents_by_ids(self, ids: list[str]) -> list[dict]:
         """Retrieve multiple documents by their unique identifiers.
 
@@ -176,7 +165,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("get_documents_by_ids method must be implemented by subclasses.")
 
-    @abstractmethod
     async def aget_documents_by_ids(self, ids: list[str]) -> list[dict]:
         """Asynchronously retrieve multiple documents by their unique identifiers.
 
@@ -188,7 +176,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("aget_documents_by_ids method must be implemented by subclasses.")
 
-    @abstractmethod
     def delete_document(self, id: str) -> None:
         """Delete a single document from the store.
 
@@ -197,7 +184,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("delete_document method must be implemented by subclasses.")
 
-    @abstractmethod
     async def adelete_document(self, id: str) -> None:
         """Asynchronously delete a single document from the store.
 
@@ -206,7 +192,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("adelete_document method must be implemented by subclasses.")
 
-    @abstractmethod
     def delete_documents(self, ids: list[str]) -> None:
         """Delete multiple documents from the store.
 
@@ -215,7 +200,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("delete_documents method must be implemented by subclasses.")
 
-    @abstractmethod
     async def adelete_documents(self, ids: list[str]) -> None:
         """Asynchronously delete multiple documents from the store.
 
@@ -224,7 +208,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("adelete_documents method must be implemented by subclasses.")
 
-    @abstractmethod
     def search(self, key: str, value: Any, search_type: str = "exact", **kwargs) -> list[dict]:
         """Search for documents in the store based on a specific key-value pair.
 
@@ -240,7 +223,6 @@ class OpeaStore(ABC):
         """
         raise NotImplementedError("search_by_keyword method must be implemented by subclasses.")
 
-    @abstractmethod
     async def asearch(self, key: str, value: Any, search_type: str = "exact", **kwargs) -> list[dict]:
         """Asynchronously search for documents in the store based on a specific key-value pair.
 
