@@ -673,13 +673,14 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
-            files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
-            link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
-            chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
-            chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
-            process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
-            table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
-            ingest_from_graphDB (bool, optional): Whether to skip generating graph from files and instead loading index from existing graph store.
+            input (Neo4jDataprepRequest): Model containing the following parameters:
+                files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
+                link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
+                chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
+                chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
+                process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
+                table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+                ingest_from_graphDB (bool, optional): Whether to skip generating graph from files and instead loading index from existing graph store.
         """
         files = input.files
         link_list = input.link_list
