@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT="11108"
+export DATAPREP_PORT="11108"
 TEI_EMBEDDER_PORT="10221"
 export TAG="comps"
 export DATA_PATH=${model_cache}

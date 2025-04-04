@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT=11101
+export DATAPREP_PORT=11101
 service_name="dataprep-milvus tei-embedding-serving etcd minio standalone"
 export TAG="comps"
 export DATA_PATH=${model_cache}

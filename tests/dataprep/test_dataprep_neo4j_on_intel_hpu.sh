@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT=11103
+export DATAPREP_PORT=11103
 LLM_ENDPOINT_PORT=10510
 export TAG="comps"
 export DATA_PATH=${model_cache}
@@ -29,8 +29,8 @@ function build_docker_images() {
 function start_service() {
     service_name="neo4j-apoc tei-embedding-serving tgi-gaudi-server dataprep-neo4j-llamaindex"
     export host_ip=${ip_address}
-    export NEO4J_PORT1=7474   # 11631
-    export NEO4J_PORT2=7687   # 11632
+    export NEO4J_PORT1=11631
+    export NEO4J_PORT2=11632
     export NEO4J_AUTH="neo4j/neo4jtest"
     export NEO4J_URL="bolt://${ip_address}:${NEO4J_PORT2}"
     export NEO4J_USERNAME="neo4j"
