@@ -87,7 +87,6 @@ class DataprepRequest(BaseModel):
     chunk_overlap: int = 100
     process_table: bool = False
     table_strategy: str = "fast"
-    ingest_from_graphDB: bool = False
 
 
 class Neo4jDataprepRequest(DataprepRequest):
