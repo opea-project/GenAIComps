@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: router-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: router-microservice
+  template:
+    metadata:
+      labels:
+        app: router-microservice
+    spec:
+      containers:
+      - name: router
+        # same default naming convention as in Docker Compose
+        image: "opea/router:latest"
+        ports:
+        - containerPort: 6000
+        env:
+        - name: CONFIG_PATH
+          value: /app/config.yaml
+        - name: HF_TOKEN
+          value: "insert-hf-token-here" # or pass via K8s secret
+        - name: OPENAI_API_KEY
+          value: "insert-openai-key-here" # or pass via K8s secret
+        volumeMounts:
+        - name: router-config
+          mountPath: /app/config.yaml
+          subPath: config.yaml
+      volumes:
+      - name: router-config
+        configMap:
+          name: router-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: router-microservice-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: router-microservice
+  ports:
+  - protocol: TCP
+    port: 6000
+    targetPort: 6000

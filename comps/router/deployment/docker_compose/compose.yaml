@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  router_service:
+    image: ${REGISTRY:-opea}/router:${TAG:-latest}
+    container_name: opea_router
+    # If you want to override the main config.yaml at runtime:
+    volumes:
+      - ./config.yaml:/app/config.yaml
+    environment:
+      - CONFIG_PATH=/app/config.yaml
+      - HF_TOKEN=${HF_TOKEN}
+    ports:
+      - "6000:6000"
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
