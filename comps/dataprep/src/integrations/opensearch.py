@@ -322,7 +322,8 @@ class OpeaOpenSearchDataprep(OpeaComponent):
             return None
 
     async def ingest_files(
-        self, input: DataprepRequest,
+        self,
+        input: DataprepRequest,
     ):
         """Ingest files/links content into opensearch database.
 

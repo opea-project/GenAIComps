@@ -666,7 +666,8 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             return False
 
     async def ingest_files(
-        self, input: Neo4jDataprepRequest,
+        self,
+        input: Neo4jDataprepRequest,
     ):
         """Ingest files/links content into Neo4j database.
 

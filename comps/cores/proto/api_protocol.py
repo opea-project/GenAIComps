@@ -79,6 +79,7 @@ class TokenCheckResponseItem(BaseModel):
 class TokenCheckResponse(BaseModel):
     prompts: List[TokenCheckResponseItem]
 
+
 class DataprepRequest(BaseModel):
     files: Optional[Union[UploadFile, List[UploadFile]]] = None
     link_list: Optional[str] = None
@@ -88,11 +89,14 @@ class DataprepRequest(BaseModel):
     table_strategy: str = "fast"
     ingest_from_graphDB: bool = False
 
+
 class Neo4jDataprepRequest(DataprepRequest):
     ingest_from_graphDB: bool = False
 
+
 class RedisDataprepRequest(DataprepRequest):
     index_name: Optional[str] = None
+
 
 class EmbeddingRequest(BaseModel):
     # Ordered by official OpenAI API documentation

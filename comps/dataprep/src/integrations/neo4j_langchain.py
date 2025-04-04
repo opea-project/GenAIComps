@@ -138,9 +138,7 @@ class OpeaNeo4jDataprep(OpeaComponent):
 
         return True
 
-    async def ingest_files(
-        self, input: DataprepRequest
-    ):
+    async def ingest_files(self, input: DataprepRequest):
         """Ingest files/links content into Neo4j database.
 
         Save in the format of vector[768].

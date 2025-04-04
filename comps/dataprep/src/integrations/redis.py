@@ -355,9 +355,7 @@ class OpeaRedisDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    async def ingest_files(
-        self, input: RedisDataprepRequest
-    ):
+    async def ingest_files(self, input: RedisDataprepRequest):
         """Ingest files/links content into redis database.
 
         Save in the format of vector[768].
