@@ -385,9 +385,11 @@ class ReActAgentLlama(BaseAgent):
 
                     # for ui display thinking process
                     if react == "<think>":
-                        result = convert_think_to_chat_completion(react)
+                        react = ""
+                        result = convert_think_to_chat_completion("<think>")
                         yield f"data: {json.dumps(result)}\n\n"
                     if data[0].response_metadata.get("finish_reason") == "stop":
+                        react = "<think>"
                         result = convert_think_to_chat_completion("</think>")
                         yield f"data: {json.dumps(result)}\n\n"
 
