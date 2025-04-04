@@ -297,3 +297,18 @@ def convert_aimessage_to_chat_completion(response: Union[dict, Any], stream=Fals
             "model": metadata.get("ls_model_name", None),
             "choices": [choice],
         }
+
+def convert_think_to_chat_completion(think):
+    choice = {
+        "index": 0,
+        "delta": {"content": think},
+        "logprobs": None,
+        "finish_reason": None,
+    }
+    return {
+        "id": "",
+        "object": "chat.completion.chunk",
+        "created": "",
+        "model": "",
+        "choices": [choice],
+    }

@@ -162,6 +162,7 @@ from .utils import (
     assemble_memory,
     assemble_memory_from_store,
     convert_aimessage_to_chat_completion,
+    convert_think_to_chat_completion,
     convert_json_to_tool_call,
     save_state_to_store,
 )
@@ -336,6 +337,7 @@ class ReActAgentLlama(BaseAgent):
         stream_mode = ["updates", "messages"]
         try:
             print("---Start running---")
+            react = "<think>"
             async for event in self.app.astream(initial_state, config=config, stream_mode=stream_mode):
                 print(event)
                 event_type = event[0]
@@ -356,6 +358,13 @@ class ReActAgentLlama(BaseAgent):
                                         for each in v:
                                             result = convert_aimessage_to_chat_completion(each)
                                             yield f"data: {json.dumps(result)}\n\n"
+
+                                    # if no tool call, display final answer
+                                    if "messages" in stream_mode:
+                                        for each in v:
+                                            if not each.tool_calls:
+                                                result = convert_aimessage_to_chat_completion(each, stream=True, metadata={})
+                                                yield f"data: {json.dumps(result)}\n\n"
                                 elif node_name == "tools":
                                     # for multi tools in 1 turn
                                     for each in v:
@@ -373,6 +382,15 @@ class ReActAgentLlama(BaseAgent):
                     # convert to openai format
                     result = convert_aimessage_to_chat_completion(data[0], stream=True, metadata=data[1])
                     yield f"data: {json.dumps(result)}\n\n"
+
+                    # for ui display thinking process
+                    if react == "<think>":
+                        result = convert_think_to_chat_completion(react)
+                        yield f"data: {json.dumps(result)}\n\n"
+                    if data[0].response_metadata.get("finish_reason") == "stop":
+                        result = convert_think_to_chat_completion("</think>")
+                        yield f"data: {json.dumps(result)}\n\n"
+
 
             yield "data: [DONE]\n\n"
         except Exception as e:
