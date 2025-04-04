@@ -191,7 +191,8 @@ function start_react_langgraph_agent_service_openai() {
 function start_react_llama_agent_service() {
     echo "Starting redis for testing agent persistent"
 
-    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9
+    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host redis/redis-stack:7.2.0-v9
+    docker ps
 
     echo "Starting react_llama agent microservice"
     docker compose -f $WORKPATH/tests/agent/reactllama.yaml up -d
