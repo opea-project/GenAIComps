@@ -15,6 +15,7 @@ from langchain_community.vectorstores import Redis
 from comps import OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.integrations.utils.redis_finance_utils import *
 from comps.dataprep.src.integrations.utils.redis_kv import RedisKVStore
+from comps.cores.proto.api_protocol import DataprepRequest
 from comps.dataprep.src.utils import encode_filename, save_content_to_local_disk
 
 logflag = os.getenv("LOGFLAG", False)
@@ -221,14 +222,7 @@ class OpeaRedisDataprepFinance(OpeaComponent):
         pass
 
     async def ingest_files(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
-        ingest_from_graphDB: bool = Form(False),
+        self, input: DataprepRequest,
     ):
         """Ingest files/links content into redis database.
 
@@ -242,6 +236,9 @@ class OpeaRedisDataprepFinance(OpeaComponent):
             process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
             table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
         """
+        files = input.files
+        link_list = input.link_list
+
         if logflag:
             logger.info(f"[ redis ingest ] files:{files}")
             logger.info(f"[ redis ingest ] link_list:{link_list}")
