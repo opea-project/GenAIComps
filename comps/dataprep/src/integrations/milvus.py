@@ -245,9 +245,7 @@ class OpeaMilvusDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    async def ingest_files(
-        self, input: DataprepRequest
-    ):
+    async def ingest_files(self, input: DataprepRequest):
         """Ingest files/links content into milvus database.
 
         Save in the format of vector[], the vector length depends on the emedding model type.

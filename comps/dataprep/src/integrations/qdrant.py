@@ -153,7 +153,8 @@ class OpeaQdrantDataprep(OpeaComponent):
         return True
 
     async def ingest_files(
-        self, input: DataprepRequest,
+        self,
+        input: DataprepRequest,
     ):
         """Ingest files/links content into qdrant database.
 

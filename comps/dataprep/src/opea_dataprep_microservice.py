@@ -27,8 +27,8 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.proto.api_protocol import DataprepRequest, Neo4jDataprepRequest, RedisDataprepRequest
 from comps.dataprep.src.utils import create_upload_folder
-from comps.cores.proto.api_protocol import DataprepRequest, RedisDataprepRequest, Neo4jDataprepRequest
 
 logger = CustomLogger("opea_dataprep_microservice")
 logflag = os.getenv("LOGFLAG", False)

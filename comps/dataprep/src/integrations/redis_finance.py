@@ -13,9 +13,9 @@ from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain_community.vectorstores import Redis
 
 from comps import OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import DataprepRequest
 from comps.dataprep.src.integrations.utils.redis_finance_utils import *
 from comps.dataprep.src.integrations.utils.redis_kv import RedisKVStore
-from comps.cores.proto.api_protocol import DataprepRequest
 from comps.dataprep.src.utils import encode_filename, save_content_to_local_disk
 
 logflag = os.getenv("LOGFLAG", False)
@@ -222,7 +222,8 @@ class OpeaRedisDataprepFinance(OpeaComponent):
         pass
 
     async def ingest_files(
-        self, input: DataprepRequest,
+        self,
+        input: DataprepRequest,
     ):
         """Ingest files/links content into redis database.
 
