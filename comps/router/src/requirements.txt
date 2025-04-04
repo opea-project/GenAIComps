@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+requests
+python-dotenv
+semantic-router
+
+# Include the forked RouteLLM repository
+git+https://github.com/SAPD-Intel/RouteLLM.git
