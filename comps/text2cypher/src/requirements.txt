@@ -23,7 +23,7 @@ pydub
 pyprojroot
 sentence-transformers==3.2.1
 shortuuid
-transformers==4.45.2
+transformers==4.48.0
 unstructured
 urllib3
 uvicorn
