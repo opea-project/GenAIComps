@@ -6,11 +6,10 @@ from enum import IntEnum
 from typing import Any, Dict, List, Literal, Optional, Union
 
 import shortuuid
-from fastapi import File, UploadFile
+from fastapi import File, Form, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from fastapi import File, Form, UploadFile
 
 class ServiceCard(BaseModel):
     object: str = "service"
@@ -100,22 +99,16 @@ class DataprepRequest:
         self.process_table = process_table
         self.table_strategy = table_strategy
 
+
 class Neo4jDataprepRequest(DataprepRequest):
-    def __init__(
-        self,
-        ingest_from_graphDB: bool = Form(False),
-        **kwargs
-    ):
+    def __init__(self, ingest_from_graphDB: bool = Form(False), **kwargs):
         kwargs["db_type"] = "neo4j"
         super().__init__(**kwargs)
         self.ingest_from_graphDB = ingest_from_graphDB
 
+
 class RedisDataprepRequest(DataprepRequest):
-    def __init__(
-        self,
-        index_name: Optional[str] = Form(None),
-        **kwargs
-    ):
+    def __init__(self, index_name: Optional[str] = Form(None), **kwargs):
         kwargs["db_type"] = "redis"
         super().__init__(**kwargs)
         self.index_name = index_name
