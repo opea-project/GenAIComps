@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import os
 import time
-import requests
 from typing import Annotated, Optional
 
+import requests
 from langchain.agents.agent_types import AgentType
 from langchain_huggingface import HuggingFaceEndpoint
 from pydantic import BaseModel, Field
