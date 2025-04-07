@@ -70,3 +70,31 @@ services:
     build:
       dockerfile: comps/third_parties/gpt-sovits/src/Dockerfile
     image: ${REGISTRY:-opea}/gpt-sovits:${TAG:-latest}
+  lvm-video-llama:
+    build:
+      dockerfile: comps/third_parties/video-llama/src/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
+  lvm-llava:
+    build:
+      dockerfile: comps/third_parties/llava/src/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-llava:${TAG:-latest}
+  lvm-llava-gaudi:
+    build:
+      dockerfile: comps/third_parties/llava/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/lvm-llava-gaudi:${TAG:-latest}
+  lvm-predictionguard:
+    build:
+      dockerfile: comps/third_parties/predictionguard/src/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-predictionguard:${TAG:-latest}
+  lvm-llama-vision:
+    build:
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-llama-vision:${TAG:-latest}
+  lvm-llama-vision-tp:
+    build:
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile.tp
+    image: ${REGISTRY:-opea}/lvm-llama-vision-tp:${TAG:-latest}
+  lvm-llama-vision-guard:
+    build:
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile.guard
+    image: ${REGISTRY:-opea}/lvm-llama-vision-guard:${TAG:-latest}
