@@ -4,9 +4,9 @@
 
 import os
 import time
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Annotated
 
-from fastapi import Body, File, Form, UploadFile
+from fastapi import Body, File, Form, UploadFile,  Depends, HTTPException
 from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
@@ -50,7 +50,16 @@ loader = OpeaDataprepLoader(
     port=5000,
 )
 @register_statistics(names=["opea_service@dataprep"])
-async def ingest_files(input: Union[DataprepRequest, RedisDataprepRequest, Neo4jDataprepRequest]):
+async def ingest_files(
+    base: Annotated[Optional[DataprepRequest], Depends()] = None,
+    redis: Annotated[Optional[RedisDataprepRequest], Depends()] = None,
+    neo4j: Annotated[Optional[Neo4jDataprepRequest], Depends()] = None,
+):
+    input = redis or neo4j or base
+
+    if input is None:
+        raise HTTPException(400, detail="Invalid request")
+
     start = time.time()
 
     files = input.files
