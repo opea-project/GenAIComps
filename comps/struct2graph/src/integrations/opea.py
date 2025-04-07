@@ -6,7 +6,7 @@ from __future__ import annotations
 import os
 import time
 from typing import Annotated, Optional
-
+import requests
 from pydantic import BaseModel, Field
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -42,19 +42,30 @@ class OpeaStruct2Graph(OpeaComponent):
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.STRUCT2GRAPH.name.lower(), description, config)
+        self.db = self.__initialize_db()
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaStruct2Graph health check failed.")
 
+    def __initialize_db(self):
+        """Initialize the graph database connection and return it."""
+        logger.info("Initializing graph database...")
+        return PrepareGraphDB()
+
     async def check_health(self) -> bool:
-        """Checks the health of the TGI service.
+        """Checks the health of connection to the neo4j service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
             logger.info("Performing health check...")
-            return True
+            response = requests.get("http://localhost:7474", timeout=5)
+            if response.status_code == 200:
+                return True
+            else:
+                logger.error(f"Health check failed with status code: {response.status_code}")
+                return False
         except Exception as e:
             logger.error(f"Health check failed: {str(e)}")
             return False
@@ -74,18 +85,15 @@ class OpeaStruct2Graph(OpeaComponent):
         logger.info("Starting struct2graph operation...")
         logger.debug(f"Received input: {input}")
 
-        gdb = PrepareGraphDB()
-        logger.info("Initialized PrepareGraphDB instance")
-
         if input.task == "Query":
             logger.info("Executing query operation")
-            graph_store = gdb.neo4j_link()
+            graph_store = self.db.neo4j_link()
             result = graph_store.query(input.input_text)
             logger.info("Query executed successfully")
 
         elif input.task == "Index":
             logger.info("Executing index operation")
-            graph_store = gdb.prepare_insert_graphdb(cypher_cmd=input.cypher_cmd)
+            graph_store = self.db.prepare_insert_graphdb(cypher_cmd=input.cypher_cmd)
             result = "Done indexing"
             logger.info("Indexing completed successfully")
 
