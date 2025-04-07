@@ -9,13 +9,13 @@ services:
     image: ${REGISTRY:-opea}/tts:${TAG:-latest}
   speecht5:
     build:
-      dockerfile: comps/tts/src/integrations/dependency/speecht5/Dockerfile
+      dockerfile: comps/third_parties/speecht5/src/Dockerfile
     image: ${REGISTRY:-opea}/speecht5:${TAG:-latest}
   speecht5-gaudi:
     build:
-      dockerfile: comps/tts/src/integrations/dependency/speecht5/Dockerfile.intel_hpu
+      dockerfile: comps/third_parties/speecht5/src/Dockerfile.intel_hpu
     image: ${REGISTRY:-opea}/speecht5-gaudi:${TAG:-latest}
   gpt-sovits:
     build:
-      dockerfile: comps/tts/src/integrations/dependency/gpt-sovits/Dockerfile
+      dockerfile: comps/third_parties/gpt-sovits/src/Dockerfile
     image: ${REGISTRY:-opea}/gpt-sovits:${TAG:-latest}

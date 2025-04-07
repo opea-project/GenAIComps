@@ -13,29 +13,29 @@ services:
     image: ${REGISTRY:-opea}/lvm:${TAG:-latest}
   lvm-video-llama:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/video-llama/Dockerfile
+      dockerfile: comps/third_parties/video-llama/src/Dockerfile
     image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
   lvm-llava:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/llava/Dockerfile
+      dockerfile: comps/third_parties/llava/src/Dockerfile
     image: ${REGISTRY:-opea}/lvm-llava:${TAG:-latest}
   llava-gaudi:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/llava/Dockerfile.intel_hpu
+      dockerfile: comps/third_parties/llava/src/Dockerfile.intel_hpu
     image: ${REGISTRY:-opea}/llava-gaudi:${TAG:-latest}
   lvm-predictionguard:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/predictionguard/Dockerfile
+      dockerfile: comps/third_parties/predictionguard/src/Dockerfile
     image: ${REGISTRY:-opea}/lvm-predictionguard:${TAG:-latest}
   lvm-llama-vision:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/llama-vision/Dockerfile
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile
     image: ${REGISTRY:-opea}/lvm-llama-vision:${TAG:-latest}
   lvm-llama-vision-tp:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/llama-vision/Dockerfile.tp
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile.tp
     image: ${REGISTRY:-opea}/lvm-llama-vision-tp:${TAG:-latest}
   lvm-llama-vision-guard:
     build:
-      dockerfile: comps/lvms/src/integrations/dependency/llama-vision/Dockerfile.guard
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile.guard
     image: ${REGISTRY:-opea}/lvm-llama-vision-guard:${TAG:-latest}
