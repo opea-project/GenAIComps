@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import time
+import requests
 from typing import Annotated, Optional
 
 from langchain.agents.agent_types import AgentType
@@ -59,14 +60,20 @@ class OpeaText2KG(OpeaComponent):
         neo4j_index = gdb.prepare_and_save_graphdb()
 
     async def check_health(self) -> bool:
-        """Checks the health of the TGI service.
+        """Checks the health of connection to the neo4j service.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
         """
         try:
-            return True
+            response = requests.get("http://localhost:7474", timeout=5)
+            if response.status_code == 200:
+                return True
+            else:
+                logger.error(f"Health check failed with status code: {response.status_code}")
+                return False
         except Exception as e:
+            logger.error(f"Health check failed: {e}")
             return False
 
     async def invoke(self, input_text: str):
