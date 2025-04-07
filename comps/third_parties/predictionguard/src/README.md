@@ -32,7 +32,7 @@ export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 
 ```bash
 cd ../../..
-docker build -t opea/lvm-predictionguard:latest -f comps/third_parties/predictionguard/src/Dockerfile .
+docker build -t opea/lvm-predictionguard:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/predictionguard/src/Dockerfile .
 ```
 
 ### 2.2 Start Service

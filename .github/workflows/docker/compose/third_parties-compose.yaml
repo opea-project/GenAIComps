@@ -50,3 +50,23 @@ services:
       dockerfile: comps/third_parties/vllm/src/Dockerfile.amd_gpu
     shm_size: '128g'
     image: ${REGISTRY:-opea}/vllm-rocm:${TAG:-latest}
+  whisper:
+    build:
+      dockerfile: comps/third_parties/whisper/src/Dockerfile
+    image: ${REGISTRY:-opea}/whisper:${TAG:-latest}
+  whisper-gaudi:
+    build:
+      dockerfile: comps/third_parties/whisper/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}
+  speecht5:
+    build:
+      dockerfile: comps/third_parties/speecht5/src/Dockerfile
+    image: ${REGISTRY:-opea}/speecht5:${TAG:-latest}
+  speecht5-gaudi:
+    build:
+      dockerfile: comps/third_parties/speecht5/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/speecht5-gaudi:${TAG:-latest}
+  gpt-sovits:
+    build:
+      dockerfile: comps/third_parties/gpt-sovits/src/Dockerfile
+    image: ${REGISTRY:-opea}/gpt-sovits:${TAG:-latest}

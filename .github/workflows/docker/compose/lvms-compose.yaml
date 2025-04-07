@@ -2,40 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # this file should be run in the root of the repo
-# Deprecated original wrappers opea/lvm-tgi, opea/lvm-llava-svc, opea/lvm-video-llama
-# and merged functionalities in opea/lvm
-# Original video-llama-lvm-server renamed as lvm-video-llama
-
 services:
   lvm:
     build:
       dockerfile: comps/lvms/src/Dockerfile
     image: ${REGISTRY:-opea}/lvm:${TAG:-latest}
-  lvm-video-llama:
-    build:
-      dockerfile: comps/third_parties/video-llama/src/Dockerfile
-    image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
-  lvm-llava:
-    build:
-      dockerfile: comps/third_parties/llava/src/Dockerfile
-    image: ${REGISTRY:-opea}/lvm-llava:${TAG:-latest}
-  llava-gaudi:
-    build:
-      dockerfile: comps/third_parties/llava/src/Dockerfile.intel_hpu
-    image: ${REGISTRY:-opea}/llava-gaudi:${TAG:-latest}
-  lvm-predictionguard:
-    build:
-      dockerfile: comps/third_parties/predictionguard/src/Dockerfile
-    image: ${REGISTRY:-opea}/lvm-predictionguard:${TAG:-latest}
-  lvm-llama-vision:
-    build:
-      dockerfile: comps/third_parties/llama-vision/src/Dockerfile
-    image: ${REGISTRY:-opea}/lvm-llama-vision:${TAG:-latest}
-  lvm-llama-vision-tp:
-    build:
-      dockerfile: comps/third_parties/llama-vision/src/Dockerfile.tp
-    image: ${REGISTRY:-opea}/lvm-llama-vision-tp:${TAG:-latest}
-  lvm-llama-vision-guard:
-    build:
-      dockerfile: comps/third_parties/llama-vision/src/Dockerfile.guard
-    image: ${REGISTRY:-opea}/lvm-llama-vision-guard:${TAG:-latest}

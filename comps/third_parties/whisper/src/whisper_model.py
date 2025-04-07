@@ -42,10 +42,10 @@ class WhisperModel:
 
         if device == "hpu":
             self._warmup_whisper_hpu_graph(
-                os.path.dirname(os.path.abspath(__file__)) + "/../../../../assets/ljspeech_30s_audio.wav"
+                os.path.dirname(os.path.abspath(__file__)) + "/assets/ljspeech_30s_audio.wav"
             )
             self._warmup_whisper_hpu_graph(
-                os.path.dirname(os.path.abspath(__file__)) + "/../../../../assets/ljspeech_60s_audio.wav"
+                os.path.dirname(os.path.abspath(__file__)) + "/assets/ljspeech_60s_audio.wav"
             )
 
     def _audiosegment_to_librosawav(self, audiosegment):

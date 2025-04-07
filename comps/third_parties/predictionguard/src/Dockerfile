@@ -6,7 +6,7 @@ FROM python:3.11-slim
 # Set environment variables
 ENV LANG=en_US.UTF-8
 
-COPY comps /home/comps
+COPY comps /home/user/comps
 
 # Install system dependencies
 RUN apt-get update \
