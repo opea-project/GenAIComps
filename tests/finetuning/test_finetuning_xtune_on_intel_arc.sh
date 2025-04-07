@@ -118,7 +118,7 @@ function validate_finetune() {
 	    exit 1
 	else
 	    echo "training: '$STATUS'"
-        sleep 1m
+            sleep 1m
 	fi
     done
 }
