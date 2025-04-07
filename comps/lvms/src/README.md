@@ -4,7 +4,7 @@ Visual Question and Answering is one of the multimodal tasks empowered by LVMs (
 
 ## 🚀1. Start Microservice with Docker (Option 1)
 
-You have to build/start the [dependency](./integrations/dependency/) service based on your demands.
+You have to build/start the [dependency](../../third_parties/) service based on your demands.
 
 ```bash
 docker build --no-cache -t opea/lvm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/Dockerfile .
