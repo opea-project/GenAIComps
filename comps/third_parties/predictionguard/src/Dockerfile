@@ -17,6 +17,6 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 
 ENV PYTHONPATH=$PYTHONPATH:/home
 
-WORKDIR/home/user/comps/third_parties/predictionguard/src
+WORKDIR /home/user/comps/third_parties/predictionguard/src
 
 ENTRYPOINT ["python", "lvm.py"]

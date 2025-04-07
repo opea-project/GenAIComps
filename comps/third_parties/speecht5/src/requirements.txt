@@ -1,3 +1,4 @@
+accelerate
 aiohttp
 docarray[full]
 fastapi
