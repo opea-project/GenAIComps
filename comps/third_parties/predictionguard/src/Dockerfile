@@ -15,7 +15,7 @@ RUN apt-get update \
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/third_parties/predictionguard/src/requirements.txt
 
-ENV PYTHONPATH=$PYTHONPATH:/home
+ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 WORKDIR /home/user/comps/third_parties/predictionguard/src
 
