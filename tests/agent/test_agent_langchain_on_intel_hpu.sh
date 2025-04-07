@@ -11,10 +11,10 @@ echo "========================="
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 tgi_port=8085
-tgi_volume=$WORKPATH/data
+tgi_volume=${model_cache:-./data}
 
 vllm_port=8086
-export HF_CACHE_DIR=/data2/hf_model
+export HF_CACHE_DIR=${model_cache:-./data}
 echo  "HF_CACHE_DIR=$HF_CACHE_DIR"
 ls $HF_CACHE_DIR
 export vllm_volume=${HF_CACHE_DIR}
@@ -191,7 +191,8 @@ function start_react_langgraph_agent_service_openai() {
 function start_react_llama_agent_service() {
     echo "Starting redis for testing agent persistent"
 
-    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9
+    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host redis/redis-stack:7.2.0-v9
+    docker ps
 
     echo "Starting react_llama agent microservice"
     docker compose -f $WORKPATH/tests/agent/reactllama.yaml up -d

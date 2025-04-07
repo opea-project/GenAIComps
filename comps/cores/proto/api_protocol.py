@@ -156,6 +156,7 @@ class ChatCompletionRequest(BaseModel):
         List[Dict[str, Union[str, List[Dict[str, Union[str, Dict[str, str]]]]]]],
     ]
     model: Optional[str] = None
+    modalities: List[Literal["text", "audio"]] = Field(default=["text"])
     frequency_penalty: Optional[float] = 0.0
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[bool] = False
@@ -261,6 +262,7 @@ class ChatCompletionRequest(BaseModel):
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
     retrieved_docs: Union[List[RetrievalResponseData], List[Dict[str, Any]]] = Field(default_factory=list)
+    index_name: Optional[str] = None
 
     # reranking
     top_n: int = 1
@@ -336,6 +338,7 @@ class AudioSpeechRequest(BaseModel):
 class ChatMessage(BaseModel):
     role: str
     content: str
+    audio: Optional[Dict[str, Any]] = None
 
 
 class ChatCompletionResponseChoice(BaseModel):
