@@ -4,9 +4,9 @@
 
 import os
 import time
-from typing import List, Optional, Union, Annotated
+from typing import Annotated, List, Optional, Union
 
-from fastapi import Body, File, Form, UploadFile,  Depends, HTTPException
+from fastapi import Body, Depends, File, Form, HTTPException, UploadFile
 from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
