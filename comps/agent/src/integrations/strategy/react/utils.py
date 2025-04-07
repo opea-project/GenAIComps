@@ -298,6 +298,7 @@ def convert_aimessage_to_chat_completion(response: Union[dict, Any], stream=Fals
             "choices": [choice],
         }
 
+
 def convert_think_to_chat_completion(think):
     choice = {
         "index": 0,

@@ -155,7 +155,7 @@ class ReActAgentwithLanggraph(BaseAgent):
 import json
 from typing import Annotated, Dict, List, Optional, Sequence, TypedDict, Union
 
-from langchain_core.messages import AIMessage, BaseMessage, AIMessageChunk, ToolMessage
+from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
 from langchain_core.prompts import PromptTemplate
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
@@ -169,8 +169,8 @@ from .utils import (
     assemble_memory,
     assemble_memory_from_store,
     convert_aimessage_to_chat_completion,
-    convert_think_to_chat_completion,
     convert_json_to_tool_call,
+    convert_think_to_chat_completion,
     save_state_to_store,
 )
 
@@ -256,9 +256,8 @@ class ReActAgentNodeLlama:
 
         # invoke chain: raw output from llm
         response = self.__llm_invoke__(query, history, tools_descriptions, thread_history)
-  
-        content = response.content
 
+        content = response.content
 
         # parse tool calls or answers from raw output: result is a list
         output = self.output_parser.parse(content)
@@ -381,7 +380,9 @@ class ReActAgentLlama(BaseAgent):
                                     if "messages" in stream_mode:
                                         for each in v:
                                             if not each.tool_calls:
-                                                result = convert_aimessage_to_chat_completion(each, stream=True, metadata={})
+                                                result = convert_aimessage_to_chat_completion(
+                                                    each, stream=True, metadata={}
+                                                )
                                                 yield f"data: {json.dumps(result)}\n\n"
                                 elif node_name == "tools":
                                     # for multi tools in 1 turn
@@ -410,7 +411,6 @@ class ReActAgentLlama(BaseAgent):
                         react = "<think>"
                         result = convert_think_to_chat_completion("</think>")
                         yield f"data: {json.dumps(result)}\n\n"
-
 
             yield "data: [DONE]\n\n"
         except Exception as e:
