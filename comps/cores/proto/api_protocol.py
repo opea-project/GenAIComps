@@ -10,6 +10,7 @@ from fastapi import File, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from fastapi import File, Form, UploadFile
 
 class ServiceCard(BaseModel):
     object: str = "service"
@@ -80,21 +81,44 @@ class TokenCheckResponse(BaseModel):
     prompts: List[TokenCheckResponseItem]
 
 
-class DataprepRequest(BaseModel):
-    files: Optional[Union[UploadFile, List[UploadFile]]] = None
-    link_list: Optional[str] = None
-    chunk_size: int = 1500
-    chunk_overlap: int = 100
-    process_table: bool = False
-    table_strategy: str = "fast"
-
+class DataprepRequest:
+    def __init__(
+        self,
+        db_type: str = Form(None),
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: int = Form(1500),
+        chunk_overlap: int = Form(100),
+        process_table: bool = Form(False),
+        table_strategy: str = Form("fast"),
+    ):
+        self.db_type = db_type
+        self.files = files
+        self.link_list = link_list
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.process_table = process_table
+        self.table_strategy = table_strategy
 
 class Neo4jDataprepRequest(DataprepRequest):
-    ingest_from_graphDB: bool = False
-
+    def __init__(
+        self,
+        ingest_from_graphDB: bool = Form(False),
+        **kwargs
+    ):
+        kwargs["db_type"] = "neo4j"
+        super().__init__(**kwargs)
+        self.ingest_from_graphDB = ingest_from_graphDB
 
 class RedisDataprepRequest(DataprepRequest):
-    index_name: Optional[str] = None
+    def __init__(
+        self,
+        index_name: Optional[str] = Form(None),
+        **kwargs
+    ):
+        kwargs["db_type"] = "redis"
+        super().__init__(**kwargs)
+        self.index_name = index_name
 
 
 class EmbeddingRequest(BaseModel):
