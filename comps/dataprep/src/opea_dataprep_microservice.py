@@ -55,9 +55,16 @@ async def ingest_files(
     redis: Annotated[Optional[RedisDataprepRequest], Depends()] = None,
     neo4j: Annotated[Optional[Neo4jDataprepRequest], Depends()] = None,
 ):
-    input = redis or neo4j or base
-
-    if input is None:
+    input = None
+    if redis is not None:
+        input = redis
+    elif neo4j is not None:
+        input = neo4j
+    # elif ...
+    elif base is not None:
+        input = base
+    else:
+        logger.error("Error during dataprep ingest invocation: input is None")
         raise HTTPException(400, detail="Invalid request")
 
     start = time.time()
