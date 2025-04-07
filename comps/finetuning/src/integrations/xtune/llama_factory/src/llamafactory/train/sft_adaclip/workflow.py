@@ -231,7 +231,7 @@ def run_sft_adaclip(
     # 根据UI传入的参数修改
     args.resume = adaclip_args.resume
     args.frames_dir = adaclip_args.frames_dir + "/" + data_args.dataset[0] + "/frames"
-
+    args.output_dir = training_args.output_dir
     args.top_k = adaclip_args.adaclip_top_k
     args.batch_size = adaclip_args.adaclip_batch_size
     args.xpu = adaclip_args.adaclip_xpu
