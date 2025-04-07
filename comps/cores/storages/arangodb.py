@@ -64,13 +64,7 @@ class ArangoDBStore(OpeaStore):
                 self.client = ArangoClient(hosts=host)
 
             if not self.db:
-                self.db = self.client.db(database_name, username=username, password=password)
-
-            try:
-                self.db.version()
-            except Exception as e:
-                logger.error(f"Failed to connect to ArangoDB database: {e}")
-                raise
+                self.db = self.client.db(database_name, username=username, password=password, verify=True)
 
             if not self.collection:
                 if not self.db.has_collection(collection_name):
@@ -82,6 +76,19 @@ class ArangoDBStore(OpeaStore):
         except Exception as e:
             logger.error(f"Failed to initialize ArangoDB connection: {e}")
             raise
+
+    def health_check(self) -> bool:
+        """Performs a health check on the ArangoDB connection.
+
+        Returns:
+            bool: True if the connection is healthy, False otherwise.
+        """
+        try:
+            self.db.version()
+            return True
+        except Exception as e:
+            logger.error(f"Health check failed: {e}")
+            return False
 
     def save_document(self, doc: dict, **kwargs) -> bool | dict:
         """Save a single document to the store.

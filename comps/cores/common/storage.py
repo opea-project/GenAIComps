@@ -52,6 +52,15 @@ class OpeaStore(ABC):
         """
         self.config[key] = value
 
+    def health_check(self) -> bool:
+        """Performs a health check on the component to ensure it is connected to
+        the database correctly.
+
+        Returns:
+            bool: True if the component is healthy, False otherwise.
+        """
+        raise NotImplementedError("health_check method must be implemented by subclasses.")
+
     def __repr__(self):
         """Provides a string representation of the component for debugging and logging purposes.
 
