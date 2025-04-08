@@ -107,7 +107,7 @@ When run with prepare_xtune.sh, it will automatic run ZE_AFFINITY_MASK=0 llamafa
 If you see "server start successfully" in terminal.
 You can access in web through http://localhost:7860/
 
-The UI compenent information can be seen in doc/ui_component.md after run with prepare_xtune.sh.
+The UI component information can be seen in doc/ui_component.md after run with prepare_xtune.sh.
 
 ```bash
  Run with A100:
