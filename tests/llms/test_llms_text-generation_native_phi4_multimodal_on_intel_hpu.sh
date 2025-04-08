@@ -13,30 +13,30 @@ echo "TAG=${TAG}"
 WORKPATH=$(dirname "$PWD")
 host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
-service_name="textgen-native-gaudi"
+export service_name="textgen-native-phi4-multimodal-gaudi"
 
 function build_docker_images() {
     cd $WORKPATH
-    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen-gaudi:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile.intel_hpu .
+    docker build --no-cache -t ${REGISTRY:-opea}/llm-textgen-phi4-gaudi:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/llms/src/text-generation/Dockerfile.intel_hpu_phi4 .
     if [ $? -ne 0 ]; then
-        echo "opea/llm-textgen-gaudi built fail"
+        echo "opea/llm-textgen-phi4-gaudi built fail"
         exit 1
     else
-        echo "opea/llm-textgen-gaudi built successful"
+        echo "opea/llm-textgen-phi4-gaudi built successful"
     fi
 }
 
 function start_service() {
     export TEXTGEN_PORT=10512 #10500-10599
     export host_ip=${host_ip}
-    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export LLM_MODEL_ID="/data/Phi-4-multimodal-instruct"
     export LOGFLAG=True
-    export DATA_PATH=${model_cache:-./data}
+    export DATA_PATH="/data2/hf_model"
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    sleep 2m
+    sleep 6m
 }
 
 function validate_services() {
@@ -78,14 +78,32 @@ function validate_microservices() {
     validate_services \
         "$URL" \
         "text" \
-        "textgen-native-gaudi" \
-        "textgen-native-gaudi" \
-        '{"model": "Intel/neural-chat-7b-v3-3", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}'
+        "$service_name" \
+        "$service_name" \
+        '{"model": "/data/Phi-4-multimodal-instruct", "messages": "What is Deep Learning?", "max_tokens":17, "stream":false}'
+
+    # image
+    echo "Validate textgen with image input..."
+    validate_services \
+        "$URL" \
+        "text" \
+        "$service_name" \
+        "$service_name" \
+        '{"model": "/data/Phi-4-multimodal-instruct", "messages": "What is shown in this image?", "image_path":"/data/testdata/australia.jpg", "max_tokens":17, "stream":false}'
+
+    # audio
+    echo "Validate textgen with audio input..."
+    validate_services \
+        "$URL" \
+        "text" \
+        "$service_name" \
+        "$service_name" \
+        '{"model": "/data/Phi-4-multimodal-instruct", "messages": "Based on the attached audio, generate a comprehensive text transcription of the spoken content.", "audio_path":"/data/testdata/what_is_the_traffic_sign_in_the_image.wav", "max_tokens":17, "stream":false}'
 }
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_text-generation.yaml down --remove-orphans
+    docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
 }
 
 function main() {
