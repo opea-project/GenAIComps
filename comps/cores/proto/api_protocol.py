@@ -83,7 +83,6 @@ class TokenCheckResponse(BaseModel):
 class DataprepRequest:
     def __init__(
         self,
-        db_type: str = Form(None),
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
         link_list: Optional[str] = Form(None),
         chunk_size: int = Form(1500),
@@ -91,7 +90,6 @@ class DataprepRequest:
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
     ):
-        self.db_type = db_type
         self.files = files
         self.link_list = link_list
         self.chunk_size = chunk_size
@@ -101,11 +99,8 @@ class DataprepRequest:
 
 
 class Neo4jDataprepRequest(DataprepRequest):
-    DB_TYPE = "neo4j"
-
     def __init__(
         self,
-        db_type: str = DB_TYPE,
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
         link_list: Optional[str] = Form(None),
         chunk_size: int = Form(1500),
@@ -115,7 +110,6 @@ class Neo4jDataprepRequest(DataprepRequest):
         ingest_from_graphDB: bool = Form(False),
     ):
         super().__init__(
-            db_type=db_type,
             files=files,
             link_list=link_list,
             chunk_size=chunk_size,
@@ -128,11 +122,8 @@ class Neo4jDataprepRequest(DataprepRequest):
 
 
 class RedisDataprepRequest(DataprepRequest):
-    DB_TYPE = "redis"
-
     def __init__(
         self,
-        db_type: str = DB_TYPE,
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
         link_list: Optional[str] = Form(None),
         chunk_size: int = Form(1500),
@@ -142,7 +133,6 @@ class RedisDataprepRequest(DataprepRequest):
         index_name: Optional[str] = Form(None),
     ):
         super().__init__(
-            db_type=db_type,
             files=files,
             link_list=link_list,
             chunk_size=chunk_size,
