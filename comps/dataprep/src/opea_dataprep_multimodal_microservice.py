@@ -239,7 +239,7 @@ async def get_videos():
     port=5000,
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
-async def delete_files(file_path: str = Body(..., embed=True)):
+async def delete_files(file_path: Union[str, List[str]] = Body(..., embed=True)):
     start = time.time()
 
     if logflag:

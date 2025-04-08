@@ -331,6 +331,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.device = "cpu"
         self.upload_folder = "./uploaded_files/"
+        self.redis_id_lookup = {}
         # Load embeddings model
         logger.info("Initializing BridgeTower model as embedder...")
         self.embeddings = BridgeTowerEmbedding(model_name=EMBED_MODEL, device=self.device)
@@ -467,7 +468,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                 annotation, path_to_frames, filename
             )
 
-        MultimodalRedis.from_text_image_pairs_return_keys(
+        return MultimodalRedis.from_text_image_pairs_return_keys(
             texts=[f"From {filename}. " + text for text in text_list],
             images=image_list,
             embedding=embeddings,
@@ -577,8 +578,8 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
                 # Ingest multimodal data into redis
                 logger.info("Ingesting data to redis vector store")
-                self.ingest_multimodal(base_file_name, os.path.join(self.upload_folder, dir_name), self.embeddings)
-
+                self.redis_instance, self.redis_keys = self.ingest_multimodal(base_file_name, os.path.join(self.upload_folder, dir_name), self.embeddings)
+                self.redis_id_lookup[file_name_with_id] = self.redis_keys
                 # Delete temporary video directory containing frames and annotations
                 shutil.rmtree(os.path.join(self.upload_folder, dir_name))
 
@@ -636,8 +637,8 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                 )
 
                 # Ingest multimodal data into redis
-                self.ingest_multimodal(name, os.path.join(self.upload_folder, dir_name), self.embeddings)
-
+                self.redis_instance, self.redis_keys = self.ingest_multimodal(name, os.path.join(self.upload_folder, dir_name), self.embeddings)
+                self.redis_id_lookup[file_name] = self.redis_keys
                 # Delete temporary directory containing frames and annotations
                 shutil.rmtree(os.path.join(self.upload_folder, dir_name))
 
@@ -784,7 +785,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                         json.dump(annotations, f)
 
                     # Ingest multimodal data into redis
-                    self.ingest_multimodal(
+                    self.redis_instance, self.redis_keys = self.ingest_multimodal(
                         file_name, os.path.join(self.upload_folder, media_dir_name), self.embeddings, is_pdf=True
                     )
                 else:
@@ -820,13 +821,14 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                     os.remove(os.path.join(self.upload_folder, caption_file))
 
                     # Ingest multimodal data into redis
-                    self.ingest_multimodal(file_name, os.path.join(self.upload_folder, media_dir_name), self.embeddings)
+                    self.redis_instance, self.redis_keys = self.ingest_multimodal(file_name, os.path.join(self.upload_folder, media_dir_name), self.embeddings)
 
                 # Delete temporary media directory containing frames and annotations
                 shutil.rmtree(os.path.join(self.upload_folder, media_dir_name))
 
                 logger.info(f"Processed file {media_file}")
 
+            self.redis_id_lookup[media_file_name] = self.redis_keys
             return {
                 "status": 200,
                 "message": "Data preparation succeeded",
@@ -850,12 +852,29 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
     async def delete_files(self, file_path):
         """Delete all uploaded files along with redis index."""
-        index_deleted = self.drop_index(index_name=INDEX_NAME)
+
+        if file_path == 'all':
+            index_deleted = self.drop_index(index_name=INDEX_NAME)
+        elif isinstance(file_path, str):
+            index_deleted = self.redis_instance.delete(self.redis_id_lookup[file_path])
+        elif isinstance(file_path, list):
+            indices_deleted = []
+            for f in file_path:
+                indices_deleted.append(self.redis_instance.delete(self.redis_id_lookup[f]))
+                del self.redis_id_lookup[f]
+            index_deleted = all(indices_deleted)
 
         if not index_deleted:
             raise HTTPException(status_code=409, detail="Uploaded files could not be deleted. Index does not exist")
 
-        clear_upload_folder(self.upload_folder)
+        if file_path == 'all':
+            clear_upload_folder(self.upload_folder)
+        else:
+            file_path = list(file_path) if isinstance(file_path, str) else file_path
+            for f in file_path:
+                x = os.path.join(self.upload_folder, f)
+                print(f'file exists: {os.path.exists(x)}')
+                os.remove(x)
         logger.info("Successfully deleted all uploaded files.")
         return {"status": True}
 
