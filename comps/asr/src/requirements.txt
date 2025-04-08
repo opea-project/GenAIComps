@@ -1,3 +1,4 @@
+accelerate
 aiohttp
 datasets
 docarray[full]
