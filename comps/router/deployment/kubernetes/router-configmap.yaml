@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   name: router-configmap
 data:
-  # main "global" config.yaml TODO: Currently hard coded. Needs updating
-  config.yaml: 
+  config.yaml: |
     model_map:
       weak:
         endpoint: "http://some-inference-service:8000/weak"
@@ -12,4 +11,5 @@ data:
       strong:
         endpoint: "http://some-inference-service:8000/strong"
         model_id: "openai/gpt-4"
+
     controller_config_path: "integrations/controllers/routellm/config.yaml"
