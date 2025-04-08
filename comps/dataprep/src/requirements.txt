@@ -57,7 +57,7 @@ python-pptx
 qdrant-client
 redis
 scipy
-sentence_transformers
+sentence_transformers==4.0.1
 shortuuid
 tiktoken
 tqdm

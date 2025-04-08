@@ -42,7 +42,7 @@ python-multipart
 python-pptx
 qdrant-haystack
 redis
-sentence_transformers
+sentence_transformers==4.0.1
 shortuuid
 tiktoken
 uvicorn
