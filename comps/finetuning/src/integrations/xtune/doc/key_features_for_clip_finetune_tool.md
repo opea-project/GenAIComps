@@ -36,7 +36,9 @@ Below method can run on Classification task and Image to Text task
 # How to config features for clip finetune tool:
 
 ## Basic yaml for vit_b16.yaml
+
 see this in src/llamafactory/clip_finetune/configs/clip_finetune/vit_b16.yaml
+
 ```bash
 DATALOADER:
   TRAIN_X:
@@ -70,7 +72,9 @@ MODEL:
 ```
 
 ## Angle-Based Selection for full-finetune
+
 Add below line in src/llamafactory/clip_finetune/configs/clip_finetune/vit_b16.yaml
+
 ```bash
 MODEL:
   ABS: True
@@ -83,7 +87,9 @@ MODEL:
 ```
 
 ## customize trained layer for partial-finetune
+
 Add below line in src/llamafactory/clip_finetune/configs/clip_finetune/vit_b16.yaml
+
 ```bash
 MODEL:
   BACKBONE:
@@ -94,14 +100,16 @@ BIAS:
 ```
 
 ## fixed cache size for tip-adapter
+
 Add below line in src/llamafactory/clip_finetune/configs/clip_finetune/vit_b16.yaml
+
 ```bash
 TRAINER:
   TIP:
     LOAD_CACHE: True                    # whether to use cache data tained with tip-adapter before
     beta: 1.0                           # hyper param in origin paper
     alpha: 3.0                          # hyper param in origin paper
-    AUGMENT_EPOCH: 10                   # train cache epoch 
+    AUGMENT_EPOCH: 10                   # train cache epoch
     search_best: True                   # whether to seach the best beta and alpha
     NEW: False                          # whether to use fixed cache size. True: all dataset cache will merge into one tensor [100, hidden_size]   Fase: each dataset will has it's own cache [num_dataset * 100, hidden_size]
     NEW_DATASET: False                  # Whether to train this dataset from scratch

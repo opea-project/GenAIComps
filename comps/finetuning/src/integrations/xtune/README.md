@@ -108,6 +108,7 @@ If you see "server start successfully" in terminal.
 You can access in web through http://localhost:7860/
 
 The UI compenent information can be seen in doc/ui_component.md after run with prepare_xtune.sh.
+
 ```bash
  Run with A100:
  CUDA_VISIBLE_DEVICES=0 llamafactory-cli webui
@@ -118,29 +119,39 @@ The UI compenent information can be seen in doc/ui_component.md after run with p
 ```
 
 ## Fine-Tuning with Shell instead of GUI
+
 After run `prepare_xtune.sh`, it will download all related file. And open webui as default.
 
 You can run `bash prepare_xtune.sh false` to close webui. Then you can run fine-tune with shell.
 
-
 Below are examples.
+
 ### CLIP
+
 Please see [doc](./doc/key_features_for_clip_finetune_tool.md) for how to config feature
+
 ```bash
 cd src/llamafactory/clip_finetune
 # Please see README.md in src/llamafactory/clip_finetune for detail
 ```
+
 ### AdaCLIP
+
 ```bash
 cd src/llamafactory/adaclip_finetune
 # Please see README.md in src/llamafactory/adaclip_finetune for detail
 ```
+
 ### DeepSeek-R1 Distillation(not main function)
+
 Please see [doc](./doc/DeepSeek-R1_distillation_best_practice-v1.1.pdf) for details
+
 #### Step 1: Download existing CoT synthetic dataset from huggingface
+
 Dataset link: https://huggingface.co/datasets/Magpie-Align/Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B
 
 #### Step 2: Convert to sharegpt format
+
 ```bash
 cd data
 import json
@@ -156,7 +167,9 @@ with open("Magpie-Reasoning-V2-250K-CoT-Deepseek-R1-Llama-70B-response1024.json"
 'w') as f:
   json.dump(list(dataset), f, ensure_ascii=False, indent=4)
 ```
+
 #### Step 3: Register CoT dataset LLAMA-Factory dataset_info.json
+
 ```bash
 cd data
 vim dataset_info.json
@@ -172,6 +185,7 @@ vim dataset_info.json
 ```
 
 #### Step 4: Use the accelerate command to enable training on XPU plugin
+
 ```bash
 accelerate config
 
@@ -213,7 +227,9 @@ For Multi-GPU with FSDP:
   Do you wish to use mixed precision?
   bf16
 ```
+
 #### Step 5: Run with train script as follows
+
 ```bash
 export ONEAPI_DEVICE_SELECTOR="level_zero:0"
 MODEL_ID="microsoft/Phi-3-mini-4k-instruct"
