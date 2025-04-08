@@ -870,11 +870,11 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         if file_path == 'all':
             clear_upload_folder(self.upload_folder)
         else:
-            file_path = list(file_path) if isinstance(file_path, str) else file_path
+            file_path = [file_path] if isinstance(file_path, str) else file_path
             for f in file_path:
                 x = os.path.join(self.upload_folder, f)
-                print(f'file exists: {os.path.exists(x)}')
-                os.remove(x)
+                if os.path.exists(x):
+                    os.remove(x)
         logger.info("Successfully deleted all uploaded files.")
         return {"status": True}
 
