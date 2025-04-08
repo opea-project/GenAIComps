@@ -23,7 +23,11 @@ done
 
 # Default values for Docker image
 REGISTRY_AND_REPO=${REGISTRY_AND_REPO:-sapdai/refd}
-TAG=${TAG:-agent-routing-service}
+TAG=${TAG:-routing-service}
+
+# Export them so Docker Compose can see them
+export REGISTRY_AND_REPO
+export TAG
 
 # Print summary
 echo "[INFO] Starting deployment with the following config:"
@@ -34,7 +38,7 @@ echo ""
 
 # Compose up
 echo "[INFO] Launching Docker Compose service..."
-docker compose -f deployment/docker_compose/compose.yaml up --build -d
+docker compose -f compose.yaml up --build -d
 
 # Wait a moment then check status
 sleep 2
