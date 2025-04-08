@@ -23,15 +23,15 @@ class BaseAgent:
         adapt_custom_prompt(local_vars, kwargs.get("custom_prompt"))
         print("Registered tools: ", self.tools_descriptions)
 
-        if args.with_memory:
-            if args.memory_type == "checkpointer":
-                self.memory_type = "checkpointer"
+        self.with_memory = args.with_memory
+        self.memory_type = args.memory_type
+        if self.with_memory:
+            if self.memory_type == "checkpointer":
                 self.checkpointer = MemorySaver()
                 self.store = None
-            elif args.memory_type == "store":
+            elif self.memory_type == "store":
                 # print("Using Redis as store: ", args.store_config.redis_uri)
                 self.store = RedisPersistence(args.store_config.redis_uri)
-                self.memory_type = "store"
             else:
                 raise ValueError("Invalid memory type!")
         else:
