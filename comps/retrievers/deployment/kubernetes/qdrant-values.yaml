@@ -1,0 +1,20 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+tei:
+  enabled: true
+redis-vector-db:
+  enabled: false
+milvus:
+  enabled: false
+qdrant:
+  enabled: true
+  tag: "v1.13.1"
+  config:
+    cluster:
+      enabled: false
+
+RETRIEVER_BACKEND: "QDRANT"
+# QDRANT_HOST: ""
+QDRANT_PORT: 6333
+QDRANT_INDEX_NAME: "rag_qdrant"
