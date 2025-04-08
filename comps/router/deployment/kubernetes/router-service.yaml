@@ -14,25 +14,55 @@ spec:
     spec:
       containers:
       - name: router
-        # same default naming convention as in Docker Compose
         image: "opea/router:latest"
         ports:
-        - containerPort: 6000
+          - containerPort: 6000
+        # Environment variables referencing Secrets:
         env:
-        - name: CONFIG_PATH
-          value: /app/config.yaml
-        - name: HF_TOKEN
-          value: "insert-hf-token-here" # or pass via K8s secret
-        - name: OPENAI_API_KEY
-          value: "insert-openai-key-here" # or pass via K8s secret
+          - name: CONFIG_PATH
+            value: /app/config.yaml
+
+          # Example: HF_TOKEN from a Secret named 'huggingface-secrets'
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: huggingface-secrets
+                key: hf-token
+
+          # Example: OPENAI_API_KEY from a Secret named 'openai-secrets'
+          - name: OPENAI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: openai-secrets
+                key: openai-api-key
+
         volumeMounts:
-        - name: router-config
-          mountPath: /app/config.yaml
-          subPath: config.yaml
+          # (1) Global router config
+          - name: router-config
+            mountPath: /app/config.yaml
+            subPath: config.yaml
+
+          # (2) RouteLLM config
+          - name: routellm-config
+            mountPath: /app/configs/routellm_config.yaml
+            subPath: routellm_config.yaml
+
+          # (3) Semantic router config
+          - name: semanticrouter-config
+            mountPath: /app/configs/semantic_router_config.yaml
+            subPath: semantic_router_config.yaml
+
       volumes:
       - name: router-config
         configMap:
           name: router-configmap
+      - name: routellm-config
+        configMap:
+          name: routellm-configmap
+      - name: semanticrouter-config
+        configMap:
+          name: semanticrouter-configmap
+
 ---
 apiVersion: v1
 kind: Service
@@ -43,6 +73,6 @@ spec:
   selector:
     app: router-microservice
   ports:
-  - protocol: TCP
-    port: 6000
-    targetPort: 6000
+    - protocol: TCP
+      port: 6000
+      targetPort: 6000
