@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional
 # OPEA Imports
 from comps import register_microservice, ServiceType, TextDoc
 
-from .integrations.controllers.controller_factory import ControllerFactory
+from comps.router.src.integrations.controllers.controller_factory import ControllerFactory
 
 
 class RouteEndpointDoc(BaseModel):

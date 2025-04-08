@@ -1,7 +1,7 @@
 import logging
-from controllers.base_controller import BaseController
+from comps.router.src.integrations.controllers.base_controller import BaseController
 from routellm.controller import Controller as RouteLLM_Controller
-from decorators import log_latency
+# from decorators import log_latency
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -34,7 +34,6 @@ class RouteLLMController(BaseController):
             config=config.get("config"),
         )
 
-    @log_latency
     def route(self, messages):
 
         # Get the routed model name (model_id) from the underlying RouteLLM_Controller.

@@ -1,7 +1,7 @@
 from typing import Dict
 import yaml
-from controllers.routellm.routellm_controller import RouteLLMController
-from controllers.semantic_router.semantic_router_controller import SemanticRouterController
+from comps.router.src.integrations.controllers.routellm.routellm_controller import RouteLLMController
+from comps.router.src.integrations.controllers.semantic_router.semantic_router_controller import SemanticRouterController
 import os
 from dotenv import load_dotenv
 
