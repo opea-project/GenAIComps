@@ -32,6 +32,11 @@ on:
         description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
+      use_model_cache:
+        default: false
+        description: "use model cache true or false"
+        required: false
+        type: boolean
 
 jobs:
   ####################################################################################################
@@ -71,7 +76,7 @@ jobs:
           fi
           if [[ $(grep -c "vllm-gaudi:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/HabanaAI/vllm-fork.git && cd vllm-fork
-              VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+              VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
               echo "Check out vLLM tag ${VLLM_VER}"
               git checkout ${VLLM_VER} &> /dev/null && cd ../
           fi
@@ -111,6 +116,7 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       service: ${{ inputs.service }}
+      use_model_cache: ${{ inputs.use_model_cache }}
     secrets: inherit
 
   ####################################################################################################

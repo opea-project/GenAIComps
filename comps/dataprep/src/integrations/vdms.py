@@ -8,8 +8,9 @@ from typing import List, Optional, Union
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceInferenceAPIEmbeddings
-from langchain_community.vectorstores.vdms import VDMS, VDMS_Client
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
+from langchain_vdms.vectorstores import VDMS, VDMS_Client
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.dataprep.src.utils import (
@@ -83,7 +84,7 @@ class OpeaVdmsDataprep(OpeaComponent):
             )
         else:
             # create embeddings using local embedding model
-            self.embedder = HuggingFaceBgeEmbeddings(model_name=EMBED_MODEL)
+            self.embedder = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
 
         # Perform health check
         health_status = self.check_health()

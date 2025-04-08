@@ -29,19 +29,7 @@ ENABLE_OPEA_TELEMETRY = bool(os.environ.get("TELEMETRY_ENDPOINT"))
 
 
 class OrchestratorMetrics:
-    # Need an static class-level ID for metric prefix because:
-    # - Prometheus requires metrics (their names) to be unique
-    _instance_id = 0
-
     def __init__(self) -> None:
-        OrchestratorMetrics._instance_id += 1
-        if OrchestratorMetrics._instance_id > 1:
-            self._prefix = f"megaservice{self._instance_id}"
-        else:
-            self._prefix = "megaservice"
-
-        self.request_pending = Gauge(f"{self._prefix}_request_pending", "Count of currently pending requests (gauge)")
-
         # locking for latency metric creation / method change
         self._lock = threading.Lock()
 
@@ -50,20 +38,22 @@ class OrchestratorMetrics:
         self.first_token_latency = None
         self.inter_token_latency = None
         self.request_latency = None
+        self.request_pending = None
 
         # initial methods to create the metrics
         self.token_update = self._token_update_create
         self.request_update = self._request_update_create
+        self.pending_update = self._pending_update_create
 
     def _token_update_create(self, token_start: float, is_first: bool) -> float:
         with self._lock:
             # in case another thread already got here
             if self.token_update == self._token_update_create:
                 self.first_token_latency = Histogram(
-                    f"{self._prefix}_first_token_latency", "First token latency (histogram)"
+                    "megaservice_first_token_latency", "First token latency (histogram)"
                 )
                 self.inter_token_latency = Histogram(
-                    f"{self._prefix}_inter_token_latency", "Inter-token latency (histogram)"
+                    "megaservice_inter_token_latency", "Inter-token latency (histogram)"
                 )
                 self.token_update = self._token_update_real
         return self.token_update(token_start, is_first)
@@ -73,13 +63,23 @@ class OrchestratorMetrics:
             # in case another thread already got here
             if self.request_update == self._request_update_create:
                 self.request_latency = Histogram(
-                    f"{self._prefix}_request_latency", "Whole LLM request/reply latency (histogram)"
+                    "megaservice_request_latency", "Whole LLM request/reply latency (histogram)"
                 )
                 self.request_update = self._request_update_real
         self.request_update(req_start)
 
+    def _pending_update_create(self, increase: bool) -> None:
+        with self._lock:
+            # in case another thread already got here
+            if self.pending_update == self._pending_update_create:
+                self.request_pending = Gauge(
+                    "megaservice_request_pending", "Count of currently pending requests (gauge)"
+                )
+                self.pending_update = self._pending_update_real
+        self.pending_update(increase)
+
     def _token_update_real(self, token_start: float, is_first: bool) -> float:
-        now = time.time()
+        now = time.monotonic()
         if is_first:
             self.first_token_latency.observe(now - token_start)
         else:
@@ -87,20 +87,24 @@ class OrchestratorMetrics:
         return now
 
     def _request_update_real(self, req_start: float) -> None:
-        self.request_latency.observe(time.time() - req_start)
+        self.request_latency.observe(time.monotonic() - req_start)
 
-    def pending_update(self, increase: bool) -> None:
+    def _pending_update_real(self, increase: bool) -> None:
         if increase:
             self.request_pending.inc()
         else:
             self.request_pending.dec()
 
 
+# Prometheus metrics need to be singletons, not per Orchestrator
+_metrics = OrchestratorMetrics()
+
+
 class ServiceOrchestrator(DAG):
     """Manage 1 or N micro services in a DAG through Python API."""
 
     def __init__(self) -> None:
-        self.metrics = OrchestratorMetrics()
+        self.metrics = _metrics
         self.services = {}  # all services, id -> service
         super().__init__()
 
@@ -122,7 +126,7 @@ class ServiceOrchestrator(DAG):
 
     @opea_telemetry
     async def schedule(self, initial_inputs: Dict | BaseModel, llm_parameters: LLMParams = LLMParams(), **kwargs):
-        req_start = time.time()
+        req_start = time.monotonic()
         self.metrics.pending_update(True)
 
         result_dict = {}
@@ -239,6 +243,7 @@ class ServiceOrchestrator(DAG):
     ):
         # send the cur_node request/reply
         endpoint = self.services[cur_node].endpoint_path
+        access_token = self.services[cur_node].api_key_value
         llm_parameters_dict = llm_parameters.dict()
 
         is_llm_vlm = self.services[cur_node].service_type in (ServiceType.LLM, ServiceType.LVM)
@@ -259,14 +264,27 @@ class ServiceOrchestrator(DAG):
                 if ENABLE_OPEA_TELEMETRY
                 else contextlib.nullcontext()
             ):
-                response = requests.post(
-                    url=endpoint,
-                    data=json.dumps(inputs),
-                    headers={"Content-type": "application/json"},
-                    proxies={"http": None},
-                    stream=True,
-                    timeout=1000,
-                )
+                if access_token:
+                    response = requests.post(
+                        url=endpoint,
+                        data=json.dumps(inputs),
+                        headers={"Content-type": "application/json", "Authorization": f"Bearer {access_token}"},
+                        proxies={"http": None},
+                        stream=True,
+                        timeout=1000,
+                    )
+                else:
+                    response = requests.post(
+                        url=endpoint,
+                        data=json.dumps(inputs),
+                        headers={
+                            "Content-type": "application/json",
+                        },
+                        proxies={"http": None},
+                        stream=True,
+                        timeout=1000,
+                    )
+
             downstream = runtime_graph.downstream(cur_node)
             if downstream:
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
@@ -287,11 +305,25 @@ class ServiceOrchestrator(DAG):
                                 buffered_chunk_str += self.extract_chunk_str(chunk)
                                 is_last = chunk.endswith("[DONE]\n\n")
                                 if (buffered_chunk_str and buffered_chunk_str[-1] in hitted_ends) or is_last:
-                                    res = requests.post(
-                                        url=downstream_endpoint,
-                                        data=json.dumps({"text": buffered_chunk_str}),
-                                        proxies={"http": None},
-                                    )
+                                    if access_token:
+                                        res = requests.post(
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            headers={
+                                                "Content-type": "application/json",
+                                                "Authorization": f"Bearer {access_token}",
+                                            },
+                                            proxies={"http": None},
+                                        )
+                                    else:
+                                        res = requests.post(
+                                            url=downstream_endpoint,
+                                            data=json.dumps({"text": buffered_chunk_str}),
+                                            headers={
+                                                "Content-type": "application/json",
+                                            },
+                                            proxies={"http": None},
+                                        )
                                     res_json = res.json()
                                     if "text" in res_json:
                                         res_txt = res_json["text"]
@@ -301,7 +333,7 @@ class ServiceOrchestrator(DAG):
                                     yield from self.token_generator(
                                         res_txt, token_start, is_first=is_first, is_last=is_last
                                     )
-                                    token_start = time.time()
+                                    token_start = time.monotonic()
                                     is_first = False
                             else:
                                 token_start = self.metrics.token_update(token_start, is_first)

@@ -39,7 +39,7 @@ function build_container() {
 start_container() {
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export LLM_ENDPOINT_PORT=12205
-    export HF_CACHE_DIR=$HOME/.cache/huggingface
+    export HF_CACHE_DIR=${model_cache:-./data}
 
     cd $WORKPATH/comps/third_parties/vllm/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -95,7 +95,7 @@ function test_api_endpoint {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_faq-generation.yaml down --remove-orphans
 }
 
 # Main function

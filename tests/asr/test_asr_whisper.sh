@@ -53,6 +53,18 @@ function validate_microservice() {
         exit 1
     fi
 
+    wget https://github.com/intel/intel-extension-for-transformers/raw/refs/tags/v1.5/intel_extension_for_transformers/neural_chat/ui/customized/talkingbot/src/lib/components/talkbot/assets/mid-age-man.mp3 -O sample.mp3
+    result=$(http_proxy="" curl http://localhost:$ASR_PORT/v1/audio/transcriptions -H "Content-Type: multipart/form-data" -F file="@./sample.mp3" -F model="openai/whisper-small")
+    rm -f sample.mp3
+    if [[ $result == *"welcome to"* ]]; then
+        echo "Result correct."
+    else
+        echo "Result wrong."
+        docker logs whisper-service
+        docker logs asr-service
+        exit 1
+    fi
+
 }
 
 function stop_docker() {

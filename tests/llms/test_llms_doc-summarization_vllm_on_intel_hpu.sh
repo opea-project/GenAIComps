@@ -19,7 +19,7 @@ function build_docker_images() {
     cd $WORKPATH
     git clone https://github.com/HabanaAI/vllm-fork.git
     cd vllm-fork/
-    VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+    VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
     echo "Check out vLLM tag ${VLLM_VER}"
     git checkout ${VLLM_VER} &> /dev/null
     docker build --no-cache -f Dockerfile.hpu -t ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest} --shm-size=128g .
@@ -51,7 +51,7 @@ function start_service() {
     export MAX_TOTAL_TOKENS=4096
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
-    export DATA_PATH="/data2/cache"
+    export DATA_PATH=${model_cache:-./data}
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_doc-summarization.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -156,7 +156,7 @@ function validate_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_doc-summarization.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_doc-summarization.yaml down --remove-orphans
 }
 
 function main() {

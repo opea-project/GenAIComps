@@ -25,7 +25,7 @@ function _invoke_curl() {
       ingest)
         header='Content-Type: multipart/form-data'
         ;;
-      delete|get)
+      delete|get|indices)
         header='Content-Type: application/json'
 	;;
       *)
@@ -59,6 +59,13 @@ function ingest_pdf() {
     local port=$2
     shift 2
     _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.pdf" $@
+}
+
+function ingest_ppt() {
+    local fqdn=$1
+    local port=$2
+    shift 2
+    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.ppt" $@
 }
 
 function ingest_pptx() {
@@ -108,6 +115,21 @@ function get_all() {
     local port=$2
     shift 2
     _invoke_curl $fqdn $port get $@
+}
+
+function ingest_txt_with_index_name() {
+    local fqdn=$1
+    local port=$2
+    local index_name=$3
+    shift 3
+    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.txt" -F "index_name=${index_name}" $@
+}
+
+function indices() {
+    local fqdn=$1
+    local port=$2
+    shift 2
+    _invoke_curl $fqdn $port indices $@
 }
 
 function check_result() {

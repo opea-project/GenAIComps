@@ -23,6 +23,8 @@ from .utils.vclip import vCLIP
 VECTORDB_SERVICE_HOST_IP = os.getenv("VDMS_HOST", "0.0.0.0")
 VECTORDB_SERVICE_PORT = os.getenv("VDMS_PORT", 55555)
 collection_name = os.getenv("INDEX_NAME", "rag-vdms")
+SEARCH_ENGINE = os.getenv("SEARCH_ENGINE", "FaissFlat")
+DISTANCE_STRATEGY = os.getenv("DISTANCE_STRATEGY", "IP")
 
 logger = CustomLogger("opea_dataprep_vdms_multimodal")
 logflag = os.getenv("LOGFLAG", False)
@@ -72,6 +74,7 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
             metadata_list = [data]
             if vs.selected_db == "vdms":
                 vs.video_db.add_videos(
+                    texts=video_name_list,
                     paths=video_name_list,
                     metadatas=metadata_list,
                     start_time=[data["timestamp"]],
@@ -145,14 +148,21 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
         # init meanclip model
         model = self.setup_vclip_model(meanclip_cfg, device="cpu")
         vs = store_embeddings.VideoVS(
-            host, port, selected_db, model, collection_name, embedding_dimensions=vector_dimensions
+            host,
+            port,
+            selected_db,
+            model,
+            collection_name,
+            embedding_dimensions=vector_dimensions,
+            engine=SEARCH_ENGINE,
+            distance_strategy=DISTANCE_STRATEGY,
         )
         logger.info("done creating DB, sleep 5s")
         await asyncio.sleep(5)
 
         self.generate_embeddings(config, vector_dimensions, vs)
 
-        return {"message": "Videos ingested successfully"}
+        return {"status": 200, "message": "Videos ingested successfully"}
 
     async def get_videos(self):
         """Returns list of names of uploaded videos saved on the server."""
