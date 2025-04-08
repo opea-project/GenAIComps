@@ -2,11 +2,11 @@
 
 import logging
 import os
-from controllers.base_controller import BaseController
+from comps.router.src.integrations.controllers.base_controller import BaseController
 from semantic_router.layer import RouteLayer
 from semantic_router.encoders import OpenAIEncoder, HuggingFaceEncoder
 from semantic_router import Route
-from decorators import log_latency
+# from decorators import log_latency
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -58,7 +58,6 @@ class SemanticRouterController(BaseController):
         self.route_layer = RouteLayer(encoder=self.encoder, routes=route_list)
         logging.info("[DEBUG] Successfully re-initialized RouteLayer with fresh embeddings.")
 
-    @log_latency
     def route(self, messages):
         """
         Determines which inference endpoint to use based on the provided messages.
