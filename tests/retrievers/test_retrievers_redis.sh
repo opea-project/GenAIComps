@@ -55,6 +55,7 @@ function start_multimodal_service() {
     export LOGFLAG=True
     export BRIDGE_TOWER_EMBEDDING=true
     export RETRIEVER_TYPE="redis"
+    unset TEI_EMBEDDING_ENDPOINT
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name_mm} -d > ${LOG_PATH}/start_services_with_compose_multimodal.log
@@ -130,7 +131,7 @@ function validate_mm_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
-    docker compose -f compose.yaml down  ${service_name} ${service_name_mm} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
     cid=$(docker ps -aq --filter "name=redis-vector-db")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }

@@ -252,13 +252,17 @@ async def use_lvm(endpoint: str, img_b64_string: str, prompt: str = "Provide a s
 async def extract_frames_and_generate_captions(
     video_id: str, video_path: str, lvm_endpoint: str, output_dir: str, key_frame_per_second: int = 1
 ):
-    """Extract frames (.png) and annotations (.json) from video file (.mp4) by generating captions using LVM microservice."""
+    """Extract frames (.png) and annotations (.json) from video file (.mp4).
+
+    This works for still images (.png, .jpg, .jpeg, .gif)
+    too, using the cv2 library. Captions are generated using the LVM microservice.
+    """
     # Set up location to store frames and annotations
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "frames"), exist_ok=True)
     is_video = os.path.splitext(video_path)[-1] == ".mp4"
 
-    # Load video and get fps
+    # Load file and get fps
     vidcap = cv2.VideoCapture(video_path)
     fps = vidcap.get(cv2.CAP_PROP_FPS)
 
@@ -279,7 +283,6 @@ async def extract_frames_and_generate_captions(
             mid_time_ms = mid_time  # Already in ms
 
             frame_no = curr_frame
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # Save frame for further processing
             img_fname = f"frame_{idx}"

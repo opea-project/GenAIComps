@@ -10,7 +10,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 DATAPREP_PORT=11101
 service_name="dataprep-milvus tei-embedding-serving etcd minio standalone"
 export TAG="comps"
-
+export DATA_PATH=${model_cache}
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source ${SCRIPT_DIR}/dataprep_utils.sh
 
@@ -52,6 +52,9 @@ function validate_microservice() {
     ingest_pdf ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - pdf" "Data preparation succeeded" dataprep-milvus-server ${LOG_PATH}/dataprep_milvus.log
 
+    ingest_ppt ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - ppt" "Data preparation succeeded" dataprep-milvus-server ${LOG_PATH}/dataprep_upload_file.log
+
     ingest_pptx ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - pptx" "Data preparation succeeded" dataprep-milvus-server ${LOG_PATH}/dataprep_milvus.log
 
@@ -79,7 +82,7 @@ function stop_docker() {
     docker compose -f compose.yaml down --remove-orphans
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose
-    docker compose -f compose.yaml down  ${service_name} --remove-orphans
+    docker compose -f compose.yaml down --remove-orphans
 
 }
 

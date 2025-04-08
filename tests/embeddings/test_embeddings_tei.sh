@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
@@ -7,6 +6,7 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+export DATA_PATH=${model_cache}
 
 function build_docker_images() {
     cd $WORKPATH
@@ -63,6 +63,7 @@ function validate_microservice() {
 
 function validate_microservice_with_openai() {
     tei_service_port=10200
+    pip install openai
     python3 ${WORKPATH}/tests/utils/validate_svc_with_openai.py $ip_address $tei_service_port "embedding"
     if [ $? -ne 0 ]; then
         docker logs tei-embedding-serving

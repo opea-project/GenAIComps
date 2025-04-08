@@ -5,6 +5,7 @@ import os
 import time
 
 from integrations.clip import OpeaClipEmbedding
+from integrations.ovms import OpeaOVMSEmbedding
 from integrations.predictionguard import PredictionguardEmbedding
 from integrations.tei import OpeaTEIEmbedding
 

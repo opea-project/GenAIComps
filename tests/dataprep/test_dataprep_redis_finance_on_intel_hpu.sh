@@ -34,7 +34,7 @@ function build_vllm_docker_images() {
         git clone https://github.com/HabanaAI/vllm-fork.git
     fi
     cd ./vllm-fork
-    VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+    VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
     echo "Check out vLLM tag ${VLLM_VER}"
     git checkout ${VLLM_VER} &> /dev/null
 
@@ -53,7 +53,7 @@ function start_vllm_service_70B() {
     echo "token is ${HF_TOKEN}"
     model="meta-llama/Llama-3.3-70B-Instruct"
     vllm_port=8086
-    export HF_CACHE_DIR=/data2/hf_model
+    export HF_CACHE_DIR=${model_cache:-./data}
     vllm_volume=$HF_CACHE_DIR
 
     echo "start vllm gaudi service"

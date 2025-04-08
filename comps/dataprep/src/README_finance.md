@@ -29,7 +29,7 @@ First, you need to start a TEI service.
 ```bash
 your_port=6006
 model="BAAI/bge-base-en-v1.5"
-docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+docker run -p $your_port:80 -v ./data:/data --name tei_server -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
 ```
 
 Then you need to test your TEI service using the following commands:
@@ -49,7 +49,7 @@ First build vllm-gaudi docker image.
 cd $WORKDIR
 git clone https://github.com/HabanaAI/vllm-fork.git
 # get the latest release tag of vllm gaudi
-VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
 echo "Check out vLLM tag ${VLLM_VER}"
 git checkout ${VLLM_VER}
 docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
