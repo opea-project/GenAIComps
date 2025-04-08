@@ -23,7 +23,7 @@ function build_docker_images() {
     else
         echo "opea/lvm built successful"
     fi
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/lvm-llama-vision:$TAG -f comps/lvms/src/integrations/dependency/llama-vision/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/lvm-llama-vision:$TAG -f comps/third_parties/llama-vision/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llama-vision built fail"
         exit 1
