@@ -10,11 +10,6 @@ resources:
     cpu: 6
     memory: 65Gi
 
-livenessProbe:
-  initialDelaySeconds: 8
-  periodSeconds: 8
-  failureThreshold: 24
-  timeoutSeconds: 4
 readinessProbe:
   initialDelaySeconds: 16
   periodSeconds: 8
