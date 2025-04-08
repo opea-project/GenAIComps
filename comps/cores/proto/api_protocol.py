@@ -101,16 +101,54 @@ class DataprepRequest:
 
 
 class Neo4jDataprepRequest(DataprepRequest):
-    def __init__(self, ingest_from_graphDB: bool = Form(False), **kwargs):
-        kwargs["db_type"] = "neo4j"
-        super().__init__(**kwargs)
+    DB_TYPE = "neo4j"
+
+    def __init__(self,
+        db_type: str = DB_TYPE,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: int = Form(1500),
+        chunk_overlap: int = Form(100),
+        process_table: bool = Form(False),
+        table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False)
+    ):
+        super().__init__(
+            db_type=db_type,
+            files=files,
+            link_list=link_list,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            process_table=process_table,
+            table_strategy=table_strategy,
+        )
+
         self.ingest_from_graphDB = ingest_from_graphDB
 
 
 class RedisDataprepRequest(DataprepRequest):
-    def __init__(self, index_name: Optional[str] = Form(None), **kwargs):
-        kwargs["db_type"] = "redis"
-        super().__init__(**kwargs)
+    DB_TYPE = "redis"
+
+    def __init__(self,
+        db_type: str = DB_TYPE,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: int = Form(1500),
+        chunk_overlap: int = Form(100),
+        process_table: bool = Form(False),
+        table_strategy: str = Form("fast"),
+        index_name: Optional[str] = Form(None)
+    ):
+        super().__init__(
+            db_type=db_type,
+            files=files,
+            link_list=link_list,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            process_table=process_table,
+            table_strategy=table_strategy,
+        )
+
         self.index_name = index_name
 
 
