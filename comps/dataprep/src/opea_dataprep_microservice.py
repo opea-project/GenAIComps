@@ -51,7 +51,7 @@ loader = OpeaDataprepLoader(
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def ingest_files(
-    base: Annotated[Optional[DataprepRequest], Depends()] = None,
+    base: Annotated[DataprepRequest, Depends()],
     redis: Annotated[Optional[RedisDataprepRequest], Depends()] = None,
     neo4j: Annotated[Optional[Neo4jDataprepRequest], Depends()] = None,
 ):
