@@ -1,10 +1,22 @@
 #!/bin/bash
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
+GUI=$1
 if [ -f "done" ]; then
     echo "All component preparation is done"
     echo "Please follow README.md to install driver and other dependency"
+    if [ -z $GUI ]; then
+        ps aux | grep "llamafactory-cli webui" | head -n 1 | awk '{print $2}' |xargs kill
+        ZE_AFFINITY_MASK=0 llamafactory-cli webui &
+        if [ $? -eq 0 ]; then
+            echo "server start successfully"
+        else
+            echo "failed to start server, please check your environment"
+        fi
+    else
+        ps aux | grep "llamafactory-cli webui" | head -n 1 | awk '{print $2}' |xargs kill
+        echo "kill webui service done"
+    fi
 else
     echo "start prepare for xtune"
     bash clip_finetune/prepare_clip_finetune.sh
@@ -27,11 +39,16 @@ else
     pip install -e ".[metrics]"
     pip install --no-cache-dir --force-reinstall intel-extension-for-pytorch==2.6.10+xpu oneccl_bind_pt==2.6.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
     echo "start llamafactory webui"
-    ZE_AFFINITY_MASK=0 llamafactory-cli webui &
-    if [ $? -eq 0 ]; then
-        echo "server start successfully"
+    if [ -z $GUI ]; then
+        ZE_AFFINITY_MASK=0 llamafactory-cli webui &
+        if [ $? -eq 0 ]; then
+            echo "server start successfully"
+        else
+            echo "failed to start server, please check your environment"
+        fi
     else
-        echo "failed to start server, please check your environment"
+        ps aux | grep "llamafactory-cli webui" | head -n 1 | awk '{print $2}' |xargs kill
+        echo "kill webui service done"
     fi
     echo 0 >> done
     echo "Please follow README.md to install driver or update torch lib"
