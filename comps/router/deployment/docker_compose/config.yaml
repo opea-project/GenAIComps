@@ -1,0 +1,14 @@
+# Global config for your router microservice
+model_map:
+  weak:
+    endpoint: "http://some-inference-service:8000/weak"
+    model_id: "openai/gpt-3.5-turbo"
+  strong:
+    endpoint: "http://some-inference-service:8000/strong"
+    model_id: "openai/gpt-4"
+
+# If you want to test RouteLLM locally, point here:
+controller_config_path: "/app/configs/routellm_config.yaml"
+
+# If you want to test semantic router, switch the path:
+# controller_config_path: "/app/configs/semantic_router_config.yaml"

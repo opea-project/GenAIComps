@@ -1,15 +1,22 @@
-version: "3.9"
-
 services:
   router_service:
-    image: ${REGISTRY:-opea}/router:${TAG:-latest}
+    image: "${REGISTRY_AND_REPO}:${TAG}"
     container_name: opea_router
-    # If you want to override the main config.yaml at runtime:
     volumes:
+      # (1) The global router config
       - ./config.yaml:/app/config.yaml
+
+      # (2) The routeLLM config
+      - ./routellm_config.yaml:/app/configs/routellm_config.yaml
+
+      # (3) The semantic router config
+      - ./semantic_router_config.yaml:/app/configs/semantic_router_config.yaml
+
     environment:
       - CONFIG_PATH=/app/config.yaml
       - HF_TOKEN=${HF_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
     ports:
       - "6000:6000"
     restart: unless-stopped
