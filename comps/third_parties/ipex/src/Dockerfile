@@ -60,12 +60,7 @@ RUN . ~/miniforge3/bin/activate && conda create -y -n py310 python=3.10 && conda
     mv ./oneCCL_release /opt/oneCCL && \
     chown -R root:root /opt/oneCCL && \
     sed -i "s|ONECCL_PATH=.*|ONECCL_PATH=/opt/oneCCL|" ./tools/env_activate.sh && \
-    wget https://download.pytorch.org/whl/nightly/cpu/torchvision-0.22.0.dev20250218%2Bcpu-cp310-cp310-linux_x86_64.whl && \
-    pip install torchvision-0.22.0.dev20250218+cpu-cp310-cp310-linux_x86_64.whl && \
-    wget https://download.pytorch.org/whl/nightly/cpu/torchaudio-2.6.0.dev20250218%2Bcpu-cp310-cp310-linux_x86_64.whl && \
-    pip install torchaudio-2.6.0.dev20250218+cpu-cp310-cp310-linux_x86_64.whl && \
     pip install backoff fastapi uvicorn
-
 ARG PORT_SSH=22
 RUN mkdir /var/run/sshd && \
     sed -i "s/#Port.*/Port ${PORT_SSH}/" /etc/ssh/sshd_config && \

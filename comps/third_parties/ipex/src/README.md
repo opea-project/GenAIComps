@@ -6,6 +6,8 @@ For more details, refer to the [README](https://github.com/intel/intel-extension
 
 ## 🚀1. Build the Docker Image
 
+The Dockerfile used here is primarily sourced from the IPEX project, with additions to incorporate serving capabilities for LLM inference. This Dockerfile enables SSH passwordless login, primarily for implementing distributed inference, although distributed inference is not currently applied but will be added soon.
+
 ```bash
 cd ../../../../
 docker build -f comps/third_parties/ipex/src/Dockerfile --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy --build-arg COMPILE=ON --build-arg PORT_SSH=2345 -t opea/ipex-llm:latest .
