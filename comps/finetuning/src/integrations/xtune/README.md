@@ -186,7 +186,7 @@ vim dataset_info.json
 
 #### Step 4: Use the accelerate command to enable training on XPU plugin
 
-```bash
+```
 accelerate config
 
 For Single GPU:
@@ -214,14 +214,14 @@ For Multi-GPU with FSDP:
   Do you want to offload parameters and gradients to CPU? [yes/NO]: NO
   What should be your auto wrap policy?
   TRANSFORMER_BASED_WRAP
-  Do you want to use the model's `_no_split_modules` to wrap. Only applicable for 🤗 Transformers [yes/NO]: yes
+  Do you want to use the model's `_no_split_modules` to wrap. Only applicable for Transformers [yes/NO]: yes
   What should be your FSDP's backward prefetch policy?
   BACKWARD_PRE
   What should be your FSDP's state dict type?
   SHARDED_STATE_DICT
   Do you want to enable FSDP's forward prefetch policy? [yes/NO]: yes
   Do you want to enable FSDP's `use_orig_params` feature? [YES/no]: yes
-  Do you want to enable CPU RAM efficient model loading? Only applicable for 🤗 Transformers models. [YES/no]: yes
+  Do you want to enable CPU RAM efficient model loading? Only applicable for Transformers models. [YES/no]: yes
   Do you want to enable FSDP activation checkpointing? [yes/NO]: yes
   How many GPU(s) should be used for distributed training? [1]:2
   Do you wish to use mixed precision?

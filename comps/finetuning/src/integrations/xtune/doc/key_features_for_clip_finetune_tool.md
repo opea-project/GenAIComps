@@ -78,8 +78,8 @@ Add below line in src/llamafactory/clip_finetune/configs/clip_finetune/vit_b16.y
 ```bash
 MODEL:
   ABS: True
-  ABS_TOP: True                     # True: select top ABS_KEEP layer  False: select buttom ABS_KEEP layer
-  ABS_GROUP: True                   # True: select top ABS_KEEP layer in each group False: select buttom ABS_KEEP layer
+  ABS_TOP: True                     # True: select top ABS_KEEP layer  False: select bottom ABS_KEEP layer
+  ABS_GROUP: True                   # True: select top ABS_KEEP layer in each group False: select bottom ABS_KEEP layer
   ABS_GROUP_NAME: ["k_proj", "v_proj", "q_proj"]    # How to divide layer into GTOUP, this means divide layers into 4 group. Each layer has k_proj in its name will into group 0, v_proj into group1, q_proj into group 2, other into group 3
   ABS_KEEP: 5                       # keep layer number
   BACKBONE:
@@ -106,11 +106,11 @@ Add below line in src/llamafactory/clip_finetune/configs/clip_finetune/vit_b16.y
 ```bash
 TRAINER:
   TIP:
-    LOAD_CACHE: True                    # whether to use cache data tained with tip-adapter before
+    LOAD_CACHE: True                    # whether to use cache data trained with tip-adapter before
     beta: 1.0                           # hyper param in origin paper
     alpha: 3.0                          # hyper param in origin paper
     AUGMENT_EPOCH: 10                   # train cache epoch
-    search_best: True                   # whether to seach the best beta and alpha
-    NEW: False                          # whether to use fixed cache size. True: all dataset cache will merge into one tensor [100, hidden_size]   Fase: each dataset will has it's own cache [num_dataset * 100, hidden_size]
+    search_best: True                   # whether to search the best beta and alpha
+    NEW: False                          # whether to use fixed cache size. True: all dataset cache will merge into one tensor [100, hidden_size]   False: each dataset will has it's own cache [num_dataset * 100, hidden_size]
     NEW_DATASET: False                  # Whether to train this dataset from scratch
 ```
