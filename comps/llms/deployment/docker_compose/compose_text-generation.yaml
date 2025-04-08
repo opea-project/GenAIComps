@@ -46,6 +46,29 @@ services:
       - SYS_NICE
     restart: unless-stopped
 
+  textgen-phi4-gaudi:
+    image: ${REGISTRY:-opea}/llm-textgen-phi4-gaudi:${TAG:-latest}
+    container_name: llm-textgen-phi4-gaudi-server
+    ports:
+      - ${TEXTGEN_PORT:-9000}:9000
+    volumes:
+      - "${DATA_PATH:-./data}:/data"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      HF_TOKEN: ${HF_TOKEN}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      TOKENIZERS_PARALLELISM: False
+      LOGFLAG: ${LOGFLAG:-False}
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    restart: unless-stopped
+
   textgen-service-tgi:
     extends: textgen
     container_name: textgen-service-tgi
@@ -109,6 +132,18 @@ services:
     container_name: textgen-native-gaudi
     environment:
       LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNative}
+
+  textgen-native-phi4-gaudi:
+    extends: textgen-phi4-gaudi
+    container_name: textgen-native-phi4-gaudi
+    environment:
+      LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNative}
+
+  textgen-native-phi4-multimodal-gaudi:
+    extends: textgen-phi4-gaudi
+    container_name: textgen-native-phi4-multimodal-gaudi
+    environment:
+      LLM_COMPONENT_NAME: ${LLM_COMPONENT_NAME:-OpeaTextGenNativePhi4Multimodal}
 
   textgen-service-ovms:
     extends: textgen

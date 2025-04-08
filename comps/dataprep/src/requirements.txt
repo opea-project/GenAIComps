@@ -1,3 +1,4 @@
+accelerate
 beautifulsoup4
 cairosvg
 decord
@@ -9,7 +10,7 @@ einops
 elasticsearch
 fastapi
 future
-graspologic 
+graspologic
 html2text
 huggingface_hub
 ipython
@@ -21,9 +22,10 @@ langchain-openai
 langchain-pinecone
 langchain-redis
 langchain-text-splitters
+langchain-vdms>=0.1.4
 langchain_huggingface
 langchain_milvus
-llama-index 
+llama-index
 llama-index-core==0.12.19
 llama-index-embeddings-text-embeddings-inference
 llama-index-graph-stores-neo4j
@@ -37,11 +39,15 @@ openai
 openai-whisper
 opencv-python
 opensearch-py
+opentelemetry-api==1.27.0
+opentelemetry-exporter-otlp==1.27.0
+opentelemetry-sdk==1.27.0
 pandas
 pgvector==0.2.5
 Pillow
 pinecone-client
 prometheus-fastapi-instrumentator
+protobuf==4.24.2
 psycopg2
 pymupdf
 pyspark
@@ -60,5 +66,4 @@ typing
 tzlocal
 unstructured[all-docs]
 uvicorn
-vdms
 webvtt-py
