@@ -1,3 +1,4 @@
+accelerate
 beautifulsoup4
 cairosvg
 decord
