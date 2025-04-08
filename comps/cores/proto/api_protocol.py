@@ -103,7 +103,8 @@ class DataprepRequest:
 class Neo4jDataprepRequest(DataprepRequest):
     DB_TYPE = "neo4j"
 
-    def __init__(self,
+    def __init__(
+        self,
         db_type: str = DB_TYPE,
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
         link_list: Optional[str] = Form(None),
@@ -111,7 +112,7 @@ class Neo4jDataprepRequest(DataprepRequest):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
-        ingest_from_graphDB: bool = Form(False)
+        ingest_from_graphDB: bool = Form(False),
     ):
         super().__init__(
             db_type=db_type,
@@ -129,7 +130,8 @@ class Neo4jDataprepRequest(DataprepRequest):
 class RedisDataprepRequest(DataprepRequest):
     DB_TYPE = "redis"
 
-    def __init__(self,
+    def __init__(
+        self,
         db_type: str = DB_TYPE,
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
         link_list: Optional[str] = Form(None),
@@ -137,7 +139,7 @@ class RedisDataprepRequest(DataprepRequest):
         chunk_overlap: int = Form(100),
         process_table: bool = Form(False),
         table_strategy: str = Form("fast"),
-        index_name: Optional[str] = Form(None)
+        index_name: Optional[str] = Form(None),
     ):
         super().__init__(
             db_type=db_type,
