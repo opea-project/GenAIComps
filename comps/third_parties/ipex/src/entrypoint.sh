@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # Collect all command-line arguments into an array
 CMDS=()
 while [ $# -gt 0 ]; do
