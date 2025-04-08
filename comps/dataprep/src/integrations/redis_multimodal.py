@@ -578,7 +578,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
                 # Ingest multimodal data into redis
                 logger.info("Ingesting data to redis vector store")
-                self.redis_instance, self.redis_keys = self.ingest_multimodal(base_file_name, os.path.join(self.upload_folder, dir_name), self.embeddings)
+                self.redis_instance, self.redis_keys = self.ingest_multimodal(
+                    base_file_name, os.path.join(self.upload_folder, dir_name), self.embeddings
+                )
                 self.redis_id_lookup[file_name_with_id] = self.redis_keys
                 # Delete temporary video directory containing frames and annotations
                 shutil.rmtree(os.path.join(self.upload_folder, dir_name))
@@ -637,7 +639,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                 )
 
                 # Ingest multimodal data into redis
-                self.redis_instance, self.redis_keys = self.ingest_multimodal(name, os.path.join(self.upload_folder, dir_name), self.embeddings)
+                self.redis_instance, self.redis_keys = self.ingest_multimodal(
+                    name, os.path.join(self.upload_folder, dir_name), self.embeddings
+                )
                 self.redis_id_lookup[file_name] = self.redis_keys
                 # Delete temporary directory containing frames and annotations
                 shutil.rmtree(os.path.join(self.upload_folder, dir_name))
@@ -821,7 +825,9 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
                     os.remove(os.path.join(self.upload_folder, caption_file))
 
                     # Ingest multimodal data into redis
-                    self.redis_instance, self.redis_keys = self.ingest_multimodal(file_name, os.path.join(self.upload_folder, media_dir_name), self.embeddings)
+                    self.redis_instance, self.redis_keys = self.ingest_multimodal(
+                        file_name, os.path.join(self.upload_folder, media_dir_name), self.embeddings
+                    )
 
                 # Delete temporary media directory containing frames and annotations
                 shutil.rmtree(os.path.join(self.upload_folder, media_dir_name))
@@ -853,7 +859,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
     async def delete_files(self, file_path):
         """Delete all uploaded files along with redis index."""
 
-        if file_path == 'all':
+        if file_path == "all":
             index_deleted = self.drop_index(index_name=INDEX_NAME)
         elif isinstance(file_path, str):
             index_deleted = self.redis_instance.delete(self.redis_id_lookup[file_path])
@@ -867,7 +873,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         if not index_deleted:
             raise HTTPException(status_code=409, detail="Uploaded files could not be deleted. Index does not exist")
 
-        if file_path == 'all':
+        if file_path == "all":
             clear_upload_folder(self.upload_folder)
         else:
             file_path = [file_path] if isinstance(file_path, str) else file_path
