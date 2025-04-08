@@ -71,16 +71,7 @@ RUN mkdir /var/run/sshd && \
 EXPOSE ${PORT_SSH}
 COPY ./comps/third_parties/ipex/src/ipex_inference.py /root
 COPY ./comps/third_parties/ipex/src/openai_protocol.py /root
-RUN ENTRYPOINT=/usr/local/bin/entrypoint.sh && \
-    echo "#!/bin/bash" > ${ENTRYPOINT} && \
-    echo "CMDS=(); while [ \$# -gt 0 ]; do CMDS+=(\"\$1\"); shift; done;" >> ${ENTRYPOINT} && \
-    echo ". ~/miniforge3/bin/activate" >> ${ENTRYPOINT} && \
-    echo "conda activate py310" >> ${ENTRYPOINT} && \
-    echo "TMP=\$(python -c \"import torch; import os; print(os.path.abspath(os.path.dirname(torch.__file__)))\")" >> ${ENTRYPOINT} && \
-    echo ". \${TMP}/../oneccl_bindings_for_pytorch/env/setvars.sh" >> ${ENTRYPOINT} && \
-    echo "echo \"**Note:** For better performance, please consider to launch workloads with command 'ipexrun'.\"" >> ${ENTRYPOINT} && \
-    echo "python /root/ipex_inference.py" >> ${ENTRYPOINT} && \
-    echo "\"\${CMDS[@]}\"" >> ${ENTRYPOINT} && \
-    chmod +x ${ENTRYPOINT}
+COPY ./comps/third_parties/ipex/src/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
