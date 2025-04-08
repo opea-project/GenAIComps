@@ -87,7 +87,7 @@ export HUGGINGFACEHUB_API_TOKEN=<your-hf-token>
 ```
 
 ```bash
-docker run -d --name="dataprep-redis-server-finance" -p 6007:5001 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL_VECTOR=$REDIS_URL_VECTOR -e REDIS_URL_KV=$REDIS_URL_KV -e LLM_MODEL=$LLM_MODEL -e LLM_ENDPOINT=$LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e HF_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e DATAPREP_COMPONENT_NAME=$DATAPREP_COMPONENT_NAME opea/dataprep:latest
+docker run -d --name="dataprep-redis-server-finance" -p 6007:5000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL_VECTOR=$REDIS_URL_VECTOR -e REDIS_URL_KV=$REDIS_URL_KV -e LLM_MODEL=$LLM_MODEL -e LLM_ENDPOINT=$LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e HF_TOKEN=$HUGGINGFACEHUB_API_TOKEN -e DATAPREP_COMPONENT_NAME=$DATAPREP_COMPONENT_NAME opea/dataprep:latest
 ```
 
 ### 2.6 Check the status of dataprep microservice
