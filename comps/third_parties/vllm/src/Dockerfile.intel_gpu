@@ -9,6 +9,7 @@ RUN apt-get update -y && \
     apt-get install -y --no-install-recommends --fix-missing \
         ffmpeg \
         git \
+        gnupg2 \
         gpg-agent \
         libgl1 \
         libsm6 \
@@ -18,7 +19,7 @@ RUN apt-get update -y && \
 
 RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu jammy/lts/2350 unified" | \
-        tee /etc/apt/sources.list.d/intel-gpu-jammy.list &&\
+        tee /etc/apt/sources.list.d/intel-gpu-jammy.list && \
     apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
         clinfo \
         hwinfo \
