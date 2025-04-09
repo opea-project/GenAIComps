@@ -6,7 +6,7 @@
 FROM ubuntu:22.04 AS dev
 
 RUN apt-get update -y && \
-    apt-get install install -y --no-install-recommends --fix-missing \
+    apt-get install -y --no-install-recommends --fix-missing \
         ffmpeg \
         git \
         gpg-agent \
