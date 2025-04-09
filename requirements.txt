@@ -7,13 +7,13 @@ httpx
 kubernetes
 langchain
 langchain-community
-langchain-huggingface
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 Pillow
 prometheus-fastapi-instrumentator
 pypdf
+python-arango
 python-multipart
 pyyaml
 requests

@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT="11104"
+export DATAPREP_PORT="11104"
 OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
 export TAG="comps"
 

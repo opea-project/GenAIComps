@@ -22,7 +22,7 @@ image_fn="${tmp_dir}/${image_name}.png"
 caption_fn="${tmp_dir}/${image_name}.txt"
 pdf_name="nke-10k-2023"
 pdf_fn="${tmp_dir}/${pdf_name}.pdf"
-DATAPREP_PORT="11102"
+export DATAPREP_PORT="11102"
 
 function build_docker_images() {
     cd $WORKPATH
@@ -40,7 +40,7 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llava/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/llava/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava built fail"
         exit 1

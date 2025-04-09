@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT="11105"
+export DATAPREP_PORT="11105"
 export TAG="comps"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -53,6 +53,9 @@ function validate_microservice() {
 
     ingest_pdf ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - pdf" "Data preparation succeeded" dataprep-pgvector-server ${LOG_PATH}/dataprep_pgvector.log
+
+    ingest_ppt ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - ppt" "Data preparation succeeded" dataprep-pgvector-server ${LOG_PATH}/dataprep_upload_file.log
 
     ingest_pptx ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - pptx" "Data preparation succeeded" dataprep-pgvector-server ${LOG_PATH}/dataprep_pgvector.log

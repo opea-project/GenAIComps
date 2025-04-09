@@ -1,30 +1,20 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+include:
+  - ../../../third_parties/llama-vision/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/llava/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/predictionguard/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/video-llama/deployment/docker_compose/compose.yaml
+
 services:
-  llava-service:
-    image: ${REGISTRY:-opea}/lvm-llava:${TAG:-latest}
-    container_name: llava-service
-    ports:
-      - ${LLAVA_PORT:-8399}:8399
-    ipc: host
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8399/health"]
-      interval: 30s
-      timeout: 6s
-      retries: 20
   vllm-service:
     image: ${REGISTRY:-opea}/vllm:latest
     container_name: vllm-service
     ports:
       - ${VLLM_PORT:-9699}:80
     volumes:
-      - "./data:/data"
+      - "./data:/root/.cache/huggingface/hub/"
     shm_size: 128g
     environment:
       no_proxy: ${no_proxy}
@@ -45,7 +35,7 @@ services:
     ports:
       - ${VLLM_PORT:-9699}:80
     volumes:
-      - "./data:/data"
+      - "./data:/root/.cache/huggingface/hub/"
     shm_size: 128g
     environment:
       no_proxy: ${no_proxy}
@@ -60,6 +50,7 @@ services:
       MAX_MODEL_LEN: ${MAX_TOTAL_TOKENS:-4096}
       MAX_SEQ_LEN_TO_CAPTURE: ${MAX_TOTAL_TOKENS:-4096}
       PT_HPUGRAPH_DISABLE_TENSOR_CACHE: false # https://github.com/HabanaAI/vllm-fork/issues/841#issuecomment-2700421704
+      PT_HPU_ENABLE_LAZY_COLLECTIVES: true # for tensor parallel inference with hpu graphs
     runtime: habana
     cap_add:
       - SYS_NICE
@@ -69,7 +60,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 150
-    command: --model $LLM_MODEL_ID --tensor-parallel-size 1 --host 0.0.0.0 --port 80 --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
+    command: --model $LLM_MODEL_ID --tensor-parallel-size ${TP_SIZE:-1} --host 0.0.0.0 --port 80 --enable-auto-tool-choice --tool-call-parser hermes  --chat-template ${CHAT_TEMPLATE:-examples/template_llava.jinja} # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
   llava-tgi-service:
     image: ghcr.io/huggingface/tgi-gaudi:2.3.1
     container_name: llava-tgi-service
@@ -92,63 +83,6 @@ services:
       timeout: 6s
       retries: 20
     command: --model-id ${LLM_MODEL_ID} --max-input-length 4096 --max-total-tokens 8192
-  llama-vision-service:
-    image: ${REGISTRY:-opea}/lvm-llama-vision:${TAG:-latest}
-    container_name: llama-vision-service
-    ports:
-      - ${LLAMA_VISION_PORT:-9399}:9399
-    runtime: habana
-    cap_add:
-      - SYS_NICE
-    ipc: host
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      LLAMA_VISION_MODEL_ID: ${LLM_MODEL_ID}
-      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
-      HABANA_VISIBLE_DEVICES: all
-      OMPI_MCA_btl_vader_single_copy_mechanism: none
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9399/health"]
-      interval: 30s
-      timeout: 6s
-      retries: 20
-  predictionguard-service:
-    image: ${REGISTRY:-opea}/lvm-pg:${TAG:-latest}
-    container_name: predictionguard-service
-    ports:
-      - ${PREDICTIONGUARD_PORT:-9399}:9399
-    ipc: host
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9399/health"]
-      interval: 30s
-      timeout: 6s
-      retries: 20
-  video-llama-service:
-    image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
-    container_name: video-llama-service
-    ports:
-      - ${VIDEO_LLAMA_PORT:-9009}:9009
-    ipc: host
-    environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      llm_download: "True"
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9009/health"]
-      interval: 30s
-      timeout: 6s
-      retries: 20
   lvm:
     image: ${REGISTRY:-opea}/lvm:${TAG:-latest}
     container_name: lvm-service

@@ -63,7 +63,7 @@ ES_INDEX_NAME = os.getenv("ES_INDEX_NAME", "rag_elasticsearch")
 #######################################################
 #                    Neo4j                            #
 #######################################################
-NEO4J_PORT2 = os.getenv("NEO4J_PORT2", "11632")
+NEO4J_PORT2 = os.getenv("NEO4J_PORT2", "7687")
 NEO4J_URL = os.getenv("NEO4J_URI", f"bolt://localhost:{NEO4J_PORT2}")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
@@ -184,5 +184,5 @@ VDMS_HOST = os.getenv("VDMS_HOST", "localhost")
 VDMS_PORT = int(os.getenv("VDMS_PORT", 55555))
 VDMS_INDEX_NAME = os.getenv("VDMS_INDEX_NAME", "rag_vdms")
 VDMS_USE_CLIP = int(os.getenv("VDMS_USE_CLIP", 0))
-SEARCH_ENGINE = "FaissFlat"
-DISTANCE_STRATEGY = "IP"
+SEARCH_ENGINE = os.getenv("SEARCH_ENGINE", "FaissFlat")
+DISTANCE_STRATEGY = os.getenv("DISTANCE_STRATEGY", "IP")

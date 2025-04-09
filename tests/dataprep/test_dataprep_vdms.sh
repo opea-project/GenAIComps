@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT="11110"
+export DATAPREP_PORT="11110"
 export TAG="comps"
 
 function build_docker_images() {
@@ -29,8 +29,8 @@ function start_service() {
     export VDMS_HOST=$ip_address
     export VDMS_PORT=55555
     export COLLECTION_NAME="test-comps"
-    export QDRANT_HOST=$ip_address
-    export QDRANT_PORT=$QDRANT_PORT
+    export VDMS_HOST=$ip_address
+    export VDMS_PORT=$VDMS_PORT
     service_name="vdms-vector-db dataprep-vdms"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d

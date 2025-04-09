@@ -1,6 +1,6 @@
 # Use a base image
 # FROM python:3.11-slim
-FROM vault.habana.ai/gaudi-docker/1.18.0/ubuntu22.04/habanalabs/pytorch-installer-2.4.0 AS hpu
+FROM vault.habana.ai/gaudi-docker/1.19.0/ubuntu22.04/habanalabs/pytorch-installer-2.5.1 AS hpu
 
 # Set environment variables
 ENV LANG=en_US.UTF-8

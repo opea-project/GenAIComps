@@ -4,7 +4,7 @@ Visual Question and Answering is one of the multimodal tasks empowered by LVMs (
 
 ## 🚀1. Start Microservice with Docker (Option 1)
 
-You have to build/start the [dependency](./integrations/dependency/) service based on your demands.
+You have to build/start the [dependency](../../third_parties/) service based on your demands.
 
 ```bash
 docker build --no-cache -t opea/lvm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/Dockerfile .
@@ -73,7 +73,7 @@ docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up video-lla
 # currently you have to build the opea/vllm-gaudi with the habana_main branch locally
 git clone https://github.com/HabanaAI/vllm-fork.git
 cd ./vllm-fork/
-git checkout habana_main
+git checkout f78aeb9da0712561163eddd353e3b6097cd69bac # revert this to habana_main when https://github.com/HabanaAI/vllm-fork/issues/1015 is fixed
 docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
 cd ..
 rm -rf vllm-fork
@@ -83,8 +83,18 @@ export ip_address=$(hostname -I | awk '{print $1}')
 export LVM_PORT=9399
 export VLLM_PORT=11507
 export LVM_ENDPOINT=http://$ip_address:$VLLM_PORT
+
+# llava (option 1)
 export LLM_MODEL_ID=llava-hf/llava-1.5-7b-hf
-docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up vllm-service lvm-vllm -d
+export CHAT_TEMPLATE=examples/template_llava.jinja
+# UI-TARS (option 2)
+export LLM_MODEL_ID=bytedance-research/UI-TARS-7B-DPO
+export TP_SIZE=1    # change to 4 or 8 if using UI-TARS-72B-DPO
+export CHAT_TEMPLATE=None
+
+export VLLM_SKIP_WARMUP=true # skip the warmup-phase will start the vLLM server quickly on Gaudi, but increase runtime inference time when meeting unseen HPU shape
+
+docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up vllm-gaudi-service lvm-vllm-gaudi -d
 ```
 
 ## Test
