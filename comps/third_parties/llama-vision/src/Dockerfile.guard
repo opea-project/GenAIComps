@@ -21,6 +21,7 @@ RUN git lfs install
 COPY comps /home/user/comps
 
 RUN cd /home/user/comps/third_parties/llama-vision/src && \
+    pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r requirements.txt  && \
     pip install --no-cache-dir --upgrade Pillow
 
