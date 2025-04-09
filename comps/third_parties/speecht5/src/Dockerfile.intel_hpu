@@ -21,7 +21,7 @@ RUN apt-get update \
 COPY --chown=user:user comps /home/user/comps
 
 # Install requirements and optimum habana
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/third_parties/speecht5/src/requirements.txt && \
     pip install --no-cache-dir --upgrade transformers && \
     pip install --no-cache-dir optimum[habana]
