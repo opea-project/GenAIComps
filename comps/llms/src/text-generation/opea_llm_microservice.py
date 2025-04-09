@@ -28,6 +28,8 @@ if logflag:
 
 if llm_component_name == "OpeaTextGenNative":
     from integrations.native import OpeaTextGenNative
+elif llm_component_name == "OpeaTextGenNativePhi4Multimodal":
+    from integrations.native_phi4_multimodal import OpeaTextGenNativePhi4Multimodal
 elif llm_component_name == "OpeaTextGenBedrock":
     from integrations.bedrock import OpeaTextGenBedrock
 elif llm_component_name == "OpeaTextGenOVMS":
