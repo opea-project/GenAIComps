@@ -1,3 +1,5 @@
+# TODO: Update the checkpoint path 
+# TODO: Decide on a more accessible design pattern for injecting globals
 apiVersion: v1
 kind: ConfigMap
 metadata:
