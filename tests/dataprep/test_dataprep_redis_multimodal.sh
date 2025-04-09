@@ -23,8 +23,9 @@ audio_name="apple"   # Intentionally name the audio file the same as the image f
 audio_fn="${tmp_dir}/${audio_name}.wav"
 pdf_name="nke-10k-2023"
 pdf_fn="${tmp_dir}/${pdf_name}.pdf"
+export DATAPREP_PORT="11109"
 text_ony_pdf_fn="${WORKPATH}/tests/dataprep/ingest_dataprep_text.pdf"
-DATAPREP_PORT="11109"
+
 export DATA_PATH=${model_cache}
 
 function build_docker_images() {
@@ -43,7 +44,7 @@ function build_docker_images() {
 function build_lvm_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/llava/Dockerfile .
+    docker build --no-cache -t opea/lvm-llava:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/llava/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/lvm-llava built fail"
         exit 1
