@@ -38,7 +38,7 @@ echo ""
 
 # Compose up
 echo "[INFO] Launching Docker Compose service..."
-docker compose -f compose.yaml up --build -d
+docker compose -f compose.yaml up --build 
 
 # Wait a moment then check status
 sleep 2

@@ -3,7 +3,7 @@
 import logging
 import os
 from comps.router.src.integrations.controllers.base_controller import BaseController
-from semantic_router.layer import RouteLayer
+from semantic_router.routers import SemanticRouter
 from semantic_router.encoders import OpenAIEncoder, HuggingFaceEncoder
 from semantic_router import Route
 # from decorators import log_latency
@@ -54,9 +54,9 @@ class SemanticRouterController(BaseController):
         routes = self.config.get("routes", [])
         route_list = [Route(name=route["name"], utterances=route["utterances"]) for route in routes]
 
-        # Reinitialize RouteLayer to clear previous embeddings when switching models
-        self.route_layer = RouteLayer(encoder=self.encoder, routes=route_list)
-        logging.info("[DEBUG] Successfully re-initialized RouteLayer with fresh embeddings.")
+        # Reinitialize SemanticRouter to clear previous embeddings when switching models
+        self.route_layer = SemanticRouter(encoder=self.encoder, routes=route_list)
+        logging.info("[DEBUG] Successfully re-initialized SemanticRouter with fresh embeddings.")
 
     def route(self, messages):
         """
