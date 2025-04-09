@@ -7,10 +7,10 @@ FROM vault.habana.ai/gaudi-docker/1.19.0/ubuntu22.04/habanalabs/pytorch-installe
 ENV LANG=en_US.UTF-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    curl \
     git-lfs \
     libgl1-mesa-glx \
-    libjemalloc-dev \
-    curl
+    libjemalloc-dev
 
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
