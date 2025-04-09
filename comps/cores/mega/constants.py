@@ -37,6 +37,7 @@ class ServiceType(Enum):
     TEXT2GRAPH = 20
     TEXT2CYPHER = 21
     TEXT2KG = 22
+    STRUCT2GRAPH = 23
 
 
 class MegaServiceEndpoint(Enum):

@@ -34,8 +34,7 @@ ENV PATH=$PATH:/home/user/.local/bin
 RUN cd /home/user/comps/finetuning/src/integrations/xtune && git config --global user.name "test" && git config --global user.email "test" && bash prepare_xtune.sh 
 
 RUN python -m pip install --upgrade pip setuptools peft && \
-    python -m pip install -r /home/user/comps/finetuning/src/requirements.txt && \
-    python -m pip install --no-deps transformers==4.45.0 datasets==2.21.0 accelerate==0.34.2 peft==0.12.0
+    python -m pip install -r /home/user/comps/finetuning/src/requirements.txt 
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 
