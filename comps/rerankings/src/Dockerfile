@@ -28,7 +28,7 @@ if [ ${SERVICE} = "videoqna" ]; then \
 elif [ ${SERVICE} = "all" ]; then \
     git clone https://github.com/IntelLabs/fastRAG.git /home/user/fastRAG && \
     cd /home/user/fastRAG && \
-    pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir . && \
     pip install --no-cache-dir .[intel] && \
     pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_videoqna.txt; \

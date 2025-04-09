@@ -20,7 +20,7 @@ RUN apt-get update \
 COPY --chown=user:user comps /home/user/comps
 
 # Install requirements and optimum habana
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
     pip install --no-cache-dir optimum[habana] && \
     pip install git+https://github.com/huggingface/optimum-habana.git@transformers_future && \
