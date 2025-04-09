@@ -12,7 +12,7 @@ ENV LANG=en_US.UTF-8
 ARG ARCH=cpu
 
 # Install system dependencies
-RUN apt-get update && iapt-get install -y --no-install-recommends --fix-missing \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     curl \
     ffmpeg
 
