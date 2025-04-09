@@ -17,6 +17,7 @@ config:
   bert:
     checkpoint_path: "routellm/bert_gpt4_augmented"
   mf:
+  # TODO: Update the checkpoint path 
     checkpoint_path: "madison-evans/routellm-e5-base-v2"
     use_openai_embeddings: false
     embedding_model_name: "intfloat/e5-base-v2"
