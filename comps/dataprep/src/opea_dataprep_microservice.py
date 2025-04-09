@@ -4,9 +4,9 @@
 
 import os
 import time
-from typing import List, Optional, Union
+from typing import Annotated, List, Optional, Union
 
-from fastapi import Body, File, Form, UploadFile
+from fastapi import Body, Depends, File, Form, HTTPException, UploadFile
 from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
@@ -28,6 +28,7 @@ from comps import (
     statistics_dict,
 )
 from comps.dataprep.src.utils import create_upload_folder
+from comps.cores.proto.api_protocol import DataprepRequest, Neo4jDataprepRequest, RedisDataprepRequest
 
 logger = CustomLogger("opea_dataprep_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -40,6 +41,44 @@ loader = OpeaDataprepLoader(
     description=f"OPEA DATAPREP Component: {dataprep_component_name}",
 )
 
+from fastapi import Request
+async def resolve_dataprep_request(request: Request):
+    form = await request.form()
+    
+    # 检查是否有 Redis 特定参数
+    if "index_name" in form:
+        logger.info(f"chunk_size: {form.get("chunk_size")}")
+        return RedisDataprepRequest(
+            files=form.get("files"),
+            link_list=form.get("link_list", ),
+            chunk_size=form.get("chunk_size"),
+            chunk_overlap=form.get("chunk_overlap"),
+            process_table=form.get("process_table"),
+            table_strategy=form.get("table_strategy"),
+            index_name=form.get("index_name"),
+        )
+    
+    # 检查是否有 Neo4j 特定参数
+    if "ingest_from_graphDB" in form:
+        return Neo4jDataprepRequest(
+            files=form.get("files"),
+            link_list=form.get("link_list"),
+            chunk_size=form.get("chunk_size"),
+            chunk_overlap=form.get("chunk_overlap"),
+            process_table=form.get("process_table"),
+            table_strategy=form.get("table_strategy"),
+            ingest_from_graphDB=form.get("ingest_from_graphDB"),
+        )
+    
+    # 默认使用 Base 类
+    return DataprepRequest(
+        files=form.get("files"),
+        link_list=form.get("link_list"),
+        chunk_size=form.get("chunk_size"),
+        chunk_overlap=form.get("chunk_overlap"),
+        process_table=form.get("process_table"),
+        table_strategy=form.get("table_strategy"),
+    )
 
 @register_microservice(
     name="opea_service@dataprep",
@@ -50,44 +89,33 @@ loader = OpeaDataprepLoader(
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def ingest_files(
-    files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-    link_list: Optional[str] = Form(None),
-    chunk_size: int = Form(1500),
-    chunk_overlap: int = Form(100),
-    process_table: bool = Form(False),
-    table_strategy: str = Form("fast"),
-    ingest_from_graphDB: bool = Form(False),
-    index_name: Optional[str] = Form(None),
+    input: Union[DataprepRequest, RedisDataprepRequest, Neo4jDataprepRequest] = Depends(resolve_dataprep_request),
+    # redis: RedisDataprepRequest = Depends(),
+    # neo4j: Neo4jDataprepRequest = Depends(),
+    # base: DataprepRequest = Depends(),
+    # base: Annotated[Optional[DataprepRequest], Depends()] = None,
+    # redis: Annotated[Optional[RedisDataprepRequest], Depends()] = None,
+    # neo4j: Annotated[Optional[Neo4jDataprepRequest], Depends()] = None,
 ):
+    
     start = time.time()
 
+    files = input.files
+    if isinstance(input, RedisDataprepRequest):
+        index_name = input.index_name
+        logger.info(f"[ ingest ] Redis mode: index_name={index_name}")
+    elif isinstance(input, Neo4jDataprepRequest):
+        ingest_from_graphDB = input.ingest_from_graphDB
+        logger.info(f"[ ingest ] Neo4j mode: ingest_from_graphDB={ingest_from_graphDB}")
+    else:
+        link_list = input.link_list
+        logger.info(f"[ ingest ] Base mode: link_list={link_list}")
+
     if logflag:
-        logger.info(f"[ ingest ] files:{files}")
-        logger.info(f"[ ingest ] link_list:{link_list}")
+        logger.info(f"[ ingest ] files: {files}")
 
     try:
-        # Use the loader to invoke the component
-        if dataprep_component_name == "OPEA_DATAPREP_REDIS":
-            response = await loader.ingest_files(
-                files,
-                link_list,
-                chunk_size,
-                chunk_overlap,
-                process_table,
-                table_strategy,
-                ingest_from_graphDB,
-                index_name,
-            )
-        else:
-            if index_name:
-                logger.error(
-                    'Error during dataprep ingest invocation: "index_name" option is supported if "DATAPREP_COMPONENT_NAME" environment variable is set to "OPEA_DATAPREP_REDIS". i.e: export DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_REDIS"'
-                )
-                raise
-
-            response = await loader.ingest_files(
-                files, link_list, chunk_size, chunk_overlap, process_table, table_strategy, ingest_from_graphDB
-            )
+        response = await loader.ingest_files(input=input)
 
         # Log the result if logging is enabled
         if logflag:
