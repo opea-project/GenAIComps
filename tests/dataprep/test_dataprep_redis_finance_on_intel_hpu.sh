@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT="11108"
+export DATAPREP_PORT="11108"
 TEI_EMBEDDER_PORT="10221"
 export TAG="comps"
 
@@ -34,7 +34,7 @@ function build_vllm_docker_images() {
         git clone https://github.com/HabanaAI/vllm-fork.git
     fi
     cd ./vllm-fork
-    VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+    VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
     echo "Check out vLLM tag ${VLLM_VER}"
     git checkout ${VLLM_VER} &> /dev/null
 

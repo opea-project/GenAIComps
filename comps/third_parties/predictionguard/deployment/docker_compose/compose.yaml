@@ -1,0 +1,21 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  predictionguard-service:
+    image: ${REGISTRY:-opea}/lvm-pg:${TAG:-latest}
+    container_name: predictionguard-service
+    ports:
+      - ${PREDICTIONGUARD_PORT:-9399}:9399
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9399/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20
