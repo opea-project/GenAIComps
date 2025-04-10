@@ -38,7 +38,7 @@ function start_service() {
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    sleep 1m
+    check_healthy "dataprep-milvus-server" || exit 1
 }
 
 function validate_microservice() {
