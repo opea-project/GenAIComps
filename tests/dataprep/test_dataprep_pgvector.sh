@@ -38,9 +38,11 @@ function start_service() {
 
     service_name="pgvector-db dataprep-pgvector"
     export host_ip=${ip_address}
+
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+    
+    check_healthy "dataprep-pgvector-server" || exit 1
 }
 
 function validate_microservice() {

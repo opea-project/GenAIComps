@@ -12,6 +12,9 @@ LLM_ENDPOINT_PORT=10510
 export TAG="comps"
 export DATA_PATH=${model_cache}
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
@@ -50,7 +53,8 @@ function start_service() {
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+    
+    check_healthy "dataprep-neo4j-llamaindex" || exit 1
 }
 
 function validate_service() {

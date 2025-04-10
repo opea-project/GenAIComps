@@ -11,6 +11,9 @@ export DATAPREP_PORT="11104"
 OPENSEARCH_INITIAL_ADMIN_PASSWORD="StRoNgOpEa0)"
 export TAG="comps"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
@@ -32,9 +35,11 @@ function start_service() {
     export INDEX_NAME="file-index"
     service_name="opensearch-vector-db dataprep-opensearch"
     export host_ip=${ip_address}
+
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+    
+    check_healthy "dataprep-opensearch-server" || exit 1
 }
 
 function validate_microservice() {
