@@ -131,6 +131,5 @@ jobs:
     uses: ./.github/workflows/_run-helm-chart.yml
     with:
       tag: ${{ inputs.tag }}
-      mode: ${{ inputs.mode }}
       service: ${{ inputs.service }}
     secrets: inherit
