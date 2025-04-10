@@ -45,10 +45,10 @@ if [ "$hw_mode" = "hpu" ]; then
 else
     git clone https://github.com/vllm-project/vllm.git
     cd ./vllm/
-    VLLM_VER="v0.8.2"
+    VLLM_VER="v0.8.3"
     echo "Check out vLLM tag ${VLLM_VER}"
     git checkout ${VLLM_VER} &> /dev/null
-    docker build -f Dockerfile.cpu -t opea/vllm-cpu:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
+    docker build -f docker/Dockerfile.cpu -t opea/vllm-cpu:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
     cd ..
     rm -rf vllm
 fi
