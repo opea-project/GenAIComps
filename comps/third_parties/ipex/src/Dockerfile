@@ -5,21 +5,19 @@
 
 ARG BASE_IMAGE=ubuntu:22.04
 FROM ${BASE_IMAGE} AS base
-RUN if [ -f /etc/apt/apt.conf.d/proxy.conf ]; then rm /etc/apt/apt.conf.d/proxy.conf; fi && \
-    if [ ! -z ${HTTP_PROXY} ]; then echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" >> /etc/apt/apt.conf.d/proxy.conf; fi && \
-    if [ ! -z ${HTTPS_PROXY} ]; then echo "Acquire::https::Proxy \"${HTTPS_PROXY}\";" >> /etc/apt/apt.conf.d/proxy.conf; fi
-RUN apt update && \
-    apt full-upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y \
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing \
     ca-certificates \
-    git \
     curl \
-    wget \
-    vim \
-    numactl \
-    gcc-12 \
     g++-12 \
+    gcc-12 \
+    git \
     make
+    numactl \
+    wget
+
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 && \
     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100 && \
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 100 && \
@@ -42,14 +40,14 @@ RUN . ~/miniforge3/bin/activate && conda create -y -n compile_py310 python=3.10 
     unset CC && unset CXX
 
 FROM base AS deploy
-RUN apt update && \
-    DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y \
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing \
     google-perftools \
-    openssh-server \
-    net-tools && \
-    apt clean && \
+    net-tools \
+    openssh-server && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    if [ -f /etc/apt/apt.conf.d/proxy.conf ]; then rm /etc/apt/apt.conf.d/proxy.conf; fi
+
 COPY --from=dev /root/intel-extension-for-pytorch/examples/cpu/llm ./llm
 COPY --from=dev /root/intel-extension-for-pytorch/tools/get_libstdcpp_lib.sh ./llm/tools
 RUN . ~/miniforge3/bin/activate && conda create -y -n py310 python=3.10 && conda activate py310 && \
@@ -60,7 +58,7 @@ RUN . ~/miniforge3/bin/activate && conda create -y -n py310 python=3.10 && conda
     mv ./oneCCL_release /opt/oneCCL && \
     chown -R root:root /opt/oneCCL && \
     sed -i "s|ONECCL_PATH=.*|ONECCL_PATH=/opt/oneCCL|" ./tools/env_activate.sh && \
-    pip install backoff fastapi uvicorn
+    pip install --no-cache-dir backoff fastapi uvicorn
 ARG PORT_SSH=22
 RUN mkdir /var/run/sshd && \
     sed -i "s/#Port.*/Port ${PORT_SSH}/" /etc/ssh/sshd_config && \
@@ -74,4 +72,3 @@ COPY ./comps/third_parties/ipex/src/openai_protocol.py /root
 COPY ./comps/third_parties/ipex/src/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-

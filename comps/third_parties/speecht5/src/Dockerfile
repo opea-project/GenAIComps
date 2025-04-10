@@ -12,9 +12,9 @@ ENV PYTHONPATH=/home/user
 ARG ARCH=cpu
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y ffmpeg \
-    && apt-get install -y curl
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    curl \
+    ffmpeg
 
 COPY --chown=user:user comps /home/user/comps
 
