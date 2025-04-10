@@ -28,11 +28,17 @@ LLM_ENDPOINT_PORT=8000
 
 
 function build_vllm_image() {
+    # This image is used to test textgen-service-endpoint-openai
     rm -rf $WORKPATH/vllm  # Remove existing vllm directory if it exists
     cd $WORKPATH
-    git clone https://github.com/vllm-project/vllm.git
-    cd vllm
-    docker build --no-cache -f Dockerfile.cpu -t opea/vllm-cpu:test .
+ 
+    # Pull the last tagged version of vLLM.
+    git clone https://github.com/vllm-project/vllm.git && cd vllm
+    VLLM_VER="$(git describe --tags "$(git rev-list --tags --max-count=1)" )"
+    echo "Checked out vLLM tag ${VLLM_VER}"
+    git checkout ${VLLM_VER} &> /dev/null
+
+    docker build --no-cache -f docker/Dockerfile.cpu -t opea/vllm-cpu:test .
     cd $WORKPATH
 }
 
