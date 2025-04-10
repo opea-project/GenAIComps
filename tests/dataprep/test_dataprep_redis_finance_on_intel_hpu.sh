@@ -100,7 +100,8 @@ function start_service() {
     service_name="redis-vector-db redis-kv-store tei-embedding-serving dataprep-redis-finance"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-redis-server-finance" || exit 1
 }
 
 function validate() {

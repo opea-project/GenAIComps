@@ -10,14 +10,14 @@ ARG ARCH="cpu"
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
     default-jre \
+    libcairo2 \
     libgl1-mesa-glx \
     libjemalloc-dev \
+    libpq-dev \
     libreoffice \
     poppler-utils \
     tesseract-ocr \
-    libpq-dev \
-    libcairo2 \
-    wget
+    wget curl
 
 # Install ffmpeg static build
 RUN cd /root && wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz && \
