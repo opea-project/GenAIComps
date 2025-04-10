@@ -156,3 +156,25 @@ function check_result() {
         echo "[ $service_name ] Content is as expected."
     fi
 }
+
+function check_healthy() {
+    local container_name=$1
+    local retries=30
+    local count=0
+
+    echo "Waiting for $container_name to become healthy..."
+
+    while [ $count -lt $retries ]; do
+        status=$(docker inspect --format='{{.State.Health.Status}}' "$container_name" 2>/dev/null)
+        if [ "$status" == "healthy" ]; then
+            echo "$container_name is healthy!"
+            return 0
+        fi
+        echo "  → $container_name status: $status ($count/$retries)"
+        sleep 5
+        ((count++))
+    done
+
+    echo "$container_name did not become healthy in time."
+    return 1
+}
