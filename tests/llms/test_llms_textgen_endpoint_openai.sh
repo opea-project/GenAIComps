@@ -7,7 +7,7 @@
 
 # This script tests the textgen connection with an openai endpoint based on a vLLM openAI endpoint.
 # The vLLM server is started in a docker container, and the textgen service is started in another container.
-# The textgen service is configured to connect to the vLLM server.
+# The textgen service is configured to connect to the vLLM server using a test key.
 # The test sends a request to the textgen service and validates the response.
 
 set -e # Exit on error
@@ -55,7 +55,7 @@ function start_vllm() {
         --model ${VLLM_MODEL} \
         --port 8000 \
         --host 0.0.0.0
-    sleep 30 # Wait for vLLM to start (increased)
+    sleep 30
 }
 
 function start_textgen() {
@@ -66,9 +66,10 @@ function start_textgen() {
     export service_name="textgen-service-endpoint-openai"
     export LOGFLAG=True
 
+    # textgen-service-endpoint-openai extends the textgen service. This test uses the image: opea/llm-textgen:latest
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d
-    sleep 20 # Wait for textgen service to start (increased)
+    sleep 20
 }
 
 function validate_service() {
@@ -85,7 +86,7 @@ function validate_service() {
             ]
         }')
 
-    echo "Raw response: $response" # Log the raw response
+    echo "Raw response: $response"
 
     local status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://${host_ip}:9000/v1/chat/completions \
         -H "Content-Type: application/json" \
@@ -119,14 +120,13 @@ function validate_service() {
     echo "Test passed. Generated text: $generated_text"
 }
 
-# --- Stop Containers ---
+
 function stop_containers() {
     docker stop textgen-service-endpoint-openai || true
     docker stop vllm-server || true
 }
 
-# --- Main ---
-# stop_containers # I assume containers are already cleared.
+# Assumes containers from other test runs are already cleared.
 build_vllm_image
 start_vllm
 start_textgen
