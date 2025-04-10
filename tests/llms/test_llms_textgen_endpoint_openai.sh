@@ -31,7 +31,7 @@ function build_vllm_image() {
     # This image is used to test textgen-service-endpoint-openai
     rm -rf $WORKPATH/vllm  # Remove existing vllm directory if it exists
     cd $WORKPATH
- 
+
     # Pull the last tagged version of vLLM.
     git clone https://github.com/vllm-project/vllm.git && cd vllm
     VLLM_VER="$(git describe --tags "$(git rev-list --tags --max-count=1)" )"
