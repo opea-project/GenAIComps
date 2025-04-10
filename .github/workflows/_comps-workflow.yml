@@ -9,7 +9,7 @@ on:
       service:
         required: true
         type: string
-      node:
+      image_build_nodes:
         required: true
         type: string
       tag:
@@ -46,7 +46,10 @@ jobs:
   # Image Build
   ####################################################################################################
   build-images:
-    runs-on: "docker-build-${{ inputs.node }}"
+    strategy:
+      matrix:
+        image_build_node: ${{ fromJson(inputs.image_build_nodes) }}
+    runs-on: "docker-build-${{ matrix.image_build_node }}"
     continue-on-error: true
     outputs:
       file_exists: ${{ steps.get-yaml-path.outputs.file_exists }}

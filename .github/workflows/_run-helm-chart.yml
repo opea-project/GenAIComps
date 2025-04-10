@@ -20,11 +20,6 @@ on:
         default: "latest"
         required: false
         type: string
-      mode:
-        default: "CD"
-        description: "Whether the test range is CI, CD or CICD"
-        required: false
-        type: string
       version:
         default: "0-latest"
         required: false
