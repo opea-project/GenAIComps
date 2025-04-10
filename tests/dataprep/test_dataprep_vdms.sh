@@ -37,7 +37,7 @@ function start_service() {
     service_name="vdms-vector-db dataprep-vdms"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    
+
     check_healthy "dataprep-vdms-server" || exit 1
 }
 

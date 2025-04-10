@@ -93,7 +93,7 @@ function start_service() {
     service_name="redis-vector-db dataprep-multimodal-redis"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    
+
     check_healthy "dataprep-multimodal-redis-server" || exit 1
 }
 

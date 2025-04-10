@@ -33,7 +33,7 @@ function start_service() {
     service_name="dataprep-pinecone"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    
+
     check_healthy "dataprep-pinecone-server" || exit 1
 }
 

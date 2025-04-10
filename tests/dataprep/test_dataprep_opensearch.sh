@@ -38,7 +38,7 @@ function start_service() {
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    
+
     check_healthy "dataprep-opensearch-server" || exit 1
 }
 

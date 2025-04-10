@@ -40,7 +40,7 @@ function start_service() {
     service_name="qdrant-vector-db tei-embedding-serving dataprep-qdrant"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    
+
     check_healthy "dataprep-qdrant-server" || exit 1
 }
 

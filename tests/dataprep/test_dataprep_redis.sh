@@ -41,7 +41,7 @@ function start_service() {
     service_name="redis-vector-db tei-embedding-serving dataprep-redis"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    
+
     check_healthy "dataprep-redis-server" || exit 1
 }
 
