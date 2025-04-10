@@ -87,7 +87,7 @@ services:
     image: ${REGISTRY:-opea}/lvm:${TAG:-latest}
     container_name: lvm-service
     ports:
-      - ${LVM_PORT:-5051}:9399
+      - ${LVM_PORT:-9399}:9399
     ipc: host
     environment:
       LVM_ENDPOINT: ${LVM_ENDPOINT}
