@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT="11105"
+export DATAPREP_PORT="11105"
 export TAG="comps"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -38,9 +38,11 @@ function start_service() {
 
     service_name="pgvector-db dataprep-pgvector"
     export host_ip=${ip_address}
+
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-pgvector-server" || exit 1
 }
 
 function validate_microservice() {

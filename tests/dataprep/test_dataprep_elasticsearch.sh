@@ -7,8 +7,11 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT=11100
+export DATAPREP_PORT=11100
 export TAG="comps"
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
 
 function build_docker_images() {
     cd $WORKPATH
@@ -35,7 +38,8 @@ function start_service() {
     cd $WORKPATH
     cd comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-elasticsearch" || exit 1
     echo "Microservice started"
 }
 
