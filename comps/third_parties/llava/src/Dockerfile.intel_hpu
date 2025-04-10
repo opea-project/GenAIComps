@@ -8,8 +8,7 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user /home/user/
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y curl
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing curl
 
 RUN rm -rf /etc/ssh/ssh_host*
 
@@ -20,7 +19,7 @@ ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
 COPY comps /home/user/comps
 
 # Install requirements and optimum habana
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/third_parties/llava/src/requirements.txt && \
     pip install --no-cache-dir optimum[habana]
 

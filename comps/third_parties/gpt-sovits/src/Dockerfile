@@ -7,9 +7,16 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user /home/user/
 
 # Install system dependencies
-RUN apt-get update && \
-    apt-get install -y ffmpeg git-lfs git wget vim build-essential numactl && \
-    apt-get install -y libomp-dev google-perftools curl && \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    build-essential \
+    curl \
+    ffmpeg \
+    git \
+    git-lfs \
+    google-perftools \
+    libomp-dev \
+    numactl \
+    wget && \
     pip install --upgrade pip
 
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libiomp5.so:/usr/lib/x86_64-linux-gnu/libtcmalloc.so.4
