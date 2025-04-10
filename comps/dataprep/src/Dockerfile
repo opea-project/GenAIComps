@@ -17,7 +17,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libreoffice \
     poppler-utils \
     tesseract-ocr \
-    wget
+    wget curl
 
 # Install ffmpeg static build
 RUN cd /root && wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz && \
