@@ -12,7 +12,7 @@ iopath
 langchain
 langchain-community
 langchain-core
-numpy==1.26.4
+numpy
 omegaconf
 opencv-python-headless
 opentelemetry-api
@@ -22,16 +22,15 @@ pandas
 Pillow
 prometheus_fastapi_instrumentator
 pytorchvideo
-sentence-transformers
 sentencepiece
+sentence-transformers
 shortuuid
 timm
-torch==1.13.1 --index-url https://download.pytorch.org/whl/cpu
-torchaudio==0.13.1 --index-url https://download.pytorch.org/whl/cpu
-torchvision==0.14.1 --index-url https://download.pytorch.org/whl/cpu
-transformers==4.47.1
+torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+torchaudio~=2.5.1 --index-url https://download.pytorch.org/whl/cpu
+torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cpu
+transformers
 uvicorn
 validators
 webdataset
 werkzeug
-
