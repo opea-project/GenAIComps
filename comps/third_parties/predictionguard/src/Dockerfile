@@ -9,8 +9,7 @@ ENV LANG=en_US.UTF-8
 COPY comps /home/user/comps
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y curl
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing curl
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/third_parties/predictionguard/src/requirements.txt

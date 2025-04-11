@@ -7,8 +7,7 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user /home/user/
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y curl
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing curl
 
 # Set environment variables
 ENV LANG=en_US.UTF-8

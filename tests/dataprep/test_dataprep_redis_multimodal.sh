@@ -28,6 +28,9 @@ text_ony_pdf_fn="${WORKPATH}/tests/dataprep/ingest_dataprep_text.pdf"
 
 export DATA_PATH=${model_cache}
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
@@ -90,7 +93,8 @@ function start_service() {
     service_name="redis-vector-db dataprep-multimodal-redis"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-multimodal-redis-server" || exit 1
 }
 
 function prepare_data() {
