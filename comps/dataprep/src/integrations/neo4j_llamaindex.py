@@ -36,7 +36,7 @@ from neo4j import GraphDatabase
 from transformers import AutoTokenizer
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.cores.proto.api_protocol import Neo4jDataprepRequest
+from comps.cores.proto.api_protocol import DataprepRequest, Neo4jDataprepRequest
 from comps.dataprep.src.utils import (
     document_loader,
     encode_filename,
@@ -665,10 +665,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             logger.error(f"Error building communities: {e}\n{error_trace}")
             return False
 
-    async def ingest_files(
-        self,
-        input: Neo4jDataprepRequest,
-    ):
+    async def ingest_files(self, input: Union[DataprepRequest, Neo4jDataprepRequest]):
         """Ingest files/links content into Neo4j database.
 
         Save in the format of vector[768].
@@ -689,7 +686,10 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
         chunk_overlap = input.chunk_overlap
         process_table = input.process_table
         table_strategy = input.table_strategy
-        ingest_from_graphDB = input.ingest_from_graphDB
+
+        ingest_from_graphDB = False
+        if isinstance(input, Neo4jDataprepRequest):
+            ingest_from_graphDB = input.ingest_from_graphDB
 
         if logflag:
             logger.info(f"files:{files}")

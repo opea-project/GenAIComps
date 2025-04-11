@@ -21,7 +21,7 @@ from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.cores.proto.api_protocol import RedisDataprepRequest
+from comps.cores.proto.api_protocol import DataprepRequest, RedisDataprepRequest
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -355,7 +355,7 @@ class OpeaRedisDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    async def ingest_files(self, input: RedisDataprepRequest):
+    async def ingest_files(self, input: Union[DataprepRequest, RedisDataprepRequest]):
         """Ingest files/links content into redis database.
 
         Save in the format of vector[768].
@@ -376,7 +376,10 @@ class OpeaRedisDataprep(OpeaComponent):
         chunk_overlap = input.chunk_overlap
         process_table = input.process_table
         table_strategy = input.table_strategy
-        index_name = input.index_name
+
+        index_name = None
+        if isinstance(input, RedisDataprepRequest):
+            index_name = input.index_name
 
         if logflag:
             logger.info(f"[ redis ingest ] files:{files}")
