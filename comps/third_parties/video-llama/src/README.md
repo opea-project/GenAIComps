@@ -24,7 +24,7 @@ export ip_address=$(hostname -I | awk '{print $1}')
 export no_proxy=$no_proxy,${ip_address}
 export LVM_ENDPOINT=http://${ip_address}:9009
 # Start service
-docker compose -f comps/third_parties/llama-vision/deployment/docker_compose/docker_compose.yaml up -d
+docker compose -f comps/third_parties/video-llama/src/docker_compose_vllama.yaml up -d
 # it should take about 1.5 hours for the model to download in the video-llama server, assuming a maximum download speed of 100 Mbps
 until docker logs lvm-video-llama 2>&1 | grep -q "Uvicorn running on"; do
     sleep 5m
