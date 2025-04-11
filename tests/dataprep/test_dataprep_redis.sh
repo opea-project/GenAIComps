@@ -51,33 +51,30 @@ function validate_microservice() {
     check_result "dataprep - del" '{"status":true}' dataprep-redis-server ${LOG_PATH}/dataprep_del.log
 
     # test /v1/dataprep/ingest upload file
-    ingest_doc ${ip_address} ${DATAPREP_PORT}
+    ingest_doc ${ip_address} ${DATAPREP_PORT} "redis"
     check_result "dataprep - upload - doc" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
-    ingest_docx ${ip_address} ${DATAPREP_PORT}
+    ingest_docx ${ip_address} ${DATAPREP_PORT} "redis"
     check_result "dataprep - upload - docx" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
-    ingest_pdf ${ip_address} ${DATAPREP_PORT}
+    ingest_pdf ${ip_address} ${DATAPREP_PORT} "redis"
     check_result "dataprep - upload - pdf" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
-    ingest_ppt ${ip_address} ${DATAPREP_PORT}
+    ingest_ppt ${ip_address} ${DATAPREP_PORT} "redis"
     check_result "dataprep - upload - ppt" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
-    ingest_pptx ${ip_address} ${DATAPREP_PORT}
+    ingest_pptx ${ip_address} ${DATAPREP_PORT} "redis"
     check_result "dataprep - upload - pptx" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
-    ingest_txt ${ip_address} ${DATAPREP_PORT}
+    ingest_txt ${ip_address} ${DATAPREP_PORT} "redis"
     check_result "dataprep - upload - txt" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
-    ingest_xlsx ${ip_address} ${DATAPREP_PORT}
+    ingest_xlsx ${ip_address} ${DATAPREP_PORT} "redis"
     check_result "dataprep - upload - xlsx" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
      # test /v1/dataprep/ingest upload link
     ingest_external_link ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
-
-    ingest_txt_with_index_name ${ip_address} ${DATAPREP_PORT} rag_redis_test
-    check_result "dataprep - upload with index - txt" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
     # test /v1/dataprep/indices
     indices ${ip_address} ${DATAPREP_PORT}
