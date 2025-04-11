@@ -20,7 +20,7 @@ services:
     image: opea/text2graph:${TAG:-latest}
     container_name: text2graph-gaudi-server
     ports:
-      - ${TEXT2GRAPH_PORT:-9090}:8080
+      - ${TEXT2GRAPH_PORT:-8080}:8080
     environment:
       - TGI_LLM_ENDPOINT=${TGI_LLM_ENDPOINT:-8080}:8080
 
