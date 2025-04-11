@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 ENV LANG=C.UTF-8
 
@@ -30,9 +30,12 @@ RUN git clone ${VIDEO_LLAMA_REPO} Video-LLaMA && \
     mv video_llama ../ && \
     cd ../ && rm -rf Video-LLaMA
 
+# Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional
+RUN sed -i 's/from torchvision.transforms.functional_tensor import rgb_to_grayscale/from torchvision.transforms.functional import rgb_to_grayscale/' /usr/local/lib/python3.11/site-packages/pytorchvideo/transforms/augmentations.py && \
+    sed -i 's/torchvision.transforms.functional_tensor/torchvision.transforms.v2.functional/' /usr/local/lib/python3.11/site-packages/pytorchvideo/transforms/augmentations.py
+
 USER user
 
 ENV PYTHONPATH=/home/user
-
 
 ENTRYPOINT ["bash", "start.sh"]
