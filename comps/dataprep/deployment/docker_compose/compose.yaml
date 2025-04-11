@@ -13,6 +13,8 @@ include:
   - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
   - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/arangodb/deployment/docker_compose/compose.yaml
 
 services:
 
@@ -377,6 +379,34 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
+
+  dataprep-arangodb:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-arangodb
+    depends_on:
+      arango-vector-db:
+        condition: service_healthy
+      vllm-server:
+        condition: service_healthy
+      tei-embedding-serving:
+        condition: service_healthy
+    ports:
+      - "${DATAPREP_PORT:-5000}:5000"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_ARANGODB"
+      ARANGO_URL: ${ARANGO_URL}
+      ARANGO_DB_NAME: ${ARANGO_DB_NAME}
+      ARANGO_USERNAME: ${ARANGO_USERNAME}
+      ARANGO_PASSWORD: ${ARANGO_PASSWORD}
+      VLLM_API_KEY: ${VLLM_API_KEY}
+      VLLM_ENDPOINT: ${VLLM_ENDPOINT}
+      VLLM_MODEL_ID: ${VLLM_MODEL_ID}
+      TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
 
 networks:
   default:
