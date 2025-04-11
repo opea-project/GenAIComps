@@ -22,8 +22,8 @@ pandas
 Pillow
 prometheus_fastapi_instrumentator
 pytorchvideo
-sentencepiece
 sentence-transformers
+sentencepiece
 shortuuid
 timm
 torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
