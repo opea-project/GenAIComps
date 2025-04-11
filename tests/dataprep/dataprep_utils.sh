@@ -39,7 +39,7 @@ function _invoke_curl() {
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 }
 
-# 
+#
 function _add_db_params() {
     local db=$1
     if [[ "$db" == "redis" ]]; then
