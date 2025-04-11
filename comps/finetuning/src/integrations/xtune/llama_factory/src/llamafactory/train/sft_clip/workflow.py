@@ -251,31 +251,22 @@ def setup_cfg(args, training_args, data_args, model_args):
     extend_cfg(cfg)
     if args.xpu == 1:
         cfg.TRAINER.COOP.XPU = True
-
         if torch.xpu.device_count() > 1:
-            mpi_world_size = int(os.environ.get("PMI_SIZE", -1))
-            mpi_rank = int(os.environ.get("PMI_RANK", -1))
-            if mpi_world_size > 0:
-                os.environ["RANK"] = str(mpi_rank)
-                os.environ["WORLD_SIZE"] = str(mpi_world_size)
-            else:
-                # set the default rank and world size to 0 and 1
-                os.environ["RANK"] = str(os.environ.get("RANK", 0))
-                os.environ["WORLD_SIZE"] = str(os.environ.get("WORLD_SIZE", 1))
+            import intel_extension_for_pytorch
+            import oneccl_bindings_for_pytorch
+
+            if not torch.distributed.is_initialized():
+                torch.distributed.init_process_group("ccl")
             os.environ["MASTER_ADDR"] = "127.0.0.1"  # your master address
             os.environ["MASTER_PORT"] = "29500"  # your master port
             args.world_size = int(os.environ.get("WORLD_SIZE", -1))
-            args.rank = int(os.environ.get("PMI_RANK", -1))
-            print("mpi_world_size", mpi_world_size)
-            print("args.rank", args.rank)
-            init_method = "tcp://" + os.environ["MASTER_ADDR"] + ":" + os.environ["MASTER_PORT"]
-            print("222222222222")
-
-            dist.init_process_group(backend="ccl", init_method=init_method, world_size=args.world_size, rank=args.rank)
-            local_rank = os.environ["MPI_LOCALRANKID"]
-            cfg.OUTPUT_DIR = cfg.OUTPUT_DIR + "/" + str(local_rank)
+            args.rank = int(os.environ["RANK"])
+            local_rank = int(os.environ["LOCAL_RANK"])
+            # cfg.OUTPUT_DIR = cfg.OUTPUT_DIR + "/" + str(local_rank)
         else:
             local_rank = 0
+        if torch.distributed.is_initialized():
+            torch.xpu.set_device(local_rank)
         args.xpu_id = local_rank
         args.xpu_id = "xpu:{}".format(args.xpu_id)
         cfg.TRAINER.COOP.XPU_ID = args.xpu_id
@@ -284,7 +275,6 @@ def setup_cfg(args, training_args, data_args, model_args):
         if torch.cuda.device_count() > 1:
             os.environ["MASTER_ADDR"] = "127.0.0.1"  # your master address
             os.environ["MASTER_PORT"] = "29500"  # your master port
-            init_method = "tcp://" + args.dist_url + ":" + args.dist_port
             dist.init_process_group(
                 backend="nccl",
             )
@@ -331,8 +321,14 @@ def run_sft_clip(
 
     # Initialize our Trainer
     cfg = setup_cfg(clip_args, training_args, data_args, model_args)
-    if os.path.exists(cfg.OUTPUT_DIR):
-        shutil.rmtree(cfg.OUTPUT_DIR)
+    env_var_name = "CLIP_DEBUG"
+    if env_var_name in os.environ:
+        if os.path.exists(cfg.OUTPUT_DIR):
+            shutil.rmtree(cfg.OUTPUT_DIR)
+    cache_dir = os.path.join("./caches", cfg.DATASET.NAME)
+    os.makedirs(cache_dir, exist_ok=True)
+    cfg.TRAINER.TIP.CACHE_DIR = cache_dir
+    cfg.TRAINER.TIP.CACHE_DIR_NEW = "./caches"
     if cfg.SEED >= 0:
         print("Setting fixed seed: {}".format(cfg.SEED))
         set_random_seed(cfg.SEED)

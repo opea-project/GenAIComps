@@ -102,6 +102,15 @@ then make `dataset_info.json` in your dataset directory
 
 ## Fine-Tuning with LLaMA Board GUI (powered by [Gradio](https://github.com/gradio-app/gradio))
 
+> [!NOTE] We don't support multi-card in GUI now, will add it later.
+
+When run with prepare_xtune.sh, it will automatic run ZE_AFFINITY_MASK=0 llamafactory-cli webui.
+
+If you see "server start successfully" in terminal.
+You can access in web through http://localhost:7860/
+
+The UI component information can be seen in doc/ui_component.md after run with prepare_xtune.sh.
+
 When run with prepare_xtune.sh, it will automatic run ZE_AFFINITY_MASK=0 llamafactory-cli webui.
 
 If you see "server start successfully" in terminal.
@@ -144,7 +153,7 @@ cd src/llamafactory/adaclip_finetune
 
 ### DeepSeek-R1 Distillation(not main function)
 
-Please see [doc](./doc/DeepSeek-R1_distillation_best_practice-v1.1.pdf) for details
+Please see [doc](./doc/DeepSeek-R1_distillation_best_practice-v1.3.pdf) for details
 
 #### Step 1: Download existing CoT synthetic dataset from huggingface
 
