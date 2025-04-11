@@ -15,7 +15,6 @@ from fastapi.responses import FileResponse
 from tqdm import tqdm
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.cores.proto.api_protocol import DataprepRequest
 
 from .utils import store_embeddings
 from .utils.utils import process_all_videos, read_config
@@ -195,7 +194,7 @@ class OpeaMultimodalVdmsDataprep(OpeaComponent):
     async def ingest_generate_caption(self, files: List[UploadFile] = File(None)):
         pass
 
-    async def ingest_files(self, input: DataprepRequest):
+    async def ingest_files(self, files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
         pass
 
     async def get_files(self):

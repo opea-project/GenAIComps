@@ -20,7 +20,6 @@ from langchain_core.utils import get_from_dict_or_env
 from PIL import Image
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.cores.proto.api_protocol import DataprepRequest
 from comps.third_parties.bridgetower.src.bridgetower_embedding import BridgeTowerEmbedding
 
 from .utils.multimodal import (
@@ -653,7 +652,6 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
         raise HTTPException(status_code=400, detail="Must provide at least one file.")
 
     async def ingest_files(self, files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
-
         if files:
             accepted_media_formats = [".mp4", ".png", ".jpg", ".jpeg", ".gif", ".pdf"]
             # Create a lookup dictionary containing all media files
