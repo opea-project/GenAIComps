@@ -80,15 +80,15 @@ class TokenCheckResponse(BaseModel):
     prompts: List[TokenCheckResponseItem]
 
 
-class DataprepRequest:
+class DataprepRequest():
     def __init__(
         self,
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
         link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
     ):
         self.files = files
         self.link_list = link_list
@@ -103,10 +103,10 @@ class Neo4jDataprepRequest(DataprepRequest):
         self,
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
         link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
         ingest_from_graphDB: bool = Form(False),
     ):
         super().__init__(
@@ -126,11 +126,11 @@ class RedisDataprepRequest(DataprepRequest):
         self,
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
         link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
-        index_name: Optional[str] = Form(None),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
+        index_name: str = Form(None),
     ):
         super().__init__(
             files=files,

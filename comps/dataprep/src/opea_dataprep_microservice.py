@@ -4,6 +4,7 @@
 
 import os
 import time
+from fastapi import Request
 from typing import Annotated, List, Optional, Union
 
 from fastapi import Body, Depends, File, Form, HTTPException, UploadFile
@@ -42,6 +43,33 @@ loader = OpeaDataprepLoader(
 )
 
 
+async def resolve_dataprep_request(request: Request):
+    form = await request.form()
+    
+    common_args = {
+        "files": form.get("files", None),
+        "link_list": form.get("link_list", None),
+        "chunk_size": form.get("chunk_size", 1500),
+        "chunk_overlap": form.get("chunk_overlap", 100),
+        "process_table": form.get("process_table", False),
+        "table_strategy": form.get("table_strategy", "fast"),
+    }
+
+    if "index_name" in form:
+        return RedisDataprepRequest(
+            **common_args,
+            index_name=form.get("index_name"),
+        )
+
+    if "ingest_from_graphDB" in form:
+        return Neo4jDataprepRequest(
+            **common_args,
+            ingest_from_graphDB=form.get("ingest_from_graphDB"),
+        )
+
+    return DataprepRequest(**common_args)
+
+
 @register_microservice(
     name="opea_service@dataprep",
     service_type=ServiceType.DATAPREP,
@@ -51,21 +79,14 @@ loader = OpeaDataprepLoader(
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def ingest_files(
-    base: Annotated[Optional[DataprepRequest], Depends()] = None,
-    redis: Annotated[Optional[RedisDataprepRequest], Depends()] = None,
-    neo4j: Annotated[Optional[Neo4jDataprepRequest], Depends()] = None,
+    input: Union[DataprepRequest, RedisDataprepRequest, Neo4jDataprepRequest] = Depends(resolve_dataprep_request),
 ):
-    input = None
-    if redis is not None:
-        input = redis
-    elif neo4j is not None:
-        input = neo4j
-    # elif ...
-    elif base is not None:
-        input = base
+    if isinstance(input, RedisDataprepRequest):
+        logger.info(f"[ ingest ] Redis mode: index_name={input.index_name}")
+    elif isinstance(input, Neo4jDataprepRequest):
+        logger.info(f"[ ingest ] Neo4j mode: ingest_from_graphDB={input.ingest_from_graphDB}")
     else:
-        logger.error("Error during dataprep ingest invocation: input is None")
-        raise HTTPException(400, detail="Invalid request")
+        logger.info(f"[ ingest ] Base mode")
 
     start = time.time()
 

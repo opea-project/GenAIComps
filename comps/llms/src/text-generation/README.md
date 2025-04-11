@@ -8,18 +8,21 @@ Overall, this microservice offers a streamlined way to integrate large language 
 
 ## Validated LLM Models
 
-| Model                                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     |
-| ------------------------------------------- | --------- | -------- | ---------- | -------- |
-| [Intel/neural-chat-7b-v3-3]                 | ✓         | ✓        | ✓          | ✓        |
-| [meta-llama/Llama-2-7b-chat-hf]             | ✓         | ✓        | ✓          | ✓        |
-| [meta-llama/Llama-2-70b-chat-hf]            | ✓         | -        | ✓          | -        |
-| [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          | ✓        |
-| [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          | -        |
-| [Phi-3]                                     | x         | Limit 4K | Limit 4K   | Limit 4K |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          | -        |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          | -        |
-| [mistralai/Mistral-Small-24B-Instruct-2501] | ✓         | -        | ✓          | -        |
-| [mistralai/Mistral-Large-Instruct-2411]     | x         | -        | ✓          | -        |
+| Model                                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     | Optimum-Habana |
+| ------------------------------------------- | --------- | -------- | ---------- | -------- | -------------- |
+| [Intel/neural-chat-7b-v3-3]                 | ✓         | ✓        | ✓          | ✓        | ✓              |
+| [meta-llama/Llama-2-7b-chat-hf]             | ✓         | ✓        | ✓          | ✓        | ✓              |
+| [meta-llama/Llama-2-70b-chat-hf]            | ✓         | -        | ✓          | -        | ✓              |
+| [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          | ✓        | ✓              |
+| [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          | -        | ✓              |
+| [Phi-3]                                     | x         | Limit 4K | Limit 4K   | Limit 4K | ✓              |
+| [Phi-4]                                     | x         | x        | x          | x        | ✓              |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]  | ✓         | -        | ✓          | -        | ✓              |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          | -        | ✓              |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]  | ✓         | -        | ✓          | -        | ✓              |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          | -        | ✓              |
+| [mistralai/Mistral-Small-24B-Instruct-2501] | ✓         | -        | ✓          | -        | ✓              |
+| [mistralai/Mistral-Large-Instruct-2411]     | x         | -        | ✓          | -        | ✓              |
 
 ### System Requirements for LLM Models
 
@@ -31,7 +34,10 @@ Overall, this microservice offers a streamlined way to integrate large language 
 | [meta-llama/Meta-Llama-3-8B-Instruct]       | 1                             |
 | [meta-llama/Meta-Llama-3-70B-Instruct]      | 2                             |
 | [Phi-3]                                     | x                             |
+| [Phi-4]                                     | x                             |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]  | 1                             |
 | [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | 8                             |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]  | 2                             |
 | [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | 4                             |
 | [mistralai/Mistral-Small-24B-Instruct-2501] | 1                             |
 | [mistralai/Mistral-Large-Instruct-2411]     | 4                             |
@@ -192,8 +198,11 @@ curl http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions \
 [meta-llama/Meta-Llama-3-8B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
 [meta-llama/Meta-Llama-3-70B-Instruct]: https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct
 [Phi-3]: https://huggingface.co/collections/microsoft/phi-3-6626e15e9585a200d2d761e3
+[Phi-4]: https://huggingface.co/collections/microsoft/phi-4-677e9380e514feb5577a40e4
 [HuggingFace]: https://huggingface.co/
+[deepseek-ai/DeepSeek-R1-Distill-Llama-8B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B
 [deepseek-ai/DeepSeek-R1-Distill-Llama-70B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-70B
 [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+[deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
 [mistralai/Mistral-Small-24B-Instruct-2501]: https://huggingface.co/mistralai/Mistral-Small-24B-Instruct-2501
 [mistralai/Mistral-Large-Instruct-2411]: https://huggingface.co/mistralai/Mistral-Large-Instruct-2411

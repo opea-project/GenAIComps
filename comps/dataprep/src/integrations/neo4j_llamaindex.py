@@ -61,7 +61,7 @@ from llama_index.core.prompts.default_prompts import DEFAULT_KG_TRIPLET_EXTRACT_
 from llama_index.core.schema import BaseNode, TransformComponent
 
 host_ip = os.getenv("host_ip")
-NEO4J_PORT2 = os.getenv("NEO4J_PORT2")
+NEO4J_PORT2 = os.getenv("NEO4J_PORT2", "7687")
 # Neo4J configuration
 NEO4J_URL = os.getenv("NEO4J_URL", f"bolt://{host_ip}:{NEO4J_PORT2}")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
