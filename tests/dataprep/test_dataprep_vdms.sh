@@ -10,6 +10,9 @@ ip_address=$(hostname -I | awk '{print $1}')
 export DATAPREP_PORT="11110"
 export TAG="comps"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
@@ -34,7 +37,8 @@ function start_service() {
     service_name="vdms-vector-db dataprep-vdms"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-vdms-server" || exit 1
 }
 
 function validate_microservice() {

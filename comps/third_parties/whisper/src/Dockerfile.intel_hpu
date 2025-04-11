@@ -14,16 +14,17 @@ ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
 ENV LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y ffmpeg curl
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    curl \
+    ffmpeg
 
 COPY --chown=user:user comps /home/user/comps
 
 # Install requirements and optimum habana
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
     pip install --no-cache-dir optimum[habana] && \
-    pip install git+https://github.com/huggingface/optimum-habana.git@transformers_future && \
+    pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana.git@transformers_future && \
     pip install --no-cache-dir --upgrade Jinja2
 
 ENV PYTHONPATH=$PYTHONPATH:/home/users
