@@ -80,7 +80,7 @@ class TokenCheckResponse(BaseModel):
     prompts: List[TokenCheckResponseItem]
 
 
-class DataprepRequest():
+class DataprepRequest:
     def __init__(
         self,
         files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),

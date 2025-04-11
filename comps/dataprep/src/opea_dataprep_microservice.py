@@ -4,10 +4,9 @@
 
 import os
 import time
-from fastapi import Request
 from typing import Annotated, List, Optional, Union
 
-from fastapi import Body, Depends, File, Form, HTTPException, UploadFile
+from fastapi import Body, Depends, File, Form, HTTPException, Request, UploadFile
 from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
@@ -45,7 +44,7 @@ loader = OpeaDataprepLoader(
 
 async def resolve_dataprep_request(request: Request):
     form = await request.form()
-    
+
     common_args = {
         "files": form.get("files", None),
         "link_list": form.get("link_list", None),
@@ -86,7 +85,7 @@ async def ingest_files(
     elif isinstance(input, Neo4jDataprepRequest):
         logger.info(f"[ ingest ] Neo4j mode: ingest_from_graphDB={input.ingest_from_graphDB}")
     else:
-        logger.info(f"[ ingest ] Base mode")
+        logger.info("[ ingest ] Base mode")
 
     start = time.time()
 
