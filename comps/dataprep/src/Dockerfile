@@ -1,6 +1,16 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+FROM python:3.11-slim AS models
+RUN useradd -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user /home/user/
+RUN pip install "huggingface_hub[cli]"
+USER user
+WORKDIR /home/user
+ARG models="unstructuredio/yolo_x_layout unstructuredio/detectron2_faster_rcnn_R_50_FPN_3x unstructuredio/detectron2_mask_rcnn_X_101_32x8d_FPN_3x"
+RUN for model in $models; do  huggingface-cli download "$model" --local-dir "/home/user/$model"; done
+
 FROM python:3.11-slim
 
 ENV LANG=C.UTF-8
@@ -47,7 +57,11 @@ RUN mkdir -p /home/user/comps/dataprep/src/uploaded_files && chown -R user /home
 
 USER user
 ENV NLTK_DATA=/home/user/nltk_data
+# air-gap environment support
+RUN mkdir -p /home/user/nltk_data && python -m nltk.downloader -d /home/user/nltk_data all
 
 WORKDIR /home/user/comps/dataprep/src
+# air-gap environment support
+COPY --from=models /home/user/unstructuredio /home/user/comps/dataprep/src/unstructuredio
 
 ENTRYPOINT ["sh", "-c", "python $( [ \"$MULTIMODAL_DATAPREP\" = \"true\" ] && echo 'opea_dataprep_multimodal_microservice.py' || echo 'opea_dataprep_microservice.py')"]
