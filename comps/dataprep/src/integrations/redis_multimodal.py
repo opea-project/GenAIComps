@@ -652,8 +652,7 @@ class OpeaMultimodalRedisDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide at least one file.")
 
-    async def ingest_files(self, input: DataprepRequest):
-        files = input.files
+    async def ingest_files(self, files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
 
         if files:
             accepted_media_formats = [".mp4", ".png", ".jpg", ".jpeg", ".gif", ".pdf"]

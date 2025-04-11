@@ -592,8 +592,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide at least one file.")
 
-    async def ingest_files(self, input: DataprepRequest):
-        files = input.files
+    async def ingest_files(self, files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
 
         if logflag:
             logger.info(f"[ milvus ingest ] files:{files}")
