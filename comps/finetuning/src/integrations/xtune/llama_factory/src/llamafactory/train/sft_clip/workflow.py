@@ -254,6 +254,7 @@ def setup_cfg(args, training_args, data_args, model_args):
         if torch.xpu.device_count() > 1:
             import intel_extension_for_pytorch
             import oneccl_bindings_for_pytorch
+
             if not torch.distributed.is_initialized():
                 torch.distributed.init_process_group("ccl")
             os.environ["MASTER_ADDR"] = "127.0.0.1"  # your master address
