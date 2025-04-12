@@ -16,6 +16,8 @@ langchain-vdms>=0.1.4
 langchain_community
 langchain_huggingface
 langchain_milvus
+langchain-openai
+langchain-arangodb
 llama-index-core==0.12.19
 llama-index-embeddings-openai
 llama-index-embeddings-text-embeddings-inference
