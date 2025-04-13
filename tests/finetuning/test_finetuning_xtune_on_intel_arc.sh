@@ -118,7 +118,7 @@ function validate_finetune() {
 	    exit 1
 	else
 	    echo "training: '$STATUS'"
-        sleep 1m
+            sleep 1m
 	fi
     done
 }
@@ -146,10 +146,6 @@ function validate_microservice() {
         "finetuning-xtune" \
         '{"id":"ft-job' \
         '{"training_file": "","model": "vit_b16", "General":{"xtune_config":{"tool":"clip","device":"XPU", "dataset_root":"/home/data", "trainer": "clip_adapter_hf", "dataset":"caltech101", "model":"vit_b16"}}}'
-
-
-
-
 }
 
 function stop_docker() {

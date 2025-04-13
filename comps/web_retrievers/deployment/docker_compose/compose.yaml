@@ -35,7 +35,7 @@ services:
       https_proxy: ${https_proxy}
       host_ip: ${host_ip}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 10s
       timeout: 6s
       retries: 48

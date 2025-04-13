@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 
 COPY comps /home/user/comps
 
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/llms/utils/lm-eval/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user

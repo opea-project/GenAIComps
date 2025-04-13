@@ -93,7 +93,7 @@ function main() {
     stop_docker
     build_docker_images
     start_service
-    validate_microservice
+    validate_microservices
     stop_docker
 
     echo y | docker system prune
