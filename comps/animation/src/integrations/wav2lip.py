@@ -31,7 +31,8 @@ class OpeaAnimation(OpeaComponent):
         """
         inputs = {"audio": input}
 
-        async with aiohttp.ClientSession() as session:
+        timeout = aiohttp.ClientTimeout(total=600)  # Set timeout to 600 seconds
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             response = await session.post(url=f"{self.base_url}/v1/wav2lip", data=json.dumps(inputs), proxy=None)
             json_data = await response.json()
             outfile = json_data["wav2lip_result"]

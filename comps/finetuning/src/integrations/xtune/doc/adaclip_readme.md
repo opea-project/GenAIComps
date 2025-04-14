@@ -2,30 +2,10 @@
 
 This repo is the finetune implementation for the paper "AdaCLIP: Towards Pragmatic Multimodal Video Retrieval"
 
-Incorporating large image-text foundation models such as CLIP has
-substantially improved the performance of the multimodal video
-retrieval task. However, how to practically sample the frames from
-a video and aggregate the frame features into a video representation
-is still an open research question. In particular, real-world
-deployment scenarios, such as embodiment within consumer electronics
-or cloud-based inference pipelines, require two key facets of
-retrieval (representation building and search) to be computationally
-light and fast. In this paper, we propose AdaCLIP, a computationand
-latency-aware system for pragmatic multimodal video retrieval.
-
-AdaCLIP consists of a _learning-based frame selection module_ to select
-informative frames and a _query-independent frame aggregation
-module_ to obtain strong video representations from the frame features.
-Specifically, in the frame selection module, we introduce a
-differentiable _Hard-Top-k_ algorithm to sample a subset of the frames
-while optimizing the performance of the video retrieval task in an
-end-to-end manner. Moreover, to be latency-aware, we also propose
-a query-independent lightweight approach, _MLP-Score_, to aggregate
-the frame features into the video representation, which offers
-up to 142x speedup on GPU and 822x speedup on CPU in similarity
-search time compared to query-dependent matching methods.
-Experimental results on several popular video retrieval datasets
-confirm the effectiveness of AdaCLIP.
+Incorporating large image-text foundation models such as CLIP has substantially improved the performance of the multimodal video retrieval task. However, how to practically sample the frames from a video and aggregate the frame features into a video representation is still an open research question. In particular, real-world deployment scenarios, such as embodiment within consumer electronics or cloud-based inference pipelines, require two key facets of retrieval (representation building and search) to be computationally light and fast. In this paper, we propose AdaCLIP, a computationand latency-aware system for pragmatic multimodal video retrieval.
+AdaCLIP consists of a _learning-based frame selection module_ to select informative frames and a _query-independent frame aggregation module_ to obtain strong video representations from the frame features.
+Specifically, in the frame selection module, we introduce a differentiable _Hard-Top-k_ algorithm to sample a subset of the frames while optimizing the performance of the video retrieval task in an end-to-end manner. Moreover, to be latency-aware, we also propose a query-independent lightweight approach, _MLP-Score_, to aggregate the frame features into the video representation, which offers up to 142x speedup on GPU and 822x speedup on CPU in similarity search time compared to query-dependent matching methods.
+Experimental results on several popular video retrieval datasets confirm the effectiveness of AdaCLIP.
 
 # Prerequisites
 
@@ -99,13 +79,9 @@ pip install -r requirements.txt
 
 ## Datasets
 
-We mainly use `ActivityNet` to do finetune, you can also use other datasets.
+We mainly use `ActivityNet` to do finetune when development , you can also use other datasets.
 
-The training data information is located in the directories `src/llamafactory/adaclip_finetune/annots-finetune` and `src/llamafactory/adaclip_finetune/annots/`. To change the finetuning and validation datasets, you can modify the `dataset`, `train_annot`, and `val_annot` paths in the finetune configurations found under `src/llamafactory/adaclip_finetune/cfgs`.
-
-We primarily use the `src/llamafactory/adaclip_finetune/annots-finetune/activitynet/finetune-5000.json` file for fine-tuning.
-
-For validation during the fine-tuning process, we utilize the `src/llamafactory/adaclip_finetune/annots/activitynet/val.json` file. The validation is performed at the end of each epoch. The validation indicator is best recall(top1 and top5)
+The following are some datasets used in AdaCLIP:
 
 ### ActivityNet
 
@@ -125,17 +101,41 @@ The videos can be downloaded from [LisaAnne/LocalizingMoments](https://github.co
 
 ## Frame Extraction
 
-Run `utils/frame_extraction.py` after having downloaded the dataset videos and annotations from the website. Make sure that all the videos are in the same directory (no sub-directories allowed).
+Run `utils/frame_extraction.py` to extract frames after having downloaded the dataset videos and annotations from the website.
+
+Make sure that all the videos are in the same directory (no sub-directories allowed).
+
+The frames from each video will be saved under: `/path/to/frames/video_name`
 
 ```
 python utils/frame_extraction.py /path/to/videos /path/to/frames --parallel
 ```
 
+## Dataset JSON prepare
+
+Prepare dataset json as the following example:
+
+```
+    "video_name": {
+        "sentences": [
+        "sentence 1",
+        "sentence 2",
+        ...
+        "sentence n"
+        ]
+    }
+```
+
+Each data need video name and sentences that describe the video content.
+
+An example json file is provided in :
+`CLIP_LLama_Factory/src/llamafactory/adaclip_finetune/dataset_example/dataset.json`
+
 # Implemented finetune methods
 
 We have implemented the BitFit and IBS fine-tuning methods.
 
-To fine-tune using different methods, you can utilize the corresponding configuration files located under `src/llamafactory/adaclip_finetune/cfgs/peft`.
+To fine-tune using different methods, you can utilize the corresponding configuration files located under `src/llamafactory/adaclip_finetune/cfgs`.
 For a more detailed guide, please refer to [How to Finetune](#how-to-finetune) section.
 
 ## BitFit & SSF
@@ -143,6 +143,7 @@ For a more detailed guide, please refer to [How to Finetune](#how-to-finetune) s
 [BitFit: Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models](https://aclanthology.org/2022.acl-short.1)  
 [Scaling & Shifting Your Features: A New Baseline for Efficient Model Tuning](https://papers.neurips.cc/paper_files/paper/2022/hash/00bb4e415ef117f2dee2fc3b778d806d-Abstract-Conference.html)  
 [Revisiting Batch Normalization For Practical Domain Adaptation](https://openreview.net/forum?id=Hk6dkJQFx)
+
 Example
 
 ```json
@@ -160,13 +161,14 @@ Example
     }
 ```
 
-Config path: `src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-bitfit-5k.json`
+Config path: `src/llamafactory/adaclip_finetune/cfgs/peft/bitfit.json`
 
 **TODO**: check if the naive recursive monkey patch has problems.
 
 ## Importance Based Selection (IBS)
 
 Select partial layers for finetune based on the parameter updates after training a given steps/epochs. The metric for importance can be either the l2 norm of param updates or angle based, which is introduced in the following paper:
+
 [Angle-based Search Space Shrinking for Neural Architecture Search](https://www.ecva.net/papers/eccv_2020/papers_ECCV/html/3155_ECCV_2020_paper.php)
 
 Example
@@ -177,7 +179,7 @@ Example
         "config": {
             "pre_batch_size": 8,
             "num_pre_epochs": 2,
-            "retain_ratio": 0.05,
+            "retain_ratio": 0.1,
             "metric": "l2norm",
             "normalization": true,
             "keep_module_keywords": [
@@ -192,8 +194,7 @@ Example
 ```
 
 Config path:
-`src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-ibs-r005-5k.json`
-`src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-ibs-r010-5k.json`
+`src/llamafactory/adaclip_finetune/cfgs/peft/ibs.json`
 
 ## Performance of different finetune methods
 
@@ -205,13 +206,9 @@ Config path:
 
 # How to Finetune
 
-You can finetune AdaCLIP by using `src/llamafactory/adaclip_finetune/train.py` and configs under `src/llamafactory/adaclip_finetune/cfgs`.
+You can finetune AdaCLIP by using configs under `src/llamafactory/adaclip_finetune/cfgs`.
 
-The bitfit and ibs configs are under `src/llamafactory/adaclip_finetune/cfgs/peft`.
-
-The full finetune config is under `src/llamafactory/adaclip_finetune/cfgs/finetune`.
-
-You can modify the information in config jsons to meet your requirements.
+You can modify the information in config jsons to meet your requirements, like `train_annot`,`val_annot` and `test_annot` in the configs according to your own dataset.
 
 ## Finetune on NVIDIA
 
@@ -222,19 +219,19 @@ cd src/llamafactory/adaclip_finetune
 Finetune AdaCLIP with bitfit
 
 ```sh
-python  train.py --config src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-bitfit-5k.json --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pre-train/model --batch_size 8
+python  train.py --config src/llamafactory/adaclip_finetune/cfgs/bitfit.json --frames_dir  /path/to/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pre-train/model --batch_size 8
 ```
 
 Finetune AdaCLIP with ibs
 
 ```sh
-python  train.py --config src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-ibs-r005-5k.json (or activitynet-ibs-r010-5k.json) --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pre-train/model --batch_size 8
+python  train.py --config src/llamafactory/adaclip_finetune/cfgs/ibs.json --frames_dir  /path/to/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pre-train/model --batch_size 8
 ```
 
 Full finetune
 
 ```sh
-python  train.py --config src/llamafactory/adaclip_finetune/cfgs/finetune/activitynet-finetune-5000-c-32.json --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --batch_size 8
+python  train.py --config src/llamafactory/adaclip_finetune/cfgs/full-finetune.json --frames_dir  /path/to/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --batch_size 8
 ```
 
 ## Finetune on Arc A770
@@ -254,19 +251,19 @@ cd src/llamafactory/adaclip_finetune
 Finetune AdaCLIP with bitfit
 
 ```sh
-python  train.py --config src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-bitfit-5k.json --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --xpu --batch_size 8
+python  train.py --config src/llamafactory/adaclip_finetune/cfgs/bitfit.json --frames_dir  /path/to/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --xpu --batch_size 8
 ```
 
 Finetune AdaCLIP with ibs
 
 ```sh
-python  train.py --config src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-ibs-r005-5k.json (or activitynet-ibs-r010-5k.json) --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --xpu --batch_size 8
+python  train.py --config src/llamafactory/adaclip_finetune/cfgs/ibs.json --frames_dir  /path/to/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --xpu --batch_size 8
 ```
 
 Full finetune
 
 ```sh
-python  train.py --config src/llamafactory/adaclip_finetune/cfgs/finetune/activitynet-finetune-5000-c-32.json --frames_dir  /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --xpu --batch_size 8
+python  train.py --config src/llamafactory/adaclip_finetune/cfgs/full-finetune.json --frames_dir  /path/to/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pretrain/model --xpu --batch_size 8
 ```
 
 The finetune output will located in `src/llamafactory/adaclip_finetune/output`
@@ -295,7 +292,7 @@ You can enable optuna to automatic get the best param by adding `optuna_cfg` con
     }
 ```
 
-The config example is: `src/llamafactory/adaclip_finetune/cfgs/peft/activitynet-bitfit-5k-optuna.json`
+The config example is: `src/llamafactory/adaclip_finetune/cfgs/bitfit-optuna.json`
 |Config name|Description|
 |:--|:--|
 |n_trials|The max number of trials. Must be set to an integer.|
@@ -314,7 +311,7 @@ Command example:
 
 ```sh
 cd src/llamafactory/adaclip_finetune/train.py
-python train.py --config ./cfgs/peft/activitynet-bitfit-5k-c-32_optuna.json --frames_dir /path/to/ActivityNet/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pre-train/model --xpu --batch_size 8
+python train.py --config ./cfgs/bitfit-optuna.json --frames_dir /path/to/frames --top_k 16 --freeze_cnn --frame_agg mlp --resume /path/to/pre-train/model --xpu --batch_size 8
 ```
 
 ## Visualization

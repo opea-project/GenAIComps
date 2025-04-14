@@ -7,7 +7,7 @@ TTS (Text-To-Speech) microservice helps users convert text to speech. When build
 - Xeon CPU
 
 ```bash
-cd integrations/dependency/speecht5
+cd comps/third_parties/speecht5/src
 nohup python speecht5_server.py --device=cpu &
 curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
 ```
@@ -17,7 +17,7 @@ curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Conte
 ```bash
 pip install optimum[habana]
 
-cd integrations/dependency/speecht5
+cd comps/third_parties/speecht5/src
 nohup python speecht5_server.py --device=hpu &
 curl http://localhost:7055/v1/tts -XPOST -d '{"text": "Who are you?"}' -H 'Content-Type: application/json'
 ```
@@ -42,14 +42,14 @@ Alternatively, you can start the TTS microservice with Docker.
 
 ```bash
 cd ../../../
-docker build -t opea/speecht5:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/src/integrations/dependency/speecht5/Dockerfile .
+docker build -t opea/speecht5:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/speecht5/src/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
 cd ../../../
-docker build -t opea/speecht5-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/tts/src/integrations/dependency/speecht5/Dockerfile.intel_hpu .
+docker build -t opea/speecht5-gaudi:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/speecht5/src/Dockerfile.intel_hpu .
 ```
 
 #### 2.1.2 TTS Service Image

@@ -13,7 +13,7 @@ export TTS_PORT=11803
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/speecht5-gaudi:$TAG -f comps/tts/src/integrations/dependency/speecht5/Dockerfile.intel_hpu .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/speecht5-gaudi:$TAG -f comps/third_parties/speecht5/src/Dockerfile.intel_hpu .
     if [ $? -ne 0 ]; then
         echo "opea/speecht5-gaudi built fail"
         exit 1

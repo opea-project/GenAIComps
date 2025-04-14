@@ -40,7 +40,7 @@ loader = OpeaComponentLoader(rerank_component_name, description=f"OPEA RERANK Co
 @opea_telemetry
 @register_statistics(names=["opea_service@reranking"])
 async def reranking(
-    input: Union[SearchedMultimodalDoc, SearchedDoc, RerankingRequest, ChatCompletionRequest]
+    input: Union[SearchedMultimodalDoc, SearchedDoc, RerankingRequest, ChatCompletionRequest],
 ) -> Union[RerankedDoc, LLMParamsDoc, RerankingResponse, ChatCompletionRequest, LVMVideoDoc]:
     start = time.time()
 

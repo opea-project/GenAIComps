@@ -9,6 +9,9 @@ on:
       service:
         required: true
         type: string
+      image_build_nodes:
+        required: true
+        type: string
       tag:
         default: "comps"
         required: false
@@ -43,8 +46,10 @@ jobs:
   # Image Build
   ####################################################################################################
   build-images:
-    if: ${{ !(fromJSON(inputs.test_helmchart)) }}
-    runs-on: "docker-build-gaudi"
+    strategy:
+      matrix:
+        image_build_node: ${{ fromJson(inputs.image_build_nodes) }}
+    runs-on: "docker-build-${{ matrix.image_build_node }}"
     continue-on-error: true
     outputs:
       file_exists: ${{ steps.get-yaml-path.outputs.file_exists }}
@@ -76,7 +81,7 @@ jobs:
           fi
           if [[ $(grep -c "vllm-gaudi:" ${docker_compose_yml}) != 0 ]]; then
               git clone https://github.com/HabanaAI/vllm-fork.git && cd vllm-fork
-              VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+              VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
               echo "Check out vLLM tag ${VLLM_VER}"
               git checkout ${VLLM_VER} &> /dev/null && cd ../
           fi
@@ -110,7 +115,6 @@ jobs:
   # Docker Compose Test
   ####################################################################################################
   test-service-compose:
-    needs: [build-images]
     if: ${{ fromJSON(inputs.test_compose) }}
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
@@ -127,6 +131,5 @@ jobs:
     uses: ./.github/workflows/_run-helm-chart.yml
     with:
       tag: ${{ inputs.tag }}
-      mode: ${{ inputs.mode }}
       service: ${{ inputs.service }}
     secrets: inherit

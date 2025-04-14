@@ -55,6 +55,39 @@ class AgentCompletionRequest(ChatCompletionRequest):
 @register_microservice(
     name="opea_service@comps-chat-agent",
     service_type=ServiceType.LLM,
+    endpoint="/v1/models",
+    host="0.0.0.0",
+    port=args.port,
+    methods=["GET"],
+)
+async def models():
+
+    if logflag:
+        logger.info("get models")
+
+    # TODO: need format here
+    model_info = {
+        "object": "list",
+        "data": [
+            {
+                "id": "opea-agent",
+                "object": "model",
+                "created": None,
+                "owned_by": "opea",
+                "root": "opea-agent",
+                "parent": None,
+                "max_model_len": 16384,
+                "permission": [],
+            }
+        ],
+    }
+
+    return model_info
+
+
+@register_microservice(
+    name="opea_service@comps-chat-agent",
+    service_type=ServiceType.LLM,
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=args.port,

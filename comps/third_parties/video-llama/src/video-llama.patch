@@ -1,0 +1,548 @@
+diff --git a/video_llama/conversation/conversation_video.py b/video_llama/conversation/conversation_video.py
+index 32d9294..b84e877 100644
+--- a/video_llama/conversation/conversation_video.py
++++ b/video_llama/conversation/conversation_video.py
+@@ -155,9 +155,22 @@ default_conversation = Conversation(
+     sep="###",
+ )
+ conv_llava_llama_2 = Conversation(
+-    system="You are a helpful language and vision assistant. "
+-           "You are able to understand the visual content that the user provides, "
+-           "and assist the user with a variety of tasks using natural language.",
++    #system="You are a helpful language and vision assistant. "
++    #       "You are able to understand the visual content that the user provides, "
++    #       "and assist the user with a variety of tasks using natural language.",
++    system="You are Intel's RAG assistant who understands visual and textual content. \
++    You will be provided with two things, video embeddings and user's RAG prompt. \
++    You are supposed to understand video content from the video embeddings \
++and provide answer to user's question. \
++\
++As an assistant, you need to follow these Rules while answering questions,\
++\
++Rules:\
++- Don't answer any question which is not related to provide video content.\
++- Don't be toxic and don't include harmful information.\
++- Give answer only if you find it in the video content, otherwise just say You don't have enough information to answer the question.\
++\
++Here are the video embeddings:",
+     roles=("USER", "ASSISTANT"),
+     messages=(),
+     offset=0,
+@@ -171,21 +184,26 @@ class Chat:
+         self.model = model
+         self.vis_processor = vis_processor
+         self.image_vis_processor = Blip2ImageEvalProcessor()
++        self.video_msg = ""
+         # stop_words_ids = [torch.tensor([835]).to(self.device),
+         #                   torch.tensor([2277, 29937]).to(self.device)]  # '###' can be encoded in two different ways.
+         # self.stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
+-
+-    def ask(self, text, conv):
+-        if len(conv.messages) > 0 and conv.messages[-1][0] == conv.roles[0] \
+-                and ('</Video>' in conv.messages[-1][1] or '</Image>' in conv.messages[-1][1]):  # last message is image.
+-            conv.messages[-1][1] = ' '.join([conv.messages[-1][1], text])
++        self.conv = conv_llava_llama_2.copy()
++        self.img_list = []
++
++    def ask(self, text):
++        self.question = text
++        if len(self.conv.messages) > 0 and self.conv.messages[-1][0] == self.conv.roles[0] \
++                and ('</Video>' in self.conv.messages[-1][1] or '</Image>' in self.conv.messages[-1][1]):  # last message is image.
++            self.conv.messages[-1][1] = ' '.join([self.conv.messages[-1][1], text])
+         else:
+-            conv.append_message(conv.roles[0], text)
++            self.conv.append_message(self.conv.roles[0], text)
+ 
+-    def answer(self, conv, img_list, max_new_tokens=300, num_beams=1, min_length=1, top_p=0.9,
+-               repetition_penalty=1.0, length_penalty=1, temperature=1.0, max_length=2000):
+-        conv.append_message(conv.roles[1], None)
+-        embs = self.get_context_emb(conv, img_list)
++    def answer(self, max_new_tokens=300, num_beams=1, min_length=1, top_p=0.9,
++               repetition_penalty=1.0, length_penalty=1, temperature=1.0, max_length=2000, keep_conv_hist=True, streamer=None):
++        self.conv.append_message(self.conv.roles[1], None)
++        embs = self.get_context_emb(keep_conv_hist)
++        #print("chat.answer - input to llama: embs.shape:", embs.shape)
+ 
+         current_max_len = embs.shape[1] + max_new_tokens
+         if current_max_len - max_length > 0:
+@@ -194,7 +212,7 @@ class Chat:
+         begin_idx = max(0, current_max_len - max_length)
+ 
+         embs = embs[:, begin_idx:]
+-        if conv.sep =="###":
++        if self.conv.sep =="###":
+             stop_words_ids = [torch.tensor([835]).to(self.device),
+                           torch.tensor([2277, 29937]).to(self.device)]  # '###' can be encoded in two different ways.
+             stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops=stop_words_ids)])
+@@ -214,32 +232,35 @@ class Chat:
+             repetition_penalty=repetition_penalty,
+             length_penalty=length_penalty,
+             temperature=temperature,
++            streamer=streamer
+         )
+         output_token = outputs[0]
+-        if output_token[0] == 0:  # the model might output a unknow token <unk> at the beginning. remove it
++        if output_token[0] == 0:  # the model might output a unknown token <unk> at the beginning. remove it
+             output_token = output_token[1:]
+         if output_token[0] == 1:  # some users find that there is a start token <s> at the beginning. remove it
+             output_token = output_token[1:]
+         output_text = self.model.llama_tokenizer.decode(output_token, add_special_tokens=False)
+-        if conv.sep =="###":
++        if self.conv.sep =="###":
+             output_text = output_text.split('###')[0]  # remove the stop sign '###'
+             output_text = output_text.split('Assistant:')[-1].strip()
+         else:
+-            output_text = output_text.split(conv.sep2)[0]  # remove the stop sign '###'
+-            output_text = output_text.split(conv.roles[1]+':')[-1].strip()
+-        conv.messages[-1][1] = output_text
++            output_text = output_text.split(self.conv.sep2)[0]  # remove the stop sign '###'
++            output_text = output_text.split(self.conv.roles[1]+':')[-1].strip()
++        self.conv.messages[-1][1] = output_text
++        #print("chat.answer - llama output_text:", output_text)
++        #print("chat.answer - llama output_token.cpu().numpy().shape:", output_token.cpu().numpy().shape)
+         return output_text, output_token.cpu().numpy()
+     
+-    def upload_video(self, video_path, conv, img_list):
++    def upload_video(self, video_path):
+ 
+         msg = ""
+         if isinstance(video_path, str):  # is a video path
+             ext = os.path.splitext(video_path)[-1].lower()
+-            print(video_path)
++            #print(f"\nuploading {video_path}")
+             # image = self.vis_processor(image).unsqueeze(0).to(self.device)
+             video, msg = load_video(
+                 video_path=video_path,
+-                n_frms=8,
++                n_frms=32,
+                 height=224,
+                 width=224,
+                 sampling ="uniform", return_msg = True
+@@ -255,37 +276,39 @@ class Chat:
+             audio = load_and_transform_audio_data([video_path],"cpu",  clips_per_video=8)
+             audio = audio.to(self.device)
+         except :
+-            print('no audio is found')
++            #print('no audio is found')
+             audio_flag = 0
+         finally:
+             if audio_flag == 1:
+                 # image_emb, _ = self.model.encode_videoQformer_audiovideo(video,audio)
+                 image_emb, _ = self.model.encode_videoQformer_visual(video)
+                 audio_emb,_  = self.model.encode_audioQformer(audio)
+-                img_list.append(audio_emb)
+-                img_list.append(image_emb)
+-                conv.system = ""
++                self.img_list.append(audio_emb)
++                self.img_list.append(image_emb)
++                self.conv.system = ""
+                 # conv.append_message(conv.roles[0], "The audio of this video is <Video><ImageHere></Video> ")
+-                conv.append_message(conv.roles[0], "Close your eyes, open your ears and you imagine only based on the sound that: <ImageHere>. \
++                self.conv.append_message(self.conv.roles[0], "Close your eyes, open your ears and you imagine only based on the sound that: <ImageHere>. \
+                 Close your ears, open your eyes and you see that <Video><ImageHere></Video>.  \
+                 Now answer my question based on what you have just seen and heard.")
+ 
+             else:  # only vison no audio
+                 # conv.system = "You can understand the video that the user provides. Follow the instructions carefully and explain your answers in detail."
+                 image_emb, _ = self.model.encode_videoQformer_visual(video)
+-                img_list.append(image_emb)
+-                conv.append_message(conv.roles[0], "<Video><ImageHere></Video> "+ msg)
++                self.img_list.append(image_emb)
++                self.conv.append_message(self.conv.roles[0], "<Video><ImageHere></Video> "+ msg)
++            self.video_msg = msg
++            #print(f"chat.upload_video - len(img_list): {len(self.img_list)}, AL-branch_out: audio_emb.size():{audio_emb.size()}, VL-branch_out: image_emb.size():{image_emb.size()}")
+             return "Received."
+ 
+-    def upload_video_without_audio(self, video_path, conv, img_list):
++    def upload_video_without_audio(self, video_path, start_time, duration):
+         msg = ""
+         if isinstance(video_path, str):  # is a video path
+             ext = os.path.splitext(video_path)[-1].lower()
+-            print(video_path)
++            print(f"\nuploading {video_path}")
+             # image = self.vis_processor(image).unsqueeze(0).to(self.device)
+             video, msg = load_video(
+-                video_path=video_path,
+-                n_frms=8,
++                video_path=video_path, start_time=start_time, duration=duration,
++                n_frms=32,
+                 height=224,
+                 width=224,
+                 sampling ="uniform", return_msg = True
+@@ -298,13 +321,16 @@ class Chat:
+         
+         
+         # conv.system = "You can understand the video that the user provides.  Follow the instructions carefully and explain your answers in detail."
+-        image_emb, _ = self.model.encode_videoQformer_visual(video)
+-        img_list.append(image_emb)
+-        conv.append_message(conv.roles[0], "<Video><ImageHere></Video> "+ msg)
++        image_emb, _ = self.model.encode_videoQformer_visual(video) 
++        self.img_list.append(image_emb)
++        self.conv.append_message(self.conv.roles[0], "<Video><ImageHere></Video> "+ msg)
++        self.video_msg = msg
++        #print(f"chat.upload_video_without_audio - len(img_list): {len(self.img_list)}, VL-branch_out: image_emb.size():{image_emb.size()}")
+         return "Received."
+ 
+-    def upload_img(self, image, conv, img_list):
++    def upload_img(self, image):
+ 
++        print(f"\nuploading {image}")
+         msg = ""
+         if isinstance(image, str):  # is a image path
+             raw_image = Image.open(image).convert('RGB') # 增加一个时间维度
+@@ -320,27 +346,56 @@ class Chat:
+             raise NotImplementedError
+ 
+         image_emb, _ = self.model.encode_videoQformer_visual(image)
+-        img_list.append(image_emb)
++        self.img_list.append(image_emb)
+         # Todo msg=""
+-        conv.append_message(conv.roles[0], "<Image><ImageHere></Image> "+ msg)
+-
++        self.conv.append_message(self.conv.roles[0], "<Image><ImageHere></Image> "+ msg)
++        #print(f"chat.upload_img - len(img_list): {len(self.img_list)}, VL-branch_out: image_emb.size():{image_emb.size()}")
++        self.video_msg = msg
+         return "Received."
+ 
+-    def get_context_emb(self, conv, img_list):
+-        prompt = conv.get_prompt()
+-        prompt_segs = prompt.split('<ImageHere>')
+-        assert len(prompt_segs) == len(img_list) + 1, "Unmatched numbers of image placeholders and images."
++    def get_context_emb(self, keep_conv_hist=True):
++        prompt = self.conv.get_prompt()
++        prompt_segs = prompt.split("<rag_prompt>")
++        prompt_segs.insert(1, "The user wants to know:")
++        prompt_segs = "".join(prompt_segs).split('<ImageHere>')
++        #print(f"chat.get_context_emb - prompt_segs before keep_conv_hist block:\n  {prompt_segs}")
++        #print("len(conv.messages):", len(self.conv.messages))
++        if len(self.conv.messages) > 2 and not keep_conv_hist: # forget previous answers and reply to the question with provided image/audio embs
++            media_placeholdername = prompt_segs[0][-7:] # <Image> or <Video>
++            if self.conv.sep_style == SeparatorStyle.LLAMA_2:
++                # wrap the question as it's the first question
++                prompt_segs[-1] = f"</{media_placeholdername[1:]} {self.video_msg} {self.question}[/INST]"
++            elif self.conv.sep_style == SeparatorStyle.SINGLE:
++                # wrap the question as it's the first question
++                prompt_segs[-1] = f"</{media_placeholdername[1:]} {self.video_msg} {self.question}###"
++            else:
++                print("prompt_segs error in chat.get_context_emb")
++
++        #print(f"chat.get_context_emb - prompt_segs after keep_conv_hist block:\n  {prompt_segs}")
++        #print(f"chat.get_context_emb - len(img_list): {len(self.img_list)}")
++        #for i in range(len(self.img_list)):
++        #    print(f"img_list[{i}].size(): {self.img_list[i].size()}")
++        assert len(prompt_segs) == len(self.img_list) + 1, "Unmatched numbers of image placeholders and images."
+         seg_tokens = [
+             self.model.llama_tokenizer(
+                 seg, return_tensors="pt", add_special_tokens=i == 0).to(self.device).input_ids
+             # only add bos to the first seg
+             for i, seg in enumerate(prompt_segs)
+         ]
++        #print(f"chat.get_context_emb - len(seg_tokens): {len(seg_tokens)}")
++        #for i in range(len(seg_tokens)):
++        #    print(f"seg_tokens[{i}].size(): {seg_tokens[i].size()}")
+         seg_embs = [self.model.llama_model.model.embed_tokens(seg_t) for seg_t in seg_tokens]
+-        mixed_embs = [emb for pair in zip(seg_embs[:-1], img_list) for emb in pair] + [seg_embs[-1]]
++        #print(f"chat.get_context_emb - seg_embs[:3]: {seg_embs[:3]}")
++        mixed_embs = [emb for pair in zip(seg_embs[:-1], self.img_list) for emb in pair] + [seg_embs[-1]]
+         mixed_embs = torch.cat(mixed_embs, dim=1)
++        #print(f"chat.get_context_emb - mixed_embs.size(): {mixed_embs.size()}")
+         return mixed_embs
+ 
++    def clear(self):
++        self.img_list = []
++        self.conv.messages = []
++
+ if __name__ =='__main__':
+     video_path = '/mnt/workspace/videoGPT/Video-LLaMA/examples/applausing.mp4'
+     # import torch.classes.torchaudio.ffmpeg_StreamReader
+diff --git a/video_llama/datasets/datasets/llava_instruct_dataset.py b/video_llama/datasets/datasets/llava_instruct_dataset.py
+index 675061b..7302531 100644
+--- a/video_llama/datasets/datasets/llava_instruct_dataset.py
++++ b/video_llama/datasets/datasets/llava_instruct_dataset.py
+@@ -53,7 +53,7 @@ class Instruct_Dataset(BaseDataset):
+ 
+         self.vis_root = vis_root
+         self.resize_size = 224
+-        self.num_frm = 8
++        self.num_frm = 32
+         self.tokenizer = LlamaTokenizer.from_pretrained(tokenizer_name, use_fast=False)
+         self.tokenizer.pad_token = self.tokenizer.unk_token
+         self.tokenizer.add_tokens([DEFAULT_IMAGE_PATCH_TOKEN], special_tokens=True)
+diff --git a/video_llama/datasets/datasets/video_instruct_dataset.py b/video_llama/datasets/datasets/video_instruct_dataset.py
+index 7f54be8..debe319 100644
+--- a/video_llama/datasets/datasets/video_instruct_dataset.py
++++ b/video_llama/datasets/datasets/video_instruct_dataset.py
+@@ -21,7 +21,7 @@ from video_llama.conversation.conversation_video import Conversation,SeparatorSt
+ 
+ DEFAULT_IMAGE_PATCH_TOKEN = '<ImageHere>'
+ video_conversation = Conversation(
+-    system="",
++    system="You are a helpful and truthful assistant who is concise. When unsure, you respond with 'I am not sure'.",
+     roles=("Human", "Assistant"),
+     messages=[],
+     offset=0,
+@@ -55,7 +55,7 @@ class Video_Instruct_Dataset(BaseDataset):
+         self.num_video_query_token = num_video_query_token
+         self.vis_root = vis_root
+         self.resize_size = 224
+-        self.num_frm = 8
++        self.num_frm = 32
+         self.tokenizer = LlamaTokenizer.from_pretrained(tokenizer_name, use_fast=False)
+         self.tokenizer.pad_token = self.tokenizer.unk_token
+         self.tokenizer.add_tokens([DEFAULT_IMAGE_PATCH_TOKEN], special_tokens=True)
+diff --git a/video_llama/datasets/datasets/webvid_datasets.py b/video_llama/datasets/datasets/webvid_datasets.py
+index aaf6b9d..62eb4ff 100644
+--- a/video_llama/datasets/datasets/webvid_datasets.py
++++ b/video_llama/datasets/datasets/webvid_datasets.py
+@@ -36,7 +36,7 @@ class WebvidDataset(BaseDataset):
+         self.annotation = merged_df
+         self.vis_root = vis_root
+         self.resize_size = 224
+-        self.num_frm = 8
++        self.num_frm = 32
+         self.frm_sampling_strategy = 'headtail'
+ 
+     def _get_video_path(self, sample):
+diff --git a/video_llama/models/video_llama.py b/video_llama/models/video_llama.py
+index 70e40c8..0965eaf 100644
+--- a/video_llama/models/video_llama.py
++++ b/video_llama/models/video_llama.py
+@@ -116,9 +116,9 @@ class VideoLLAMA(Blip2Base):
+             self.Qformer.train = disabled_train
+             self.query_tokens.requires_grad = False
+             logging.info("freeze Qformer")
+-        logging.info('Loading Q-Former Done')
+-
+-        logging.info('Loading LLAMA Tokenizer')
++        print('Loading Q-Former Done')
++        
++        print('Loading LLAMA Tokenizer')
+         self.llama_tokenizer = LlamaTokenizer.from_pretrained(llama_model, use_fast=False)
+         if self.llama_tokenizer.pad_token is None:
+             self.llama_tokenizer.pad_token = self.llama_tokenizer.unk_token 
+@@ -130,7 +130,7 @@ class VideoLLAMA(Blip2Base):
+         self.IMAGE_PATCH_TOKEN_ID = self.llama_tokenizer.get_vocab()[DEFAULT_IMAGE_PATCH_TOKEN]
+         self.AUDIO_PATCH_TOKEN_ID = self.llama_tokenizer.get_vocab()[DEFAULT_AUDIO_PATCH_TOKEN]
+ 
+-        logging.info('Loading LLAMA Model')
++        print('Loading LLAMA Model')
+         if self.low_resource:
+             self.llama_model = LlamaForCausalLM.from_pretrained(
+                 llama_model,
+@@ -146,10 +146,11 @@ class VideoLLAMA(Blip2Base):
+ 
+         for name, param in self.llama_model.named_parameters():
+             param.requires_grad = False
+-        logging.info('Loading LLAMA Done')
++        print('Loading LLAMA Done')
++        
+ 
+ 
+-        logging.info('Loading LLAMA proj')
++        print('Loading LLAMA proj')
+         self.llama_proj = nn.Linear(
+             self.Qformer.config.hidden_size, self.llama_model.config.hidden_size
+         )
+@@ -244,7 +245,7 @@ class VideoLLAMA(Blip2Base):
+                 layer.output = None
+                 layer.intermediate = None
+             self.audio_llama_proj = nn.Linear(
+-                self.audio_Qformer.config.hidden_size, self.llama_model.config.hidden_size
++                self.audio_Qformer.config.hidden_size, 4096 #self.llama_model.config.hidden_size
+             )
+             self.audio_position_embedding = nn.Embedding(8, self.audio_hidden_size)
+ 
+@@ -280,14 +281,18 @@ class VideoLLAMA(Blip2Base):
+         device = image.device
+         
+         # input shape b,c,t,h,w
++        #print("\n - - - - - ")
+         batch_size,_,time_length,_,_ = image.size()
++        #print("   image.shape in video_llama.285:", image.shape)
+         image = einops.rearrange(image, 'b c t h w -> (b t) c h w')
++        #print("   image.shape in video_llama.287:", image.shape)
+         with self.maybe_autocast():
+             # embed image features with blip2, out: (b t) q h
+             image_embeds = self.ln_vision(self.visual_encoder(image)).to(device)
+             image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(device)
+-
++            #print("   image_embeds.shape in video_llama.290:", image_embeds.shape)
+             query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1)
++            #print("   query_tokens.shape in video_llama.292:", query_tokens.shape)
+             query_output = self.Qformer.bert(
+                 query_embeds=query_tokens,
+                 encoder_hidden_states=image_embeds,
+@@ -300,16 +305,17 @@ class VideoLLAMA(Blip2Base):
+             position_ids = position_ids.unsqueeze(0).expand(batch_size, -1)
+             frame_position_embeddings = self.video_frame_position_embedding(position_ids)
+             q_hidden_state = query_output.last_hidden_state
++            #print("   q_hidden_state.shape in video_llama.305:", q_hidden_state.shape)
+ 
+             frame_position_embeddings = frame_position_embeddings.unsqueeze(-2)
+             frame_hidden_state = einops.rearrange(q_hidden_state, '(b t) q h -> b t q h',b=batch_size,t=time_length)
+             frame_hidden_state = frame_position_embeddings + frame_hidden_state
+-
++            #print("   frame_hidden_state.shape in video_llama.310:", frame_hidden_state.shape)
+             # frame attention
+             frame_hidden_state =  einops.rearrange(frame_hidden_state, 'b t q h -> b (t q) h',b=batch_size,t=time_length)
+             frame_atts = torch.ones(frame_hidden_state.size()[:-1], dtype=torch.long).to(device)
+             video_query_tokens = self.video_query_tokens.expand(frame_hidden_state.shape[0], -1, -1)
+-
++            #print("   video_query_tokens.shape in video_llama.315:", video_query_tokens.shape)
+             video_query_output = self.video_Qformer.bert(
+                 query_embeds=video_query_tokens,
+                 encoder_hidden_states=frame_hidden_state,
+@@ -317,8 +323,10 @@ class VideoLLAMA(Blip2Base):
+                 return_dict=True,
+                 )
+             video_hidden = video_query_output.last_hidden_state
+-
++            #print("   video_hidden.shape in video_llama.323:", video_hidden.shape)
+             inputs_llama = self.llama_proj(video_hidden)
++            #print("   inputs_llama.shape in video_llama.325:", inputs_llama.shape)
++            #print(" - - - - - \n")
+             atts_llama = torch.ones(inputs_llama.size()[:-1], dtype=torch.long).to(image_embeds.device)
+         return inputs_llama, atts_llama
+     
+@@ -326,17 +334,23 @@ class VideoLLAMA(Blip2Base):
+     def prompt_wrap(self, img_embeds, atts_img, prompt):
+         if prompt:
+             batch_size = img_embeds.shape[0]
+-            # print(prompt)
++            #print(f"video_llama.prompt_wrap - img_embeds.size():{img_embeds.size()}")
++            #print(f"video_llama.prompt_wrap - prompt:{prompt}")
+             p_before, p_after = prompt.split('<ImageHere>')
+             p_before_tokens = self.llama_tokenizer(
+                 p_before, return_tensors="pt", add_special_tokens=False).to(img_embeds.device)
+             p_after_tokens = self.llama_tokenizer(
+                 p_after, return_tensors="pt", add_special_tokens=False).to(img_embeds.device)
++            #print(f"video_llama.prompt_wrap - p_before_tokens.size():{p_before_tokens.size()}")
++            #print(f"video_llama.prompt_wrap - p_after_tokens.size():{p_after_tokens.size()}")
+             p_before_embeds = self.llama_model.model.embed_tokens(p_before_tokens.input_ids).expand(batch_size, -1, -1)
+             p_after_embeds = self.llama_model.model.embed_tokens(p_after_tokens.input_ids).expand(batch_size, -1, -1)
++            #print(f"video_llama.prompt_wrap - p_before_embeds.size():{p_before_embeds.size()}")
++            #print(f"video_llama.prompt_wrap - p_after_embeds.size():{p_after_embeds.size()}")
+             wrapped_img_embeds = torch.cat([p_before_embeds, img_embeds, p_after_embeds], dim=1)
+             wrapped_atts_img = atts_img[:, :1].expand(-1, wrapped_img_embeds.shape[1])
+-            
++            #print(f"video_llama.prompt_wrap - wrapped_img_embeds.size():{wrapped_img_embeds.size()}")
++            #print(f"video_llama.prompt_wrap - wrapped_atts_img.size():{wrapped_atts_img.size()}")
+             return wrapped_img_embeds, wrapped_atts_img
+         else:
+             return img_embeds, atts_img
+diff --git a/video_llama/processors/randaugment.py b/video_llama/processors/randaugment.py
+index 7034a49..22ecbf1 100644
+--- a/video_llama/processors/randaugment.py
++++ b/video_llama/processors/randaugment.py
+@@ -83,6 +83,22 @@ def rotate_func(img, degree, fill=(0, 0, 0)):
+     out = cv2.warpAffine(img, M, (W, H), borderValue=fill)
+     return out
+ 
++def add_gaussian_noise(img, mean=0, std=25):
++    """
++    Add Gaussian noise to an image.
++    
++    Parameters:
++        img (numpy.ndarray): Input image.
++        mean (float): Mean of the Gaussian distribution.
++        std (float): Standard deviation of the Gaussian distribution.
++    
++    Returns:
++        numpy.ndarray: Image with added Gaussian noise.
++    """
++    noise = np.random.normal(mean, std, img.shape)
++    noisy_img = np.clip(img + noise, 0, 255).astype(np.uint8)
++    return noisy_img
++
+ 
+ def solarize_func(img, thresh=128):
+     """
+@@ -285,11 +301,31 @@ def rotate_level_to_args(MAX_LEVEL, replace_value):
+     return level_to_args
+ 
+ 
++def gaussian_noise_level_to_args(MAX_LEVEL, mean_range=(0, 50), std_range=(10, 30)):
++    """
++    Convert noise level to arguments for adding Gaussian noise.
++
++    Parameters:
++        MAX_LEVEL (float): Maximum noise level.
++        mean_range (tuple): Range of mean values for Gaussian noise.
++        std_range (tuple): Range of standard deviation values for Gaussian noise.
++
++    Returns:
++        function: Function mapping noise level to Gaussian noise arguments.
++    """
++    def level_to_args(level):
++        mean = np.interp(level, [0, MAX_LEVEL], mean_range)
++        std = np.interp(level, [0, MAX_LEVEL], std_range)
++        return (mean, std)
++
++    return level_to_args
++
+ func_dict = {
+     "Identity": identity_func,
+     "AutoContrast": autocontrast_func,
+     "Equalize": equalize_func,
+     "Rotate": rotate_func,
++    "AddGaussian": add_gaussian_noise,
+     "Solarize": solarize_func,
+     "Color": color_func,
+     "Contrast": contrast_func,
+@@ -310,6 +346,7 @@ arg_dict = {
+     "AutoContrast": none_level_to_args,
+     "Equalize": none_level_to_args,
+     "Rotate": rotate_level_to_args(MAX_LEVEL, replace_value),
++    "AddGaussian": gaussian_noise_level_to_args(MAX_LEVEL),
+     "Solarize": solarize_level_to_args(MAX_LEVEL),
+     "Color": enhance_level_to_args(MAX_LEVEL),
+     "Contrast": enhance_level_to_args(MAX_LEVEL),
+diff --git a/video_llama/processors/video_processor.py b/video_llama/processors/video_processor.py
+index b272e31..eace071 100644
+--- a/video_llama/processors/video_processor.py
++++ b/video_llama/processors/video_processor.py
+@@ -22,12 +22,12 @@ import random as rnd
+ MAX_INT = registry.get("MAX_INT")
+ decord.bridge.set_bridge("torch")
+ 
+-def load_video(video_path, n_frms=MAX_INT, height=-1, width=-1, sampling="uniform", return_msg = False):
++def load_video(video_path, start_time=0, duration=-1, n_frms=MAX_INT, height=-1, width=-1, sampling="uniform", return_msg = False, augment = False):
+     decord.bridge.set_bridge("torch")
+     vr = VideoReader(uri=video_path, height=height, width=width)
+-
++    fps = vr.get_avg_fps()
+     vlen = len(vr)
+-    start, end = 0, vlen
++    start, end = int(fps*start_time), min(vlen, int(fps*duration)) if duration != -1 else vlen
+ 
+     n_frms = min(n_frms, vlen)
+ 
+@@ -43,6 +43,10 @@ def load_video(video_path, n_frms=MAX_INT, height=-1, width=-1, sampling="unifor
+     # get_batch -> T, H, W, C
+     temp_frms = vr.get_batch(indices)
+     # print(type(temp_frms))
++    # Perform Augmentation
++    if augment:
++        vra = VideoRandomAugment()
++        temp_frms = vra(temp_frms)
+     tensor_frms = torch.from_numpy(temp_frms) if type(temp_frms) is not torch.Tensor else temp_frms
+     frms = tensor_frms.permute(3, 0, 1, 2).float()  # (C, T, H, W)
+ 
+@@ -52,7 +56,8 @@ def load_video(video_path, n_frms=MAX_INT, height=-1, width=-1, sampling="unifor
+     fps = float(vr.get_avg_fps())
+     sec = ", ".join([str(round(f / fps, 1)) for f in indices])
+     # " " should be added in the start and end
+-    msg = f"The video contains {len(indices)} frames sampled at {sec} seconds. "
++    #msg = f"The video contains {len(indices)} frames sampled at {sec} seconds. "
++    msg = f"The video is {vlen/fps:.2f} seconds long containing {vlen} frames at {fps:.2f} and {len(indices)} frames are sampled. "
+     return frms, msg
+ 
+ 
+@@ -159,6 +164,7 @@ class AlproVideoTrainProcessor(AlproVideoBaseProcessor):
+             height=self.image_size,
+             width=self.image_size,
+             sampling="headtail",
++            augment=True,
+         )
+ 
+         return self.transform(clip)

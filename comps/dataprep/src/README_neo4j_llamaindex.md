@@ -11,7 +11,16 @@ This microservice follows the graphRAG approached defined by Microsoft paper ["F
 
 This dataprep microservice ingests the input files and uses LLM (TGI, VLLM or OpenAI model when OPENAI_API_KEY is set) to extract entities, relationships and descriptions of those to build a graph-based text index. Compose yaml file deploys TGI but works also with vLLM inference endpoint.
 
-## Setup Environment Variables
+## 🚀Start Microservice with Docker
+
+### 1. Build Docker Image
+
+```bash
+cd ../../../../
+docker build -t opea/dataprep:latest --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+```
+
+## 2. Setup Environment Variables
 
 ```bash
 # Manually set private environment settings
@@ -34,44 +43,18 @@ export LLM_MODEL_ID="meta-llama/Meta-Llama-3.1-8B-Instruct"
 export MAX_INPUT_TOKENS=4096
 export MAX_TOTAL_TOKENS=8192
 export OPENAI_LLM_MODEL="gpt-4o"
-export TEI_EMBEDDER_PORT=11633
+export TEI_EMBEDDER_PORT=8090
 export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:${TEI_EMBEDDER_PORT}"
-export LLM_ENDPOINT_PORT=11634
+export LLM_ENDPOINT_PORT=8008
 export TGI_LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
 export NEO4J_AUTH="${NEO4J_USERNAME}/${NEO4J_PASSWORD}"
-export NEO4J_PORT1=7474   # 11631
-export NEO4J_PORT2=7687   # 11632
+export NEO4J_PORT1=7474
+export NEO4J_PORT2=7687
 export NEO4J_URI="bolt://${host_ip}:${NEO4J_PORT2}"
 export NEO4J_URL="bolt://${host_ip}:${NEO4J_PORT2}"
-export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:6004/v1/dataprep"
+export DATAPREP_PORT=5000
+export DATAPREP_SERVICE_ENDPOINT="http://${host_ip}:${DATAPREP_PORT}/v1/dataprep"
 export LOGFLAG=True
-```
-
-## 🚀Start Microservice with Docker
-
-### 1. Build Docker Image
-
-```bash
-cd ../../../../
-docker build -t opea/dataprep-neo4j-llamaindex:latest --build-arg no_proxy=$no_proxy --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
-```
-
-### 2. Setup Environment Variables
-
-```bash
-# Set private environment settings
-export host_ip=${your_hostname IP}  # local IP
-export no_proxy=$no_proxy,${host_ip}  # important to add {host_ip} for containers communication
-export http_proxy=${your_http_proxy}
-export https_proxy=${your_http_proxy}
-export NEO4J_URI=${your_neo4j_url}
-export NEO4J_USERNAME=${your_neo4j_username}
-export NEO4J_PASSWORD=${your_neo4j_password}
-export PYTHONPATH=${path_to_comps}
-export OPENAI_KEY=${your_openai_api_key}  # optional, when not provided will use smaller models TGI/TEI
-export HUGGINGFACEHUB_API_TOKEN=${your_hf_token}
-# set additional environment settings
-source ./set_env.sh
 ```
 
 ### 3. Run Docker with Docker Compose
@@ -91,7 +74,7 @@ Once document preparation microservice for Neo4J is started, user can use below 
 curl -X POST \
     -H "Content-Type: multipart/form-data" \
     -F "files=@./file1.txt" \
-    http://${host_ip}:6004/v1/dataprep/ingest
+    http://${host_ip}:${DATAPREP_PORT}/v1/dataprep/ingest
 ```
 
 You can specify chunk_size and chunk_size by the following commands.
@@ -102,7 +85,7 @@ curl -X POST \
     -F "files=@./file1.txt" \
     -F "chunk_size=1500" \
     -F "chunk_overlap=100" \
-    http://${host_ip}:6004/v1/dataprep/ingest
+    http://${host_ip}:${DATAPREP_PORT}/v1/dataprep/ingest
 ```
 
 Please note that clustering of extracted entities and summarization happens in this data preparation step. The result of this is:
@@ -122,5 +105,5 @@ curl -X POST \
     -F "files=@./your_file.pdf" \
     -F "process_table=true" \
     -F "table_strategy=hq" \
-    http://localhost:6004/v1/dataprep/ingest
+    http://localhost:${DATAPREP_PORT}/v1/dataprep/ingest
 ```

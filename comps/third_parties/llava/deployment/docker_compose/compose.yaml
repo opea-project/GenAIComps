@@ -1,0 +1,20 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  llava-service:
+    image: ${REGISTRY:-opea}/lvm-llava:${TAG:-latest}
+    container_name: llava-service
+    ports:
+      - ${LLAVA_PORT:-5028}:8399
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8399/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20

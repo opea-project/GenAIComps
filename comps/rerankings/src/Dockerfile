@@ -19,22 +19,21 @@ RUN useradd -m -s /bin/bash user && \
 
 COPY comps/rerankings/src/requirements* /home/user/comps/rerankings/src/
 
+RUN pip install --no-cache-dir --upgrade pip setuptools
+
 RUN if [ ${ARCH} = "cpu" ]; then \
     pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu; \
-fi && \
-if [ ${SERVICE} = "videoqna" ]; then \
-    pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_videoqna.txt; \
-elif [ ${SERVICE} = "all" ]; then \
-    git clone https://github.com/IntelLabs/fastRAG.git /home/user/fastRAG && \
-    cd /home/user/fastRAG && \
-    pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir . && \
-    pip install --no-cache-dir .[intel] && \
-    pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_videoqna.txt; \
-fi && \
-pip install --no-cache-dir --upgrade pip setuptools && \
-pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements.txt;
+    fi && \
+    if [ ${SERVICE} = "videoqna" ]; then \
+        pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_videoqna.txt; \
+    elif [ ${SERVICE} = "all" ]; then \
+        git clone https://github.com/IntelLabs/fastRAG.git /home/user/fastRAG && \
+        cd /home/user/fastRAG && \
+        pip install --no-cache-dir . && \
+        pip install --no-cache-dir .[intel] && \
+        pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements_videoqna.txt; \
+    fi && \
+    pip install --no-cache-dir -r /home/user/comps/rerankings/src/requirements.txt;
 
 COPY comps /home/user/comps
 ENV PYTHONPATH=$PYTHONPATH:/home/user

@@ -1,0 +1,20 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  gpt-sovits-service:
+    image: ${REGISTRY:-opea}/gpt-sovits:${TAG:-latest}
+    container_name: gpt-sovits-service
+    ports:
+      - ${GPT_SOVITS_PORT:-9880}:9880
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9880/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 18

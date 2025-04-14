@@ -10,9 +10,9 @@ RUN useradd -m -s /bin/bash user && \
     chown -R user /home/user/
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+    curl \
     libgl1-mesa-glx \
-    libjemalloc-dev \
-    curl
+    libjemalloc-dev
 
 COPY comps /home/user/comps
 

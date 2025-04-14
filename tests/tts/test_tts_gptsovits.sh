@@ -13,7 +13,7 @@ cd $WORKPATH
 
 function build_docker_images() {
     echo $(pwd)
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/gpt-sovits:$TAG -f comps/tts/src/integrations/dependency/gpt-sovits/Dockerfile .
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/gpt-sovits:$TAG -f comps/third_parties/gpt-sovits/src/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/gpt-sovits built fail"
         exit 1

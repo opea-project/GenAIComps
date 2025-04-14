@@ -5,7 +5,8 @@ FROM python:3.10-slim
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
-RUN apt-get update && apt-get install -y curl
+
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing curl
 
 # Set environment variables
 ENV LANG=en_US.UTF-8

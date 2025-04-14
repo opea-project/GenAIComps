@@ -77,7 +77,7 @@ def filtler_dates(prompt):
 )
 @register_statistics(names=["opea_service@embedding_multimodal_clip"])
 async def embedding(
-    input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest]
+    input: Union[TextDoc, EmbeddingRequest, ChatCompletionRequest],
 ) -> Union[EmbedDoc, EmbeddingResponse, ChatCompletionRequest]:
     if logflag:
         logger.info(input)

@@ -1,0 +1,41 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  whisper-service:
+    image: ${REGISTRY:-opea}/whisper:${TAG:-latest}
+    container_name: whisper-service
+    ports:
+      - ${WHISPER_PORT:-7066}:7066
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7066/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
+  whisper-gaudi-service:
+    image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}
+    container_name: whisper-gaudi-service
+    ports:
+      - ${WHISPER_PORT:-7066}:7066
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HABANA_VISIBLE_DEVICES: all
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+    runtime: habana
+    cap_add:
+      - SYS_NICE
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7066/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 60

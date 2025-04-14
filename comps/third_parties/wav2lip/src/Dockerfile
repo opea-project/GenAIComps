@@ -11,15 +11,15 @@ ENV PYTHON=/usr/bin/python3.11
 
 # Install dependencies
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    yasm \
     build-essential \
-    pkg-config \
-    libx264-dev \
     git \
-    nasm \
-    wget \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    libx264-dev \
+    nasm \
+    pkg-config \
+    wget \
+    yasm \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GenAIComps
@@ -40,12 +40,12 @@ RUN chmod +x $(which ffmpeg)
 RUN python3 -m pip install --upgrade pip
 
 # Install Wav2Lip from pip
-RUN pip install --no-deps Wav2Lipy
+RUN pip install --no-cache-dir --no-deps Wav2Lipy
 RUN rm /usr/local/lib/python3.11/site-packages/Wav2Lip/__init__.py && touch /usr/local/lib/python3.11/site-packages/Wav2Lip/__init__.py
 ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.11/site-packages/Wav2Lip"
 
 # Install GFPGAN from pip
-RUN pip install --no-deps gfpgan
+RUN pip install --no-cache-dir --no-deps gfpgan
 RUN touch /usr/local/lib/python3.11/site-packages/gfpgan/__init__.py
 ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.11/site-packages/gfpgan"
 
@@ -54,7 +54,7 @@ WORKDIR /usr/local/lib/python3.11/site-packages
 
 # Install pip dependencies
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install -r /home/user/comps/animation/src/requirements.txt
+    pip install --no-cache-dir -r /home/user/comps/animation/src/requirements.txt
 
 # Custom patches
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional

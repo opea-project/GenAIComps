@@ -4,7 +4,7 @@ Visual Question and Answering is one of the multimodal tasks empowered by LVMs (
 
 ## 🚀1. Start Microservice with Docker (Option 1)
 
-You have to build/start the [dependency](./integrations/dependency/) service based on your demands.
+You have to build/start the [dependency](../../third_parties/) service based on your demands.
 
 ```bash
 docker build --no-cache -t opea/lvm:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/Dockerfile .
@@ -73,7 +73,7 @@ docker compose -f comps/lvms/deployment/docker_compose/compose.yaml up video-lla
 # currently you have to build the opea/vllm-gaudi with the habana_main branch locally
 git clone https://github.com/HabanaAI/vllm-fork.git
 cd ./vllm-fork/
-git checkout habana_main
+git checkout f78aeb9da0712561163eddd353e3b6097cd69bac # revert this to habana_main when https://github.com/HabanaAI/vllm-fork/issues/1015 is fixed
 docker build -f Dockerfile.hpu -t opea/vllm-gaudi:latest --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
 cd ..
 rm -rf vllm-fork

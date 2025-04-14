@@ -256,3 +256,60 @@ def assemble_memory_from_store(config, store):
 
     query, query_history, conversation_history = assemble_memory(messages)
     return query, query_history, conversation_history
+
+
+def convert_aimessage_to_chat_completion(response: Union[dict, Any], stream=False, metadata=None):
+    """
+    convert langchain output back to openai chat completion format
+    https://api.python.langchain.com/en/latest/_modules/langchain_openai/chat_models/base.html#ChatOpenAI
+    """
+    if not stream:
+        usage = response.response_metadata["token_usage"]
+        chat_id = response.response_metadata["id"]
+        model = response.response_metadata["model_name"]
+        choice = {
+            "index": 0,
+            "message": {"role": "assistant", "content": response.content + "\n", "tool_calls": []},
+            "logprobs": response.response_metadata["logprobs"],
+            "finish_reason": response.response_metadata["finish_reason"],
+            "stop_reason": None,
+        }
+        return {
+            "id": chat_id,
+            "object": "chat.completion",
+            "created": "",
+            "choices": [choice],
+            "model": model,
+            "usage": usage,
+            "prompt_logprobs": None,
+        }
+    else:
+        choice = {
+            "index": 0,
+            "delta": {"content": response.content},
+            "logprobs": None,
+            "finish_reason": None,
+        }
+        return {
+            "id": response.id,
+            "object": "chat.completion.chunk",
+            "created": "",
+            "model": metadata.get("ls_model_name", None),
+            "choices": [choice],
+        }
+
+
+def convert_think_to_chat_completion(think):
+    choice = {
+        "index": 0,
+        "delta": {"content": think},
+        "logprobs": None,
+        "finish_reason": None,
+    }
+    return {
+        "id": "",
+        "object": "chat.completion.chunk",
+        "created": "",
+        "model": "",
+        "choices": [choice],
+    }

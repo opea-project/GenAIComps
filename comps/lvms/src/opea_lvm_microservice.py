@@ -44,7 +44,7 @@ loader = OpeaComponentLoader(lvm_component_name, description=f"OPEA LVM Componen
 )
 @register_statistics(names=["opea_service@lvm"])
 async def lvm(
-    request: Union[LVMDoc, LVMSearchedMultimodalDoc, LVMVideoDoc]
+    request: Union[LVMDoc, LVMSearchedMultimodalDoc, LVMVideoDoc],
 ) -> Union[TextDoc, MetadataTextDoc]:  # can also return a StreamingResponse but omit it in annotation for FastAPI
     start = time.time()
 

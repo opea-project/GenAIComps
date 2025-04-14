@@ -7,10 +7,10 @@ ENV DOCKER_BUILDKIT=1
 ENV PYTHONUNBUFFERED=1
 ARG ARCH="cpu"
 
-RUN apt-get update && apt-get install -y \
-    poppler-utils \
-    libreoffice \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     libmagic-dev \
+    libreoffice \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

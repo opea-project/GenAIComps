@@ -1,0 +1,21 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  video-llama-service:
+    image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
+    container_name: video-llama-service
+    ports:
+      - ${VIDEO_LLAMA_PORT:-9009}:9009
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      llm_download: "True"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9009/health"]
+      interval: 30s
+      timeout: 6s
+      retries: 20

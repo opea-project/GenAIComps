@@ -7,7 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT=11101
+export DATAPREP_PORT=11101
 service_name="dataprep-milvus tei-embedding-serving etcd minio standalone"
 export TAG="comps"
 export DATA_PATH=${model_cache}
@@ -38,7 +38,7 @@ function start_service() {
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    sleep 1m
+    check_healthy "dataprep-milvus-server" || exit 1
 }
 
 function validate_microservice() {
