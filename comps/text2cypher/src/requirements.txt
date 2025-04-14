@@ -5,8 +5,8 @@ huggingface_hub
 json_repair
 langchain
 langchain-community
-langchain-huggingface
 langchain_experimental
+langchain-huggingface
 llama-index
 llama-index-embeddings-huggingface
 llama-index-embeddings-langchain
@@ -17,14 +17,14 @@ neo4j
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+optimum-habana==1.17.0
 peft
 prometheus-fastapi-instrumentator
 pydub
 pyprojroot
 sentence-transformers
 shortuuid
-transformers~=4.48.0
+transformers>=4.49.0,<4.50.0
 unstructured
 urllib3
 uvicorn
-
