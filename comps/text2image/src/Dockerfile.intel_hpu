@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # HABANA environment
-FROM vault.habana.ai/gaudi-docker/1.18.0/ubuntu22.04/habanalabs/pytorch-installer-2.4.0 AS hpu
+FROM vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installer-2.6.0 AS hpu
 RUN useradd -m -s /bin/bash user && \
     mkdir -p /home/user && \
     chown -R user /home/user/
@@ -18,7 +18,7 @@ ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/home/user/optimum-habana
 
 # Install requirements and optimum habana
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/text2image/src/requirements.txt && \
     pip install --no-cache-dir optimum[habana]
 USER user

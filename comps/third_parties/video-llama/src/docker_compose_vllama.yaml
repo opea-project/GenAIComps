@@ -1,0 +1,30 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3"
+services:
+  lvm-video-llama:
+    image: opea/lvm-video-llama:latest
+    container_name: lvm-video-llama
+    ports:
+      - "9009:9009"
+    ipc: host
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      no_proxy: ${no_proxy}
+      llm_download: "True"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9009/v1/health_check || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - "/home/$USER/.cache:/home/user/.cache" # RECOMMENDED: use cache to avoid download
+      - video-llama-model:/home/user/model
+    restart: unless-stopped
+networks:
+  default:
+    driver: bridge
+volumes:
+  video-llama-model:
