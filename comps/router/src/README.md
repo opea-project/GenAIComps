@@ -1,70 +1,83 @@
-# Router Microservice (src)
+# Router Microservice Source
 
-This directory contains the core implementation of the **LLM Router Microservice** adapted for OPEA's GenAIComps microservice architecture. It dynamically routes user queries to optimal inference endpoints based on configurable logic.
+This folder contains the **Router microservice** code and integration logic for OPEA. The entrypoint is [`opea_router_microservice.py`](./opea_router_microservice.py).
 
-## Key Files & Structure
+---
+
+## Code Structure
 
 ```
-src/
-├── integrations/
-│   └── controllers/
-│       ├── routellm/
-│       │   ├── config.yaml
-│       │   └── routellm_controller.py
-│       ├── semantic_router/
-│       │   ├── config.yaml
-│       │   └── semantic_router_controller.py
-│       ├── base_controller.py
-│       └── controller_factory.py
-├── opea_router_microservice.py       # Main OPEA-registered microservices
-├── requirements.txt                  # Dependencies
-└── README.md                         # This file
+comps/router/src
+├── README.md         # (this file)
+├── opea_router_microservice.py
+└── integrations/
+    └── controllers/
+        ├── base_controller.py
+        ├── controller_factory.py
+        ├── routellm_controller/
+        │   └── routellm_controller.py
+        └── semantic_router_controller/
+            └── semantic_router_controller.py
 ```
 
-## How `opea_router_microservice.py` Works
+### Key Files
 
-Defines and registers three OPEA-compliant microservice endpoints:
+- **`opea_router_microservice.py`**  
+  - Registers the router microservice with `@register_microservice`.
+  - Endpoint: `/v1/route` on port 6000.
+  - Loads the config from `CONFIG_PATH` (defaults to `/app/config.yaml`).
+  - Chooses a "controller" (RouteLLM or Semantic) based on that config.
 
-- `/v1/route`: Determines the best inference endpoint for a given query.
-- `/v1/route-forward`: Routes the query, forwards it, and returns the response.
-- `/v1/route/reload-config`: Dynamically reloads configuration without restart.
+- **`integrations/controllers/`**  
+  - **`base_controller.py`**: Abstract base class.
+  - **`controller_factory.py`**: Chooses which subclass to instantiate.
+  - **`routellm_controller.py`**: Implements a learned gating approach (RouteLLM).
+  - **`semantic_router_controller.py`**: Uses embedding-based routing with a `SemanticRouter`.
 
-## Controllers
+---
 
-- **Semantic Router** (`semantic_router_controller.py`): Routes based on semantic similarity to preset queries.
-- **RouteLLM** (`routellm_controller.py`): Uses ML methods (e.g., Matrix Factorization) to choose optimal models dynamically.
+## How It Works
 
-Controllers and their configs are bundled within the Docker image. The active controller is selected via the global `config.yaml`.
+1. **Initialization**  
+   - The microservice reads a global `config.yaml` (plus a specialized config like `routellm_config.yaml`) on startup.
+   - The config references a `model_map` dict (e.g., "strong" → GPT-4, "weak" → GPT-3.5).
 
-## Configuration
+2. **Request Handling**  
+   - When a user POSTs JSON to `/v1/route` with a `text` field, the service:
+     1. Passes the user text to the chosen controller.
+     2. The controller returns an `endpoint` from `model_map`.
+     3. The microservice responds with `{ "url": "<endpoint>" }`.
 
-Set environment variable `CONFIG_PATH` to point to your main `config.yaml`, defining:
+3. **Runtime Environment**  
+   - Typically run in Docker or Kubernetes, with environment variables for tokens.
 
-```yaml
-model_map:
-  weak:
-    endpoint: "http://service:8000/weak"
-    model_id: "MODEL_ID_2"
-  strong:
-    endpoint: "http://service:8000/strong"
-    model_id: "MODEL_ID_1"
+---
 
-controller_config_path: "integrations/controllers/routellm/config.yaml"
+## Example Microservice Call
+
+If the service is running on `localhost:6000`:
+
 ```
-
-Environment variables needed:
-- `HF_TOKEN`: For Hugging Face embeddings
-
-## Running & Testing
-
-- Use Docker Compose or Kubernetes deployments defined in the `deployment` directory.
-- Endpoint testing example:
-
-```bash
 curl -X POST http://localhost:6000/v1/route \
-     -H "Content-Type: application/json" \
-     -d '{"text": "Your query here"}'
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hi, can you show me a geometric proof of the Pythagorean theorem?"}'
 ```
 
-This migration retains routing flexibility while aligning with OPEA’s modular, microservice-focused architecture.
+**Response** (example):
+```
+{
+  "url": "http://some-inference-service:8000/strong"
+}
+```
+indicating the "strong" model is more appropriate.
+
+---
+
+## Development Notes
+
+- **Dependencies**: In production images, tokens (Hugging Face / OpenAI) must be set.
+- **Logging**: Uses `CustomLogger` from `comps`.
+- **Extensibility**: Add new controllers in `integrations/controllers/` and update `controller_factory.py`.
+
+---
 
