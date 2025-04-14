@@ -179,8 +179,6 @@ services:
         condition: service_healthy
       tei-embedding-serving:
         condition: service_healthy
-
-  retriever-vdms-multimodal:
   
   retriever-arango:
     extends: retriever
