@@ -13,6 +13,7 @@ future
 graspologic
 html2text
 huggingface_hub
+json-repair
 ipython
 langchain
 langchain-community
