@@ -4,7 +4,7 @@
 
 set -x
 
-WORKPATH=$(cd $(dirname "$PWD")/../ && pwd)
+WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 export host_ip=$(hostname -I | awk '{print $1}')
 service_name="retriever-arango"
@@ -85,7 +85,7 @@ function validate_microservice() {
 }
 
 function stop_docker() {
-    cd $WORKPATH/comps/third_parties/milvus/deployment/docker_compose/
+    cd $WORKPATH/comps/third_parties/arangodb/deployment/docker_compose/
     docker compose -f compose.yaml down --remove-orphans
 
 
