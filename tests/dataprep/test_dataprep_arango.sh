@@ -5,7 +5,7 @@
 set -x
 
 # Change this to point to the root of the project
-WORKPATH=$(cd $(dirname "$PWD")/../ && pwd)
+WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
 
@@ -248,8 +248,8 @@ function stop_docker() {
 		fi
 	done
 
-	# Remove the test network
-	docker network rm test-dataprep-network || true
+	# Remove the test network if it exists
+	docker network inspect test-dataprep-network >/dev/null 2>&1 && docker network rm test-dataprep-network
 }
 
 function main() {
