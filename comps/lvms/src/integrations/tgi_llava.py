@@ -3,6 +3,7 @@
 
 import os
 import time
+import traceback
 from typing import Union
 
 import requests
@@ -181,14 +182,20 @@ class OpeaTgiLlavaLvm(OpeaComponent):
 
             return StreamingResponse(stream_generator(t_start), media_type="text/event-stream")
         else:
-            generated_str = await self.lvm_client.text_generation(
-                image_prompt,
-                max_new_tokens=max_new_tokens,
-                repetition_penalty=repetition_penalty,
-                temperature=temperature,
-                top_k=top_k,
-                top_p=top_p,
-            )
+            try:
+                generated_str = await self.lvm_client.text_generation(
+                    image_prompt,
+                    max_new_tokens=max_new_tokens,
+                    repetition_penalty=repetition_penalty,
+                    temperature=temperature,
+                    top_k=top_k,
+                    top_p=top_p,
+                )
+            except Exception as e:
+                e = str(e)
+                e = "An error occurred: " + e + "Check lvm logs for more info."
+                traceback.print_exc()
+                raise HTTPException(status_code=500, detail=e)
             if logflag:
                 logger.info(generated_str)
             if isinstance(request, LVMSearchedMultimodalDoc):
