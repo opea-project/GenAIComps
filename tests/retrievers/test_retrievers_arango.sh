@@ -9,7 +9,6 @@ LOG_PATH="$WORKPATH/tests"
 export host_ip=$(hostname -I | awk '{print $1}')
 service_name="retriever-arango"
 
-model="BAAI/bge-base-en-v1.5"
 export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:6060"
 export EMBEDDING_MODEL_ID=BAAI/bge-base-en-v1.5
 export service_name="retriever-arango"
@@ -18,7 +17,6 @@ export ARANGO_USERNAME=${ARANGO_USERNAME:-"root"}
 export ARANGO_PASSWORD=${ARANGO_PASSWORD:-"test"}
 export ARANGO_DB_NAME=${ARANGO_DB_NAME:-"_system"}
 export ARANGO_COLLECTION_NAME=${ARANGO_COLLECTION_NAME:-"test"}
-export ARANGO_EMBEDDING_DIMENSION=${ARANGO_EMBEDDING_DIMENSION:-5}
 
 function build_docker_images() {
     cd $WORKPATH
