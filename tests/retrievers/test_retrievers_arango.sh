@@ -22,9 +22,7 @@ export ARANGO_EMBEDDING_DIMENSION=${ARANGO_EMBEDDING_DIMENSION:-5}
 
 function build_docker_images() {
     cd $WORKPATH
-    echo $(pwd)
     docker build --no-cache -t ${REGISTRY:-opea}/retriever:${TAG:-latest} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/retrievers/src/Dockerfile .
-
     if [ $? -ne 0 ]; then
         echo "opea/retriever built fail"
         exit 1
@@ -89,6 +87,7 @@ function stop_docker() {
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml down  ${service_name} --remove-orphans
+
     cid=$(docker ps -aq --filter "name=tei-embedding-serving")
     if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 }
@@ -96,20 +95,13 @@ function stop_docker() {
 function main() {
 
     stop_docker
-
     build_docker_images
-    start_service
-     # 🔍 Wait for ArangoDB to become healthy
-    echo "Waiting for ArangoDB container to become healthy..."
-    until [ "$(docker inspect --format='{{.State.Health.Status}}' arango-vector-db)" == "healthy" ]; do
-        echo "Still waiting..."
-        sleep 2
-    done
-    echo "ArangoDB is healthy!"
 
+    start_service
     validate_microservice
 
     stop_docker
+
     echo y | docker system prune
 
 }
