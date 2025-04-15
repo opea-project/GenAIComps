@@ -58,6 +58,23 @@ services:
       minio:
         condition: service_healthy
 
+  retriever-milvus-multimodal:
+    extends: retriever
+    container_name: retriever-milvus-multimodal
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_MILVUS}
+      RETRIEVER_TYPE: ${RETRIEVER_TYPE:-milvus}
+      MILVUS_HOST: ${host_ip}
+      BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
+      COLLECTION_NAME: ${COLLECTION_NAME:-LangChainCollection}
+    depends_on:
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
   retriever-neo4j:
     extends: retriever
     container_name: retriever-neo4j
@@ -179,30 +196,34 @@ services:
         condition: service_healthy
       tei-embedding-serving:
         condition: service_healthy
-  
-  retriever-arango:
-    extends: retriever
-    container_name: retriever-arango-server
-    depends_on:
-      arango-vector-db:
-        condition: service_healthy 
-      tei-embedding-serving:
-        condition: service_healthy
-    environment:
-      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_ARANGO}
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
-      ARANGO_URL: http://arango-vector-db:8529
-      ARANGO_USERNAME: root
-      ARANGO_PASSWORD: test
-      ARANGO_DB_NAME: _system
-      ARANGO_GRAPH_NAME: ${ARANGO_GRAPH_NAME}
-      TEI_EMBED_MODEL: ${TEI_EMBED_MODEL}
-      TEI_EMBEDDING_ENDPOINT:  ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
 
+  retriever-vdms-multimodal:
+    extends: retriever
+    container_name: retriever-vdms-multimodal
+    environment:
+      RETRIEVER_COMPONENT_NAME: "OPEA_RETRIEVER_VDMS"
+      VDMS_INDEX_NAME: ${INDEX_NAME}
+      VDMS_HOST: ${host_ip}
+      VDMS_PORT: ${VDMS_PORT}
+      VDMS_USE_CLIP: ${VDMS_USE_CLIP}
+    depends_on:
+      vdms-vector-db:
+        condition: service_healthy
+
+    retriever-arangodb:
+      extends: retriever
+      container_name: retriever-arangodb
+      environment:
+        RETRIEVER_COMPONENT_NAME: "OPEA_RETRIEVER_ARANGODB"
+        ARANGO_URL: ${ARANGO_URL}
+        ARANGO_DB_NAME: ${ARANGO_DB_NAME}
+        ARANGO_USERNAME: ${ARANGO_USERNAME}
+        ARANGO_PASSWORD: ${ARANGO_PASSWORD}
+        ARANGO_GRAPH_NAME: ${ARANGO_GRAPH_NAME}
+        TEI_EMBEDDING_ENDPOINT:  ${TEI_EMBEDDING_ENDPOINT}
+      depends_on:
+        vdms-vector-db:
+          condition: service_healthy
 
 networks:
   default:
