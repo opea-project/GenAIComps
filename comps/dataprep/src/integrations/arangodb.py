@@ -10,7 +10,8 @@ from arango import ArangoClient
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_arangodb import ArangoGraph
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceHubEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.prompts import ChatPromptTemplate
@@ -204,7 +205,7 @@ class OpeaArangoDataprep(OpeaComponent):
                 huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
             )
         elif TEI_EMBED_MODEL:
-            self.embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)
+            self.embeddings = HuggingFaceEmbeddings(model_name=TEI_EMBED_MODEL)
         else:
             raise HTTPException(
                 status_code=400, detail="No embeddings environment variables are set, cannot generate embeddings."
@@ -237,7 +238,7 @@ class OpeaArangoDataprep(OpeaComponent):
             logger.info(f"[ check health ] Failed to connect to ArangoDB: {e}")
             return False
 
-    def ingest_data_to_arango(self, doc_path: DocPath):
+    async def ingest_data_to_arango(self, doc_path: DocPath):
         """Ingest document to ArangoDB."""
 
         path = doc_path.path
@@ -263,7 +264,7 @@ class OpeaArangoDataprep(OpeaComponent):
                 separators=get_separators(),
             )
 
-        content = document_loader(path)
+        content = await document_loader(path)
 
         structured_types = [".xlsx", ".csv", ".json", "jsonl"]
         _, ext = os.path.splitext(path)
@@ -372,7 +373,7 @@ class OpeaArangoDataprep(OpeaComponent):
                 save_path = self.upload_folder + encode_file
                 await save_content_to_local_disk(save_path, file)
                 try:
-                    graph_name = self.ingest_data_to_arango(
+                    graph_name = await self.ingest_data_to_arango(
                         DocPath(
                             path=save_path,
                             chunk_size=chunk_size,
@@ -400,7 +401,7 @@ class OpeaArangoDataprep(OpeaComponent):
                 content = parse_html([link])[0][0]
                 await save_content_to_local_disk(save_path, content)
                 try:
-                    graph_name = self.ingest_data_to_arango(
+                    graph_name = await self.ingest_data_to_arango(
                         DocPath(
                             path=save_path,
                             chunk_size=chunk_size,
