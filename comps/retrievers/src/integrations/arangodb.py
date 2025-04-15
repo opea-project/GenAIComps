@@ -8,7 +8,7 @@ from langchain_arangodb import ArangoVector
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType, EmbedDoc
 from comps.cores.proto.api_protocol import RetrievalRequestArangoDB, RetrievalRequest, ChatCompletionRequest
 
 from .config import (
@@ -309,7 +309,7 @@ class OpeaArangoRetriever(OpeaComponent):
             Your summary:
         """
 
-    async def invoke(self, input: Union[ChatCompletionRequest, RetrievalRequest, RetrievalRequestArangoDB]) -> list:
+    async def invoke(self, input: Union[ChatCompletionRequest, RetrievalRequest, RetrievalRequestArangoDB, EmbedDoc]) -> list:
         """Process the retrieval request and return relevant documents."""
         if logflag:
             logger.info(input)
@@ -318,7 +318,13 @@ class OpeaArangoRetriever(OpeaComponent):
         # Process Input #
         #################
 
-        query = input.input
+        query = getattr(input, "input") or getattr(input, "text") 
+        if not query:
+            if logflag:
+                logger.error("Query is empty.")
+
+            return []
+
         embedding = input.embedding if isinstance(input.embedding, list) else None
         graph_name = getattr(input, "graph_name", ARANGO_GRAPH_NAME)
         search_start = getattr(input, "search_start", ARANGO_SEARCH_START)
