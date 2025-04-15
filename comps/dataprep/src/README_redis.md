@@ -173,7 +173,7 @@ To get uploaded file structures, use the following command:
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
-    -d '{"index_name": "all"} \
+    -d '{"index_name": "all"}' \
     http://localhost:6007/v1/dataprep/get
 ```
 
