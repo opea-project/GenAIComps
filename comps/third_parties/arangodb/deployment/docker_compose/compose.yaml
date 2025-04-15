@@ -12,8 +12,7 @@ services:
     command: ["--experimental-vector-index=true"]
     restart: unless-stopped
     healthcheck:
-      test: wget http://localhost:8529 || exit 1
-      interval: 5s
+      test: ["CMD-SHELL", "arangosh --version"]
       timeout: 10s
-      retries: 20
-      start_period: 90s
+      retries: 3
+      start_period: 10s
