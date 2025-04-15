@@ -34,7 +34,7 @@ docker build -t opea/retriever:latest --build-arg https_proxy=$https_proxy --bui
 ### Run via CLI
 
 ```bash
-docker run -d --name="retriever-arango-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URL="http://localhost:8529"  opea/retriever:latest -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_ARANGO"
+docker run -d --name="retriever-arango-server" -p 7000:7000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URL="http://localhost:8529"  opea/retriever:latest -e RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_ARANGODB"
 ```
 
 ### Run Docker with Docker Compose

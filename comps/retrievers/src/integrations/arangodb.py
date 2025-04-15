@@ -46,14 +46,14 @@ from .config import (
     VLLM_TOP_P,
 )
 
-logger = CustomLogger("retriever_arango")
+logger = CustomLogger("OPEA_RETRIEVER_ARANGODB")
 logflag = os.getenv("LOGFLAG", False)
 
 ARANGO_TEXT_FIELD = "text"
 ARANGO_EMBEDDING_FIELD = "embedding"
 
 
-@OpeaComponentRegistry.register("OPEA_RETRIEVER_ARANGO")
+@OpeaComponentRegistry.register("OPEA_RETRIEVER_ARANGODB")
 class OpeaArangoRetriever(OpeaComponent):
     """A specialized retriever component derived from OpeaComponent for ArangoDB retriever services.
 
