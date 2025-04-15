@@ -88,13 +88,7 @@ function stop_docker() {
     cd $WORKPATH/comps/third_parties/arangodb/deployment/docker_compose/
     docker compose -f compose.yaml down -v --remove-orphans
     
-    # 🔍 Wait for ArangoDB to become healthy
-    echo "Waiting for ArangoDB container to become healthy..."
-    until [ "$(docker inspect --format='{{.State.Health.Status}}' arango-vector-db)" == "healthy" ]; do
-        echo "Still waiting..."
-        sleep 1m
-    done
-    echo "ArangoDB is healthy!"
+   
 
 
 
@@ -110,6 +104,13 @@ function main() {
 
     build_docker_images
     start_service
+     # 🔍 Wait for ArangoDB to become healthy
+    echo "Waiting for ArangoDB container to become healthy..."
+    until [ "$(docker inspect --format='{{.State.Health.Status}}' arango-vector-db)" == "healthy" ]; do
+        echo "Still waiting..."
+        sleep 2
+    done
+    echo "ArangoDB is healthy!"
 
     validate_microservice
 
