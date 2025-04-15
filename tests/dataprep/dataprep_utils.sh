@@ -134,14 +134,6 @@ function get_all() {
     _invoke_curl $fqdn $port get $@
 }
 
-# function delete_all_in_index() {
-#     local fqdn=$1
-#     local port=$2
-#     local index_name=$3
-#     shift 3
-#     _invoke_curl $fqdn $port get -d '{"index_name":"all"}' $@
-# }
-
 function get_index() {
     local fqdn=$1
     local port=$2
