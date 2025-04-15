@@ -67,30 +67,31 @@ function build_docker_images() {
 	fi
 }
 function check_vllm_service() {
-	echo "Checking VLLM service availability..."
-	for i in {1..7}; do
-		echo "Attempt $i of 7: Checking VLLM service status..."
-		VLLM_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VLLM_ENDPOINT/health")
-		echo "VLLM health check status: $VLLM_STATUS"
+	# echo "Checking VLLM service availability..."
+	# for i in {1..7}; do
+	# 	echo "Attempt $i of 7: Checking VLLM service status..."
+	# 	VLLM_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VLLM_ENDPOINT/health")
+	# 	echo "VLLM health check status: $VLLM_STATUS"
 		
-		if [ "$VLLM_STATUS" -eq 200 ]; then
-			echo "VLLM service is ready and healthy"
-			return 0
-		fi
+	# 	if [ "$VLLM_STATUS" -eq 200 ]; then
+	# 		echo "VLLM service is ready and healthy"
+	# 		return 0
+	# 	fi
 		
-		echo "VLLM service not ready yet, waiting for 1 minute..."
-		sleep 1m
-		# Log container status after the first failed attempt
-		if [ "$i" -eq 1 ]; then
-			echo "VLLM container status:"
-			docker ps -a | grep test-comps-vllm-service
-			echo "VLLM container logs:"
-			docker logs test-comps-vllm-service 2>&1 | tail -50 >>${LOG_PATH}/vllm_startup.log
-			docker logs test-comps-vllm-service 2>&1 | tail -20
-		fi
-	done
-	
-	echo "VLLM service not available after 7 minutes. This may cause issues with dataprep service."
+	# 	echo "VLLM service not ready yet, waiting for 1 minute..."
+	# 	sleep 1m
+	# 	# Log container status after the first failed attempt
+	# 	if [ "$i" -eq 1 ]; then
+	# 		echo "VLLM container status:"
+	# 		docker ps -a | grep test-comps-vllm-service
+	# 		echo "VLLM container logs:"
+	# 		docker logs test-comps-vllm-service 2>&1 | tail -50 >>${LOG_PATH}/vllm_startup.log
+	# 		docker logs test-comps-vllm-service 2>&1 | tail -20
+	# 	fi
+	# done
+	# echo "VLLM service not available after 7 minutes. This may cause issues with dataprep service."
+
+	sleep 2m
 	echo "VLLM container final status:"
 	docker ps -a | grep test-comps-vllm-service
 	echo "VLLM container logs:"
