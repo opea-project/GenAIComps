@@ -10,7 +10,6 @@ export host_ip=$(hostname -I | awk '{print $1}')
 service_name="retriever-arango"
 
 model="BAAI/bge-base-en-v1.5"
-export host_ip="127.0.0.1"
 export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:6060"
 export EMBEDDING_MODEL_ID=BAAI/bge-base-en-v1.5
 export service_name="retriever-arango"
@@ -87,10 +86,6 @@ function validate_microservice() {
 function stop_docker() {
     cd $WORKPATH/comps/third_parties/arangodb/deployment/docker_compose/
     docker compose -f compose.yaml down -v --remove-orphans
-    
-   
-
-
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml down  ${service_name} --remove-orphans

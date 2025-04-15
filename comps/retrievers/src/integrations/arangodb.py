@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Union
 
 import openai
 from arango import ArangoClient
@@ -9,7 +9,7 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFace
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.cores.proto.api_protocol import RetrievalRequestArangoDB
+from comps.cores.proto.api_protocol import RetrievalRequestArangoDB, RetrievalRequest, ChatCompletionRequest
 
 from .config import (
     ARANGO_DB_NAME,
@@ -309,7 +309,7 @@ class OpeaArangoRetriever(OpeaComponent):
             Your summary:
         """
 
-    async def invoke(self, input: RetrievalRequestArangoDB) -> list:
+    async def invoke(self, input: Union[ChatCompletionRequest, RetrievalRequest, RetrievalRequestArangoDB]) -> list:
         """Process the retrieval request and return relevant documents."""
         if logflag:
             logger.info(input)
