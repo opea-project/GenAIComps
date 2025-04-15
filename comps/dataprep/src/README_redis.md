@@ -127,8 +127,9 @@ curl -X POST \
     -F 'link_list=["https://www.ces.tech/"]' \
     http://localhost:6007/v1/dataprep/ingest
 ```
+
 - Upload multiple files with different formats to a specific `index_name`
->`all` cannot be used as an `index_name` because it is reserved for specific functionality within the service.
+  > `all` cannot be used as an `index_name` because it is reserved for specific functionality within the service.
 
 ```bash
 curl -X POST \
@@ -186,15 +187,14 @@ Then you will get the response JSON like this:
     "id": "uploaded_file_1.txt",
     "type": "File",
     "parent": "",
-    "index_name":"test_redis_1"
-
+    "index_name": "test_redis_1"
   },
   {
     "name": "uploaded_file_2.txt",
     "id": "uploaded_file_2.txt",
     "type": "File",
     "parent": "",
-    "index_name":"test_redis_2"
+    "index_name": "test_redis_2"
   }
 ]
 ```
@@ -222,7 +222,7 @@ You will receive a JSON response like this:
 ]
 ```
 
->Note: If index_name is not provided in the request, the service will use the INDEX_NAME environment variable as the default index_name.
+> Note: If index_name is not provided in the request, the service will use the INDEX_NAME environment variable as the default index_name.
 
 ### 3.3 Consume delete API
 
