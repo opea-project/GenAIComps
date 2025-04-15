@@ -12,8 +12,9 @@ ENV LANG=en_US.UTF-8
 ARG ARCH=cpu
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y ffmpeg curl
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
+    curl \
+    ffmpeg
 
 COPY --chown=user:user comps /home/user/comps
 

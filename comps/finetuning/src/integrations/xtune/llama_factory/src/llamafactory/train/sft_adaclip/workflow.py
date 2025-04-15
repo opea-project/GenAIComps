@@ -10,24 +10,8 @@ from typing import List, Optional
 
 import optuna
 
-# from ...adaclip_finetune.utils.flops_table import get_gflops_params
-# from ...adaclip_finetune.utils.logger import LOGGER, add_log_to_file
-# from ...adaclip_finetune.modeling.loss import CrossEn
-# from ...adaclip_finetune.modeling.model import AdaCLIP
-# from ...adaclip_finetune.modeling.clip_model import CLIP
-# from ...adaclip_finetune.datasets.dataset import BaseDataset
-# from ...adaclip_finetune.datasets.prefetch import PrefetchLoader
-# from ...adaclip_finetune.configs.config import adaclip_parser, parse_with_config
-# from ...adaclip_finetune.modeling.metrics import t2v_metrics, v2t_metrics
-# from ...adaclip_finetune.optimization.utils import setup_optimizer_and_scheduler_single_node, setup_optimizer_and_scheduler_peft
-# from ...adaclip_finetune.finetune import importance_based_shrink_, write_init_params_for_optimization, get_num_params, groupwise_normalization, visualize_param_groups, LisaDispatcherForCLIPSimplified
 from ...adaclip_finetune import *
 from ...adaclip_finetune.train import *
-
-# from ...adaclip_finetune.utils.basic_utils import set_seeds, save_json, NoOp
-# from ...adaclip_finetune.utils.distributed import all_gather, is_main_process, reduce_loss_dict
-# from ...adaclip_finetune.utils.train_utils import progress, save_checkpoint, verbose, log_metrics
-
 
 adaclip_parser = argparse.ArgumentParser(
     prog="adaclip", description="PyTorch implementation of Transformer Video Retrieval"
@@ -231,7 +215,7 @@ def run_sft_adaclip(
     # 根据UI传入的参数修改
     args.resume = adaclip_args.resume
     args.frames_dir = adaclip_args.frames_dir + "/" + data_args.dataset[0] + "/frames"
-
+    args.output_dir = training_args.output_dir
     args.top_k = adaclip_args.adaclip_top_k
     args.batch_size = adaclip_args.adaclip_batch_size
     args.xpu = adaclip_args.adaclip_xpu

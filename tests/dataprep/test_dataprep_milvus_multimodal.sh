@@ -24,6 +24,9 @@ pdf_name="nke-10k-2023"
 pdf_fn="${tmp_dir}/${pdf_name}.pdf"
 export DATAPREP_PORT="11102"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
@@ -84,7 +87,8 @@ function start_service() {
     service_name="etcd minio standalone dataprep-multimodal-milvus"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-multimodal-milvus-server" || exit 1
 }
 
 function prepare_data() {

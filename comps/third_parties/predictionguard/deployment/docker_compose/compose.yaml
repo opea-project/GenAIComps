@@ -6,7 +6,7 @@ services:
     image: ${REGISTRY:-opea}/lvm-pg:${TAG:-latest}
     container_name: predictionguard-service
     ports:
-      - ${PREDICTIONGUARD_PORT:-5028}:9399
+      - ${PREDICTIONGUARD_PORT:-9399}:9399
     ipc: host
     environment:
       no_proxy: ${no_proxy}
