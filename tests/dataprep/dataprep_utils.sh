@@ -134,6 +134,13 @@ function get_all() {
     _invoke_curl $fqdn $port get $@
 }
 
+function get_all_in_index() {
+    local fqdn=$1
+    local port=$2
+    shift 2
+    _invoke_curl $fqdn $port get -d '{"index_name":"all"}' $@
+}
+
 function get_index() {
     local fqdn=$1
     local port=$2
