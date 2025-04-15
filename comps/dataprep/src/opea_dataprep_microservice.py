@@ -108,15 +108,24 @@ async def ingest_files(
     port=5000,
 )
 @register_statistics(names=["opea_service@dataprep"])
-async def get_files():
+async def get_files(index_name: str = Body(None, embed=True) ):
     start = time.time()
 
     if logflag:
         logger.info("[ get ] start to get ingested files")
 
-    try:
+    try:        
         # Use the loader to invoke the component
-        response = await loader.get_files()
+        if dataprep_component_name == "OPEA_DATAPREP_REDIS":
+            response = await loader.get_files(index_name) 
+        else:
+            if index_name:
+                logger.error(
+                    'Error during dataprep get files: "index_name" option is supported if "DATAPREP_COMPONENT_NAME" environment variable is set to "OPEA_DATAPREP_REDIS". i.e: export DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_REDIS"'
+                )
+                raise
+            response = await loader.get_files()    
+            
         # Log the result if logging is enabled
         if logflag:
             logger.info(f"[ get ] ingested files: {response}")
@@ -152,7 +161,6 @@ async def delete_files(file_path: str = Body(..., embed=True), index_name: str =
                     'Error during dataprep delete files: "index_name" option is supported if "DATAPREP_COMPONENT_NAME" environment variable is set to "OPEA_DATAPREP_REDIS". i.e: export DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_REDIS"'
                 )
                 raise
-            # Use the loader to invoke the component
             response = await loader.delete_files(file_path)
 
         # Log the result if logging is enabled
