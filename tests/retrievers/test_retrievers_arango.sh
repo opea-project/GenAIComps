@@ -39,7 +39,7 @@ function start_service() {
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
-    sleep 15s
+    sleep 1m
 
 }
 
@@ -86,7 +86,16 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/third_parties/arangodb/deployment/docker_compose/
-    docker compose -f compose.yaml down --remove-orphans
+    docker compose -f compose.yaml down -v --remove-orphans
+    
+    # 🔍 Wait for ArangoDB to become healthy
+    echo "Waiting for ArangoDB container to become healthy..."
+    until [ "$(docker inspect --format='{{.State.Health.Status}}' arango-vector-db)" == "healthy" ]; do
+        echo "Still waiting..."
+        sleep 1m
+    done
+    echo "ArangoDB is healthy!"
+
 
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
