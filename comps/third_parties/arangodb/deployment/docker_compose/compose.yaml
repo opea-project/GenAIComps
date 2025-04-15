@@ -15,4 +15,4 @@ services:
       test: wget http://localhost:8529 || exit 1
       interval: 5s
       timeout: 10s
-      retries: 20
+      retries: 20      start_period: 90s
