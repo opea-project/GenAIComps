@@ -16,6 +16,7 @@ langchain_community
 langchainhub
 langgraph
 langsmith
+mysql-connector-python
 numpy
 
 # used by cloud native
