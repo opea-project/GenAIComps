@@ -318,7 +318,7 @@ class OpeaArangoRetriever(OpeaComponent):
         # Process Input #
         #################
 
-        query = getattr(input, "input") or getattr(input, "text") 
+        query = getattr(input, "input", getattr(input, "text"))
         if not query:
             if logflag:
                 logger.error("Query is empty.")
