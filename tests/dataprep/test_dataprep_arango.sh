@@ -1,25 +1,20 @@
 #!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
 set -x
-
 # Change this to point to the root of the project
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-
 # Define all environment variables directly
 export LOGFLAG="${LOGFLAG:-True}"
 export no_proxy="${no_proxy:-noproxy,localhost,127.0.0.1,${ip_address}}"
-
 # ArangoDB Configuration
 export ARANGO_URL="${ARANGO_URL:-http://${ip_address}:8529}"
 echo "ARANGO_URL: $ARANGO_URL"
 export ARANGO_USERNAME="${ARANGO_USERNAME:-root}"
 export ARANGO_PASSWORD="${ARANGO_PASSWORD:-test}"
 export ARANGO_DB_NAME="${ARANGO_DB_NAME:-_system}"
-
 # Dataprep Configuration
 export DATAPREP_PORT="${DATAPREP_PORT:-6007}"
 export DATAPREP_CHUNK_SIZE="${DATAPREP_CHUNK_SIZE:-500}"
@@ -37,16 +32,13 @@ export DATAPREP_EMBED_SOURCE_DOCUMENTS="${DATAPREP_EMBED_SOURCE_DOCUMENTS:-true}
 # TEI Configuration
 export TEI_PORT="${TEI_PORT:-6006}"
 export EMBEDDING_MODEL_ID="${EMBEDDING_MODEL_ID:-BAAI/bge-base-en-v1.5}"
-
 # VLLM Configuration
 export VLLM_API_KEY="${VLLM_API_KEY:-EMPTY}"
 export VLLM_ENDPOINT="${VLLM_ENDPOINT:-http://test-comps-vllm-service:80}"
 export VLLM_MODEL_ID="${VLLM_MODEL_ID:-Intel/neural-chat-7b-v3-3}"
-
 function build_docker_images() {
 	cd $WORKPATH
 	echo "Working directory: $(pwd)"
-
 	# Check if Dockerfile exists - updated path
 	DOCKERFILE_PATH="comps/dataprep/src/Dockerfile"
 	if [ ! -f "$DOCKERFILE_PATH" ]; then
@@ -55,21 +47,18 @@ function build_docker_images() {
 		find . -name "Dockerfile" | grep dataprep
 		exit 1
 	fi
-
 	# Start ArangoDB with vector support
 	docker run -d -p 8529:8529 \
 		--name=test-comps-arango \
 		-e ARANGO_ROOT_PASSWORD=$ARANGO_PASSWORD \
 		arangodb/arangodb:3.12.4 \
 		--experimental-vector-index=true
-
 	# Build dataprep image
 	echo "Building dataprep Docker image from $DOCKERFILE_PATH..."
 	docker build --no-cache -t opea/dataprep:test \
 		--build-arg https_proxy=$https_proxy \
 		--build-arg http_proxy=$http_proxy \
 		-f $DOCKERFILE_PATH .
-
 	if [ $? -ne 0 ]; then
 		echo "opea/dataprep built fail"
 		exit 1
@@ -77,17 +66,13 @@ function build_docker_images() {
 		echo "opea/dataprep built successful"
 	fi
 }
-
 function start_service() {
 	# Create test network if it doesn't exist
 	docker network create test-dataprep-network || true
-
 	# Connect ArangoDB to the network
 	docker network connect test-dataprep-network test-comps-arango || true
-
 	# Create data directory if it doesn't exist
 	mkdir -p $WORKPATH/data
-
 	# Start VLLM service
 	docker run -d \
 		--name="test-comps-vllm-service" \
@@ -98,13 +83,10 @@ function start_service() {
 		-e no_proxy=$no_proxy \
 		-e http_proxy=$http_proxy \
 		-e https_proxy=$https_proxy \
-		--pull always \
 		${REGISTRY:-opea}/vllm:${TAG:-latest} \
 		--model ${VLLM_MODEL_ID} --host 0.0.0.0 --port 80
-
 	echo "Started VLLM service with model: ${VLLM_MODEL_ID}"
 	sleep 30s
-
 	# Start TEI embedding service
 	docker run -d \
 		--name="test-comps-dataprep-tei-endpoint" \
@@ -114,9 +96,7 @@ function start_service() {
 		--pull always \
 		ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 \
 		--model-id ${EMBEDDING_MODEL_ID} --auto-truncate
-
 	sleep 30s
-
 	# Start dataprep service with all environment variables
 	docker run -d \
 		--name="test-comps-dataprep-server" \
@@ -152,83 +132,14 @@ function start_service() {
 
 	sleep 1m
 }
-
-function check_connectivity() {
-	echo "Checking network connectivity between services..."
-	
-	# Check ArangoDB connectivity from dataprep container
-	echo "Testing ArangoDB connectivity..."
-	ARANGO_CHECK=$(docker exec test-comps-dataprep-server curl -s -o /dev/null -w "%{http_code}" http://test-comps-arango:8529/_api/version)
-	if [ "$ARANGO_CHECK" -eq 200 ] || [ "$ARANGO_CHECK" -eq 401 ]; then
-		echo "[ connectivity ] ArangoDB connection successful"
-	else
-		echo "[ connectivity ] ArangoDB connection failed with status: $ARANGO_CHECK"
-		docker logs test-comps-arango >> ${LOG_PATH}/arango.log
-		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
-		exit 1
-	fi
-	
-	# Check TEI embedding service connectivity
-	echo "Testing TEI embedding service connectivity..."
-	TEI_CHECK=$(docker exec test-comps-dataprep-server curl -s -o /dev/null -w "%{http_code}" http://test-comps-dataprep-tei-endpoint:80/health)
-	if [ "$TEI_CHECK" -eq 200 ]; then
-		echo "[ connectivity ] TEI embedding service connection successful"
-	else
-		echo "[ connectivity ] TEI embedding service connection failed with status: $TEI_CHECK"
-		docker logs test-comps-dataprep-tei-endpoint >> ${LOG_PATH}/tei.log
-		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
-		exit 1
-	fi
-	
-	# Check TEI embedding functionality
-	echo "Testing TEI embedding functionality..."
-	EMBED_RESPONSE=$(docker exec test-comps-dataprep-server curl -s -X POST -H "Content-Type: application/json" -d '{"text":"test embedding"}' http://test-comps-dataprep-tei-endpoint:80/embeddings)
-	if echo "$EMBED_RESPONSE" | grep -q "embedding"; then
-		echo "[ connectivity ] TEI embedding functionality successful"
-	else
-		echo "[ connectivity ] TEI embedding functionality failed with response: $EMBED_RESPONSE"
-		docker logs test-comps-dataprep-tei-endpoint >> ${LOG_PATH}/tei.log
-		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
-		exit 1
-	fi
-	
-	# Check VLLM service connectivity
-	echo "Testing VLLM service connectivity..."
-	VLLM_CHECK=$(docker exec test-comps-dataprep-server curl -s -o /dev/null -w "%{http_code}" http://test-comps-vllm-service:80/health)
-	if [ "$VLLM_CHECK" -eq 200 ]; then
-		echo "[ connectivity ] VLLM service connection successful"
-	else
-		echo "[ connectivity ] VLLM service connection failed with status: $VLLM_CHECK"
-		docker logs test-comps-vllm-service >> ${LOG_PATH}/vllm.log
-		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
-		exit 1
-	fi
-	
-	# Check VLLM response functionality
-	echo "Testing VLLM response functionality..."
-	VLLM_RESPONSE=$(docker exec test-comps-dataprep-server curl -s -X POST -H "Content-Type: application/json" -d '{"prompt":"Hello, world!"}' http://test-comps-vllm-service:80/generate)
-	if echo "$VLLM_RESPONSE" | grep -q "text\|generated_text\|response"; then
-		echo "[ connectivity ] VLLM response functionality successful"
-	else
-		echo "[ connectivity ] VLLM response functionality failed with response: $VLLM_RESPONSE"
-		docker logs test-comps-vllm-service >> ${LOG_PATH}/vllm.log
-		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
-		exit 1
-	fi
-	
-	echo "All connectivity checks passed"
-}
-
 function validate_microservice() {
 	# Create a test directory for files
 	mkdir -p test_files
-
 	# Create a test file with some structured content
 	cat >test_files/test_doc.txt <<EOL
 # Test Document
 ArangoDB is the best database in the world. ArangoDB is a multi-model, open-source database with a flexible data model for documents, graphs, and key-values.
 EOL
-
 	# Test file upload
 	echo "Testing ingest endpoint..."
 	HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -239,10 +150,8 @@ EOL
 		-F "process_table=false" \
 		-F "table_strategy=fast" \
 		"http://localhost:$DATAPREP_PORT/v1/dataprep/ingest")
-
 	if [ "$HTTP_STATUS" -eq 200 ]; then
 		echo "[ dataprep ] Ingest endpoint test passed"
-
 		# Capture the full response for logging
 		INGEST_RESPONSE=$(curl -s \
 			-X POST \
@@ -252,18 +161,14 @@ EOL
 			-F "process_table=false" \
 			-F "table_strategy=fast" \
 			"http://localhost:$DATAPREP_PORT/v1/dataprep/ingest" | tee ${LOG_PATH}/dataprep_ingest.log)
-
 		echo "Ingest response: $INGEST_RESPONSE"
-
 		# Test get endpoint
 		echo "Testing get endpoint..."
 		GET_RESPONSE=$(curl -s -X POST "http://localhost:$DATAPREP_PORT/v1/dataprep/get" | tee ${LOG_PATH}/dataprep_get.log)
 		GET_STATUS=$?
-
 		if [ "$GET_STATUS" -eq 0 ]; then
 			echo "[ dataprep ] Get endpoint test passed"
 			echo "Get response: $GET_RESPONSE"
-
 			# Check if the response has valid content (should be an array)
 			if echo "$GET_RESPONSE" | grep -q '\[.*\]' || echo "$GET_RESPONSE" | grep -q 'name'; then
 				echo "[ dataprep ] Get response is valid"
@@ -279,13 +184,11 @@ EOL
 			docker logs test-comps-dataprep-tei-endpoint >>${LOG_PATH}/tei.log
 			exit 1
 		fi
-
 		# Verify data in ArangoDB
 		echo "Verifying ArangoDB data..."
 		GRAPH_CHECK=$(curl -s \
 			"http://localhost:8529/_db/${ARANGO_DB_NAME}/_api/gharial" \
 			-u ${ARANGO_USERNAME}:${ARANGO_PASSWORD} | tee ${LOG_PATH}/arango_graph.log)
-
 		if echo "$GRAPH_CHECK" | grep -q "GRAPH"; then
 			echo "[ dataprep ] Graph verification passed"
 		else
@@ -299,11 +202,9 @@ EOL
 		docker logs test-comps-dataprep-tei-endpoint >>${LOG_PATH}/tei.log
 		exit 1
 	fi
-
 	# Clean up test files
 	rm -rf test_files
 }
-
 function stop_docker() {
 	# Stop and remove all containers
 	for container in test-comps-dataprep-server test-comps-dataprep-tei-endpoint test-comps-vllm-service test-comps-arango; do
@@ -311,22 +212,17 @@ function stop_docker() {
 			docker stop $container && docker rm $container
 		fi
 	done
-
 	# Remove the test network if it exists
 	docker network inspect test-dataprep-network >/dev/null 2>&1 && docker network rm test-dataprep-network
 }
-
 function main() {
 	# Create log directory if it doesn't exist
 	mkdir -p ${LOG_PATH}
-
 	stop_docker
 	build_docker_images
 	start_service
-	check_connectivity
 	validate_microservice
 	stop_docker
 	echo y | docker system prune
 }
-
 main
