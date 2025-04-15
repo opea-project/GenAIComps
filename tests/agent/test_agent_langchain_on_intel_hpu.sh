@@ -59,7 +59,7 @@ function build_vllm_docker_images() {
         git clone https://github.com/HabanaAI/vllm-fork.git
     fi
     cd ./vllm-fork
-    VLLM_VER=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+    VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
     echo "Check out vLLM tag ${VLLM_VER}"
     git checkout ${VLLM_VER} &> /dev/null
     docker build --no-cache -f Dockerfile.hpu -t opea/vllm-gaudi:comps --shm-size=128g . --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy
@@ -191,7 +191,8 @@ function start_react_langgraph_agent_service_openai() {
 function start_react_llama_agent_service() {
     echo "Starting redis for testing agent persistent"
 
-    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host --name redis-vector-db redis/redis-stack:7.2.0-v9
+    docker run -d -it -p 6379:6379 --rm --name "test-persistent-redis" --net=host --ipc=host redis/redis-stack:7.2.0-v9
+    docker ps
 
     echo "Starting react_llama agent microservice"
     docker compose -f $WORKPATH/tests/agent/reactllama.yaml up -d

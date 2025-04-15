@@ -55,6 +55,7 @@ function start_multimodal_service() {
     export LOGFLAG=True
     export BRIDGE_TOWER_EMBEDDING=true
     export RETRIEVER_TYPE="redis"
+    unset TEI_EMBEDDING_ENDPOINT
 
     cd $WORKPATH/comps/retrievers/deployment/docker_compose
     docker compose -f compose.yaml up ${service_name_mm} -d > ${LOG_PATH}/start_services_with_compose_multimodal.log

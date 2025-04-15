@@ -14,21 +14,20 @@ export LVM_PORT=11507
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/lvm-video-llama:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/lvms/src/integrations/dependency/video-llama/Dockerfile .
-    if $? ; then
+    docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/lvm-video-llama:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/video-llama/src/Dockerfile .
+    if [ $? -ne 0 ]; then
         echo "opea/lvm-video-llama built fail"
         exit 1
     else
         echo "opea/lvm-video-llama built successful"
     fi
     docker build --no-cache --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/lvm:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f comps/lvms/src/Dockerfile .
-    if $? ; then
+    if [ $? -ne 0 ]; then
         echo "opea/lvm built fail"
         exit 1
     else
         echo "opea/lvm built successful"
     fi
-
 }
 
 function start_service() {
@@ -73,7 +72,6 @@ function main() {
 
     stop_docker
     echo y | docker system prune
-
 }
 
 main
