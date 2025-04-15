@@ -17,14 +17,13 @@ neo4j
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-optimum-habana==1.17.0
 peft
 prometheus-fastapi-instrumentator
 pydub
 pyprojroot
 sentence-transformers
 shortuuid
-transformers>=4.49.0,<4.50.0
+transformers
 unstructured
 urllib3
 uvicorn
