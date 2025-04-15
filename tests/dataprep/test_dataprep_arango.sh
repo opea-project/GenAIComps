@@ -98,7 +98,7 @@ function start_service() {
 		-e no_proxy=$no_proxy \
 		-e http_proxy=$http_proxy \
 		-e https_proxy=$https_proxy \
-		-e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN:-} \
+		--pull always \
 		${REGISTRY:-opea}/vllm:${TAG:-latest} \
 		--model ${VLLM_MODEL_ID} --host 0.0.0.0 --port 80
 
@@ -151,6 +151,72 @@ function start_service() {
 		opea/dataprep:test
 
 	sleep 1m
+}
+
+function check_connectivity() {
+	echo "Checking network connectivity between services..."
+	
+	# Check ArangoDB connectivity from dataprep container
+	echo "Testing ArangoDB connectivity..."
+	ARANGO_CHECK=$(docker exec test-comps-dataprep-server curl -s -o /dev/null -w "%{http_code}" http://test-comps-arango:8529/_api/version)
+	if [ "$ARANGO_CHECK" -eq 200 ] || [ "$ARANGO_CHECK" -eq 401 ]; then
+		echo "[ connectivity ] ArangoDB connection successful"
+	else
+		echo "[ connectivity ] ArangoDB connection failed with status: $ARANGO_CHECK"
+		docker logs test-comps-arango >> ${LOG_PATH}/arango.log
+		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
+		exit 1
+	fi
+	
+	# Check TEI embedding service connectivity
+	echo "Testing TEI embedding service connectivity..."
+	TEI_CHECK=$(docker exec test-comps-dataprep-server curl -s -o /dev/null -w "%{http_code}" http://test-comps-dataprep-tei-endpoint:80/health)
+	if [ "$TEI_CHECK" -eq 200 ]; then
+		echo "[ connectivity ] TEI embedding service connection successful"
+	else
+		echo "[ connectivity ] TEI embedding service connection failed with status: $TEI_CHECK"
+		docker logs test-comps-dataprep-tei-endpoint >> ${LOG_PATH}/tei.log
+		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
+		exit 1
+	fi
+	
+	# Check TEI embedding functionality
+	echo "Testing TEI embedding functionality..."
+	EMBED_RESPONSE=$(docker exec test-comps-dataprep-server curl -s -X POST -H "Content-Type: application/json" -d '{"text":"test embedding"}' http://test-comps-dataprep-tei-endpoint:80/embeddings)
+	if echo "$EMBED_RESPONSE" | grep -q "embedding"; then
+		echo "[ connectivity ] TEI embedding functionality successful"
+	else
+		echo "[ connectivity ] TEI embedding functionality failed with response: $EMBED_RESPONSE"
+		docker logs test-comps-dataprep-tei-endpoint >> ${LOG_PATH}/tei.log
+		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
+		exit 1
+	fi
+	
+	# Check VLLM service connectivity
+	echo "Testing VLLM service connectivity..."
+	VLLM_CHECK=$(docker exec test-comps-dataprep-server curl -s -o /dev/null -w "%{http_code}" http://test-comps-vllm-service:80/health)
+	if [ "$VLLM_CHECK" -eq 200 ]; then
+		echo "[ connectivity ] VLLM service connection successful"
+	else
+		echo "[ connectivity ] VLLM service connection failed with status: $VLLM_CHECK"
+		docker logs test-comps-vllm-service >> ${LOG_PATH}/vllm.log
+		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
+		exit 1
+	fi
+	
+	# Check VLLM response functionality
+	echo "Testing VLLM response functionality..."
+	VLLM_RESPONSE=$(docker exec test-comps-dataprep-server curl -s -X POST -H "Content-Type: application/json" -d '{"prompt":"Hello, world!"}' http://test-comps-vllm-service:80/generate)
+	if echo "$VLLM_RESPONSE" | grep -q "text\|generated_text\|response"; then
+		echo "[ connectivity ] VLLM response functionality successful"
+	else
+		echo "[ connectivity ] VLLM response functionality failed with response: $VLLM_RESPONSE"
+		docker logs test-comps-vllm-service >> ${LOG_PATH}/vllm.log
+		docker logs test-comps-dataprep-server >> ${LOG_PATH}/dataprep.log
+		exit 1
+	fi
+	
+	echo "All connectivity checks passed"
 }
 
 function validate_microservice() {
@@ -257,6 +323,7 @@ function main() {
 	stop_docker
 	build_docker_images
 	start_service
+	check_connectivity
 	validate_microservice
 	stop_docker
 	echo y | docker system prune
