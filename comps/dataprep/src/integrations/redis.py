@@ -516,16 +516,12 @@ class OpeaRedisDataprep(OpeaComponent):
                 if "index_name" not in file:
                     continue
                 
-                if index_name == "all":
-                    # Remove the index_names from all files if it exists                    
-                    file["name"] = file["name"].replace(file["index_name"] + "_", "")
-                    file["id"] = file["id"].replace(file["index_name"] + "_", "")
-                    filtered_files.append(file)
-                    
-                elif index_name == file["index_name"]:
-                    # Remove the index_name from the defined index of the files if it exists 
-                    file["name"] = file["name"].replace(index_name + "_", "")
-                    file["id"] = file["id"].replace(index_name + "_", "")
+                # Check if the file should be included based on the index_name
+                if index_name == "all" or index_name == file["index_name"]:
+                    # Remove the index_name prefix from "name" and "id"
+                    prefix = f"{file['index_name']}_"
+                    file["name"] = file["name"].replace(prefix, "", 1)
+                    file["id"] = file["id"].replace(prefix, "", 1)
                     filtered_files.append(file)
                     
             file_list = filtered_files

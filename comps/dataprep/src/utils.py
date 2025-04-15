@@ -861,6 +861,7 @@ def format_search_results(response, file_list: list):
         file_list.append(file_dict)
     return file_list
 
+
 def format_file_list(file_list: list):
     res_list = []
     for file_name in file_list:
