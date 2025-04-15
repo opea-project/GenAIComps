@@ -389,6 +389,13 @@ class OpeaRedisDataprep(OpeaComponent):
             logger.info(f"[ redis ingest ] files:{files}")
             logger.info(f"[ redis ingest ] link_list:{link_list}")
 
+        
+        if index_name and index_name.lower() == "all":
+            raise HTTPException(
+                status_code=400,
+                detail="'all' cannot be used as an index_name because it is reserved for specific functionality within the service."
+            )
+                
         if files:
             if not isinstance(files, list):
                 files = [files]
