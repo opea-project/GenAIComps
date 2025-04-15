@@ -33,7 +33,6 @@ export DATAPREP_OPENAI_EMBED_ENABLED="${DATAPREP_OPENAI_EMBED_ENABLED:-false}"
 export DATAPREP_EMBED_NODES="${DATAPREP_EMBED_NODES:-true}"
 export DATAPREP_EMBED_RELATIONSHIPS="${DATAPREP_EMBED_RELATIONSHIPS:-true}"
 export DATAPREP_EMBED_SOURCE_DOCUMENTS="${DATAPREP_EMBED_SOURCE_DOCUMENTS:-true}"
-export HUGGINGFACEHUB_API_TOKEN="${HUGGINGFACEHUB_API_TOKEN:-}"
 
 # TEI Configuration
 export TEI_PORT="${TEI_PORT:-6006}"
@@ -112,7 +111,6 @@ function start_service() {
 		--network test-dataprep-network \
 		-p $TEI_PORT:80 \
 		-v $WORKPATH/data:/data \
-		-e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN:-} \
 		--pull always \
 		ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 \
 		--model-id ${EMBEDDING_MODEL_ID} --auto-truncate
@@ -136,6 +134,7 @@ function start_service() {
 		-e ARANGO_INSERT_ASYNC=$DATAPREP_ARANGO_INSERT_ASYNC \
 		-e ARANGO_USE_GRAPH_NAME=$DATAPREP_ARANGO_USE_GRAPH_NAME \
 		-e TEI_EMBEDDING_ENDPOINT=http://test-comps-dataprep-tei-endpoint:80 \
+		-e TEI_EMBED_MODEL=${EMBEDDING_MODEL_ID} \
 		-e CHUNK_SIZE=$DATAPREP_CHUNK_SIZE \
 		-e CHUNK_OVERLAP=$DATAPREP_CHUNK_OVERLAP \
 		-e EMBED_SOURCE_DOCUMENTS=$DATAPREP_EMBED_SOURCE_DOCUMENTS \
@@ -148,7 +147,6 @@ function start_service() {
 		-e VLLM_API_KEY=$VLLM_API_KEY \
 		-e VLLM_ENDPOINT=$VLLM_ENDPOINT \
 		-e VLLM_MODEL_ID=$VLLM_MODEL_ID \
-		-e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN:-} \
 		-e LOGFLAG=$LOGFLAG \
 		opea/dataprep:test
 
