@@ -7,11 +7,11 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 export host_ip=$(hostname -I | awk '{print $1}')
-service_name="retriever-arango"
+service_name="retriever-arangodb"
 
 export TEI_EMBEDDING_ENDPOINT="http://${host_ip}:6060"
 export EMBEDDING_MODEL_ID=BAAI/bge-base-en-v1.5
-export service_name="retriever-arango"
+export service_name="retriever-arangodb"
 export ARANGO_URL=${ARANGO_URL:-"http://${host_ip}:8529"} 
 export ARANGO_USERNAME=${ARANGO_USERNAME:-"root"}
 export ARANGO_PASSWORD=${ARANGO_PASSWORD:-"test"}
