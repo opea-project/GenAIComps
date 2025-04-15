@@ -89,7 +89,7 @@ function validate_microservice() {
     check_result "dataprep - get" '{"name":' dataprep-redis-server ${LOG_PATH}/dataprep_file.log
 
     # test /v1/dataprep/get
-    get_all_in_index ${ip_address} ${DATAPREP_PORT} 
+    get_all_in_index ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - get" '"index_name":"rag_redis"' dataprep-redis-server ${LOG_PATH}/dataprep_file.log
 
     # test /v1/dataprep/get

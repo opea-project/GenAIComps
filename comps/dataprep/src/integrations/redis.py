@@ -122,7 +122,9 @@ async def create_index(client, index_name: str = KEY_INDEX_NAME):
         logger.info(f"[ create index ] creating index {index_name}")
     try:
         definition = IndexDefinition(index_type=IndexType.HASH, prefix=["file:"])
-        await client.create_index((TextField("file_name"), TextField("key_ids"), TextField("index_name")), definition=definition)
+        await client.create_index(
+            (TextField("file_name"), TextField("key_ids"), TextField("index_name")), definition=definition
+        )
         if logflag:
             logger.info(f"[ create index ] index {index_name} successfully created")
     except Exception as e:
@@ -225,7 +227,12 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
         await create_index(client)
 
     try:
-        await store_by_id(client, key=encode_filename(ingest_index_name) + "_" + file_name, value="#".join(file_ids), ingest_index_name=ingest_index_name)
+        await store_by_id(
+            client,
+            key=encode_filename(ingest_index_name) + "_" + file_name,
+            value="#".join(file_ids),
+            ingest_index_name=ingest_index_name,
+        )
     except Exception as e:
         if logflag:
             logger.info(f"[ redis ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
@@ -507,15 +514,15 @@ class OpeaRedisDataprep(OpeaComponent):
             # no doc retrieved
             if len(response) < 2:
                 break
-            
+
             file_list = format_search_results(response, file_list)
-            index_name = INDEX_NAME if index_name is None else index_name            
-            filtered_files=[]
+            index_name = INDEX_NAME if index_name is None else index_name
+            filtered_files = []
             for file in file_list:
                 # Ensure "index_name" key exists in the file dictionary
                 if "index_name" not in file:
                     continue
-                
+
                 # Check if the file should be included based on the index_name
                 if index_name == "all" or index_name == file["index_name"]:
                     # Remove the index_name prefix from "name" and "id"
@@ -523,7 +530,7 @@ class OpeaRedisDataprep(OpeaComponent):
                     file["name"] = file["name"].replace(prefix, "", 1)
                     file["id"] = file["id"].replace(prefix, "", 1)
                     filtered_files.append(file)
-                    
+
             file_list = filtered_files
             offset += SEARCH_BATCH_SIZE
             # last batch
@@ -591,17 +598,17 @@ class OpeaRedisDataprep(OpeaComponent):
         # partially delete files based on index_name
         index_name = INDEX_NAME if index_name is None else index_name
         index_name_id = encode_filename(index_name)
-        
+
         if file_path == "all" and index_name is not None:
-            file_list = [ i['name'] for i in await self.get_files(index_name)]
+            file_list = [i["name"] for i in await self.get_files(index_name)]
         else:
             file_list = [file_path]
-        
-        for file_path in file_list:            
+
+        for file_path in file_list:
             delete_path = Path(upload_folder + "/" + encode_filename(file_path))
             if logflag:
                 logger.info(f"[ redis delete ] delete_path: {delete_path}")
-            
+
             encode_file = encode_filename(file_path)
             doc_id = "file:" + index_name_id + "_" + encode_file
             logger.info(f"[ redis delete ] doc id: {doc_id}")
@@ -660,13 +667,13 @@ class OpeaRedisDataprep(OpeaComponent):
                 delete_path.unlink()
                 if logflag:
                     logger.info(f"[ redis delete ] File {file_path} deleted successfully.")
-                
+
             # delete folder
             else:
                 if logflag:
                     logger.info(f"[ redis delete ] Delete folder {file_path} is not supported for now.")
                 raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
-            
+
         return {"status": True}
 
     def get_list_of_indices(self):

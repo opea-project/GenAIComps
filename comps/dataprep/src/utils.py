@@ -850,13 +850,13 @@ def get_file_structure(root_path: str, parent_path: str = "") -> List[Dict[str, 
 def format_search_results(response, file_list: list):
     for i in range(1, len(response), 2):
         file_name = response[i].decode()[5:]
-        index_name_index = response[i+1].index(b'index_name')
+        index_name_index = response[i + 1].index(b"index_name")
         file_dict = {
             "name": decode_filename(file_name),
             "id": decode_filename(file_name),
             "type": "File",
             "parent": "",
-            "index_name": response[i+1][index_name_index+1].decode(),
+            "index_name": response[i + 1][index_name_index + 1].decode(),
         }
         file_list.append(file_dict)
     return file_list
