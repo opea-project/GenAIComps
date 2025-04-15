@@ -66,6 +66,38 @@ function build_docker_images() {
 		echo "opea/dataprep built successful"
 	fi
 }
+function check_vllm_service() {
+	echo "Checking VLLM service availability..."
+	for i in {1..7}; do
+		echo "Attempt $i of 7: Checking VLLM service status..."
+		VLLM_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VLLM_ENDPOINT/health")
+		echo "VLLM health check status: $VLLM_STATUS"
+		
+		if [ "$VLLM_STATUS" -eq 200 ]; then
+			echo "VLLM service is ready and healthy"
+			return 0
+		fi
+		
+		echo "VLLM service not ready yet, waiting for 1 minute..."
+		sleep 1m
+		# Log container status after the first failed attempt
+		if [ "$i" -eq 1 ]; then
+			echo "VLLM container status:"
+			docker ps -a | grep test-comps-vllm-service
+			echo "VLLM container logs:"
+			docker logs test-comps-vllm-service 2>&1 | tail -50 >>${LOG_PATH}/vllm_startup.log
+			docker logs test-comps-vllm-service 2>&1 | tail -20
+		fi
+	done
+	
+	echo "VLLM service not available after 7 minutes. This may cause issues with dataprep service."
+	echo "VLLM container final status:"
+	docker ps -a | grep test-comps-vllm-service
+	echo "VLLM container logs:"
+	docker logs test-comps-vllm-service 2>&1 | tail -100 >>${LOG_PATH}/vllm_error.log
+	docker logs test-comps-vllm-service 2>&1 | tail -50
+	return 1
+}
 function start_service() {
 	# Create test network if it doesn't exist
 	docker network create test-dataprep-network || true
@@ -86,7 +118,7 @@ function start_service() {
 		${REGISTRY:-opea}/vllm:${TAG:-latest} \
 		--model ${VLLM_MODEL_ID} --host 0.0.0.0 --port 80
 	echo "Started VLLM service with model: ${VLLM_MODEL_ID}"
-	sleep 30s
+	sleep 1m
 	# Start TEI embedding service
 	docker run -d \
 		--name="test-comps-dataprep-tei-endpoint" \
@@ -96,7 +128,7 @@ function start_service() {
 		--pull always \
 		ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 \
 		--model-id ${EMBEDDING_MODEL_ID} --auto-truncate
-	sleep 30s
+	sleep 45s
 	# Start dataprep service with all environment variables
 	docker run -d \
 		--name="test-comps-dataprep-server" \
@@ -221,6 +253,7 @@ function main() {
 	stop_docker
 	build_docker_images
 	start_service
+	check_vllm_service
 	validate_microservice
 	stop_docker
 	echo y | docker system prune
