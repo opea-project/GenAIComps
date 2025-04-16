@@ -46,16 +46,13 @@ def get_unsafe_dict(model_id=DEFAULT_MODEL):
 
 
 def get_service_model_id(endpoint_url, default=DEFAULT_MODEL):
-    """
-    Returns model_id from the OpenAI-compatible /v1/models endpoint.
+    """Returns model_id from the OpenAI-compatible /v1/models endpoint.
+
     Falls back to default if the request fails or no models are returned.
     """
     try:
         requests = JsonRequestsWrapper()
-        proxies = {
-            "http": None,
-            "https": None
-        }
+        proxies = {"http": None, "https": None}
         models_endpoint = os.path.join(endpoint_url.rstrip("/"), "v1/models")
         print(models_endpoint)
         model_info = requests.get(models_endpoint, proxies=proxies)
@@ -65,6 +62,7 @@ def get_service_model_id(endpoint_url, default=DEFAULT_MODEL):
     except Exception as e:
         logger.error(f"Get model id failed due to an exception: {e}")
     return default
+
 
 @OpeaComponentRegistry.register("OPEA_LLAMA_GUARD")
 class OpeaGuardrailsLlamaGuard(OpeaComponent):
