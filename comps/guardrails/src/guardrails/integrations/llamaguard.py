@@ -63,7 +63,7 @@ def get_service_model_id(endpoint_url, default=DEFAULT_MODEL):
         if "data" in model_info and len(model_info["data"]) > 0:
             return model_info["data"][0]["id"]
     except Exception as e:
-        pass  # optionally log the error
+        logger.error(f"Get model id failed due to an exception: {e}")
     return default
 
 @OpeaComponentRegistry.register("OPEA_LLAMA_GUARD")
