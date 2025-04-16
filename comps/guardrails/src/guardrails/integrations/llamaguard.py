@@ -52,11 +52,8 @@ def get_service_model_id(endpoint_url, default=DEFAULT_MODEL):
     """
     try:
         requests = JsonRequestsWrapper()
-        proxies = {"http": None, "https": None}
         models_endpoint = os.path.join(endpoint_url.rstrip("/"), "v1/models")
-        print(models_endpoint)
-        model_info = requests.get(models_endpoint, proxies=proxies)
-        print(model_info)
+        model_info = requests.get(models_endpoint)
         if "data" in model_info and len(model_info["data"]) > 0:
             return model_info["data"][0]["id"]
     except Exception as e:
