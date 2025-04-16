@@ -87,6 +87,23 @@ function validate_microservice() {
     # test /v1/dataprep/get
     get_all ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - get" '{"name":' dataprep-redis-server ${LOG_PATH}/dataprep_file.log
+
+    # test /v1/dataprep/get
+    get_all_in_index ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - get" '"index_name":"rag_redis"' dataprep-redis-server ${LOG_PATH}/dataprep_file.log
+
+    # test /v1/dataprep/get
+    get_index ${ip_address} ${DATAPREP_PORT} rag_redis_test
+    check_result "dataprep - get" '"index_name":"rag_redis_test"' dataprep-redis-server ${LOG_PATH}/dataprep_file.log
+
+    # test /v1/dataprep/delete
+    delete_all_in_index ${ip_address} ${DATAPREP_PORT} rag_redis_test
+    check_result "dataprep - del" '{"status":true}' dataprep-redis-server ${LOG_PATH}/dataprep_del.log
+
+    # test /v1/dataprep/delete
+    delete_item_in_index ${ip_address} ${DATAPREP_PORT} rag_redis ingest_dataprep.docx
+    check_result "dataprep - del" '{"status":true}' dataprep-redis-server ${LOG_PATH}/dataprep_del.log
+
 }
 
 function stop_docker() {
