@@ -138,9 +138,10 @@ class MicroService(HTTPService):
             )
 
     @property
-    def endpoint_path(self):
+    def endpoint_path(self,model):
         if self.api_key:
-            return f"{self.host}{self.endpoint}"
+            model_endpoint=model.split('/')[1]
+            return f"{self.host}/{model_endpoint}{self.endpoint}"
         else:
             return f"{self.protocol}://{self.host}:{self.port}{self.endpoint}"
 
