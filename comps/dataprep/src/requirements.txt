@@ -13,6 +13,7 @@ future
 graspologic
 html2text
 huggingface_hub
+json-repair
 ipython
 langchain
 langchain-community
@@ -25,6 +26,7 @@ langchain-text-splitters
 langchain-vdms>=0.1.4
 langchain_huggingface
 langchain_milvus
+langchain-arangodb
 llama-index
 llama-index-core==0.12.19
 llama-index-embeddings-text-embeddings-inference
