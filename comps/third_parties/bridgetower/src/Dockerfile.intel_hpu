@@ -20,7 +20,7 @@ COPY --chown=user comps /home/user/comps
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/third_parties/bridgetower/src/requirements.txt && \
     pip install --no-cache-dir --upgrade transformers && \
-    pip install --no-cache-dir optimum[habana]
+    pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana@v1.17.0
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 USER user
