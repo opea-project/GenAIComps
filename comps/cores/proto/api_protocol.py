@@ -37,7 +37,7 @@ class ResponseFormat(BaseModel):
 
 class StreamOptions(BaseModel):
     # refer https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L105
-    include_usage: Optional[bool]
+    include_usage: Optional[bool] = False
 
 
 class FunctionDefinition(BaseModel):
@@ -169,7 +169,7 @@ class ChatCompletionRequest(BaseModel):
     service_tier: Optional[str] = None
     stop: Union[str, List[str], None] = Field(default_factory=list)
     stream: Optional[bool] = False
-    stream_options: Optional[StreamOptions] = None
+    stream_options: Optional[StreamOptions] = Field(default_factory=StreamOptions)
     temperature: Optional[float] = 0.01  # vllm default 0.7
     top_p: Optional[float] = None  # openai default 1.0, but tgi needs `top_p` must be > 0.0 and < 1.0, set None
     tools: Optional[List[ChatCompletionToolsParam]] = None
