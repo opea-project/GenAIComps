@@ -1,11 +1,13 @@
 # Prompt Injection and Jailbreak Detection Microservice
 
 ## Introduction
-Prompt injection refers to a type of attack where a malicious user manipulates the input prompts given to an LLM to alter its intended behavior. 
 
-LLMs are often trained to avoid harmful behaviors; such as responding to prompts that elicit behaviors like hate speech, crime aiding, misinformation creation, or leaking of private information. A jailbreak attack attempts to obtain a response from the model that violates these constraints. 
+Prompt injection refers to a type of attack where a malicious user manipulates the input prompts given to an LLM to alter its intended behavior.
+
+LLMs are often trained to avoid harmful behaviors; such as responding to prompts that elicit behaviors like hate speech, crime aiding, misinformation creation, or leaking of private information. A jailbreak attack attempts to obtain a response from the model that violates these constraints.
 
 ## Prompt Guard Microservice
+
 The Prompt Injection and Jailbreak Detection Microservice safeguards LLMs from malicious prompts by identifying and filtering out attempts at prompt injection and jailbreaking, ensuring secure and reliable interactions.
 
 This microservice uses [`meta-llama/Prompt-Guard-86M`](https://huggingface.co/meta-llama/Prompt-Guard-86M), a multi-label classifier model trained on a large corpus of attack scenarios. It categorizes input prompts into three categories: benign, injection, and jailbreak.
@@ -30,13 +32,14 @@ export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 ```
 
 ## Setup Environment Variables
+
 Setup the following environment variables first
 
 ```bash
 export PROMPT_INJECTION_DETECTION_PORT=9085
 ```
 
-By default, this microservice uses `NATIVE_PROMPT_INJECTION_DETECTION` which invokes [`meta-llama/Prompt-Guard-86M`](https://huggingface.co/meta-llama/Prompt-Guard-86M), locally. 
+By default, this microservice uses `NATIVE_PROMPT_INJECTION_DETECTION` which invokes [`meta-llama/Prompt-Guard-86M`](https://huggingface.co/meta-llama/Prompt-Guard-86M), locally.
 
 ```bash
 export PROMPT_INJECTION_COMPONENT_NAME="NATIVE_PROMPT_INJECTION_DETECTION"
@@ -91,6 +94,7 @@ docker run -d --name="prompt-injection-guardrail-server" -p ${PROMPT_INJECTION_D
 cd $OPEA_GENAICOMPS_ROOT
 docker build -t opea/guardrails-injection-predictionguard:latest -f comps/guardrails/src/prompt_injection/Dockerfile .
 ```
+
 ### 1.2 Start Service
 
 ```bash
@@ -99,12 +103,14 @@ docker run -d --name="guardrails-injection-predictionguard" -p 9085:9085 -e PRED
 
 ### 🚀2. Get Status of Microservice
 
-If you are using the Prompt Guard Microservice, you can view the logs by running: 
+If you are using the Prompt Guard Microservice, you can view the logs by running:
+
 ```bash
 docker container logs -f prompt-injection-guardrail-server
 ```
 
-In case you are using the Prediction Guard Microservice, you can view the logs by running: 
+In case you are using the Prediction Guard Microservice, you can view the logs by running:
+
 ```bash
 docker container logs -f guardrails-injection-predictionguard
 ```
