@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import os
 from typing import Any, Union
 
@@ -8,8 +11,8 @@ from langchain_arangodb import ArangoVector
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType, EmbedDoc
-from comps.cores.proto.api_protocol import RetrievalRequestArangoDB, RetrievalRequest, ChatCompletionRequest
+from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import ChatCompletionRequest, RetrievalRequest, RetrievalRequestArangoDB
 
 from .config import (
     ARANGO_DB_NAME,
@@ -274,9 +277,9 @@ class OpeaArangoRetriever(OpeaComponent):
 
     def generate_summarization_prompt(self, query: str, text: str) -> str:
         """Generate a summarization prompt based on the provided query and text.
-        This method creates a structured prompt to summarize a document retrieved 
-        through vector similarity matching. The summarization is guided by the 
-        provided query and optionally leverages a 'RELATED INFORMATION' section 
+        This method creates a structured prompt to summarize a document retrieved
+        through vector similarity matching. The summarization is guided by the
+        provided query and optionally leverages a 'RELATED INFORMATION' section
         within the document to enhance relevance.
 
         Args:
@@ -288,7 +291,7 @@ class OpeaArangoRetriever(OpeaComponent):
 
         return f"""
             I've performed vector similarity on the following
-            query to retrieve most relevant documents: '{query}' 
+            query to retrieve most relevant documents: '{query}'
 
             Each Document retrieved may have a 'RELATED INFORMATION' section.
 
@@ -309,7 +312,9 @@ class OpeaArangoRetriever(OpeaComponent):
             Your summary:
         """
 
-    async def invoke(self, input: Union[ChatCompletionRequest, RetrievalRequest, RetrievalRequestArangoDB, EmbedDoc]) -> list:
+    async def invoke(
+        self, input: Union[ChatCompletionRequest, RetrievalRequest, RetrievalRequestArangoDB, EmbedDoc]
+    ) -> list:
         """Process the retrieval request and return relevant documents."""
         if logflag:
             logger.info(input)

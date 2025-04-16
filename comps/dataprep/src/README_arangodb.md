@@ -37,7 +37,7 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 ### Run via CLI
 
 ```bash
-docker run -d --name="dataprep-arango-service" -p 6007:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URL="http://localhost:8529" -e ... -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ARANGODB" opea/dataprep:latest 
+docker run -d --name="dataprep-arango-service" -p 6007:5000 --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e ARANGODB_URL="http://localhost:8529" -e ... -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ARANGODB" opea/dataprep:latest
 ```
 
 ### Run Docker with Docker Compose
@@ -48,7 +48,6 @@ docker compose up dataprep-arangodb -d
 ```
 
 See below for additional environment variables that can be set.
-
 
 ## 🚀3. Consume Dataprep Service
 
@@ -81,6 +80,7 @@ curl -X POST \
 ```
 
 We support table extraction from pdf documents. You can specify `process_table` and `table_strategy` with the following parameters:
+
 - `table_strategy` refers to the strategies to understand tables for table retrieval. As the setting progresses from `"fast"` to `"hq"` to `"llm"`, the focus shifts towards deeper table understanding at the expense of processing speed. The default strategy is `"fast"`.
 - `process_table` refers to whether to process tables in the document. The default value is `False`.
 
@@ -100,18 +100,21 @@ curl -X POST \
 Additional options that can be specified from the environment variables are as follows (default values are in the `arangodb.py` file):
 
 ArangoDB Connection configuration
+
 - `ARANGO_URL`: The URL for the ArangoDB service.
 - `ARANGO_USERNAME`: The username for the ArangoDB service.
 - `ARANGO_PASSWORD`: The password for the ArangoDB service.
 - `ARANGO_DB_NAME`: The name of the database to use for the ArangoDB service.
 
 ArangoDB Graph Insertion configuration
+
 - `ARANGO_INSERT_ASYNC`: If set to True, the microservice will insert the data into ArangoDB asynchronously. Defaults to `False`.
 - `ARANGO_BATCH_SIZE`: The batch size for the microservice to insert the data. Defaults to `500`.
-- `ARANGO_GRAPH_NAME`: The name of the graph to use/create in ArangoDB Defaults to `GRAPH`. 
+- `ARANGO_GRAPH_NAME`: The name of the graph to use/create in ArangoDB Defaults to `GRAPH`.
 - `ARANGO_USE_GRAPH_NAME`: If set to True, the microservice will use the graph name specified in the environment variable `ARANGO_GRAPH_NAME`. If set to False, the file name will be used as the graph name. Defaults to `True`.
 
 vLLM Configuration
+
 - `VLLM_API_KEY`: The API key for the vLLM service. Defaults to `"EMPTY"`.
 - `VLLM_ENDPOINT`: The endpoint for the VLLM service. Defaults to `http://localhost:80`.
 - `VLLM_MODEL_ID`: The model ID for the VLLM service. Defaults to `Intel/neural-chat-7b-v3-3`.
@@ -121,6 +124,7 @@ vLLM Configuration
 - `VLLM_TIMEOUT`: The timeout for the VLLM service. Defaults to `600`.
 
 Text Embeddings Inferencing Configuration
+
 - `TEI_EMBEDDING_ENDPOINT`: The endpoint for the TEI service.
 - `TEI_EMBED_MODEL`: The model to use for the TEI service. Defaults to `BAAI/bge-base-en-v1.5`.
 - `HUGGINGFACEHUB_API_TOKEN`: The API token for the Hugging Face Hub.
@@ -130,6 +134,7 @@ Text Embeddings Inferencing Configuration
 
 OpenAI Configuration:
 **Note**: This configuration can replace the VLLM and TEI services for text generation and embeddings.
+
 - `OPENAI_API_KEY`: The API key for the OpenAI service. If not set, the microservice will not use the OpenAI service.
 - `OPENAI_CHAT_MODEL`: The chat model to use for the OpenAI service. Defaults to `gpt-4o`.
 - `OPENAI_CHAT_TEMPERATURE`: The temperature for the OpenAI service. Defaults to `0`.
@@ -139,6 +144,7 @@ OpenAI Configuration:
 - `OPENAI_EMBED_ENABLED`: If set to True, the microservice will use the OpenAI service for text embeddings, as long as `OPENAI_API_KEY` is also set. Defaults to `True`.`
 
 [LangChain LLMGraphTransformer](https://api.python.langchain.com/en/latest/graph_transformers/langchain_experimental.graph_transformers.llm.LLMGraphTransformer.html) Configuration:
+
 - `SYSTEM_PROMPT_PATH`: The path to the system prompt text file. This can be used to specify the specific system prompt for the entity extraction and graph generation steps.
 - `ALLOWED_NODES`: Specifies which node types are allowed in the graph. Defaults to an empty list, allowing all node types.
 - `ALLOWED_RELATIONSHIPS`: Specifies which relationship types are allowed in the graph. Defaults to an empty list, allowing all relationship types.

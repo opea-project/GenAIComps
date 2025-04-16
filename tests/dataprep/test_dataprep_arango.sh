@@ -72,12 +72,12 @@ function check_vllm_service() {
 	# 	echo "Attempt $i of 7: Checking VLLM service status..."
 	# 	VLLM_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VLLM_ENDPOINT/health")
 	# 	echo "VLLM health check status: $VLLM_STATUS"
-		
+
 	# 	if [ "$VLLM_STATUS" -eq 200 ]; then
 	# 		echo "VLLM service is ready and healthy"
 	# 		return 0
 	# 	fi
-		
+
 	# 	echo "VLLM service not ready yet, waiting for 1 minute..."
 	# 	sleep 1m
 	# 	# Log container status after the first failed attempt

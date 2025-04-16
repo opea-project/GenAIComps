@@ -7,6 +7,7 @@ import time
 from typing import List, Optional, Union
 
 from fastapi import Body, File, Form, UploadFile
+from integrations.arangodb import OpeaArangoDataprep
 from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
@@ -17,7 +18,6 @@ from integrations.qdrant import OpeaQdrantDataprep
 from integrations.redis import OpeaRedisDataprep
 from integrations.redis_finance import OpeaRedisDataprepFinance
 from integrations.vdms import OpeaVdmsDataprep
-from integrations.arangodb import OpeaArangoDataprep
 from opea_dataprep_loader import OpeaDataprepLoader
 
 from comps import (
