@@ -7,6 +7,7 @@ from typing import Any, Union
 import openai
 from arango import ArangoClient
 from arango.database import StandardDatabase
+from fastapi import HTTPException
 from langchain_arangodb import ArangoVector
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
