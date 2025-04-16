@@ -6,8 +6,7 @@ import os
 from typing import Union
 
 from langchain_community.utilities.requests import JsonRequestsWrapper
-from langchain_huggingface import ChatHuggingFace
-from langchain_huggingface.llms import HuggingFaceEndpoint
+from langchain_openai import ChatOpenAI
 
 from comps import CustomLogger, GeneratedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType, TextDoc
 
@@ -46,17 +45,26 @@ def get_unsafe_dict(model_id=DEFAULT_MODEL):
         }
 
 
-def get_tgi_service_model_id(endpoint_url, default=DEFAULT_MODEL):
-    """Returns Hugging Face repo id for deployed service's info endpoint
-    otherwise return default model."""
+def get_service_model_id(endpoint_url, default=DEFAULT_MODEL):
+    """
+    Returns model_id from the OpenAI-compatible /v1/models endpoint.
+    Falls back to default if the request fails or no models are returned.
+    """
     try:
         requests = JsonRequestsWrapper()
-        info_endpoint = os.path.join(endpoint_url, "info")
-        model_info = requests.get(info_endpoint)
-        return model_info["model_id"]
+        proxies = {
+            "http": None,
+            "https": None
+        }
+        models_endpoint = os.path.join(endpoint_url.rstrip("/"), "v1/models")
+        print(models_endpoint)
+        model_info = requests.get(models_endpoint, proxies=proxies)
+        print(model_info)
+        if "data" in model_info and len(model_info["data"]) > 0:
+            return model_info["data"][0]["id"]
     except Exception as e:
-        return default
-
+        pass  # optionally log the error
+    return default
 
 @OpeaComponentRegistry.register("OPEA_LLAMA_GUARD")
 class OpeaGuardrailsLlamaGuard(OpeaComponent):
@@ -65,18 +73,15 @@ class OpeaGuardrailsLlamaGuard(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.GUARDRAIL.name.lower(), description, config)
         safety_guard_endpoint = os.getenv("SAFETY_GUARD_ENDPOINT", "http://localhost:8080")
-        safety_guard_model = os.getenv("SAFETY_GUARD_MODEL_ID", get_tgi_service_model_id(safety_guard_endpoint))
-        llm_guard = HuggingFaceEndpoint(
-            endpoint_url=safety_guard_endpoint,
-            max_new_tokens=100,
-            top_k=1,
-            top_p=0.95,
-            typical_p=0.95,
-            temperature=0.01,
-            repetition_penalty=1.03,
+        safety_guard_model = os.getenv("SAFETY_GUARD_MODEL_ID", get_service_model_id(safety_guard_endpoint))
+        self.model_name = safety_guard_model
+
+        # Create a ChatOpenAI object
+        self.llm_engine_hf = ChatOpenAI(
+            model=safety_guard_model,  # Model ID for OpenAI-compatible format
+            openai_api_key="empty",  # Optional, use if necessary
+            openai_api_base=os.path.join(safety_guard_endpoint.rstrip("/"), "v1"),
         )
-        # chat engine for server-side prompt templating
-        self.llm_engine_hf = ChatHuggingFace(llm=llm_guard, model_id=safety_guard_model)
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaGuardrailsLlamaGuard health check failed.")
@@ -108,7 +113,7 @@ class OpeaGuardrailsLlamaGuard(OpeaComponent):
         response_input_guard = response.content
 
         if "unsafe" in response_input_guard:
-            unsafe_dict = get_unsafe_dict(self.llm_engine_hf.model_id)
+            unsafe_dict = get_unsafe_dict(self.model_name)
             policy_violation_level = response_input_guard.split("\n")[1].strip()
             policy_violations = unsafe_dict[policy_violation_level]
             if logflag:
@@ -139,7 +144,7 @@ class OpeaGuardrailsLlamaGuard(OpeaComponent):
                 return False
 
             # Send a request to do guardrails check
-            response = self.llm_engine_hf.invoke({"role": "user", "content": "The sky is blue."}).content
+            response = self.llm_engine_hf.invoke([{"role": "user", "content": "The sky is blue."}]).content
 
             if "safe" in response:
                 return True
