@@ -166,9 +166,7 @@ function ingest_txt_with_index_name() {
 function indices() {
     local fqdn=$1
     local port=$2
-    local db=$3
-    shift 3
-    local extra_args=$(_add_db_params "$db")
+    shift 2
     _invoke_curl $fqdn $port indices $@
 }
 
