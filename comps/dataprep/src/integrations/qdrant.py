@@ -14,7 +14,6 @@ from langchain_text_splitters import HTMLHeaderTextSplitter
 from qdrant_client import QdrantClient
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.cores.proto.api_protocol import DataprepRequest
 from comps.dataprep.src.utils import (
     document_loader,
     encode_filename,
@@ -154,28 +153,26 @@ class OpeaQdrantDataprep(OpeaComponent):
 
     async def ingest_files(
         self,
-        input: DataprepRequest,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: int = Form(1500),
+        chunk_overlap: int = Form(100),
+        process_table: bool = Form(False),
+        table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
     ):
         """Ingest files/links content into qdrant database.
 
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
-            input (DataprepRequest): Model containing the following parameters:
-                files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
-                link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
-                chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
-                chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
-                process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
-                table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+            files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
+            link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
+            chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
+            chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
+            process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
+            table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
         """
-        files = input.files
-        link_list = input.link_list
-        chunk_size = input.chunk_size
-        chunk_overlap = input.chunk_overlap
-        process_table = input.process_table
-        table_strategy = input.table_strategy
-
         if logflag:
             logger.info(f"files:{files}")
             logger.info(f"link_list:{link_list}")

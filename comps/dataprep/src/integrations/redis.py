@@ -21,7 +21,6 @@ from redis.commands.search.field import TextField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
-from comps.cores.proto.api_protocol import DataprepRequest, RedisDataprepRequest
 from comps.dataprep.src.utils import (
     create_upload_folder,
     document_loader,
@@ -362,32 +361,30 @@ class OpeaRedisDataprep(OpeaComponent):
     def invoke(self, *args, **kwargs):
         pass
 
-    async def ingest_files(self, input: Union[DataprepRequest, RedisDataprepRequest]):
+    async def ingest_files(
+        self,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: int = Form(1500),
+        chunk_overlap: int = Form(100),
+        process_table: bool = Form(False),
+        table_strategy: str = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
+        index_name: str = Form(None),
+    ):
         """Ingest files/links content into redis database.
 
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
-            input (RedisDataprepRequest): Model containing the following parameters:
-                files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
-                link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
-                chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
-                chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
-                process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
-                table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
-                index_name (str, optional): The name of the index where data will be ingested.
+            files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
+            link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
+            chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(1500).
+            chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
+            process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
+            table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+            index_name (str, optional): The name of the index where data will be ingested.
         """
-        files = input.files
-        link_list = input.link_list
-        chunk_size = input.chunk_size
-        chunk_overlap = input.chunk_overlap
-        process_table = input.process_table
-        table_strategy = input.table_strategy
-
-        index_name = None
-        if isinstance(input, RedisDataprepRequest):
-            index_name = input.index_name
-
         if logflag:
             logger.info(f"[ redis ingest ] files:{files}")
             logger.info(f"[ redis ingest ] link_list:{link_list}")
