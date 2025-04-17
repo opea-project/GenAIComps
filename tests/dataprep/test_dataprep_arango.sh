@@ -11,10 +11,6 @@ export DATAPREP_PORT=${DATAPREP_PORT:-6007}
 service_name="dataprep-arangodb"
 export TAG="latest"
 export DATA_PATH=${model_cache}
-export ARANGO_URL="${ARANGO_URL:-http://arango-vector-db:8529}"
-export ARANGO_USERNAME="${ARANGO_USERNAME:-root}"
-export ARANGO_PASSWORD="${ARANGO_PASSWORD:-test}"
-export ARANGO_DB_NAME="${ARANGO_DB_NAME:-_system}"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source ${SCRIPT_DIR}/dataprep_utils.sh
 
@@ -32,6 +28,11 @@ function build_docker_images() {
 
 function start_service() {
 
+    export ARANGO_URL="${ARANGO_URL:-http://arango-vector-db:8529}"
+    export ARANGO_USERNAME="${ARANGO_USERNAME:-root}"
+    export ARANGO_PASSWORD="${ARANGO_PASSWORD:-test}"
+    export ARANGO_DB_NAME="${ARANGO_DB_NAME:-_system}"
+    
     # Define host_ip *before* first use (if needed elsewhere)
     export host_ip=$(hostname -I | awk '{print $1}')
     
@@ -54,6 +55,7 @@ function start_service() {
 
     export LOGFLAG=true
     
+
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     # Ensure host_ip and LLM_ENDPOINT_PORT are available to docker compose
     docker compose up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
@@ -65,67 +67,51 @@ function start_service() {
 }
 
 function validate_microservice() {
-	# Create a test directory for files
-	mkdir -p test_files
-	# Create a test file with some structured content
-	cat >test_files/test_doc.txt <<EOL
-# Test Document
-ArangoDB is a multi-model, open-source database with a flexible data model for documents, graphs, and key-values.
-EOL
-	# Test file upload
-	echo "Testing ingest endpoint..."
-	HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-		-X POST \
-		-F "files=@test_files/test_doc.txt" \
-		"http://localhost:$DATAPREP_PORT/v1/dataprep/ingest")
-	if [ "$HTTP_STATUS" -eq 200 ]; then
-		echo "[ dataprep ] Ingest endpoint test passed"
-		# Capture the full response for logging
-		INGEST_RESPONSE=$(curl -s \
-			-X POST \
-			-F "files=@test_files/test_doc.txt" \
-			"http://localhost:$DATAPREP_PORT/v1/dataprep/ingest" | tee ${LOG_PATH}/dataprep_ingest.log)
-		echo "Ingest response: $INGEST_RESPONSE"
-		# Test get endpoint
-		echo "Testing get endpoint..."
-		GET_RESPONSE=$(curl -s -X POST "http://localhost:$DATAPREP_PORT/v1/dataprep/get" | tee ${LOG_PATH}/dataprep_get.log)
-		GET_STATUS=$?
-		if [ "$GET_STATUS" -eq 0 ]; then
-			echo "[ dataprep ] Get endpoint test passed"
-			echo "Get response: $GET_RESPONSE"
-			# Check if the response has valid content (should be an array)
-			if echo "$GET_RESPONSE" | grep -q '\[.*\]' || echo "$GET_RESPONSE" | grep -q 'name'; then
-				echo "[ dataprep ] Get response is valid"
-			else
-				echo "[ dataprep ] Get response is not valid: $GET_RESPONSE"
-				docker logs dataprep-arangodb >>${LOG_PATH}/dataprep.log
-				docker logs tei-embedding-serving >>${LOG_PATH}/tei.log
-				exit 1
-			fi
-		else
-			echo "[ dataprep ] Get endpoint test failed"
-			docker logs dataprep-arangodb >>${LOG_PATH}/dataprep.log
-			docker logs tei-embedding-serving >>${LOG_PATH}/tei.log
-			exit 1
-		fi
-		# Verify data in ArangoDB
-		echo "Verifying ArangoDB data..."
-		GRAPH_CHECK=$(curl -s \
-			"http://localhost:8529/_db/${ARANGO_DB_NAME}/_api/gharial" \
-			-u ${ARANGO_USERNAME}:${ARANGO_PASSWORD} | tee ${LOG_PATH}/arango_graph.log)
-		if echo "$GRAPH_CHECK" | grep -q "GRAPH"; then
-			echo "[ dataprep ] Graph verification passed"
-		else
-			echo "[ dataprep ] Graph verification failed"
-			docker logs dataprep-arangodb >>${LOG_PATH}/dataprep.log
-			exit 1
-		fi
-	else
-		echo "[ dataprep ] Ingest endpoint test failed with status $HTTP_STATUS"
-		docker logs dataprep-arangodb >>${LOG_PATH}/dataprep.log
-		docker logs tei-embedding-serving >>${LOG_PATH}/tei.log
-		exit 1
-	fi
+	# NOTE: Due to due to the requirements of using an
+	# LLM to extract Entities & Relationships as part of the
+	# ArangoDB Dataprep Service, and the lack of performance
+	# in the LLM selected to host via vllm on CI environments,
+	# some of these upload tests will take too long to fully complete.
+	# For example, ingest_dataprep.pdf is 107 pages.
+	# Using the base Intel/neural-chat-7b-v3-3 model for a PDF
+	# size like this will take around 5-10 minutes to extract Entities
+	# & Relationships, per chunk.
+	# Reference:
+	# https://github.com/opea-project/GenAIComps/pull/1558#discussion_r2048402988
+
+    # test /v1/dataprep/ingest upload file
+    # ingest_doc ${ip_address} ${DATAPREP_PORT}
+    # check_result "dataprep - upload - doc" "Data preparation succeeded" dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
+
+    # ingest_docx ${ip_address} ${DATAPREP_PORT}
+    # check_result "dataprep - upload - docx" "Data preparation succeeded" dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
+
+    # ingest_pdf ${ip_address} ${DATAPREP_PORT}
+    # check_result "dataprep - upload - pdf" "Data preparation succeeded" dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
+
+    # ingest_ppt ${ip_address} ${DATAPREP_PORT}
+    # check_result "dataprep - upload - ppt" "Data preparation succeeded" dataprep-arangodb ${LOG_PATH}/dataprep_upload_file.log
+
+    # ingest_pptx ${ip_address} ${DATAPREP_PORT}
+    # check_result "dataprep - upload - pptx" "Data preparation succeeded" dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
+
+    ingest_txt ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - upload - txt" "Data preparation succeeded" dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
+
+    # ingest_xlsx ${ip_address} ${DATAPREP_PORT}
+    # check_result "dataprep - upload - xlsx" "Data preparation succeeded" dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
+
+    # # test /v1/dataprep/ingest upload link
+    # ingest_external_link ${ip_address} ${DATAPREP_PORT}
+    # check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
+
+    # test /v1/dataprep/get
+    get_all ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - get" '{"name":' dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
+
+    # test /v1/dataprep/delete
+    delete_all ${ip_address} ${DATAPREP_PORT}
+    check_result "dataprep - del" '{"status":true}' dataprep-arangodb ${LOG_PATH}/dataprep_arangodb.log
 }
 
 function stop_docker() {
@@ -138,7 +124,7 @@ function stop_docker() {
 }
 
 function main() {
-	stop_docker
+    stop_docker
 
     build_docker_images
     start_service
@@ -147,6 +133,7 @@ function main() {
 
     stop_docker
     echo y | docker system prune
+
 }
 
 main

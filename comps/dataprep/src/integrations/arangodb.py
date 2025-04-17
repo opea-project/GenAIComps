@@ -491,3 +491,5 @@ class OpeaArangoDataprep(OpeaComponent):
                 graph_name = "".join(c for c in file_name if c.isalnum() or c in "_-:.@()+,=;$!*'%")
 
                 self.db.delete_graph(graph_name, drop_collections=True)
+
+        return {"status": True}
