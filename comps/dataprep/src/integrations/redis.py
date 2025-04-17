@@ -123,7 +123,9 @@ async def create_index(client, index_name: str = KEY_INDEX_NAME):
         logger.info(f"[ create index ] creating index {index_name}")
     try:
         definition = IndexDefinition(index_type=IndexType.HASH, prefix=["file:"])
-        await client.create_index((TextField("file_name"), TextField("key_ids")), definition=definition)
+        await client.create_index(
+            (TextField("file_name"), TextField("key_ids"), TextField("index_name")), definition=definition
+        )
         if logflag:
             logger.info(f"[ create index ] index {index_name} successfully created")
     except Exception as e:
@@ -133,11 +135,11 @@ async def create_index(client, index_name: str = KEY_INDEX_NAME):
     return True
 
 
-async def store_by_id(client, key, value):
+async def store_by_id(client, key, value, ingest_index_name):
     if logflag:
         logger.info(f"[ store by id ] storing ids of {key}")
     try:
-        await client.add_document(doc_id="file:" + key, file_name=key, key_ids=value)
+        await client.add_document(doc_id="file:" + key, file_name=key, key_ids=value, index_name=ingest_index_name)
         if logflag:
             logger.info(f"[ store by id ] store document success. id: file:{key}")
     except Exception as e:
@@ -226,7 +228,12 @@ async def ingest_chunks_to_redis(file_name: str, chunks: List, embedder, index_n
         await create_index(client)
 
     try:
-        await store_by_id(client, key=encode_filename(ingest_index_name) + "_" + file_name, value="#".join(file_ids))
+        await store_by_id(
+            client,
+            key=encode_filename(ingest_index_name) + "_" + file_name,
+            value="#".join(file_ids),
+            ingest_index_name=ingest_index_name,
+        )
     except Exception as e:
         if logflag:
             logger.info(f"[ redis ingest chunks ] {e}. Fail to store chunks of file {file_name}.")
@@ -385,6 +392,12 @@ class OpeaRedisDataprep(OpeaComponent):
             logger.info(f"[ redis ingest ] files:{files}")
             logger.info(f"[ redis ingest ] link_list:{link_list}")
 
+        if index_name and index_name.lower() == "all":
+            raise HTTPException(
+                status_code=400,
+                detail="'all' cannot be used as an index_name because it is reserved for specific functionality within the service.",
+            )
+
         if files:
             if not isinstance(files, list):
                 files = [files]
@@ -481,7 +494,7 @@ class OpeaRedisDataprep(OpeaComponent):
 
         raise HTTPException(status_code=400, detail="Must provide either a file or a string list.")
 
-    async def get_files(self):
+    async def get_files(self, index_name: str = Body(None, embed=True)):
         """Get file structure from redis database in the format of
         {
             "name": "File Name",
@@ -510,7 +523,24 @@ class OpeaRedisDataprep(OpeaComponent):
             # no doc retrieved
             if len(response) < 2:
                 break
+
             file_list = format_search_results(response, file_list)
+            index_name = INDEX_NAME if index_name is None else index_name
+            filtered_files = []
+            for file in file_list:
+                # Ensure "index_name" key exists in the file dictionary
+                if "index_name" not in file:
+                    continue
+
+                # Check if the file should be included based on the index_name
+                if index_name == "all" or index_name == file["index_name"]:
+                    # Remove the index_name prefix from "name" and "id"
+                    prefix = f"{file['index_name']}_"
+                    file["name"] = file["name"].replace(prefix, "", 1)
+                    file["id"] = file["id"].replace(prefix, "", 1)
+                    filtered_files.append(file)
+
+            file_list = filtered_files
             offset += SEARCH_BATCH_SIZE
             # last batch
             if (len(response) - 1) // 2 < SEARCH_BATCH_SIZE:
@@ -530,7 +560,7 @@ class OpeaRedisDataprep(OpeaComponent):
             logger.info(f"[ redis delete ] delete files: {file_path}")
 
         # delete all uploaded files
-        if file_path == "all":
+        if file_path == "all" and index_name is None:
             if logflag:
                 logger.info("[ redis delete ] delete all files")
 
@@ -574,78 +604,86 @@ class OpeaRedisDataprep(OpeaComponent):
                 logger.info({"status": True})
             return {"status": True}
 
-        delete_path = Path(upload_folder + "/" + encode_filename(file_path))
-        if logflag:
-            logger.info(f"[ redis delete ] delete_path: {delete_path}")
-
-        # partially delete files
-        encode_file = encode_filename(file_path)
+        # partially delete files based on index_name
         index_name = INDEX_NAME if index_name is None else index_name
         index_name_id = encode_filename(index_name)
-        doc_id = "file:" + index_name_id + "_" + encode_file
-        logger.info(f"[ redis delete ] doc id: {doc_id}")
 
-        # determine whether this file exists in db KEY_INDEX_NAME
-        try:
-            result = await search_by_id(self.key_index_client, doc_id)
-            key_ids = result.key_ids
-        except Exception as e:
+        if file_path == "all" and index_name is not None:
+            file_list = [i["name"] for i in await self.get_files(index_name)]
+        else:
+            file_list = [file_path]
+
+        for file_path in file_list:
+            delete_path = Path(upload_folder + "/" + encode_filename(file_path))
             if logflag:
-                logger.info(f"[ redis delete ] {e}, File {file_path} does not exists.")
-            raise HTTPException(
-                status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path."
-            )
-        file_ids = key_ids.split("#")
+                logger.info(f"[ redis delete ] delete_path: {delete_path}")
 
-        # delete file keys id in db KEY_INDEX_NAME
-        try:
-            res = await delete_by_id(self.key_index_client, doc_id)
-            assert res
-        except Exception as e:
-            if logflag:
-                logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {KEY_INDEX_NAME}.")
-            raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for key index.")
+            encode_file = encode_filename(file_path)
+            doc_id = "file:" + index_name_id + "_" + encode_file
+            logger.info(f"[ redis delete ] doc id: {doc_id}")
 
-        # delete file content in db index_name
-        for file_id in file_ids:
-            # determine whether this file exists in db index_name
+            # determine whether this file exists in db KEY_INDEX_NAME
             try:
-                await search_by_id(self.data_index_client, file_id)
+                result = await search_by_id(self.key_index_client, doc_id)
+                key_ids = result.key_ids
             except Exception as e:
                 if logflag:
-                    logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
+                    logger.info(f"[ redis delete ] {e}, File {file_path} does not exists.")
                 raise HTTPException(
-                    status_code=404, detail=f"File not found in db {index_name}. Please check file_path."
+                    status_code=404, detail=f"File not found in db {KEY_INDEX_NAME}. Please check file_path."
                 )
+            file_ids = key_ids.split("#")
 
-            # delete file content
+            # delete file keys id in db KEY_INDEX_NAME
             try:
-                res = await delete_by_id(self.data_index_client, file_id)
+                res = await delete_by_id(self.key_index_client, doc_id)
                 assert res
             except Exception as e:
                 if logflag:
-                    logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {index_name}")
-                raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for index.")
+                    logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {KEY_INDEX_NAME}.")
+                raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for key index.")
 
-        # local file does not exist (restarted docker container)
-        if not delete_path.exists():
-            if logflag:
-                logger.info(f"[ redis delete ] File {file_path} not saved locally.")
-            return {"status": True}
+            # delete file content in db index_name
+            for file_id in file_ids:
+                # determine whether this file exists in db index_name
+                try:
+                    await search_by_id(self.data_index_client, file_id)
+                except Exception as e:
+                    if logflag:
+                        logger.info(f"[ redis delete ] {e}. File {file_path} does not exists.")
+                    raise HTTPException(
+                        status_code=404, detail=f"File not found in db {index_name}. Please check file_path."
+                    )
 
-        # delete local file
-        if delete_path.is_file():
-            # delete file on local disk
-            delete_path.unlink()
-            if logflag:
-                logger.info(f"[ redis delete ] File {file_path} deleted successfully.")
-            return {"status": True}
+                # delete file content
+                try:
+                    res = await delete_by_id(self.data_index_client, file_id)
+                    assert res
+                except Exception as e:
+                    if logflag:
+                        logger.info(f"[ redis delete ] {e}. File {file_path} delete failed for db {index_name}")
+                    raise HTTPException(status_code=500, detail=f"File {file_path} delete failed for index.")
 
-        # delete folder
-        else:
-            if logflag:
-                logger.info(f"[ redis delete ] Delete folder {file_path} is not supported for now.")
-            raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
+            # local file does not exist (restarted docker container)
+            if not delete_path.exists():
+                if logflag:
+                    logger.info(f"[ redis delete ] File {file_path} not saved locally.")
+                return {"status": True}
+
+            # delete local file
+            if delete_path.is_file():
+                # delete file on local disk
+                delete_path.unlink()
+                if logflag:
+                    logger.info(f"[ redis delete ] File {file_path} deleted successfully.")
+
+            # delete folder
+            else:
+                if logflag:
+                    logger.info(f"[ redis delete ] Delete folder {file_path} is not supported for now.")
+                raise HTTPException(status_code=404, detail=f"Delete folder {file_path} is not supported for now.")
+
+        return {"status": True}
 
     def get_list_of_indices(self):
         """Retrieves a list of all indices from the Redis client.

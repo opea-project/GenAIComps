@@ -127,6 +127,23 @@ function delete_all() {
     _invoke_curl $fqdn $port delete -d '{"file_path":"all"}' $@
 }
 
+function delete_all_in_index() {
+    local fqdn=$1
+    local port=$2
+    local index_name=$3
+    shift 3
+    _invoke_curl $fqdn $port delete -d '{"file_path":"all","index_name":"'${index_name}'"}' $@
+}
+
+function delete_item_in_index() {
+    local fqdn=$1
+    local port=$2
+    local index_name=$3
+    local item=$4
+    shift 4
+    _invoke_curl $fqdn $port delete -d '{"file_path":"'${item}'","index_name":"'${index_name}'"}' $@
+}
+
 function delete_single() {
     local fqdn=$1
     local port=$2
@@ -139,6 +156,29 @@ function get_all() {
     local port=$2
     shift 2
     _invoke_curl $fqdn $port get $@
+}
+
+function get_all_in_index() {
+    local fqdn=$1
+    local port=$2
+    shift 2
+    _invoke_curl $fqdn $port get -d '{"index_name":"all"}' $@
+}
+
+function get_index() {
+    local fqdn=$1
+    local port=$2
+    local index_name=$3
+    shift 3
+    _invoke_curl $fqdn $port get -d '{"index_name":"'${index_name}'"}' $@
+}
+
+function ingest_txt_with_index_name() {
+    local fqdn=$1
+    local port=$2
+    local index_name=$3
+    shift 3
+    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.txt" -F "index_name=${index_name}" $@
 }
 
 function indices() {

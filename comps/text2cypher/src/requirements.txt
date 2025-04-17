@@ -21,10 +21,9 @@ peft
 prometheus-fastapi-instrumentator
 pydub
 pyprojroot
-sentence-transformers==3.2.1
+sentence-transformers
 shortuuid
-transformers==4.45.2
+transformers
 unstructured
 urllib3
 uvicorn
-
