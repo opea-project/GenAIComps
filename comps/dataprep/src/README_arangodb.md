@@ -7,7 +7,7 @@
 To launch ArangoDB locally, first ensure you have docker installed. Then, you can launch the database with the following docker command.
 
 ```bash
-docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD=${ARANGO_ROOT_PASSWORD} arangodb/arangodb:latest
+docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD=test arangodb/arangodb:latest
 ```
 
 ### Set Environment Variables
@@ -16,10 +16,10 @@ docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD=${ARANGO_ROOT_PASSWORD} arang
 export no_proxy=${your_no_proxy}
 export http_proxy=${your_http_proxy}
 export https_proxy=${your_http_proxy}
-export ARANGO_URL=${your_arango_url}
-export ARANGO_USERNAME=${your_arango_username}
-export ARANGO_PASSWORD=${your_arango_password}
-export ARANGO_DB_NAME=${your_db_name}
+export ARANGO_URL=${your_arango_url} # e.g. http://localhost:8529
+export ARANGO_USERNAME=${your_arango_username} # e.g. root
+export ARANGO_PASSWORD=${your_arango_password} # e.g test
+export ARANGO_DB_NAME=${your_db_name} # e.g _system
 export VLLM_ENDPOINT=${your_vllm_endpoint}
 export VLLM_MODEL_ID=${your_vllm_model_id}
 export VLLM_API_KEY=${your_vllm_api_key}
