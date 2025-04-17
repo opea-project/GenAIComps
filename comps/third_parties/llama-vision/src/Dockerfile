@@ -25,7 +25,7 @@ RUN cd /home/user/comps/third_parties/llama-vision/src && \
     pip install --no-cache-dir -r requirements.txt  && \
     pip install --no-cache-dir --upgrade Pillow
 
-RUN pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana@v1.15.0
+RUN pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana@v1.17.0
 
 ENV PYTHONPATH=/root:/home/user
 
