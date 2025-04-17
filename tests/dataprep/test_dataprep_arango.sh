@@ -32,17 +32,17 @@ function start_service() {
     export ARANGO_USERNAME="${ARANGO_USERNAME:-root}"
     export ARANGO_PASSWORD="${ARANGO_PASSWORD:-test}"
     export ARANGO_DB_NAME="${ARANGO_DB_NAME:-_system}"
-    
+
     # Define host_ip *before* first use (if needed elsewhere)
     export host_ip=$(hostname -I | awk '{print $1}')
-    
+
     # TEI Configuration
     export TEI_PORT="${TEI_PORT:-6006}" # This port seems unused if endpoint is defined
     export TEI_EMBEDDER_PORT=${TEI_EMBEDDER_PORT:-8080} # Define default TEI port if not set
     export EMBEDDING_MODEL_ID="${EMBEDDING_MODEL_ID:-BAAI/bge-base-en-v1.5}"
     # Use the correct *internal* port (80) for TEI service communication
     export TEI_EMBEDDING_ENDPOINT="${TEI_EMBEDDING_ENDPOINT:-http://tei-embedding-serving:80}"
-    
+
     # VLLM Configuration
     # host_ip is already defined above
     export LLM_ENDPOINT_PORT=${LLM_ENDPOINT_PORT:-8008}
@@ -54,7 +54,7 @@ function start_service() {
     export HuggingFaceHub_API_TOKEN="${HF_TOKEN:-EMPTY}"
 
     export LOGFLAG=true
-    
+
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     # Ensure host_ip and LLM_ENDPOINT_PORT are available to docker compose
