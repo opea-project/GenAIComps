@@ -128,6 +128,23 @@ curl -X POST \
     http://localhost:6007/v1/dataprep/ingest
 ```
 
+- Upload multiple files with different formats to a specific `index_name`
+  > `all` cannot be used as an `index_name` because it is reserved for specific functionality within the service.
+
+```bash
+curl -X POST \
+    -H "Content-Type: multipart/form-data" \
+    -F "files=@./test_1.txt" \
+    -F "files=@./test_2.txt" \
+    -F "files=@./test_3.txt" \
+    -F "files=@./test_1.pdf" \
+    -F 'link_list=["https://www.ces.tech/", "https://modin.readthedocs.io/en/latest/index.html"]' \
+    -F "chunk_size=1500" \
+    -F "chunk_overlap=100" \
+    -F "index_name=test_redis" \
+    http://localhost:6007/v1/dataprep/ingest
+```
+
 or
 
 ```python
@@ -157,6 +174,7 @@ To get uploaded file structures, use the following command:
 ```bash
 curl -X POST \
     -H "Content-Type: application/json" \
+    -d '{"index_name": "all"}' \
     http://localhost:6007/v1/dataprep/get
 ```
 
@@ -168,16 +186,43 @@ Then you will get the response JSON like this:
     "name": "uploaded_file_1.txt",
     "id": "uploaded_file_1.txt",
     "type": "File",
-    "parent": ""
+    "parent": "",
+    "index_name": "test_redis_1"
   },
   {
     "name": "uploaded_file_2.txt",
     "id": "uploaded_file_2.txt",
     "type": "File",
-    "parent": ""
+    "parent": "",
+    "index_name": "test_redis_2"
   }
 ]
 ```
+
+To get uploaded file structures from a specific `index_name`, use the following command:
+
+```bash
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"index_name": "test_redis_1"}' \
+    http://localhost:6007/v1/dataprep/get
+```
+
+You will receive a JSON response like this:
+
+```json
+[
+  {
+    "name": "uploaded_file_1.txt",
+    "id": "uploaded_file_1.txt",
+    "type": "File",
+    "parent": "",
+    "index_name": "test_redis_1"
+  }
+]
+```
+
+> Note: If index_name is not provided in the request, the service will use the INDEX_NAME environment variable as the default index_name.
 
 ### 3.3 Consume delete API
 
@@ -202,5 +247,17 @@ curl -X POST \
 curl -X POST \
     -H "Content-Type: application/json" \
     -d '{"file_path": "all"}' \
+    http://localhost:6007/v1/dataprep/delete
+
+# delete a files/link from an index_name
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"file_path": "uploaded_file_1.txt", "index_name": "test_redis_1"}' \
+    http://localhost:6007/v1/dataprep/delete
+
+# delete all files/link from an index_name
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"file_path": "all", "index_name": "test_redis_1"}' \
     http://localhost:6007/v1/dataprep/delete
 ```
