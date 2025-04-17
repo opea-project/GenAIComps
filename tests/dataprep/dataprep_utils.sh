@@ -43,7 +43,7 @@ function _invoke_curl() {
 function _add_db_params() {
     local db=$1
     if [[ "$db" == "redis" ]]; then
-        echo '-F index_name=test'
+        echo '-F index_name=rag_redis'
     fi
 }
 
