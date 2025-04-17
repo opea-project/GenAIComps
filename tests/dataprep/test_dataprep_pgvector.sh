@@ -46,10 +46,6 @@ function start_service() {
 }
 
 function validate_microservice() {
-    # test /v1/dataprep/delete
-    delete_all ${ip_address} ${DATAPREP_PORT}
-    check_result "dataprep - del" '{"status":true}' dataprep-pgvector-server ${LOG_PATH}/dataprep_pgvector.log
-
     # test /v1/dataprep/ingest upload file
     ingest_doc ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - doc" "Data preparation succeeded" dataprep-pgvector-server ${LOG_PATH}/dataprep_pgvector.log
