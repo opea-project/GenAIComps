@@ -14,7 +14,7 @@ RUN apt-get update && \
     g++-12 \
     gcc-12 \
     git \
-    make
+    make \
     numactl \
     wget
 
@@ -47,6 +47,7 @@ RUN apt-get update && \
     openssh-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
+    if [ -f /etc/apt/apt.conf.d/proxy.conf ]; then rm /etc/apt/apt.conf.d/proxy.conf; fi
 
 COPY --from=dev /root/intel-extension-for-pytorch/examples/cpu/llm ./llm
 COPY --from=dev /root/intel-extension-for-pytorch/tools/get_libstdcpp_lib.sh ./llm/tools
