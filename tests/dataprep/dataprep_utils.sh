@@ -47,75 +47,57 @@ function _add_db_params() {
     fi
 }
 
-# validate_ingest <service fqdn> <port>
-function ingest_doc() {
-    local fqdn=$1
-    local port=$2
-    local db=$3
-    shift 3
+function ingest_file() {
+    local fqdn="$1"
+    local port="$2"
+    local db_or_filename="$3"
+    local filename="$4"
+
+    if [[ "$filename" == "" ]]; then
+        filename="$db_or_filename"
+        db=""
+        shift 3
+    else
+        db="$db_or_filename"
+        shift 4
+    fi
+
     local extra_args=$(_add_db_params "$db")
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.doc" $extra_args $@
+    _invoke_curl "$fqdn" "$port" ingest -F "files=@${SCRIPT_DIR}/${filename}" $extra_args "$@"
+}
+
+function ingest_doc() {
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.doc" "${@:5}"
 }
 
 function ingest_docx() {
-    local fqdn=$1
-    local port=$2
-    local db=$3
-    shift 3
-    local extra_args=$(_add_db_params "$db")
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.docx" $extra_args $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.docx" "${@:5}"
 }
 
 function ingest_pdf() {
-    local fqdn=$1
-    local port=$2
-    local db=$3
-    shift 3
-    local extra_args=$(_add_db_params "$db")
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.pdf" $extra_args $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.pdf" "${@:5}"
 }
 
 function ingest_ppt() {
-    local fqdn=$1
-    local port=$2
-    local db=$3
-    shift 3
-    local extra_args=$(_add_db_params "$db")
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.ppt" $extra_args $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.ppt" "${@:5}"
 }
 
 function ingest_pptx() {
-    local fqdn=$1
-    local port=$2
-    local db=$3
-    shift 3
-    local extra_args=$(_add_db_params "$db")
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.pptx" $extra_args $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.pptx" "${@:5}"
 }
 
 function ingest_txt() {
-    local fqdn=$1
-    local port=$2
-    local db=$3
-    shift 3
-    local extra_args=$(_add_db_params "$db")
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.txt" $extra_args $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.txt" "${@:5}"
 }
 
 function ingest_xlsx() {
-    local fqdn=$1
-    local port=$2
-    local db=$3
-    shift 3
-    local extra_args=$(_add_db_params "$db")
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.xlsx" $extra_args $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.xlsx" "${@:5}"
 }
 
 function ingest_external_link() {
     local fqdn=$1
     local port=$2
-    local db=$3
-    shift 3
+    shift 2
     local extra_args=$(_add_db_params "$db")
     _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' $extra_args $@
 }
