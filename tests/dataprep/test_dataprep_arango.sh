@@ -11,6 +11,10 @@ export DATAPREP_PORT=${DATAPREP_PORT:-6007}
 service_name="dataprep-arangodb"
 export TAG="latest"
 export DATA_PATH=${model_cache}
+export ARANGO_URL="${ARANGO_URL:-http://arango-vector-db:8529}"
+export ARANGO_USERNAME="${ARANGO_USERNAME:-root}"
+export ARANGO_PASSWORD="${ARANGO_PASSWORD:-test}"
+export ARANGO_DB_NAME="${ARANGO_DB_NAME:-_system}"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source ${SCRIPT_DIR}/dataprep_utils.sh
 
@@ -28,11 +32,6 @@ function build_docker_images() {
 
 function start_service() {
 
-    export ARANGO_URL="${ARANGO_URL:-http://arango-vector-db:8529}"
-    export ARANGO_USERNAME="${ARANGO_USERNAME:-root}"
-    export ARANGO_PASSWORD="${ARANGO_PASSWORD:-test}"
-    export ARANGO_DB_NAME="${ARANGO_DB_NAME:-_system}"
-    
     # Define host_ip *before* first use (if needed elsewhere)
     export host_ip=$(hostname -I | awk '{print $1}')
     
@@ -127,8 +126,6 @@ EOL
 		docker logs tei-embedding-serving >>${LOG_PATH}/tei.log
 		exit 1
 	fi
-	# Clean up test files
-	rm -rf test_files
 }
 
 function stop_docker() {
