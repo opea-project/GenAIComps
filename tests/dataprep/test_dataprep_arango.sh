@@ -78,10 +78,6 @@ EOL
 	HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
 		-X POST \
 		-F "files=@test_files/test_doc.txt" \
-		-F "chunk_size=$DATAPREP_CHUNK_SIZE" \
-		-F "chunk_overlap=$DATAPREP_CHUNK_OVERLAP" \
-		-F "process_table=false" \
-		-F "table_strategy=fast" \
 		"http://localhost:$DATAPREP_PORT/v1/dataprep/ingest")
 	if [ "$HTTP_STATUS" -eq 200 ]; then
 		echo "[ dataprep ] Ingest endpoint test passed"
@@ -89,10 +85,6 @@ EOL
 		INGEST_RESPONSE=$(curl -s \
 			-X POST \
 			-F "files=@test_files/test_doc.txt" \
-			-F "chunk_size=$DATAPREP_CHUNK_SIZE" \
-			-F "chunk_overlap=$DATAPREP_CHUNK_OVERLAP" \
-			-F "process_table=false" \
-			-F "table_strategy=fast" \
 			"http://localhost:$DATAPREP_PORT/v1/dataprep/ingest" | tee ${LOG_PATH}/dataprep_ingest.log)
 		echo "Ingest response: $INGEST_RESPONSE"
 		# Test get endpoint
@@ -107,14 +99,14 @@ EOL
 				echo "[ dataprep ] Get response is valid"
 			else
 				echo "[ dataprep ] Get response is not valid: $GET_RESPONSE"
-				docker logs test-comps-dataprep-server >>${LOG_PATH}/dataprep.log
-				docker logs test-comps-dataprep-tei-endpoint >>${LOG_PATH}/tei.log
+				docker logs dataprep-arangodb >>${LOG_PATH}/dataprep.log
+				docker logs tei-embedding-serving >>${LOG_PATH}/tei.log
 				exit 1
 			fi
 		else
 			echo "[ dataprep ] Get endpoint test failed"
-			docker logs test-comps-dataprep-server >>${LOG_PATH}/dataprep.log
-			docker logs test-comps-dataprep-tei-endpoint >>${LOG_PATH}/tei.log
+			docker logs dataprep-arangodb >>${LOG_PATH}/dataprep.log
+			docker logs tei-embedding-serving >>${LOG_PATH}/tei.log
 			exit 1
 		fi
 		# Verify data in ArangoDB
@@ -126,13 +118,13 @@ EOL
 			echo "[ dataprep ] Graph verification passed"
 		else
 			echo "[ dataprep ] Graph verification failed"
-			docker logs test-comps-dataprep-server >>${LOG_PATH}/dataprep.log
+			docker logs dataprep-arangodb >>${LOG_PATH}/dataprep.log
 			exit 1
 		fi
 	else
 		echo "[ dataprep ] Ingest endpoint test failed with status $HTTP_STATUS"
-		docker logs test-comps-dataprep-server >>${LOG_PATH}/dataprep.log
-		docker logs test-comps-dataprep-tei-endpoint >>${LOG_PATH}/tei.log
+		docker logs dataprep-arangodb >>${LOG_PATH}/dataprep.log
+		docker logs tei-embedding-serving >>${LOG_PATH}/tei.log
 		exit 1
 	fi
 	# Clean up test files
