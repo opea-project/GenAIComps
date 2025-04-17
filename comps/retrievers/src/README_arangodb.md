@@ -4,7 +4,7 @@
 
 ### Start ArangoDB Server
 
-To launch ArangoDB locally, first ensure you have docker installed. Then, you can launch the database with the following docker command.
+To launch [ArangoDB](https://github.com/arangodb/arangodb) locally, first ensure you have docker installed. Then, you can launch the database with the following docker command.
 
 ```bash
 docker run -d -p 8529:8529 -e ARANGO_ROOT_PASSWORD=test arangodb/arangodb:latest
