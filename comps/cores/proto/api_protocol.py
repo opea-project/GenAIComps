@@ -6,7 +6,7 @@ from enum import IntEnum
 from typing import Any, Dict, List, Literal, Optional, Union
 
 import shortuuid
-from fastapi import File, Form, UploadFile
+from fastapi import File, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -78,70 +78,6 @@ class TokenCheckResponseItem(BaseModel):
 
 class TokenCheckResponse(BaseModel):
     prompts: List[TokenCheckResponseItem]
-
-
-class DataprepRequest:
-    def __init__(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: Optional[int] = Form(1500),
-        chunk_overlap: Optional[int] = Form(100),
-        process_table: Optional[bool] = Form(False),
-        table_strategy: Optional[str] = Form("fast"),
-    ):
-        self.files = files
-        self.link_list = link_list
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
-        self.process_table = process_table
-        self.table_strategy = table_strategy
-
-
-class Neo4jDataprepRequest(DataprepRequest):
-    def __init__(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: Optional[int] = Form(1500),
-        chunk_overlap: Optional[int] = Form(100),
-        process_table: Optional[bool] = Form(False),
-        table_strategy: Optional[str] = Form("fast"),
-        ingest_from_graphDB: bool = Form(False),
-    ):
-        super().__init__(
-            files=files,
-            link_list=link_list,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            process_table=process_table,
-            table_strategy=table_strategy,
-        )
-
-        self.ingest_from_graphDB = ingest_from_graphDB
-
-
-class RedisDataprepRequest(DataprepRequest):
-    def __init__(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: Optional[int] = Form(1500),
-        chunk_overlap: Optional[int] = Form(100),
-        process_table: Optional[bool] = Form(False),
-        table_strategy: Optional[str] = Form("fast"),
-        index_name: str = Form(None),
-    ):
-        super().__init__(
-            files=files,
-            link_list=link_list,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            process_table=process_table,
-            table_strategy=table_strategy,
-        )
-
-        self.index_name = index_name
 
 
 class EmbeddingRequest(BaseModel):
