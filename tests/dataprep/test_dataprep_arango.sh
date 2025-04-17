@@ -1,177 +1,77 @@
 #!/bin/bash
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
+
 set -x
-# Change this to point to the root of the project
-WORKPATH=$(dirname "$PWD")
-LOG_PATH="$WORKPATH/tests"
-ip_address=$(hostname -I | awk '{print $1}')
-# Define all environment variables directly
-export LOGFLAG="${LOGFLAG:-True}"
-export no_proxy="${no_proxy:-noproxy,localhost,127.0.0.1,${ip_address}}"
-# ArangoDB Configuration
-export ARANGO_URL="${ARANGO_URL:-http://${ip_address}:8529}"
-echo "ARANGO_URL: $ARANGO_URL"
-export ARANGO_USERNAME="${ARANGO_USERNAME:-root}"
-export ARANGO_PASSWORD="${ARANGO_PASSWORD:-test}"
-export ARANGO_DB_NAME="${ARANGO_DB_NAME:-_system}"
-# Dataprep Configuration
-export DATAPREP_PORT="${DATAPREP_PORT:-6007}"
-export DATAPREP_CHUNK_SIZE="${DATAPREP_CHUNK_SIZE:-500}"
-export DATAPREP_CHUNK_OVERLAP="${DATAPREP_CHUNK_OVERLAP:-50}"
-export DATAPREP_ARANGO_INSERT_ASYNC="${DATAPREP_ARANGO_INSERT_ASYNC:-false}"
-export DATAPREP_ARANGO_USE_GRAPH_NAME="${DATAPREP_ARANGO_USE_GRAPH_NAME:-true}"
-export DATAPREP_NODE_PROPERTIES="${DATAPREP_NODE_PROPERTIES:-}"
-export DATAPREP_RELATIONSHIP_PROPERTIES="${DATAPREP_RELATIONSHIP_PROPERTIES:-}"
-export DATAPREP_OPENAI_CHAT_ENABLED="${DATAPREP_OPENAI_CHAT_ENABLED:-false}"
-export DATAPREP_OPENAI_EMBED_ENABLED="${DATAPREP_OPENAI_EMBED_ENABLED:-false}"
-export DATAPREP_EMBED_NODES="${DATAPREP_EMBED_NODES:-true}"
-export DATAPREP_EMBED_RELATIONSHIPS="${DATAPREP_EMBED_RELATIONSHIPS:-true}"
-export DATAPREP_EMBED_SOURCE_DOCUMENTS="${DATAPREP_EMBED_SOURCE_DOCUMENTS:-true}"
 
-# TEI Configuration
-export TEI_PORT="${TEI_PORT:-6006}"
-export EMBEDDING_MODEL_ID="${EMBEDDING_MODEL_ID:-BAAI/bge-base-en-v1.5}"
-# VLLM Configuration
-export VLLM_API_KEY="${VLLM_API_KEY:-EMPTY}"
-export VLLM_ENDPOINT="${VLLM_ENDPOINT:-http://test-comps-vllm-service:80}"
-export VLLM_MODEL_ID="${VLLM_MODEL_ID:-Intel/neural-chat-7b-v3-3}"
+export WORKPATH=$(dirname "$PWD")
+export LOG_PATH="$WORKPATH/tests"
+export ip_address=$(hostname -I | awk '{print $1}')
+export DATAPREP_PORT=${DATAPREP_PORT:-6007}
+service_name="dataprep-arangodb"
+export TAG="latest"
+export DATA_PATH=${model_cache}
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
+
 function build_docker_images() {
-	cd $WORKPATH
-	echo "Working directory: $(pwd)"
-	# Check if Dockerfile exists - updated path
-	DOCKERFILE_PATH="comps/dataprep/src/Dockerfile"
-	if [ ! -f "$DOCKERFILE_PATH" ]; then
-		echo "Dockerfile not found at expected path: $DOCKERFILE_PATH"
-		echo "Searching for Dockerfile..."
-		find . -name "Dockerfile" | grep dataprep
-		exit 1
-	fi
-	# Start ArangoDB with vector support
-	docker run -d -p 8529:8529 \
-		--name=test-comps-arango \
-		-e ARANGO_ROOT_PASSWORD=$ARANGO_PASSWORD \
-		arangodb/arangodb:3.12.4 \
-		--experimental-vector-index=true
-	# Build dataprep image
-	echo "Building dataprep Docker image from $DOCKERFILE_PATH..."
-	docker build --no-cache -t opea/dataprep:test \
-		--build-arg https_proxy=$https_proxy \
-		--build-arg http_proxy=$http_proxy \
-		-f $DOCKERFILE_PATH .
-	if [ $? -ne 0 ]; then
-		echo "opea/dataprep built fail"
-		exit 1
-	else
-		echo "opea/dataprep built successful"
-	fi
+    cd $WORKPATH
+    echo $(pwd)
+    docker build --no-cache -t opea/dataprep:${TAG} --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/dataprep/src/Dockerfile .
+    if [ $? -ne 0 ]; then
+        echo "opea/dataprep built fail"
+        exit 1
+    else
+        echo "opea/dataprep built successful"
+    fi
 }
-function check_vllm_service() {
-	# echo "Checking VLLM service availability..."
-	# for i in {1..7}; do
-	# 	echo "Attempt $i of 7: Checking VLLM service status..."
-	# 	VLLM_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VLLM_ENDPOINT/health")
-	# 	echo "VLLM health check status: $VLLM_STATUS"
 
-	# 	if [ "$VLLM_STATUS" -eq 200 ]; then
-	# 		echo "VLLM service is ready and healthy"
-	# 		return 0
-	# 	fi
-
-	# 	echo "VLLM service not ready yet, waiting for 1 minute..."
-	# 	sleep 1m
-	# 	# Log container status after the first failed attempt
-	# 	if [ "$i" -eq 1 ]; then
-	# 		echo "VLLM container status:"
-	# 		docker ps -a | grep test-comps-vllm-service
-	# 		echo "VLLM container logs:"
-	# 		docker logs test-comps-vllm-service 2>&1 | tail -50 >>${LOG_PATH}/vllm_startup.log
-	# 		docker logs test-comps-vllm-service 2>&1 | tail -20
-	# 	fi
-	# done
-	# echo "VLLM service not available after 7 minutes. This may cause issues with dataprep service."
-
-	sleep 2m
-	echo "VLLM container final status:"
-	docker ps -a | grep test-comps-vllm-service
-	echo "VLLM container logs:"
-	docker logs test-comps-vllm-service 2>&1 | tail -100 >>${LOG_PATH}/vllm_error.log
-	docker logs test-comps-vllm-service 2>&1 | tail -50
-	return 1
-}
 function start_service() {
-	# Create test network if it doesn't exist
-	docker network create test-dataprep-network || true
-	# Connect ArangoDB to the network
-	docker network connect test-dataprep-network test-comps-arango || true
-	# Create data directory if it doesn't exist
-	mkdir -p $WORKPATH/data
-	# Start VLLM service
-	docker run -d \
-		--name="test-comps-vllm-service" \
-		--network test-dataprep-network \
-		-p 9009:80 \
-		-v $WORKPATH/data:/data \
-		--shm-size=1g \
-		-e no_proxy=$no_proxy \
-		-e http_proxy=$http_proxy \
-		-e https_proxy=$https_proxy \
-		${REGISTRY:-opea}/vllm:${TAG:-latest} \
-		--model ${VLLM_MODEL_ID} --host 0.0.0.0 --port 80
-	echo "Started VLLM service with model: ${VLLM_MODEL_ID}"
-	sleep 1m
-	# Start TEI embedding service
-	docker run -d \
-		--name="test-comps-dataprep-tei-endpoint" \
-		--network test-dataprep-network \
-		-p $TEI_PORT:80 \
-		-v $WORKPATH/data:/data \
-		--pull always \
-		ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 \
-		--model-id ${EMBEDDING_MODEL_ID} --auto-truncate
-	sleep 45s
-	# Start dataprep service with all environment variables
-	docker run -d \
-		--name="test-comps-dataprep-server" \
-		--network test-dataprep-network \
-		-p $DATAPREP_PORT:5000 \
-		--ipc=host \
-		-e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_ARANGODB" \
-		-e no_proxy=$no_proxy \
-		-e http_proxy=$http_proxy \
-		-e https_proxy=$https_proxy \
-		-e ARANGO_URL=http://test-comps-arango:8529 \
-		-e ARANGO_USERNAME=$ARANGO_USERNAME \
-		-e ARANGO_PASSWORD=$ARANGO_PASSWORD \
-		-e ARANGO_DB_NAME=$ARANGO_DB_NAME \
-		-e ARANGO_INSERT_ASYNC=$DATAPREP_ARANGO_INSERT_ASYNC \
-		-e ARANGO_USE_GRAPH_NAME=$DATAPREP_ARANGO_USE_GRAPH_NAME \
-		-e TEI_EMBEDDING_ENDPOINT=http://test-comps-dataprep-tei-endpoint:80 \
-		-e TEI_EMBED_MODEL=${EMBEDDING_MODEL_ID} \
-		-e CHUNK_SIZE=$DATAPREP_CHUNK_SIZE \
-		-e CHUNK_OVERLAP=$DATAPREP_CHUNK_OVERLAP \
-		-e EMBED_SOURCE_DOCUMENTS=$DATAPREP_EMBED_SOURCE_DOCUMENTS \
-		-e EMBED_NODES=$DATAPREP_EMBED_NODES \
-		-e EMBED_RELATIONSHIPS=$DATAPREP_EMBED_RELATIONSHIPS \
-		-e NODE_PROPERTIES=$DATAPREP_NODE_PROPERTIES \
-		-e RELATIONSHIP_PROPERTIES=$DATAPREP_RELATIONSHIP_PROPERTIES \
-		-e OPENAI_CHAT_ENABLED=$DATAPREP_OPENAI_CHAT_ENABLED \
-		-e OPENAI_EMBED_ENABLED=$DATAPREP_OPENAI_EMBED_ENABLED \
-		-e VLLM_API_KEY=$VLLM_API_KEY \
-		-e VLLM_ENDPOINT=$VLLM_ENDPOINT \
-		-e VLLM_MODEL_ID=$VLLM_MODEL_ID \
-		-e LOGFLAG=$LOGFLAG \
-		opea/dataprep:test
 
-	sleep 1m
+    export ARANGO_URL="${ARANGO_URL:-http://arango-vector-db:8529}"
+    export ARANGO_USERNAME="${ARANGO_USERNAME:-root}"
+    export ARANGO_PASSWORD="${ARANGO_PASSWORD:-test}"
+    export ARANGO_DB_NAME="${ARANGO_DB_NAME:-_system}"
+    
+    # Define host_ip *before* first use (if needed elsewhere)
+    export host_ip=$(hostname -I | awk '{print $1}')
+    
+    # TEI Configuration
+    export TEI_PORT="${TEI_PORT:-6006}" # This port seems unused if endpoint is defined
+    export TEI_EMBEDDER_PORT=${TEI_EMBEDDER_PORT:-8080} # Define default TEI port if not set
+    export EMBEDDING_MODEL_ID="${EMBEDDING_MODEL_ID:-BAAI/bge-base-en-v1.5}"
+    # Use the correct *internal* port (80) for TEI service communication
+    export TEI_EMBEDDING_ENDPOINT="${TEI_EMBEDDING_ENDPOINT:-http://tei-embedding-serving:80}"
+    
+    # VLLM Configuration
+    # host_ip is already defined above
+    export LLM_ENDPOINT_PORT=${LLM_ENDPOINT_PORT:-8008}
+    export VLLM_API_KEY="${VLLM_API_KEY:-EMPTY}"
+    export VLLM_ENDPOINT="${VLLM_ENDPOINT:-http://vllm-server:80}"
+    export VLLM_MODEL_ID="${VLLM_MODEL_ID:-Intel/neural-chat-7b-v3-3}"
+    export LLM_MODEL_ID="${LLM_MODEL_ID:-Intel/neural-chat-7b-v3-3}"
+    export HF_TOKEN="${HF_TOKEN:-EMPTY}"
+    export HuggingFaceHub_API_TOKEN="${HF_TOKEN:-EMPTY}"
+
+    export LOGFLAG=true
+    
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose/
+    # Ensure host_ip and LLM_ENDPOINT_PORT are available to docker compose
+    docker compose up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
+
+    # Debug time
+    sleep 1m
+
+    check_healthy "dataprep-arangodb" || exit 1
 }
+
 function validate_microservice() {
 	# Create a test directory for files
 	mkdir -p test_files
 	# Create a test file with some structured content
 	cat >test_files/test_doc.txt <<EOL
 # Test Document
-ArangoDB is the best database in the world. ArangoDB is a multi-model, open-source database with a flexible data model for documents, graphs, and key-values.
+ArangoDB is a multi-model, open-source database with a flexible data model for documents, graphs, and key-values.
 EOL
 	# Test file upload
 	echo "Testing ingest endpoint..."
@@ -238,25 +138,26 @@ EOL
 	# Clean up test files
 	rm -rf test_files
 }
+
 function stop_docker() {
-	# Stop and remove all containers
-	for container in test-comps-dataprep-server test-comps-dataprep-tei-endpoint test-comps-vllm-service test-comps-arango; do
-		if docker ps -q -f name=$container | grep -q .; then
-			docker stop $container && docker rm $container
-		fi
-	done
-	# Remove the test network if it exists
-	docker network inspect test-dataprep-network >/dev/null 2>&1 && docker network rm test-dataprep-network
+    cd $WORKPATH/comps/third_parties/arangodb/deployment/docker_compose/
+    docker compose -f compose.yaml down --remove-orphans
+
+    cd $WORKPATH/comps/dataprep/deployment/docker_compose
+    docker compose -f compose.yaml down --remove-orphans
+
 }
+
 function main() {
-	# Create log directory if it doesn't exist
-	mkdir -p ${LOG_PATH}
 	stop_docker
-	build_docker_images
-	start_service
-	check_vllm_service
-	validate_microservice
-	stop_docker
-	echo y | docker system prune
+
+    build_docker_images
+    start_service
+
+    validate_microservice
+
+    stop_docker
+    echo y | docker system prune
 }
+
 main
