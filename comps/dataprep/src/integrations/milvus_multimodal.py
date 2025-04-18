@@ -36,6 +36,7 @@ from .utils.multimodal import (
     load_json_file,
     load_whisper_model,
     write_vtt,
+    resize_image,
 )
 
 logger = CustomLogger("opea_dataprep_milvus_multimodal")
@@ -423,33 +424,6 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             filename=filename,
         )
 
-    def resize_image(img_fpath, max_size=150):
-        # Open the image file
-        with Image.open(img_fpath) as img:
-            # Get original dimensions
-            width, height = img.size
-
-            # Determine the scaling factor
-            if width > height and width > max_size:
-                # Scale width to max_size
-                scale_factor = max_size / width
-            elif height > width and height > max_size:
-                # Scale height to max_size
-                scale_factor = max_size / height
-            else:
-                # No scaling needed
-                scale_factor = 1
-
-            # Calculate new dimensions
-            new_width = int(width * scale_factor)
-            new_height = int(height * scale_factor)
-
-            # Resize the image
-            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-
-            # Save the resized image
-            img.save(img_fpath)
-
     async def ingest_generate_transcripts(self, files: List[UploadFile] = File(None)):
         """Upload videos or audio files with speech, generate transcripts using whisper and ingest into milvus."""
 
@@ -696,7 +670,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                             pix = None
 
                             # Resize the image
-                            self.resize_image(img_fpath)
+                            resize_image(img_fpath)
 
                             # Convert image to base64 encoded string
                             with open(img_fpath, "rb") as image2str:
