@@ -144,6 +144,51 @@ class RedisDataprepRequest(DataprepRequest):
         self.index_name = index_name
 
 
+class ArangoDBDataprepRequest(DataprepRequest):
+    def __init__(
+        self,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
+        graph_name: Optional[str] = Form(None),
+        insert_async: Optional[bool] = Form(None),
+        insert_batch_size: Optional[int] = Form(None),
+        embed_nodes: Optional[bool] = Form(None),
+        embed_edges: Optional[bool] = Form(None),
+        embed_chunks: Optional[bool] = Form(None),
+        allowed_node_types: Optional[List[str]] = Form(None),
+        allowed_edge_types: Optional[List[str]] = Form(None),
+        node_properties: Optional[List[str]] = Form(None),
+        edge_properties: Optional[List[str]] = Form(None),
+        text_capitalization_strategy: Optional[str] = Form(None),
+        include_chunks: Optional[bool] = Form(None),
+    ):
+        super().__init__(
+            files=files,
+            link_list=link_list,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            process_table=process_table,
+            table_strategy=table_strategy,
+        )
+
+        self.graph_name = graph_name
+        self.insert_async = insert_async
+        self.insert_batch_size = insert_batch_size
+        self.embed_nodes = embed_nodes
+        self.embed_edges = embed_edges
+        self.embed_chunks = embed_chunks
+        self.allowed_node_types = allowed_node_types
+        self.allowed_edge_types = allowed_edge_types
+        self.node_properties = node_properties
+        self.edge_properties = edge_properties
+        self.text_capitalization_strategy = text_capitalization_strategy
+        self.include_chunks = include_chunks
+
+
 class EmbeddingRequest(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/embeddings

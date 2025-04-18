@@ -20,6 +20,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
+from comps.cores.proto.api_protocol import ArangoDBDataprepRequest, DataprepRequest
 from comps.dataprep.src.utils import (
     decode_filename,
     document_loader,
@@ -43,7 +44,6 @@ ARANGO_PASSWORD = os.getenv("ARANGO_PASSWORD", "test")
 # ArangoDB graph configuration
 ARANGO_INSERT_ASYNC = os.getenv("ARANGO_INSERT_ASYNC", False)
 ARANGO_BATCH_SIZE = os.getenv("ARANGO_BATCH_SIZE", 1000)
-ARANGO_USE_GRAPH_NAME = os.getenv("ARANGO_USE_GRAPH_NAME", True)
 ARANGO_GRAPH_NAME = os.getenv("ARANGO_GRAPH_NAME", "GRAPH")
 
 # VLLM configuration
@@ -59,9 +59,9 @@ VLLM_TIMEOUT = os.getenv("VLLM_TIMEOUT", 600)
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT")
 TEI_EMBED_MODEL = os.getenv("TEI_EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-EMBED_SOURCE_DOCUMENTS = os.getenv("EMBED_SOURCE_DOCUMENTS", "true").lower() == "true"
 EMBED_NODES = os.getenv("EMBED_NODES", "true").lower() == "true"
-EMBED_RELATIONSHIPS = os.getenv("EMBED_RELATIONSHIPS", "true").lower() == "true"
+EMBED_EDGES = os.getenv("EMBED_EDGES", "true").lower() == "true"
+EMBED_CHUNKS = os.getenv("EMBED_CHUNKS", "true").lower() == "true"
 
 # OpenAI configuration (alternative to TEI/VLLM)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -74,12 +74,12 @@ OPENAI_EMBED_ENABLED = os.getenv("OPENAI_EMBED_ENABLED", "true").lower() == "tru
 
 # LLM/Graph Transformer configuration
 SYSTEM_PROMPT_PATH = os.getenv("SYSTEM_PROMPT_PATH")
-ALLOWED_NODES = os.getenv("ALLOWED_NODES", [])
-ALLOWED_RELATIONSHIPS = os.getenv("ALLOWED_RELATIONSHIPS", [])
+ALLOWED_NODE_TYPES = os.getenv("ALLOWED_NODE_TYPES", [])
+ALLOWED_EDGE_TYPES = os.getenv("ALLOWED_EDGE_TYPES", [])
 NODE_PROPERTIES = os.getenv("NODE_PROPERTIES", ["description"])
-RELATIONSHIP_PROPERTIES = os.getenv("RELATIONSHIP_PROPERTIES", ["description"])
-ENTITY_CAPITALIZATION_STRATEGY = os.getenv("ENTITY_CAPITALIZATION_STRATEGY", "upper")
-INCLUDE_SOURCE = os.getenv("INCLUDE_SOURCE", "true").lower() == "true"
+EDGE_PROPERTIES = os.getenv("EDGE_PROPERTIES", ["description"])
+TEXT_CAPITALIZATION_STRATEGY = os.getenv("TEXT_CAPITALIZATION_STRATEGY", "upper")
+INCLUDE_CHUNKS = os.getenv("INCLUDE_CHUNKS", "true").lower() == "true"
 
 
 @OpeaComponentRegistry.register("OPEA_DATAPREP_ARANGODB")
@@ -90,36 +90,38 @@ class OpeaArangoDataprep(OpeaComponent):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.upload_folder = "./uploaded_files/"
 
+        self.graph_names_created_in_total = set()
+
         self.llm_transformer: LLMGraphTransformer
         self.embeddings: Embeddings
 
-        self._initialize_llm()
         self._initialize_embeddings()
         self._initialize_client()
 
         if not self.check_health():
             logger.error("OpeaArangoDataprep health check failed.")
 
-    def _initialize_llm(self):
+    def _initialize_llm(
+        self,
+        allowed_node_types: Union[List[str], str],
+        allowed_edge_types: Union[List[str], str],
+        node_properties: Union[List[str], str],
+        edge_properties: Union[List[str], str],
+    ):
         """Initialize the LLM model & LLMGraphTransformer object."""
 
-        allowed_nodes = ALLOWED_NODES
-        allowed_relationships = ALLOWED_RELATIONSHIPS
-        node_properties = NODE_PROPERTIES
-        relationship_properties = RELATIONSHIP_PROPERTIES
-
         # Process string inputs if needed
-        if allowed_nodes and isinstance(allowed_nodes, str):
-            allowed_nodes = allowed_nodes.split(",")
+        if allowed_node_types and isinstance(allowed_node_types, str):
+            allowed_node_types = allowed_node_types.split(",")
 
-        if allowed_relationships and isinstance(allowed_relationships, str):
-            allowed_relationships = allowed_relationships.split(",")
+        if allowed_edge_types and isinstance(allowed_edge_types, str):
+            allowed_edge_types = allowed_edge_types.split(",")
 
         if node_properties and isinstance(node_properties, str):
             node_properties = node_properties.split(",")
 
-        if relationship_properties and isinstance(relationship_properties, str):
-            relationship_properties = relationship_properties.split(",")
+        if edge_properties and isinstance(edge_properties, str):
+            edge_properties = edge_properties.split(",")
 
         prompt_template = None
         if SYSTEM_PROMPT_PATH is not None:
@@ -177,11 +179,11 @@ class OpeaArangoDataprep(OpeaComponent):
         try:
             self.llm_transformer = LLMGraphTransformer(
                 llm=llm,
-                allowed_nodes=allowed_nodes,
-                allowed_relationships=allowed_relationships,
+                allowed_nodes=allowed_node_types,
+                allowed_relationships=allowed_edge_types,
                 prompt=prompt_template,
                 node_properties=node_properties or False,
-                relationship_properties=relationship_properties or False,
+                relationship_properties=edge_properties or False,
                 ignore_tool_usage=ignore_tool_usage,
             )
         except (TypeError, ValueError) as e:
@@ -238,7 +240,18 @@ class OpeaArangoDataprep(OpeaComponent):
             logger.info(f"[ check health ] Failed to connect to ArangoDB: {e}")
             return False
 
-    async def ingest_data_to_arango(self, doc_path: DocPath):
+    async def ingest_data_to_arango(
+        self,
+        doc_path: DocPath,
+        graph_name: str,
+        insert_async: bool,
+        insert_batch_size: int,
+        embed_nodes: bool,
+        embed_edges: bool,
+        embed_chunks: bool,
+        include_chunks: bool,
+        text_capitalization_strategy: str,
+    ):
         """Ingest document to ArangoDB."""
 
         path = doc_path.path
@@ -286,12 +299,6 @@ class OpeaArangoDataprep(OpeaComponent):
         # Graph generation & insertion #
         ################################
 
-        if ARANGO_USE_GRAPH_NAME:
-            graph_name = ARANGO_GRAPH_NAME
-        else:
-            file_name = os.path.basename(path).split(".")[0]
-            graph_name = "".join(c for c in file_name if c.isalnum() or c in "_-:.@()+,=;$!*'%")
-
         if logflag:
             logger.info(f"Creating graph {graph_name}.")
 
@@ -310,18 +317,18 @@ class OpeaArangoDataprep(OpeaComponent):
 
             graph.add_graph_documents(
                 graph_documents=[graph_doc],
-                include_source=INCLUDE_SOURCE,
+                include_source=include_chunks,
                 graph_name=graph_name,
                 update_graph_definition_if_exists=False,
-                batch_size=ARANGO_BATCH_SIZE,
+                batch_size=insert_batch_size,
                 use_one_entity_collection=True,
-                insert_async=ARANGO_INSERT_ASYNC,
+                insert_async=insert_async,
                 embeddings=self.embeddings,
                 embedding_field="embedding",
-                embed_source=EMBED_SOURCE_DOCUMENTS,
-                embed_nodes=EMBED_NODES,
-                embed_relationships=EMBED_RELATIONSHIPS,
-                capitalization_strategy=ENTITY_CAPITALIZATION_STRATEGY,
+                embed_source=embed_chunks,
+                embed_nodes=embed_nodes,
+                embed_relationships=embed_edges,
+                capitalization_strategy=text_capitalization_strategy,
             )
 
             if logflag:
@@ -332,28 +339,58 @@ class OpeaArangoDataprep(OpeaComponent):
 
         return graph_name
 
-    async def ingest_files(
-        self,
-        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
-        link_list: Optional[str] = Form(None),
-        chunk_size: int = Form(1500),
-        chunk_overlap: int = Form(100),
-        process_table: bool = Form(False),
-        table_strategy: str = Form("fast"),
-        ingest_from_graphDB: bool = Form(False),
-    ):
+    async def ingest_files(self, input: Union[DataprepRequest, ArangoDBDataprepRequest]):
         """Ingest files/links content into ArangoDB database.
 
         Save in the format of vector[768].
         Returns '{"status": 200, "message": "Data preparation succeeded"}' if successful.
         Args:
-            files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
-            link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
-            chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(500).
-            chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
-            process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
-            table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+            input (DataprepRequest | ArangoDBDataprepRequest): Model containing the following parameters:
+                files (Union[UploadFile, List[UploadFile]], optional): A file or a list of files to be ingested. Defaults to File(None).
+                link_list (str, optional): A list of links to be ingested. Defaults to Form(None).
+                chunk_size (int, optional): The size of the chunks to be split. Defaults to Form(500).
+                chunk_overlap (int, optional): The overlap between chunks. Defaults to Form(100).
+                process_table (bool, optional): Whether to process tables in PDFs. Defaults to Form(False).
+                table_strategy (str, optional): The strategy to process tables in PDFs. Defaults to Form("fast").
+                graph_name (str, optional): The name of the graph to be created. Defaults to "GRAPH".
+                insert_async (bool, optional): Whether to insert data asynchronously. Defaults to False.
+                insert_batch_size (int, optional): The batch size for insertion. Defaults to 1000.
+                embed_nodes (bool, optional): Whether to embed nodes. Defaults to True.
+                embed_edges (bool, optional): Whether to embed edges. Defaults to True.
+                embed_chunks (bool, optional): Whether to embed chunks. Defaults to True.
+                allowed_node_types (List[str], optional): The allowed node types. Defaults to [].
+                allowed_edge_types (List[str], optional): The allowed edge types. Defaults to [].
+                node_properties (List[str], optional): The node properties to be used. Defaults to ["description"].
+                edge_properties (List[str], optional): The edge properties to be used. Defaults to ["description"].
+                text_capitalization_strategy (str, optional): The text capitalization strategy. Defaults to "upper".
+                include_chunks (bool, optional): Whether to include chunks in the graph. Defaults to True.
         """
+
+        files = input.files
+        link_list = input.link_list
+        chunk_size = input.chunk_size
+        chunk_overlap = input.chunk_overlap
+        process_table = input.process_table
+        table_strategy = input.table_strategy
+        graph_name = getattr(input, "graph_name", ARANGO_GRAPH_NAME)
+        insert_async = getattr(input, "insert_async", ARANGO_INSERT_ASYNC)
+        insert_batch_size = getattr(input, "insert_batch_size", ARANGO_BATCH_SIZE)
+        embed_nodes = getattr(input, "embed_nodes", EMBED_NODES)
+        embed_edges = getattr(input, "embed_edges", EMBED_EDGES)
+        embed_chunks = getattr(input, "embed_chunks", EMBED_CHUNKS)
+        allowed_node_types = getattr(input, "allowed_node_types", ALLOWED_NODE_TYPES)
+        allowed_edge_types = getattr(input, "allowed_edge_types", ALLOWED_EDGE_TYPES)
+        node_properties = getattr(input, "node_properties", NODE_PROPERTIES)
+        edge_properties = getattr(input, "edge_properties", EDGE_PROPERTIES)
+        text_capitalization_strategy = getattr(input, "text_capitalization_strategy", TEXT_CAPITALIZATION_STRATEGY)
+        include_chunks = getattr(input, "include_chunks", INCLUDE_CHUNKS)
+
+        self._initialize_llm(
+            allowed_node_types=allowed_node_types,
+            allowed_edge_types=allowed_edge_types,
+            node_properties=node_properties,
+            edge_properties=edge_properties,
+        )
 
         if logflag:
             logger.info(f"files:{files}")
@@ -381,6 +418,14 @@ class OpeaArangoDataprep(OpeaComponent):
                             process_table=process_table,
                             table_strategy=table_strategy,
                         ),
+                        graph_name=graph_name,
+                        insert_async=insert_async,
+                        insert_batch_size=insert_batch_size,
+                        embed_nodes=embed_nodes,
+                        embed_edges=embed_edges,
+                        embed_chunks=embed_chunks,
+                        text_capitalization_strategy=text_capitalization_strategy,
+                        include_chunks=include_chunks,
                     )
 
                     uploaded_files.append(save_path)
@@ -409,6 +454,14 @@ class OpeaArangoDataprep(OpeaComponent):
                             process_table=process_table,
                             table_strategy=table_strategy,
                         ),
+                        graph_name=graph_name,
+                        insert_async=insert_async,
+                        insert_batch_size=insert_batch_size,
+                        embed_nodes=embed_nodes,
+                        embed_edges=embed_edges,
+                        embed_chunks=embed_chunks,
+                        text_capitalization_strategy=text_capitalization_strategy,
+                        include_chunks=include_chunks,
                     )
                     graph_names_created.add(graph_name)
                 except Exception as e:
@@ -417,12 +470,12 @@ class OpeaArangoDataprep(OpeaComponent):
                 if logflag:
                     logger.info(f"Successfully saved link {link}")
 
-        graph_names_created = list(graph_names_created)
+        self.graph_names_created_in_total |= graph_names_created
 
         result = {
             "status": 200,
             "message": f"Data preparation succeeded: {graph_names_created}",
-            "graph_names": graph_names_created,
+            "graph_names": list(graph_names_created),
         }
 
         if logflag:
@@ -484,12 +537,7 @@ class OpeaArangoDataprep(OpeaComponent):
             for graph in self.db.graphs():
                 self.db.delete_graph(graph["name"], drop_collections=True)
         else:
-            if ARANGO_USE_GRAPH_NAME:
-                self.db.delete_graph(ARANGO_GRAPH_NAME, drop_collections=True)
-            else:
-                file_name = os.path.basename(file_path).split(".")[0]
-                graph_name = "".join(c for c in file_name if c.isalnum() or c in "_-:.@()+,=;$!*'%")
-
-                self.db.delete_graph(graph_name, drop_collections=True)
+            for graph_name in self.graph_names_created_in_total:
+                self.db.delete_graph(graph_name, drop_collections=True, ignore_missing=True)
 
         return {"status": True}

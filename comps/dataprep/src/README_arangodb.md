@@ -111,7 +111,6 @@ ArangoDB Graph Insertion configuration
 - `ARANGO_INSERT_ASYNC`: If set to True, the microservice will insert the data into ArangoDB asynchronously. Defaults to `False`.
 - `ARANGO_BATCH_SIZE`: The batch size for the microservice to insert the data. Defaults to `500`.
 - `ARANGO_GRAPH_NAME`: The name of the graph to use/create in ArangoDB Defaults to `GRAPH`.
-- `ARANGO_USE_GRAPH_NAME`: If set to True, the microservice will use the graph name specified in the environment variable `ARANGO_GRAPH_NAME`. If set to False, the file name will be used as the graph name. Defaults to `True`.
 
 vLLM Configuration
 
@@ -128,9 +127,9 @@ Text Embeddings Inferencing Configuration
 - `TEI_EMBEDDING_ENDPOINT`: The endpoint for the TEI service.
 - `TEI_EMBED_MODEL`: The model to use for the TEI service. Defaults to `BAAI/bge-base-en-v1.5`.
 - `HUGGINGFACEHUB_API_TOKEN`: The API token for the Hugging Face Hub.
-- `EMBED_SOURCE_DOCUMENTS`: If set to True, the microservice will embed the source documents. Defaults to `True`.
+- `EMBED_CHUNKS`: If set to True, the microservice will embed the chunks. Defaults to `True`.
 - `EMBED_NODES`: If set to True, the microservice will embed the nodes extracted from the source documents. Defaults to `True`.
-- `EMBED_RELATIONSHIPS`: If set to True, the microservice will embed the relationships extracted from the source documents. Defaults to `True`.
+- `EMBED_EDGES`: If set to True, the microservice will embed the edges extracted from the source documents. Defaults to `True`.
 
 OpenAI Configuration:
 **Note**: This configuration can replace the VLLM and TEI services for text generation and embeddings.
@@ -146,9 +145,42 @@ OpenAI Configuration:
 [LangChain LLMGraphTransformer](https://api.python.langchain.com/en/latest/graph_transformers/langchain_experimental.graph_transformers.llm.LLMGraphTransformer.html) Configuration:
 
 - `SYSTEM_PROMPT_PATH`: The path to the system prompt text file. This can be used to specify the specific system prompt for the entity extraction and graph generation steps.
-- `ALLOWED_NODES`: Specifies which node types are allowed in the graph. Defaults to an empty list, allowing all node types.
-- `ALLOWED_RELATIONSHIPS`: Specifies which relationship types are allowed in the graph. Defaults to an empty list, allowing all relationship types.
+- `ALLOWED_NODE_TYPES`: Specifies which node types are allowed in the graph. Defaults to an empty list, allowing all node types.
+- `ALLOWED_EDGE_TYPES`: Specifies which edge types are allowed in the graph. Defaults to an empty list, allowing all edge types.
 - `NODE_PROPERTIES`: If True, the LLM can extract any node properties from text. Alternatively, a list of valid properties can be provided for the LLM to extract, restricting extraction to those specified. Defaults to `["description"]`.
-- `RELATIONSHIP_PROPERTIES`: If True, the LLM can extract any relationship properties from text. Alternatively, a list of valid properties can be provided for the LLM to extract, restricting extraction to those specified. Defaults to `["description"]`.
-- `ENTITY_CAPITALIZATION_STRATEGY`: The capitalization strategy applied on the node and edge keys. Can be "lower", "upper", or "none". Defaults to "none". Useful as a basic Entity Resolution technique to avoid duplicates based on capitalization.
-- `INCLUDE_SOURCE`: If set to True, the microservice will include the chunks of text from the source documents in the graph. Defaults to `True`. If `False`, only the entities and relationships will be included in the graph.
+- `EDGE_PROPERTIES`: If True, the LLM can extract any edge properties from text. Alternatively, a list of valid properties can be provided for the LLM to extract, restricting extraction to those specified. Defaults to `["description"]`.
+- `TEXT_CAPITALIZATION_STRATEGY`: The capitalization strategy applied on the node and edge text. Can be "lower", "upper", or "none". Defaults to "none". Useful as a basic Entity Resolution technique to avoid duplicates based on capitalization.
+- `INCLUDE_CHUNKS`: If set to True, the microservice will include the chunks of text from the source documents in the graph. Defaults to `True`. If `False`, only the entities and relationships will be included in the graph.
+
+Some of these parameters are also available via parameters in the API call. If set, these will override the equivalent environment variables:
+
+```python
+class DataprepRequest(BaseModel):
+    ...
+
+
+class ArangoDBDataprepRequest(DataprepRequest):
+    def __init__(
+        self,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
+        graph_name: Optional[str] = Form(None),
+        insert_async: Optional[bool] = Form(None),
+        insert_batch_size: Optional[int] = Form(None),
+        embed_nodes: Optional[bool] = Form(None),
+        embed_edges: Optional[bool] = Form(None),
+        embed_chunks: Optional[bool] = Form(None),
+        allowed_node_types: Optional[List[str]] = Form(None),
+        allowed_edge_types: Optional[List[str]] = Form(None),
+        node_properties: Optional[List[str]] = Form(None),
+        edge_properties: Optional[List[str]] = Form(None),
+        text_capitalization_strategy: Optional[str] = Form(None),
+        include_chunks: Optional[bool] = Form(None),
+        ...
+```
+
+See the `comps/cores/proto/api_protocol.py` file for more details on the API request and response models.
