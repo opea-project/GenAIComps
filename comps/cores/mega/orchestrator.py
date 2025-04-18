@@ -243,7 +243,6 @@ class ServiceOrchestrator(DAG):
     ):
         # send the cur_node request/reply
 
-            
         llm_parameters_dict = llm_parameters.dict()
 
         is_llm_vlm = self.services[cur_node].service_type in (ServiceType.LLM, ServiceType.LVM)
@@ -255,8 +254,10 @@ class ServiceOrchestrator(DAG):
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
         access_token = self.services[cur_node].api_key_value
-        endpoint = self.services[cur_node].endpoint_path(inputs["model"])
-        
+        if access_token:  
+            endpoint = self.services[cur_node].endpoint_path(inputs["model"])
+        else:
+            endpoint = self.services[cur_node].endpoint_path(None)
         if is_llm_vlm and llm_parameters.stream:
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
