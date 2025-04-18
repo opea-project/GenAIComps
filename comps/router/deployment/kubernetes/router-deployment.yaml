@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: router
+  labels:
+    app: router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: router
+  template:
+    metadata:
+      labels:
+        app: router
+    spec:
+      containers:
+        - name: router
+          image: sapdai/refd:routing-service  # Replace with your actual tag if needed
+          ports:
+            - containerPort: 6000
+          env:
+            - name: CONFIG_PATH
+              value: /app/config.yaml
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: huggingface-secrets
+                  key: hf-token
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai
+                  key: OPENAI
+          volumeMounts:
+            - name: global-config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+            - name: routellm-config
+              mountPath: /app/configs/routellm_config.yaml
+              subPath: routellm_config.yaml
+            - name: semanticrouter-config
+              mountPath: /app/configs/semantic_router_config.yaml
+              subPath: semantic_router_config.yaml
+      volumes:
+        - name: global-config
+          configMap:
+            name: router-config
+        - name: routellm-config
+          configMap:
+            name: routellm-config
+        - name: semanticrouter-config
+          configMap:
+            name: semanticrouter-config

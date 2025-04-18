@@ -1,0 +1,14 @@
+controller_type: "semantic_router"
+embedding_provider: "huggingface"
+routes:
+  - name: "strong"
+    utterances:
+      - "Prove the Pythagorean theorem using geometric arguments..."
+      - "Explain the Calvin cycle..."
+      - "Discuss the ethical implications of deploying AI..."
+
+  - name: "weak"
+    utterances:
+      - "Hello, how are you?"
+      - "What's 2 + 2?"
+      - "Can you tell me a funny joke?"
