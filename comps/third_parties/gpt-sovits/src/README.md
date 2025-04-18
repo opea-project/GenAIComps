@@ -13,7 +13,13 @@ docker build -t opea/gpt-sovits:latest --build-arg http_proxy=$http_proxy --buil
 ## Start the Service
 
 ```bash
-docker run  -itd -p 9880:9880 -e http_proxy=$http_proxy -e https_proxy=$https_proxy opea/gpt-sovits:latest
+export llm_download=True
+docker run -itd -p 9880:9880 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e llm_download=$llm_download opea/gpt-sovits:latest
+
+# If you locally clone the models, you can pass llm_download=False, e.g.
+export llm_download=False
+git clone https://huggingface.co/lj1995/GPT-SoVITS pretrained_models
+docker run -itd -p 9880:9880 -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e llm_download=$llm_download -v ./pretrained_models/:/home/user/GPT-SoVITS/GPT_SoVITS/pretrained_models/ opea/gpt-sovits:latest
 ```
 
 ## Test

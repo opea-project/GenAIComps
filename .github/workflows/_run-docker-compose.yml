@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Image Build
-permissions: read-all
+# permissions: read-all
 on:
   workflow_call:
     inputs:
@@ -76,6 +76,9 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.get-test-case.outputs.run_matrix).include }}
     runs-on: ${{ matrix.hardware }}
+    permissions:
+      id-token: write
+      contents: read
     continue-on-error: true
     steps:
       - name: Clean up Working Directory
@@ -98,6 +101,13 @@ jobs:
         with:
           ref: ${{ needs.get-test-case.outputs.CHECKOUT_REF }}
           fetch-depth: 0
+
+      - name: Get AWS Credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        if: ${{ contains(matrix.test_case, 'bedrock') }}
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+          aws-region: us-east-1
 
       - name: Run test
         shell: bash
