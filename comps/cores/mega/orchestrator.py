@@ -254,7 +254,7 @@ class ServiceOrchestrator(DAG):
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
         access_token = self.services[cur_node].api_key_value
-        if access_token:  
+        if access_token:
             endpoint = self.services[cur_node].endpoint_path(inputs["model"])
         else:
             endpoint = self.services[cur_node].endpoint_path(None)

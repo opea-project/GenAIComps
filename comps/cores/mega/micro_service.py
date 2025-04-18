@@ -137,9 +137,9 @@ class MicroService(HTTPService):
                 "set use_remote_service to False if you want to use a local micro service!"
             )
 
-    def endpoint_path(self,model=None):
+    def endpoint_path(self, model=None):
         if self.api_key:
-            model_endpoint=model.split('/')[1]
+            model_endpoint = model.split("/")[1]
             return f"{self.host}/{model_endpoint}{self.endpoint}"
         else:
             return f"{self.protocol}://{self.host}:{self.port}{self.endpoint}"
