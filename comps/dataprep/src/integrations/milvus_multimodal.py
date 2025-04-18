@@ -35,8 +35,8 @@ from .utils.multimodal import (
     generate_id,
     load_json_file,
     load_whisper_model,
-    write_vtt,
     resize_image,
+    write_vtt,
 )
 
 logger = CustomLogger("opea_dataprep_milvus_multimodal")
