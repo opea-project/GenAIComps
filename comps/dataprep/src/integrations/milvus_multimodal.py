@@ -172,9 +172,6 @@ class MultimodalMilvus(Milvus):
             embeddings = embedding.embed_image_text_pairs(list(texts), pil_imgs, batch_size=batch_size)
         for metadata in metadatas:
             metadata["filename"] = filename
-            for key, value in metadata.items():
-                if isinstance(value, str) and len(value) > 65535:
-                    metadata[key] = value[:65535]
         db_ids = self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
         logger.info(db_ids)
         return db_ids
@@ -209,9 +206,6 @@ class MultimodalMilvus(Milvus):
         batch_size = 2
         for metadata in metadatas:
             metadata["filename"] = filename
-            for key, value in metadata.items():
-                if isinstance(value, str) and len(value) > 65535:
-                    metadata[key] = value[:65535]
 
         db_ids = self.add_embeddings(list(texts), embeddings, metadatas, batch_size)
         logger.info(db_ids)
@@ -428,6 +422,34 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             milvus_uri=MILVUS_URI,
             filename=filename,
         )
+    
+    def resize_image(img_fpath, max_size=150):
+        # Open the image file
+        with Image.open(img_fpath) as img:
+            # Get original dimensions
+            width, height = img.size
+
+            # Determine the scaling factor
+            if width > height and width > max_size:
+                # Scale width to max_size
+                scale_factor = max_size / width
+            elif height > width and height > max_size:
+                # Scale height to max_size
+                scale_factor = max_size / height
+            else:
+                # No scaling needed
+                scale_factor = 1
+
+            # Calculate new dimensions
+            new_width = int(width * scale_factor)
+            new_height = int(height * scale_factor)
+
+            # Resize the image
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+            # Save the resized image
+            img.save(img_fpath)
+
 
     async def ingest_generate_transcripts(self, files: List[UploadFile] = File(None)):
         """Upload videos or audio files with speech, generate transcripts using whisper and ingest into milvus."""
@@ -502,6 +524,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                         os.path.join(self.upload_folder, file_name_with_id),
                         os.path.join(self.upload_folder, vtt_file),
                         os.path.join(self.upload_folder, dir_name),
+                        compress_images=True
                     )
                 else:
                     # Generate annotations based on the transcript
@@ -573,6 +596,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                     os.path.join(self.upload_folder, file_name),
                     LVM_ENDPOINT,
                     os.path.join(self.upload_folder, dir_name),
+                    compress_images=True
                 )
 
                 # Ingest multimodal data into milvus
@@ -671,12 +695,19 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
                             pix.save(img_fpath)  # pixmap to png
                             pix = None
-
+  
+                            # Resize the image
+                            resize_image(img_fpath)
+   
                             # Convert image to base64 encoded string
                             with open(img_fpath, "rb") as image2str:
                                 encoded_string = base64.b64encode(image2str.read())  # png to bytes
 
                             decoded_string = encoded_string.decode()  # bytes to string
+
+                            # Check the length of the decoded string
+                            decoded_length = len(decoded_string)
+                            print(f"Length of the decoded base64 string: {decoded_length}")
 
                             # Create annotations file, reusing metadata keys from video
                             annotations.append(
@@ -703,6 +734,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                         os.path.join(self.upload_folder, media_file_name),
                         os.path.join(self.upload_folder, caption_file),
                         os.path.join(self.upload_folder, media_dir_name),
+                        compress_images=True
                     )
 
                     # Delete temporary caption file
