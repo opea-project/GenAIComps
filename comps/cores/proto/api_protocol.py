@@ -188,6 +188,7 @@ class ArangoDBDataprepRequest(DataprepRequest):
         self.text_capitalization_strategy = text_capitalization_strategy
         self.include_chunks = include_chunks
 
+
 class EmbeddingRequest(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/embeddings
