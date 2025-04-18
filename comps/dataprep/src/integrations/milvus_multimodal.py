@@ -422,7 +422,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
             milvus_uri=MILVUS_URI,
             filename=filename,
         )
-    
+
     def resize_image(img_fpath, max_size=150):
         # Open the image file
         with Image.open(img_fpath) as img:
@@ -449,7 +449,6 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
             # Save the resized image
             img.save(img_fpath)
-
 
     async def ingest_generate_transcripts(self, files: List[UploadFile] = File(None)):
         """Upload videos or audio files with speech, generate transcripts using whisper and ingest into milvus."""
@@ -524,7 +523,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                         os.path.join(self.upload_folder, file_name_with_id),
                         os.path.join(self.upload_folder, vtt_file),
                         os.path.join(self.upload_folder, dir_name),
-                        compress_images=True
+                        compress_images=True,
                     )
                 else:
                     # Generate annotations based on the transcript
@@ -596,7 +595,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                     os.path.join(self.upload_folder, file_name),
                     LVM_ENDPOINT,
                     os.path.join(self.upload_folder, dir_name),
-                    compress_images=True
+                    compress_images=True,
                 )
 
                 # Ingest multimodal data into milvus
@@ -695,10 +694,10 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
 
                             pix.save(img_fpath)  # pixmap to png
                             pix = None
-  
+
                             # Resize the image
                             resize_image(img_fpath)
-   
+
                             # Convert image to base64 encoded string
                             with open(img_fpath, "rb") as image2str:
                                 encoded_string = base64.b64encode(image2str.read())  # png to bytes
@@ -734,7 +733,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                         os.path.join(self.upload_folder, media_file_name),
                         os.path.join(self.upload_folder, caption_file),
                         os.path.join(self.upload_folder, media_dir_name),
-                        compress_images=True
+                        compress_images=True,
                     )
 
                     # Delete temporary caption file

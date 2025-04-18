@@ -129,6 +129,7 @@ def convert_img_to_base64(image):
     encoded_string = base64.b64encode(buffer)
     return encoded_string.decode()
 
+
 def resize_image(img_fpath, max_size=150):
     # Open the image file
     with Image.open(img_fpath) as img:
@@ -194,7 +195,9 @@ def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path:
     return annotations
 
 
-def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: str, vtt_path: str, output_dir: str, compress_images: bool = False):
+def extract_frames_and_annotations_from_transcripts(
+    video_id: str, video_path: str, vtt_path: str, output_dir: str, compress_images: bool = False
+):
     """Extract frames (.png) and annotations (.json) from media-text file pairs.
 
     File pairs can be a video
@@ -288,7 +291,12 @@ async def use_lvm(endpoint: str, img_b64_string: str, prompt: str = "Provide a s
 
 
 async def extract_frames_and_generate_captions(
-    video_id: str, video_path: str, lvm_endpoint: str, output_dir: str, key_frame_per_second: int = 1, compress_images: bool = False
+    video_id: str,
+    video_path: str,
+    lvm_endpoint: str,
+    output_dir: str,
+    key_frame_per_second: int = 1,
+    compress_images: bool = False,
 ):
     """Extract frames (.png) and annotations (.json) from video file (.mp4).
 
