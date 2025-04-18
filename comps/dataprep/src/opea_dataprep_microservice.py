@@ -7,6 +7,7 @@ import time
 from typing import Annotated, List, Optional, Union
 
 from fastapi import Body, Depends, File, Form, HTTPException, Request, UploadFile
+from integrations.arangodb import OpeaArangoDataprep
 from integrations.elasticsearch import OpeaElasticSearchDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
@@ -27,7 +28,12 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.proto.api_protocol import DataprepRequest, Neo4jDataprepRequest, RedisDataprepRequest
+from comps.cores.proto.api_protocol import (
+    ArangoDBDataprepRequest,
+    DataprepRequest,
+    Neo4jDataprepRequest,
+    RedisDataprepRequest,
+)
 from comps.dataprep.src.utils import create_upload_folder
 
 logger = CustomLogger("opea_dataprep_microservice")
@@ -66,6 +72,23 @@ async def resolve_dataprep_request(request: Request):
             ingest_from_graphDB=form.get("ingest_from_graphDB"),
         )
 
+    if "graph_name" in form:
+        return ArangoDBDataprepRequest(
+            **common_args,
+            graph_name=form.get("graph_name"),
+            insert_async=form.get("insert_async"),
+            insert_batch=form.get("batch_size"),
+            embed_nodes=form.get("embed_nodes"),
+            embed_edges=form.get("embed_edges"),
+            embed_chunks=form.get("embed_chunks"),
+            allowed_node_types=form.get("allowed_node_types"),
+            allowed_edge_types=form.get("allowed_edge_types"),
+            node_properties=form.get("node_properties"),
+            edge_properties=form.get("edge_properties"),
+            text_capitalization_strategy=form.get("text_capitalization_strategy"),
+            include_chunks=form.get("include_chunks"),
+        )
+
     return DataprepRequest(**common_args)
 
 
@@ -78,12 +101,17 @@ async def resolve_dataprep_request(request: Request):
 )
 @register_statistics(names=["opea_service@dataprep"])
 async def ingest_files(
-    input: Union[DataprepRequest, RedisDataprepRequest, Neo4jDataprepRequest] = Depends(resolve_dataprep_request),
+    input: Union[DataprepRequest, RedisDataprepRequest, Neo4jDataprepRequest, ArangoDBDataprepRequest] = Depends(
+        resolve_dataprep_request
+    ),
 ):
     if isinstance(input, RedisDataprepRequest):
         logger.info(f"[ ingest ] Redis mode: index_name={input.index_name}")
     elif isinstance(input, Neo4jDataprepRequest):
         logger.info(f"[ ingest ] Neo4j mode: ingest_from_graphDB={input.ingest_from_graphDB}")
+    elif isinstance(input, ArangoDBDataprepRequest):
+        logger.info(f"[ ingest ] ArangoDB mode: graph_name={input.graph_name}, ...")
+    # elif ...
     else:
         logger.info("[ ingest ] Base mode")
 

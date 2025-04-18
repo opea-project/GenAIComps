@@ -14,7 +14,9 @@ graspologic
 html2text
 huggingface_hub
 ipython
+json-repair
 langchain
+langchain-arangodb
 langchain-community
 langchain-elasticsearch
 langchain-experimental
