@@ -125,7 +125,7 @@ COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag_milvus")
 # TEI configuration
 TEI_EMBEDDING_MODEL = os.environ.get("TEI_EMBEDDING_MODEL", "/home/user/bce-embedding-base_v1")
 os.environ["OPENAI_API_BASE"] = TEI_EMBEDDING_ENDPOINT
-os.environ["OPENAI_API_KEY"] = "Dummy key"
+# os.environ["OPENAI_API_KEY"] = "Dummy key"
 
 
 #######################################################
