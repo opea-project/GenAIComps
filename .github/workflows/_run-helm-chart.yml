@@ -54,7 +54,7 @@ jobs:
         run: |
           set -x
           if [ "${{ github.ref_name }}" == "main" ]; then
-            values_files=$(ls ${{ github.workspace }}/comps/${{ inputs.service }}/deployment/kubernetes/*values.yaml)
+            values_files=$(ls ${{ github.workspace }}/comps/${{ inputs.service }}/deployment/kubernetes/*values.yaml || true)
           else
             base_commit=${{ github.event.pull_request.base.sha }}
             merged_commit=$(git log -1 --format='%H')
