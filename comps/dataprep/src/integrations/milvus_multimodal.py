@@ -696,7 +696,7 @@ class OpeaMultimodalMilvusDataprep(OpeaComponent):
                             pix = None
 
                             # Resize the image
-                            resize_image(img_fpath)
+                            self.resize_image(img_fpath)
 
                             # Convert image to base64 encoded string
                             with open(img_fpath, "rb") as image2str:
