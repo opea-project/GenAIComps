@@ -90,8 +90,6 @@ class OpeaArangoDataprep(OpeaComponent):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         self.upload_folder = "./uploaded_files/"
 
-        self.graph_names_created_in_total = set()
-
         self.llm_transformer: LLMGraphTransformer
         self.embeddings: Embeddings
 
@@ -470,8 +468,6 @@ class OpeaArangoDataprep(OpeaComponent):
                 if logflag:
                     logger.info(f"Successfully saved link {link}")
 
-        self.graph_names_created_in_total |= graph_names_created
-
         result = {
             "status": 200,
             "message": f"Data preparation succeeded: {graph_names_created}",
@@ -526,18 +522,20 @@ class OpeaArangoDataprep(OpeaComponent):
         return res_list
 
     async def delete_files(self, file_path: str = Body(..., embed=True)):
-        """Delete file according to `file_path`.
+        """Delete a Graph according to `file_path`.
 
         `file_path`:
-            - specific file path (e.g. /path/to/file.txt)
-            - "all": delete all files uploaded
+            - A specific graph name (e.g GRAPH_1)
+            - "all": delete all graphs created
         """
 
         if file_path == "all":
             for graph in self.db.graphs():
                 self.db.delete_graph(graph["name"], drop_collections=True)
         else:
-            for graph_name in self.graph_names_created_in_total:
-                self.db.delete_graph(graph_name, drop_collections=True, ignore_missing=True)
+            if not self.db.has_graph(file_path):
+                raise HTTPException(status_code=400, detail=f"Graph {file_path} does not exist.")
+
+            self.db.delete_graph(file_path, drop_collections=True)
 
         return {"status": True}
