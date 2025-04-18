@@ -9,6 +9,7 @@ openai==1.57.4
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+optimum-habana==1.17.0
 Pillow
 predictionguard
 prometheus-fastapi-instrumentator
