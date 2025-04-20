@@ -2,7 +2,9 @@
 
 # Refer to https://rocm.docs.amd.com/en/latest/how-to/rocm-for-ai/inference-optimization/index.html for further optimization
 
-FROM rocm/vllm:rocm6.3.1_mi300_ubuntu22.04_py3.12_vllm_0.6.6
+# FROM rocm/vllm:rocm6.3.1_mi300_ubuntu22.04_py3.12_vllm_0.6.6
+
+FROM rocm/vllm:rocm6.3.1_instinct_vllm0.8.3_20250410
 
 # Set the working directory
 WORKDIR /workspace
