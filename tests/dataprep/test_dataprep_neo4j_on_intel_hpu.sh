@@ -7,9 +7,13 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT=11103
+export DATAPREP_PORT=11103
 LLM_ENDPOINT_PORT=10510
 export TAG="comps"
+export DATA_PATH=${model_cache}
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
 
 function build_docker_images() {
     cd $WORKPATH
@@ -22,14 +26,14 @@ function build_docker_images() {
         echo "opea/dataprep built successful"
     fi
     docker pull ghcr.io/huggingface/tgi-gaudi:2.3.1
-    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    docker pull ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
 }
 
 function start_service() {
     service_name="neo4j-apoc tei-embedding-serving tgi-gaudi-server dataprep-neo4j-llamaindex"
     export host_ip=${ip_address}
-    export NEO4J_PORT1=7474   # 11631
-    export NEO4J_PORT2=7687   # 11632
+    export NEO4J_PORT1=11631
+    export NEO4J_PORT2=11632
     export NEO4J_AUTH="neo4j/neo4jtest"
     export NEO4J_URL="bolt://${ip_address}:${NEO4J_PORT2}"
     export NEO4J_USERNAME="neo4j"
@@ -49,7 +53,8 @@ function start_service() {
 
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-neo4j-llamaindex" || exit 1
 }
 
 function validate_service() {

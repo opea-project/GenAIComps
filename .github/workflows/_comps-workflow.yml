@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Comps jobs
-permissions: read-all
+# permissions: read-all
 on:
   workflow_call:
     inputs:
       service:
+        required: true
+        type: string
+      image_build_nodes:
         required: true
         type: string
       tag:
@@ -32,14 +35,21 @@ on:
         description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
+      use_model_cache:
+        default: false
+        description: "use model cache true or false"
+        required: false
+        type: boolean
 
 jobs:
   ####################################################################################################
   # Image Build
   ####################################################################################################
   build-images:
-    if: ${{ !(fromJSON(inputs.test_helmchart)) }}
-    runs-on: "docker-build-gaudi"
+    strategy:
+      matrix:
+        image_build_node: ${{ fromJson(inputs.image_build_nodes) }}
+    runs-on: "docker-build-${{ matrix.image_build_node }}"
     continue-on-error: true
     outputs:
       file_exists: ${{ steps.get-yaml-path.outputs.file_exists }}
@@ -70,7 +80,10 @@ jobs:
               cd ./vllm-openvino && git checkout v0.6.1 && git rev-parse HEAD && cd ../
           fi
           if [[ $(grep -c "vllm-gaudi:" ${docker_compose_yml}) != 0 ]]; then
-              git clone --depth 1 --branch v0.6.4.post2+Gaudi-1.19.0 https://github.com/HabanaAI/vllm-fork.git
+              git clone https://github.com/HabanaAI/vllm-fork.git && cd vllm-fork
+              VLLM_VER=v0.6.6.post1+Gaudi-1.20.0
+              echo "Check out vLLM tag ${VLLM_VER}"
+              git checkout ${VLLM_VER} &> /dev/null && cd ../
           fi
       - name: Get build list
         id: get-build-list
@@ -102,12 +115,12 @@ jobs:
   # Docker Compose Test
   ####################################################################################################
   test-service-compose:
-    needs: [build-images]
     if: ${{ fromJSON(inputs.test_compose) }}
     uses: ./.github/workflows/_run-docker-compose.yml
     with:
       tag: ${{ inputs.tag }}
       service: ${{ inputs.service }}
+      use_model_cache: ${{ inputs.use_model_cache }}
     secrets: inherit
 
   ####################################################################################################
@@ -118,6 +131,5 @@ jobs:
     uses: ./.github/workflows/_run-helm-chart.yml
     with:
       tag: ${{ inputs.tag }}
-      mode: ${{ inputs.mode }}
       service: ${{ inputs.service }}
     secrets: inherit

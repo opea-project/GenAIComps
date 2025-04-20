@@ -13,6 +13,7 @@ include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
   - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
   - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/arangodb/deployment/docker_compose/compose.yaml
 
 services:
   retriever:
@@ -50,6 +51,23 @@ services:
     depends_on:
       tei-embedding-serving:
         condition: service_healthy
+      standalone:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  retriever-milvus-multimodal:
+    extends: retriever
+    container_name: retriever-milvus-multimodal
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_MILVUS}
+      RETRIEVER_TYPE: ${RETRIEVER_TYPE:-milvus}
+      MILVUS_HOST: ${host_ip}
+      BRIDGE_TOWER_EMBEDDING: ${BRIDGE_TOWER_EMBEDDING}
+      COLLECTION_NAME: ${COLLECTION_NAME:-LangChainCollection}
+    depends_on:
       standalone:
         condition: service_healthy
       etcd:
@@ -179,6 +197,33 @@ services:
       tei-embedding-serving:
         condition: service_healthy
 
+  retriever-vdms-multimodal:
+    extends: retriever
+    container_name: retriever-vdms-multimodal
+    environment:
+      RETRIEVER_COMPONENT_NAME: "OPEA_RETRIEVER_VDMS"
+      VDMS_INDEX_NAME: ${INDEX_NAME}
+      VDMS_HOST: ${host_ip}
+      VDMS_PORT: ${VDMS_PORT}
+      VDMS_USE_CLIP: ${VDMS_USE_CLIP}
+    depends_on:
+      vdms-vector-db:
+        condition: service_healthy
+
+  retriever-arangodb:
+    extends: retriever
+    container_name: retriever-arangodb
+    environment:
+      RETRIEVER_COMPONENT_NAME: "OPEA_RETRIEVER_ARANGODB"
+      ARANGO_URL: ${ARANGO_URL}
+      ARANGO_DB_NAME: ${ARANGO_DB_NAME}
+      ARANGO_USERNAME: ${ARANGO_USERNAME}
+      ARANGO_PASSWORD: ${ARANGO_PASSWORD}
+      ARANGO_GRAPH_NAME: ${ARANGO_GRAPH_NAME}
+      TEI_EMBEDDING_ENDPOINT:  ${TEI_EMBEDDING_ENDPOINT}
+    depends_on:
+      arango-vector-db:
+        condition: service_healthy
 
 networks:
   default:

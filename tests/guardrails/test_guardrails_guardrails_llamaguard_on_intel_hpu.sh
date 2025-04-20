@@ -6,6 +6,7 @@ set -x
 
 WORKPATH=$(dirname "$PWD")
 ip_address=$(hostname -I | awk '{print $1}')
+export DATA_PATH=${model_cache}
 
 function build_docker_images() {
     echo "Start building docker images for microservice"
@@ -26,7 +27,7 @@ function start_service() {
     export LLM_MODEL_ID="meta-llama/Meta-Llama-Guard-2-8B"
     export LLM_ENDPOINT_PORT=12110
     export SAFETY_GUARD_MODEL_ID="meta-llama/Meta-Llama-Guard-2-8B"
-    export SAFETY_GUARD_ENDPOINT=http://${ip_address}:${LLM_ENDPOINT_PORT}/v1/chat/completions
+    export SAFETY_GUARD_ENDPOINT=http://${ip_address}:${LLM_ENDPOINT_PORT}
     export GUARDRAILS_PORT=11303
     export TAG=comps
     service_name="tgi-gaudi-server llamaguard-guardrails-server"

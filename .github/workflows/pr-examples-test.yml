@@ -12,6 +12,7 @@ on:
       - comps/cores/**
       - comps/dataprep/src/redis/langchain/**
       - comps/retrievers/src/redis/langchain/**
+      - comps/third_parties/nginx/src/**
       - requirements.txt
       - "!**.md"
 
@@ -22,13 +23,19 @@ concurrency:
 
 jobs:
   example-test:
-    runs-on: gaudi-01-3
+    runs-on: gaudi
     steps:
       - name: Clean Up Working Directory
         run: |
           sudo rm -rf ${{github.workspace}}/* || true
-          echo y | docker system prune
+
+          # clean up containers use ports
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+
           docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+          docker system prune -f
+          docker ps
 
       - name: Checkout out Repo
         uses: actions/checkout@v4
@@ -50,6 +57,11 @@ jobs:
 
           echo "Run test..."
           echo "LOG_DIR=$(pwd)" >> $GITHUB_ENV
+          if [ -d "/data2/hf_model" ]; then
+            export model_cache="/data2/hf_model"
+          else
+            export model_cache="~/.cache/huggingface/hub"
+          fi
           export IMAGE_TAG="comps"
           timeout 50m bash test_compose_on_gaudi.sh
 

@@ -10,7 +10,7 @@ cd $WORKSPACE
 changed_files_full=$changed_files_full
 run_matrix="{\"include\":["
 
-# add test services when comps code change
+
 function find_test_1() {
     local pre_service_path=$1
     local n=$2
@@ -59,6 +59,13 @@ function find_test_1() {
                         fill_in_matrix "$find_test"
                     fi
                 fi
+            elif [[ $(echo ${service_path} | grep "third_parties") ]]; then
+                 # new org with `src` and `third_parties` folder
+                service_name=$(echo $service_path | sed 's:/src::' | tr '/' '_' | cut -c7-) # comps/third_parties/vllm/src -> third_parties_vllm
+                find_test=$(find ./tests -type f -name test_${service_name}*.sh) || true
+                if [ "$find_test" ]; then
+                    fill_in_matrix "$find_test"
+                fi
             else
                 # old org without 'src' folder
                 service_name=$(echo $service_path | tr '/' '_' | cut -c7-) # comps/retrievers/redis/langchain -> retrievers_redis_langchain
@@ -89,31 +96,37 @@ function _fill_in_matrix() {
     else
         hardware=${_service#*_on_}
     fi
+    hardware=$(echo "$hardware" | tr '_' '-')
     echo "service=${_service}, hardware=${hardware}"
-    if [[ $(echo ${run_matrix} | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
+    if [[ $(echo "${run_matrix}" | grep -c "{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},") == 0 ]]; then
         run_matrix="${run_matrix}{\"service\":\"${_service}\",\"hardware\":\"${hardware}\"},"
         echo "------------------ add one service ------------------"
     fi
     sleep 1s
 }
 
-# add test case when test scripts code change
+
 function find_test_2() {
-    test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "\.sh") || true
+    test_files=$(printf '%s\n' "${changed_files[@]}" | grep -E "\.sh" | grep -E "test_") || true
     for test_file in ${test_files}; do
         if [ -f $test_file ]; then
             _service=$(echo $test_file | cut -d'/' -f3 | grep -E "\.sh" | cut -d'.' -f1 | cut -c6-)
-            _fill_in_matrix $_service
+            if [ -n "${_service}" ]; then
+                _fill_in_matrix $_service
+            fi
         fi
     done
 }
+
 
 function find_test_3() {
     yaml_files=${changed_files}
     for yaml_file in ${yaml_files}; do
         if [ -f $yaml_file ]; then
-            _service=$(echo $yaml_file | cut -d'/' -f2)
-            yaml_name=$(echo $yaml_file | cut -d'/' -f5)
+            _service=${yaml_file#comps/}
+            _service=${_service%/deployment/*}
+            _service=${_service//\//_}
+            yaml_name=$(basename $yaml_file)
             if [ "$yaml_name" != "compose.yaml" ]; then
                 _domain=${yaml_name%.yaml}
                 _domain=${_domain#compose_}
@@ -127,9 +140,11 @@ function find_test_3() {
     done
 }
 
+
 function main() {
 
-    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|comps/third_parties|deployment|\.yaml') || true
+    # add test services when comps code change
+    changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'comps/' | grep -vE '\.md|comps/cores|deployment|\.yaml') || true
     echo "===========start find_test_1============"
     echo "changed_files=${changed_files}"
     find_test_1 "comps" 2 false
@@ -137,6 +152,7 @@ function main() {
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_1============"
 
+    # add test case when test scripts code change
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'tests/' | grep -vE '\.md|\.txt|tests/cores') || true
     echo "===========start find_test_2============"
     echo "changed_files=${changed_files}"
@@ -145,6 +161,7 @@ function main() {
     echo "run_matrix=${run_matrix}"
     echo "===========finish find_test_2============"
 
+    # add test case when docker-compose code change
     changed_files=$(printf '%s\n' "${changed_files_full[@]}" | grep 'deployment/docker_compose/compose' | grep '.yaml') || true
     echo "===========start find_test_3============"
     echo "changed_files=${changed_files}"
@@ -154,7 +171,14 @@ function main() {
     echo "===========finish find_test_3============"
 
     run_matrix=$run_matrix"]}"
+    echo "run_matrix=${run_matrix}"
     echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
+
+    if [[ $(echo "$run_matrix" | grep -c "service") != 0 ]]; then
+        is_empty="false"
+    fi
+    echo "is_empty=${is_empty}"
+    echo "is_empty=${is_empty}" >> $GITHUB_OUTPUT
 }
 
 main

@@ -131,7 +131,7 @@ spec:
         envFrom:
         - configMapRef:
             name: qna-config
-        image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+        image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
         imagePullPolicy: IfNotPresent
         name: embedding-server-deploy
         ports:

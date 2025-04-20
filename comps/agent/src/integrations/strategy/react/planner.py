@@ -10,16 +10,20 @@ from langchain_huggingface import ChatHuggingFace
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 
+from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
+
 from ...global_var import threads_global_kv
 from ...storage.persistence_redis import RedisPersistence
 from ...utils import filter_tools, has_multi_tool_inputs, tool_renderer
 from ..base_agent import BaseAgent
-from .prompt import REACT_SYS_MESSAGE, hwchase17_react_prompt
 
 
 class ReActAgentwithLangchain(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
+        from .prompt import hwchase17_react_prompt
+
         prompt = hwchase17_react_prompt
         if has_multi_tool_inputs(self.tools_descriptions):
             raise ValueError("Only supports single input tools when using strategy == react_langchain")
@@ -52,6 +56,7 @@ class ReActAgentwithLangchain(BaseAgent):
     def prepare_initial_state(self, query):
         return {"input": query}
 
+    @opea_telemetry
     async def stream_generator(self, query, config, thread_id=None):
         initial_state = self.prepare_initial_state(query)
         if thread_id is not None:
@@ -84,9 +89,15 @@ class ReActAgentwithLangchain(BaseAgent):
 
 
 class ReActAgentwithLanggraph(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, with_memory=False, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
-
+        if kwargs.get("custom_prompt") is not None:
+            print("***Custom prompt is provided.")
+            REACT_SYS_MESSAGE = kwargs.get("custom_prompt").REACT_SYS_MESSAGE
+        else:
+            print("*** Using default prompt.")
+            from .prompt import REACT_SYS_MESSAGE
         tools = self.tools_descriptions
         print("REACT_SYS_MESSAGE: ", REACT_SYS_MESSAGE)
 
@@ -100,6 +111,7 @@ class ReActAgentwithLanggraph(BaseAgent):
     def prepare_initial_state(self, query):
         return {"messages": [HumanMessage(content=query)]}
 
+    @opea_telemetry
     async def stream_generator(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -115,6 +127,7 @@ class ReActAgentwithLanggraph(BaseAgent):
         except Exception as e:
             yield str(e)
 
+    @opea_telemetry
     async def non_streaming_run(self, query, config):
         initial_state = self.prepare_initial_state(query)
         try:
@@ -140,9 +153,9 @@ class ReActAgentwithLanggraph(BaseAgent):
 # since tgi and vllm still do not have very good support for tool calling like OpenAI
 
 import json
-from typing import Annotated, List, Optional, Sequence, TypedDict
+from typing import Annotated, Dict, List, Optional, Sequence, TypedDict, Union
 
-from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
 from langchain_core.prompts import PromptTemplate
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
@@ -155,7 +168,9 @@ from .utils import (
     assemble_history,
     assemble_memory,
     assemble_memory_from_store,
+    convert_aimessage_to_chat_completion,
     convert_json_to_tool_call,
+    convert_think_to_chat_completion,
     save_state_to_store,
 )
 
@@ -174,9 +189,18 @@ class ReActAgentNodeLlama:
     A workaround for open-source llm served by TGI-gaudi.
     """
 
-    def __init__(self, tools, args, store=None):
-        from .prompt import REACT_AGENT_LLAMA_PROMPT
+    @opea_telemetry
+    def __init__(self, tools, args, store=None, **kwargs):
         from .utils import ReActLlamaOutputParser
+
+        if kwargs.get("custom_prompt") is not None:
+            print("***Custom prompt is provided.")
+            REACT_AGENT_LLAMA_PROMPT = kwargs.get("custom_prompt").REACT_AGENT_LLAMA_PROMPT
+        else:
+            print("*** Using default prompt.")
+            from .prompt import REACT_AGENT_LLAMA_PROMPT
+
+        print("***Prompt template:\n", REACT_AGENT_LLAMA_PROMPT)
 
         output_parser = ReActLlamaOutputParser()
         prompt = PromptTemplate(
@@ -191,9 +215,18 @@ class ReActAgentNodeLlama:
         self.memory_type = args.memory_type
         self.store = store
 
+    @opea_telemetry
+    def __llm_invoke__(self, query, history, tools_descriptions, thread_history):
+        # invoke chain: raw output from llm
+        response = self.chain.invoke(
+            {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
+        )
+        return response
+
+    @opea_telemetry
     def __call__(self, state, config):
 
-        print("---CALL Agent node---")
+        print("---CALL Agent LLM node---")
         messages = state["messages"]
 
         # assemble a prompt from messages
@@ -222,13 +255,12 @@ class ReActAgentNodeLlama:
         print("@@@ Tools description: ", tools_descriptions)
 
         # invoke chain: raw output from llm
-        response = self.chain.invoke(
-            {"input": query, "history": history, "tools": tools_descriptions, "thread_history": thread_history}
-        )
-        response = response.content
+        response = self.__llm_invoke__(query, history, tools_descriptions, thread_history)
+
+        content = response.content
 
         # parse tool calls or answers from raw output: result is a list
-        output = self.output_parser.parse(response)
+        output = self.output_parser.parse(content)
         print("@@@ Output from chain: ", output)
 
         # convert output to tool calls
@@ -237,24 +269,22 @@ class ReActAgentNodeLlama:
             for res in output:
                 if "tool" in res:
                     tool_call = convert_json_to_tool_call(res)
-                    # print("Tool call:\n", tool_call)
                     tool_calls.append(tool_call)
 
             if tool_calls:
-                ai_message = AIMessage(content=response, tool_calls=tool_calls)
+                response.tool_calls = tool_calls
             elif "answer" in output[0]:
-                ai_message = AIMessage(content=str(output[0]["answer"]))
-        else:
-            ai_message = AIMessage(content=response)
+                response.content = str(output[0]["answer"])
 
-        return {"messages": [ai_message]}
+        return {"messages": [response]}
 
 
 class ReActAgentLlama(BaseAgent):
+    @opea_telemetry
     def __init__(self, args, **kwargs):
         super().__init__(args, local_vars=globals(), **kwargs)
 
-        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args, store=self.store)
+        agent = ReActAgentNodeLlama(tools=self.tools_descriptions, args=args, store=self.store, **kwargs)
         tool_node = ToolNode(self.tools_descriptions)
 
         workflow = StateGraph(AgentState)
@@ -315,47 +345,78 @@ class ReActAgentLlama(BaseAgent):
         print("---Prepare initial state---")
         return {"messages": [HumanMessage(content=query)]}
 
+    @opea_telemetry
     async def stream_generator(self, query, config, thread_id=None):
         initial_state = self.prepare_initial_state(query)
         if "tool_choice" in config:
             initial_state["tool_choice"] = config.pop("tool_choice")
 
+        stream_mode = ["updates", "messages"]
         try:
             print("---Start running---")
-            async for event in self.app.astream(initial_state, config=config, stream_mode=["updates"]):
+            react = "<think>"
+            async for event in self.app.astream(initial_state, config=config, stream_mode=stream_mode):
                 print(event)
                 event_type = event[0]
                 data = event[1]
+
                 if event_type == "updates":
                     for node_name, node_state in data.items():
                         if self.memory_type == "store":
                             save_state_to_store(node_state, config, self.store)
                         print(f"--- CALL {node_name} node ---\n")
+
                         for k, v in node_state.items():
-                            if v is not None:
+                            if k == "messages" and v is not None:
                                 print(f"------- {k}, {v} -------\n\n")
                                 if node_name == "agent":
-                                    if v[0].content == "":
-                                        tool_names = []
-                                        for tool_call in v[0].tool_calls:
-                                            tool_names.append(tool_call["name"])
-                                        result = {"tool": tool_names}
-                                    else:
-                                        result = {"content": [v[0].content.replace("\n\n", "\n")]}
-                                    # ui needs this format
-                                    yield f"data: {json.dumps(result)}\n\n"
+                                    # the message is displayed in the event_type="messages"
+                                    if "messages" not in stream_mode:
+                                        for each in v:
+                                            result = convert_aimessage_to_chat_completion(each)
+                                            yield f"data: {json.dumps(result)}\n\n"
+
+                                    # if no tool call, display final answer
+                                    if "messages" in stream_mode:
+                                        for each in v:
+                                            if not each.tool_calls:
+                                                result = convert_aimessage_to_chat_completion(
+                                                    each, stream=True, metadata={}
+                                                )
+                                                yield f"data: {json.dumps(result)}\n\n"
                                 elif node_name == "tools":
-                                    full_content = v[0].content
-                                    tool_name = v[0].name
-                                    result = {"tool": tool_name, "content": [full_content]}
-                                    yield f"data: {json.dumps(result)}\n\n"
-                                    if not full_content:
-                                        continue
+                                    # for multi tools in 1 turn
+                                    for each in v:
+                                        full_content = each.content
+                                        tool_name = each.name
+                                        result = {"tool_name": tool_name, "tool_content": [full_content]}
+                                        yield f"data: {json.dumps(result)}\n\n"
+                                        if not full_content:
+                                            continue
+                elif event_type == "messages":
+                    # only keep AIMessageChunk message
+                    if not isinstance(data[0], AIMessageChunk):
+                        continue
+
+                    # convert to openai format
+                    result = convert_aimessage_to_chat_completion(data[0], stream=True, metadata=data[1])
+                    yield f"data: {json.dumps(result)}\n\n"
+
+                    # for ui display thinking process
+                    if react == "<think>":
+                        react = ""
+                        result = convert_think_to_chat_completion("<think>")
+                        yield f"data: {json.dumps(result)}\n\n"
+                    if data[0].response_metadata.get("finish_reason") == "stop":
+                        react = "<think>"
+                        result = convert_think_to_chat_completion("</think>")
+                        yield f"data: {json.dumps(result)}\n\n"
 
             yield "data: [DONE]\n\n"
         except Exception as e:
             yield str(e)
 
+    @opea_telemetry
     async def non_streaming_run(self, query, config):
         # for use as worker agent (tool of supervisor agent)
         # only used in chatcompletion api

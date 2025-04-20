@@ -14,6 +14,7 @@ import requests
 import webvtt
 import whisper
 from moviepy import VideoFileClip
+from PIL import Image
 
 
 def create_upload_folder(upload_path):
@@ -129,6 +130,34 @@ def convert_img_to_base64(image):
     return encoded_string.decode()
 
 
+def resize_image(img_fpath, max_size=150):
+    # Open the image file
+    with Image.open(img_fpath) as img:
+        # Get original dimensions
+        width, height = img.size
+
+        # Determine the scaling factor
+        if width > height and width > max_size:
+            # Scale width to max_size
+            scale_factor = max_size / width
+        elif height > width and height > max_size:
+            # Scale height to max_size
+            scale_factor = max_size / height
+        else:
+            # No scaling needed
+            scale_factor = 1
+
+        # Calculate new dimensions
+        new_width = int(width * scale_factor)
+        new_height = int(height * scale_factor)
+
+        # Resize the image
+        img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+        # Save the resized image
+        img.save(img_fpath)
+
+
 def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path: str, output_dir: str):
     """Generates an annotations.json from the transcript file."""
 
@@ -166,13 +195,16 @@ def generate_annotations_from_transcript(file_id: str, file_path: str, vtt_path:
     return annotations
 
 
-def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: str, vtt_path: str, output_dir: str):
+def extract_frames_and_annotations_from_transcripts(
+    video_id: str, video_path: str, vtt_path: str, output_dir: str, compress_images: bool = False
+):
     """Extract frames (.png) and annotations (.json) from media-text file pairs.
 
     File pairs can be a video
     file (.mp4) and transcript file (.vtt) or an image file (.png, .jpg, .jpeg, .gif) and caption file (.txt)
     """
     # Set up location to store frames and annotations
+
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "frames"), exist_ok=True)
 
@@ -212,8 +244,17 @@ def extract_frames_and_annotations_from_transcripts(video_id: str, video_path: s
             img_fpath = os.path.join(output_dir, "frames", img_fname + ".png")
             cv2.imwrite(img_fpath, frame)
 
+            if compress_images:
+                resize_image(img_fpath)
+                # Read the resized image
+                frame = cv2.imread(img_fpath)
+
             # Convert image to base64 encoded string
             b64_img_str = convert_img_to_base64(frame)
+
+            b64_img_str_length = len(b64_img_str)
+
+            print(f"Length of base64 encoded string: {b64_img_str_length}")
 
             # Create annotations for frame from transcripts
             annotations.append(
@@ -250,15 +291,24 @@ async def use_lvm(endpoint: str, img_b64_string: str, prompt: str = "Provide a s
 
 
 async def extract_frames_and_generate_captions(
-    video_id: str, video_path: str, lvm_endpoint: str, output_dir: str, key_frame_per_second: int = 1
+    video_id: str,
+    video_path: str,
+    lvm_endpoint: str,
+    output_dir: str,
+    key_frame_per_second: int = 1,
+    compress_images: bool = False,
 ):
-    """Extract frames (.png) and annotations (.json) from video file (.mp4) by generating captions using LVM microservice."""
+    """Extract frames (.png) and annotations (.json) from video file (.mp4).
+
+    This works for still images (.png, .jpg, .jpeg, .gif)
+    too, using the cv2 library. Captions are generated using the LVM microservice.
+    """
     # Set up location to store frames and annotations
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "frames"), exist_ok=True)
     is_video = os.path.splitext(video_path)[-1] == ".mp4"
 
-    # Load video and get fps
+    # Load file and get fps
     vidcap = cv2.VideoCapture(video_path)
     fps = vidcap.get(cv2.CAP_PROP_FPS)
 
@@ -279,12 +329,16 @@ async def extract_frames_and_generate_captions(
             mid_time_ms = mid_time  # Already in ms
 
             frame_no = curr_frame
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # Save frame for further processing
             img_fname = f"frame_{idx}"
             img_fpath = os.path.join(output_dir, "frames", img_fname + ".png")
             cv2.imwrite(img_fpath, frame)
+
+            if compress_images:
+                resize_image(img_fpath)
+                # Read the resized image
+                frame = cv2.imread(img_fpath)
 
             # Convert image to base64 encoded string
             b64_img_str = convert_img_to_base64(frame)

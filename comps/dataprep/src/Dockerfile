@@ -10,14 +10,14 @@ ARG ARCH="cpu"
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
     build-essential \
     default-jre \
+    libcairo2 \
     libgl1-mesa-glx \
     libjemalloc-dev \
+    libpq-dev \
     libreoffice \
     poppler-utils \
     tesseract-ocr \
-    libpq-dev \
-    libcairo2 \
-    wget
+    wget curl
 
 # Install ffmpeg static build
 RUN cd /root && wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz && \
@@ -39,8 +39,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
         PIP_EXTRA_INDEX_URL=""; \
     fi && \
     pip install --no-cache-dir torch torchvision ${PIP_EXTRA_INDEX_URL} && \
-    pip install --no-cache-dir ${PIP_EXTRA_INDEX_URL} -r /home/user/comps/dataprep/src/requirements.txt && \
-    pip install opentelemetry-api==1.29.0 opentelemetry-exporter-otlp==1.29.0 opentelemetry-sdk==1.29.0
+    pip install --no-cache-dir ${PIP_EXTRA_INDEX_URL} -r /home/user/comps/dataprep/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

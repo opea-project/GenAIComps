@@ -34,12 +34,20 @@ function start_service() {
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
     export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
     export LOGFLAG=True
-    export DATA_PATH="/data2/cache"
+    export DATA_PATH=${model_cache:-./data}
 
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_faq-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
-
-    sleep 30s
+    if [ $? -ne 0 ]; then
+        echo "Microservice failed to start!"
+        for service in $service_name; do
+            echo "Logs for $service..."
+            docker logs $service
+        done
+        exit 1
+    fi
+    echo "Microservice started"
+    sleep 1m
 }
 
 function validate_services() {
@@ -101,7 +109,7 @@ function validate_backend_microservices() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_faq-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_faq-generation.yaml down --remove-orphans
 }
 
 function main() {

@@ -44,7 +44,7 @@ function start_service() {
 function validate_microservice() {
     result=$(http_proxy="" curl http://${host_ip}:${TEXTGEN_PORT}/v1/chat/completions \
         -X POST \
-        -d '{"model": "Hermes-2-Pro-Llama-3-8B", "messages": "What is AI?", "stream": false, "max_tokens": 100, "temperature": 0.7, "top_p": 1.0, "top_k": 50}' \
+        -d '{"model": "Hermes-3-Llama-3.1-8B", "messages": "What is AI?", "stream": false, "max_tokens": 100, "temperature": 0.7, "top_p": 1.0, "top_k": 50}' \
         -H 'Content-Type: application/json')
 
     if [[ $result == *"content"* ]]; then
@@ -58,7 +58,7 @@ function validate_microservice() {
 
 function stop_docker() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
-    docker compose -f compose_text-generation.yaml down ${service_name} --remove-orphans
+    docker compose -f compose_text-generation.yaml down --remove-orphans
 }
 
 function main() {
