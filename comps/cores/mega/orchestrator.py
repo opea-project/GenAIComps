@@ -293,7 +293,7 @@ class ServiceOrchestrator(DAG):
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
                 cur_node = downstream[0]
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
-                downstream_endpoint = self.services[downstream[0]].endpoint_path
+                downstream_endpoint = self.services[downstream[0]].endpoint_path()
 
             def generate():
                 token_start = req_start
