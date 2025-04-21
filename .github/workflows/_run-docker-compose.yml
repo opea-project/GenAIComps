@@ -95,7 +95,7 @@ jobs:
           # clean up images
           docker images --filter reference="*/*:comps" -q | xargs -r docker rmi && sleep 1s
           docker images --filter reference="opea/*:*" -q | xargs -r docker rmi && sleep 1s
-          
+
           docker system prune -f
           docker ps
 
