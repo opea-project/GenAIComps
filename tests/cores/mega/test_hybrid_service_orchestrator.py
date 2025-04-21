@@ -33,7 +33,7 @@ class TestServiceOrchestrator(unittest.TestCase):
         s2 = MicroService(name="s2", host="fakehost", port=8008, endpoint="/v1/add", use_remote_service=True)
         self.service_builder.add(opea_microservices["s1"]).add(s2)
         self.service_builder.flow_to(self.s1, s2)
-        self.assertEqual(s2.endpoint_path, "http://fakehost:8008/v1/add")
+        self.assertEqual(s2.endpoint_path(), "http://fakehost:8008/v1/add")
         self.assertRaises(Exception, s2._validate_env, "N/A")
 
 
