@@ -26,7 +26,7 @@ class OpeaPromptInjectionPromptGuard(OpeaComponent):
             logger.error("OpeaPromptInjectionNative health check failed.")
 
     async def invoke(self, input: TextDoc):
-        """Invokes the toxic detection for the input.
+        """Invokes the prompt injection/jailbreak detection for the input.
 
         Args:
             input (Input TextDoc)
