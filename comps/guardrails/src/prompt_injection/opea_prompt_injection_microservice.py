@@ -24,7 +24,7 @@ prompt_inj_detection_port = int(os.getenv("PROMPT_INJECTION_DETECTION_PORT", 908
 prompt_injection_component_name = os.getenv("PROMPT_INJECTION_COMPONENT_NAME", "NATIVE_PROMPT_INJECTION_DETECTION")
 if prompt_injection_component_name == "NATIVE_PROMPT_INJECTION_DETECTION":
     from integrations.promptguard import OpeaPromptInjectionPromptGuard
-elif prompt_injection_component_name == "PREDICTIONGARD_PROMPT_INJECTION":
+elif prompt_injection_component_name == "PREDICTIONGUARD_PROMPT_INJECTION":
     from integrations.predictionguard import OpeaPromptInjectionPredictionGuard
 else:
     logger.error(f"Component name {prompt_injection_component_name} is not recognized")

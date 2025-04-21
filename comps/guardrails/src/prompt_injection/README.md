@@ -49,7 +49,7 @@ export HF_TOKEN=${your_hugging_face_token}
 Alternatively, if you are using Prediction Guard, set the following component name environment variable:
 
 ```bash
-export PROMPT_INJECTION_COMPONENT_NAME="PREDICTIONGARD_PROMPT_INJECTION"
+export PROMPT_INJECTION_COMPONENT_NAME="PREDICTIONGUARD_PROMPT_INJECTION"
 export PREDICTIONGUARD_API_KEY=${your_predictionguard_api_key}
 ```
 
