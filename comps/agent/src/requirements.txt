@@ -1,54 +1,28 @@
-# used by microservice
-docarray[full]
-fastapi
-
-# get data source
+docarray[full]==0.41.0
+fastapi==0.115.12
 finnhub-python==2.4.22
-huggingface_hub
-langchain
-
-#used by tools
-langchain-google-community
-langchain-huggingface
-langchain-openai
-langchain-redis
-langchain_community
-langchainhub
-langgraph
-langsmith
-mysql-connector-python
-numpy
-
-# used by cloud native
-opentelemetry-api
-opentelemetry-exporter-otlp
-opentelemetry-sdk
-pandas
-prometheus_fastapi_instrumentator
-pyarrow
-pydantic #==1.10.13
-rank_bm25
-
-# used by document loader
-# beautifulsoup4
-# easyocr
-# Pillow
-# pymupdf
-# python-docx
-
-# used by embedding
-# sentence_transformers
-
-# used by Ray
-# ray
-# virtualenv
-
-redis
-shortuuid
-tavily-python
-
-# used by agents
-transformers
-transformers[sentencepiece]
-
-uvicorn
+huggingface-hub==0.30.2
+langchain==0.3.23
+langchain-community==0.3.21
+langchain-google-community==2.0.7
+langchain-huggingface==0.1.2
+langchain-openai==0.3.14
+langchain-redis==0.2.0
+langchainhub==0.1.21
+langgraph==0.3.31
+langsmith==0.3.32
+mysql-connector-python==9.3.0
+numpy==1.26.4
+opentelemetry-api==1.32.1
+opentelemetry-exporter-otlp==1.32.1
+opentelemetry-sdk==1.32.1
+pandas==2.2.3
+prometheus-fastapi-instrumentator==7.1.0
+pyarrow==19.0.1
+pydantic==2.11.3
+rank-bm25==0.2.2
+redis==5.2.1
+shortuuid==1.0.13
+tavily-python==0.5.4
+transformers[sentencepiece]==4.51.3
+uvicorn==0.34.2

@@ -1,14 +1,13 @@
-docarray[full]
-fastapi
-# Fix for issue with langchain-huggingface not using InferenceClient `base_url` kwarg
-huggingface-hub<=0.24.0
-langchain-community
-langchain-huggingface
-langchain-openai
-opentelemetry-api
-opentelemetry-exporter-otlp
-opentelemetry-sdk
-prometheus-fastapi-instrumentator
-sentencepiece
-shortuuid
-uvicorn
+docarray[full]==0.41.0
+fastapi==0.115.12
+huggingface-hub==0.24.0
+langchain-community==0.3.21
+langchain-huggingface==0.1.2
+langchain-openai==0.3.14
+opentelemetry-api==1.32.1
+opentelemetry-exporter-otlp==1.32.1
+opentelemetry-sdk==1.32.1
+prometheus-fastapi-instrumentator==7.1.0
+sentencepiece==0.2.0
+shortuuid==1.0.13
+uvicorn==0.34.2
