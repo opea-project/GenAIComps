@@ -6,7 +6,6 @@ fastapi
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
-optimum-habana==1.17.0
 prometheus-fastapi-instrumentator
 pydantic==2.7.2
 pydub
