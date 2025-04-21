@@ -1,4 +1,4 @@
-aiohttp
+aiohttp==3.10.11
 docarray[full]
 fastapi
 httpx
