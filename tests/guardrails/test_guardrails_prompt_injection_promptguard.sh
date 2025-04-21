@@ -9,7 +9,7 @@ ip_address=$(hostname -I | awk '{print $1}')
 
 function build_docker_images() {
     echo "Start building docker images for microservice" 
-    echo $WORKPATH
+    cd $WORKPATH
     docker build --no-cache -t opea/guardrails-injection-promptguard:comps --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/guardrails/src/prompt_injection/Dockerfile .
     if [ $? -ne 0 ]; then
         echo "opea/guardrails-injection-promptguard built fail"
@@ -23,6 +23,8 @@ function start_service() {
     echo "Starting microservice"
     export INJECTION_PROMPTGUARD_PORT=9085
     export TAG=comps
+    export HF_TOKEN=${HF_TOKEN}
+    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
     service_name="prompt-injection-guardrail-server"
     cd $WORKPATH
     echo $WORKPATH
