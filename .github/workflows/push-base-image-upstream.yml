@@ -10,6 +10,8 @@ on:
       - '**/src/**'
       - 'requirements.txt'
       - 'Dockerfile'
+      - 'comps/*.py'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-on-push
