@@ -55,8 +55,8 @@ function validate_microservice() {
         exit 1
     fi
     echo "test 3 - benign"
-    result=$(curl localhost:9085/v1/injection -X POST -d '{"text":"Hello, world!"}' -H 'Content-Type: application/json')
-    if [[ $result == *"paper"* ]]; then
+    result=$(curl localhost:9085/v1/injection -X POST -d '{"text":"hello world"}' -H 'Content-Type: application/json')
+    if [[ $result == *"hello"* ]]; then 
         echo "Result correct."
     else
         echo "Result wrong."

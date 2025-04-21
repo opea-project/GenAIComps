@@ -129,7 +129,6 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      PROMPT_INJECTION_COMPONENT_NAME: "PREDICTIONGARD_PROMPT_INJECTION"
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
     restart: unless-stopped
 
@@ -144,6 +143,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      PROMPT_INJECTION_COMPONENT_NAME: "PREDICTIONGARD_PROMPT_INJECTION"
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
     restart: unless-stopped
 
