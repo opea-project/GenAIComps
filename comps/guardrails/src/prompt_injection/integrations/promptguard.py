@@ -24,9 +24,7 @@ class OpeaPromptInjectionPromptGuard(OpeaComponent):
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaPromptInjectionNative health check failed.")
-            
 
-            
     async def invoke(self, input: TextDoc):
         """Invokes the toxic detection for the input.
 
@@ -34,11 +32,13 @@ class OpeaPromptInjectionPromptGuard(OpeaComponent):
             input (Input TextDoc)
         """
         result = await asyncio.to_thread(self.pi_pipeline, input.text)
-        
+
         if result[0]["label"].lower() == "jailbreak":
             return TextDoc(text="Violated policies: jailbreak, please check your input.", downstream_black_list=[".*"])
         elif result[0]["label"].lower() == "injection":
-            return TextDoc(text="Violated policies: prompt injection, please check your input.", downstream_black_list=[".*"])
+            return TextDoc(
+                text="Violated policies: prompt injection, please check your input.", downstream_black_list=[".*"]
+            )
         else:
             return TextDoc(text=input.text)
 

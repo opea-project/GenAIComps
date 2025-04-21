@@ -3,7 +3,6 @@
 
 import os
 import time
-
 from typing import Union
 
 from comps import (
@@ -30,7 +29,7 @@ elif prompt_injection_component_name == "PREDICTIONGARD_PROMPT_INJECTION":
 else:
     logger.error(f"Component name {prompt_injection_component_name} is not recognized")
     exit(1)
-    
+
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     prompt_injection_component_name,
