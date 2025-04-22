@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from comps import MicroService, TextDoc, opea_microservices, register_microservice
 from comps.version import __version__
 
+
 @register_microservice(name="s1", host="0.0.0.0", port=8080, endpoint="/v1/add")
 async def add(request: TextDoc) -> TextDoc:
     req = request.model_dump_json()
