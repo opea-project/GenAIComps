@@ -6,6 +6,8 @@ Prompt injection refers to a type of attack where a malicious user manipulates t
 
 LLMs are often trained to avoid harmful behaviors; such as responding to prompts that elicit behaviors like hate speech, crime aiding, misinformation creation, or leaking of private information. A jailbreak attack attempts to obtain a response from the model that violates these constraints.
 
+Please choose one of the two microservices for prompt injection detection based on your specific use case. If you wish to run both for experimental or comparison purposes, make sure to modify the port configuration of one service to avoid conflicts, as they are configured to use the same port by default.
+
 ## Prompt Guard Microservice
 
 The Prompt Injection and Jailbreak Detection Microservice safeguards LLMs from malicious prompts by identifying and filtering out attempts at prompt injection and jailbreaking, ensuring secure and reliable interactions.
