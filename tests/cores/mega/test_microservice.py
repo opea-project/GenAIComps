@@ -8,7 +8,7 @@ import unittest
 from fastapi.testclient import TestClient
 
 from comps import MicroService, TextDoc, opea_microservices, register_microservice
-
+from comps.version import __version__
 
 @register_microservice(name="s1", host="0.0.0.0", port=8080, endpoint="/v1/add")
 async def add(request: TextDoc) -> TextDoc:
@@ -48,7 +48,7 @@ class TestMicroService(unittest.TestCase):
         response = self.client.get("/v1/health_check")
         self.assertEqual(
             response.json(),
-            {"Service Title": "s1", "Version": "1.3", "Service Description": "OPEA Microservice Infrastructure"},
+            {"Service Title": "s1", "Version": __version__, "Service Description": "OPEA Microservice Infrastructure"},
         )
 
         response = self.client.get("/v1/sum")
