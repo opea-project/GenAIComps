@@ -242,8 +242,7 @@ class ServiceOrchestrator(DAG):
         **kwargs,
     ):
         # send the cur_node request/reply
-        endpoint = self.services[cur_node].endpoint_path
-        access_token = self.services[cur_node].api_key_value
+
         llm_parameters_dict = llm_parameters.dict()
 
         is_llm_vlm = self.services[cur_node].service_type in (ServiceType.LLM, ServiceType.LVM)
@@ -254,7 +253,11 @@ class ServiceOrchestrator(DAG):
                     inputs[field] = value
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
-
+        access_token = self.services[cur_node].api_key_value
+        if access_token:
+            endpoint = self.services[cur_node].endpoint_path(inputs["model"])
+        else:
+            endpoint = self.services[cur_node].endpoint_path(None)
         if is_llm_vlm and llm_parameters.stream:
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
@@ -290,7 +293,7 @@ class ServiceOrchestrator(DAG):
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
                 cur_node = downstream[0]
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
-                downstream_endpoint = self.services[downstream[0]].endpoint_path
+                downstream_endpoint = self.services[downstream[0]].endpoint_path()
 
             def generate():
                 token_start = req_start

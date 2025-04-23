@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Comps jobs
-permissions: read-all
+# permissions: read-all
 on:
   workflow_call:
     inputs:

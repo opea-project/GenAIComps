@@ -93,7 +93,7 @@ class SpeechT5Model:
         if self.voice != voice:
             try:
                 print(f"Loading spk embedding with voice: {voice}.")
-                self.default_speaker_embedding = torch.load("spk_embed_{voice}.pt")
+                self.default_speaker_embedding = torch.load(f"spk_embed_{voice}.pt")
                 self.voice = voice
             except Exception as e:
                 print(e)
