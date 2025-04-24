@@ -37,6 +37,7 @@ prometheus-fastapi-instrumentator
 protobuf==4.24.2
 psycopg2-binary
 pydantic
+pymilvus==2.5.6
 pymupdf
 pytesseract
 python-docx
