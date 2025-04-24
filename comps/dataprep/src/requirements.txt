@@ -27,6 +27,7 @@ langchain-text-splitters
 langchain-vdms>=0.1.4
 langchain_huggingface
 langchain_milvus
+pymilvus==2.5.6
 llama-index
 llama-index-core==0.12.19
 llama-index-embeddings-text-embeddings-inference
