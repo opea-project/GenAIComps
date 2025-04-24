@@ -37,6 +37,7 @@ prometheus-fastapi-instrumentator==7.1.0
 protobuf==4.24.2
 psycopg2-binary==2.9.10
 pydantic==2.11.3
+pymilvus==2.5.6
 pymupdf==1.25.5
 pytesseract==0.3.13
 python-docx==1.1.2

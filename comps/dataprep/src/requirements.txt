@@ -50,6 +50,7 @@ pinecone-client==6.0.0
 prometheus-fastapi-instrumentator==7.1.0
 protobuf==4.24.2
 psycopg2==2.9.10
+pymilvus==2.5.6
 pymupdf==1.25.5
 pyspark==3.5.5
 pytesseract==0.3.13
