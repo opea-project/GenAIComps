@@ -33,6 +33,21 @@ services:
       https_proxy: ${https_proxy}
     restart: unless-stopped
 
+# promptguard prompt injection detection service
+  prompt-injection-guardrail-server:
+    image: ${REGISTRY:-opea}/guardrails-injection-promptguard:${TAG:-latest}
+    container_name: prompt-injection-guardrail-server
+    ports:
+      - "${INJECTION_PROMPTGUARD_PORT:-9085}:9085"
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
+    restart: unless-stopped
+
   # factuality alignment service
   guardrails-factuality-predictionguard-server:
     image: ${REGISTRY:-opea}/guardrails-factuality-predictionguard:${TAG:-latest}
@@ -128,6 +143,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
+      PROMPT_INJECTION_COMPONENT_NAME: "PREDICTIONGUARD_PROMPT_INJECTION"
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
     restart: unless-stopped
 
