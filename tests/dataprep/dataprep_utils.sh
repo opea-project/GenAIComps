@@ -39,61 +39,67 @@ function _invoke_curl() {
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 }
 
-# validate_ingest <service fqdn> <port>
+#
+function _add_db_params() {
+    local db=$1
+    if [[ "$db" == "redis" ]]; then
+        echo '-F index_name=rag_redis'
+    fi
+}
+
+function ingest_file() {
+    local fqdn="$1"
+    local port="$2"
+    local db_or_filename="$3"
+    local filename="$4"
+
+    if [[ "$filename" == "" ]]; then
+        filename="$db_or_filename"
+        db=""
+        shift 3
+    else
+        db="$db_or_filename"
+        shift 4
+    fi
+
+    local extra_args=$(_add_db_params "$db")
+    _invoke_curl "$fqdn" "$port" ingest -F "files=@${SCRIPT_DIR}/${filename}" $extra_args "$@"
+}
+
 function ingest_doc() {
-    local fqdn=$1
-    local port=$2
-    shift 2
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.doc" $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.doc" "${@:5}"
 }
 
 function ingest_docx() {
-    local fqdn=$1
-    local port=$2
-    shift 2
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.docx" $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.docx" "${@:5}"
 }
 
 function ingest_pdf() {
-    local fqdn=$1
-    local port=$2
-    shift 2
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.pdf" $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.pdf" "${@:5}"
 }
 
 function ingest_ppt() {
-    local fqdn=$1
-    local port=$2
-    shift 2
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.ppt" $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.ppt" "${@:5}"
 }
 
 function ingest_pptx() {
-    local fqdn=$1
-    local port=$2
-    shift 2
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.pptx" $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.pptx" "${@:5}"
 }
 
 function ingest_txt() {
-    local fqdn=$1
-    local port=$2
-    shift 2
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.txt" $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.txt" "${@:5}"
 }
 
 function ingest_xlsx() {
-    local fqdn=$1
-    local port=$2
-    shift 2
-    _invoke_curl $fqdn $port ingest -F "files=@${SCRIPT_DIR}/ingest_dataprep.xlsx" $@
+    ingest_file "$1" "$2" "$3" "ingest_dataprep.xlsx" "${@:5}"
 }
 
 function ingest_external_link() {
     local fqdn=$1
     local port=$2
     shift 2
-    _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' $@
+    local extra_args=$(_add_db_params "$db")
+    _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' $extra_args $@
 }
 
 function delete_all() {
@@ -123,7 +129,7 @@ function delete_item_in_index() {
 function delete_single() {
     local fqdn=$1
     local port=$2
-    shift 3
+    shift 2
     _invoke_curl $fqdn $port delete -d '{"file_path":"ingest_dataprep.txt"}' $@
 }
 
