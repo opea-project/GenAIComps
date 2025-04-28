@@ -1,0 +1,24 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  sglang:
+    image: ${REGISTRY:-opea}/sglang-llm:${TAG:-latest}
+    container_name: sglang-llm-server
+    ports:
+      - ${SGLANG_LLM_PORT:-8699}:8699
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      MODEL_ID: ${MODEL_ID}
+      HF_TOKEN: ${HF_TOKEN}
+      SGLANG_LLM_PORT: ${SGLANG_LLM_PORT:-8699}
+      SGLANG_CPU_OMP_THREADS_BIND: ${SGLANG_CPU_OMP_THREADS_BIND:-"0-31|32-63"}
+      TP_SIZE: ${TP_SIZE:-2}
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
