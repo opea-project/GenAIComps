@@ -23,8 +23,8 @@ Overall, this microservice offers a streamlined way to integrate large language 
 | [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]      | ✓         | -        | ✓          | -        | ✓              | -          |
 | [mistralai/Mistral-Small-24B-Instruct-2501]     | ✓         | -        | ✓          | -        | ✓              | -          |
 | [mistralai/Mistral-Large-Instruct-2411]         | x         | -        | ✓          | -        | ✓              | -          |
-| [meta-llama/Llama-4-Scout-17B-16E-Instruct]     | -         | -        | -          | -        | -              | ✓          |
-| [meta-llama/Llama-4-Maverick-17B-128E-Instruct] | -         | -        | -          | -        | -              | ✓          |
+| [meta-llama/Llama-4-Scout-17B-16E-Instruct](https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct)     | -         | -        | -          | -        | -              | ✓          |
+| [meta-llama/Llama-4-Maverick-17B-128E-Instruct](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct) | -         | -        | -          | -        | -              | ✓          |
 
 ### System Requirements for LLM Models
 
