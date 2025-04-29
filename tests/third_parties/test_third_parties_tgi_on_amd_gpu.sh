@@ -63,13 +63,12 @@ function test_api_endpoint {
     local expected_status="$2"
 
     # Make the HTTP request
-    DATA='{"inputs":"What is a Deep Learning?",'\
-    '"parameters":{"max_new_tokens":64,"do_sample": true}}'
+    DATA=
     if test "$1" = "generate"
     then
         local response=$(curl "http://${host_ip}:${LLM_ENDPOINT_PORT}/$endpoint" \
           -H "Content-Type: application/json" \
-          -d "$DATA" \
+          -d '{"inputs":"What is a Deep Learning?","parameters":{"max_new_tokens":64,"do_sample": true}}' \
           --write-out '%{http_code}' \
           --silent \
           --output /dev/null)
