@@ -103,11 +103,9 @@ main() {
 
     # Sleep to allow the container to start up fully
     sleep 10
-    # Test the /v1/models API
-    test_api_endpoint "v1/models" 200
 
-    # Test the /v1/completions API
-    test_api_endpoint "v1/completions" 200
+    # Test the /generate API
+    test_api_endpoint "generate" 200
 
     stop_docker
 }
