@@ -98,6 +98,8 @@ function stop_docker() {
 # Main function
 main() {
 
+    stop_docker
+
     build_container
     start_container
 
