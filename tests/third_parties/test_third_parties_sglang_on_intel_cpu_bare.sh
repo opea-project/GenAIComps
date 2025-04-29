@@ -30,7 +30,7 @@ function start_service() {
     cd comps/third_parties/sglang/deployment/docker_compose
     docker compose -f compose.yaml up -d
     echo "Microservice started"
-    sleep 120
+    sleep 40m
 }
 
 function validate_microservice() {
@@ -62,7 +62,12 @@ function stop_docker() {
 }
 
 function main() {
-
+    if grep -qi amx_tile /proc/cpuinfo; then
+        echo "AMX is supported on this machine."
+    else
+        echo "AMX is NOT supported on this machine, skip this test."
+        exit 0
+    fi
     stop_docker
 
     build_docker_images
