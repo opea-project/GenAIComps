@@ -64,4 +64,63 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+
+    location /v1/${BACKEND_CODEGEN_SERVICE_NAME} {
+        proxy_pass http://${BACKEND_CODEGEN_SERVICE_IP}:${BACKEND_CODEGEN_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+
+    location /v1/${BACKEND_DOCSUM_SERVICE_NAME} {
+        proxy_pass http://${BACKEND_DOCSUM_SERVICE_IP}:${BACKEND_DOCSUM_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+
+    location /v1/${BACKEND_CHAT_HISTORY_SERVICE_NAME}/ {
+        proxy_pass http://${BACKEND_CHAT_HISTORY_SERVICE_IP}:${BACKEND_CHAT_HISTORY_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+
+    location /v1/${BACKEND_PROMPT_SERVICE_NAME}/ {
+        proxy_pass http://${BACKEND_PROMPT_SERVICE_IP}:${BACKEND_PROMPT_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        gzip off;
+    }
+    location /${KEYCLOAK_SERVICE_NAME}/ {
+        proxy_pass http://${KEYCLOAK_SERVICE_IP}:${KEYCLOAK_SERVICE_PORT};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 }
