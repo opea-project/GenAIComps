@@ -28,3 +28,10 @@ Run tgi on gaudi.
 cd deployment/docker_compose
 docker compose -f compose.yaml up -d tgi-gaudi-server
 ```
+
+Run tgi on ROCm.
+
+```bash
+cd deployment/docker_compose
+docker compose -f compose.yaml up -d tgi-rocm-server
+```
