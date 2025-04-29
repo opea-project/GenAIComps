@@ -105,8 +105,3 @@ services:
         PORT_SSH: 2345
       dockerfile: comps/third_parties/ipex/src/Dockerfile
     image: ${REGISTRY:-opea}/ipex-llm:${TAG:-latest}
-  tgi-rocm:
-    build:
-      dockerfile: comps/third_parties/tgi/src/Dockerfile.amd_gpu
-    shm_size: '32g'
-    image: ${REGISTRY:-opea}/tgi-rocm:${TAG:-latest}
