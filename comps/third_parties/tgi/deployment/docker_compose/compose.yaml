@@ -68,9 +68,9 @@ services:
     ports:
       - ${LLM_ENDPOINT_PORT:-8008}:80
     volumes:
-      - "${DATA_PATH:-./data}:/data"
-      - "./out:/out"
-    shm_size: 1g
+      - "${HF_CACHE_DIR:-./data}:/data"
+      - "${HF_CACHE_DIR/out:-./out}:/out"
+    shm_size: 32g
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
