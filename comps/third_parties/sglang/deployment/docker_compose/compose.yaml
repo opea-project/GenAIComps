@@ -5,6 +5,7 @@ services:
   sglang:
     image: ${REGISTRY:-opea}/sglang:${TAG:-latest}
     privileged: true
+    shm_size: 10g
     container_name: sglang-server
     ports:
       - ${SGLANG_LLM_PORT:-8699}:8699
