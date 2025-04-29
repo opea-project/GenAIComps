@@ -10,6 +10,8 @@ services:
     ports:
       - ${SGLANG_LLM_PORT:-8699}:8699
     ipc: host
+    volumes:
+      - /dev/shm:/dev/shm
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
