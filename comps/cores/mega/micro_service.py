@@ -109,7 +109,7 @@ class MicroService(HTTPService):
                     MCPFuncType.PROMPT: self.mcp.add_prompt,
                 }
                 try:
-                    dispatch[mcp_func_type](func, name=name, description=description)
+                    dispatch[mcp_func_type](func, name=func.__name__, description=description)
                 except KeyError:
                     raise ValueError(f"Unknown MCP func type: {mcp_func_type}")
 
@@ -221,8 +221,17 @@ def register_microservice(
                 mcp_func_type=mcp_func_type,
             )
             opea_microservices[name] = micro_service
-        opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
 
+        elif enable_mcp:
+            mcp_handle = opea_microservices[name].mcp
+            dispatch = {
+                MCPFuncType.TOOL: mcp_handle.add_tool,
+                MCPFuncType.RESOURCE: mcp_handle.add_resource,
+                MCPFuncType.PROMPT: mcp_handle.add_prompt,
+            }
+            dispatch[mcp_func_type](func, name=func.__name__, description=description)
+
+        opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
 
         return func
 
