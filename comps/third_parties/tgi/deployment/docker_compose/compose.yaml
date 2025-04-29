@@ -86,6 +86,7 @@ services:
     cap_add:
       - SYS_PTRACE
     group_add:
+      - root
       - video
       - render
     security_opt:
