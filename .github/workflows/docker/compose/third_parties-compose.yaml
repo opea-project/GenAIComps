@@ -105,7 +105,3 @@ services:
         PORT_SSH: 2345
       dockerfile: comps/third_parties/ipex/src/Dockerfile
     image: ${REGISTRY:-opea}/ipex-llm:${TAG:-latest}
-  sglang:
-    build:
-      dockerfile: comps/third_parties/sglang/src/Dockerfile
-    image: ${REGISTRY:-opea}/sglang:${TAG:-latest}
