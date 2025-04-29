@@ -3,8 +3,9 @@
 
 services:
   sglang:
-    image: ${REGISTRY:-opea}/sglang-llm:${TAG:-latest}
-    container_name: sglang-llm-server
+    image: ${REGISTRY:-opea}/sglang:${TAG:-latest}
+    privileged: true
+    container_name: sglang-server
     ports:
       - ${SGLANG_LLM_PORT:-8699}:8699
     ipc: host
@@ -15,8 +16,6 @@ services:
       MODEL_ID: ${MODEL_ID}
       HF_TOKEN: ${HF_TOKEN}
       SGLANG_LLM_PORT: ${SGLANG_LLM_PORT:-8699}
-      SGLANG_CPU_OMP_THREADS_BIND: ${SGLANG_CPU_OMP_THREADS_BIND:-"0-31|32-63"}
-      TP_SIZE: ${TP_SIZE:-2}
     restart: unless-stopped
 
 networks:

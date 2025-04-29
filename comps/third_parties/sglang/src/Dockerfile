@@ -9,15 +9,15 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --fix-missing \
     ca-certificates \
     curl \
-    g++-12 \
-    gcc-12 \
+    g++-11 \
+    gcc-11 \
     git \
     make \
     numactl \
     wget
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 && \
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100 && \
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100 && \
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 100 && \
     update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100
 

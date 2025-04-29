@@ -6,12 +6,12 @@ We have verified the Llama series models with SGLang, with a particular focus on
 
 ## 🚀1. Build the Docker Image
 
-This Docker image (opea/sglang-llm:latest) includes Intel's CPU-specific optimizations, providing enhanced performance for CPU deployments.
+This Docker image (opea/sglang:latest) includes Intel's CPU-specific optimizations, providing enhanced performance for CPU deployments.
 Ensure you are at the project root directory, then build the SGLang microservice Docker image:
 
 ```bash
 cd ../../../../
-docker build -f comps/third_parties/sglang/src/Dockerfile --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/sglang-llm:latest .
+docker build -f comps/third_parties/sglang/src/Dockerfile --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -t opea/sglang:latest .
 ```
 
 ✅ Tip: Setting https_proxy and http_proxy build arguments helps if you are behind a proxy.
@@ -21,7 +21,7 @@ docker build -f comps/third_parties/sglang/src/Dockerfile --build-arg https_prox
 Before starting, set the model you want to serve:
 
 ```bash
-export MODEL_ID="meta-llama/Llama-Guard-4-12B"
+export MODEL_ID="meta-llama/Llama-4-Maverick-17B-128E-Instruct"
 ```
 
 Then navigate to the deployment folder and start the service using Docker Compose:
