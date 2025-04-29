@@ -64,6 +64,7 @@ services:
   tgi-rocm-server:
     image: opea/tgi-rocm:latest
     container_name: tgi-rocm-server
+    user: user
     ports:
       - ${LLM_ENDPOINT_PORT:-8008}:80
     volumes:
