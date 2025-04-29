@@ -60,7 +60,7 @@ You can refer to https://github.com/intel/intel-extension-for-pytorch
 python -m pip install torch==2.5.1+cxx11.abi torchvision==0.20.1+cxx11.abi torchaudio==2.5.1+cxx11.abi intel-extension-for-pytorch==2.5.10+xpu oneccl_bind_pt==2.5.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
 ```
 
-Check xpu:
+Check Intel GPU:
 
 ```sh
 python
