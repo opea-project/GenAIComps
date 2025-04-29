@@ -62,7 +62,7 @@ services:
     command: --model-id ${LLM_MODEL_ID}
 
   tgi-rocm-server:
-    image: opea/tgi-rocm:latest
+    image: ${REGISTRY:-opea}/tgi-rocm:${TAG:-latest}
     container_name: tgi-rocm-server
     user: user
     ports:
