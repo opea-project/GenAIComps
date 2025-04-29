@@ -42,12 +42,12 @@ class OpeaWhisperAsr(OpeaComponent):
     ) -> AudioTranscriptionResponse:
         """Involve the ASR service to generate transcription for the provided input."""
         if isinstance(file, str):
-            data = {
-                "audio": file
-            }
+            data = {"audio": file}
             # Send the file and model to the server
             response = await asyncio.to_thread(
-                requests.post, f"{self.base_url}/v1/asr", json=data,
+                requests.post,
+                f"{self.base_url}/v1/asr",
+                json=data,
             )
             res = response.json()["asr_result"]
             return AudioTranscriptionResponse(text=res)

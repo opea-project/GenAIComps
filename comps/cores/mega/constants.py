@@ -93,8 +93,10 @@ class MicroServiceEndpoint(Enum):
     def __str__(self):
         return self.value
 
+
 class MCPFuncType(Enum):
     """The enum of a MCP function type."""
+
     TOOL = auto()
     RESOURCE = auto()
     PROMPT = auto()
