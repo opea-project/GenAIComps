@@ -13,6 +13,7 @@ haystack-ai==2.3.1
 langchain-arangodb
 langchain-elasticsearch
 langchain-openai
+langchain-mariadb
 langchain-pinecone
 langchain-vdms>=0.1.4
 langchain_community
@@ -25,6 +26,7 @@ llama-index-llms-openai
 llama-index-llms-openai-like
 llama-index-llms-text-generation-inference
 llama_index_graph_stores_neo4j
+mariadb
 neo4j
 numpy
 opensearch-py
