@@ -43,7 +43,7 @@ start_container() {
 
     cd $WORKPATH/comps/third_parties/tgi/deployment/docker_compose
     sudo chown -R 777 ${HF_CACHE_DIR}
-    sudo mkdir ${HF_CACHE_DIR}/out && sudo chown -R 777 ${HF_CACHE_DIR}/out
+    sudo mkdir -p ${HF_CACHE_DIR}/out && sudo chown -R 777 ${HF_CACHE_DIR}/out
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     # check whether service is fully ready
