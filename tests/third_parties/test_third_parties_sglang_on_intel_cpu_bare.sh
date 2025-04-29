@@ -30,7 +30,7 @@ function start_service() {
     cd comps/third_parties/sglang/deployment/docker_compose
     docker compose -f compose.yaml up -d
     echo "Microservice started"
-    sleep 40m
+    sleep 120
 }
 
 function validate_microservice() {
