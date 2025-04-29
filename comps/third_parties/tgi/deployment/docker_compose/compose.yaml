@@ -78,6 +78,8 @@ services:
       LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
       MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS:-2048}
       MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS:-4096}
+    cap_add:
+      - SYS_NICE
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1" ]
       interval: 10s
