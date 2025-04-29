@@ -42,8 +42,8 @@ start_container() {
     export MAX_TOTAL_TOKENS=2048
 
     cd $WORKPATH/comps/third_parties/tgi/deployment/docker_compose
-    mkdir data && chown -R 777 data
-    mkdir out && chown -R 777 out
+    sudo mkdir data && sudo chown -R 777 data
+    sudo mkdir out && sudo chown -R 777 out
     docker compose -f compose.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
     # check whether service is fully ready
