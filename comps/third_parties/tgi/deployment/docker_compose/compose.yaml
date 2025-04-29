@@ -69,7 +69,7 @@ services:
       - ${LLM_ENDPOINT_PORT:-8008}:80
     volumes:
       - "${HF_CACHE_DIR:-./data}:/data"
-      - "${HF_CACHE_DIR}/out:/out"
+      - "${TOKENIZER_CACHE_DIR:-./out}:/out"
     shm_size: 32g
     environment:
       no_proxy: ${no_proxy}

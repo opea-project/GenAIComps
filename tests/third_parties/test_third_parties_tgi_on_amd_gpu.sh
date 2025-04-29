@@ -34,6 +34,7 @@ function build_container() {
 # Function to start Docker container
 start_container() {
     export HF_CACHE_DIR=${model_cache:-./data}
+    export TOKENIZER_CACHE_DIR=${HF_CACHE_DIR}/out
     export LLM_ENDPOINT_PORT=8008
     export host_ip=${host_ip}
     export HF_TOKEN=${HF_TOKEN}
