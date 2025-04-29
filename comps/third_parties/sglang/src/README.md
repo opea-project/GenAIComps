@@ -2,6 +2,7 @@
 
 SGLang is an efficient and scalable serving framework for hosting Large Language Models (LLMs) with minimal latency and high throughput.
 Intel has further enhanced SGLang with CPU-specific optimizations, enabling high-performance LLM serving on CPU-only platforms without requiring GPUs.
+We have verified the Llama series models with SGLang, with a particular focus on the latest Llama 4 models, including [meta-llama/Llama-4-Scout-17B-16E-Instruct](https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct), [meta-llama/Llama-4-Maverick-17B-128E-Instruct](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct), as well as the Llama 4 guard model Llama-Guard-4-12B.
 
 ## 🚀1. Build the Docker Image
 
