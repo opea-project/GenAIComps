@@ -33,5 +33,7 @@ Run tgi on ROCm.
 
 ```bash
 cd deployment/docker_compose
+sudo mkdir -p data && chmod -R 0777 data
+sudo mkdir -p out && chmod -R 0777 out
 docker compose -f compose.yaml up -d tgi-rocm-server
 ```
