@@ -90,13 +90,17 @@ class SpeechT5Model:
         )
 
     def t2s(self, text, voice="default"):
-        if self.voice != voice:
-            try:
+        if voice not in ["male", "default"]:
+            raise Exception("Current only support 'male' and 'default' speaker embeddings!")
+        try:
+            if self.voice != voice:
                 print(f"Loading spk embedding with voice: {voice}.")
                 self.default_speaker_embedding = torch.load(f"spk_embed_{voice}.pt")
                 self.voice = voice
-            except Exception as e:
-                print(e)
+        except Exception as e:
+            print(f"Error loading speaker embedding: {e}")
+            raise
+
         if self.device == "hpu":
             # See https://github.com/huggingface/optimum-habana/pull/824
             from optimum.habana.utils import set_seed
