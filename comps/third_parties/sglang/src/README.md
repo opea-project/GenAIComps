@@ -33,7 +33,7 @@ docker compose -f compose.yaml up -d
 
 ## 🚀3. Access the service
 
-Then you need to test your service using the following commands:
+Then you need to test your service using the following commands for guard model:
 
 ```python
 import openai
@@ -75,4 +75,10 @@ response = client.chat.completions.create(
     max_tokens=128,
 )
 print(response.choices[0].message.content)
+```
+
+You can use the following command for testing non-guard models:
+
+```bash
+http_proxy="" curl -X POST -H "Content-Type: application/json" -d '{"model": "meta-llama/Llama-4-Maverick-17B-128E-Instruct", "messages": [{"role": "user", "content": "Hello! What is your name?"}], "max_tokens": 128}' http://localhost:8699/v1/chat/completions
 ```
