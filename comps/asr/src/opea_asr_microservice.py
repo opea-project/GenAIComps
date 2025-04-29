@@ -19,8 +19,8 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.proto.api_protocol import AudioTranscriptionResponse
 from comps.cores.mega.constants import MCPFuncType
+from comps.cores.proto.api_protocol import AudioTranscriptionResponse
 
 logger = CustomLogger("opea_asr_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -42,7 +42,7 @@ loader = OpeaComponentLoader(asr_component_name, description=f"OPEA ASR Componen
     output_datatype=LLMParamsDoc,
     enable_mcp=enable_mcp,
     mcp_func_type=MCPFuncType.TOOL,
-    description="Convert audio to text."
+    description="Convert audio to text.",
 )
 @register_statistics(names=["opea_service@asr"])
 async def audio_to_text(

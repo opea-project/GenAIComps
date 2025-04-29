@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, List, Optional, Type, TypeAlias
 
 from ..proto.docarray import TextDoc
-from .constants import ServiceRoleType, ServiceType, MCPFuncType
+from .constants import MCPFuncType, ServiceRoleType, ServiceType
 from .http_service import HTTPService
 from .logger import CustomLogger
 from .utils import check_ports_availability
@@ -19,6 +19,7 @@ opea_microservices = {}
 logger = CustomLogger("micro_service")
 logflag = os.getenv("LOGFLAG", False)
 AnyFunction: TypeAlias = Callable[..., Any]
+
 
 class MicroService(HTTPService):
     """MicroService class to create a microservice."""
@@ -102,6 +103,7 @@ class MicroService(HTTPService):
                 self._async_setup()
             else:
                 from mcp.server.fastmcp import FastMCP
+
                 self.mcp = FastMCP(name, host=self.host, port=self.port)
                 dispatch = {
                     MCPFuncType.TOOL: self.mcp.add_tool,
@@ -165,7 +167,9 @@ class MicroService(HTTPService):
     def start(self):
         """Start the server using MCP if enabled, otherwise fall back to default."""
         if self.enable_mcp:
-            self.mcp.run(transport="sse",)
+            self.mcp.run(
+                transport="sse",
+            )
         else:
             super().start()
 
@@ -222,7 +226,6 @@ def register_microservice(
             )
             opea_microservices[name] = micro_service
         opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
-
 
         return func
 
