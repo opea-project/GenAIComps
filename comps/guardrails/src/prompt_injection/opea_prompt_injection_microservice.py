@@ -3,8 +3,7 @@
 
 import os
 import time
-
-from integrations.predictionguard import OpeaPromptInjectionPredictionGuard
+from typing import Union
 
 from comps import (
     CustomLogger,
@@ -21,7 +20,16 @@ from comps import (
 logger = CustomLogger("opea_prompt_injection_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
-prompt_injection_component_name = os.getenv("PROMPT_INJECTION_COMPONENT_NAME", "PREDICTIONGUARD_PROMPT_INJECTION")
+prompt_inj_detection_port = int(os.getenv("PROMPT_INJECTION_DETECTION_PORT", 9085))
+prompt_injection_component_name = os.getenv("PROMPT_INJECTION_COMPONENT_NAME", "NATIVE_PROMPT_INJECTION_DETECTION")
+if prompt_injection_component_name == "NATIVE_PROMPT_INJECTION_DETECTION":
+    from integrations.promptguard import OpeaPromptInjectionPromptGuard
+elif prompt_injection_component_name == "PREDICTIONGUARD_PROMPT_INJECTION":
+    from integrations.predictionguard import OpeaPromptInjectionPredictionGuard
+else:
+    logger.error(f"Component name {prompt_injection_component_name} is not recognized")
+    exit(1)
+
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     prompt_injection_component_name,
@@ -35,12 +43,12 @@ loader = OpeaComponentLoader(
     service_type=ServiceType.GUARDRAIL,
     endpoint="/v1/injection",
     host="0.0.0.0",
-    port=9085,
+    port=prompt_inj_detection_port,
     input_datatype=TextDoc,
-    output_datatype=ScoreDoc,
+    output_datatype=Union[TextDoc, ScoreDoc],
 )
 @register_statistics(names=["opea_service@prompt_injection"])
-async def injection_guard(input: TextDoc) -> ScoreDoc:
+async def injection_guard(input: TextDoc) -> Union[TextDoc, ScoreDoc]:
     start = time.time()
 
     # Log the input if logging is enabled

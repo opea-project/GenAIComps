@@ -33,6 +33,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+
     unset http_proxy
     export ASR_ENDPOINT=http://$ip_address:$WHISPER_PORT
 

@@ -15,7 +15,7 @@ WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 export host_ip=$(hostname -I | awk '{print $1}')
 service_name="retriever-neo4j"
-
+unset OPENAI_API_KEY
 function build_docker_images() {
     cd $WORKPATH
     echo "current dir: $PWD"

@@ -18,11 +18,11 @@ RUN chown -R user /home/user/comps/finetuning
 
 ENV PATH=$PATH:/home/user/.local/bin
 
-RUN python -m pip install --no-cache-dir --upgrade pip setuptools peft && \
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools && \
     python -m pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
     python -m pip install --no-cache-dir intel-extension-for-pytorch && \
-    python -m pip install --no-cache-dir oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/cn/ && \
-    python -m pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt
+    python -m pip install --no-cache-dir oneccl_bind_pt --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/cpu/us/ && \
+    python -m pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/finetuning/src/requirements.txt
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 

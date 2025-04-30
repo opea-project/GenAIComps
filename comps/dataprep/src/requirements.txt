@@ -14,7 +14,9 @@ graspologic
 html2text
 huggingface_hub
 ipython
+json-repair
 langchain
+langchain-arangodb
 langchain-community
 langchain-elasticsearch
 langchain-experimental
@@ -49,6 +51,7 @@ pinecone-client
 prometheus-fastapi-instrumentator
 protobuf==4.24.2
 psycopg2
+pymilvus==2.5.6
 pymupdf
 pyspark
 pytesseract

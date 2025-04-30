@@ -28,7 +28,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 100
-    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
+    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80 # --chat-template examples/template_llava.jinja  # https://docs.vllm.ai/en/v0.5.0/models/vlm.html
   vllm-gaudi-service:
     image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
     container_name: vllm-gaudi-service

@@ -6,6 +6,8 @@ import os
 import time
 from typing import Union
 
+from integrations.arangodb import OpeaArangoRetriever
+
 # import for retrievers component registration
 from integrations.elasticsearch import OpeaElasticsearchRetriever
 from integrations.milvus import OpeaMilvusRetriever
@@ -35,6 +37,7 @@ from comps import (
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
     RetrievalRequest,
+    RetrievalRequestArangoDB,
     RetrievalResponse,
     RetrievalResponseData,
 )
@@ -59,7 +62,7 @@ loader = OpeaComponentLoader(
 )
 @register_statistics(names=["opea_service@retrievers"])
 async def retrieve_docs(
-    input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, ChatCompletionRequest],
+    input: Union[EmbedDoc, EmbedMultimodalDoc, RetrievalRequest, RetrievalRequestArangoDB, ChatCompletionRequest],
 ) -> Union[SearchedDoc, SearchedMultimodalDoc, RetrievalResponse, ChatCompletionRequest]:
     start = time.time()
 

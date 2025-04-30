@@ -150,9 +150,13 @@ class OpeaDocSum(OpeaComponent):
                     MAX_TOTAL_TOKENS - 2 * input.max_tokens - 256, MAX_INPUT_TOKENS - input.max_tokens - 256
                 )
             else:
-                if MAX_TOTAL_TOKENS <= input.max_tokens + 256:  # 256 is reserved token length for prompt
-                    raise RuntimeError("Please set MAX_TOTAL_TOKENS larger than max_tokens + 256)")
-                max_input_tokens = min(MAX_TOTAL_TOKENS - input.max_tokens - 256, MAX_INPUT_TOKENS)
+                if (
+                    MAX_TOTAL_TOKENS <= input.max_tokens + 256 or MAX_INPUT_TOKENS < 256
+                ):  # 256 is reserved token length for prompt
+                    raise RuntimeError(
+                        "Please set MAX_TOTAL_TOKENS larger than max_tokens + 256, MAX_INPUT_TOKENS larger than 256)"
+                    )
+                max_input_tokens = min(MAX_TOTAL_TOKENS - input.max_tokens - 256, MAX_INPUT_TOKENS - 256)
             chunk_size = min(input.chunk_size, max_input_tokens) if input.chunk_size > 0 else max_input_tokens
             chunk_overlap = input.chunk_overlap if input.chunk_overlap > 0 else int(0.1 * chunk_size)
             text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(

@@ -38,7 +38,7 @@ class OpeaSpeecht5Tts(OpeaComponent):
         if request.model not in ["microsoft/speecht5_tts"]:
             raise Exception("TTS model mismatch! Currently only support model: microsoft/speecht5_tts")
         if request.voice not in ["default", "male"] or request.speed != 1.0:
-            logger.warning("Currently parameter 'speed' can only be 1.0 and 'voice' can only be default or male!")
+            raise Exception("Currently parameter 'speed' can only be 1.0 and 'voice' can only be default or male!")
 
         response = await asyncio.to_thread(
             requests.post,

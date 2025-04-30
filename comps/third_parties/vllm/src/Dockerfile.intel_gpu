@@ -55,6 +55,8 @@ RUN python3 -m pip install -U pip
 RUN PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu" python3 -m pip install --no-cache-dir -r /workspace/vllm/requirements-build.txt
 # build vLLM with OpenVINO backend
 RUN PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu" VLLM_TARGET_DEVICE="openvino" python3 -m pip install --no-cache-dir /workspace/vllm/
+# fix OpenVINO version to 25.0.0
+RUN python3 -m pip install openvino==2025.0.0
 
 #COPY examples/ /workspace/vllm/examples
 #COPY benchmarks/ /workspace/vllm/benchmarks

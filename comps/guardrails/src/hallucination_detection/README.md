@@ -33,9 +33,16 @@ Therefore, we focus on detecting contextualized hallucinations with the followin
 
 ## 🚀1. Start Microservice based on vLLM endpoint on Intel Gaudi Accelerator
 
-### 1.1 Define Environment Variables
+### 1.1 Environment Setup
+
+### Clone OPEA GenAIComps and Setup Environment
+
+Clone this repository at your desired location and set environment variable for easy setup and usage throughout the instructions.
 
 ```bash
+git clone https://github.com/opea-project/GenAIComps.git
+
+export OPEA_GENAICOMPS_ROOT=$(pwd)/GenAIComps
 export your_ip=<your ip>
 export port_number=9008
 export HUGGINGFACEHUB_API_TOKEN=<token>
@@ -60,13 +67,14 @@ Then we wrap the vLLM Service into Hallucination Microservice.
 ### 2.1 Build Docker
 
 ```bash
-bash build_docker_hallucination_microservice.sh
+cd $OPEA_GENAICOMPS_ROOT
+bash comps/guardrails/src/hallucination_detection/build_docker_hallucination_microservice.sh
 ```
 
 ### 2.2 Launch Hallucination Microservice
 
 ```bash
-bash launch_hallucination_microservice.sh
+bash comps/guardrails/src/hallucination_detection/launch_hallucination_microservice.sh
 ```
 
 ## 🚀3. Get Status of Hallucination Microservice

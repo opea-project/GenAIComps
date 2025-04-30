@@ -23,8 +23,7 @@ COPY --chown=user:user comps /home/user/comps
 # Install requirements and optimum habana
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
-    pip install --no-cache-dir optimum[habana] && \
-    pip install --no-cache-dir git+https://github.com/huggingface/optimum-habana.git@transformers_future && \
+    pip install --no-cache-dir optimum-habana && \
     pip install --no-cache-dir --upgrade Jinja2
 
 ENV PYTHONPATH=$PYTHONPATH:/home/users

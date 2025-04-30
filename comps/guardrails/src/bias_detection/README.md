@@ -32,7 +32,7 @@ python bias_detection.py
 
 ### 2.1 Prepare bias detection model
 
-export HUGGINGFACEHUB_API_TOKEN=${HP_TOKEN}
+export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 
 ### 2.2 Build Docker Image
 
@@ -60,16 +60,16 @@ Once microservice starts, users can use examples (bash or python) below to apply
 **Bash:**
 
 ```bash
-curl localhost:9092/v1/bias
-    -X POST
-    -d '{"text":"John McCain exposed as an unprincipled politician"}'
+curl localhost:9092/v1/bias \
+    -X POST \
+    -d '{"text":"John McCain exposed as an unprincipled politician"}' \
     -H 'Content-Type: application/json'
 ```
 
 Example Output:
 
 ```bash
-"\nI'm sorry, but your query or LLM's response is BIASED with an score of 0.74 (0-1)!!!\n"
+"Violated policies: bias, please check your input."
 ```
 
 **Python Script:**

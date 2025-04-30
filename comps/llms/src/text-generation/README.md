@@ -8,21 +8,23 @@ Overall, this microservice offers a streamlined way to integrate large language 
 
 ## Validated LLM Models
 
-| Model                                       | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     | Optimum-Habana |
-| ------------------------------------------- | --------- | -------- | ---------- | -------- | -------------- |
-| [Intel/neural-chat-7b-v3-3]                 | ✓         | ✓        | ✓          | ✓        | ✓              |
-| [meta-llama/Llama-2-7b-chat-hf]             | ✓         | ✓        | ✓          | ✓        | ✓              |
-| [meta-llama/Llama-2-70b-chat-hf]            | ✓         | -        | ✓          | -        | ✓              |
-| [meta-llama/Meta-Llama-3-8B-Instruct]       | ✓         | ✓        | ✓          | ✓        | ✓              |
-| [meta-llama/Meta-Llama-3-70B-Instruct]      | ✓         | -        | ✓          | -        | ✓              |
-| [Phi-3]                                     | x         | Limit 4K | Limit 4K   | Limit 4K | ✓              |
-| [Phi-4]                                     | x         | x        | x          | x        | ✓              |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]  | ✓         | -        | ✓          | -        | ✓              |
-| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B] | ✓         | -        | ✓          | -        | ✓              |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]  | ✓         | -        | ✓          | -        | ✓              |
-| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]  | ✓         | -        | ✓          | -        | ✓              |
-| [mistralai/Mistral-Small-24B-Instruct-2501] | ✓         | -        | ✓          | -        | ✓              |
-| [mistralai/Mistral-Large-Instruct-2411]     | x         | -        | ✓          | -        | ✓              |
+| Model                                                                                                                 | TGI-Gaudi | vLLM-CPU | vLLM-Gaudi | OVMS     | Optimum-Habana | SGLANG-CPU |
+| --------------------------------------------------------------------------------------------------------------------- | --------- | -------- | ---------- | -------- | -------------- | ---------- |
+| [Intel/neural-chat-7b-v3-3]                                                                                           | ✓         | ✓        | ✓          | ✓        | ✓              | -          |
+| [meta-llama/Llama-2-7b-chat-hf]                                                                                       | ✓         | ✓        | ✓          | ✓        | ✓              | ✓          |
+| [meta-llama/Llama-2-70b-chat-hf]                                                                                      | ✓         | -        | ✓          | -        | ✓              | ✓          |
+| [meta-llama/Meta-Llama-3-8B-Instruct]                                                                                 | ✓         | ✓        | ✓          | ✓        | ✓              | ✓          |
+| [meta-llama/Meta-Llama-3-70B-Instruct]                                                                                | ✓         | -        | ✓          | -        | ✓              | ✓          |
+| [Phi-3]                                                                                                               | x         | Limit 4K | Limit 4K   | Limit 4K | ✓              | -          |
+| [Phi-4]                                                                                                               | x         | x        | x          | x        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-8B]                                                                            | ✓         | -        | ✓          | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Llama-70B]                                                                           | ✓         | -        | ✓          | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-14B]                                                                            | ✓         | -        | ✓          | -        | ✓              | -          |
+| [deepseek-ai/DeepSeek-R1-Distill-Qwen-32B]                                                                            | ✓         | -        | ✓          | -        | ✓              | -          |
+| [mistralai/Mistral-Small-24B-Instruct-2501]                                                                           | ✓         | -        | ✓          | -        | ✓              | -          |
+| [mistralai/Mistral-Large-Instruct-2411]                                                                               | x         | -        | ✓          | -        | ✓              | -          |
+| [meta-llama/Llama-4-Scout-17B-16E-Instruct](https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E-Instruct)         | -         | -        | -          | -        | -              | ✓          |
+| [meta-llama/Llama-4-Maverick-17B-128E-Instruct](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct) | -         | -        | -          | -        | -              | ✓          |
 
 ### System Requirements for LLM Models
 

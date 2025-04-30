@@ -6,7 +6,7 @@ FROM vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installe
 
 ENV LANG=en_US.UTF-8
 ARG REPO=https://github.com/huggingface/optimum-habana.git
-ARG REPO_VER=v1.15.0
+ARG REPO_VER=v1.17.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     git-lfs \
@@ -24,7 +24,7 @@ COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
-    pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.19.0
+    pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
 RUN git clone ${REPO} /home/user/optimum-habana && \
     cd /home/user/optimum-habana && git checkout ${REPO_VER} && \
