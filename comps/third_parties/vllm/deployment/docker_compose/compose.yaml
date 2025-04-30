@@ -94,7 +94,7 @@ services:
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
       host_ip: ${host_ip}
-    entrypoint: /bin/bash -c " export VLLM_OPENVINO_DEVICE=GPU &&  export VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON &&  python3 -m vllm.entrypoints.openai.api_server    --model ${LLM_MODEL_ID}    --host 0.0.0.0    --port ${LLM_ENDPOINT_PORT}    --max_model_len 8192"
+    entrypoint: /bin/bash -c " export VLLM_OPENVINO_DEVICE=GPU &&  export VLLM_OPENVINO_ENABLE_QUANTIZED_WEIGHTS=ON &&  python3 -m vllm.entrypoints.openai.api_server    --model ${LLM_MODEL_ID}    --host 0.0.0.0    --port ${LLM_ENDPOINT_PORT}    --max_model_len 4096"
     ipc: host
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1"]
