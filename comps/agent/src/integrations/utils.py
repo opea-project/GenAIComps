@@ -66,7 +66,17 @@ def setup_chat_model(args):
             **params,
         )
     elif args.llm_engine == "openai":
-        llm = ChatOpenAI(model_name=args.model, request_timeout=args.timeout, **params)
+        if args.use_remote_service:
+            openai_endpoint = f"{args.llm_endpoint_url}/v1"
+            llm = ChatOpenAI(
+                openai_api_key=args.api_key,
+                openai_api_base=openai_endpoint,
+                model_name=args.model,
+                request_timeout=args.timeout,
+                **params,
+            )
+        else:
+            llm = ChatOpenAI(model_name=args.model, request_timeout=args.timeout, **params)
     else:
         raise ValueError("llm_engine must be vllm, tgi or openai")
     return llm
@@ -162,6 +172,8 @@ def get_args():
     parser.add_argument("--model", type=str, default="meta-llama/Meta-Llama-3-8B-Instruct")
     parser.add_argument("--llm_engine", type=str, default="tgi")
     parser.add_argument("--llm_endpoint_url", type=str, default="http://localhost:8080")
+    parser.add_argument("--api_key", type=str, default=None, help="API key to access remote server")
+    parser.add_argument("--use_remote_service", action="store_true", default=False, help="If using a remote server for LLM")
     parser.add_argument("--max_new_tokens", type=int, default=1024)
     parser.add_argument("--top_k", type=int, default=10)
     parser.add_argument("--top_p", type=float, default=0.95)
