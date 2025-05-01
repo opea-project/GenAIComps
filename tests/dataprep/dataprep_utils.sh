@@ -94,7 +94,7 @@ function ingest_xlsx() {
     ingest_file "$1" "$2" "$3" "ingest_dataprep.xlsx" "${@:5}"
 }
 
-function ingest_external_link_1() {
+function ingest_external_link() {
     local fqdn=$1
     local port=$2
     shift 2
@@ -102,7 +102,7 @@ function ingest_external_link_1() {
     _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' $extra_args $@
 }
 
-function ingest_external_link_2() {
+function ingest_external_link_with_chunk_parameters() {
     local fqdn=$1
     local port=$2
     local index_name=$3

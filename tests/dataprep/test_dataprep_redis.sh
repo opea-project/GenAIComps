@@ -74,10 +74,10 @@ function validate_microservice() {
     check_result "dataprep - upload - xlsx" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
      # test /v1/dataprep/ingest upload link
-    ingest_external_link_1 ${ip_address} ${DATAPREP_PORT}
+    ingest_external_link ${ip_address} ${DATAPREP_PORT}
     check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
     
-    ingest_external_link_2 ${ip_address} ${DATAPREP_PORT} "rag_redis_test_link_params"
+    ingest_external_link_with_chunk_parameters ${ip_address} ${DATAPREP_PORT} "rag_redis_test_link_params"
     check_result "dataprep - upload - link" "Data preparation succeeded" dataprep-redis-server ${LOG_PATH}/dataprep_upload_file.log
 
     ingest_txt_with_index_name ${ip_address} ${DATAPREP_PORT} rag_redis_test
