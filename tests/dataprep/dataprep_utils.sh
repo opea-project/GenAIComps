@@ -107,7 +107,7 @@ function ingest_external_link_with_chunk_parameters() {
     local port=$2
     local index_name=$3
     shift 3
-    _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' -F "chunk_size=1500" -F "chunk_overlap=100" -F "index_name=${index_name}" $@ 
+    _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' -F "chunk_size=1500" -F "chunk_overlap=100" -F "index_name=${index_name}" $@
 }
 
 function delete_all() {
