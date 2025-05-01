@@ -672,6 +672,8 @@ def load_html_content(links, chunk_size=1500, chunk_overlap=50):
     from langchain_community.document_loaders import AsyncHtmlLoader
     from langchain_community.document_transformers import Html2TextTransformer
 
+    chunk_size = int(chunk_size) if isinstance(chunk_size, str) else chunk_size
+    chunk_overlap = int(chunk_overlap) if isinstance(chunk_overlap, str) else chunk_overlap
     loader = AsyncHtmlLoader(links, ignore_load_errors=True, trust_env=True)
     docs = loader.load()
     html2text = Html2TextTransformer()

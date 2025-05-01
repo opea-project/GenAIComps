@@ -39,7 +39,7 @@ function _invoke_curl() {
     RESPONSE_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 }
 
-#
+
 function _add_db_params() {
     local db=$1
     if [[ "$db" == "redis" ]]; then
@@ -94,12 +94,20 @@ function ingest_xlsx() {
     ingest_file "$1" "$2" "$3" "ingest_dataprep.xlsx" "${@:5}"
 }
 
-function ingest_external_link() {
+function ingest_external_link_1() {
     local fqdn=$1
     local port=$2
     shift 2
     local extra_args=$(_add_db_params "$db")
     _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' $extra_args $@
+}
+
+function ingest_external_link_2() {
+    local fqdn=$1
+    local port=$2
+    local index_name=$3
+    shift 3
+    _invoke_curl $fqdn $port ingest -F 'link_list=["https://www.ces.tech/"]' -F "chunk_size=1500" -F "chunk_overlap=100" -F "index_name=${index_name}" $@ 
 }
 
 function delete_all() {
