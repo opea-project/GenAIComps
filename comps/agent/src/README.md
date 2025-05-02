@@ -114,11 +114,11 @@ To run the two examples above, first launch the agent microservice using [this d
 
 To run the text generation portion using LLMs deployed on a remote server, specify the following environment variables:
 - `api_key`=<openai-api-key>
-- `use_remote_service`=True
 - `model`=<model-card>
 - `LLM_ENDPOINT_URL`=<inference-endpoint>
 
-For `LLM_ENDPOINT_URL`, there is no need to include `v1`.
+#### Notes
+- For `LLM_ENDPOINT_URL`, there is no need to include `v1`.
 
 ## 🚀2. Start Agent Microservice
 

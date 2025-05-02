@@ -20,9 +20,6 @@ if os.environ.get("llm_endpoint_url") is not None:
 if os.environ.get("api_key") is not None:
     env_config += ["--api_key", os.environ["api_key"]]
 
-if os.environ.get("use_remote_service") is not None:
-    env_config += ["--use_remote_service", os.environ["use_remote_service"]]
-
 if os.environ.get("llm_engine") is not None:
     env_config += ["--llm_engine", os.environ["llm_engine"]]
 
