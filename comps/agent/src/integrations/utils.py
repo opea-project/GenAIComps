@@ -173,7 +173,9 @@ def get_args():
     parser.add_argument("--llm_engine", type=str, default="tgi")
     parser.add_argument("--llm_endpoint_url", type=str, default="http://localhost:8080")
     parser.add_argument("--api_key", type=str, default=None, help="API key to access remote server")
-    parser.add_argument("--use_remote_service", action="store_true", default=False, help="If using a remote server for LLM")
+    parser.add_argument(
+        "--use_remote_service", action="store_true", default=False, help="If using a remote server for LLM"
+    )
     parser.add_argument("--max_new_tokens", type=int, default=1024)
     parser.add_argument("--top_k", type=int, default=10)
     parser.add_argument("--top_p", type=float, default=0.95)
