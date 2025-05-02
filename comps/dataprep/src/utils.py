@@ -691,7 +691,7 @@ def validate_and_convert_chunk_params(chunk_size, chunk_overlap):
     # Validate chunk_size and chunk_overlap, Convert to integers if they are strings
     chunk_size = validate_param_instance(chunk_size, "chunk_size")
     chunk_overlap = validate_param_instance(chunk_overlap, "chunk_overlap")
-    
+
     def validate_param_value(param, param_name, min_value):
         if param < min_value:
             raise ValueError(f"{param_name} must be a {min_value} or greater.")
