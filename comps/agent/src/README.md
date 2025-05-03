@@ -119,6 +119,7 @@ To run the text generation portion using LLMs deployed on a remote server, speci
 - `LLM_ENDPOINT_URL`=<inference-endpoint>
 
 #### Notes
+
 - For `LLM_ENDPOINT_URL`, there is no need to include `v1`.
 
 ## 🚀2. Start Agent Microservice
