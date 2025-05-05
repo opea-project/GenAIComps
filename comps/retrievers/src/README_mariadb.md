@@ -6,6 +6,8 @@ The service primarily utilizes similarity measures in vector space to rapidly re
 
 Overall, this microservice provides robust backend support for applications requiring efficient similarity searches, playing a vital role in scenarios such as recommendation systems, information retrieval, or any other context where precise measurement of document similarity is crucial.
 
+## 🚀1. Start Microservice with Docker
+
 ### 1.1 Build Docker Image
 
 ```bash

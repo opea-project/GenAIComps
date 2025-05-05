@@ -242,7 +242,7 @@ class OpeaMariaDBDataprep(OpeaComponent):
     def _store_texts(self, doc_path: str, chunks: list[str], batch_size: int = 32):
         num_chunks = len(chunks)
         metadata = [{"doc_name": doc_path}]
-        doc_id = hashlib.md5(str(doc_path).encode("utf-8")).hexdigest()
+        doc_id = hashlib.md5(str(doc_path).encode("utf-8"), usedforsecurity=False).hexdigest()
         doc_emb_ids = []
         for i in range(0, num_chunks, batch_size):
             batch_texts = chunks[i : i + batch_size]
@@ -369,7 +369,7 @@ class OpeaMariaDBDataprep(OpeaComponent):
         return file_content
 
     def _delete_embedding(self, doc_path: Path):
-        doc_id = hashlib.md5(str(doc_path).encode("utf-8")).hexdigest()
+        doc_id = hashlib.md5(str(doc_path).encode("utf-8"), usedforsecurity=False).hexdigest()
         doc_emb_ids = self.documents.get_document_emb_ids(doc_id)
         self.store.delete(ids=doc_emb_ids)
         self.documents.delete_document(doc_id)
