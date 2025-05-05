@@ -16,10 +16,12 @@ docker build -t opea/retriever:latest --build-arg https_proxy=$https_proxy --bui
 ### 1.2 Run Docker with CLI (Option A)
 
 #### 1.2.1 Start MariaDB Server
+
 Please refer to this [readme](../../third_parties/mariadb/src/README.md).
 You need to ingest your knowledge documents into the vector database.
 
 #### 1.2.2 Start the retriever service
+
 ```bash
 export HOST_IP=$(hostname -I | awk '{print $1}')
 # If you've configured the server with the default env values then:

@@ -12,9 +12,11 @@ docker build -t opea/dataprep:latest --build-arg https_proxy=$https_proxy --buil
 ### 1.2 Run Docker with CLI (Option A)
 
 #### 1.2.1 Start MariaDB Server
+
 Please refer to this [readme](../../third_parties/mariadb/src/README.md).
 
 #### 1.2.2 Start the data preparation service
+
 ```bash
 
 export HOST_IP=$(hostname -I | awk '{print $1}')
@@ -85,7 +87,7 @@ The `file_path` is the `id` returned by the `/v1/dataprep/get` API.
 curl -X POST "http://${HOST_IP}:5000/v1/dataprep/delete"
     -H "Content-Type: application/json" \
     -d '{"file_path": "https://www.ces.tech/.txt"}'
-    
+
 # delete file
 curl -X POST "http://${HOST_IP}:5000/v1/dataprep/delete"
     -H "Content-Type: application/json" \

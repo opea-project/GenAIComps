@@ -3,7 +3,6 @@
 **MariaDB Vector** was introduced starting with server version 11.7  
 For more details please see the [official documentation](https://mariadb.com/kb/en/vectors/).
 
-
 ## 1. Configure the server
 
 ```bash
