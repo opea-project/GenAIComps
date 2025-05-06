@@ -12,6 +12,7 @@ from comps import TextDoc, opea_microservices, register_microservice
 from comps.cores.mega.constants import MCPFuncType
 from comps.version import __version__
 
+
 @register_microservice(
     name="mcp_dummy",
     host="0.0.0.0",
@@ -49,7 +50,6 @@ class TestMicroService(unittest.IsolatedAsyncioTestCase):
 
         self.server_url = "http://localhost:8087"
 
-
     async def test_mcp(self):
         async with sse_client(self.server_url + "/sse") as streams:
             async with ClientSession(*streams) as session:
@@ -64,6 +64,7 @@ class TestMicroService(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(tool_result.content[0].text, "2")
             self.process.kill()
             self.process.join(timeout=2)
+
 
 if __name__ == "__main__":
     unittest.main()
