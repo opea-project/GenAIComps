@@ -14,6 +14,7 @@ include:
   - ../../../third_parties/tgi/deployment/docker_compose/compose.yaml
   - ../../../third_parties/vdms/deployment/docker_compose/compose.yaml
   - ../../../third_parties/arangodb/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/mariadb/deployment/docker_compose/compose.yaml
 
 services:
   retriever:
@@ -223,6 +224,17 @@ services:
       TEI_EMBEDDING_ENDPOINT:  ${TEI_EMBEDDING_ENDPOINT}
     depends_on:
       arango-vector-db:
+        condition: service_healthy
+
+  retriever-mariadb-vector:
+    extends: retriever
+    container_name: retriever-mariadb-vector
+    environment:
+      RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME:-OPEA_RETRIEVER_MARIADBVECTOR}
+      MARIADB_CONNECTION_URL: ${MARIADB_CONNECTION_URL:-mariadb+mariadbconnector://dbuser:password@mariadb-server:3306/vectordb}
+      LOGFLAG: ${LOGFLAG}
+    depends_on:
+      mariadb-server:
         condition: service_healthy
 
 networks:
