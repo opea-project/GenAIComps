@@ -9,6 +9,7 @@ load_dotenv()
 
 HF_TOKEN = os.getenv('HF_TOKEN', '')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+CONTROLLER_TYPE = os.getenv('CONTROLLER_TYPE', None)
 
 class ControllerFactory:
 
@@ -28,16 +29,15 @@ class ControllerFactory:
         """Returns an instance of the appropriate controller based on the controller_type."""
 
         config = ControllerFactory.get_controller_config(controller_config)
-        controller_type = config.get("controller_type", "routellm")
-        
-        if controller_type == "routellm":
+       
+        if CONTROLLER_TYPE == "routellm":
             return RouteLLMController(config=config, api_key=OPENAI_API_KEY, hf_token=HF_TOKEN, model_map=model_map)
         
-        elif controller_type == "semantic_router":
+        elif CONTROLLER_TYPE == "semantic_router":
             return SemanticRouterController(
                 config=config, 
                 api_key=OPENAI_API_KEY, 
                 model_map=model_map
             )
         else:
-            raise ValueError(f"Unknown controller type: {controller_type}")
+            raise ValueError(f"Unknown controller type: {CONTROLLER_TYPE}")

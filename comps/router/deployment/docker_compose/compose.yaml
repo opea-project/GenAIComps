@@ -16,7 +16,7 @@ services:
       - CONFIG_PATH=/app/config.yaml
       - HF_TOKEN=${HF_TOKEN}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-
+      - CONTROLLER_TYPE=${CONTROLLER_TYPE:-}
     ports:
       - "6000:6000"
     restart: unless-stopped
