@@ -193,7 +193,7 @@ vim dataset_info.json
 }
 ```
 
-#### Step 4: Use the accelerate command to enable training on XPU plugin
+#### Step 4: Use the accelerate command to enable training on Intel GPU plugin
 
 ```
 accelerate config
@@ -202,7 +202,7 @@ For Single GPU:
   Which type of machine are you using?
   No distributed training
   Do you want to run your training on CPU only (even if a GPU / Apple Silicon / Ascend NPU device is available)? [yes/NO]:NO
-  Do you want to use XPU plugin to speed up training on XPU? [yes/NO]:yes
+  Do you want to use Intel GPU plugin to speed up training on Intel GPU? [yes/NO]:yes
   Do you wish to optimize your script with torch dynamo?[yes/NO]:NO
   Do you want to use DeepSpeed? [yes/NO]: NO
   What GPU(s) (by id) should be used for training on this machine as a comma-seperated list? [all]:all
@@ -211,10 +211,10 @@ For Single GPU:
   bf16
 For Multi-GPU with FSDP:
   Which type of machine are you using?
-  multi-XPU
+  multi-GPU
   How many different machines will you use (use more than 1 for multi-node training)? [1]: 1
   Should distributed operations be checked while running for errors? This can avoid timeout issues but will be slower. [yes/NO]: NO
-  Do you want to use XPU plugin to speed up training on XPU? [yes/NO]:yes
+  Do you want to use Intel GPU plugin to speed up training on Intel GPU? [yes/NO]:yes
   Do you wish to optimize your script with torch dynamo?[yes/NO]:NO
   Do you want to use DeepSpeed? [yes/NO]: NO
   Do you want to use FullyShardedDataParallel? [yes/NO]: yes
