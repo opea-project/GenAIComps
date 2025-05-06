@@ -22,31 +22,33 @@ class SemanticRouterController(BaseController):
     def __init__(self, config, api_key=None, model_map=None):
         self.config = config
         self.model_map = model_map or {}
-        self.controller_type = config.get("controller_type")
-        embedding_provider = self.config.get("embedding_provider", "huggingface")
 
-        logging.info(f"Embedding Provider: {embedding_provider}")
+        # 1) grab provider + model mapping
+        provider = config.get("embedding_provider", "").lower()
+        models   = config.get("embedding_models", {})
 
-        if not api_key:
-            raise ValueError("Please set api_key for semantic router.")
+        if provider not in {"huggingface", "openai"}:
+            raise ValueError(f"Unsupported embedding_provider: '{provider}'")
+        if provider not in models:
+            raise ValueError(f"No embedding_models entry for provider '{provider}'")
 
-        try:
-            if embedding_provider == "huggingface":
-                self.encoder = HuggingFaceEncoder(
-                    name="BAAI/bge-base-en-v1.5",  # Specify your Hugging Face model here
-                    model_kwargs={"token": hf_token},
-                    tokenizer_kwargs={"token": hf_token}
-                )
-            elif embedding_provider == "openai":
-                os.environ["OPENAI_API_KEY"] = api_key
-                self.encoder = OpenAIEncoder()
-            else:
-                raise ValueError(f"Unsupported encoder type: {embedding_provider}")
+        model_name = models[provider]
+        logging.info(f"SemanticRouter using {provider} encoder '{model_name}'")
 
-        except Exception as e:
-            logging.error(f"Failed to initialize encoder for {embedding_provider}: {e}")
-            raise
+        if provider == "huggingface":
+            hf_token = os.getenv("HF_TOKEN", "")
+            self.encoder = HuggingFaceEncoder(
+                name=model_name,
+                model_kwargs={"token": hf_token},
+                tokenizer_kwargs={"token": hf_token},
+            )
+        else:  
+            if not api_key:
+                raise ValueError("valid api key is required for selected model provider")
+            os.environ["OPENAI_API_KEY"] = api_key
+            self.encoder = OpenAIEncoder(model=model_name)
 
+        # 4) build your routing layer
         self._build_route_layer()
 
     def _build_route_layer(self):
