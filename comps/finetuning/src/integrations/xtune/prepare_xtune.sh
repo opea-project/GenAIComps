@@ -39,7 +39,7 @@ else
     pip install matplotlib
     pip install -e ".[metrics]"
     pip install --no-cache-dir --force-reinstall intel-extension-for-pytorch==2.6.10+xpu oneccl_bind_pt==2.6.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
-    pip install  "transformers<=4.49.0"
+    pip install "transformers<=4.49.0" optimum "auto_gptq>=0.5.0"
     echo "start llamafactory webui"
     if [ -z $GUI ]; then
         ZE_AFFINITY_MASK=0 llamafactory-cli webui &
