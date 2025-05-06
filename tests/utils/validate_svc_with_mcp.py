@@ -1,0 +1,53 @@
+#!/bin/bash
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+import os
+import sys
+import base64
+import requests
+import asyncio
+import json
+
+from mcp.client.session import ClientSession
+from mcp.client.sse import sse_client
+
+async def validate_svc(ip_address, service_port, service_type):
+
+    endpoint = f"http://{ip_address}:{service_port}"
+
+    async with sse_client(endpoint + "/sse") as streams:
+        async with ClientSession(*streams) as session:
+            result = await session.initialize()
+            if service_type == "asr":
+                url = "https://github.com/intel/intel-extension-for-transformers/raw/main/intel_extension_for_transformers/neural_chat/assets/audio/sample.wav"
+                response = requests.get(url)
+                response.raise_for_status()  # Ensure the download succeeded
+                binary_data = response.content
+                base64_str = base64.b64encode(binary_data).decode("utf-8")
+                input_dict = {
+                    "file": base64_str,
+                    "model": "openai/whisper-small",
+                    "language": "english"
+                }
+                tool_result = await session.call_tool("audio_to_text", input_dict,)
+                result_content = tool_result.content
+                # Check result
+                if json.loads(result_content[0].text)['text'].startswith("who is"):
+                    print("Result correct.")
+                else:
+                    print(f"Result wrong. Received was {result_content}")
+                    exit(1)
+            else:
+                print(f"Unknown service type: {service_type}")
+                exit(1)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        print("Usage: python3 validate_svc_with_mcp.py <ip_address> <service_port> <service_type>")
+        exit(1)
+    ip_address = sys.argv[1]
+    service_port = sys.argv[2]
+    service_type = sys.argv[3]
+    asyncio.run(validate_svc(ip_address, service_port, service_type))
