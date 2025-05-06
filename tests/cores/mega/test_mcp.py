@@ -5,8 +5,8 @@ import json
 import multiprocessing
 import unittest
 
-from mcp.client.sse import sse_client
 from mcp.client.session import ClientSession
+from mcp.client.sse import sse_client
 
 from comps import TextDoc, opea_microservices, register_microservice
 from comps.cores.mega.constants import MCPFuncType
@@ -55,11 +55,9 @@ class TestMicroService(unittest.IsolatedAsyncioTestCase):
             async with ClientSession(*streams) as session:
                 result = await session.initialize()
                 self.assertEqual(result.serverInfo.name, "mcp_dummy")
-                tool_result = await session.call_tool(
-                    "mcp_dummy",
-                    {"request": {"text": "Hello "}}
-                )
-                self.assertEqual(json.loads(tool_result.content[0].text)['text'], "Hello OPEA Project MCP!")
+                tool_result = await session.call_tool("mcp_dummy", {"request": {"text": "Hello "}})
+                self.assertEqual(json.loads(tool_result.content[0].text)["text"], "Hello OPEA Project MCP!")
+
                 tool_result = await session.call_tool(
                     "mcp_dummy_sum",
                 )
