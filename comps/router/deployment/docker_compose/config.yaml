@@ -1,5 +1,4 @@
-# Global config for your router microservice
-# TODO: Update endpoint naming
+# Global config for router microservice
 model_map:
   weak:
     endpoint: "http://some-inference-service:8000/weak"
@@ -8,10 +7,6 @@ model_map:
     endpoint: "http://some-inference-service:8000/strong"
     model_id: "openai/gpt-4"
 
-
-# TODO: Make the selection (routellm/semantic_router) easier 
-# If you want to test RouteLLM locally, point here:
-controller_config_path: "/app/configs/routellm_config.yaml"
-
-# If you want to test semantic router, switch the path:
-# controller_config_path: "/app/configs/semantic_router_config.yaml"
+controller_config_paths:
+  routellm:   "/app/configs/routellm_config.yaml"
+  semantic_router: "/app/configs/semantic_router_config.yaml"

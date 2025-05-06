@@ -42,7 +42,14 @@ def _load_config():
         _controller_factory = ControllerFactory()
 
     model_map = _config_data.get("model_map", {})
-    controller_config_path = _config_data.get("controller_config_path")
+    controller_type = os.getenv("CONTROLLER_TYPE") or _config_data.get("controller_type", "routellm")
+
+    # look up the correct controller-config path
+    try:
+        controller_config_path = _config_data["controller_config_paths"][controller_type]
+    except KeyError:
+        raise RuntimeError(f"No config path for controller_type='{controller_type}' in global config")
+
 
     _controller = _controller_factory.factory(
         controller_config=controller_config_path,
