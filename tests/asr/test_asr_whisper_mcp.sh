@@ -43,7 +43,7 @@ function start_service() {
 }
 
 function validate_microservice() {
-    # pip install mcp
+    pip install mcp
     python3 ${WORKPATH}/tests/utils/validate_svc_with_mcp.py $ip_address $ASR_PORT "asr"
     if [ $? -ne 0 ]; then
         docker logs whisper-service
