@@ -5,7 +5,8 @@ import json
 import multiprocessing
 import unittest
 
-from fastmcp import Client
+from mcp.client.sse import sse_client
+from mcp.client.session import ClientSession
 
 from comps import TextDoc, opea_microservices, register_microservice
 from comps.cores.mega.constants import MCPFuncType
@@ -16,7 +17,6 @@ from comps.version import __version__
     name="mcp_dummy",
     host="0.0.0.0",
     port=8087,
-    # endpoint="/v1/add",
     enable_mcp=True,
     mcp_func_type=MCPFuncType.TOOL,
     description="dummy mcp add func",
@@ -33,7 +33,6 @@ async def mcp_dummy(request: TextDoc) -> TextDoc:
     name="mcp_dummy",
     host="0.0.0.0",
     port=8087,
-    # endpoint="/v1/add",
     enable_mcp=True,
     mcp_func_type=MCPFuncType.TOOL,
     description="dummy mcp sum func",
@@ -49,30 +48,26 @@ class TestMicroService(unittest.IsolatedAsyncioTestCase):
         )
         self.process.start()
 
-        self.mcp_client = Client("http://localhost:8087/sse")
+        self.server_url = "http://localhost:8087"
 
     def tearDown(self):
         self.process.terminate()
 
     async def test_mcp(self):
+        async with sse_client(self.server_url + "/sse") as streams:
+            async with ClientSession(*streams) as session:
+                result = await session.initialize()
+                self.assertEqual(result.serverInfo.name, "mcp_dummy")
+                tool_result = await session.call_tool(
+                    "mcp_dummy",
+                    {"request": {"text": "Hello "}}
+                )
+                self.assertEqual(json.loads(tool_result.content[0].text)['text'], "Hello OPEA Project MCP!")
 
-        async with self.mcp_client:
-            self.assertTrue(self.mcp_client.is_connected())
-
-            tools = await self.mcp_client.list_tools()
-            self.assertEqual(tools[0].name, "mcp_dummy")
-            result = await self.mcp_client.call_tool(
-                "mcp_dummy",
-                {"request": {"text": "Hello "}},
-            )
-            self.assertEqual(json.loads(result[0].text)["text"], "Hello OPEA Project MCP!")
-
-            result = await self.mcp_client.call_tool(
-                "mcp_dummy_sum",
-            )
-            self.assertEqual(result[0].text, "2")
-
-        self.assertFalse(self.mcp_client.is_connected())
+                tool_result = await session.call_tool(
+                    "mcp_dummy_sum",
+                )
+                self.assertEqual(tool_result.content[0].text, "2")
 
 
 if __name__ == "__main__":
