@@ -1,4 +1,5 @@
 import logging
+from comps.cores.telemetry import opea_telemetry
 from comps.router.src.integrations.controllers.base_controller import BaseController
 from routellm.controller import Controller as RouteLLM_Controller
 # from decorators import log_latency
@@ -34,6 +35,7 @@ class RouteLLMController(BaseController):
             config=config.get("config"),
         )
 
+    @opea_telemetry
     def route(self, messages):
 
         # Get the routed model name (model_id) from the underlying RouteLLM_Controller.

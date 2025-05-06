@@ -2,6 +2,7 @@
 
 import logging
 import os
+from comps.cores.telemetry import opea_telemetry
 from comps.router.src.integrations.controllers.base_controller import BaseController
 from semantic_router.routers import SemanticRouter
 from semantic_router.encoders import OpenAIEncoder, HuggingFaceEncoder
@@ -60,6 +61,7 @@ class SemanticRouterController(BaseController):
         self.route_layer = SemanticRouter(encoder=self.encoder, routes=route_list)
         logging.info("[DEBUG] Successfully re-initialized SemanticRouter with fresh embeddings.")
 
+    @opea_telemetry
     def route(self, messages):
         """
         Determines which inference endpoint to use based on the provided messages.
