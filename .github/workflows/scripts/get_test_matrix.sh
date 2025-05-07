@@ -66,7 +66,7 @@ function find_test_1() {
                 if [ "$find_test" ]; then
                     fill_in_matrix "$find_test"
                 fi
-                # find other test use 3rd party Dockerfile
+                # find other tests use 3rd party Dockerfiles
                 dockerfile_list=$(ls ${service_path}/Dockerfile*) || true
                 for dockerfile_path in ${dockerfile_list}; do
                     find_test=$(grep -rl ${dockerfile_path} ./tests) || true
