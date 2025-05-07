@@ -110,6 +110,18 @@ Examples of python code for multi-turn conversations using agent memory:
 
 To run the two examples above, first launch the agent microservice using [this docker compose yaml](../../../tests/agent/reactllama.yaml).
 
+### 1.6 Run LLMs with Remote Servers
+
+To run the text generation portion using LLMs deployed on a remote server, specify the following environment variables:
+
+- `api_key`=<openai-api-key>
+- `model`=<model-card>
+- `LLM_ENDPOINT_URL`=<inference-endpoint>
+
+#### Notes
+
+- For `LLM_ENDPOINT_URL`, there is no need to include `v1`.
+
 ## 🚀2. Start Agent Microservice
 
 ### 2.1 Build docker image for agent microservice
