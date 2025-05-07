@@ -60,12 +60,20 @@ function find_test_1() {
                     fi
                 fi
             elif [[ $(echo ${service_path} | grep "third_parties") ]]; then
-                 # new org with `src` and `third_parties` folder
+                # new org with `src` and `third_parties` folder
                 service_name=$(echo $service_path | sed 's:/src::' | tr '/' '_' | cut -c7-) # comps/third_parties/vllm/src -> third_parties_vllm
                 find_test=$(find ./tests -type f -name test_${service_name}*.sh) || true
                 if [ "$find_test" ]; then
                     fill_in_matrix "$find_test"
                 fi
+                # find other tests use 3rd party Dockerfiles
+                dockerfile_list=$(ls ${service_path}/Dockerfile*) || true
+                for dockerfile_path in ${dockerfile_list}; do
+                    find_test=$(grep -rl ${dockerfile_path} ./tests) || true
+                    if [ "$find_test" ]; then
+                        fill_in_matrix "$find_test"
+                    fi
+                done
             else
                 # old org without 'src' folder
                 service_name=$(echo $service_path | tr '/' '_' | cut -c7-) # comps/retrievers/redis/langchain -> retrievers_redis_langchain
@@ -174,6 +182,7 @@ function main() {
     echo "run_matrix=${run_matrix}"
     echo "run_matrix=${run_matrix}" >> $GITHUB_OUTPUT
 
+    is_empty="true"
     if [[ $(echo "$run_matrix" | grep -c "service") != 0 ]]; then
         is_empty="false"
     fi

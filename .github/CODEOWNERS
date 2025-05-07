@@ -1,16 +1,15 @@
 # Code owners will review PRs within their respective folders. 
 # Typically, ownership is organized at the second-level subdirectory under the homepage
 
-* liang1.lv@intel.com feng.tian@intel.com suyue.chen@intel.com
+* liang1.lv@intel.com feng.tian@intel.com suyue.chen@intel.com kaokao.lv@intel.com minmin.hou@intel.com rita.brugarolas.brufau@intel.com
 /.github/ suyue.chen@intel.com ze.pan@intel.com
-/comps/third_parties/ liang1.lv@intel.com letong.han@intel.com
-/comps/agent/ kaokao.lv@intel.com minmin.hou@intel.com
+/comps/agent/ feng.tian@intel.com kaokao.lv@intel.com minmin.hou@intel.com
 /comps/animation/ qing.yao@intel.com chun.tao@intel.com
 /comps/asr/ sihan.chen@intel.com liang1.lv@intel.com
-/comps/chathistory/ yogesh.pandey@intel.com
-/comps/cores/ liang1.lv@intel.com feng.tian@intel.com letong.han@intel.com sihan.chen@intel.com
+/comps/chathistory/ yogesh.pandey@intel.com sihan.chen@intel.com
+/comps/cores/ liang1.lv@intel.com feng.tian@intel.com letong.han@intel.com sihan.chen@intel.com kaokao.lv@intel.com minmin.hou@intel.com
 /comps/dataprep/ xinyu.ye@intel.com letong.han@intel.com
-/comps/embeddings/ kaokao.lv@intel.com
+/comps/embeddings/ kaokao.lv@intel.com letong.han@intel.com
 /comps/feedback_management/ hoong.tee.yeoh@intel.com liang1.lv@intel.com
 /comps/finetuning/ xinyu.ye@intel.com kaokao.lv@intel.com
 /comps/guardrails/ liang1.lv@intel.com letong.han@intel.com
@@ -18,11 +17,15 @@
 /comps/image2video/ xinyu.ye@intel.com qing.yao@intel.com
 /comps/llms/ liang1.lv@intel.com letong.han@intel.com
 /comps/lvms/ sihan.chen@intel.com liang1.lv@intel.com
-/comps/prompt_registry/ hoong.tee.yeoh@intel.com
-/comps/ragas/ kaokao.lv@intel.com liang1.lv@intel.com
+/comps/prompt_registry/ hoong.tee.yeoh@intel.com letong.han@intel.com
 /comps/rerankings/ kaokao.lv@intel.com liang1.lv@intel.com
 /comps/retrievers/ kaokao.lv@intel.com liang1.lv@intel.com
+/comps/struct2graph/ siddhi.velankar@intel.com kaokao.lv@intel.com
+/comps/text2cypher/ jean1.yu@intel.com sihan.chen@intel.com
+/comps/text2graph/ sharath.raghava@intel.com letong.han@intel.com
 /comps/text2image/ xinyu.ye@intel.com liang1.lv@intel.com
+/comps/text2kg/ siddhi.velankar@intel.com letong.han@intel.com
 /comps/text2sql/ yogesh.pandey@intel.com qing.yao@intel.com
+/comps/third_parties/ liang1.lv@intel.com letong.han@intel.com
 /comps/tts/ sihan.chen@intel.com letong.han@intel.com
 /comps/web_retrievers/ sihan.chen@intel.com liang1.lv@intel.com

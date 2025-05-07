@@ -15,6 +15,7 @@ include:
   - ../../../third_parties/tei/deployment/docker_compose/compose.yaml
   - ../../../third_parties/vllm/deployment/docker_compose/compose.yaml
   - ../../../third_parties/arangodb/deployment/docker_compose/compose.yaml
+  - ../../../third_parties/mariadb/deployment/docker_compose/compose.yaml
 
 services:
 
@@ -407,6 +408,29 @@ services:
       VLLM_MODEL_ID: ${VLLM_MODEL_ID}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  dataprep-mariadb-vector:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-mariadb-vector
+    ports:
+      - "${DATAPREP_PORT:-5000}:5000"
+    depends_on:
+      mariadb-server:
+        condition: service_healthy
+    ipc: host
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_MARIADBVECTOR"
+      MARIADB_CONNECTION_URL: ${MARIADB_CONNECTION_URL:-mariadb+mariadbconnector://dbuser:password@mariadb-server:3306/vectordb}
+      LOGFLAG: ${LOGFLAG}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s

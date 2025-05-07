@@ -20,6 +20,7 @@ langchain-arangodb
 langchain-community
 langchain-elasticsearch
 langchain-experimental
+langchain-mariadb
 langchain-openai
 langchain-pinecone
 langchain-redis
@@ -33,6 +34,7 @@ llama-index-embeddings-text-embeddings-inference
 llama-index-graph-stores-neo4j
 llama-index-llms-openai
 llama-index-llms-openai-like
+mariadb
 markdown
 moviepy
 neo4j

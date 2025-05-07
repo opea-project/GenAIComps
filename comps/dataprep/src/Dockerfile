@@ -13,6 +13,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
     libcairo2 \
     libgl1-mesa-glx \
     libjemalloc-dev \
+    libmariadb-dev \
     libpq-dev \
     libreoffice \
     poppler-utils \
