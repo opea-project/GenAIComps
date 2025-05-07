@@ -1,0 +1,26 @@
+services:
+  router_service:
+    image: "${REGISTRY_AND_REPO}:${TAG}"
+    container_name: opea_router
+    volumes:
+      # (1) The global router config
+      - ./config.yaml:/app/config.yaml
+
+      # (2) The routeLLM config
+      - ./routellm_config.yaml:/app/configs/routellm_config.yaml
+
+      # (3) The semantic router config
+      - ./semantic_router_config.yaml:/app/configs/semantic_router_config.yaml
+
+    environment:
+      - CONFIG_PATH=/app/config.yaml
+      - HF_TOKEN=${HF_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+    ports:
+      - "6000:6000"
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
