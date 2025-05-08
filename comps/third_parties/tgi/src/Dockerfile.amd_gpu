@@ -1,0 +1,16 @@
+FROM ghcr.io/huggingface/text-generation-inference:3.0.0-rocm
+
+RUN groupadd --gid 2000 user \
+  && useradd --uid 2000 --gid user --shell /bin/bash --create-home user
+
+RUN usermod -a -G video,render user
+
+USER root
+
+RUN chown user:user /tgi-entrypoint.sh
+
+USER user
+
+RUN chmod +x /tgi-entrypoint.sh
+
+ENTRYPOINT ["/tgi-entrypoint.sh"]

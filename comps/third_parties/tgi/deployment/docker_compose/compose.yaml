@@ -61,6 +61,44 @@ services:
       retries: 100
     command: --model-id ${LLM_MODEL_ID}
 
+  tgi-rocm-server:
+    image: ${REGISTRY:-opea}/tgi-rocm:${TAG:-latest}
+    container_name: tgi-rocm-server
+    user: user
+    ports:
+      - ${LLM_ENDPOINT_PORT:-8008}:80
+    volumes:
+      - "${HF_CACHE_DIR:-./data}:/data"
+      - "${TOKENIZER_CACHE_DIR:-./out}:/out"
+    shm_size: 32g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN}
+      host_ip: ${host_ip}
+      LLM_ENDPOINT_PORT: ${LLM_ENDPOINT_PORT}
+      MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS:-2048}
+      MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS:-4096}
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri/:/dev/dri/
+    cap_add:
+      - SYS_PTRACE
+    group_add:
+      - video
+      - render
+    security_opt:
+      - seccomp=unconfined
+      - apparmor=unconfined
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://${host_ip}:${LLM_ENDPOINT_PORT}/health || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 100
+    command: --model-id ${LLM_MODEL_ID} --num-shard 1
+    ipc: host
+
 networks:
   default:
     driver: bridge

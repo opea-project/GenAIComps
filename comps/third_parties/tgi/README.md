@@ -28,3 +28,14 @@ Run tgi on gaudi.
 cd deployment/docker_compose
 docker compose -f compose.yaml up -d tgi-gaudi-server
 ```
+
+Run tgi on ROCm.
+
+```bash
+cd deployment/docker_compose
+# Since volume directories are created under root,
+# you need to create directories in advance and grant permissions.
+sudo mkdir -p data && sudo chmod -R 0777 data
+sudo mkdir -p out && sudo chmod -R 0777 out
+docker compose -f compose.yaml up -d tgi-rocm-server
+```
