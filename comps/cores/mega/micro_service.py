@@ -4,11 +4,12 @@
 import asyncio
 import os
 from collections import defaultdict, deque
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, List, Optional, Type
+from typing import Any, List, Optional, Type, TypeAlias
 
 from ..proto.docarray import TextDoc
-from .constants import ServiceRoleType, ServiceType
+from .constants import MCPFuncType, ServiceRoleType, ServiceType
 from .http_service import HTTPService
 from .logger import CustomLogger
 from .utils import check_ports_availability
@@ -17,6 +18,7 @@ opea_microservices = {}
 
 logger = CustomLogger("micro_service")
 logflag = os.getenv("LOGFLAG", False)
+AnyFunction: TypeAlias = Callable[..., Any]
 
 
 class MicroService(HTTPService):
@@ -43,6 +45,9 @@ class MicroService(HTTPService):
         dynamic_batching: bool = False,
         dynamic_batching_timeout: int = 1,
         dynamic_batching_max_batch_size: int = 32,
+        enable_mcp: bool = False,
+        mcp_func_type: Enum = MCPFuncType.TOOL,
+        func: AnyFunction = None,
     ):
         """Init the microservice."""
         self.service_role = service_role
@@ -56,6 +61,7 @@ class MicroService(HTTPService):
         self.output_datatype = output_datatype
         self.use_remote_service = use_remote_service
         self.description = description
+        self.enable_mcp = enable_mcp
         self.dynamic_batching = dynamic_batching
         self.dynamic_batching_timeout = dynamic_batching_timeout
         self.dynamic_batching_max_batch_size = dynamic_batching_max_batch_size
@@ -82,7 +88,7 @@ class MicroService(HTTPService):
                 "host": self.host,
                 "port": self.port,
                 "title": name,
-                "description": "OPEA Microservice Infrastructure",
+                "description": self.description or "OPEA Microservice Infrastructure",
             }
 
             super().__init__(uvicorn_kwargs=self.uvicorn_kwargs, runtime_args=runtime_args)
@@ -93,7 +99,21 @@ class MicroService(HTTPService):
                 self.request_buffer = defaultdict(deque)
                 self.add_startup_event(self._dynamic_batch_processor())
 
-            self._async_setup()
+            if not enable_mcp:
+                self._async_setup()
+            else:
+                from mcp.server.fastmcp import FastMCP
+
+                self.mcp = FastMCP(name, host=self.host, port=self.port)
+                dispatch = {
+                    MCPFuncType.TOOL: self.mcp.add_tool,
+                    MCPFuncType.RESOURCE: self.mcp.add_resource,
+                    MCPFuncType.PROMPT: self.mcp.add_prompt,
+                }
+                try:
+                    dispatch[mcp_func_type](func, name=func.__name__, description=description)
+                except KeyError:
+                    raise ValueError(f"Unknown MCP func type: {mcp_func_type}")
 
         # overwrite name
         self.name = f"{name}/{self.__class__.__name__}" if name else self.__class__.__name__
@@ -144,6 +164,15 @@ class MicroService(HTTPService):
         else:
             return f"{self.protocol}://{self.host}:{self.port}{self.endpoint}"
 
+    def start(self):
+        """Start the server using MCP if enabled, otherwise fall back to default."""
+        if self.enable_mcp:
+            self.mcp.run(
+                transport="sse",
+            )
+        else:
+            super().start()
+
     @property
     def api_key_value(self):
         return self.api_key
@@ -167,6 +196,9 @@ def register_microservice(
     dynamic_batching: bool = False,
     dynamic_batching_timeout: int = 1,
     dynamic_batching_max_batch_size: int = 32,
+    enable_mcp: bool = False,
+    description: str = None,
+    mcp_func_type: Enum = MCPFuncType.TOOL,
 ):
     def decorator(func):
         if name not in opea_microservices:
@@ -187,8 +219,22 @@ def register_microservice(
                 dynamic_batching=dynamic_batching,
                 dynamic_batching_timeout=dynamic_batching_timeout,
                 dynamic_batching_max_batch_size=dynamic_batching_max_batch_size,
+                enable_mcp=enable_mcp,
+                func=func,
+                description=description,
+                mcp_func_type=mcp_func_type,
             )
             opea_microservices[name] = micro_service
+
+        elif enable_mcp:
+            mcp_handle = opea_microservices[name].mcp
+            dispatch = {
+                MCPFuncType.TOOL: mcp_handle.add_tool,
+                MCPFuncType.RESOURCE: mcp_handle.add_resource,
+                MCPFuncType.PROMPT: mcp_handle.add_prompt,
+            }
+            dispatch[mcp_func_type](func, name=func.__name__, description=description)
+
         opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
 
         return func

@@ -3,7 +3,7 @@
 
 import os
 import time
-from typing import List
+from typing import List, Union
 
 from fastapi import File, Form, UploadFile
 from integrations.whisper import OpeaWhisperAsr
@@ -19,12 +19,15 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import AudioTranscriptionResponse
 
 logger = CustomLogger("opea_asr_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
 asr_component_name = os.getenv("ASR_COMPONENT_NAME", "OPEA_WHISPER_ASR")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
+
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(asr_component_name, description=f"OPEA ASR Component: {asr_component_name}")
 
@@ -37,10 +40,13 @@ loader = OpeaComponentLoader(asr_component_name, description=f"OPEA ASR Componen
     port=9099,
     input_datatype=Base64ByteStrDoc,
     output_datatype=LLMParamsDoc,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Convert audio to text.",
 )
 @register_statistics(names=["opea_service@asr"])
 async def audio_to_text(
-    file: UploadFile = File(...),  # Handling the uploaded file directly
+    file: Union[str, UploadFile],  # accept base64 string or UploadFile
     model: str = Form("openai/whisper-small"),
     language: str = Form("english"),
     prompt: str = Form(None),

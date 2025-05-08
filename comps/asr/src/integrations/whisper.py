@@ -3,7 +3,7 @@
 
 import asyncio
 import os
-from typing import List
+from typing import List, Union
 
 import requests
 from fastapi import File, Form, UploadFile
@@ -32,7 +32,7 @@ class OpeaWhisperAsr(OpeaComponent):
 
     async def invoke(
         self,
-        file: UploadFile = File(...),  # Handling the uploaded file directly
+        file: Union[str, UploadFile],  # accept base64 string or UploadFile
         model: str = Form("openai/whisper-small"),
         language: str = Form("english"),
         prompt: str = Form(None),
@@ -41,28 +41,39 @@ class OpeaWhisperAsr(OpeaComponent):
         timestamp_granularities: List[str] = Form(None),
     ) -> AudioTranscriptionResponse:
         """Involve the ASR service to generate transcription for the provided input."""
-        # Read the uploaded file
-        file_contents = await file.read()
+        if isinstance(file, str):
+            data = {"audio": file}
+            # Send the file and model to the server
+            response = await asyncio.to_thread(
+                requests.post,
+                f"{self.base_url}/v1/asr",
+                json=data,
+            )
+            res = response.json()["asr_result"]
+            return AudioTranscriptionResponse(text=res)
+        else:
+            # Read the uploaded file
+            file_contents = await file.read()
 
-        # Prepare the files and data
-        files = {
-            "file": (file.filename, file_contents, file.content_type),
-        }
-        data = {
-            "model": model,
-            "language": language,
-            "prompt": prompt,
-            "response_format": response_format,
-            "temperature": temperature,
-            "timestamp_granularities": timestamp_granularities,
-        }
+            # Prepare the files and data
+            files = {
+                "file": (file.filename, file_contents, file.content_type),
+            }
+            data = {
+                "model": model,
+                "language": language,
+                "prompt": prompt,
+                "response_format": response_format,
+                "temperature": temperature,
+                "timestamp_granularities": timestamp_granularities,
+            }
 
-        # Send the file and model to the server
-        response = await asyncio.to_thread(
-            requests.post, f"{self.base_url}/v1/audio/transcriptions", files=files, data=data
-        )
-        res = response.json()["text"]
-        return AudioTranscriptionResponse(text=res)
+            # Send the file and model to the server
+            response = await asyncio.to_thread(
+                requests.post, f"{self.base_url}/v1/audio/transcriptions", files=files, data=data
+            )
+            res = response.json()["text"]
+            return AudioTranscriptionResponse(text=res)
 
     def check_health(self) -> bool:
         """Checks the health of the embedding service.
