@@ -105,7 +105,7 @@ async def main():
         ],
         stdio_servers=[
             OpeaMCPStdioServerConfig(name="mcp-simple-tool", command="uv", args=["run", "mcp-simple-tool"]),
-        ]
+        ],
     )
 
     async with await OpeaMCPToolsManager.create(config) as manager:

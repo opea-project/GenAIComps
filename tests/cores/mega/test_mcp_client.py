@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+
 from comps.cores.mcp.client import OpeaMCPClient
 from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
 from comps.cores.mcp.manager import OpeaMCPToolsManager
