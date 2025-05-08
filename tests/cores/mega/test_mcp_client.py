@@ -4,9 +4,9 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import asyncio
-from comps.agent.src.tools.mcp.client import OpeaMCPClient
-from comps.agent.src.tools.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
-from comps.agent.src.tools.mcp.manager import OpeaMCPToolsManager
+from comps.cores.mcp.client import OpeaMCPClient
+from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
+from comps.cores.mcp.manager import OpeaMCPToolsManager
 
 
 class TestOpeaMCPToolsManager(unittest.TestCase):

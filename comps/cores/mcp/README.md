@@ -1,6 +1,6 @@
-# OPEA MCP Tool for Agent
+# OPEA MCP Tool
 
-The **OPEA MCP Tool for Agent** is a client tool designed to facilitate seamless integration between agents and MCP (Model Context Protocol) servers. It provides a unified interface for managing MCP clients, enabling agents to access and interact with various tools and data sources exposed by MCP servers.
+The **OPEA MCP Tool** is a client tool designed to facilitate seamless integration between agents and MCP (Model Context Protocol) servers. It provides a unified interface for managing MCP clients, enabling agents to access and interact with various tools and data sources exposed by MCP servers.
 
 ---
 
@@ -22,8 +22,8 @@ The **OPEA MCP Tool** provides a unified interface for managing MCP clients and 
 To initialize the OpeaMCPToolsManager, provide an OpeaMCPConfig object containing the server configurations:
 
 ```python
-from comps.agent.src.tools.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
-from comps.agent.src.tools.mcp.manager import OpeaMCPToolsManager
+from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
+from comps.cores.mcp.manager import OpeaMCPToolsManager
 
 config = OpeaMCPConfig(
     sse_servers=[
@@ -80,7 +80,7 @@ To launch a simple Stdio MCP server, follow these steps:
 ```bash
 git clone https://github.com/modelcontextprotocol/python-sdk.git
 cd python-sdk/examples/servers/simple-tool/mcp_simple_tool
-uvicorn mcp-simple-tool:app --reload
+uv run mcp-simple-tool
 ```
 
 ### **Run the MCP Client**
@@ -89,8 +89,8 @@ The following example demonstrates how to connect to both SSE and Stdio MCP serv
 
 ```python
 import asyncio
-from comps.agent.src.tools.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
-from comps.agent.src.tools.mcp.manager import OpeaMCPToolsManager
+from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
+from comps.cores.mcp.manager import OpeaMCPToolsManager
 
 async def main():
     config = OpeaMCPConfig(
@@ -98,7 +98,7 @@ async def main():
             OpeaMCPSSEServerConfig(url="http://localhost:8931/sse"),
         ],
         stdio_servers=[
-            OpeaMCPStdioServerConfig(name="mcp-simple-tool", command="uvicorn", args=["mcp-simple-tool:app", "--reload"]),
+            OpeaMCPStdioServerConfig(name="mcp-simple-tool", command="uv", args=["run", "mcp-simple-tool"]),
         ]
     )
 
