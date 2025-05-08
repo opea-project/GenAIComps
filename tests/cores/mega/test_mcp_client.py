@@ -1,6 +1,8 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import unittest
+from unittest.mock import patch, MagicMock
 import asyncio
 from comps.cores.mcp.client import OpeaMCPClient
 from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
