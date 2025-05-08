@@ -16,12 +16,19 @@ RUN apt-get update && \
     git \
     make \
     numactl \
+    python3 \
+    python3-pip \
+    python3-dev \
+    python3-distutils \
     wget
+
 
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 && \
     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100 && \
     update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 100 && \
     update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 100
+
+RUN ln -sf $(which python3) /usr/bin/python
 
 WORKDIR /root
 
