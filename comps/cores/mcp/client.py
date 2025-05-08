@@ -12,7 +12,7 @@ from mcp.client.stdio import stdio_client
 from pydantic import BaseModel, Field
 
 from comps import CustomLogger
-from comps.agent.src.tools.mcp.tool import OpeaMCPClientTool
+from comps.cores.mcp.tool import OpeaMCPClientTool
 
 logger = CustomLogger("comps-mcp-client")
 log_flag = os.getenv("LOGFLAG", False)

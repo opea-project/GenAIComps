@@ -6,8 +6,8 @@ import os
 from typing import List, Union
 
 from comps import CustomLogger
-from comps.agent.src.tools.mcp.client import OpeaMCPClient
-from comps.agent.src.tools.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
+from comps.cores.mcp.client import OpeaMCPClient
+from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
 
 logger = CustomLogger("comps-mcp-manager")
 logflag = os.getenv("LOGFLAG", False)
