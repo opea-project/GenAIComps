@@ -9,6 +9,7 @@ The **OPEA MCP Tool for Agent** is a client tool designed to facilitate seamless
 The **OPEA MCP Tool** provides a unified interface for managing MCP clients and interacting with tools exposed by MCP servers. It supports both **SSE (Server-Sent Events)** and **Stdio** server configurations, making it flexible for various use cases.
 
 ### **Features**
+
 - **Dynamic Tool Registration**: Automatically registers tools exposed by MCP servers for natural invocation.
 - **Asynchronous Operations**: Fully asynchronous API for efficient integration with modern Python applications.
 - **Context Management**: Supports Python's `async with` syntax for automatic resource management.
@@ -19,6 +20,7 @@ The **OPEA MCP Tool** provides a unified interface for managing MCP clients and 
 ## **API Usage**
 
 ### Initialization
+
 To initialize the OpeaMCPToolsManager, provide an OpeaMCPConfig object containing the server configurations:
 
 ```python
@@ -31,13 +33,14 @@ config = OpeaMCPConfig(
     ],
     stdio_servers=[
         OpeaMCPStdioServerConfig(name="stdio-server-1", command="python", args=["tool.py"]),
-    ]
+    ],
 )
 
 manager = await OpeaMCPToolsManager.create(config)
 ```
 
 ### Tool Execution
+
 Once initialized, you can execute tools exposed by MCP servers using the execute_tool method:
 
 ```python
@@ -46,6 +49,7 @@ print(result)
 ```
 
 ### Context Management
+
 The OpeaMCPToolsManager supports Python's async with syntax for automatic resource management:
 
 ```python
@@ -55,6 +59,7 @@ async with await OpeaMCPToolsManager.create(config) as manager:
 ```
 
 ### Dynamic Tool Invocation
+
 Tools are dynamically registered as methods of the manager, allowing for natural invocation:
 
 ```python
@@ -92,14 +97,17 @@ import asyncio
 from comps.agent.src.tools.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
 from comps.agent.src.tools.mcp.manager import OpeaMCPToolsManager
 
+
 async def main():
     config = OpeaMCPConfig(
         sse_servers=[
             OpeaMCPSSEServerConfig(url="http://localhost:8931/sse"),
         ],
         stdio_servers=[
-            OpeaMCPStdioServerConfig(name="mcp-simple-tool", command="uvicorn", args=["mcp-simple-tool:app", "--reload"]),
-        ]
+            OpeaMCPStdioServerConfig(
+                name="mcp-simple-tool", command="uvicorn", args=["mcp-simple-tool:app", "--reload"]
+            ),
+        ],
     )
 
     async with await OpeaMCPToolsManager.create(config) as manager:
@@ -109,6 +117,7 @@ async def main():
 
         result = await manager.execute_tool("fetch", {"url": "https://opea.dev/"})
         print(result)
+
 
 # Run the async function
 asyncio.run(main())

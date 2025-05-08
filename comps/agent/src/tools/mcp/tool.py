@@ -5,9 +5,7 @@ from mcp.types import Tool
 
 
 class OpeaMCPClientTool(Tool):
-    """
-    Represents a MCP tool proxy that can be called on the MCP server from the client side.
-    """
+    """Represents a MCP tool proxy that can be called on the MCP server from the client side."""
 
     class Config:
         arbitrary_types_allowed = True
@@ -15,10 +13,10 @@ class OpeaMCPClientTool(Tool):
     def to_param(self) -> dict:
         """Convert tool to function call format."""
         return {
-            'type': 'function',
-            'function': {
-                'name': self.name,
-                'description': self.description,
-                'parameters': self.inputSchema,
+            "type": "function",
+            "function": {
+                "name": self.name,
+                "description": self.description,
+                "parameters": self.inputSchema,
             },
         }

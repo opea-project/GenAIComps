@@ -2,25 +2,24 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import os
 from contextlib import AsyncExitStack
 from typing import List, Optional
-import os
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 from pydantic import BaseModel, Field
 
-from comps.agent.src.tools.mcp.tool import OpeaMCPClientTool
 from comps import CustomLogger
+from comps.agent.src.tools.mcp.tool import OpeaMCPClientTool
 
 logger = CustomLogger("comps-mcp-client")
 log_flag = os.getenv("LOGFLAG", False)
 
+
 class OpeaMCPClient(BaseModel):
-    """
-    A client for interacting with MCP servers, managing tools, and handling server communication.
-    """
+    """A client for interacting with MCP servers, managing tools, and handling server communication."""
 
     description: str = "MCP client for server interaction and tool management"
     session: Optional[ClientSession] = None
@@ -32,11 +31,8 @@ class OpeaMCPClient(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    async def connect_via_sse(
-        self, server_url: str, api_key: Optional[str] = None, timeout: float = 30.0
-    ) -> None:
-        """
-        Establish a connection to an MCP server using SSE (Server-Sent Events) transport.
+    async def connect_via_sse(self, server_url: str, api_key: Optional[str] = None, timeout: float = 30.0) -> None:
+        """Establish a connection to an MCP server using SSE (Server-Sent Events) transport.
 
         Args:
             server_url: The URL of the SSE server to connect to.
@@ -54,6 +50,7 @@ class OpeaMCPClient(BaseModel):
             await self.disconnect()
 
         try:
+
             async def connect_with_timeout():
                 streams_context = sse_client(
                     url=server_url,
@@ -61,9 +58,7 @@ class OpeaMCPClient(BaseModel):
                     timeout=timeout,
                 )
                 streams = await self.exit_stack.enter_async_context(streams_context)
-                self.session = await self.exit_stack.enter_async_context(
-                    ClientSession(*streams)
-                )
+                self.session = await self.exit_stack.enter_async_context(ClientSession(*streams))
                 await self._initialize_tools()
 
             await asyncio.wait_for(connect_with_timeout(), timeout=timeout)
@@ -76,11 +71,8 @@ class OpeaMCPClient(BaseModel):
             await self.disconnect()
             raise
 
-    async def connect_via_stdio(
-        self, command: str, args: List[str]
-    ) -> None:
-        """
-        Establish a connection to an MCP server using stdio (standard input/output) transport.
+    async def connect_via_stdio(self, command: str, args: List[str]) -> None:
+        """Establish a connection to an MCP server using stdio (standard input/output) transport.
 
         Args:
             command: The command to start the server.
@@ -108,8 +100,7 @@ class OpeaMCPClient(BaseModel):
             raise
 
     async def _initialize_tools(self) -> None:
-        """
-        Initialize the client session and populate the tool registry with available tools.
+        """Initialize the client session and populate the tool registry with available tools.
 
         Raises:
             RuntimeError: If the session is not initialized.
@@ -135,13 +126,10 @@ class OpeaMCPClient(BaseModel):
             self.tool_registry[tool.name] = client_tool
             self.tools.append(client_tool)
 
-        logger.info(
-            f"Connected to server with tools: {[tool.name for tool in response.tools]}"
-        )
+        logger.info(f"Connected to server with tools: {[tool.name for tool in response.tools]}")
 
     async def invoke_tool(self, tool_name: str, parameters: dict):
-        """
-        Invoke a tool on the MCP server.
+        """Invoke a tool on the MCP server.
 
         Args:
             tool_name: The name of the tool to invoke.
@@ -162,9 +150,7 @@ class OpeaMCPClient(BaseModel):
         return await self.session.call_tool(name=tool_name, arguments=parameters)
 
     async def disconnect(self) -> None:
-        """
-        Disconnect from the MCP server and clean up resources.
-        """
+        """Disconnect from the MCP server and clean up resources."""
         if self.session:
             try:
                 if hasattr(self.session, "close"):

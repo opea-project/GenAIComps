@@ -51,14 +51,13 @@ class OpeaMCPConfig(BaseModel):
 
         # Check for duplicate server URLs
         if len(set(urls)) != len(urls):
-            raise ValueError('Duplicate MCP server URLs are not allowed')
+            raise ValueError("Duplicate MCP server URLs are not allowed")
 
         # Validate URLs
         for url in urls:
             try:
                 result = urlparse(url)
                 if not all([result.scheme, result.netloc]):
-                    raise ValueError(f'Invalid URL format: {url}')
+                    raise ValueError(f"Invalid URL format: {url}")
             except Exception as e:
-                raise ValueError(f'Invalid URL {url}: {str(e)}')
-
+                raise ValueError(f"Invalid URL {url}: {str(e)}")
