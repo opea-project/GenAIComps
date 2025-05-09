@@ -6,7 +6,8 @@ This initiative empowers the development of high-quality Generative AI applicati
 
 ## GenAIComps
 
-GenAIComps provides a suite of microservices, leveraging a service composer to assemble a mega-service tailored for real-world Enterprise AI applications. All the microservices are containerized, allowing cloud native deployment. Checkout how the microservices are used in [GenAIExamples](https://github.com/opea-project/GenAIExamples).
+GenAIComps provides a suite of microservices, leveraging a service composer to assemble a mega-service tailored for real-world Enterprise AI applications. All the microservices are containerized, allowing cloud native deployment. Check out how the microservices are used in [GenAIExamples](https://github.com/opea-project/GenAIExamples)
+or [Getting Start with OPEA](https://opea-project.github.io/latest/getting-started/README.html) to deploy the ChatQnA application from OPEA GenAIExamples across multiple cloud platforms.
 
 ![Architecture](https://i.imgur.com/r5J0i8j.png)
 
@@ -42,9 +43,9 @@ The initially supported `Microservices` are described in the below table. More `
 | [Embedding](./comps/embeddings/src/README.md)     | [LangChain](https://www.langchain.com)/[LlamaIndex](https://www.llamaindex.ai) | [BAAI/bge-base-en-v1.5](https://huggingface.co/BAAI/bge-base-en-v1.5)                                   | [TEI](https://github.com/huggingface/text-embeddings-inference) | Xeon   | Embedding on Xeon CPU                 |
 | [Retriever](./comps/retrievers/README.md)         | [LangChain](https://www.langchain.com)/[LlamaIndex](https://www.llamaindex.ai) | [BAAI/bge-base-en-v1.5](https://huggingface.co/BAAI/bge-base-en-v1.5)                                   | [TEI](https://github.com/huggingface/text-embeddings-inference) | Xeon   | Retriever on Xeon CPU                 |
 | [Reranking](./comps/rerankings/src/README.md)     | [LangChain](https://www.langchain.com)/[LlamaIndex](https://www.llamaindex.ai) | [BAAI/bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base)                                 | [TEI-Gaudi](https://github.com/huggingface/tei-gaudi)           | Gaudi2 | Reranking on Gaudi2                   |
-| [Reranking](./comps/rerankings/src/README.md)     | [LangChain](https://www.langchain.com)/[LlamaIndex](https://www.llamaindex.ai) | [BBAAI/bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base)                                | [TEI](https://github.com/huggingface/text-embeddings-inference) | Xeon   | Reranking on Xeon CPU                 |
+| [Reranking](./comps/rerankings/src/README.md)     | [LangChain](https://www.langchain.com)/[LlamaIndex](https://www.llamaindex.ai) | [BAAI/bge-reranker-base](https://huggingface.co/BAAI/bge-reranker-base)                                | [TEI](https://github.com/huggingface/text-embeddings-inference) | Xeon   | Reranking on Xeon CPU                 |
 | [ASR](./comps/asr/src/README.md)                  | NA                                                                             | [openai/whisper-small](https://huggingface.co/openai/whisper-small)                                     | NA                                                              | Gaudi2 | Audio-Speech-Recognition on Gaudi2    |
-| [ASR](./comps/asr/src/README.md)                  | NA                                                                             | [openai/whisper-small](https://huggingface.co/openai/whisper-small)                                     | NA                                                              | Xeon   | Audio-Speech-RecognitionS on Xeon CPU |
+| [ASR](./comps/asr/src/README.md)                  | NA                                                                             | [openai/whisper-small](https://huggingface.co/openai/whisper-small)                                     | NA                                                              | Xeon   | Audio-Speech-Recognition on Xeon CPU |
 | [TTS](./comps/tts/src/README.md)                  | NA                                                                             | [microsoft/speecht5_tts](https://huggingface.co/microsoft/speecht5_tts)                                 | NA                                                              | Gaudi2 | Text-To-Speech on Gaudi2              |
 | [TTS](./comps/tts/src/README.md)                  | NA                                                                             | [microsoft/speecht5_tts](https://huggingface.co/microsoft/speecht5_tts)                                 | NA                                                              | Xeon   | Text-To-Speech on Xeon CPU            |
 | [Dataprep](./comps/dataprep/README.md)            | [Qdrant](https://qdrant.tech/)                                                 | [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) | NA                                                              | Gaudi2 | Dataprep on Gaudi2                    |
@@ -129,7 +130,7 @@ self.gateway = ChatQnAGateway(megaservice=self.megaservice, host="0.0.0.0", port
 
 ## Check Mega/Micro Service health status and version number
 
-Use below command to check Mega/Micro Service status.
+Use the command below to check Mega/Micro Service status.
 
 ```bash
 curl http://${your_ip}:${service_port}/v1/health_check\
@@ -149,7 +150,7 @@ Welcome to the OPEA open-source community! We are thrilled to have you here and 
 
 Together, we can make OPEA the go-to platform for enterprise AI solutions. Let's work together to push the boundaries of what's possible and create a future where AI is accessible, efficient, and impactful for everyone.
 
-Please check the [Contributing guidelines](https://github.com/opea-project/docs/tree/main/community/CONTRIBUTING.md) for a detailed guide on how to contribute a GenAI example and all the ways you can contribute!
+Please check the [Contributing Guidelines](https://github.com/opea-project/docs/tree/main/community/CONTRIBUTING.md) for a detailed guide on how to contribute a GenAI example and all the ways you can contribute!
 
 Thank you for being a part of this journey. We can't wait to see what we can achieve together!
 
