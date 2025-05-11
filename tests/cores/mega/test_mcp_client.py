@@ -233,21 +233,6 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
             await getattr(self.manager, "fail_tool")({"some": "param"})
         self.assertIn("Invocation failed", str(ctx.exception))
 
-
-    @patch("comps.cores.mcp.manager.OpeaMCPClient")
-    async def test_dynamic_tool_method_failure(self, MockOpeaMCPClient):
-        mock_client = MagicMock()
-        MockOpeaMCPClient.return_value = mock_client
-        mock_client.tools = [MagicMock(name="fail_tool", to_param=MagicMock(return_value={"name": "fail_tool"}))]
-        mock_client.invoke_tool.side_effect = Exception("Invocation failed")
-
-        self.manager.clients = [mock_client]
-        await self.manager._register_tools()
-
-        with self.assertRaises(Exception) as ctx:
-            await getattr(self.manager, "fail_tool")({"some": "param"})
-        self.assertIn("Invocation failed", str(ctx.exception))
-
     @patch("comps.cores.mcp.manager.OpeaMCPClient")
     async def test_context_manager_enter_returns_self(self, MockOpeaMCPClient):
         self.manager.clients = []
@@ -276,10 +261,6 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
         tool_with_no_name = {"param": "value"}  # Missing 'name'
         with self.assertRaises(KeyError):
             self.manager._add_tool_method(tool_with_no_name)
-
-    async def test_context_manager_enter_returns_self(self):
-        async with self.manager as mgr:
-            self.assertIs(mgr, self.manager)
 
     @patch.object(OpeaMCPToolsManager, "_extract_tools_from_clients")
     async def test_register_tools_conflict_resolution(self, mock_extract):
@@ -438,18 +419,6 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
             await manager.execute_tool("custom_tool", {})
 
         self.assertEqual(str(context.exception), "No MCP client found that provides the tool: custom_tool")
-
-    async def test_execute_tool_success(self):
-        manager = OpeaMCPToolsManager(config=MagicMock())
-        client_mock = MagicMock()
-        client_mock.tools = [MagicMock(name="custom_tool")]
-        manager.clients = [client_mock]
-
-        client_mock.invoke_tool = AsyncMock(return_value={"result": "ok"})
-
-        result = await manager.execute_tool("custom_tool", {})
-
-        self.assertEqual(result, '{"result": "ok"}')
 
 class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
 
