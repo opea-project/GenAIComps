@@ -3,9 +3,10 @@
 
 import asyncio
 import unittest
-from unittest.mock import MagicMock, AsyncMock, patch
 from types import SimpleNamespace
-from mcp.types import Tool 
+from unittest.mock import AsyncMock, MagicMock, patch
+
+from mcp.types import Tool
 
 from comps.cores.mcp.client import OpeaMCPClient
 from comps.cores.mcp.config import OpeaMCPConfig, OpeaMCPSSEServerConfig, OpeaMCPStdioServerConfig
@@ -208,7 +209,6 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
         result = self.manager._extract_tools_from_clients(self.manager.clients)
         self.assertEqual(result, [])
 
-
     def test_extract_tools_with_invalid_tool(self):
         mock_tool = MagicMock()
         mock_tool.to_param.side_effect = Exception("Invalid tool")
@@ -232,7 +232,6 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
         with self.assertRaises(Exception) as ctx:
             await getattr(self.manager, "fail_tool")({"some": "param"})
         self.assertIn("Invocation failed", str(ctx.exception))
-
 
     @patch("comps.cores.mcp.manager.OpeaMCPClient")
     async def test_dynamic_tool_method_failure(self, MockOpeaMCPClient):
@@ -284,16 +283,12 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
     @patch.object(OpeaMCPToolsManager, "_extract_tools_from_clients")
     async def test_register_tools_conflict_resolution(self, mock_extract):
         # Two tools with same name, should both be added to registry
-        mock_extract.return_value = [
-            {"name": "conflict_tool"},
-            {"name": "conflict_tool"}  # duplicate
-        ]
+        mock_extract.return_value = [{"name": "conflict_tool"}, {"name": "conflict_tool"}]  # duplicate
         await self.manager._register_tools()
 
         # Confirm dynamic method is registered once, but registry has both entries
         self.assertTrue(hasattr(self.manager, "conflict_tool"))
         self.assertEqual(len(self.manager.tools_registry), 2)
-
 
     def test_extract_tools_from_clients_with_exception(self):
         broken_client = MagicMock()
@@ -317,7 +312,7 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
         manager.clients = [dummy_client]
 
         result = await manager.execute_tool("my_tool", {"x": 1})
-        
+
         self.assertEqual(result, '{"result": "ok"}')
 
     async def test_async_exit_disconnects_clients(self):
@@ -337,7 +332,7 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
         manager = OpeaMCPToolsManager(config=MagicMock())
         manager.clients = [dummy_client]
 
-        with self.assertLogs('comps-mcp-manager', level='ERROR') as log:
+        with self.assertLogs("comps-mcp-manager", level="ERROR") as log:
             await manager.__aexit__(None, None, None)
             self.assertIn("Error while disconnecting MCP client", log.output[0])
 
@@ -361,7 +356,6 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertIs(result[0], client_mock)
 
-
     async def test_initialize_clients_stdio(self):
         # Mock server configuration
         server_config = OpeaMCPStdioServerConfig(command="run_command", args=["arg1", "arg2"], name="test_name")
@@ -379,7 +373,6 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
         client_mock.connect_via_stdio.assert_called_with("run_command", ["arg1", "arg2"])
         self.assertEqual(len(result), 1)
         self.assertIs(result[0], client_mock)
-
 
     async def test_initialize_clients_error_handling(self):
         # Mock server configuration
@@ -451,6 +444,7 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
 
         self.assertEqual(result, '{"result": "ok"}')
 
+
 class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
@@ -489,9 +483,7 @@ class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
         # Ensure the mock session, sse_client, and task group were called as expected
         mock_session.__aenter__.assert_called_once()
         mock_sse_client.assert_called_once_with(
-            url="http://example.com",
-            headers={"Authorization": "Bearer key"},
-            timeout=10
+            url="http://example.com", headers={"Authorization": "Bearer key"}, timeout=10
         )
 
     async def test_connect_via_sse_missing_url(self):
@@ -510,7 +502,6 @@ class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
             await self.client.connect_via_sse("http://slow.server", timeout=0.01)
 
         mock_disconnect.assert_awaited()
-
 
     @patch("mcp.client.stdio._create_platform_compatible_process")
     @patch("mcp.client.stdio.stdio_client")
@@ -561,9 +552,7 @@ class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
         mock_session = AsyncMock()
         mock_session.call_tool.return_value = {"result": "ok"}
 
-        tool = OpeaMCPClientTool(
-            name="test_tool", description="desc", inputSchema={}, session=mock_session
-        )
+        tool = OpeaMCPClientTool(name="test_tool", description="desc", inputSchema={}, session=mock_session)
         self.client.tool_registry["test_tool"] = tool
         self.client.session = mock_session
 
@@ -596,6 +585,7 @@ class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.client.tools, [])
         self.assertEqual(self.client.tool_registry, {})
 
+
 class TestOpeaMCPConfig(unittest.TestCase):
 
     def test_valid_config_should_pass(self):
@@ -604,9 +594,7 @@ class TestOpeaMCPConfig(unittest.TestCase):
                 OpeaMCPSSEServerConfig(url="http://example.com", api_key="abc123"),
                 OpeaMCPSSEServerConfig(url="https://another.com", api_key=None),
             ],
-            stdio_servers=[
-                OpeaMCPStdioServerConfig(name="local", command="run_server", args=["--port", "8080"])
-            ]
+            stdio_servers=[OpeaMCPStdioServerConfig(name="local", command="run_server", args=["--port", "8080"])],
         )
 
         # Should not raise
@@ -645,6 +633,7 @@ class TestOpeaMCPConfig(unittest.TestCase):
         server = OpeaMCPStdioServerConfig(name="stdio", command="cmd")
         self.assertEqual(server.args, [])
         self.assertEqual(server.env, {})
+
 
 if __name__ == "__main__":
     unittest.main()
