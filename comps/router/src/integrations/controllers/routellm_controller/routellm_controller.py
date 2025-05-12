@@ -1,8 +1,8 @@
 import logging
-from comps.cores.telemetry import opea_telemetry
+import os
 from comps.router.src.integrations.controllers.base_controller import BaseController
 from routellm.controller import Controller as RouteLLM_Controller
-# from decorators import log_latency
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -11,53 +11,48 @@ logging.basicConfig(
 class RouteLLMController(BaseController):
     def __init__(self, config, hf_token=None, api_key=None, model_map=None):
         self.config = config
-        # Use the provided model_map or default to an empty dict
         self.model_map = model_map or {}
+
+        # TODO: Double check this 
+        default_embed = config.get("embedding_model_name")
+        self.embedding_model = os.getenv(
+            "ROUTELLM_EMBEDDING_MODEL_NAME",
+            default_embed
+        )
+        logging.info(f"[RouteLLM] using embedding model: {self.embedding_model}")
+
+        self.config.setdefault("config", {}) \
+                   .setdefault("mf", {})["embedding_model_name"] = self.embedding_model
+
         self.threshold = config.get("threshold", 0.2)
         self.routing_algorithm = config.get("routing_algorithm")
-        self.controller_type = config.get("controller_type")
 
-        # Extract nested model info from model_map:
-        strong_model_info = self.model_map.get("strong", {})
-        weak_model_info = self.model_map.get("weak", {})
+        strong_model = self.model_map.get("strong", {}).get("model_id")
+        weak_model   = self.model_map.get("weak",   {}).get("model_id")
 
-        # Retrieve the model IDs from the nested structure
-        strong_model_name = strong_model_info.get("model_id")
-        weak_model_name = weak_model_info.get("model_id")
-
-        # Create the underlying RouteLLM_Controller with the unwrapped model names.
         self.controller = RouteLLM_Controller(
             routers=[self.routing_algorithm],
-            strong_model=strong_model_name,
-            weak_model=weak_model_name,
+            strong_model=strong_model,
+            weak_model=weak_model,
             hf_token=hf_token,
             api_key=api_key,
             config=config.get("config"),
         )
 
-    @opea_telemetry
     def route(self, messages):
 
-        # Get the routed model name (model_id) from the underlying RouteLLM_Controller.
-        routed_model_name = self.controller.get_routed_model(
+        routed_name = self.controller.get_routed_model(
             messages,
             router=self.routing_algorithm,
             threshold=self.threshold,
         )
 
-        # Look up the matching endpoint by comparing model_id.
         endpoint_key = next(
-            (
-                key
-                for key, value in self.model_map.items()
-                if value.get("model_id") == routed_model_name
-            ),
-            None,
+            (k for k, v in self.model_map.items()
+             if v.get("model_id") == routed_name),
+            None
         )
-
         if not endpoint_key:
-            raise ValueError(f"Routed model '{routed_model_name}' not found in the model_map.")
+            raise ValueError(f"Routed model '{routed_name}' not in model_map")
 
-        endpoint = self.model_map[endpoint_key]["endpoint"]
-
-        return endpoint
+        return self.model_map[endpoint_key]["endpoint"]
