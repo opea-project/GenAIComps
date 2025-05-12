@@ -1,12 +1,9 @@
-# Global config for router microservice
 model_map:
   weak:
-    endpoint: "http://some-inference-service:8000/weak"
-    model_id: "openai/gpt-3.5-turbo"
+    endpoint: "${WEAK_ENDPOINT:-http://opea_router:8000/weak}"
+    model_id: "${WEAK_MODEL_ID:}"
   strong:
-    endpoint: "http://some-inference-service:8000/strong"
-    model_id: "openai/gpt-4"
+    endpoint: "${STRONG_ENDPOINT:-http://opea_router:8000/strong}"
+    model_id: "${STRONG_MODEL_ID:}"
 
-controller_config_paths:
-  routellm:   "/app/configs/routellm_config.yaml"
-  semantic_router: "/app/configs/semantic_router_config.yaml"
+controller_config_path: "${CONTROLLER_CONFIG_PATH:-/app/configs/routellm_config.yaml}"
