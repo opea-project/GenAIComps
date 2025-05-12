@@ -9,6 +9,7 @@ from typing import Annotated, List, Optional, Union
 from fastapi import Body, Depends, File, Form, HTTPException, Request, UploadFile
 from integrations.arangodb import OpeaArangoDataprep
 from integrations.elasticsearch import OpeaElasticSearchDataprep
+from integrations.mariadb import OpeaMariaDBDataprep
 from integrations.milvus import OpeaMilvusDataprep
 from integrations.neo4j_llamaindex import OpeaNeo4jLlamaIndexDataprep
 from integrations.opensearch import OpeaOpenSearchDataprep
