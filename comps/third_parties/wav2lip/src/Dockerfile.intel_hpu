@@ -1,6 +1,6 @@
 # Use a base image
 # FROM python:3.11-slim
-FROM vault.habana.ai/gaudi-docker/1.18.0/ubuntu22.04/habanalabs/pytorch-installer-2.4.0 AS hpu
+FROM vault.habana.ai/gaudi-docker/1.20.1/ubuntu22.04/habanalabs/pytorch-installer-2.6.0 AS hpu
 
 # Set environment variables
 ENV LANG=en_US.UTF-8
@@ -9,12 +9,12 @@ ENV PYTHON=/usr/bin/python3.10
 
 # Install dependencies
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
-    yasm \
     build-essential \
+    libx264-dev \
+    nasm \
     pkg-config \
-    libx264-dev
-RUN apt-get install -y nasm
-RUN rm -rf /var/lib/apt/lists/*
+    yasm && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install GenAIComps
 RUN mkdir -p /home/user/comps
@@ -34,12 +34,12 @@ RUN chmod +x $(which ffmpeg)
 RUN python3 -m pip install --upgrade pip
 
 # Install Wav2Lip from pip
-RUN pip install --no-deps Wav2Lipy
+RUN pip install --no-cache-dir --no-deps Wav2Lipy
 RUN rm /usr/local/lib/python3.10/dist-packages/Wav2Lip/__init__.py && touch /usr/local/lib/python3.10/dist-packages/Wav2Lip/__init__.py
 ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.10/dist-packages/Wav2Lip"
 
 # Install GFPGAN from pip
-RUN pip install --no-deps gfpgan
+RUN pip install --no-cache-dir --no-deps gfpgan
 RUN touch /usr/local/lib/python3.10/dist-packages/gfpgan/__init__.py
 ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.10/dist-packages/gfpgan"
 
@@ -47,7 +47,7 @@ ENV PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.10/dist-packages/gfpgan"
 WORKDIR /usr/local/lib/python3.10/dist-packages
 
 # Install pip dependencies
-RUN pip install -r /home/user/comps/animation/src/requirements.txt
+RUN pip install --no-cache-dir -r /home/user/comps/animation/src/requirements.txt
 
 # Custom patches
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional

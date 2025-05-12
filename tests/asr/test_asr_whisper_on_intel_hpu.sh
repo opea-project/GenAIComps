@@ -13,7 +13,7 @@ export ASR_PORT=10103
 function build_docker_images() {
     cd $WORKPATH
     echo $(pwd)
-    docker build --no-cache -t opea/whisper-gaudi:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/asr/src/integrations/dependency/whisper/Dockerfile.intel_hpu .
+    docker build --no-cache -t opea/whisper-gaudi:$TAG --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/whisper/src/Dockerfile.intel_hpu .
 
     if [ $? -ne 0 ]; then
         echo "opea/whisper-gaudi built fail"
@@ -33,6 +33,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+
     unset http_proxy
     export ASR_ENDPOINT=http://$ip_address:$WHISPER_PORT
 

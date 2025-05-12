@@ -17,29 +17,28 @@ RUN useradd -m -s /bin/bash user && \
 RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg && \
 echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu jammy unified" | \
         tee /etc/apt/sources.list.d/intel-gpu-jammy.list &&\
-    apt update -y &&\
-    apt install -y \
-        libze-intel-gpu1 libze1 intel-opencl-icd clinfo \
-        libze-dev intel-ocloc \
+    apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+        clinfo \
         intel-level-zero-gpu-raytracing \
-        vim \
+        intel-ocloc \
+        intel-opencl-icd \
+        libze1 \
+        libze-dev \
+        libze-intel-gpu1 \
         rsync
 
 COPY comps /home/user/comps
-
 
 RUN chown -R user /home/user/comps/finetuning
 
 ENV PATH=$PATH:/home/user/.local/bin
 RUN cd /home/user/comps/finetuning/src/integrations/xtune && git config --global user.name "test" && git config --global user.email "test" && bash prepare_xtune.sh 
 
-RUN python -m pip install --upgrade pip setuptools peft && \
-    python -m pip install -r /home/user/comps/finetuning/src/requirements.txt && \
-    python -m pip install --no-deps transformers==4.45.0 datasets==2.21.0 accelerate==0.34.2 peft==0.12.0
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools peft && \
+    python -m pip install --no-cache-dir -r /home/user/comps/finetuning/src/requirements.txt && \
+    python -m pip list | grep nvidia | awk '{print $1}' | xargs -L1 python -m pip uninstall -y
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
-
-
 
 WORKDIR /home/user/comps/finetuning/src
 
