@@ -135,7 +135,7 @@ class ServiceOrchestrator(DAG):
         if LOGFLAG:
             logger.info(initial_inputs)
 
-        timeout = aiohttp.ClientTimeout(total=1000)
+        timeout = aiohttp.ClientTimeout(total=2000)
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
             pending = {
                 asyncio.create_task(
