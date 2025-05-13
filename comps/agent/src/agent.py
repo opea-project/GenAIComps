@@ -19,6 +19,7 @@ from comps.agent.src.integrations.agent import instantiate_agent
 from comps.agent.src.integrations.global_var import assistants_global_kv, threads_global_kv
 from comps.agent.src.integrations.thread import instantiate_thread_memory, thread_completion_callback
 from comps.agent.src.integrations.utils import assemble_store_messages, get_args, get_latest_human_message_from_store
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import (
     AssistantsObject,
     ChatCompletionRequest,
@@ -30,7 +31,6 @@ from comps.cores.proto.api_protocol import (
     MessageObject,
     ThreadObject,
 )
-from comps.cores.mega.constants import MCPFuncType
 from comps.cores.telemetry.opea_telemetry import opea_telemetry, tracer
 
 logger = CustomLogger("comps-react-agent")

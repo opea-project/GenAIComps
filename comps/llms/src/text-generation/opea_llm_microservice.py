@@ -20,7 +20,6 @@ from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
 
-
 logger = CustomLogger("llm")
 logflag = os.getenv("LOGFLAG", False)
 

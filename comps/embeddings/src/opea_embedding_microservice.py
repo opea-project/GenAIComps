@@ -22,7 +22,6 @@ from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
 
-
 logger = CustomLogger("opea_embedding_microservice")
 logflag = os.getenv("LOGFLAG", False)
 

@@ -17,7 +17,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.mega.constants import MCPFuncType
 
 logger = CustomLogger("opea_multimodal_embedding_microservice")
