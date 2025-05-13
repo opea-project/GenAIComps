@@ -10,7 +10,7 @@ from huggingface_hub import AsyncInferenceClient
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.mega.utils import get_access_token
-from comps.cores.proto.api_protocol import EmbeddingResponseData, EmbeddingRequest, EmbeddingResponse
+from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse, EmbeddingResponseData
 
 logger = CustomLogger("opea_tei_embedding")
 logflag = os.getenv("LOGFLAG", False)
@@ -71,10 +71,7 @@ class OpeaTEIEmbedding(OpeaComponent):
         # feature_extraction return np.ndarray
         response = await self.client.feature_extraction(text=texts, model=f"{self.base_url}/v1/embeddings")
         # Convert np.ndarray to a list of lists (embedding)
-        data = [
-            EmbeddingResponseData(index=i, embedding=embedding.tolist())
-            for i, embedding in enumerate(response)
-        ]
+        data = [EmbeddingResponseData(index=i, embedding=embedding.tolist()) for i, embedding in enumerate(response)]
         # Construct the EmbeddingResponse
         response = EmbeddingResponse(data=data)
         return response
