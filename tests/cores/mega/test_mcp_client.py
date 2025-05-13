@@ -414,6 +414,7 @@ class TestOpeaMCPToolsManager(unittest.TestCase):
 
         self.assertEqual(str(context.exception), "No MCP client found that provides the tool: custom_tool")
 
+
 class TestOpeaMCPClient(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
