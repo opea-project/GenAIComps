@@ -70,7 +70,7 @@ class OpeaOVMSEmbedding(OpeaComponent):
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
         # feature_extraction return np.ndarray
-        response = await self.client.feature_extraction(text=texts, model=MODEL_ID)
+        response = await self.client.feature_extraction(text=texts, model=f"{self.base_url}/embed")
         # Convert np.ndarray to a list of lists (embedding)
         data = [EmbeddingResponseData(index=i, embedding=embedding.tolist()) for i, embedding in enumerate(response)]
         # Construct the EmbeddingResponse

@@ -17,7 +17,6 @@ logflag = os.getenv("LOGFLAG", False)
 TOKEN_URL = os.getenv("TOKEN_URL")
 CLIENTID = os.getenv("CLIENTID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-MODEL_ID = os.getenv("EMBEDDING_MODEL_ID", "BAAI/bge-base-en-v1.5")
 
 
 @OpeaComponentRegistry.register("OPEA_TEI_EMBEDDING")
@@ -70,7 +69,7 @@ class OpeaTEIEmbedding(OpeaComponent):
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
         # feature_extraction return np.ndarray
-        response = await self.client.feature_extraction(text=texts, model=MODEL_ID)
+        response = await self.client.feature_extraction(text=texts, model=f"{self.base_url}/embed")
         # Convert np.ndarray to a list of lists (embedding)
         data = [EmbeddingResponseData(index=i, embedding=embedding.tolist()) for i, embedding in enumerate(response)]
         # Construct the EmbeddingResponse
