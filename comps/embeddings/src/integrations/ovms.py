@@ -10,7 +10,7 @@ from huggingface_hub import AsyncInferenceClient
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.mega.utils import get_access_token
-from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
+from comps.cores.proto.api_protocol import EmbeddingResponseData, EmbeddingRequest, EmbeddingResponse
 
 logger = CustomLogger("opea_ovms_embedding")
 logflag = os.getenv("LOGFLAG", False)
@@ -45,7 +45,7 @@ class OpeaOVMSEmbedding(OpeaComponent):
         )
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
-            model=MODEL_ID,
+            model=f"{self.base_url}/v3/embeddings",
             token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
@@ -69,18 +69,16 @@ class OpeaOVMSEmbedding(OpeaComponent):
                 raise ValueError("Invalid input format: Only string or list of strings are supported.")
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
-        response = await self.client.post(
-            json={
-                "input": texts,
-                "encoding_format": input.encoding_format,
-                "model": self.client.model,
-                "user": input.user,
-            },
-            model=f"{self.base_url}/v3/embeddings",
-            task="text-embedding",
-        )
-        embeddings = json.loads(response.decode())
-        return EmbeddingResponse(**embeddings)
+        # feature_extraction return np.ndarray
+        response = await self.client.feature_extraction(text=texts, model=f"{self.base_url}/v3/embeddings")
+        # Convert np.ndarray to a list of lists (embedding)
+        data = [
+            EmbeddingResponseData(index=i, embedding=embedding.tolist())
+            for i, embedding in enumerate(response)
+        ]
+        # Construct the EmbeddingResponse
+        response = EmbeddingResponse(data=data)
+        return response
 
     def check_health(self) -> bool:
         """Checks the health of the embedding service.

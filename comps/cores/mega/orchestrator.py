@@ -274,7 +274,7 @@ class ServiceOrchestrator(DAG):
                         headers={"Content-type": "application/json", "Authorization": f"Bearer {access_token}"},
                         proxies={"http": None},
                         stream=True,
-                        timeout=1000,
+                        timeout=2000,
                     )
                 else:
                     response = requests.post(
@@ -285,7 +285,7 @@ class ServiceOrchestrator(DAG):
                         },
                         proxies={"http": None},
                         stream=True,
-                        timeout=1000,
+                        timeout=2000,
                     )
 
             downstream = runtime_graph.downstream(cur_node)
@@ -317,6 +317,7 @@ class ServiceOrchestrator(DAG):
                                                 "Authorization": f"Bearer {access_token}",
                                             },
                                             proxies={"http": None},
+                                            timeout=2000,
                                         )
                                     else:
                                         res = requests.post(
@@ -326,6 +327,7 @@ class ServiceOrchestrator(DAG):
                                                 "Content-type": "application/json",
                                             },
                                             proxies={"http": None},
+                                            timeout=2000,
                                         )
                                     res_json = res.json()
                                     if "text" in res_json:
