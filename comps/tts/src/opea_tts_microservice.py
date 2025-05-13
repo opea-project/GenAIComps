@@ -1,11 +1,11 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
 import os
 import time
-import base64
-import requests
 
+import requests
 from fastapi.responses import StreamingResponse
 from integrations.gptsovits import OpeaGptsovitsTts
 from integrations.speecht5 import OpeaSpeecht5Tts
@@ -19,9 +19,8 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.cores.proto.api_protocol import AudioSpeechRequest
 from comps.cores.mega.constants import MCPFuncType
-
+from comps.cores.proto.api_protocol import AudioSpeechRequest
 
 logger = CustomLogger("opea_tts_microservice")
 logflag = os.getenv("LOGFLAG", False)
@@ -66,7 +65,7 @@ async def text_to_speech(request: AudioSpeechRequest) -> StreamingResponse:
         statistics_dict["opea_service@tts"].append_latency(time.time() - start, None)
         if enable_mcp:
             # return the base64 string
-            audio_base64 = base64.b64encode(tts_response.content).decode('utf-8')
+            audio_base64 = base64.b64encode(tts_response.content).decode("utf-8")
 
             return {"audio_str": audio_base64}
         else:
