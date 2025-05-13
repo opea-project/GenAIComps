@@ -1,9 +1,9 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import aiohttp
 import os
 
+import aiohttp
 import requests
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
