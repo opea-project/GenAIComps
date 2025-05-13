@@ -44,7 +44,7 @@ class OpeaTEIEmbedding(OpeaComponent):
         )
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
-            model=f"{self.base_url}/v1/embeddings",
+            model=f"{self.base_url}/embed",
             token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
             headers=headers,
         )
@@ -69,7 +69,7 @@ class OpeaTEIEmbedding(OpeaComponent):
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
         # feature_extraction return np.ndarray
-        response = await self.client.feature_extraction(text=texts, model=f"{self.base_url}/v1/embeddings")
+        response = await self.client.feature_extraction(text=texts, model=input.model)
         # Convert np.ndarray to a list of lists (embedding)
         data = [
             EmbeddingResponseData(index=i, embedding=embedding.tolist())
