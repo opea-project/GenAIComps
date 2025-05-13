@@ -22,6 +22,7 @@ services:
       LOGFLAG: ${LOGFLAG:-False}
       MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS}
       MAX_TOTAL_TOKENS: ${MAX_TOTAL_TOKENS}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     restart: unless-stopped
 
   docsum-tgi:

@@ -16,13 +16,16 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
+
 
 logger = CustomLogger("llm")
 logflag = os.getenv("LOGFLAG", False)
 
 llm_component_name = os.getenv("LLM_COMPONENT_NAME", "OpeaTextGenService")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 if logflag:
     logger.info(f"Get llm_component_name {llm_component_name}")
 
@@ -48,6 +51,9 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM Componen
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=9000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Text generations with LLMs",
 )
 @opea_telemetry
 @register_statistics(names=["opea_service@llm"])

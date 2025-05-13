@@ -36,6 +36,7 @@ llama-index-llms-openai
 llama-index-llms-openai-like
 mariadb
 markdown
+mcp
 moviepy
 neo4j
 numpy

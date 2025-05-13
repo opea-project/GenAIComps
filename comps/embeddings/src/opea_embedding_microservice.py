@@ -18,13 +18,16 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import EmbeddingRequest, EmbeddingResponse
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
+
 
 logger = CustomLogger("opea_embedding_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
 embedding_component_name = os.getenv("EMBEDDING_COMPONENT_NAME", "OPEA_TEI_EMBEDDING")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     embedding_component_name,
@@ -38,6 +41,9 @@ loader = OpeaComponentLoader(
     endpoint="/v1/embeddings",
     host="0.0.0.0",
     port=6000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Generate embeddings for given texts",
 )
 @opea_telemetry
 @register_statistics(names=["opea_service@embedding"])

@@ -20,6 +20,7 @@ services:
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG:-False}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     restart: unless-stopped
 
   faqgen-tgi:

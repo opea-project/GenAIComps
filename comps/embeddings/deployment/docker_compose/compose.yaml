@@ -21,6 +21,7 @@ x-multimodal-bridgetower-embedding-config: &multimodal-bridgetower-embedding-con
     EMBEDDING_COMPONENT_NAME: "OPEA_MULTIMODAL_EMBEDDING_BRIDGETOWER"
     MMEI_EMBEDDING_ENDPOINT: ${MMEI_EMBEDDING_ENDPOINT}
     MM_EMBEDDING_PORT_MICROSERVICE: ${MM_EMBEDDING_PORT_MICROSERVICE}
+    ENABLE_MCP: ${ENABLE_MCP:-False}
   restart: unless-stopped
 
 services:
@@ -36,6 +37,7 @@ services:
       https_proxy: ${https_proxy}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       EMBEDDING_COMPONENT_NAME: "OPEA_TEI_EMBEDDING"
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       tei-embedding-serving:
         condition: service_healthy
@@ -54,6 +56,7 @@ services:
       OVMS_EMBEDDING_ENDPOINT: ${OVMS_EMBEDDING_ENDPOINT}
       EMBEDDING_COMPONENT_NAME: "OPEA_OVMS_EMBEDDING"
       MODEL_ID: ${MODEL_ID}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     restart: unless-stopped
 
   pg-embedding-server:
@@ -69,6 +72,7 @@ services:
       PG_EMBEDDING_MODEL_NAME: ${PG_EMBEDDING_MODEL_NAME}
       PREDICTIONGUARD_API_KEY: ${PREDICTIONGUARD_API_KEY}
       EMBEDDING_COMPONENT_NAME: "OPEA_PREDICTIONGUARD_EMBEDDING"
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     restart: unless-stopped
 
   clip-embedding-server:
@@ -83,6 +87,7 @@ services:
       https_proxy: ${https_proxy}
       CLIP_EMBEDDING_ENDPOINT: ${CLIP_EMBEDDING_ENDPOINT}
       EMBEDDING_COMPONENT_NAME: "OPEA_CLIP_EMBEDDING"
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       multimodal-clip-embedding:
         condition: service_healthy

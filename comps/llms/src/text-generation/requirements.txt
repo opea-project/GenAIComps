@@ -5,6 +5,7 @@ fastapi
 httpx==0.27.2
 huggingface_hub
 langchain_core
+mcp
 openai==1.57.4
 opentelemetry-api
 opentelemetry-exporter-otlp

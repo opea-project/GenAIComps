@@ -2,6 +2,7 @@ aiohttp
 docarray
 fastapi
 huggingface_hub
+mcp
 openai
 opentelemetry-api
 opentelemetry-exporter-otlp

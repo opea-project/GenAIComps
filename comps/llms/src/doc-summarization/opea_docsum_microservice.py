@@ -16,12 +16,14 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.cores.proto.api_protocol import DocSumChatCompletionRequest
 
 logger = CustomLogger("llm_docsum")
 logflag = os.getenv("LOGFLAG", False)
 
 llm_component_name = os.getenv("DocSum_COMPONENT_NAME", "OpeaDocSumTgi")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM DocSum Component: {llm_component_name}")
 
@@ -32,6 +34,9 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM DocSum C
     endpoint="/v1/docsum",
     host="0.0.0.0",
     port=9000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Document summarization with LLMs",
 )
 @register_statistics(names=["opea_service@llm_docsum"])
 async def llm_generate(input: DocSumChatCompletionRequest):

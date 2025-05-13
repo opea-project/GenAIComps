@@ -22,6 +22,7 @@ services:
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG:-False}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     restart: unless-stopped
 
   textgen-gaudi:
@@ -41,6 +42,7 @@ services:
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       TOKENIZERS_PARALLELISM: False
       LOGFLAG: ${LOGFLAG:-False}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     runtime: habana
     cap_add:
       - SYS_NICE
@@ -64,6 +66,7 @@ services:
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       TOKENIZERS_PARALLELISM: False
       LOGFLAG: ${LOGFLAG:-False}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     runtime: habana
     cap_add:
       - SYS_NICE

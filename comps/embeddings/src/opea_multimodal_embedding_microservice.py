@@ -18,10 +18,13 @@ from comps import (
     statistics_dict,
 )
 
+from comps.cores.mega.constants import MCPFuncType
+
 logger = CustomLogger("opea_multimodal_embedding_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
 embedding_component_name = os.getenv("EMBEDDING_COMPONENT_NAME", "OPEA_MULTIMODAL_EMBEDDING_BRIDGETOWER")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     embedding_component_name,
@@ -39,6 +42,9 @@ port = int(os.getenv("MM_EMBEDDING_PORT_MICROSERVICE", 6000))
     port=port,
     input_datatype=MultimodalDoc,
     output_datatype=EmbedMultimodalDoc,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Generate embeddings for multimodal documents",
 )
 @register_statistics(names=["opea_service@multimodal_embedding"])
 async def embedding(input: MultimodalDoc) -> EmbedMultimodalDoc:

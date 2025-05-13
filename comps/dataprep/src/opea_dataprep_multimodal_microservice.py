@@ -20,6 +20,7 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 from comps.dataprep.src.utils import create_upload_folder
 
 logger = CustomLogger("opea_dataprep_multimodal_microservice")
@@ -27,6 +28,7 @@ logflag = os.getenv("LOGFLAG", False)
 upload_folder = "./uploaded_files/"
 
 dataprep_component_name = os.getenv("DATAPREP_COMPONENT_NAME", "OPEA_DATAPREP_MULTIMODALVDMS")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 # Initialize OpeaComponentLoader
 loader = OpeaDataprepMultiModalLoader(
     dataprep_component_name,
@@ -40,6 +42,9 @@ loader = OpeaDataprepMultiModalLoader(
     endpoint="/v1/dataprep/ingest",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation multimodal service",
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def ingest_files(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
@@ -68,6 +73,9 @@ async def ingest_files(files: Optional[Union[UploadFile, List[UploadFile]]] = Fi
     endpoint="/v1/dataprep/ingest_videos",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation multimodal service",
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def ingest_videos(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
@@ -96,6 +104,9 @@ async def ingest_videos(files: Optional[Union[UploadFile, List[UploadFile]]] = F
     endpoint="/v1/dataprep/generate_transcripts",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation multimodal service",
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def ingest_generate_transcripts(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
@@ -123,6 +134,9 @@ async def ingest_generate_transcripts(files: Optional[Union[UploadFile, List[Upl
     endpoint="/v1/dataprep/generate_captions",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation multimodal service",
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def ingest_generate_captions(files: Optional[Union[UploadFile, List[UploadFile]]] = File(None)):
@@ -151,6 +165,9 @@ async def ingest_generate_captions(files: Optional[Union[UploadFile, List[Upload
     endpoint="/v1/dataprep/get",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation multimodal service",
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def get_files():
@@ -180,6 +197,9 @@ async def get_files():
     host="0.0.0.0",
     port=5000,
     methods=["GET"],
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation multimodal service",
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def get_one_file(filename: str):
@@ -209,6 +229,9 @@ async def get_one_file(filename: str):
     host="0.0.0.0",
     port=5000,
     methods=["GET"],
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation multimodal service",
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def get_videos():
@@ -237,6 +260,9 @@ async def get_videos():
     endpoint="/v1/dataprep/delete",
     host="0.0.0.0",
     port=5000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Data preparation multimodal service",
 )
 @register_statistics(names=["opea_service@dataprep_multimodal"])
 async def delete_files(file_path: str = Body(..., embed=True)):
