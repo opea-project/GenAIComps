@@ -82,7 +82,7 @@ for line in resp.iter_lines(decode_unicode=True):
 
 **Note**:
 
-1. Currently only `reract_llama` agent is enabled for assistants APIs.
+1. Currently only `react_llama` agent is enabled for assistants APIs.
 2. Not all keywords of OpenAI APIs are supported yet.
 
 ### 1.5 Agent memory
@@ -110,13 +110,27 @@ Examples of python code for multi-turn conversations using agent memory:
 
 To run the two examples above, first launch the agent microservice using [this docker compose yaml](../../../tests/agent/reactllama.yaml).
 
-### 1.6 Run LLMs with Remote Servers
+### 1.6 Run LLMs from OpenAI
+
+To run any model from OpenAI, just specify the environment variable `OPENAI_API_KEY`:
+
+```bash
+export OPENAI_API_KEY=<openai-api-key>
+```
+
+These also need to be passed in to the `docker run` command, or included in a YAML file when running `docker compose`.
+
+### 1.7 Run LLMs with OpenAI-compatible APIs on Remote Servers
 
 To run the text generation portion using LLMs deployed on a remote server, specify the following environment variables:
 
-- `api_key`=<openai-api-key>
-- `model`=<model-card>
-- `LLM_ENDPOINT_URL`=<inference-endpoint>
+```bash
+export api_key=<openai-api-key>
+export model=<model-card>
+export LLM_ENDPOINT_URL=<inference-endpoint>
+```
+
+These also need to be passed in to the `docker run` command, or included in a YAML file when running `docker compose`.
 
 #### Notes
 
