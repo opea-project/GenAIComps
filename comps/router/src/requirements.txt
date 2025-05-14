@@ -4,6 +4,7 @@ uvicorn[standard]
 aiofiles
 aiohttp
 httpx
+
 # Data handling and parsing
 pydantic
 requests
@@ -12,19 +13,23 @@ python-multipart
 pyyaml
 pypdf
 docx2txt
+
 # Larger frameworks and libs
 semantic-router
 langchain
 langchain-community
 docarray[full]
+
 # Observability and telemetry
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
 prometheus-fastapi-instrumentator
+
 # K8s, images, misc
 kubernetes
 pillow
 shortuuid
+
 # Include the forked RouteLLM repository
 git+https://github.com/SAPD-Intel/RouteLLM.git

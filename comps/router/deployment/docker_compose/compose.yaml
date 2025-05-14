@@ -1,30 +1,37 @@
+
 services:
   router_service:
-    image: "${REGISTRY_AND_REPO}:${TAG}"
+    build:
+      # from this file’s folder, go up two levels into `comps/router`
+      context: ../../../..
+      dockerfile: comps/router/src/Dockerfile
+    # image: "${REGISTRY_AND_REPO}:${TAG}"
+    image: "sapdai/refd:routing-service"
     container_name: opea_router
-    # mount your static configs 
+
+    # mount your static configs
     volumes:
       - ./config.yaml:/app/config.yaml
       - ./routellm_config.yaml:/app/configs/routellm_config.yaml
       - ./semantic_router_config.yaml:/app/configs/semantic_router_config.yaml
-    # load any overrides from a .env file in this folder
+
     env_file:
       - .env
+
     environment:
-      # which controller to load
-      - CONFIG_PATH=${CONTROLLER_CONFIG_PATH:-/app/configs/routellm_config.yaml}
-      # override model_map endpoints & model_ids by env if needed
+      - CONFIG_PATH=/app/config.yaml
       - WEAK_ENDPOINT=${WEAK_ENDPOINT:-http://opea_router:8000/weak}
       - STRONG_ENDPOINT=${STRONG_ENDPOINT:-http://opea_router:8000/strong}
       - WEAK_MODEL_ID=${WEAK_MODEL_ID:-openai/gpt-3.5-turbo}
       - STRONG_MODEL_ID=${STRONG_MODEL_ID:-openai/gpt-4}
-      # existing secrets & switches
       - HF_TOKEN=${HF_TOKEN}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - CONTROLLER_TYPE=${CONTROLLER_TYPE:-routellm}
+
     ports:
       - "6000:6000"
     restart: unless-stopped
+
 networks:
   default:
     driver: bridge
