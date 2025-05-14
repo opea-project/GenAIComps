@@ -108,6 +108,9 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         self.opensearch_client = OpenSearchVectorSearch(
             opensearch_url=OPENSEARCH_URL,
             index_name=Config.INDEX_NAME,
+            # Default engine for OpenSearch is "nmslib", 
+            # but "nmslib" engine is deprecated in OpenSearch and cannot be used for new index creation in OpenSearch from 3.0.0.
+            engine="faiss",
             embedding_function=self.embeddings,
             http_auth=self.auth,
             use_ssl=True,
