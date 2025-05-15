@@ -7,6 +7,7 @@ import json
 
 from .config import env_config
 
+LLM_ENDPOINT_URL_DEFAULT = "http://localhost:8080"
 
 def format_date(date):
     # input m/dd/yyyy hr:min
@@ -57,28 +58,20 @@ def setup_chat_model(args):
         "streaming": args.stream,
     }
     if args.llm_engine == "vllm" or args.llm_engine == "tgi":
-        openai_endpoint = f"{args.llm_endpoint_url}/v1"
-        llm = ChatOpenAI(
-            openai_api_key="EMPTY",
-            openai_api_base=openai_endpoint,
-            model_name=args.model,
-            request_timeout=args.timeout,
-            **params,
-        )
+        openai_key = "EMPTY"
     elif args.llm_engine == "openai":
-        if args.api_key:
-            openai_endpoint = f"{args.llm_endpoint_url}/v1"
-            llm = ChatOpenAI(
-                openai_api_key=args.api_key,
-                openai_api_base=openai_endpoint,
-                model_name=args.model,
-                request_timeout=args.timeout,
-                **params,
-            )
-        else:
-            llm = ChatOpenAI(model_name=args.model, request_timeout=args.timeout, **params)
+        openai_key = args.api_key
     else:
-        raise ValueError("llm_engine must be vllm, tgi or openai")
+        raise ValueError("llm_engine must be vllm, tgi, or openai")
+
+    openai_endpoint = None if args.llm_endpoint_url is LLM_ENDPOINT_URL_DEFAULT else args.llm_endpoint_url + "/v1"
+    llm = ChatOpenAI(
+        openai_api_key=openai_key,
+        openai_api_base=openai_endpoint,
+        model_name=args.model,
+        request_timeout=args.timeout,
+        **params,
+    )
     return llm
 
 
