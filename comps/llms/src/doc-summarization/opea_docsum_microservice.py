@@ -3,6 +3,8 @@
 
 import os
 import time
+from typing import Union
+from fastapi.responses import StreamingResponse
 
 from integrations.tgi import OpeaDocSumTgi
 from integrations.vllm import OpeaDocSumvLLM
@@ -15,6 +17,7 @@ from comps import (
     register_microservice,
     register_statistics,
     statistics_dict,
+    GeneratedDoc
 )
 from comps.cores.proto.api_protocol import DocSumChatCompletionRequest
 
@@ -34,7 +37,7 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM DocSum C
     port=9000,
 )
 @register_statistics(names=["opea_service@llm_docsum"])
-async def llm_generate(input: DocSumChatCompletionRequest):
+async def llm_generate(input: DocSumChatCompletionRequest) -> Union[StreamingResponse, GeneratedDoc]:
     start = time.time()
 
     # Log the input if logging is enabled

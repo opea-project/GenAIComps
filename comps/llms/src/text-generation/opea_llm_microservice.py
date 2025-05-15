@@ -1,9 +1,12 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+from fastapi.responses import StreamingResponse
+from openai.types.chat import ChatCompletion
 import os
 import time
 from typing import Union
+
 
 from comps import (
     CustomLogger,
@@ -15,6 +18,7 @@ from comps import (
     register_microservice,
     register_statistics,
     statistics_dict,
+    GeneratedDoc
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
@@ -51,7 +55,7 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM Componen
 )
 @opea_telemetry
 @register_statistics(names=["opea_service@llm"])
-async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
+async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]) -> Union[ChatCompletion, StreamingResponse, GeneratedDoc]:
     start = time.time()
 
     # Log the input if logging is enabled
