@@ -9,7 +9,8 @@ from arango import ArangoClient
 from arango.database import StandardDatabase
 from fastapi import HTTPException
 from langchain_arangodb import ArangoVector
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings, HuggingFaceHubEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, ServiceType
@@ -421,8 +422,10 @@ class OpeaArangoRetriever(OpeaComponent):
         if OPENAI_API_KEY and OPENAI_EMBED_MODEL and OPENAI_EMBED_ENABLED:
             embeddings = OpenAIEmbeddings(model=OPENAI_EMBED_MODEL, dimensions=dimension)
         elif TEI_EMBEDDING_ENDPOINT and HUGGINGFACEHUB_API_TOKEN:
-            embeddings = HuggingFaceHubEmbeddings(
-                model=TEI_EMBEDDING_ENDPOINT, huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN
+            embeddings = HuggingFaceEndpointEmbeddings(
+                model=TEI_EMBEDDING_ENDPOINT,
+                task="feature-extraction",
+                huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
             )
         else:
             embeddings = HuggingFaceBgeEmbeddings(model_name=TEI_EMBED_MODEL)
