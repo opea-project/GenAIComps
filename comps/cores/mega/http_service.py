@@ -52,6 +52,7 @@ class HTTPService(BaseService):
         :return: a FastAPI application.
         """
         from comps.version import __version__
+
         app = FastAPI(title=self.title, description=self.description, version=__version__)
 
         if self.cors:
