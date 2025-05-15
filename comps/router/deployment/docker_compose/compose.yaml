@@ -1,35 +1,26 @@
 services:
   router_service:
     build:
-      # from this file’s folder, go up two levels into `comps/router`
       context: ../../../..
       dockerfile: comps/router/src/Dockerfile
 
-    # published image for CI / prod; feel free to swap in REGISTRY+TAG if you prefer
-    image: "sapdai/refd:routing-service"
+    image: "${REGISTRY_AND_REPO:?set REGISTRY_AND_REPO}:${TAG:?set TAG}"
     container_name: opea_router
 
-    # mount static configs that live in this directory
     volumes:
-      - ./config.yaml:/app/config.yaml
-      - ./routellm_config.yaml:/app/configs/routellm_config.yaml
-      - ./semantic_router_config.yaml:/app/configs/semantic_router_config.yaml
+      - ./configs:/app/configs
 
-    # environment variables — all resolved from the shell that launches Compose
     environment:
-      CONFIG_PATH: /app/config.yaml
+      CONFIG_PATH: /app/configs/router.yaml
 
-      # routing targets & model IDs (have safe, local defaults)
       WEAK_ENDPOINT:  ${WEAK_ENDPOINT:-http://opea_router:8000/weak}
       STRONG_ENDPOINT: ${STRONG_ENDPOINT:-http://opea_router:8000/strong}
       WEAK_MODEL_ID:  ${WEAK_MODEL_ID:-openai/gpt-3.5-turbo}
       STRONG_MODEL_ID: ${STRONG_MODEL_ID:-openai/gpt-4}
 
-      # secrets – `:?…` forces Compose to abort if they’re missing
       HF_TOKEN:        ${HF_TOKEN:?set HF_TOKEN}
       OPENAI_API_KEY:  ${OPENAI_API_KEY:?set OPENAI_API_KEY}
 
-      # choose which controller yaml to load (default = routellm)
       CONTROLLER_TYPE: ${CONTROLLER_TYPE:-routellm}
 
     ports:

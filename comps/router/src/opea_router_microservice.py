@@ -19,7 +19,7 @@ class RouteEndpointDoc(BaseModel):
 logger = CustomLogger("opea_router_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
-CONFIG_PATH = os.getenv("CONFIG_PATH", "/app/config.yaml")
+CONFIG_PATH = os.getenv("CONFIG_PATH")
 
 _config_data = {}
 _controller_factory = None
