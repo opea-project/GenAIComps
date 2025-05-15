@@ -9,6 +9,7 @@ from .config import env_config
 
 LLM_ENDPOINT_URL_DEFAULT = "http://localhost:8080"
 
+
 def format_date(date):
     # input m/dd/yyyy hr:min
     # output yyyy-mm-dd
