@@ -7,7 +7,8 @@ import json
 
 from .config import env_config
 
-LLM_ENDPOINT_URL_DEFAULT="http://localhost:8080"
+LLM_ENDPOINT_URL_DEFAULT = "http://localhost:8080"
+
 
 def format_date(date):
     # input m/dd/yyyy hr:min
@@ -57,13 +58,13 @@ def setup_chat_model(args):
         "top_p": args.top_p,
         "streaming": args.stream,
     }
-    openai_endpoint=None if args.llm_endpoint_url is LLM_ENDPOINT_URL_DEFAULT else args.llm_endpoint_url + '/v1'
+    openai_endpoint = None if args.llm_endpoint_url is LLM_ENDPOINT_URL_DEFAULT else args.llm_endpoint_url + "/v1"
     llm = ChatOpenAI(
         openai_api_key=args.api_key,
         openai_api_base=openai_endpoint,
         model_name=args.model,
         request_timeout=args.timeout,
-        **params
+        **params,
     )
     return llm
 
