@@ -1,9 +1,6 @@
-controller_type: "routellm"
-
 # which embedder backend to use ("huggingface" or "openai")
 embedding_provider: "huggingface"
 
-# default HF model; override at runtime with:
 #   export ROUTELLM_EMBEDDING_MODEL_NAME="your-org/other-embed"
 embedding_model_name: "intfloat/e5-base-v2"
 

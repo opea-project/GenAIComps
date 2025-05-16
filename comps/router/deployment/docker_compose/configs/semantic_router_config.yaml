@@ -1,4 +1,3 @@
-controller_type: "semantic_router"
 embedding_provider: "huggingface"
 
 # specify both models in one map
