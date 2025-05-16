@@ -1,7 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from fastapi.responses import StreamingResponse
 from openai.types.chat import ChatCompletion
 import os
 import time
@@ -45,17 +44,31 @@ else:
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM Component: {llm_component_name}")
 
-
 @register_microservice(
     name="opea_service@llm",
     service_type=ServiceType.LLM,
     endpoint="/v1/chat/completions",
     host="0.0.0.0",
     port=9000,
+    responses={
+        200: {
+            "content": {
+                "text/event-stream": {},
+                "application/json": {
+                    "schema": {
+                        "oneOf": [
+                            ChatCompletion.model_json_schema(mode='serialization'),
+                            GeneratedDoc.model_json_schema(mode='serialization')
+                        ]
+                    }
+                },
+            }
+        }
+    }
 )
 @opea_telemetry
 @register_statistics(names=["opea_service@llm"])
-async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]) -> Union[ChatCompletion, StreamingResponse, GeneratedDoc]:
+async def llm_generate(input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
     start = time.time()
 
     # Log the input if logging is enabled

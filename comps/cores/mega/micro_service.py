@@ -193,6 +193,7 @@ def register_microservice(
     provider: Optional[str] = None,
     provider_endpoint: Optional[str] = None,
     methods: List[str] = ["POST"],
+    responses: Optional[dict] = None,
     dynamic_batching: bool = False,
     dynamic_batching_timeout: int = 1,
     dynamic_batching_max_batch_size: int = 32,
@@ -235,7 +236,7 @@ def register_microservice(
             }
             dispatch[mcp_func_type](func, name=func.__name__, description=description)
 
-        opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods)
+        opea_microservices[name].app.router.add_api_route(endpoint, func, methods=methods, responses=responses)
 
         return func
 
