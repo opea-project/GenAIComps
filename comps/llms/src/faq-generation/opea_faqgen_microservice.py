@@ -39,12 +39,10 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM FAQGen C
         200: {
             "content": {
                 "text/event-stream": {},
-                "application/json": {
-                    "schema": GeneratedDoc.model_json_schema(mode='serialization')
-                }
+                "application/json": {"schema": GeneratedDoc.model_json_schema(mode="serialization")},
             },
         }
-    }
+    },
 )
 @register_statistics(names=["opea_service@llm_faqgen"])
 async def llm_generate(input: ChatCompletionRequest) -> Union[StreamingResponse, GeneratedDoc]:

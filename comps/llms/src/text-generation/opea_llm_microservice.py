@@ -1,7 +1,6 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from openai.types.chat import ChatCompletion
 import os
 import time
 from typing import Union
@@ -46,6 +45,7 @@ else:
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM Component: {llm_component_name}")
 
+
 @register_microservice(
     name="opea_service@llm",
     service_type=ServiceType.LLM,
@@ -59,14 +59,14 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM Componen
                 "application/json": {
                     "schema": {
                         "oneOf": [
-                            ChatCompletion.model_json_schema(mode='serialization'),
-                            GeneratedDoc.model_json_schema(mode='serialization')
+                            ChatCompletion.model_json_schema(mode="serialization"),
+                            GeneratedDoc.model_json_schema(mode="serialization"),
                         ]
                     }
                 },
             }
         }
-    }
+    },
 )
 @opea_telemetry
 @register_statistics(names=["opea_service@llm"])

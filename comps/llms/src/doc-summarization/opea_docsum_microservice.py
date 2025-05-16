@@ -39,12 +39,10 @@ loader = OpeaComponentLoader(llm_component_name, description=f"OPEA LLM DocSum C
         200: {
             "content": {
                 "text/event-stream": {},
-                "application/json": {
-                    "schema": GeneratedDoc.model_json_schema(mode='serialization')
-                }
+                "application/json": {"schema": GeneratedDoc.model_json_schema(mode="serialization")},
             },
         }
-    }
+    },
 )
 @register_statistics(names=["opea_service@llm_docsum"])
 async def llm_generate(input: DocSumChatCompletionRequest):
