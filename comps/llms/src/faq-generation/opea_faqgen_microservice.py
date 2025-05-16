@@ -4,20 +4,20 @@
 import os
 import time
 from typing import Union
-from fastapi.responses import StreamingResponse
 
+from fastapi.responses import StreamingResponse
 from integrations.tgi import OpeaFaqGenTgi
 from integrations.vllm import OpeaFaqGenvLLM
 
 from comps import (
     CustomLogger,
+    GeneratedDoc,
     OpeaComponentLoader,
     ServiceType,
     opea_microservices,
     register_microservice,
     register_statistics,
     statistics_dict,
-    GeneratedDoc
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 

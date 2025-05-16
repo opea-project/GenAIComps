@@ -6,9 +6,12 @@ import os
 import time
 from typing import Union
 
+from fastapi.responses import StreamingResponse
+from openai.types.chat import ChatCompletion
 
 from comps import (
     CustomLogger,
+    GeneratedDoc,
     LLMParamsDoc,
     OpeaComponentLoader,
     SearchedDoc,
@@ -17,7 +20,6 @@ from comps import (
     register_microservice,
     register_statistics,
     statistics_dict,
-    GeneratedDoc
 )
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 from comps.cores.telemetry.opea_telemetry import opea_telemetry
