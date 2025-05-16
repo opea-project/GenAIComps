@@ -11,8 +11,12 @@ CONTAINER=opea_router
 # Required secrets
 : "${HF_TOKEN:?Need HF_TOKEN}"
 : "${OPENAI_API_KEY:?Need OPENAI_API_KEY}"
-: "${REGISTRY_AND_REPO:?Need REGISTRY_AND_REPO}"
-: "${TAG:?Need TAG}"
+
+# Set default image info (matches deploy script)
+REGISTRY_AND_REPO=${REGISTRY_AND_REPO:-opea/router}
+TAG=${TAG:-latest}
+
+export HF_TOKEN OPENAI_API_KEY REGISTRY_AND_REPO TAG
 
 build_image() {
   cd "$WORKPATH"
@@ -21,15 +25,12 @@ build_image() {
 }
 
 start_router() {
-  export HF_TOKEN OPENAI_API_KEY REGISTRY_AND_REPO TAG
-  unset CONTROLLER_TYPE                      
   cd "$WORKPATH/comps/router/deployment/docker_compose"
   docker compose -f compose.yaml up router_service -d
   sleep 20
 }
 
 validate() {
-
   # weak route
   rsp=$(curl -s http://${host_ip}:${ROUTER_PORT}/v1/route \
         -X POST -H 'Content-Type: application/json' \
@@ -50,7 +51,7 @@ cleanup() {
 }
 
 trap cleanup EXIT
-cleanup        
+cleanup
 build_image
 start_router
 validate
