@@ -15,7 +15,8 @@ if [ "$llm_download" = "True" ]; then
   rm -rf /home/user/GPT-SoVITS/GPT_SoVITS/pretrained_models/*
 
   echo "Please wait for model download..."
-  git lfs install &&  git clone ${MODEL_REPO} /home/user/pretrained_models
+  git lfs install &&  git clone --depth 1 --branch main --single-branch ${MODEL_REPO} /home/user/pretrained_models
+  rm -rf /home/user/pretrained_models/.git
   mv /home/user/pretrained_models/*  /home/user/GPT-SoVITS/GPT_SoVITS/pretrained_models/
   rm -rf /home/user/pretrained_models
 elif [ "$llm_download" = "False" ]; then
