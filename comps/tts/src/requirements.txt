@@ -1,6 +1,7 @@
 aiohttp
 docarray[full]
 fastapi
+mcp
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

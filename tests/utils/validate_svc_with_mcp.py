@@ -38,6 +38,28 @@ async def validate_svc(ip_address, service_port, service_type):
                 else:
                     print(f"Result wrong. Received was {result_content}")
                     exit(1)
+            elif service_type == "tts":
+                input_dict = {"request": {"input": "Hi there, welcome to OPEA."}}
+                tool_result = await session.call_tool(
+                    "text_to_speech",
+                    input_dict,
+                )
+                result_content = tool_result.content
+                # Check result
+                audio_str = json.loads(result_content[0].text).get("audio_str", "")
+                if audio_str.startswith("Ukl"):  # "Ukl" indicates likely WAV header
+                    audio_data = base64.b64decode(audio_str)
+                    with open("output.wav", "wb") as f:
+                        f.write(audio_data)
+                    with open("output.wav", "rb") as f:
+                        header = f.read(4)
+                    if header == b"RIFF":
+                        print("Result correct.")
+                    else:
+                        print(f"Invalid WAV file: starts with {header}")
+                else:
+                    print(f"Result wrong. Received was {result_content}")
+                    exit(1)
             else:
                 print(f"Unknown service type: {service_type}")
                 exit(1)
