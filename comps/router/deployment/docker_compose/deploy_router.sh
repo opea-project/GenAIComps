@@ -22,8 +22,8 @@ for VAR in "${REQUIRED_VARS[@]}"; do
 done
 
 # Default values for Docker image
-REGISTRY_AND_REPO=${REGISTRY_AND_REPO:-sapdai/refd}
-TAG=${TAG:-routing-service}
+REGISTRY_AND_REPO=${REGISTRY_AND_REPO:-opea/router}
+TAG=${TAG:-latest}
 
 # Export them so Docker Compose can see them
 export REGISTRY_AND_REPO

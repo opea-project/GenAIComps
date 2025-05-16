@@ -4,7 +4,7 @@ services:
       context: ../../../..
       dockerfile: comps/router/src/Dockerfile
 
-    image: "${REGISTRY_AND_REPO:?set REGISTRY_AND_REPO}:${TAG:?set TAG}"
+    image: "${REGISTRY_AND_REPO:-opea/router}:${TAG:-latest}"
     container_name: opea_router
 
     volumes:
