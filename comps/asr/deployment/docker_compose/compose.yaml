@@ -14,11 +14,13 @@ services:
     environment:
       ASR_ENDPOINT: ${ASR_ENDPOINT}
       ASR_COMPONENT_NAME: ${ASR_COMPONENT_NAME:-OPEA_WHISPER_ASR}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
   asr-whisper:
     extends: asr
     container_name: asr-whisper-service
     environment:
       ASR_COMPONENT_NAME: ${ASR_COMPONENT_NAME:-OPEA_WHISPER_ASR}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       whisper-service:
         condition: service_healthy
@@ -27,6 +29,7 @@ services:
     container_name: asr-whisper-gaudi-service
     environment:
       ASR_COMPONENT_NAME: ${ASR_COMPONENT_NAME:-OPEA_WHISPER_ASR}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       whisper-gaudi-service:
         condition: service_healthy
