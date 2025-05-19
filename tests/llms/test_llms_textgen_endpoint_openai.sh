@@ -9,6 +9,16 @@
 # The vLLM server is started in a docker container, and the textgen service is started in another container.
 # The textgen service is configured to connect to the vLLM server using a test key.
 # The test sends a request to the textgen service and validates the response.
+#
+# Note on Docker Networking:
+# This test uses Docker's networking best practices by:
+# 1. Placing both containers on the same Docker network (docker_compose_default)
+# 2. Using container names for service discovery (e.g., http://vllm-server:8000)
+# This approach is more reliable than using host IP addresses because:
+# - It keeps traffic within Docker's network
+# - Works consistently regardless of host network configuration
+# - More secure as services don't need to be exposed to host network
+# - Supports container mobility and scaling
 
 set -e # Exit on error
 
@@ -47,21 +57,36 @@ function start_vllm() {
     export VLLM_API_KEY=testkey # This is the VLLM environment variable to set keys.
     export host_ip=$(hostname -I | awk '{print $1}')
 
+    # Block size must be 16 for CPU backend unless Intel Extension for PyTorch (IPEX) is installed
+    BLOCK_SIZE=16   # If IPEX is installed can use 128.
+
+    # Environment variables for vLLM CPU configuration:
+    # - VLLM_USE_CPU=1: Explicitly force CPU backend usage
+    # - VLLM_CPU_OMP_THREADS_BIND=all: Configure OpenMP to use all available CPU threads
+    # - VLLM_CPU_KVCACHE_SPACE=4: Allocate 4GB of CPU memory for KV cache
+    # - VLLM_MLA_DISABLE=1: Disable MLA (Multi-head Linear Attention) optimizations which aren't supported on CPU
     docker run --rm -d \
         -p ${LLM_ENDPOINT_PORT}:8000 \
         -e VLLM_API_KEY=${VLLM_API_KEY} \
+        -e VLLM_USE_CPU=1 \
+        -e VLLM_CPU_OMP_THREADS_BIND=all \
+        -e VLLM_CPU_KVCACHE_SPACE=4 \
+        -e VLLM_MLA_DISABLE=1 \
         --name vllm-server \
+        --network docker_compose_default \
         opea/vllm-cpu:test \
         --model ${VLLM_MODEL} \
         --port 8000 \
-        --host 0.0.0.0
-    sleep 30
+        --host 0.0.0.0 \
+        --block-size ${BLOCK_SIZE} \
+        --verbose  # Enable detailed logging for debugging
+    sleep 30  # Wait for the server to fully initialize
 }
 
 function start_textgen() {
     # Testing if the textgen can connect to a vllm endpoint, with a testkey.
     export OPENAI_API_KEY=testkey
-    export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}" # Point to vLLM
+    export LLM_ENDPOINT="http://vllm-server:8000" # Point to vLLM using container name
     export LLM_MODEL_ID=$VLLM_MODEL  # Must match vLLM
     export service_name="textgen-service-endpoint-openai"
     export LOGFLAG=True
