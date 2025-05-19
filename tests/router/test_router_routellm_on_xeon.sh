@@ -2,7 +2,8 @@
 # End-to-end test – Router micro-service, RouteLLM controller (CPU/Xeon)
 set -xeuo pipefail
 
-WORKPATH=$(dirname "$PWD")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKPATH="$(cd "$SCRIPT_DIR/../.." && pwd)"
 host_ip=$(hostname -I | awk '{print $1}')
 LOG_PATH="$WORKPATH/tests"
 ROUTER_PORT=6000
