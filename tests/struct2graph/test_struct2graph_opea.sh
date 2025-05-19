@@ -6,7 +6,7 @@ WORKPATH=$(git rev-parse --show-toplevel)
 echo $WORKPATH
 TAG='latest'
 LOG_PATH="$WORKPATH/comps/struct2graph/deployment/docker_compose"
-source $WORKPATH/comps/struct2graph/src/setup_service_env.sh
+source $WORKPATH/comps/struct2graph/src/environment_setup.sh
 STRUCT2GPAPH_PORT=8090
 ip_address=$(hostname -I | awk '{print $1}')
 service_name="struct2graph"
