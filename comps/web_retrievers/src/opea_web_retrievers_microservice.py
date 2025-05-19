@@ -17,7 +17,6 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-
 from comps.cores.mega.constants import MCPFuncType
 
 logger = CustomLogger("opea_web_retriever_microservice")
@@ -43,7 +42,6 @@ loader = OpeaComponentLoader(
     enable_mcp=enable_mcp,
     mcp_func_type=MCPFuncType.TOOL,
     description="Do the web retrieval.",
-
 )
 @register_statistics(names=["opea_service@web_retriever", "opea_service@search"])
 async def web_retriever(input: EmbedDoc) -> SearchedDoc:
