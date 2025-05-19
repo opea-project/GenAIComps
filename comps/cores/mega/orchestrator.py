@@ -135,7 +135,7 @@ class ServiceOrchestrator(DAG):
         if LOGFLAG:
             logger.info(initial_inputs)
 
-        timeout = aiohttp.ClientTimeout(total=1000)
+        timeout = aiohttp.ClientTimeout(total=2000)
         async with aiohttp.ClientSession(trust_env=True, timeout=timeout) as session:
             pending = {
                 asyncio.create_task(
@@ -242,8 +242,7 @@ class ServiceOrchestrator(DAG):
         **kwargs,
     ):
         # send the cur_node request/reply
-        endpoint = self.services[cur_node].endpoint_path
-        access_token = self.services[cur_node].api_key_value
+
         llm_parameters_dict = llm_parameters.dict()
 
         is_llm_vlm = self.services[cur_node].service_type in (ServiceType.LLM, ServiceType.LVM)
@@ -254,7 +253,11 @@ class ServiceOrchestrator(DAG):
                     inputs[field] = value
         # pre-process
         inputs = self.align_inputs(inputs, cur_node, runtime_graph, llm_parameters_dict, **kwargs)
-
+        access_token = self.services[cur_node].api_key_value
+        if access_token:
+            endpoint = self.services[cur_node].endpoint_path(inputs["model"])
+        else:
+            endpoint = self.services[cur_node].endpoint_path(None)
         if is_llm_vlm and llm_parameters.stream:
             # Still leave to sync requests.post for StreamingResponse
             if LOGFLAG:
@@ -271,7 +274,7 @@ class ServiceOrchestrator(DAG):
                         headers={"Content-type": "application/json", "Authorization": f"Bearer {access_token}"},
                         proxies={"http": None},
                         stream=True,
-                        timeout=1000,
+                        timeout=2000,
                     )
                 else:
                     response = requests.post(
@@ -282,7 +285,7 @@ class ServiceOrchestrator(DAG):
                         },
                         proxies={"http": None},
                         stream=True,
-                        timeout=1000,
+                        timeout=2000,
                     )
 
             downstream = runtime_graph.downstream(cur_node)
@@ -290,7 +293,7 @@ class ServiceOrchestrator(DAG):
                 assert len(downstream) == 1, "Not supported multiple stream downstreams yet!"
                 cur_node = downstream[0]
                 hitted_ends = [".", "?", "!", "。", "，", "！"]
-                downstream_endpoint = self.services[downstream[0]].endpoint_path
+                downstream_endpoint = self.services[downstream[0]].endpoint_path()
 
             def generate():
                 token_start = req_start
@@ -314,6 +317,7 @@ class ServiceOrchestrator(DAG):
                                                 "Authorization": f"Bearer {access_token}",
                                             },
                                             proxies={"http": None},
+                                            timeout=2000,
                                         )
                                     else:
                                         res = requests.post(
@@ -323,6 +327,7 @@ class ServiceOrchestrator(DAG):
                                                 "Content-type": "application/json",
                                             },
                                             proxies={"http": None},
+                                            timeout=2000,
                                         )
                                     res_json = res.json()
                                     if "text" in res_json:

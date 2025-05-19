@@ -15,11 +15,13 @@ services:
     environment:
       TTS_ENDPOINT: ${TTS_ENDPOINT}
       TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_SPEECHT5_TTS}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
   tts-speecht5:
     extends: tts
     container_name: tts-speecht5-service
     environment:
       TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_SPEECHT5_TTS}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       speecht5-service:
         condition: service_healthy
@@ -28,6 +30,7 @@ services:
     container_name: tts-speecht5-gaudi-service
     environment:
       TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_SPEECHT5_TTS}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       speecht5-gaudi-service:
         condition: service_healthy
@@ -36,6 +39,7 @@ services:
     container_name: tts-gpt-sovits-service
     environment:
       TTS_COMPONENT_NAME: ${TTS_COMPONENT_NAME:-OPEA_GPTSOVITS_TTS}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     depends_on:
       gpt-sovits-service:
         condition: service_healthy

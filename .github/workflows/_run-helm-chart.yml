@@ -20,11 +20,6 @@ on:
         default: "latest"
         required: false
         type: string
-      mode:
-        default: "CD"
-        description: "Whether the test range is CI, CD or CICD"
-        required: false
-        type: string
       version:
         default: "0-latest"
         required: false
@@ -58,7 +53,9 @@ jobs:
         id: get-test-files
         run: |
           set -x
-          if [ "${{ inputs.mode }}" = "CI" ]; then
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            values_files=$(ls ${{ github.workspace }}/comps/${{ inputs.service }}/deployment/kubernetes/*values.yaml || true)
+          else
             base_commit=${{ github.event.pull_request.base.sha }}
             merged_commit=$(git log -1 --format='%H')
             values_files=$(git diff --name-only ${base_commit} ${merged_commit} | \
@@ -66,9 +63,8 @@ jobs:
             grep "${{ inputs.service }}" | \
             sort -u )
             echo $values_files
-          elif [ "${{ inputs.mode }}" = "CD" ]; then
-            values_files=$(ls ${{ github.workspace }}/comps/${{ inputs.service }}/deployment/kubernetes/*values.yaml)
           fi
+
           run_matrix="["
           run_matrix="{\"include\":["
           for file in ${values_files}; do
@@ -97,9 +93,10 @@ jobs:
 
   helm-test:
     needs: [get-test-case]
+    # if: ${{ needs.get-test-case.outputs.run_matrix != '[]' }}
+    if: ${{ fromJson(needs.get-test-case.outputs.run_matrix).include[0] }}
     strategy:
       matrix: ${{ fromJSON(needs.get-test-case.outputs.run_matrix) }}
-    if: ${{ needs.get-test-case.outputs.run_matrix != '[]' }}
     runs-on: k8s-${{ matrix.hardware }}
     continue-on-error: true
     steps:
