@@ -41,20 +41,7 @@ function validate_microservice() {
         docker logs web-retriever-service
         exit 1
     fi
-    # export PATH="${HOME}/miniforge3/bin:$PATH"
-    # test_embedding=$(python -c "import random; embedding = [random.uniform(-1, 1) for _ in range(768)]; print(embedding)")
-    # result=$(http_proxy='' curl http://${ip_address}:$WEB_RETRIEVER_PORT/v1/web_retrieval \
-    #     -X POST \
-    #     -d "{\"text\":\"What is OPEA?\",\"embedding\":${test_embedding}}" \
-    #     -H 'Content-Type: application/json')
-    # if [[ $result == *"title"* ]]; then
-    #     echo "Result correct."
-    # else
-    #     echo "Result wrong. Received status was $result"
-    #     docker logs tei-embedding-server
-    #     docker logs web-retriever-service
-    #     exit 1
-    # fi
+
 }
 
 function stop_docker() {
@@ -65,7 +52,7 @@ function main() {
 
     stop_docker
 
-    # build_docker_images
+    build_docker_images
     start_service
 
     validate_microservice
