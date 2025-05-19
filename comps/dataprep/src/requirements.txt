@@ -1,3 +1,4 @@
+accelerate
 beautifulsoup4
 cairosvg
 decord
@@ -13,10 +14,13 @@ graspologic
 html2text
 huggingface_hub
 ipython
+json-repair
 langchain
+langchain-arangodb
 langchain-community
 langchain-elasticsearch
 langchain-experimental
+langchain-mariadb
 langchain-openai
 langchain-pinecone
 langchain-redis
@@ -30,6 +34,7 @@ llama-index-embeddings-text-embeddings-inference
 llama-index-graph-stores-neo4j
 llama-index-llms-openai
 llama-index-llms-openai-like
+mariadb
 markdown
 moviepy
 neo4j
@@ -48,6 +53,7 @@ pinecone-client
 prometheus-fastapi-instrumentator
 protobuf==4.24.2
 psycopg2
+pymilvus==2.5.6
 pymupdf
 pyspark
 pytesseract

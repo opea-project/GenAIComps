@@ -13,6 +13,7 @@ services:
         - ./data/neo4j/config:/config
         - ./data/neo4j/data:/data
         - ./data/neo4j/plugins:/plugins
+        - ./data:/var/lib/neo4j/import
     ipc: host
     environment:
       - no_proxy=${no_proxy}
@@ -25,6 +26,7 @@ services:
       - NEO4J_apoc_import_file_use__neo4j__config=true
       - NEO4J_dbms_security_procedures_unrestricted=apoc.\*
       - NEO4J_server_bolt_advertised__address=localhost:${NEO4J_PORT2}
+      - NEO4J_server_config_strict__validation_enabled=false
     restart: always
     healthcheck:
       test: wget http://localhost:7474 || exit 1

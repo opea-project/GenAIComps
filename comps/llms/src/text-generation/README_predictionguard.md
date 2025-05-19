@@ -23,7 +23,7 @@ See the [Prediction Guard docs](https://docs.predictionguard.com/) for available
 curl -X POST http://localhost:9000/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
-        "model": "Hermes-2-Pro-Llama-3-8B",
+        "model": "Hermes-3-Llama-3.1-8B",
         "messages": "Tell me a joke.",
         "max_tokens": 100,
         "temperature": 0.7,
@@ -39,7 +39,7 @@ curl -X POST http://localhost:9000/v1/chat/completions \
 curl -N -X POST http://localhost:9000/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
-        "model": "Hermes-2-Pro-Llama-3-8B",
+        "model": "Hermes-3-Llama-3.1-8B",
         "messages": "Tell me a joke.",
         "max_tokens": 100,
         "temperature": 0.7,

@@ -16,7 +16,5 @@ resources:
   limits:
     habana.ai/gaudi: 1
 
-livenessProbe:
-  timeoutSeconds: 1
 readinessProbe:
   timeoutSeconds: 1

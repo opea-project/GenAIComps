@@ -1,12 +1,10 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import os
-from typing import List, Union
 
+import aiohttp
 import requests
-from huggingface_hub import AsyncInferenceClient
 
 from comps import CustomLogger, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.mega.utils import get_access_token
@@ -32,23 +30,10 @@ class OpeaOVMSEmbedding(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.EMBEDDING.name.lower(), description, config)
         self.base_url = os.getenv("OVMS_EMBEDDING_ENDPOINT", "http://localhost:8080")
-        self.client = self._initialize_client()
 
         health_status = self.check_health()
         if not health_status:
             logger.error("OpeaOVMSEmbedding health check failed.")
-
-    def _initialize_client(self) -> AsyncInferenceClient:
-        """Initializes the AsyncInferenceClient."""
-        access_token = (
-            get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
-        )
-        headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
-        return AsyncInferenceClient(
-            model=MODEL_ID,
-            token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
-            headers=headers,
-        )
 
     async def invoke(self, input: EmbeddingRequest) -> EmbeddingResponse:
         """Invokes the embedding service to generate embeddings for the provided input.
@@ -69,17 +54,31 @@ class OpeaOVMSEmbedding(OpeaComponent):
                 raise ValueError("Invalid input format: Only string or list of strings are supported.")
         else:
             raise TypeError("Unsupported input type: input must be a string or list of strings.")
-        response = await self.client.post(
-            json={
-                "input": texts,
-                "encoding_format": input.encoding_format,
-                "model": self.client.model,
-                "user": input.user,
-            },
-            model=f"{self.base_url}/v3/embeddings",
-            task="text-embedding",
+        # Build headers
+        headers = {"Content-Type": "application/json"}
+        access_token = (
+            get_access_token(TOKEN_URL, CLIENTID, CLIENT_SECRET) if TOKEN_URL and CLIENTID and CLIENT_SECRET else None
         )
-        embeddings = json.loads(response.decode())
+        if access_token:
+            headers["Authorization"] = f"Bearer {access_token}"
+
+        # Compose request
+        payload = {
+            "input": texts,
+            "encoding_format": input.encoding_format,
+            "model": MODEL_ID,
+            "user": input.user,
+        }
+
+        # Send async POST request using aiohttp
+        url = f"{self.base_url}/v3/embeddings"
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=payload) as resp:
+                if resp.status != 200:
+                    logger.error(f"Embedding service error: {resp.status} - {await resp.text()}")
+                    raise RuntimeError(f"Failed to fetch embeddings: HTTP {resp.status}")
+                embeddings = await resp.json()
+
         return EmbeddingResponse(**embeddings)
 
     def check_health(self) -> bool:
