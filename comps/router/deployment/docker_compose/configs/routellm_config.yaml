@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # which embedder backend to use ("huggingface" or "openai")
 embedding_provider: "huggingface"
 
@@ -25,4 +28,3 @@ config:
   mf:
     checkpoint_path: "madison-evans/routellm-e5-base-v2"
     use_openai_embeddings: false
-

@@ -1,19 +1,26 @@
-import os
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
+import os
+
 import yaml
+from pydantic import BaseModel, Field
+
 from comps import (
     CustomLogger,
-    TextDoc,
     ServiceType,
-    register_microservice,
+    TextDoc,
     opea_microservices,
+    register_microservice,
 )
 from comps.router.src.integrations.controllers.controller_factory import ControllerFactory
-from pydantic import BaseModel, Field
+
 
 # Data model for endpoint response
 class RouteEndpointDoc(BaseModel):
     url: str = Field(..., description="URL of the chosen inference endpoint")
+
 
 # Set up logging
 logger = CustomLogger("opea_router_microservice")
@@ -24,6 +31,7 @@ CONFIG_PATH = os.getenv("CONFIG_PATH")
 _config_data = {}
 _controller_factory = None
 _controller = None
+
 
 def _load_config():
     global _config_data, _controller_factory, _controller
@@ -50,16 +58,14 @@ def _load_config():
     except KeyError:
         raise RuntimeError(f"No config path for controller_type='{controller_type}' in global config")
 
-
-    _controller = _controller_factory.factory(
-        controller_config=controller_config_path,
-        model_map=model_map
-    )
+    _controller = _controller_factory.factory(controller_config=controller_config_path, model_map=model_map)
 
     logger.info("[Router] Controller re-initialized successfully.")
 
+
 # Initial config load at startup
 _load_config()
+
 
 @register_microservice(
     name="opea_service@router",
@@ -71,8 +77,8 @@ _load_config()
     output_datatype=RouteEndpointDoc,
 )
 def route_microservice(input: TextDoc) -> RouteEndpointDoc:
-    """
-    Microservice that decides which model endpoint is best for the given text input.
+    """Microservice that decides which model endpoint is best for the given text input.
+
     Returns only the route URL (does not forward).
     """
     if not _controller:
@@ -90,6 +96,7 @@ def route_microservice(input: TextDoc) -> RouteEndpointDoc:
     except Exception as e:
         logger.error(f"[Router] Error during model routing: {e}")
         raise
+
 
 if __name__ == "__main__":
     logger.info("OPEA Router Microservice is starting...")

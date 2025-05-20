@@ -1,12 +1,17 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
 import os
-from comps.cores.telemetry.opea_telemetry import opea_telemetry
-from comps.router.src.integrations.controllers.base_controller import BaseController
-from semantic_router.routers import SemanticRouter
-from semantic_router.encoders import OpenAIEncoder, HuggingFaceEncoder
-from semantic_router import Route
+
 # from decorators import log_latency
 from dotenv import load_dotenv
+from semantic_router import Route
+from semantic_router.encoders import HuggingFaceEncoder, OpenAIEncoder
+from semantic_router.routers import SemanticRouter
+
+from comps.cores.telemetry.opea_telemetry import opea_telemetry
+from comps.router.src.integrations.controllers.base_controller import BaseController
 
 load_dotenv()
 hf_token = os.getenv("HF_TOKEN", "")
@@ -17,6 +22,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
+
 class SemanticRouterController(BaseController):
     def __init__(self, config, api_key=None, model_map=None):
         self.config = config
@@ -24,7 +30,7 @@ class SemanticRouterController(BaseController):
 
         # 1) grab provider + model mapping
         provider = config.get("embedding_provider", "").lower()
-        models   = config.get("embedding_models", {})
+        models = config.get("embedding_models", {})
 
         if provider not in {"huggingface", "openai"}:
             raise ValueError(f"Unsupported embedding_provider: '{provider}'")
@@ -41,7 +47,7 @@ class SemanticRouterController(BaseController):
                 model_kwargs={"token": hf_token},
                 tokenizer_kwargs={"token": hf_token},
             )
-        else:  
+        else:
             if not api_key:
                 raise ValueError("valid api key is required for selected model provider")
             os.environ["OPENAI_API_KEY"] = api_key
@@ -61,8 +67,8 @@ class SemanticRouterController(BaseController):
 
     @opea_telemetry
     def route(self, messages):
-        """
-        Determines which inference endpoint to use based on the provided messages.
+        """Determines which inference endpoint to use based on the provided messages.
+
         It looks up the model_map to retrieve the nested endpoint value.
         """
         query = messages[0]["content"]

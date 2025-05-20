@@ -1,36 +1,36 @@
-# Basic web and async
-fastapi
-uvicorn[standard]
 aiofiles
 aiohttp
+docarray[full]
+docx2txt
+# Basic web and async
+fastapi
+
+# Include the forked RouteLLM repository
+git+https://github.com/SAPD-Intel/RouteLLM.git
 httpx
 
-# Data handling and parsing
-pydantic
-requests
-python-dotenv
-python-multipart
-pyyaml
-pypdf
-docx2txt
-
-# Larger frameworks and libs
-semantic-router
+# K8s, images, misc
+kubernetes
 langchain
 langchain-community
-docarray[full]
 
 # Observability and telemetry
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
+pillow
 prometheus-fastapi-instrumentator
 
-# K8s, images, misc
-kubernetes
-pillow
-shortuuid
+# Data handling and parsing
+pydantic
+pypdf
+python-dotenv
+python-multipart
+pyyaml
+requests
 
-# Include the forked RouteLLM repository
-git+https://github.com/SAPD-Intel/RouteLLM.git
+# Larger frameworks and libs
+semantic-router
+shortuuid
+uvicorn[standard]
 

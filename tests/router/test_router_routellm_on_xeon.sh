@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # End-to-end test – Router micro-service, RouteLLM controller (CPU/Xeon)
 set -xeuo pipefail
 

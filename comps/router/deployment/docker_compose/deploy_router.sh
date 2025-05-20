@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 # ========================
 # OPEA Router Deploy Script
 # ========================
@@ -21,6 +24,8 @@ for VAR in "${REQUIRED_VARS[@]}"; do
   fi
 done
 
+export HUGGINGFACEHUB_API_TOKEN="$HF_TOKEN"
+
 # Default values for Docker image
 REGISTRY_AND_REPO=${REGISTRY_AND_REPO:-opea/router}
 TAG=${TAG:-latest}
@@ -38,7 +43,7 @@ echo ""
 
 # Compose up
 echo "[INFO] Launching Docker Compose service..."
-docker compose -f compose.yaml up --build 
+docker compose -f compose.yaml up --build
 
 # Wait a moment then check status
 sleep 2

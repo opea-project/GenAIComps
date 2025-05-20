@@ -1,12 +1,18 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 import logging
 import os
-from comps.router.src.integrations.controllers.base_controller import BaseController
+
 from routellm.controller import Controller as RouteLLM_Controller
+
+from comps.router.src.integrations.controllers.base_controller import BaseController
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
+
 
 class RouteLLMController(BaseController):
     def __init__(self, config, hf_token=None, api_key=None, model_map=None):
@@ -37,7 +43,7 @@ class RouteLLMController(BaseController):
 
         # Extract strong/weak model IDs
         strong_model = self.model_map.get("strong", {}).get("model_id")
-        weak_model   = self.model_map.get("weak",   {}).get("model_id")
+        weak_model = self.model_map.get("weak", {}).get("model_id")
         if not strong_model or not weak_model:
             raise ValueError("model_map must include both 'strong' and 'weak' entries")
 
@@ -53,8 +59,8 @@ class RouteLLMController(BaseController):
             strong_model=strong_model,
             weak_model=weak_model,
             config=nested,
-            hf_token=hf_token   if provider == "huggingface" else None,
-            api_key= api_key    if provider == "openai"       else None,
+            hf_token=hf_token if provider == "huggingface" else None,
+            api_key=api_key if provider == "openai" else None,
         )
 
     def route(self, messages):
@@ -63,10 +69,7 @@ class RouteLLMController(BaseController):
             router=self.routing_algorithm,
             threshold=self.threshold,
         )
-        endpoint_key = next(
-            (k for k, v in self.model_map.items() if v.get("model_id") == routed_name),
-            None
-        )
+        endpoint_key = next((k for k, v in self.model_map.items() if v.get("model_id") == routed_name), None)
         if not endpoint_key:
             raise ValueError(f"Routed model '{routed_name}' not in model_map")
         return self.model_map[endpoint_key]["endpoint"]

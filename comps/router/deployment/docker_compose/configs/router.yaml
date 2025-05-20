@@ -1,3 +1,6 @@
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 model_map:
   weak:
     endpoint: "${WEAK_ENDPOINT:-http://opea_router:8000/weak}"
