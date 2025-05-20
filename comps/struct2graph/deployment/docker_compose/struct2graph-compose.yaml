@@ -22,6 +22,7 @@ services:
       - NEO4J_server_directories_import='/var/lib/neo4j/import'
       - NEO4J_dbms_security_procedures_unrestricted=apoc.\\\* neo4j:5.23.0
       - STRUCT2GRAPH_PORT=${STRUCT2GRAPH_PORT:-8090}
+      - ENABLE_MCP: ${ENABLE_MCP:-False}
     ports:
       - "${STRUCT2GRAPH_PORT:-8090}:8090"
     depends_on:

@@ -16,6 +16,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       WAV2LIP_ENDPOINT: ${WAV2LIP_ENDPOINT}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     restart: unless-stopped
     depends_on:
       - wav2lip-server
@@ -33,6 +34,7 @@ services:
       HABANA_VISIBLE_DEVICES: all
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       WAV2LIP_ENDPOINT: ${WAV2LIP_ENDPOINT}
+      ENABLE_MCP: ${ENABLE_MCP:-False}
     runtime: habana
     cap_add:
       - SYS_NICE
