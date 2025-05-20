@@ -33,6 +33,7 @@ async def health() -> Response:
     """Health check."""
     return Response(status_code=200)
 
+
 @app.post("/v1/asr")
 async def audio_to_text(request: Request):
     logger.info("Whisper generation begin.")
@@ -75,6 +76,7 @@ async def audio_to_text(request: Request):
             os.remove(file_name)
         except OSError as e:
             logger.warning(f"Failed to remove temporary file '{file_name}': {e}")
+
 
 # @app.post("/v1/asr")
 # async def audio_to_text(request: Request):
