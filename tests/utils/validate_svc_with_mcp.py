@@ -75,7 +75,21 @@ async def validate_svc(ip_address, service_port, service_type):
                 ):
                     print("Result correct.")
                 else:
-                    print(f"Result wrong. Received was {tool_result.content}")
+                    print(f"Result wrong. Received was {result_content}")
+            elif service_type == "lvm":
+                input_dict = {
+                    "request": {
+                        "image": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mP8/5+hnoEIwDiqkL4KAcT9GO0U4BxoAAAAAElFTkSuQmCC",
+                        "prompt": "What is this?",
+                    }
+                }
+                tool_result = await session.call_tool("lvm", input_dict)
+                result_content = tool_result.content
+                res = json.loads(result_content[0].text).get("text", None)
+                if res and "yellow" in res:
+                    print("Result correct.")
+                else:
+                    print(f"Result wrong. Received was {result_content}")
             else:
                 print(f"Unknown service type: {service_type}")
                 exit(1)
