@@ -7,7 +7,7 @@ on:
     inputs:
       services:
         default: "asr"
-        description: "List of services to test [agent,asr,chathistory,animation,dataprep,embeddings,feedback_management,finetuning,guardrails,image2image,image2video,intent_detection,llms,lvms,prompt_registry,ragas,rerankings,retrievers,text2image,text2sql,third_parties,tts,vectorstores,web_retrievers]"
+        description: "List of services to test [agent,animation,asr,chathistory,dataprep,embeddings,feedback_management,finetuning,guardrails,image2image,image2video,intent_detection,llms,lvms,prompt_registry,ragas,rerankings,retrievers,text2image,text2sql,third_parties,tts,vectorstores,web_retrievers]"
         required: true
         type: string
       build:
@@ -15,6 +15,11 @@ on:
         description: "Build test required images for Comps"
         required: false
         type: boolean
+      image_build_nodes:
+        default: "gaudi,xeon"
+        description: "Build test required images for Comps on gaudi,xeon"
+        required: true
+        type: string
       test_compose:
         default: true
         description: "Test comps with docker compose"
@@ -35,14 +40,20 @@ on:
         description: "Whether the test range is CI, CD or CICD"
         required: false
         type: string
+      use_model_cache:
+        default: false
+        description: "use model cache true or false"
+        required: false
+        type: boolean
 
-permissions: read-all
+# permissions: read-all
 
 jobs:
   get-test-matrix:
     runs-on: ubuntu-latest
     outputs:
       services: ${{ steps.get-matrix.outputs.services }}
+      image_build_nodes: ${{ steps.get-matrix.outputs.image_build_nodes }}
     steps:
       - name: Create Matrix
         id: get-matrix
@@ -50,6 +61,9 @@ jobs:
           services=($(echo ${{ inputs.services }} | tr ',' ' '))
           services_json=$(printf '%s\n' "${services[@]}" | sort -u | jq -R '.' | jq -sc '.')
           echo "services=$services_json" >> $GITHUB_OUTPUT
+          image_build_nodes=($(echo ${{ inputs.image_build_nodes }} | tr ',' ' '))
+          image_build_nodes_json=$(printf '%s\n' "${image_build_nodes[@]}" | sort -u | jq -R '.' | jq -sc '.')
+          echo "image_build_nodes=$image_build_nodes_json" >> $GITHUB_OUTPUT
 
   run-services:
     needs: [get-test-matrix]
@@ -60,8 +74,10 @@ jobs:
     uses: ./.github/workflows/_comps-workflow.yml
     with:
       service: ${{ matrix.service }}
+      image_build_nodes: ${{ needs.get-test-matrix.outputs.image_build_nodes }}
       tag: ${{ inputs.tag }}
       mode: ${{ inputs.mode }}
       test_compose: ${{ inputs.test_compose }}
       test_helmchart: ${{ inputs.test_helmchart }}
+      use_model_cache: ${{ inputs.use_model_cache }}
     secrets: inherit

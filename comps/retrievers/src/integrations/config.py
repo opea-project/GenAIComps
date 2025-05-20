@@ -48,6 +48,9 @@ TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 BRIDGE_TOWER_EMBEDDING = os.getenv("BRIDGE_TOWER_EMBEDDING", False)
 HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
 
+# OpenAI
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 # Directory pathss
 current_file_path = os.path.abspath(__file__)
 parent_dir = os.path.dirname(current_file_path)
@@ -63,13 +66,12 @@ ES_INDEX_NAME = os.getenv("ES_INDEX_NAME", "rag_elasticsearch")
 #######################################################
 #                    Neo4j                            #
 #######################################################
-NEO4J_PORT2 = os.getenv("NEO4J_PORT2", "11632")
+NEO4J_PORT2 = os.getenv("NEO4J_PORT2", "7687")
 NEO4J_URL = os.getenv("NEO4J_URI", f"bolt://localhost:{NEO4J_PORT2}")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "test")
 host_ip = os.getenv("host_ip")
 TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", f"http://{host_ip}:6005")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 OPENAI_LLM_MODEL = os.getenv("OPENAI_LLM_MODEL", "gpt-4o")
 LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "meta-llama/Meta-Llama-3.1-8B-Instruct")
@@ -125,7 +127,7 @@ COLLECTION_NAME = os.getenv("COLLECTION_NAME", "rag_milvus")
 # TEI configuration
 TEI_EMBEDDING_MODEL = os.environ.get("TEI_EMBEDDING_MODEL", "/home/user/bce-embedding-base_v1")
 os.environ["OPENAI_API_BASE"] = TEI_EMBEDDING_ENDPOINT
-os.environ["OPENAI_API_KEY"] = "Dummy key"
+# os.environ["OPENAI_API_KEY"] = "Dummy key"
 
 
 #######################################################
@@ -184,5 +186,60 @@ VDMS_HOST = os.getenv("VDMS_HOST", "localhost")
 VDMS_PORT = int(os.getenv("VDMS_PORT", 55555))
 VDMS_INDEX_NAME = os.getenv("VDMS_INDEX_NAME", "rag_vdms")
 VDMS_USE_CLIP = int(os.getenv("VDMS_USE_CLIP", 0))
-SEARCH_ENGINE = "FaissFlat"
-DISTANCE_STRATEGY = "IP"
+SEARCH_ENGINE = os.getenv("SEARCH_ENGINE", "FaissFlat")
+DISTANCE_STRATEGY = os.getenv("DISTANCE_STRATEGY", "IP")
+
+#######################################################
+#                     ArangoDB                        #
+#######################################################
+
+# ArangoDB Connection configuration
+ARANGO_URL = os.getenv("ARANGO_URL", "http://localhost:8529")
+ARANGO_USERNAME = os.getenv("ARANGO_USERNAME", "root")
+ARANGO_PASSWORD = os.getenv("ARANGO_PASSWORD", "test")
+ARANGO_DB_NAME = os.getenv("ARANGO_DB_NAME", "_system")
+
+# ArangoDB Vector configuration
+ARANGO_GRAPH_NAME = os.getenv("ARANGO_GRAPH_NAME", "GRAPH")
+ARANGO_DISTANCE_STRATEGY = os.getenv("ARANGO_DISTANCE_STRATEGY", "COSINE")
+ARANGO_USE_APPROX_SEARCH = os.getenv("ARANGO_USE_APPROX_SEARCH", "false").lower() == "true"
+ARANGO_NUM_CENTROIDS = os.getenv("ARANGO_NUM_CENTROIDS", 1)
+ARANGO_SEARCH_START = os.getenv("ARANGO_SEARCH_START", "node")
+
+# ArangoDB Traversal configuration
+ARANGO_TRAVERSAL_ENABLED = os.getenv("ARANGO_TRAVERSAL_ENABLED", "false").lower() == "true"
+ARANGO_TRAVERSAL_MAX_DEPTH = os.getenv("ARANGO_TRAVERSAL_MAX_DEPTH", 1)
+ARANGO_TRAVERSAL_MAX_RETURNED = os.getenv("ARANGO_TRAVERSAL_MAX_RETURNED", 3)
+ARANGO_TRAVERSAL_SCORE_THRESHOLD = os.getenv("ARANGO_TRAVERSAL_SCORE_THRESHOLD", 0.5)
+ARANGO_TRAVERSAL_QUERY = os.getenv("ARANGO_TRAVERSAL_QUERY")
+
+# Summarizer Configuration
+SUMMARIZER_ENABLED = os.getenv("SUMMARIZER_ENABLED", "false").lower() == "true"
+
+# Embedding configuration
+TEI_EMBED_MODEL = os.getenv("TEI_EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT")
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+
+# VLLM configuration
+VLLM_API_KEY = os.getenv("VLLM_API_KEY", "EMPTY")
+VLLM_ENDPOINT = os.getenv("VLLM_ENDPOINT")
+VLLM_MODEL_ID = os.getenv("VLLM_MODEL_ID", "Intel/neural-chat-7b-v3-3")
+VLLM_MAX_NEW_TOKENS = os.getenv("VLLM_MAX_NEW_TOKENS", 512)
+VLLM_TOP_P = os.getenv("VLLM_TOP_P", 0.9)
+VLLM_TEMPERATURE = os.getenv("VLLM_TEMPERATURE", 0.8)
+VLLM_TIMEOUT = os.getenv("VLLM_TIMEOUT", 600)
+
+# OpenAI configuration (alternative to VLLM & TEI)
+OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o")
+OPENAI_CHAT_TEMPERATURE = os.getenv("OPENAI_CHAT_TEMPERATURE", 0)
+OPENAI_CHAT_MAX_TOKENS = os.getenv("OPENAI_CHAT_MAX_TOKENS")
+OPENAI_EMBED_MODEL = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
+OPENAI_CHAT_ENABLED = os.getenv("OPENAI_CHAT_ENABLED", "true").lower() == "true"
+OPENAI_EMBED_ENABLED = os.getenv("OPENAI_EMBED_ENABLED", "true").lower() == "true"
+
+#######################################################
+#                     MariaDB Vector                  #
+#######################################################
+MARIADB_CONNECTION_URL = os.getenv("MARIADB_CONNECTION_URL", "localhost")
+MARIADB_COLLECTION_NAME = os.getenv("MARIADB_COLLECTION_NAME", "rag_mariadbvector")

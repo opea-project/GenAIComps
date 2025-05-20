@@ -1,7 +1,7 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from enum import Enum
+from enum import Enum, auto
 
 
 class ServiceRoleType(Enum):
@@ -34,6 +34,10 @@ class ServiceType(Enum):
     ANIMATION = 17
     IMAGE2IMAGE = 18
     TEXT2SQL = 19
+    TEXT2GRAPH = 20
+    TEXT2CYPHER = 21
+    TEXT2KG = 22
+    STRUCT2GRAPH = 23
 
 
 class MegaServiceEndpoint(Enum):
@@ -53,6 +57,7 @@ class MegaServiceEndpoint(Enum):
     RETRIEVALTOOL = "/v1/retrievaltool"
     FAQ_GEN = "/v1/faqgen"
     GRAPH_RAG = "/v1/graphrag"
+    HYBRID_RAG = "/v1/hybridrag"
     # Follow OPENAI
     EMBEDDINGS = "/v1/embeddings"
     TTS = "/v1/audio/speech"
@@ -87,3 +92,11 @@ class MicroServiceEndpoint(Enum):
 
     def __str__(self):
         return self.value
+
+
+class MCPFuncType(Enum):
+    """The enum of a MCP function type."""
+
+    TOOL = auto()
+    RESOURCE = auto()
+    PROMPT = auto()

@@ -3,13 +3,13 @@
 
 services:
   tei-embedding-serving:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
     container_name: tei-embedding-serving
     entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id ${EMBEDDING_MODEL_ID} --auto-truncate"
     ports:
       - "${TEI_EMBEDDER_PORT:-12000}:80"
     volumes:
-      - "./data:/data"
+      - "${DATA_PATH:-./data}:/data"
     shm_size: 1g
     environment:
       no_proxy: ${no_proxy}
@@ -18,19 +18,19 @@ services:
       host_ip: ${host_ip}
       HF_TOKEN: ${HF_TOKEN}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_EMBEDDER_PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 10s
       timeout: 6s
       retries: 48
 
   tei-reranking-serving:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
     container_name: tei-reranking-serving
     entrypoint: /bin/sh -c "apt-get update && apt-get install -y curl && text-embeddings-router --json-output --model-id ${RERANK_MODEL_ID} --auto-truncate"
     ports:
       - "${TEI_RERANKING_PORT:-12003}:80"
     volumes:
-      - "./data:/data"
+      - "${DATA_PATH:-./data}:/data"
     shm_size: 1g
     environment:
       no_proxy: ${no_proxy}
@@ -38,7 +38,7 @@ services:
       https_proxy: ${https_proxy}
       host_ip: ${host_ip}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_RERANKING_PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 10s
       timeout: 6s
       retries: 48
@@ -51,7 +51,7 @@ services:
     ports:
       - ${TEI_RERANKING_PORT:-12004}:80
     volumes:
-      - "./data:/data"
+      - "${DATA_PATH:-./data}:/data"
     shm_size: 1g
     environment:
       no_proxy: ${no_proxy}
@@ -66,7 +66,7 @@ services:
       - SYS_NICE
     ipc: host
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${host_ip}:${TEI_RERANKING_PORT}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 10s
       timeout: 6s
       retries: 48

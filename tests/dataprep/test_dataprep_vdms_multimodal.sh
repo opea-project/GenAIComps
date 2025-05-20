@@ -7,7 +7,10 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
-DATAPREP_PORT="11111"
+export DATAPREP_PORT="11111"
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/dataprep_utils.sh
 
 function build_docker_images() {
     cd $WORKPATH
@@ -28,13 +31,14 @@ function start_service() {
     export VDMS_HOST=$ip_address
     export VDMS_PORT=55555
     export COLLECTION_NAME="test-comps"
-    export QDRANT_HOST=$ip_address
-    export QDRANT_PORT=$QDRANT_PORT
+    export VDMS_HOST=$ip_address
+    export VDMS_PORT=$VDMS_PORT
     export TAG="comps"
     service_name="vdms-vector-db dataprep-vdms-multimodal"
     cd $WORKPATH/comps/dataprep/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 1m
+
+    check_healthy "dataprep-vdms-multimodal-server" || exit 1
 
 }
 

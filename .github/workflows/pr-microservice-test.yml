@@ -24,6 +24,7 @@ jobs:
 
   Microservice-test:
     needs: job1
+    if: ${{ needs.job1.outputs.is_empty == 'false' }}
     strategy:
       matrix: ${{ fromJSON(needs.job1.outputs.run_matrix) }}
     runs-on: ${{ matrix.hardware }}
@@ -31,14 +32,23 @@ jobs:
       id-token: write
       contents: read
     continue-on-error: true
-    if: ${{ !github.event.pull_request.draft }}
     steps:
       - name: Clean Up Working Directory
         run: |
+          # clean up workspace
           sudo rm -rf ${{github.workspace}}/*
+
+          echo "Cleaning up test-comps-xxx containers ..."
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-          docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+          echo "Cleaning up containers using ports..."
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 0.0.0.0:5000 | awk -F' : ' '{print $1}')
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+
+          # clean up images
+          docker images --filter reference="*/*:comps" -q | xargs -r docker rmi && sleep 1s
+          docker images --filter reference="opea/*:*" -q | xargs -r docker rmi && sleep 1s
+
           docker system prune -f
           docker ps
 
@@ -64,15 +74,36 @@ jobs:
           service: ${{ matrix.service }}
           hardware: ${{ matrix.hardware }}
         run: |
+          export PATH=${HOME}/miniforge3/bin/:$PATH
           cd tests
           echo "log_name=${service}" >> $GITHUB_ENV
+          if [ -d "/data2/hf_model" ]; then
+            export model_cache="/data2/hf_model"
+          else
+            echo "Model cache directory /data2/huggingface does not exist"
+            export model_cache="~/.cache/huggingface/hub"
+          fi
           timeout 60m bash $(find . -type f -name test_${service}.sh)
 
       - name: Clean up container
         run: |
+          echo "Cleaning up test-comps-xxx containers ..."
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-          docker system prune -f
+          echo "Cleaning up containers using ports..."
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 0.0.0.0:5000 | awk -F' : ' '{print $1}')
+          if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
+          docker ps
+
+          echo "Cleaning up images ..."
+          if [[ "${{ matrix.hardware }}" == "intel-cpu" ]]; then
+              docker system prune -a -f
+          else
+              docker images --filter reference="*/*:comps" -q | xargs -r docker rmi && sleep 1s
+              docker images --filter reference="opea/*:*" -q | xargs -r docker rmi && sleep 1s
+              docker system prune -f
+          fi
+          docker images
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}

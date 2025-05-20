@@ -4,6 +4,19 @@ OPEA Comps currently provides telemetry functionalities for metrics and tracing 
 
 ![opea telemetry](../assets/img/opea_telemetry.jpg)
 
+Contents:
+
+- [Metrics](#metrics)
+  - [HTTP metrics](#http-metrics)
+  - [Megaservice E2E metrics](#megaservice-e2e-metrics)
+  - [Inferencing metrics](#inferencing-metrics)
+  - [Metrics collection](#metrics-collection)
+- [Statistics](#statistics)
+- [Tracing](#tracing)
+- [Visualization](#visualization)
+- [Visualize metrics](#visualize-metrics)
+- [Visualize tracing](#visualize-tracing)
+
 ## Metrics
 
 OPEA microservice metrics are exported in Prometheus format under `/metrics` endpoint.
@@ -20,7 +33,7 @@ They can be fetched e.g. with `curl`:
 curl localhost:{port of your service}/metrics
 ```
 
-### HTTP Metrics
+### HTTP metrics
 
 Metrics output looks following:
 
@@ -54,7 +67,7 @@ Latency ones are histogram metrics i.e. include count, total value and set of va
 
 They are available only for _stream_ requests using LLM. Pending count accounts for all requests.
 
-### Inferencing Metrics
+### Inferencing metrics
 
 For example, you can `curl localhost:6006/metrics` to retrieve the TEI embedding metrics, and the output should look like follows:
 
@@ -94,6 +107,11 @@ Below are some default metrics endpoints for specific microservices:
 | vLLM          | 18688 | /metrics | [link](https://docs.vllm.ai/en/v0.5.0/serving/metrics.html)                                             |
 | TEI embedding | 6006  | /metrics | [link](https://huggingface.github.io/text-embeddings-inference/#/Text%20Embeddings%20Inference/metrics) |
 | TEI reranking | 8808  | /metrics | [link](https://huggingface.github.io/text-embeddings-inference/#/Text%20Embeddings%20Inference/metrics) |
+
+## Statistics
+
+Additionally, GenAIComps microservices provide separate `/v1/statistics` endpoint, which outputs P50, P99 and average metrics
+for response times, and first token latencies, if microservice processes them.
 
 ## Tracing
 

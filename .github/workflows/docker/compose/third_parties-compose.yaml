@@ -45,3 +45,67 @@ services:
       dockerfile: Dockerfile.hpu
     shm_size: '128g'
     image: ${REGISTRY:-opea}/vllm-gaudi:${TAG:-latest}
+  vllm-rocm:
+    build:
+      dockerfile: comps/third_parties/vllm/src/Dockerfile.amd_gpu
+    shm_size: '128g'
+    image: ${REGISTRY:-opea}/vllm-rocm:${TAG:-latest}
+  whisper:
+    build:
+      dockerfile: comps/third_parties/whisper/src/Dockerfile
+    image: ${REGISTRY:-opea}/whisper:${TAG:-latest}
+  whisper-gaudi:
+    build:
+      dockerfile: comps/third_parties/whisper/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/whisper-gaudi:${TAG:-latest}
+  speecht5:
+    build:
+      dockerfile: comps/third_parties/speecht5/src/Dockerfile
+    image: ${REGISTRY:-opea}/speecht5:${TAG:-latest}
+  speecht5-gaudi:
+    build:
+      dockerfile: comps/third_parties/speecht5/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/speecht5-gaudi:${TAG:-latest}
+  gpt-sovits:
+    build:
+      dockerfile: comps/third_parties/gpt-sovits/src/Dockerfile
+    image: ${REGISTRY:-opea}/gpt-sovits:${TAG:-latest}
+  lvm-video-llama:
+    build:
+      dockerfile: comps/third_parties/video-llama/src/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-video-llama:${TAG:-latest}
+  lvm-llava:
+    build:
+      dockerfile: comps/third_parties/llava/src/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-llava:${TAG:-latest}
+  lvm-llava-gaudi:
+    build:
+      dockerfile: comps/third_parties/llava/src/Dockerfile.intel_hpu
+    image: ${REGISTRY:-opea}/lvm-llava-gaudi:${TAG:-latest}
+  lvm-predictionguard:
+    build:
+      dockerfile: comps/third_parties/predictionguard/src/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-predictionguard:${TAG:-latest}
+  lvm-llama-vision:
+    build:
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile
+    image: ${REGISTRY:-opea}/lvm-llama-vision:${TAG:-latest}
+  lvm-llama-vision-tp:
+    build:
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile.tp
+    image: ${REGISTRY:-opea}/lvm-llama-vision-tp:${TAG:-latest}
+  lvm-llama-vision-guard:
+    build:
+      dockerfile: comps/third_parties/llama-vision/src/Dockerfile.guard
+    image: ${REGISTRY:-opea}/lvm-llama-vision-guard:${TAG:-latest}
+  ipex-llm:
+    build:
+      args:
+        COMPILE: ON
+        PORT_SSH: 2345
+      dockerfile: comps/third_parties/ipex/src/Dockerfile
+    image: ${REGISTRY:-opea}/ipex-llm:${TAG:-latest}
+  sglang:
+    build:
+      dockerfile: comps/third_parties/sglang/src/Dockerfile
+    image: ${REGISTRY:-opea}/sglang:${TAG:-latest}

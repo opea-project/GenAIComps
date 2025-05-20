@@ -5,8 +5,11 @@ fastapi
 google-api-python-client>=2.100.0
 html2text
 huggingface-hub==0.27.1
+langchain-chroma
+langchain-google-community
 langchain-huggingface
 langchain_community
+mcp
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk

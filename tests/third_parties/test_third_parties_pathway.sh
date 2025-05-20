@@ -7,6 +7,7 @@ set -x
 WORKPATH=$(dirname "$PWD")
 LOG_PATH="$WORKPATH/tests"
 ip_address=$(hostname -I | awk '{print $1}')
+export DATA_PATH=${model_cache:-./data}
 function build_docker_images() {
     cd $WORKPATH
 
@@ -28,7 +29,7 @@ function start_service() {
     # tei endpoint
     tei_endpoint=5436
     model="BAAI/bge-base-en-v1.5"
-    docker run -d --name="test-comps-vectorstore-pathway-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v ./data:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model
+    docker run -d --name="test-comps-vectorstore-pathway-tei-endpoint" -e http_proxy=$http_proxy -e https_proxy=$https_proxy -p $tei_endpoint:80 -v $DATA_PATH:/data --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model
 
     sleep 30s
     export TEI_EMBEDDING_ENDPOINT="http://${ip_address}:${tei_endpoint}"

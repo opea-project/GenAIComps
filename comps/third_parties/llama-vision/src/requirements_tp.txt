@@ -1,0 +1,12 @@
+accelerate>=0.26.0
+docarray
+fastapi
+numpy<2
+opentelemetry-api
+opentelemetry-exporter-otlp
+opentelemetry-sdk
+prometheus-fastapi-instrumentator
+pydantic==2.9.2
+shortuuid
+transformers==4.48.0
+uvicorn

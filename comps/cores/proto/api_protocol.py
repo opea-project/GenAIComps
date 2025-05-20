@@ -6,7 +6,7 @@ from enum import IntEnum
 from typing import Any, Dict, List, Literal, Optional, Union
 
 import shortuuid
-from fastapi import File, UploadFile
+from fastapi import File, Form, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
@@ -37,7 +37,7 @@ class ResponseFormat(BaseModel):
 
 class StreamOptions(BaseModel):
     # refer https://github.com/vllm-project/vllm/blob/main/vllm/entrypoints/openai/protocol.py#L105
-    include_usage: Optional[bool]
+    include_usage: Optional[bool] = False
 
 
 class FunctionDefinition(BaseModel):
@@ -80,6 +80,115 @@ class TokenCheckResponse(BaseModel):
     prompts: List[TokenCheckResponseItem]
 
 
+class DataprepRequest:
+    def __init__(
+        self,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
+    ):
+        self.files = files
+        self.link_list = link_list
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.process_table = process_table
+        self.table_strategy = table_strategy
+
+
+class Neo4jDataprepRequest(DataprepRequest):
+    def __init__(
+        self,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
+        ingest_from_graphDB: bool = Form(False),
+    ):
+        super().__init__(
+            files=files,
+            link_list=link_list,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            process_table=process_table,
+            table_strategy=table_strategy,
+        )
+
+        self.ingest_from_graphDB = ingest_from_graphDB
+
+
+class RedisDataprepRequest(DataprepRequest):
+    def __init__(
+        self,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
+        index_name: str = Form(None),
+    ):
+        super().__init__(
+            files=files,
+            link_list=link_list,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            process_table=process_table,
+            table_strategy=table_strategy,
+        )
+
+        self.index_name = index_name
+
+
+class ArangoDBDataprepRequest(DataprepRequest):
+    def __init__(
+        self,
+        files: Optional[Union[UploadFile, List[UploadFile]]] = File(None),
+        link_list: Optional[str] = Form(None),
+        chunk_size: Optional[int] = Form(1500),
+        chunk_overlap: Optional[int] = Form(100),
+        process_table: Optional[bool] = Form(False),
+        table_strategy: Optional[str] = Form("fast"),
+        graph_name: Optional[str] = Form(None),
+        insert_async: Optional[bool] = Form(None),
+        insert_batch_size: Optional[int] = Form(None),
+        embed_nodes: Optional[bool] = Form(None),
+        embed_edges: Optional[bool] = Form(None),
+        embed_chunks: Optional[bool] = Form(None),
+        allowed_node_types: Optional[List[str]] = Form(None),
+        allowed_edge_types: Optional[List[str]] = Form(None),
+        node_properties: Optional[List[str]] = Form(None),
+        edge_properties: Optional[List[str]] = Form(None),
+        text_capitalization_strategy: Optional[str] = Form(None),
+        include_chunks: Optional[bool] = Form(None),
+    ):
+        super().__init__(
+            files=files,
+            link_list=link_list,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            process_table=process_table,
+            table_strategy=table_strategy,
+        )
+
+        self.graph_name = graph_name
+        self.insert_async = insert_async
+        self.insert_batch_size = insert_batch_size
+        self.embed_nodes = embed_nodes
+        self.embed_edges = embed_edges
+        self.embed_chunks = embed_chunks
+        self.allowed_node_types = allowed_node_types
+        self.allowed_edge_types = allowed_edge_types
+        self.node_properties = node_properties
+        self.edge_properties = edge_properties
+        self.text_capitalization_strategy = text_capitalization_strategy
+        self.include_chunks = include_chunks
+
+
 class EmbeddingRequest(BaseModel):
     # Ordered by official OpenAI API documentation
     # https://platform.openai.com/docs/api-reference/embeddings
@@ -120,6 +229,20 @@ class RetrievalRequest(BaseModel):
     request_type: Literal["retrieval"] = "retrieval"
 
 
+class RetrievalRequestArangoDB(RetrievalRequest):
+    graph_name: str | None = None
+    search_start: str | None = None  # "node", "edge", "chunk"
+    num_centroids: int | None = None
+    distance_strategy: str | None = None  #  # "COSINE", "EUCLIDEAN_DISTANCE"
+    use_approx_search: bool | None = None
+    enable_traversal: bool | None = None
+    enable_summarizer: bool | None = None
+    traversal_max_depth: int | None = None
+    traversal_max_returned: int | None = None
+    traversal_score_threshold: float | None = None
+    traversal_query: str | None = None
+
+
 class RetrievalResponseData(BaseModel):
     text: str
     metadata: Optional[Dict[str, Any]] = None
@@ -156,6 +279,7 @@ class ChatCompletionRequest(BaseModel):
         List[Dict[str, Union[str, List[Dict[str, Union[str, Dict[str, str]]]]]]],
     ]
     model: Optional[str] = None
+    modalities: List[Literal["text", "audio"]] = Field(default=["text"])
     frequency_penalty: Optional[float] = 0.0
     logit_bias: Optional[Dict[str, float]] = None
     logprobs: Optional[bool] = False
@@ -168,7 +292,7 @@ class ChatCompletionRequest(BaseModel):
     service_tier: Optional[str] = None
     stop: Union[str, List[str], None] = Field(default_factory=list)
     stream: Optional[bool] = False
-    stream_options: Optional[StreamOptions] = None
+    stream_options: Optional[StreamOptions] = Field(default=None)
     temperature: Optional[float] = 0.01  # vllm default 0.7
     top_p: Optional[float] = None  # openai default 1.0, but tgi needs `top_p` must be > 0.0 and < 1.0, set None
     tools: Optional[List[ChatCompletionToolsParam]] = None
@@ -176,6 +300,8 @@ class ChatCompletionRequest(BaseModel):
     parallel_tool_calls: Optional[bool] = True
     user: Optional[str] = None
     language: str = "auto"  # can be "en", "zh"
+    image_path: Optional[str] = None
+    audio_path: Optional[str] = None
 
     # Ordered by official OpenAI API documentation
     # default values are same with
@@ -195,6 +321,7 @@ class ChatCompletionRequest(BaseModel):
     # top_p: Optional[float] = None # Priority use openai
     typical_p: Optional[float] = None
     # repetition_penalty: Optional[float] = None
+    timeout: Optional[int] = None
 
     # doc: begin-chat-completion-extra-params
     echo: Optional[bool] = Field(
@@ -260,6 +387,7 @@ class ChatCompletionRequest(BaseModel):
     lambda_mult: float = 0.5
     score_threshold: float = 0.2
     retrieved_docs: Union[List[RetrievalResponseData], List[Dict[str, Any]]] = Field(default_factory=list)
+    index_name: Optional[str] = None
 
     # reranking
     top_n: int = 1
@@ -335,6 +463,7 @@ class AudioSpeechRequest(BaseModel):
 class ChatMessage(BaseModel):
     role: str
     content: str
+    audio: Optional[Dict[str, Any]] = None
 
 
 class ChatCompletionResponseChoice(BaseModel):

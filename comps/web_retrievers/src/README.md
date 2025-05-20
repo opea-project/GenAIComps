@@ -16,7 +16,7 @@ docker build -t opea/web-retriever:latest --build-arg https_proxy=$https_proxy -
 ```bash
 model=BAAI/bge-base-en-v1.5
 volume=$PWD/data
-docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.5 --model-id $model --auto-truncate
+docker run -d -p 6060:80 -v $volume:/data -e http_proxy=$http_proxy -e https_proxy=$https_proxy --pull always ghcr.io/huggingface/text-embeddings-inference:cpu-1.6 --model-id $model --auto-truncate
 ```
 
 ### 1.3 Start Web Retriever Service

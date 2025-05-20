@@ -6,38 +6,59 @@
 FROM ubuntu:22.04 AS dev
 
 RUN apt-get update -y && \
-    apt-get install -y \
-        git python3-pip \
-        ffmpeg libsm6 libxext6 libgl1 \
-        gpg-agent wget
+    apt-get install -y --no-install-recommends --fix-missing \
+        ffmpeg \
+        git \
+        gnupg2 \
+        gpg-agent \
+        libgl1 \
+        libsm6 \
+        libxext6 \
+        python3-pip \
+        wget
 
 RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics.gpg && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu jammy/lts/2350 unified" | \
-        tee /etc/apt/sources.list.d/intel-gpu-jammy.list &&\
-    apt update -y &&\
-    apt install -y \
-        intel-opencl-icd intel-level-zero-gpu level-zero \
-        intel-media-va-driver-non-free libmfx1 libmfxgen1 libvpl2 \
-        libegl-mesa0 libegl1-mesa libegl1-mesa-dev libgbm1 libgl1-mesa-dev libgl1-mesa-dri \
-        libglapi-mesa libgles2-mesa-dev libglx-mesa0 libigdgmm12 libxatracker2 mesa-va-drivers \
-        mesa-vdpau-drivers mesa-vulkan-drivers va-driver-all vainfo hwinfo clinfo
+        tee /etc/apt/sources.list.d/intel-gpu-jammy.list && \
+    apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
+        clinfo \
+        hwinfo \
+        intel-level-zero-gpu \
+        intel-media-va-driver-non-free \
+        intel-opencl-icd \
+        level-zero \
+        libegl1-mesa \
+        libegl1-mesa-dev \
+        libegl-mesa0 \
+        libgbm1 \
+        libgl1-mesa-dev \
+        libgl1-mesa-dri \
+        libglapi-mesa \
+        libgles2-mesa-dev \
+        libglx-mesa0 \
+        libigdgmm12 \
+        libmfx1 libmfxgen1 \
+        libvpl2 \
+        libxatracker2 \
+        mesa-va-drivers \
+        mesa-vdpau-drivers \
+        mesa-vulkan-drivers \
+        va-driver-all \
+        vainfo
 
 WORKDIR /workspace
 
 RUN git clone -b v0.6.6.post1 https://github.com/vllm-project/vllm.git
 
-#ARG GIT_REPO_CHECK=0
-#RUN --mount=type=bind,source=.git,target=.git \
-#    if [ "$GIT_REPO_CHECK" != 0 ]; then bash tools/check_repo.sh ; fi
-
+RUN python3 -m pip install -U pip
 # install build requirements
-RUN PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu" python3 -m pip install -r /workspace/vllm/requirements-build.txt
+RUN PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu" python3 -m pip install --no-cache-dir -r /workspace/vllm/requirements-build.txt
 # build vLLM with OpenVINO backend
-RUN PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu" VLLM_TARGET_DEVICE="openvino" python3 -m pip install /workspace/vllm/
+RUN PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu" VLLM_TARGET_DEVICE="openvino" python3 -m pip install --no-cache-dir /workspace/vllm/
+# fix OpenVINO version to 25.0.0
+RUN python3 -m pip install openvino==2025.0.0
 
 #COPY examples/ /workspace/vllm/examples
 #COPY benchmarks/ /workspace/vllm/benchmarks
 
-
 CMD ["/bin/bash"]
-

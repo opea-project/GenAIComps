@@ -6,9 +6,13 @@ import multiprocessing
 import time
 import unittest
 
+import requests
 from fastapi.responses import StreamingResponse
+from prometheus_client import start_http_server
 
 from comps import ServiceOrchestrator, ServiceType, TextDoc, opea_microservices, register_microservice
+
+_METRIC_PORT = 8000
 
 
 @register_microservice(name="s1", host="0.0.0.0", port=8083, endpoint="/v1/add")
@@ -46,8 +50,11 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
 
         cls.service_builder = ServiceOrchestrator()
 
-        cls.service_builder.add(opea_microservices["s0"]).add(opea_microservices["s1"])
+        cls.service_builder.add(cls.s0).add(cls.s1)
         cls.service_builder.flow_to(cls.s0, cls.s1)
+
+        # requires prometheus_client >= 0.20.0 (earlier versions return None)
+        cls.server, cls.thread = start_http_server(_METRIC_PORT)
 
     @classmethod
     def tearDownClass(cls):
@@ -55,6 +62,9 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
         cls.s1.stop()
         cls.process1.terminate()
         cls.process2.terminate()
+
+        cls.server.shutdown()
+        cls.thread.join()
 
     async def test_schedule(self):
         result_dict, _ = await self.service_builder.schedule(initial_inputs={"text": "hello, "})
@@ -64,6 +74,36 @@ class TestServiceOrchestratorStreaming(unittest.IsolatedAsyncioTestCase):
         async for k in response.__reduce__()[2]["body_iterator"]:
             self.assertEqual(self.service_builder.extract_chunk_str(k).strip(), res_expected[idx])
             idx += 1
+        token_count = len(res_expected)
+        self.assertEqual(idx, token_count)
+
+        r = requests.get(f"http://localhost:{_METRIC_PORT}/metrics", timeout=5)
+        self.assertEqual(r.status_code, 200)
+        lines = r.text.splitlines()
+
+        metrics = {}
+        for line in lines:
+            if line.startswith("mega") and "_count" in line:
+                items = line.split()
+                self.assertTrue(len(items), 2)
+                name, value = items
+
+                self.assertTrue(name.startswith("megaservice_"))
+                self.assertTrue(name.endswith("_count"))
+                metrics[name] = int(float(value))
+        print(metrics)
+
+        # After request is processed:
+        # - first tokens count should be equal to request count
+        # - inter tokens count should not include first token
+        correct = {
+            "megaservice_request_latency_count": 1,
+            "megaservice_first_token_latency_count": 1,
+            "megaservice_inter_token_latency_count": token_count - 1,
+        }
+        for name, value in correct.items():
+            self.assertTrue(name in metrics)
+            self.assertEqual(metrics[name], value)
 
     def test_extract_chunk_str(self):
         res = self.service_builder.extract_chunk_str("data: [DONE]\n\n")
