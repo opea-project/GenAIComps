@@ -17,9 +17,10 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
-from comps.image2image.src.integrations.native import OpeaImageToImage
+from comps.cores.mega.constants import MCPFuncType
 
 args = None
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 logger = CustomLogger("image2image")
 
@@ -34,6 +35,9 @@ component_loader = None
     port=9389,
     input_datatype=SDImg2ImgInputs,
     output_datatype=SDOutputs,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description=" A function that generate image conditioning on the provided image and text",
 )
 @register_statistics(names=["opea_service@image2image"])
 async def image2image(input: SDImg2ImgInputs):

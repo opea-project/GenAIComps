@@ -13,3 +13,5 @@ shortuuid
 torch
 transformers
 uvicorn
+mcp
+

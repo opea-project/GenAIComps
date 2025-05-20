@@ -18,3 +18,4 @@ pydantic
 shortuuid
 sqlalchemy
 uvicorn
+mcp

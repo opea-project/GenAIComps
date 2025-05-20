@@ -51,3 +51,4 @@ sentence_transformers
 shortuuid
 tiktoken
 uvicorn
+mcp

@@ -12,6 +12,7 @@ librosa
 lmdb
 numba
 numpy==1.23.5
+mcp
 opencv-python
 opentelemetry-api
 opentelemetry-exporter-otlp
