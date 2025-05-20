@@ -9,6 +9,7 @@ from fastapi.exceptions import HTTPException
 
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
 from comps.struct2graph.src.integrations.opea import Input, OpeaStruct2Graph
+from comps.cores.mega.constants import MCPFuncType
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
@@ -18,6 +19,7 @@ logger = CustomLogger("struct2graph")
 logflag = os.getenv("LOGFLAG", False)
 
 struct2graph_component_name = os.getenv("STRUCT2GRAPH_COMPONENT_NAME", "OPEA_STRUCT2GRAPH")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
@@ -31,6 +33,9 @@ loader = OpeaComponentLoader(
     endpoint="/v1/struct2graph",
     host="0.0.0.0",
     port=int(os.getenv("STRUCT2GRAPH_PORT", "8090")),
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="A function for transforming structured data formats like csv and json into Neo4j graph structures",
 )
 async def execute_agent(input: Input):
     """Execute triplet extraction from text file.

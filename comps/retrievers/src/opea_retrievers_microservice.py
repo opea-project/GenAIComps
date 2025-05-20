@@ -42,11 +42,14 @@ from comps.cores.proto.api_protocol import (
     RetrievalResponse,
     RetrievalResponseData,
 )
+from comps.cores.mega.constants import MCPFuncType
 
 logger = CustomLogger("opea_retrievers_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
 retriever_component_name = os.getenv("RETRIEVER_COMPONENT_NAME", "OPEA_RETRIEVER_REDIS")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
+
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     retriever_component_name,
@@ -60,6 +63,9 @@ loader = OpeaComponentLoader(
     endpoint="/v1/retrieval",
     host="0.0.0.0",
     port=7000,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="A search service designed for handling and retrieving embedding vectors.",
 )
 @register_statistics(names=["opea_service@retrievers"])
 async def retrieve_docs(
