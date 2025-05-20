@@ -58,7 +58,7 @@ function main() {
 
     stop_docker
 
-    # build_docker_images
+    build_docker_images
     start_service
 
     validate_microservice
