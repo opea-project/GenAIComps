@@ -139,7 +139,7 @@ tire.""" > ${transcript_fn}
     wget https://github.com/docarray/docarray/blob/main/tests/toydata/image-data/apple.png?raw=true -O ${image_fn}
 
     echo "Downloading Image (jpg)"
-    wget https://raw.githubusercontent.com/opea-project/GenAIComps/refs/tags/v1.2/comps/animation/src/assets/img/avatar1.jpg -O ${jpg_image_fn}
+    wget https://raw.githubusercontent.com/opea-project/GenAIComps/refs/tags/v1.3/comps/animation/src/assets/img/avatar1.jpg -O ${jpg_image_fn}
 
     echo "Downloading Video"
     wget http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4 -O ${video_fn}
