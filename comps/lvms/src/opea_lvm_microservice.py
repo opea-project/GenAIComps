@@ -28,7 +28,6 @@ from comps import (
 )
 from comps.cores.mega.constants import MCPFuncType
 
-
 logger = CustomLogger("opea_lvm_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
