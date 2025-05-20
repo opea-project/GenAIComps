@@ -33,29 +33,71 @@ async def health() -> Response:
     """Health check."""
     return Response(status_code=200)
 
-
 @app.post("/v1/asr")
 async def audio_to_text(request: Request):
     logger.info("Whisper generation begin.")
     uid = str(uuid.uuid4())
     file_name = uid + ".wav"
     request_dict = await request.json()
-    audio_b64_str = request_dict.pop("audio")
-    with open(file_name, "wb") as f:
-        f.write(base64.b64decode(audio_b64_str))
+    audio_b64_str = request_dict.pop("audio", None)
 
-    audio = AudioSegment.from_file(file_name)
-    audio = audio.set_frame_rate(16000)
+    if not audio_b64_str:
+        logger.info("Error: Missing 'audio' field in request.")
+        return {"error": "Missing 'audio' field in request."}
 
-    audio.export(f"{file_name}", format="wav")
     try:
-        asr_result = asr.audio2text(file_name)
+        audio_bytes = base64.b64decode(audio_b64_str)
     except Exception as e:
-        logger.error(e)
-        asr_result = e
+        logger.error(f"Unexpected error during Base64 decoding: {e}")
+        return {"error": "Internal server error during decoding."}
+
+    try:
+        with open(file_name, "wb") as f:
+            f.write(audio_bytes)
+
+        audio = AudioSegment.from_file(file_name)
+        audio = audio.set_frame_rate(8000)
+        audio.export(f"{file_name}", format="wav")
+
+        asr_result = asr.audio2text(file_name)
+
+        return {"asr_result": asr_result}
+
+    except FileNotFoundError:
+        logger.error(f"Error: Temporary file '{file_name}' not found.")
+        return {"error": "Internal server error: Temporary file not found."}
+    except Exception as e:
+        logger.error(f"Error during ASR processing: {e}")
+        return {"error": f"ASR processing failed: {str(e)}" if isinstance(e, Exception) else "ASR processing failed"}
+
     finally:
-        os.remove(file_name)
-    return {"asr_result": asr_result}
+        try:
+            os.remove(file_name)
+        except OSError as e:
+            logger.warning(f"Failed to remove temporary file '{file_name}': {e}")
+
+# @app.post("/v1/asr")
+# async def audio_to_text(request: Request):
+#     logger.info("Whisper generation begin.")
+#     uid = str(uuid.uuid4())
+#     file_name = uid + ".wav"
+#     request_dict = await request.json()
+#     audio_b64_str = request_dict.pop("audio")
+#     with open(file_name, "wb") as f:
+#         f.write(base64.b64decode(audio_b64_str))
+
+#     audio = AudioSegment.from_file(file_name)
+#     audio = audio.set_frame_rate(8000)
+
+#     audio.export(f"{file_name}", format="wav")
+#     try:
+#         asr_result = asr.audio2text(file_name)
+#     except Exception as e:
+#         logger.error(e)
+#         asr_result = e
+#     finally:
+#         os.remove(file_name)
+#     return {"asr_result": asr_result}
 
 
 @app.post("/v1/audio/transcriptions")
