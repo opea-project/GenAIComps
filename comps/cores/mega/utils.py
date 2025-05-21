@@ -40,6 +40,7 @@ def check_ports_availability(host: Union[str, List[str]], port: Union[int, List[
 
     return all(is_port_free(h, p) for h in hosts for p in ports)
 
+
 class ConfigError(Exception):
     """Custom exception for configuration errors."""
 
