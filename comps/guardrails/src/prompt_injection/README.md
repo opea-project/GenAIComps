@@ -49,6 +49,7 @@ export HF_TOKEN=${your_hugging_face_token}
 ```
 
 If you prefer to use a smaller model for prompt injection detection, you can opt for [`meta-llama/Llama-Prompt-Guard-2-22M`](https://huggingface.co/meta-llama/Llama-Prompt-Guard-2-22M). To enable this option, set the following environment variable:
+
 ```bash
 export USE_SMALLER_PROMPT_GUARD_MODEL=true
 ```
