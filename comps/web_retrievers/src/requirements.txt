@@ -9,6 +9,7 @@ langchain-chroma
 langchain-google-community
 langchain-huggingface
 langchain_community
+mcp
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
