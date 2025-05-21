@@ -3,8 +3,8 @@
 
 import asyncio
 import os
-from typing import Union
 from pprint import pformat
+from typing import Union
 
 from fastapi.responses import StreamingResponse
 from langchain_core.prompts import PromptTemplate
@@ -190,7 +190,7 @@ class OpeaTextGenService(OpeaComponent):
         if logflag:
             logger.info(f"Formatted completion parameters:\n{pformat(completion_params, indent=2, width=120)}")
 
-        if isinstance(input, ChatCompletionRequest) and not isinstance(input.messages, str):            
+        if isinstance(input, ChatCompletionRequest) and not isinstance(input.messages, str):
             if logflag:
                 logger.info("[ ChatCompletionRequest ] input in opea format")
 
@@ -212,14 +212,17 @@ class OpeaTextGenService(OpeaComponent):
 
                     input.messages.insert(0, {"role": "system", "content": system_prompt})
 
-            specific_params = {k: v for k, v in {
-                'messages': input.messages,
-                'response_format': input.response_format,
-                'stream_options': input.stream_options,
-            }.items() if v is not None}
+            specific_params = {
+                k: v
+                for k, v in {
+                    "messages": input.messages,
+                    "response_format": input.response_format,
+                    "stream_options": input.stream_options,
+                }.items()
+                if v is not None
+            }
             completion_params.update(specific_params)
             chat_completion = await self.client.chat.completions.create(**completion_params)
-
             """TODO need validate following parameters for vllm
                 logit_bias=input.logit_bias,
                 logprobs=input.logprobs,
@@ -231,18 +234,22 @@ class OpeaTextGenService(OpeaComponent):
         else:
             logger.info("[ Regular CompletionRequest ] input in opea format")
             prompt, input = self.align_input(input, prompt_template, input_variables)
-            specific_params = {k: v for k, v in {
-                'prompt': prompt,
-                'echo': input.echo,
-                'suffix': input.suffix,
-            }.items() if v is not None}
+            specific_params = {
+                k: v
+                for k, v in {
+                    "prompt": prompt,
+                    "echo": input.echo,
+                    "suffix": input.suffix,
+                }.items()
+                if v is not None
+            }
             completion_params.update(specific_params)
             chat_completion = await self.client.completions.create(**completion_params)
             """TODO need validate following parameters for vllm
                 best_of=input.best_of,
                 logit_bias=input.logit_bias,
                 logprobs=input.logprobs,"""
- 
+
         if input.stream:
 
             async def stream_generator():
@@ -262,25 +269,29 @@ class OpeaTextGenService(OpeaComponent):
 
     def _get_common_completion_params(self, input) -> dict:
         """Get non-none completion parameters common between chat and regular completions.
-        
+
         Args:
             input: The input request object (ChatCompletionRequest)
-            
+
         Returns:
             dict: Common parameters with non-None values. Some open AI compatible endpoints will not accept None values.
         """
         return {
-            'model': MODEL_NAME,
-            **{k: v for k, v in {
-                'frequency_penalty': input.frequency_penalty,
-                'max_tokens': input.max_tokens,
-                'n': input.n,
-                'presence_penalty': input.presence_penalty,
-                'seed': input.seed,
-                'stop': input.stop,
-                'stream': input.stream,
-                'temperature': input.temperature,
-                'top_p': input.top_p,
-                'user': input.user,
-            }.items() if v is not None}
+            "model": MODEL_NAME,
+            **{
+                k: v
+                for k, v in {
+                    "frequency_penalty": input.frequency_penalty,
+                    "max_tokens": input.max_tokens,
+                    "n": input.n,
+                    "presence_penalty": input.presence_penalty,
+                    "seed": input.seed,
+                    "stop": input.stop,
+                    "stream": input.stream,
+                    "temperature": input.temperature,
+                    "top_p": input.top_p,
+                    "user": input.user,
+                }.items()
+                if v is not None
+            },
         }
