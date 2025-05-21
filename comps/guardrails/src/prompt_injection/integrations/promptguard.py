@@ -24,7 +24,7 @@ class OpeaPromptInjectionPromptGuard(OpeaComponent):
             default_model = "meta-llama/Llama-Prompt-Guard-2-22M"
         else:
             default_model = "meta-llama/Llama-Prompt-Guard-2-86M"
-            
+
         self.model = os.getenv("PROMPT_INJECTION_DETECTION_MODEL", default_model)
         self.pi_pipeline = pipeline("text-classification", model=self.model, tokenizer=self.model)
         health_status = self.check_health()
@@ -40,7 +40,10 @@ class OpeaPromptInjectionPromptGuard(OpeaComponent):
         result = await asyncio.to_thread(self.pi_pipeline, input.text)
 
         if result[0]["label"].lower() == "label_1":
-            return TextDoc(text="Violated policies: jailbreak or prompt injection, please check your input.", downstream_black_list=[".*"])
+            return TextDoc(
+                text="Violated policies: jailbreak or prompt injection, please check your input.",
+                downstream_black_list=[".*"],
+            )
         else:
             return TextDoc(text=input.text)
 
