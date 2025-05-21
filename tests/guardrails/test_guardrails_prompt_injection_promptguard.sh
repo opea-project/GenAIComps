@@ -30,7 +30,7 @@ function start_service_bigger_model() {
     echo $WORKPATH
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 25
+    sleep 30
     echo "Microservice started with the bigger PromptGuard model"
 }
 
@@ -46,7 +46,7 @@ function start_service_smaller_model() {
     echo $WORKPATH
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 25
+    sleep 30
     echo "Microservice started with the smaller PromptGuard model"
 }
 
