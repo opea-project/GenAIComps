@@ -29,6 +29,9 @@ build_image() {
 
 start_router() {
   cd "$WORKPATH/comps/router/deployment/docker_compose"
+
+  export CONTROLLER_TYPE=routellm
+
   docker compose -f compose.yaml up router_service -d
   sleep 20
 }
@@ -44,7 +47,7 @@ validate() {
   [[ $rsp == *"weak"* ]] || { echo "weak routing failed ($rsp)"; exit 1; }
 
   # strong route
-  hard='Explain the Gödel incompleteness theorem in formal terms.'
+  hard='Given a 100x100 grid where each cell is independently colored black or white such that for every cell the sum of black cells in its row, column, and both main diagonals is a distinct prime number, determine whether there exists a unique configuration of the grid that satisfies this condition and, if so, compute the total number of black cells in that configuration.'
   rsp=$(
     curl -s --noproxy localhost,127.0.0.1 \
       -X POST http://${host}:${ROUTER_PORT}/v1/route \
