@@ -7,7 +7,7 @@ set -xeuo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKPATH="$(cd "$SCRIPT_DIR/../.." && pwd)"
-host_ip=$(hostname -I | awk '{print $1}')
+host=127.0.0.1
 LOG_PATH="$WORKPATH/tests"
 ROUTER_PORT=6000
 CONTAINER=opea_router
@@ -16,7 +16,6 @@ CONTAINER=opea_router
 : "${HF_TOKEN:?Need HF_TOKEN}"
 : "${OPENAI_API_KEY:=}"
 
-# Set default image info (matches deploy script)
 REGISTRY_AND_REPO=${REGISTRY_AND_REPO:-opea/router}
 TAG=${TAG:-latest}
 
@@ -36,16 +35,22 @@ start_router() {
 
 validate() {
   # weak route
-  rsp=$(curl -s http://${host_ip}:${ROUTER_PORT}/v1/route \
-        -X POST -H 'Content-Type: application/json' \
-        -d '{"text":"What is 2 + 2?"}')
+  rsp=$(
+    curl -s --noproxy localhost,127.0.0.1 \
+      -X POST http://${host}:${ROUTER_PORT}/v1/route \
+      -H 'Content-Type: application/json' \
+      -d '{"text":"What is 2 + 2?"}'
+  )
   [[ $rsp == *"weak"* ]] || { echo "weak routing failed ($rsp)"; exit 1; }
 
   # strong route
-  hard='Explain Gödel’s incompleteness theorem in formal terms.'
-  rsp=$(curl -s http://${host_ip}:${ROUTER_PORT}/v1/route \
-        -X POST -H 'Content-Type: application/json' \
-        -d "{\"text\":\"$hard\"}")
+  hard='Explain the Gödel incompleteness theorem in formal terms.'
+  rsp=$(
+    curl -s --noproxy localhost,127.0.0.1 \
+      -X POST http://${host}:${ROUTER_PORT}/v1/route \
+      -H 'Content-Type: application/json' \
+      -d "{\"text\":\"$hard\"}"
+  )
   [[ $rsp == *"strong"* ]] || { echo "strong routing failed ($rsp)"; exit 1; }
 }
 
@@ -59,4 +64,5 @@ cleanup
 build_image
 start_router
 validate
+
 echo "✅ RouteLLM controller test passed."
