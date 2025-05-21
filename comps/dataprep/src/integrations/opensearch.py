@@ -81,7 +81,7 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         super().__init__(name, ServiceType.DATAPREP.name.lower(), description, config)
         # Initialize embeddings
         TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
-        HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+        HUGGINGFACEHUB_API_TOKEN = os.getenv("HF_TOKEN", "")
         EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
         if TEI_EMBEDDING_ENDPOINT:
             if not HUGGINGFACEHUB_API_TOKEN:

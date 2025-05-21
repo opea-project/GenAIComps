@@ -21,7 +21,7 @@ services:
       use_hints: false
       recursion_limit: ${recursion_limit}
       llm_engine: vllm
-      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       llm_endpoint_url: ${LLM_ENDPOINT_URL}
       model: ${LLM_MODEL_ID}
       temperature: ${temperature}

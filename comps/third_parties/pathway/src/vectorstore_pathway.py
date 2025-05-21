@@ -40,7 +40,7 @@ host = os.getenv("PATHWAY_HOST", "127.0.0.1")
 port = int(os.getenv("PATHWAY_PORT", 8666))
 
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HF_TOKEN", "")
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 if __name__ == "__main__":

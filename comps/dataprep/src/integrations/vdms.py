@@ -48,7 +48,7 @@ TGI_LLM_ENDPOINT = getEnv("TGI_LLM_ENDPOINT", "http://localhost:8080")
 TGI_LLM_ENDPOINT_NO_RAG = getEnv("TGI_LLM_ENDPOINT_NO_RAG", "http://localhost:8081")
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 # Huggingface API token for TEI embedding endpoint
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HF_TOKEN", "")
 
 # chunk parameters
 CHUNK_SIZE = getEnv("CHUNK_SIZE", 1500)

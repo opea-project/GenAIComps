@@ -41,7 +41,7 @@ Start single-process version (for 1-10 files processing)
 ```bash
 docker run -d --name="dataprep-vdms-server" -p 6007:6007 --runtime=runc --ipc=host \
 -e http_proxy=$http_proxy -e https_proxy=$https_proxy \
--e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN} \
+-e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN} \
 -e COLLECTION_NAME=$COLLECTION_NAME -e VDMS_HOST=$VDMS_HOST -e VDMS_PORT=$VDMS_PORT \
 -e DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_VDMS" opea/dataprep:latest
 ```
