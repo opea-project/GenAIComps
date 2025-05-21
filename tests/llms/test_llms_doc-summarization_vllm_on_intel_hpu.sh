@@ -46,7 +46,7 @@ function start_service() {
     export DOCSUM_PORT=10506 #10500-10599
     export HF_TOKEN=${HF_TOKEN}
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
-    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
     export MAX_INPUT_TOKENS=2048
     export MAX_TOTAL_TOKENS=4096
     export VLLM_SKIP_WARMUP=true
