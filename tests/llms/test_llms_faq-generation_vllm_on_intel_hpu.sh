@@ -96,7 +96,7 @@ function validate_backend_microservices() {
         "text" \
         "vllm-gaudi-server" \
         "vllm-gaudi-server" \
-        '{"model": "Intel/neural-chat-7b-v3-3", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
+        '{"model": "meta-llama/Meta-Llama-3-8B-Instruct", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
 
     # faq
     validate_services \
