@@ -6,6 +6,8 @@ This OPEA text generation service can connect to any OpenAI-compatible API endpo
 
 ```bash
 # Build the microservice docker
+
+git clone https://github.com/opea-project/GenAIComps
 cd GenAIComps
 
 docker build \
@@ -25,7 +27,6 @@ export host_ip=$(hostname -I | awk '{print $1}')
 export LLM_MODEL_ID="" # e.g. "google/gemma-3-1b-it:free"
 export LLM_ENDPOINT=""  # e.g., "http://localhost:8000" (for local vLLM) or "https://openrouter.ai/api" (please make sure to omit /v1 suffix)
 export OPENAI_API_KEY=""
-
 ```
 
 ## 3 Run the Textgen Service
@@ -43,12 +44,12 @@ docker logs textgen-service-endpoint-openai
 
 ## 4 Test the service
 
-You can first test the remote/local endpoint with `curl`. If you're using a service like OpenRouter, you can test it directly:
+You can first test the remote/local endpoint with `curl`. If you're using a service like OpenRouter, you can test it directly first:
 
 ```
 curl https://openrouter.ai/api/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
   -d '{
   "model": "'${LLM_MODEL_ID}'",
   "messages": [
@@ -65,13 +66,5 @@ Then you can test the OPEA text generation service that wrapped the endpoint, wi
 ```
 curl http://localhost:9000/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -d '{
-  "model": "'${LLM_MODEL_ID}'",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Tell me a joke?"
-    }
-  ]
-}'
+  -d '{"model":"'${LLM_MODEL_ID}'","messages":[{"role":"user","content":"Tell me a joke?"}]}'
 ```
