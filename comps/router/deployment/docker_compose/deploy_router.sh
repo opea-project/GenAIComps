@@ -14,7 +14,7 @@ if [ -f .env ]; then
 fi
 
 # Required variables
-REQUIRED_VARS=("HF_TOKEN" "OPENAI_API_KEY")
+REQUIRED_VARS=("HF_TOKEN")
 
 # Validate that all required variables are set
 for VAR in "${REQUIRED_VARS[@]}"; do
