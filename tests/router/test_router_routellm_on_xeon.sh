@@ -14,7 +14,7 @@ CONTAINER=opea_router
 
 # Required secrets
 : "${HF_TOKEN:?Need HF_TOKEN}"
-: "${OPENAI_API_KEY:=""}"
+: "${OPENAI_API_KEY:=}"
 
 # Set default image info (matches deploy script)
 REGISTRY_AND_REPO=${REGISTRY_AND_REPO:-opea/router}
