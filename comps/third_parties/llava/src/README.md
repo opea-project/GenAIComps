@@ -44,14 +44,14 @@ python check_llava_server.py
 - Xeon CPU
 
 ```bash
-cd ../../../
+cd GenAIComps
 docker build -t opea/lvm-llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/llava/src/Dockerfile .
 ```
 
 - Gaudi2 HPU
 
 ```bash
-cd ../../../
+cd GenAIComps
 docker build -t opea/lvm-llava:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/llava/src/Dockerfile.intel_hpu .
 ```
 
