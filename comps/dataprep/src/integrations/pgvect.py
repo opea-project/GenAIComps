@@ -35,7 +35,7 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 # TEI Embedding endpoints
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 # Huggingface API token for TEI embedding endpoint
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HF_TOKEN", "")
 
 PG_CONNECTION_STRING = os.getenv("PG_CONNECTION_STRING", "localhost")
 

@@ -57,7 +57,7 @@ VLLM_TIMEOUT = os.getenv("VLLM_TIMEOUT", 600)
 # TEI configuration
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT")
 TEI_EMBED_MODEL = os.getenv("TEI_EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HF_TOKEN")
 EMBED_NODES = os.getenv("EMBED_NODES", "true").lower() == "true"
 EMBED_EDGES = os.getenv("EMBED_EDGES", "true").lower() == "true"
 EMBED_CHUNKS = os.getenv("EMBED_CHUNKS", "true").lower() == "true"

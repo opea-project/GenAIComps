@@ -61,11 +61,11 @@ echo MAX_LENGTH=${MAX_LENGTH}
 ### Start TGI Service
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
+export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export TGI_PORT=8008
 
-docker run -d --name="text2graph-tgi-endpoint" --ipc=host -p $TGI_PORT:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HUGGINGFACEHUB_API_TOKEN} -e model=${LLM_MODEL_ID} ghcr.io/huggingface/text-generation-inference:2.4.1 --model-id $LLM_MODEL_ID
+docker run -d --name="text2graph-tgi-endpoint" --ipc=host -p $TGI_PORT:80 -v ./data:/data --shm-size 1g -e HF_TOKEN=${HF_TOKEN} -e model=${LLM_MODEL_ID} ghcr.io/huggingface/text-generation-inference:2.4.1 --model-id $LLM_MODEL_ID
 ```
 
 ### Verify the TGI Service
