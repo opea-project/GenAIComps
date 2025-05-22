@@ -4,6 +4,7 @@ docarray[full]
 fastapi
 huggingface_hub
 langchain-core
+mcp
 openai
 opentelemetry-api
 opentelemetry-exporter-otlp
