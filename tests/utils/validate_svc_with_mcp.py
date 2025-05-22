@@ -6,13 +6,15 @@ import asyncio
 import base64
 import json
 import os
-import random
-import sys
+
 # from random import random
 import random
+import sys
+
 import requests
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
+
 current_file = os.path.abspath(__file__)
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
 
@@ -70,7 +72,7 @@ async def validate_svc(ip_address, service_port, service_type):
                     input_dict = json.load(file)
                 tool_result = await session.call_tool(
                     "animate",
-                    {"audio":input_dict},
+                    {"audio": input_dict},
                 )
                 result_content = tool_result.content
                 animate_result = json.loads(result_content[0].text).get("video_path", [])
@@ -80,7 +82,11 @@ async def validate_svc(ip_address, service_port, service_type):
                     print(f"Result wrong. Received was {tool_result.content}")
                     exit(1)
             elif service_type == "image2image":
-                input_dict = {"image": "https://huggingface.co/datasets/patrickvonplaten/images/resolve/main/aa_xl/000000009.png", "prompt":"a photo of an astronaut riding a horse on mars", "num_images_per_prompt":1}
+                input_dict = {
+                    "image": "https://huggingface.co/datasets/patrickvonplaten/images/resolve/main/aa_xl/000000009.png",
+                    "prompt": "a photo of an astronaut riding a horse on mars",
+                    "num_images_per_prompt": 1,
+                }
                 tool_result = await session.call_tool(
                     "image2image",
                     {"input": input_dict},
@@ -105,7 +111,7 @@ async def validate_svc(ip_address, service_port, service_type):
                 print(result_content)
                 retrieved_docs = json.loads(result_content[0].text).get("retrieved_docs", [])
                 if len(retrieved_docs) >= 1 and any(
-                        "OPEA" in retrieved_docs[i]["text"] for i in range(len(retrieved_docs))
+                    "OPEA" in retrieved_docs[i]["text"] for i in range(len(retrieved_docs))
                 ):
                     print("Result correct.")
                 else:
@@ -120,12 +126,11 @@ async def validate_svc(ip_address, service_port, service_type):
                 result_content = tool_result.content
                 retrieved_docs = json.loads(result_content[0].text).get("retrieved_docs", [])
                 if len(retrieved_docs) >= 1 and any(
-                        "OPEA" in retrieved_docs[i]["text"] for i in range(len(retrieved_docs))
+                    "OPEA" in retrieved_docs[i]["text"] for i in range(len(retrieved_docs))
                 ):
                     print("Result correct.")
                 else:
                     print(f"Result wrong. Received was {tool_result.content}")
-
 
             elif service_type == "web_retriever":
                 dummy_embedding = [random.uniform(-1, 1) for _ in range(768)]

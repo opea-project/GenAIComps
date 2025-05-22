@@ -8,8 +8,8 @@ import sys
 from fastapi.exceptions import HTTPException
 
 from comps import CustomLogger, OpeaComponentLoader, opea_microservices, register_microservice
-from comps.struct2graph.src.integrations.opea import Input, OpeaStruct2Graph
 from comps.cores.mega.constants import MCPFuncType
+from comps.struct2graph.src.integrations.opea import Input, OpeaStruct2Graph
 
 cur_path = pathlib.Path(__file__).parent.resolve()
 comps_path = os.path.join(cur_path, "../../../")
