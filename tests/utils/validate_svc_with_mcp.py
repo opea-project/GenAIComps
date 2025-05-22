@@ -12,6 +12,8 @@ import sys
 import requests
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
+current_file = os.path.abspath(__file__)
+root_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
 
 
 async def validate_svc(ip_address, service_port, service_type):
@@ -90,6 +92,53 @@ async def validate_svc(ip_address, service_port, service_type):
                     print("Result correct.")
                 else:
                     print(f"Result wrong. Received was {result_content}")
+            elif service_type == "animation":
+                with open(os.path.join(root_dir, "comps/animation/src/assets/audio/sample_question.json"), "r") as file:
+                    input_dict = json.load(file)
+                tool_result = await session.call_tool(
+                    "animate",
+                    {"audio": input_dict},
+                )
+                result_content = tool_result.content
+                animate_result = json.loads(result_content[0].text).get("video_path", [])
+                if bool(animate_result):
+                    print("Result correct.")
+                else:
+                    print(f"Result wrong. Received was {tool_result.content}")
+                    exit(1)
+            elif service_type == "image2image":
+                input_dict = {
+                    "image": "https://huggingface.co/datasets/patrickvonplaten/images/resolve/main/aa_xl/000000009.png",
+                    "prompt": "a photo of an astronaut riding a horse on mars", "num_images_per_prompt": 1}
+                tool_result = await session.call_tool(
+                    "image2image",
+                    {"input": input_dict},
+                )
+                result_content = tool_result.content
+                svc_result = json.loads(result_content[0].text).get("images", [])
+
+                if bool(svc_result):
+                    print("Result correct.")
+                else:
+                    print(f"Result wrong. Received was {tool_result.content}")
+                    exit(1)
+            elif service_type == "retriever":
+                dummy_embedding = [random.uniform(-1, 1) for _ in range(768)]
+                print(dummy_embedding)
+                input_dict = {"input": {"text": "What is OPEA?", "embedding": dummy_embedding}}
+                tool_result = await session.call_tool(
+                    "retrieve_docs",
+                    input_dict,
+                )
+                result_content = tool_result.content
+                print(result_content)
+                retrieved_docs = json.loads(result_content[0].text).get("retrieved_docs", [])
+                if len(retrieved_docs) >= 1 and any(
+                        "OPEA" in retrieved_docs[i]["text"] for i in range(len(retrieved_docs))
+                ):
+                    print("Result correct.")
+                else:
+                    print(f"Result wrong. Received was {tool_result.content}")
             else:
                 print(f"Unknown service type: {service_type}")
                 exit(1)
