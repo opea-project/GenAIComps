@@ -46,6 +46,7 @@ services:
       https_proxy: ${https_proxy}
       HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
+      USE_SMALLER_PROMPT_GUARD_MODEL: ${USE_SMALLER_PROMPT_GUARD_MODEL:-false}
     restart: unless-stopped
 
   # factuality alignment service

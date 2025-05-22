@@ -19,7 +19,13 @@ class OpeaPromptInjectionPromptGuard(OpeaComponent):
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.GUARDRAIL.name.lower(), description, config)
         self.hf_token = os.getenv("HF_TOKEN")
-        self.model = os.getenv("PROMPT_INJECTION_DETECTION_MODEL", "meta-llama/Prompt-Guard-86M")
+        use_smaller_model = os.getenv("USE_SMALLER_PROMPT_GUARD_MODEL", "False").lower() == "true"
+        if use_smaller_model:
+            default_model = "meta-llama/Llama-Prompt-Guard-2-22M"
+        else:
+            default_model = "meta-llama/Llama-Prompt-Guard-2-86M"
+
+        self.model = os.getenv("PROMPT_INJECTION_DETECTION_MODEL", default_model)
         self.pi_pipeline = pipeline("text-classification", model=self.model, tokenizer=self.model)
         health_status = self.check_health()
         if not health_status:
@@ -33,11 +39,10 @@ class OpeaPromptInjectionPromptGuard(OpeaComponent):
         """
         result = await asyncio.to_thread(self.pi_pipeline, input.text)
 
-        if result[0]["label"].lower() == "jailbreak":
-            return TextDoc(text="Violated policies: jailbreak, please check your input.", downstream_black_list=[".*"])
-        elif result[0]["label"].lower() == "injection":
+        if result[0]["label"].lower() == "label_1":
             return TextDoc(
-                text="Violated policies: prompt injection, please check your input.", downstream_black_list=[".*"]
+                text="Violated policies: jailbreak or prompt injection, please check your input.",
+                downstream_black_list=[".*"],
             )
         else:
             return TextDoc(text=input.text)
