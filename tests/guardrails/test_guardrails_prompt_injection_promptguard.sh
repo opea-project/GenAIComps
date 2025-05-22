@@ -19,7 +19,7 @@ function build_docker_images() {
     fi
 }
 
-function start_service_bigger_model() {
+function start_service_larger_model() {
     echo "Starting microservice with the bigger PromptGuard model"
     export INJECTION_PROMPTGUARD_PORT=9085
     export TAG=comps
@@ -84,7 +84,7 @@ function main() {
     stop_docker
     build_docker_images
 
-    start_service_bigger_model
+    start_service_larger_model
     validate_microservice
     stop_docker
 
