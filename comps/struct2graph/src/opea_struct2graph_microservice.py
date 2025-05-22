@@ -30,7 +30,7 @@ loader = OpeaComponentLoader(
     name="opea_service@struct2graph",
     endpoint="/v1/struct2graph",
     host="0.0.0.0",
-    port=os.getenv("STRUCT2GRAPH_PORT"),
+    port=int(os.getenv("STRUCT2GRAPH_PORT", "8090")),
 )
 async def execute_agent(input: Input):
     """Execute triplet extraction from text file.
