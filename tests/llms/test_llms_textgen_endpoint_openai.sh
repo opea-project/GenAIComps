@@ -9,16 +9,6 @@
 # The vLLM server is started in a docker container, and the textgen service is started in another container.
 # The textgen service is configured to connect to the vLLM server using a test key.
 # The test sends a request to the textgen service and validates the response.
-#
-# Note on Docker Networking:
-# This test uses Docker's networking best practices by:
-# 1. Placing both containers on the same Docker network (docker_compose_default)
-# 2. Using container names for service discovery (e.g., http://vllm-server:8000)
-# This approach is more reliable than using host IP addresses because:
-# - It keeps traffic within Docker's network
-# - Works consistently regardless of host network configuration
-# - More secure as services don't need to be exposed to host network
-# - Supports container mobility and scaling
 
 set -e # Exit on error
 
@@ -30,11 +20,14 @@ then
 fi
 
 # --- Setup ---
-WORKPATH=$(dirname "$PWD")
-host_ip=$(hostname -I | awk '{print $1}')
-LOG_PATH="$WORKPATH/tests"
-VLLM_MODEL=""Qwen/Qwen2.5-0.5B-Instruct""
-LLM_ENDPOINT_PORT=8000
+# WORKPATH=$(dirname "$PWD")
+export WORKPATH=$(pwd)
+export host_ip=$(hostname -I | awk '{print $1}')
+export http_proxy=""
+export LOG_PATH="$WORKPATH/tests"
+export VLLM_MODEL=""Qwen/Qwen2.5-0.5B-Instruct""
+export LLM_ENDPOINT_PORT="8000"
+export OPENAI_API_KEY=testkey
 
 
 function build_vllm_image() {
@@ -48,13 +41,15 @@ function build_vllm_image() {
     echo "Checked out vLLM tag ${VLLM_VER}"
     git checkout ${VLLM_VER} &> /dev/null
 
-    docker build --no-cache -f docker/Dockerfile.cpu -t opea/vllm-cpu:test .
+    # docker build --no-cache -f docker/Dockerfile.cpu -t opea/vllm-cpu:test .
+    docker build -f docker/Dockerfile.cpu -t opea/vllm-cpu:test .
+    
     cd $WORKPATH
 }
 
 function start_vllm() {
     export HF_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
-    export VLLM_API_KEY=testkey # This is the VLLM environment variable to set keys.
+    export VLLM_API_KEY=${OPENAI_API_KEY} # This is the VLLM environment variable to set keys.
     export host_ip=$(hostname -I | awk '{print $1}')
 
     # Block size must be 16 for CPU backend unless Intel Extension for PyTorch (IPEX) is installed
@@ -67,37 +62,59 @@ function start_vllm() {
     # - VLLM_MLA_DISABLE=1: Disable MLA (Multi-head Linear Attention) optimizations which aren't supported on CPU
     docker run --rm -d \
         -p ${LLM_ENDPOINT_PORT}:8000 \
-        -e VLLM_API_KEY=${VLLM_API_KEY} \
+        -e VLLM_API_KEY=${OPENAI_API_KEY} \
         -e VLLM_USE_CPU=1 \
         -e VLLM_CPU_OMP_THREADS_BIND=all \
         -e VLLM_CPU_KVCACHE_SPACE=4 \
         -e VLLM_MLA_DISABLE=1 \
         --name vllm-server \
-        --network docker_compose_default \
+        --network bridge \
         opea/vllm-cpu:test \
         --model ${VLLM_MODEL} \
         --port 8000 \
         --host 0.0.0.0 \
-        --block-size ${BLOCK_SIZE} \
-        --verbose  # Enable detailed logging for debugging
-    sleep 30  # Wait for the server to fully initialize
+        --block-size ${BLOCK_SIZE}
+        
+
+    echo "Waiting for vLLM server to initialize..."
+    # Wait for server to be ready by checking logs
+    while ! docker logs vllm-server 2>&1 | grep -q "Application startup complete"; do
+        echo "  Still waiting for vLLM server..."
+        sleep 10
+    done
+    echo "vLLM server is ready!"
+
+    # Verify server is responding
+    curl -v http://localhost:${LLM_ENDPOINT_PORT}/health 2>&1 || echo "Warning: vLLM health check failed"
 }
 
 function start_textgen() {
     # Testing if the textgen can connect to a vllm endpoint, with a testkey.
     export OPENAI_API_KEY=testkey
-    export LLM_ENDPOINT="http://vllm-server:8000" # Point to vLLM using container name
+    # Use host.docker.internal to access the host machine from within the container
+    export LLM_ENDPOINT="http://${host_ip}:8000"
     export LLM_MODEL_ID=$VLLM_MODEL  # Must match vLLM
     export service_name="textgen-service-endpoint-openai"
     export LOGFLAG=True
 
+    echo "Starting textgen service connecting to vllm at: ${LLM_ENDPOINT}"
+
     # textgen-service-endpoint-openai extends the textgen service. This test uses the image: opea/llm-textgen:latest
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d
-    sleep 20
+
+    echo "Waiting for textgen-service-endpoint-openai to initialize..."
+    while ! docker logs textgen-service-endpoint-openai 2>&1 | grep -q "Application startup complete"; do
+        echo "  Still waiting for textgen-service-endpoint-openai server..."
+        sleep 5
+    done
+    echo "textgen-service-endpoint-openai is ready!"
+
+    curl http://localhost:9000/health 2>&1 || echo "Warning: textgen health check failed"
 }
 
 function validate_service() {
+    echo "Validating textgen-service-endpoint-openai"
     local response=$(curl -s -X POST http://${host_ip}:9000/v1/chat/completions \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer testkey" \
@@ -147,12 +164,13 @@ function validate_service() {
 
 
 function stop_containers() {
-    docker stop textgen-service-endpoint-openai || true
-    docker stop vllm-server || true
+    docker compose -f compose_text-generation.yaml down
+    docker stop vllm-server || true # the --rm flag will ensure it is removed
 }
+ 
 
 # Assumes containers from other test runs are already cleared.
-build_vllm_image
+# build_vllm_image
 start_vllm
 start_textgen
 validate_service
