@@ -18,7 +18,7 @@ from comps import (
     statistics_dict,
 )
 from comps.cores.mega.constants import MCPFuncType
-
+from comps.image2image.src.integrations.native import OpeaImageToImage
 args = None
 enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
 
