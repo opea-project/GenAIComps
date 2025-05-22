@@ -26,11 +26,14 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 
 logger = CustomLogger("opea_lvm_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
 lvm_component_name = os.getenv("LVM_COMPONENT_NAME", "OPEA_VLLM_LVM")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
+
 # Initialize OpeaComponentController
 loader = OpeaComponentLoader(lvm_component_name, description=f"OPEA LVM Component: {lvm_component_name}")
 
@@ -41,6 +44,9 @@ loader = OpeaComponentLoader(lvm_component_name, description=f"OPEA LVM Componen
     endpoint="/v1/lvm",
     host="0.0.0.0",
     port=9399,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Respond to prompts about the image.",
 )
 @register_statistics(names=["opea_service@lvm"])
 async def lvm(

@@ -366,9 +366,10 @@ async def load_image(image_path):
     if os.getenv("SUMMARIZE_IMAGE_VIA_LVM", None) == "1":
         query = "Please summarize this image."
         image_b64_str = base64.b64encode(await read_image_async(image_path)).decode()
+        lvm_endpoint = os.getenv("LVM_ENDPOINT", "http://localhost:9399/v1/lvm")
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                url="http://localhost:9399/v1/lvm",
+                url=lvm_endpoint,
                 json={"image": image_b64_str, "prompt": query},
                 headers={"Content-Type": "application/json"},
             ) as response:

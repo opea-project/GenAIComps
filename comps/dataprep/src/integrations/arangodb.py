@@ -287,7 +287,7 @@ class OpeaArangoDataprep(OpeaComponent):
 
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
-            if isinstance(table_chunks, list):
+            if table_chunks and isinstance(table_chunks, list):
                 chunks = chunks + table_chunks
 
         if logflag:

@@ -47,7 +47,7 @@ function start_service() {
     export host_ip=${host_ip}
     export HF_TOKEN=${HF_TOKEN} # Remember to set HF_TOKEN before invoking this test!
     export LLM_ENDPOINT="http://${host_ip}:${LLM_ENDPOINT_PORT}"
-    export LLM_MODEL_ID="Intel/neural-chat-7b-v3-3"
+    export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
     export DATA_PATH=${model_cache:-./data}
@@ -96,7 +96,7 @@ function validate_backend_microservices() {
         "text" \
         "vllm-gaudi-server" \
         "vllm-gaudi-server" \
-        '{"model": "Intel/neural-chat-7b-v3-3", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
+        '{"model": "meta-llama/Meta-Llama-3-8B-Instruct", "prompt": "What is Deep Learning?", "max_tokens": 32, "temperature": 0}'
 
     # faq
     validate_services \

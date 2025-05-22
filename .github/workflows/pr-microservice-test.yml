@@ -80,7 +80,7 @@ jobs:
           if [ -d "/data2/hf_model" ]; then
             export model_cache="/data2/hf_model"
           else
-            echo "Model cache directory /data2/huggingface does not exist"
+            echo "Model cache directory /data2/hf_model does not exist"
             export model_cache="~/.cache/huggingface/hub"
           fi
           timeout 60m bash $(find . -type f -name test_${service}.sh)
