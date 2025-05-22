@@ -163,7 +163,7 @@ function stop_containers() {
     docker compose -f compose_text-generation.yaml down
     docker stop vllm-server || true # the --rm flag will ensure it is removed
 }
- 
+
 
 # Assumes containers from other test runs are already cleared.
 build_vllm_image
