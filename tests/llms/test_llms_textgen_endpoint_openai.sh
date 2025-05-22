@@ -20,8 +20,7 @@ then
 fi
 
 # --- Setup ---
-# WORKPATH=$(dirname "$PWD")
-export WORKPATH=$(pwd)
+export WORKPATH=$(dirname "$PWD")
 export host_ip=$(hostname -I | awk '{print $1}')
 export http_proxy=""
 export LOG_PATH="$WORKPATH/tests"
