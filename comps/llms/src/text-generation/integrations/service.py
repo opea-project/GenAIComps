@@ -14,7 +14,7 @@ from comps import CustomLogger, LLMParamsDoc, OpeaComponent, OpeaComponentRegist
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
-from .template import ChatTemplate
+from comps.llms.src.text_generation.integrations.template import ChatTemplate
 
 logger = CustomLogger("opea_llm")
 logflag = os.getenv("LOGFLAG", False)
@@ -50,11 +50,28 @@ def get_llm_endpoint():
 
 @OpeaComponentRegistry.register("OpeaTextGenService")
 class OpeaTextGenService(OpeaComponent):
-    """A specialized OPEA LLM component derived from OpeaComponent for interacting with TGI/vLLM services based on OpenAI API.
+    """A specialized OPEA LLM component derived from OpeaComponent for interacting with TGI/vLLM or other services based on OpenAI API.
 
     Attributes:
-        client (TGI/vLLM): An instance of the TGI/vLLM client for text generation.
+        client: an instance of an openAI-compatible client like TGI/vLLM for text generation.
     """
+    # Parameters to omit from openAI compatible API calls - organized by request type
+    OMIT_COMMON_PARAMS = {
+        "chat_template",  # Can omit since used in prompt generation
+        "documents",     # Can omit since used in prompt generation.
+    }
+
+    OMIT_SEARCHDOC_PARAMS = OMIT_COMMON_PARAMS | {
+        "initial_query",     # Can omit since used in prompt generation.
+        "retrieved_docs",    # Can omit since used in prompt generation.
+        "text",             # Can omit since used in prompt generation.
+    }
+
+    OMIT_LLM_PARAMS = OMIT_COMMON_PARAMS | {
+        "query",            # Handled in prompt generation
+    }
+
+    OMIT_CHAT_PARAMS = OMIT_COMMON_PARAMS  # No additional parameters to omit
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
@@ -75,7 +92,7 @@ class OpeaTextGenService(OpeaComponent):
         return AsyncOpenAI(api_key=OPENAI_API_KEY, base_url=llm_endpoint + "/v1", timeout=600, default_headers=headers)
 
     def check_health(self) -> bool:
-        """Checks the health of the TGI/vLLM LLM service.
+        """Checks the health of the openAI compatible client.
 
         Returns:
             bool: True if the service is reachable and healthy, False otherwise.
@@ -97,76 +114,81 @@ class OpeaTextGenService(OpeaComponent):
             return False
 
     def align_input(
-        self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc], prompt_template, input_variables
-    ):
+        self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc], prompt_template, prompt_inputs
+    ) -> tuple[Union[str, list], dict]:
+        """Aligns different input types to a standardized format for API calls.
+        
+        Args:
+            input: The input request object (SearchedDoc, LLMParamsDoc, or ChatCompletionRequest)
+            prompt_template: Optional template for formatting prompts
+            prompt_inputs: Variables expected by the prompt template
+            
+        Returns:
+            tuple: (prompt, filtered parameters for API call)
+        """
+        # Select parameters to omit based on input type
+        omit_params = (
+            self.OMIT_SEARCHDOC_PARAMS if isinstance(input, SearchedDoc)
+            else self.OMIT_LLM_PARAMS if isinstance(input, LLMParamsDoc)
+            else self.OMIT_CHAT_PARAMS
+        )
+        
+        # Build API parameters, excluding None values and omitted parameters. Some openAI-compatible APIs disallow None inputs.
+        completion_params = {"model": MODEL_NAME}
+        completion_params.update({k: v for k, v in vars(input).items() if v is not None and k not in omit_params})
+
+        # Generate prompt based on input type and available context
         if isinstance(input, SearchedDoc):
             if logflag:
-                logger.info("[ SearchedDoc ] input from retriever microservice")
+                logger.info("Processing SearchedDoc from retriever")
             prompt = input.initial_query
             if input.retrieved_docs:
                 docs = [doc.text for doc in input.retrieved_docs]
+                prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs, MODEL_NAME)
                 if logflag:
                     logger.info(f"[ SearchedDoc ] combined retrieved docs: {docs}")
-                prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs, MODEL_NAME)
-
-            ## use default ChatCompletionRequest parameters
-            new_input = ChatCompletionRequest(messages=prompt)
-
-            if logflag:
-                logger.info(f"[ SearchedDoc ] final input: {new_input}")
-
-            return prompt, new_input
-
+        
         elif isinstance(input, LLMParamsDoc):
             if logflag:
                 logger.info("[ LLMParamsDoc ] input from rerank microservice")
             prompt = input.query
             if prompt_template:
-                if sorted(input_variables) == ["context", "question"]:
+                if sorted(prompt_inputs) == ["context", "question"]:
                     prompt = prompt_template.format(question=input.query, context="\n".join(input.documents))
-                elif input_variables == ["question"]:
+                elif prompt_inputs == ["question"]:
                     prompt = prompt_template.format(question=input.query)
                 else:
                     logger.info(
                         f"[ LLMParamsDoc ] {prompt_template} not used, we only support 2 input variables ['question', 'context']"
                     )
-            else:
-                if input.documents:
-                    # use rag default template
-                    prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents, input.model)
-
-            # convert to unified OpenAI /v1/chat/completions format
-            new_input = ChatCompletionRequest(
-                messages=prompt,
-                max_tokens=input.max_tokens,
-                top_p=input.top_p,
-                stream=input.stream,
-                frequency_penalty=input.frequency_penalty,
-                temperature=input.temperature,
-            )
-
-            return prompt, new_input
-
-        else:
+            elif input.documents:
+                prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents, input.model)
+        
+        else:  # ChatCompletionRequest or regular request
             if logflag:
                 logger.info("[ ChatCompletionRequest ] input in opea format")
-
             prompt = input.messages
             if prompt_template:
-                if sorted(input_variables) == ["context", "question"]:
+                if sorted(prompt_inputs) == ["context", "question"]:
                     prompt = prompt_template.format(question=input.messages, context="\n".join(input.documents))
-                elif input_variables == ["question"]:
+                elif prompt_inputs == ["question"]:
                     prompt = prompt_template.format(question=input.messages)
                 else:
                     logger.info(
                         f"[ ChatCompletionRequest ] {prompt_template} not used, we only support 2 input variables ['question', 'context']"
                     )
-            else:
-                if input.documents:
-                    # use rag default template
-                    prompt = ChatTemplate.generate_rag_prompt(input.messages, input.documents, input.model)
+            elif input.documents:
+                prompt = ChatTemplate.generate_rag_prompt(input.messages, input.documents, input.model)
 
-            return prompt, input
+            if isinstance(input, ChatCompletionRequest):
+                completion_params["messages"] = prompt
+            else:
+                completion_params["prompt"] = prompt
+
+        if logflag:
+            logger.info(f"Filtered parameters: {completion_params}")
+
+        return prompt, completion_params
 
     async def invoke(self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]):
         """Invokes the TGI/vLLM LLM service to generate output for the provided input.
@@ -174,54 +196,35 @@ class OpeaTextGenService(OpeaComponent):
         Args:
             input (Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc]): The input text(s).
         """
-
-        prompt_template = None
-        input_variables = None
         if logflag:
             logger.info(f"Input parameters:\n{pformat(vars(input), indent=2, width=120)}")
             logger.info(f"Base URL: {self.client.base_url}")
-            logger.info("[ ChatCompletionRequest ] input in opea format")
 
-        if not isinstance(input, SearchedDoc) and input.chat_template:
-            prompt_template = PromptTemplate.from_template(input.chat_template)
-            input_variables = prompt_template.input_variables
-
-        completion_params = self._get_common_completion_params(input)
+        # Handle prompt template if present and valid
+        try:
+            prompt_template = PromptTemplate.from_template(input.chat_template) if not isinstance(input, SearchedDoc) and input.chat_template else None
+            prompt_inputs = prompt_template.input_variables if prompt_template else None
+        except (AttributeError, ValueError):
+            prompt_template = None
+            prompt_inputs = None
+        
         if logflag:
             logger.info(f"Formatted completion parameters:\n{pformat(completion_params, indent=2, width=120)}")
 
         if isinstance(input, ChatCompletionRequest) and not isinstance(input.messages, str):
-            if logflag:
-                logger.info("[ ChatCompletionRequest ] input in opea format")
-
             if input.messages[0]["role"] == "system":
+                # Case 1: Message array already starts with a system message
+                # If it contains a {context} placeholder, we fill it with available documents
                 if "{context}" in input.messages[0]["content"]:
-                    if input.documents is None or input.documents == []:
-                        input.messages[0]["content"].format(context="")
-                    else:
-                        input.messages[0]["content"].format(context="\n".join(input.documents))
-            else:
-                if prompt_template:
-                    system_prompt = prompt_template
-                    if input_variables == ["context"]:
-                        system_prompt = prompt_template.format(context="\n".join(input.documents))
-                    else:
-                        logger.info(
-                            f"[ ChatCompletionRequest ] {prompt_template} not used, only support 1 input variables ['context']"
-                        )
+                    context = "" if input.documents is None or input.documents == [] else "\n".join(input.documents)
+                    input.messages[0]["content"] = input.messages[0]["content"].format(context=context)
+            elif prompt_template and prompt_inputs == ["context"] and input.documents:
+                # Case 2: No system message yet, but we have a prompt template that expects context
+                # We create a new system message with the template and add it at the start
+                system_prompt = prompt_template.format(context="\n".join(input.documents))
+                input.messages.insert(0, {"role": "system", "content": system_prompt})
 
-                    input.messages.insert(0, {"role": "system", "content": system_prompt})
-
-            specific_params = {
-                k: v
-                for k, v in {
-                    "messages": input.messages,
-                    "response_format": input.response_format,
-                    "stream_options": input.stream_options,
-                }.items()
-                if v is not None
-            }
-            completion_params.update(specific_params)
+            _, completion_params = self.align_input(input, prompt_template, prompt_inputs)
             chat_completion = await self.client.chat.completions.create(**completion_params)
             """TODO need validate following parameters for vllm
                 logit_bias=input.logit_bias,
@@ -232,18 +235,8 @@ class OpeaTextGenService(OpeaComponent):
                 tool_choice=input.tool_choice,
                 parallel_tool_calls=input.parallel_tool_calls,"""
         else:
-            logger.info("[ Regular CompletionRequest ] input in opea format")
-            prompt, input = self.align_input(input, prompt_template, input_variables)
-            specific_params = {
-                k: v
-                for k, v in {
-                    "prompt": prompt,
-                    "echo": input.echo,
-                    "suffix": input.suffix,
-                }.items()
-                if v is not None
-            }
-            completion_params.update(specific_params)
+            # Handle regular completions
+            _, completion_params = self.align_input(input, prompt_template, prompt_inputs)
             chat_completion = await self.client.completions.create(**completion_params)
             """TODO need validate following parameters for vllm
                 best_of=input.best_of,
@@ -251,7 +244,6 @@ class OpeaTextGenService(OpeaComponent):
                 logprobs=input.logprobs,"""
 
         if input.stream:
-
             async def stream_generator():
                 async for c in chat_completion:
                     if logflag:
@@ -266,32 +258,3 @@ class OpeaTextGenService(OpeaComponent):
             if logflag:
                 logger.info(chat_completion)
             return chat_completion
-
-    def _get_common_completion_params(self, input) -> dict:
-        """Get non-none completion parameters common between chat and regular completions.
-
-        Args:
-            input: The input request object (ChatCompletionRequest)
-
-        Returns:
-            dict: Common parameters with non-None values. Some open AI compatible endpoints will not accept None values.
-        """
-        return {
-            "model": MODEL_NAME,
-            **{
-                k: v
-                for k, v in {
-                    "frequency_penalty": input.frequency_penalty,
-                    "max_tokens": input.max_tokens,
-                    "n": input.n,
-                    "presence_penalty": input.presence_penalty,
-                    "seed": input.seed,
-                    "stop": input.stop,
-                    "stream": input.stream,
-                    "temperature": input.temperature,
-                    "top_p": input.top_p,
-                    "user": input.user,
-                }.items()
-                if v is not None
-            },
-        }
