@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing c
 # Set environment variables
 ENV LANG=en_US.UTF-8
 ENV PYTHONPATH=/home/user:/usr/lib/habanalabs/:/optimum-habana
+ARG ARCH=cpu
 
 COPY comps /home/user/comps
 

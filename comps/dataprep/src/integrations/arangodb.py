@@ -10,12 +10,11 @@ from arango import ArangoClient
 from fastapi import Body, File, Form, HTTPException, UploadFile
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_arangodb import ArangoGraph
-from langchain_community.embeddings import HuggingFaceHubEmbeddings
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_experimental.graph_transformers import LLMGraphTransformer
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpointEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import HTMLHeaderTextSplitter
 
@@ -200,8 +199,9 @@ class OpeaArangoDataprep(OpeaComponent):
         """Initialize the embeddings model."""
 
         if TEI_EMBEDDING_ENDPOINT and HUGGINGFACEHUB_API_TOKEN:
-            self.embeddings = HuggingFaceHubEmbeddings(
+            self.embeddings = HuggingFaceEndpointEmbeddings(
                 model=TEI_EMBEDDING_ENDPOINT,
+                task="feature-extraction",
                 huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN,
             )
         elif TEI_EMBED_MODEL:
@@ -287,7 +287,7 @@ class OpeaArangoDataprep(OpeaComponent):
 
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
-            if isinstance(table_chunks, list):
+            if table_chunks and isinstance(table_chunks, list):
                 chunks = chunks + table_chunks
 
         if logflag:
