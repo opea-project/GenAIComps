@@ -68,7 +68,9 @@ NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "neo4jtest")
 
 # LLM/Embedding endpoints
+# TGI_LLM_ENDPOINT allows indexing graph nodes using openai-like endpoints (not just TGI)
 TGI_LLM_ENDPOINT = os.getenv("TGI_LLM_ENDPOINT", f"http://{host_ip}:6005")
+TGI_LLM_ENDPOINT_KEY = os.getenv("TGI_LLM_ENDPOINT_KEY", "fake")
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", f"http://{host_ip}:6006")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -554,7 +556,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             self.llm = OpenAILike(
                 model=LLM_MODEL_ID,
                 api_base=TGI_LLM_ENDPOINT + "/v1",
-                api_key="fake",
+                api_key=TGI_LLM_ENDPOINT_KEY,
                 temperature=0.7,
                 max_tokens=int(MAX_OUTPUT_TOKENS),  # 1512
                 timeout=1200,  # timeout in seconds)
