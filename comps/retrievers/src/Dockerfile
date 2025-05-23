@@ -32,6 +32,8 @@ ENV PYTHONPATH=$PYTHONPATH:/home/user
 
 USER user
 ENV NLTK_DATA=/home/user/nltk_data
+# air gapped support: predownload all needed nltk data
+RUN mkdir -p /home/user/nltk_data && python -m nltk.downloader -d /home/user/nltk_data punkt_tab stopwords
 
 WORKDIR /home/user/comps/retrievers/src
 
