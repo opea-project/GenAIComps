@@ -551,7 +551,7 @@ class OpeaNeo4jLlamaIndexDataprep(OpeaComponent):
             except Exception as e:
                 logger.info(f"An error occurred while verifying the API Key: {e}")
         else:
-            logger.info("NO OpenAI API Key. TGI/VLLM/TEI endpoints will be used.")
+            logger.info("OpenAI-like endpoint will be used.")
             # works with TGI and VLLM endpoints
             self.llm = OpenAILike(
                 model=LLM_MODEL_ID,
