@@ -148,9 +148,7 @@ class OpeaTextGenService(OpeaComponent):
             input_variables: Variables expected by the prompt template
         """
         if isinstance(input, SearchedDoc):
-            logger.debug(
-                f"Processing SearchedDoc input from retriever microservice:\n{pformat(vars(input), indent=2)}"
-            )
+            logger.debug(f"Processing SearchedDoc input from retriever microservice:\n{pformat(vars(input), indent=2)}")
             prompt = input.initial_query
             if input.retrieved_docs:
                 docs = [doc.text for doc in input.retrieved_docs]
@@ -299,5 +297,4 @@ class OpeaTextGenService(OpeaComponent):
         Returns:
             Filtered dictionary containing only allowed non-None arguments
         """
-        return {arg: input_params[arg] for arg in allowed_args 
-                if arg in input_params and input_params[arg] is not None}
+        return {arg: input_params[arg] for arg in allowed_args if arg in input_params and input_params[arg] is not None}
