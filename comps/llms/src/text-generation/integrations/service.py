@@ -149,23 +149,23 @@ class OpeaTextGenService(OpeaComponent):
         """
         if isinstance(input, SearchedDoc):
             logger.debug(
-                "Processing SearchedDoc input from retriever microservice:\n%s", pformat(vars(input), indent=2)
+                f"Processing SearchedDoc input from retriever microservice:\n{pformat(vars(input), indent=2)}"
             )
             prompt = input.initial_query
             if input.retrieved_docs:
                 docs = [doc.text for doc in input.retrieved_docs]
-                logger.debug("Retrieved documents:\n%s", pformat(docs, indent=2))
+                logger.debug(f"Retrieved documents:\n{pformat(docs, indent=2)}")
                 prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs, MODEL_NAME)
-                logger.debug("Generated RAG prompt:\n%s", prompt)
+                logger.debug(f"Generated RAG prompt:\n{prompt}")
 
-            # Convert to ChatCompletionRequest with default parameters
-            new_input = ChatCompletionRequest(messages=prompt)
-            logger.debug("Final converted input:\n%s", pformat(vars(new_input), indent=2))
+                # Convert to ChatCompletionRequest with default parameters
+                new_input = ChatCompletionRequest(messages=prompt)
+                logger.debug(f"Final converted input:\n{pformat(vars(new_input), indent=2)}")
 
-            return prompt, new_input
+                return prompt, new_input
 
         elif isinstance(input, LLMParamsDoc):
-            logger.debug("Processing LLMParamsDoc input from rerank microservice:\n%s", pformat(vars(input), indent=2))
+            logger.debug(f"Processing LLMParamsDoc input from rerank microservice:\n{pformat(vars(input), indent=2)}")
             prompt = input.query
             if prompt_template:
                 if sorted(input_variables) == ["context", "question"]:
@@ -174,8 +174,7 @@ class OpeaTextGenService(OpeaComponent):
                     prompt = prompt_template.format(question=input.query)
                 else:
                     logger.warning(
-                        "Prompt template not used - unsupported variables. Template: %s\nOnly ['question', 'context'] or ['question'] are supported",
-                        prompt_template,
+                        f"Prompt template not used - unsupported variables. Template: {prompt_template}\nOnly ['question', 'context'] or ['question'] are supported"
                     )
             else:
                 if input.documents:
@@ -195,7 +194,7 @@ class OpeaTextGenService(OpeaComponent):
             return prompt, new_input
 
         else:
-            logger.debug("Processing ChatCompletionRequest input:\n%s", pformat(vars(input), indent=2))
+            logger.debug(f"Processing ChatCompletionRequest input:\n{pformat(vars(input), indent=2)}")
 
             prompt = input.messages
             if prompt_template:
@@ -250,7 +249,7 @@ class OpeaTextGenService(OpeaComponent):
 
             # Create input params directly from input object attributes
             input_params = {**vars(input), "model": MODEL_NAME}
-            filtered_params = self._filter_completion_params(input_params, self.ALLOWED_CHATCOMPLETION_ARGS)
+            filtered_params = self._filter_api_params(input_params, self.ALLOWED_CHATCOMPLETION_ARGS)
             logger.debug(f"Filtered chat completion parameters:\n{pformat(filtered_params, indent=2)}")
             chat_completion = await self.client.chat.completions.create(**filtered_params)
             """TODO need validate following parameters for vllm
@@ -264,7 +263,7 @@ class OpeaTextGenService(OpeaComponent):
         else:
             prompt, input = self.align_input(input, prompt_template, input_variables)
             input_params = {**vars(input), "model": MODEL_NAME, "prompt": prompt}
-            filtered_params = self._filter_completion_params(input_params, self.ALLOWED_COMPLETION_ARGS)
+            filtered_params = self._filter_api_params(input_params, self.ALLOWED_COMPLETION_ARGS)
             logger.debug(f"Filtered completion parameters:\n{pformat(filtered_params, indent=2)}")
             chat_completion = await self.client.completions.create(**filtered_params)
             """TODO need validate following parameters for vllm
@@ -287,10 +286,11 @@ class OpeaTextGenService(OpeaComponent):
             logger.debug(chat_completion)
             return chat_completion
 
-    def _filter_completion_params(self, input_params: dict, allowed_args: tuple) -> dict:
+    def _filter_api_params(self, input_params: dict, allowed_args: tuple) -> dict:
         """Filters input parameters to only include allowed non-None arguments.
 
         Only allow allowed args, and also some open AI-like APIs e.g. OpenRouter.ai will disallow None parameters.
+        Works for both chat completion and regular completion API calls.
 
         Args:
             input_params: Dictionary of input parameters
@@ -299,8 +299,5 @@ class OpeaTextGenService(OpeaComponent):
         Returns:
             Filtered dictionary containing only allowed non-None arguments
         """
-        filtered_params = {}
-        for arg in allowed_args:
-            if arg in input_params and input_params[arg] is not None:
-                filtered_params[arg] = input_params[arg]
-        return filtered_params
+        return {arg: input_params[arg] for arg in allowed_args 
+                if arg in input_params and input_params[arg] is not None}
