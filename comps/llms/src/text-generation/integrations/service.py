@@ -88,6 +88,11 @@ class OpeaTextGenService(OpeaComponent):
         "language"
     }  #
 
+    # Parameters specific to regular completions that should not be passed to chat completions
+    COMPLETIONS_ONLY_PARAMS = {
+        "best_of",
+    }
+
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
         self.client = self._initialize_client()
@@ -183,6 +188,8 @@ class OpeaTextGenService(OpeaComponent):
 
         else:  # ChatCompletionRequest or regular request
             logger.debug("[ ChatCompletionRequest ] input in opea format")
+                    # Filter out parameters that are specific to regular completions if this is a chat request
+
             prompt = input.messages
             if prompt_template:
                 if sorted(prompt_inputs) == ["context", "question"]:
@@ -195,13 +202,22 @@ class OpeaTextGenService(OpeaComponent):
                     )
             elif input.documents:
                 prompt = ChatTemplate.generate_rag_prompt(input.messages, input.documents, input.model)
-
-            if isinstance(input, ChatCompletionRequest):
+            
+            if isinstance(input, ChatCompletionRequest) and not isinstance(input.messages, str):
+                # Chat completion message array format.
                 completion_params["messages"] = prompt
+                # Ensure no completion-only parameters are present in chat requests
+                for param in self.COMPLETIONS_ONLY_PARAMS:
+                    if param in completion_params:
+                        del completion_params[param]
             else:
+                # Regular completion single string prompt format
                 completion_params["prompt"] = prompt
+                if "messages" in completion_params:
+                    del completion_params["messages"]  # Remove messages param if present
+ 
 
-        logger.debug(f"Filtered parameters: {completion_params}")
+        logger.debug(f"Filtered parameters:\n{pformat(completion_params, indent=2, width=120)}")
 
         return completion_params
 
@@ -229,7 +245,23 @@ class OpeaTextGenService(OpeaComponent):
         completion_params = self.align_input(input, prompt_template, prompt_inputs)
         logger.debug(f"Formatted completion parameters:\n{pformat(completion_params, indent=2, width=120)}")
 
-        if isinstance(input, ChatCompletionRequest) and not isinstance(input.messages, str):
+        # Route to regular completions if:
+        # 1. best_of parameter is present, or 
+        # 2. For CompletionRequest with a prompt parameter
+        use_regular_completion = (
+            hasattr(input, "best_of") and input.best_of is not None
+        ) or (
+            hasattr(input, "prompt") and input.prompt is not None
+        )
+        
+        # Format parameters based on request type
+        if hasattr(input, "prompt") and input.prompt is not None:
+            # Use regular completions endpoint for CompletionRequest with prompt
+            completion_params["prompt"] = input.prompt
+            if "messages" in completion_params:
+                del completion_params["messages"]
+        elif isinstance(input, ChatCompletionRequest):
+            # Use chat completions endpoint for ChatCompletionRequest
             if input.messages[0]["role"] == "system":
                 # Case 1: Message array already starts with a system message
                 # If it contains a {context} placeholder, we fill it with available documents
@@ -253,7 +285,7 @@ class OpeaTextGenService(OpeaComponent):
                 tool_choice=input.tool_choice,
                 parallel_tool_calls=input.parallel_tool_calls,"""
         else:
-            # Handle regular completions
+            # Handle regular completions 
             completion_params = self.align_input(input, prompt_template, prompt_inputs)
             chat_completion = await self.client.completions.create(**completion_params)
             """TODO need validate following parameters for vllm
