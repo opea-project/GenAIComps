@@ -71,6 +71,7 @@ class OpeaTextGenService(OpeaComponent):
     OMIT_COMMON_PARAMS = {
         "chat_template",
         "documents",
+        
     }
 
     OMIT_SEARCHDOC_PARAMS = OMIT_COMMON_PARAMS | {
@@ -83,7 +84,9 @@ class OpeaTextGenService(OpeaComponent):
         "query",
     }
 
-    OMIT_CHATCOMPLETION_PARAMS = OMIT_COMMON_PARAMS  # No additional parameters to omit
+    OMIT_CHATCOMPLETION_PARAMS = OMIT_COMMON_PARAMS | {
+        "language"
+    }  #
 
     def __init__(self, name: str, description: str, config: dict = None):
         super().__init__(name, ServiceType.LLM.name.lower(), description, config)
@@ -251,7 +254,7 @@ class OpeaTextGenService(OpeaComponent):
                 parallel_tool_calls=input.parallel_tool_calls,"""
         else:
             # Handle regular completions
-            _, completion_params = self.align_input(input, prompt_template, prompt_inputs)
+            completion_params = self.align_input(input, prompt_template, prompt_inputs)
             chat_completion = await self.client.completions.create(**completion_params)
             """TODO need validate following parameters for vllm
                 best_of=input.best_of,
