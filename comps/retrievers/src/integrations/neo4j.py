@@ -34,6 +34,8 @@ from .config import (
     OPENAI_LLM_MODEL,
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
+    TGI_LLM_ENDPOINT_KEY
+    
 )
 
 logger = CustomLogger("neo4j_retrievers")
@@ -239,7 +241,7 @@ class OpeaNeo4jRetriever(OpeaComponent):
             llm = OpenAILike(
                 model=LLM_MODEL_ID,
                 api_base=TGI_LLM_ENDPOINT + "/v1",
-                api_key="fake",
+                api_key=TGI_LLM_ENDPOINT_KEY,
                 timeout=600,
                 temperature=0.7,
                 max_tokens=int(MAX_OUTPUT_TOKENS),
