@@ -71,7 +71,6 @@ class OpeaTextGenService(OpeaComponent):
     OMIT_COMMON_PARAMS = {
         "chat_template",
         "documents",
-        
     }
 
     OMIT_SEARCHDOC_PARAMS = OMIT_COMMON_PARAMS | {
@@ -84,9 +83,7 @@ class OpeaTextGenService(OpeaComponent):
         "query",
     }
 
-    OMIT_CHATCOMPLETION_PARAMS = OMIT_COMMON_PARAMS | {
-        "language"
-    }  #
+    OMIT_CHATCOMPLETION_PARAMS = OMIT_COMMON_PARAMS | {"language"}  #
 
     # Parameters specific to regular completions that should not be passed to chat completions
     COMPLETIONS_ONLY_PARAMS = {
