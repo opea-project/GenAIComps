@@ -228,8 +228,7 @@ class OpeaTextGenService(OpeaComponent):
             input_variables = prompt_template.input_variables
 
         if isinstance(input, ChatCompletionRequest) and not isinstance(input.messages, str):
-            if logflag:
-                logger.info("[ ChatCompletionRequest ] input in opea format")
+            logger.debug("[ ChatCompletionRequest ] input in opea format")
 
             if input.messages[0]["role"] == "system":
                 if "{context}" in input.messages[0]["content"]:
@@ -252,7 +251,7 @@ class OpeaTextGenService(OpeaComponent):
             # Create input params directly from input object attributes
             input_params = {**vars(input), "model": MODEL_NAME}
             filtered_params = self._filter_completion_params(input_params, self.ALLOWED_CHATCOMPLETION_ARGS)
-            logger.debug("Filtered chat completion parameters:\n%s", pformat(filtered_params, indent=2))
+            logger.debug(f"Filtered chat completion parameters:\n{pformat(filtered_params, indent=2)}")
             chat_completion = await self.client.chat.completions.create(**filtered_params)
             """TODO need validate following parameters for vllm
                 logit_bias=input.logit_bias,
@@ -266,7 +265,7 @@ class OpeaTextGenService(OpeaComponent):
             prompt, input = self.align_input(input, prompt_template, input_variables)
             input_params = {**vars(input), "model": MODEL_NAME, "prompt": prompt}
             filtered_params = self._filter_completion_params(input_params, self.ALLOWED_COMPLETION_ARGS)
-            logger.debug("Filtered completion parameters:\n%s", pformat(filtered_params, indent=2))
+            logger.debug(f"Filtered completion parameters:\n{pformat(filtered_params, indent=2)}")
             chat_completion = await self.client.completions.create(**filtered_params)
             """TODO need validate following parameters for vllm
                 best_of=input.best_of,
@@ -277,8 +276,7 @@ class OpeaTextGenService(OpeaComponent):
 
             async def stream_generator():
                 async for c in chat_completion:
-                    if logflag:
-                        logger.info(c)
+                    logger.debug(c)
                     chunk = c.model_dump_json()
                     if chunk not in ["<|im_end|>", "<|endoftext|>"]:
                         yield f"data: {chunk}\n\n"
@@ -286,8 +284,7 @@ class OpeaTextGenService(OpeaComponent):
 
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
         else:
-            if logflag:
-                logger.info(chat_completion)
+            logger.debug(chat_completion)
             return chat_completion
 
     def _filter_completion_params(self, input_params: dict, allowed_args: tuple) -> dict:
