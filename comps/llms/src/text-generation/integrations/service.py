@@ -15,7 +15,7 @@ from comps import CustomLogger, LLMParamsDoc, OpeaComponent, OpeaComponentRegist
 from comps.cores.mega.utils import ConfigError, get_access_token, load_model_configs
 from comps.cores.proto.api_protocol import ChatCompletionRequest
 
-from comps.llms.src.text_generation.integrations.template import ChatTemplate
+from .template import ChatTemplate
 
 logger = CustomLogger("opea_llm")
 
