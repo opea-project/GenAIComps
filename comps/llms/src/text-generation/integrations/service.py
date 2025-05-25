@@ -59,13 +59,14 @@ class OpeaTextGenService(OpeaComponent):
     """A specialized OPEA LLM component for interacting with TGI/vLLM or other OpenAI API-compatible services.
 
     - Handles formatting of input types (SearchedDoc, LLMParamsDoc, ChatCompletionRequest) for OpenAI-like API compatibility
-    - Fields in input types are used to generate prompts and are therefore omitted in final openai api call. 
+    - Fields in input types are used to generate prompts and are therefore omitted in final openai api call.
     - Allows provider-specific model inputs to pass through to the OpenAI API.
 
     Attributes:
         client: An instance of an OpenAI-compatible client (e.g., TGI/vLLM) for text generation
     """
-    # Parameters to omit from openAI-like API calls 
+
+    # Parameters to omit from openAI-like API calls
     # The align_input method will format these fields into a prompt, and will omit these redundant fields from the final openai API call.
     OMIT_COMMON_PARAMS = {
         "chat_template",
@@ -127,7 +128,7 @@ class OpeaTextGenService(OpeaComponent):
         self, input: Union[LLMParamsDoc, ChatCompletionRequest, SearchedDoc], prompt_template, prompt_inputs
     ) -> dict:
         """Aligns different input types to a standardized format for API calls.
-        
+
         The method will format inputs, and retain only those necessary for openai API call.
 
         Builds API parameters with the following considerations:
@@ -139,15 +140,15 @@ class OpeaTextGenService(OpeaComponent):
             input: The input request object (SearchedDoc, LLMParamsDoc, or ChatCompletionRequest)
             prompt_template: Optional template for formatting prompts
             prompt_inputs: Variables expected by the prompt template
-            
+
         Returns:
             dict: The filtered parameters for the OpenAI API call
         """
-        # These parameters are used to generate the prompts and are therefore omitted in final openai api call. 
+        # These parameters are used to generate the prompts and are therefore omitted in final openai api call.
         omit_params = (
-            self.OMIT_SEARCHDOC_PARAMS if isinstance(input, SearchedDoc)
-            else self.OMIT_LLMPARAMS_PARAMS if isinstance(input, LLMParamsDoc)
-            else self.OMIT_CHATCOMPLETION_PARAMS
+            self.OMIT_SEARCHDOC_PARAMS
+            if isinstance(input, SearchedDoc)
+            else self.OMIT_LLMPARAMS_PARAMS if isinstance(input, LLMParamsDoc) else self.OMIT_CHATCOMPLETION_PARAMS
         )
 
         completion_params = {"model": MODEL_NAME}
@@ -161,7 +162,7 @@ class OpeaTextGenService(OpeaComponent):
                 docs = [doc.text for doc in input.retrieved_docs]
                 prompt = ChatTemplate.generate_rag_prompt(input.initial_query, docs, MODEL_NAME)
                 logger.debug(f"[ SearchedDoc ] combined retrieved docs: {docs}")
-        
+
         elif isinstance(input, LLMParamsDoc):
             logger.debug("[ LLMParamsDoc ] input from rerank microservice")
             prompt = input.query
@@ -176,7 +177,7 @@ class OpeaTextGenService(OpeaComponent):
                     )
             elif input.documents:
                 prompt = ChatTemplate.generate_rag_prompt(input.query, input.documents, input.model)
-        
+
         else:  # ChatCompletionRequest or regular request
             logger.debug("[ ChatCompletionRequest ] input in opea format")
             prompt = input.messages
@@ -212,12 +213,16 @@ class OpeaTextGenService(OpeaComponent):
 
         # Handle prompt template if present and valid
         try:
-            prompt_template = PromptTemplate.from_template(input.chat_template) if not isinstance(input, SearchedDoc) and input.chat_template else None
+            prompt_template = (
+                PromptTemplate.from_template(input.chat_template)
+                if not isinstance(input, SearchedDoc) and input.chat_template
+                else None
+            )
             prompt_inputs = prompt_template.input_variables if prompt_template else None
         except (AttributeError, ValueError):
             prompt_template = None
             prompt_inputs = None
-        
+
         completion_params = self.align_input(input, prompt_template, prompt_inputs)
         logger.debug(f"Formatted completion parameters:\n{pformat(completion_params, indent=2, width=120)}")
 
@@ -254,6 +259,7 @@ class OpeaTextGenService(OpeaComponent):
                 logprobs=input.logprobs,"""
 
         if input.stream:
+
             async def stream_generator():
                 async for c in chat_completion:
                     logger.debug(c)
