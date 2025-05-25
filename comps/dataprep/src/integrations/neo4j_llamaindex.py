@@ -33,7 +33,6 @@ from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.openai_like import OpenAILike
 from neo4j import GraphDatabase
-from transformers import AutoTokenizer
 
 from comps import CustomLogger, DocPath, OpeaComponent, OpeaComponentRegistry, ServiceType
 from comps.cores.proto.api_protocol import DataprepRequest, Neo4jDataprepRequest
@@ -94,14 +93,12 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
         self.driver = GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 
     async def generate_community_summary(self, text):
-        """Generate summary for a given text using an LLM."""
-        model_name = LLM_MODEL_ID
-        max_input_length = int(MAX_INPUT_TOKENS)
-        if not model_name or not max_input_length:
-            raise ValueError(f"Could not retrieve model information from TGI endpoint: {TGI_LLM_ENDPOINT}")
-
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-
+        """Generate summary for a given text using an LLM.
+        
+        Token limit handling is automatically managed by the underlying LLM:
+        - For OpenAI: Uses OpenAI's built-in token management
+        - For OpenAILike/vLLM: Token limits are managed through the max_tokens parameter 
+          set during LLM initialization (defaults to MAX_OUTPUT_TOKENS env var)"""
         messages = [
             ChatMessage(
                 role="system",
@@ -116,14 +113,11 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
             ),
             ChatMessage(role="user", content=text),
         ]
-        # Trim the messages to fit within the token limit
-        # Microsoft does more sophisticated content optimization
-        trimmed_messages = trim_messages_to_token_limit(tokenizer, messages, max_input_length)
 
         if OPENAI_API_KEY:
             response = OpenAI().achat(messages)
         else:
-            response = await self.llm.achat(trimmed_messages)
+            response = await self.llm.achat(messages)
 
         clean_response = re.sub(r"^assistant:\s*", "", str(response)).strip()
         return clean_response
@@ -492,31 +486,6 @@ def get_attribute_from_tgi_endpoint(url, attribute_name):
         return None
 
 
-def trim_messages_to_token_limit(tokenizer, messages, max_tokens):
-    """Trim the messages to fit within the token limit."""
-    total_tokens = 0
-    trimmed_messages = []
-    buffer = 100
-    effective_max_tokens = max_tokens - buffer
-
-    for message in messages:
-        tokens = tokenizer.tokenize(message.content)
-        message_token_count = len(tokens)
-        if total_tokens + message_token_count > effective_max_tokens:
-            # Trim the message to fit within the remaining token limit
-            logger.info(f"Trimming messages: {total_tokens + message_token_count} > {effective_max_tokens}")
-            logger.info(f"message_token_count: {message_token_count}")
-            remaining_tokens = effective_max_tokens - total_tokens
-            logger.info(f"remaining_tokens: {remaining_tokens}")
-            tokens = tokens[:remaining_tokens]
-            message.content = tokenizer.convert_tokens_to_string(tokens)
-            trimmed_messages.append(message)
-            break
-        else:
-            total_tokens += message_token_count
-            trimmed_messages.append(message)
-
-    return trimmed_messages
 
 
 logger = CustomLogger("opea_dataprep_neo4j_llamaindex")
