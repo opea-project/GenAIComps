@@ -39,7 +39,7 @@ markdown
 moviepy
 neo4j
 numpy
-openai
+openai==1.81.0
 openai-whisper
 opencv-python
 opensearch-py
