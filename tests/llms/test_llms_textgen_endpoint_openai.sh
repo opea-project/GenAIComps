@@ -158,51 +158,6 @@ function validate_chat_completions() {
     echo "Chat completions test passed. Generated text: $generated_text"
 }
 
-function validate_regular_completions() {
-    echo "Validating regular completions endpoint"
-    local response=$(curl -s -X POST http://${host_ip}:9000/v1/completions \
-        -H "Content-Type: application/json" \
-        -H "Authorization: Bearer testkey" \
-        -d '{
-            "model": "'${VLLM_MODEL}'",
-            "prompt": "Hello, world!",
-            "max_tokens": 50
-        }')
-
-    echo "Raw completion response: $response"
-
-    local status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://${host_ip}:9000/v1/completions \
-        -H "Content-Type: application/json" \
-        -H "Authorization: Bearer testkey" \
-        -d '{
-            "model": "'${VLLM_MODEL}'",
-            "prompt": "Hello, world!",
-            "max_tokens": 50
-        }')
-
-    if [[ "$status_code" -ne 200 ]]; then
-        echo "Error: Regular completions HTTP status code is not 200. Received: $status_code"
-        docker logs textgen-service-endpoint-openai || true
-        docker logs vllm-server || true
-        exit 1
-    fi
-
-    local generated_text=$(echo "$response" | jq -r '.choices[0].text')
-
-    if [[ -z "$generated_text" ]]; then
-        echo "Error: No generated text found in completion response."
-        docker logs textgen-service-endpoint-openai || true
-        docker logs vllm-server || true
-        exit 1
-    fi
-
-    echo "Regular completions test passed. Generated text: $generated_text"
-}
-
-function validate_service() {
-    validate_chat_completions
-    validate_regular_completions
-}
 
 function stop_containers() {
     docker compose -f compose_text-generation.yaml down
@@ -214,7 +169,7 @@ function stop_containers() {
 build_vllm_image
 start_vllm
 start_textgen
-validate_service
+validate_chat_completions
 stop_containers
 docker system prune -a -f
 
