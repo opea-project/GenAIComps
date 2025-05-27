@@ -5,8 +5,8 @@ huggingface_hub
 json_repair
 langchain
 langchain-community
-langchain_experimental
 langchain-huggingface
+langchain_experimental
 llama-index
 llama-index-embeddings-huggingface
 llama-index-embeddings-langchain
