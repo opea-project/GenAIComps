@@ -27,7 +27,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.20.0
 
 RUN git clone ${REPO} /home/user/optimum-habana && \
-    cd /home/user/optimum-habana && git checkout ${REPO_VER}
+WORKDIR /home/user/optimum-habana
+RUN git checkout ${REPO_VER}
 
 WORKDIR /home/user/optimum-habana/examples/text-generation
 RUN pip install --no-cache-dir -r requirements.txt

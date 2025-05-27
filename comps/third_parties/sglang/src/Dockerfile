@@ -31,7 +31,7 @@ RUN git clone https://github.com/jianan-gu/sglang -b llama4_optimzed_cpu_r1
 
 WORKDIR /root/sglang
 RUN . ~/miniforge3/bin/activate && conda create -n sglang python=3.10 && conda activate sglang && \
-    pip install -e "python[all_cpu]" && \
+    pip install --no-cache-dir -e "python[all_cpu]" && \
     conda install -y libsqlite=3.48.0 && \
     pip uninstall -y triton && pip uninstall -y transformers && pip install --no-cache-dir transformers==4.51.1 && \
     pip install --no-cache-dir triton==3.1 && pip install --no-cache-dir intel-openmp==2024.2.0 && pip install --no-cache-dir transformers
@@ -42,7 +42,7 @@ RUN git clone https://github.com/vllm-project/vllm.git -b v0.6.4.post1 && apt-ge
 WORKDIR /root/vllm
 RUN . ~/miniforge3/bin/activate && conda activate sglang && \
     pip install --no-cache-dir cmake==3.31.2 wheel packaging ninja "setuptools-scm>=8" numpy nvidia-ml-py && \
-    pip install -v -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -v -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu && \
     VLLM_TARGET_DEVICE=cpu python setup.py develop
 
 WORKDIR /root/sglang/sgl-kernel

@@ -51,8 +51,9 @@ RUN apt-get update && \
 
 COPY --from=dev /root/intel-extension-for-pytorch/examples/cpu/llm ./llm
 COPY --from=dev /root/intel-extension-for-pytorch/tools/get_libstdcpp_lib.sh ./llm/tools
-RUN . ~/miniforge3/bin/activate && conda create -y -n py310 python=3.10 && conda activate py310 && \
-    cd /usr/lib/x86_64-linux-gnu/ && ln -s libtcmalloc.so.4 libtcmalloc.so
+RUN . ~/miniforge3/bin/activate && conda create -y -n py310 python=3.10 && conda activate py310
+WORKDIR /usr/lib/x86_64-linux-gnu/
+RUN ln -s libtcmalloc.so.4 libtcmalloc.so
 
 WORKDIR /root/llm
 RUN bash tools/env_setup.sh 9 && \
