@@ -83,11 +83,11 @@ export LLM_MODEL="meta-llama/Llama-3.3-70B-Instruct"
 export LLM_ENDPOINT="http://${ip_address}:8086"
 export TEI_EMBEDDING_ENDPOINT="http://${your_ip}:6006"
 export DATAPREP_COMPONENT_NAME="OPEA_DATAPREP_REDIS_FIANANCE"
-export HUGGINGFACEHUB_API_TOKEN=<your-hf-token>
+export HF_TOKEN=<your-hf-token>
 ```
 
 ```bash
-docker run -d --name="dataprep-redis-server-finance" -p 6007:5000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL_VECTOR=$REDIS_URL_VECTOR -e REDIS_URL_KV=$REDIS_URL_KV -e LLM_MODEL=$LLM_MODEL -e LLM_ENDPOINT=$LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN -e HF_TOKEN=$HF_TOKEN -e DATAPREP_COMPONENT_NAME=$DATAPREP_COMPONENT_NAME opea/dataprep:latest
+docker run -d --name="dataprep-redis-server-finance" -p 6007:5000 --runtime=runc --ipc=host -e http_proxy=$http_proxy -e https_proxy=$https_proxy -e REDIS_URL_VECTOR=$REDIS_URL_VECTOR -e REDIS_URL_KV=$REDIS_URL_KV -e LLM_MODEL=$LLM_MODEL -e LLM_ENDPOINT=$LLM_ENDPOINT -e TEI_EMBEDDING_ENDPOINT=$TEI_EMBEDDING_ENDPOINT -e HF_TOKEN=$HF_TOKEN -e HF_TOKEN=$HF_TOKEN -e DATAPREP_COMPONENT_NAME=$DATAPREP_COMPONENT_NAME opea/dataprep:latest
 ```
 
 ### 2.6 Check the status of dataprep microservice

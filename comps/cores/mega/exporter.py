@@ -217,7 +217,7 @@ def create_configmap_object(config_dict=None, config_name="qna-config"):
             "REDIS_URL": "redis://vector-db.default.svc.cluster.local:6379",
             "TEI_RERANKING_ENDPOINT": "http://reranking-dependency-svc.default.svc.cluster.local:8808",
             "TGI_LLM_ENDPOINT": "http://llm-dependency-svc.default.svc.cluster.local:9009",
-            "HUGGINGFACEHUB_API_TOKEN": "${HF_TOKEN}",
+            "HF_TOKEN": "${HF_TOKEN}",
             "EMBEDDING_SERVICE_HOST_IP": "embedding-svc",
             "RETRIEVER_SERVICE_HOST_IP": "retriever-svc",
             "RERANK_SERVICE_HOST_IP": "reranking-svc",

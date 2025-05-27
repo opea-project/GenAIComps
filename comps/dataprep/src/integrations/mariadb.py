@@ -64,7 +64,7 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
 # TEI Embedding endpoints
 TEI_EMBEDDING_ENDPOINT = os.getenv("TEI_EMBEDDING_ENDPOINT", "")
 # Huggingface API token for TEI embedding endpoint
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HF_TOKEN", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "")
 
 MARIADB_CONNECTION_URL = os.getenv("MARIADB_CONNECTION_URL", "localhost")
 
@@ -178,10 +178,10 @@ class OpeaMariaDBDataprep(OpeaComponent):
         if TEI_EMBEDDING_ENDPOINT:
             # create embeddings using TEI endpoint service
             logger.info(f"[ init embedder ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            if not HUGGINGFACEHUB_API_TOKEN:
+            if not HF_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
             import requests
 
@@ -192,7 +192,7 @@ class OpeaMariaDBDataprep(OpeaComponent):
                 )
             model_id = response.json()["model_id"]
             embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
             # create embeddings using local embedding model

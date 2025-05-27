@@ -33,7 +33,7 @@ services:
       ES_CONNECTION_STRING: ${ES_CONNECTION_STRING}
       INDEX_NAME: ${INDEX_NAME}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -57,7 +57,7 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_MILVUS"
       MILVUS_HOST: ${MILVUS_HOST}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
@@ -96,7 +96,7 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_MULTIMODALMILVUS"
       MILVUS_HOST: ${MILVUS_HOST}
       LVM_ENDPOINT: ${LVM_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -134,7 +134,7 @@ services:
       EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       LOGFLAG: ${LOGFLAG}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
       MAX_INPUT_TOKENS: ${MAX_INPUT_TOKENS:-4096}
     healthcheck:
@@ -161,7 +161,7 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_OPENSEARCH"
       OPENSEARCH_URL: ${OPENSEARCH_URL}
       INDEX_NAME: ${INDEX_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -206,7 +206,7 @@ services:
       DATAPREP_COMPONENT_NAME: "OPEA_DATAPREP_PINECONE"
       PINECONE_API_KEY: ${PINECONE_API_KEY}
       PINECONE_INDEX_NAME: ${PINECONE_INDEX_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -234,7 +234,7 @@ services:
       QDRANT_PORT: ${QDRANT_PORT}
       COLLECTION_NAME: ${COLLECTION_NAME}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -263,7 +263,7 @@ services:
       REDIS_URL: ${REDIS_URL}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       INDEX_NAME: ${INDEX_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -291,7 +291,7 @@ services:
       REDIS_URL: ${REDIS_URL}
       INDEX_NAME: ${INDEX_NAME}
       LVM_ENDPOINT: ${LVM_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -316,7 +316,7 @@ services:
       VDMS_HOST: ${VDMS_HOST}
       VDMS_PORT: ${VDMS_PORT}
       COLLECTION_NAME: ${COLLECTION_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s
@@ -371,7 +371,7 @@ services:
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
       LLM_ENDPOINT: ${LLM_ENDPOINT}
       LLM_MODEL: ${LLM_MODEL}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: true
     healthcheck:
@@ -407,7 +407,7 @@ services:
       VLLM_ENDPOINT: ${VLLM_ENDPOINT}
       VLLM_MODEL_ID: ${VLLM_MODEL_ID}
       TEI_EMBEDDING_ENDPOINT: ${TEI_EMBEDDING_ENDPOINT}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5000/v1/health_check || exit 1"]
       interval: 10s

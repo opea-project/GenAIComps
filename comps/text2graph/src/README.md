@@ -43,7 +43,7 @@ export LLM_ID=${LLM_ID:-"Babelscape/rebel-large"}
 export SPAN_LENGTH=${SPAN_LENGTH:-"1024"}
 export OVERLAP=${OVERLAP:-"100"}
 export MAX_LENGTH=${MAX_NEW_TOKENS:-"256"}
-export HUGGINGFACEHUB_API_TOKEN=""
+export HF_TOKEN=""
 export LLM_MODEL_ID=${LLM_ID}
 export TGI_PORT=8008
 ```
@@ -61,7 +61,7 @@ echo MAX_LENGTH=${MAX_LENGTH}
 ### Start TGI Service
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export TGI_PORT=8008
 

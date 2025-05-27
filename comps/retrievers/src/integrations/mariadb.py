@@ -15,7 +15,7 @@ from comps import CustomLogger, EmbedDoc, OpeaComponent, OpeaComponentRegistry, 
 
 from .config import (
     EMBED_MODEL,
-    HUGGINGFACEHUB_API_TOKEN,
+    HF_TOKEN,
     MARIADB_COLLECTION_NAME,
     MARIADB_CONNECTION_URL,
     TEI_EMBEDDING_ENDPOINT,
@@ -81,10 +81,10 @@ class OpeaMARIADBVectorRetriever(OpeaComponent):
         if TEI_EMBEDDING_ENDPOINT:
             # create embeddings using TEI endpoint service
             logger.info(f"[ init embedder ] TEI_EMBEDDING_ENDPOINT:{TEI_EMBEDDING_ENDPOINT}")
-            if not HUGGINGFACEHUB_API_TOKEN:
+            if not HF_TOKEN:
                 raise HTTPException(
                     status_code=400,
-                    detail="You MUST offer the `HUGGINGFACEHUB_API_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
+                    detail="You MUST offer the `HF_TOKEN` when using `TEI_EMBEDDING_ENDPOINT`.",
                 )
             import requests
 
@@ -95,7 +95,7 @@ class OpeaMARIADBVectorRetriever(OpeaComponent):
                 )
             model_id = response.json()["model_id"]
             embeddings = HuggingFaceInferenceAPIEmbeddings(
-                api_key=HUGGINGFACEHUB_API_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
+                api_key=HF_TOKEN, model_name=model_id, api_url=TEI_EMBEDDING_ENDPOINT
             )
         else:
             # create embeddings using local embedding model

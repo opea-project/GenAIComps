@@ -40,7 +40,7 @@ host = os.getenv("PATHWAY_HOST", "127.0.0.1")
 port = int(os.getenv("PATHWAY_PORT", 8666))
 
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-base-en-v1.5")
-HUGGINGFACEHUB_API_TOKEN = os.getenv("HF_TOKEN", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "")
 tei_embedding_endpoint = os.getenv("TEI_EMBEDDING_ENDPOINT")
 
 if __name__ == "__main__":
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         # create embeddings using TEI endpoint service
         logging.info(f"Initializing the embedder from tei_embedding_endpoint: {tei_embedding_endpoint}")
         embeddings = HuggingFaceInferenceAPIEmbeddings(
-            api_key=HUGGINGFACEHUB_API_TOKEN, model_name=EMBED_MODEL, api_url=tei_embedding_endpoint
+            api_key=HF_TOKEN, model_name=EMBED_MODEL, api_url=tei_embedding_endpoint
         )
     else:
         # create embeddings using local embedding model

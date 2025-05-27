@@ -24,7 +24,7 @@ function start_service() {
     export INJECTION_PROMPTGUARD_PORT=9085
     export TAG=comps
     export HF_TOKEN=${HF_TOKEN}
-    export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+    export HF_TOKEN=${HF_TOKEN}
     service_name="prompt-injection-guardrail-server"
     cd $WORKPATH
     echo $WORKPATH

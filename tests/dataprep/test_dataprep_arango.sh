@@ -51,7 +51,7 @@ function start_service() {
     export VLLM_MODEL_ID="${VLLM_MODEL_ID:-Intel/neural-chat-7b-v3-3}"
     export LLM_MODEL_ID="${LLM_MODEL_ID:-Intel/neural-chat-7b-v3-3}"
     export HF_TOKEN="${HF_TOKEN:-EMPTY}"
-    export HuggingFaceHub_API_TOKEN="${HF_TOKEN:-EMPTY}"
+    export HF_TOKEN="${HF_TOKEN:-EMPTY}"
 
     export LOGFLAG=true
 

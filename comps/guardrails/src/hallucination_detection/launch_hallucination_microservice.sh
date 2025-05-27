@@ -8,7 +8,7 @@ docker run -d --rm \
     -e http_proxy=$http_proxy \
     -e https_proxy=$https_proxy \
     -e vLLM_ENDPOINT=$vLLM_ENDPOINT \
-    -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN \
+    -e HF_TOKEN=$HF_TOKEN \
     -e LLM_MODEL=$LLM_MODEL \
     -e LOGFLAG=$LOGFLAG \
     opea/guardrails-hallucination-detection:latest

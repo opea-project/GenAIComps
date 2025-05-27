@@ -47,7 +47,7 @@ docker run --name postgres-db --ipc=host -e POSTGRES_USER=${POSTGRES_USER} -e PO
 #### Start TGI Service
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=${HF_TOKEN}
+export HF_TOKEN=${HF_TOKEN}
 export LLM_MODEL_ID="mistralai/Mistral-7B-Instruct-v0.3"
 export TGI_PORT=8008
 

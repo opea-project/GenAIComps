@@ -17,7 +17,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
     restart: unless-stopped
 
   # toxicity detection service
@@ -44,7 +44,7 @@ services:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
     restart: unless-stopped
 
@@ -82,7 +82,7 @@ services:
     extends: guardrails-server
     container_name: llamaguard-guardrails-server
     environment:
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
     depends_on:
       tgi-gaudi-server:
@@ -93,7 +93,7 @@ services:
     container_name: wildguard-guardrails-server
     environment:
       GUARDRAILS_COMPONENT_NAME: "OPEA_WILD_GUARD"
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
     depends_on:
       tgi-gaudi-server:
@@ -112,7 +112,7 @@ services:
       https_proxy: ${https_proxy}
       LLM_MODEL: $LLM_MODEL_ID
       vLLM_ENDPOINT: $vLLM_ENDPOINT
-      HUGGINGFACEHUB_API_TOKEN: $HF_TOKEN
+      HF_TOKEN: $HF_TOKEN
     restart: unless-stopped
     depends_on:
       vllm-gaudi-server:

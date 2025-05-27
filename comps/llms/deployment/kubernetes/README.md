@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install llm oci://ghcr.io/opea-project/charts/llm-uservice --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f cpu-values.yaml
+helm install llm oci://ghcr.io/opea-project/charts/llm-uservice --set global.HF_TOKEN=${HFTOKEN} -f cpu-values.yaml
 ```

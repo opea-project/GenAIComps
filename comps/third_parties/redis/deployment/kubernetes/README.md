@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install redis-vector-db oci://ghcr.io/opea-project/charts/redis-vector-db  --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f cpu-values.yaml
+helm install redis-vector-db oci://ghcr.io/opea-project/charts/redis-vector-db  --set global.HF_TOKEN=${HFTOKEN} -f cpu-values.yaml
 ```
