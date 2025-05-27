@@ -30,7 +30,7 @@ function start_service_larger_model() {
     echo $WORKPATH
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 30
+    sleep 25
     echo "Microservice started with the bigger PromptGuard model"
 }
 
@@ -46,8 +46,25 @@ function start_service_smaller_model() {
     echo $WORKPATH
     cd comps/guardrails/deployment/docker_compose/
     docker compose up ${service_name} -d
-    sleep 30
+    sleep 25
     echo "Microservice started with the smaller PromptGuard model"
+}
+
+function wait_for_microservice_ready() {
+    echo "Checking if microservice is ready to be pinged"
+    local sleep_time=2
+    local max_attempts=5
+    for ((i=1; i<=max_attempts; i++)); do
+        status_code=$(curl -s -o /dev/null -w "%{http_code}" localhost:9085/v1/injection -X POST -d '{"text":"Test check"}' -H 'Content-Type: application/json')
+        if [[ "$status_code" -eq 200 ]]; then
+            echo "Microservice is ready"
+            return 0
+        else
+            echo "Microservice is not ready. (attempt $i)"
+            sleep $sleep_time
+        fi
+    done
+    echo "Service failed to become ready after $max_attempts attempts."
 }
 
 function validate_microservice() {
@@ -85,10 +102,12 @@ function main() {
     build_docker_images
 
     start_service_larger_model
+    wait_for_microservice_ready
     validate_microservice
     stop_docker
 
     start_service_smaller_model
+    wait_for_microservice_ready
     validate_microservice
     stop_docker
 
