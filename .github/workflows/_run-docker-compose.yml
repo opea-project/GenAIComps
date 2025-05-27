@@ -85,14 +85,17 @@ jobs:
         run: |
           sudo rm -rf ${{github.workspace}}/*
 
-          # clean up test containers
+          echo "Cleaning up test-comps-xxx containers ..."
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-          # clean up containers use ports
-          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+          echo "Cleaning up containers using ports..."
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 0.0.0.0:5000 | awk -F' : ' '{print $1}')
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
 
-          docker rmi $(docker images --filter reference="*/*:comps" -q) || true
+          # clean up images
+          docker images --filter reference="*/*:comps" -q | xargs -r docker rmi && sleep 1s
+          docker images --filter reference="opea/*:*" -q | xargs -r docker rmi && sleep 1s
+
           docker system prune -f
           docker ps
 
@@ -138,16 +141,24 @@ jobs:
           if [ -f ${test_case} ]; then timeout 60m bash ${test_case}; else echo "Test script {${test_case}} not found, skip test!"; fi
 
       - name: Clean up container
-        if: cancelled() || failure()
         run: |
-          # clean up test containers
+          echo "Cleaning up test-comps-xxx containers ..."
           cid=$(docker ps -aq --filter "name=test-comps-*")
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-          # clean up containers use ports
-          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 5000 | awk -F' : ' '{print $1}')
+          echo "Cleaning up containers using ports..."
+          cid=$(docker ps --format '{{.Names}} : {{.Ports}}' | grep -v ' : $' | grep -v 0.0.0.0:5000 | awk -F' : ' '{print $1}')
           if [[ ! -z "$cid" ]]; then docker stop $cid && docker rm $cid && sleep 1s; fi
-          docker system prune -f
           docker ps
+
+          echo "Cleaning up images ..."
+          if [[ "${{ matrix.hardware }}" == "intel-cpu" ]]; then
+              docker system prune -a -f
+          else
+              docker images --filter reference="*/*:comps" -q | xargs -r docker rmi && sleep 1s
+              docker images --filter reference="opea/*:*" -q | xargs -r docker rmi && sleep 1s
+              docker system prune -f
+          fi
+          docker images
 
       - name: Publish pipeline artifact
         if: ${{ !cancelled() }}

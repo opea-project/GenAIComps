@@ -13,6 +13,7 @@ services:
         - ./data/neo4j/config:/config
         - ./data/neo4j/data:/data
         - ./data/neo4j/plugins:/plugins
+        - ./data:/var/lib/neo4j/import
     ipc: host
     environment:
       - no_proxy=${no_proxy}

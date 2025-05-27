@@ -17,11 +17,14 @@ from comps import (
     register_statistics,
     statistics_dict,
 )
+from comps.cores.mega.constants import MCPFuncType
 
 logger = CustomLogger("opea_web_retriever_microservice")
 logflag = os.getenv("LOGFLAG", False)
 
 web_retriever_component_name = os.getenv("WEB_RETRIEVER_NAME", "OPEA_GOOGLE_SEARCH")
+enable_mcp = os.getenv("ENABLE_MCP", "").strip().lower() in {"true", "1", "yes"}
+
 # Initialize OpeaComponentLoader
 loader = OpeaComponentLoader(
     web_retriever_component_name, description=f"OPEA WEB RETRIEVER Component: {web_retriever_component_name}"
@@ -36,6 +39,9 @@ loader = OpeaComponentLoader(
     port=7077,
     input_datatype=EmbedDoc,
     output_datatype=SearchedDoc,
+    enable_mcp=enable_mcp,
+    mcp_func_type=MCPFuncType.TOOL,
+    description="Do the web retrieval.",
 )
 @register_statistics(names=["opea_service@web_retriever", "opea_service@search"])
 async def web_retriever(input: EmbedDoc) -> SearchedDoc:

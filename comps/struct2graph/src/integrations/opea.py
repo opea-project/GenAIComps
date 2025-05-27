@@ -61,7 +61,8 @@ class OpeaStruct2Graph(OpeaComponent):
         """
         try:
             logger.info("Performing health check...")
-            response = requests.get("http://localhost:7474", timeout=5)
+            neo4j_health_url = os.getenv("NEO4J_HEALTH_URL")
+            response = requests.get(neo4j_health_url, timeout=5)
             if response.status_code == 200:
                 return True
             else:

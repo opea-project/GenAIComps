@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
 COPY --chown=user:user comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/asr/src/requirements.txt && \
     if [ "${ARCH}" = "cpu" ]; then \
         pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu ; \
         pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/asr/src/requirements.txt ; \

@@ -31,6 +31,7 @@ else
     echo "install requirements"
     python -m pip install --no-cache-dir -r requirements.txt
     pip uninstall -y torchvision torchaudio
+    pip install setuptools==75.6.0
     python -m pip install --no-cache-dir torch==2.6.0+xpu torchvision torchaudio --index-url https://download.pytorch.org/whl/xpu
     cd src/llamafactory/clip_finetune/dassl
     python setup.py develop
@@ -38,6 +39,7 @@ else
     pip install matplotlib
     pip install -e ".[metrics]"
     pip install --no-cache-dir --force-reinstall intel-extension-for-pytorch==2.6.10+xpu oneccl_bind_pt==2.6.0+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/
+    pip install "transformers<=4.49.0" optimum "auto_gptq>=0.5.0"
     echo "start llamafactory webui"
     if [ -z $GUI ]; then
         ZE_AFFINITY_MASK=0 llamafactory-cli webui &
