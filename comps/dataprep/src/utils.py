@@ -366,9 +366,10 @@ async def load_image(image_path):
     if os.getenv("SUMMARIZE_IMAGE_VIA_LVM", None) == "1":
         query = "Please summarize this image."
         image_b64_str = base64.b64encode(await read_image_async(image_path)).decode()
+        lvm_endpoint = os.getenv("LVM_ENDPOINT", "http://localhost:9399/v1/lvm")
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                url="http://localhost:9399/v1/lvm",
+                url=lvm_endpoint,
                 json={"image": image_b64_str, "prompt": query},
                 headers={"Content-Type": "application/json"},
             ) as response:
@@ -667,10 +668,54 @@ def parse_html(input):
     return chucks
 
 
+def validate_and_convert_chunk_params(chunk_size, chunk_overlap):
+    """Validate and convert chunk_size and chunk_overlap to integers if they are strings.
+
+    Ensure chunk_size is a positive integer, chunk_overlap is a non-negative integer,
+    and chunk_overlap is not larger than chunk_size.
+    """
+
+    def validate_param_instance(param, param_name):
+        """Validate that the parameter is an integer or a string that can be converted to an integer.
+
+        Raise a ValueError if the validation fails.
+        """
+        if not isinstance(param, (int, str)):
+            raise ValueError(f"{param_name} must be an integer or a string representing an integer.")
+
+        if isinstance(param, str):
+            try:
+                return int(param)  # Attempt to convert the string to an integer
+            except ValueError:
+                raise ValueError(f"{param_name} must be an integer or a string that can be converted to an integer.")
+        else:
+            return param
+
+    # Validate chunk_size and chunk_overlap, Convert to integers if they are strings
+    chunk_size = validate_param_instance(chunk_size, "chunk_size")
+    chunk_overlap = validate_param_instance(chunk_overlap, "chunk_overlap")
+
+    def validate_param_value(param, param_name, min_value):
+        if param < min_value:
+            raise ValueError(f"{param_name} must be a {min_value} or greater.")
+
+    # Validate chunk_size and chunk_overlap
+    validate_param_value(chunk_size, "chunk_size", 1)
+    validate_param_value(chunk_overlap, "chunk_overlap", 0)
+
+    # Ensure chunk_overlap is not larger than chunk_size
+    if chunk_overlap > chunk_size:
+        raise ValueError("chunk_overlap cannot be larger than chunk_size.")
+
+    return chunk_size, chunk_overlap
+
+
 def load_html_content(links, chunk_size=1500, chunk_overlap=50):
     from langchain.text_splitter import RecursiveCharacterTextSplitter
     from langchain_community.document_loaders import AsyncHtmlLoader
     from langchain_community.document_transformers import Html2TextTransformer
+
+    chunk_size, chunk_overlap = validate_and_convert_chunk_params(chunk_size, chunk_overlap)
 
     loader = AsyncHtmlLoader(links, ignore_load_errors=True, trust_env=True)
     docs = loader.load()

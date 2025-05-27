@@ -3,6 +3,9 @@
 
 FROM python:3.11-slim
 
+# Set this to "cpu" or "gpu" or etc
+ARG ARCH="cpu"
+
 ENV LANG=C.UTF-8
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missing \
@@ -20,7 +23,11 @@ COPY --chown=user:user comps /home/user/comps
 WORKDIR /home/user/comps/third_parties/video-llama/src
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/third_parties/video-llama/src/requirements.txt
+    if [ ${ARCH} = "cpu" ]; then \
+        pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/third_parties/video-llama/src/requirements.txt; \
+    else \
+        pip install --no-cache-dir -r /home/user/comps/third_parties/video-llama/src/requirements.txt; \
+    fi
 
 ARG VIDEO_LLAMA_REPO=https://github.com/DAMO-NLP-SG/Video-LLaMA.git
 ARG VIDEO_LLAMA_COMMIT=0adb19e

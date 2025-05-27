@@ -108,6 +108,9 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         self.opensearch_client = OpenSearchVectorSearch(
             opensearch_url=OPENSEARCH_URL,
             index_name=Config.INDEX_NAME,
+            # Default engine for OpenSearch is "nmslib",
+            # but "nmslib" engine is deprecated in OpenSearch and cannot be used for new index creation in OpenSearch from 3.0.0.
+            engine="faiss",
             embedding_function=self.embeddings,
             http_auth=self.auth,
             use_ssl=True,
@@ -293,7 +296,11 @@ class OpeaOpenSearchDataprep(OpeaComponent):
         ### Specially processing for the table content in PDFs
         if doc_path.process_table and path.endswith(".pdf"):
             table_chunks = get_tables_result(path, doc_path.table_strategy)
-            chunks = chunks + table_chunks
+            logger.info(f"[ ingest data ] table chunks: {table_chunks}")
+            if table_chunks:
+                chunks = chunks + table_chunks
+            else:
+                logger.info(f"[ ingest data ] No table chunks found in {path}.")
         if logflag:
             logger.info(f"[ ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
 

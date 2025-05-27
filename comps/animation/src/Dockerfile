@@ -14,7 +14,11 @@ ARG ARCH=cpu
 COPY comps /home/user/comps
 
 RUN pip install --no-cache-dir --upgrade pip setuptools && \
-    pip install --no-cache-dir -r /home/user/comps/animation/src/requirements.txt ;
+    if [ ${ARCH} = "cpu" ]; then \
+      pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r /home/user/comps/animation/src/requirements.txt; \
+    else \
+      pip install --no-cache-dir -r /home/user/comps/animation/src/requirements.txt; \
+    fi
 
 ENV PYTHONPATH=$PYTHONPATH:/home/user
 USER user
