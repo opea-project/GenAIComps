@@ -5,8 +5,8 @@ huggingface_hub
 json_repair
 langchain
 langchain-community
-langchain-huggingface
 langchain_experimental
+langchain-huggingface
 llama-index
 llama-index-embeddings-huggingface
 llama-index-embeddings-langchain
@@ -14,6 +14,7 @@ llama-index-graph-stores-neo4j
 llama-index-llms-huggingface
 llama-index-llms-huggingface-api
 neo4j
+openai==1.81.0
 opentelemetry-api
 opentelemetry-exporter-otlp
 opentelemetry-sdk
