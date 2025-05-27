@@ -33,8 +33,8 @@ RUN curl -fsSL -v -o miniforge.sh -O https://github.com/conda-forge/miniforge/re
 FROM base AS dev
 ARG COMPILE
 RUN git clone https://github.com/intel/intel-extension-for-pytorch.git
+WORKDIR /root/intel-extension-for-pytorch/examples/cpu/llm
 RUN . ~/miniforge3/bin/activate && conda create -y -n compile_py310 python=3.10 && conda activate compile_py310 && \
-    cd intel-extension-for-pytorch/examples/cpu/llm && \
     export CC=gcc && export CXX=g++ && \
     if [ -z ${COMPILE} ]; then bash tools/env_setup.sh 14; else bash tools/env_setup.sh 10; fi && \
     unset CC && unset CXX
@@ -52,9 +52,10 @@ RUN apt-get update && \
 COPY --from=dev /root/intel-extension-for-pytorch/examples/cpu/llm ./llm
 COPY --from=dev /root/intel-extension-for-pytorch/tools/get_libstdcpp_lib.sh ./llm/tools
 RUN . ~/miniforge3/bin/activate && conda create -y -n py310 python=3.10 && conda activate py310 && \
-    cd /usr/lib/x86_64-linux-gnu/ && ln -s libtcmalloc.so.4 libtcmalloc.so && cd && \
-    cd ./llm && \
-    bash tools/env_setup.sh 9 && \
+    cd /usr/lib/x86_64-linux-gnu/ && ln -s libtcmalloc.so.4 libtcmalloc.so
+
+WORKDIR /root/llm
+RUN bash tools/env_setup.sh 9 && \
     python -m pip cache purge && \
     mv ./oneCCL_release /opt/oneCCL && \
     chown -R root:root /opt/oneCCL && \

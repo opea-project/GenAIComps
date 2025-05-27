@@ -34,13 +34,13 @@ COPY comps/third_parties/wav2lip/src/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git /home/user/comps/animation/src/FFmpeg
 WORKDIR /home/user/comps/animation/src/FFmpeg
 RUN ./configure --enable-gpl --enable-libx264 --enable-cross-compile && \
-    make -j$(nproc-1) && \
+    make -j"$(nproc-1)" && \
     make install && \
     hash -r
-RUN chmod +x $(which ffmpeg)
+RUN chmod +x "$(which ffmpeg)"
 
 # Upgrade pip
-RUN python3 -m pip install --upgrade pip setuptools
+RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools
 
 # Install Wav2Lip from pip
 RUN pip install --no-cache-dir --no-deps Wav2Lipy

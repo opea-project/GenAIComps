@@ -28,9 +28,11 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
     pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.19.0
 
-RUN git clone ${REPO} /root/optimum-habana && \
-    cd /root/optimum-habana && git checkout ${REPO_VER} && \
-    cd /root/comps/text2cypher/src && pip install --no-cache-dir -r requirements.txt && \
+WORKDIR /root/optimum-habana
+RUN git checkout ${REPO_VER}
+
+WORKDIR /root/comps/text2cypher/src
+RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir --upgrade --force-reinstall pydantic numpy==1.26.3
 
 # Set environment variables
@@ -44,5 +46,5 @@ WORKDIR /root/comps/text2cypher/src
 
 RUN echo python opea_text2cypher_microservice.py --device hpu --use_hpu_graphs --bf16 >> run.sh
 
-CMD bash run.sh
+CMD ["bash", "run.sh"]
 
