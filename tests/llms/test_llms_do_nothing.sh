@@ -1,5 +1,8 @@
 
 
+# Copyright (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
 echo "Please check CI for
 tests/llms/test_llms_faq-generation_vllm_on_intel_hpu.sh
 tests/llms/test_llms_text-generation_native_phi4_on_intel_hpu.sh
