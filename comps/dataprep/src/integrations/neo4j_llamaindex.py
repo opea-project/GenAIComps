@@ -94,11 +94,12 @@ class GraphRAGStore(Neo4jPropertyGraphStore):
 
     async def generate_community_summary(self, text):
         """Generate summary for a given text using an LLM.
-        
+
         Token limit handling is automatically managed by the underlying LLM:
         - For OpenAI: Uses OpenAI's built-in token management
-        - For OpenAILike/vLLM: Token limits are managed through the max_tokens parameter 
-          set during LLM initialization (defaults to MAX_OUTPUT_TOKENS env var)"""
+        - For OpenAILike/vLLM: Token limits are managed through the max_tokens parameter
+          set during LLM initialization (defaults to MAX_OUTPUT_TOKENS env var)
+        """
         messages = [
             ChatMessage(
                 role="system",
@@ -484,8 +485,6 @@ def get_attribute_from_tgi_endpoint(url, attribute_name):
     except requests.RequestException as e:
         logger.error(f"Request to {url} failed: {e}")
         return None
-
-
 
 
 logger = CustomLogger("opea_dataprep_neo4j_llamaindex")
