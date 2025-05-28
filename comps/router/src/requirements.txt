@@ -5,8 +5,6 @@ docx2txt
 # Basic web and async
 fastapi
 
-# Include the forked RouteLLM repository
-git+https://github.com/SAPD-Intel/RouteLLM.git
 httpx
 
 # K8s, images, misc
