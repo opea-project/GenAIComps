@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+
 import yaml
 
 from comps import (
@@ -11,8 +12,8 @@ from comps import (
     opea_microservices,
     register_microservice,
 )
-from comps.router.src.integrations.controllers.controller_factory import ControllerFactory
 from comps.cores.proto.api_protocol import RouteEndpointDoc
+from comps.router.src.integrations.controllers.controller_factory import ControllerFactory
 
 # Set up logging
 logger = CustomLogger("opea_router_microservice")
