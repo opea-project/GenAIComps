@@ -26,5 +26,5 @@ config:
     checkpoint_path: "routellm/bert_gpt4_augmented"
 
   mf:
-    checkpoint_path: "madison-evans/routellm-e5-base-v2"
+    checkpoint_path: "OPEA/routellm-e5-base-v2"
     use_openai_embeddings: false
