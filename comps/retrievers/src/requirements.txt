@@ -19,20 +19,16 @@ langchain-vdms>=0.1.4
 langchain_community
 langchain_huggingface
 langchain_milvus
-llama-index-core==0.12.19
+llama-index-core
 llama-index-embeddings-openai
 llama-index-embeddings-text-embeddings-inference
-llama-index-llms-openai==0.3.38
+llama-index-llms-openai
 llama-index-llms-openai-like
 llama-index-llms-text-generation-inference
 llama_index_graph_stores_neo4j
 mariadb
 neo4j
 numpy
-
-openai==1.66.3 # Required by llama-index-llms-openai>=0.3.38
-# To: from llama_index.llms.openai import OpenAI
-# https://github.com/run-llama/llama_index/issues/18823
 opensearch-py
 opentelemetry-api==1.27.0
 opentelemetry-exporter-otlp==1.27.0

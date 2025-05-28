@@ -29,19 +29,18 @@ langchain-vdms>=0.1.4
 langchain_huggingface
 langchain_milvus
 llama-index
-llama-index-core==0.12.19
+llama-index-core
 llama-index-embeddings-text-embeddings-inference
 llama-index-graph-stores-neo4j
-llama-index-llms-openai==0.3.38
+llama-index-llms-openai
 llama-index-llms-openai-like
 mariadb
 markdown
 moviepy
 neo4j
 numpy
-openai==1.66.3 # Required by llama-index-llms-openai>=0.3.38
-# To: from llama_index.llms.openai import OpenAI
 # https://github.com/run-llama/llama_index/issues/18823
+openai==1.81.0
 openai-whisper
 opencv-python
 opensearch-py
