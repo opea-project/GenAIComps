@@ -16,5 +16,7 @@ shortuuid
 # Docker.intel_hpu_phi4 uses Gaudi 1.20.1
 # Support matrix for Gaudi v1.20.1 requires transformers==4.45.2
 # https://docs.habana.ai/en/v1.20.1/Support_Matrix/Support_Matrix.html
-transformers==4.45.2 
+transformers==4.45.2
+# transformers wants numpy>=1.17, but torch wants numpy<2 
+numpy>=1.17,<2.0
 uvicorn
