@@ -1013,3 +1013,6 @@ class FineTuningJobCheckpoint(BaseModel):
 
     step_number: Optional[int] = None
     """The step number that the checkpoint was created at."""
+
+class RouteEndpointDoc(BaseModel):
+    url: str = Field(..., description="URL of the chosen inference endpoint")

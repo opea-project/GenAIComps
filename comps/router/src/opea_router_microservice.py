@@ -1,11 +1,8 @@
 # Copyright (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
 import os
-
 import yaml
-from pydantic import BaseModel, Field
 
 from comps import (
     CustomLogger,
@@ -15,12 +12,7 @@ from comps import (
     register_microservice,
 )
 from comps.router.src.integrations.controllers.controller_factory import ControllerFactory
-
-
-# Data model for endpoint response
-class RouteEndpointDoc(BaseModel):
-    url: str = Field(..., description="URL of the chosen inference endpoint")
-
+from comps.cores.proto.api_protocol import RouteEndpointDoc
 
 # Set up logging
 logger = CustomLogger("opea_router_microservice")
