@@ -148,7 +148,7 @@ class OpeaRedisRetriever(OpeaComponent):
 
         except Exception as e:
             logger.error(f"Redis key check failed: {e}")
-            keys_exist = []
+            keys_exist = False
 
         if not keys_exist:
             if logflag:
