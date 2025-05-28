@@ -36,6 +36,33 @@ $ ./deploy_router.sh
 
 _The service listens on http://localhost:6000 (host‑mapped from container port 6000). Logs stream to STDOUT; use Ctrl‑C to stop or docker compose down to clean up._
 
+## RouteLLM compatibility patch
+
+The upstream **RouteLLM** project is geared toward OpenAI embeddings and GPT-4–augmented
+checkpoints.  
+We include a small patch – `hf_compatibility.patch` – that:
+
+- adds a `hf_token` plumb-through,
+- switches the Matrix-Factorisation router to Hugging Face sentence embeddings,
+- removes hard-coded GPT-4 “golden-label” defaults.
+
+**Container users:**  
+The Dockerfile applies the patch automatically during `docker build`, so you don’t have to do anything.
+
+**Local development:**
+
+```bash
+# 1. Clone upstream RouteLLM
+git clone https://github.com/lm-sys/RouteLLM.git
+cd RouteLLM
+
+# 2. Apply the patch shipped with this repo
+patch -p1 < ../comps/router/src/hf_compatibility.patch
+
+# 3. Install the patched library
+pip install -e .
+```
+
 ## API Usage
 
 | Method | URL         | Body schema                   | Success response                               |
