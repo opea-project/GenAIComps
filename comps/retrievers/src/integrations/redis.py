@@ -144,7 +144,7 @@ class OpeaRedisRetriever(OpeaComponent):
 
         # check if the Redis index has data
         try:
-            keys_exist = client.client.keys()
+            keys_exist = client.client.dbsize() > 0
 
         except Exception as e:
             logger.error(f"Redis key check failed: {e}")
