@@ -34,8 +34,7 @@ from .config import (
     OPENAI_LLM_MODEL,
     TEI_EMBEDDING_ENDPOINT,
     TGI_LLM_ENDPOINT,
-    TGI_LLM_ENDPOINT_KEY
-    
+    TGI_LLM_ENDPOINT_KEY,
 )
 
 logger = CustomLogger("neo4j_retrievers")
