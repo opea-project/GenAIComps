@@ -54,10 +54,10 @@ Then we show how to enable VLLM on Gaudi.
 #### Build docker
 
 ```bash
-bash ./build_docker_vllm.sh hpu
+bash ./build_docker_vllm.sh hpu ub22
 ```
 
-Set `hw_mode` to `hpu`.
+Set `hw_mode` to `hpu`, set `os_version` to `ub22`.
 
 #### Launch vLLM service on single node
 
