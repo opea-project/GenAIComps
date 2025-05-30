@@ -326,7 +326,7 @@ class OpeaArangoRetriever(OpeaComponent):
         # Process Input #
         #################
 
-        input_dict = input.model_dump()
+        input_dict = input.model_dump(exclude_none=True)
         query = input_dict.get("input", input_dict.get("text"))
 
         if not query:
