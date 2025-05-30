@@ -326,7 +326,12 @@ class OpeaArangoRetriever(OpeaComponent):
         # Process Input #
         #################
 
-        query = getattr(input, "input", getattr(input, "text"))
+        query = ""
+        if isinstance(input, RetrievalRequestArangoDB):
+            query = input.input
+        else:
+            query = input.text
+
         if not query:
             if logflag:
                 logger.error("Query is empty.")
