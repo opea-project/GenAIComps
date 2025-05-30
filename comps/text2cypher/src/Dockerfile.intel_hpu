@@ -28,6 +28,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
     pip install --no-cache-dir --upgrade-strategy eager optimum[habana] && \
     pip install --no-cache-dir git+https://github.com/HabanaAI/DeepSpeed.git@1.19.0
 
+RUN git clone ${REPO} /root/optimum-habana
 WORKDIR /root/optimum-habana
 RUN git checkout ${REPO_VER}
 

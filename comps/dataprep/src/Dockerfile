@@ -23,9 +23,9 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends --fix-missin
 # Install ffmpeg static build
 WORKDIR /root
 RUN wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz && \
-mkdir ffmpeg-git-amd64-static && tar -xvf ffmpeg-git-amd64-static.tar.xz -C ffmpeg-git-amd64-static --strip-components 1 && \
-export PATH=/root/ffmpeg-git-amd64-static:$PATH
-WORKDIR /root/ffmpeg-git-amd64-static/ffmpeg /usr/local/bin/
+    mkdir ffmpeg-git-amd64-static && tar -xvf ffmpeg-git-amd64-static.tar.xz -C ffmpeg-git-amd64-static --strip-components 1 && \
+    export PATH=/root/ffmpeg-git-amd64-static:$PATH && \
+    cp /root/ffmpeg-git-amd64-static/ffmpeg /usr/local/bin/
 
 
 RUN useradd -m -s /bin/bash user && \
