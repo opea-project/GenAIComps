@@ -1,0 +1,21 @@
+# Copyright (C) 2025 MariaDB Foundation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  mariadb-server:
+    container_name: mariadb-server
+    image: mariadb:latest
+    ports:
+      - "${MARIADB_PORT:-3306}:3306"
+    restart: always
+    environment:
+      - MARIADB_DATABASE=${MARIADB_DATABASE:-vectordb}
+      - MARIADB_USER=${MARIADB_USER:-dbuser}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD:-password}
+      - MARIADB_RANDOM_ROOT_PASSWORD=1
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
