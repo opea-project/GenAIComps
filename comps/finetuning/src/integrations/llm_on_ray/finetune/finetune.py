@@ -560,7 +560,7 @@ def main(external_config=None):
         }
 
         if config["General"]["gpt_base_model"] is True:
-            runtime_env["pip"] = ["transformers==4.26.0"]
+            runtime_env["pip"] = ["transformers>=4.50.0"]
 
         if device == "gpu":
             num_cpus = resources_per_worker["CPU"] * num_training_workers + 1  # additional 1 for head worker
