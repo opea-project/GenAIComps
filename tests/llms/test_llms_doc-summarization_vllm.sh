@@ -4,6 +4,9 @@
 
 set -xe
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ${SCRIPT_DIR}/llm_utils.sh
+
 IMAGE_REPO=${IMAGE_REPO:-"opea"}
 export REGISTRY=${IMAGE_REPO}
 export TAG="comps"
@@ -42,6 +45,7 @@ function build_docker_images() {
 }
 
 function start_service() {
+    local offline=${1:-false}
     export host_ip=${host_ip}
     export LLM_ENDPOINT_PORT=12107  # 12100-12199
     export DOCSUM_PORT=10507 #10500-10599
@@ -53,6 +57,12 @@ function start_service() {
     export VLLM_SKIP_WARMUP=true
     export LOGFLAG=True
 
+    service_name="docsum-vllm"
+    if [[ "$offline" == "true" ]]; then
+        service_name="docsum-vllm-offline"
+        export offline_no_proxy="${host_ip}"
+        prepare_models ${DATA_PATH} ${LLM_MODEL_ID} gpt2
+    fi
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_doc-summarization.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
@@ -162,11 +172,20 @@ function main() {
     stop_docker
 
     build_docker_images
+
+    trap stop_docker EXIT
+
+    echo "Test normal env ..."
     start_service
-
     validate_microservices
-
     stop_docker
+
+    if [[ -n "${DATA_PATH}" ]]; then
+        echo "Test air gapped env ..."
+        start_service true
+        validate_microservices
+        stop_docker
+    fi
     echo y | docker system prune
 
 }
