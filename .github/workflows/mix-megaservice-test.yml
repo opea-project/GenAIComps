@@ -77,8 +77,8 @@ jobs:
           bash -c "bash /GenAIComps/.github/workflows/scripts/test_ut.sh ${{ env.TEST_NAME }}"
         timeout-minutes: 1
 
-      - name: Clean up When Test Cancelled
-        if: ${{ cancelled() }}
+      - name: Clean up When Test Cancelled or Failed
+        if: ${{ cancelled() || failure() }}
         run: |
           echo "Test was cancelled, cleaning up..."
           docker exec ${{ env.CONTAINER_NAME }} bash -c "rm -rf /GenAIComps/.pytest_cache"
