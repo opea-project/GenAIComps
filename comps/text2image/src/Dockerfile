@@ -21,4 +21,4 @@ WORKDIR /home/comps/text2image/src
 
 RUN echo python opea_text2image_microservice.py --bf16 >> run.sh
 
-CMD bash run.sh
+CMD ["bash", "run.sh"]
