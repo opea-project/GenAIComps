@@ -277,7 +277,11 @@ async def ingest_data_to_redis(doc_path: DocPath, embedder, index_name):
     ### Specially processing for the table content in PDFs
     if doc_path.process_table and path.endswith(".pdf"):
         table_chunks = get_tables_result(path, doc_path.table_strategy)
-        chunks = chunks + table_chunks
+        logger.info(f"[ redis ingest data ] table chunks: {table_chunks}")
+        if table_chunks:
+            chunks = chunks + table_chunks
+        else:
+            logger.info(f"[ redis ingest data ] No table chunks found in {path}.")
     if logflag:
         logger.info(f"[ redis ingest data ] Done preprocessing. Created {len(chunks)} chunks of the given file.")
 
