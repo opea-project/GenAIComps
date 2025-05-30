@@ -28,19 +28,18 @@ RUN curl -fsSL -v -o miniforge.sh -O https://github.com/conda-forge/miniforge/re
     rm miniforge.sh
 
 RUN git clone https://github.com/jianan-gu/sglang -b llama4_optimzed_cpu_r1
-
 WORKDIR /root/sglang
 RUN . ~/miniforge3/bin/activate && conda create -n sglang python=3.10 && conda activate sglang && \
     pip install --no-cache-dir -e "python[all_cpu]" && \
     conda install -y libsqlite=3.48.0 && \
-    pip uninstall -y triton && pip uninstall -y transformers && pip install --no-cache-dir transformers==4.51.1 && \
+    pip uninstall -y triton && pip uninstall -y transformers && pip install --no-cache-dir transformers>=4.50.0 && \
     pip install --no-cache-dir triton==3.1 && pip install --no-cache-dir intel-openmp==2024.2.0 && pip install --no-cache-dir transformers
 
-WORKDIR /root
-RUN git clone https://github.com/vllm-project/vllm.git -b v0.6.4.post1 && apt-get install -y libnuma-dev
+RUN git clone https://github.com/vllm-project/vllm.git -b v0.6.4.post1
 
 WORKDIR /root/vllm
-RUN . ~/miniforge3/bin/activate && conda activate sglang && \
+RUN apt-get install -y libnuma-dev && \
+    . ~/miniforge3/bin/activate && conda activate sglang && \
     pip install --no-cache-dir cmake==3.31.2 wheel packaging ninja "setuptools-scm>=8" numpy nvidia-ml-py && \
     pip install --no-cache-dir -v -r requirements-cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu && \
     VLLM_TARGET_DEVICE=cpu python setup.py develop
@@ -48,9 +47,8 @@ RUN . ~/miniforge3/bin/activate && conda activate sglang && \
 WORKDIR /root/sglang/sgl-kernel
 RUN . ~/miniforge3/bin/activate && conda activate sglang && python setup.py install
 
-WORKDIR /root
-RUN . ~/miniforge3/bin/activate && conda activate sglang && \
-    pip uninstall -y torch torchvision && \
+WORKDIR /root/sglang
+RUN . ~/miniforge3/bin/activate && conda activate sglang && pip uninstall -y torch torchvision && \
     pip install --no-cache-dir torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu && \
     conda install -y gperftools gcc=11 gxx=11 cxx-compiler -c conda-forge
 
