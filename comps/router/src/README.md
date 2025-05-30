@@ -1,3 +1,5 @@
+# Router Microservice
+
 > Location: comps/router/src/README.md
 
 A lightweight HTTP service that routes incoming text prompts to the most appropriate LLM back‑end (e.g. strong vs weak) and returns the target inference endpoint. It is built on the OPEA micro‑service SDK and can switch between two controller back‑ends:
