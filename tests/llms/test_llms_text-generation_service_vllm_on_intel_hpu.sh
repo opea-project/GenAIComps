@@ -54,7 +54,16 @@ function start_service() {
     cd $WORKPATH/comps/llms/deployment/docker_compose
     docker compose -f compose_text-generation.yaml up ${service_name} -d > ${LOG_PATH}/start_services_with_compose.log
 
+    echo "Waiting for services to start..."
     sleep 30s
+
+    # Check if vllm-gaudi-server container is running
+    if ! docker ps | grep -q "vllm-gaudi-server"; then
+        echo "vllm-gaudi-server failed to start. Showing logs:"
+        # will show logs even if it failed to start.
+        docker compose -f compose_text-generation.yaml logs vllm-gaudi-server
+        exit 1
+    fi
 }
 
 function validate_services() {
