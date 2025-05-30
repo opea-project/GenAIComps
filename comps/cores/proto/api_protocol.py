@@ -232,6 +232,7 @@ class RetrievalRequest(BaseModel):
 class RetrievalRequestArangoDB(RetrievalRequest):
     graph_name: str | None = None
     search_start: str | None = None  # "node", "edge", "chunk"
+    search_type: str | None = None  # "vector", "hybrid"
     num_centroids: int | None = None
     distance_strategy: str | None = None  #  # "COSINE", "EUCLIDEAN_DISTANCE"
     use_approx_search: bool | None = None
@@ -241,7 +242,6 @@ class RetrievalRequestArangoDB(RetrievalRequest):
     traversal_max_returned: int | None = None
     traversal_score_threshold: float | None = None
     traversal_query: str | None = None
-
 
 class RetrievalResponseData(BaseModel):
     text: str
