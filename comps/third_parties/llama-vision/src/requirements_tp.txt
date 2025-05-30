@@ -8,5 +8,5 @@ opentelemetry-sdk
 prometheus-fastapi-instrumentator
 pydantic==2.9.2
 shortuuid
-transformers==4.48.0
+transformers>=4.50.0
 uvicorn

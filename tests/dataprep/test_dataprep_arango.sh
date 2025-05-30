@@ -48,8 +48,8 @@ function start_service() {
     export LLM_ENDPOINT_PORT=${LLM_ENDPOINT_PORT:-8008}
     export VLLM_API_KEY="${VLLM_API_KEY:-EMPTY}"
     export VLLM_ENDPOINT="${VLLM_ENDPOINT:-http://vllm-server:80}"
-    export VLLM_MODEL_ID="${VLLM_MODEL_ID:-Intel/neural-chat-7b-v3-3}"
-    export LLM_MODEL_ID="${LLM_MODEL_ID:-Intel/neural-chat-7b-v3-3}"
+    export VLLM_MODEL_ID="${VLLM_MODEL_ID:-meta-llama/Meta-Llama-3-8B-Instruct}"
+    export LLM_MODEL_ID="${LLM_MODEL_ID:-meta-llama/Meta-Llama-3-8B-Instruct}"
     export HF_TOKEN="${HF_TOKEN:-EMPTY}"
     export HuggingFaceHub_API_TOKEN="${HF_TOKEN:-EMPTY}"
 
