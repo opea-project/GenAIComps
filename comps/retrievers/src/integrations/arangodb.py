@@ -326,11 +326,8 @@ class OpeaArangoRetriever(OpeaComponent):
         # Process Input #
         #################
 
-        query = ""
-        if hasattr(input, "input"):
-            query = input.input
-        else:
-            query = input.text
+        input_dict = input.model_dump()
+        query = input_dict.get("input", input_dict.get("text"))
 
         if not query:
             if logflag:
@@ -339,18 +336,18 @@ class OpeaArangoRetriever(OpeaComponent):
             return []
 
         embedding = input.embedding if isinstance(input.embedding, list) else None
-        graph_name = getattr(input, "graph_name", ARANGO_GRAPH_NAME)
-        search_start = getattr(input, "search_start", ARANGO_SEARCH_START)
-        search_type = getattr(input, "search_type", ARANGO_SEARCH_TYPE)
-        enable_traversal = getattr(input, "enable_traversal", ARANGO_TRAVERSAL_ENABLED)
-        enable_summarizer = getattr(input, "enable_summarizer", SUMMARIZER_ENABLED)
-        distance_strategy = getattr(input, "distance_strategy", ARANGO_DISTANCE_STRATEGY)
-        use_approx_search = getattr(input, "use_approx_search", ARANGO_USE_APPROX_SEARCH)
-        num_centroids = getattr(input, "num_centroids", ARANGO_NUM_CENTROIDS)
-        traversal_max_depth = getattr(input, "traversal_max_depth", ARANGO_TRAVERSAL_MAX_DEPTH)
-        traversal_max_returned = getattr(input, "traversal_max_returned", ARANGO_TRAVERSAL_MAX_RETURNED)
-        traversal_score_threshold = getattr(input, "traversal_score_threshold", ARANGO_TRAVERSAL_SCORE_THRESHOLD)
-        traversal_query = getattr(input, "traversal_query", ARANGO_TRAVERSAL_QUERY)
+        graph_name = input_dict.get("graph_name", ARANGO_GRAPH_NAME)
+        search_start = input_dict.get("search_start", ARANGO_SEARCH_START)
+        search_type = input_dict.get("search_type", ARANGO_SEARCH_TYPE)
+        enable_traversal = input_dict.get("enable_traversal", ARANGO_TRAVERSAL_ENABLED)
+        enable_summarizer = input_dict.get("enable_summarizer", SUMMARIZER_ENABLED)
+        distance_strategy = input_dict.get("distance_strategy", ARANGO_DISTANCE_STRATEGY)
+        use_approx_search = input_dict.get("use_approx_search", ARANGO_USE_APPROX_SEARCH)
+        num_centroids = input_dict.get("num_centroids", ARANGO_NUM_CENTROIDS)
+        traversal_max_depth = input_dict.get("traversal_max_depth", ARANGO_TRAVERSAL_MAX_DEPTH)
+        traversal_max_returned = input_dict.get("traversal_max_returned", ARANGO_TRAVERSAL_MAX_RETURNED)
+        traversal_score_threshold = input_dict.get("traversal_score_threshold", ARANGO_TRAVERSAL_SCORE_THRESHOLD)
+        traversal_query = input_dict.get("traversal_query", ARANGO_TRAVERSAL_QUERY)
 
         if not graph_name:
             raise HTTPException(
