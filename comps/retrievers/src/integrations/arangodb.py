@@ -327,7 +327,7 @@ class OpeaArangoRetriever(OpeaComponent):
         #################
 
         query = ""
-        if isinstance(input, RetrievalRequestArangoDB):
+        if hasattr(input, "input"):
             query = input.input
         else:
             query = input.text
