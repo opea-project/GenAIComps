@@ -29,7 +29,7 @@ services:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       INDEX_NAME: ${INDEX_NAME}
-      HUGGINGFACEHUB_API_TOKEN: ${HF_TOKEN}
+      HF_TOKEN: ${HF_TOKEN}
       HF_TOKEN: ${HF_TOKEN}
       LOGFLAG: ${LOGFLAG:-False}
       HABANA_VISIBLE_DEVICES: all

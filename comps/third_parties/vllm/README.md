@@ -203,7 +203,7 @@ cd GenAIComps/comps/third_parties/vllm/deployment/docker_compose
 # IP port for vLLM service
 export VLLM_SERVICE_PORT=8011
 # HF token
-export HUGGINGFACEHUB_API_TOKEN="your_hf_token"
+export HF_TOKEN="your_hf_token"
 # Cache dir
 export HF_CACHE_DIR="./data"
 # Model

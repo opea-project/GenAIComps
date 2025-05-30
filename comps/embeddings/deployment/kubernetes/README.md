@@ -7,5 +7,5 @@
 
 ```
 export HFTOKEN="insert-your-huggingface-token-here"
-helm install embedding-usvc oci://ghcr.io/opea-project/charts/embedding-usvc --set global.HUGGINGFACEHUB_API_TOKEN=${HFTOKEN} -f cpu-values.yaml
+helm install embedding-usvc oci://ghcr.io/opea-project/charts/embedding-usvc --set global.HF_TOKEN=${HFTOKEN} -f cpu-values.yaml
 ```

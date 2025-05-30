@@ -160,7 +160,7 @@ docker run -d \
   -e https_proxy=$https_proxy \
   -e no_proxy=$no_proxy \
   -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT \
-  -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN \
+  -e HF_TOKEN=$HF_TOKEN \
   opea/guardrails:latest
 ```
 
@@ -175,7 +175,7 @@ docker run -d \
   -e https_proxy=$https_proxy \
   -e no_proxy=$no_proxy \
   -e SAFETY_GUARD_ENDPOINT=$SAFETY_GUARD_ENDPOINT \
-  -e HUGGINGFACEHUB_API_TOKEN=$HF_TOKEN \
+  -e HF_TOKEN=$HF_TOKEN \
   -e GUARDRAILS_COMPONENT_NAME="OPEA_WILD_GUARD" \
   opea/guardrails:latest
 ```

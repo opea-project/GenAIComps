@@ -52,7 +52,7 @@ class OpeaOVMSReranking(OpeaComponent):
         headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
         return AsyncInferenceClient(
             model=MODEL_ID,
-            token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+            token=os.getenv("HF_TOKEN"),
             headers=headers,
         )
 
