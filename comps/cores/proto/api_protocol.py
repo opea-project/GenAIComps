@@ -243,6 +243,7 @@ class RetrievalRequestArangoDB(RetrievalRequest):
     traversal_score_threshold: float | None = None
     traversal_query: str | None = None
 
+
 class RetrievalResponseData(BaseModel):
     text: str
     metadata: Optional[Dict[str, Any]] = None
