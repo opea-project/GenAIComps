@@ -66,10 +66,10 @@ function validate_microservice() {
     sleep 1m
 
     test_embedding="[0.1, 0.2, 0.3, 0.4, 0.5]"
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL")
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -d "{\"input\":\"test\",\"embedding\":${test_embedding},\"graph_name\":\"GRAPH\"}" -H 'Content-Type: application/json' "$URL")
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "[ retriever ] HTTP status is 200. Checking content..."
-        local CONTENT=$(curl -s -X POST -d "{\"text\":\"test\",\"embedding\":${test_embedding}}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
+        local CONTENT=$(curl -s -X POST -d "{\"input\":\"test\",\"embedding\":${test_embedding},\"graph_name\":\"GRAPH\"}" -H 'Content-Type: application/json' "$URL" | tee ${LOG_PATH}/retriever.log)
 
         if echo "$CONTENT" | grep -q "retrieved_docs"; then
             echo "[ retriever ] Content is as expected."
