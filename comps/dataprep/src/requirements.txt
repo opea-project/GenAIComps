@@ -61,7 +61,7 @@ python-bidi
 python-docx
 python-pptx
 qdrant-client
-redis
+redis==5.2.1
 scipy
 sentence_transformers
 shortuuid
