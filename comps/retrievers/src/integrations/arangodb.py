@@ -331,7 +331,7 @@ class OpeaArangoRetriever(OpeaComponent):
 
         if not query:
             if logflag:
-                logger.error("Query is empty.")
+                logger.error("Query is empty. Please provide a valid query.")
 
             return []
 
