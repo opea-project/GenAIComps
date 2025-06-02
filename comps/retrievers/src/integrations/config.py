@@ -205,6 +205,7 @@ ARANGO_DISTANCE_STRATEGY = os.getenv("ARANGO_DISTANCE_STRATEGY", "COSINE")
 ARANGO_USE_APPROX_SEARCH = os.getenv("ARANGO_USE_APPROX_SEARCH", "false").lower() == "true"
 ARANGO_NUM_CENTROIDS = os.getenv("ARANGO_NUM_CENTROIDS", 1)
 ARANGO_SEARCH_START = os.getenv("ARANGO_SEARCH_START", "node")
+ARANGO_SEARCH_TYPE = os.getenv("ARANGO_SEARCH_TYPE", "vector")
 
 # ArangoDB Traversal configuration
 ARANGO_TRAVERSAL_ENABLED = os.getenv("ARANGO_TRAVERSAL_ENABLED", "false").lower() == "true"
