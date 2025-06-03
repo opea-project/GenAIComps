@@ -30,7 +30,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools && \
 
 RUN git clone ${REPO} /root/optimum-habana
 WORKDIR /root/optimum-habana
-RUN git checkout ${REPO_VER}
+RUN git fetch --depth=1 origin ${REPO_VER} && \
+    git checkout ${REPO_VER}
 
 WORKDIR /root/comps/text2cypher/src
 RUN pip install --no-cache-dir -r requirements.txt && \

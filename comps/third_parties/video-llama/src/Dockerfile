@@ -36,10 +36,9 @@ WORKDIR /home/user/comps/third_parties/video-llama/src/Video-LLaMA
 RUN git fetch --depth=1 origin ${VIDEO_LLAMA_COMMIT} && \
     git checkout ${VIDEO_LLAMA_COMMIT} && \
     git apply --whitespace=fix ../video-llama.patch && \
-    mv video_llama ../
-
-WORKDIR /home/user/comps/third_parties/video-llama/src
-RUN rm -rf Video-LLaMA
+    mv video_llama ../ && \
+    cd .. && \
+    rm -rf Video-LLaMA
 
 # Modify the degradations.py file to import rgb_to_grayscale from torchvision.transforms.functional
 RUN sed -i 's/from torchvision.transforms.functional_tensor import rgb_to_grayscale/from torchvision.transforms.functional import rgb_to_grayscale/' /usr/local/lib/python3.11/site-packages/pytorchvideo/transforms/augmentations.py && \
