@@ -27,6 +27,7 @@ llama-index-llms-openai-like
 llama-index-llms-text-generation-inference
 llama_index_graph_stores_neo4j
 mariadb
+mcp
 neo4j
 numpy
 opensearch-py
