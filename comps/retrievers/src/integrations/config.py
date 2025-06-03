@@ -205,6 +205,7 @@ ARANGO_DISTANCE_STRATEGY = os.getenv("ARANGO_DISTANCE_STRATEGY", "COSINE")
 ARANGO_USE_APPROX_SEARCH = os.getenv("ARANGO_USE_APPROX_SEARCH", "false").lower() == "true"
 ARANGO_NUM_CENTROIDS = os.getenv("ARANGO_NUM_CENTROIDS", 1)
 ARANGO_SEARCH_START = os.getenv("ARANGO_SEARCH_START", "node")
+ARANGO_SEARCH_TYPE = os.getenv("ARANGO_SEARCH_TYPE", "vector")
 
 # ArangoDB Traversal configuration
 ARANGO_TRAVERSAL_ENABLED = os.getenv("ARANGO_TRAVERSAL_ENABLED", "false").lower() == "true"
@@ -237,3 +238,9 @@ OPENAI_CHAT_MAX_TOKENS = os.getenv("OPENAI_CHAT_MAX_TOKENS")
 OPENAI_EMBED_MODEL = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
 OPENAI_CHAT_ENABLED = os.getenv("OPENAI_CHAT_ENABLED", "true").lower() == "true"
 OPENAI_EMBED_ENABLED = os.getenv("OPENAI_EMBED_ENABLED", "true").lower() == "true"
+
+#######################################################
+#                     MariaDB Vector                  #
+#######################################################
+MARIADB_CONNECTION_URL = os.getenv("MARIADB_CONNECTION_URL", "localhost")
+MARIADB_COLLECTION_NAME = os.getenv("MARIADB_COLLECTION_NAME", "rag_mariadbvector")
