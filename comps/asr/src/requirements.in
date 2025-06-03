@@ -3,6 +3,7 @@ aiohttp
 datasets
 docarray[full]
 fastapi
+faster-whisper
 mcp
 opentelemetry-api
 opentelemetry-exporter-otlp
